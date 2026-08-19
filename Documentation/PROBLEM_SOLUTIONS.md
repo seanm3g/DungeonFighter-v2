@@ -4,6 +4,19 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Flavor: animal creature-tier taunts were quoted spoken English (August 2026)
+**Problem:** Live fights attributed quoted English to animals (`enemyTaunt_nativeFauna` / `feralStock`, e.g. Spider: `"{player}, you're bleeding and you don't even know it yet."`). Awkward/unclear `enemyDefeated_nativeFauna` and `criticalMiss_nativeFauna` lines, plus a duplicated `"I don't need long for this"` phrase across the generic `enemyTaunt` bank and the nativeFauna taunt bank.
+
+**Root cause:** Creature-tier taunt copy was authored as spoken dialogue. `nativeFauna` / `feralStock` are animals; only `technoEcho` (formerly-human / constructed) should speak.
+
+**Solutions:**
+1. Rewrote `enemyTaunt_nativeFauna` / `enemyTaunt_feralStock` as non-verbal growls, snarls, and body language (4 lines each)
+2. Kept `enemyTaunt_technoEcho` as quoted `"..." {name} says` dialogue and added a fourth line
+3. Clarified `enemyDefeated_nativeFauna`, `criticalMiss_nativeFauna`, and `below50Percent_nativeFauna`
+4. `TauntSystem.ApplyTauntPlaceholders` still fills `{name}` / `{player}` on the tier-taunt path
+
+**Related files:** `Scripts/apply-flavor-content-package.py`, `GameData/FlavorText.json`, `BattleNarrativeTests.cs`, `BattleEventAnalyzerTests.cs`
+
 ### Flavor: firstBlood_{tier} copy is victim-oriented (August 2026)
 **Problem:** Player first-hit (e.g. Gavin Quickstrike vs Magma Beast) still selected `firstBlood_{enemy.CreatureTier}`, but the old lines treated `{name}` as the attacker ("{name} draws blood", "like {name} measured it first"), so Magma Beast sounded like it had struck.
 
@@ -52,6 +65,8 @@ This document contains solutions to common problems encountered during developme
 5. Forest overflow follow-up: `locationDescriptions` #2/#4 and Forest/sanctum #3 exceeded the 152-char display cap as single lines; those banks were split in `apply-flavor-content-package.py` (9 location lines, 4 sanctum lines) and re-synced. A second pass split Forest/shrine #2 and Forest/treasure #2 (both now 4 lines). Tests assert every Forest locationDescriptions line and every Forest/{armory,boss,chamber,kitchen,library,sanctum,shrine,treasure} line is `<= 152`.
 
 **Related files:** `RoomInfoBuilder.cs`, `FlavorLocationResolver.cs`, `Scripts/apply-flavor-content-package.py`
+
+**Spawn vs flavor (Max/Sean sign-off — do not implement):** The Abyssal Depths / Sand Dune / Multiverse Hall *copy* mismatch is the flavor resolver. The *spawn* leak is separate: every `Rooms.json` row has a blank `biome`, so `HasUniversalBiome` + `RoomLoader.GetRoomsByTheme` returns the full catalog in every dungeon (`RoomGenerator`). Unused `GetThemeSpecificRooms()` is not the spawn path. Sand Dune in Crypt still has `Environment.Theme = Crypt` but flavor biome `Desert` via alias `dune`. Likely fix is tagging `Rooms.json` and filtering to the active dungeon theme — an architecture decision that affects every dungeon. Do not change `Rooms.json`, `RoomLoader`, or `RoomGenerator` until Max/Sean sign off.
 
 ### Bug fix: Closing the window left DF.exe locked (August 2026)
 **Problem:** Hitting the title-bar **X** closed the UI but `DF.exe` often stayed alive, so the next build failed with `MSB3026` (`DF.exe` locked by process `DF`).

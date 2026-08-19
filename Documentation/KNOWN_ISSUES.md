@@ -9,6 +9,17 @@ Track of known problems, their status, and potential solutions.
 
 ## High Priority Issues
 
+### Issue: Blank Rooms.json biome makes every catalog room universal
+**Status**: ⏳ NEEDS SIGN-OFF (Max/Sean) — architecture decision; **do not implement**
+**Priority**: HIGH
+**Description**: Multiverse Hall can spawn in Forest and Sand Dune in Haunted Crypt because every `Rooms.json` row has a blank `biome`. `RoomData.HasUniversalBiome` treats blank as “any dungeon,” so `RoomLoader.GetRoomsByTheme` returns the full catalog (~80 unique rooms) for every theme. `RoomGenerator` uses that list. The hardcoded `GetThemeSpecificRooms()` dictionary is unused by generation.
+
+**Not a flavor-content bug.** `CreateRoom` still sets `Environment.Theme` to the active dungeon theme. `FlavorLocationResolver` is a separate lookup: Sand Dune in Crypt keeps `Environment.Theme = Crypt` but flavor biome `Desert` via name alias `dune`.
+
+**Likely fix (do not start):** tag `Rooms.json` entries with biome/theme and filter selection to the active dungeon. That changes generation across every dungeon.
+
+**Do not change** `Rooms.json`, `RoomLoader`, or `RoomGenerator` until Max/Sean sign off.
+
 ### Issue: NullReferenceException in DungeonSelectionRenderer
 **Status**: ✅ RESOLVED (November 20, 2025)
 **Priority**: HIGH

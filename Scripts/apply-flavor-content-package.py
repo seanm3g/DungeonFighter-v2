@@ -621,7 +621,7 @@ COMBAT_NARRATIVES: dict[str, list[str]] = {
     ],
     "criticalMiss_nativeFauna": [
         "{name} overreaches and stumbles, plain and animal about it.",
-        "The swing from {name} goes wide, and for a second it looks almost embarrassed.",
+        "{name}'s swing goes wide, and for a second it overcorrects, legs tangling under it.",
         "{name} misses clean, off-balance, breathing hard.",
     ],
     "criticalMiss_feralStock": [
@@ -637,7 +637,7 @@ COMBAT_NARRATIVES: dict[str, list[str]] = {
     "below50Percent_nativeFauna": [
         "{name} is hurt bad and showing it, breathing hard, favoring one side.",
         "Half of what {name} started with is gone, and it's still coming.",
-        "{name} bleeds the way anything alive bleeds, and keeps moving anyway.",
+        "{name}'s pace hasn't dropped, blood or no blood.",
     ],
     "below50Percent_feralStock": [
         "{name} is hurt, and something in it keeps glancing toward an exit it won't take.",
@@ -666,7 +666,7 @@ COMBAT_NARRATIVES: dict[str, list[str]] = {
     ],
     "enemyDefeated_nativeFauna": [
         "{name} goes down hard and stays down — a real, earned kill, nothing more or less.",
-        "{name} doesn't get back up. It never had anything left to get up with.",
+        "{name} doesn't get back up — it's spent everything it had.",
         "{player} stands over {name}, and there's nothing strange about what's left.",
     ],
     "enemyDefeated_feralStock": [
@@ -680,19 +680,22 @@ COMBAT_NARRATIVES: dict[str, list[str]] = {
         "{name} doesn't get back up, and what's left of it doesn't decay the way it should either.",
     ],
     "enemyTaunt_nativeFauna": [
-        "\"{player}, you're bleeding and you don't even know it yet.\" {name} circles, low and patient.",
-        "\"I don't need long for this, {player}.\" {name} says, unbothered, teeth bared.",
-        "\"{player}, you smell like something already tired.\" {name} watches close.",
+        "{name} circles low and patient, never taking its eyes off {player}.",
+        "{name} snarls, teeth bared, and doesn't back off an inch.",
+        "{name} watches {player} the way something hunts — quiet, unhurried, certain.",
+        "{name} lets out a rough, warning growl, and doesn't stop advancing.",
     ],
     "enemyTaunt_feralStock": [
-        "\"{player}, I don't want to do this, but I will.\" {name} says, voice caught between snarl and hesitation.",
-        "\"You remind me of someone I used to listen to, {player}. Doesn't change what happens next.\" {name} says.",
-        "\"{player}, some part of me still waits for a hand that isn't coming. Yours won't be it.\" {name} says, low.",
+        "{name} circles {player}, movements too controlled for something living wild.",
+        "{name} snarls, and for a moment the sound catches, like it's not used to making it.",
+        "{name} watches {player} with a stillness bred into it, not learned in this fight.",
+        "{name} growls low, holding its ground the way something trained to hold a line does.",
     ],
     "enemyTaunt_technoEcho": [
         "\"This ends however it was always going to end, {player}.\" {name} says, voice too even to be angry.",
         "\"{player}, you're not the first. You won't be the last, and I won't remember either.\" {name} says.",
         "\"I don't tire, {player}. I don't know how.\" {name} says, flat.",
+        "\"{player}, I've done this before. I just don't remember when.\" {name} says, voice flat.",
     ],
 }
 

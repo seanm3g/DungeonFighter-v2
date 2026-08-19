@@ -38,6 +38,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestFirstBloodVictimWordingForPlayerAndEnemyFirstHit();
             TestCreatureTierCritUsesEnemyActorOnly();
             TestEnemyTauntTierBankThenBiomeFallback();
+            TestNativeFaunaCopyFillsOnAnalyzeEvent();
 
             TestBase.PrintSummary("BattleEventAnalyzer Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -489,6 +490,110 @@ namespace RPGGame.Tests.Unit.Combat
                 FlavorTextBankCatalog.SetBank(data, "combatNarratives.enemyTaunt_technoEcho", previous ?? Array.Empty<string>());
                 FlavorTextBankCatalog.SetBank(data, "combatNarratives.enemyTaunt_forest", previousForest ?? Array.Empty<string>());
             }
+        }
+
+        /// <summary>
+        /// Live AnalyzeEvent path for Spider (nativeFauna): crit miss / below50 / defeated
+        /// use the rewritten banks with {name}/{player} filled. Old quoted animal taunts are gone.
+        /// </summary>
+        private static void TestNativeFaunaCopyFillsOnAnalyzeEvent()
+        {
+            Console.WriteLine("\n--- Testing nativeFauna AnalyzeEvent fills rewritten copy ---");
+
+            FlavorText.Reload();
+            EnemyLoader.LoadEnemies();
+            var data = FlavorText.GetData();
+            TestBase.AssertEqual(CreatureTierIds.NativeFauna, EnemyLoader.GetEnemyData("Spider")?.CreatureTier,
+                "Spider should load creatureTier nativeFauna",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(CreatureTierIds.FeralStock, EnemyLoader.GetEnemyData("Wolf")?.CreatureTier,
+                "Wolf should load creatureTier feralStock",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            foreach (var key in new[] { "enemyTaunt_nativeFauna", "enemyTaunt_feralStock" })
+            {
+                TestBase.AssertTrue(
+                    data.CombatNarratives.TryGetValue(key, out var taunts)
+                    && taunts != null
+                    && taunts.All(l => l.IndexOf('"') < 0
+                        && l.IndexOf("you're bleeding and you don't even know it yet", StringComparison.Ordinal) < 0),
+                    $"{key} should not contain quoted spoken animal dialogue",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+
+            var missAnalyzer = new BattleEventAnalyzer(
+                new NarrativeTextProvider(), new NarrativeStateManager(), new TauntSystem(new NarrativeTextProvider()));
+            missAnalyzer.Initialize("Hero", "Spider", "Hall", 100, 100, CreatureTierIds.NativeFauna);
+            var missLines = missAnalyzer.AnalyzeEvent(new BattleEvent
+            {
+                Actor = "Spider",
+                Target = "Hero",
+                IsSuccess = false,
+                NaturalRoll = 1
+            }, GameSettings.Instance);
+            TestBase.AssertTrue(
+                missLines.Any(l => LineEqualsFilledBank(l, "criticalMiss_nativeFauna", ("name", "Spider"))
+                    && l.Contains("Spider", StringComparison.Ordinal)
+                    && !l.Contains("{name}", StringComparison.Ordinal)
+                    && !l.Contains("embarrassed", StringComparison.Ordinal)),
+                "Spider crit miss should fill criticalMiss_nativeFauna",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var belowAnalyzer = new BattleEventAnalyzer(
+                new NarrativeTextProvider(), new NarrativeStateManager(), new TauntSystem(new NarrativeTextProvider()));
+            belowAnalyzer.Initialize("Hero", "Spider", "Hall", 100, 100, CreatureTierIds.NativeFauna);
+            belowAnalyzer.UpdateFinalHealth(100, 40);
+            var belowLines = belowAnalyzer.AnalyzeEvent(new BattleEvent
+            {
+                Actor = "Hero",
+                Target = "Spider",
+                Damage = 10,
+                IsSuccess = true
+            }, GameSettings.Instance);
+            TestBase.AssertTrue(
+                belowLines.Any(l => LineEqualsFilledBank(l, "below50Percent_nativeFauna", ("name", "Spider"))
+                    && l.Contains("Spider", StringComparison.Ordinal)
+                    && !l.Contains("{name}", StringComparison.Ordinal)
+                    && !l.Contains("bleeds the way anything alive bleeds", StringComparison.Ordinal)),
+                "Spider below50 should fill below50Percent_nativeFauna",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var defeatAnalyzer = new BattleEventAnalyzer(
+                new NarrativeTextProvider(), new NarrativeStateManager(), new TauntSystem(new NarrativeTextProvider()));
+            defeatAnalyzer.Initialize("Hero", "Spider", "Hall", 100, 100, CreatureTierIds.NativeFauna);
+            defeatAnalyzer.UpdateFinalHealth(100, 0);
+            var defeatLines = defeatAnalyzer.AnalyzeEvent(new BattleEvent
+            {
+                Actor = "Hero",
+                Target = "Spider",
+                Damage = 10,
+                IsSuccess = true
+            }, GameSettings.Instance);
+            TestBase.AssertTrue(
+                defeatLines.Any(l => LineEqualsFilledBank(l, "enemyDefeated_nativeFauna", ("name", "Spider"), ("player", "Hero"))
+                    && l.Contains("Spider", StringComparison.Ordinal)
+                    && !l.Contains("{name}", StringComparison.Ordinal)
+                    && !l.Contains("{player}", StringComparison.Ordinal)
+                    && !l.Contains("never had anything left to get up with", StringComparison.Ordinal)),
+                "Spider defeat should fill enemyDefeated_nativeFauna",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static bool LineEqualsFilledBank(string line, string key, params (string Token, string Value)[] replacements)
+        {
+            if (string.IsNullOrEmpty(line))
+                return false;
+            if (!FlavorText.GetData().CombatNarratives.TryGetValue(key, out var bank) || bank == null)
+                return false;
+            foreach (var template in bank)
+            {
+                string filled = template;
+                foreach (var (token, value) in replacements)
+                    filled = filled.Replace("{" + token + "}", value);
+                if (string.Equals(line, filled, StringComparison.Ordinal))
+                    return true;
+            }
+            return false;
         }
 
         #endregion

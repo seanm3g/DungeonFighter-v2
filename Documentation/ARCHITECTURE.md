@@ -42,7 +42,7 @@ DungeonFighter/
 - **`Code/Combat/CombatResults.cs`** - Handles UI display and result formatting
 - **`Code/Combat/TurnManager.cs`** - Manages turn-based combat logic
 - **`Code/Combat/BattleNarrative.cs`** - Event-driven battle descriptions. Combat-log lines are `AnalyzeEvent` strings (`GetTriggeredNarrativesIfSignificant`); token banks including `firstBlood_{tier}` go through `ReplacePlaceholders` before that add. firstBlood fires on whichever side strikes first; `{name}` is always the enemy (victim-oriented copy, bank from the enemy's creature tier).
-- **`Code/Combat/TauntSystem.cs`** - Location-specific combat taunts (`playerTaunt_{biome}` / `enemyTaunt_{biome}`). `GetLocationType` matches room display-name substrings: library/study/archive → `library`; water/ocean/sea/underwater → `underwater`; lava/volcano/volcanic/magma/molten/fire → `lava`; crypt/tomb/grave → `crypt`; crystal/geode → `crystal`; temple/shrine/altar → `temple`; forest/grove → `forest`; ice/frozen/frost/glacier/glacial → `ice`; swamp/marsh/bog → `swamp`; else generic. Bare `cave`/`cavern` is not Crystal (Frozen Cavern → ice via `frozen`). `sanctuary` is not Temple (Marsh Sanctuary → swamp via `marsh`). Creature-tier `enemyTaunt_{tier}` is a separate fallback axis.
+- **`Code/Combat/TauntSystem.cs`** - Location-specific combat taunts (`playerTaunt_{biome}` / `enemyTaunt_{biome}`). `GetLocationType` matches room display-name substrings: library/study/archive → `library`; water/ocean/sea/underwater → `underwater`; lava/volcano/volcanic/magma/molten/fire → `lava`; crypt/tomb/grave → `crypt`; crystal/geode → `crystal`; temple/shrine/altar → `temple`; forest/grove → `forest`; ice/frozen/frost/glacier/glacial → `ice`; swamp/marsh/bog → `swamp`; else generic. Bare `cave`/`cavern` is not Crystal (Frozen Cavern → ice via `frozen`). `sanctuary` is not Temple (Marsh Sanctuary → swamp via `marsh`). Creature-tier `enemyTaunt_{tier}` is a separate fallback axis (`ApplyTauntPlaceholders`). `nativeFauna` / `feralStock` taunts are non-verbal (growls, snarls, body language); `technoEcho` stays quoted spoken dialogue.
 - **`Code/Combat/BattleHealthTracker.cs`** - Health tracking for battle narrative system
 
 ### **Character System (Refactored Architecture)**
@@ -248,8 +248,8 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/World/StatusEffectManager.cs`** - Manages status effects and their application
 - **`Code/World/DamageEffectManager.cs`** - Manages damage effects and calculations
 - **`Code/World/DebuffEffectManager.cs`** - Manages debuff effects and their application
-- **`Code/Data/RoomGenerator.cs`** - Creates room layouts and content
-- **`Code/Data/RoomLoader.cs`** - Loads room data from JSON files
+- **`Code/Data/RoomGenerator.cs`** - Creates room layouts and content. Live spawn picks from `RoomLoader.GetRoomsByTheme` (biome match **or** blank/`HasUniversalBiome`). Does **not** use `GetThemeSpecificRooms()`.
+- **`Code/Data/RoomLoader.cs`** - Loads `Rooms.json`. Blank `biome` = universal catalog (`HasUniversalBiome`). **Max/Sean sign-off:** every live row is currently blank, so any of the ~80 catalog rooms can spawn in any dungeon (Multiverse Hall in Forest, Sand Dune in Crypt). Likely fix is tagging entries and filtering to the active dungeon theme — do not implement until signed off; do not change these files as a flavor-content task.
 
 ### **Items & Equipment System**
 - **`Code/Items/Item.cs`** - Base item class with tier scaling and properties
@@ -308,7 +308,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/Game/Display/Dungeon/`** - Extracted components:
   - **`DungeonHeaderBuilder.cs`** - Builds dungeon header display
   - **`RoomInfoBuilder.cs`** - Builds room information display: Rooms.json description, then one appended flavor line (`roomContexts` for `{biome}/{roomType}` when that bank exists, otherwise `locationDescriptions`). Each line must fit `DisplayBuffer`/`BufferStorage` `maxLineWidth` (152).
-  - **`Code/Utils/FlavorLocationResolver.cs`** - Resolves FlavorText location/room-context keys from room tags → display name → dungeon theme; room type from authored `RoomType` or display-name tokens (`kitchen`, `library`, …)
+  - **`Code/Utils/FlavorLocationResolver.cs`** - Resolves FlavorText location/room-context keys from room tags → display name → dungeon theme; room type from authored `RoomType` or display-name tokens (`kitchen`, `library`, …). Separate from spawn: `CreateRoom` still sets `Environment.Theme` to the dungeon theme; flavor biome can leak via name alias (Sand Dune in Crypt → `Desert` via `dune`, so `Crypt/chamber` is never consulted).
   - **`EnemyInfoBuilder.cs`** - Builds enemy information display
   - **`DungeonDisplayBuffer.cs`** - Manages display buffer for dungeon information
 

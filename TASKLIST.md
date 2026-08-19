@@ -2,7 +2,13 @@
 
 This file tracks the work currently in progress. Only items listed here should be modified/implemented.
 
+## Needs sign-off (do not implement)
+
+- [ ] **Architecture / Max+Sean — Rooms.json blank biome = universal spawn catalog:** Every `Rooms.json` row has a blank `biome`, so `RoomData.HasUniversalBiome` is true and `RoomLoader.GetRoomsByTheme` returns the full catalog (~80 unique rooms) for every dungeon. That is why Multiverse Hall can spawn in Forest and Sand Dune in Haunted Crypt. Generation uses `RoomGenerator` → `GetRoomsByTheme` only; the unused `GetThemeSpecificRooms()` dictionary is **not** the spawn path. Flavor is separate from spawn: `CreateRoom` still sets `Environment.Theme` to the dungeon theme (Crypt), but `FlavorLocationResolver` can pick another flavor biome from the display name (Sand Dune → `Desert` via alias `dune`; `Crypt/chamber` is never consulted). Likely fix: tag `Rooms.json` entries with biome/theme and filter selection to the active dungeon — that changes generation across every dungeon. **Do not implement until Max/Sean sign off.** Not a flavor-content task; do not change `Rooms.json`, `RoomLoader`, or `RoomGenerator` as part of Crypt copy work.
+
 ## Active
+
+- [x] **Combat / flavor — creature-tier animal taunts non-verbal:** Rewrote `enemyTaunt_nativeFauna` / `feralStock` as growls/snarls/body language (animals don't speak English); `enemyTaunt_technoEcho` stays quoted dialogue (4 lines). Clarified `enemyDefeated_nativeFauna`, `criticalMiss_nativeFauna`, `below50Percent_nativeFauna`. Pipeline: `apply-flavor-content-package.py` → Excel `flavor` sheet → `sync-flavor-text-from-xlsx.py --write`. Tests: `BattleNarrativeTests`, `BattleEventAnalyzerTests`. Docs: `ARCHITECTURE.md`, `CODE_PATTERNS.md`, `PROBLEM_SOLUTIONS.md`.
 
 - [x] **Combat / flavor — firstBlood_{tier} victim wording:** Rewrote `firstBlood_nativeFauna` / `feralStock` / `technoEcho` so `{name}` (always the enemy) is the one marked/cut, not the attacker. firstBlood still fires on whichever side strikes first; bank is still the enemy's tier. Pipeline: `apply-flavor-content-package.py` → Excel `flavor` sheet → `sync-flavor-text-from-xlsx.py --write`. Tests: `BattleEventAnalyzerTests`, `BattleNarrativeTests`. Docs: `CODE_PATTERNS.md`, `PROBLEM_SOLUTIONS.md`.
 

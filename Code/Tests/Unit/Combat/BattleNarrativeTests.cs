@@ -41,6 +41,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestBiomeTauntBanksLoadAndSelectFromRealRooms();
             TestIceAndSwampRoomsRouteToIceAndSwampTaunts();
             TestCreatureTierBanksLoadAndSelectForRealEnemies();
+            TestCreatureTierAnimalTauntsAreNonVerbal();
             TestFirstBloodTechnoEchoFillsNameOnDisplayPath();
             TestFirstBloodPlayerHitVictimWordingOnDisplayPath();
 
@@ -564,11 +565,12 @@ namespace RPGGame.Tests.Unit.Combat
                 foreach (var bank in CreatureTierIds.NarrativeBanks)
                 {
                     string key = CreatureTierIds.SuffixedBank(bank, tier);
+                    int expectedCount = bank == "enemyTaunt" ? 4 : 3;
                     TestBase.AssertTrue(
                         data.CombatNarratives.TryGetValue(key, out var lines)
-                        && lines != null && lines.Length == 3
+                        && lines != null && lines.Length == expectedCount
                         && lines.All(l => !string.IsNullOrWhiteSpace(l)),
-                        $"{key} should load 3 authored lines",
+                        $"{key} should load {expectedCount} authored lines",
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                     if (bank == "enemyTaunt")
@@ -598,6 +600,121 @@ namespace RPGGame.Tests.Unit.Combat
                     $"{enemyName} enemy taunt should come from {tauntKey}, not generic",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        /// <summary>
+        /// Animals don't speak. nativeFauna / feralStock enemyTaunt is non-verbal body language;
+        /// technoEcho stays quoted dialogue. Also pins the rewritten nativeFauna defeat/miss/below50 copy.
+        /// </summary>
+        private static void TestCreatureTierAnimalTauntsAreNonVerbal()
+        {
+            Console.WriteLine("\n--- Testing creature-tier animal taunts are non-verbal ---");
+
+            FlavorText.Reload();
+            EnemyLoader.LoadEnemies();
+            var data = FlavorText.GetData();
+            var textProvider = new NarrativeTextProvider();
+            var tauntSystem = new TauntSystem(textProvider);
+            var settings = new GameSettings { NarrativeBalance = 0 };
+            int tauntActions = tauntSystem.GetEnemyTauntThreshold(0, settings);
+
+            AssertExactCombatBank(data, "enemyTaunt_nativeFauna",
+                "{name} circles low and patient, never taking its eyes off {player}.",
+                "{name} snarls, teeth bared, and doesn't back off an inch.",
+                "{name} watches {player} the way something hunts — quiet, unhurried, certain.",
+                "{name} lets out a rough, warning growl, and doesn't stop advancing.");
+            AssertExactCombatBank(data, "enemyTaunt_feralStock",
+                "{name} circles {player}, movements too controlled for something living wild.",
+                "{name} snarls, and for a moment the sound catches, like it's not used to making it.",
+                "{name} watches {player} with a stillness bred into it, not learned in this fight.",
+                "{name} growls low, holding its ground the way something trained to hold a line does.");
+            AssertExactCombatBank(data, "enemyTaunt_technoEcho",
+                "\"This ends however it was always going to end, {player}.\" {name} says, voice too even to be angry.",
+                "\"{player}, you're not the first. You won't be the last, and I won't remember either.\" {name} says.",
+                "\"I don't tire, {player}. I don't know how.\" {name} says, flat.",
+                "\"{player}, I've done this before. I just don't remember when.\" {name} says, voice flat.");
+            AssertExactCombatBank(data, "enemyDefeated_nativeFauna",
+                "{name} goes down hard and stays down — a real, earned kill, nothing more or less.",
+                "{name} doesn't get back up — it's spent everything it had.",
+                "{player} stands over {name}, and there's nothing strange about what's left.");
+            AssertExactCombatBank(data, "criticalMiss_nativeFauna",
+                "{name} overreaches and stumbles, plain and animal about it.",
+                "{name}'s swing goes wide, and for a second it overcorrects, legs tangling under it.",
+                "{name} misses clean, off-balance, breathing hard.");
+            AssertExactCombatBank(data, "below50Percent_nativeFauna",
+                "{name} is hurt bad and showing it, breathing hard, favoring one side.",
+                "Half of what {name} started with is gone, and it's still coming.",
+                "{name}'s pace hasn't dropped, blood or no blood.");
+
+            foreach (var key in new[] { "enemyTaunt_nativeFauna", "enemyTaunt_feralStock" })
+            {
+                TestBase.AssertTrue(
+                    data.CombatNarratives.TryGetValue(key, out var lines)
+                    && lines != null
+                    && lines.All(l => l.IndexOf('"') < 0
+                        && l.IndexOf("{name} says", StringComparison.Ordinal) < 0
+                        && l.IndexOf("you're bleeding and you don't even know it yet", StringComparison.Ordinal) < 0),
+                    $"{key} must be non-verbal (no quoted spoken dialogue)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+
+            TestBase.AssertTrue(
+                data.CombatNarratives.TryGetValue("enemyTaunt_technoEcho", out var techno)
+                && techno != null
+                && techno.All(l => l.Contains("\"") && l.Contains("{name} says", StringComparison.Ordinal)),
+                "enemyTaunt_technoEcho should stay quoted spoken dialogue",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var (spiderTauntOk, spiderTaunt) = tauntSystem.CheckEnemyTaunt(
+                tauntActions, 0, "Spider", "Hero", "Hall", settings, CreatureTierIds.NativeFauna);
+            TestBase.AssertTrue(
+                spiderTauntOk
+                && LineEqualsFilledBank(spiderTaunt, "enemyTaunt_nativeFauna", ("name", "Spider"), ("player", "Hero"))
+                && spiderTaunt.Contains("Spider", StringComparison.Ordinal)
+                && spiderTaunt.Contains("Hero", StringComparison.Ordinal)
+                && !spiderTaunt.Contains("{name}", StringComparison.Ordinal)
+                && !spiderTaunt.Contains("{player}", StringComparison.Ordinal)
+                && spiderTaunt.IndexOf('"') < 0
+                && spiderTaunt.IndexOf(" says", StringComparison.Ordinal) < 0,
+                "Spider taunt should fill enemyTaunt_nativeFauna via ApplyTauntPlaceholders with no spoken dialogue",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            Console.WriteLine($"    Spider taunt: {spiderTaunt}");
+
+            var (wolfTauntOk, wolfTaunt) = tauntSystem.CheckEnemyTaunt(
+                tauntActions, 0, "Wolf", "Hero", "Hall", settings, CreatureTierIds.FeralStock);
+            TestBase.AssertTrue(
+                wolfTauntOk
+                && LineEqualsFilledBank(wolfTaunt, "enemyTaunt_feralStock", ("name", "Wolf"), ("player", "Hero"))
+                && wolfTaunt.Contains("Wolf", StringComparison.Ordinal)
+                && wolfTaunt.Contains("Hero", StringComparison.Ordinal)
+                && !wolfTaunt.Contains("{name}", StringComparison.Ordinal)
+                && !wolfTaunt.Contains("{player}", StringComparison.Ordinal)
+                && wolfTaunt.IndexOf('"') < 0
+                && wolfTaunt.IndexOf(" says", StringComparison.Ordinal) < 0,
+                "Wolf taunt should fill enemyTaunt_feralStock via ApplyTauntPlaceholders with no spoken dialogue",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            Console.WriteLine($"    Wolf taunt: {wolfTaunt}");
+
+            string defeated = textProvider.ReplacePlaceholders(
+                textProvider.GetCreatureTieredNarrative("enemyDefeated", CreatureTierIds.NativeFauna),
+                new Dictionary<string, string> { ["name"] = "Spider", ["player"] = "Hero" });
+            TestBase.AssertTrue(
+                LineEqualsFilledBank(defeated, "enemyDefeated_nativeFauna", ("name", "Spider"), ("player", "Hero"))
+                && !defeated.Contains("{name}", StringComparison.Ordinal)
+                && !defeated.Contains("{player}", StringComparison.Ordinal),
+                "enemyDefeated_nativeFauna should fill {name}/{player} for Spider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            Console.WriteLine($"    Spider defeated: {defeated}");
+        }
+
+        private static void AssertExactCombatBank(FlavorTextData data, string key, params string[] expected)
+        {
+            TestBase.AssertTrue(
+                data.CombatNarratives.TryGetValue(key, out var lines)
+                && lines != null
+                && lines.SequenceEqual(expected),
+                $"{key} should match authored copy verbatim",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         /// <summary>

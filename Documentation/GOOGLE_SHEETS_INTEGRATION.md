@@ -172,7 +172,7 @@ Single header row; columns **A–G** (pull → `GameData/Rooms.json`):
 | Col | Field | Notes |
 |-----|-------|-------|
 | A | `region` | Travel region id (same vocabulary as ENEMIES **region**) |
-| B | `biome` | Dungeon theme match (`Forest`, `Lava`, `Crypt`, …). **Leave blank** = room can appear in **any** theme |
+| B | `biome` | Dungeon theme match (`Forest`, `Lava`, `Crypt`, …). **Leave blank** = room can appear in **any** theme (`HasUniversalBiome` / `GetRoomsByTheme`). **Current live data:** every row is blank, so the whole catalog spawns in every dungeon (Multiverse Hall in Forest, Sand Dune in Crypt). Tagging + filtering is a Max/Sean architecture sign-off — do not implement as a flavor-content fix. Flavor lookup is separate (`FlavorLocationResolver`; Sand Dune still gets `Environment.Theme = Crypt` but flavor biome `Desert` via `dune`). |
 | C | `location` | Room display name and catalog key |
 | D | `tags` | Comma-separated environment tags (`fire`, `scorched`, …) — see [TAG_REGISTRY.md](../05-Systems/TAG_REGISTRY.md) |
 | E | `description` | Room flavor text |
@@ -330,7 +330,7 @@ python Scripts/sync-flavor-text-from-xlsx.py --xlsx "/path/to/DEMON FIGHTER - DA
 python Scripts/sync-flavor-text-from-xlsx.py --xlsx "/path/to/DEMON FIGHTER - DATA (1).xlsx" --write
 ```
 
-`--write` backs up `FlavorText.json.bak` and patches only locationDescriptions, roomContexts, and combatNarratives. Room-entry display (`RoomInfoBuilder`) appends one flavor line under the Rooms.json description: `roomContexts` for `{biome}/{roomType}` (sheet key `Forest/kitchen`) when that bank exists, otherwise `locationDescriptions` for the biome. Generic roomContexts is not a match. Each flavor line must fit `DisplayBuffer` / `BufferStorage` `maxLineWidth` (152 display characters); Forest `locationDescriptions` is 9 lines and Forest/{sanctum,shrine,treasure} are 4 each after the overflow splits. Biome taunt banks are `playerTaunt_{biome}` / `enemyTaunt_{biome}` (forest, crypt, crystal, lava, temple, library, underwater, ice, swamp). Creature-tier banks are `{event}_{nativeFauna|feralStock|technoEcho}` for firstBlood / criticalHit / criticalMiss / below50Percent / below10Percent / enemyDefeated / enemyTaunt.
+`--write` backs up `FlavorText.json.bak` and patches only locationDescriptions, roomContexts, and combatNarratives. Room-entry display (`RoomInfoBuilder`) appends one flavor line under the Rooms.json description: `roomContexts` for `{biome}/{roomType}` (sheet key `Forest/kitchen`) when that bank exists, otherwise `locationDescriptions` for the biome. Generic roomContexts is not a match. Each flavor line must fit `DisplayBuffer` / `BufferStorage` `maxLineWidth` (152 display characters); Forest `locationDescriptions` is 9 lines and Forest/{sanctum,shrine,treasure} are 4 each after the overflow splits. Biome taunt banks are `playerTaunt_{biome}` / `enemyTaunt_{biome}` (forest, crypt, crystal, lava, temple, library, underwater, ice, swamp). Creature-tier banks are `{event}_{nativeFauna|feralStock|technoEcho}` for firstBlood / criticalHit / criticalMiss / below50Percent / below10Percent / enemyDefeated / enemyTaunt. `enemyTaunt_nativeFauna` / `feralStock` are non-verbal (4 lines); `enemyTaunt_technoEcho` is quoted dialogue (4 lines).
 
 ### Class Upgrades (`SkillTrees.json`)
 
