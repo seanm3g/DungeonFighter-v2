@@ -373,7 +373,8 @@ namespace RPGGame.ActionInteractionLab
                 _labEnemy.Name,
                 _labRoom.Name,
                 _labPlayer.CurrentHealth,
-                _labEnemy.CurrentHealth);
+                _labEnemy.CurrentHealth,
+                _labEnemy.CreatureTier);
             _combatManager.InitializeCombatEntities(_labPlayer, _labEnemy, _labRoom, playerGetsFirstAttack: true, enemyGetsFirstAttack: false);
             _labRoom.ResetForNewFight();
             ActionSelector.ClearStoredRolls();
@@ -388,7 +389,7 @@ namespace RPGGame.ActionInteractionLab
             GameTicker.Instance.Reset();
             _labPlayer.ComboStep = 0;
             _labEnemy.ComboStep = 0;
-            _combatManager.StartBattleNarrative(_labPlayer.Name, _labEnemy.Name, _labRoom.Name, _labPlayer.CurrentHealth, _labEnemy.CurrentHealth);
+            _combatManager.StartBattleNarrative(_labPlayer.Name, _labEnemy.Name, _labRoom.Name, _labPlayer.CurrentHealth, _labEnemy.CurrentHealth, _labEnemy.CreatureTier);
             _combatManager.InitializeCombatEntities(_labPlayer, _labEnemy, _labRoom, playerGetsFirstAttack: true, enemyGetsFirstAttack: false);
             _labRoom.ResetForNewFight();
             ActionSelector.ClearStoredRolls();

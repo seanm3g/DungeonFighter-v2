@@ -44,6 +44,7 @@ namespace RPGGame
                 enemyArchetype);
 
             enemy.SetTags(BuildRuntimeTags(data));
+            enemy.SetCreatureTier(data.CreatureTier);
 
             if (data.ColorOverride != null)
             {

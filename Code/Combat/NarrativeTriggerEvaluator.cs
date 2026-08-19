@@ -15,6 +15,7 @@ namespace RPGGame
         private string playerName = "";
         private string enemyName = "";
         private string currentLocation = "";
+        private string? creatureTier;
         private int initialPlayerHealth;
         private int initialEnemyHealth;
         private int finalPlayerHealth;
@@ -40,11 +41,12 @@ namespace RPGGame
         /// Updates battle context after construction (names are often empty until <see cref="BattleEventAnalyzer.Initialize"/>).
         /// </summary>
         public void Initialize(string playerName, string enemyName, string currentLocation,
-            int initialPlayerHealth, int initialEnemyHealth)
+            int initialPlayerHealth, int initialEnemyHealth, string? creatureTier = null)
         {
             this.playerName = playerName;
             this.enemyName = enemyName;
             this.currentLocation = currentLocation;
+            this.creatureTier = creatureTier;
             this.initialPlayerHealth = initialPlayerHealth;
             this.initialEnemyHealth = initialEnemyHealth;
             this.finalPlayerHealth = initialPlayerHealth;
@@ -121,7 +123,7 @@ namespace RPGGame
                 }
             }
 
-            // Enemy taunts
+            // Enemy taunts — creature-tier bank is a separate first lookup; biome matching is unchanged.
             if (evt.Actor == enemyName && stateManager.CanEnemyTaunt)
             {
                 var (shouldTaunt, tauntText) = tauntSystem.CheckEnemyTaunt(
@@ -130,7 +132,8 @@ namespace RPGGame
                     enemyName,
                     playerName,
                     currentLocation,
-                    settings);
+                    settings,
+                    creatureTier);
 
                 if (shouldTaunt)
                 {
@@ -165,7 +168,7 @@ namespace RPGGame
                 stateManager.SetEnemyBelow50Percent();
                 var replacements = new Dictionary<string, string> { { "name", enemyName } };
                 string narrative = textProvider.ReplacePlaceholders(
-                    textProvider.GetRandomNarrative("below50Percent"),
+                    textProvider.GetCreatureTieredNarrative("below50Percent", creatureTier),
                     replacements);
                 triggeredNarratives.Add(narrative);
             }
@@ -186,7 +189,7 @@ namespace RPGGame
                 stateManager.SetEnemyBelow10Percent();
                 var replacements = new Dictionary<string, string> { { "name", enemyName } };
                 string narrative = textProvider.ReplacePlaceholders(
-                    textProvider.GetRandomNarrative("below10Percent"),
+                    textProvider.GetCreatureTieredNarrative("below10Percent", creatureTier),
                     replacements);
                 triggeredNarratives.Add(narrative);
             }

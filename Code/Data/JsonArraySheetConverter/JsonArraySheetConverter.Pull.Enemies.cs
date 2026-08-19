@@ -212,6 +212,7 @@ namespace RPGGame.Data
                 ["archetype"] = "archetype",
                 ["actions"] = "actions",
                 ["isLiving"] = "isLiving",
+                ["creatureTier"] = "creatureTier",
                 ["description"] = "description",
                 ["colorOverride"] = "colorOverride",
                 ["healthPercent"] = EnemyJsonHealthNormalizer.HealthPercentKey,

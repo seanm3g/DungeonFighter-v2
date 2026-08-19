@@ -13,6 +13,8 @@ namespace RPGGame
         public PrimaryAttribute PrimaryAttribute { get; private set; }
         public int Armor { get; private set; }
         public bool IsLiving { get; private set; }
+        /// <summary>Combat-narrative creature voice; null/blank uses generic banks.</summary>
+        public string? CreatureTier { get; private set; }
         public EnemyArchetype Archetype { get; private set; }
         public EnemyAttackProfile AttackProfile { get; private set; }
         public ColorOverride? ColorOverride { get; private set; }
@@ -34,6 +36,11 @@ namespace RPGGame
                     !_tags.Any(t => string.Equals(t, tag.Trim(), StringComparison.OrdinalIgnoreCase)))
                     _tags.Add(tag.Trim());
             }
+        }
+
+        internal void SetCreatureTier(string? raw)
+        {
+            CreatureTier = CreatureTierIds.TryCanonicalize(raw, out var canonical) ? canonical : null;
         }
         
         // DPS-based system properties

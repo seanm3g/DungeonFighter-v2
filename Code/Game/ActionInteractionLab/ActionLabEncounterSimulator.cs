@@ -277,7 +277,7 @@ namespace RPGGame.ActionInteractionLab
                     GameTicker.Instance.Reset();
                     player.ComboStep = 0;
                     enemy.ComboStep = 0;
-                    combatManager.StartBattleNarrative(player.Name, enemy.Name, room.Name, player.CurrentHealth, enemy.CurrentHealth);
+                    combatManager.StartBattleNarrative(player.Name, enemy.Name, room.Name, player.CurrentHealth, enemy.CurrentHealth, enemy.CreatureTier);
                     narrativeStarted = true;
                     combatManager.InitializeCombatEntities(player, enemy, room, playerGetsFirstAttack: true, enemyGetsFirstAttack: false);
                     room.ResetForNewFight();

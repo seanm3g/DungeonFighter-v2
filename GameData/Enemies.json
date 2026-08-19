@@ -61,6 +61,7 @@
       "TAUNT"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A quick and cunning creature that strikes from the shadows",
     "tags": [
       "living",
@@ -97,6 +98,7 @@
       "POISON BITE"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A large forest spider with venomous fangs - extremely fast, fragile",
     "tags": [
       "living",
@@ -134,6 +136,7 @@
       "HOWL"
     ],
     "isLiving": true,
+    "creatureTier": "feralStock",
     "description": "A swift predator that hunts in packs - balanced attacker",
     "tags": [
       "living",
@@ -168,6 +171,7 @@
       "IGNITE"
     ],
     "isLiving": false,
+    "creatureTier": "technoEcho",
     "description": "A being of pure flame with magical powers - high damage caster",
     "tags": [
       "elemental",
@@ -204,6 +208,7 @@
       "ERUPTION"
     ],
     "isLiving": false,
+    "creatureTier": "technoEcho",
     "description": "A massive construct of molten rock and metal - slow tank with high damage",
     "tags": [
       "elemental",
@@ -238,6 +243,7 @@
       "QUICK STRIKE"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A flying bat that attacks in swarms - ultra-fast but very fragile",
     "tags": [
       "living",
@@ -275,6 +281,7 @@
       "RATTLE"
     ],
     "isLiving": false,
+    "creatureTier": "technoEcho",
     "description": "An undead warrior with bony armor - protected but fragile bones",
     "tags": [
       "undead",
@@ -311,6 +318,7 @@
       "GROAN"
     ],
     "isLiving": false,
+    "creatureTier": "technoEcho",
     "description": "A shambling undead - durable but slow and decaying",
     "tags": [
       "undead"
@@ -342,6 +350,7 @@
       "PHASE"
     ],
     "isLiving": false,
+    "creatureTier": "technoEcho",
     "description": "A spectral being with powerful magic - fast magical caster",
     "tags": [
       "undead",
@@ -377,6 +386,7 @@
       "GRUNT"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A powerful forest predator - heavy hitter with high health",
     "tags": [
       "living",
@@ -412,6 +422,7 @@
       "PUNCH HARD"
     ],
     "isLiving": false,
+    "creatureTier": "technoEcho",
     "description": "An ancient tree spirit - slow but heavily armored",
     "tags": [
       "plant",
@@ -444,6 +455,7 @@
       "PUNCH HARD"
     ],
     "isLiving": true,
+    "creatureTier": "feralStock",
     "description": "A fierce woodland beast that charges and gores",
     "tags": [
       "living",
@@ -478,6 +490,7 @@
       "JAB"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A fire-dwelling lizard that strikes from the heat haze",
     "tags": [
       "living",
@@ -513,6 +526,7 @@
       "FLURRY"
     ],
     "isLiving": false,
+    "creatureTier": "technoEcho",
     "description": "A wisp of living flame - bursts of magical damage",
     "tags": [
       "elemental",
@@ -546,6 +560,7 @@
       "SLAM"
     ],
     "isLiving": false,
+    "creatureTier": "technoEcho",
     "description": "A creature of molten rock - devastating heavy attacks",
     "tags": [
       "elemental",
@@ -579,6 +594,7 @@
       "JAB"
     ],
     "isLiving": false,
+    "creatureTier": "technoEcho",
     "description": "A ravenous undead that lunges from the shadows",
     "tags": [
       "undead"
@@ -610,6 +626,7 @@
       "STUN"
     ],
     "isLiving": false,
+    "creatureTier": "technoEcho",
     "description": "An undead spellcaster with potent magical strikes",
     "tags": [
       "undead",
@@ -645,6 +662,7 @@
       "TAUNT"
     ],
     "isLiving": false,
+    "creatureTier": "technoEcho",
     "description": "A spectral guardian of the crypt - tough and controlling",
     "tags": [
       "undead",
@@ -680,6 +698,7 @@
       "Desert Veil"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A desert raider that cuts in from the blinding sand \u00E2\u20AC\u201D fast strikes from the edge of vision",
     "tags": [
       "living",
@@ -714,6 +733,7 @@
       "Sand Spray"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A buried serpent that erupts from the dunes \u00E2\u20AC\u201D ambushes with venomous precision",
     "tags": [
       "living",
@@ -750,6 +770,7 @@
       "Sand Armor"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A armored desert dweller that curls and rolls at high speed \u00E2\u20AC\u201D hits hard on impact",
     "tags": [
       "living",
@@ -788,6 +809,7 @@
       "Heat Wave"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A scorpion whose tail gleams like a spear in the sun \u00E2\u20AC\u201D precise, poisonous strikes",
     "tags": [
       "living",
@@ -825,6 +847,7 @@
       "Precision Shot"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A hunter that uses reflected sunlight to blind prey before closing in",
     "tags": [
       "living",
@@ -861,6 +884,7 @@
       "Shatter"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A construct of fused desert glass \u00E2\u20AC\u201D sharp, brittle, and deadly up close",
     "tags": [
       "elemental",
@@ -896,6 +920,7 @@
       "Vanish"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A predator that hunts by false shapes in the heat haze \u00E2\u20AC\u201D strikes where you aren\u0027t looking",
     "tags": [
       "living",
@@ -933,6 +958,7 @@
       "Soul Drain"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A shade born of desert noon \u00E2\u20AC\u201D phases through light and drains the unwary",
     "tags": [
       "undead",
@@ -965,6 +991,7 @@
       "Sap Drain"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A parasitic desert leech that feeds and mends itself \u00E2\u20AC\u201D sustains through stolen life",
     "tags": [
       "living",
@@ -1001,6 +1028,7 @@
       "Ground Pound"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A towering statue of carved sandstone \u00E2\u20AC\u201D slow, massive, and nearly immovable",
     "tags": [
       "living",
@@ -1035,6 +1063,7 @@
       "Venom Volley"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A tomb guardian that fires venomous darts from stillness \u00E2\u20AC\u201D patient and precise",
     "tags": [
       "undead",
@@ -1071,6 +1100,7 @@
       "Sunbeam"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A desert cleric who channels solar wrath \u00E2\u20AC\u201D casts with burning conviction",
     "tags": [
       "celestial",
@@ -1108,6 +1138,7 @@
       "Mandible Crush"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A sacred beetle grown to impossible size \u00E2\u20AC\u201D armored and fiercely territorial",
     "tags": [
       "living",
@@ -1146,6 +1177,7 @@
       "Sand Blind"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A corpse-thief that crawls through burial passages \u00E2\u20AC\u201D strikes from tight darkness",
     "tags": [
       "undead",
@@ -1178,6 +1210,7 @@
       "Mummy\u0027s Grasp"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "An undead bound to a cracked sarcophagus \u00E2\u20AC\u201D shambling, heavy, and hard to put down",
     "tags": [
       "undead"
@@ -1209,6 +1242,7 @@
       "Death Bolt"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "An ancient necromancer of the tombs \u00E2\u20AC\u201D commands death with cold intelligence",
     "tags": [
       "undead",
@@ -1245,6 +1279,7 @@
       "Binding Slam"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A wrapped undead preserved by desert rites \u00E2\u20AC\u201D durable and relentless",
     "tags": [
       "undead"
@@ -1276,6 +1311,7 @@
       "Ancient Curse"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "The lingering spirit of a forgotten dynasty \u00E2\u20AC\u201D strikes with the weight of old grudges",
     "tags": [
       "undead"
@@ -1307,6 +1343,7 @@
       "Keen Eye"
     ],
     "isLiving": true,
+    "creatureTier": "feralStock",
     "description": "A desert raptor that dives from above \u00E2\u20AC\u201D swift aerial strikes",
     "tags": [
       "living",
@@ -1339,6 +1376,7 @@
       "Stone Barrage"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A brute that hurls sun-baked stones from a distance \u00E2\u20AC\u201D simple, crushing force",
     "tags": [
       "living",
@@ -1376,6 +1414,7 @@
       "Ledge Grab"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A blade-wielding hunter that circles the rim of sight \u00E2\u20AC\u201D waits for an opening",
     "tags": [
       "living",
@@ -1411,6 +1450,7 @@
       "Disease Spread"
     ],
     "isLiving": true,
+    "creatureTier": "feralStock",
     "description": "A gnawing vermin of the wastes \u00E2\u20AC\u201D quick, dirty, and opportunistic",
     "tags": [
       "living",
@@ -1447,6 +1487,7 @@
       "Corrupted Gulp"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A mutated desert dweller that drinks poison to fuel its attacks",
     "tags": [
       "living"
@@ -1478,6 +1519,7 @@
       "Phantom Strike"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "The ghost of a soldier who fled into the dunes \u00E2\u20AC\u201D elusive and bitter",
     "tags": [
       "undead"
@@ -1509,6 +1551,7 @@
       "Thunder Clap"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A mountain mystic who summons thunder and wind \u00E2\u20AC\u201D casts from afar",
     "tags": [
       "living",
@@ -1541,6 +1584,7 @@
       "Wind Gust"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A thin-air specter that haunts high passes \u00E2\u20AC\u201D cold, fast, and disorienting",
     "tags": [
       "undead",
@@ -1574,6 +1618,7 @@
       "Mountain\u0027s Fury"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A giant of stone and ice at the mountain peak \u00E2\u20AC\u201D slow but overwhelming",
     "tags": [
       "living",
@@ -1608,6 +1653,7 @@
       "Ember lunge"
     ],
     "isLiving": true,
+    "creatureTier": "feralStock",
     "description": "A fire-scorched hound that hunts in bursts of speed and fury",
     "tags": [
       "living",
@@ -1640,6 +1686,7 @@
       "Molten Ooze"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A lava-dwelling predator that crawls through fissures \u00E2\u20AC\u201D ambushes from below",
     "tags": [
       "elemental",
@@ -1673,6 +1720,7 @@
       "Gust Talon"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A winged scavenger of volcanic skies \u00E2\u20AC\u201D fast, shrieking dives",
     "tags": [
       "living",
@@ -1706,6 +1754,7 @@
       "Soot Pummel"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A construct of compressed ash and cinders \u00E2\u20AC\u201D armored and smothering",
     "tags": [
       "elemental",
@@ -1740,6 +1789,7 @@
       "Tongue Lash"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A bloated toad swollen with inner heat \u00E2\u20AC\u201D lurks and lunges from cave pools",
     "tags": [
       "elemental",
@@ -1776,6 +1826,7 @@
       "Murky Ambush"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A predator hidden in volcanic fumes \u00E2\u20AC\u201D strikes when visibility fails",
     "tags": [
       "living",
@@ -1808,6 +1859,7 @@
       "Smoldering Strike"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A burned forest hunter that moves through blackened trunks \u00E2\u20AC\u201D patient ambusher",
     "tags": [
       "plant",
@@ -1844,6 +1896,7 @@
       "Root Slam"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A fire-blackened tree spirit \u00E2\u20AC\u201D slow, thick-barked, and heavy-hitting",
     "tags": [
       "plant",
@@ -1877,6 +1930,7 @@
       "Flicker Dash"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A flame spirit that flares back to life \u00E2\u20AC\u201D bursts of magical fire",
     "tags": [
       "elemental",
@@ -1911,6 +1965,7 @@
       "Guard Stance"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A lava-bridge guardian in scorched armor \u00E2\u20AC\u201D holds the line with discipline",
     "tags": [
       "living",
@@ -1950,6 +2005,7 @@
       "Lava Glob"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A creature that spews molten rock from a distance \u00E2\u20AC\u201D ranged elemental attacker",
     "tags": [
       "elemental",
@@ -1983,6 +2039,7 @@
       "Drift Strike"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A wandering fire spirit that darts through heat currents \u00E2\u20AC\u201D mobile and evasive",
     "tags": [
       "elemental",
@@ -2015,6 +2072,7 @@
       "Shield Bash"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A zealot knight sworn to the flame temple \u00E2\u20AC\u201D armored, trained, unyielding",
     "tags": [
       "living",
@@ -2053,6 +2111,7 @@
       "Rubble Toss"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A sentinel posted beside temple pillars \u00E2\u20AC\u201D still, alert, and heavily guarded",
     "tags": [
       "living",
@@ -2090,6 +2149,7 @@
       "Wall of Ash"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A ghost bound to eternal flame \u00E2\u20AC\u201D deceptive strikes from flickering light",
     "tags": [
       "undead",
@@ -2122,6 +2182,7 @@
       "Blazing Advance"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "An elite temple defender in ceremonial armor \u00E2\u20AC\u201D disciplined and resilient",
     "tags": [
       "living",
@@ -2161,6 +2222,7 @@
       "Arcane Ward"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A mage who binds enemies with fiery sigils \u00E2\u20AC\u201D technical, controlling magic",
     "tags": [
       "living",
@@ -2197,6 +2259,7 @@
       "hollow Grasp"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A stone guardian carved to sit before a molten throne \u00E2\u20AC\u201D immovable sentinel",
     "tags": [
       "elemental",
@@ -2236,6 +2299,7 @@
       "Draining Bite"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A parasite that drains life from open wounds \u00E2\u20AC\u201D predatory and precise",
     "tags": [
       "living"
@@ -2267,6 +2331,7 @@
       "Spore Burst"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A fungal spore creature born from volcanic vents \u00E2\u20AC\u201D spreads harm through contact",
     "tags": [
       "plant",
@@ -2300,6 +2365,7 @@
       "Crystal barb"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A glassy parasite that latches to heated crystal \u00E2\u20AC\u201D drains and hardens",
     "tags": [
       "elemental",
@@ -2337,6 +2403,7 @@
       "Shell Ram"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A turtle shelled in cooled slag \u00E2\u20AC\u201D slow, dense, and extremely tough",
     "tags": [
       "living",
@@ -2373,6 +2440,7 @@
       "Slag Drift"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A creature carried by thermal winds between lava isles \u00E2\u20AC\u201D fast and hard to pin down",
     "tags": [
       "living",
@@ -2406,6 +2474,7 @@
       "Boiling Snap"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A crab with a shell of hardened magma \u00E2\u20AC\u201D armored and snapping",
     "tags": [
       "elemental",
@@ -2443,6 +2512,7 @@
       "Petrify Sweep"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A guardian encased in ancient amber \u00E2\u20AC\u201D preserved, patient, and hard to crack",
     "tags": [
       "living",
@@ -2480,6 +2550,7 @@
       "Molten Pounce"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A mischievous spirit of excess heat and pressure \u00E2\u20AC\u201D chaotic and evasive",
     "tags": [
       "elemental",
@@ -2518,6 +2589,7 @@
       "Resin Snare"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A predator that lures prey into sticky amber pools \u00E2\u20AC\u201D traps with cunning",
     "tags": [
       "living",
@@ -2550,6 +2622,7 @@
       "Boundary Mark"
     ],
     "isLiving": true,
+    "creatureTier": "feralStock",
     "description": "A fierce hound that defends its hunting ground \u00E2\u20AC\u201D aggressive pack striker",
     "tags": [
       "living"
@@ -2581,6 +2654,7 @@
       "Rally Pack"
     ],
     "isLiving": true,
+    "creatureTier": "feralStock",
     "description": "The lead wolf of a border pack \u00E2\u20AC\u201D fast, commanding, and relentless",
     "tags": [
       "living",
@@ -2615,6 +2689,7 @@
       "Marrow Drain"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A necromantic scavenger that scatters cursed bones \u00E2\u20AC\u201D spreads decay and dark magic",
     "tags": [
       "undead"
@@ -2646,6 +2721,7 @@
       "Offering"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A bound creature left as offering to old powers \u00E2\u20AC\u201D heavy, savage, and enduring",
     "tags": [
       "living"
@@ -2677,6 +2753,7 @@
       "Dark Roar"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A bear twisted by forest hexes \u00E2\u20AC\u201D powerful, brutal, and hard to fell",
     "tags": [
       "living",
@@ -2712,6 +2789,7 @@
       "Tremor"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A guardian of ancient burial mounds \u00E2\u20AC\u201D armored and territorial",
     "tags": [
       "undead",
@@ -2750,6 +2828,7 @@
       "Night\u0027s Grace"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A forest spirit touched by moonlight \u00E2\u20AC\u201D heals and harms with sacred power",
     "tags": [
       "elemental",
@@ -2782,6 +2861,7 @@
       "Sonic Pulse"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A hunter that strikes from reflected sound \u00E2\u20AC\u201D deceptive and hard to track",
     "tags": [
       "living",
@@ -2817,6 +2897,7 @@
       "Dominant Bite"
     ],
     "isLiving": true,
+    "creatureTier": "feralStock",
     "description": "The commander of a night watch pack \u00E2\u20AC\u201D leads with strength and cunning",
     "tags": [
       "living",
@@ -2849,6 +2930,7 @@
       "Misdirect"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A tiny fey spirit of trickery \u00E2\u20AC\u201D fast, mischievous, and unpredictable",
     "tags": [
       "elemental",
@@ -2882,6 +2964,7 @@
       "Bush Ambush"
     ],
     "isLiving": true,
+    "creatureTier": "feralStock",
     "description": "A lean hound that hunts along maze hedges \u00E2\u20AC\u201D quick flanking predator",
     "tags": [
       "living"
@@ -2913,6 +2996,7 @@
       "Wall Shift"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A shapeshifter that waits at false exits \u00E2\u20AC\u201D lures victims into ambush",
     "tags": [
       "living",
@@ -2948,6 +3032,7 @@
       "Confuse Trail"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A creature born to sprint endless corridors \u00E2\u20AC\u201D blinding speed, low endurance",
     "tags": [
       "living",
@@ -2980,6 +3065,7 @@
       "Endless Cycle"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A spirit trapped in repeating paths \u00E2\u20AC\u201D disorients and strikes from nowhere",
     "tags": [
       "undead"
@@ -3011,6 +3097,7 @@
       "Primal Fear"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A horror that feeds on prey\u00E2\u20AC\u2122s fear and reflex \u00E2\u20AC\u201D preys on hesitation",
     "tags": [
       "living"
@@ -3042,6 +3129,7 @@
       "Twin Strike"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A mirror-image foe that copies your movements \u00E2\u20AC\u201D unsettling and elusive",
     "tags": [
       "living",
@@ -3074,6 +3162,7 @@
       "Fragment"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A broken mirror spirit that attacks through fractured images",
     "tags": [
       "elemental"
@@ -3105,6 +3194,7 @@
       "Confusion"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A doppelganger that wears your own face \u00E2\u20AC\u201D psychological and deadly",
     "tags": [
       "living",
@@ -3137,6 +3227,7 @@
       "Bramble Hide"
     ],
     "isLiving": true,
+    "creatureTier": "feralStock",
     "description": "A bristling boar wrapped in thorny hide \u00E2\u20AC\u201D charges with brutal force",
     "tags": [
       "plant",
@@ -3171,6 +3262,7 @@
       "Vine Whip"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A small woodland spirit tied to living roots \u00E2\u20AC\u201D nimble and evasive",
     "tags": [
       "plant",
@@ -3204,6 +3296,7 @@
       "Rattle Warning"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A coiled viper that strikes without warning \u00E2\u20AC\u201D venomous and precise",
     "tags": [
       "living",
@@ -3238,6 +3331,7 @@
       "Collect"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A oversized pollinator driven to frenzy \u00E2\u20AC\u201D fast, swarming attacks",
     "tags": [
       "plant",
@@ -3271,6 +3365,7 @@
       "Pollinate"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A drifting spirit of choking pollen \u00E2\u20AC\u201D obscures sight and saps strength",
     "tags": [
       "undead"
@@ -3302,6 +3397,7 @@
       "Echo Call"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A lowland predator that hunts at dusk \u00E2\u20AC\u201D swift and aggressive",
     "tags": [
       "living"
@@ -3333,6 +3429,7 @@
       "Climb"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A vine-creature that scales vertical stone \u00E2\u20AC\u201D ambushes from above",
     "tags": [
       "plant",
@@ -3365,6 +3462,7 @@
       "Grow"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A writhing plant lash given hostile will \u00E2\u20AC\u201D whips with disciplined force",
     "tags": [
       "plant",
@@ -3397,6 +3495,7 @@
       "Crumble"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A ghost of a fallen settlement \u00E2\u20AC\u201D lingers in broken halls",
     "tags": [
       "undead"
@@ -3428,6 +3527,7 @@
       "Predator\u0027s Eye"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A hunter that moves unseen through tall reeds \u00E2\u20AC\u201D silent, precise strikes",
     "tags": [
       "plant",
@@ -3463,6 +3563,7 @@
       "Swarm Dive"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A cloud of blood-hungry insects \u00E2\u20AC\u201D overwhelming speed, fragile individually",
     "tags": [
       "living"
@@ -3494,6 +3595,7 @@
       "Mire Slam"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A bog predator that rises from thick mud \u00E2\u20AC\u201D ambushes from below",
     "tags": [
       "living",
@@ -3526,6 +3628,7 @@
       "Wave Slam"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A spirit that surfs river currents \u00E2\u20AC\u201D fast, fluid, and evasive",
     "tags": [
       "elemental"
@@ -3557,6 +3660,7 @@
       "Mud Roll"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A slippery river eel that strikes in flashes \u00E2\u20AC\u201D agile and hard to catch",
     "tags": [
       "living"
@@ -3588,6 +3692,7 @@
       "Surge"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A empty-souled wanderer of misty hollows \u00E2\u20AC\u201D elusive and unsettling",
     "tags": [
       "living"
@@ -3619,6 +3724,7 @@
       "False Form"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A shapeshifter hidden in river fog \u00E2\u20AC\u201D lures prey into false safety",
     "tags": [
       "living",
@@ -3654,6 +3760,7 @@
       "Frost Crawl"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A chill-loving predator of damp caves \u00E2\u20AC\u201D slow approach, sudden strike",
     "tags": [
       "living",
@@ -3686,6 +3793,7 @@
       "Phantom Lunge"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A ghost that haunts narrow cave ledges \u00E2\u20AC\u201D strikes from cramped angles",
     "tags": [
       "living"
@@ -3717,6 +3825,7 @@
       "Biolumiscent Flash"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A bioluminescent cave insect \u00E2\u20AC\u201D small, quick, and distracting",
     "tags": [
       "living"
@@ -3748,6 +3857,7 @@
       "Frozen Burst"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A ice-cloaked cave stalker \u00E2\u20AC\u201D patient ambusher in the cold dark",
     "tags": [
       "living",
@@ -3784,6 +3894,7 @@
       "Cavern Thrash"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A heavy cave beast that lurches from darkness \u00E2\u20AC\u201D slow, crushing blows",
     "tags": [
       "living"
@@ -3815,6 +3926,7 @@
       "Basin Surge"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A lore-keeper spirit that guards ancient records \u00E2\u20AC\u201D wise, magical, and vigilant",
     "tags": [
       "elemental",
@@ -3850,6 +3962,7 @@
       "Pit Pull"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A predator that waits beneath unstable ground \u00E2\u20AC\u201D pulls prey down to strike",
     "tags": [
       "living"
@@ -3881,6 +3994,7 @@
       "Tentacle Snap"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A shadowy hunter that moves through dark water \u00E2\u20AC\u201D precise, ink-cloud ambushes",
     "tags": [
       "living",
@@ -3916,6 +4030,7 @@
       "Steam Dash"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A playful but dangerous spirit of cave vents \u00E2\u20AC\u201D mischievous and evasive",
     "tags": [
       "elemental",
@@ -3949,6 +4064,7 @@
       "Splash"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A venomous spined fish \u00E2\u20AC\u201D beautiful, slow, and painfully precise",
     "tags": [
       "living"
@@ -3980,6 +4096,7 @@
       "Phantom Surge"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A formless spirit of deep mist \u00E2\u20AC\u201D drifts through attacks and confuses foes",
     "tags": [
       "elemental"
@@ -4011,6 +4128,7 @@
       "Shield Bash"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A disciplined guard of an flooded court \u00E2\u20AC\u201D armored sentinel of the depths",
     "tags": [
       "living",
@@ -4047,6 +4165,7 @@
       "Abyssal pull"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A abyssal creature that saps life from the deep \u00E2\u20AC\u201D magical life drain",
     "tags": [
       "living"
@@ -4078,6 +4197,7 @@
       "Tidal Sweep"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A armored watcher of tidal passages \u00E2\u20AC\u201D holds ground against the current",
     "tags": [
       "living",
@@ -4114,6 +4234,7 @@
       "Pressurized Strike"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A ascetic trained in crushing depth \u00E2\u20AC\u201D martial discipline under extreme force",
     "tags": [
       "living"
@@ -4145,6 +4266,7 @@
       "Rapid Current"
     ],
     "isLiving": true,
+    "creatureTier": "nativeFauna",
     "description": "A rider of falling water and rapids \u00E2\u20AC\u201D fast, fluid, and relentless",
     "tags": [
       "living"
@@ -4176,6 +4298,7 @@
       "Channel Slam"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A guardian of ancient water channels \u00E2\u20AC\u201D armored and immovable",
     "tags": [
       "living",
@@ -4212,6 +4335,7 @@
       "Still Waters"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A meditative watcher of unmoving pools \u00E2\u20AC\u201D reads foes and strikes with intent",
     "tags": [
       "living"
@@ -4243,6 +4367,7 @@
       "Shadow Surge"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "A ghost dragged beneath the current \u00E2\u20AC\u201D pulls and strikes from below",
     "tags": [
       "undead"
@@ -4274,6 +4399,7 @@
       "Drowned Wrath"
     ],
     "isLiving": true,
+    "creatureTier": "technoEcho",
     "description": "An undead monarch risen from a sunken throne \u00E2\u20AC\u201D commands death with royal fury",
     "tags": [
       "undead",

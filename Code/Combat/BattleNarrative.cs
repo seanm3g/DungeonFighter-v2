@@ -49,6 +49,7 @@ namespace RPGGame
         private readonly string playerName;
         private readonly string enemyName;
         private readonly string currentLocation;
+        private readonly string? creatureTier;
         private readonly int initialPlayerHealth;
         private readonly int initialEnemyHealth;
         private int finalPlayerHealth;
@@ -70,11 +71,12 @@ namespace RPGGame
         private BattleEvent? lastAddedEvent;
         private List<string> lastEventNarratives = new();
 
-        public BattleNarrative(string playerName, string enemyName, string environmentName = "", int playerHealth = 0, int enemyHealth = 0)
+        public BattleNarrative(string playerName, string enemyName, string environmentName = "", int playerHealth = 0, int enemyHealth = 0, string? creatureTier = null)
         {
             this.playerName = playerName;
             this.enemyName = enemyName;
             this.currentLocation = environmentName;
+            this.creatureTier = creatureTier;
             this.initialPlayerHealth = playerHealth;
             this.initialEnemyHealth = enemyHealth;
             this.finalPlayerHealth = playerHealth;
@@ -93,7 +95,7 @@ namespace RPGGame
             this.eventAnalyzer = new BattleEventAnalyzer(textProvider, stateManager, tauntSystem);
 
             // Initialize analyzer with context
-            eventAnalyzer.Initialize(playerName, enemyName, environmentName, playerHealth, enemyHealth);
+            eventAnalyzer.Initialize(playerName, enemyName, environmentName, playerHealth, enemyHealth, creatureTier);
         }
 
         public void AddEvent(BattleEvent evt)
@@ -162,22 +164,14 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets only the significant narratives that should be displayed for the last event
-        /// Filters out narratives that shouldn't be shown (like every critical hit)
-        /// Only returns narratives for events that haven't been displayed yet
+        /// Gets only the significant narratives that should be displayed for the last event.
+        /// Significance is decided in <see cref="BattleEventAnalyzer.AnalyzeEvent"/> (whether it
+        /// returned text). Do not re-check one-shot Has*Occurred flags here — those are already
+        /// true by the time display runs, which used to silently drop the generated lines.
         /// </summary>
-        /// <returns>List of significant narrative messages that should be displayed</returns>
         public List<string> GetTriggeredNarrativesIfSignificant()
         {
             if (lastAddedEvent == null || lastEventNarratives.Count == 0)
-            {
-                return new List<string>();
-            }
-
-            // Display this instance if AnalyzeEvent produced text for it (captured before
-            // one-shot Has*Occurred flags mutated). Do not re-analyze — that would see
-            // the flags already set and generate nothing.
-            if (!ShouldDisplayNarrativesForEvent(lastAddedEvent))
             {
                 return new List<string>();
             }

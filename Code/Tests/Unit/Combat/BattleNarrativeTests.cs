@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Tests;
 using RPGGame;
+using RPGGame.Actions;
 using RPGGame.Combat;
+using RPGGame.UI.BlockDisplay;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Tests.Unit.Combat
 {
@@ -34,6 +37,10 @@ namespace RPGGame.Tests.Unit.Combat
             TestInformationalSummaryExcludesComboCounts();
             TestDisplayGateAfterAnalyzeEvent();
             TestFullFightDisplaysEachNarrativeType();
+            TestLiveExecutePathPutsNarrativesInCombatLog();
+            TestBiomeTauntBanksLoadAndSelectFromRealRooms();
+            TestIceAndSwampRoomsFallThroughToGenericTaunts();
+            TestCreatureTierBanksLoadAndSelectForRealEnemies();
 
             TestBase.PrintSummary("BattleNarrative Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -277,6 +284,308 @@ namespace RPGGame.Tests.Unit.Combat
             }
         }
 
+        /// <summary>
+        /// Live combat path: ExecuteActionWithUIAndStatusEffectsColored → GetTriggeredNarrativesIfSignificant
+        /// → BlockMessageCollector (the same collector CombatTurnHandler feeds the combat log).
+        /// </summary>
+        private static void TestLiveExecutePathPutsNarrativesInCombatLog()
+        {
+            Console.WriteLine("\n--- Testing live execute path puts narratives in combat log ---");
+
+            var settings = GameSettings.Instance;
+            bool prevEnable = settings.EnableNarrativeEvents;
+            double prevBalance = settings.NarrativeBalance;
+            settings.EnableNarrativeEvents = true;
+            settings.NarrativeBalance = 0.8;
+
+            ActionSelector.ClearStoredRolls();
+            try
+            {
+                var hero = TestDataBuilders.Character().WithName("Hero").WithStats(20, 20, 20, 20).Build();
+                hero.MaxHealth = 100;
+                hero.CurrentHealth = 100;
+                var goblin = TestDataBuilders.Enemy().WithName("Goblin").WithHealth(200).WithStats(12, 5, 5, 5).Build();
+                var jab = TestDataBuilders.CreateMockAction("JAB");
+                var narrative = new BattleNarrative("Hero", "Goblin", "Hall", 100, goblin.CurrentHealth);
+                var combatLog = new List<string>();
+
+                void Play(Character source, Character target, int roll)
+                {
+                    ActionSelector.SetStoredActionRoll(source, roll);
+                    var ((actionText, rollInfo), statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
+                        source, target, jab, null, null, narrative);
+                    var displayed = narrative.GetTriggeredNarrativesIfSignificant();
+                    var narrativeColored = new List<List<ColoredText>>();
+                    foreach (var line in displayed)
+                    {
+                        if (string.IsNullOrEmpty(line))
+                            continue;
+                        var parsed = ColoredTextParser.Parse(line);
+                        if (parsed.Count > 0)
+                            narrativeColored.Add(parsed);
+                    }
+                    var messages = BlockMessageCollector.CollectActionBlockMessages(
+                        actionText, rollInfo, statusEffects, null, narrativeColored);
+                    foreach (var (segments, _) in messages)
+                        combatLog.Add(ColoredTextRenderer.RenderAsPlainText(segments));
+                }
+
+                Play(hero, goblin, 20);
+                Play(hero, goblin, 20);
+                for (int i = 0; i < 8 && !combatLog.Any(line => MatchesCombatBank("below50Percent", ("name", "Hero"))(line)); i++)
+                    Play(goblin, hero, 16);
+                for (int i = 0; i < 14; i++)
+                    Play(hero, goblin, 2);
+                for (int i = 0; i < 12; i++)
+                    Play(goblin, hero, 2);
+
+                TestBase.AssertTrue(combatLog.Any(MatchesCombatBank("firstBlood")),
+                    "live combat log should display firstBlood",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(combatLog.Any(line => MatchesCombatBank("criticalHit", ("name", "Hero"))(line)),
+                    "live combat log should display criticalHit",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(combatLog.Any(line => MatchesCombatBank("below50Percent", ("name", "Hero"))(line)),
+                    "live combat log should display below50Percent",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(combatLog.Any(IsEnemyTauntLine),
+                    "live combat log should display enemyTaunt",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                ActionSelector.ClearStoredRolls();
+                settings.EnableNarrativeEvents = prevEnable;
+                settings.NarrativeBalance = prevBalance;
+            }
+        }
+
+        /// <summary>
+        /// Biome taunts: FlavorText banks load, GetLocationType matches real Rooms.json
+        /// display names, and GetLocationSpecificTaunt fills tokens from the matching bank.
+        /// </summary>
+        private static void TestBiomeTauntBanksLoadAndSelectFromRealRooms()
+        {
+            Console.WriteLine("\n--- Testing biome taunt banks vs real room names ---");
+
+            FlavorText.Reload();
+            var data = FlavorText.GetData();
+            var tauntSystem = new TauntSystem(new NarrativeTextProvider());
+
+            var cases = new (string Room, string LocationType, string PlayerBank, string EnemyBank)[]
+            {
+                ("Crypt Passage", "crypt", "playerTaunt_crypt", "enemyTaunt_crypt"),
+                ("Crystal Garden", "crystal", "playerTaunt_crystal", "enemyTaunt_crystal"),
+                ("Geode Chamber", "crystal", "playerTaunt_crystal", "enemyTaunt_crystal"),
+                ("Lava Chamber", "lava", "playerTaunt_lava", "enemyTaunt_lava"),
+                ("Magma Pool", "lava", "playerTaunt_lava", "enemyTaunt_lava"),
+                ("Volcanic Vent", "lava", "playerTaunt_lava", "enemyTaunt_lava"),
+                ("Sacred Altar", "temple", "playerTaunt_temple", "enemyTaunt_temple"),
+                ("Library", "library", "playerTaunt_library", "enemyTaunt_library"),
+                ("Underwater Cavern", "underwater", "playerTaunt_underwater", "enemyTaunt_underwater"),
+            };
+
+            foreach (var (room, locationType, playerBank, enemyBank) in cases)
+            {
+                TestBase.AssertTrue(
+                    data.CombatNarratives.TryGetValue(playerBank, out var playerLines)
+                    && playerLines != null && playerLines.Length == 4,
+                    $"{playerBank} should load 4 lines",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(
+                    data.CombatNarratives.TryGetValue(enemyBank, out var enemyLines)
+                    && enemyLines != null && enemyLines.Length == 4,
+                    $"{enemyBank} should load 4 lines",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TestBase.AssertEqual(locationType, tauntSystem.GetLocationType(room),
+                    $"{room} should map to {locationType}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                string playerTaunt = tauntSystem.GetLocationSpecificTaunt("player", "Hero", "Goblin", room);
+                TestBase.AssertTrue(
+                    MatchesCombatBank(playerBank, ("name", "Hero"), ("enemy", "Goblin"))(playerTaunt)
+                    && !playerTaunt.Contains("{enemy}", StringComparison.Ordinal)
+                    && !playerTaunt.Contains("{name}", StringComparison.Ordinal),
+                    $"{room} player taunt should come from {playerBank} with tokens filled",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                string enemyTaunt = tauntSystem.GetLocationSpecificTaunt("enemy", "Goblin", "Hero", room);
+                TestBase.AssertTrue(
+                    MatchesCombatBank(enemyBank, ("name", "Goblin"), ("player", "Hero"))(enemyTaunt)
+                    && !enemyTaunt.Contains("{player}", StringComparison.Ordinal)
+                    && !enemyTaunt.Contains("{name}", StringComparison.Ordinal),
+                    $"{room} enemy taunt should come from {enemyBank} with tokens filled",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+
+            TestBase.AssertTrue(
+                data.CombatNarratives.TryGetValue("enemyTaunt_crystal", out var crystalEnemy)
+                && crystalEnemy != null
+                && crystalEnemy.Any(line => line.Contains("—", StringComparison.Ordinal)),
+                "enemyTaunt_crystal should preserve the em-dash line",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Ice/Swamp rooms must not steal Crystal/Temple biome banks via cavern/sanctuary substrings.
+        /// </summary>
+        private static void TestIceAndSwampRoomsFallThroughToGenericTaunts()
+        {
+            Console.WriteLine("\n--- Testing Ice/Swamp rooms fall through to generic taunts ---");
+
+            FlavorText.Reload();
+            var tauntSystem = new TauntSystem(new NarrativeTextProvider());
+
+            TestBase.AssertEqual("generic", tauntSystem.GetLocationType("Frozen Cavern"),
+                "Frozen Cavern should not match crystal via cavern",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("generic", tauntSystem.GetLocationType("Marsh Sanctuary"),
+                "Marsh Sanctuary should not match temple via sanctuary",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("crystal", tauntSystem.GetLocationType("Crystal Garden"),
+                "Crystal Garden should stay crystal",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("crystal", tauntSystem.GetLocationType("Geode Chamber"),
+                "Geode Chamber should stay crystal",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("crystal", tauntSystem.GetLocationType("Crystal Cave"),
+                "Crystal Cave should still match crystal by crystal, not cave",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("temple", tauntSystem.GetLocationType("Sacred Altar"),
+                "Sacred Altar should stay temple",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("temple", tauntSystem.GetLocationType("Lost Shrine"),
+                "Lost Shrine should stay temple",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("crypt", tauntSystem.GetLocationType("Crypt Passage"),
+                "Crypt Passage should stay crypt",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("library", tauntSystem.GetLocationType("Library"),
+                "Library should stay library",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("lava", tauntSystem.GetLocationType("Lava Chamber"),
+                "Lava Chamber should stay lava",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("underwater", tauntSystem.GetLocationType("Underwater Cavern"),
+                "Underwater Cavern should stay underwater",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string frozenPlayer = tauntSystem.GetLocationSpecificTaunt("player", "Hero", "Goblin", "Frozen Cavern");
+            TestBase.AssertTrue(
+                MatchesCombatBank("playerTaunt", ("name", "Hero"), ("enemy", "Goblin"))(frozenPlayer)
+                && !MatchesCombatBank("playerTaunt_crystal", ("name", "Hero"), ("enemy", "Goblin"))(frozenPlayer),
+                "Frozen Cavern player taunt should be generic, not crystal",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string frozenEnemy = tauntSystem.GetLocationSpecificTaunt("enemy", "Goblin", "Hero", "Frozen Cavern");
+            TestBase.AssertTrue(
+                MatchesCombatBank("enemyTaunt", ("name", "Goblin"), ("player", "Hero"))(frozenEnemy)
+                && !MatchesCombatBank("enemyTaunt_crystal", ("name", "Goblin"), ("player", "Hero"))(frozenEnemy),
+                "Frozen Cavern enemy taunt should be generic, not crystal",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string marshPlayer = tauntSystem.GetLocationSpecificTaunt("player", "Hero", "Goblin", "Marsh Sanctuary");
+            TestBase.AssertTrue(
+                MatchesCombatBank("playerTaunt", ("name", "Hero"), ("enemy", "Goblin"))(marshPlayer)
+                && !MatchesCombatBank("playerTaunt_temple", ("name", "Hero"), ("enemy", "Goblin"))(marshPlayer),
+                "Marsh Sanctuary player taunt should be generic, not temple",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string marshEnemy = tauntSystem.GetLocationSpecificTaunt("enemy", "Goblin", "Hero", "Marsh Sanctuary");
+            TestBase.AssertTrue(
+                MatchesCombatBank("enemyTaunt", ("name", "Goblin"), ("player", "Hero"))(marshEnemy)
+                && !MatchesCombatBank("enemyTaunt_temple", ("name", "Goblin"), ("player", "Hero"))(marshEnemy),
+                "Marsh Sanctuary enemy taunt should be generic, not temple",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Creature-tier combat banks load from FlavorText and are selected for real Enemies.json rows
+        /// (Spider / Wolf / Goblin) instead of the unsuffixed generic fallback.
+        /// </summary>
+        private static void TestCreatureTierBanksLoadAndSelectForRealEnemies()
+        {
+            Console.WriteLine("\n--- Testing creature-tier banks vs real enemies ---");
+
+            FlavorText.Reload();
+            EnemyLoader.LoadEnemies();
+            var data = FlavorText.GetData();
+            var textProvider = new NarrativeTextProvider();
+            var tauntSystem = new TauntSystem(textProvider);
+            var settings = new GameSettings { NarrativeBalance = 0 };
+            int tauntActions = tauntSystem.GetEnemyTauntThreshold(0, settings);
+
+            var cases = new (string EnemyName, string Tier)[]
+            {
+                ("Spider", CreatureTierIds.NativeFauna),
+                ("Wolf", CreatureTierIds.FeralStock),
+                ("Goblin", CreatureTierIds.TechnoEcho),
+            };
+
+            foreach (var (enemyName, tier) in cases)
+            {
+                var enemyData = EnemyLoader.GetEnemyData(enemyName);
+                TestBase.AssertEqual(tier, enemyData?.CreatureTier,
+                    $"{enemyName} should load creatureTier {tier}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                foreach (var bank in CreatureTierIds.NarrativeBanks)
+                {
+                    string key = CreatureTierIds.SuffixedBank(bank, tier);
+                    TestBase.AssertTrue(
+                        data.CombatNarratives.TryGetValue(key, out var lines)
+                        && lines != null && lines.Length == 3
+                        && lines.All(l => !string.IsNullOrWhiteSpace(l)),
+                        $"{key} should load 3 authored lines",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                    if (bank == "enemyTaunt")
+                        continue;
+
+                    string narrative = textProvider.ReplacePlaceholders(
+                        textProvider.GetCreatureTieredNarrative(bank, tier),
+                        new Dictionary<string, string> { ["name"] = enemyName, ["player"] = "Hero" });
+                    TestBase.AssertTrue(
+                        LineEqualsFilledBank(narrative, key, ("name", enemyName), ("player", "Hero"))
+                        && !LineEqualsFilledBank(narrative, bank, ("name", enemyName), ("player", "Hero"))
+                        && !narrative.Contains("{name}", StringComparison.Ordinal)
+                        && !narrative.Contains("{player}", StringComparison.Ordinal),
+                        $"{enemyName} {bank} should come from {key}, not generic, with tokens filled",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                }
+
+                var (shouldTaunt, tauntText) = tauntSystem.CheckEnemyTaunt(
+                    tauntActions, 0, enemyName, "Hero", "Frozen Cavern", settings, tier);
+                string tauntKey = CreatureTierIds.SuffixedBank("enemyTaunt", tier);
+                TestBase.AssertTrue(
+                    shouldTaunt
+                    && LineEqualsFilledBank(tauntText, tauntKey, ("name", enemyName), ("player", "Hero"))
+                    && !LineEqualsFilledBank(tauntText, "enemyTaunt", ("name", enemyName), ("player", "Hero"))
+                    && !tauntText.Contains("{player}", StringComparison.Ordinal)
+                    && !tauntText.Contains("{name}", StringComparison.Ordinal),
+                    $"{enemyName} enemy taunt should come from {tauntKey}, not generic",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static bool LineEqualsFilledBank(string line, string key, params (string Token, string Value)[] replacements)
+        {
+            if (string.IsNullOrEmpty(line))
+                return false;
+            if (!FlavorText.GetData().CombatNarratives.TryGetValue(key, out var bank) || bank == null)
+                return false;
+            foreach (var template in bank)
+            {
+                string filled = template;
+                foreach (var (token, value) in replacements)
+                    filled = filled.Replace("{" + token + "}", value);
+                if (string.Equals(line, filled, StringComparison.Ordinal))
+                    return true;
+            }
+            return false;
+        }
+
         private static Func<string, bool> MatchesCombatBank(string key, params (string Token, string Value)[] replacements)
         {
             return line =>
@@ -290,7 +599,8 @@ namespace RPGGame.Tests.Unit.Combat
                     string filled = template;
                     foreach (var (token, value) in replacements)
                         filled = filled.Replace("{" + token + "}", value);
-                    if (string.Equals(line, filled, StringComparison.Ordinal))
+                    if (string.Equals(line, filled, StringComparison.Ordinal)
+                        || line.Contains(filled, StringComparison.Ordinal))
                         return true;
                 }
                 return false;

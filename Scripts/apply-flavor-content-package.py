@@ -487,6 +487,183 @@ COMBAT_NARRATIVES: dict[str, list[str]] = {
         "\"This wood has swallowed better than you, {player}.\" {name} snarls.",
         "\"{player}, no one hears you scream this deep in.\" {name} says, low.",
     ],
+    "playerTaunt_crypt": [
+        "\"The dead down here learned to stay quiet a long time ago, {enemy}. You'll learn faster.\"",
+        "\"{enemy}, every door in this crypt was sealed for a reason. I'm about to be yours.\"",
+        "\"Dust doesn't lie about how long something's been still.\" {name} watches {enemy}. \"You're next.\"",
+        "\"{enemy}, they say the Eye doesn't close down here. Mine won't either.\"",
+    ],
+    "enemyTaunt_crypt": [
+        "\"You'll lie still soon enough, {player}.\" {name}'s voice comes off the stone flat and close.",
+        "\"{player}, this crypt's swallowed better company than you and never once complained.\"",
+        "\"Every name carved into this wall outlived the hand that carved it. Yours won't.\"",
+        "\"{player}, the quiet down here isn't empty. It's patient.\"",
+    ],
+    "playerTaunt_crystal": [
+        "\"{enemy}, this room shows me a dozen versions of you. None of them win.\"",
+        "\"The light lies in here, {enemy}. My blade doesn't.\"",
+        "\"{enemy}, count the reflections if it helps. There's still only one of me that matters.\"",
+        "\"Everything in this room is sharp if you touch it wrong. So am I.\"",
+    ],
+    "enemyTaunt_crystal": [
+        "\"You won't see which one of me is real, {player} — not until it's too late.\"",
+        "\"{player}, the light bends in here. So will you.\"",
+        "\"This room's caught better reflections than yours, {player}, and kept every one.\"",
+        "\"{player}, sharp edges don't ask permission. Neither do I.\"",
+    ],
+    "playerTaunt_lava": [
+        "\"{enemy}, the ground's not the only thing about to give out from under you.\"",
+        "\"Ash settles on everything down here eventually. Might as well be you first.\"",
+        "\"{enemy}, mind your footing. I won't offer the warning twice.\"",
+        "\"The heat doesn't care who started the fight, {enemy}. Neither do I, once it's lit.\"",
+    ],
+    "enemyTaunt_lava": [
+        "\"You won't outlast the heat, {player}.\" Embers drift between {name} and the words.",
+        "\"{player}, this ground's swallowed better than you and asked for seconds.\"",
+        "\"The fire doesn't forgive slow feet, {player}, and neither will I.\"",
+        "\"{player}, everything down here burns clean. You'll be no different.\"",
+    ],
+    "playerTaunt_temple": [
+        "\"{enemy}, whatever they prayed to here stopped listening long before either of us showed up.\"",
+        "\"This floor's been worn smooth by knees, not feet, {enemy}. Yours won't leave a mark.\"",
+        "\"{enemy}, I don't need a blessing to finish this. Just room to swing.\"",
+        "\"Every offering left in this place went unanswered, {enemy}. Don't join the pile.\"",
+    ],
+    "enemyTaunt_temple": [
+        "\"You'll kneel here whether you meant to or not, {player}.\" {name}'s voice fills the hollow stone.",
+        "\"{player}, this temple's outlasted better prayers than yours. It'll outlast you too.\"",
+        "\"Whatever's owed in this place, {player}, you're about to pay part of it.\"",
+        "\"{player}, nobody's listening in here. Except me.\"",
+    ],
+    "playerTaunt_library": [
+        "\"{enemy}, half of what's written on these shelves nobody living can read. Doesn't make it less true.\"",
+        "\"Every book in here outlived somebody who thought it mattered, {enemy}. So will this fight.\"",
+        "\"{enemy}, I don't need to read the ending to know how this goes for you.\"",
+        "\"Some things get lost between these shelves and nobody ever comes looking, {enemy}. Keep that in mind.\"",
+    ],
+    "enemyTaunt_library": [
+        "\"You won't finish reading this one, {player}.\" Dust sifts from the shelf nearest {name}.",
+        "\"{player}, this room's kept quieter things than you buried between its pages.\"",
+        "\"Whatever you came looking for, {player}, it's not going to be worth what this costs.\"",
+        "\"{player}, nobody comes looking for what gets lost in here. Not even you, soon enough.\"",
+    ],
+    "playerTaunt_underwater": [
+        "\"{enemy}, the current doesn't take sides down here. Lucky for me, I don't need it to.\"",
+        "\"I've held my breath longer than you'll last standing, {enemy}.\"",
+        "\"{enemy}, everything down here learns to move with the water. You're running out of time to learn.\"",
+        "\"The deep doesn't forgive slow hands, {enemy}, and neither will I.\"",
+    ],
+    "enemyTaunt_underwater": [
+        "\"You won't surface from this one, {player}.\" The current pulls {name}'s words thin.",
+        "\"{player}, the deep keeps what it takes. Nobody's ever gotten it back.\"",
+        "\"This water's colder than it looks, {player}, and it's about to get worse for you.\"",
+        "\"{player}, no one hears you scream down here. The current sees to that.\"",
+    ],
+    "firstBlood_nativeFauna": [
+        "{name} draws blood and doesn't flinch from the smell of it — this is just what teeth and claws are for.",
+        "The first cut lands, and {name} presses in harder, not softer.",
+        "{name} tastes blood in the air and knows exactly what to do with that.",
+    ],
+    "firstBlood_feralStock": [
+        "{name} draws first blood and hesitates half a step, like something in it expected a different ending to this.",
+        "The cut lands, and for one strange beat {name} looks almost sorry before the fight takes over again.",
+        "{name} presses the advantage, though something in the movement still remembers being called off once.",
+    ],
+    "firstBlood_technoEcho": [
+        "{name} draws blood, and the wound it leaves doesn't spread the way a wound should.",
+        "First blood, and {name}'s rhythm doesn't change at all — like the strike was always going to land.",
+        "The cut opens clean and even, like {name} measured it first.",
+    ],
+    "criticalHit_nativeFauna": [
+        "{name} finds the opening the way a predator finds a limp — instinct, not thought.",
+        "That one lands with everything {name} has behind it.",
+        "{name} doesn't waste the opening. Nothing wild ever does.",
+    ],
+    "criticalHit_feralStock": [
+        "{name} strikes clean, disciplined in a way nothing truly wild should be.",
+        "That hit from {name} lands with old, trained precision — like it was taught, once, by someone patient.",
+        "{name}'s strike finds its mark with a control that doesn't belong to instinct alone.",
+    ],
+    "criticalHit_technoEcho": [
+        "{name}'s strike lands exactly where it was always going to, like the outcome was decided before the swing.",
+        "That hit from {name} connects with a precision nothing alive should have.",
+        "{name} doesn't correct or adjust — the strike was already right the first time.",
+    ],
+    "criticalMiss_nativeFauna": [
+        "{name} overreaches and stumbles, plain and animal about it.",
+        "The swing from {name} goes wide, and for a second it looks almost embarrassed.",
+        "{name} misses clean, off-balance, breathing hard.",
+    ],
+    "criticalMiss_feralStock": [
+        "{name}'s swing goes wide, and it flinches at its own miss like it expected to be corrected.",
+        "The attack from {name} stutters mid-motion, some old discipline breaking rhythm at the wrong moment.",
+        "{name} overreaches, and for a beat it hesitates like it's waiting to be called off.",
+    ],
+    "criticalMiss_technoEcho": [
+        "{name}'s strike goes wide, and the miss doesn't cost it anything it shows.",
+        "The swing from {name} fails to connect, but nothing about its stance says it noticed.",
+        "{name} misses, and resets to the exact same position, like nothing happened at all.",
+    ],
+    "below50Percent_nativeFauna": [
+        "{name} is hurt bad and showing it, breathing hard, favoring one side.",
+        "Half of what {name} started with is gone, and it's still coming.",
+        "{name} bleeds the way anything alive bleeds, and keeps moving anyway.",
+    ],
+    "below50Percent_feralStock": [
+        "{name} is hurt, and something in it keeps glancing toward an exit it won't take.",
+        "Wounded, {name} still holds its ground with a discipline that outlasts the pain.",
+        "{name} favors its injury but doesn't break formation — old training holding even now.",
+    ],
+    "below50Percent_technoEcho": [
+        "{name} is damaged, but nothing about how it moves has actually slowed.",
+        "Half of whatever {name} runs on is gone, and the rhythm hasn't changed once.",
+        "{name}'s wounds don't seem to cost it anything they should.",
+    ],
+    "below10Percent_nativeFauna": [
+        "{name} is barely standing, held up by nothing but stubbornness.",
+        "One more solid hit and {name} won't get up — plain as that.",
+        "{name}'s breath is ragged, legs shaking, and it still won't back down.",
+    ],
+    "below10Percent_feralStock": [
+        "{name} is nearly finished, and something in its eyes looks almost relieved.",
+        "Barely upright, {name} still holds its stance like someone's still watching.",
+        "{name} is a breath from the ground, and won't break formation even now.",
+    ],
+    "below10Percent_technoEcho": [
+        "{name} is nearly finished, and it hasn't once changed its rhythm to show it.",
+        "Whatever's keeping {name} standing isn't stubbornness — it's just not done yet.",
+        "{name} is a hit from falling, and its stance hasn't shifted an inch to compensate.",
+    ],
+    "enemyDefeated_nativeFauna": [
+        "{name} goes down hard and stays down — a real, earned kill, nothing more or less.",
+        "{name} doesn't get back up. It never had anything left to get up with.",
+        "{player} stands over {name}, and there's nothing strange about what's left.",
+    ],
+    "enemyDefeated_feralStock": [
+        "{name} goes still, and for a moment it looks less like a kill than something finally let go.",
+        "{player} stands over {name}, and it's hard not to think of what it might have been, once.",
+        "{name} doesn't get back up. Whatever it remembered, it doesn't anymore.",
+    ],
+    "enemyDefeated_technoEcho": [
+        "{name} goes down, and whatever's inside it stops being warm faster than it should.",
+        "{player} stands over {name}, and the stillness afterward is too even to be natural.",
+        "{name} doesn't get back up, and what's left of it doesn't decay the way it should either.",
+    ],
+    "enemyTaunt_nativeFauna": [
+        "\"{player}, you're bleeding and you don't even know it yet.\" {name} circles, low and patient.",
+        "\"I don't need long for this, {player}.\" {name} says, unbothered, teeth bared.",
+        "\"{player}, you smell like something already tired.\" {name} watches close.",
+    ],
+    "enemyTaunt_feralStock": [
+        "\"{player}, I don't want to do this, but I will.\" {name} says, voice caught between snarl and hesitation.",
+        "\"You remind me of someone I used to listen to, {player}. Doesn't change what happens next.\" {name} says.",
+        "\"{player}, some part of me still waits for a hand that isn't coming. Yours won't be it.\" {name} says, low.",
+    ],
+    "enemyTaunt_technoEcho": [
+        "\"This ends however it was always going to end, {player}.\" {name} says, voice too even to be angry.",
+        "\"{player}, you're not the first. You won't be the last, and I won't remember either.\" {name} says.",
+        "\"I don't tire, {player}. I don't know how.\" {name} says, flat.",
+    ],
 }
 
 
@@ -553,14 +730,32 @@ def apply_updates(sheet, updates: dict[tuple[str, str, str], list[str]], dry_run
 
     for gkey, new_lines in sorted(updates.items(), key=lambda x: groups.get(x[0], [0])[0], reverse=True):
         rows = groups.get(gkey)
-        if not rows:
-            print(f"WARNING: no rows found for {gkey}", file=sys.stderr)
-            continue
-
         section, bank, key = gkey
         display = f"{section}/{bank}/{key}" if key else f"{section}/{bank}"
-        old_count = len(rows)
         new_count = len(new_lines)
+
+        if not rows:
+            if dry_run:
+                print(f"  {display}: would ADD {new_count} lines (new bank)")
+                if new_lines:
+                    print(f"    sample: {new_lines[0][:72]}...")
+                stats["updated_keys"] += 1
+                stats["rows_added"] += new_count
+                continue
+
+            insert_at = sheet.max_row + 1
+            for i, line in enumerate(new_lines):
+                r = insert_at + i
+                sheet.cell(r, col["section"]).value = section
+                sheet.cell(r, col["bank"]).value = bank
+                sheet.cell(r, col["key"]).value = key if key else None
+                sheet.cell(r, col["text"]).value = line
+            stats["rows_added"] += new_count
+            stats["updated_keys"] += 1
+            print(f"  added {display}: {new_count} lines")
+            continue
+
+        old_count = len(rows)
 
         if dry_run:
             print(f"  {display}: {new_count} lines (was {old_count})")

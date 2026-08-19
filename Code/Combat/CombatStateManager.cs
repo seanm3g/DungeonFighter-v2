@@ -23,7 +23,7 @@ namespace RPGGame
         /// <summary>
         /// Starts battle narrative and initializes combat state
         /// </summary>
-        public void StartBattleNarrative(string playerName, string enemyName, string locationName, int playerHealth, int enemyHealth)
+        public void StartBattleNarrative(string playerName, string enemyName, string locationName, int playerHealth, int enemyHealth, string? creatureTier = null)
         {
             // Clear previous battle's narrative before starting a new one
             currentBattleNarrative = null;
@@ -31,7 +31,7 @@ namespace RPGGame
             // Reset one-shot kill tracking for new battle
             hadOneShotKill = false;
 
-            currentBattleNarrative = new BattleNarrative(playerName, enemyName, locationName, playerHealth, enemyHealth);
+            currentBattleNarrative = new BattleNarrative(playerName, enemyName, locationName, playerHealth, enemyHealth, creatureTier);
             
             // Initialize fun moment tracker
             funMomentTracker = new FunMomentTracker();

@@ -32,6 +32,9 @@ namespace RPGGame.Tests.Unit.Combat
             TestUpdateFinalHealth();
             TestAnalyzeEvent();
             TestIsSignificantEventAfterAnalyzeEvent();
+            TestCreatureTierBankThenGenericFallback();
+            TestCreatureTierCritUsesEnemyActorOnly();
+            TestEnemyTauntTierBankThenBiomeFallback();
 
             TestBase.PrintSummary("BattleEventAnalyzer Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -175,6 +178,149 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(analyzer.IsSignificantEvent(evt, settings),
                 "IsSignificantEvent should still be true for the event that just generated text",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCreatureTierBankThenGenericFallback()
+        {
+            Console.WriteLine("\n--- Testing creature-tier bank then generic fallback ---");
+
+            var data = FlavorText.GetData();
+            string unique = "TIER_FIRST_BLOOD_MARKER_technoEcho";
+            data.CombatNarratives.TryGetValue("firstBlood_technoEcho", out var previous);
+            FlavorTextBankCatalog.SetBank(data, "combatNarratives.firstBlood_technoEcho", new[] { unique });
+
+            try
+            {
+                var textProvider = new NarrativeTextProvider();
+                string tiered = textProvider.GetCreatureTieredNarrative("firstBlood", CreatureTierIds.TechnoEcho);
+                TestBase.AssertEqual(unique, tiered,
+                    "Non-empty tier bank should win over generic firstBlood",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                FlavorTextBankCatalog.SetBank(data, "combatNarratives.firstBlood_technoEcho", Array.Empty<string>());
+                string fallback = textProvider.GetCreatureTieredNarrative("firstBlood", CreatureTierIds.TechnoEcho);
+                TestBase.AssertTrue(fallback != unique && !string.IsNullOrEmpty(fallback),
+                    "Empty tier bank should fall back to generic firstBlood",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                string missingTag = textProvider.GetCreatureTieredNarrative("firstBlood", null);
+                TestBase.AssertTrue(!string.IsNullOrEmpty(missingTag),
+                    "Missing creatureTier should use generic firstBlood",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var stateManager = new NarrativeStateManager();
+                var analyzer = new BattleEventAnalyzer(textProvider, stateManager, new TauntSystem(textProvider));
+                analyzer.Initialize("Hero", "Goblin", "Hall", 100, 100, CreatureTierIds.TechnoEcho);
+                FlavorTextBankCatalog.SetBank(data, "combatNarratives.firstBlood_technoEcho", new[] { unique });
+                var lines = analyzer.AnalyzeEvent(new BattleEvent
+                {
+                    Actor = "Hero",
+                    Target = "Goblin",
+                    Damage = 10,
+                    IsSuccess = true
+                }, GameSettings.Instance);
+                TestBase.AssertTrue(lines.Contains(unique),
+                    "AnalyzeEvent firstBlood should use the enemy creature-tier bank",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                FlavorTextBankCatalog.SetBank(data, "combatNarratives.firstBlood_technoEcho", previous ?? Array.Empty<string>());
+            }
+        }
+
+        private static void TestCreatureTierCritUsesEnemyActorOnly()
+        {
+            Console.WriteLine("\n--- Testing creature-tier crit banks apply to the enemy actor only ---");
+
+            var data = FlavorText.GetData();
+            string unique = "TIER_CRIT_MARKER_technoEcho {name}";
+            data.CombatNarratives.TryGetValue("criticalHit_technoEcho", out var previous);
+            FlavorTextBankCatalog.SetBank(data, "combatNarratives.criticalHit_technoEcho", new[] { unique });
+
+            try
+            {
+                var settings = new GameSettings { NarrativeBalance = 1.0 };
+                var textProvider = new NarrativeTextProvider();
+
+                var playerAnalyzer = new BattleEventAnalyzer(textProvider, new NarrativeStateManager(), new TauntSystem(textProvider));
+                playerAnalyzer.Initialize("Hero", "Goblin", "Hall", 100, 100, CreatureTierIds.TechnoEcho);
+                var playerLines = playerAnalyzer.AnalyzeEvent(new BattleEvent
+                {
+                    Actor = "Hero",
+                    Target = "Goblin",
+                    Damage = 20,
+                    IsSuccess = true,
+                    IsCritical = true,
+                    Roll = 20
+                }, settings);
+                TestBase.AssertTrue(!playerLines.Any(l => l.Contains("TIER_CRIT_MARKER_technoEcho", StringComparison.Ordinal)),
+                    "Player crit should stay on the generic criticalHit bank",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var enemyAnalyzer = new BattleEventAnalyzer(textProvider, new NarrativeStateManager(), new TauntSystem(textProvider));
+                enemyAnalyzer.Initialize("Hero", "Goblin", "Hall", 100, 100, CreatureTierIds.TechnoEcho);
+                var enemyLines = enemyAnalyzer.AnalyzeEvent(new BattleEvent
+                {
+                    Actor = "Goblin",
+                    Target = "Hero",
+                    Damage = 20,
+                    IsSuccess = true,
+                    IsCritical = true,
+                    Roll = 20
+                }, settings);
+                TestBase.AssertTrue(enemyLines.Any(l => l.Contains("TIER_CRIT_MARKER_technoEcho", StringComparison.Ordinal)),
+                    "Enemy crit should use criticalHit_{creatureTier}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                FlavorTextBankCatalog.SetBank(data, "combatNarratives.criticalHit_technoEcho", previous ?? Array.Empty<string>());
+            }
+        }
+
+        private static void TestEnemyTauntTierBankThenBiomeFallback()
+        {
+            Console.WriteLine("\n--- Testing enemy taunt: creature-tier bank then biome, never multiplied ---");
+
+            var data = FlavorText.GetData();
+            string unique = "TIER_TAUNT_MARKER You cannot hide, {player}!";
+            string forestPinned = "FOREST_TAUNT_MARKER Stay out of my woods, {player}!";
+            data.CombatNarratives.TryGetValue("enemyTaunt_technoEcho", out var previous);
+            data.CombatNarratives.TryGetValue("enemyTaunt_forest", out var previousForest);
+            var textProvider = new NarrativeTextProvider();
+            var tauntSystem = new TauntSystem(textProvider);
+            var settings = new GameSettings { NarrativeBalance = 0 };
+            int actions = tauntSystem.GetEnemyTauntThreshold(0, settings);
+
+            try
+            {
+                FlavorTextBankCatalog.SetBank(data, "combatNarratives.enemyTaunt_forest", new[] { forestPinned });
+                FlavorTextBankCatalog.SetBank(data, "combatNarratives.enemyTaunt_technoEcho", Array.Empty<string>());
+                var (shouldBiome, biomeText) = tauntSystem.CheckEnemyTaunt(
+                    actions, 0, "Goblin", "Hero", "Dark Forest", settings, CreatureTierIds.TechnoEcho);
+                TestBase.AssertTrue(shouldBiome && biomeText.Contains("FOREST_TAUNT_MARKER", StringComparison.Ordinal) && biomeText.Contains("Hero"),
+                    "Empty enemyTaunt_{tier} should use the existing biome matcher (forest), not a multiplied key",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var (shouldHall, hallText) = tauntSystem.CheckEnemyTaunt(
+                    actions, 0, "Goblin", "Hero", "Hall", settings, CreatureTierIds.TechnoEcho);
+                TestBase.AssertTrue(shouldHall && !string.IsNullOrEmpty(hallText) && !hallText.Contains("FOREST_TAUNT_MARKER", StringComparison.Ordinal),
+                    "Hall has no biome key; empty tier bank falls back to generic enemyTaunt",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                FlavorTextBankCatalog.SetBank(data, "combatNarratives.enemyTaunt_technoEcho", new[] { unique });
+                var (shouldTier, tierText) = tauntSystem.CheckEnemyTaunt(
+                    actions, 0, "Goblin", "Hero", "Dark Forest", settings, CreatureTierIds.TechnoEcho);
+                TestBase.AssertTrue(shouldTier && tierText.Contains("TIER_TAUNT_MARKER", StringComparison.Ordinal) && tierText.Contains("Hero"),
+                    "Non-empty enemyTaunt_{tier} should win over biome taunts without creating enemyTaunt_forest_technoEcho",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                FlavorTextBankCatalog.SetBank(data, "combatNarratives.enemyTaunt_technoEcho", previous ?? Array.Empty<string>());
+                FlavorTextBankCatalog.SetBank(data, "combatNarratives.enemyTaunt_forest", previousForest ?? Array.Empty<string>());
+            }
         }
 
         #endregion

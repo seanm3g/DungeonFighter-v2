@@ -10,11 +10,12 @@ This document contains solutions to common problems encountered during developme
 **Root cause:** `AnalyzeEvent()` set one-shot flags (`HasFirstBloodOccurred`, etc.) while generating text. `GetTriggeredNarrativesIfSignificant()` then called `IsSignificantEvent()`, which required those flags to still be false.
 
 **Solutions:**
-1. Capture per-event "display this instance" flags in `BattleEventAnalyzer` at generation time
-2. `IsSignificantEvent` reads those instance flags, not the mutated one-shot state
-3. `BattleNarrative.AddEvent` caches the generated lines so display does not re-analyze (which would see flags already set)
-4. `NarrativeTriggerEvaluator.Initialize` now receives player/enemy names (they were previously stuck as empty from construction-before-Initialize)
-5. Tests: `BattleNarrativeTests`, `BattleEventAnalyzerTests`
+1. `AnalyzeEvent()` still sets one-shot flags while generating, and still captures per-event display flags for `IsSignificantEvent`
+2. `GetTriggeredNarrativesIfSignificant()` displays the cached `lastEventNarratives` whenever AnalyzeEvent returned text — it does **not** re-check `HasFirstBloodOccurred` / `IsSignificantEvent` (that second gate was still able to drop lines)
+3. Health-recovery `NarrativeBalance >= 0.7` is applied at generation time so generation == display
+4. `BattleNarrative.AddEvent` caches the generated lines so display does not re-analyze
+5. `NarrativeTriggerEvaluator.Initialize` now receives player/enemy names (they were previously stuck as empty from construction-before-Initialize)
+6. Tests: `BattleNarrativeTests` (including live execute → `BlockMessageCollector` combat-log path), `BattleEventAnalyzerTests`
 
 **Related files:** `BattleEventAnalyzer.cs`, `BattleNarrative.cs`, `NarrativeTriggerEvaluator.cs`
 

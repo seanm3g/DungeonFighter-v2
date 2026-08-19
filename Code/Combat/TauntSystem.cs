@@ -30,13 +30,14 @@ namespace RPGGame
                 return "library";
             else if (lowerEnv.Contains("water") || lowerEnv.Contains("ocean") || lowerEnv.Contains("sea") || lowerEnv.Contains("underwater"))
                 return "underwater";
-            else if (lowerEnv.Contains("lava") || lowerEnv.Contains("volcano") || lowerEnv.Contains("fire"))
+            else if (lowerEnv.Contains("lava") || lowerEnv.Contains("volcano") || lowerEnv.Contains("volcanic")
+                     || lowerEnv.Contains("magma") || lowerEnv.Contains("molten") || lowerEnv.Contains("fire"))
                 return "lava";
             else if (lowerEnv.Contains("crypt") || lowerEnv.Contains("tomb") || lowerEnv.Contains("grave"))
                 return "crypt";
-            else if (lowerEnv.Contains("crystal") || lowerEnv.Contains("cave"))
+            else if (lowerEnv.Contains("crystal") || lowerEnv.Contains("geode"))
                 return "crystal";
-            else if (lowerEnv.Contains("temple") || lowerEnv.Contains("sanctuary"))
+            else if (lowerEnv.Contains("temple") || lowerEnv.Contains("shrine") || lowerEnv.Contains("altar"))
                 return "temple";
             else if (lowerEnv.Contains("forest") || lowerEnv.Contains("grove"))
                 return "forest";
@@ -124,7 +125,14 @@ namespace RPGGame
         /// <summary>
         /// Checks if an enemy taunt should trigger and returns the taunt text if so
         /// </summary>
-        public (bool shouldTaunt, string tauntText) CheckEnemyTaunt(int enemyActionCount, int enemyTauntCount, string enemyName, string playerName, string currentLocation, GameSettings settings)
+        public (bool shouldTaunt, string tauntText) CheckEnemyTaunt(
+            int enemyActionCount,
+            int enemyTauntCount,
+            string enemyName,
+            string playerName,
+            string currentLocation,
+            GameSettings settings,
+            string? creatureTier = null)
         {
             if (enemyTauntCount >= 2)
                 return (false, "");
@@ -132,11 +140,26 @@ namespace RPGGame
             int threshold = GetEnemyTauntThreshold(enemyTauntCount, settings);
             if (enemyActionCount >= threshold)
             {
+                if (CreatureTierIds.TryCanonicalize(creatureTier, out var tier)
+                    && textProvider.TryGetBankNarrative(CreatureTierIds.SuffixedBank("enemyTaunt", tier), out var tierTaunt))
+                {
+                    string filled = ApplyTauntPlaceholders(tierTaunt, "enemy", enemyName, playerName);
+                    return (true, filled);
+                }
+
                 string taunt = GetLocationSpecificTaunt("enemy", enemyName, playerName, currentLocation);
                 return (true, taunt);
             }
 
             return (false, "");
+        }
+
+        private static string ApplyTauntPlaceholders(string taunt, string taunterType, string taunterName, string targetName)
+        {
+            taunt = taunt.Replace("{name}", taunterName);
+            if (taunterType == "player")
+                return taunt.Replace("{enemy}", targetName);
+            return taunt.Replace("{player}", targetName);
         }
     }
 }

@@ -22,6 +22,7 @@ namespace RPGGame
         private string playerName = "";
         private string enemyName = "";
         private string currentLocation = "";
+        private string? creatureTier;
 
         // Per-event "should display this instance" flags, captured while generating
         // (before / as one-shot state flags mutate). Distinct from Has*Occurred, which
@@ -54,16 +55,17 @@ namespace RPGGame
         /// Initializes the analyzer with battle context
         /// </summary>
         public void Initialize(string playerName, string enemyName, string currentLocation,
-            int initialPlayerHealth, int initialEnemyHealth)
+            int initialPlayerHealth, int initialEnemyHealth, string? creatureTier = null)
         {
             this.playerName = playerName;
             this.enemyName = enemyName;
             this.currentLocation = currentLocation;
+            this.creatureTier = creatureTier;
             this.initialPlayerHealth = initialPlayerHealth;
             this.initialEnemyHealth = initialEnemyHealth;
             this.finalPlayerHealth = initialPlayerHealth;
             this.finalEnemyHealth = initialEnemyHealth;
-            triggerEvaluator.Initialize(playerName, enemyName, currentLocation, initialPlayerHealth, initialEnemyHealth);
+            triggerEvaluator.Initialize(playerName, enemyName, currentLocation, initialPlayerHealth, initialEnemyHealth, creatureTier);
         }
 
         /// <summary>
@@ -89,7 +91,7 @@ namespace RPGGame
             {
                 currentEventFirstBlood = true;
                 stateManager.SetFirstBloodOccurred();
-                string narrative = textProvider.GetRandomNarrative("firstBlood");
+                string narrative = textProvider.GetCreatureTieredNarrative("firstBlood", creatureTier);
                 triggeredNarratives.Add(narrative);
                 stateManager.IncrementNarrativeEventCount();
             }
@@ -110,7 +112,9 @@ namespace RPGGame
                     stateManager.SetRecentCriticalHitNarrative();
                     var replacements = new Dictionary<string, string> { { "name", evt.Actor } };
                     string narrative = textProvider.ReplacePlaceholders(
-                        textProvider.GetRandomNarrative("criticalHit"),
+                        evt.Actor == enemyName
+                            ? textProvider.GetCreatureTieredNarrative("criticalHit", creatureTier)
+                            : textProvider.GetRandomNarrative("criticalHit"),
                         replacements);
                     triggeredNarratives.Add(narrative);
                     stateManager.IncrementNarrativeEventCount();
@@ -123,7 +127,9 @@ namespace RPGGame
                 currentEventCriticalMiss = true;
                 var replacements = new Dictionary<string, string> { { "name", evt.Actor } };
                 string narrative = textProvider.ReplacePlaceholders(
-                    textProvider.GetRandomNarrative("criticalMiss"),
+                    evt.Actor == enemyName
+                        ? textProvider.GetCreatureTieredNarrative("criticalMiss", creatureTier)
+                        : textProvider.GetRandomNarrative("criticalMiss"),
                     replacements);
                 triggeredNarratives.Add(narrative);
                 stateManager.IncrementNarrativeEventCount();
@@ -142,8 +148,8 @@ namespace RPGGame
                 stateManager.IncrementNarrativeEventCount();
             }
 
-            // Health Recovery - when someone heals
-            if (evt.IsHeal && evt.HealAmount > 0)
+            // Health Recovery - when someone heals (balance gate lives here so generation == display)
+            if (evt.IsHeal && evt.HealAmount > 0 && settings.NarrativeBalance >= 0.7)
             {
                 currentEventHealthRecovery = true;
                 var replacements = new Dictionary<string, string> { { "name", evt.Target } };
@@ -216,7 +222,7 @@ namespace RPGGame
                     { "player", playerName }
                 };
                 string narrative = textProvider.ReplacePlaceholders(
-                    textProvider.GetRandomNarrative("enemyDefeated"),
+                    textProvider.GetCreatureTieredNarrative("enemyDefeated", creatureTier),
                     replacements);
                 triggeredNarratives.Add(narrative);
             }
@@ -252,7 +258,7 @@ namespace RPGGame
                 return true;
             if (currentEventTaunt)
                 return true;
-            if (currentEventHealthRecovery && settings.NarrativeBalance >= 0.7)
+            if (currentEventHealthRecovery)
                 return true;
 
             return false;

@@ -88,6 +88,12 @@ namespace RPGGame
         public List<string> Actions { get; set; } = new List<string>();
         [JsonPropertyName("isLiving")]
         public bool IsLiving { get; set; } = true; // Default to living if not specified
+        /// <summary>
+        /// Combat-narrative voice: <c>nativeFauna</c>, <c>feralStock</c>, or <c>technoEcho</c>.
+        /// Missing/invalid values fall back to unsuffixed combatNarratives banks.
+        /// </summary>
+        [JsonPropertyName("creatureTier")]
+        public string? CreatureTier { get; set; }
         [JsonPropertyName("description")]
         public string Description { get; set; } = "";
         [JsonPropertyName("colorOverride")]

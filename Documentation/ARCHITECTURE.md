@@ -42,6 +42,7 @@ DungeonFighter/
 - **`Code/Combat/CombatResults.cs`** - Handles UI display and result formatting
 - **`Code/Combat/TurnManager.cs`** - Manages turn-based combat logic
 - **`Code/Combat/BattleNarrative.cs`** - Event-driven battle descriptions
+- **`Code/Combat/TauntSystem.cs`** - Location-specific combat taunts (`playerTaunt_{biome}` / `enemyTaunt_{biome}`). `GetLocationType` matches room display-name substrings: library/study/archive → `library`; water/ocean/sea/underwater → `underwater`; lava/volcano/volcanic/magma/molten/fire → `lava`; crypt/tomb/grave → `crypt`; crystal/geode → `crystal`; temple/shrine/altar → `temple`; forest/grove → `forest`; else generic. Bare `cave`/`cavern` is not Crystal (so Frozen Cavern stays generic). `sanctuary` is not Temple (so Marsh Sanctuary stays generic). Creature-tier `enemyTaunt_{tier}` is a separate fallback axis.
 - **`Code/Combat/BattleHealthTracker.cs`** - Health tracking for battle narrative system
 
 ### **Character System (Refactored Architecture)**
@@ -124,6 +125,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 
 ### **Enemy System (Refactored Architecture)**
 - **`Code/Entity/Enemy.cs`** - Enemy entity with AI and combat behavior (refactored from 493 to 321 lines)
+- **`Code/Entity/CreatureTierIds.cs`** - Combat-narrative creature voice (`nativeFauna` / `feralStock` / `technoEcho`); independent of substance tags and biome taunts
 - **`Code/Entity/EnemyData.cs`** - Enemy data structures, enums, and attack profiles
 - **`Code/Entity/ArchetypeManager.cs`** - Enemy archetype logic and profile management
 - **`Code/Entity/EnemyCombatManager.cs`** - Enemy-specific combat logic and action attempts

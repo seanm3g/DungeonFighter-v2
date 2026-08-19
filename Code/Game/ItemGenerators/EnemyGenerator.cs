@@ -109,6 +109,7 @@ namespace RPGGame
                 HealthGrowthPercent = existing.HealthGrowthPercent,
                 Actions = existing.Actions,
                 IsLiving = existing.IsLiving,
+                CreatureTier = existing.CreatureTier,
                 Description = existing.Description,
                 ColorOverride = existing.ColorOverride,
             };

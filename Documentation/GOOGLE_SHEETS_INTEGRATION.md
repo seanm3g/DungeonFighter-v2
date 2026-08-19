@@ -148,7 +148,7 @@ Single header row; fixed columns **A–K** → `GameData/Triggers.json` (Consuma
 
 ### ENEMIES
 
-Two-row header (category band + short names), then data rows. Canonical columns **A–U**:
+Two-row header (category band + short names), then data rows. Canonical columns **A–V**:
 
 | Col | Field | Notes |
 |-----|-------|-------|
@@ -159,7 +159,7 @@ Two-row header (category band + short names), then data rows. Canonical columns 
 | H–K | base attributes | `strength`, `agility`, `technique`, `intelligence` |
 | L–O | growth per level | same four stats (sum normalized to 6/level in game) |
 | P–Q | HEALTH | `healthPercent`, `healthGrowthPercent` — % of tuning baseline health (`enemySystem.baselineStats.health`; default 70). E.g. `125` = 125% of baseline at level 1; `3.36` = 3.36% of baseline per level after level 1. Optional `%` suffix accepted on pull. Legacy headers `baseHealth` / `healthGrowthPerLevel` still import. **Final displayed HP also multiplies by Combat Tuning knobs** (`baseHealthScale`, `globalEnemyHealthMult`, runtime difficulty) — sheet `100%` alone does not mean 100 displayed HP. |
-| R–U | `actions`, `isLiving`, `description`, `colorOverride` | `actions`: pipe list (`JAB\|TAUNT`), not a JSON array |
+| R–V | `actions`, `isLiving`, `creatureTier`, `description`, `colorOverride` | `actions`: pipe list (`JAB\|TAUNT`), not a JSON array. `creatureTier`: `nativeFauna` / `feralStock` / `technoEcho` (combat narrative voice; blank = generic banks) |
 
 **Authoring flow:** edit **Archetype** and **tags** on the ENEMIES tab → **PULL** → `Enemies.json` updates (archetype Title Case normalized on import). **Push** writes local `Enemies.json` back to the sheet (enable **Push ENEMIES** in Balance Tuning). Push exports `tags` comma-separated and `actions` pipe-separated.
 
@@ -313,11 +313,23 @@ Optional `tags` column: comma-separated registry tags on push (e.g. `undead, bos
 | environments | roomContexts | Forest/boss | This ancient grove… |
 | classQualifiers | classNames | barbarian | barbarian |
 | combatNarratives | firstBlood | *(empty)* | The first drop… |
+| combatNarratives | firstBlood_technoEcho | *(empty)* | Creature-tier override (`nativeFauna` / `feralStock` / `technoEcho`); empty bank falls back to `firstBlood` |
 | forms | roomEnter | displayName | Room Enter |
 | forms | roomEnter | template | You step inside… |
 | categories | intro | *(empty)* | Moss coats the walls. |
 
 Built by `FlavorTextSheetConverter` from `FlavorText.json`. **PULL** leaves local FlavorText unchanged (logs a skip).
+
+**Excel content pipeline** (local workbook, not OAuth pull): authored combat/location lines live in `Scripts/apply-flavor-content-package.py` (`COMBAT_NARRATIVES`, `LOCATION_DESCRIPTIONS`, `ROOM_CONTEXTS`). Apply to the `flavor` sheet, then sync into `GameData/FlavorText.json`:
+
+```bash
+python Scripts/apply-flavor-content-package.py --xlsx "/path/to/DEMON FIGHTER - DATA (1).xlsx" --dry-run
+python Scripts/apply-flavor-content-package.py --xlsx "/path/to/DEMON FIGHTER - DATA (1).xlsx"
+python Scripts/sync-flavor-text-from-xlsx.py --xlsx "/path/to/DEMON FIGHTER - DATA (1).xlsx"
+python Scripts/sync-flavor-text-from-xlsx.py --xlsx "/path/to/DEMON FIGHTER - DATA (1).xlsx" --write
+```
+
+`--write` backs up `FlavorText.json.bak` and patches only locationDescriptions, roomContexts, and combatNarratives. Biome taunt banks are `playerTaunt_{biome}` / `enemyTaunt_{biome}` (forest, crypt, crystal, lava, temple, library, underwater). Creature-tier banks are `{event}_{nativeFauna|feralStock|technoEcho}` for firstBlood / criticalHit / criticalMiss / below50Percent / below10Percent / enemyDefeated / enemyTaunt.
 
 ### Class Upgrades (`SkillTrees.json`)
 

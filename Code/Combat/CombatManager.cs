@@ -84,9 +84,9 @@ namespace RPGGame
         /// <summary>
         /// Starts battle narrative and initializes combat state
         /// </summary>
-        public void StartBattleNarrative(string playerName, string enemyName, string locationName, int playerHealth, int enemyHealth)
+        public void StartBattleNarrative(string playerName, string enemyName, string locationName, int playerHealth, int enemyHealth, string? creatureTier = null)
         {
-            stateManager.StartBattleNarrative(playerName, enemyName, locationName, playerHealth, enemyHealth);
+            stateManager.StartBattleNarrative(playerName, enemyName, locationName, playerHealth, enemyHealth, creatureTier);
         }
 
         /// <summary>
@@ -358,7 +358,7 @@ namespace RPGGame
             player.ResetCombo();
             
             // Start battle narrative and initialize action speed system
-            StartBattleNarrative(player.Name, currentEnemy.Name, room.Name, player.CurrentHealth, currentEnemy.CurrentHealth);
+            StartBattleNarrative(player.Name, currentEnemy.Name, room.Name, player.CurrentHealth, currentEnemy.CurrentHealth, currentEnemy.CreatureTier);
             SkillEffectRouter.Instance.RefreshForCharacter(player);
             RPGGame.Actions.Conditional.CombatTriggerContext.SetLivingEnemyCountFromRoom(room);
             

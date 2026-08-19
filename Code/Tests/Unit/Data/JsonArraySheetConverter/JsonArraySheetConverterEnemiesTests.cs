@@ -25,6 +25,7 @@ namespace RPGGame.Tests.Unit.Data.JsonArraySheetConverter
             EnemiesNewSheetLayoutImport(ref run, ref pass, ref fail);
             EnemiesArchetypeCanonicalization(ref run, ref pass, ref fail);
             EnemiesActionsPipePushFormat(ref run, ref pass, ref fail);
+            EnemiesCreatureTierRoundTrip(ref run, ref pass, ref fail);
         }
 
 
@@ -267,6 +268,23 @@ namespace RPGGame.Tests.Unit.Data.JsonArraySheetConverter
             var rows = SheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
             int actionsIdx = Array.IndexOf(SheetConverter.EnemiesCanonicalHeaders, "actions");
             TestBase.AssertEqual("JAB|TAUNT", rows[2][actionsIdx]?.ToString(), "actions pipe cell", ref run, ref pass, ref fail);
+        }
+
+        private static void EnemiesCreatureTierRoundTrip(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(EnemiesCreatureTierRoundTrip));
+            const string json = """
+            [{"name":"Wolf","archetype":"Berserker","healthPercent":40,"actions":["JAB"],"isLiving":true,"creatureTier":"feralStock","description":"x"}]
+            """;
+            var rows = SheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
+            string hdr = string.Join(",", rows[1].Select(o => o?.ToString() ?? ""));
+            TestBase.AssertTrue(hdr.Contains("creatureTier", StringComparison.Ordinal), "creatureTier column", ref run, ref pass, ref fail);
+            int idx = Array.IndexOf(SheetConverter.EnemiesCanonicalHeaders, "creatureTier");
+            TestBase.AssertEqual("feralStock", rows[2][idx]?.ToString(), "creatureTier cell", ref run, ref pass, ref fail);
+            var csv = JsonArraySheetConverterTestHelpers.RowsToCsv(rows);
+            string outJson = SheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Enemies);
+            using var a = JsonDocument.Parse(outJson);
+            TestBase.AssertEqual("feralStock", a.RootElement[0].GetProperty("creatureTier").GetString(), "round-trip", ref run, ref pass, ref fail);
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame;
 using RPGGame.Data;
 
 namespace RPGGame.Data.Validation
@@ -83,7 +84,11 @@ namespace RPGGame.Data.Validation
                 ValidateNonNegative(result, entityName, "growthPerLevel.intelligence", enemy.GrowthPerLevel.Intelligence);
             }
 
-            if (enemy.Tags != null)
+            if (!string.IsNullOrWhiteSpace(enemy.CreatureTier) && !CreatureTierIds.IsValid(enemy.CreatureTier))
+            {
+                result.AddWarning(FileName, entityName, "creatureTier",
+                    $"Unknown creatureTier '{enemy.CreatureTier}'. Valid values: {string.Join(", ", CreatureTierIds.All)}");
+            }
             {
                 foreach (var message in GameDataTagHelper.ValidateRegistryTags(RPGGame.World.Tags.TagEntityScope.Enemy, enemy.Tags))
                     result.AddWarning(FileName, entityName, "tags", message);

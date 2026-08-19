@@ -43,6 +43,47 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// True when FlavorText.json has a non-empty bank for <paramref name="eventType"/>.
+        /// Does not use hardcoded fallbacks — empty/missing banks should fall through to another key.
+        /// </summary>
+        public bool TryGetBankNarrative(string eventType, out string narrative)
+        {
+            narrative = "";
+            try
+            {
+                var combatNarratives = FlavorText.GetData().CombatNarratives;
+                if (combatNarratives != null
+                    && combatNarratives.TryGetValue(eventType, out string[]? narratives)
+                    && narratives != null
+                    && narratives.Length > 0)
+                {
+                    narrative = narratives[narrativeRandom.Next(narratives.Length)];
+                    return !string.IsNullOrEmpty(narrative);
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Creature-tier bank first (<c>{baseKey}_{tier}</c>), then unsuffixed <paramref name="baseKey"/>.
+        /// Missing tag or empty tier bank uses the generic bank (same fallback idea as biome taunts).
+        /// </summary>
+        public string GetCreatureTieredNarrative(string baseKey, string? creatureTier)
+        {
+            if (CreatureTierIds.TryCanonicalize(creatureTier, out var tier)
+                && TryGetBankNarrative(CreatureTierIds.SuffixedBank(baseKey, tier), out var specific))
+            {
+                return specific;
+            }
+
+            return GetRandomNarrative(baseKey);
+        }
+
+        /// <summary>
         /// Provides fallback narrative text when FlavorText.json is not available
         /// </summary>
         /// <param name="eventType">The type of narrative event</param>

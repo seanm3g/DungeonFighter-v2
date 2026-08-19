@@ -42,6 +42,10 @@ Material tags are copied onto `Item.Tags` when a Material prefix is rolled at lo
 | Knight | Assassin | Berserker | Acrobat | Brute |
 | Warlord | Sage | Duelist | Trickster |
 
+## Enemy creatureTier (field — not a tag)
+
+ENEMIES column `creatureTier`: `nativeFauna` / `feralStock` / `technoEcho`. Combat-narrative voice only. Do not add these strings to `tags`. Suffixed combat banks (`firstBlood_{tier}`, `criticalHit_{tier}`, `criticalMiss_{tier}`, `below50Percent_{tier}`, `below10Percent_{tier}`, `enemyDefeated_{tier}`, `enemyTaunt_{tier}`) are selected before the unsuffixed generic bank. Biome taunts (`enemyTaunt_forest`, `playerTaunt_crypt`, `playerTaunt_crystal`, `playerTaunt_lava`, `playerTaunt_temple`, `playerTaunt_library`, `playerTaunt_underwater`, and matching `enemyTaunt_*`) stay a separate axis. `TauntSystem.GetLocationType` picks the biome suffix from the room display name (`crystal`/`geode` → crystal; `temple`/`shrine`/`altar` → temple; not bare `cave`/`cavern` or `sanctuary`).
+
 ## ENVIRONMENTS sheet (→ `Rooms.json`)
 
 Columns: `region`, `biome`, `location`, `tags`, `description`, `actions`, `enemies`, optional `unstableThresholdMod` (`4`, `-2`, `2`, `0`).

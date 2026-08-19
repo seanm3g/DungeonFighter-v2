@@ -128,6 +128,19 @@ namespace RPGGame
             Assert(tauntSystem.GetLocationType("Underwater Cave") == "underwater", "Should detect underwater");
             Assert(tauntSystem.GetLocationType("Lava Pits") == "lava", "Should detect lava");
             Assert(tauntSystem.GetLocationType("Ancient Crypt") == "crypt", "Should detect crypt");
+            Assert(tauntSystem.GetLocationType("Crystal Garden") == "crystal", "Should detect crystal");
+            Assert(tauntSystem.GetLocationType("Geode Chamber") == "crystal", "Should detect geode as crystal");
+            Assert(tauntSystem.GetLocationType("Crystal Cave") == "crystal", "Crystal Cave should still match crystal");
+            Assert(tauntSystem.GetLocationType("Magma Pool") == "lava", "Should detect magma as lava");
+            Assert(tauntSystem.GetLocationType("Volcanic Vent") == "lava", "Should detect volcanic as lava");
+            Assert(tauntSystem.GetLocationType("Sacred Altar") == "temple", "Should detect altar as temple");
+            Assert(tauntSystem.GetLocationType("Lost Shrine") == "temple", "Should detect shrine as temple");
+            Assert(tauntSystem.GetLocationType("Library") == "library", "Should detect library");
+            Assert(tauntSystem.GetLocationType("Crypt Passage") == "crypt", "Should detect crypt passage");
+            Assert(tauntSystem.GetLocationType("Lava Chamber") == "lava", "Should detect lava chamber");
+            Assert(tauntSystem.GetLocationType("Underwater Cavern") == "underwater", "Underwater Cavern should stay underwater");
+            Assert(tauntSystem.GetLocationType("Frozen Cavern") == "generic", "Frozen Cavern is Ice, not crystal (cavern != cave)");
+            Assert(tauntSystem.GetLocationType("Marsh Sanctuary") == "generic", "Marsh Sanctuary is Swamp, not temple");
             Assert(tauntSystem.GetLocationType("Unknown") == "generic", "Should return generic for unknown");
             Assert(tauntSystem.GetLocationType(string.Empty) == "generic", "Should return generic for empty string");
 
@@ -153,7 +166,7 @@ namespace RPGGame
             Assert(!string.IsNullOrEmpty(taunt), "Should generate taunt");
             Assert(taunt.Contains("Hero"), "Should include player name");
 
-            Console.WriteLine("✓ TauntSystem: 10/10 assertions passed");
+            Console.WriteLine("✓ TauntSystem: location, threshold, and taunt assertions passed");
         }
 
         // ===== BATTLE EVENT ANALYZER TESTS =====

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Text.Json;
+using RPGGame;
 using RPGGame.Tests;
 using RPGGame.World.Tags;
 
@@ -37,6 +38,7 @@ namespace RPGGame.Tests.Unit.Data
             TestEnemyTemplatesHaveDamagingActions();
             TestEnemyJsonActionStringsAreActionIds();
             TestAllEnemyArchetypesSpawn();
+            TestCreatureTierLoadedFromBestiary();
 
             TestBase.PrintSummary("EnemyLoader Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -306,6 +308,42 @@ namespace RPGGame.Tests.Unit.Data
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(enemy.Tags.Count > 0, $"{archetype} has runtime tags", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestCreatureTierLoadedFromBestiary()
+        {
+            Console.WriteLine("\n--- creatureTier from Enemies.json / factory ---");
+
+            EnemyLoader.LoadEnemies();
+            var goblinData = EnemyLoader.GetEnemyData("Goblin");
+            TestBase.AssertEqual(CreatureTierIds.TechnoEcho, goblinData?.CreatureTier,
+                "Goblin (Genesis-adjacent) should be technoEcho",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var wolfData = EnemyLoader.GetEnemyData("Wolf");
+            TestBase.AssertEqual(CreatureTierIds.FeralStock, wolfData?.CreatureTier,
+                "Wolf should be feralStock",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var spiderData = EnemyLoader.GetEnemyData("Spider");
+            TestBase.AssertEqual(CreatureTierIds.NativeFauna, spiderData?.CreatureTier,
+                "Spider should be nativeFauna",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var goblin = EnemyLoader.CreateEnemy("Goblin", 1);
+            TestBase.AssertEqual(CreatureTierIds.TechnoEcho, goblin?.CreatureTier,
+                "CreateEnemy should copy creatureTier onto the entity",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var starter = EnemyLoader.GetEnemyData("aaaSTARTER");
+            TestBase.AssertTrue(starter != null && string.IsNullOrEmpty(starter.CreatureTier),
+                "aaaSTARTER is not in the bestiary and should have no creatureTier (generic fallback)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertEqual(CreatureTierIds.TechnoEcho, EnemyLoader.GetEnemyData("Pilar Watcher")?.CreatureTier,
+                "Pilar Watcher maps to Pillar Watcher / technoEcho",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(CreatureTierIds.TechnoEcho, EnemyLoader.GetEnemyData("Fourecourt Guard")?.CreatureTier,
+                "Fourecourt Guard maps to Forecourt Guard / technoEcho",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

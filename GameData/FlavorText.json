@@ -1041,6 +1041,9 @@
       "Blood hits the ground, and the fight finds its true pace.",
       "It's no longer a standoff once the blood shows."
     ],
+    "firstBlood_nativeFauna": [],
+    "firstBlood_feralStock": [],
+    "firstBlood_technoEcho": [],
     "healthRecovery": [
       "{name} steadies, breath returning, the worst of it passing for now.",
       "Something in {name} settles — not healed, just holding again.",
@@ -1058,6 +1061,9 @@
       "{name}'s hands shake, but they don't lower.",
       "{name} is running on less than they'd like to admit."
     ],
+    "below50Percent_nativeFauna": [],
+    "below50Percent_feralStock": [],
+    "below50Percent_technoEcho": [],
     "below10Percent": [
       "{name} is barely upright, held together by stubbornness alone.",
       "One more solid hit and {name} won't be getting up.",
@@ -1068,6 +1074,9 @@
       "{name} is a breath away from the ground.",
       "{name} won't last another exchange like the last one."
     ],
+    "below10Percent_nativeFauna": [],
+    "below10Percent_feralStock": [],
+    "below10Percent_technoEcho": [],
     "criticalHit": [
       "{name} finds the gap and doesn't waste it.",
       "That one lands clean — {name} feels it connect all the way through.",
@@ -1078,6 +1087,9 @@
       "{name} doesn't get many like that — this one was clean.",
       "The hit from {name} lands hard enough that the room goes quiet for a beat."
     ],
+    "criticalHit_nativeFauna": [],
+    "criticalHit_feralStock": [],
+    "criticalHit_technoEcho": [],
     "criticalMiss": [
       "{name}'s swing goes wide, and the follow-through costs them.",
       "{name} overreaches, and the miss leaves them open.",
@@ -1088,6 +1100,9 @@
       "{name} commits to a swing that was never going to land.",
       "{name}'s attack goes wrong in a way that's going to matter in a second."
     ],
+    "criticalMiss_nativeFauna": [],
+    "criticalMiss_feralStock": [],
+    "criticalMiss_technoEcho": [],
     "environmentalAction": [
       "The room itself has an opinion, apparently: {effect}",
       "Something in the space reacts before anyone decides it should: {effect}",
@@ -1122,6 +1137,9 @@
       "{player} stands over what's left of {name}, and there's nothing satisfying about it.",
       "{name} is finished, and {player} already knows there'll be another one somewhere."
     ],
+    "enemyDefeated_nativeFauna": [],
+    "enemyDefeated_feralStock": [],
+    "enemyDefeated_technoEcho": [],
     "playerDefeated": [
       "You go down, and {enemy} doesn't slow to check the work.",
       "The last thing you register is {enemy} still standing.",
@@ -1156,77 +1174,80 @@
       "\"This is going to hurt more than you're ready for, {player}.\" {name} says.",
       "\"You made a mistake coming here, {player}.\" {name} says quietly."
     ],
+    "enemyTaunt_nativeFauna": [],
+    "enemyTaunt_feralStock": [],
+    "enemyTaunt_technoEcho": [],
     "playerTaunt_library": [
-      "\"Shh! We're in a library!\" {name} whispers fiercely to {enemy}.",
-      "\"Keep your voice down, {enemy}!\" {name} hisses in the quiet study.",
-      "\"This sacred place demands respect, {enemy}!\" {name} murmurs among the ancient tomes.",
-      "\"Silence! The books are watching, {enemy}!\" {name} whispers ominously."
+      "\"{enemy}, half of what's written on these shelves nobody living can read. Doesn't make it less true.\"",
+      "\"Every book in here outlived somebody who thought it mattered, {enemy}. So will this fight.\"",
+      "\"{enemy}, I don't need to read the ending to know how this goes for you.\"",
+      "\"Some things get lost between these shelves and nobody ever comes looking, {enemy}. Keep that in mind.\""
     ],
     "enemyTaunt_library": [
-      "\"Silence! This sacred place demands respect!\" {name} hisses at {player}.",
-      "\"Quiet! The ancient knowledge must not be disturbed!\" {name} whispers menacingly.",
-      "\"Hush! The spirits of the library will judge you, {player}!\" {name} intones softly.",
-      "\"The books themselves will witness your defeat, {player}!\" {name} murmurs in the shadows."
+      "\"You won't finish reading this one, {player}.\" Dust sifts from the shelf nearest {name}.",
+      "\"{player}, this room's kept quieter things than you buried between its pages.\"",
+      "\"Whatever you came looking for, {player}, it's not going to be worth what this costs.\"",
+      "\"{player}, nobody comes looking for what gets lost in here. Not even you, soon enough.\""
     ],
     "playerTaunt_underwater": [
-      "*Bubbles escape {name}'s mouth as they gesture threateningly at {enemy}.*",
-      "*{name} makes aggressive hand signals, bubbles streaming upward.*",
-      "*{name} points menacingly at {enemy}, their words lost in the depths.*",
-      "*{name} shakes their fist, the gesture clear despite the watery silence.*"
+      "\"{enemy}, the current doesn't take sides down here. Lucky for me, I don't need it to.\"",
+      "\"I've held my breath longer than you'll last standing, {enemy}.\"",
+      "\"{enemy}, everything down here learns to move with the water. You're running out of time to learn.\"",
+      "\"The deep doesn't forgive slow hands, {enemy}, and neither will I.\""
     ],
     "enemyTaunt_underwater": [
-      "*{name} makes aggressive gestures, bubbles streaming from their mouth.*",
-      "*{name} points threateningly at {player}, their words lost in the watery depths.*",
-      "*{name} shakes their weapon menacingly, bubbles rising from their movements.*",
-      "*{name} makes a cutting motion across their throat, the threat clear despite the silence.*"
+      "\"You won't surface from this one, {player}.\" The current pulls {name}'s words thin.",
+      "\"{player}, the deep keeps what it takes. Nobody's ever gotten it back.\"",
+      "\"This water's colder than it looks, {player}, and it's about to get worse for you.\"",
+      "\"{player}, no one hears you scream down here. The current sees to that.\""
     ],
     "playerTaunt_lava": [
-      "\"The heat won't save you, {enemy}!\" {name} shouts over the roaring flames.",
-      "\"You'll burn before I do, {enemy}!\" {name} yells through the inferno.",
-      "\"The fire only makes me stronger, {enemy}!\" {name} roars above the molten rock.",
-      "\"I thrive in this heat, {enemy}!\" {name} bellows in the volcanic chamber."
+      "\"{enemy}, the ground's not the only thing about to give out from under you.\"",
+      "\"Ash settles on everything down here eventually. Might as well be you first.\"",
+      "\"{enemy}, mind your footing. I won't offer the warning twice.\"",
+      "\"The heat doesn't care who started the fight, {enemy}. Neither do I, once it's lit.\""
     ],
     "enemyTaunt_lava": [
-      "\"You'll burn before you defeat me, {player}!\" {name} roars through the inferno.",
-      "\"The molten rock will claim you, {player}!\" {name} shouts over the crackling flames.",
-      "\"This is my domain, {player}!\" {name} bellows in the volcanic heat.",
-      "\"The fire itself will consume you, {player}!\" {name} roars above the lava flows."
+      "\"You won't outlast the heat, {player}.\" Embers drift between {name} and the words.",
+      "\"{player}, this ground's swallowed better than you and asked for seconds.\"",
+      "\"The fire doesn't forgive slow feet, {player}, and neither will I.\"",
+      "\"{player}, everything down here burns clean. You'll be no different.\""
     ],
     "playerTaunt_crypt": [
-      "\"You belong here with the dead, {enemy}!\" {name} declares in the echoing tomb.",
-      "\"The spirits will welcome you, {enemy}!\" {name} intones in the burial chamber.",
-      "\"Your place is among the bones, {enemy}!\" {name} echoes through the crypt.",
-      "\"The dead will claim you as their own, {enemy}!\" {name} proclaims in the tomb."
+      "\"The dead down here learned to stay quiet a long time ago, {enemy}. You'll learn faster.\"",
+      "\"{enemy}, every door in this crypt was sealed for a reason. I'm about to be yours.\"",
+      "\"Dust doesn't lie about how long something's been still.\" {name} watches {enemy}. \"You're next.\"",
+      "\"{enemy}, they say the Eye doesn't close down here. Mine won't either.\""
     ],
     "enemyTaunt_crypt": [
-      "\"Join the others in eternal rest, {player}!\" {name} intones ominously.",
-      "\"The crypt will be your final resting place, {player}!\" {name} echoes in the tomb.",
-      "\"Your bones will join the others, {player}!\" {name} declares in the burial chamber.",
-      "\"The dead welcome you, {player}!\" {name} intones in the echoing crypt."
+      "\"You'll lie still soon enough, {player}.\" {name}'s voice comes off the stone flat and close.",
+      "\"{player}, this crypt's swallowed better company than you and never once complained.\"",
+      "\"Every name carved into this wall outlived the hand that carved it. Yours won't.\"",
+      "\"{player}, the quiet down here isn't empty. It's patient.\""
     ],
     "playerTaunt_crystal": [
-      "\"Your fate is crystal clear, {enemy}!\" {name} shouts, voice echoing off the gems.",
-      "\"You'll shatter like glass, {enemy}!\" {name} calls through the crystalline chamber.",
-      "\"The crystals themselves will witness your defeat, {enemy}!\" {name} proclaims.",
-      "\"Your reflection shows your doom, {enemy}!\" {name} shouts in the gem-studded cave."
+      "\"{enemy}, this room shows me a dozen versions of you. None of them win.\"",
+      "\"The light lies in here, {enemy}. My blade doesn't.\"",
+      "\"{enemy}, count the reflections if it helps. There's still only one of me that matters.\"",
+      "\"Everything in this room is sharp if you touch it wrong. So am I.\""
     ],
     "enemyTaunt_crystal": [
-      "\"You'll shatter like glass, {player}!\" {name} bellows in the crystalline chamber.",
-      "\"The gems will be your tomb, {player}!\" {name} echoes through the crystal cave.",
-      "\"Your fate is written in the crystals, {player}!\" {name} intones ominously.",
-      "\"The crystal formations will be your grave, {player}!\" {name} roars in the gem chamber."
+      "\"You won't see which one of me is real, {player} — not until it's too late.\"",
+      "\"{player}, the light bends in here. So will you.\"",
+      "\"This room's caught better reflections than yours, {player}, and kept every one.\"",
+      "\"{player}, sharp edges don't ask permission. Neither do I.\""
     ],
     "playerTaunt_temple": [
-      "\"The gods favor me, not you, {enemy}!\" {name} proclaims in the sacred hall.",
-      "\"Divine justice will strike you down, {enemy}!\" {name} declares in the temple.",
-      "\"The holy ground rejects you, {enemy}!\" {name} calls in the sanctuary.",
-      "\"The gods themselves will judge you, {enemy}!\" {name} proclaims in the sacred space."
+      "\"{enemy}, whatever they prayed to here stopped listening long before either of us showed up.\"",
+      "\"This floor's been worn smooth by knees, not feet, {enemy}. Yours won't leave a mark.\"",
+      "\"{enemy}, I don't need a blessing to finish this. Just room to swing.\"",
+      "\"Every offering left in this place went unanswered, {enemy}. Don't join the pile.\""
     ],
     "enemyTaunt_temple": [
-      "\"Your blasphemy ends here, {player}!\" {name} thunders in the holy sanctuary.",
-      "\"The gods will punish your sacrilege, {player}!\" {name} roars in the temple.",
-      "\"This sacred ground will reject you, {player}!\" {name} bellows in the hall.",
-      "\"Divine wrath will consume you, {player}!\" {name} thunders in the sanctuary."
+      "\"You'll kneel here whether you meant to or not, {player}.\" {name}'s voice fills the hollow stone.",
+      "\"{player}, this temple's outlasted better prayers than yours. It'll outlast you too.\"",
+      "\"Whatever's owed in this place, {player}, you're about to pay part of it.\"",
+      "\"{player}, nobody's listening in here. Except me.\""
     ],
     "playerTaunt_forest": [
       "\"You picked the wrong grove to die in, {enemy},\" {name} mutters, backing toward the trees.",

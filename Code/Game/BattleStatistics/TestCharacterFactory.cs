@@ -137,6 +137,7 @@ namespace RPGGame.BattleStatistics
                         isLiving: enemyData.IsLiving,
                         archetype: archetype,
                         useDirectStats: true);
+                    enemy.SetCreatureTier(enemyData.CreatureTier);
 
                     var realEnemy = EnemyLoader.CreateEnemy(enemyType, level);
                     if (realEnemy != null && realEnemy.Weapon != null)

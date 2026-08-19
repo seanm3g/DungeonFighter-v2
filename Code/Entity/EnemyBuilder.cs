@@ -19,6 +19,7 @@ namespace RPGGame
         private int _armor = 0;
         private PrimaryAttribute _primaryAttribute = PrimaryAttribute.Strength;
         private bool _isLiving = true;
+        private string? _creatureTier;
         private EnemyArchetype? _archetype;
         private bool _useDirectStats = false;
         private int _damage = 8;
@@ -78,6 +79,12 @@ namespace RPGGame
             return this;
         }
 
+        public EnemyBuilder WithCreatureTier(string? creatureTier)
+        {
+            _creatureTier = creatureTier;
+            return this;
+        }
+
         public EnemyBuilder WithArchetype(EnemyArchetype archetype)
         {
             _archetype = archetype;
@@ -88,11 +95,15 @@ namespace RPGGame
         {
             if (_useDirectStats)
             {
-                return new Enemy(_name, _level, _maxHealth, _damage, _armor, _attackSpeed, _primaryAttribute, _isLiving, _archetype, true);
+                var enemy = new Enemy(_name, _level, _maxHealth, _damage, _armor, _attackSpeed, _primaryAttribute, _isLiving, _archetype, true);
+                enemy.SetCreatureTier(_creatureTier);
+                return enemy;
             }
             else
             {
-                return new Enemy(_name, _level, _maxHealth, _strength, _agility, _technique, _intelligence, _armor, _primaryAttribute, _isLiving, _archetype);
+                var enemy = new Enemy(_name, _level, _maxHealth, _strength, _agility, _technique, _intelligence, _armor, _primaryAttribute, _isLiving, _archetype);
+                enemy.SetCreatureTier(_creatureTier);
+                return enemy;
             }
         }
 

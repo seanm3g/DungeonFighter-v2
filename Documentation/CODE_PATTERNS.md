@@ -157,7 +157,7 @@ public class CombatManager
     public bool RunCombat(Character player, Enemy currentEnemy, Environment room)
     {
         // Start battle narrative and initialize action speed system
-        StartBattleNarrative(player.Name, currentEnemy.Name, room.Name, player.CurrentHealth, currentEnemy.CurrentHealth);
+        StartBattleNarrative(player.Name, currentEnemy.Name, room.Name, player.CurrentHealth, currentEnemy.CurrentHealth, currentEnemy.CreatureTier);
         InitializeCombatEntities(player, currentEnemy, room);
         
         // Combat Loop with action speed system
@@ -592,6 +592,18 @@ string theme = FlavorLocationResolver.ResolveLocationTheme(room);
 string roomType = FlavorLocationResolver.ResolveRoomType(room);
 FlavorText.GenerateLocationDescription(theme);
 FlavorText.GenerateRoomContext(theme, roomType);
+```
+
+### 1c. Creature-tier combat narratives
+**Purpose**: Voice firstBlood / crit / health-threshold / enemyDefeated / enemyTaunt by `Enemy.CreatureTier` without multiplying biome keys.
+
+**Order:** non-empty `{bank}_{nativeFauna|feralStock|technoEcho}` → unsuffixed `{bank}`. Missing/invalid tier skips straight to generic. Biome taunts (`enemyTaunt_forest`, `playerTaunt_crypt`, …) stay a separate fallback after an empty `enemyTaunt_{tier}` bank. Player-facing lines (player crit, player HP, playerDefeated, unsuffixed playerTaunt) stay generic unless `TauntSystem.GetLocationType` finds a biome suffix.
+
+`GetLocationType` substrings (room display name, case-insensitive): `library`/`study`/`archive`; `water`/`ocean`/`sea`/`underwater`; `lava`/`volcano`/`volcanic`/`magma`/`molten`/`fire`; `crypt`/`tomb`/`grave`; `crystal`/`geode`; `temple`/`shrine`/`altar`; `forest`/`grove`. Bare `cave`/`cavern` and `sanctuary` do not map to Crystal/Temple (Ice/Swamp rooms fall through to generic taunts). Authored biome banks: forest, crypt, crystal, lava, temple, library, underwater. Creature-tier banks (`firstBlood_{tier}`, `criticalHit_{tier}`, `criticalMiss_{tier}`, `below50Percent_{tier}`, `below10Percent_{tier}`, `enemyDefeated_{tier}`, `enemyTaunt_{tier}`) are filled for `nativeFauna` / `feralStock` / `technoEcho`.
+
+```csharp
+textProvider.GetCreatureTieredNarrative("firstBlood", enemy.CreatureTier);
+tauntSystem.CheckEnemyTaunt(..., currentLocation, settings, enemy.CreatureTier);
 ```
 
 ### 2. Configuration Pattern
