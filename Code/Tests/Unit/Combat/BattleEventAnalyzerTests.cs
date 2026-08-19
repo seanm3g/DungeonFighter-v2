@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.Tests;
 using RPGGame;
 using RPGGame.Config;
@@ -34,6 +35,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestIsSignificantEventAfterAnalyzeEvent();
             TestCreatureTierBankThenGenericFallback();
             TestFirstBloodCreatureTierFillsNameToken();
+            TestFirstBloodVictimWordingForPlayerAndEnemyFirstHit();
             TestCreatureTierCritUsesEnemyActorOnly();
             TestEnemyTauntTierBankThenBiomeFallback();
 
@@ -238,7 +240,7 @@ namespace RPGGame.Tests.Unit.Combat
         {
             Console.WriteLine("\n--- Testing firstBlood AnalyzeEvent fills {name} from the creature-tier bank ---");
 
-            const string liveLine = "The cut opens clean and even, like {name} measured it first.";
+            const string liveLine = "The cut opens clean and even on {name}, like something measured it first.";
             var data = FlavorText.GetData();
             data.CombatNarratives.TryGetValue("firstBlood_technoEcho", out var previous);
 
@@ -256,7 +258,7 @@ namespace RPGGame.Tests.Unit.Combat
                     IsSuccess = true
                 }, GameSettings.Instance);
 
-                TestBase.AssertTrue(lines.Any(l => l.Contains("Goblin", StringComparison.Ordinal)
+                TestBase.AssertTrue(lines.Any(l => l.Contains("on Goblin", StringComparison.Ordinal)
                     && l.Contains("measured it first", StringComparison.Ordinal)),
                     "AnalyzeEvent firstBlood should fill {name} with the enemy (Goblin)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -305,6 +307,94 @@ namespace RPGGame.Tests.Unit.Combat
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// firstBlood fires on whichever side hits first, but {name} is always the enemy
+        /// (victim-oriented copy). Magma Beast is technoEcho — the live screenshot case.
+        /// </summary>
+        private static void TestFirstBloodVictimWordingForPlayerAndEnemyFirstHit()
+        {
+            Console.WriteLine("\n--- Testing firstBlood victim wording (player-first and enemy-first) ---");
+
+            FlavorText.Reload();
+            EnemyLoader.LoadEnemies();
+            var magma = EnemyLoader.GetEnemyData("Magma Beast");
+            TestBase.AssertEqual(CreatureTierIds.TechnoEcho, magma?.CreatureTier,
+                "Magma Beast should load creatureTier technoEcho",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var data = FlavorText.GetData();
+            foreach (var tier in CreatureTierIds.All)
+            {
+                string key = CreatureTierIds.SuffixedBank("firstBlood", tier);
+                TestBase.AssertTrue(
+                    data.CombatNarratives.TryGetValue(key, out var authored)
+                    && authored != null
+                    && authored.Length == 3
+                    && !authored.Any(l =>
+                        l.Contains("draws blood", StringComparison.Ordinal)
+                        || l.Contains("like {name} measured it first", StringComparison.Ordinal)),
+                    $"{key} should be 3 victim-oriented lines (no attacker-as-name copy)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+
+            TestBase.AssertTrue(
+                data.CombatNarratives.TryGetValue("firstBlood_technoEcho", out var techno)
+                && techno != null
+                && techno.Any(l => l.Contains("The cut opens clean and even on {name}", StringComparison.Ordinal)),
+                "firstBlood_technoEcho should author 'on {name}', not 'like {name} measured'",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            AssertFirstBloodFilledVictimLine(
+                "Gavin Quickstrike", "Magma Beast",
+                "player-first Magma Beast firstBlood should fill {name} to Magma Beast from firstBlood_technoEcho");
+            AssertFirstBloodFilledVictimLine(
+                "Magma Beast", "Gavin Quickstrike",
+                "enemy-first Magma Beast firstBlood should still fill {name} to Magma Beast");
+        }
+
+        private static void AssertFirstBloodFilledVictimLine(string actor, string target, string message)
+        {
+            const string enemyName = "Magma Beast";
+            var analyzer = new BattleEventAnalyzer(
+                new NarrativeTextProvider(), new NarrativeStateManager(), new TauntSystem(new NarrativeTextProvider()));
+            analyzer.Initialize("Gavin Quickstrike", enemyName, "Volcanic Chamber", 100, 100, CreatureTierIds.TechnoEcho);
+            var lines = analyzer.AnalyzeEvent(new BattleEvent
+            {
+                Actor = actor,
+                Target = target,
+                Damage = 10,
+                IsSuccess = true
+            }, GameSettings.Instance);
+
+            string key = CreatureTierIds.SuffixedBank("firstBlood", CreatureTierIds.TechnoEcho);
+            bool matchesBank = false;
+            string filledSample = "";
+            if (FlavorText.GetData().CombatNarratives.TryGetValue(key, out var bank) && bank != null)
+            {
+                foreach (var template in bank)
+                {
+                    string filled = template.Replace("{name}", enemyName);
+                    if (lines.Any(l => string.Equals(l, filled, StringComparison.Ordinal)))
+                    {
+                        matchesBank = true;
+                        filledSample = filled;
+                        break;
+                    }
+                }
+            }
+
+            TestBase.AssertTrue(
+                matchesBank
+                && !string.IsNullOrEmpty(filledSample)
+                && filledSample.Contains(enemyName, StringComparison.Ordinal)
+                && !filledSample.Contains("{name}", StringComparison.Ordinal)
+                && !filledSample.Contains("draws blood", StringComparison.Ordinal)
+                && !lines.Any(l => l.Contains("{name}", StringComparison.Ordinal)),
+                message,
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            Console.WriteLine($"    {actor} vs {target}: {filledSample}");
         }
 
         private static void TestCreatureTierCritUsesEnemyActorOnly()

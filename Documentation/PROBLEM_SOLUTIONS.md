@@ -4,8 +4,19 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Flavor: firstBlood_{tier} copy is victim-oriented (August 2026)
+**Problem:** Player first-hit (e.g. Gavin Quickstrike vs Magma Beast) still selected `firstBlood_{enemy.CreatureTier}`, but the old lines treated `{name}` as the attacker ("{name} draws blood", "like {name} measured it first"), so Magma Beast sounded like it had struck.
+
+**Root cause:** firstBlood fires on whichever side lands the first successful hit; the bank is chosen by the enemy's tier and `{name}` always fills to the enemy. Copy assumed the enemy landed the hit.
+
+**Solutions:**
+1. Rewrote `firstBlood_nativeFauna` / `firstBlood_feralStock` / `firstBlood_technoEcho` so `{name}` is the one marked/cut (e.g. technoEcho "The cut opens clean and even on {name}")
+2. Token-fill unchanged (`ReplacePlaceholders` with `enemyName`). Tests cover player-first and enemy-first AnalyzeEvent / display path.
+
+**Related files:** `Scripts/apply-flavor-content-package.py`, `GameData/FlavorText.json`, `BattleEventAnalyzerTests.cs`, `BattleNarrativeTests.cs`
+
 ### Bug fix: firstBlood creature-tier lines left `{name}` unsubstituted (August 2026)
-**Problem:** Live fight vs Goblin (`technoEcho`) showed `firstBlood_technoEcho` verbatim: "The cut opens clean and even, like {name} measured it first." Later technoEcho lines in the same fight (`enemyTaunt`, `below10Percent`, `enemyDefeated`) filled "Goblin" correctly.
+**Problem:** Live fight vs Goblin (`technoEcho`) showed `firstBlood_technoEcho` verbatim: "The cut opens clean and even on {name}, like something measured it first." Later technoEcho lines in the same fight (`enemyTaunt`, `below10Percent`, `enemyDefeated`) filled "Goblin" correctly.
 
 **Root cause:** Not a missing name, not a fallback-copy, not unique to that comma/`{name}` placement. `BattleEventAnalyzer.AnalyzeEvent` selected the tier bank via `GetCreatureTieredNarrative("firstBlood", creatureTier)` and added the raw template. Crit / miss / below50 / below10 / enemyDefeated all call `ReplacePlaceholders` first. Combat log displays those AnalyzeEvent strings (`GetTriggeredNarrativesIfSignificant` → `ColoredTextParser.Parse`); `FirstBloodFormatter` is not on that path. Generic `firstBlood` has no tokens, so the skip was invisible until creature-tier banks authored `{name}`. Names are already bound in `Initialize` before firstBlood fires.
 

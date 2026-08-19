@@ -590,19 +590,19 @@ COMBAT_NARRATIVES: dict[str, list[str]] = {
         "\"{player}, nobody hears you out here over the water.\"",
     ],
     "firstBlood_nativeFauna": [
-        "{name} draws blood and doesn't flinch from the smell of it — this is just what teeth and claws are for.",
-        "The first cut lands, and {name} presses in harder, not softer.",
-        "{name} tastes blood in the air and knows exactly what to do with that.",
+        "First blood marks {name}, and it doesn't flinch from the smell of its own.",
+        "The first cut opens on {name}, and if anything the fight turns more dangerous from here, not less.",
+        "{name} bleeds the way anything alive bleeds, and doesn't slow down for it.",
     ],
     "firstBlood_feralStock": [
-        "{name} draws first blood and hesitates half a step, like something in it expected a different ending to this.",
-        "The cut lands, and for one strange beat {name} looks almost sorry before the fight takes over again.",
-        "{name} presses the advantage, though something in the movement still remembers being called off once.",
+        "First blood marks {name}, and for a moment it goes still, like it expected gentler handling.",
+        "The first cut lands on {name}, and it hesitates half a step before the fight takes it again.",
+        "{name} is wounded, and something in how it recovers looks almost trained.",
     ],
     "firstBlood_technoEcho": [
-        "{name} draws blood, and the wound it leaves doesn't spread the way a wound should.",
-        "First blood, and {name}'s rhythm doesn't change at all — like the strike was always going to land.",
-        "The cut opens clean and even, like {name} measured it first.",
+        "First blood marks {name}, and the wound doesn't spread the way a wound should.",
+        "The cut opens clean and even on {name}, like something measured it first.",
+        "{name} is wounded, and its rhythm doesn't change at all — like this was already accounted for.",
     ],
     "criticalHit_nativeFauna": [
         "{name} finds the opening the way a predator finds a limp — instinct, not thought.",

@@ -41,7 +41,7 @@ DungeonFighter/
 - **`Code/Combat/StunProcessor.cs`** - Stun skips: one turn = victim `GetTotalAttackSpeed()`, scheduled via `ActionSpeedSystem.AdvanceOwnTimeline`
 - **`Code/Combat/CombatResults.cs`** - Handles UI display and result formatting
 - **`Code/Combat/TurnManager.cs`** - Manages turn-based combat logic
-- **`Code/Combat/BattleNarrative.cs`** - Event-driven battle descriptions. Combat-log lines are `AnalyzeEvent` strings (`GetTriggeredNarrativesIfSignificant`); token banks including `firstBlood_{tier}` go through `ReplacePlaceholders` before that add.
+- **`Code/Combat/BattleNarrative.cs`** - Event-driven battle descriptions. Combat-log lines are `AnalyzeEvent` strings (`GetTriggeredNarrativesIfSignificant`); token banks including `firstBlood_{tier}` go through `ReplacePlaceholders` before that add. firstBlood fires on whichever side strikes first; `{name}` is always the enemy (victim-oriented copy, bank from the enemy's creature tier).
 - **`Code/Combat/TauntSystem.cs`** - Location-specific combat taunts (`playerTaunt_{biome}` / `enemyTaunt_{biome}`). `GetLocationType` matches room display-name substrings: library/study/archive → `library`; water/ocean/sea/underwater → `underwater`; lava/volcano/volcanic/magma/molten/fire → `lava`; crypt/tomb/grave → `crypt`; crystal/geode → `crystal`; temple/shrine/altar → `temple`; forest/grove → `forest`; ice/frozen/frost/glacier/glacial → `ice`; swamp/marsh/bog → `swamp`; else generic. Bare `cave`/`cavern` is not Crystal (Frozen Cavern → ice via `frozen`). `sanctuary` is not Temple (Marsh Sanctuary → swamp via `marsh`). Creature-tier `enemyTaunt_{tier}` is a separate fallback axis.
 - **`Code/Combat/BattleHealthTracker.cs`** - Health tracking for battle narrative system
 

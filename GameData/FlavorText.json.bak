@@ -634,7 +634,8 @@
         ],
         "treasure": [
           "Something catches the light beneath the roots, buried just deep enough to have been forgotten on purpose.",
-          "Coin and old metal are scattered here like they were dropped in a hurry and never retrieved — the kind of hurry that only comes from a fight nobody wrote down.",
+          "Coin and old metal are scattered here like they were dropped in a hurry and never retrieved.",
+          "The kind of hurry that only comes from a fight nobody wrote down.",
           "A hollow in the oldest trunk holds more than it should, packed tight and gone dry with age, the way anything kept by more than one hand tends to."
         ],
         "library": [
@@ -667,8 +668,9 @@
         ],
         "shrine": [
           "Small offerings are tucked into the roots — coin, cloth, a single carved stone worn smooth from handling.",
-          "A ring of stacked rocks marks the base of the oldest tree in the grove, arranged the way two hearths sit under one roof — close, deliberate, unwilling to be one fire.",
-          "Faded ribbons hang from low branches, tied by hands that wanted something they couldn't name and left anyway, the way grief this old usually goes."
+          "A ring of stacked rocks marks the base of the oldest tree in the grove.",
+          "They're set the way two hearths sit under one roof, close, deliberate, unwilling to be one fire.",
+          "Faded ribbons hang from low branches, tied by hands hoping for something they couldn't name."
         ]
       },
       "Lava": {

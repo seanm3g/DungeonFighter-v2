@@ -42,6 +42,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestIceAndSwampRoomsRouteToIceAndSwampTaunts();
             TestCreatureTierBanksLoadAndSelectForRealEnemies();
             TestFirstBloodTechnoEchoFillsNameOnDisplayPath();
+            TestFirstBloodPlayerHitVictimWordingOnDisplayPath();
 
             TestBase.PrintSummary("BattleNarrative Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -607,7 +608,7 @@ namespace RPGGame.Tests.Unit.Combat
         {
             Console.WriteLine("\n--- Testing firstBlood_technoEcho fills {name} on the combat-log display path ---");
 
-            const string liveLine = "The cut opens clean and even, like {name} measured it first.";
+            const string liveLine = "The cut opens clean and even on {name}, like something measured it first.";
             var settings = GameSettings.Instance;
             bool prevEnable = settings.EnableNarrativeEvents;
             double prevBalance = settings.NarrativeBalance;
@@ -632,7 +633,7 @@ namespace RPGGame.Tests.Unit.Combat
 
                 var displayed = narrative.GetTriggeredNarrativesIfSignificant();
                 TestBase.AssertTrue(
-                    displayed.Any(l => l.Contains("Goblin", StringComparison.Ordinal)
+                    displayed.Any(l => l.Contains("on Goblin", StringComparison.Ordinal)
                         && l.Contains("measured it first", StringComparison.Ordinal)
                         && !l.Contains("{name}", StringComparison.Ordinal)),
                     "combat-log firstBlood_technoEcho must fill {name} with Goblin",
@@ -644,6 +645,76 @@ namespace RPGGame.Tests.Unit.Combat
             finally
             {
                 FlavorTextBankCatalog.SetBank(data, "combatNarratives.firstBlood_technoEcho", previous ?? Array.Empty<string>());
+                settings.EnableNarrativeEvents = prevEnable;
+                settings.NarrativeBalance = prevBalance;
+            }
+        }
+
+        /// <summary>
+        /// Player lands first hit vs Magma Beast (technoEcho). Combat-log firstBlood must
+        /// fill {name} to Magma Beast from firstBlood_technoEcho — victim wording, not attacker.
+        /// Enemy-first uses the same bank and the same filled name.
+        /// </summary>
+        private static void TestFirstBloodPlayerHitVictimWordingOnDisplayPath()
+        {
+            Console.WriteLine("\n--- Testing firstBlood player-first Magma Beast fills enemy name on display path ---");
+
+            FlavorText.Reload();
+            EnemyLoader.LoadEnemies();
+            var magma = EnemyLoader.GetEnemyData("Magma Beast");
+            TestBase.AssertEqual(CreatureTierIds.TechnoEcho, magma?.CreatureTier,
+                "Magma Beast should load creatureTier technoEcho",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var settings = GameSettings.Instance;
+            bool prevEnable = settings.EnableNarrativeEvents;
+            double prevBalance = settings.NarrativeBalance;
+            settings.EnableNarrativeEvents = true;
+            settings.NarrativeBalance = 0.8;
+
+            try
+            {
+                var playerFirst = new BattleNarrative(
+                    "Gavin Quickstrike", "Magma Beast", "Volcanic Chamber", 100, 100, magma!.CreatureTier);
+                playerFirst.AddEvent(new BattleEvent
+                {
+                    Actor = "Gavin Quickstrike",
+                    Target = "Magma Beast",
+                    Damage = 10,
+                    IsSuccess = true
+                });
+                var playerDisplayed = playerFirst.GetTriggeredNarrativesIfSignificant();
+                TestBase.AssertTrue(
+                    playerDisplayed.Any(l =>
+                        LineEqualsFilledBank(l, "firstBlood_technoEcho", ("name", "Magma Beast"))
+                        && l.Contains("Magma Beast", StringComparison.Ordinal)
+                        && !l.Contains("{name}", StringComparison.Ordinal)
+                        && !l.Contains("draws blood", StringComparison.Ordinal)),
+                    "player-first Magma Beast combat-log firstBlood should fill {name} to Magma Beast (victim, not attacker)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                Console.WriteLine($"    player-first: {playerDisplayed.FirstOrDefault(l => LineEqualsFilledBank(l, "firstBlood_technoEcho", ("name", "Magma Beast")))}");
+
+                var enemyFirst = new BattleNarrative(
+                    "Gavin Quickstrike", "Magma Beast", "Volcanic Chamber", 100, 100, magma.CreatureTier);
+                enemyFirst.AddEvent(new BattleEvent
+                {
+                    Actor = "Magma Beast",
+                    Target = "Gavin Quickstrike",
+                    Damage = 10,
+                    IsSuccess = true
+                });
+                var enemyDisplayed = enemyFirst.GetTriggeredNarrativesIfSignificant();
+                TestBase.AssertTrue(
+                    enemyDisplayed.Any(l =>
+                        LineEqualsFilledBank(l, "firstBlood_technoEcho", ("name", "Magma Beast"))
+                        && l.Contains("Magma Beast", StringComparison.Ordinal)
+                        && !l.Contains("{name}", StringComparison.Ordinal)),
+                    "enemy-first Magma Beast combat-log firstBlood should still fill {name} to Magma Beast",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                Console.WriteLine($"    enemy-first: {enemyDisplayed.FirstOrDefault(l => LineEqualsFilledBank(l, "firstBlood_technoEcho", ("name", "Magma Beast")))}");
+            }
+            finally
+            {
                 settings.EnableNarrativeEvents = prevEnable;
                 settings.NarrativeBalance = prevBalance;
             }
