@@ -33,6 +33,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestAnalyzeEvent();
             TestIsSignificantEventAfterAnalyzeEvent();
             TestCreatureTierBankThenGenericFallback();
+            TestFirstBloodCreatureTierFillsNameToken();
             TestCreatureTierCritUsesEnemyActorOnly();
             TestEnemyTauntTierBankThenBiomeFallback();
 
@@ -226,6 +227,83 @@ namespace RPGGame.Tests.Unit.Combat
             finally
             {
                 FlavorTextBankCatalog.SetBank(data, "combatNarratives.firstBlood_technoEcho", previous ?? Array.Empty<string>());
+            }
+        }
+
+        /// <summary>
+        /// firstBlood is the only creature-tier bank AnalyzeEvent used to add without
+        /// ReplacePlaceholders. Live combat then showed authored {name} templates verbatim.
+        /// </summary>
+        private static void TestFirstBloodCreatureTierFillsNameToken()
+        {
+            Console.WriteLine("\n--- Testing firstBlood AnalyzeEvent fills {name} from the creature-tier bank ---");
+
+            const string liveLine = "The cut opens clean and even, like {name} measured it first.";
+            var data = FlavorText.GetData();
+            data.CombatNarratives.TryGetValue("firstBlood_technoEcho", out var previous);
+
+            try
+            {
+                FlavorTextBankCatalog.SetBank(data, "combatNarratives.firstBlood_technoEcho", new[] { liveLine });
+                var analyzer = new BattleEventAnalyzer(
+                    new NarrativeTextProvider(), new NarrativeStateManager(), new TauntSystem(new NarrativeTextProvider()));
+                analyzer.Initialize("Seamus Ashwhisper", "Goblin", "Geode Chamber", 100, 100, CreatureTierIds.TechnoEcho);
+                var lines = analyzer.AnalyzeEvent(new BattleEvent
+                {
+                    Actor = "Seamus Ashwhisper",
+                    Target = "Goblin",
+                    Damage = 10,
+                    IsSuccess = true
+                }, GameSettings.Instance);
+
+                TestBase.AssertTrue(lines.Any(l => l.Contains("Goblin", StringComparison.Ordinal)
+                    && l.Contains("measured it first", StringComparison.Ordinal)),
+                    "AnalyzeEvent firstBlood should fill {name} with the enemy (Goblin)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!lines.Any(l => l.Contains("{name}", StringComparison.Ordinal)),
+                    "AnalyzeEvent firstBlood must not emit unsubstituted {name}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                FlavorTextBankCatalog.SetBank(data, "combatNarratives.firstBlood_technoEcho", previous ?? Array.Empty<string>());
+            }
+
+            foreach (var tier in CreatureTierIds.All)
+            {
+                string key = CreatureTierIds.SuffixedBank("firstBlood", tier);
+                if (!data.CombatNarratives.TryGetValue(key, out var authored) || authored == null)
+                    continue;
+
+                foreach (var template in authored)
+                {
+                    if (!template.Contains("{name}", StringComparison.Ordinal))
+                        continue;
+
+                    data.CombatNarratives.TryGetValue(key, out var prior);
+                    try
+                    {
+                        FlavorTextBankCatalog.SetBank(data, $"combatNarratives.{key}", new[] { template });
+                        var analyzer = new BattleEventAnalyzer(
+                            new NarrativeTextProvider(), new NarrativeStateManager(), new TauntSystem(new NarrativeTextProvider()));
+                        analyzer.Initialize("Hero", "Goblin", "Hall", 100, 100, tier);
+                        var lines = analyzer.AnalyzeEvent(new BattleEvent
+                        {
+                            Actor = "Hero",
+                            Target = "Goblin",
+                            Damage = 10,
+                            IsSuccess = true
+                        }, GameSettings.Instance);
+                        TestBase.AssertTrue(lines.Any(l => l.Contains("Goblin", StringComparison.Ordinal)
+                            && !l.Contains("{name}", StringComparison.Ordinal)),
+                            $"AnalyzeEvent firstBlood_{tier} should fill {{name}} for authored line",
+                            ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    }
+                    finally
+                    {
+                        FlavorTextBankCatalog.SetBank(data, $"combatNarratives.{key}", prior ?? Array.Empty<string>());
+                    }
+                }
             }
         }
 

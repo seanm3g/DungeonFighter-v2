@@ -86,12 +86,17 @@ namespace RPGGame
             var triggeredNarratives = new List<string>();
             ResetCurrentEventDisplayFlags();
 
-            // First Blood - first successful hit that deals damage
+            // First Blood - first successful hit that deals damage.
+            // Creature-tier banks (firstBlood_{tier}) author {name} as the enemy, same as
+            // below50/below10/enemyDefeated. Generic firstBlood has no tokens; fill is a no-op.
             if (!stateManager.HasFirstBloodOccurred && evt.Damage > 0 && evt.IsSuccess)
             {
                 currentEventFirstBlood = true;
                 stateManager.SetFirstBloodOccurred();
-                string narrative = textProvider.GetCreatureTieredNarrative("firstBlood", creatureTier);
+                var replacements = new Dictionary<string, string> { { "name", enemyName } };
+                string narrative = textProvider.ReplacePlaceholders(
+                    textProvider.GetCreatureTieredNarrative("firstBlood", creatureTier),
+                    replacements);
                 triggeredNarratives.Add(narrative);
                 stateManager.IncrementNarrativeEventCount();
             }

@@ -41,6 +41,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestBiomeTauntBanksLoadAndSelectFromRealRooms();
             TestIceAndSwampRoomsRouteToIceAndSwampTaunts();
             TestCreatureTierBanksLoadAndSelectForRealEnemies();
+            TestFirstBloodTechnoEchoFillsNameOnDisplayPath();
 
             TestBase.PrintSummary("BattleNarrative Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -595,6 +596,56 @@ namespace RPGGame.Tests.Unit.Combat
                     && !tauntText.Contains("{name}", StringComparison.Ordinal),
                     $"{enemyName} enemy taunt should come from {tauntKey}, not generic",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        /// <summary>
+        /// Combat log shows AnalyzeEvent strings via GetTriggeredNarrativesIfSignificant.
+        /// firstBlood_technoEcho authors {name}; the display path must fill it (Goblin), not dump the template.
+        /// </summary>
+        private static void TestFirstBloodTechnoEchoFillsNameOnDisplayPath()
+        {
+            Console.WriteLine("\n--- Testing firstBlood_technoEcho fills {name} on the combat-log display path ---");
+
+            const string liveLine = "The cut opens clean and even, like {name} measured it first.";
+            var settings = GameSettings.Instance;
+            bool prevEnable = settings.EnableNarrativeEvents;
+            double prevBalance = settings.NarrativeBalance;
+            settings.EnableNarrativeEvents = true;
+            settings.NarrativeBalance = 0.8;
+
+            var data = FlavorText.GetData();
+            data.CombatNarratives.TryGetValue("firstBlood_technoEcho", out var previous);
+
+            try
+            {
+                FlavorTextBankCatalog.SetBank(data, "combatNarratives.firstBlood_technoEcho", new[] { liveLine });
+                var narrative = new BattleNarrative(
+                    "Seamus Ashwhisper", "Goblin", "Geode Chamber", 100, 100, CreatureTierIds.TechnoEcho);
+                narrative.AddEvent(new BattleEvent
+                {
+                    Actor = "Seamus Ashwhisper",
+                    Target = "Goblin",
+                    Damage = 10,
+                    IsSuccess = true
+                });
+
+                var displayed = narrative.GetTriggeredNarrativesIfSignificant();
+                TestBase.AssertTrue(
+                    displayed.Any(l => l.Contains("Goblin", StringComparison.Ordinal)
+                        && l.Contains("measured it first", StringComparison.Ordinal)
+                        && !l.Contains("{name}", StringComparison.Ordinal)),
+                    "combat-log firstBlood_technoEcho must fill {name} with Goblin",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!displayed.Any(l => l.Contains("{name}", StringComparison.Ordinal)),
+                    "combat-log firstBlood must never leave {name} unsubstituted",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                FlavorTextBankCatalog.SetBank(data, "combatNarratives.firstBlood_technoEcho", previous ?? Array.Empty<string>());
+                settings.EnableNarrativeEvents = prevEnable;
+                settings.NarrativeBalance = prevBalance;
             }
         }
 

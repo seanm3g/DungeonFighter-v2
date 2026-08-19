@@ -4,6 +4,17 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: firstBlood creature-tier lines left `{name}` unsubstituted (August 2026)
+**Problem:** Live fight vs Goblin (`technoEcho`) showed `firstBlood_technoEcho` verbatim: "The cut opens clean and even, like {name} measured it first." Later technoEcho lines in the same fight (`enemyTaunt`, `below10Percent`, `enemyDefeated`) filled "Goblin" correctly.
+
+**Root cause:** Not a missing name, not a fallback-copy, not unique to that comma/`{name}` placement. `BattleEventAnalyzer.AnalyzeEvent` selected the tier bank via `GetCreatureTieredNarrative("firstBlood", creatureTier)` and added the raw template. Crit / miss / below50 / below10 / enemyDefeated all call `ReplacePlaceholders` first. Combat log displays those AnalyzeEvent strings (`GetTriggeredNarrativesIfSignificant` → `ColoredTextParser.Parse`); `FirstBloodFormatter` is not on that path. Generic `firstBlood` has no tokens, so the skip was invisible until creature-tier banks authored `{name}`. Names are already bound in `Initialize` before firstBlood fires.
+
+**Solutions:**
+1. firstBlood uses the same `ReplacePlaceholders` pipeline as other enemy-voice banks, filling `{name}` with `enemyName`
+2. Tests pin the live Goblin / `firstBlood_technoEcho` line through AnalyzeEvent and `GetTriggeredNarrativesIfSignificant`, and iterate authored `firstBlood_{tier}` templates so `{name}` cannot leak
+
+**Related files:** `BattleEventAnalyzer.cs`, `BattleEventAnalyzerTests.cs`, `BattleNarrativeTests.cs`
+
 ### Bug fix: Combat narrative display gate never showed generated lines (August 2026)
 **Problem:** First blood, crits, health thresholds, lead changes, and taunts were generated then never displayed.
 

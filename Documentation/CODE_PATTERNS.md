@@ -607,8 +607,12 @@ else
 
 `GetLocationType` substrings (room display name, case-insensitive): `library`/`study`/`archive`; `water`/`ocean`/`sea`/`underwater`; `lava`/`volcano`/`volcanic`/`magma`/`molten`/`fire`; `crypt`/`tomb`/`grave`; `crystal`/`geode`; `temple`/`shrine`/`altar`; `forest`/`grove`; `ice`/`frozen`/`frost`/`glacier`/`glacial`; `swamp`/`marsh`/`bog`. Bare `cave`/`cavern` and `sanctuary` do not map to Crystal/Temple. Frozen Cavern / Glacial Chamber → ice; Marsh Sanctuary / Bog Clearing → swamp. Authored biome banks: forest, crypt, crystal, lava, temple, library, underwater, ice, swamp. Creature-tier banks (`firstBlood_{tier}`, `criticalHit_{tier}`, `criticalMiss_{tier}`, `below50Percent_{tier}`, `below10Percent_{tier}`, `enemyDefeated_{tier}`, `enemyTaunt_{tier}`) are filled for `nativeFauna` / `feralStock` / `technoEcho`.
 
+Combat-log lines are the strings `BattleEventAnalyzer.AnalyzeEvent` returns (via `GetTriggeredNarrativesIfSignificant` → `ColoredTextParser.Parse`). Every token-bearing bank must go through `NarrativeTextProvider.ReplacePlaceholders` **before** that add — including `firstBlood`. Generic `firstBlood` has no tokens; creature-tier `firstBlood_{tier}` authors `{name}` as the enemy (same as below50/below10/enemyDefeated). Crit/miss fill `{name}` from `evt.Actor`. `FirstBloodFormatter` is not on the combat-log path and does not fill tokens.
+
 ```csharp
-textProvider.GetCreatureTieredNarrative("firstBlood", enemy.CreatureTier);
+textProvider.ReplacePlaceholders(
+    textProvider.GetCreatureTieredNarrative("firstBlood", enemy.CreatureTier),
+    new Dictionary<string, string> { { "name", enemy.Name } });
 tauntSystem.CheckEnemyTaunt(..., currentLocation, settings, enemy.CreatureTier);
 ```
 

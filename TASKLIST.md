@@ -4,6 +4,8 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Bug fix / Combat — firstBlood left `{name}` unsubstituted:** Creature-tier `firstBlood_{tier}` was added to the combat log without `ReplacePlaceholders`. Later technoEcho lines in the same fight filled correctly because they already used that helper. `{name}` is the enemy (Goblin). Tests: `BattleEventAnalyzerTests`, `BattleNarrativeTests`. Docs: `CODE_PATTERNS.md`, `PROBLEM_SOLUTIONS.md`.
+
 - [x] **Display / flavor — roomContexts wins over locationDescriptions:** Permanent append under the Rooms.json description. Lookup is `{biome}/{roomType}` `roomContexts` first (`Forest/kitchen`, `Forest/library`); if that bank is missing, fall back to biome `locationDescriptions` (Dining Hall / Guard Post). Generic roomContexts is not a match. Tests: `RoomInfoBuilderTests`. Docs: `ARCHITECTURE.md`, `CODE_PATTERNS.md`, `PROBLEM_SOLUTIONS.md`, `GOOGLE_SHEETS_INTEGRATION.md`.
 
 - [x] **Data / flavor — Forest shrine/treasure overflow split (152-char cap):** Split Forest/shrine #2 and Forest/treasure #2 so every Forest `locationDescriptions` and Forest/{armory,boss,chamber,kitchen,library,sanctum,shrine,treasure} line is under `DisplayBuffer`/`BufferStorage` `maxLineWidth` (152). Shrine and treasure are now 4 lines each. Pipeline: `apply-flavor-content-package.py` → Excel `flavor` sheet → `sync-flavor-text-from-xlsx.py --write`. Tests: `RoomInfoBuilderTests`. Docs: `GOOGLE_SHEETS_INTEGRATION.md`.
