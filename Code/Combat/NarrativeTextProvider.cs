@@ -127,6 +127,12 @@ namespace RPGGame
                 // Forest taunts
                 "playerTaunt_forest" => "\"The forest itself will aid me against you, {enemy}!\" {name} calls to the trees.",
                 "enemyTaunt_forest" => "\"Nature's wrath will consume you, {player}!\" {name} growls among the ancient oaks.",
+                // Ice taunts
+                "playerTaunt_ice" => "\"The cold won't save you, {enemy}!\" {name} shouts across the ice.",
+                "enemyTaunt_ice" => "\"You'll freeze before you defeat me, {player}!\" {name} snarls through the frost.",
+                // Swamp taunts
+                "playerTaunt_swamp" => "\"This mire won't hide you, {enemy}!\" {name} calls across the water.",
+                "enemyTaunt_swamp" => "\"You'll sink here, {player}!\" {name} growls from the mud.",
                 _ => "A significant event occurs in the battle."
             };
         }

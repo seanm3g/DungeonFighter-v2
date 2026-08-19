@@ -24,6 +24,7 @@ namespace RPGGame.Tests.Unit
             TestExactTagKeyWinsWhenPresent();
             TestBossChamberRoomType();
             TestAuthoredRoomTypePreferred();
+            TestKitchenAndLibraryRoomTypes();
 
             TestBase.PrintSummary("FlavorLocationResolver Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -92,6 +93,23 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual("treasure",
                 FlavorLocationResolver.ResolveRoomType("Treasure", "Boss Chamber"),
                 "Authored RoomType should win over the display name",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestKitchenAndLibraryRoomTypes()
+        {
+            Console.WriteLine("\n--- Kitchen / Library room types ---");
+            TestBase.AssertEqual("kitchen",
+                FlavorLocationResolver.ResolveRoomType("", "Kitchen"),
+                "Kitchen display name should infer kitchen",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("library",
+                FlavorLocationResolver.ResolveRoomType("", "Library"),
+                "Library display name should infer library",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("dining",
+                FlavorLocationResolver.ResolveRoomType("", "Dining Hall"),
+                "Dining Hall display name should infer dining",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

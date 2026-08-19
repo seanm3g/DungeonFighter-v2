@@ -23,12 +23,13 @@ This document contains solutions to common problems encountered during developme
 **Problem:** Room description + flavor were concatenated into one 152-char buffer row. Flavor used `room.Theme` (dungeon theme), so Abyssal Depths in a Crypt dungeon showed Crypt shelf text. `roomContexts` was never called from the live room-entry path.
 
 **Solutions:**
-1. `RoomInfoBuilder` writes Rooms.json description, locationDescriptions, and roomContexts as separate buffer lines
+1. `RoomInfoBuilder` writes the Rooms.json description on its own buffer row, then appends one flavor line underneath (permanent append, not a concatenated row)
 2. `FlavorLocationResolver` picks the flavor theme: exact tag→bank key, then display-name substring (same style as biome taunts), then dungeon theme. Room tags are elemental (`water`/`fire`/…) and do not match bank keys, so name matching is the practical primary key
-3. `GenerateRoomContext` is appended as a third line (confirm replace-vs-append with Joey/Max/Sean)
+3. Append lookup: `{biome}/{roomType}` `roomContexts` when that bank exists (e.g. `Forest/kitchen`); otherwise `locationDescriptions` for the biome. Generic roomContexts is not a match for this path
 4. Tests: `RoomInfoBuilderTests`, `FlavorLocationResolverTests`
+5. Forest overflow follow-up: `locationDescriptions` #2/#4 and Forest/sanctum #3 exceeded the 152-char display cap as single lines; those banks were split in `apply-flavor-content-package.py` (9 location lines, 4 sanctum lines) and re-synced. A second pass split Forest/shrine #2 and Forest/treasure #2 (both now 4 lines). Tests assert every Forest locationDescriptions line and every Forest/{armory,boss,chamber,kitchen,library,sanctum,shrine,treasure} line is `<= 152`.
 
-**Related files:** `RoomInfoBuilder.cs`, `FlavorLocationResolver.cs`
+**Related files:** `RoomInfoBuilder.cs`, `FlavorLocationResolver.cs`, `Scripts/apply-flavor-content-package.py`
 
 ### Bug fix: Closing the window left DF.exe locked (August 2026)
 **Problem:** Hitting the title-bar **X** closed the UI but `DF.exe` often stayed alive, so the next build failed with `MSB3026` (`DF.exe` locked by process `DF`).

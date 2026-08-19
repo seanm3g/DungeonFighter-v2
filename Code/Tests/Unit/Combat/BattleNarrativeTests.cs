@@ -39,7 +39,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestFullFightDisplaysEachNarrativeType();
             TestLiveExecutePathPutsNarrativesInCombatLog();
             TestBiomeTauntBanksLoadAndSelectFromRealRooms();
-            TestIceAndSwampRoomsFallThroughToGenericTaunts();
+            TestIceAndSwampRoomsRouteToIceAndSwampTaunts();
             TestCreatureTierBanksLoadAndSelectForRealEnemies();
 
             TestBase.PrintSummary("BattleNarrative Tests", _testsRun, _testsPassed, _testsFailed);
@@ -383,6 +383,10 @@ namespace RPGGame.Tests.Unit.Combat
                 ("Sacred Altar", "temple", "playerTaunt_temple", "enemyTaunt_temple"),
                 ("Library", "library", "playerTaunt_library", "enemyTaunt_library"),
                 ("Underwater Cavern", "underwater", "playerTaunt_underwater", "enemyTaunt_underwater"),
+                ("Frozen Cavern", "ice", "playerTaunt_ice", "enemyTaunt_ice"),
+                ("Glacial Chamber", "ice", "playerTaunt_ice", "enemyTaunt_ice"),
+                ("Marsh Sanctuary", "swamp", "playerTaunt_swamp", "enemyTaunt_swamp"),
+                ("Bog Clearing", "swamp", "playerTaunt_swamp", "enemyTaunt_swamp"),
             };
 
             foreach (var (room, locationType, playerBank, enemyBank) in cases)
@@ -428,20 +432,30 @@ namespace RPGGame.Tests.Unit.Combat
         }
 
         /// <summary>
-        /// Ice/Swamp rooms must not steal Crystal/Temple biome banks via cavern/sanctuary substrings.
+        /// Ice/Swamp rooms must use ice/swamp banks, not Crystal/Temple (cavern/sanctuary)
+        /// or generic. Crystal/Temple/crypt/forest/library/lava/underwater stay put.
         /// </summary>
-        private static void TestIceAndSwampRoomsFallThroughToGenericTaunts()
+        private static void TestIceAndSwampRoomsRouteToIceAndSwampTaunts()
         {
-            Console.WriteLine("\n--- Testing Ice/Swamp rooms fall through to generic taunts ---");
+            Console.WriteLine("\n--- Testing Ice/Swamp rooms route to ice/swamp taunts ---");
 
             FlavorText.Reload();
             var tauntSystem = new TauntSystem(new NarrativeTextProvider());
 
-            TestBase.AssertEqual("generic", tauntSystem.GetLocationType("Frozen Cavern"),
-                "Frozen Cavern should not match crystal via cavern",
+            TestBase.AssertEqual("ice", tauntSystem.GetLocationType("Frozen Cavern"),
+                "Frozen Cavern should match ice (frozen), not crystal via cavern",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("generic", tauntSystem.GetLocationType("Marsh Sanctuary"),
-                "Marsh Sanctuary should not match temple via sanctuary",
+            TestBase.AssertEqual("ice", tauntSystem.GetLocationType("Glacial Chamber"),
+                "Glacial Chamber should match ice via glacial",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("ice", tauntSystem.GetLocationType("Frozen Lake"),
+                "Frozen Lake should match ice via frozen",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("swamp", tauntSystem.GetLocationType("Marsh Sanctuary"),
+                "Marsh Sanctuary should match swamp (marsh), not temple via sanctuary",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("swamp", tauntSystem.GetLocationType("Bog Clearing"),
+                "Bog Clearing should match swamp via bog",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("crystal", tauntSystem.GetLocationType("Crystal Garden"),
                 "Crystal Garden should stay crystal",
@@ -470,33 +484,48 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertEqual("underwater", tauntSystem.GetLocationType("Underwater Cavern"),
                 "Underwater Cavern should stay underwater",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("forest", tauntSystem.GetLocationType("Dark Forest"),
+                "Dark Forest should stay forest",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             string frozenPlayer = tauntSystem.GetLocationSpecificTaunt("player", "Hero", "Goblin", "Frozen Cavern");
             TestBase.AssertTrue(
-                MatchesCombatBank("playerTaunt", ("name", "Hero"), ("enemy", "Goblin"))(frozenPlayer)
-                && !MatchesCombatBank("playerTaunt_crystal", ("name", "Hero"), ("enemy", "Goblin"))(frozenPlayer),
-                "Frozen Cavern player taunt should be generic, not crystal",
+                MatchesCombatBank("playerTaunt_ice", ("name", "Hero"), ("enemy", "Goblin"))(frozenPlayer)
+                && !frozenPlayer.Contains("{enemy}", StringComparison.Ordinal)
+                && !frozenPlayer.Contains("{name}", StringComparison.Ordinal)
+                && !MatchesCombatBank("playerTaunt_crystal", ("name", "Hero"), ("enemy", "Goblin"))(frozenPlayer)
+                && !MatchesCombatBank("playerTaunt", ("name", "Hero"), ("enemy", "Goblin"))(frozenPlayer),
+                "Frozen Cavern player taunt should be ice, not crystal or generic",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             string frozenEnemy = tauntSystem.GetLocationSpecificTaunt("enemy", "Goblin", "Hero", "Frozen Cavern");
             TestBase.AssertTrue(
-                MatchesCombatBank("enemyTaunt", ("name", "Goblin"), ("player", "Hero"))(frozenEnemy)
-                && !MatchesCombatBank("enemyTaunt_crystal", ("name", "Goblin"), ("player", "Hero"))(frozenEnemy),
-                "Frozen Cavern enemy taunt should be generic, not crystal",
+                MatchesCombatBank("enemyTaunt_ice", ("name", "Goblin"), ("player", "Hero"))(frozenEnemy)
+                && !frozenEnemy.Contains("{player}", StringComparison.Ordinal)
+                && !frozenEnemy.Contains("{name}", StringComparison.Ordinal)
+                && !MatchesCombatBank("enemyTaunt_crystal", ("name", "Goblin"), ("player", "Hero"))(frozenEnemy)
+                && !MatchesCombatBank("enemyTaunt", ("name", "Goblin"), ("player", "Hero"))(frozenEnemy),
+                "Frozen Cavern enemy taunt should be ice, not crystal or generic",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             string marshPlayer = tauntSystem.GetLocationSpecificTaunt("player", "Hero", "Goblin", "Marsh Sanctuary");
             TestBase.AssertTrue(
-                MatchesCombatBank("playerTaunt", ("name", "Hero"), ("enemy", "Goblin"))(marshPlayer)
-                && !MatchesCombatBank("playerTaunt_temple", ("name", "Hero"), ("enemy", "Goblin"))(marshPlayer),
-                "Marsh Sanctuary player taunt should be generic, not temple",
+                MatchesCombatBank("playerTaunt_swamp", ("name", "Hero"), ("enemy", "Goblin"))(marshPlayer)
+                && !marshPlayer.Contains("{enemy}", StringComparison.Ordinal)
+                && !marshPlayer.Contains("{name}", StringComparison.Ordinal)
+                && !MatchesCombatBank("playerTaunt_temple", ("name", "Hero"), ("enemy", "Goblin"))(marshPlayer)
+                && !MatchesCombatBank("playerTaunt", ("name", "Hero"), ("enemy", "Goblin"))(marshPlayer),
+                "Marsh Sanctuary player taunt should be swamp, not temple or generic",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             string marshEnemy = tauntSystem.GetLocationSpecificTaunt("enemy", "Goblin", "Hero", "Marsh Sanctuary");
             TestBase.AssertTrue(
-                MatchesCombatBank("enemyTaunt", ("name", "Goblin"), ("player", "Hero"))(marshEnemy)
-                && !MatchesCombatBank("enemyTaunt_temple", ("name", "Goblin"), ("player", "Hero"))(marshEnemy),
-                "Marsh Sanctuary enemy taunt should be generic, not temple",
+                MatchesCombatBank("enemyTaunt_swamp", ("name", "Goblin"), ("player", "Hero"))(marshEnemy)
+                && !marshEnemy.Contains("{player}", StringComparison.Ordinal)
+                && !marshEnemy.Contains("{name}", StringComparison.Ordinal)
+                && !MatchesCombatBank("enemyTaunt_temple", ("name", "Goblin"), ("player", "Hero"))(marshEnemy)
+                && !MatchesCombatBank("enemyTaunt", ("name", "Goblin"), ("player", "Hero"))(marshEnemy),
+                "Marsh Sanctuary enemy taunt should be swamp, not temple or generic",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

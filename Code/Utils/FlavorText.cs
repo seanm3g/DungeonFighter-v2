@@ -364,27 +364,81 @@ namespace RPGGame
         public static string GetClassQualifier(string className, int classPoints) =>
             GetClassQualifier(null, classPoints, className);
 
+        /// <summary>
+        /// True when <c>environments.roomContexts</c> has a non-empty bank for
+        /// <c>{theme}/{roomType}</c>. Does not fall back to Generic — unmatched room
+        /// types should use <see cref="GenerateLocationDescription"/> instead.
+        /// </summary>
+        public static bool HasRoomContext(string theme, string roomType)
+        {
+            return TryGetRoomContextLines(theme, roomType, genericFallback: false, out var lines) && lines.Length > 0;
+        }
+
         public static string GenerateRoomContext(string theme, string roomType)
         {
-            var data = GetData();
-
-            if (data.Environments.RoomContexts.TryGetValue(theme, out var themeContexts))
-            {
-                if (themeContexts.TryGetValue(roomType.ToLower(), out string[]? contexts) && contexts.Length > 0)
-                {
-                    return GetRandomName(contexts);
-                }
-            }
-
-            if (data.Environments.RoomContexts.TryGetValue("Generic", out var genericContexts))
-            {
-                if (genericContexts.TryGetValue(roomType.ToLower(), out string[]? genericContext) && genericContext.Length > 0)
-                {
-                    return GetRandomName(genericContext);
-                }
-            }
+            if (TryGetRoomContextLines(theme, roomType, genericFallback: true, out var lines) && lines.Length > 0)
+                return GetRandomName(lines);
 
             return "";
+        }
+
+        private static bool TryGetRoomContextLines(string theme, string roomType, bool genericFallback, out string[] lines)
+        {
+            lines = Array.Empty<string>();
+            var data = GetData();
+            if (data?.Environments?.RoomContexts == null || string.IsNullOrWhiteSpace(roomType))
+                return false;
+
+            string typeKey = roomType.Trim().ToLowerInvariant();
+            if (!string.IsNullOrWhiteSpace(theme)
+                && TryGetThemeRoomTypeLines(data.Environments.RoomContexts, theme, typeKey, out lines))
+            {
+                return true;
+            }
+
+            return genericFallback
+                && TryGetThemeRoomTypeLines(data.Environments.RoomContexts, "Generic", typeKey, out lines);
+        }
+
+        private static bool TryGetThemeRoomTypeLines(
+            Dictionary<string, Dictionary<string, string[]>> roomContexts,
+            string theme,
+            string typeKey,
+            out string[] lines)
+        {
+            lines = Array.Empty<string>();
+            Dictionary<string, string[]>? themeContexts = null;
+            if (!roomContexts.TryGetValue(theme, out themeContexts) || themeContexts == null)
+            {
+                foreach (var kv in roomContexts)
+                {
+                    if (string.Equals(kv.Key, theme.Trim(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        themeContexts = kv.Value;
+                        break;
+                    }
+                }
+            }
+
+            if (themeContexts == null)
+                return false;
+
+            if (themeContexts.TryGetValue(typeKey, out string[]? exact) && exact is { Length: > 0 })
+            {
+                lines = exact;
+                return true;
+            }
+
+            foreach (var kv in themeContexts)
+            {
+                if (string.Equals(kv.Key, typeKey, StringComparison.OrdinalIgnoreCase) && kv.Value is { Length: > 0 })
+                {
+                    lines = kv.Value;
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -36,25 +36,22 @@ namespace RPGGame.Display.Dungeon
 
             // Separate buffer rows so BufferStorage's 152-char truncation cannot clip
             // concatenated Rooms.json + flavor text. Theme is resolved from the room
-            // itself (not dungeon Theme). roomContexts is appended as a third line —
-            // confirm replace-vs-append with Joey/Max/Sean; append is the default here.
+            // itself (not dungeon Theme). A single flavor line is always appended under
+            // the Rooms.json description: roomContexts for {biome}/{roomType} when that
+            // bank exists, otherwise locationDescriptions.
             if (!string.IsNullOrWhiteSpace(room.Description))
             {
                 info.Add(RenderWhiteLine(room.Description));
             }
 
             string flavorTheme = FlavorLocationResolver.ResolveLocationTheme(room);
-            string flavorLine = FlavorText.GenerateLocationDescription(flavorTheme);
+            string roomType = FlavorLocationResolver.ResolveRoomType(room);
+            string flavorLine = FlavorText.HasRoomContext(flavorTheme, roomType)
+                ? FlavorText.GenerateRoomContext(flavorTheme, roomType)
+                : FlavorText.GenerateLocationDescription(flavorTheme);
             if (!string.IsNullOrWhiteSpace(flavorLine))
             {
                 info.Add(RenderWhiteLine(flavorLine));
-            }
-
-            string roomType = FlavorLocationResolver.ResolveRoomType(room);
-            string roomContext = FlavorText.GenerateRoomContext(flavorTheme, roomType);
-            if (!string.IsNullOrWhiteSpace(roomContext))
-            {
-                info.Add(RenderWhiteLine(roomContext));
             }
 
             // Note: No trailing blank line - spacing system handles transitions

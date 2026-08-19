@@ -284,7 +284,7 @@ public void TestActionLoading()
 **Test Areas**:
 - Combo system mechanics
 - Battle narrative generation (`BattleNarrativeTests` display-gate + full-fight types; `BattleEventAnalyzerTests`)
-- Room-entry flavor wiring (`RoomInfoBuilderTests`, `FlavorLocationResolverTests`)
+- Room-entry flavor wiring (`RoomInfoBuilderTests`: roomContexts vs locationDescriptions append; Forest locationDescriptions + all 8 Forest roomContexts 152-char cap on every line; shrine/treasure 4-line banks; `FlavorLocationResolverTests`)
 - Enemy AI behavior
 - Environmental effects
 - Dynamic tuning system

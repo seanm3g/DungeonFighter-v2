@@ -583,15 +583,21 @@ public static class JsonLoader
 ### 1b. Flavor location resolution
 **Purpose**: Pick FlavorText `locationDescriptions` / `roomContexts` keys from the room, not the dungeon theme.
 
-**Order:** exact room-tag match against bank keys → display-name substring (same style as `TauntSystem.GetLocationType`) → dungeon theme fallback.
+**Theme order:** exact room-tag match against bank keys → display-name substring (same style as `TauntSystem.GetLocationType`) → dungeon theme fallback.
 
-Room tags in `Rooms.json` are elemental (`water`, `fire`, `cycling`) and do not match bank keys (`Forest`, `Crypt`, `Swamp`). Name matching is the practical primary key. There is no Ocean bank; water/ocean room names map to **Swamp**. `RoomInfoBuilder` writes description, location flavor, and room context as **separate** buffer lines (152-char cap per row).
+**Append order (permanent):** Rooms.json description stays on its own buffer row. One flavor line is appended under it:
+1. If `environments.roomContexts` has `{biome}/{roomType}` (sheet key `Forest/kitchen`, JSON `Forest` → `kitchen`), append that bank. Generic roomContexts is **not** a match.
+2. Otherwise append `locationDescriptions` for the resolved biome, as before.
+
+Room tags in `Rooms.json` are elemental (`water`, `fire`, `cycling`) and do not match bank keys (`Forest`, `Crypt`, `Swamp`). Name matching is the practical primary key. There is no Ocean bank; water/ocean room names map to **Swamp**. `RoomType` keys are lowercase (`kitchen`, `library`); biome keys match the sheet (`Forest`). `RoomInfoBuilder` writes description and the chosen flavor line as **separate** buffer lines (152-char cap per row). Forest `locationDescriptions` (9 lines) and Forest/{sanctum,shrine,treasure} (4 lines each) are authored to fit that cap.
 
 ```csharp
 string theme = FlavorLocationResolver.ResolveLocationTheme(room);
 string roomType = FlavorLocationResolver.ResolveRoomType(room);
-FlavorText.GenerateLocationDescription(theme);
-FlavorText.GenerateRoomContext(theme, roomType);
+if (FlavorText.HasRoomContext(theme, roomType))
+    FlavorText.GenerateRoomContext(theme, roomType);
+else
+    FlavorText.GenerateLocationDescription(theme);
 ```
 
 ### 1c. Creature-tier combat narratives
@@ -599,7 +605,7 @@ FlavorText.GenerateRoomContext(theme, roomType);
 
 **Order:** non-empty `{bank}_{nativeFauna|feralStock|technoEcho}` → unsuffixed `{bank}`. Missing/invalid tier skips straight to generic. Biome taunts (`enemyTaunt_forest`, `playerTaunt_crypt`, …) stay a separate fallback after an empty `enemyTaunt_{tier}` bank. Player-facing lines (player crit, player HP, playerDefeated, unsuffixed playerTaunt) stay generic unless `TauntSystem.GetLocationType` finds a biome suffix.
 
-`GetLocationType` substrings (room display name, case-insensitive): `library`/`study`/`archive`; `water`/`ocean`/`sea`/`underwater`; `lava`/`volcano`/`volcanic`/`magma`/`molten`/`fire`; `crypt`/`tomb`/`grave`; `crystal`/`geode`; `temple`/`shrine`/`altar`; `forest`/`grove`. Bare `cave`/`cavern` and `sanctuary` do not map to Crystal/Temple (Ice/Swamp rooms fall through to generic taunts). Authored biome banks: forest, crypt, crystal, lava, temple, library, underwater. Creature-tier banks (`firstBlood_{tier}`, `criticalHit_{tier}`, `criticalMiss_{tier}`, `below50Percent_{tier}`, `below10Percent_{tier}`, `enemyDefeated_{tier}`, `enemyTaunt_{tier}`) are filled for `nativeFauna` / `feralStock` / `technoEcho`.
+`GetLocationType` substrings (room display name, case-insensitive): `library`/`study`/`archive`; `water`/`ocean`/`sea`/`underwater`; `lava`/`volcano`/`volcanic`/`magma`/`molten`/`fire`; `crypt`/`tomb`/`grave`; `crystal`/`geode`; `temple`/`shrine`/`altar`; `forest`/`grove`; `ice`/`frozen`/`frost`/`glacier`/`glacial`; `swamp`/`marsh`/`bog`. Bare `cave`/`cavern` and `sanctuary` do not map to Crystal/Temple. Frozen Cavern / Glacial Chamber → ice; Marsh Sanctuary / Bog Clearing → swamp. Authored biome banks: forest, crypt, crystal, lava, temple, library, underwater, ice, swamp. Creature-tier banks (`firstBlood_{tier}`, `criticalHit_{tier}`, `criticalMiss_{tier}`, `below50Percent_{tier}`, `below10Percent_{tier}`, `enemyDefeated_{tier}`, `enemyTaunt_{tier}`) are filled for `nativeFauna` / `feralStock` / `technoEcho`.
 
 ```csharp
 textProvider.GetCreatureTieredNarrative("firstBlood", enemy.CreatureTier);

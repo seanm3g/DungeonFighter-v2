@@ -494,14 +494,15 @@
     ],
     "locationDescriptions": {
       "Forest": [
-        "Trees grow thick and old here, roots knotted around shapes too regular to be stone.",
-        "Canopy hangs low enough to swallow the light whole, and something beneath it hums faint and constant.",
-        "Moss has grown over everything, softening every edge until nothing keeps its original shape.",
-        "The undergrowth here grows in strange, even rows, as if something once planted it on purpose.",
-        "Sap runs pale along the bark, and the trees stand closer together than trees usually choose to.",
-        "A clearing opens where nothing grows at all, the ground scorched flat and never healed.",
-        "Water moves through the roots in channels too straight to be a stream's own doing.",
-        "The deeper woods keep a silence that feels tended rather than empty."
+        "Roots run in tight, even rings here, more deliberate than growth usually is.",
+        "Wolves move through country like this in packs disciplined enough that old herders swear a cornered one still hesitates at a raised hand.",
+        "Nobody's fed one by hand in longer than anyone living can prove.",
+        "The quiet under these trees isn't empty. Somewhere this old, something is still being grieved, by someone who never stopped and never explained why.",
+        "Bark has been carved here longer than any single hand could account for, one name laid over the last, further back than the trees should allow.",
+        "Moss holds the shape of old fire pits in rings too even to be accident, cold now, banked by hands that stopped coming back.",
+        "A hush moves through here that isn't caused by wind. Barbarians who've spent real time in this wood don't try to explain it to people who haven't.",
+        "Old iron turns up half-buried under root and leaf, and it never quite rusts the way iron this old should.",
+        "Fire pits sit cold in rings too neat to be one family's doing, banked by more than one set of hands."
       ],
       "Lava": [
         "Heat rolls off the stone in waves, thick enough to taste at the back of the throat.",
@@ -628,42 +629,47 @@
       "Forest": {
         "boss": [
           "Whatever holds this grove has been here long enough that the trees have grown around it rather than through it.",
-          "The air changes at the center of this clearing, heavier, like something old is still deciding whether to notice you.",
-          "Roots pull inward here, toward whatever waits at the heart of the grove, and none of them seem to mind."
+          "The roots here don't just reach — they circle, patient the way something with old blood and older training learns to be patient.",
+          "The air changes at the center of this clearing, heavier, like a wolf deciding whether you're worth the trouble of a fight."
         ],
         "treasure": [
           "Something catches the light beneath the roots, buried just deep enough to have been forgotten on purpose.",
           "Coin and old metal are scattered here like they were dropped in a hurry and never retrieved.",
-          "A hollow in the oldest trunk holds more than it should, packed tight and gone dry with age."
+          "The kind of hurry that only comes from a fight nobody wrote down.",
+          "A hollow in the oldest trunk holds more than it should, packed tight and gone dry with age, the way anything kept by more than one hand tends to."
         ],
         "library": [
-          "Bark has been peeled and etched in careful rows, a record kept by hands that trusted wood over parchment.",
-          "Stacked stones mark where something was once written, worn past reading by rain and root.",
-          "Whatever knowledge was kept here has gone quiet, the way old things do when no one asks after them anymore."
+          "Old script runs along the bark here in rows too straight for weather to have made.",
+          "Some of the letters don't match themselves, shifting shape between one look and the next.",
+          "Whatever kept this record trusted wood over parchment, and wood remembers longer than it should.",
+          "Even the oldest parts of it, nobody living can read anymore.",
+          "Stacked stones mark where something was written and rewritten, the older layer never quite gone, just built over."
         ],
         "armory": [
           "Blades are racked along a wall of fused root and pale metal, none of it rusted the way it should be.",
           "Every weapon here has been kept oiled by hands that are all long gone, and it still shows.",
-          "Old iron hangs from low branches, strung there by someone who wanted it kept dry and close."
+          "A single roof shelters two separate racks of gear, worn in different styles, kept together anyway."
         ],
         "kitchen": [
-          "Ash from old cookfires is packed into the ground here, layered deep enough to mark generations of use.",
-          "Dried herbs hang from a low beam of bent wood, forgotten by whoever hung them last.",
-          "A blackened hearth sits half-swallowed by roots, still warm though no one has fed it in years."
+          "Ash from old cookfires is packed into the ground here, layered deep enough to mark generations sharing a single hearth.",
+          "Dried herbs hang from a low beam of bent wood, hung by hands from two different houses, if the knot-work's any judge.",
+          "A blackened hearth sits half-swallowed by roots, still warm though no one's fed it in years — the kind of warmth a shared roof leaves behind."
         ],
         "chamber": [
           "The walls of this hollow are packed earth and root, grown, not built, though something clearly meant for it to hold a shape.",
-          "Light filters down through a gap in the canopy that always seems to land in the same place.",
-          "This room breathes with the forest around it, its air thick and unmoving."
+          "Light filters down through a gap in the canopy that always seems to land in the same place, like something fixed it there on purpose.",
+          "This room breathes with the forest around it, quiet enough to make you wonder who else has stood exactly here and gone equally still."
         ],
         "sanctum": [
           "Something in this hollow makes every sound feel deliberate, even the ones you didn't mean to make.",
           "The trees here stand in a ring too even to be chance, and the ground within it never seems to flood.",
-          "Whoever comes here comes quietly, though none of them could say exactly why."
+          "Old banners hang past this ring, faded past their colors.",
+          "They mark ground where two houses once agreed to share a roof, and stopped burning each other's holdings for it."
         ],
         "shrine": [
           "Small offerings are tucked into the roots — coin, cloth, a single carved stone worn smooth from handling.",
-          "A ring of stacked rocks marks the base of the oldest tree in the grove, though no one living remembers why.",
+          "A ring of stacked rocks marks the base of the oldest tree in the grove.",
+          "They're set the way two hearths sit under one roof, close, deliberate, unwilling to be one fire.",
           "Faded ribbons hang from low branches, tied by hands hoping for something they couldn't name."
         ]
       },
@@ -1041,9 +1047,21 @@
       "Blood hits the ground, and the fight finds its true pace.",
       "It's no longer a standoff once the blood shows."
     ],
-    "firstBlood_nativeFauna": [],
-    "firstBlood_feralStock": [],
-    "firstBlood_technoEcho": [],
+    "firstBlood_nativeFauna": [
+      "{name} draws blood and doesn't flinch from the smell of it — this is just what teeth and claws are for.",
+      "The first cut lands, and {name} presses in harder, not softer.",
+      "{name} tastes blood in the air and knows exactly what to do with that."
+    ],
+    "firstBlood_feralStock": [
+      "{name} draws first blood and hesitates half a step, like something in it expected a different ending to this.",
+      "The cut lands, and for one strange beat {name} looks almost sorry before the fight takes over again.",
+      "{name} presses the advantage, though something in the movement still remembers being called off once."
+    ],
+    "firstBlood_technoEcho": [
+      "{name} draws blood, and the wound it leaves doesn't spread the way a wound should.",
+      "First blood, and {name}'s rhythm doesn't change at all — like the strike was always going to land.",
+      "The cut opens clean and even, like {name} measured it first."
+    ],
     "healthRecovery": [
       "{name} steadies, breath returning, the worst of it passing for now.",
       "Something in {name} settles — not healed, just holding again.",
@@ -1061,9 +1079,21 @@
       "{name}'s hands shake, but they don't lower.",
       "{name} is running on less than they'd like to admit."
     ],
-    "below50Percent_nativeFauna": [],
-    "below50Percent_feralStock": [],
-    "below50Percent_technoEcho": [],
+    "below50Percent_nativeFauna": [
+      "{name} is hurt bad and showing it, breathing hard, favoring one side.",
+      "Half of what {name} started with is gone, and it's still coming.",
+      "{name} bleeds the way anything alive bleeds, and keeps moving anyway."
+    ],
+    "below50Percent_feralStock": [
+      "{name} is hurt, and something in it keeps glancing toward an exit it won't take.",
+      "Wounded, {name} still holds its ground with a discipline that outlasts the pain.",
+      "{name} favors its injury but doesn't break formation — old training holding even now."
+    ],
+    "below50Percent_technoEcho": [
+      "{name} is damaged, but nothing about how it moves has actually slowed.",
+      "Half of whatever {name} runs on is gone, and the rhythm hasn't changed once.",
+      "{name}'s wounds don't seem to cost it anything they should."
+    ],
     "below10Percent": [
       "{name} is barely upright, held together by stubbornness alone.",
       "One more solid hit and {name} won't be getting up.",
@@ -1074,9 +1104,21 @@
       "{name} is a breath away from the ground.",
       "{name} won't last another exchange like the last one."
     ],
-    "below10Percent_nativeFauna": [],
-    "below10Percent_feralStock": [],
-    "below10Percent_technoEcho": [],
+    "below10Percent_nativeFauna": [
+      "{name} is barely standing, held up by nothing but stubbornness.",
+      "One more solid hit and {name} won't get up — plain as that.",
+      "{name}'s breath is ragged, legs shaking, and it still won't back down."
+    ],
+    "below10Percent_feralStock": [
+      "{name} is nearly finished, and something in its eyes looks almost relieved.",
+      "Barely upright, {name} still holds its stance like someone's still watching.",
+      "{name} is a breath from the ground, and won't break formation even now."
+    ],
+    "below10Percent_technoEcho": [
+      "{name} is nearly finished, and it hasn't once changed its rhythm to show it.",
+      "Whatever's keeping {name} standing isn't stubbornness — it's just not done yet.",
+      "{name} is a hit from falling, and its stance hasn't shifted an inch to compensate."
+    ],
     "criticalHit": [
       "{name} finds the gap and doesn't waste it.",
       "That one lands clean — {name} feels it connect all the way through.",
@@ -1087,9 +1129,21 @@
       "{name} doesn't get many like that — this one was clean.",
       "The hit from {name} lands hard enough that the room goes quiet for a beat."
     ],
-    "criticalHit_nativeFauna": [],
-    "criticalHit_feralStock": [],
-    "criticalHit_technoEcho": [],
+    "criticalHit_nativeFauna": [
+      "{name} finds the opening the way a predator finds a limp — instinct, not thought.",
+      "That one lands with everything {name} has behind it.",
+      "{name} doesn't waste the opening. Nothing wild ever does."
+    ],
+    "criticalHit_feralStock": [
+      "{name} strikes clean, disciplined in a way nothing truly wild should be.",
+      "That hit from {name} lands with old, trained precision — like it was taught, once, by someone patient.",
+      "{name}'s strike finds its mark with a control that doesn't belong to instinct alone."
+    ],
+    "criticalHit_technoEcho": [
+      "{name}'s strike lands exactly where it was always going to, like the outcome was decided before the swing.",
+      "That hit from {name} connects with a precision nothing alive should have.",
+      "{name} doesn't correct or adjust — the strike was already right the first time."
+    ],
     "criticalMiss": [
       "{name}'s swing goes wide, and the follow-through costs them.",
       "{name} overreaches, and the miss leaves them open.",
@@ -1100,9 +1154,21 @@
       "{name} commits to a swing that was never going to land.",
       "{name}'s attack goes wrong in a way that's going to matter in a second."
     ],
-    "criticalMiss_nativeFauna": [],
-    "criticalMiss_feralStock": [],
-    "criticalMiss_technoEcho": [],
+    "criticalMiss_nativeFauna": [
+      "{name} overreaches and stumbles, plain and animal about it.",
+      "The swing from {name} goes wide, and for a second it looks almost embarrassed.",
+      "{name} misses clean, off-balance, breathing hard."
+    ],
+    "criticalMiss_feralStock": [
+      "{name}'s swing goes wide, and it flinches at its own miss like it expected to be corrected.",
+      "The attack from {name} stutters mid-motion, some old discipline breaking rhythm at the wrong moment.",
+      "{name} overreaches, and for a beat it hesitates like it's waiting to be called off."
+    ],
+    "criticalMiss_technoEcho": [
+      "{name}'s strike goes wide, and the miss doesn't cost it anything it shows.",
+      "The swing from {name} fails to connect, but nothing about its stance says it noticed.",
+      "{name} misses, and resets to the exact same position, like nothing happened at all."
+    ],
     "environmentalAction": [
       "The room itself has an opinion, apparently: {effect}",
       "Something in the space reacts before anyone decides it should: {effect}",
@@ -1137,9 +1203,21 @@
       "{player} stands over what's left of {name}, and there's nothing satisfying about it.",
       "{name} is finished, and {player} already knows there'll be another one somewhere."
     ],
-    "enemyDefeated_nativeFauna": [],
-    "enemyDefeated_feralStock": [],
-    "enemyDefeated_technoEcho": [],
+    "enemyDefeated_nativeFauna": [
+      "{name} goes down hard and stays down — a real, earned kill, nothing more or less.",
+      "{name} doesn't get back up. It never had anything left to get up with.",
+      "{player} stands over {name}, and there's nothing strange about what's left."
+    ],
+    "enemyDefeated_feralStock": [
+      "{name} goes still, and for a moment it looks less like a kill than something finally let go.",
+      "{player} stands over {name}, and it's hard not to think of what it might have been, once.",
+      "{name} doesn't get back up. Whatever it remembered, it doesn't anymore."
+    ],
+    "enemyDefeated_technoEcho": [
+      "{name} goes down, and whatever's inside it stops being warm faster than it should.",
+      "{player} stands over {name}, and the stillness afterward is too even to be natural.",
+      "{name} doesn't get back up, and what's left of it doesn't decay the way it should either."
+    ],
     "playerDefeated": [
       "You go down, and {enemy} doesn't slow to check the work.",
       "The last thing you register is {enemy} still standing.",
@@ -1174,9 +1252,21 @@
       "\"This is going to hurt more than you're ready for, {player}.\" {name} says.",
       "\"You made a mistake coming here, {player}.\" {name} says quietly."
     ],
-    "enemyTaunt_nativeFauna": [],
-    "enemyTaunt_feralStock": [],
-    "enemyTaunt_technoEcho": [],
+    "enemyTaunt_nativeFauna": [
+      "\"{player}, you're bleeding and you don't even know it yet.\" {name} circles, low and patient.",
+      "\"I don't need long for this, {player}.\" {name} says, unbothered, teeth bared.",
+      "\"{player}, you smell like something already tired.\" {name} watches close."
+    ],
+    "enemyTaunt_feralStock": [
+      "\"{player}, I don't want to do this, but I will.\" {name} says, voice caught between snarl and hesitation.",
+      "\"You remind me of someone I used to listen to, {player}. Doesn't change what happens next.\" {name} says.",
+      "\"{player}, some part of me still waits for a hand that isn't coming. Yours won't be it.\" {name} says, low."
+    ],
+    "enemyTaunt_technoEcho": [
+      "\"This ends however it was always going to end, {player}.\" {name} says, voice too even to be angry.",
+      "\"{player}, you're not the first. You won't be the last, and I won't remember either.\" {name} says.",
+      "\"I don't tire, {player}. I don't know how.\" {name} says, flat."
+    ],
     "playerTaunt_library": [
       "\"{enemy}, half of what's written on these shelves nobody living can read. Doesn't make it less true.\"",
       "\"Every book in here outlived somebody who thought it mattered, {enemy}. So will this fight.\"",
@@ -1260,6 +1350,30 @@
       "\"{player}, the roots will hold what's left of you.\" {name} circles slow.",
       "\"This wood has swallowed better than you, {player}.\" {name} snarls.",
       "\"{player}, no one hears you scream this deep in.\" {name} says, low."
+    ],
+    "playerTaunt_ice": [
+      "\"{enemy}, everything moves slower once the cold gets into it. You're already behind.\"",
+      "\"The frost doesn't care how tough you were somewhere warmer, {enemy}.\"",
+      "\"{enemy}, I've outlasted worse than you standing still in weather like this.\"",
+      "\"Nothing holds its edge out here for long, {enemy}. Let's see if you do.\""
+    ],
+    "enemyTaunt_ice": [
+      "\"You'll go stiff before you go down, {player}.\" {name}'s breath hangs between them, unbothered by the cold.",
+      "\"{player}, the cold got here before you did, and it's not leaving either.\"",
+      "\"Nothing that stops moving out here gets moving again, {player}.\"",
+      "\"{player}, I don't feel the cold anymore. You will.\""
+    ],
+    "playerTaunt_swamp": [
+      "\"{enemy}, the mud doesn't let go easy. Neither will I.\"",
+      "\"Everything sinks out here eventually, {enemy}. Might as well be you first.\"",
+      "\"{enemy}, this ground's swallowed louder fights than this one and kept quiet about it.\"",
+      "\"The water's still for a reason, {enemy}. It's waiting.\""
+    ],
+    "enemyTaunt_swamp": [
+      "\"You won't find solid ground before I find you, {player}.\" {name} doesn't sink the way {player} does.",
+      "\"{player}, this swamp keeps what sinks into it. Everything does, eventually.\"",
+      "\"The mud remembers every set of footprints it's swallowed, {player}. Yours are next.\"",
+      "\"{player}, nobody hears you out here over the water.\""
     ]
   },
   "forms": {

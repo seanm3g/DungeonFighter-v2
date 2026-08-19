@@ -42,7 +42,7 @@ DungeonFighter/
 - **`Code/Combat/CombatResults.cs`** - Handles UI display and result formatting
 - **`Code/Combat/TurnManager.cs`** - Manages turn-based combat logic
 - **`Code/Combat/BattleNarrative.cs`** - Event-driven battle descriptions
-- **`Code/Combat/TauntSystem.cs`** - Location-specific combat taunts (`playerTaunt_{biome}` / `enemyTaunt_{biome}`). `GetLocationType` matches room display-name substrings: library/study/archive → `library`; water/ocean/sea/underwater → `underwater`; lava/volcano/volcanic/magma/molten/fire → `lava`; crypt/tomb/grave → `crypt`; crystal/geode → `crystal`; temple/shrine/altar → `temple`; forest/grove → `forest`; else generic. Bare `cave`/`cavern` is not Crystal (so Frozen Cavern stays generic). `sanctuary` is not Temple (so Marsh Sanctuary stays generic). Creature-tier `enemyTaunt_{tier}` is a separate fallback axis.
+- **`Code/Combat/TauntSystem.cs`** - Location-specific combat taunts (`playerTaunt_{biome}` / `enemyTaunt_{biome}`). `GetLocationType` matches room display-name substrings: library/study/archive → `library`; water/ocean/sea/underwater → `underwater`; lava/volcano/volcanic/magma/molten/fire → `lava`; crypt/tomb/grave → `crypt`; crystal/geode → `crystal`; temple/shrine/altar → `temple`; forest/grove → `forest`; ice/frozen/frost/glacier/glacial → `ice`; swamp/marsh/bog → `swamp`; else generic. Bare `cave`/`cavern` is not Crystal (Frozen Cavern → ice via `frozen`). `sanctuary` is not Temple (Marsh Sanctuary → swamp via `marsh`). Creature-tier `enemyTaunt_{tier}` is a separate fallback axis.
 - **`Code/Combat/BattleHealthTracker.cs`** - Health tracking for battle narrative system
 
 ### **Character System (Refactored Architecture)**
@@ -307,8 +307,8 @@ The CharacterActions system has been successfully refactored from a 828-line mon
   - Uses extracted builders and display buffer
 - **`Code/Game/Display/Dungeon/`** - Extracted components:
   - **`DungeonHeaderBuilder.cs`** - Builds dungeon header display
-  - **`RoomInfoBuilder.cs`** - Builds room information display (description, location flavor, and room context as separate buffer lines; theme via `FlavorLocationResolver`)
-  - **`Code/Utils/FlavorLocationResolver.cs`** - Resolves FlavorText location/room-context keys from room tags → display name → dungeon theme
+  - **`RoomInfoBuilder.cs`** - Builds room information display: Rooms.json description, then one appended flavor line (`roomContexts` for `{biome}/{roomType}` when that bank exists, otherwise `locationDescriptions`). Each line must fit `DisplayBuffer`/`BufferStorage` `maxLineWidth` (152).
+  - **`Code/Utils/FlavorLocationResolver.cs`** - Resolves FlavorText location/room-context keys from room tags → display name → dungeon theme; room type from authored `RoomType` or display-name tokens (`kitchen`, `library`, …)
   - **`EnemyInfoBuilder.cs`** - Builds enemy information display
   - **`DungeonDisplayBuffer.cs`** - Manages display buffer for dungeon information
 

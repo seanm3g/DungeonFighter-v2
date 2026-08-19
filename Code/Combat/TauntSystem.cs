@@ -41,6 +41,11 @@ namespace RPGGame
                 return "temple";
             else if (lowerEnv.Contains("forest") || lowerEnv.Contains("grove"))
                 return "forest";
+            else if (lowerEnv.Contains("ice") || lowerEnv.Contains("frozen") || lowerEnv.Contains("frost")
+                     || lowerEnv.Contains("glacier") || lowerEnv.Contains("glacial"))
+                return "ice";
+            else if (lowerEnv.Contains("swamp") || lowerEnv.Contains("marsh") || lowerEnv.Contains("bog"))
+                return "swamp";
             else
                 return "generic";
         }

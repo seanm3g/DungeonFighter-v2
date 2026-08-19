@@ -311,6 +311,7 @@ Optional `tags` column: comma-separated registry tags on push (e.g. `undead, bos
 | names | characterFirstNames | *(empty)* | Aric |
 | environments | locationDescriptions | Forest | A dense forest… |
 | environments | roomContexts | Forest/boss | This ancient grove… |
+| environments | roomContexts | Forest/kitchen | Ash from old cookfires… |
 | classQualifiers | classNames | barbarian | barbarian |
 | combatNarratives | firstBlood | *(empty)* | The first drop… |
 | combatNarratives | firstBlood_technoEcho | *(empty)* | Creature-tier override (`nativeFauna` / `feralStock` / `technoEcho`); empty bank falls back to `firstBlood` |
@@ -329,7 +330,7 @@ python Scripts/sync-flavor-text-from-xlsx.py --xlsx "/path/to/DEMON FIGHTER - DA
 python Scripts/sync-flavor-text-from-xlsx.py --xlsx "/path/to/DEMON FIGHTER - DATA (1).xlsx" --write
 ```
 
-`--write` backs up `FlavorText.json.bak` and patches only locationDescriptions, roomContexts, and combatNarratives. Biome taunt banks are `playerTaunt_{biome}` / `enemyTaunt_{biome}` (forest, crypt, crystal, lava, temple, library, underwater). Creature-tier banks are `{event}_{nativeFauna|feralStock|technoEcho}` for firstBlood / criticalHit / criticalMiss / below50Percent / below10Percent / enemyDefeated / enemyTaunt.
+`--write` backs up `FlavorText.json.bak` and patches only locationDescriptions, roomContexts, and combatNarratives. Room-entry display (`RoomInfoBuilder`) appends one flavor line under the Rooms.json description: `roomContexts` for `{biome}/{roomType}` (sheet key `Forest/kitchen`) when that bank exists, otherwise `locationDescriptions` for the biome. Generic roomContexts is not a match. Each flavor line must fit `DisplayBuffer` / `BufferStorage` `maxLineWidth` (152 display characters); Forest `locationDescriptions` is 9 lines and Forest/{sanctum,shrine,treasure} are 4 each after the overflow splits. Biome taunt banks are `playerTaunt_{biome}` / `enemyTaunt_{biome}` (forest, crypt, crystal, lava, temple, library, underwater, ice, swamp). Creature-tier banks are `{event}_{nativeFauna|feralStock|technoEcho}` for firstBlood / criticalHit / criticalMiss / below50Percent / below10Percent / enemyDefeated / enemyTaunt.
 
 ### Class Upgrades (`SkillTrees.json`)
 

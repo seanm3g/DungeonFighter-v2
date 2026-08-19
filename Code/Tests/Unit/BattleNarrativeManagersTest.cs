@@ -139,8 +139,10 @@ namespace RPGGame
             Assert(tauntSystem.GetLocationType("Crypt Passage") == "crypt", "Should detect crypt passage");
             Assert(tauntSystem.GetLocationType("Lava Chamber") == "lava", "Should detect lava chamber");
             Assert(tauntSystem.GetLocationType("Underwater Cavern") == "underwater", "Underwater Cavern should stay underwater");
-            Assert(tauntSystem.GetLocationType("Frozen Cavern") == "generic", "Frozen Cavern is Ice, not crystal (cavern != cave)");
-            Assert(tauntSystem.GetLocationType("Marsh Sanctuary") == "generic", "Marsh Sanctuary is Swamp, not temple");
+            Assert(tauntSystem.GetLocationType("Frozen Cavern") == "ice", "Frozen Cavern should match ice, not crystal");
+            Assert(tauntSystem.GetLocationType("Glacial Chamber") == "ice", "Glacial Chamber should match ice via glacial");
+            Assert(tauntSystem.GetLocationType("Marsh Sanctuary") == "swamp", "Marsh Sanctuary should match swamp, not temple");
+            Assert(tauntSystem.GetLocationType("Bog Clearing") == "swamp", "Bog Clearing should match swamp via bog");
             Assert(tauntSystem.GetLocationType("Unknown") == "generic", "Should return generic for unknown");
             Assert(tauntSystem.GetLocationType(string.Empty) == "generic", "Should return generic for empty string");
 
