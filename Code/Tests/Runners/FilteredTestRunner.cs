@@ -135,6 +135,8 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("data", "ActionCadenceEditorSync", () => RPGGame.Tests.Unit.Data.ActionCadenceEditorSyncTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CadenceCardLineFormatter", () => RPGGame.Tests.Unit.UI.CadenceCardLineFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ItemTooltipFormatter", () => RPGGame.Tests.Unit.UI.ItemTooltipFormatterTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ItemStatFormatter", () => RPGGame.Tests.Unit.UI.ItemStatFormatterTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "LeftPanelTooltipBuilder", () => RPGGame.Tests.Unit.UI.LeftPanelTooltipBuilderTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "HoverTooltipDetailState", () => RPGGame.Tests.Unit.UI.HoverTooltipDetailStateTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "InventoryRightPanelLayout", () => RPGGame.Tests.Unit.UI.InventoryRightPanelLayoutTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatActionStripBuilder", () => RPGGame.Tests.Unit.UI.CombatActionStripBuilderTests.RunAllTests()));

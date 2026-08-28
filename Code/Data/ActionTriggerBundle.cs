@@ -60,10 +60,6 @@ namespace RPGGame.Data
         [JsonPropertyName("scaleFrom")]
         public string? ScaleFrom { get; set; }
 
-        /// <summary>Optional catalog / material identity key for tooltips (not used by combat).</summary>
-        [JsonPropertyName("identityName")]
-        public string? IdentityName { get; set; }
-
         /// <summary>Optional player-facing one-liner for tooltips (not used by combat).</summary>
         [JsonPropertyName("description")]
         public string? Description { get; set; }

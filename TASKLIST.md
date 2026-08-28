@@ -4,6 +4,14 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **UI / inventory item rows — detail lines indent under the name:** Only the `[n] [Rarity] [Slot] name` line is left-justified. **Actions:** and every stat line use a two-space indent (`ItemStatFormatter.ItemDetailLineIndent`) attached to the first content segment so ColoredTextBuilder cannot collapse it. Tests: `ItemStatFormatterTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`.
+
+- [x] **Build / CS0618 StatBonusTriggerMerge:** Removed leftover animal-suffix merge call sites (`ItemGenerator`, `LootBonusApplier`, lab factories, save load, item-stat collector). Suffixes stay dual-stat only; combat procs stay on MATERIAL BUILDS. Tests: `StatBonusAnimalSuffixTriggerTests`, `ItemTooltipFormatterTests`. Docs: `OVERVIEW.md`, `TAG_REGISTRY.md`.
+
+- [x] **UI / left-panel GEAR — forming set HUD is quantity only:** Always-visible lines are `{Material} n/5`. Stack unlocks, WHEN, convert, and keyword live on hover (and item Material tooltip). Comparison/stats use the quantity line only. `MaterialSetController.FormatFormingSetHudLine` / `FormatSetStatusLinesForMaterial`. Tests: `MaterialSetControllerTests`, `LeftPanelTooltipBuilderTests`. Docs: `OVERVIEW.md`.
+
+- [x] **UI / left-panel GEAR — forming material sets:** Any MATERIAL BUILDS material with 2+ equipped pieces is listed under GEAR as `{Material} n/5`. Hover shows WHEN / convert / keyword. Class-less materials are omitted. `MaterialSetController.GetFormingSets`, `CharacterPanelRenderer.RenderFormingSets`. Tests: `MaterialSetControllerTests`, `LeftPanelTooltipBuilderTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`.
+
 - [x] **Combat / material currency is dungeon-run scoped:** Keyword bank (CRISIS, DRAG, …) persists across fights and clears at dungeon start, completion, early exit, or clone-after-death (`ClearDungeonRunTempEffects`). Combat init only resets consecutive-connect tracking. Tests: `MaterialSetControllerTests`, `CombatStateManagerTests`, `ActionBonusScopedCadenceTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`.
 
 - [x] **UI / action cards — class, material, and WHILE_EQUIPPED bonuses:** Each strip card that currently receives a standing bonus lists the source (e.g. **First Bronze Age +8% dmg**, **CRISIS ×4**, tag-amp identities). Preview damage/speed/amp/multihit include those values. Hover Stats repeats the same lines. `ActionCardExternalBonusCollector`, `SkillEffectRouter.CollectActionCardBonuses`. Tests: `ActionCardExternalBonusCollectorTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`.

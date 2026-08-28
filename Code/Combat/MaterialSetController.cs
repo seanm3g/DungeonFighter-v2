@@ -222,21 +222,64 @@ namespace RPGGame
             return $"Convert ×{qty}";
         }
 
+        /// <summary>
+        /// Equipped MATERIAL BUILDS rows at 2+ pieces (a set the hero has started forming).
+        /// Class-less materials with no build row are omitted.
+        /// </summary>
+        public static IReadOnlyList<(string Material, int Count)> GetFormingSets(Character? hero)
+        {
+            var list = new List<(string Material, int Count)>();
+            if (hero == null)
+                return list;
+            foreach (var build in MaterialBuildsLoader.GetAll())
+            {
+                if (string.IsNullOrWhiteSpace(build.Material))
+                    continue;
+                int n = CountEquipped(hero, build.Material);
+                if (n < MaterialBuildData.StackUnlockCount)
+                    continue;
+                list.Add((build.Material, n));
+            }
+            return list;
+        }
+
+        /// <summary>Compact HUD line, e.g. <c>Iron 2/5</c>.</summary>
+        public static string FormatFormingSetHudLine(string material, int count)
+        {
+            string name = MaterialBuildData.CanonicalMaterialName(material);
+            if (name.Length == 0)
+                name = (material ?? "").Trim();
+            return $"{name} {count}/5";
+        }
+
+        public static IEnumerable<string> FormatFormingSetHudLines(Character? hero)
+        {
+            foreach (var (material, count) in GetFormingSets(hero))
+                yield return FormatFormingSetHudLine(material, count);
+        }
+
         public static IEnumerable<string> FormatSetStatusLines(Character? hero, Item? item)
         {
             if (item == null)
                 yield break;
-            string material = ItemMaterialRules.RemapLegacyMaterial(item.Material);
-            var build = MaterialBuildsLoader.FindByMaterial(material);
+            foreach (var line in FormatSetStatusLinesForMaterial(hero, item.Material))
+                yield return line;
+        }
+
+        public static IEnumerable<string> FormatSetStatusLinesForMaterial(Character? hero, string? material)
+        {
+            string key = ItemMaterialRules.RemapLegacyMaterial(material);
+            var build = MaterialBuildsLoader.FindByMaterial(key);
             if (build == null)
             {
-                if (!string.IsNullOrWhiteSpace(material))
-                    yield return $"{material}: no material build";
+                if (!string.IsNullOrWhiteSpace(key))
+                    yield return $"{key}: no material build";
                 yield break;
             }
 
             int n = hero != null ? CountEquipped(hero, build.Material) : 0;
-            yield return $"{build.Material} {n}/5  (2 synth+convert, 3 +feed, 5 xfeed)";
+            yield return FormatFormingSetHudLine(build.Material, n);
+            yield return "2 synth+convert, 3 +feed, 5 xfeed";
             yield return $"WHEN {build.Synthesis}";
             if (!string.IsNullOrWhiteSpace(build.ConvertAction))
                 yield return $"Convert: {build.ConvertAction}" + (n >= 2 ? " (unlocked)" : " (needs 2)");

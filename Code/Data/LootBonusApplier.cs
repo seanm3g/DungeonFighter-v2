@@ -371,7 +371,6 @@ namespace RPGGame
                 usedAffixRarities.Add(NormalizeStatBonusAffixRarity(pick.Rarity));
                 var instance = pick.CloneForItemInstance();
                 item.StatBonuses.Add(instance);
-                StatBonusTriggerMerge.ApplySuffixToItem(item, instance);
             }
 
             // Suffix Requirements (when authored on rolled rows) merge into the equip gate.

@@ -53,6 +53,9 @@ namespace RPGGame.Tests.Unit.UI
             TestCatalogAttributesCollected();
             TestContributionLineHighlightsValue();
 
+            TestStatLinesUseTwoSpaceIndentMatchingActions();
+            TestAttributeStyleStatLineKeepsTwoSpaceIndent();
+
             TestBase.PrintSummary("ItemStatFormatter Tests", _testsRun, _testsPassed, _testsFailed);
         }
 
@@ -64,35 +67,30 @@ namespace RPGGame.Tests.Unit.UI
             return segments.FirstOrDefault(s => s.Text.Contains('×'));
         }
 
-        private static ColoredText? FindDamageValueSegment(System.Collections.Generic.List<ColoredText> segments)
+        private static ColoredText? FindValueAfterLabel(System.Collections.Generic.List<ColoredText> segments, string label)
         {
-            for (int i = 0; i < segments.Count - 1; i++)
+            for (int i = 0; i < segments.Count; i++)
             {
-                if (segments[i].Text.Contains("Damage:", StringComparison.Ordinal))
-                    return segments[i + 1];
+                if (!segments[i].Text.Contains(label, StringComparison.Ordinal))
+                    continue;
+                for (int j = i + 1; j < segments.Count; j++)
+                {
+                    string t = segments[j].Text ?? "";
+                    if (t.Length > 0 && !string.IsNullOrWhiteSpace(t))
+                        return segments[j];
+                }
             }
             return null;
         }
 
-        private static ColoredText? FindArmorValueSegment(System.Collections.Generic.List<ColoredText> segments)
-        {
-            for (int i = 0; i < segments.Count - 1; i++)
-            {
-                if (segments[i].Text.Contains("Armor:", StringComparison.Ordinal))
-                    return segments[i + 1];
-            }
-            return null;
-        }
+        private static ColoredText? FindDamageValueSegment(System.Collections.Generic.List<ColoredText> segments) =>
+            FindValueAfterLabel(segments, "Damage:");
 
-        private static ColoredText? FindActionSlotValueSegment(System.Collections.Generic.List<ColoredText> segments)
-        {
-            for (int i = 0; i < segments.Count - 1; i++)
-            {
-                if (segments[i].Text.Contains("Action slots:", StringComparison.Ordinal))
-                    return segments[i + 1];
-            }
-            return null;
-        }
+        private static ColoredText? FindArmorValueSegment(System.Collections.Generic.List<ColoredText> segments) =>
+            FindValueAfterLabel(segments, "Armor:");
+
+        private static ColoredText? FindActionSlotValueSegment(System.Collections.Generic.List<ColoredText> segments) =>
+            FindValueAfterLabel(segments, "Action slots:");
 
         private static void TestSpeedFasterThanBaselineGreen()
         {
@@ -393,6 +391,40 @@ namespace RPGGame.Tests.Unit.UI
             var valueSeg = FindActionSlotValueSegment(segments);
             var ok = valueSeg != null && valueSeg.Color == ExpectedPaletteColor(ColorPalette.Success);
             if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: expected success color when action slots are higher than baseline"); }
+        }
+
+        private static void TestStatLinesUseTwoSpaceIndentMatchingActions()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestStatLinesUseTwoSpaceIndentMatchingActions ---");
+            var legs = new LegsItem("Trousers", tier: 2, armor: 0);
+            var segments = ItemStatFormatter.FormatStatLine("Armor: +0", legs);
+            string joined = string.Concat(segments.Select(s => s.Text ?? ""));
+            bool ok = joined.StartsWith(ItemStatFormatter.ItemDetailLineIndent, StringComparison.Ordinal)
+                && !joined.StartsWith("   ", StringComparison.Ordinal)
+                && joined.StartsWith("  Armor:", StringComparison.Ordinal);
+            if (ok) _testsPassed++;
+            else
+            {
+                _testsFailed++;
+                Console.WriteLine($"  FAIL: expected two-space indent before Armor, got '{joined}'");
+            }
+        }
+
+        private static void TestAttributeStyleStatLineKeepsTwoSpaceIndent()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestAttributeStyleStatLineKeepsTwoSpaceIndent ---");
+            string stat = "Item base — Agility: +3";
+            var segments = ItemStatFormatter.FormatStatLine(stat);
+            string joined = string.Concat(segments.Select(s => s.Text ?? ""));
+            bool ok = joined.StartsWith(ItemStatFormatter.ItemDetailLineIndent + "Item base", StringComparison.Ordinal);
+            if (ok) _testsPassed++;
+            else
+            {
+                _testsFailed++;
+                Console.WriteLine($"  FAIL: expected two-space indent on attribute line, got '{joined}'");
+            }
         }
     }
 }

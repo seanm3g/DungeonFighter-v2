@@ -112,7 +112,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 {
                     if (bonus == null)
                         continue;
-                    StatBonusTriggerMerge.EnsureSuffixTriggerFields(bonus);
                     foreach (var (contribType, contribValue) in bonus.EnumerateContributions())
                     {
                         if (Math.Abs(contribValue) < 1e-9)

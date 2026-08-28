@@ -22,8 +22,8 @@ namespace RPGGame.Tests.Unit
             var identities = ItemTriggerIdentityCatalog.Identities;
             TestBase.AssertTrue(identities.Count >= 106, "catalog at least wave-2 size", ref _run, ref _passed, ref _failed);
 
-            // Full combat-path coverage for demo/wave identities; animal/taxon suffix procs
-            // are covered by StatBonusAnimalSuffixTriggerTests + scenario CLI when needed.
+            // Full combat-path coverage for demo/wave identities. Animal/taxon suffix procs
+            // are retired (StatBonusAnimalSuffixTriggerTests asserts they no longer stamp).
             foreach (var identity in identities)
             {
                 if (IsAnimalOrTaxonSuffixIdentity(identity.Name))

@@ -150,6 +150,26 @@ namespace RPGGame.Tests.Unit.UI
                 "hit threshold tooltip no longer lists naiveté (miss→advantage, not HIT steps)",
                 ref run, ref passed, ref failed);
 
+            var ironHelm = new HeadItem("Iron Helm", tier: 1, armor: 1) { Material = "Iron" };
+            var ironMail = new ChestItem("Iron Mail", tier: 1, armor: 1) { Material = "Iron" };
+            c.Equipment.Head = ironHelm;
+            c.Equipment.Body = ironMail;
+            var setTip = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "set:Iron", 50, 20);
+            TestBase.AssertTrue(setTip.Any(l => l.Contains("Iron", StringComparison.Ordinal) && l.Contains("2/5", StringComparison.Ordinal)),
+                "forming-set tooltip shows Iron 2/5",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(setTip.Any(l => l.Contains("IRON CULL", StringComparison.OrdinalIgnoreCase)),
+                "forming-set tooltip names convert action",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(setTip.Any(l => l.Contains("synth+convert", StringComparison.Ordinal)),
+                "forming-set tooltip lists stack unlocks",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(setTip.Any(l => l.StartsWith("WHEN ", StringComparison.Ordinal)),
+                "forming-set tooltip lists WHEN",
+                ref run, ref passed, ref failed);
+            var setColored = LeftPanelTooltipBuilder.BuildColoredItemLines(c, LeftPanelHoverState.Prefix + "set:Iron", 20);
+            TestBase.AssertTrue(setColored.Count > 0, "forming-set colored tooltip has lines", ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("LeftPanelTooltipBuilder Tests", run, passed, failed);
         }
     }

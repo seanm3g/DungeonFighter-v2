@@ -37,7 +37,7 @@ Comparison is **case-insensitive**. Canonical registry lives in `Code/World/Tags
 - **Roll tags:** `confidence`, `footwork`, `target`, `aim` (threshold shifts)
 
 Material tags are copied onto `Item.Tags` when a Material prefix is rolled at loot time.
-Animal taxon tags are copied from `StatBonuses.json` suffix `tags` when an animal suffix is attached (`StatBonusTriggerMerge`).
+Animal taxon tags on leftover `StatBonuses.json` suffix rows (`shell`, `beast`, …) are deserialize-only; they are not copied onto items and do not grant combat procs. Gear procs come from MATERIAL BUILDS.
 
 ## Enemy archetypes (field — not freeform tags)
 

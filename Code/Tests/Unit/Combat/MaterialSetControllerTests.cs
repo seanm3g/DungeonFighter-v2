@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestMintWritesFeedCombatLine();
             TestFormatWhenLabel();
             TestKeywordBankSurvivesCombatInitAndClearsOnDungeonEnd();
+            TestFormingSetHudRequiresTwoPieces();
 
             TestBase.PrintSummary("Material Set Controller Tests", _run, _passed, _failed);
         }
@@ -253,6 +254,59 @@ namespace RPGGame.Tests.Unit.Combat
             hero.ClearDungeonRunTempEffects();
             TestBase.AssertEqual(0, hero.Effects.GetMaterialKeyword("CRISIS"),
                 "dungeon-run clear resets keyword currency", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestFormingSetHudRequiresTwoPieces()
+        {
+            TestBase.SetCurrentTestName(nameof(TestFormingSetHudRequiresTwoPieces));
+            var one = EquipIron(1);
+            TestBase.AssertEqual(0, MaterialSetController.GetFormingSets(one).Count,
+                "1 piece is not a forming set", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, MaterialSetController.FormatFormingSetHudLines(one).Count(),
+                "1 piece has no HUD line", ref _run, ref _passed, ref _failed);
+
+            var two = EquipIron(2);
+            var forming = MaterialSetController.GetFormingSets(two);
+            TestBase.AssertEqual(1, forming.Count, "2 iron is forming", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Iron", forming[0].Material, "forming material is Iron", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(2, forming[0].Count, "forming count is 2", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Iron 2/5", MaterialSetController.FormatFormingSetHudLine("Iron", 2),
+                "2-stack HUD is Iron 2/5", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Iron 3/5", MaterialSetController.FormatFormingSetHudLine("Iron", 3),
+                "3-stack HUD is Iron 3/5", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Iron 5/5", MaterialSetController.FormatFormingSetHudLine("Iron", 5),
+                "5-stack HUD is Iron 5/5", ref _run, ref _passed, ref _failed);
+
+            var hover = MaterialSetController.FormatSetStatusLines(two, two.Equipment.Head).ToList();
+            TestBase.AssertTrue(hover.Count > 0 && hover[0] == "Iron 2/5",
+                "hover quantity line is Iron 2/5", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(hover.Any(l => l.Contains("synth+convert", StringComparison.Ordinal)
+                    && l.Contains("+feed", StringComparison.Ordinal)
+                    && l.Contains("xfeed", StringComparison.Ordinal)),
+                "hover lists stack unlocks", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(hover.Any(l => l.StartsWith("WHEN ", StringComparison.Ordinal)),
+                "hover lists WHEN", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(hover.Any(l => l.Contains("IRON CULL", StringComparison.OrdinalIgnoreCase)),
+                "hover names convert action", ref _run, ref _passed, ref _failed);
+
+            var leather = EquipPieces(
+                (new HeadItem("Cap", 1, 1), "Leather"),
+                (new ChestItem("Vest", 1, 1), "Leather"));
+            TestBase.AssertEqual(0, MaterialSetController.GetFormingSets(leather).Count,
+                "class-less material is not a forming set", ref _run, ref _passed, ref _failed);
+
+            var mixed = EquipPieces(
+                (new HeadItem("G1", 1, 1), "Gold"),
+                (new ChestItem("G2", 1, 1), "Gold"),
+                (new LegsItem("G3", 1, 1), "Gold"),
+                (new FeetItem("M1", 1, 1), "Mithril"),
+                (new WeaponItem("M2", 1, 5, 1.0, WeaponType.Sword), "Mithril"));
+            var mixedSets = MaterialSetController.GetFormingSets(mixed);
+            TestBase.AssertEqual(2, mixedSets.Count, "Gold 3 and Mithril 2 both form", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(mixedSets.Any(s => s.Material == "Gold" && s.Count == 3),
+                "Gold 3/5 listed", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(mixedSets.Any(s => s.Material == "Mithril" && s.Count == 2),
+                "Mithril 2/5 listed", ref _run, ref _passed, ref _failed);
         }
     }
 }

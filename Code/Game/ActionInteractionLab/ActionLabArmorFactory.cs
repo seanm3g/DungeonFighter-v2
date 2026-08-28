@@ -79,7 +79,6 @@ namespace RPGGame.ActionInteractionLab
                     {
                         var instance = CloneStatBonus(suffixTemplate);
                         item.StatBonuses.Add(instance);
-                        StatBonusTriggerMerge.ApplySuffixToItem(item, instance);
                     }
                 }
             }

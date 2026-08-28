@@ -236,7 +236,7 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(weapons.Count > 0, "weapons loaded", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(armor.Count > 0, "armor loaded", ref _run, ref _passed, ref _failed);
 
-            // Base catalog no longer stamps demo procs — animal suffixes own combat triggers.
+            // Base catalog no longer stamps demo procs — MATERIAL BUILDS owns combat triggers.
             int namedWeapons = weapons.Count(w => !string.IsNullOrWhiteSpace(w.TriggerName));
             int namedArmor = armor.Count(a => !string.IsNullOrWhiteSpace(a.TriggerName));
             TestBase.AssertEqual(0, namedWeapons, "weapons have empty triggerName", ref _run, ref _passed, ref _failed);

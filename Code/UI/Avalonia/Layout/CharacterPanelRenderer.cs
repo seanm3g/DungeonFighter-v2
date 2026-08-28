@@ -356,6 +356,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 RenderEquipmentSlot(x, ref y, headerClickWidth, "Body", character.Body, "gear:body", 1);
                 RenderEquipmentSlot(x, ref y, headerClickWidth, "Legs", character.Legs, "gear:legs", 1);
                 RenderEquipmentSlot(x, ref y, headerClickWidth, "Feet", character.Feet, "gear:feet", 1);
+                RenderFormingSets(character, x, ref y, headerClickWidth);
             }
 
             // --- THRESHOLDS / CHANCES --- (ladder numbers or exclusive d20 %; bar is under health)
@@ -515,6 +516,33 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (h > 0)
                     RegisterLeftPanelHoverRow(x, blockStartY, hoverWidth, h, hoverGearId);
             }
+        }
+
+        /// <summary>
+        /// Compact MATERIAL BUILDS progress under GEAR for any material with 2+ equipped pieces.
+        /// </summary>
+        private void RenderFormingSets(Character character, int x, ref int y, int hoverWidth)
+        {
+            var sets = MaterialSetController.GetFormingSets(character);
+            if (sets.Count == 0)
+                return;
+
+            canvas.AddText(x, y, "Sets:", AsciiArtAssets.Colors.Gray);
+            y++;
+
+            const int maxWidth = 29;
+            foreach (var (material, count) in sets)
+            {
+                int rowY = y;
+                string line = MaterialSetController.FormatFormingSetHudLine(material, count);
+                if (line.Length > maxWidth)
+                    line = line.Substring(0, maxWidth - 3) + "...";
+                canvas.AddText(x, y, line, AsciiArtAssets.Colors.Cyan);
+                y++;
+                RegisterLeftPanelHoverRow(x, rowY, hoverWidth, 1, "set:" + material);
+            }
+
+            y++;
         }
         
         /// <summary>

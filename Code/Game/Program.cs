@@ -256,8 +256,8 @@ namespace RPGGame
                 if (args.Length > 0 && args[0] == "--stamp-animal-suffix-triggers")
                 {
                     executionMode = "TOOL";
-                    var (t, s) = AnimalSuffixTriggerStamp.StampGameDataFiles();
-                    Console.WriteLine($"Animal suffix triggers: {t} identities upserted, {s} StatBonuses rows rewritten.");
+                    int n = MaterialTriggerStamp.StampGameDataFiles();
+                    Console.WriteLine($"Stamped {n} material trigger identities into Triggers.json (legacy --stamp-animal-suffix-triggers alias).");
                     return;
                 }
 

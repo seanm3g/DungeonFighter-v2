@@ -76,7 +76,6 @@ namespace RPGGame
                     ? null
                     : identity.Filters.ToList(),
                 ScaleFrom = string.IsNullOrWhiteSpace(identity.ScaleFrom) ? null : identity.ScaleFrom,
-                IdentityName = identity.Name,
                 Description = identity.Description ?? ""
             };
         }

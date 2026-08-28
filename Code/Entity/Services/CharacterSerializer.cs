@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using RPGGame;
 using RPGGame.Data;
 using RPGGame.Utils;
@@ -142,8 +141,6 @@ namespace RPGGame.Entity.Services
             character.Equipment.Weapon = ItemTypeConverter.ConvertItemToProperType(saveData.Weapon) as WeaponItem;
             character.Equipment.Feet = ItemTypeConverter.ConvertItemToProperType(saveData.Feet);
 
-            RefreshAnimalSuffixTriggersOnGear(character);
-
             // New characters have an empty strip; rebuild the pool, then restore the saved order
             // (or fall back to InitializeDefaultCombo inside RebuildCharacterActions).
             var savedComboNames = saveData.ComboStripActionNames;
@@ -160,27 +157,6 @@ namespace RPGGame.Entity.Services
             }
 
             return character;
-        }
-
-        private static void RefreshAnimalSuffixTriggersOnGear(Character character)
-        {
-            if (character?.Equipment == null)
-                return;
-            void Refresh(Item? item)
-            {
-                if (item != null)
-                    StatBonusTriggerMerge.RefreshFromItemSuffixes(item);
-            }
-            Refresh(character.Equipment.Head);
-            Refresh(character.Equipment.Body);
-            Refresh(character.Equipment.Legs);
-            Refresh(character.Equipment.Feet);
-            Refresh(character.Equipment.Weapon);
-            if (character.Equipment.Inventory != null)
-            {
-                foreach (var item in character.Equipment.Inventory)
-                    Refresh(item);
-            }
         }
 
         /// <summary>

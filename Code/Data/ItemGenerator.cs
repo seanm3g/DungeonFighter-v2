@@ -186,7 +186,6 @@ namespace RPGGame
                     Value = b.Value,
                     Filters = b.Filters == null ? null : new List<string>(b.Filters),
                     ScaleFrom = b.ScaleFrom,
-                    IdentityName = b.IdentityName,
                     Description = b.Description
                 });
             }
@@ -549,7 +548,6 @@ namespace RPGGame
                     case StatBonus statBonus:
                         var suffixInstance = statBonus.CloneForItemInstance();
                         item.StatBonuses.Add(suffixInstance);
-                        StatBonusTriggerMerge.ApplySuffixToItem(item, suffixInstance);
                         break;
                     case ActionBonus actionBonus:
                         item.ActionBonuses.Add(actionBonus);
