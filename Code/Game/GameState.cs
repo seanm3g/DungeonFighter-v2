@@ -12,6 +12,7 @@ namespace RPGGame
         GameLoop,
         RegionTravel,
         Inventory,
+        SkillTree,
         CharacterInfo,
         Settings,
         Testing,

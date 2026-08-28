@@ -138,6 +138,31 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(actionDisLines.Any(l => l.Contains("Disadvantage") && l.Contains("next action")),
                 "pending ACTION disadvantage shows as status line", ref run, ref passed, ref failed);
 
+            var keywordHero = TestDataBuilders.Character().WithName("KeywordHero").WithStats(10, 10, 10, 0).Build();
+            var emptyKeyword = StatusEffectDisplayLines.Build(keywordHero, keywordHero);
+            TestBase.AssertTrue(!emptyKeyword.Any(l => l.Contains("CRISIS") || l.Contains("DRAG")),
+                "empty keyword bank is omitted from status effects", ref run, ref passed, ref failed);
+
+            keywordHero.Effects.AddMaterialKeyword("CRISIS", 4);
+            var crisisLines = StatusEffectDisplayLines.Build(keywordHero, keywordHero);
+            TestBase.AssertTrue(crisisLines.Any(l => l == "CRISIS x4"),
+                "minted CRISIS count appears as status-effect counter", ref run, ref passed, ref failed);
+
+            keywordHero.Effects.AddMaterialKeyword("CRISIS", 2);
+            var updatedCrisis = StatusEffectDisplayLines.Build(keywordHero, keywordHero);
+            TestBase.AssertTrue(updatedCrisis.Any(l => l == "CRISIS x6"),
+                "status-effect keyword counter updates when more is minted", ref run, ref passed, ref failed);
+
+            keywordHero.Effects.AddMaterialKeyword("DRAG", 1);
+            var twoKeywords = StatusEffectDisplayLines.Build(keywordHero, keywordHero);
+            TestBase.AssertTrue(twoKeywords[0] == "CRISIS x6" && twoKeywords.Any(l => l == "DRAG x1"),
+                "multiple keywords listed, CRISIS before DRAG", ref run, ref passed, ref failed);
+
+            keywordHero.Effects.ClearMaterialKeywordBank();
+            var cleared = StatusEffectDisplayLines.Build(keywordHero, keywordHero);
+            TestBase.AssertTrue(!cleared.Any(l => l.Contains("CRISIS") || l.Contains("DRAG")),
+                "cleared keyword bank removes status-effect counters", ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("StatusEffectDisplayLines Tests", run, passed, failed);
         }
     }

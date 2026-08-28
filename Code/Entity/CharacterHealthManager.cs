@@ -54,6 +54,7 @@ namespace RPGGame
             int max = character.GetTotalArmor();
             if (character.FortifyArmorBonus is int fortifyBonus && fortifyBonus > 0)
                 max += fortifyBonus;
+            max += SkillEffectRouter.Instance.GetSkillArmorBonus(character);
             if (character.ArmorBreakReduction is int armorBreak && armorBreak > 0)
                 max = Math.Max(0, max - armorBreak);
             if (character.ExposeArmorReduction is int expose && expose > 0)
@@ -134,6 +135,12 @@ namespace RPGGame
             if (shieldUsed)
             {
                 character.Effects.LastShieldReduction = originalAmount - amount;
+            }
+
+            if (amount > 0 && character is not Enemy)
+            {
+                bool armorAbsorbed = character.Effects.LastArmorAbsorbed > 0 || shieldUsed;
+                SkillEffectRouter.Instance.NotifyHeroTookDamage(character, amount, armorAbsorbed);
             }
 
             // Check for health milestones and leadership changes

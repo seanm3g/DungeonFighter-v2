@@ -42,6 +42,7 @@ namespace RPGGame
             TextDisplayIntegration.ResetForNewBattle(); // Reset new text display system
             turnManager.InitializeBattle();
             RPGGame.Actions.Conditional.CombatTriggerContext.ResetForBattle();
+            SkillEffectRouter.Instance.ResetFightState();
             // Actor tracking is now handled by BlockDisplayManager
         }
 
@@ -139,6 +140,8 @@ namespace RPGGame
             // (covers dungeon room changes, successive enemies, Action Lab, and simulators — not only RunCombat).
             player.ResetCombo();
             enemy.ResetCombo();
+            // Keyword currency is dungeon-run scoped; only consecutive-connect tracking resets per fight.
+            MaterialSetController.ResetFightConnects(player);
 
             var actionSpeedSystem = GetCurrentActionSpeedSystem();
             if (actionSpeedSystem == null) 

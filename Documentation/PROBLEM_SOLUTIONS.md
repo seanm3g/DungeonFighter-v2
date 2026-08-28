@@ -4,84 +4,68 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
-### Bug fix: Animal suffix Triggers hover shows name with empty body (July 2026)
-**Problem:** Hovering gear like **breeches of the Boar** showed **Triggers** as `Salvage Charm —` with nothing after the dash, even though the suffix effect text existed.
+### Material keyword currency now lasts the dungeon (August 2026)
+**Problem:** Material-set keyword currency (CRISIS, DRAG, …) reset at the start of every fight, so convert scale could not grow across rooms in a dungeon.
 
-**Root cause:**
-1. `ItemTriggerBundleDisplay.TryMatchIdentity` matched only WHEN×SCOPE×mechanics, so `BoarSuffix` collapsed onto earlier demo identity **SalvageCharm**
-2. Trigger-only suffixes were also listed under **Stats**, and colored segments wrap after `Name —`; the **18**-row hover cap then clipped the Triggers description continuation
+**Root cause:** `CombatStateManager.InitializeCombatEntities` called `MaterialSetController.ClearFightBanks`, which wiped the keyword bank on every combat init.
 
 **Solutions:**
-1. Prefer `ActionTriggerBundle.IdentityName` via `TriggersLoader`; signature fallback also requires matching filters
-2. Do not duplicate trigger-only animal suffixes under Stats (Triggers section owns them)
-3. Raise item hover wrap budget to **28** rows (action tips stay at 18)
+1. Combat init only resets consecutive-connect tracking (`ResetFightConnects`)
+2. Keyword bank clears with other dungeon-run state in `Character.ClearDungeonRunTempEffects` (dungeon start, completion, early exit, clone-after-death)
+3. Tests: `MaterialSetControllerTests.TestKeywordBankSurvivesCombatInitAndClearsOnDungeonEnd`, `CombatStateManagerTests.TestInitializeCombatEntitiesPreservesMaterialKeywordBank`
 
-**Related files:** `ItemTriggerBundleDisplay.cs`, `ItemStatContribution.cs`, `DungeonRenderer.RoomAndCombat.cs`, `RightPanelRenderer.cs`
+**Related files:** `MaterialSetController.cs`, `CombatStateManager.cs`, `Character.cs`, `DungeonOrchestrator.cs`
 
-### Bug fix: Action Lab `[ Req ]` / `[ !Req ]` missing (July 2026)
-**Problem:** The requirements bypass toggle disappeared from the Action Lab tools window after the Triggers panel was added.
+### Bug fix: strip_random crashed dungeon on 1-slot combo (August 2026)
+**Problem:** After an action announced "next combo slot is randomized", the dungeon aborted with `Dice must have at least 2 sides (Parameter 'sides')`.
 
-**Root cause:** Tools aux canvas was fixed at height **44**. Triggers added ~10+ rows above the footer, so `[ Par ]` / `[ Req ]` / `[ Exit lab ]` rendered past the clip; only strip / Back / Step / Reset stayed visible.
-
-**Solutions:**
-1. Draw `[ Req ]` / `[ !Req ]` on the Back/Step row (always above the clip line)
-2. Raise tools aux grid to **38×58** and default window ~480×1040
-3. Keep `lab_req_toggle` wiring in `ActionLabInputCoordinator`
-
-**Related files:** `ActionLabControlsRenderer.cs`, `ActionLabControlsWindow.cs`
-
-### Bug fix: New game missing chest/legs/feet starter armor (July 2026)
-**Problem:** New characters started with a weapon but no Shirt / shinguards.
-
-**Root cause:** `Armor.json` lost all `tags` (including `starter` on those three rows). `StarterCatalogItems.LoadStarterArmorItems` returned empty; `StartingGear.json` fallback is intentionally `armor: []`, so nothing was equipped.
+**Root cause:** `strip_random` / `ComboRouting.RandomAction` routes through `ComboRouter.PickRandomEnabledSlot`, which called `Dice.Roll(1, enabled.Count)`. A 1-slot strip (or one remaining non-disabled slot) passed `sides = 1`, which `Dice` rejects.
 
 **Solutions:**
-1. Restore `"tags": ["starter"]` on Shirt (chest) and shinguards (legs); feet (Shoes) is intentionally not starter
-2. Keep starter marking on Armor sheet / Settings → Items **Starter** checkbox so the next PULL does not drop them
-3. Regression: `StarterCatalogItemsTests.TestShippedStarterBodyArmorPresent`, `GameInitializerTests`
+1. When zero enabled slots, return 0; when exactly one, return that slot without rolling
+2. Only call `Dice.Roll` when ≥2 enabled slots
+3. Tests: `StripMutationTests.TestStripRandomSingleSlotDoesNotThrow`, `TestStripRandomOneEnabledSlotDoesNotThrow`
 
-**Related files:** `GameData/Armor.json`, `Code/Data/StarterCatalogItems.cs`, `Code/Game/GameInitializer.cs`
+**Related files:** `ComboRouter.cs`, `StripMutationTests.cs`
 
-### Build: MSB3026 DF.exe locked / mislabeled "EnemyImportProbe" (July 2026)
-**Problem:** `dotnet build` / `dotnet run` repeatedly failed copying `apphost.exe` → `bin/Debug/net8.0/DF.exe` (MSB3026). MSBuild reported the lock as **EnemyImportProbe**.
+### Bug fix: Closing the window left DF.exe locked (August 2026)
+**Problem:** Hitting the title-bar **X** closed the UI but `DF.exe` often stayed alive, so the next build failed with `MSB3026` (`DF.exe` locked by process `DF`).
 
-**Root cause:**
-1. A previous game/`dotnet run` instance still held `DF.exe` (Restart Manager reports **FileDescription**, not always the image name)
-2. A leftover agent probe under `Code/_pull_test_out/EnemyImportProbe/**/*.cs` was globbed into the main project, so `DF.dll`/`DF.exe` carried Product/FileDescription **EnemyImportProbe**
+**Root cause:** Menu Exit Game called `Environment.Exit(0)` after cleanup; the window-close path only ran `ApplicationShutdownHelper.PerformShutdown()` and relied on Avalonia lifetime. SoundFlow/native threads could keep the process alive after the main window closed.
 
 **Solutions:**
-1. Exclude `_pull_test_out/**` from `DefaultItemExcludes`; delete the leftover probe tree
-2. Restore `<Product>DungeonFighter</Product>` / `<AssemblyTitle>DF</AssemblyTitle>` with `GenerateAssemblyInfo=true`
-3. MSBuild targets `StopRunningInstanceBeforeBuild` + `StopRunningInstanceBeforeOutputCopy` call `Scripts/stop-locked-df-output.ps1` (kill by image name + `TargetPath`)
-4. `Scripts/df.ps1` build/test/run also invoke the same helper
+1. Main window `Closing` and desktop `Exit` call `PerformShutdown(forceProcessExit: true)`
+2. Forced exit starts a 1.5s watchdog so hung audio dispose cannot leave a zombie process
+3. Ticker `Stop(waitForExit: false)` on shutdown so Closing is not blocked on `Task.Wait`
+4. Menu Exit Game uses the same helper
+5. `Code.csproj` kills leftover `DF.exe` before `BeforeBuild` (with a short settle delay)
+6. Tests: `ApplicationShutdownHelperTests`
 
-**Related files:** `Code/Code.csproj`, `Scripts/stop-locked-df-output.ps1`, `Scripts/df.ps1`
+**Related files:** `App.axaml.cs`, `ApplicationShutdownHelper.cs`, `SettingsMenuHandler.cs`, `GameTicker.cs`, `Code.csproj`
 
-### Bug fix: Caustic prefix flooded loot names (July 2026)
-**Problem:** Nearly every generated item showed the **Caustic** adjective prefix.
-
-**Root cause:** `GameData/Modifications.json` was overwritten so all ~24 rows were identical Uncommon `Caustic` (`weaponAcid` 2–3). Affix-line rolls pick uniformly within the rolled tier, so Uncommon adjectives were always Caustic (and with a corrupted table, every adjective pick was Caustic).
-
-**Solutions:**
-1. Restore the real adjective catalog from git (commit before the overwrite) with a single **Caustic** sample row
-2. Keep DoT peer adjectives (**flaming**, **poisonous**, **serrated**) on **Uncommon** with Caustic so that tier is not a one-name pool
-3. Confirm `StatBonuses.json` suffix names remain unique (no restore needed)
-4. Regression: `LootDataCacheTests.TestAffixCatalogDistribution` (no duplicate-dominated mod/suffix catalogs; Uncommon adjective pool ≥ 3 names)
-
-**Related files:** `GameData/Modifications.json`, `LootDataCacheTests.cs`
-
-### Bug fix: Character save/load reliability (July 2026)
-**Problem:** Custom combo strips reset on load; crash mid-write could corrupt saves; dying only deleted the legacy `character_save.json` (per-character live files stayed loadable after force-quit on the death screen); dungeon **Save & Exit** could deadlock the UI via sync-over-async; Alt+F4 / window close never saved.
+### Class Skill Trees — Skill Points vs rank (August 2026)
+**Problem:** Spending class points into skills must not lower titles, combo slot tiers, or item scaling that key off lifetime path investment.
 
 **Solutions:**
-1. Persist `comboStripActionNames` in `CharacterSaveData` and restore after action-pool rebuild
-2. Atomic temp+replace writes in `CharacterFileManager` (with a write lock)
-3. Tombstone the active character id immediately on combat death; remove registry entry when declining clone
-4. Wire dungeon completion to `await SettingsMenuHandler.SaveGameAsync()`
-5. Register best-effort living-character save on `ApplicationShutdownHelper.PerformShutdown`
-6. Sanitize all OS-illegal filename characters in character ids
+1. Keep `BarbarianPoints` / `WarriorPoints` / `RoguePoints` / `WizardPoints` as **lifetime** Skill Points
+2. Spent amount is derived from learned node costs in `SkillTrees.json`; `Available = Lifetime − Spent`
+3. `TryLearnSkillNode` never calls `RemoveClassPoint`; roots auto-grant at cost 0 when a path has ≥1 lifetime point
+4. Hub: `GameState.SkillTree` beside Inventory; spend on the **primary** path tree, plus **shared secondary-rail** nodes (`sharedWith` containing the primary weapon/class) which spend **owner-path** SP; learned nodes stay active if path is no longer primary
+5. Default node cost is **1 SP per rank** (`TierCosts` fallback `{0,1,1,1,1}`); Action nodes are forced to cost 1 / maxRank 1; scalable Passive/Mastery sinks use maxRank up to 5 and their combat bonuses multiply by learned rank in `SkillEffectRouter`
+6. Tests: `SkillTreeProgressionTests`, `SkillEffectRankScalingTests`, updated `ClassActionManagerTests`
 
-**Related files:** `CharacterSaveData.cs`, `CharacterSerializer.cs`, `CharacterFileManager.cs`, `EnemyEncounterHandler.cs`, `DeathScreenHandler.cs`, `HandlerInitializer.cs`, `ApplicationShutdownHelper.cs`, `Game.cs`, `SaveLoadSystemTests.cs`
+**Related files:** `CharacterProgression.cs`, `SkillTreesConfig.cs`, `SkillTreeService.cs`, `SkillEffectRouter.cs`, `SkillTreeMenuHandler.cs`, `SkillTreeRenderer.cs`, `ClassActionManager.cs`, `GameData/SkillTrees.json`
+
+### Hybrid skill side rail — Concept A (August 2026)
+**Problem:** Hybrid titles (Spellblade, Warbrute, …) existed without a skill UI for secondary-path skills, and showing all four trees was too overwhelming.
+
+**Solutions:**
+1. Tag selected secondary-tree nodes with `sharedWith: ["Sword"]` (weapon or class key)
+2. When a secondary path exists, `SkillTreeService.GetSharedRailNodes` lists those nodes beside the primary tree
+3. `SkillTreeRenderer` draws a magenta **SHARED / {Duo}** rail; detail notes which path’s SP pays
+4. Spend still path-tagged (Wand rail node costs Wand SP); non-shared secondary nodes stay `WrongPath` / `NotPrimaryPath`
+
+**Related files:** `SkillTreesConfig.cs`, `SkillTreeService.cs`, `SkillTreeRenderer.cs`, `SkillTreeMenuHandler.cs`, `SkillTreesSheetConverter.cs`, `GameData/SkillTrees.json`
 
 ### Bug fix: Return to main menu after character snapshot appeared to quit (July 2026)
 **Problem:** After Inventory → Snapshot for Action Lab, returning to the main menu (Game Loop → **0**) did nothing on screen, then another **0** closed the app.

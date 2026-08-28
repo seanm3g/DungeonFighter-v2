@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame;
 using RPGGame.Actions;
 using RPGGame.Data;
 using RPGGame.UI.ColorSystem;
@@ -16,14 +17,44 @@ namespace RPGGame.Actions.Execution
         /// <summary>
         /// Appends markup lines already collected on the action execution result (<c>StatusEffectMessages</c>) as ColoredText blocks.
         /// Does not call <see cref="CombatEffectsSimplified.ApplyStatusEffects"/> — <see cref="ActionExecutionFlow"/> already applied effects once on hit.
+        /// Material-feed lines are listed first so they sit directly under the roll footer.
         /// </summary>
         public static void AppendColoredStatusEffectMessages(IEnumerable<string>? statusEffectMessages, List<List<ColoredText>> coloredStatusEffects)
         {
+            AppendColoredStatusEffectMessages(statusEffectMessages, coloredStatusEffects, includeNonFeedMessages: true);
+        }
+
+        /// <summary>
+        /// Material-feed lines always; other status lines only when <paramref name="includeNonFeedMessages"/> is true
+        /// (miss blocks still show currency feeds under the roll footer).
+        /// </summary>
+        public static void AppendColoredStatusEffectMessages(
+            IEnumerable<string>? statusEffectMessages,
+            List<List<ColoredText>> coloredStatusEffects,
+            bool includeNonFeedMessages)
+        {
             if (statusEffectMessages == null || coloredStatusEffects == null) return;
 
+            var feed = new List<string>();
+            var rest = new List<string>();
             foreach (var statusString in statusEffectMessages)
             {
                 if (string.IsNullOrEmpty(statusString)) continue;
+                if (MaterialSetController.IsFeedCombatLine(statusString))
+                    feed.Add(statusString);
+                else
+                    rest.Add(statusString);
+            }
+
+            AppendParsedLines(feed, coloredStatusEffects);
+            if (includeNonFeedMessages)
+                AppendParsedLines(rest, coloredStatusEffects);
+        }
+
+        private static void AppendParsedLines(List<string> lines, List<List<ColoredText>> coloredStatusEffects)
+        {
+            foreach (var statusString in lines)
+            {
                 var statusColored = ColoredTextParser.Parse(statusString);
                 if (statusColored.Count > 0)
                     coloredStatusEffects.Add(statusColored);

@@ -220,6 +220,11 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderRegionTravel(player, destinations, routeResult, GetContext());
         }
 
+        public void RenderSkillTree(Character player, int selectedIndex, int scrollOffset, string? statusMessage)
+        {
+            renderer.RenderSkillTree(player, selectedIndex, scrollOffset, statusMessage, GetContext());
+        }
+
         /// <inheritdoc cref="CanvasRenderer.RefreshActionInfoStripOnly(Character?, bool)"/>
         public void RefreshActionInfoStripOnly(Character player, bool drawHoverDetailOverlay = true)
         {

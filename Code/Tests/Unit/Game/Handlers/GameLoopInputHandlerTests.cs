@@ -23,8 +23,26 @@ namespace RPGGame.Tests.Unit.Game.Handlers
 
             TestReturnToMainMenu_FiresShowMainMenuAfterSave();
             TestReturnToMainMenu_ContinuesWhenSaveThrows();
+            TestSkillTreeOptionFiresEvent();
 
             TestBase.PrintSummary("GameLoopInputHandler Tests", _testsRun, _testsPassed, _testsFailed);
+        }
+
+        private static void TestSkillTreeOptionFiresEvent()
+        {
+            Console.WriteLine("--- Option 3 fires ShowSkillTreeEvent ---");
+            var stateManager = new GameStateManager();
+            stateManager.TransitionToState(GameState.GameLoop);
+            stateManager.SetCurrentPlayer(new Character("TreeNav", 1));
+
+            bool shown = false;
+            var handler = new GameLoopInputHandler(stateManager);
+            handler.ShowSkillTreeEvent += () => shown = true;
+
+            Task.Run(async () => await handler.HandleMenuInput("3")).GetAwaiter().GetResult();
+
+            TestBase.AssertTrue(shown, "Option 3 invokes ShowSkillTreeEvent",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestReturnToMainMenu_FiresShowMainMenuAfterSave()

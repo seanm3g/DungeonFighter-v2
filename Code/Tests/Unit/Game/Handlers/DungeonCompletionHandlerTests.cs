@@ -29,6 +29,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             TestHandleMenuInput_DungeonSelection();
             TestHandleMenuInput_Inventory();
             TestHandleMenuInput_SaveAndExit();
+            TestHandleMenuInput_SaveAndExit_ContinuesOnSaveFailure();
             TestHandleMenuInput_InvalidChoice();
             TestHandleMenuInput_NoCharacter();
 
@@ -100,14 +101,49 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             stateManager.SetCurrentPlayer(character);
             
             var handler = new DungeonCompletionHandler(stateManager);
-            handler.SaveGameEvent += async () => { await Task.CompletedTask; };
+            bool saveAwaited = false;
+            handler.SaveGameEvent += async () =>
+            {
+                await Task.Yield();
+                saveAwaited = true;
+            };
             handler.ShowMainMenuEvent += () => { };
             
             // Test save and exit option
             Task.Run(async () => await handler.HandleMenuInput("0")).Wait();
             
+            TestBase.AssertTrue(saveAwaited,
+                "SaveGameEvent should be awaited before MainMenu",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqualEnum(GameState.MainMenu, stateManager.CurrentState,
                 "State should transition to MainMenu",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestHandleMenuInput_SaveAndExit_ContinuesOnSaveFailure()
+        {
+            Console.WriteLine("\n--- Testing HandleMenuInput - Save failure still reaches MainMenu ---");
+
+            var stateManager = new GameStateManager();
+            var character = new Character("TestHero", 1);
+            stateManager.SetCurrentPlayer(character);
+
+            bool mainMenuShown = false;
+            var handler = new DungeonCompletionHandler(stateManager);
+            handler.SaveGameEvent += async () =>
+            {
+                await Task.Yield();
+                throw new InvalidOperationException("simulated save failure");
+            };
+            handler.ShowMainMenuEvent += () => { mainMenuShown = true; };
+
+            Task.Run(async () => await handler.HandleMenuInput("0")).Wait();
+
+            TestBase.AssertEqualEnum(GameState.MainMenu, stateManager.CurrentState,
+                "State should still be MainMenu after save failure",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(mainMenuShown,
+                "ShowMainMenuEvent should fire after save failure",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

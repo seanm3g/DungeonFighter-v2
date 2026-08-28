@@ -41,6 +41,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly CharacterCreationRenderer characterCreationRenderer;
         private readonly DungeonExplorationRenderer dungeonExplorationRenderer;
         private readonly RegionTravelRenderer regionTravelRenderer;
+        private readonly SkillTreeRenderer skillTreeRenderer;
 
         public CanvasRenderer(GameCanvasControl canvas, ICanvasTextManager textManager, ICanvasInteractionManager interactionManager, ICanvasContextManager contextManager)
         {
@@ -69,6 +70,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.characterCreationRenderer = new CharacterCreationRenderer(canvas, textManager, interactionManager);
             this.dungeonExplorationRenderer = new DungeonExplorationRenderer(canvas, interactionManager);
             this.regionTravelRenderer = new RegionTravelRenderer(canvas, new Renderers.ColoredTextWriter(canvas), interactionManager.ClickableElements);
+            this.skillTreeRenderer = new SkillTreeRenderer(canvas, interactionManager.ClickableElements);
         }
 
         public void RenderDisplayBuffer(CanvasContext context)

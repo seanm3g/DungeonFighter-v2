@@ -113,6 +113,8 @@ namespace RPGGame.UI.Avalonia
 
         private async void OnKeyDown(object? sender, KeyEventArgs e)
         {
+            TrySyncAltTooltipDetail(e.KeyModifiers);
+
             if (TryHandleCombatSpeedKey(e.Key))
             {
                 e.Handled = true;
@@ -183,7 +185,9 @@ namespace RPGGame.UI.Avalonia
             if (key != Key.PageUp && key != Key.PageDown)
                 return false;
 
-            if (initializationHandler?.Game?.CurrentState == GameState.ActionInteractionLab)
+            var currentState = initializationHandler?.Game?.CurrentState;
+            // Skill Tree / Action Lab own PageUp/PageDown for scrolling / stepping.
+            if (currentState is GameState.ActionInteractionLab or GameState.SkillTree)
                 return false;
 
             int speed = key == Key.PageUp
@@ -225,7 +229,17 @@ namespace RPGGame.UI.Avalonia
 
         private void OnKeyUp(object? sender, KeyEventArgs e)
         {
-            // Handle key up events if needed
+            TrySyncAltTooltipDetail(e.KeyModifiers);
+        }
+
+        /// <summary>
+        /// Tracks Alt for expanded item/action hover tooltips and refreshes when already hovering.
+        /// </summary>
+        private void TrySyncAltTooltipDetail(KeyModifiers modifiers)
+        {
+            if (!HoverTooltipDetailState.SetFromModifiers(modifiers))
+                return;
+            initializationHandler?.MouseHandler?.RefreshTooltipDetailModeIfHovered();
         }
 
         private async void OnCombatLogCopyKeyDownTunnel(object? sender, KeyEventArgs e)

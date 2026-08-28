@@ -320,8 +320,7 @@ namespace RPGGame
                 canvasUI.Close();
             }
 
-            ApplicationShutdownHelper.PerformShutdown();
-            System.Environment.Exit(0);
+            ApplicationShutdownHelper.PerformShutdown(forceProcessExit: true);
         }
     }
 }

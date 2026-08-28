@@ -91,7 +91,9 @@ namespace RPGGame.Data
                 Mechanics = Mechanics ?? "",
                 Value = Value,
                 Filters = filters.Count == 0 ? null : new List<string>(filters),
-                ScaleFrom = string.IsNullOrWhiteSpace(ScaleFrom) ? null : ScaleFrom.Trim()
+                ScaleFrom = string.IsNullOrWhiteSpace(ScaleFrom) ? null : ScaleFrom.Trim(),
+                IdentityName = Name ?? "",
+                Description = Description ?? ""
             };
         }
     }

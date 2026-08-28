@@ -31,6 +31,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestGetBattleNarrative();
             TestInitializeCombatEntities();
             TestInitializeCombatEntitiesResetsPlayerAndEnemyCombo();
+            TestInitializeCombatEntitiesPreservesMaterialKeywordBank();
             TestGetNextEntityToAct();
             TestUpdateLastPlayerAction();
             TestGetLastPlayerAction();
@@ -156,6 +157,26 @@ namespace RPGGame.Tests.Unit.Combat
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0, enemy.ComboStep,
                 "InitializeCombatEntities should reset enemy ComboStep",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestInitializeCombatEntitiesPreservesMaterialKeywordBank()
+        {
+            Console.WriteLine("\n--- Testing InitializeCombatEntities preserves dungeon material currency ---");
+
+            var manager = new CombatStateManager();
+            var player = TestDataBuilders.Character().WithName("Player").Build();
+            var enemy = TestDataBuilders.Enemy().WithName("Enemy").Build();
+            player.Effects.AddMaterialKeyword("CRISIS", 7);
+            player.Effects.MaterialConsecutiveConnects = 2;
+
+            manager.InitializeCombatEntities(player, enemy);
+
+            TestBase.AssertEqual(7, player.Effects.GetMaterialKeyword("CRISIS"),
+                "InitializeCombatEntities should keep dungeon keyword currency",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, player.Effects.MaterialConsecutiveConnects,
+                "InitializeCombatEntities should reset consecutive-connect tracking",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

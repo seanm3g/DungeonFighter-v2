@@ -143,6 +143,9 @@ namespace RPGGame.GameCore.Input
                 case GameState.Inventory:
                     handlers.InventoryMenuHandler?.HandleMenuInput(input);
                     break;
+                case GameState.SkillTree:
+                    handlers.SkillTreeMenuHandler?.HandleMenuInput(input);
+                    break;
                 case GameState.WeaponSelection:
                     handlers.WeaponSelectionHandler?.HandleMenuInput(input);
                     break;
@@ -243,6 +246,7 @@ namespace RPGGame.GameCore.Input
         public TuningParametersHandler? TuningParametersHandler { get; set; }
         public VariableEditorHandler? VariableEditorHandler { get; set; }
         public InventoryMenuHandler? InventoryMenuHandler { get; set; }
+        public SkillTreeMenuHandler? SkillTreeMenuHandler { get; set; }
         public WeaponSelectionHandler? WeaponSelectionHandler { get; set; }
         public CharacterCreationHandler? CharacterCreationHandler { get; set; }
         public GameLoopInputHandler? GameLoopInputHandler { get; set; }

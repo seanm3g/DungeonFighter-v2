@@ -20,6 +20,7 @@ namespace RPGGame.Handlers
             public CharacterMenuHandler? CharacterMenuHandler { get; set; }
             public SettingsMenuHandler? SettingsMenuHandler { get; set; }
             public InventoryMenuHandler? InventoryMenuHandler { get; set; }
+            public SkillTreeMenuHandler? SkillTreeMenuHandler { get; set; }
             public WeaponSelectionHandler? WeaponSelectionHandler { get; set; }
             public CharacterCreationHandler? CharacterCreationHandler { get; set; }
             public GameLoopInputHandler? GameLoopInputHandler { get; set; }
@@ -57,6 +58,7 @@ namespace RPGGame.Handlers
                 CharacterMenuHandler = new CharacterMenuHandler(stateManager, uiManager),
                 SettingsMenuHandler = new SettingsMenuHandler(stateManager, uiManager),
                 InventoryMenuHandler = new InventoryMenuHandler(stateManager, uiManager),
+                SkillTreeMenuHandler = new SkillTreeMenuHandler(stateManager, uiManager),
                 WeaponSelectionHandler = weaponSelectionHandler,
                 CharacterCreationHandler = new CharacterCreationHandler(stateManager, uiManager),
                 GameLoopInputHandler = new GameLoopInputHandler(stateManager),
@@ -82,13 +84,14 @@ namespace RPGGame.Handlers
             System.Action showGameLoop,
             System.Action showMainMenu,
             System.Action showInventory,
+            System.Action showSkillTree,
             System.Action showCharacterInfo,
             System.Action<string> showMessage,
             System.Action exitGame,
             Func<Task> showDungeonSelection,
             System.Action<int, Item?, List<LevelUpInfo>, List<Item>> showDungeonCompletion,
             System.Action<Character> showDeathScreen,
-            System.Action saveGame)
+            Func<Task> saveGameAsync)
         {
             if (handlers.MainMenuHandler != null)
             {
@@ -152,11 +155,18 @@ namespace RPGGame.Handlers
                 handlers.InventoryMenuHandler.ShowGameLoopEvent += () => showGameLoop();
                 handlers.InventoryMenuHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }
+
+            if (handlers.SkillTreeMenuHandler != null)
+            {
+                handlers.SkillTreeMenuHandler.ShowGameLoopEvent += () => showGameLoop();
+                handlers.SkillTreeMenuHandler.ShowMessageEvent += (msg) => showMessage(msg);
+            }
             
             if (handlers.GameLoopInputHandler != null)
             {
                 handlers.GameLoopInputHandler.SelectDungeonEvent += async () => await (showDungeonSelection?.Invoke() ?? Task.CompletedTask);
                 handlers.GameLoopInputHandler.ShowInventoryEvent += () => showInventory();
+                handlers.GameLoopInputHandler.ShowSkillTreeEvent += () => showSkillTree();
                 handlers.GameLoopInputHandler.ShowRegionTravelEvent += () => handlers.RegionTravelHandler?.ShowRegionTravel();
                 handlers.GameLoopInputHandler.ShowCharacterSelectionEvent += () => handlers.CharacterManagementHandler?.ShowCharacterSelection();
                 handlers.GameLoopInputHandler.ExitGameEvent += () => exitGame();
@@ -274,14 +284,10 @@ namespace RPGGame.Handlers
             {
                 handlers.DungeonCompletionHandler.StartDungeonSelectionEvent += () => { handlers.DungeonSelectionHandler?.ShowDungeonSelection(); return Task.CompletedTask; };
                 handlers.DungeonCompletionHandler.ShowInventoryEvent += () => showInventory();
+                handlers.DungeonCompletionHandler.ShowSkillTreeEvent += () => showSkillTree();
                 handlers.DungeonCompletionHandler.ShowMainMenuEvent += () => showMainMenu();
-                handlers.DungeonCompletionHandler.SaveGameEvent += async () =>
-                {
-                    // Must await SaveGameAsync directly — sync SaveGame() uses GetResult and can
-                    // deadlock the Avalonia UI thread after ConfigureAwait(true) on the async path.
-                    if (handlers.SettingsMenuHandler != null)
-                        await handlers.SettingsMenuHandler.SaveGameAsync().ConfigureAwait(true);
-                };
+                // Must await async save — sync SaveGame()/GetResult() deadlocks Avalonia's UI thread.
+                handlers.DungeonCompletionHandler.SaveGameEvent += async () => await saveGameAsync();
             }
             
             if (handlers.DeathScreenHandler != null)

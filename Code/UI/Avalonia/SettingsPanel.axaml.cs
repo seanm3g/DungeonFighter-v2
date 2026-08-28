@@ -125,6 +125,7 @@ namespace RPGGame.UI.Avalonia
             panelHandlerRegistry.Register(new GameplayPanelHandler(settings, settingsManager, ShowStatusMessage));
             panelHandlerRegistry.Register(new PatchesPanelHandler(ShowStatusMessage));
             panelHandlerRegistry.Register(new FlavorTextPanelHandler(ShowStatusMessage));
+            panelHandlerRegistry.Register(new MaterialBuildsPanelHandler());
             panelHandlerRegistry.Register(new TravelPanelHandler());
             panelHandlerRegistry.Register(new AudioPanelHandler());
             var textDelaysHandler = new TextDelaysPanelHandler(settingsManager);
@@ -136,6 +137,7 @@ namespace RPGGame.UI.Avalonia
             var combatTuningHandler = new Managers.Settings.PanelHandlers.CombatTuningPanelHandler(ShowStatusMessage);
             var enemyTuningHandler = new EnemyTuningPanelHandler(ShowStatusMessage);
             panelHandlerRegistry.Register(new CombatAndEnemyTuningPanelHandler(combatTuningHandler, enemyTuningHandler));
+            panelHandlerRegistry.Register(new CheatsPanelHandler(ShowStatusMessage));
             // Testing handler will be registered when canvasUI is available
             
             // Initialize save orchestrator (single panel resolution via GetPanelForCategory)
@@ -501,7 +503,6 @@ namespace RPGGame.UI.Avalonia
             if (panelHandlerRegistry != null && !panelHandlerRegistry.HasHandler("BalanceTuning"))
                 panelHandlerRegistry.Register(new BalanceTuningPanelHandler(canvasUI, () => RefreshSettingsFromFile()));
             
-            // Set state manager on GameplayPanelHandler so it can clear in-memory player when clearing saved characters
             if (panelHandlerRegistry != null && stateManager != null)
             {
                 var gameplayHandler = panelHandlerRegistry.GetHandler("Gameplay");
@@ -509,6 +510,9 @@ namespace RPGGame.UI.Avalonia
                 {
                     gameplayPanelHandler.SetStateManager(stateManager);
                 }
+
+                if (panelHandlerRegistry.GetHandler("Cheats") is CheatsPanelHandler cheatsHandler)
+                    cheatsHandler.SetDependencies(canvasUI, stateManager);
             }
         }
         

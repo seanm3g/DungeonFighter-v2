@@ -73,6 +73,13 @@ namespace RPGGame.Data
 
         /// <summary>RESERVE POOL — truthy excludes from default weighted rolls (tag <c>reserve_pool</c>).</summary>
         public string ReservePool { get; set; } = "";
+
+        /// <summary>ACTIONS column DS — material this convert action scales from.</summary>
+        public string MaterialScale { get; set; } = "";
+        /// <summary>ACTIONS column DT — keyword this convert action reads.</summary>
+        public string KeywordScale { get; set; } = "";
+        /// <summary>ACTIONS column DU — convert scale formula.</summary>
+        public string ScaleFormula { get; set; } = "";
         
         // Columns N-Q: Hero bonuses (ACCURACY, HIT, COMBO, CRIT)
         public string HeroAccuracy { get; set; } = "";

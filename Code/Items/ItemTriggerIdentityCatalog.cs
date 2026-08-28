@@ -6,8 +6,10 @@ using RPGGame.Data;
 namespace RPGGame
 {
     /// <summary>
-    /// Facade over <see cref="TriggersLoader"/> for item trigger identities.
-    /// Seed rows (when <c>Triggers.json</c> is missing) live in <see cref="BuildSeedRows"/>.
+    /// Facade over <see cref="TriggersLoader"/> for the Wave-2 seed item trigger identities (0–105).
+    /// Material-owned identities may also live in <c>Triggers.json</c> but are excluded here so
+    /// <c>--stamp-item-triggers</c> and catalog tests stay on the seed set. Loot procs use
+    /// <see cref="MaterialTriggerCatalog"/> / <see cref="MaterialTriggerMerge"/>.
     /// </summary>
     public static class ItemTriggerIdentityCatalog
     {
@@ -23,12 +25,42 @@ namespace RPGGame
             string? ScaleFrom = null,
             string Description = "");
 
-        public static int Count => Math.Max(1, TriggersLoader.Count);
+        private static readonly Lazy<HashSet<string>> MaterialOwnedNames = new(() =>
+            new HashSet<string>(
+                MaterialTriggerCatalog.All.Select(d => d.TriggerName),
+                StringComparer.OrdinalIgnoreCase));
+
+        private static IReadOnlyList<TriggerIdentityData> SeedRows()
+        {
+            return TriggersLoader.GetAll()
+                .Where(r => r != null && !string.IsNullOrWhiteSpace(r.Name))
+                .Where(r => !MaterialOwnedNames.Value.Contains(r.Name.Trim()))
+                .OrderBy(r => r.Id)
+                .ToList();
+        }
+
+        public static int Count
+        {
+            get
+            {
+                int n = SeedRows().Count;
+                return Math.Max(1, n);
+            }
+        }
 
         public static IReadOnlyList<Identity> Identities =>
-            TriggersLoader.GetAll().Select(ToIdentity).ToList();
+            SeedRows().Select((row, i) => ToIdentity(row, i)).ToList();
 
-        public static Identity Get(int index) => ToIdentity(TriggersLoader.GetByIndex(index));
+        public static Identity Get(int index)
+        {
+            var seeds = SeedRows();
+            if (seeds.Count == 0)
+                throw new InvalidOperationException("No seed trigger identities in Triggers.json.");
+            if (index < 0)
+                index = 0;
+            int i = index % seeds.Count;
+            return ToIdentity(seeds[i], i);
+        }
 
         public static ActionTriggerBundle ToBundle(Identity identity)
         {
@@ -43,7 +75,9 @@ namespace RPGGame
                 Filters = identity.Filters == null || identity.Filters.Count == 0
                     ? null
                     : identity.Filters.ToList(),
-                ScaleFrom = string.IsNullOrWhiteSpace(identity.ScaleFrom) ? null : identity.ScaleFrom
+                ScaleFrom = string.IsNullOrWhiteSpace(identity.ScaleFrom) ? null : identity.ScaleFrom,
+                IdentityName = identity.Name,
+                Description = identity.Description ?? ""
             };
         }
 
@@ -71,11 +105,13 @@ namespace RPGGame
             });
         }
 
-        public static Identity ToIdentity(TriggerIdentityData row)
+        public static Identity ToIdentity(TriggerIdentityData row) => ToIdentity(row, row.Id);
+
+        private static Identity ToIdentity(TriggerIdentityData row, int index)
         {
             var filters = row.ParseFilters();
             return new Identity(
-                row.Id,
+                index,
                 row.Name ?? "",
                 row.When ?? "",
                 row.Scope ?? "",

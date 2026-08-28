@@ -6,8 +6,9 @@ using RPGGame.Data;
 namespace RPGGame
 {
     /// <summary>
-    /// Applies bonuses, modifications, and stat adjustments to items
-    /// Handles stat bonuses, action bonuses, and prefix slots (Adjective / Material / Quality) based on rarity
+    /// Applies bonuses, modifications, and stat adjustments to items.
+    /// Handles Quality/Adjective prefix lottery (0–2), always-on Material,
+    /// stat bonuses, and action bonuses. Combat procs come from MATERIAL BUILDS set counts, not per-item rolls.
     /// </summary>
     public class LootBonusApplier
     {
@@ -35,6 +36,8 @@ namespace RPGGame
         /// <summary>
         /// Applies all bonuses to an item based on its rarity.
         /// <paramref name="magicFind"/> (0–100) tilts affix-line tier rolls and optional affix extra chances; it does not change base item rarity.
+        /// Material is always assigned (weapons: class ladder; armor: any).
+        /// Item combat procs are not rolled — MATERIAL BUILDS gates synthesis by equipped count.
         /// </summary>
         public void ApplyBonuses(Item item, RarityData rarity, LootContext? context = null, int magicFind = 0)
         {
@@ -70,6 +73,9 @@ namespace RPGGame
                 ApplyStatBonuses(item, statSuffixes);
                 ApplyActionBonuses(item, actionBonuses, context);
                 ApplyPrefixSlots(item, prefixSlots, context);
+                EnsureMaterial(item, rarityName);
+                MaterialTriggerMerge.ClearCatalogTriggerStamp(item);
+                MaterialTriggerMerge.RemapLegacyMaterialOnItem(item);
                 SyncMaterialPrefixTags(item);
 
                 item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
@@ -86,13 +92,13 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Fills prefix categories (Quality / Adjective / Material) with at most one modification each.
+        /// Fills Quality / Adjective prefix categories (0–2). Material is applied separately via <see cref="EnsureMaterial"/>.
         /// </summary>
         public void ApplyPrefixSlots(Item item, string rarityName, LootContext? context = null) =>
             ApplyPrefixSlots(item, ItemAffixByRaritySettings.DefaultPrefixSlotsForRarity(rarityName), context);
 
         /// <summary>
-        /// Fills <paramref name="prefixSlotCount"/> prefix categories (0–3) with at most one modification each.
+        /// Fills <paramref name="prefixSlotCount"/> Quality/Adjective slots (0–2). Material is not part of this lottery.
         /// </summary>
         public void ApplyPrefixSlots(Item item, int prefixSlotCount, LootContext? context = null)
         {
@@ -109,33 +115,98 @@ namespace RPGGame
             item.RecomputeAttributeRequirementsIncludingModifications();
         }
 
+        /// <summary>
+        /// Ensures exactly one Material prefix. Weapons use the class ladder; non-weapons pick any material.
+        /// </summary>
+        public void EnsureMaterial(Item item, string? itemRarity = null)
+        {
+            if (item == null)
+                return;
+
+            string rarityName = itemRarity?.Trim()
+                ?? item.Rarity?.Trim()
+                ?? "Common";
+
+            item.Modifications.RemoveAll(m =>
+                m != null && m.GetPrefixCategory() == ModificationPrefixCategory.Material);
+
+            string materialName;
+            if (item.Type == ItemType.Weapon)
+            {
+                materialName = ItemMaterialRules.ResolveWeaponMaterial(item.WeaponType, rarityName);
+            }
+            else
+            {
+                var materialMods = (_dataCache.Modifications ?? new List<Modification>())
+                    .Where(m => m.GetPrefixCategory() == ModificationPrefixCategory.Material);
+                materialName = ItemMaterialRules.PickNonWeaponMaterial(materialMods, rarityName, _random);
+            }
+
+            var template = (_dataCache.Modifications ?? new List<Modification>())
+                .FirstOrDefault(m =>
+                    m.GetPrefixCategory() == ModificationPrefixCategory.Material
+                    && string.Equals(m.Name?.Trim(), materialName, StringComparison.OrdinalIgnoreCase));
+
+            Modification mod;
+            if (template != null)
+            {
+                mod = CloneRolledModification(template, 0)!;
+            }
+            else
+            {
+                mod = new Modification
+                {
+                    Name = materialName,
+                    PrefixCategory = "MATERIAL",
+                    ItemRank = rarityName,
+                    Description = "Material",
+                    MinValue = 0,
+                    MaxValue = 0,
+                    RolledValue = 0,
+                    Tags = new List<string> { materialName.ToLowerInvariant() }
+                };
+            }
+
+            item.Modifications.Add(mod);
+            item.Material = materialName;
+            item.RecomputeAttributeRequirementsIncludingModifications();
+        }
+
+        /// <summary>
+        /// Ensures Material without rolling Quality/Adjective/suffixes (starter weapons, lab helpers).
+        /// Combat procs come from MATERIAL BUILDS set counts, not per-item trigger stamps.
+        /// </summary>
+        public void ApplyAlwaysMaterialAndTrigger(Item item, string? itemRarity = null)
+        {
+            EnsureMaterial(item, itemRarity);
+            MaterialTriggerMerge.ClearCatalogTriggerStamp(item);
+            MaterialTriggerMerge.RemapLegacyMaterialOnItem(item);
+            SyncMaterialPrefixTags(item);
+            item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
+        }
+
         private static List<ModificationPrefixCategory> SelectCategoriesForPrefixSlotCount(int count, Random rnd)
         {
             var all = new[]
             {
                 ModificationPrefixCategory.Quality,
-                ModificationPrefixCategory.Adjective,
-                ModificationPrefixCategory.Material
+                ModificationPrefixCategory.Adjective
             };
 
-            count = Math.Clamp(count, 0, 3);
+            count = Math.Clamp(count, 0, 2);
             if (count <= 0)
                 return new List<ModificationPrefixCategory>();
 
-            if (count >= 3)
+            if (count >= 2)
             {
                 return new List<ModificationPrefixCategory>
                 {
                     ModificationPrefixCategory.Quality,
-                    ModificationPrefixCategory.Adjective,
-                    ModificationPrefixCategory.Material
+                    ModificationPrefixCategory.Adjective
                 };
             }
 
-            if (count == 1)
-                return new List<ModificationPrefixCategory> { all[rnd.Next(all.Length)] };
-
-            return all.OrderBy(_ => rnd.Next()).Take(2).ToList();
+            return new List<ModificationPrefixCategory> { all[rnd.Next(all.Length)] };
         }
 
         /// <summary>
@@ -550,7 +621,8 @@ namespace RPGGame
                 MinValue = template.MinValue,
                 MaxValue = template.MaxValue,
                 RolledValue = RollValueBetween(template.MinValue, template.MaxValue),
-                StatusEffects = template.StatusEffects != null ? new List<string>(template.StatusEffects) : new List<string>()
+                StatusEffects = template.StatusEffects != null ? new List<string>(template.StatusEffects) : new List<string>(),
+                Tags = template.Tags != null ? new List<string>(template.Tags) : null
             };
             if (template.AttributeRequirements != null && template.AttributeRequirements.Count > 0)
                 clone.AttributeRequirements = new AttributeRequirements(new Dictionary<string, int>(template.AttributeRequirements));

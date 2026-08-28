@@ -62,6 +62,26 @@ namespace RPGGame.Tests.Unit.UI
                 "Numpad divide maps to inventory slot filter cycle shortcut input",
                 ref run, ref passed, ref failed);
 
+            TestBase.AssertTrue(
+                KeyInputConverter.ConvertKeyToInput(Key.L, KeyModifiers.None) == "l",
+                "L maps to skill-tree learn shortcut",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.ConvertKeyToInput(Key.L, KeyModifiers.Shift) == "L",
+                "Shift+L maps to uppercase L",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.ConvertKeyToInput(Key.L, KeyModifiers.Control) == null,
+                "Ctrl+L is not a letter shortcut",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.ConvertKeyToInput(Key.W, KeyModifiers.None) == "w",
+                "W maps for WASD navigation",
+                ref run, ref passed, ref failed);
+
             Console.WriteLine($"\nKeyInputConverter: {passed}/{run} passed, {failed} failed\n");
         }
     }

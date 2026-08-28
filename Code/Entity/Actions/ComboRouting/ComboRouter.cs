@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
 using RPGGame.Actions.Conditional;
+using RPGGame.Utils;
 
 namespace RPGGame.Entity.Actions.ComboRouting
 {
@@ -204,8 +205,11 @@ namespace RPGGame.Entity.Actions.ComboRouting
                 if (strip == null || !strip.IsSlotDisabled(i))
                     enabled.Add(i);
             }
+            // Dice.Roll requires ≥2 sides; a 1-slot strip (or one enabled slot) is a no-op pick.
             if (enabled.Count == 0)
                 return 0;
+            if (enabled.Count == 1)
+                return enabled[0];
             int roll = Dice.Roll(1, enabled.Count);
             return enabled[roll - 1];
         }

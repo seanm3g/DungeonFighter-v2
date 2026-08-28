@@ -1,11 +1,12 @@
 [
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Reinforced",
     "Effect": "ARMOR",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "strength",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "strength": 2
+    },
     "DiceResult": 0,
     "MinValue": 1,
     "MaxValue": 1,
@@ -13,11 +14,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Balanced",
     "Effect": "COMBO",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "technique",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "technique": 2
+    },
     "DiceResult": 0,
     "MinValue": 1,
     "MaxValue": 1,
@@ -25,11 +27,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Precise",
     "Effect": "COMBO",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "technique",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "technique": 2
+    },
     "DiceResult": 0,
     "MinValue": 2,
     "MaxValue": 2,
@@ -37,11 +40,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Swift",
     "Effect": "HIT",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "agility",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "agility": 2
+    },
     "DiceResult": 0,
     "MinValue": 1,
     "MaxValue": 1,
@@ -49,11 +53,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Featherweight",
     "Effect": "SPEED",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "agility",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "agility": 2
+    },
     "DiceResult": 0,
     "MinValue": 0.5,
     "MaxValue": 0.5,
@@ -61,11 +66,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Hardened",
     "Effect": "ARMOR",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "strength",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "strength": 2
+    },
     "DiceResult": 0,
     "MinValue": 2,
     "MaxValue": 2,
@@ -73,11 +79,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Light",
     "Effect": "MULTI-HIT",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "agility",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "agility": 2
+    },
     "DiceResult": 0,
     "MinValue": 2,
     "MaxValue": 2,
@@ -85,11 +92,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Heavy",
     "Effect": "DAMAGE",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "strength",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "strength": 2
+    },
     "DiceResult": 0,
     "MinValue": 5,
     "MaxValue": 5,
@@ -97,11 +105,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Short",
     "Effect": "HIT",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "agility",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "agility": 2
+    },
     "DiceResult": 0,
     "MinValue": 2,
     "MaxValue": 2,
@@ -109,11 +118,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Long",
     "Effect": "CRIT",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "strength",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "strength": 2
+    },
     "DiceResult": 0,
     "MinValue": 1,
     "MaxValue": 1,
@@ -121,12 +131,13 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Blessed",
     "Description": "2% Magic Find",
     "Effect": "MAGIC FIND",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "intelligence",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "intelligence": 2
+    },
     "DiceResult": 0,
     "MinValue": 2,
     "MaxValue": 2,
@@ -134,12 +145,13 @@
   },
   {
     "ItemRank": "Common",
-    "Name": "Enchanted",
-    "Description": "+1 Magic Find",
-    "Effect": "MAGIC FIND",
     "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "intelligence",
-    "REQUIREMENT VALUE": 2,
+    "Name": "Enchanted",
+    "Description": "\u002B1 Magic Find",
+    "Effect": "MAGIC FIND",
+    "attributeRequirements": {
+      "intelligence": 2
+    },
     "DiceResult": 0,
     "MinValue": 1,
     "MaxValue": 1,
@@ -147,11 +159,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Charged",
     "Effect": "CRIT",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "strength",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "strength": 2
+    },
     "DiceResult": 0,
     "MinValue": 1,
     "MaxValue": 1,
@@ -159,11 +172,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Acrobatic",
     "Effect": "MULTI-HIT",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "agility",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "agility": 2
+    },
     "DiceResult": 0,
     "MinValue": 1,
     "MaxValue": 1,
@@ -171,11 +185,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Ancient",
     "Effect": "HEALTH BONUS",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "primary",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "primary": 2
+    },
     "DiceResult": 0,
     "MinValue": 10,
     "MaxValue": 10,
@@ -183,44 +198,22 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Keen",
     "Effect": "AMP",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "technique",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "technique": 2
+    },
     "DiceResult": 0,
     "MinValue": 0.05,
     "MaxValue": 0.05,
     "RolledValue": 0
   },
   {
-    "ItemRank": "Uncommon",
-    "Name": "flaming",
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Flaming",
     "Effect": "BURN",
-    "prefixCategory": "ADJECTIVE",
-    "DiceResult": 0,
-    "MinValue": 10,
-    "MaxValue": 10,
-    "RolledValue": 0,
-    "tags": [
-      "fire"
-    ]
-  },
-  {
-    "ItemRank": "Uncommon",
-    "Name": "poisonous",
-    "Effect": "POISON",
-    "prefixCategory": "ADJECTIVE",
-    "DiceResult": 0,
-    "MinValue": 0,
-    "MaxValue": 0,
-    "RolledValue": 0
-  },
-  {
-    "ItemRank": "Uncommon",
-    "Name": "serrated",
-    "Effect": "BLEED",
-    "prefixCategory": "ADJECTIVE",
     "DiceResult": 0,
     "MinValue": 10,
     "MaxValue": 10,
@@ -228,11 +221,32 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Poisonous",
+    "Effect": "POISON",
+    "DiceResult": 0,
+    "MinValue": 0,
+    "MaxValue": 0,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "serrated",
+    "Effect": "BLEED",
+    "DiceResult": 0,
+    "MinValue": 10,
+    "MaxValue": 10,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "refined",
     "Effect": "AMP",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "technique",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "technique": 2
+    },
     "DiceResult": 0,
     "MinValue": 0.1,
     "MaxValue": 0.1,
@@ -240,11 +254,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Nimble",
     "Effect": "SPEED",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "agility",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "agility": 2
+    },
     "DiceResult": 0,
     "MinValue": 0,
     "MaxValue": 0,
@@ -252,11 +267,12 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Brutal",
     "Effect": "DAMAGE",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "strength",
-    "REQUIREMENT VALUE": 2,
+    "attributeRequirements": {
+      "strength": 2
+    },
     "DiceResult": 0,
     "MinValue": 10,
     "MaxValue": 10,
@@ -264,26 +280,15 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Sturdy",
     "Effect": "HEALTH BONUS",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "primary",
-    "REQUIREMENT VALUE": 5,
+    "attributeRequirements": {
+      "primary": 5
+    },
     "DiceResult": 0,
     "MinValue": 25,
     "MaxValue": 25,
-    "RolledValue": 0
-  },
-  {
-    "ItemRank": "Uncommon",
-    "Name": "Caustic",
-    "Effect": "weaponAcid",
-    "prefixCategory": "ADJECTIVE",
-    "ATTRIBUTE REQUREMENT": "technique",
-    "REQUIREMENT VALUE": 3,
-    "DiceResult": 0,
-    "MinValue": 2,
-    "MaxValue": 3,
     "RolledValue": 0
   }
 ]

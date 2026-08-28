@@ -53,10 +53,15 @@ DungeonFighter/
 - **`Code/Entity/CharacterStats.cs`** - Character statistics and leveling system
 - **`Code/Entity/CharacterEquipment.cs`** - Equipment management and stat bonuses
 - **`Code/Entity/CharacterEffects.cs`** - Character-specific effects and buffs/debuffs
-- **`Code/Entity/CharacterProgression.cs`** - Experience, leveling, and skill progression
+- **`Code/Entity/CharacterProgression.cs`** - Experience, leveling, Skill Points (lifetime class points), and skill-tree learn ranks (`LearnedSkillRanks`)
 - **`Code/Entity/CharacterHealthManager.cs`** - Health management, damage, and healing logic
 - **`Code/Entity/CharacterCombatCalculator.cs`** - Combat calculations and stat computations
 - **`Code/Entity/CharacterSaveManager.cs`** - Save/load functionality for character data
+- **`Code/Config/SkillTreesConfig.cs`** + **`GameData/SkillTrees.json`** - Four class skill trees (Bronze Skin / Iron Discipline / Shadowcraft / Arcane Weave). On load/pull, `PromoteLevelOneAsRoot` makes **Level 1 - {Class}** (material-tag unlock) the free Core root; identity passives (e.g. Bronze Skin) become T1 children. Node costs are **1 SP per rank** (roots free); Action nodes maxRank 1; scalable Passive/Mastery sinks allow up to maxRank 5. Optional `sharedWith` (weapon/class keys) marks nodes that appear on the hybrid **side rail** when that path is secondary.
+- **`Code/Data/SkillTreesSheetConverter.cs`** - Class Upgrades sheet (gid `829575756`) ↔ `SkillTrees.json` flatten/nest for Sheets pull/push (includes `SharedWith`)
+- **`Code/Game/SkillTree/SkillTreeService.cs`** - Learn API, node view state, action unlock names, Concept A shared-rail display model (`BuildDisplayModel` / `GetSharedRailNodes`)
+- **`Code/Game/SkillTree/SkillEffectRouter.cs`** - CombatEventBus passive/rule/mastery runtime; `CollectActionCardBonuses` previews standing swing bonuses for action cards
+- **`Code/Game/SkillTreeMenuHandler.cs`** - GameLoop hub (`GameState.SkillTree`) learn UI (no respec); primary tree + optional shared secondary rail
 
 ### **Character Actions System (Phase 1 Refactoring ✅ COMPLETE)**
 The CharacterActions system has been successfully refactored from a 828-line monolithic class into 5 focused, testable managers using the Facade pattern. **Cleanup completed** - old code removed, facade now 170 lines.
@@ -75,10 +80,10 @@ The CharacterActions system has been successfully refactored from a 828-line mon
   - Roll bonus application and removal
   - Handles equipment-based action pools
 
-- **`Code/Entity/Managers/ClassActionManager.cs`** (199 lines) - Manages class-specific actions (Barbarian, Warrior, Rogue, Wizard)
-  - AddClassActions, RemoveClassActions
-  - Per-class action logic with level gating
-  - Handles all character progression-based abilities
+- **`Code/Entity/Managers/ClassActionManager.cs`** - Class kit actions
+  - When `SkillTrees.json` is loaded: unlocks from learned skill-tree **Action** nodes only
+  - Otherwise falls back to `ClassActions.json` rules
+  - AddClassActions / RemoveClassActions; does not spend or reduce lifetime Skill Points
 
 - **`Code/Entity/Managers/ComboSequenceManager.cs`** (184 lines) - Manages combo sequences and ordering
   - GetComboActions, AddToCombo, RemoveFromCombo
@@ -196,18 +201,19 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 
 - **Target item combat grammar**
   - Always-on equip math: `EquipmentBonusCalculator` / suffixes / quality multipliers / `ItemEquipEffectApplicator` (`WHILE_EQUIPPED` on `Item.EquipEffects`)
+  - **Material (always):** `LootBonusApplier.EnsureMaterial` sets `Item.Material` + Material prefix. Weapons use class ladders (`ItemMaterialRules`); armor may use class-less materials. Quality/Adjective are the optional 0–2 prefix lottery.
   - Combat procs: WHEN × mechanic × SCOPE shared with actions
     - Weapon* DoTs: `Modification.TriggerWhen` (default ONCRITICAL) via `CombatEffectsSimplified`
-    - Base catalog: identities in `Triggers.json` / `TriggersLoader` (facade `ItemTriggerIdentityCatalog`); fields include `description` (player-facing one-liner) plus authoring columns `effectTarget` / `whenArg` / `mechanicArg` (derived from mechanics; not combat authority); **Weapons/Armor** may still set optional `triggerName` (usually blank); **animal StatBonus suffixes** carry `triggerName` + taxon `tags` merged at loot via `StatBonusTriggerMerge`; combat via `EquippedItemTriggerApplicator` (dedupes identical `IdentityName` per fire); equip via `ItemEquipEffectApplicator` (same identity dedupe for WHILE_EQUIPPED set bonuses); item hover **Triggers** summaries resolve by `IdentityName` first (`ItemTriggerBundleDisplay`) so animal rows are not collapsed onto earlier demo identities that share WHEN×SCOPE×mechanics
-    - Scenario iteration: `Code/Items/ItemTriggerScenario/` (`ItemTriggerScenarioRunner` + report formatter); Action Lab Triggers panel; `--run-item-trigger-scenarios`
-    - Pre-roll same-swing threshold/speed from gear is `WHILE_EQUIPPED` only; combat WHEN×threshold deposits after the real event. Item self-buffs (`harden`/`focus`/`fortify`) use carrier `SelfTargetEffects`. Combat-path coverage: `ItemTriggerCombatIntegrationTests` via shared `ItemTriggerScenarioRunner` (all identities through `ActionExecutionFlow` / room-clear / equip). Interactive iteration: Action Lab **Triggers** panel + CLI `--run-item-trigger-scenarios` (`Code/Items/ItemTriggerScenario/`).
+    - Wave-2 seed catalog: identities in `Triggers.json` / `TriggersLoader` (facade `ItemTriggerIdentityCatalog` filters out material-owned names so stamp/tests stay at 106); gear `triggerName` for catalog demos; combat via `EquippedItemTriggerApplicator`; equip via `ItemEquipEffectApplicator`
+    - **Loot material sets:** `LootBonusApplier.EnsureMaterial` sets `Item.Material` + Material prefix. Weapons use class ladders (`ItemMaterialRules`: Mace Bone/Steel/**Iron**); armor may use class-less materials. Quality/Adjective are the optional 0–2 prefix lottery. Loot does **not** stamp random `MaterialTriggerCatalog` identities. Combat synthesis/convert come from `MaterialBuilds.json` (`MaterialSetController`, 2/3/5 equipped counts, dungeon-run keyword bank via `ClearDungeonRunTempEffects`). Combat init (`ResetFightConnects`) zeros consecutive-connect tracking only. The combat HUD surfaces that bank as live `{KEYWORD} x{count}` lines in `StatusEffectDisplayLines` (hero **STATUS EFFECTS**). When a synthesis WHEN mints, `MaterialSetController.FormatFeedCombatLine` is appended to the action block immediately under the roll footer. `RepairMissingMaterialTrigger` remaps Damascus→Iron and clears leftover catalog stamps. Save/load: `ItemTypeConverter` preserves Material and skips re-copy when already typed.
+    - Pre-roll same-swing threshold/speed from gear is `WHILE_EQUIPPED` only; combat WHEN×threshold deposits after the real event. Item self-buffs (`harden`/`focus`/`fortify`) use carrier `SelfTargetEffects`. Combat-path coverage: `ItemTriggerCombatIntegrationTests` (all identities via `ActionExecutionFlow` / room-clear / equip).
     - Item filters use swing `combatEvent.Action` for mirror/tag; carrier holds bundles only
     - Tokens: `ONEVEN`/`ONODD`, `IFSLOT:N`, `IFUNARMED`, `IFCLASSTAG`, `IFATTR`, `ONTAKEHIT` (defender via `ApplyFromDefender`)
     - Same-swing: `hero_action_damage` / `hero_action_speed` / `hero_action_amp`; WHILE_EQUIPPED tag amps included in `ApplySameSwingDamageMods` / `ApplySameSwingPreRollMods`
     - Optional `scaleFrom` on bundles: effective mag = `value` × attr/class/level (`ItemTriggerMagnitude`)
     - Dice/threshold/accuracy/`crit_face_min` item procs use **TURN** (demos may use **DUNGEON**)
     - Optional `ActionTriggerBundle.Value` magnitude fallback when sheet fields are empty
-  - Future: Sheets PREFIX columns for When/Scope. **StatBonus animal suffixes** already reference Triggers via `triggerName` / taxon tags (`shell`/`reptile`/`bird`/`bug`/`fish`/`beast`/`mythic`) with per-taxon `*SetFrom` / `*AmpTo` synergies.
+  - StatBonus / animal suffixes do **not** own combat WHEN (legacy `triggerName` on suffixes is ignored)
   - ActionBonuses stay “grant a named action that carries its own triggers”
   - Affordance sentence: SOURCE × WHEN × IF* × DO × TARGET × MAG × SCOPE (equip = `WHILE_EQUIPPED`)
 #### Outcome Handlers
@@ -322,6 +328,8 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/UI/DungeonThemeColors.cs`** - Theme-based color mapping for dungeons (24 unique dungeon themes)
 
 #### **Avalonia UI System (New Modular Architecture)**
+- **`Code/UI/Avalonia/App.axaml.cs`** / **`ApplicationShutdownHelper.cs`** - Desktop lifetime: `ShutdownMode.OnMainWindowClose`; title-bar X and Exit Game call `PerformShutdown(forceProcessExit: true)` (non-blocking ticker stop + 1.5s exit watchdog). `Code.csproj` also kills leftover `DF.exe` before build to avoid MSB3026
+- **Hover tooltips (items/actions)** — `ItemTooltipFormatter` / `CombatActionStripBuilder.Tooltips`: default Name + Rarity + Tags (items) + Requirements (items) + Stats + Triggers; action Stats also list standing class / material-convert / WHILE_EQUIPPED tag bonuses (`ActionCardExternalBonusCollector`). Hold **Alt** (`HoverTooltipDetailState`, synced from MainWindow keys + pointer modifiers) for remaining detail. Drawn via `DungeonRenderer.RoomAndCombat` / `RightPanelRenderer` / `LeftPanelTooltipBuilder`
 - **`Code/UI/Avalonia/CanvasUICoordinator.cs`** - Main coordinator implementing IUIManager, delegates to specialized managers
 - **`Code/UI/Avalonia/CanvasUITypes.cs`** - Shared types (ClickableElement, ElementType) for UI interactions
 - **`Code/UI/Avalonia/Managers/ICanvasContextManager.cs`** - Interface for managing UI state and context

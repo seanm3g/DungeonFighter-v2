@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit
             TestOnComboEnd();
             TestOnRoomsCleared();
             TestParseTriggerList();
+            TestMaterialBuildWhenTokens();
             TestOnWield_StandaloneImpliesConnect();
             TestOnWield_OrTypesAndAndWithOutcome();
             TestSignatureHooks_FirstBloodAfterMissMirrorSwitchClutch();
@@ -231,6 +232,44 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(parsed.Contains("IFCLUTCH"), "Parse IFCLUTCH", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(parsed.Contains("IFSAMESACTION"), "Parse IFSAMESACTION", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(parsed.Contains("IFTARGETSTATUS:poison"), "Parse IFTARGETSTATUS:poison", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var materialWhen = ActionTriggerGate.ParseTriggerConditionList(
+                "ON_RECEIVE_HIT, ONTURN, ONATTACK, ON_CONSECUTIVE_ATTACK, ONSLOW, ONFOCUS");
+            TestBase.AssertTrue(materialWhen.Contains("ONTAKEHIT"), "Parse ON_RECEIVE_HIT→ONTAKEHIT", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(materialWhen.Contains("ONTURN"), "Parse ONTURN", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(materialWhen.Contains("ONATTACK"), "Parse ONATTACK", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(materialWhen.Contains("ONCONSECUTIVEATTACK"), "Parse ON_CONSECUTIVE_ATTACK", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(materialWhen.Contains("ONSLOW"), "Parse ONSLOW", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(materialWhen.Contains("ONFOCUS"), "Parse ONFOCUS", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestMaterialBuildWhenTokens()
+        {
+            var hero = new Character("Hero", 1);
+            var foe = new Enemy("Foe", 1, 100, 10, 5, 5, 5);
+            var attack = new Action { Name = "Swing", Type = ActionType.Attack, CausesSlow = true, CausesFocus = true };
+            var takeHit = MakeStunAction("ON_RECEIVE_HIT");
+            var hurt = new CombatEvent(CombatEventType.ActionHit, foe) { Target = hero, Action = attack };
+            TestBase.AssertTrue(ActionTriggerGate.ShouldApplyStatusEffects(takeHit, hurt),
+                "ON_RECEIVE_HIT matches hero take-hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var turn = MakeStunAction("ONTURN");
+            var turnEvt = new CombatEvent(CombatEventType.TurnStarted, hero) { Target = hero };
+            TestBase.AssertTrue(ActionTriggerGate.ShouldApplyStatusEffects(turn, turnEvt),
+                "ONTURN matches TurnStarted", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var onAttack = MakeStunAction("ONATTACK");
+            var miss = new CombatEvent(CombatEventType.ActionMiss, hero) { IsMiss = true, Action = attack };
+            TestBase.AssertTrue(ActionTriggerGate.ShouldApplyStatusEffects(onAttack, miss),
+                "ONATTACK matches miss swing", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var slow = MakeStunAction("ONSLOW");
+            var hit = new CombatEvent(CombatEventType.ActionHit, hero) { Action = attack };
+            TestBase.AssertTrue(ActionTriggerGate.ShouldApplyStatusEffects(slow, hit),
+                "ONSLOW matches slow swing", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var focus = MakeStunAction("ONFOCUS");
+            TestBase.AssertTrue(ActionTriggerGate.ShouldApplyStatusEffects(focus, hit),
+                "ONFOCUS matches focus swing", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestSignatureHooks_FirstBloodAfterMissMirrorSwitchClutch()

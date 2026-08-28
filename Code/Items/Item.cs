@@ -61,6 +61,21 @@ namespace RPGGame
         public List<StatBonusMechanic>? Mechanics { get; set; }
 
         /// <summary>
+        /// Legacy main-branch animal-suffix trigger name. Ignored for combat — materials own gear procs.
+        /// Kept so merged StatBonuses.json rows still deserialize.
+        /// </summary>
+        [JsonPropertyName("triggerName")]
+        public string TriggerName { get; set; } = "";
+
+        /// <summary>Legacy multi-trigger list from main; ignored for combat.</summary>
+        [JsonPropertyName("triggerNames")]
+        public List<string>? TriggerNames { get; set; }
+
+        /// <summary>Legacy taxon tags from main animal suffixes; not applied as combat procs.</summary>
+        [JsonPropertyName("tags")]
+        public List<string>? Tags { get; set; }
+
+        /// <summary>
         /// Attribute thresholds an equipping character must meet for the piece carrying this suffix.
         /// Authored as <c>[strength:5,primary:15]</c>; keys are the four core attributes plus the dynamic categories
         /// (<c>primary</c> / <c>secondary</c> / <c>neglected</c> / <c>weakness</c>) resolved at equip-check time via
@@ -69,26 +84,6 @@ namespace RPGGame
         /// </summary>
         [JsonPropertyName("Requirements")]
         public Dictionary<string, int>? Requirements { get; set; }
-
-        /// <summary>
-        /// Optional catalog trigger identity name (Triggers.json). Resolved at loot/lab attach into
-        /// <see cref="Item.TriggerBundles"/> or <see cref="Item.EquipEffects"/>.
-        /// </summary>
-        [JsonPropertyName("triggerName")]
-        public string TriggerName { get; set; } = "";
-
-        /// <summary>
-        /// Extra catalog trigger names merged with <see cref="TriggerName"/> (e.g. taxon synergies).
-        /// </summary>
-        [JsonPropertyName("triggerNames")]
-        public List<string>? TriggerNames { get; set; }
-
-        /// <summary>
-        /// Optional registry tags (taxon: shell/reptile/bird/bug/fish/beast/mythic) copied onto
-        /// <see cref="Item.Tags"/> when this suffix is attached.
-        /// </summary>
-        [JsonPropertyName("tags")]
-        public List<string>? Tags { get; set; }
 
         /// <summary>True when the suffix lists at least one parsed requirement entry.</summary>
         [JsonIgnore]
@@ -152,28 +147,6 @@ namespace RPGGame
                 }
             }
 
-            List<string>? tagCopy = null;
-            if (Tags != null && Tags.Count > 0)
-            {
-                tagCopy = new List<string>(Tags.Count);
-                foreach (var t in Tags)
-                {
-                    if (!string.IsNullOrWhiteSpace(t))
-                        tagCopy.Add(t.Trim());
-                }
-            }
-
-            List<string>? triggerNamesCopy = null;
-            if (TriggerNames != null && TriggerNames.Count > 0)
-            {
-                triggerNamesCopy = new List<string>(TriggerNames.Count);
-                foreach (var n in TriggerNames)
-                {
-                    if (!string.IsNullOrWhiteSpace(n))
-                        triggerNamesCopy.Add(n.Trim());
-                }
-            }
-
             return new StatBonus
             {
                 Name = Name,
@@ -184,9 +157,9 @@ namespace RPGGame
                 ItemRank = ItemRank,
                 Mechanics = mechCopy,
                 Requirements = reqCopy,
-                TriggerName = TriggerName ?? "",
-                TriggerNames = triggerNamesCopy,
-                Tags = tagCopy
+                TriggerName = "",
+                TriggerNames = null,
+                Tags = null
             };
         }
     }
@@ -277,6 +250,14 @@ namespace RPGGame
         /// <summary>Head: minimum granted <see cref="ActionBonus"/> lines when loot affixes are applied.</summary>
         public int MinGeneratedActionBonuses { get; set; }
         public string Rarity { get; set; } = "Common";
+
+        /// <summary>
+        /// Always-on material name (Bone, Steel, Cloth, …). Set by loot <c>EnsureMaterial</c>;
+        /// mirrors the Material prefix modification.
+        /// </summary>
+        [JsonPropertyName("material")]
+        public string Material { get; set; } = "";
+
         public List<StatBonus> StatBonuses { get; set; } = new List<StatBonus>();
         public List<ActionBonus> ActionBonuses { get; set; } = new List<ActionBonus>();
         public List<Modification> Modifications { get; set; } = new List<Modification>();

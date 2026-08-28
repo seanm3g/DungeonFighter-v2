@@ -54,6 +54,7 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CombatEffectsSimplifiedTests.RunAllTests();
             ActionTriggerGateTests.RunAllTests();
+            MaterialSetControllerTests.RunAllTests();
             ActionTriggerBundleApplicatorTests.RunAllTests();
             StripMutationTests.RunAllTests();
             RetriggerTests.RunAllTests();

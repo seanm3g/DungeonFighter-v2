@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="RPGGame.UI.Avalonia.Settings.CheatsSettingsPanel" Classes="settings-ui" Background="Transparent"
+             VerticalAlignment="Stretch"
+             HorizontalAlignment="Stretch">
+    <StackPanel Margin="20" Spacing="12" MaxWidth="720" HorizontalAlignment="Left">
+        <TextBlock Text="CHEATS"
+                   FontSize="16"
+                   FontWeight="Bold"
+                   Foreground="#FFD700"
+                   Margin="0,0,0,5"/>
+        <TextBlock Text="Developer testing helpers. Affects the currently loaded character (not Action Lab clones)."
+                   Classes="settings-muted"
+                   FontSize="13"
+                   TextWrapping="Wrap"/>
+
+        <Border Background="#FF1E1E1E"
+                BorderBrush="#FF555555"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="16"
+                Margin="0,8,0,0">
+            <StackPanel Spacing="10">
+                <TextBlock Text="Character"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="White"/>
+                <TextBlock x:Name="CheatCharacterStatusText"
+                           Text="No character loaded."
+                           Classes="settings-muted"
+                           FontSize="13"
+                           TextWrapping="Wrap"/>
+                <Button x:Name="GainLevelButton"
+                        Content="Gain Level (+1)"
+                        Width="220"
+                        Height="40"
+                        Background="#FF2F65B2"
+                        Foreground="White"
+                        BorderThickness="0"
+                        CornerRadius="4"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        HorizontalAlignment="Left"
+                        ToolTip.Tip="Grants one full level (stats/HP), +1 Skill Point on your path (even if unequipped), and auto-saves so Load Game / Skill Tree stay in sync (max level 99)."/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

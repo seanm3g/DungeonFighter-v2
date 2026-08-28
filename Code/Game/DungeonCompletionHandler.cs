@@ -15,12 +15,14 @@ namespace RPGGame
         // Delegates
         public delegate Task OnStartDungeonSelection();
         public delegate void OnShowInventory();
+        public delegate void OnShowSkillTree();
         public delegate void OnShowMainMenu();
         public delegate Task OnSaveGame();
         public delegate void OnShowMessage(string message);
         
         public event OnStartDungeonSelection? StartDungeonSelectionEvent;
         public event OnShowInventory? ShowInventoryEvent;
+        public event OnShowSkillTree? ShowSkillTreeEvent;
         public event OnShowMainMenu? ShowMainMenuEvent;
         public event OnSaveGame? SaveGameEvent;
         public event OnShowMessage? ShowMessageEvent;
@@ -57,15 +59,27 @@ namespace RPGGame
                     // would force a strip-only refresh instead of a full screen transition).
                     ShowInventoryEvent?.Invoke();
                     break;
+                case "3":
+                    ClearDisplayIfNeeded();
+                    ShowSkillTreeEvent?.Invoke();
+                    break;
                 case "0":
-                    // Save and Exit - do NOT clear display (going to main menu)
-                    if (SaveGameEvent != null)
-                        await SaveGameEvent.Invoke();
+                    // Save and Exit - do NOT clear display (going to main menu).
+                    // Await async save only; sync GetResult deadlocks Avalonia (same as Game Loop "0").
+                    try
+                    {
+                        if (SaveGameEvent != null)
+                            await SaveGameEvent.Invoke();
+                    }
+                    catch (Exception)
+                    {
+                        // Error already reported by save path; still return to main menu.
+                    }
                     stateManager.TransitionToState(GameState.MainMenu);
                     ShowMainMenuEvent?.Invoke();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Please select 1, 2, or 0.");
+                    ShowMessageEvent?.Invoke("Invalid choice. Please select 1, 2, 3, or 0.");
                     break;
             }
         }

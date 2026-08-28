@@ -96,6 +96,7 @@ namespace RPGGame.Actions.Execution
                         {
                             EquippedItemTriggerApplicator.ApplyFromDefender(
                                 hurtHero, source, hitEvent, result.StatusEffectMessages);
+                            MaterialSetController.TryMintFromEvent(hurtHero, hitEvent, selected, result.StatusEffectMessages);
                         }
                         if (result.Damage > 0
                             && selected.Target == TargetType.SelfAndTarget

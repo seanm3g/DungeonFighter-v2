@@ -164,6 +164,9 @@ namespace RPGGame.Data
             actionData.IsReservePool = !string.IsNullOrWhiteSpace(spreadsheet.ReservePool)
                 && spreadsheet.ReservePool != "0"
                 && !string.Equals(spreadsheet.ReservePool.Trim(), "false", StringComparison.OrdinalIgnoreCase);
+            actionData.MaterialScale = spreadsheet.MaterialScale ?? "";
+            actionData.KeywordScale = spreadsheet.KeywordScale ?? "";
+            actionData.ScaleFormula = spreadsheet.ScaleFormula ?? "";
 
             // Combo properties: hero actions use the combo strip; environment hazards override below.
             actionData.IsComboAction = true;

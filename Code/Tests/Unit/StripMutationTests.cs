@@ -27,6 +27,8 @@ namespace RPGGame.Tests.Unit
             TestPendingJumpOverride();
             TestReplaceNextConsumesOnce();
             TestStripJumpFromBundle();
+            TestStripRandomSingleSlotDoesNotThrow();
+            TestStripRandomOneEnabledSlotDoesNotThrow();
 
             CombatTriggerContext.ResetForBattle();
             TestBase.PrintSummary("Strip Mutation Tests", _run, _passed, _failed);
@@ -133,6 +135,62 @@ namespace RPGGame.Tests.Unit
                                 && state.PendingRoutingAction == ComboRouter.RoutingAction.JumpToSlot
                                 && state.PendingJumpToSlot1Based == 3,
                 "pending jump to slot 3", ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>
+        /// Regression: strip_random on a 1-slot strip used to call Dice.Roll(1, 1) and crash the dungeon.
+        /// </summary>
+        private static void TestStripRandomSingleSlotDoesNotThrow()
+        {
+            TestBase.SetCurrentTestName(nameof(TestStripRandomSingleSlotDoesNotThrow));
+            CombatTriggerContext.ResetForBattle();
+            var hero = MakeHeroWithStrip("Solo");
+            var state = CombatTriggerContext.GetOrCreateStripState(hero);
+            state.SetPendingRouting(ComboRouter.RoutingAction.RandomAction);
+
+            RoutingResult? result = null;
+            Exception? thrown = null;
+            try
+            {
+                result = ComboRouter.RouteCombo(hero, hero.GetComboActions()[0], 0, hero.GetComboActions());
+            }
+            catch (Exception ex)
+            {
+                thrown = ex;
+            }
+
+            TestBase.AssertTrue(thrown == null, "1-slot strip_random must not throw", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, result?.NextSlotIndex ?? -1, "1-slot random lands on slot 0", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(result?.RoutingAction == ComboRouter.RoutingAction.RandomAction,
+                "routing action is RandomAction", ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>
+        /// Regression: when all but one slots are disabled, random pick must not roll a 1-sided die.
+        /// </summary>
+        private static void TestStripRandomOneEnabledSlotDoesNotThrow()
+        {
+            TestBase.SetCurrentTestName(nameof(TestStripRandomOneEnabledSlotDoesNotThrow));
+            CombatTriggerContext.ResetForBattle();
+            var hero = MakeHeroWithStrip("A", "B", "C");
+            var state = CombatTriggerContext.GetOrCreateStripState(hero);
+            state.DisableSlot(0);
+            state.DisableSlot(2);
+            state.SetPendingRouting(ComboRouter.RoutingAction.RandomAction);
+
+            RoutingResult? result = null;
+            Exception? thrown = null;
+            try
+            {
+                result = ComboRouter.RouteCombo(hero, hero.GetComboActions()[0], 0, hero.GetComboActions());
+            }
+            catch (Exception ex)
+            {
+                thrown = ex;
+            }
+
+            TestBase.AssertTrue(thrown == null, "single enabled-slot random must not throw", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(1, result?.NextSlotIndex ?? -1, "random with only slot 1 enabled → 1", ref _run, ref _passed, ref _failed);
         }
     }
 }

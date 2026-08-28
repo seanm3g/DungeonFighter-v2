@@ -25,13 +25,17 @@ namespace RPGGame.UI.Avalonia
 
                 desktop.MainWindow = new MainWindow();
 
+                // Title-bar X (and any other main-window close) must fully exit the process.
+                // Avalonia shutdown alone can leave SoundFlow/native threads alive, which
+                // keeps DF.exe locked and breaks the next build (MSB3026).
                 desktop.MainWindow.Closing += (_, _) =>
                 {
-                    ApplicationShutdownHelper.PerformShutdown();
                     BuildExecutionMetrics.StopExecutionTracking("GUI");
+                    ApplicationShutdownHelper.PerformShutdown(forceProcessExit: true);
                 };
 
-                desktop.Exit += (_, _) => ApplicationShutdownHelper.PerformShutdown();
+                desktop.Exit += (_, _) =>
+                    ApplicationShutdownHelper.PerformShutdown(forceProcessExit: true);
             }
 
             base.OnFrameworkInitializationCompleted();

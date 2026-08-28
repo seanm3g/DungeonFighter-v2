@@ -28,7 +28,7 @@ namespace RPGGame.Data
                 {
                     cfg.Save(pushConfigPath);
                     result.AddLine(
-                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, Prefix (Modifications.json + PrefixMaterialQuality.json), ARMOR, SUFFIXES, CONSUMABLES, triggers, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES, CLASS ACTIONS, flavor " +
+                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, Prefix (Modifications.json + PrefixMaterialQuality.json), ARMOR, SUFFIXES, CONSUMABLES, triggers, MATERIAL BUILDS, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES, CLASS ACTIONS, flavor " +
                         "(all optional tabs were blank). Edit the file if your sheet uses different tab titles.");
                 }
                 catch (Exception ex)
@@ -117,6 +117,22 @@ namespace RPGGame.Data
                 }
             }
 
+            if (cfg.ApplyDefaultMaterialBuildsTabNameIfUnset())
+            {
+                try
+                {
+                    cfg.Save(pushConfigPath);
+                    result.AddLine(
+                        "Set default MATERIAL BUILDS tab name in SheetsPushConfig.json (materialBuildsSheetTabName was blank). " +
+                        "Edit if your spreadsheet uses a different tab title.");
+                }
+                catch (Exception ex)
+                {
+                    result.AddLine(
+                        $"Note: could not save SheetsPushConfig after MATERIAL BUILDS default ({ex.Message}); push still uses that tab name for this run.");
+                }
+            }
+
             if (cfg.ApplyDefaultClassActionsTabNameIfUnset())
             {
                 try
@@ -130,6 +146,22 @@ namespace RPGGame.Data
                 {
                     result.AddLine(
                         $"Note: could not save SheetsPushConfig after CLASS ACTIONS default ({ex.Message}); push still uses that tab name for this run.");
+                }
+            }
+
+            if (cfg.ApplyDefaultSkillTreesTabNameIfUnset())
+            {
+                try
+                {
+                    cfg.Save(pushConfigPath);
+                    result.AddLine(
+                        "Set default Class Upgrades tab name in SheetsPushConfig.json (skillTreesSheetTabName was blank). " +
+                        "Edit if your spreadsheet uses a different tab title.");
+                }
+                catch (Exception ex)
+                {
+                    result.AddLine(
+                        $"Note: could not save SheetsPushConfig after Class Upgrades default ({ex.Message}); push still uses that tab name for this run.");
                 }
             }
 
@@ -262,6 +294,20 @@ namespace RPGGame.Data
                     service,
                     cfg,
                     tabGids,
+                    cfg.PushMaterialBuildsTab,
+                    "MATERIAL BUILDS",
+                    cfg.MaterialBuildsSheetTabName,
+                    GameConstants.MaterialBuildsJson,
+                    GameDataTabularSheetKind.MaterialBuilds,
+                    "MaterialBuilds.json",
+                    result,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            await PushOptionalJsonArrayTabAsync(
+                    service,
+                    cfg,
+                    tabGids,
                     cfg.PushEnemiesTab,
                     "ENEMIES",
                     cfg.EnemiesSheetTabName,
@@ -304,6 +350,8 @@ namespace RPGGame.Data
 
             await PushOptionalClassActionsTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
 
+            await PushOptionalSkillTreesTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
+
             await PushOptionalFlavorTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
 
             return result;
@@ -332,6 +380,9 @@ namespace RPGGame.Data
             if (cfg.PushTriggersTab && !string.IsNullOrWhiteSpace(cfg.TriggersSheetTabName))
                 yield return cfg.TriggersSheetTabName.Trim();
 
+            if (cfg.PushMaterialBuildsTab && !string.IsNullOrWhiteSpace(cfg.MaterialBuildsSheetTabName))
+                yield return cfg.MaterialBuildsSheetTabName.Trim();
+
             if (cfg.PushEnemiesTab && !string.IsNullOrWhiteSpace(cfg.EnemiesSheetTabName))
                 yield return cfg.EnemiesSheetTabName.Trim();
 
@@ -346,6 +397,9 @@ namespace RPGGame.Data
 
             if (cfg.PushClassActionsTab && !string.IsNullOrWhiteSpace(cfg.ClassActionsSheetTabName))
                 yield return cfg.ClassActionsSheetTabName.Trim();
+
+            if (cfg.PushSkillTreesTab && !string.IsNullOrWhiteSpace(cfg.SkillTreesSheetTabName))
+                yield return cfg.SkillTreesSheetTabName.Trim();
 
             if (cfg.PushFlavorTab && !string.IsNullOrWhiteSpace(cfg.FlavorSheetTabName))
                 yield return cfg.FlavorSheetTabName.Trim();
@@ -510,6 +564,36 @@ namespace RPGGame.Data
             string openHint = FormatOpenTabHint(cfg.SpreadsheetId, tabGids, tab);
             result.AddLine(
                 $"Tab '{tab}' (class actions): {dataRows} data row(s) + header (from ClassActions.json or built-in defaults) " +
+                $"(API UpdatedRows={apiUpdatedRows}, UpdatedCells={apiUpdatedCells}).{openHint}");
+        }
+
+        private static async Task PushOptionalSkillTreesTabAsync(
+            SheetsService service,
+            SheetsPushConfig cfg,
+            IReadOnlyDictionary<string, int> tabGids,
+            GameDataSheetsPushResult result,
+            CancellationToken cancellationToken)
+        {
+            if (!cfg.PushSkillTreesTab)
+            {
+                if (!string.IsNullOrWhiteSpace(cfg.SkillTreesSheetTabName))
+                    result.AddLine($"Skipped tab '{cfg.SkillTreesSheetTabName.Trim()}' (Class Upgrades) — push disabled in SheetsPushConfig.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(cfg.SkillTreesSheetTabName))
+                return;
+
+            string tab = cfg.SkillTreesSheetTabName.Trim();
+            SkillTreesConfig trees = SkillTreesConfig.TryLoadFromGameDataFile()
+                ?? SkillTreesConfig.CreateEmpty();
+            var rows = SkillTreesSheetConverter.BuildPushValueRows(trees);
+            var (apiUpdatedRows, apiUpdatedCells) = await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, headerRowCount: 1, cancellationToken)
+                .ConfigureAwait(false);
+            int dataRows = Math.Max(0, rows.Count - 1);
+            string openHint = FormatOpenTabHint(cfg.SpreadsheetId, tabGids, tab);
+            result.AddLine(
+                $"Tab '{tab}' (Class Upgrades / SkillTrees.json): {dataRows} data row(s) + header " +
                 $"(API UpdatedRows={apiUpdatedRows}, UpdatedCells={apiUpdatedCells}).{openHint}");
         }
 

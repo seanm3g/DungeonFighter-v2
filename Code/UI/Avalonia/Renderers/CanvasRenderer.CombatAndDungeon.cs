@@ -6,6 +6,7 @@ using RPGGame.ActionInteractionLab;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Display;
+using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
@@ -297,6 +298,26 @@ namespace RPGGame.UI.Avalonia.Renderers
                 regionTravelRenderer.RenderRegionTravel(contentX, contentY, contentWidth, contentHeight, player, destinations, routeResult);
             }, context, null, null, null, clearCanvas: false);
             dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
+            canvas.Refresh();
+        }
+
+        public void RenderSkillTree(Character player, int selectedIndex, int scrollOffset, string? statusMessage, CanvasContext context)
+        {
+            // clearCanvas:true matches Inventory — avoids hub/menu glyphs stacking under the tree.
+            // Skill tree occupies the full center column (including the action-strip band); combo strip is hidden.
+            RenderWithLayout(player, "SKILL TREE", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                int frameX = LayoutConstants.CENTER_PANEL_X;
+                int frameY = LayoutConstants.CENTER_COLUMN_FULL_Y;
+                int frameW = LayoutConstants.CENTER_PANEL_WIDTH;
+                int frameH = LayoutConstants.CENTER_COLUMN_FULL_HEIGHT;
+                canvas.ClearTextInArea(frameX, frameY, frameW, frameH);
+                canvas.ClearBoxesInArea(frameX, frameY, frameW, frameH);
+                canvas.AddBox(frameX, frameY, frameW, frameH, AsciiArtAssets.Colors.Cyan, CenterPanelModeTint.GetBackgroundColor());
+
+                var (x, y, w, h) = LayoutConstants.GetCenterColumnFullContentRect();
+                skillTreeRenderer.RenderSkillTree(x, y, w, h, player, selectedIndex, scrollOffset, statusMessage);
+            }, context, null, null, null, clearCanvas: true);
             canvas.Refresh();
         }
     }

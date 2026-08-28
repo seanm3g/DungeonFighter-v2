@@ -39,6 +39,9 @@ namespace RPGGame.Data
             action.Opener = GetStringValue(root, "opener");
             action.Finisher = GetStringValue(root, "finisher");
             action.ReservePool = GetStringValue(root, "reservePool");
+            action.MaterialScale = GetStringValue(root, "materialScale");
+            action.KeywordScale = GetStringValue(root, "keywordScale");
+            action.ScaleFormula = GetStringValue(root, "scaleFormula");
             action.HeroAccuracy = GetStringValue(root, "heroAccuracy");
             action.HeroHit = GetStringValue(root, "heroHit");
             action.HeroCombo = GetStringValue(root, "heroCombo");
@@ -182,6 +185,9 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "opener", value.Opener);
             WriteIfNotEmpty(writer, "finisher", value.Finisher);
             WriteIfNotEmpty(writer, "reservePool", value.ReservePool);
+            WriteIfNotEmpty(writer, "materialScale", value.MaterialScale);
+            WriteIfNotEmpty(writer, "keywordScale", value.KeywordScale);
+            WriteIfNotEmpty(writer, "scaleFormula", value.ScaleFormula);
             WriteIfNotEmpty(writer, "heroAccuracy", value.HeroAccuracy);
             WriteIfNotEmpty(writer, "heroHit", value.HeroHit);
             WriteIfNotEmpty(writer, "heroCombo", value.HeroCombo);

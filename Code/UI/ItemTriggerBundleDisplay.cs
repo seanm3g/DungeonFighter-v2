@@ -44,20 +44,22 @@ namespace RPGGame
                 sb.Append(bundle.ScaleFrom.Trim().ToUpperInvariant());
             }
 
-            string mechanical = sb.ToString();
-            if (TryResolveIdentity(bundle, out string? identityName, out string? description))
+            if (!string.IsNullOrWhiteSpace(bundle.IdentityName))
             {
-                string detail = !string.IsNullOrWhiteSpace(description)
-                    ? description.Trim()
-                    : mechanical;
-                if (string.IsNullOrWhiteSpace(detail))
-                    detail = mechanical;
-                if (string.IsNullOrWhiteSpace(identityName))
-                    return detail;
-                return $"{identityName} — {detail}";
+                string name = SplitCamel(bundle.IdentityName.Trim());
+                if (!string.IsNullOrWhiteSpace(bundle.Description))
+                    return $"{name} — {bundle.Description.Trim()}";
+                return $"{name} — {sb}";
             }
 
-            return mechanical;
+            if (TryMatchIdentity(bundle, out string? identityName, out string? description))
+            {
+                if (!string.IsNullOrWhiteSpace(description))
+                    return $"{identityName} — {description.Trim()}";
+                return $"{identityName} — {sb}";
+            }
+
+            return sb.ToString();
         }
 
         public static IEnumerable<string> FormatSummaries(IEnumerable<ActionTriggerBundle>? bundles)
@@ -227,12 +229,7 @@ namespace RPGGame
                 or "vulnerability" or "slow" or "heal" or "max_health" or "confuse" or "confusion"
                 or "stat_drain" or "disrupt";
 
-        /// <summary>
-        /// Prefer <see cref="ActionTriggerBundle.IdentityName"/> so animal suffixes (e.g. BoarSuffix)
-        /// are not collapsed onto an earlier demo identity that shares WHEN×SCOPE×mechanics (SalvageCharm).
-        /// Signature fallback also requires matching filters so taxon AmpTo rows stay distinct.
-        /// </summary>
-        private static bool TryResolveIdentity(
+        private static bool TryMatchIdentity(
             ActionTriggerBundle bundle,
             out string? identityName,
             out string? description)
@@ -240,23 +237,22 @@ namespace RPGGame
             identityName = null;
             description = null;
 
-            if (!string.IsNullOrWhiteSpace(bundle.IdentityName)
-                && TriggersLoader.TryGetByName(bundle.IdentityName, out var byName))
+            // Prefer material catalog for loot procs (names like BoneCrab); then Wave-2 seed facade.
+            foreach (var def in MaterialTriggerCatalog.All)
             {
-                identityName = SplitCamel(byName.Name);
-                description = string.IsNullOrWhiteSpace(byName.Description) ? null : byName.Description.Trim();
+                if (!BundleMatches(bundle, def.When, def.Scope, def.Mechanics, def.Value, def.Filters))
+                    continue;
+                identityName = SplitCamel(def.TriggerName);
+                description = string.IsNullOrWhiteSpace(def.Description) ? null : def.Description.Trim();
                 return true;
             }
 
             foreach (var id in ItemTriggerIdentityCatalog.Identities)
             {
-                if (!string.Equals(id.When, bundle.When, StringComparison.OrdinalIgnoreCase))
-                    continue;
-                if (!string.Equals(id.Scope ?? "", bundle.Scope ?? "", StringComparison.OrdinalIgnoreCase))
-                    continue;
-                if (!string.Equals(id.Mechanics, bundle.Mechanics, StringComparison.OrdinalIgnoreCase))
-                    continue;
-                if (!FiltersEqual(id.Filters, bundle.Filters))
+                string? filterCsv = id.Filters == null || id.Filters.Count == 0
+                    ? null
+                    : string.Join(",", id.Filters);
+                if (!BundleMatches(bundle, id.When, id.Scope, id.Mechanics, id.Value, filterCsv))
                     continue;
                 identityName = SplitCamel(id.Name);
                 description = string.IsNullOrWhiteSpace(id.Description) ? null : id.Description.Trim();
@@ -266,30 +262,28 @@ namespace RPGGame
             return false;
         }
 
-        private static bool FiltersEqual(IReadOnlyList<string>? a, IReadOnlyList<string>? b)
+        private static bool BundleMatches(
+            ActionTriggerBundle bundle,
+            string? when,
+            string? scope,
+            string? mechanics,
+            double? value,
+            string? filtersCsv)
         {
-            var left = NormalizeFilterList(a);
-            var right = NormalizeFilterList(b);
-            if (left.Count != right.Count)
+            if (!string.Equals(when ?? "", bundle.When ?? "", StringComparison.OrdinalIgnoreCase))
                 return false;
-            for (int i = 0; i < left.Count; i++)
-            {
-                if (!string.Equals(left[i], right[i], StringComparison.OrdinalIgnoreCase))
-                    return false;
-            }
+            if (!string.Equals(scope ?? "", bundle.Scope ?? "", StringComparison.OrdinalIgnoreCase))
+                return false;
+            if (!string.Equals(mechanics ?? "", bundle.Mechanics ?? "", StringComparison.OrdinalIgnoreCase))
+                return false;
+            if (!Nullable.Equals(value, bundle.Value))
+                return false;
 
-            return true;
-        }
-
-        private static List<string> NormalizeFilterList(IReadOnlyList<string>? filters)
-        {
-            if (filters == null || filters.Count == 0)
-                return new List<string>();
-            return filters
-                .Where(f => !string.IsNullOrWhiteSpace(f))
-                .Select(f => f.Trim())
-                .OrderBy(f => f, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            string bundleFilters = bundle.Filters == null || bundle.Filters.Count == 0
+                ? ""
+                : string.Join(",", bundle.Filters);
+            string expectedFilters = string.IsNullOrWhiteSpace(filtersCsv) ? "" : filtersCsv.Trim();
+            return string.Equals(bundleFilters, expectedFilters, StringComparison.OrdinalIgnoreCase);
         }
 
         private static string SplitCamel(string name)

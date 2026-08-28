@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
-using RPGGame.Data;
+using RPGGame;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Themes;
 
@@ -27,6 +27,20 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
             typeLine.Add(" | Tier: ", Colors.Gray);
             typeLine.Add(item.Tier.ToString(), ColorPalette.Warning);
             lines.Add(typeLine.Build());
+
+            var tags = Data.GameDataTagHelper.NormalizeDistinct(item.Tags);
+            if (tags.Count > 0)
+            {
+                var tagsLine = new ColoredTextBuilder();
+                tagsLine.Add("  Tags: ", ColorPalette.Info);
+                for (int i = 0; i < tags.Count; i++)
+                {
+                    if (i > 0)
+                        tagsLine.Add(", ", Colors.Gray);
+                    tagsLine.Add(tags[i], Colors.White);
+                }
+                lines.Add(tagsLine.Build());
+            }
             
             // Armor value (if applicable)
             if (item is HeadItem headArmor)
@@ -162,31 +176,16 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 lines.Add(modsLine.Build());
             }
 
-            var triggerSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.TriggerBundles).ToList();
-            if (triggerSummaries.Count == 0)
+            var setLines = MaterialSetController.FormatSetStatusLines(null, item).ToList();
+            if (setLines.Count > 0)
             {
-                StatBonusTriggerMerge.RefreshFromItemSuffixes(item);
-                triggerSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.TriggerBundles).ToList();
-            }
-            if (triggerSummaries.Count > 0)
-            {
-                var trigLine = new ColoredTextBuilder();
-                trigLine.Add("  Triggers: ", ColorPalette.Info);
-                for (int i = 0; i < triggerSummaries.Count; i++)
-                {
-                    if (i > 0)
-                        trigLine.Add("; ", Colors.Gray);
-                    trigLine.Add(triggerSummaries[i], Colors.White);
-                }
-                lines.Add(trigLine.Build());
+                var setLine = new ColoredTextBuilder();
+                setLine.Add("  Material: ", ColorPalette.Info);
+                setLine.Add(setLines[0], Colors.White);
+                lines.Add(setLine.Build());
             }
 
             var equipSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList();
-            if (equipSummaries.Count == 0)
-            {
-                StatBonusTriggerMerge.RefreshFromItemSuffixes(item);
-                equipSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList();
-            }
             if (equipSummaries.Count > 0)
             {
                 var equipLine = new ColoredTextBuilder();

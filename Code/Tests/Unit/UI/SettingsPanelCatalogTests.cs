@@ -28,6 +28,7 @@ namespace RPGGame.Tests.Unit.UI
             BalanceTuning_DisplayName_Is_SpreadsheetImport();
             HandlerSaveTags_Match_Descriptor_Flags();
             FlavorText_Is_Developer_Panel_With_Handler_Save();
+            MaterialBuilds_Is_Developer_Panel_With_Handler_Save();
 
             TestBase.PrintSummary("SettingsPanelCatalog Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -50,6 +51,30 @@ namespace RPGGame.Tests.Unit.UI
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(descriptor.PanelType == typeof(FlavorTextSettingsPanel),
                 "FlavorText panel type should be FlavorTextSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void MaterialBuilds_Is_Developer_Panel_With_Handler_Save()
+        {
+            Console.WriteLine("--- Material Builds panel registration ---");
+
+            var descriptor = SettingsPanelCatalog.GetDescriptor("MaterialBuilds");
+            TestBase.AssertTrue(descriptor != null, "MaterialBuilds descriptor should exist",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Material Builds", descriptor!.DisplayName,
+                "MaterialBuilds display name",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(SettingsSidebarGroups.Developer, descriptor.SidebarGroup,
+                "MaterialBuilds should be under Developer",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(descriptor.UsesHandler && descriptor.SavesViaHandler,
+                "MaterialBuilds should use handler save",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(descriptor.PanelType == typeof(MaterialBuildsSettingsPanel),
+                "MaterialBuilds panel type should be MaterialBuildsSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(SettingsPanelCatalog.HandlerSaveCategoryTags.Contains("MaterialBuilds"),
+                "Handler save list includes MaterialBuilds",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -142,6 +142,18 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         /// <summary>
+        /// Full center column including the action-info strip band (e.g. Skill Tree chrome).
+        /// </summary>
+        public static bool ContainsCenterColumnFull(int gridX, int gridY)
+        {
+            int x = CENTER_PANEL_X;
+            int y = CENTER_COLUMN_FULL_Y;
+            int w = CENTER_PANEL_WIDTH;
+            int h = CENTER_COLUMN_FULL_HEIGHT;
+            return gridX >= x && gridX < x + w && gridY >= y && gridY < y + h;
+        }
+
+        /// <summary>
         /// Same region as <see cref="ContainsCenterPanelContent"/> using pointer coordinates in GameCanvas pixel space.
         /// Used when grid rounding misaligns with the logical layout (e.g. letterboxing / hit surface routing).
         /// </summary>
@@ -166,6 +178,24 @@ namespace RPGGame.UI.Avalonia.Layout
             int w = Math.Max(1, EffectiveVisibleWidth - marginX * 2);
             int h = _gridHeight + 1;
             return (marginX, 0, w, h);
+        }
+
+        /// <summary>
+        /// Center column including the action-info strip band (for screens that hide the combo strip).
+        /// </summary>
+        public static int CENTER_COLUMN_FULL_Y => ACTION_INFO_Y;
+        public static int CENTER_COLUMN_FULL_HEIGHT => ACTION_INFO_STRIP_HEIGHT + CENTER_PANEL_HEIGHT;
+
+        /// <summary>
+        /// Inset content rect for the full center column (strip + framed combat-log region).
+        /// </summary>
+        public static (int x, int y, int width, int height) GetCenterColumnFullContentRect()
+        {
+            int x = CENTER_PANEL_X + 1;
+            int y = CENTER_COLUMN_FULL_Y + 1;
+            int w = Math.Max(1, CENTER_PANEL_WIDTH - 2);
+            int h = Math.Max(1, CENTER_COLUMN_FULL_HEIGHT - 2);
+            return (x, y, w, h);
         }
     }
 }

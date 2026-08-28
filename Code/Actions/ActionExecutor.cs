@@ -226,13 +226,16 @@ namespace RPGGame
         {
             var result = ExecuteActionCore(source, target, environment, lastPlayerAction, forcedAction, battleNarrative);
             var coloredStatusEffects = new List<List<ColoredText>>();
-            
-            // Apply status effects as ColoredText
-            if (result.SelectedAction != null && result.Hit)
+
+            if (result.SelectedAction != null)
             {
-                ActionStatusEffectApplier.AppendColoredStatusEffectMessages(result.StatusEffectMessages, coloredStatusEffects);
-                ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
-                ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
+                ActionStatusEffectApplier.AppendColoredStatusEffectMessages(
+                    result.StatusEffectMessages, coloredStatusEffects, includeNonFeedMessages: result.Hit);
+                if (result.Hit)
+                {
+                    ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
+                    ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
+                }
             }
 
             // Action mods (SPEED_MOD / DAMAGE_MOD / MULTIHIT_MOD / AMP_MOD) should be visible immediately when queued by the action,
@@ -274,9 +277,9 @@ namespace RPGGame
                     coloredStatusEffects.Add(nestedAction);
                 if (nestedRoll != null && nestedRoll.Count > 0)
                     coloredStatusEffects.Add(nestedRoll);
-                if (nested.Hit && nested.StatusEffectMessages.Count > 0)
+                if (nested.StatusEffectMessages.Count > 0)
                     ActionStatusEffectApplier.AppendColoredStatusEffectMessages(
-                        nested.StatusEffectMessages, coloredStatusEffects);
+                        nested.StatusEffectMessages, coloredStatusEffects, includeNonFeedMessages: nested.Hit);
             }
         }
         
@@ -287,12 +290,15 @@ namespace RPGGame
         {
             var result = ExecuteActionCore(source, target, environment, lastPlayerAction, forcedAction, battleNarrative);
             
-            // Apply status effects as ColoredText
-            if (result.SelectedAction != null && result.Hit)
+            if (result.SelectedAction != null)
             {
-                ActionStatusEffectApplier.AppendColoredStatusEffectMessages(result.StatusEffectMessages, coloredStatusEffects);
-                ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
-                ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
+                ActionStatusEffectApplier.AppendColoredStatusEffectMessages(
+                    result.StatusEffectMessages, coloredStatusEffects, includeNonFeedMessages: result.Hit);
+                if (result.Hit)
+                {
+                    ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
+                    ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
+                }
             }
             
             return FormatAsColoredText(result, source, target);

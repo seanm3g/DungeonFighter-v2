@@ -1,10 +1,10 @@
 [
   {
     "ItemRank": "Common",
-    "Name": "Broken",
-    "Description": "Affects the base stats of an item +/-",
-    "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
+    "Name": "Broken",
+    "Description": "Affects the base stats of an item \u002B/-",
+    "Effect": "gearPrimaryStatMultiplier",
     "DiceResult": 0,
     "MinValue": 0.75,
     "MaxValue": 0.75,
@@ -12,10 +12,10 @@
   },
   {
     "ItemRank": "Common",
-    "Name": "Battle Scarred",
-    "Description": "Affects the base stats of an item +/-",
-    "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
+    "Name": "Battle Scarred",
+    "Description": "Affects the base stats of an item \u002B/-",
+    "Effect": "gearPrimaryStatMultiplier",
     "DiceResult": 0,
     "MinValue": 0.9,
     "MaxValue": 0.9,
@@ -23,10 +23,10 @@
   },
   {
     "ItemRank": "Common",
-    "Name": "Worn",
-    "Description": "Affects the base stats of an item +/-",
-    "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
+    "Name": "Worn",
+    "Description": "Affects the base stats of an item \u002B/-",
+    "Effect": "gearPrimaryStatMultiplier",
     "DiceResult": 0,
     "MinValue": 0.95,
     "MaxValue": 0.95,
@@ -34,10 +34,10 @@
   },
   {
     "ItemRank": "Uncommon",
-    "Name": "Second Hand",
-    "Description": "Affects the base stats of an item +/-",
-    "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
+    "Name": "Second Hand",
+    "Description": "Affects the base stats of an item \u002B/-",
+    "Effect": "gearPrimaryStatMultiplier",
     "DiceResult": 0,
     "MinValue": 0.97,
     "MaxValue": 0.97,
@@ -45,10 +45,10 @@
   },
   {
     "ItemRank": "Uncommon",
-    "Name": "Preowned",
-    "Description": "Affects the base stats of an item +/-",
-    "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
+    "Name": "Preowned",
+    "Description": "Affects the base stats of an item \u002B/-",
+    "Effect": "gearPrimaryStatMultiplier",
     "DiceResult": 0,
     "MinValue": 1,
     "MaxValue": 1,
@@ -56,10 +56,10 @@
   },
   {
     "ItemRank": "Rare",
-    "Name": "Like New",
-    "Description": "Affects the base stats of an item +/-",
-    "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
+    "Name": "Like New",
+    "Description": "Affects the base stats of an item \u002B/-",
+    "Effect": "gearPrimaryStatMultiplier",
     "DiceResult": 0,
     "MinValue": 1.06,
     "MaxValue": 1.06,
@@ -67,10 +67,10 @@
   },
   {
     "ItemRank": "Rare",
-    "Name": "New",
-    "Description": "Affects the base stats of an item +/-",
-    "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
+    "Name": "New",
+    "Description": "Affects the base stats of an item \u002B/-",
+    "Effect": "gearPrimaryStatMultiplier",
     "DiceResult": 0,
     "MinValue": 1.1,
     "MaxValue": 1.1,
@@ -78,10 +78,10 @@
   },
   {
     "ItemRank": "Epic",
-    "Name": "Perfect",
-    "Description": "Affects the base stats of an item +/-",
-    "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
+    "Name": "Perfect",
+    "Description": "Affects the base stats of an item \u002B/-",
+    "Effect": "gearPrimaryStatMultiplier",
     "DiceResult": 0,
     "MinValue": 1.18,
     "MaxValue": 1.18,
@@ -89,10 +89,10 @@
   },
   {
     "ItemRank": "Legendary",
-    "Name": "Masterwork",
-    "Description": "Affects the base stats of an item +/-",
-    "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
+    "Name": "Masterwork",
+    "Description": "Affects the base stats of an item \u002B/-",
+    "Effect": "gearPrimaryStatMultiplier",
     "DiceResult": 0,
     "MinValue": 1.28,
     "MaxValue": 1.28,
@@ -100,10 +100,10 @@
   },
   {
     "ItemRank": "Legendary",
-    "Name": "Heirloom",
-    "Description": "Affects the base stats of an item +/-",
-    "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
+    "Name": "Heirloom",
+    "Description": "Affects the base stats of an item \u002B/-",
+    "Effect": "gearPrimaryStatMultiplier",
     "DiceResult": 0,
     "MinValue": 1.35,
     "MaxValue": 1.35,
@@ -111,10 +111,10 @@
   },
   {
     "ItemRank": "Mythic",
-    "Name": "Cosmic",
-    "Description": "Affects the base stats of an item +/-",
-    "Effect": "gearPrimaryStatMultiplier",
     "prefixCategory": "QUALITY",
+    "Name": "Cosmic",
+    "Description": "Affects the base stats of an item \u002B/-",
+    "Effect": "gearPrimaryStatMultiplier",
     "DiceResult": 0,
     "MinValue": 2.5,
     "MaxValue": 2.5,
@@ -122,258 +122,210 @@
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
     "Name": "Bone",
     "Description": "Barbarian",
     "Effect": "STRENGTH",
-    "prefixCategory": "MATERIAL",
-    "ATTRIBUTE REQUREMENT": "strength",
-    "REQUIREMENT VALUE": 10,
+    "attributeRequirements": {
+      "strength": 10
+    },
     "DiceResult": 0,
     "MinValue": 2,
     "MaxValue": 2,
-    "RolledValue": 0,
-    "tags": [
-      "bone",
-      "barbarian"
-    ]
+    "RolledValue": 0
   },
   {
     "ItemRank": "Common",
-    "Name": "Bronze",
-    "Description": "Warrior",
-    "Effect": "AGILITY",
     "prefixCategory": "MATERIAL",
-    "ATTRIBUTE REQUREMENT": "agility",
-    "REQUIREMENT VALUE": 10,
-    "DiceResult": 0,
-    "MinValue": 2,
-    "MaxValue": 2,
-    "RolledValue": 0,
-    "tags": [
-      "bronze",
-      "warrior"
-    ]
-  },
-  {
-    "ItemRank": "Common",
-    "Name": "Glass",
-    "Description": "Rogue",
-    "Effect": "TECHNIQUE",
-    "prefixCategory": "MATERIAL",
-    "ATTRIBUTE REQUREMENT": "technique",
-    "REQUIREMENT VALUE": 10,
-    "DiceResult": 0,
-    "MinValue": 2,
-    "MaxValue": 2,
-    "RolledValue": 0,
-    "tags": [
-      "glass",
-      "rogue"
-    ]
-  },
-  {
-    "ItemRank": "Common",
-    "Name": "Willow",
-    "Description": "Wizard",
-    "Effect": "INTELLIGENCE",
-    "prefixCategory": "MATERIAL",
-    "ATTRIBUTE REQUREMENT": "intelligence",
-    "REQUIREMENT VALUE": 10,
-    "DiceResult": 0,
-    "MinValue": 2,
-    "MaxValue": 2,
-    "RolledValue": 0,
-    "tags": [
-      "willow",
-      "wizard"
-    ]
-  },
-  {
-    "ItemRank": "Uncommon",
     "Name": "Steel",
     "Description": "Barbarian",
     "Effect": "STRENGTH",
-    "prefixCategory": "MATERIAL",
-    "ATTRIBUTE REQUREMENT": "strength",
-    "REQUIREMENT VALUE": 20,
+    "attributeRequirements": {
+      "strength": 10
+    },
     "DiceResult": 0,
     "MinValue": 3,
     "MaxValue": 3,
-    "RolledValue": 0,
-    "tags": [
-      "steel",
-      "barbarian"
-    ]
-  },
-  {
-    "ItemRank": "Uncommon",
-    "Name": "Gold",
-    "Description": "Warrior",
-    "Effect": "AGILITY",
-    "prefixCategory": "MATERIAL",
-    "ATTRIBUTE REQUREMENT": "agility",
-    "REQUIREMENT VALUE": 20,
-    "DiceResult": 0,
-    "MinValue": 3,
-    "MaxValue": 3,
-    "RolledValue": 0,
-    "tags": [
-      "gold",
-      "warrior"
-    ]
-  },
-  {
-    "ItemRank": "Uncommon",
-    "Name": "Obsidian",
-    "Description": "Rogue",
-    "Effect": "TECHNIQUE",
-    "prefixCategory": "MATERIAL",
-    "ATTRIBUTE REQUREMENT": "technique",
-    "REQUIREMENT VALUE": 20,
-    "DiceResult": 0,
-    "MinValue": 3,
-    "MaxValue": 3,
-    "RolledValue": 0,
-    "tags": [
-      "obsidian",
-      "rogue"
-    ]
-  },
-  {
-    "ItemRank": "Uncommon",
-    "Name": "Silver",
-    "Description": "Wizard",
-    "Effect": "INTELLIGENCE",
-    "prefixCategory": "MATERIAL",
-    "ATTRIBUTE REQUREMENT": "intelligence",
-    "REQUIREMENT VALUE": 20,
-    "DiceResult": 0,
-    "MinValue": 3,
-    "MaxValue": 3,
-    "RolledValue": 0,
-    "tags": [
-      "silver",
-      "wizard"
-    ]
-  },
-  {
-    "ItemRank": "Rare",
-    "Name": "Damascus",
-    "Description": "Barbarian",
-    "Effect": "STRENGTH",
-    "prefixCategory": "MATERIAL",
-    "ATTRIBUTE REQUREMENT": "strength",
-    "REQUIREMENT VALUE": 30,
-    "DiceResult": 0,
-    "MinValue": 4,
-    "MaxValue": 4,
-    "RolledValue": 0,
-    "tags": [
-      "damascus",
-      "barbarian"
-    ]
-  },
-  {
-    "ItemRank": "Rare",
-    "Name": "Mithril",
-    "Description": "Warrior",
-    "Effect": "AGILITY",
-    "prefixCategory": "MATERIAL",
-    "ATTRIBUTE REQUREMENT": "agility",
-    "REQUIREMENT VALUE": 30,
-    "DiceResult": 0,
-    "MinValue": 4,
-    "MaxValue": 4,
-    "RolledValue": 0,
-    "tags": [
-      "mithril",
-      "warrior"
-    ]
-  },
-  {
-    "ItemRank": "Rare",
-    "Name": "Shadow",
-    "Description": "Rogue",
-    "Effect": "TECHNIQUE",
-    "prefixCategory": "MATERIAL",
-    "ATTRIBUTE REQUREMENT": "technique",
-    "REQUIREMENT VALUE": 30,
-    "DiceResult": 0,
-    "MinValue": 4,
-    "MaxValue": 4,
-    "RolledValue": 0,
-    "tags": [
-      "shadow",
-      "rogue"
-    ]
-  },
-  {
-    "ItemRank": "Rare",
-    "Name": "Crystal",
-    "Description": "Wizard",
-    "Effect": "INTELLIGENCE",
-    "prefixCategory": "MATERIAL",
-    "ATTRIBUTE REQUREMENT": "intelligence",
-    "REQUIREMENT VALUE": 30,
-    "DiceResult": 0,
-    "MinValue": 4,
-    "MaxValue": 4,
-    "RolledValue": 0,
-    "tags": [
-      "crystal",
-      "wizard"
-    ]
+    "RolledValue": 0
   },
   {
     "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
+    "Name": "IRON",
+    "Description": "Barbarian",
+    "Effect": "STRENGTH",
+    "attributeRequirements": {
+      "strength": 10
+    },
+    "DiceResult": 0,
+    "MinValue": 4,
+    "MaxValue": 4,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
+    "Name": "Bronze",
+    "Description": "Warrior",
+    "Effect": "AGILITY",
+    "attributeRequirements": {
+      "agility": 10
+    },
+    "DiceResult": 0,
+    "MinValue": 2,
+    "MaxValue": 2,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
+    "Name": "Gold",
+    "Description": "Warrior",
+    "Effect": "AGILITY",
+    "attributeRequirements": {
+      "agility": 10
+    },
+    "DiceResult": 0,
+    "MinValue": 3,
+    "MaxValue": 3,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
+    "Name": "Mithril",
+    "Description": "Warrior",
+    "Effect": "AGILITY",
+    "attributeRequirements": {
+      "agility": 10
+    },
+    "DiceResult": 0,
+    "MinValue": 4,
+    "MaxValue": 4,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
+    "Name": "Glass",
+    "Description": "Rogue",
+    "Effect": "TECHNIQUE",
+    "attributeRequirements": {
+      "technique": 10
+    },
+    "DiceResult": 0,
+    "MinValue": 2,
+    "MaxValue": 2,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
+    "Name": "Obsidian",
+    "Description": "Rogue",
+    "Effect": "TECHNIQUE",
+    "attributeRequirements": {
+      "technique": 10
+    },
+    "DiceResult": 0,
+    "MinValue": 3,
+    "MaxValue": 3,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
+    "Name": "Shadow",
+    "Description": "Rogue",
+    "Effect": "TECHNIQUE",
+    "attributeRequirements": {
+      "technique": 10
+    },
+    "DiceResult": 0,
+    "MinValue": 4,
+    "MaxValue": 4,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
+    "Name": "Willow",
+    "Description": "Wizard",
+    "Effect": "INTELLIGENCE",
+    "attributeRequirements": {
+      "intelligence": 10
+    },
+    "DiceResult": 0,
+    "MinValue": 2,
+    "MaxValue": 2,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
+    "Name": "Silver",
+    "Description": "Wizard",
+    "Effect": "INTELLIGENCE",
+    "attributeRequirements": {
+      "intelligence": 10
+    },
+    "DiceResult": 0,
+    "MinValue": 3,
+    "MaxValue": 3,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
+    "Name": "Crystal",
+    "Description": "Wizard",
+    "Effect": "INTELLIGENCE",
+    "attributeRequirements": {
+      "intelligence": 10
+    },
+    "DiceResult": 0,
+    "MinValue": 4,
+    "MaxValue": 4,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
     "Name": "Stone",
     "Description": "Stone-tagged",
-    "prefixCategory": "MATERIAL",
     "DiceResult": 0,
     "MinValue": 0,
     "MaxValue": 0,
-    "RolledValue": 0,
-    "tags": [
-      "stone"
-    ]
+    "RolledValue": 0
   },
   {
     "ItemRank": "Uncommon",
+    "prefixCategory": "MATERIAL",
     "Name": "Unknown",
     "Description": "Mystery tag",
-    "prefixCategory": "MATERIAL",
     "DiceResult": 0,
     "MinValue": 0,
     "MaxValue": 0,
-    "RolledValue": 0,
-    "tags": [
-      "unknown"
-    ]
+    "RolledValue": 0
   },
   {
     "ItemRank": "Rare",
+    "prefixCategory": "MATERIAL",
     "Name": "Strange",
     "Description": "Strange essence",
-    "prefixCategory": "MATERIAL",
     "DiceResult": 0,
     "MinValue": 0,
     "MaxValue": 0,
-    "RolledValue": 0,
-    "tags": [
-      "strange"
-    ]
+    "RolledValue": 0
   },
   {
     "ItemRank": "Epic",
+    "prefixCategory": "MATERIAL",
     "Name": "Celestial",
     "Description": "Celestial alloy",
-    "prefixCategory": "MATERIAL",
     "DiceResult": 0,
     "MinValue": 0,
     "MaxValue": 0,
-    "RolledValue": 0,
-    "tags": [
-      "celestial"
-    ]
+    "RolledValue": 0
   }
 ]

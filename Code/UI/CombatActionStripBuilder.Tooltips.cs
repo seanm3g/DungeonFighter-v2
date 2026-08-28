@@ -453,20 +453,54 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Ordered mechanical segments after the title line: swing % damage/speed, then each spreadsheet / keyword / roll / status block.
+        /// Primary tooltip segments: combo roles, swing % damage/speed, amp calc.
         /// </summary>
-        private static List<string> BuildMechanicalDetailSegments(Character? character, Action action, int panelIndex, ActionStripDamageLineMode swingLineMode)
+        private static List<string> BuildPrimaryStatSegments(Character? character, Action action, int panelIndex, ActionStripDamageLineMode swingLineMode)
         {
             var segments = new List<string>();
             AppendComboRoleAndWeaponRequirementNotation(segments, character, action);
-            AppendDeclaredMechanicsLine(segments, action);
             segments.Add(BuildTooltipSwingModsLine(character, action, panelIndex, swingLineMode));
             if (character != null)
             {
                 string ampCalc = FormatSwingAmpCalculationLine(character, action, panelIndex);
                 if (!string.IsNullOrEmpty(ampCalc))
                     segments.Add(ampCalc);
+                foreach (var bonus in ActionCardExternalBonusCollector.BuildLines(character, action, panelIndex))
+                {
+                    if (!string.IsNullOrWhiteSpace(bonus.Text))
+                        segments.Add(bonus.Text);
+                }
             }
+            return segments;
+        }
+
+        /// <summary>
+        /// Trigger section lines: WHEN conditions and catalog trigger bundles.
+        /// </summary>
+        private static List<string> BuildPrimaryTriggerSegments(Action action)
+        {
+            var segments = new List<string>();
+            var conditions = action.Triggers?.TriggerConditions;
+            if (conditions != null && conditions.Count > 0)
+            {
+                var cleaned = conditions.Where(c => !string.IsNullOrWhiteSpace(c)).ToList();
+                if (cleaned.Count > 0)
+                    segments.Add(string.Join(", ", cleaned));
+            }
+
+            foreach (var summary in ItemTriggerBundleDisplay.FormatSummaries(action.Triggers?.Bundles))
+                AddSegment(segments, summary);
+
+            return segments;
+        }
+
+        /// <summary>
+        /// Extended (Alt) mechanical segments: metadata, accuracy, cadence, rolls, statuses, routing, advanced.
+        /// </summary>
+        private static List<string> BuildExtendedDetailSegments(Action action)
+        {
+            var segments = new List<string>();
+            AppendDeclaredMechanicsLine(segments, action);
             AppendAccuracyLines(segments, action);
             segments.AddRange(BuildSpreadsheetFriendlyModLines(action));
 
@@ -484,7 +518,6 @@ namespace RPGGame
 
             AppendRollMechanicLines(segments, action);
             AppendThresholdLines(segments, action);
-            AppendTriggerLine(segments, action);
             AppendStatusLine(segments, action);
             AppendComboRoutingLines(segments, action);
             AppendAdvancedMechanicLines(segments, action);
@@ -493,14 +526,37 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Builds wrapped lines for the action strip hover tooltip: title-cased name, then % damage/speed on its own line,
-        /// then one line per spreadsheet mod and other mechanical details (no narrative <see cref="Action.Description"/>).
+        /// Ordered mechanical segments after the title line (legacy full dump used by strip summaries).
+        /// </summary>
+        private static List<string> BuildMechanicalDetailSegments(Character? character, Action action, int panelIndex, ActionStripDamageLineMode swingLineMode)
+        {
+            var segments = BuildPrimaryStatSegments(character, action, panelIndex, swingLineMode);
+            AppendTriggerLine(segments, action);
+            foreach (var summary in ItemTriggerBundleDisplay.FormatSummaries(action.Triggers?.Bundles))
+                AddSegment(segments, summary);
+            segments.AddRange(BuildExtendedDetailSegments(action));
+            return segments;
+        }
+
+        private static string ResolveActionRarityLabel(Action action)
+        {
+            if (action == null || string.IsNullOrWhiteSpace(action.Name))
+                return "";
+            var data = ActionLoader.GetActionData(action.Name);
+            string rarity = (data?.Rarity ?? "").Trim();
+            return rarity;
+        }
+
+        /// <summary>
+        /// Builds wrapped lines for the action strip hover tooltip.
+        /// Default: Name, Rarity, Stats, Triggers. Hold Alt for remaining mechanical detail.
         /// </summary>
         /// <param name="character">Player whose combo is shown.</param>
         /// <param name="panelIndex">0-based combo slot.</param>
         /// <param name="maxWidth">Maximum characters per line (inner width).</param>
         /// <param name="maxLines">Cap on total lines (excluding hard truncation).</param>
-        public static List<string> BuildActionTooltipLines(Character? character, int panelIndex, int maxWidth, int maxLines = 28, ActionStripDamageLineMode swingLineMode = ActionStripDamageLineMode.EffectiveWithComboAmp)
+        /// <param name="includeExtendedDetails">When true (Alt held), append metadata / cadence / roll / status detail.</param>
+        public static List<string> BuildActionTooltipLines(Character? character, int panelIndex, int maxWidth, int maxLines = 28, ActionStripDamageLineMode swingLineMode = ActionStripDamageLineMode.EffectiveWithComboAmp, bool includeExtendedDetails = false)
         {
             var result = new List<string>();
             if (character == null || panelIndex < 0 || maxWidth < 4)
@@ -510,30 +566,14 @@ namespace RPGGame
             if (actions == null || panelIndex >= actions.Count)
                 return result;
 
-            var action = actions[panelIndex];
-            void AddWrapped(string? paragraph)
-            {
-                AddWrappedTooltipParagraph(result, paragraph, maxWidth, maxLines);
-            }
-
-            result.Add(FormatTooltipActionName(action.Name));
-            if (result.Count >= maxLines) return result;
-
-            foreach (string segment in BuildMechanicalDetailSegments(character, action, panelIndex, swingLineMode))
-            {
-                if (result.Count >= maxLines)
-                    return result;
-                AddWrapped(segment);
-            }
-
-            return result;
+            return BuildActionTooltipLinesCore(character, actions[panelIndex], panelIndex, maxWidth, maxLines, swingLineMode, includeExtendedDetails);
         }
 
         /// <summary>
         /// Tooltip lines for an action that may or may not be in the current combo (e.g. pool row on the inventory right panel).
         /// When the action is already in the sequence, delegates to <see cref="BuildActionTooltipLines"/>.
         /// </summary>
-        public static List<string> BuildActionTooltipLinesForAction(Character? character, Action? action, int maxWidth, int maxLines = 28, ActionStripDamageLineMode swingLineMode = ActionStripDamageLineMode.EffectiveWithComboAmp)
+        public static List<string> BuildActionTooltipLinesForAction(Character? character, Action? action, int maxWidth, int maxLines = 28, ActionStripDamageLineMode swingLineMode = ActionStripDamageLineMode.EffectiveWithComboAmp, bool includeExtendedDetails = false)
         {
             var result = new List<string>();
             if (character == null || action == null || maxWidth < 4)
@@ -543,9 +583,22 @@ namespace RPGGame
             for (int i = 0; i < combo.Count; i++)
             {
                 if (ReferenceEquals(combo[i], action))
-                    return BuildActionTooltipLines(character, i, maxWidth, maxLines, swingLineMode);
+                    return BuildActionTooltipLines(character, i, maxWidth, maxLines, swingLineMode, includeExtendedDetails);
             }
 
+            return BuildActionTooltipLinesCore(character, action, -1, maxWidth, maxLines, swingLineMode, includeExtendedDetails);
+        }
+
+        private static List<string> BuildActionTooltipLinesCore(
+            Character? character,
+            Action action,
+            int panelIndex,
+            int maxWidth,
+            int maxLines,
+            ActionStripDamageLineMode swingLineMode,
+            bool includeExtendedDetails)
+        {
+            var result = new List<string>();
             void AddWrapped(string? paragraph)
             {
                 AddWrappedTooltipParagraph(result, paragraph, maxWidth, maxLines);
@@ -554,7 +607,42 @@ namespace RPGGame
             result.Add(FormatTooltipActionName(action.Name));
             if (result.Count >= maxLines) return result;
 
-            foreach (string segment in BuildMechanicalDetailSegments(character, action, -1, swingLineMode))
+            string rarity = ResolveActionRarityLabel(action);
+            if (!string.IsNullOrEmpty(rarity))
+                AddWrapped(rarity);
+            if (result.Count >= maxLines) return result;
+
+            var stats = BuildPrimaryStatSegments(character, action, panelIndex, swingLineMode);
+            if (stats.Count > 0)
+            {
+                AddWrapped("Stats");
+                foreach (string segment in stats)
+                {
+                    if (result.Count >= maxLines) return result;
+                    AddWrapped(segment);
+                }
+            }
+
+            var triggers = BuildPrimaryTriggerSegments(action);
+            if (triggers.Count > 0 && result.Count < maxLines)
+            {
+                AddWrapped("Triggers");
+                foreach (string segment in triggers)
+                {
+                    if (result.Count >= maxLines) return result;
+                    AddWrapped(segment);
+                }
+            }
+
+            if (!includeExtendedDetails)
+            {
+                var extended = BuildExtendedDetailSegments(action);
+                if (extended.Count > 0 && result.Count < maxLines)
+                    AddWrapped("Hold Alt for more");
+                return result;
+            }
+
+            foreach (string segment in BuildExtendedDetailSegments(action))
             {
                 if (result.Count >= maxLines)
                     return result;

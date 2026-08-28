@@ -142,9 +142,13 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "ACCURACY", Value = 3 } });
             TestBase.AssertTrue(character.DungeonCadenceBuffs.HasAny, "Dungeon buff present", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
+            character.Effects.AddMaterialKeyword("CRISIS", 3);
             character.ClearDungeonRunTempEffects();
             TestBase.AssertTrue(!character.DungeonCadenceBuffs.HasAny,
                 "ClearDungeonRunTempEffects clears dungeon-scoped bonuses",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, character.Effects.GetMaterialKeyword("CRISIS"),
+                "ClearDungeonRunTempEffects clears material keyword currency",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

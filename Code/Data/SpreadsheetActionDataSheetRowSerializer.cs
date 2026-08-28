@@ -32,6 +32,9 @@ namespace RPGGame.Data
             h.SetCell(row, null, "OPENER", data.Opener);
             h.SetCell(row, null, "FINISHER", data.Finisher);
             h.SetCell(row, null, ActionTagSyncHelper.ReservePoolColumnLabel, data.ReservePool);
+            h.SetCell(row, null, "DS", data.MaterialScale);
+            h.SetCell(row, null, "DT", data.KeywordScale);
+            h.SetCell(row, null, "DU", data.ScaleFormula);
             h.SetCell(row, null, "TARGET", data.Target);
 
             WriteHeroEnemyAccuracy(h, row, data.HeroAccuracy, isHero: true);

@@ -37,6 +37,10 @@ namespace RPGGame.Entity.Services
                 WarriorPoints = character.Progression.WarriorPoints,
                 RoguePoints = character.Progression.RoguePoints,
                 WizardPoints = character.Progression.WizardPoints,
+                LearnedSkillRanks = character.Progression.LearnedSkillRanks
+                    .Where(kv => !string.IsNullOrWhiteSpace(kv.Key) && kv.Value > 0)
+                    .ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.OrdinalIgnoreCase),
+                LearnedSkillNodeIds = new List<string>(),
                 ComboStep = character.Effects.ComboStep,
                 ComboBonus = character.Effects.ComboBonus,
                 TempComboBonus = character.Effects.TempComboBonus,
@@ -105,6 +109,21 @@ namespace RPGGame.Entity.Services
             character.Progression.WarriorPoints = saveData.WarriorPoints;
             character.Progression.RoguePoints = saveData.RoguePoints;
             character.Progression.WizardPoints = saveData.WizardPoints;
+            character.Progression.LearnedSkillRanks = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            if (saveData.LearnedSkillRanks != null && saveData.LearnedSkillRanks.Count > 0)
+            {
+                foreach (var kv in saveData.LearnedSkillRanks)
+                {
+                    if (string.IsNullOrWhiteSpace(kv.Key) || kv.Value <= 0) continue;
+                    character.Progression.LearnedSkillRanks[kv.Key.Trim()] = kv.Value;
+                }
+            }
+            else if (saveData.LearnedSkillNodeIds != null)
+            {
+                foreach (string id in saveData.LearnedSkillNodeIds.Where(id => !string.IsNullOrWhiteSpace(id)))
+                    character.Progression.LearnedSkillRanks[id.Trim()] = 1;
+            }
+            character.Progression.EnsureSkillTreeRootsGranted();
             character.Effects.ComboStep = saveData.ComboStep;
             character.Effects.ComboBonus = saveData.ComboBonus;
             character.Effects.TempComboBonus = saveData.TempComboBonus;
@@ -198,6 +217,8 @@ namespace RPGGame.Entity.Services
                 : null;
             character.Actions.AddClassActions(character, character.Progression, weaponType);
 
+            SkillEffectRouter.Instance.RefreshForCharacter(character);
+
             EnsureUnarmedTutorialActionInActionPool(character);
             ItemEquipEffectApplicator.RefreshGrantedActionTags(character);
             foreach (string actionName in ItemEquipEffectApplicator.GetGrantedActionNames(character))
@@ -210,6 +231,18 @@ namespace RPGGame.Entity.Services
                 var loaded = ActionLoader.GetAction(actionName);
                 if (loaded != null)
                     character.AddAction(loaded, 1.0);
+            }
+
+            foreach (string actionName in MaterialSetController.GetGrantedConvertActionNames(character))
+            {
+                if (string.IsNullOrWhiteSpace(actionName))
+                    continue;
+                if (character.ActionPool.Any(e =>
+                        string.Equals(e.action.Name, actionName, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+                var loadedConvert = ActionLoader.GetAction(actionName);
+                if (loadedConvert != null)
+                    character.AddAction(loadedConvert, 1.0);
             }
 
             // Restore user's combo sequence if possible; otherwise use default

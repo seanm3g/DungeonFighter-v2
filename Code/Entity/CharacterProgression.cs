@@ -20,10 +20,113 @@ namespace RPGGame
         public int RoguePoints { get; set; } = 0;
         public int WizardPoints { get; set; } = 0;
 
+        /// <summary>Learned skill-tree ranks by node id. Spending does not reduce lifetime class points.</summary>
+        public Dictionary<string, int> LearnedSkillRanks { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
         public CharacterProgression(int level = 1)
         {
             Level = level;
             XP = 0;
+        }
+
+        public int GetSkillRank(string nodeId)
+        {
+            if (string.IsNullOrWhiteSpace(nodeId)) return 0;
+            return LearnedSkillRanks.TryGetValue(nodeId, out int rank) ? Math.Max(0, rank) : 0;
+        }
+
+        public bool HasLearnedSkill(string nodeId) => GetSkillRank(nodeId) >= 1;
+
+        public int GetSpentSkillPoints(WeaponType weaponType)
+        {
+            var trees = GameConfiguration.Instance.SkillTrees;
+            return trees?.GetSpentSkillPoints(LearnedSkillRanks, weaponType) ?? 0;
+        }
+
+        public int GetAvailableSkillPoints(WeaponType weaponType) =>
+            Math.Max(0, GetClassPoints(weaponType) - GetSpentSkillPoints(weaponType));
+
+        /// <summary>
+        /// Auto-grants the path root when the character has any lifetime points on that path.
+        /// </summary>
+        public void EnsureSkillTreeRootsGranted()
+        {
+            var trees = GameConfiguration.Instance.SkillTrees;
+            if (trees == null || trees.Trees.Count == 0)
+                return;
+
+            foreach (WeaponType path in ClassPresentationConfig.ClassWeaponOrder)
+            {
+                if (GetClassPoints(path) <= 0)
+                    continue;
+                string? rootId = trees.GetRootNodeId(path);
+                if (string.IsNullOrWhiteSpace(rootId))
+                    continue;
+                if (GetSkillRank(rootId!) < 1)
+                    LearnedSkillRanks[rootId!] = 1;
+            }
+        }
+
+        public enum LearnSkillResult
+        {
+            Success,
+            AlreadyLearned,
+            MaxRankReached,
+            UnknownNode,
+            WrongTree,
+            PrerequisitesMissing,
+            InsufficientPoints,
+            NotPrimaryPath
+        }
+
+        /// <summary>
+        /// Permanently ranks up a skill node using available Skill Points on the owning path.
+        /// With <paramref name="requirePrimaryPath"/>, spend is allowed on the primary tree or on
+        /// secondary-tree nodes marked <c>sharedWith</c> the primary (hybrid side rail).
+        /// Each rank costs the node's cost again. Does not decrement lifetime class points.
+        /// </summary>
+        public LearnSkillResult TryLearnSkillNode(string nodeId, bool requirePrimaryPath = true)
+        {
+            var trees = GameConfiguration.Instance.SkillTrees;
+            if (trees == null)
+                return LearnSkillResult.UnknownNode;
+
+            var node = trees.GetNode(nodeId);
+            if (node == null)
+                return LearnSkillResult.UnknownNode;
+
+            int currentRank = GetSkillRank(node.Id);
+            int maxRank = Math.Max(1, node.MaxRank);
+            if (currentRank >= maxRank)
+                return currentRank > 0 ? LearnSkillResult.MaxRankReached : LearnSkillResult.AlreadyLearned;
+
+            SkillTreeDefinition? ownerTree = null;
+            WeaponType? ownerPath = null;
+            var presentation = Pres;
+            foreach (var tree in trees.Trees)
+            {
+                if (tree.Nodes.Any(n => string.Equals(n.Id, node.Id, StringComparison.OrdinalIgnoreCase)))
+                {
+                    ownerTree = tree;
+                    ownerPath = tree.ResolveWeaponType(presentation);
+                    break;
+                }
+            }
+
+            if (ownerTree == null || ownerPath == null)
+                return LearnSkillResult.WrongTree;
+
+            if (requirePrimaryPath && !SkillTreeService.CanSpendIntoNode(this, node, ownerPath.Value))
+                return LearnSkillResult.NotPrimaryPath;
+
+            if (!SkillTreePrerequisites.AreMet(this, node))
+                return LearnSkillResult.PrerequisitesMissing;
+
+            if (node.Cost > GetAvailableSkillPoints(ownerPath.Value))
+                return LearnSkillResult.InsufficientPoints;
+
+            LearnedSkillRanks[node.Id] = currentRank + 1;
+            return LearnSkillResult.Success;
         }
 
         private ClassPresentationConfig Pres => GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
@@ -145,6 +248,8 @@ namespace RPGGame
                     WizardPoints++;
                     break;
             }
+
+            EnsureSkillTreeRootsGranted();
         }
 
         public void RemoveClassPoint(WeaponType weaponType)
@@ -182,6 +287,13 @@ namespace RPGGame
         {
             var sorted = GetClassPathsSortedByPoints();
             return sorted[0].Points > 0 ? sorted[0].Path : (WeaponType?)null;
+        }
+
+        /// <summary>Second-highest path with lifetime Skill Points (null if only one path invested).</summary>
+        public WeaponType? GetSecondaryClassWeaponType()
+        {
+            var sorted = GetClassPathsSortedByPoints();
+            return sorted.Count > 1 && sorted[1].Points > 0 ? sorted[1].Path : (WeaponType?)null;
         }
 
         /// <summary>

@@ -29,18 +29,51 @@ namespace RPGGame.Tests.Unit.UI
             });
             wrap.AttributeRequirements = new AttributeRequirements(
                 new System.Collections.Generic.Dictionary<string, int> { ["strength"] = 99 });
+            wrap.Tags = new System.Collections.Generic.List<string> { "leather", "starter" };
 
             var lines = ItemTooltipFormatter.BuildItemTooltipLines(hero, wrap, "Inventory", 30);
             string flat = string.Join("\n", lines.Select(ColoredTextRenderer.RenderAsPlainText));
-            TestBase.AssertTrue(lines.Count >= 5, "item tooltip has multiple sections", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(lines.Count >= 3, "item tooltip has primary sections", ref run, ref passed, ref failed);
             TestBase.AssertTrue(flat.Contains("Wrap", StringComparison.Ordinal),
                 "tooltip includes item name",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(flat.Contains("Affixes", StringComparison.Ordinal),
-                "tooltip has affixes section",
+            TestBase.AssertTrue(flat.Contains("Common", StringComparison.Ordinal),
+                "tooltip includes rarity",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(flat.Contains("Tags:", StringComparison.Ordinal)
+                    && flat.Contains("leather", StringComparison.Ordinal)
+                    && flat.Contains("starter", StringComparison.Ordinal),
+                "compact tooltip shows item tags",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(flat.Contains("Stats", StringComparison.Ordinal),
                 "tooltip has stats section",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!flat.Contains("Affixes", StringComparison.Ordinal),
+                "compact tooltip omits Affixes until Alt",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(flat.Contains("Hold Alt for more", StringComparison.Ordinal),
+                "compact tooltip hints Alt for more",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!flat.Contains("Tier 1", StringComparison.Ordinal),
+                "compact tooltip omits tier/level on rarity line",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(flat.Contains("Strength", StringComparison.Ordinal) && flat.Contains("not met", StringComparison.OrdinalIgnoreCase),
+                "compact tooltip shows unmet requirements",
+                ref run, ref passed, ref failed);
+
+            var extended = ItemTooltipFormatter.BuildItemTooltipLines(hero, wrap, "Inventory", 30, includeExtendedDetails: true);
+            string extFlat = string.Join("\n", extended.Select(ColoredTextRenderer.RenderAsPlainText));
+            TestBase.AssertTrue(extFlat.Contains("Affixes", StringComparison.Ordinal),
+                "Alt tooltip has affixes section",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(extFlat.Contains("Tier 1", StringComparison.Ordinal),
+                "Alt tooltip includes tier on rarity line",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(extFlat.Contains("+1 armor on this piece", StringComparison.Ordinal),
+                "ARMOR affix explains effect",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!extFlat.Contains("Hold Alt for more", StringComparison.Ordinal),
+                "Alt tooltip omits Hold Alt hint",
                 ref run, ref passed, ref failed);
 
             var sandals = new FeetItem("Sandals", 1, 0)
@@ -57,17 +90,12 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(sandalFlat.Contains("Intelligence", StringComparison.Ordinal) && sandalFlat.Contains("+5", StringComparison.Ordinal),
                 "tooltip lists catalog Intelligence",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(flat.Contains("+1 armor on this piece", StringComparison.Ordinal),
-                "ARMOR affix explains effect",
-                ref run, ref passed, ref failed);
-            TestBase.AssertTrue(flat.Contains("Strength", StringComparison.Ordinal) && flat.Contains("not met", StringComparison.OrdinalIgnoreCase),
-                "unmet requirements flagged",
-                ref run, ref passed, ref failed);
 
             var triggered = new LegsItem("Tassets", 1, 17)
             {
                 Rarity = "Common",
                 Level = 1,
+                Material = "Iron",
                 TriggerBundles = new System.Collections.Generic.List<RPGGame.Data.ActionTriggerBundle>
                 {
                     ItemTriggerIdentityCatalog.ToBundle(ItemTriggerIdentityCatalog.Get(0))
@@ -75,15 +103,14 @@ namespace RPGGame.Tests.Unit.UI
             };
             var trigLines = ItemTooltipFormatter.BuildItemTooltipLines(hero, triggered, "Legs", 30);
             string trigFlat = string.Join("\n", trigLines.Select(ColoredTextRenderer.RenderAsPlainText));
-            TestBase.AssertTrue(trigFlat.Contains("Triggers", StringComparison.Ordinal),
-                "tooltip has Triggers section",
+            TestBase.AssertTrue(trigFlat.Contains("Material", StringComparison.Ordinal),
+                "tooltip has Material set section",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(trigFlat.Contains("On connect", StringComparison.OrdinalIgnoreCase),
-                "tooltip trigger shows WHEN",
+            TestBase.AssertTrue(trigFlat.Contains("Iron", StringComparison.OrdinalIgnoreCase),
+                "tooltip shows Iron set",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(trigFlat.Contains("DAMAGE", StringComparison.OrdinalIgnoreCase)
-                    || trigFlat.Contains("damage", StringComparison.OrdinalIgnoreCase),
-                "tooltip trigger shows mechanic",
+            TestBase.AssertTrue(!trigFlat.Contains("Triggers", StringComparison.Ordinal),
+                "tooltip no longer lists item Triggers",
                 ref run, ref passed, ref failed);
             string summary = ItemTriggerBundleDisplay.FormatSummary(triggered.TriggerBundles[0]);
             TestBase.AssertTrue(summary.Contains("Wound Momentum", StringComparison.Ordinal)

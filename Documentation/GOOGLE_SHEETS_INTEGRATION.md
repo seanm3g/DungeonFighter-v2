@@ -22,7 +22,7 @@ The published CSV is **public** (anyone with the link can read it). Push uses th
 |------------|---------|
 | `spreadsheetEditUrl` | **Browser Edit link** (`…/spreadsheets/d/<realId>/edit…`). Used to sync **`spreadsheetId`** into `SheetsPushConfig.json` for OAuth **push**. Published CSV links often use `d/e/2PACX-…` — that value is **not** accepted by the Sheets API as `spreadsheetId` (you get HTTP 404 on push). |
 | `actionsSheetUrl` | Published CSV URL for the **Actions** tab (two-row header). Acts as the **template** for other tabs when you use gids (same link, different `gid=`). |
-| `weaponsSheetUrl`, `modificationsSheetUrl`, `armorSheetUrl`, `classPresentationSheetUrl`, `classActionsSheetUrl`, `enemiesSheetUrl`, `environmentsSheetUrl`, `dungeonsSheetUrl`, `statBonusesSheetUrl`, `consumablesSheetUrl`, `triggersSheetUrl` | Full published CSV or **edit?gid=…** URLs per tab. The Balance Tuning panel **derives** these from `actionsSheetUrl` + numeric tab gids when you save; you can still hand-edit full URLs here. |
+| `weaponsSheetUrl`, `modificationsSheetUrl`, `armorSheetUrl`, `classPresentationSheetUrl`, `classActionsSheetUrl`, `skillTreesSheetUrl`, `enemiesSheetUrl`, `environmentsSheetUrl`, `dungeonsSheetUrl`, `statBonusesSheetUrl`, `consumablesSheetUrl`, `triggersSheetUrl`, `materialBuildsSheetUrl` | Full published CSV or **edit?gid=…** URLs per tab. The Balance Tuning panel **derives** these from `actionsSheetUrl` + numeric tab gids when you save; you can still hand-edit full URLs here. |
 
 Leave a derived URL / gid empty to skip that section on pull.
 
@@ -47,12 +47,14 @@ These are the canonical authoring links for this repo (also stored in `GameData/
 | ARMOR | `1580430780` | `GameData/Armor.json` |
 | CLASSES | `178471389` | `classPresentation` in `GameData/TuningConfig.json` |
 | CLASS ACTIONS | `1280106899` | `GameData/ClassActions.json` |
+| Class Upgrades | `829575756` | `GameData/SkillTrees.json` |
 | ENEMIES | `1292949962` | `GameData/Enemies.json` |
 | ENVIRONMENTS | `1652426036` | `GameData/Rooms.json` |
 | DUNGEONS | `1068091644` | `GameData/Dungeons.json` |
 | SUFFIXES (stat bonuses) | `388294050` | `GameData/StatBonuses.json` |
 | CONSUMABLES | `828815998` | `GameData/Consumables.json` |
-| triggers | `42970568` | `GameData/Triggers.json` (item trigger identities) |
+| triggers | `42970568` | `GameData/Triggers.json` (item trigger identities; unused by loot) |
+| MATERIAL BUILDS | `1297941995` | `GameData/MaterialBuilds.json` (material-set synthesis / convert) |
 | flavor | `825117964` | **PUSH only** → from `GameData/FlavorText.json` (PULL does not overwrite local JSON) |
 
 Example **ACTIONS** tab edit link:  
@@ -84,7 +86,7 @@ On pull, the console prints a **column usage summary** (see `SpreadsheetActionCo
 
 | Tier | Meaning | Examples |
 |------|---------|----------|
-| **Combat / runtime** | Pulled → `Actions.json` → `ActionData` → `Action` → combat | `ACTION`, `DAMAGE` / `DAMAGE(%)`, `SPEED(x)`, `# OF HITS`, `TARGET` (column **M**: `enemy` / `self` / `environment`; empty = enemy), action-sheet status columns (`WEAKEN`, `CONFUSE`, `DISRUPT`, `LIFESTEAL`, …), hero/enemy dice mods, `CADENCE`+`DURATION` keyword bonuses, `MECHANICS` (declarative; validated on pull), next-action mods under `HERO BASE STATS` / `ENEMY BASE STATS`, flat **WEAPON SPEED** / **WEAPON DAMAGE** under `HERO BASE` / `ENEMY BASE` (or `… BASE STATS`), `JUMP`/`SHIFT`, `OPENER`/`FINISHER`, `HEAL` (under **HERO HEAL**) |
+| **Combat / runtime** | Pulled → `Actions.json` → `ActionData` → `Action` → combat | `ACTION`, `DAMAGE` / `DAMAGE(%)`, `SPEED(x)`, `# OF HITS`, `TARGET` (column **M**: `enemy` / `self` / `environment`; empty = enemy), action-sheet status columns (`WEAKEN`, `CONFUSE`, `DISRUPT`, `LIFESTEAL`, …), hero/enemy dice mods, `CADENCE`+`DURATION` keyword bonuses, `MECHANICS` (declarative; validated on pull), next-action mods under `HERO BASE STATS` / `ENEMY BASE STATS`, flat **WEAPON SPEED** / **WEAPON DAMAGE** under `HERO BASE` / `ENEMY BASE` (or `… BASE STATS`), `JUMP`/`SHIFT`, `OPENER`/`FINISHER`, `HEAL` (under **HERO HEAL**), convert scale **DS** / **DT** / **DU** |
 | **Loot / pools only** | Pool assignment, not combat math | `RARITY`, `CATEGORY`, `TAGS` |
 | **JSON round-trip / sheet reference** | Stored in `Actions.json`; not applied in combat | `DPS(%)` (authoring reference — combat uses `DAMAGE(%)`), `DESCRIPTION` |
 | **Not ingested on CSV pull** | Push/Settings know these labels; **pull ignores** sheet cells | `WEAPON TYPES`, `CHAIN LENGTH`, `RESET`, `GRACE`, `LOOP CHAIN`, JSON blob columns, threshold flat columns, … |
@@ -121,36 +123,46 @@ On pull, the console prints a **column usage summary** (see `SpreadsheetActionCo
 - **Row 1:** column headers (stable order: canonical JSON property names, then any extra keys found in the data, sorted).
 - **Row 2+:** one object per row.
 - **Weapons / Armor:** header names use **camelCase** (`type`, `name`, `baseDamage`, …). Nested `attributeRequirements` is stored as **JSON text** in the cell. Catalog item procs use **`triggerName`** (identity `name` from the **triggers** tab / `Triggers.json`); nested `triggerBundles` / `equipEffects` are not sheet columns.
-- **Modifications:** header names use **PascalCase** (`DiceResult`, `ItemRank`, `Name`, …) to match `Modifications.json`.
+- **Modifications (PREFIX):** header names use **PascalCase** (`DiceResult`, `ItemRank`, `Name`, …) to match `Modifications.json`. Pull maps columns **by header name** (any order). `MinValue` / `MaxValue` are the value columns (legacy `value` still imports). Attribute gates use `ATTRIBUTE REQUIREMENT`, `REQUIREMENT VALUE`, and/or legacy typo `ATTRIBUTE REQUREMENT` — stat vs threshold is inferred from cell content. Push splits `attributeRequirements` back into those gate columns.
 
 Pull maps columns **by header name** (case-insensitive), not by fixed column index.
 
 ### triggers (item trigger identities)
 
-Single header row; fixed columns **A–N** → `GameData/Triggers.json` (Consumables-style tabular round-trip). Tab name is lowercase **`triggers`** (gid `42970568`).
+Single header row; fixed columns **A–K** → `GameData/Triggers.json` (Consumables-style tabular round-trip). Tab name is lowercase **`triggers`** (gid `42970568`).
 
 | Col | Field | Notes |
 |-----|-------|-------|
 | A | `id` | Stable int (catalog index) |
 | B | `name` | Unique identity key referenced by Weapons/Armor **`triggerName`** |
 | C | `description` | Player-facing one-liner (tooltips prefer this when present) |
-| D | `effectTarget` | Authoring hint: who the effect applies to — `hero` / `enemy` / `self` / `foe` / `strip` / `system`. Derived from mechanic id prefixes (`hero_*`/`enemy_*`) and status/self-buff rules; **not** a combat authority (runtime still uses mechanic ids + SelfTargetEffects) |
-| E | `when` | WHEN token (`ONCONNECT`, `ONNATURALROLL:7`, `WHILE_EQUIPPED`, `ONTAKEHIT`, …) |
-| F | `whenArg` | Colon payload from `when` (e.g. `7` from `ONNATURALROLL:7`); blank if none |
-| G | `count` | Usually `1`; blank = disabled |
-| H | `scope` | `TURN` / `ACTION` / `FIGHT` / `DUNGEON` / blank = instant |
-| I | `mechanics` | Comma-separated mechanic ids (may include `:arg`) |
-| J | `mechanicArg` | Colon payload from `mechanics` (e.g. `2`, `PUNCH HARD`, `PRIMARY`); blank if none |
-| K | `value` | Optional magnitude (items have no sibling mechanic columns) |
-| L | `filters` | Comma-separated filters (`IFCLUTCH`, `IFSLOT:3`, `IFATTR:STR>=8`, …) |
-| M | `channel` | `combat` → runtime `triggerBundles`; `equip` → `equipEffects` |
-| N | `scaleFrom` | Optional: `STR` / `AGI` / `TEC` / `INT` / `PRIMARY` / `LEVEL` / class — effective = `value` × units |
+| D | `when` | WHEN token (`ONCONNECT`, `ONNATURALROLL:7`, `WHILE_EQUIPPED`, `ONTAKEHIT`, …) |
+| E | `count` | Usually `1`; blank = disabled |
+| F | `scope` | `TURN` / `ACTION` / `FIGHT` / `DUNGEON` / blank = instant |
+| G | `mechanics` | Comma-separated mechanic ids |
+| H | `value` | Optional magnitude (items have no sibling mechanic columns) |
+| I | `filters` | Comma-separated filters (`IFCLUTCH`, `IFSLOT:3`, `IFATTR:STR>=8`, …) |
+| J | `channel` | `combat` → runtime `triggerBundles`; `equip` → `equipEffects` |
+| K | `scaleFrom` | Optional: `STR` / `AGI` / `TEC` / `INT` / `PRIMARY` / `LEVEL` / class — effective = `value` × units |
 
-**Authoring flow:** edit identities on **triggers** → **PULL** → `Triggers.json`. Base WEAPONS/ARMOR **`triggerName`** is normally blank (procs moved to animal suffixes). Re-clear base stamps: `dotnet run -- --stamp-item-triggers`. Upsert animal + taxon synergies and rewrite `of the *` StatBonuses: `dotnet run -- --stamp-animal-suffix-triggers`. ACTIONS still author their own TRIGGERS column band separately. Blank `effectTarget` / `whenArg` / `mechanicArg` on pull are filled from `when` / `mechanics` via `TriggerIdentitySheetMeta`.
+**Authoring flow:** edit identities on **triggers** → **PULL** → `Triggers.json`. Loot no longer stamps random catalog identities onto gear; combat procs come from **MATERIAL BUILDS**. ACTIONS still author their own TRIGGERS column band separately.
 
-### SUFFIXES (stat bonuses)
+### MATERIAL BUILDS (material-set engines)
 
-Canonical columns include **`triggerName`**, **`triggerNames`**, and **`tags`**. Animal rows (`of the Tortoise`, …) are **trigger-only** (empty Mechanics): `triggerName` points at a Triggers.json identity; `tags` holds a taxon (`shell` / `reptile` / `bird` / `bug` / `fish` / `beast` / `mythic`). Loot/lab merge (`StatBonusTriggerMerge`) copies tags onto `Item.Tags` and resolves the animal identity plus auto taxon synergies `{Taxon}SetFrom` (WHILE_EQUIPPED `IFGEARHASTAG:…:count>=2`) and `{Taxon}AmpTo` (combat fantasy amp gated by `IFGEARHASTAG`). Non-animal suffixes stay flat `Mechanics` stats.
+Single header row; fixed columns **A–H** → `GameData/MaterialBuilds.json` (Consumables-style tabular round-trip). Tab name **`MATERIAL BUILDS`** (gid `1297941995`). Settings → Spreadsheet Import has the gid box and **Push MATERIAL BUILDS**; Developer → **Material Builds** edits the 12 rows.
+
+| Col | Field | Notes |
+|-----|-------|-------|
+| A | `class` | Loose class association (BARBARIAN / WARRIOR / …) |
+| B | `material` | Canonical name (`MITHIRL` → Mithril, Damascus → Iron) |
+| C | `synthesis` | `WHEN = KEYWORD` (e.g. `ON_RECEIVE_HIT = RAGE`) |
+| D | `convertAction` | Action granted at 2 equipped pieces of this material |
+| E | `feed` | `+/x per MATERIAL` — Gold/Mithril stay cross-fed as authored |
+| F | `stack2` | Label only; unlock threshold is code **2** |
+| G | `stack3` | Label only; additive feed is code **3** |
+| H | `stack5` | Label only; multiply feed is code **5** |
+
+Class-less materials (Wood/Leather/Cloth/…) have no row → no synthesis/convert. Convert damage also reads ACTIONS **DS/DT/DU** when present.
 
 ### ENEMIES
 
@@ -324,6 +336,22 @@ Optional `tags` column: comma-separated registry tags on push (e.g. `undead, bos
 | categories | intro | *(empty)* | Moss coats the walls. |
 
 Built by `FlavorTextSheetConverter` from `FlavorText.json`. **PULL** leaves local FlavorText unchanged (logs a skip).
+
+### Class Upgrades (`SkillTrees.json`)
+
+Flat node rows for the four class skill trees. Tab title **Class Upgrades** (gid `829575756`). Converter: `SkillTreesSheetConverter`.
+
+| Column | JSON |
+|--------|------|
+| Class / Tree / Weapon / Stat | Tree: `classKey`, `title`, `weapon`, `stat` (identity preserved from prior JSON on pull when the sheet has no Identity column) |
+| Id, Name, Branch, Tier, Type, Cost | Node fields |
+| Requires | Comma-separated prerequisite node ids → `requires[]` |
+| Effect, Payoff | `effect`, `payoff` |
+| UnlockAction | `unlockActionName` (grants that action when the node is learned) |
+| CustomEffectId | `customEffectId` → `SkillEffectRouter` |
+| SharedWith | Comma-separated weapon/class keys → `sharedWith[]` (Concept A hybrid side rail when this tree is secondary) |
+
+**Authoring note:** When UnlockAction is blank, always leave an empty Requires cell as well (`,,Passive,…`). Rows that put Type in the Requires column (or Requires in UnlockAction) are auto-healed on pull. **PUSH** writes both empties explicitly so round-trips stay aligned.
 
 ### CLASSES (`classPresentation`)
 
