@@ -1,0 +1,122 @@
+[
+  {
+    "class": "BARBARIAN",
+    "material": "Iron",
+    "synthesis": "ON_ENEMY_HEALTH_THRESHOLD = CRISIS",
+    "convertAction": "IRON CULL",
+    "feed": "\u002B/x per IRON",
+    "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
+    "stack3": "\u002B feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "BARBARIAN",
+    "material": "Steel",
+    "synthesis": "ON_COMBO_END = TRIUMPH",
+    "convertAction": "STEEL CREST",
+    "feed": "\u002B/x per STEEL",
+    "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
+    "stack3": "\u002B feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "BARBARIAN",
+    "material": "Bone",
+    "synthesis": "ON_RECEIVE_HIT = RAGE",
+    "convertAction": "BONE WRATH",
+    "feed": "\u002B/x per BONE",
+    "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
+    "stack3": "\u002B feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "WARRIOR",
+    "material": "Bronze",
+    "synthesis": "ON_TURN = BEAT",
+    "convertAction": "DRUM CUT",
+    "feed": "\u002B/x per BRONZE",
+    "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
+    "stack3": "\u002B feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "WARRIOR",
+    "material": "Gold",
+    "synthesis": "ON_SLOW = DRAG",
+    "convertAction": "GOLD ANCHOR",
+    "feed": "\u002B/x per MITHRIL",
+    "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
+    "stack3": "\u002B feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "WARRIOR",
+    "material": "Mithril",
+    "synthesis": "ON_CONSECUTIVE_ATTACK = STREAK",
+    "convertAction": "MITHRIL FLOW",
+    "feed": "\u002B/x per GOLD",
+    "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
+    "stack3": "\u002B feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "ROGUE",
+    "material": "Glass",
+    "synthesis": "ON_HIT = GRAZE",
+    "convertAction": "GLASS NICK",
+    "feed": "\u002B/x per GLASS",
+    "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
+    "stack3": "\u002B feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "ROGUE",
+    "material": "Shadow",
+    "synthesis": "ON_ATTACK = SWING",
+    "convertAction": "UMBRA",
+    "feed": "\u002B/x per SHADOW",
+    "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
+    "stack3": "\u002B feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "ROGUE",
+    "material": "Obsidian",
+    "synthesis": "ON_KILL = TROPHY",
+    "convertAction": "HEADHUNT",
+    "feed": "\u002B/x per OBSIDIAN",
+    "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
+    "stack3": "\u002B feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "WIZARD",
+    "material": "Willow",
+    "synthesis": "ON_COMBO = CHAIN",
+    "convertAction": "WILLOW LASH",
+    "feed": "\u002B/x per WILLOW",
+    "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
+    "stack3": "\u002B feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "WIZARD",
+    "material": "Silver",
+    "synthesis": "ON_FOCUS = LENS",
+    "convertAction": "REFRACT",
+    "feed": "\u002B/x per SILVER",
+    "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
+    "stack3": "\u002B feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "WIZARD",
+    "material": "Crystal",
+    "synthesis": "ON_CONNECT = CONTACT",
+    "convertAction": "RESONATE",
+    "feed": "\u002B/x per CRYSTAL",
+    "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
+    "stack3": "\u002B feed",
+    "stack5": "x feed"
+  }
+]

@@ -55,6 +55,21 @@ namespace RPGGame.Data
                 header.GetValue(columns, null, ActionTagSyncHelper.ReservePoolColumnLabel),
                 header.GetValue(columns, null, "RESERVEPOOL"),
                 header.GetValue(columns, null, "RESERVE"));
+            data.MaterialScale = FirstNonEmpty(
+                header.GetValue(columns, null, "DS"),
+                header.GetValue(columns, null, "MATERIAL SCALE"),
+                header.GetValue(columns, null, "MATERIALSCALE"),
+                header.GetValue(columns, null, "CONVERT MATERIAL"));
+            data.KeywordScale = FirstNonEmpty(
+                header.GetValue(columns, null, "DT"),
+                header.GetValue(columns, null, "KEYWORD SCALE"),
+                header.GetValue(columns, null, "KEYWORDSCALE"),
+                header.GetValue(columns, null, "CONVERT KEYWORD"));
+            data.ScaleFormula = FirstNonEmpty(
+                header.GetValue(columns, null, "DU"),
+                header.GetValue(columns, null, "SCALE FORMULA"),
+                header.GetValue(columns, null, "SCALEFORMULA"),
+                header.GetValue(columns, null, "CONVERT FORMULA"));
             data.Target = header.GetValue(columns, null, "TARGET");
 
             data.HeroAccuracy = header.GetValue(columns, "HERO DICE ROLL MODIFICATIONS", "ACCUARCY");

@@ -4,6 +4,30 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Material keyword currency now lasts the dungeon (August 2026)
+**Problem:** Material-set keyword currency (CRISIS, DRAG, …) reset at the start of every fight, so convert scale could not grow across rooms in a dungeon.
+
+**Root cause:** `CombatStateManager.InitializeCombatEntities` called `MaterialSetController.ClearFightBanks`, which wiped the keyword bank on every combat init.
+
+**Solutions:**
+1. Combat init only resets consecutive-connect tracking (`ResetFightConnects`)
+2. Keyword bank clears with other dungeon-run state in `Character.ClearDungeonRunTempEffects` (dungeon start, completion, early exit, clone-after-death)
+3. Tests: `MaterialSetControllerTests.TestKeywordBankSurvivesCombatInitAndClearsOnDungeonEnd`, `CombatStateManagerTests.TestInitializeCombatEntitiesPreservesMaterialKeywordBank`
+
+**Related files:** `MaterialSetController.cs`, `CombatStateManager.cs`, `Character.cs`, `DungeonOrchestrator.cs`
+
+### Bug fix: strip_random crashed dungeon on 1-slot combo (August 2026)
+**Problem:** After an action announced "next combo slot is randomized", the dungeon aborted with `Dice must have at least 2 sides (Parameter 'sides')`.
+
+**Root cause:** `strip_random` / `ComboRouting.RandomAction` routes through `ComboRouter.PickRandomEnabledSlot`, which called `Dice.Roll(1, enabled.Count)`. A 1-slot strip (or one remaining non-disabled slot) passed `sides = 1`, which `Dice` rejects.
+
+**Solutions:**
+1. When zero enabled slots, return 0; when exactly one, return that slot without rolling
+2. Only call `Dice.Roll` when ≥2 enabled slots
+3. Tests: `StripMutationTests.TestStripRandomSingleSlotDoesNotThrow`, `TestStripRandomOneEnabledSlotDoesNotThrow`
+
+**Related files:** `ComboRouter.cs`, `StripMutationTests.cs`
+
 ### Bug fix: Closing the window left DF.exe locked (August 2026)
 **Problem:** Hitting the title-bar **X** closed the UI but `DF.exe` often stayed alive, so the next build failed with `MSB3026` (`DF.exe` locked by process `DF`).
 

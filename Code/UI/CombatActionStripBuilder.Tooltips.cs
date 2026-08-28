@@ -465,6 +465,11 @@ namespace RPGGame
                 string ampCalc = FormatSwingAmpCalculationLine(character, action, panelIndex);
                 if (!string.IsNullOrEmpty(ampCalc))
                     segments.Add(ampCalc);
+                foreach (var bonus in ActionCardExternalBonusCollector.BuildLines(character, action, panelIndex))
+                {
+                    if (!string.IsNullOrWhiteSpace(bonus.Text))
+                        segments.Add(bonus.Text);
+                }
             }
             return segments;
         }

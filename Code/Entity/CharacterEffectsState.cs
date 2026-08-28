@@ -34,6 +34,45 @@ namespace RPGGame
         public void ClearCombo() { ComboStep = 0; ComboAmplifier = 1.0; LastComboActionIdx = -1; ComboModeActive = false; TempComboBonus = 0; TempComboBonusTurns = 0; }
         #endregion
 
+        #region Material keyword bank (dungeon-run scoped)
+        public Dictionary<string, int> MaterialKeywordBank { get; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        public int MaterialConsecutiveConnects { get; set; }
+
+        public void ClearMaterialKeywordBank()
+        {
+            MaterialKeywordBank.Clear();
+            MaterialConsecutiveConnects = 0;
+        }
+
+        public int GetMaterialKeyword(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return 0;
+            return MaterialKeywordBank.TryGetValue(keyword.Trim(), out int v) ? v : 0;
+        }
+
+        public List<(string Keyword, int Count)> GetMaterialKeywordCounts()
+        {
+            var list = new List<(string, int)>();
+            foreach (var kv in MaterialKeywordBank)
+            {
+                if (kv.Value > 0)
+                    list.Add((kv.Key, kv.Value));
+            }
+            list.Sort((a, b) => string.Compare(a.Item1, b.Item1, StringComparison.OrdinalIgnoreCase));
+            return list;
+        }
+
+        public void AddMaterialKeyword(string keyword, int amount)
+        {
+            if (string.IsNullOrWhiteSpace(keyword) || amount == 0)
+                return;
+            string key = keyword.Trim().ToUpperInvariant();
+            MaterialKeywordBank.TryGetValue(key, out int current);
+            MaterialKeywordBank[key] = Math.Max(0, current + amount);
+        }
+        #endregion
+
         #region Roll and shield
         public int TempRollBonus { get; set; }
         public int TempRollBonusTurns { get; set; }

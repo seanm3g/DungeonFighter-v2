@@ -17,6 +17,9 @@ namespace RPGGame.UI.Avalonia.Layout
         public static List<string> Build(Actor actor, Character? asCharacter)
         {
             var lines = new List<string>();
+            Character? charHud = asCharacter ?? actor as Character;
+            if (charHud != null)
+                lines.AddRange(BuildMaterialKeywordStatusLines(charHud));
             if (actor.IsWeakened && actor.WeakenTurns > 0)
                 lines.Add($"Weakened ({actor.WeakenTurns} turn{(actor.WeakenTurns != 1 ? "s" : "")})");
             if (actor.IsStunned && actor.StunTurnsRemaining > 0)
@@ -69,7 +72,6 @@ namespace RPGGame.UI.Avalonia.Layout
                 lines.Add($"Confused ({actor.ConfusionTurns} turn{(actor.ConfusionTurns != 1 ? "s" : "")})");
             if (actor.IsMarked && actor.MarkTurns > 0)
                 lines.Add($"Marked ({actor.MarkTurns} turn{(actor.MarkTurns != 1 ? "s" : "")})");
-            Character? charHud = asCharacter ?? actor as Character;
             if (charHud != null)
             {
                 lines.AddRange(BuildTurnBonusStatusLines(charHud));
@@ -91,6 +93,15 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (charHud.Effects.RerollCharges > 0)
                     lines.Add($"Reroll x{charHud.Effects.RerollCharges}");
             }
+            return lines;
+        }
+
+        /// <summary>Dungeon-run material-set keyword bank (CRISIS, DRAG, …). Count updates as synthesis mints; cleared at dungeon end.</summary>
+        internal static List<string> BuildMaterialKeywordStatusLines(Character c)
+        {
+            var lines = new List<string>();
+            foreach (var (keyword, count) in c.Effects.GetMaterialKeywordCounts())
+                lines.Add($"{keyword} x{count}");
             return lines;
         }
 

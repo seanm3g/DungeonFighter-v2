@@ -22,6 +22,8 @@
 
   "triggersSheetTabName": "triggers",
 
+  "materialBuildsSheetTabName": "MATERIAL BUILDS",
+
   "classPresentationSheetTabName": "CLASSES",
 
   "classActionsSheetTabName": "CLASS ACTIONS",
@@ -49,6 +51,8 @@
   "pushConsumablesTab": true,
 
   "pushTriggersTab": true,
+
+  "pushMaterialBuildsTab": true,
 
   "pushEnemiesTab": true,
 

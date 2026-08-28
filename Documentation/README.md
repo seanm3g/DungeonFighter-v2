@@ -25,6 +25,12 @@ Essential project documentation. For product overview and active tasks, see root
 | [COMBAT_RELIABILITY_PHASE3.md](COMBAT_RELIABILITY_PHASE3.md) | AsyncLocal dice, scoped sim floor, muted health hints, lab ticker isolation |
 | [COMBAT_RELIABILITY_PHASE4.md](COMBAT_RELIABILITY_PHASE4.md) | Cleanup gaps, GSM legacy fallbacks, async save UI paths, lab sim dice parity |
 
+## Design
+
+| Document | Purpose |
+|----------|---------|
+| [BUILD_DESIGN_PROCESS_v3.md](BUILD_DESIGN_PROCESS_v3.md) | v3 sticky build cards: synthesis / alias / convert / feed / criteria |
+
 ## Balance Tuning
 
 | Document | Purpose |

@@ -65,12 +65,12 @@ namespace RPGGame
                 }
             }
 
-            var triggerSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.TriggerBundles).ToList();
-            if (triggerSummaries.Count > 0 && lines.Count < maxLines)
+            var setLines = MaterialSetController.FormatSetStatusLines(character, item).ToList();
+            if (setLines.Count > 0 && lines.Count < maxLines)
             {
                 AddBlank(lines);
-                AddLine(lines, SectionHeader("Triggers"));
-                foreach (var summary in triggerSummaries)
+                AddLine(lines, SectionHeader("Material"));
+                foreach (var summary in setLines)
                 {
                     if (lines.Count >= maxLines) break;
                     AddLine(lines, BuildTriggerLine(summary));

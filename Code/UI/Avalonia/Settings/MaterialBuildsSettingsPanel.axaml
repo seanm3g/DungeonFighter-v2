@@ -1,0 +1,94 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:settings="clr-namespace:RPGGame.UI.Avalonia.Settings"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="RPGGame.UI.Avalonia.Settings.MaterialBuildsSettingsPanel" Classes="settings-ui" Background="Transparent">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                 HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="16" Margin="20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Spacing="8">
+                    <TextBlock Text="Material Builds"
+                               Classes="settings-panel-title"
+                               Margin="0,0,0,4"/>
+                    <TextBlock Classes="settings-muted"
+                               TextWrapping="Wrap"
+                               Text="MATERIAL BUILDS sheet (2 / 3 / 5 equipped pieces of a material unlock synthesis, additive feed, and multiplicative feed). Footer Save writes MaterialBuilds.json. Pull/push lives under Spreadsheet Import."/>
+                </StackPanel>
+                <Button Grid.Column="1"
+                        x:Name="AddMaterialBuildButton"
+                        Content="Add row"
+                        Width="120"
+                        Height="35"
+                        Background="#FF4CAF50"
+                        BorderThickness="0"
+                        CornerRadius="3"
+                        FontSize="13"
+                        Cursor="Hand"
+                        VerticalAlignment="Top"/>
+            </Grid>
+
+            <ItemsControl x:Name="RowsItemsControl">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="settings:MaterialBuildRowViewModel">
+                        <Border Background="#FF1E1E1E"
+                                BorderBrush="#FF555555"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="10"
+                                Margin="0,0,0,10">
+                            <StackPanel Spacing="8">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Text="{Binding Header}"
+                                               FontSize="13"
+                                               FontWeight="SemiBold"
+                                               Foreground="White"
+                                               VerticalAlignment="Center"/>
+                                    <Button Grid.Column="1"
+                                            Content="Delete"
+                                            Width="80"
+                                            Height="28"
+                                            Background="#FFF44336"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            FontSize="12"
+                                            Cursor="Hand"
+                                            Command="{Binding DeleteCommand}"/>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Class" Classes="settings-muted" VerticalAlignment="Center" Margin="0,0,8,6"/>
+                                    <TextBox Grid.Column="1" Text="{Binding AssociatedClass}" MinHeight="28" FontSize="13" Margin="0,0,0,6"/>
+                                    <TextBlock Grid.Row="1" Text="Material" Classes="settings-muted" VerticalAlignment="Center" Margin="0,0,8,6"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Material}" MinHeight="28" FontSize="13" Margin="0,0,0,6"/>
+                                    <TextBlock Grid.Row="2" Text="Synthesis" Classes="settings-muted" VerticalAlignment="Center" Margin="0,0,8,6"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Synthesis}" MinHeight="28" FontSize="13" Margin="0,0,0,6"/>
+                                    <TextBlock Grid.Row="3" Text="Convert" Classes="settings-muted" VerticalAlignment="Center" Margin="0,0,8,6"/>
+                                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ConvertAction}" MinHeight="28" FontSize="13" Margin="0,0,0,6"/>
+                                    <TextBlock Grid.Row="4" Text="Feed" Classes="settings-muted" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Feed}" MinHeight="28" FontSize="13"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -193,6 +193,18 @@ namespace RPGGame.Entity.Services
                     character.AddAction(loaded, 1.0);
             }
 
+            foreach (string actionName in MaterialSetController.GetGrantedConvertActionNames(character))
+            {
+                if (string.IsNullOrWhiteSpace(actionName))
+                    continue;
+                if (character.ActionPool.Any(e =>
+                        string.Equals(e.action.Name, actionName, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+                var loadedConvert = ActionLoader.GetAction(actionName);
+                if (loadedConvert != null)
+                    character.AddAction(loadedConvert, 1.0);
+            }
+
             // Restore user's combo sequence if possible; otherwise use default
             bool restored = character.RestoreComboFromActionNames(savedComboNames);
             if (!restored)

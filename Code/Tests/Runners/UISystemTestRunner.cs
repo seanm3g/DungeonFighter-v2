@@ -54,6 +54,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CombatActionStripBuilderTests.RunAllTests();
             Console.WriteLine();
+            ActionCardExternalBonusCollectorTests.RunAllTests();
+            Console.WriteLine();
             CadenceCardLineFormatterTests.RunAllTests();
             Console.WriteLine();
             ActionInfoStripLayoutTests.RunAllTests();

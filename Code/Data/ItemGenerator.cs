@@ -80,8 +80,8 @@ namespace RPGGame
             }
 
             weapon.Tags = GameDataTagHelper.NormalizeDistinct(weaponData.Tags);
-            ApplyCatalogTrigger(weaponData.TriggerName, weaponData.TriggerBundles, weaponData.EquipEffects,
-                out var combat, out var equip);
+            // Catalog triggerName stamps are unused: combat procs come from MATERIAL BUILDS.
+            ApplyCatalogTrigger(null, null, null, out var combat, out var equip);
             weapon.TriggerBundles = combat;
             weapon.EquipEffects = equip;
             
@@ -112,8 +112,7 @@ namespace RPGGame
             }
 
             item.Tags = GameDataTagHelper.NormalizeDistinct(armorData.Tags);
-            ApplyCatalogTrigger(armorData.TriggerName, armorData.TriggerBundles, armorData.EquipEffects,
-                out var combat, out var equip);
+            ApplyCatalogTrigger(null, null, null, out var combat, out var equip);
             item.TriggerBundles = combat;
             item.EquipEffects = equip;
 

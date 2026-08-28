@@ -86,7 +86,7 @@ namespace RPGGame
             stateManager.TransitionToState(GameState.Dungeon);
             
             if (stateManager.CurrentPlayer != null)
-                stateManager.CurrentPlayer.ClearDungeonSearchBuffs();
+                stateManager.CurrentPlayer.ClearDungeonRunTempEffects();
 
             // Reload actions from disk and rebuild character's action pool so updated Actions.json is used
             if (stateManager.CurrentPlayer != null)

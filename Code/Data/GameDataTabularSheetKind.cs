@@ -17,6 +17,8 @@ namespace RPGGame.Data
         /// <summary><c>Consumables.json</c> — room-search food and dungeon potions (sheet tab CONSUMABLES).</summary>
         Consumables,
         /// <summary><c>Triggers.json</c> — item trigger identity catalog (sheet tab triggers).</summary>
-        Triggers
+        Triggers,
+        /// <summary><c>MaterialBuilds.json</c> — material-set synthesis / convert / feed (sheet tab MATERIAL BUILDS).</summary>
+        MaterialBuilds
     }
 }

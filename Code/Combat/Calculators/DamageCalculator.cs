@@ -113,6 +113,9 @@ namespace RPGGame.Combat.Calculators
             // Apply action damage multiplier if action is provided
             double actionMultiplier = action?.DamageMultiplier ?? 1.0;
 
+            if (attacker is Character convertScaleHero && convertScaleHero is not Enemy)
+                actionMultiplier *= MaterialSetController.GetConvertDamageMultiplier(convertScaleHero, action);
+
             if (attacker is Character earlyGameCharacter)
             {
                 double startingActionMult = EarlyGameBalanceHelper.GetStartingActionDamageMultiplier(earlyGameCharacter, action);

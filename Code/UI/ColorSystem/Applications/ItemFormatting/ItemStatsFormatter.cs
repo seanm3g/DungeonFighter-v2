@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
+using RPGGame;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Themes;
 
@@ -175,18 +176,13 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 lines.Add(modsLine.Build());
             }
 
-            var triggerSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.TriggerBundles).ToList();
-            if (triggerSummaries.Count > 0)
+            var setLines = MaterialSetController.FormatSetStatusLines(null, item).ToList();
+            if (setLines.Count > 0)
             {
-                var trigLine = new ColoredTextBuilder();
-                trigLine.Add("  Triggers: ", ColorPalette.Info);
-                for (int i = 0; i < triggerSummaries.Count; i++)
-                {
-                    if (i > 0)
-                        trigLine.Add("; ", Colors.Gray);
-                    trigLine.Add(triggerSummaries[i], Colors.White);
-                }
-                lines.Add(trigLine.Build());
+                var setLine = new ColoredTextBuilder();
+                setLine.Add("  Material: ", ColorPalette.Info);
+                setLine.Add(setLines[0], Colors.White);
+                lines.Add(setLine.Build());
             }
 
             var equipSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList();

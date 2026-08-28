@@ -415,11 +415,12 @@ namespace RPGGame
             Stats.TempStatBonusTurns = 0;
         }
 
-        /// <summary>Clears dungeon-run scoped cadence bonuses and room-search potion buffs.</summary>
+        /// <summary>Clears dungeon-run scoped cadence bonuses, room-search potion buffs, and material keyword currency.</summary>
         public void ClearDungeonRunTempEffects()
         {
             DungeonCadenceBuffs.Clear();
             ClearDungeonSearchBuffs();
+            Effects.ClearMaterialKeywordBank();
         }
 
         public override void ClearAllTempEffects()

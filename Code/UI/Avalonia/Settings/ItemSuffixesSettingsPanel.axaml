@@ -19,8 +19,7 @@
                             <TextBlock Text="Item suffixes"
                                        Classes="settings-panel-title"
                                        Margin="0,0,0,8"/>
-                            <TextBlock FontSize="14"
-                                       Foreground="#FF666666"
+                            <TextBlock Classes="settings-muted"
                                        TextWrapping="Wrap"
                                        Text="Edits name suffixes and stat lines from StatBonuses.json (loot suffix pool). Rows are grouped by rarity tier (Rarity). Use Save in the settings footer to write the file."/>
                         </StackPanel>
@@ -73,7 +72,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="settings:SuffixModifierViewModel">
                                             <Border Background="{Binding BackgroundColor}"
-                                                    BorderBrush="#FF404040"
+                                                    BorderBrush="#FF555555"
                                                     BorderThickness="1"
                                                     CornerRadius="4"
                                                     Padding="8"
@@ -97,8 +96,7 @@
                                                                MinWidth="120"/>
                                                     <TextBlock Grid.Column="1"
                                                                Text="{Binding Description}"
-                                                               FontSize="13"
-                                                               Foreground="#FF666666"
+                                                               Classes="settings-muted"
                                                                VerticalAlignment="Center"
                                                                TextWrapping="Wrap"
                                                                Margin="0,0,10,0"/>

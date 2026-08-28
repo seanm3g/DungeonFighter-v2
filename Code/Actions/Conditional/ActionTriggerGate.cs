@@ -25,7 +25,8 @@ namespace RPGGame.Actions.Conditional
             "ONHEALTHTHRESHOLD", "ONENEMYHEALTHTHRESHOLD",
             "ONROOMSCLEARED", "ONROOMCLEARED",
             "ONFIRSTHIT", "ONFIRSTBLOOD", "ONAFTERMISS",
-            "ONTAKEHIT", "ONHEROHURT",
+            "ONTAKEHIT", "ONHEROHURT", "ONRECEIVEHIT",
+            "ONTURN", "ONATTACK", "ONCONSECUTIVEATTACK", "ONSLOW", "ONFOCUS",
             "ONWIELD",
             "IFCLUTCH", "IFSOURCEHEALTHBELOW", "IFSOURCEHEALTHABOVE",
             "IFTARGETHEALTHBELOW", "IFTARGETHEALTHABOVE",
@@ -198,7 +199,22 @@ namespace RPGGame.Actions.Conditional
                 "ONROOMSCLEARED" or "ONROOMCLEARED" => MatchesRoomsCleared(action, combatEvent, arg),
                 "ONFIRSTHIT" or "ONFIRSTBLOOD" => MatchesFirstBlood(combatEvent),
                 "ONAFTERMISS" => MatchesAfterMiss(combatEvent),
-                "ONTAKEHIT" or "ONHEROHURT" => MatchesTakeHit(combatEvent),
+                "ONTAKEHIT" or "ONHEROHURT" or "ONRECEIVEHIT" => MatchesTakeHit(combatEvent),
+                "ONTURN" => combatEvent.Type == CombatEventType.TurnStarted,
+                "ONATTACK" => combatEvent.Action != null
+                    && combatEvent.Action.Type == ActionType.Attack
+                    && (combatEvent.Type == CombatEventType.ActionHit
+                        || combatEvent.Type == CombatEventType.ActionMiss
+                        || combatEvent.Type == CombatEventType.ActionExecuted),
+                "ONCONSECUTIVEATTACK" => combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsMiss,
+                "ONSLOW" => combatEvent.Type == CombatEventType.ActionHit
+                    && !combatEvent.IsMiss
+                    && combatEvent.Action != null
+                    && combatEvent.Action.CausesSlow,
+                "ONFOCUS" => combatEvent.Type == CombatEventType.ActionHit
+                    && !combatEvent.IsMiss
+                    && combatEvent.Action != null
+                    && combatEvent.Action.CausesFocus,
                 _ => false
             };
         }
@@ -222,6 +238,7 @@ namespace RPGGame.Actions.Conditional
                 "ONROOMCLEARED" => "ONROOMSCLEARED",
                 "ONFIRSTBLOOD" => "ONFIRSTHIT",
                 "ONHEROHURT" => "ONTAKEHIT",
+                "ONRECEIVEHIT" => "ONTAKEHIT",
                 "IFMIRROR" => "IFSAMESACTION",
                 "IFSWITCHUP" => "IFDIFFERENTACTION",
                 "IFLASTSTAND" => "IFLASTENEMY",
@@ -382,7 +399,8 @@ namespace RPGGame.Actions.Conditional
                 or "ONCONNECT" or "ONCRITICALMISS" or "ONKILL" or "ONROLLVALUE" or "ONNATURALROLL"
                 or "ONEVEN" or "ONODD"
                 or "ONHEALTHTHRESHOLD" or "ONCOMBOEND" or "ONROOMSCLEARED"
-                or "ONFIRSTHIT" or "ONAFTERMISS" or "ONTAKEHIT";
+                or "ONFIRSTHIT" or "ONAFTERMISS" or "ONTAKEHIT"
+                or "ONTURN" or "ONATTACK" or "ONCONSECUTIVEATTACK" or "ONSLOW" or "ONFOCUS";
 
         private static bool MatchesRollParity(CombatEvent combatEvent, bool even)
         {

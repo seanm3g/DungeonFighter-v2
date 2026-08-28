@@ -199,6 +199,13 @@ namespace RPGGame.UI.Avalonia.Renderers
                 string swingLine = CombatActionStripBuilder.FormatStripSwingLine(in info, player, action, damageLineMode, i);
                 drawLine(swingLine, swingLineColor);
 
+                foreach (var bonus in ActionCardExternalBonusCollector.BuildLines(player, action, i))
+                {
+                    if (string.IsNullOrWhiteSpace(bonus.Text))
+                        continue;
+                    drawLine(bonus.Text, bonus.Beneficial ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red);
+                }
+
                 int tailBudget = Math.Max(0, panelBottomExclusive - contentY - reserveBottomRows);
                 var tailLines = CombatActionStripBuilder.BuildActionStripModifierTailLines(action, contentW, tailBudget, player, i);
                 foreach (var tl in tailLines)

@@ -12,7 +12,7 @@ namespace RPGGame
     /// Applies learned skill-tree passives/rules/masteries via CombatEventBus.
     /// Fight-scoped state resets when a battle narrative starts.
     /// </summary>
-    public sealed class SkillEffectRouter
+    public sealed partial class SkillEffectRouter
     {
         public static SkillEffectRouter Instance { get; } = new();
 
@@ -49,7 +49,7 @@ namespace RPGGame
         private int _slotIntApplied;
 
         private static readonly string[] BarbarianMaterialTags =
-            { "bone", "steel", "damascus", "barbarian" };
+            { "bone", "steel", "iron", "barbarian" };
         private static readonly string[] WarriorMaterialTags =
             { "bronze", "gold", "mithril", "warrior" };
         private static readonly string[] RogueMaterialTags =

@@ -65,5 +65,14 @@ namespace RPGGame.Data
         /// <summary>RESERVE POOL column — truthy / empty; maps to <c>reserve_pool</c> tag.</summary>
         [JsonPropertyName("reservePool")]
         public string ReservePool { get; set; } = "";
+
+        [JsonPropertyName("materialScale")]
+        public string MaterialScale { get; set; } = "";
+
+        [JsonPropertyName("keywordScale")]
+        public string KeywordScale { get; set; } = "";
+
+        [JsonPropertyName("scaleFormula")]
+        public string ScaleFormula { get; set; } = "";
     }
 }

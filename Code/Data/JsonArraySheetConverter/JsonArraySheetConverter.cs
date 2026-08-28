@@ -20,6 +20,7 @@ namespace RPGGame.Data
         public static readonly string[] StatBonusesCanonicalHeaders = JsonArraySheetSchemas.StatBonusesCanonicalHeaders;
         public static readonly string[] ConsumablesCanonicalHeaders = JsonArraySheetSchemas.ConsumablesCanonicalHeaders;
         public static readonly string[] TriggersCanonicalHeaders = JsonArraySheetSchemas.TriggersCanonicalHeaders;
+        public static readonly string[] MaterialBuildsCanonicalHeaders = JsonArraySheetSchemas.MaterialBuildsCanonicalHeaders;
 
         public static int GetTabularSheetHeaderRowCount(GameDataTabularSheetKind kind) =>
             JsonArraySheetSchemas.GetTabularSheetHeaderRowCount(kind);
@@ -40,6 +41,9 @@ namespace RPGGame.Data
             ModificationsJsonArrayMerger.SplitModificationsMergedJson(mergedArrayJson);
         public static List<IList<object>> BuildPushValueRows(string jsonFileText, GameDataTabularSheetKind kind)
         {
+            if (kind == GameDataTabularSheetKind.Modifications)
+                return BuildModificationsPushValueRows(jsonFileText);
+
             if (kind == GameDataTabularSheetKind.Armor)
                 return BuildArmorPushValueRows(jsonFileText);
 
@@ -60,10 +64,12 @@ namespace RPGGame.Data
             var extraKeys = new SortedSet<string>(StringComparer.Ordinal);
             // SUFFIXES tab is fixed A–G; do not emit helper/junk JSON keys as extra columns.
             // CONSUMABLES tab is fixed A–D.
-            // TRIGGERS tab is fixed A–I.
+            // TRIGGERS tab is fixed A–K.
+            // MATERIAL BUILDS tab is fixed A–H.
             if (kind != GameDataTabularSheetKind.StatBonuses
                 && kind != GameDataTabularSheetKind.Consumables
-                && kind != GameDataTabularSheetKind.Triggers)
+                && kind != GameDataTabularSheetKind.Triggers
+                && kind != GameDataTabularSheetKind.MaterialBuilds)
             {
                 foreach (var el in doc.RootElement.EnumerateArray())
                 {
@@ -191,6 +197,8 @@ namespace RPGGame.Data
                     headerCount = Math.Min(headerCount, ConsumablesCanonicalHeaders.Length);
                 if (kind == GameDataTabularSheetKind.Triggers)
                     headerCount = Math.Min(headerCount, TriggersCanonicalHeaders.Length);
+                if (kind == GameDataTabularSheetKind.MaterialBuilds)
+                    headerCount = Math.Min(headerCount, MaterialBuildsCanonicalHeaders.Length);
                 for (int i = 0; i < headerCount; i++)
                 {
                     // Google / Excel CSV exports may prefix the file with U+FEFF, which lands on the first header cell.
@@ -243,6 +251,10 @@ namespace RPGGame.Data
                 else if (kind == GameDataTabularSheetKind.Triggers)
                 {
                     NormalizeTriggersJsonArrayRow(obj);
+                }
+                else if (kind == GameDataTabularSheetKind.MaterialBuilds)
+                {
+                    NormalizeMaterialBuildsJsonArrayRow(obj);
                 }
                 else if (kind == GameDataTabularSheetKind.Environments)
                 {

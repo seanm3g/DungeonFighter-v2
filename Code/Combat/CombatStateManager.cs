@@ -140,6 +140,8 @@ namespace RPGGame
             // (covers dungeon room changes, successive enemies, Action Lab, and simulators — not only RunCombat).
             player.ResetCombo();
             enemy.ResetCombo();
+            // Keyword currency is dungeon-run scoped; only consecutive-connect tracking resets per fight.
+            MaterialSetController.ResetFightConnects(player);
 
             var actionSpeedSystem = GetCurrentActionSpeedSystem();
             if (actionSpeedSystem == null) 

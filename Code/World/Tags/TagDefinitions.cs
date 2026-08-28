@@ -172,7 +172,7 @@ namespace RPGGame.World.Tags
             foreach (var t in new[]
                      {
                          "bone", "bronze", "glass", "willow", "steel", "gold", "obsidian", "silver",
-                         "damascus", "mithril", "shadow", "crystal", "stone", "unknown", "strange"
+                         "iron", "mithril", "shadow", "crystal", "stone", "unknown", "strange"
                      })
                 Add(t, TagLayer.Match, TagEntityScope.Item);
             foreach (var t in new[] { "required", "opener", "finisher" })

@@ -65,6 +65,15 @@ namespace RPGGame.Data
             row.Opener = data.IsOpener ? "true" : (baseRow?.Opener ?? "");
             row.Finisher = data.IsFinisher ? "true" : (baseRow?.Finisher ?? "");
             row.ReservePool = data.IsReservePool ? "true" : (baseRow?.ReservePool ?? "");
+            row.MaterialScale = !string.IsNullOrWhiteSpace(data.MaterialScale)
+                ? data.MaterialScale
+                : (baseRow?.MaterialScale ?? "");
+            row.KeywordScale = !string.IsNullOrWhiteSpace(data.KeywordScale)
+                ? data.KeywordScale
+                : (baseRow?.KeywordScale ?? "");
+            row.ScaleFormula = !string.IsNullOrWhiteSpace(data.ScaleFormula)
+                ? data.ScaleFormula
+                : (baseRow?.ScaleFormula ?? "");
 
             row.Damage = FormatDamage(data.DamageMultiplier);
             row.Speed = data.Length.ToString("F2");

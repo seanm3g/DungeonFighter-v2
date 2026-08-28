@@ -33,6 +33,7 @@ namespace RPGGame.Tests.Unit.Data
             TestTierSectionMarkerRow_SkippedOnParse(ref testsRun, ref testsPassed, ref testsFailed);
             TestTierSectionMarkers_StampMultipleTiers(ref testsRun, ref testsPassed, ref testsFailed);
             TestColumnUsage_IgnoredLabelsOnPull(ref testsRun, ref testsPassed, ref testsFailed);
+            TestConvertScaleColumns_DsDtDuRoundTrip(ref testsRun, ref testsPassed, ref testsFailed);
             TestTargetColumn_IngestsEnemySelfEnvironment(ref testsRun, ref testsPassed, ref testsFailed);
             TestHeroHealAndStatusColumns_ConvertToActionData(ref testsRun, ref testsPassed, ref testsFailed);
             TestSelfTargetHarden_ClassifiedAsBuff(ref testsRun, ref testsPassed, ref testsFailed);
@@ -474,8 +475,37 @@ namespace RPGGame.Tests.Unit.Data
                 "CHAIN LENGTH listed as ignored", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertFalse(ignored.Any(s => s.IndexOf("TARGET", StringComparison.OrdinalIgnoreCase) >= 0),
                 "TARGET is ingested on pull", ref testsRun, ref testsPassed, ref testsFailed);
-            TestBase.AssertTrue(SpreadsheetActionColumnUsage.IsIngestedOnPull("TARGET", null),
-                "TARGET is ingested", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(SpreadsheetActionColumnUsage.IsIngestedOnPull("DS", null),
+                "DS convert material scale is ingested", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(SpreadsheetActionColumnUsage.IsIngestedOnPull("DT", null),
+                "DT convert keyword scale is ingested", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(SpreadsheetActionColumnUsage.IsIngestedOnPull("DU", null),
+                "DU convert formula is ingested", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestConvertScaleColumns_DsDtDuRoundTrip(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestConvertScaleColumns_DsDtDuRoundTrip));
+            var labelRow = new[] { "ACTION", "DAMAGE(%)", "DS", "DT", "DU" };
+            var (header, _) = SpreadsheetActionParser.BuildHeaderFromSheetRows(new List<string[]> { labelRow });
+            TestBase.AssertTrue(header != null, "header parsed", ref testsRun, ref testsPassed, ref testsFailed);
+            if (header == null) return;
+
+            var parsed = SpreadsheetActionData.FromCsvRow(new[] { "IRON CULL", "100%", "Iron", "CRISIS", "keyword" }, header);
+            TestBase.AssertEqual("Iron", parsed.MaterialScale, "DS → MaterialScale", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("CRISIS", parsed.KeywordScale, "DT → KeywordScale", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("keyword", parsed.ScaleFormula, "DU → ScaleFormula", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var actionData = SpreadsheetToActionDataConverter.Convert(parsed);
+            TestBase.AssertEqual("Iron", actionData.MaterialScale, "ActionData MaterialScale", ref testsRun, ref testsPassed, ref testsFailed);
+            var runtime = ActionDataToActionMapper.CreateAction(actionData);
+            TestBase.AssertEqual("Iron", runtime.MaterialScale, "Action MaterialScale", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("CRISIS", runtime.KeywordScale, "Action KeywordScale", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var row = SpreadsheetActionDataSheetRowSerializer.ToRow(parsed, header);
+            TestBase.AssertEqual("Iron", row[2], "push DS", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("CRISIS", row[3], "push DT", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("keyword", row[4], "push DU", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         private static void TestTargetColumn_IngestsEnemySelfEnvironment(ref int testsRun, ref int testsPassed, ref int testsFailed)

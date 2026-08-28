@@ -88,6 +88,7 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ConditionalTriggersTests.RunAllTests();
             ActionTriggerGateTests.RunAllTests();
+            RPGGame.Tests.Unit.Combat.MaterialSetControllerTests.RunAllTests();
             ActionTriggerBundleApplicatorTests.RunAllTests();
             StripMutationTests.RunAllTests();
             RetriggerTests.RunAllTests();

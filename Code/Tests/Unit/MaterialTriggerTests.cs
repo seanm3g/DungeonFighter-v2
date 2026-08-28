@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame;
 using RPGGame.Data;
 
 namespace RPGGame.Tests.Unit
@@ -19,10 +20,10 @@ namespace RPGGame.Tests.Unit
             TestWeaponClassLadder();
             TestEnsureMaterialWeaponForced();
             TestEnsureMaterialArmorAlways();
-            TestMaterialTriggerMergePicksFromPool();
+            TestMaterialTriggerMergeDoesNotStampOnLoot();
             TestPrefixLotteryExcludesMaterial();
-            TestItemTypeConverterPreservesMaterialTriggers();
-            TestRepairMissingMaterialTriggerFromPrefix();
+            TestItemTypeConverterClearsCatalogStampsAndRemapsDamascus();
+            TestRepairMissingMaterialDoesNotReroll();
 
             TestBase.PrintSummary("Material Trigger Tests", _run, _passed, _failed);
         }
@@ -44,7 +45,7 @@ namespace RPGGame.Tests.Unit
             TestBase.SetCurrentTestName(nameof(TestWeaponClassLadder));
             TestBase.AssertEqual("Bone", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Mace, "Common"), "mace common", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("Steel", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Mace, "Uncommon"), "mace uncommon", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("Damascus", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Mace, "Epic"), "mace epic→rare", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Iron", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Mace, "Epic"), "mace epic→rare Iron", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("Bronze", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Sword, "Common"), "sword", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("Glass", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Dagger, "Common"), "dagger", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("Willow", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Wand, "Common"), "wand", ref _run, ref _passed, ref _failed);
@@ -79,46 +80,17 @@ namespace RPGGame.Tests.Unit
                 "armor material known", ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestMaterialTriggerMergePicksFromPool()
+        private static void TestMaterialTriggerMergeDoesNotStampOnLoot()
         {
-            TestBase.SetCurrentTestName(nameof(TestMaterialTriggerMergePicksFromPool));
+            TestBase.SetCurrentTestName(nameof(TestMaterialTriggerMergeDoesNotStampOnLoot));
 
-            var weapon = new WeaponItem("Bone Club", 1, 5, 1.0, WeaponType.Mace)
-            {
-                Material = "Bone",
-                Rarity = "Common"
-            };
-            MaterialTriggerMerge.ClearCatalogTriggerStamp(weapon);
-            MaterialTriggerMerge.ApplyMaterialTrigger(weapon, new Random(42));
-            TestBase.AssertTrue(
-                (weapon.TriggerBundles?.Count ?? 0) + (weapon.EquipEffects?.Count ?? 0) >= 1,
-                "material trigger applied", ref _run, ref _passed, ref _failed);
-
-            MaterialTriggerCatalog.TryGetPool("Bone", out var bonePool);
-            bool matched = false;
-            if (weapon.TriggerBundles != null)
-            {
-                foreach (var b in weapon.TriggerBundles)
-                {
-                    foreach (var def in bonePool)
-                    {
-                        var expected = MaterialTriggerMerge.ToBundle(def);
-                        if (string.Equals(expected.When, b.When, StringComparison.OrdinalIgnoreCase)
-                            && string.Equals(expected.Mechanics, b.Mechanics, StringComparison.OrdinalIgnoreCase)
-                            && Nullable.Equals(expected.Value, b.Value))
-                        {
-                            matched = true;
-                            break;
-                        }
-                    }
-
-                    if (matched)
-                        break;
-                }
-            }
-
-            TestBase.AssertTrue(matched, "bundle from bone pool", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(bonePool.Count >= 2, "bone pool size", ref _run, ref _passed, ref _failed);
+            var cache = LootDataCache.Load();
+            var applier = new LootBonusApplier(cache, new Random(42));
+            var weapon = new WeaponItem("Bone Club", 1, 5, 1.0, WeaponType.Mace) { Rarity = "Common" };
+            applier.ApplyAlwaysMaterialAndTrigger(weapon, "Common");
+            TestBase.AssertEqual("Bone", weapon.Material, "material set", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, weapon.TriggerBundles?.Count ?? 0, "no combat stamp", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, weapon.EquipEffects?.Count ?? 0, "no equip stamp", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestPrefixLotteryExcludesMaterial()
@@ -139,9 +111,9 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(2, item.Modifications.Count, "Q+A only", ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestItemTypeConverterPreservesMaterialTriggers()
+        private static void TestItemTypeConverterClearsCatalogStampsAndRemapsDamascus()
         {
-            TestBase.SetCurrentTestName(nameof(TestItemTypeConverterPreservesMaterialTriggers));
+            TestBase.SetCurrentTestName(nameof(TestItemTypeConverterClearsCatalogStampsAndRemapsDamascus));
 
             var weapon = new WeaponItem("Bone Log", 1, 6, 1.35, WeaponType.Mace)
             {
@@ -164,38 +136,36 @@ namespace RPGGame.Tests.Unit
             var converted = ItemTypeConverter.ConvertItemToProperType(weapon) as WeaponItem;
             TestBase.AssertTrue(converted != null, "converted weapon", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("Bone", converted!.Material, "material preserved", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(
-                converted.TriggerBundles != null && converted.TriggerBundles.Count == 1,
-                "trigger bundles preserved", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, converted.TriggerBundles?.Count ?? 0, "catalog combat stamp cleared", ref _run, ref _passed, ref _failed);
 
-            // Legacy path: base Item typed as weapon (no derived fields beyond Type).
             var legacy = new Item(ItemType.Weapon, "Old Blade", 1)
             {
-                Material = "Steel",
+                Material = "Damascus",
                 WeaponType = WeaponType.Mace,
-                Rarity = "Uncommon",
+                Rarity = "Epic",
                 TriggerBundles = new List<ActionTriggerBundle>
                 {
                     MaterialTriggerMerge.ToBundle(
                         MaterialTriggerCatalog.All.First(d =>
-                            string.Equals(d.Material, "Steel", StringComparison.OrdinalIgnoreCase)))
+                            string.Equals(d.Material, "Iron", StringComparison.OrdinalIgnoreCase)
+                            || string.Equals(d.Material, "Damascus", StringComparison.OrdinalIgnoreCase)))
                 },
                 Modifications = new List<Modification>
                 {
-                    new Modification { Name = "Steel", PrefixCategory = "MATERIAL", ItemRank = "Uncommon" }
+                    new Modification { Name = "Damascus", PrefixCategory = "MATERIAL", ItemRank = "Epic" }
                 }
             };
             var fromLegacy = ItemTypeConverter.ConvertItemToProperType(legacy) as WeaponItem;
             TestBase.AssertTrue(fromLegacy != null, "legacy→weapon", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("Steel", fromLegacy!.Material, "legacy material copied", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(
-                fromLegacy.TriggerBundles != null && fromLegacy.TriggerBundles.Count == 1,
-                "legacy triggers copied", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Iron", fromLegacy!.Material, "Damascus remapped to Iron", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Iron", fromLegacy.Modifications.First(m => m.GetPrefixCategory() == ModificationPrefixCategory.Material).Name,
+                "prefix remapped", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, fromLegacy.TriggerBundles?.Count ?? 0, "legacy stamps cleared", ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestRepairMissingMaterialTriggerFromPrefix()
+        private static void TestRepairMissingMaterialDoesNotReroll()
         {
-            TestBase.SetCurrentTestName(nameof(TestRepairMissingMaterialTriggerFromPrefix));
+            TestBase.SetCurrentTestName(nameof(TestRepairMissingMaterialDoesNotReroll));
 
             var broken = new WeaponItem("Bone Log", 1, 6, 1.35, WeaponType.Mace)
             {
@@ -212,14 +182,8 @@ namespace RPGGame.Tests.Unit
             var repaired = ItemTypeConverter.ConvertItemToProperType(broken) as WeaponItem;
             TestBase.AssertTrue(repaired != null, "repaired weapon", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("Bone", repaired!.Material, "material restored from prefix", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(
-                (repaired.TriggerBundles?.Count ?? 0) + (repaired.EquipEffects?.Count ?? 0) >= 1,
-                "material trigger restored", ref _run, ref _passed, ref _failed);
-
-            string summary = ItemTriggerBundleDisplay.FormatSummary(repaired.TriggerBundles![0]);
-            TestBase.AssertTrue(
-                !string.IsNullOrWhiteSpace(summary) && summary.Contains("—", StringComparison.Ordinal),
-                "tooltip summary names material identity", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, (repaired.TriggerBundles?.Count ?? 0) + (repaired.EquipEffects?.Count ?? 0),
+                "does not re-roll a pool proc", ref _run, ref _passed, ref _failed);
         }
     }
 }

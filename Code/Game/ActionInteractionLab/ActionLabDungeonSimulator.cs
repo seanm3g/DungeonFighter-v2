@@ -151,7 +151,7 @@ namespace RPGGame.ActionInteractionLab
                     }
 
                     metrics.RoomsCleared++;
-                    player.Facade.ClearAllTempEffects();
+                    player.Facade.ClearEncounterTempEffects();
                     player.ComboStep = 0;
                 }
 

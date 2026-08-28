@@ -228,7 +228,9 @@ namespace RPGGame.Data
                     sheetsConfig.DungeonsSheetUrl,
                     sheetsConfig.ClassPresentationSheetUrl,
                     sheetsConfig.ClassActionsSheetUrl,
-                    sheetsConfig.ConsumablesSheetUrl
+                    sheetsConfig.ConsumablesSheetUrl,
+                    sheetsConfig.TriggersSheetUrl,
+                    sheetsConfig.MaterialBuildsSheetUrl
                 };
 
                 foreach (string? u in candidates)

@@ -198,7 +198,7 @@ namespace RPGGame.Tests.Unit.Data
             string csv =
                 "Class,Tree,Weapon,Name,Effect,Payoff,UnlockAction,Requires,Type,Stat,Id,Branch,Tier,Cost,CustomEffectId\n" +
                 "Barbarian,Bronze Skin,Mace,Bronze Skin,Root effect,Payoff,,,Passive,STR,b-root,Core,0,0,bronze_skin\n" +
-                "Barbarian,Bronze Skin,Mace,Level 1 - Barbarian,Bone Steel Damascus count as Barbarian,Payoff,,b-root,Passive,STR,b-tribe,Alloy,1,4,tribe_metal\n" +
+                "Barbarian,Bronze Skin,Mace,Level 1 - Barbarian,Bone Steel Iron count as Barbarian,Payoff,,b-root,Passive,STR,b-tribe,Alloy,1,4,tribe_metal\n" +
                 "Barbarian,Bronze Skin,Mace,Gut Instinct,INT to STR,Payoff,,b-root,Mastery,STR,b-gut,Instinct,1,4,gut_instinct\n";
 
             var cfg = SkillTreesSheetConverter.ParseCsvToConfig(csv);

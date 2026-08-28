@@ -28,7 +28,7 @@ namespace RPGGame.Data
                 {
                     cfg.Save(pushConfigPath);
                     result.AddLine(
-                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, Prefix (Modifications.json + PrefixMaterialQuality.json), ARMOR, SUFFIXES, CONSUMABLES, triggers, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES, CLASS ACTIONS, flavor " +
+                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, Prefix (Modifications.json + PrefixMaterialQuality.json), ARMOR, SUFFIXES, CONSUMABLES, triggers, MATERIAL BUILDS, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES, CLASS ACTIONS, flavor " +
                         "(all optional tabs were blank). Edit the file if your sheet uses different tab titles.");
                 }
                 catch (Exception ex)
@@ -114,6 +114,22 @@ namespace RPGGame.Data
                 {
                     result.AddLine(
                         $"Note: could not save SheetsPushConfig after triggers default ({ex.Message}); push still uses that tab name for this run.");
+                }
+            }
+
+            if (cfg.ApplyDefaultMaterialBuildsTabNameIfUnset())
+            {
+                try
+                {
+                    cfg.Save(pushConfigPath);
+                    result.AddLine(
+                        "Set default MATERIAL BUILDS tab name in SheetsPushConfig.json (materialBuildsSheetTabName was blank). " +
+                        "Edit if your spreadsheet uses a different tab title.");
+                }
+                catch (Exception ex)
+                {
+                    result.AddLine(
+                        $"Note: could not save SheetsPushConfig after MATERIAL BUILDS default ({ex.Message}); push still uses that tab name for this run.");
                 }
             }
 
@@ -278,6 +294,20 @@ namespace RPGGame.Data
                     service,
                     cfg,
                     tabGids,
+                    cfg.PushMaterialBuildsTab,
+                    "MATERIAL BUILDS",
+                    cfg.MaterialBuildsSheetTabName,
+                    GameConstants.MaterialBuildsJson,
+                    GameDataTabularSheetKind.MaterialBuilds,
+                    "MaterialBuilds.json",
+                    result,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            await PushOptionalJsonArrayTabAsync(
+                    service,
+                    cfg,
+                    tabGids,
                     cfg.PushEnemiesTab,
                     "ENEMIES",
                     cfg.EnemiesSheetTabName,
@@ -349,6 +379,9 @@ namespace RPGGame.Data
 
             if (cfg.PushTriggersTab && !string.IsNullOrWhiteSpace(cfg.TriggersSheetTabName))
                 yield return cfg.TriggersSheetTabName.Trim();
+
+            if (cfg.PushMaterialBuildsTab && !string.IsNullOrWhiteSpace(cfg.MaterialBuildsSheetTabName))
+                yield return cfg.MaterialBuildsSheetTabName.Trim();
 
             if (cfg.PushEnemiesTab && !string.IsNullOrWhiteSpace(cfg.EnemiesSheetTabName))
                 yield return cfg.EnemiesSheetTabName.Trim();

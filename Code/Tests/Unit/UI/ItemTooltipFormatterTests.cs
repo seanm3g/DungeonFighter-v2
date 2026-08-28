@@ -94,6 +94,7 @@ namespace RPGGame.Tests.Unit.UI
             {
                 Rarity = "Common",
                 Level = 1,
+                Material = "Iron",
                 TriggerBundles = new System.Collections.Generic.List<RPGGame.Data.ActionTriggerBundle>
                 {
                     ItemTriggerIdentityCatalog.ToBundle(ItemTriggerIdentityCatalog.Get(0))
@@ -101,15 +102,14 @@ namespace RPGGame.Tests.Unit.UI
             };
             var trigLines = ItemTooltipFormatter.BuildItemTooltipLines(hero, triggered, "Legs", 30);
             string trigFlat = string.Join("\n", trigLines.Select(ColoredTextRenderer.RenderAsPlainText));
-            TestBase.AssertTrue(trigFlat.Contains("Triggers", StringComparison.Ordinal),
-                "tooltip has Triggers section",
+            TestBase.AssertTrue(trigFlat.Contains("Material", StringComparison.Ordinal),
+                "tooltip has Material set section",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(trigFlat.Contains("On connect", StringComparison.OrdinalIgnoreCase),
-                "tooltip trigger shows WHEN",
+            TestBase.AssertTrue(trigFlat.Contains("Iron", StringComparison.OrdinalIgnoreCase),
+                "tooltip shows Iron set",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(trigFlat.Contains("DAMAGE", StringComparison.OrdinalIgnoreCase)
-                    || trigFlat.Contains("damage", StringComparison.OrdinalIgnoreCase),
-                "tooltip trigger shows mechanic",
+            TestBase.AssertTrue(!trigFlat.Contains("Triggers", StringComparison.Ordinal),
+                "tooltip no longer lists item Triggers",
                 ref run, ref passed, ref failed);
             string summary = ItemTriggerBundleDisplay.FormatSummary(triggered.TriggerBundles[0]);
             TestBase.AssertTrue(summary.Contains("Wound Momentum", StringComparison.Ordinal)

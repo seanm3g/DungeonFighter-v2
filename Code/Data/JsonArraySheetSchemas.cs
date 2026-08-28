@@ -17,11 +17,17 @@ namespace RPGGame.Data
             "attributeRequirements", "tags", "Compelled Action", "triggerName"
         };
 
+        /// <summary>
+        /// Preferred push column order for PREFIX / <c>Modifications.json</c>.
+        /// Pull maps columns by header name (any order); attribute gates merge from
+        /// <c>ATTRIBUTE REQUIREMENT</c>, <c>REQUIREMENT VALUE</c>, and legacy typo <c>ATTRIBUTE REQUREMENT</c>.
+        /// </summary>
         public static readonly string[] ModificationsCanonicalHeaders =
         {
-            "DiceResult", "ItemRank", "Name", "Description", "Effect", "value", "prefixCategory",
-            "ATTRIBUTE REQUIREMENT", "REQUIREMENT VALUE",
-            "ATTRIBUTE REQUREMENT", "MaxValue", "MinValue", "RolledValue", "tags"
+            "DiceResult", "ItemRank", "prefixCategory", "Name", "Description", "Effect",
+            "MaxValue", "MinValue",
+            "ATTRIBUTE REQUIREMENT", "REQUIREMENT VALUE", "ATTRIBUTE REQUREMENT",
+            "RolledValue", "tags"
         };
 
         public static readonly string[] ArmorCanonicalHeaders =
@@ -66,6 +72,9 @@ namespace RPGGame.Data
         public static readonly string[] TriggersCanonicalHeaders =
             { "id", "name", "description", "when", "count", "scope", "mechanics", "value", "filters", "channel", "scaleFrom" };
 
+        public static readonly string[] MaterialBuildsCanonicalHeaders =
+            { "class", "material", "synthesis", "convertAction", "feed", "stack2", "stack3", "stack5" };
+
         internal static readonly HashSet<string> ConsumablesAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
         {
             "displayName", "internalKind", "effect", "potency"
@@ -74,6 +83,11 @@ namespace RPGGame.Data
         internal static readonly HashSet<string> TriggersAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
         {
             "id", "name", "description", "when", "count", "scope", "mechanics", "value", "filters", "channel", "scaleFrom"
+        };
+
+        internal static readonly HashSet<string> MaterialBuildsAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "class", "material", "synthesis", "convertAction", "feed", "stack2", "stack3", "stack5"
         };
 
         internal static readonly HashSet<string> StatBonusAuthorizedJsonKeys = new(StringComparer.Ordinal)
@@ -94,6 +108,7 @@ namespace RPGGame.Data
                 GameDataTabularSheetKind.StatBonuses => StatBonusesCanonicalHeaders,
                 GameDataTabularSheetKind.Consumables => ConsumablesCanonicalHeaders,
                 GameDataTabularSheetKind.Triggers => TriggersCanonicalHeaders,
+                GameDataTabularSheetKind.MaterialBuilds => MaterialBuildsCanonicalHeaders,
                 _ => Array.Empty<string>()
             };
     }

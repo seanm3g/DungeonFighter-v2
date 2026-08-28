@@ -138,6 +138,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "HoverTooltipDetailState", () => RPGGame.Tests.Unit.UI.HoverTooltipDetailStateTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "InventoryRightPanelLayout", () => RPGGame.Tests.Unit.UI.InventoryRightPanelLayoutTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatActionStripBuilder", () => RPGGame.Tests.Unit.UI.CombatActionStripBuilderTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ActionCardExternalBonusCollector", () => RPGGame.Tests.Unit.UI.ActionCardExternalBonusCollectorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TitleScreenAsciiSpacing", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleScreenAsciiSpacingTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TitleScreenAnimation", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleScreenAnimationTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TitleToMenuBootstrap", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleToMenuBootstrapTests.RunAllTests()));
@@ -152,6 +153,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "HealthBarDeltaDamageHint", () => RPGGame.Tests.Unit.Combat.HealthBarDeltaDamageHintTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatEffectsSimplified", () => RPGGame.Tests.Unit.Combat.CombatEffectsSimplifiedTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTriggerGate", () => RPGGame.Tests.Unit.ActionTriggerGateTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "MaterialSet", () => RPGGame.Tests.Unit.Combat.MaterialSetControllerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTriggerBundleApplicator", () => RPGGame.Tests.Unit.ActionTriggerBundleApplicatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StripMutation", () => RPGGame.Tests.Unit.StripMutationTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "Retrigger", () => RPGGame.Tests.Unit.RetriggerTests.RunAllTests()));
