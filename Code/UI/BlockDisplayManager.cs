@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using RPGGame.Combat.Formatting;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.UI.BlockDisplay;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Services;
@@ -79,11 +81,15 @@ namespace RPGGame
                 // Check if we should display this combat action
                 if (!ShouldDisplayCombatLog(character))
                 {
+                    HeroActionStripFeedback.ClearQueued();
                     return;
                 }
 
                 if (CombatManager.DisableCombatUIOutput)
+                {
+                    HeroActionStripFeedback.ClearQueued();
                     return;
+                }
                 
                 // Extract entity name from ColoredText for tracking
                 string? currentEntity = null;
@@ -103,13 +109,10 @@ namespace RPGGame
                 // Only render if we have messages to display
                 if (messageGroups != null && messageGroups.Count > 0)
                 {
-                    // Calculate delay after batch (use ActionDelayMs for complete action blocks)
                     int delayAfterBatchMs = BlockDelayManager.CalculateActionBlockDelay();
-                    
-                    // Render using appropriate renderer
-                    // Pass character to route to correct per-character display manager
                     var renderer = BlockRendererFactory.GetRenderer();
                     renderer.RenderMessageGroups(messageGroups, delayAfterBatchMs, character);
+                    HeroActionStripFeedback.CommitQueued();
                 }
                 
                 // Update the last acting Actor (for backward compatibility)
@@ -155,11 +158,15 @@ namespace RPGGame
                 // Check if we should display this combat action
                 if (!ShouldDisplayCombatLog(character))
                 {
+                    HeroActionStripFeedback.ClearQueued();
                     return;
                 }
 
                 if (CombatManager.DisableCombatUIOutput)
+                {
+                    HeroActionStripFeedback.ClearQueued();
                     return;
+                }
                 
                 // Extract entity name from ColoredText for tracking
                 string? currentEntity = null;
@@ -179,13 +186,28 @@ namespace RPGGame
                 // Only render if we have messages to display
                 if (messageGroups != null && messageGroups.Count > 0)
                 {
-                    // Calculate delay after batch (use ActionDelayMs for complete action blocks)
                     int delayAfterBatchMs = BlockDelayManager.CalculateActionBlockDelay();
-                    
-                    // Render using appropriate renderer (async)
-                    // Pass character to route to correct per-character display manager
+                    int halfDelayMs = BlockDelayManager.CalculateActionBlockHalfDelay();
                     var renderer = BlockRendererFactory.GetRenderer();
-                    await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs, character);
+
+                    bool environmentalBlock = blockType == TextSpacingSystem.BlockType.EnvironmentalAction;
+                    UIMessageType headlineType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.Combat;
+
+                    if (halfDelayMs > 0
+                        && actionText != null
+                        && ActionHeadlineFormatter.TrySplit(actionText, out var setup, out _)
+                        && setup.Count > 0)
+                    {
+                        var followUps = messageGroups.Count > 1
+                            ? messageGroups.GetRange(1, messageGroups.Count - 1)
+                            : new List<(List<ColoredText> segments, UIMessageType messageType)>();
+                        await renderer.RenderSetupPunchlineAsync(setup, actionText, followUps, halfDelayMs, character, headlineType);
+                    }
+                    else
+                    {
+                        HeroActionStripFeedback.CommitQueued();
+                        await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs, character);
+                    }
                 }
                 
                 // Update the last acting Actor (for backward compatibility)

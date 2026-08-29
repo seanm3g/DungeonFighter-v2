@@ -72,9 +72,6 @@ namespace RPGGame
             double amp = GetStripSwingDisplayAmp(character, action, comboSlotIndex);
             damagePercentForDisplay = info.DamageModified * amp;
             speedPercentForDisplay = info.SpeedModified;
-            double convert = ActionCardExternalBonusCollector.Collect(character, action, comboSlotIndex).ConvertMultiplier;
-            if (convert > 1.0001)
-                damagePercentForDisplay *= convert;
         }
 
         /// <summary>
@@ -109,7 +106,7 @@ namespace RPGGame
             if (character.Weapon is WeaponItem classWeapon)
                 total *= ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType);
 
-            int result = (int)total;
+            int result = (int)total + MaterialSetController.GetConvertDamageBonus(character, action);
             int maxCap = Math.Max(1, GameConfiguration.Instance.Combat.MaximumDamageCap);
             if (result > maxCap)
                 result = maxCap;

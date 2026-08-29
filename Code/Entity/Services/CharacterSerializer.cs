@@ -59,7 +59,8 @@ namespace RPGGame.Entity.Services
                 PendingPreWeaponTrainingGround = character.PendingPreWeaponTrainingGround,
                 CurrentRegionId = string.IsNullOrWhiteSpace(character.CurrentRegionId)
                     ? GameConstants.DefaultRegionId
-                    : character.CurrentRegionId
+                    : character.CurrentRegionId,
+                DungeonDifficultyAnchorLevel = character.DungeonDifficultyAnchorLevel
             };
 
             var options = new JsonSerializerOptions
@@ -132,6 +133,7 @@ namespace RPGGame.Entity.Services
             character.CurrentRegionId = string.IsNullOrWhiteSpace(saveData.CurrentRegionId)
                 ? GameConstants.DefaultRegionId
                 : saveData.CurrentRegionId;
+            character.DungeonDifficultyAnchorLevel = saveData.DungeonDifficultyAnchorLevel;
             
             // Restore equipment with proper type conversion
             character.Equipment.Inventory = ItemTypeConverter.ConvertItemsToProperTypes(saveData.Inventory);
@@ -209,17 +211,7 @@ namespace RPGGame.Entity.Services
                     character.AddAction(loaded, 1.0);
             }
 
-            foreach (string actionName in MaterialSetController.GetGrantedConvertActionNames(character))
-            {
-                if (string.IsNullOrWhiteSpace(actionName))
-                    continue;
-                if (character.ActionPool.Any(e =>
-                        string.Equals(e.action.Name, actionName, StringComparison.OrdinalIgnoreCase)))
-                    continue;
-                var loadedConvert = ActionLoader.GetAction(actionName);
-                if (loadedConvert != null)
-                    character.AddAction(loadedConvert, 1.0);
-            }
+            MaterialSetController.SyncConvertActionsToPool(character);
 
             // Restore user's combo sequence if possible; otherwise use default
             bool restored = character.RestoreComboFromActionNames(savedComboNames);

@@ -58,6 +58,88 @@ namespace RPGGame
             return names;
         }
 
+        /// <summary>
+        /// Adds 2-stack convert actions to the hero pool and removes converts that are no longer granted.
+        /// Inventory equip uses incremental pool updates, so this must run on every gear change (not only full rebuild).
+        /// </summary>
+        public static void SyncConvertActionsToPool(Character? hero)
+        {
+            if (hero == null || hero is Enemy)
+                return;
+
+            var granted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string name in GetGrantedConvertActionNames(hero))
+            {
+                if (!string.IsNullOrWhiteSpace(name))
+                    granted.Add(name.Trim());
+            }
+
+            var knownConverts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var build in MaterialBuildsLoader.GetAll())
+            {
+                if (!string.IsNullOrWhiteSpace(build.ConvertAction))
+                    knownConverts.Add(build.ConvertAction.Trim());
+            }
+
+            var stale = new List<Action>();
+            foreach (var entry in hero.ActionPool)
+            {
+                if (entry.action == null)
+                    continue;
+                if (!knownConverts.Contains(entry.action.Name))
+                    continue;
+                if (granted.Contains(entry.action.Name))
+                    continue;
+                stale.Add(entry.action);
+            }
+
+            foreach (var action in stale)
+            {
+                var combo = hero.GetComboActions();
+                for (int i = combo.Count - 1; i >= 0; i--)
+                {
+                    if (string.Equals(combo[i].Name, action.Name, StringComparison.OrdinalIgnoreCase))
+                        hero.RemoveFromCombo(combo[i], ignoreWeaponRequirement: true);
+                }
+                hero.RemoveAllActionsByName(action.Name);
+            }
+
+            foreach (string actionName in granted)
+            {
+                bool exists = false;
+                foreach (var entry in hero.ActionPool)
+                {
+                    if (entry.action != null &&
+                        string.Equals(entry.action.Name, actionName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (exists)
+                    continue;
+
+                var loaded = TryCreateConvertAction(actionName);
+                if (loaded != null)
+                    hero.AddAction(loaded, 1.0);
+            }
+        }
+
+        /// <summary>
+        /// Convert grants are authored set unlocks. Prefer the gameplay lookup, then fall back to raw
+        /// action data so a workshop active-set tier filter cannot hide BONE WRATH / IRON CULL / etc.
+        /// </summary>
+        private static Action? TryCreateConvertAction(string actionName)
+        {
+            var loaded = ActionLoader.GetAction(actionName);
+            if (loaded != null)
+                return loaded;
+            var data = ActionLoader.GetActionData(actionName);
+            if (data == null)
+                return null;
+            return ActionDataToActionMapper.CreateAction(data);
+        }
+
         public static int GetKeyword(Character? hero, string? keyword)
         {
             if (hero == null || string.IsNullOrWhiteSpace(keyword))
@@ -150,18 +232,21 @@ namespace RPGGame
             return ColoredTextRenderer.RenderAsMarkup(builder.Build());
         }
 
-        /// <summary>Convert damage multiplier from keyword bank + 3/5-stack feed counts. Never below 1.</summary>
-        public static double GetConvertDamageMultiplier(Character? hero, Action? action)
+        /// <summary>
+        /// Flat convert damage from the keyword bank. Feed 3/5 only changes how much currency is minted,
+        /// not this payoff: 2 RAGE → +10. Formula <c>material</c>/<c>count</c> uses equipped count instead of bank.
+        /// </summary>
+        public static int GetConvertDamageBonus(Character? hero, Action? action)
         {
             if (hero == null || action == null)
-                return 1.0;
+                return 0;
 
             MaterialBuildData? build = MaterialBuildsLoader.FindByConvertAction(action.Name);
             string materialOverride = action.MaterialScale ?? "";
             string keywordOverride = action.KeywordScale ?? "";
 
             if (build == null && string.IsNullOrWhiteSpace(materialOverride) && string.IsNullOrWhiteSpace(keywordOverride))
-                return 1.0;
+                return 0;
 
             string material = !string.IsNullOrWhiteSpace(materialOverride)
                 ? MaterialBuildData.CanonicalMaterialName(materialOverride)
@@ -169,41 +254,33 @@ namespace RPGGame
             string keyword = !string.IsNullOrWhiteSpace(keywordOverride)
                 ? keywordOverride.Trim().ToUpperInvariant()
                 : (build?.Keyword ?? "");
-            string feedMaterial = build?.FeedMaterial ?? material;
 
             int unlock = CountEquipped(hero, material);
             if (unlock < MaterialBuildData.StackUnlockCount && build != null)
-                return 1.0;
+                return 0;
 
-            int feed = CountEquipped(hero, feedMaterial);
             int bank = GetKeyword(hero, keyword);
-
-            double v = Math.Max(1, bank);
-            if (unlock >= MaterialBuildData.StackAdditiveCount)
-                v = bank + feed;
-            if (unlock >= MaterialBuildData.StackMultiplyCount)
-                v *= Math.Max(1, feed);
+            int units = Math.Max(0, bank);
 
             string formula = (action.ScaleFormula ?? "").Trim();
-            if (formula.Equals("keyword", StringComparison.OrdinalIgnoreCase)
-                || formula.Equals("bank", StringComparison.OrdinalIgnoreCase))
-                v = Math.Max(1, bank);
-            else if (formula.Equals("material", StringComparison.OrdinalIgnoreCase)
-                     || formula.Equals("count", StringComparison.OrdinalIgnoreCase))
-                v = Math.Max(1, unlock);
+            if (formula.Equals("material", StringComparison.OrdinalIgnoreCase)
+                || formula.Equals("count", StringComparison.OrdinalIgnoreCase))
+                units = Math.Max(0, unlock);
 
-            return Math.Max(1.0, v);
+            if (units <= 0)
+                return 0;
+            return units * MaterialBuildData.ConvertDamagePerKeyword;
         }
 
         /// <summary>
-        /// Compact convert-scale label for action cards (e.g. <c>CRISIS ×4</c>). Null when this action is not scaled.
+        /// Compact convert-scale label for action cards (e.g. <c>RAGE +10</c>). Null when this action is not scaled.
         /// </summary>
         public static string? FormatConvertScaleLine(Character? hero, Action? action)
         {
             if (hero == null || action == null)
                 return null;
-            double mult = GetConvertDamageMultiplier(hero, action);
-            if (mult <= 1.0001)
+            int bonus = GetConvertDamageBonus(hero, action);
+            if (bonus <= 0)
                 return null;
 
             MaterialBuildData? build = MaterialBuildsLoader.FindByConvertAction(action.Name);
@@ -214,12 +291,11 @@ namespace RPGGame
                 ? MaterialBuildData.CanonicalMaterialName(action.MaterialScale)
                 : (build?.Material ?? "");
 
-            string qty = mult.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
             if (!string.IsNullOrWhiteSpace(keyword))
-                return $"{keyword} ×{qty}";
+                return $"{keyword} +{bonus}";
             if (!string.IsNullOrWhiteSpace(material))
-                return $"{material} ×{qty}";
-            return $"Convert ×{qty}";
+                return $"{material} +{bonus}";
+            return $"Convert +{bonus}";
         }
 
         /// <summary>

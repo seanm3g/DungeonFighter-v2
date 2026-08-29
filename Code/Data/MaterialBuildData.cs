@@ -14,6 +14,8 @@ namespace RPGGame.Data
         public const int StackUnlockCount = 2;
         public const int StackAdditiveCount = 3;
         public const int StackMultiplyCount = 5;
+        /// <summary>Flat damage added per banked keyword tick on convert (e.g. 2 RAGE → +10).</summary>
+        public const int ConvertDamagePerKeyword = 5;
 
         [JsonPropertyName("class")]
         public string AssociatedClass { get; set; } = "";

@@ -115,6 +115,17 @@ namespace RPGGame
         /// </summary>
         public const string DungeonCustomLevelMenuName = "Custom difficulty";
 
+        /// <summary>
+        /// Dungeon selection list row that clears a custom difficulty anchor and restores the hero's level.
+        /// </summary>
+        public const string DungeonResetDifficultyMenuName = "Reset to default level";
+
+        /// <summary>
+        /// True for dungeon-selection rows that are menu commands rather than enterable dungeons.
+        /// </summary>
+        public static bool IsDungeonSelectionUtilityOption(string? name) =>
+            name == DungeonCustomLevelMenuName || name == DungeonResetDifficultyMenuName;
+
         /// <summary>Legacy/default character region. Matches the Ancient Forest entry in Regions.json.</summary>
         public const string DefaultRegionId = "forest";
 

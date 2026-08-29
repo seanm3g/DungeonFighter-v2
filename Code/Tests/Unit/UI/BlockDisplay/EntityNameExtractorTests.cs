@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
 
             TestExtractEntityNameFromMessage_BracketFormat();
             TestExtractEntityNameFromMessage_HitsFormat();
+            TestExtractEntityNameFromMessage_AttacksFormat();
             TestExtractEntityNameFromMessage_MissesFormat();
             TestExtractEntityNameFromMessage_CriticalMissFormat();
             TestExtractEntityNameFromMessage_TakesFormat();
@@ -60,6 +61,21 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
             
             TestBase.AssertEqual("Hero", entityName,
                 "Should extract entity name from hits format",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestExtractEntityNameFromMessage_AttacksFormat()
+        {
+            Console.WriteLine("\n--- Testing ExtractEntityNameFromMessage - Attacks Format ---");
+
+            string setup = "Angus Attacks Goblin...";
+            string complete = "Angus Attacks Goblin... and hits with STRIKE for 12 damage";
+
+            TestBase.AssertEqual("Angus", EntityNameExtractor.ExtractEntityNameFromMessage(setup),
+                "Should extract actor from Attacks setup",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Angus", EntityNameExtractor.ExtractEntityNameFromMessage(complete),
+                "Should extract actor from Attacks punchline line, not the hits clause",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

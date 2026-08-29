@@ -51,6 +51,11 @@ namespace RPGGame
 
         /// <summary>Current region id for the character; omitted legacy saves default to Ancient Forest.</summary>
         public string CurrentRegionId { get; set; } = GameConstants.DefaultRegionId;
+
+        /// <summary>
+        /// Optional dungeon-selection difficulty anchor. Null/omitted uses the hero's current level.
+        /// </summary>
+        public int? DungeonDifficultyAnchorLevel { get; set; }
     }
 }
 

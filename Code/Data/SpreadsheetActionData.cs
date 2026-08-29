@@ -78,7 +78,7 @@ namespace RPGGame.Data
         public string MaterialScale { get; set; } = "";
         /// <summary>ACTIONS column DT — keyword this convert action reads.</summary>
         public string KeywordScale { get; set; } = "";
-        /// <summary>ACTIONS column DU — convert scale formula.</summary>
+        /// <summary>ACTIONS column DU — convert add source (`keyword`/`bank` or `material`/`count`).</summary>
         public string ScaleFormula { get; set; } = "";
         
         // Columns N-Q: Hero bonuses (ACCURACY, HIT, COMBO, CRIT)

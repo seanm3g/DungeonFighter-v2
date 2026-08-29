@@ -28,7 +28,7 @@ namespace RPGGame
         public double SpeedModPercent { get; set; }
         public double AmpModPercent { get; set; }
         public double MultiHitMod { get; set; }
-        public double ConvertMultiplier { get; set; } = 1.0;
+        public int ConvertBonus { get; set; }
         public List<ActionCardBonusLine> Lines { get; } = new();
     }
 
@@ -44,10 +44,10 @@ namespace RPGGame
             foreach (var bonus in SkillEffectRouter.Instance.CollectActionCardBonuses(character, action, comboSlotIndex))
                 AddSkillBonus(snap, bonus);
 
-            double convert = MaterialSetController.GetConvertDamageMultiplier(character, action);
-            if (convert > 1.0001)
+            int convert = MaterialSetController.GetConvertDamageBonus(character, action);
+            if (convert > 0)
             {
-                snap.ConvertMultiplier = convert;
+                snap.ConvertBonus = convert;
                 string? convertLine = MaterialSetController.FormatConvertScaleLine(character, action);
                 if (!string.IsNullOrWhiteSpace(convertLine))
                     snap.Lines.Add(new ActionCardBonusLine(convertLine, true));

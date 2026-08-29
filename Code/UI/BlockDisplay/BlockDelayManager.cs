@@ -59,5 +59,13 @@ namespace RPGGame.UI.BlockDisplay
             }
             return 0;
         }
+
+        /// <summary>
+        /// Half of the action-block wait (setup beat and punchline beat).
+        /// </summary>
+        public static int CalculateActionBlockHalfDelay()
+        {
+            return CalculateActionBlockDelay() / 2;
+        }
     }
 }

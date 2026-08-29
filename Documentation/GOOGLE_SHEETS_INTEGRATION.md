@@ -162,7 +162,7 @@ Single header row; fixed columns **A–H** → `GameData/MaterialBuilds.json` (C
 | G | `stack3` | Label only; additive feed is code **3** |
 | H | `stack5` | Label only; multiply feed is code **5** |
 
-Class-less materials (Wood/Leather/Cloth/…) have no row → no synthesis/convert. Convert damage also reads ACTIONS **DS/DT/DU** when present.
+Class-less materials (Wood/Leather/Cloth/…) have no row → no synthesis/convert. Convert payoff is **+5 per banked keyword**; ACTIONS **DS/DT/DU** select material / keyword / source (`keyword` vs `material`). Feed 3/5 only changes mint amount.
 
 ### ENEMIES
 

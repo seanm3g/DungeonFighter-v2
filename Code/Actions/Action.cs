@@ -48,7 +48,7 @@ namespace RPGGame
         public string MaterialScale { get; set; } = "";
         /// <summary>ACTIONS DT — synthesis keyword this convert action reads.</summary>
         public string KeywordScale { get; set; } = "";
-        /// <summary>ACTIONS DU — optional formula override (add / mul / keyword / material).</summary>
+        /// <summary>ACTIONS DU — source override for convert add (<c>keyword</c>/<c>bank</c> or <c>material</c>/<c>count</c>).</summary>
         public string ScaleFormula { get; set; } = "";
         public bool CausesBleed { get; set; }
         public bool CausesWeaken { get; set; }

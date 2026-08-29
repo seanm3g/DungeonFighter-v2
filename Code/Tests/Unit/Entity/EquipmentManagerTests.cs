@@ -35,6 +35,7 @@ namespace RPGGame.Tests.Unit.Entity
             TestTryEquipItem_BlockedByAttributeRequirements();
             TestTryEquipItem_SucceedsWhenAttributeRequirementsMet();
             TestEquipToEmptySlot_PreservesComboWhenClassActionsRefresh();
+            TestEquipSecondMaterialPieceAddsConvertToPool();
 
             TestBase.PrintSummary("EquipmentManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -261,6 +262,43 @@ namespace RPGGame.Tests.Unit.Entity
             var newStrength = character.Facade.GetEffectiveStrength();
             TestBase.AssertTrue(newStrength >= strength,
                 "Strength should increase after equipping item with stat bonus",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        #endregion
+
+        #region Material convert grant
+
+        private static void TestEquipSecondMaterialPieceAddsConvertToPool()
+        {
+            Console.WriteLine("\n--- Testing material convert grant on equip ---");
+            ActionLoader.LoadActions();
+            RPGGame.Data.MaterialBuildsLoader.Reload();
+
+            var character = TestDataBuilders.Character()
+                .WithName("BoneSetHero")
+                .WithLevel(3)
+                .WithStats(15, 7, 10, 7)
+                .Build();
+
+            var boneWeapon = new WeaponItem("Bone Log", 1, 5, 1.0, WeaponType.Mace) { Material = "Bone" };
+            var boneHat = new HeadItem("featherweight Bone Hat", 1, 1) { Material = "Bone" };
+
+            TestBase.AssertTrue(
+                character.TryEquipItem(boneWeapon, "weapon", out _, out _, ignoreAttributeRequirements: true),
+                "equip Bone weapon",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertTrue(
+                character.TryEquipItem(boneHat, "head", out _, out _, ignoreAttributeRequirements: true),
+                "equip Bone hat (2/5)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            bool inPool = character.ActionPool.Any(e =>
+                e.action != null &&
+                string.Equals(e.action.Name, "BONE WRATH", StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertTrue(inPool,
+                "BONE WRATH should appear in the action pool when Bone 2/5 is equipped",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

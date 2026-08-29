@@ -60,6 +60,7 @@ namespace RPGGame.MCP.Models
         public int MaxLevel { get; set; }
         public string Theme { get; set; } = "";
         public bool IsCustomLevelEntry { get; set; }
+        public bool IsResetDifficultyEntry { get; set; }
     }
 
     public class DungeonRunSummary

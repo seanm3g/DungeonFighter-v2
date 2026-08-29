@@ -4,6 +4,86 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: left-panel gear hover tooltip sat far from the mouse (August 2026)
+**Problem:** Hovering equipped gear or **Sets:** in the left sidebar opened the yellow tooltip in the upper-middle of the center panel, away from the cursor.
+
+**Root cause:** Left-panel hit targets do not overlap the center inner band (1-cell gap). `GetHorizontalPositionAvoidingTarget` then kept the centered default X, and the overlay always used the top of the framed center panel for Y.
+
+**Solutions:**
+1. Dock X to the nearer inner edge when the hover target is entirely left (or right) of the center band
+2. Align tooltip top with the hovered row, clamped so the box stays inside the band (`GetVerticalPositionNearTarget`)
+3. Tests: `HoverTooltipDrawingTests`
+
+**Related files:** `HoverTooltipDrawing.cs`, `DungeonRenderer.RoomAndCombat.cs`
+
+### Bug fix: combat follow-up lines scrolled the setup block up (August 2026)
+**Problem:** Near the bottom of the combat log, `{Actor} Attacks {Target}...` appeared, then roll/feed/status lines appended after the half delay and pushed the whole block up a line.
+
+**Root cause:** Canvas two-beat display wrote the setup line first, waited, then appended follow-ups. Each new row grew the buffer and scrolled.
+
+**Solutions:**
+1. Dump setup plus one blank placeholder per follow-up in the same immediate pass (`SetupPunchlineReservation`)
+2. After the wait, `ReplaceAtFromEnd` fills the headline and follow-ups in place (line count does not grow)
+3. Inter-line `MessageDelayMs` still applies between filled follow-ups
+4. Tests: `DisplayBufferReplaceLastTests`
+
+**Related files:** `CanvasUIRenderer.cs`, `SetupPunchlineReservation.cs`, `BufferStorage.cs`, `CanvasUICoordinator.IUIManager.cs`
+
+### Bug fix: title screen hitch on first window show (August 2026)
+**Problem:** The main window appeared, then froze for about a second while the title idle loaded colors, templates, and the first frame.
+
+**Root cause:** Title animation started after `Show()`. The first idle paint paid for `ColorConfiguration.json`, palette pick, and canvas glyph setup on the visible UI thread.
+
+**Solutions:**
+1. `TitleScreenHelper.Preload()` runs in `App.OnFrameworkInitializationCompleted` before `new MainWindow()`
+2. Main window starts at opacity 0 / no taskbar button
+3. After `Opened`, paint the preloaded frame, then reveal; idle skips the opening clear so it does not flash black
+4. Tests: `TitleScreenAnimationTests` (preload + skip opening paint), `TitleToMenuBootstrapTests`
+
+**Related files:** `TitleScreenController.cs`, `GameInitializationHandler.cs`, `App.axaml.cs`, `MainWindow.axaml`
+
+### Bug fix: Windows PC launcher failed for friends (August 2026)
+**Problem:** Sharing the repo (zip or folder) and double-clicking `Dungeon Fighter(PC).bat` failed on a friend's PC: no .NET SDK, the installer wanted administrator rights, downloaded files were blocked by Mark of the Web, or they ran the `.bat` from inside the zip window.
+
+**Root cause:** The launcher always rebuilt from source and installed the SDK into Program Files. Friends typically have no SDK, no admin, and an incomplete extract.
+
+**Solutions:**
+1. Real launcher is `Scripts/launch-windows.bat`; `DungeonFighter-PC.bat` is the preferred trampoline (no parentheses)
+2. Unblock downloaded scripts/exes; refuse zip-internal paths; require `Code` + `GameData`
+3. Install .NET 8 SDK to `%USERPROFILE%\.dotnet` without admin
+4. If `dist\DF.exe` already exists, launch it instead of failing the build
+5. Tests: `WindowsLauncherTests`
+
+**Related files:** `Scripts/launch-windows.bat`, `Scripts/install-dotnet.ps1`, `DungeonFighter-PC.bat`, `Dungeon Fighter(PC).bat`
+
+### Bug fix: convert actions added +5 per keyword instead of multiplying (August 2026)
+**Problem:** Convert actions (BONE WRATH / IRON CULL / …) multiplied swing damage by the keyword bank (2 RAGE doubled the hit). Feed 3/5 was also folded into that multiplier.
+
+**Root cause:** `GetConvertDamageMultiplier` treated bank (+ 3/5 feed) as an action damage multiplier.
+
+**Solutions:**
+1. Convert adds **+5 per banked keyword** (`GetConvertDamageBonus`; 2 RAGE → +10)
+2. Feed 3/5 still only changes how much currency is minted
+3. Card line is `{KEYWORD} +N`; strip preview adds the flat bonus
+4. Tests: `MaterialSetControllerTests.TestTwoRageAddsTenConvertDamage`, `DamageCalculatorTests.TestConvertKeywordAddsFlatDamage`, `ActionCardExternalBonusCollectorTests`
+
+**Related files:** `MaterialSetController.cs`, `DamageCalculator.cs`, `ActionCardExternalBonusCollector.cs`, `CombatActionStripBuilder.cs`
+
+### Bug fix: material convert unlocked in tooltip but missing from action pool (August 2026)
+**Problem:** Bone 2/5 hover said `Convert: BONE WRATH (unlocked)`, but **POOL (from gear)** still listed only weapon/class actions.
+
+**Root cause:** Hover only checks equipped material count. Convert grant into the pool lived on `RebuildCharacterActions` (dungeon start / save load). Inventory `EquipmentManager` updated gear/class actions on equip and never synced material converts.
+
+**Solutions:**
+1. `MaterialSetController.SyncConvertActionsToPool` adds granted converts and removes them from pool + combo when the set drops below 2
+2. `EquipmentManager.UpdateActionsAfterGearChange` calls that sync after every equip/unequip
+3. Opening inventory and combat init also sync so an already-equipped 2-set heals without re-equipping
+4. `RebuildCharacterActions` uses the same helper
+5. Convert load falls back to raw action data if the workshop active-set tier filter would hide the row
+6. Tests: `MaterialSetControllerTests.TestSyncConvertActionsToPoolOnEquipAndUnequip`, `EquipmentManagerTests.TestEquipSecondMaterialPieceAddsConvertToPool`
+
+**Related files:** `MaterialSetController.cs`, `EquipmentManager.cs`, `CharacterSerializer.cs`
+
 ### Material keyword currency now lasts the dungeon (August 2026)
 **Problem:** Material-set keyword currency (CRISIS, DRAG, …) reset at the start of every fight, so convert scale could not grow across rooms in a dungeon.
 

@@ -35,6 +35,8 @@ namespace RPGGame
         /// <summary>How many naiveté charges were spent this swing for miss→advantage rerolls.</summary>
         public int NaiveteAdvantageUses { get; set; }
         public int Damage { get; set; }
+        /// <summary>Hero 2d10 defense total for this swing (null when not rolled: miss, pierce, or non-hero target).</summary>
+        public int? DefenseFace { get; set; }
         public int HealAmount { get; set; }
         /// <summary>
         /// Hit/tick count used when dealing damage for this swing (base MultiHitCount + redeemed ConsumedMultiHitMod + chain).
@@ -104,7 +106,7 @@ namespace RPGGame
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
                     // Use the hit count resolved for this swing — not strip peek after next-action Multihit was queued.
                     int multiHitCount = Math.Max(1, result.ResolvedMultiHitCount);
-                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, displayTarget, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, result.IsCriticalMiss, result.IsCritical, result.MultiDiceRollDetail);
+                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, displayTarget, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, result.IsCriticalMiss, result.IsCritical, result.MultiDiceRollDetail, result.DefenseFace);
                     return (damageText, rollInfo);
                 }
                 else if (result.SelectedAction.Type == ActionType.Heal)
@@ -183,7 +185,7 @@ namespace RPGGame
                 {
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
                     int multiHitCount = Math.Max(1, result.ResolvedMultiHitCount);
-                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, false, result.IsCritical, result.MultiDiceRollDetail);
+                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, false, result.IsCritical, result.MultiDiceRollDetail, result.DefenseFace);
                     string damageString = ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
                     results.Add(damageString);
                 }

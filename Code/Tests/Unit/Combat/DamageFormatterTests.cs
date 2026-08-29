@@ -36,6 +36,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestAddUsesAction();
             TestAddHitsTarget();
             TestAddAttackVsArmor();
+            TestAddAttackVsBlock();
             TestAddSpeedInfo();
             TestAddAmpInfo();
             TestAddTakesDamageFrom();
@@ -49,6 +50,9 @@ namespace RPGGame.Tests.Unit.Combat
             TestAddEffectStacksRemain();
             TestBleedStatusDetailWordsUseBleedingTemplate();
             TestFormatDamageDisplayColored();
+            TestAttackHeadlineSetupPunchline();
+            TestAttackHeadlineSplit();
+            TestUnnamedHitOmitsActionName();
 
             TestBase.PrintSummary("DamageFormatter Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -179,6 +183,23 @@ namespace RPGGame.Tests.Unit.Combat
             string zeroArmor = DamageFormatter.FormatAttackVsArmorPlain(23, 0, 3);
             TestBase.AssertEqual("attack: 23 × 3", zeroArmor,
                 "FormatAttackVsArmorPlain with 0 armor should omit DR clause",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestAddAttackVsBlock()
+        {
+            Console.WriteLine("\n--- Testing AddAttackVsArmor block label ---");
+
+            var builder = new ColoredTextBuilder();
+            DamageFormatter.AddAttackVsArmor(builder, 23, 10, useBlockLabel: true);
+            string plain = ColoredTextRenderer.RenderAsPlainText(builder.Build());
+            TestBase.AssertTrue(plain.Contains("23 - 10 block = 13", StringComparison.Ordinal),
+                "useBlockLabel should say block not armor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertEqual("attack: 23 - 10 block = 13",
+                DamageFormatter.FormatAttackVsArmorPlain(23, 10, useBlockLabel: true),
+                "FormatAttackVsArmorPlain useBlockLabel",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -510,6 +531,13 @@ namespace RPGGame.Tests.Unit.Combat
                     "\"hits\" verb in damage line should be white",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
+                string hitPlain = ColoredTextRenderer.RenderAsPlainText(damageText!);
+                TestBase.AssertTrue(hitPlain.Contains("Attacks", StringComparison.Ordinal)
+                    && hitPlain.Contains("...", StringComparison.Ordinal)
+                    && hitPlain.Contains(" and hits", StringComparison.Ordinal),
+                    "Hit headline should be setup... and hits punchline",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
                 TestBase.AssertTrue(rollInfo != null && rollInfo.Count > 0,
                     "FormatDamageDisplayColored should return roll info",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -557,6 +585,88 @@ namespace RPGGame.Tests.Unit.Combat
                     $"FormatDamageDisplayColored failed: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestAttackHeadlineSetupPunchline()
+        {
+            Console.WriteLine("\n--- Testing attack headline setup... punchline ---");
+
+            var attacker = TestDataBuilders.Character().WithName("Angus").WithStats(10, 10, 10, 10).Build();
+            var target = TestDataBuilders.Enemy().WithName("Goblin").WithHealth(100).Build();
+            var named = TestDataBuilders.CreateMockAction("STRIKE");
+            named.IsComboAction = true;
+            var unnamed = new RPGGame.Action { Name = "", Type = ActionType.Attack, DamageMultiplier = 1.0, Length = 1.0, IsComboAction = false };
+
+            var (namedHit, _) = DamageFormatter.FormatDamageDisplayColored(attacker, target, 20, 12, named, 1.0, 1.0, 0, 15, 1);
+            var (unnamedHit, _) = DamageFormatter.FormatDamageDisplayColored(attacker, target, 20, 12, unnamed, 1.0, 1.0, 0, 10, 1);
+            var (miss, _) = CombatResultsColoredText.FormatMissMessageColored(attacker, target, named, 3, 0, 3);
+
+            string namedPlain = ColoredTextRenderer.RenderAsPlainText(namedHit);
+            string unnamedPlain = ColoredTextRenderer.RenderAsPlainText(unnamedHit);
+            string missPlain = ColoredTextRenderer.RenderAsPlainText(miss);
+
+            string namedSetup = namedPlain.Substring(0, namedPlain.IndexOf("...", StringComparison.Ordinal) + 3);
+            string unnamedSetup = unnamedPlain.Substring(0, unnamedPlain.IndexOf("...", StringComparison.Ordinal) + 3);
+            string missSetup = missPlain.Substring(0, missPlain.IndexOf("...", StringComparison.Ordinal) + 3);
+
+            TestBase.AssertEqual(namedSetup, unnamedSetup,
+                "Named and unnamed hit setups should be identical",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(namedSetup, missSetup,
+                "Hit and miss setups should be identical",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(namedSetup.Contains("Angus Attacks Goblin...", StringComparison.Ordinal)
+                    || namedSetup.Contains("Attacks", StringComparison.Ordinal),
+                "Setup should be Actor Attacks Target...",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(namedPlain.Contains("and hits with STRIKE", StringComparison.Ordinal),
+                "Named punchline should reveal the action after the ellipsis",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!unnamedPlain.Contains("with STRIKE", StringComparison.Ordinal)
+                    && unnamedPlain.Contains("and hits for", StringComparison.Ordinal),
+                "Unnamed punchline should not name a combo action",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(missPlain.Contains("and misses", StringComparison.Ordinal),
+                "Miss punchline should be and misses",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestAttackHeadlineSplit()
+        {
+            Console.WriteLine("\n--- Testing ActionHeadlineFormatter.TrySplit ---");
+
+            var attacker = TestDataBuilders.Character().WithName("Angus").WithStats(10, 10, 10, 10).Build();
+            var target = TestDataBuilders.Enemy().WithName("Goblin").WithHealth(100).Build();
+            var action = TestDataBuilders.CreateMockAction("STRIKE");
+            var (headline, _) = DamageFormatter.FormatDamageDisplayColored(attacker, target, 20, 12, action, 1.0, 1.0, 0, 15, 1);
+
+            bool split = ActionHeadlineFormatter.TrySplit(headline, out var setup, out var punchline);
+            TestBase.AssertTrue(split, "Completed headline should split at ellipsis",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            string setupPlain = ColoredTextRenderer.RenderAsPlainText(setup);
+            string punchPlain = ColoredTextRenderer.RenderAsPlainText(punchline);
+            TestBase.AssertTrue(setupPlain.EndsWith("...", StringComparison.Ordinal)
+                    && !setupPlain.Contains("hits", StringComparison.Ordinal)
+                    && !setupPlain.Contains("STRIKE", StringComparison.Ordinal),
+                "Setup must not leak hit/miss/ACTION",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(punchPlain.Contains("and hits", StringComparison.Ordinal),
+                "Punchline should start with and hits",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestUnnamedHitOmitsActionName()
+        {
+            Console.WriteLine("\n--- Testing unnamed hit omits action name ---");
+
+            var attacker = TestDataBuilders.Character().WithName("Angus").WithStats(10, 10, 10, 10).Build();
+            var target = TestDataBuilders.Enemy().WithName("Goblin").WithHealth(100).Build();
+            var unnamed = new RPGGame.Action { Name = "", DamageMultiplier = 1.0, Length = 1.0, IsComboAction = false };
+            var (damageText, _) = DamageFormatter.FormatDamageDisplayColored(attacker, target, 10, 8, unnamed, 1.0, 1.0, 0, 8, 1);
+            string plain = ColoredTextRenderer.RenderAsPlainText(damageText);
+            TestBase.AssertTrue(!plain.Contains("with ", StringComparison.Ordinal),
+                "Unnamed hit punchline should not include with ACTION",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

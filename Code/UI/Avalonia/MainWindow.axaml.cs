@@ -68,19 +68,34 @@ namespace RPGGame.UI.Avalonia
             }
         }
 
+        /// <summary>
+        /// Makes the window visible after the first title frame is painted while hidden.
+        /// </summary>
+        public void RevealAfterTitleReady()
+        {
+            Opacity = TitleToMenuBootstrap.GetStartupWindowOpacity(titleFirstFrameReady: true);
+            ShowInTaskbar = TitleToMenuBootstrap.GetStartupShowInTaskbar(titleFirstFrameReady: true);
+            Activate();
+        }
+
         private void OnMainWindowOpened(object? sender, EventArgs e)
         {
             Opened -= OnMainWindowOpened;
-            BuildExecutionMetrics.RecordLaunchTime("GUI");
 
-            if (!OperatingSystem.IsMacOS())
-                return;
-
-            Dispatcher.UIThread.Post(() =>
+            if (OperatingSystem.IsMacOS())
             {
-                ApplyMacStartupWindowSizing();
-                Dispatcher.UIThread.Post(ApplyMacStartupWindowSizing, DispatcherPriority.Background);
-            }, DispatcherPriority.Loaded);
+                Dispatcher.UIThread.Post(() =>
+                {
+                    ApplyMacStartupWindowSizing();
+                    initializationHandler?.StartTitleScreenAfterWindowReady();
+                    BuildExecutionMetrics.RecordLaunchTime("GUI");
+                    Dispatcher.UIThread.Post(ApplyMacStartupWindowSizing, DispatcherPriority.Background);
+                }, DispatcherPriority.Loaded);
+                return;
+            }
+
+            initializationHandler?.StartTitleScreenAfterWindowReady();
+            BuildExecutionMetrics.RecordLaunchTime("GUI");
         }
 
         private void ApplyMacStartupWindowSizing()

@@ -12,6 +12,8 @@
   "warriorPoints": 0,
   "roguePoints": 0,
   "wizardPoints": 0,
+  "learnedSkillRanks": {},
+  "learnedSkillNodeIds": [],
   "comboStep": 0,
   "comboBonus": 0,
   "tempComboBonus": 0,
@@ -35,6 +37,7 @@
       "catalogAttackSpeed": 0,
       "minGeneratedActionBonuses": 0,
       "rarity": "Common",
+      "material": "",
       "statBonuses": [],
       "actionBonuses": [],
       "modifications": [],
@@ -70,6 +73,7 @@
       "catalogAttackSpeed": 0,
       "minGeneratedActionBonuses": 0,
       "rarity": "Common",
+      "material": "",
       "statBonuses": [],
       "actionBonuses": [],
       "modifications": [],
@@ -97,5 +101,6 @@
   "comboStripActionNames": [],
   "isDead": false,
   "pendingPreWeaponTrainingGround": false,
-  "currentRegionId": "forest"
+  "currentRegionId": "forest",
+  "dungeonDifficultyAnchorLevel": null
 }

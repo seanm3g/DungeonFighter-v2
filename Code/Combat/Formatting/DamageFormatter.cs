@@ -118,10 +118,11 @@ namespace RPGGame.Combat.Formatting
         }
         
         /// <summary>
-        /// Adds attack vs armor to a roll footer: <c>attack: X - Y armor = Z</c>, or with multihit <c>… = Z × N</c>.
-        /// When armor is 0, omits the DR clause (<c>attack: X</c>, optional <c>× N</c>).
+        /// Adds attack vs armor/block to a roll footer: <c>attack: X - Y armor = Z</c>, or with multihit <c>… = Z × N</c>.
+        /// When <paramref name="useBlockLabel"/> is true, the DR unit is <c>block</c> (hero defense die).
+        /// When armor/block is 0, omits the DR clause (<c>attack: X</c>, optional <c>× N</c>).
         /// </summary>
-        public static void AddAttackVsArmor(ColoredTextBuilder builder, int attack, int armor, int multiHitCount = 1)
+        public static void AddAttackVsArmor(ColoredTextBuilder builder, int attack, int armor, int multiHitCount = 1, bool useBlockLabel = false)
         {
             int net = Math.Max(0, attack - Math.Max(0, armor));
             builder.Add(" | ", Colors.Gray);
@@ -132,7 +133,7 @@ namespace RPGGame.Combat.Formatting
             {
                 builder.Add(" - ", Colors.White);
                 builder.Add(armor.ToString(), Colors.White);
-                builder.Add(" armor", Colors.White);
+                builder.Add(useBlockLabel ? " block" : " armor", Colors.White);
                 builder.Add(" = ", Colors.White);
                 builder.Add(net.ToString(), Colors.White);
             }
@@ -146,12 +147,13 @@ namespace RPGGame.Combat.Formatting
         /// <summary>
         /// Plain-text equivalent of <see cref="AddAttackVsArmor"/> for non-colored roll footers.
         /// </summary>
-        public static string FormatAttackVsArmorPlain(int attack, int armor, int multiHitCount = 1)
+        public static string FormatAttackVsArmorPlain(int attack, int armor, int multiHitCount = 1, bool useBlockLabel = false)
         {
             int net = Math.Max(0, attack - Math.Max(0, armor));
             if (armor > 0)
             {
-                string core = $"attack: {attack} - {armor} armor = {net}";
+                string unit = useBlockLabel ? "block" : "armor";
+                string core = $"attack: {attack} - {armor} {unit} = {net}";
                 return multiHitCount > 1 ? $"{core} × {multiHitCount}" : core;
             }
 
@@ -386,62 +388,47 @@ namespace RPGGame.Combat.Formatting
             int multiHitCount = 1,
             bool isCriticalMiss = false,
             bool? resolvedCritical = null,
-            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
+            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default,
+            int? defenseFace = null)
         {
-            var builder = new ColoredTextBuilder();
-            
             string actionName = action?.Name ?? "attack";
             bool hasDisplayableAction = !string.IsNullOrEmpty(action?.Name);
 
-            // Create combat outcome to centralize color decisions
             int totalRoll = roll + rollBonus;
             bool isComboAction = CombatColorStrategy.IsComboAction(actionName);
-
-            // Create outcome before modifying actionName for critical
             var outcome = CombatOutcome.CreateHit(action, totalRoll, roll, isComboAction, resolvedCritical);
-
-            if (outcome.IsCritical && hasDisplayableAction)
-            {
-                actionName = $"CRITICAL {actionName}";
-            }
-
-            // Update combo action status after potential critical prefix
             isComboAction = hasDisplayableAction && CombatColorStrategy.IsComboAction(actionName);
             outcome.IsComboAction = isComboAction;
 
-            // Use centralized color strategy
             ColorPalette hitsColor = CombatColorStrategy.GetHitsColor(outcome);
             ColorPalette actionColor = CombatColorStrategy.GetActionColor(outcome, attacker is Enemy);
             ColorPalette damageColor = CombatColorStrategy.GetDamageColor(outcome);
 
-            // Attacker name with enemy-specific colors
-            EntityColorHelper.AppendActorNameColored(builder, attacker);
-
-            // Target name with "hits" verb with appropriate color based on outcome
-            AddHitsTarget(builder, target, hitsColor);
-
-            // Action name only when action has a displayable name (normal attack has none)
-            if (hasDisplayableAction && isComboAction)
+            var setup = ActionHeadlineFormatter.FormatSetup(attacker, target);
+            var punchBuilder = new ColoredTextBuilder();
+            punchBuilder.AddSpace();
+            punchBuilder.Add("and", Colors.White);
+            punchBuilder.AddSpace();
+            if (outcome.IsCritical)
             {
-                AddWithAction(builder, actionName, actionColor);
+                punchBuilder.Add("CRITICAL", ColorPalette.Critical);
+                punchBuilder.AddSpace();
             }
-            
-            // Add multi-hit indicator if applicable - show before damage to indicate how damage is done
+            punchBuilder.Add("hits", hitsColor);
+            if (hasDisplayableAction && isComboAction)
+                AddWithAction(punchBuilder, actionName, actionColor);
             if (multiHitCount > 1)
             {
-                builder.AddSpace();
-                builder.Add("(", Colors.White);
-                builder.Add(multiHitCount.ToString(), ColorPalette.Info);
-                builder.Add(" hits)", Colors.White);
+                punchBuilder.AddSpace();
+                punchBuilder.Add("(", Colors.White);
+                punchBuilder.Add(multiHitCount.ToString(), ColorPalette.Info);
+                punchBuilder.Add(" hits)", Colors.White);
             }
-            
-            // Damage amount (for multi-hit, this is the total damage across all hits)
-            AddForAmountUnit(builder, actualDamage.ToString(), damageColor, "damage", Colors.White);
-            
-            var damageText = builder.Build();
+            AddForAmountUnit(punchBuilder, actualDamage.ToString(), damageColor, "damage", Colors.White);
+            var damageText = ActionHeadlineFormatter.Combine(setup, punchBuilder.Build());
             
             // Calculate roll info
-            int targetDefense = DamageCalculator.ResolveTargetArmor(target, action);
+            int targetDefense = DefenseBlockCalculator.ResolveMitigation(target, action, defenseFace, roll);
             
             // Match combat damage: roll bands use total attack (modified base + bonuses), not base alone.
             int rollForDamageScaling = roll + rollBonus;
@@ -456,7 +443,7 @@ namespace RPGGame.Combat.Formatting
             
             var rollInfo = RollInfoFormatter.FormatRollInfoColored(
                 roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, rollInfoCombo, action,
-                multiDiceDetail: multiDiceDetail, multiHitCount: multiHitCount);
+                multiDiceDetail: multiDiceDetail, multiHitCount: multiHitCount, defenseFace: defenseFace);
             
             return (damageText, rollInfo);
         }

@@ -142,6 +142,7 @@ namespace RPGGame
             enemy.ResetCombo();
             // Keyword currency is dungeon-run scoped; only consecutive-connect tracking resets per fight.
             MaterialSetController.ResetFightConnects(player);
+            MaterialSetController.SyncConvertActionsToPool(player);
 
             var actionSpeedSystem = GetCurrentActionSpeedSystem();
             if (actionSpeedSystem == null) 

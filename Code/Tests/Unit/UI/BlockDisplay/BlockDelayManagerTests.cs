@@ -29,6 +29,7 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
             TestApplyBlockDelay();
             TestCalculateActionBlockDelay();
             TestCalculateActionBlockDelay_DeveloperModeZero();
+            TestCalculateActionBlockHalfDelay();
 
             TestBase.PrintSummary("BlockDelayManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -75,6 +76,31 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
             {
                 DeveloperModeState.SetCombatLogInstant(previous);
             }
+        }
+
+        private static void TestCalculateActionBlockHalfDelay()
+        {
+            Console.WriteLine("\n--- Testing CalculateActionBlockHalfDelay ---");
+
+            bool previous = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                DeveloperModeState.SetCombatLogInstant(true);
+                int half = BlockDelayManager.CalculateActionBlockHalfDelay();
+                TestBase.AssertEqual(0, half,
+                    "Half delay should be 0 when combat log is instant",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(previous);
+            }
+
+            int full = BlockDelayManager.CalculateActionBlockDelay();
+            int halfOfFull = BlockDelayManager.CalculateActionBlockHalfDelay();
+            TestBase.AssertEqual(full / 2, halfOfFull,
+                "Half delay should be ActionDelayMs/2 (already scaled)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

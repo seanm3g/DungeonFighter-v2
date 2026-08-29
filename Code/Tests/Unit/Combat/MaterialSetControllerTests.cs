@@ -29,10 +29,12 @@ namespace RPGGame.Tests.Unit.Combat
             TestClasslessMaterialHasNoBuild();
             TestConvertDamageScaleFromBankAndStacks();
             TestDsDtDuOverrides();
+            TestTwoRageAddsTenConvertDamage();
             TestMintWritesFeedCombatLine();
             TestFormatWhenLabel();
             TestKeywordBankSurvivesCombatInitAndClearsOnDungeonEnd();
             TestFormingSetHudRequiresTwoPieces();
+            TestSyncConvertActionsToPoolOnEquipAndUnequip();
 
             TestBase.PrintSummary("Material Set Controller Tests", _run, _passed, _failed);
         }
@@ -157,18 +159,34 @@ namespace RPGGame.Tests.Unit.Combat
             var two = EquipIron(2);
             two.Effects.AddMaterialKeyword("CRISIS", 4);
             var cull = new Action { Name = "IRON CULL", DamageMultiplier = 1.0 };
-            TestBase.AssertEqual(4.0, MaterialSetController.GetConvertDamageMultiplier(two, cull),
-                "2-stack uses bank", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(20, MaterialSetController.GetConvertDamageBonus(two, cull),
+                "2-stack uses bank × +5", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("CRISIS +20", MaterialSetController.FormatConvertScaleLine(two, cull),
+                "card line is additive", ref _run, ref _passed, ref _failed);
 
             var three = EquipIron(3);
             three.Effects.AddMaterialKeyword("CRISIS", 4);
-            TestBase.AssertEqual(7.0, MaterialSetController.GetConvertDamageMultiplier(three, cull),
-                "3-stack bank+feed", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(20, MaterialSetController.GetConvertDamageBonus(three, cull),
+                "3-stack feed does not change convert add", ref _run, ref _passed, ref _failed);
 
             var five = EquipIron(5);
             five.Effects.AddMaterialKeyword("CRISIS", 4);
-            TestBase.AssertEqual(45.0, MaterialSetController.GetConvertDamageMultiplier(five, cull),
-                "5-stack (bank+feed)×feed", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(20, MaterialSetController.GetConvertDamageBonus(five, cull),
+                "5-stack feed does not change convert add", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestTwoRageAddsTenConvertDamage()
+        {
+            TestBase.SetCurrentTestName(nameof(TestTwoRageAddsTenConvertDamage));
+            var hero = EquipPieces(
+                (new HeadItem("Skull", 1, 1), "Bone"),
+                (new WeaponItem("Club", 1, 5, 1.0, WeaponType.Mace), "Bone"));
+            hero.Effects.AddMaterialKeyword("RAGE", 2);
+            var wrath = new Action { Name = "BONE WRATH", DamageMultiplier = 1.0 };
+            TestBase.AssertEqual(10, MaterialSetController.GetConvertDamageBonus(hero, wrath),
+                "2 RAGE → +10 convert damage", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("RAGE +10", MaterialSetController.FormatConvertScaleLine(hero, wrath),
+                "card line is RAGE +10", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestDsDtDuOverrides()
@@ -183,8 +201,8 @@ namespace RPGGame.Tests.Unit.Combat
                 KeywordScale = "CRISIS",
                 ScaleFormula = "keyword"
             };
-            TestBase.AssertEqual(4.0, MaterialSetController.GetConvertDamageMultiplier(hero, keywordOnly),
-                "formula keyword uses bank", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(20, MaterialSetController.GetConvertDamageBonus(hero, keywordOnly),
+                "formula keyword uses bank × +5", ref _run, ref _passed, ref _failed);
 
             var materialOnly = new Action
             {
@@ -193,8 +211,8 @@ namespace RPGGame.Tests.Unit.Combat
                 KeywordScale = "CRISIS",
                 ScaleFormula = "material"
             };
-            TestBase.AssertEqual(3.0, MaterialSetController.GetConvertDamageMultiplier(hero, materialOnly),
-                "formula material uses equipped count", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(15, MaterialSetController.GetConvertDamageBonus(hero, materialOnly),
+                "formula material uses equipped count × +5", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestMintWritesFeedCombatLine()
@@ -307,6 +325,65 @@ namespace RPGGame.Tests.Unit.Combat
                 "Gold 3/5 listed", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(mixedSets.Any(s => s.Material == "Mithril" && s.Count == 2),
                 "Mithril 2/5 listed", ref _run, ref _passed, ref _failed);
+        }
+
+        private static bool PoolContains(Character hero, string actionName)
+        {
+            foreach (var entry in hero.ActionPool)
+            {
+                if (entry.action != null &&
+                    string.Equals(entry.action.Name, actionName, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Inventory equip does not rebuild the whole pool. Convert must appear at 2 Bone pieces
+        /// and leave the pool when the set drops below 2.
+        /// </summary>
+        private static void TestSyncConvertActionsToPoolOnEquipAndUnequip()
+        {
+            TestBase.SetCurrentTestName(nameof(TestSyncConvertActionsToPoolOnEquipAndUnequip));
+            ActionLoader.LoadActions();
+            MaterialBuildsLoader.Reload();
+
+            var data = ActionLoader.GetActionData("BONE WRATH");
+            TestBase.AssertTrue(data != null, "BONE WRATH exists in Actions.json", ref _run, ref _passed, ref _failed);
+            if (data == null)
+                return;
+
+            var hero = TestDataBuilders.Character().WithName("BoneConvert").WithStats(15, 10, 10, 10).Build();
+            var boneWeapon = new WeaponItem("Bone Log", 1, 5, 1.0, WeaponType.Mace) { Material = "Bone" };
+            var boneHat = new HeadItem("Bone Hat", 1, 1) { Material = "Bone" };
+
+            TestBase.AssertTrue(
+                hero.TryEquipItem(boneWeapon, "weapon", out _, out _, ignoreAttributeRequirements: true),
+                "equip first Bone piece", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!PoolContains(hero, "BONE WRATH"),
+                "1 Bone piece does not add convert to pool", ref _run, ref _passed, ref _failed);
+
+            TestBase.AssertTrue(
+                hero.TryEquipItem(boneHat, "head", out _, out _, ignoreAttributeRequirements: true),
+                "equip second Bone piece", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(PoolContains(hero, "BONE WRATH"),
+                "2 Bone pieces add BONE WRATH to the action pool", ref _run, ref _passed, ref _failed);
+
+            hero.UnequipItem("head");
+            TestBase.AssertTrue(!PoolContains(hero, "BONE WRATH"),
+                "dropping below 2 Bone pieces removes convert from the pool", ref _run, ref _passed, ref _failed);
+
+            TestBase.AssertTrue(
+                hero.TryEquipItem(boneHat, "head", out _, out _, ignoreAttributeRequirements: true),
+                "re-equip second Bone piece", ref _run, ref _passed, ref _failed);
+            hero.ActionPool.RemoveAll(e =>
+                e.action != null &&
+                string.Equals(e.action.Name, "BONE WRATH", StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertTrue(!PoolContains(hero, "BONE WRATH"),
+                "pool can be stale after a missed grant", ref _run, ref _passed, ref _failed);
+            MaterialSetController.SyncConvertActionsToPool(hero);
+            TestBase.AssertTrue(PoolContains(hero, "BONE WRATH"),
+                "sync heals a stale pool when Bone 2/5 is already equipped", ref _run, ref _passed, ref _failed);
         }
     }
 }

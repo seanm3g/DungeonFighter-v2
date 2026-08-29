@@ -23,6 +23,7 @@
   "legs": null,
   "weapon": null,
   "feet": null,
+  "comboStripActionNames": [],
   "isDead": false,
   "pendingPreWeaponTrainingGround": false,
   "currentRegionId": "forest"

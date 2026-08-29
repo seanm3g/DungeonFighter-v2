@@ -113,9 +113,6 @@ namespace RPGGame.Combat.Calculators
             // Apply action damage multiplier if action is provided
             double actionMultiplier = action?.DamageMultiplier ?? 1.0;
 
-            if (attacker is Character convertScaleHero && convertScaleHero is not Enemy)
-                actionMultiplier *= MaterialSetController.GetConvertDamageMultiplier(convertScaleHero, action);
-
             if (attacker is Character earlyGameCharacter)
             {
                 double startingActionMult = EarlyGameBalanceHelper.GetStartingActionDamageMultiplier(earlyGameCharacter, action);
@@ -220,6 +217,9 @@ namespace RPGGame.Combat.Calculators
 
             int result = (int)totalDamage;
 
+            if (attacker is Character convertHero && convertHero is not Enemy)
+                result += MaterialSetController.GetConvertDamageBonus(convertHero, action);
+
             int maxCap = Math.Max(1, combatConfig.MaximumDamageCap);
             if (result > maxCap)
                 result = maxCap;
@@ -236,7 +236,7 @@ namespace RPGGame.Combat.Calculators
         /// <summary>
         /// Calculates damage dealt by an attacker to a target
         /// </summary>
-        public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true)
+        public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true, int? defenseFace = null, int? attackFace = null)
         {
             var sw = CombatHotPathMetrics.IsEnabled ? Stopwatch.StartNew() : null;
 
@@ -250,11 +250,11 @@ namespace RPGGame.Combat.Calculators
                 totalDamage = (int)(totalDamage * tagModifier);
             }
 
-            // Flat armor reduction for both heroes and enemies (persistent; not consumed).
+            // Flat reduction: enemies use 100% armor; hero hits with a 2d10 defense convert armor to block via opposed margin.
             // Pierce: CausesPierce on the swing, or HasPierce on the target, ignores armor.
-            int targetArmor = ResolveTargetArmor(target, action);
+            int targetArmor = DefenseBlockCalculator.ResolveMitigation(target, action, defenseFace, attackFace);
 
-            // Calculate final damage after armor reduction
+            // Calculate final damage after armor / block reduction
             int minimumDamage = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage); // Ensure at least 1
             int finalDamage = Math.Max(minimumDamage, (int)totalDamage - targetArmor);
 
@@ -282,9 +282,9 @@ namespace RPGGame.Combat.Calculators
         /// <summary>
         /// Calculates damage reduction from armor and other sources
         /// </summary>
-        public static int ApplyDamageReduction(Actor target, int damage, Action? action = null)
+        public static int ApplyDamageReduction(Actor target, int damage, Action? action = null, int? defenseFace = null, int? attackFace = null)
         {
-            int armorReduction = ResolveTargetArmor(target, action);
+            int armorReduction = DefenseBlockCalculator.ResolveMitigation(target, action, defenseFace, attackFace);
 
             // Apply damage reduction from effects
             double damageReductionMultiplier = 1.0;

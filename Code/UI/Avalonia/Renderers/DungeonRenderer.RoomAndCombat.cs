@@ -321,9 +321,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             int idealX = anchorCenterX.HasValue
                 ? anchorCenterX.Value - boxWFinal / 2
                 : innerLeft + Math.Max(0, (innerW - boxWFinal) / 2);
+            int? hoverTargetY = null;
             if (leftPanelTooltipActive &&
-                LeftPanelHoverState.TryGetTargetBounds(out int targetX, out _, out int targetWidth, out _))
+                LeftPanelHoverState.TryGetTargetBounds(out int targetX, out int targetY, out int targetWidth, out _))
             {
+                hoverTargetY = targetY;
                 idealX = HoverTooltipDrawing.GetHorizontalPositionAvoidingTarget(
                     idealX,
                     boxWFinal,
@@ -340,7 +342,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 : tipLines!.Count;
             int boxH = contentRows + 2;
             int maxBoxBottom = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT - 2;
-            int boxY = innerTop;
+            int boxY = hoverTargetY.HasValue
+                ? HoverTooltipDrawing.GetVerticalPositionNearTarget(
+                    hoverTargetY.Value, boxH, innerTop, maxBoxBottom)
+                : innerTop;
             if (boxY + boxH - 1 > maxBoxBottom)
                 boxY = Math.Max(innerTop, maxBoxBottom - boxH + 1);
 

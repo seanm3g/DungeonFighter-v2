@@ -86,6 +86,44 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             // Update scroll state with new message count
             scrollState.UpdateAfterAdd(wasAtTop, wasAtBottom, messages.Count);
         }
+
+        /// <summary>
+        /// Replaces an existing line counted from the end (0 = last). Does not change line count.
+        /// </summary>
+        public void ReplaceAtFromEnd(int offsetFromEnd, List<ColoredText> segments, UIMessageType? messageType = null)
+        {
+            int index = messages.Count - 1 - offsetFromEnd;
+            if (index < 0 || index >= messages.Count)
+                return;
+
+            if (segments == null || segments.Count == 0)
+            {
+                messages[index] = new List<ColoredText>();
+                if (messageType.HasValue)
+                    lineMessageTypes[index] = messageType.Value;
+                return;
+            }
+
+            var processedSegments = segments;
+            var displayLength = ColoredTextRenderer.GetDisplayLength(segments);
+            if (displayLength > maxLineWidth)
+            {
+                processedSegments = ColoredTextRenderer.Truncate(segments, maxLineWidth - 3);
+                processedSegments.Add(new ColoredText("...", Colors.White));
+            }
+
+            messages[index] = new List<ColoredText>(processedSegments);
+            if (messageType.HasValue)
+                lineMessageTypes[index] = messageType.Value;
+        }
+
+        /// <summary>
+        /// Replaces the last line in place (setup → punchline). Does not change line count.
+        /// </summary>
+        public void ReplaceLast(List<ColoredText> segments, UIMessageType? messageType = null)
+        {
+            ReplaceAtFromEnd(0, segments, messageType);
+        }
         
         /// <summary>
         /// Adds an empty line to the buffer

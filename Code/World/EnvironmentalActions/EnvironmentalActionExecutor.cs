@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Avalonia.Media;
+using RPGGame.Combat.Calculators;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
 using static RPGGame.Combat.Formatting.DamageFormatter;
@@ -60,7 +61,7 @@ namespace RPGGame
             }
             
             // Roll separately for each target and track which ones are affected
-            var affectedTargets = new List<(Actor target, int duration)>();
+            var affectedTargets = new List<(Actor target, int duration, int? defenseFace)>();
             
             foreach (var target in aliveTargets)
             {
@@ -70,8 +71,11 @@ namespace RPGGame
                 // If duration is 0, the effect is not applied to this target
                 if (duration > 0)
                 {
-                    ApplyEnvironmentalEffectSilent(source, target, action, duration);
-                    affectedTargets.Add((target, duration));
+                    int? defenseFace = action.Type == ActionType.Attack
+                        ? DefenseBlockCalculator.TryRollDefenseFace(target, action)
+                        : null;
+                    ApplyEnvironmentalEffectSilent(source, target, action, duration, defenseFace);
+                    affectedTargets.Add((target, duration, defenseFace));
                 }
             }
             
@@ -94,12 +98,12 @@ namespace RPGGame
             // Handle attack type environmental actions separately (they need rollInfo)
             if (action.Type == ActionType.Attack && affectedTargets.Count == 1)
             {
-                var (target, duration) = affectedTargets[0];
+                var (target, duration, defenseFace) = affectedTargets[0];
                 double damageMultiplier = CalculateDamageMultiplier(source, action);
-                int damage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, 0, 0);
+                int damage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, 0, 0, true, defenseFace);
                 
                 // Use standard damage formatting for attacks
-                var (damageText, attackRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, action, 1.0, damageMultiplier, 0, 0);
+                var (damageText, attackRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, action, 1.0, damageMultiplier, 0, 0, 1, false, null, default, defenseFace);
                 
                 // For environmental attacks, we replace the action text with the damage text
                 // and use the roll info
@@ -107,7 +111,7 @@ namespace RPGGame
             }
             
             // For non-attack actions or multi-target attacks, build status effects
-            foreach (var (target, duration) in affectedTargets)
+            foreach (var (target, duration, _) in affectedTargets)
             {
                 var effectMessage = FormatEnvironmentalEffectMessageColored(source, target, action, duration);
                 if (effectMessage != null && effectMessage.Count > 0)
@@ -126,7 +130,7 @@ namespace RPGGame
         /// <param name="target">The target Actor</param>
         /// <param name="action">The action being applied</param>
         /// <param name="duration">Duration of the effect</param>
-        private static void ApplyEnvironmentalEffectSilent(Actor source, Actor target, Action action, int duration)
+        private static void ApplyEnvironmentalEffectSilent(Actor source, Actor target, Action action, int duration, int? defenseFace = null)
         {
             // Apply effects based on action type and properties
             if (action.CausesBleed)
@@ -163,7 +167,7 @@ namespace RPGGame
             {
                 // For environmental attacks, calculate damage normally
                 double damageMultiplier = CalculateDamageMultiplier(source, action);
-                int damage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, 0, 0);
+                int damage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, 0, 0, true, defenseFace);
                 
                 // Apply damage
                 ApplyDamage(target, damage);

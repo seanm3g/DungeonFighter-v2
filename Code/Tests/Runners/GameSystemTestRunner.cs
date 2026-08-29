@@ -5,6 +5,7 @@ using RPGGame.Tests.Unit;
 using RPGGame.Tests.Unit.Game;
 using RPGGame.Tests.Unit.Game.Handlers;
 using RPGGame.Tests.Unit.Game.Input;
+using RPGGame.Tests.Unit.Platform;
 using RPGGame.Tests.Unit.UI;
 using RPGGame.Tests.Unit.Combat;
 
@@ -33,6 +34,7 @@ namespace RPGGame.Tests.Runners
             ("CharacterMenuHandler", () => CharacterMenuHandlerTests.RunAllTests()),
             ("SettingsMenuHandler", () => SettingsMenuHandlerTests.RunAllTests()),
             ("ApplicationShutdownHelper", () => ApplicationShutdownHelperTests.RunAllTests()),
+            ("WindowsLauncher", () => WindowsLauncherTests.RunAllTests()),
             ("WeaponSelectionHandler", () => WeaponSelectionHandlerTests.RunAllTests()),
             ("TrainingGroundOfferHandler", () => TrainingGroundOfferHandlerTests.RunAllTests()),
             ("CharacterCreationHandler", () => CharacterCreationHandlerTests.RunAllTests()),

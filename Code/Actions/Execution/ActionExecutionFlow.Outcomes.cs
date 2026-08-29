@@ -4,6 +4,7 @@ using RPGGame.Actions;
 using RPGGame.Actions.Conditional;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
+using RPGGame.Combat.Calculators;
 using RPGGame.Combat.Events;
 using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.Utils;
@@ -49,6 +50,8 @@ namespace RPGGame.Actions.Execution
 
                 double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, selected);
                 int totalRoll = result.ModifiedBaseRoll + result.RollBonus;
+                int? defenseFace = DefenseBlockCalculator.TryRollDefenseFace(target, selected);
+                result.DefenseFace = defenseFace;
                 int multiHitCount = selected.Advanced.MultiHitCount;
                 if (source is Character multiHitCharacter && multiHitCharacter.Effects.ConsumedMultiHitMod != 0)
                     multiHitCount = Math.Max(1, multiHitCount + (int)Math.Max(0, multiHitCharacter.Effects.ConsumedMultiHitMod));
@@ -60,7 +63,7 @@ namespace RPGGame.Actions.Execution
                     result.Damage = MultiHitProcessor.ProcessMultiHit(
                         source, target, selected, damageMultiplier, totalRoll,
                         result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, battleNarrative,
-                        source.RollPenalty);
+                        source.RollPenalty, defenseFace, result.ModifiedBaseRoll);
                     ActionEffectTargetResolver.ApplyLifestealHealing(source, selected, result.Damage);
                     if (result.Damage > 0
                         && target is Character multiHurtHero
@@ -74,7 +77,7 @@ namespace RPGGame.Actions.Execution
                 else
                 {
                     result.Damage = selected.DamageMultiplier > 0
-                        ? CombatCalculator.CalculateDamage(source, target, selected, damageMultiplier, 1.0, result.RollBonus, totalRoll)
+                        ? CombatCalculator.CalculateDamage(source, target, selected, damageMultiplier, 1.0, result.RollBonus, totalRoll, true, defenseFace, result.ModifiedBaseRoll)
                         : 0;
                     if (result.Damage > 0)
                     {

@@ -151,6 +151,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             EntityNameExtractorTests.RunAllTests();
             Console.WriteLine();
+            DisplayBufferReplaceLastTests.RunAllTests();
+            Console.WriteLine();
             
             // UI Services Tests
             MessageRouterTests.RunAllTests();

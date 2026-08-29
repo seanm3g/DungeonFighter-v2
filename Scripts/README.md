@@ -35,6 +35,8 @@ See `LINUX_SETUP_GUIDE.md` for Linux details.
 - **`metrics`**: display `GameData/build_execution_metrics.json` summary
 - **`dist`**: run the existing distribution build script
 
+Windows players should double-click repo-root `DungeonFighter-PC.bat`, which calls `Scripts/launch-windows.bat`.
+
 ## Legacy / optional tooling
 
 Google Sheets scripts and various analysis/count scripts are still present in this folder, but they are no longer part of the “core” workflow.

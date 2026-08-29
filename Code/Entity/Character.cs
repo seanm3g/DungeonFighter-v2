@@ -64,6 +64,12 @@ namespace RPGGame
         /// </summary>
         public string CurrentRegionId { get; set; } = GameConstants.DefaultRegionId;
 
+        /// <summary>
+        /// Optional dungeon-selection difficulty anchor. When set, offered dungeons scale around this
+        /// level instead of the hero's current level. Null uses the hero's level (default).
+        /// </summary>
+        public int? DungeonDifficultyAnchorLevel { get; set; }
+
         /// <summary>Action Interaction Lab only: added to <see cref="GetTotalArmor"/> for sandbox tuning (default 0).</summary>
         public int ActionLabArmorBonus { get; set; }
 

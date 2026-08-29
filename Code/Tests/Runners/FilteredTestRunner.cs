@@ -168,6 +168,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("actions", "ActionSpeedSystem", () => RPGGame.Tests.Unit.Actions.ActionSpeedSystemTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "MultiHit", () => RPGGame.Tests.Unit.MultiHitTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "DamageCalculator", () => RPGGame.Tests.Unit.Combat.DamageCalculatorTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "DefenseBlock", () => RPGGame.Tests.Unit.Combat.DefenseBlockCalculatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "WeaponBaseModCadence", () => RPGGame.Tests.Unit.Combat.WeaponBaseModCadenceTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "DamageFormatter", () => RPGGame.Tests.Unit.Combat.DamageFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatResults", () => RPGGame.Tests.Unit.Combat.CombatResultsTests.RunAllTests()));
@@ -185,6 +186,9 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("game", "SettingsMenuHandler", () => RPGGame.Tests.Unit.Game.Handlers.SettingsMenuHandlerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ApplicationShutdownHelper", () => RPGGame.Tests.Unit.UI.ApplicationShutdownHelperTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "BlockDisplayManager", () => RPGGame.Tests.Unit.UI.BlockDisplayManagerTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "BlockDelayManager", () => RPGGame.Tests.Unit.UI.BlockDisplay.BlockDelayManagerTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "EntityNameExtractor", () => RPGGame.Tests.Unit.UI.BlockDisplay.EntityNameExtractorTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "DisplayBufferReplaceLast", () => RPGGame.Tests.Unit.UI.BlockDisplay.DisplayBufferReplaceLastTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "GameStateManagerMultiCharacter", () => RPGGame.Tests.Unit.GameStateManagerMultiCharacterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("persistence", "SaveLoad", () => RPGGame.Tests.Unit.SaveLoadSystemTests.RunAllTests()));
             list.Add(new TestSuiteEntry("comprehensive", "Comprehensive", () => ComprehensiveTestRunner.RunAllTests()));
