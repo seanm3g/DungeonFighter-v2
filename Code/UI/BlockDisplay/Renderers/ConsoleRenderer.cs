@@ -95,7 +95,7 @@ namespace RPGGame.UI.BlockDisplay.Renderers
 
             if (UIManager.DisableAllUIOutput)
             {
-                RPGGame.UI.Avalonia.Feedback.HeroActionStripFeedback.CommitQueued();
+                PunchlineRevealFeedback.CommitQueued();
                 return;
             }
 
@@ -108,7 +108,7 @@ namespace RPGGame.UI.BlockDisplay.Renderers
                 Console.WriteLine();
             }
 
-            RPGGame.UI.Avalonia.Feedback.HeroActionStripFeedback.CommitQueued();
+            PunchlineRevealFeedback.CommitQueued();
 
             if (followUps != null && followUps.Count > 0)
             {

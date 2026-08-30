@@ -70,6 +70,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             SkillTreeProgressionTests.RunAllTests();
             Console.WriteLine();
+            SkillEffectRankScalingTests.RunAllTests();
+            Console.WriteLine();
             AttributeClassNameComposerTests.RunAllTests();
             Console.WriteLine();
             ClassPresentationConfigTests.RunAllTests();
@@ -429,6 +431,8 @@ namespace RPGGame.Tests.Runners
             CharacterProgressionClassReferenceTests.RunAllTests();
             Console.WriteLine();
             SkillTreeProgressionTests.RunAllTests();
+            Console.WriteLine();
+            SkillEffectRankScalingTests.RunAllTests();
             Console.WriteLine();
             AttributeClassNameComposerTests.RunAllTests();
             Console.WriteLine();

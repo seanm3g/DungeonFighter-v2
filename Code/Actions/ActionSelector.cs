@@ -67,6 +67,7 @@ namespace RPGGame
         ///   Stat/chain/equipment roll bonuses do not substitute for the die gate.
         ///   Queued ACCURACY (ACTION/TURN FIFO and slot peek, same as <see cref="ActionExecutionFlow"/>) lowers this gate so a follow-up
         ///   swing can resolve as the named combo action when the deferred bonus makes the effective combo threshold reachable.
+        ///   Luck/unluck is applied once during combat resolution; the luck-resolved face then replaces this pick when it crosses the combo bar.
         /// For heroes only.
         /// </summary>
         /// <param name="source">The Actor selecting the action</param>
@@ -284,16 +285,39 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Modified d20 (sheet roll modifications + peeked pending advantage/disadvantage) used for combo-strip vs normal <em>selection</em>.
+        /// Sheet-modified d20 used for the initial combo-strip vs normal pick. Luck/unluck (2d20) is applied once
+        /// during combat resolution; <see cref="ResolveActionForResolvedDie"/> then matches the named action to that face.
         /// </summary>
         private static int GetComboPathSelectionDie(Actor source, Action comboAction, int baseRoll, int? actionSlotForPendingPeek)
         {
-            if (source is Character hero && hero is not Enemy)
-            {
-                PeekPendingMultiDiceFlags(hero, out bool advantage, out bool disadvantage, actionSlotForPendingPeek);
-                return RollModificationManager.ApplyMultiDiceRoll(baseRoll, advantage, disadvantage, comboAction, source, null);
-            }
+            _ = actionSlotForPendingPeek;
             return RollModificationManager.ApplyActionRollModifications(baseRoll, comboAction, source, null);
+        }
+
+        /// <summary>
+        /// Picks combo-strip vs unnamed normal for a die that is already luck/env/sheet resolved
+        /// (the number shown after <c>roll:</c> / <c>→</c>). Does not roll and does not apply luck again.
+        /// </summary>
+        public static Action? ResolveActionForResolvedDie(Actor source, int resolvedDie)
+        {
+            if (source.ActionPool.Count == 0 || source.IsStunned)
+                return null;
+
+            var comboActions = ActionUtilities.GetComboActions(source);
+            if (comboActions.Count == 0)
+                return SelectComboAction(source);
+
+            if (resolvedDie >= 20)
+                return SelectComboAction(source);
+
+            int stripIndex = source is Character character
+                ? ActionUtilities.ResolveComboStripIndex(character, comboActions, deterministicSalt: null)
+                : 0;
+            stripIndex = ((stripIndex % comboActions.Count) + comboActions.Count) % comboActions.Count;
+            int comboThreshold = RollModificationManager.GetThresholdManager().GetComboThreshold(source);
+            if (resolvedDie >= comboThreshold)
+                return comboActions[stripIndex];
+            return SelectNormalAction(source);
         }
 
         /// <summary>

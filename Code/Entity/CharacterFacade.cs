@@ -85,63 +85,65 @@ namespace RPGGame
         public int Strength 
         { 
             get => _character.Stats.GetEffectiveStrength(
-                _character.Equipment.GetEquipmentStatBonus("STR", _character)
-                    + _character.DungeonSearchBuffs.StrengthBonus
-                    + _character.FightCadenceBuffs.StrengthBonus
-                    + _character.DungeonCadenceBuffs.StrengthBonus,
+                ExtraAttributeBonus("STR"),
                 _character.Equipment.GetModificationGodlikeBonus());
             set => _character.Stats.Strength = value;
         }
         public int Agility 
         { 
-            get => _character.Stats.GetEffectiveAgility(
-                _character.Equipment.GetEquipmentStatBonus("AGI", _character)
-                    + _character.DungeonSearchBuffs.AgilityBonus
-                    + _character.FightCadenceBuffs.AgilityBonus
-                    + _character.DungeonCadenceBuffs.AgilityBonus);
+            get => _character.Stats.GetEffectiveAgility(ExtraAttributeBonus("AGI"));
             set => _character.Stats.Agility = value;
         }
         public int Technique 
         { 
-            get => _character.Stats.GetEffectiveTechnique(
-                _character.Equipment.GetEquipmentStatBonus("TEC", _character)
-                    + _character.DungeonSearchBuffs.TechniqueBonus
-                    + _character.FightCadenceBuffs.TechniqueBonus
-                    + _character.DungeonCadenceBuffs.TechniqueBonus);
+            get => _character.Stats.GetEffectiveTechnique(ExtraAttributeBonus("TEC"));
             set => _character.Stats.Technique = value;
         }
         public int Intelligence 
         { 
-            get => _character.Stats.GetEffectiveIntelligence(
-                _character.Equipment.GetEquipmentStatBonus("INT", _character)
-                    + _character.DungeonSearchBuffs.IntelligenceBonus
-                    + _character.FightCadenceBuffs.IntelligenceBonus
-                    + _character.DungeonCadenceBuffs.IntelligenceBonus);
+            get => _character.Stats.GetEffectiveIntelligence(ExtraAttributeBonus("INT"));
             set => _character.Stats.Intelligence = value;
         }
 
         // === EFFECTIVE STAT METHODS ===
         public int GetEffectiveStrength() => _character.Stats.GetEffectiveStrength(
-            _character.Equipment.GetEquipmentStatBonus("STR", _character)
-                + _character.DungeonSearchBuffs.StrengthBonus
-                + _character.FightCadenceBuffs.StrengthBonus
-                + _character.DungeonCadenceBuffs.StrengthBonus,
+            ExtraAttributeBonus("STR"),
             _character.Equipment.GetModificationGodlikeBonus());
-        public int GetEffectiveAgility() => _character.Stats.GetEffectiveAgility(
-            _character.Equipment.GetEquipmentStatBonus("AGI", _character)
-                + _character.DungeonSearchBuffs.AgilityBonus
-                + _character.FightCadenceBuffs.AgilityBonus
-                + _character.DungeonCadenceBuffs.AgilityBonus);
-        public int GetEffectiveTechnique() => _character.Stats.GetEffectiveTechnique(
-            _character.Equipment.GetEquipmentStatBonus("TEC", _character)
-                + _character.DungeonSearchBuffs.TechniqueBonus
-                + _character.FightCadenceBuffs.TechniqueBonus
-                + _character.DungeonCadenceBuffs.TechniqueBonus);
-        public int GetEffectiveIntelligence() => _character.Stats.GetEffectiveIntelligence(
-            _character.Equipment.GetEquipmentStatBonus("INT", _character)
-                + _character.DungeonSearchBuffs.IntelligenceBonus
-                + _character.FightCadenceBuffs.IntelligenceBonus
-                + _character.DungeonCadenceBuffs.IntelligenceBonus);
+        public int GetEffectiveAgility() => _character.Stats.GetEffectiveAgility(ExtraAttributeBonus("AGI"));
+        public int GetEffectiveTechnique() => _character.Stats.GetEffectiveTechnique(ExtraAttributeBonus("TEC"));
+        public int GetEffectiveIntelligence() => _character.Stats.GetEffectiveIntelligence(ExtraAttributeBonus("INT"));
+
+        /// <summary>
+        /// Gear, consumable/cadence buffs, and standing skill-tree attribute (e.g. Puberty +15 STR).
+        /// </summary>
+        private int ExtraAttributeBonus(string code)
+        {
+            int skill = SkillEffectRouter.Instance.GetSkillAttributeBonus(_character, code);
+            return code.ToUpperInvariant() switch
+            {
+                "STR" => _character.Equipment.GetEquipmentStatBonus("STR", _character)
+                    + _character.DungeonSearchBuffs.StrengthBonus
+                    + _character.FightCadenceBuffs.StrengthBonus
+                    + _character.DungeonCadenceBuffs.StrengthBonus
+                    + skill,
+                "AGI" => _character.Equipment.GetEquipmentStatBonus("AGI", _character)
+                    + _character.DungeonSearchBuffs.AgilityBonus
+                    + _character.FightCadenceBuffs.AgilityBonus
+                    + _character.DungeonCadenceBuffs.AgilityBonus
+                    + skill,
+                "TEC" => _character.Equipment.GetEquipmentStatBonus("TEC", _character)
+                    + _character.DungeonSearchBuffs.TechniqueBonus
+                    + _character.FightCadenceBuffs.TechniqueBonus
+                    + _character.DungeonCadenceBuffs.TechniqueBonus
+                    + skill,
+                "INT" => _character.Equipment.GetEquipmentStatBonus("INT", _character)
+                    + _character.DungeonSearchBuffs.IntelligenceBonus
+                    + _character.FightCadenceBuffs.IntelligenceBonus
+                    + _character.DungeonCadenceBuffs.IntelligenceBonus
+                    + skill,
+                _ => skill
+            };
+        }
 
         /// <summary>
         /// Effective value of the character's primary attribute (highest effective stat;

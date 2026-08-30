@@ -106,6 +106,21 @@ namespace RPGGame.Tests.Unit.UI
                 "amp strip slot rows",
                 ref run, ref passed, ref failed);
 
+            var trees = SkillTreesConfig.TryLoadFromGameDataFile();
+            TestBase.AssertTrue(trees != null, "SkillTrees.json loads for Puberty tooltip",
+                ref run, ref passed, ref failed);
+            if (trees != null)
+            {
+                GameConfiguration.Instance.SkillTrees = trees;
+                c.Progression.LearnedSkillRanks["b-puberty"] = 1;
+                var strSkill = StatTooltipFormatter.TryBuild(c, "stat:str", 24)!;
+                string strSkillFlat = string.Join("\n", strSkill.Select(ColoredTextRenderer.RenderAsPlainText));
+                TestBase.AssertTrue(strSkillFlat.Contains("Skill tree", StringComparison.Ordinal)
+                        && strSkillFlat.Contains("+15", StringComparison.Ordinal),
+                    "STR tooltip lists Puberty skill bonus",
+                    ref run, ref passed, ref failed);
+            }
+
             TestBase.PrintSummary("StatTooltipFormatter Tests", run, passed, failed);
         }
     }

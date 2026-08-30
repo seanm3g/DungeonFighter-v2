@@ -48,6 +48,8 @@ namespace RPGGame
         private int _nonMissStreak;
         private int _slotIntApplied;
 
+        private const int RiteOfPassageAttributeBonus = 15;
+
         private static readonly string[] BarbarianMaterialTags =
             { "bone", "steel", "iron", "barbarian" };
         private static readonly string[] WarriorMaterialTags =
@@ -148,6 +150,23 @@ namespace RPGGame
             int rank = GetRank(c, "bone_temper");
             if (rank <= 0 || c == null) return 0;
             return (c.HardenStacks ?? 0) > 0 ? rank : 0;
+        }
+
+        /// <summary>
+        /// Standing attribute from rite-of-passage passives (Puberty / Commission / Initiation / Apprenticeship).
+        /// Folded into <see cref="Character.GetEffectiveStrength"/> and the other effective getters.
+        /// </summary>
+        public int GetSkillAttributeBonus(Character? c, string? statCode)
+        {
+            if (c == null || string.IsNullOrWhiteSpace(statCode)) return 0;
+            return statCode.Trim().ToUpperInvariant() switch
+            {
+                "STR" => RiteOfPassageAttributeBonus * GetRank(c, "puberty"),
+                "AGI" => RiteOfPassageAttributeBonus * GetRank(c, "commission"),
+                "TEC" => RiteOfPassageAttributeBonus * GetRank(c, "initiation"),
+                "INT" => RiteOfPassageAttributeBonus * GetRank(c, "apprenticeship"),
+                _ => 0
+            };
         }
 
         private Character? AsBoundHero(Actor? source)

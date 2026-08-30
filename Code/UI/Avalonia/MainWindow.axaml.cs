@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
@@ -22,6 +23,8 @@ namespace RPGGame.UI.Avalonia
         private GameInitializationHandler? initializationHandler;
         private MainWindowInputHandler? inputHandler;
         private DispatcherTimer? combatSpeedNotificationTimer;
+        private SettingsPanel? settingsMenuPanel;
+        private TuningMenuPanel? tuningMenuPanel;
 
         public MainWindow()
         {
@@ -69,12 +72,17 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
-        /// Makes the window visible after the first title frame is painted while hidden.
+        /// Makes the window visible after the first title frame is painted while minimized.
+        /// Opacity 0 still shows a black window on Windows, so startup stays minimized.
         /// </summary>
         public void RevealAfterTitleReady()
         {
             Opacity = TitleToMenuBootstrap.GetStartupWindowOpacity(titleFirstFrameReady: true);
             ShowInTaskbar = TitleToMenuBootstrap.GetStartupShowInTaskbar(titleFirstFrameReady: true);
+            WindowState = TitleToMenuBootstrap.GetStartupWindowState(titleFirstFrameReady: true);
+            ShowActivated = true;
+            if (!IsVisible)
+                Show();
             Activate();
         }
 
@@ -87,14 +95,14 @@ namespace RPGGame.UI.Avalonia
                 Dispatcher.UIThread.Post(() =>
                 {
                     ApplyMacStartupWindowSizing();
-                    initializationHandler?.StartTitleScreenAfterWindowReady();
+                    _ = initializationHandler?.StartTitleScreenAfterWindowReadyAsync();
                     BuildExecutionMetrics.RecordLaunchTime("GUI");
                     Dispatcher.UIThread.Post(ApplyMacStartupWindowSizing, DispatcherPriority.Background);
                 }, DispatcherPriority.Loaded);
                 return;
             }
 
-            initializationHandler?.StartTitleScreenAfterWindowReady();
+            _ = initializationHandler?.StartTitleScreenAfterWindowReadyAsync();
             BuildExecutionMetrics.RecordLaunchTime("GUI");
         }
 
@@ -109,8 +117,8 @@ namespace RPGGame.UI.Avalonia
             if (sizeRatio <= 0)
                 return;
 
-            MainWindowStartupSizing.ScaleOverlayPanel(SettingsMenuPanel, 1728, 972, 1400, 800, sizeRatio);
-            MainWindowStartupSizing.ScaleOverlayPanel(TuningMenuPanel, 1000, 650, 900, 650, sizeRatio);
+            MainWindowStartupSizing.ScaleOverlayPanel(settingsMenuPanel, 1728, 972, 1400, 800, sizeRatio);
+            MainWindowStartupSizing.ScaleOverlayPanel(tuningMenuPanel, 1000, 650, 900, 650, sizeRatio);
         }
         
         private void InitializeGame()
@@ -123,7 +131,7 @@ namespace RPGGame.UI.Avalonia
         private void OpenCombatTuningProgressionCurveSettings()
         {
             ShowSettingsPanel();
-            Dispatcher.UIThread.Post(() => SettingsMenuPanel?.OpenCombatTuningProgressionCurve(), DispatcherPriority.Loaded);
+            Dispatcher.UIThread.Post(() => EnsureSettingsPanel()?.OpenCombatTuningProgressionCurve(), DispatcherPriority.Loaded);
         }
 
         private async void OnKeyDown(object? sender, KeyEventArgs e)
@@ -398,9 +406,10 @@ namespace RPGGame.UI.Avalonia
         {
             Dispatcher.UIThread.Post(() =>
             {
-                if (TuningMenuPanel != null && TuningPanelOverlay != null)
+                var panel = EnsureTuningMenuPanel();
+                if (panel != null && TuningPanelOverlay != null)
                 {
-                    TuningMenuPanel.Initialize(variableEditor);
+                    panel.Initialize(variableEditor);
                     TuningPanelOverlay.IsVisible = true;
                 }
             });
@@ -427,13 +436,14 @@ namespace RPGGame.UI.Avalonia
         {
             Dispatcher.UIThread.Post(() =>
             {
-                if (SettingsPanelOverlay != null && SettingsMenuPanel != null)
+                var panel = EnsureSettingsPanel();
+                if (SettingsPanelOverlay != null && panel != null)
                 {
                     // Only reload from file when actually opening (overlay was hidden). Avoids overwriting in-memory edits if ShowSettingsPanel runs again while already visible.
                     if (!SettingsPanelOverlay.IsVisible)
                     {
                         GameSettings.ReloadFromFile();
-                        SettingsMenuPanel.RefreshSettingsFromFile();
+                        panel.RefreshSettingsFromFile();
                     }
                     // Suppress canvas rendering to hide ASCII menu
                     if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI) {
@@ -446,7 +456,7 @@ namespace RPGGame.UI.Avalonia
                     }
                     
                     // Set up callbacks for back button and status updates
-                    SettingsMenuPanel.SetBackCallback(() =>
+                    panel.SetBackCallback(() =>
                     {
                         HideSettingsPanel();
                         if (initializationHandler?.Game != null)
@@ -456,13 +466,13 @@ namespace RPGGame.UI.Avalonia
                         }
                     });
                     
-                    SettingsMenuPanel.SetStatusCallback(UpdateStatus);
+                    panel.SetStatusCallback(UpdateStatus);
                     
                     // Initialize handlers for testing and developer tools
                     // Always call InitializeHandlers, even if some values might be null
                     // This ensures the panel has references to what's available
                     CanvasUICoordinator? canvasUIForHandlers = initializationHandler?.CanvasUIManager as CanvasUICoordinator;
-                    SettingsMenuPanel.InitializeHandlers(
+                    panel.InitializeHandlers(
                         initializationHandler?.Game?.DeveloperMenuHandler,
                         initializationHandler?.Game,
                         canvasUIForHandlers,
@@ -471,6 +481,60 @@ namespace RPGGame.UI.Avalonia
                     SettingsPanelOverlay.IsVisible = true;
                 }
             });
+        }
+
+        private SettingsPanel? EnsureSettingsPanel()
+        {
+            if (settingsMenuPanel != null)
+                return settingsMenuPanel;
+            if (SettingsPanelOverlay == null)
+                return null;
+
+            settingsMenuPanel = new SettingsPanel
+            {
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Width = 1728,
+                Height = 972,
+                MinWidth = 1400,
+                MinHeight = 800
+            };
+            SettingsPanelOverlay.Child = settingsMenuPanel;
+
+            if (OperatingSystem.IsMacOS() && Width > 0)
+            {
+                double sizeRatio = Width / MainWindowStartupSizing.DesignWidth;
+                MainWindowStartupSizing.ScaleOverlayPanel(settingsMenuPanel, 1728, 972, 1400, 800, sizeRatio);
+            }
+
+            return settingsMenuPanel;
+        }
+
+        private TuningMenuPanel? EnsureTuningMenuPanel()
+        {
+            if (tuningMenuPanel != null)
+                return tuningMenuPanel;
+            if (TuningPanelOverlay == null)
+                return null;
+
+            tuningMenuPanel = new TuningMenuPanel
+            {
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Width = 1000,
+                Height = 650,
+                MinWidth = 900,
+                MinHeight = 650
+            };
+            TuningPanelOverlay.Child = tuningMenuPanel;
+
+            if (OperatingSystem.IsMacOS() && Width > 0)
+            {
+                double sizeRatio = Width / MainWindowStartupSizing.DesignWidth;
+                MainWindowStartupSizing.ScaleOverlayPanel(tuningMenuPanel, 1000, 650, 900, 650, sizeRatio);
+            }
+
+            return tuningMenuPanel;
         }
         
         /// <summary>

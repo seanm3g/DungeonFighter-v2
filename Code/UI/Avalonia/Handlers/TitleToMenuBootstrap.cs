@@ -1,9 +1,11 @@
+using Avalonia.Controls;
+
 namespace RPGGame.UI.Avalonia.Handlers
 {
     /// <summary>
     /// Pure helpers for title-screen → main-menu boot pacing.
     /// GameCoordinator is warmed while the title idle runs so a keypress only shows the menu.
-    /// The main window stays hidden (opacity 0) until the first idle frame is painted.
+    /// The main window stays minimized until the first idle frame is painted.
     /// </summary>
     public static class TitleToMenuBootstrap
     {
@@ -26,5 +28,11 @@ namespace RPGGame.UI.Avalonia.Handlers
         /// Hide the taskbar button until the title frame is ready so a blank window does not flash.
         /// </summary>
         public static bool GetStartupShowInTaskbar(bool titleFirstFrameReady) => titleFirstFrameReady;
+
+        /// <summary>
+        /// Opacity 0 still shows a black window on Windows. Stay minimized until the first frame is ready.
+        /// </summary>
+        public static WindowState GetStartupWindowState(bool titleFirstFrameReady) =>
+            titleFirstFrameReady ? WindowState.Normal : WindowState.Minimized;
     }
 }

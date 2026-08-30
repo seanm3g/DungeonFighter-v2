@@ -15,7 +15,8 @@ namespace RPGGame.UI.BlockDisplay
 
         /// <summary>
         /// Two-beat attack headline: show setup (and reserved follow-up rows on canvas), wait
-        /// <paramref name="halfDelayMs"/>, replace with the complete line, then fill follow-ups in place.
+        /// <paramref name="halfDelayMs"/>, replace with the complete line (and commit action SFX /
+        /// strip flash), then fill follow-ups in place.
         /// </summary>
         Task RenderSetupPunchlineAsync(
             List<ColoredText> setup,

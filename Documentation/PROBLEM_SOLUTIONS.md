@@ -4,6 +4,31 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: luck 18 showed a normal hit instead of the named action (August 2026)
+**Problem:** Combat log could show `2d20 luck 18/5 → 18` with `and hits for N damage` (unnamed) instead of `and hits with {ACTION}`.
+
+**Root cause:** Combo-strip vs unnamed normal was chosen from the first d20, then luck/naiveté rolled a second die for display only (and luck was sometimes rolled twice). A 5 that luck-kept 18 still executed the synthetic normal.
+
+**Solutions:**
+1. Action selection no longer rolls luck; the unforced second d20 is consumed once during resolution
+2. After luck (and after naiveté miss→advantage), reconcile the selected action to that kept face vs the combo threshold
+3. Tests: `ActionExecutionFlowTests`, `NaiveteThresholdBonusesTests`, `ActionSelectorRollBasedTests`
+
+**Related files:** `ActionSelector.cs`, `ActionExecutionFlow.Selection.cs`
+
+### Bug fix: action SFX played on combat-log setup instead of reveal (August 2026)
+**Problem:** Hit/miss/crit/combo/hurt sound effects played when `{Actor} Attacks {Target}...` appeared, before the line revealed `and hits` / `and misses`.
+
+**Root cause:** `ActionEventPublisher` fired `AudioCues.Trigger` as soon as the swing resolved, which is before `DisplayActionBlockAsync` shows the setup telegraph.
+
+**Solutions:**
+1. Queue the outcome cue with `AudioCues.QueueForPunchline` at publish time
+2. Commit it with strip flash on punchline reveal (`PunchlineRevealFeedback.CommitQueued`)
+3. Drop the cue when the action block is not shown (`ClearQueued`)
+4. Tests: `AudioCueDispatcherTests` queue-until-commit and clear-without-play
+
+**Related files:** `AudioCues.cs`, `ActionEventPublisher.cs`, `PunchlineRevealFeedback.cs`, `CanvasUIRenderer.cs`
+
 ### Bug fix: left-panel gear hover tooltip sat far from the mouse (August 2026)
 **Problem:** Hovering equipped gear or **Sets:** in the left sidebar opened the yellow tooltip in the upper-middle of the center panel, away from the cursor.
 
@@ -30,15 +55,16 @@ This document contains solutions to common problems encountered during developme
 **Related files:** `CanvasUIRenderer.cs`, `SetupPunchlineReservation.cs`, `BufferStorage.cs`, `CanvasUICoordinator.IUIManager.cs`
 
 ### Bug fix: title screen hitch on first window show (August 2026)
-**Problem:** The main window appeared, then froze for about a second while the title idle loaded colors, templates, and the first frame.
+**Problem:** The main window appeared, froze for about a second with the Windows wait cursor (blue circle), then the title idle started.
 
-**Root cause:** Title animation started after `Show()`. The first idle paint paid for `ColorConfiguration.json`, palette pick, and canvas glyph setup on the visible UI thread.
+**Root cause:** Opacity 0 still shows a black window on Windows. `Show()` also measured `SettingsPanel` (the same 2563-line tree `SettingsWindow` already delayed because it freezes layout). Revealing before `GameCoordinator` warmup meant that UI-thread construction froze the visible window.
 
 **Solutions:**
 1. `TitleScreenHelper.Preload()` runs in `App.OnFrameworkInitializationCompleted` before `new MainWindow()`
-2. Main window starts at opacity 0 / no taskbar button
-3. After `Opened`, paint the preloaded frame, then reveal; idle skips the opening clear so it does not flash black
-4. Tests: `TitleScreenAnimationTests` (preload + skip opening paint), `TitleToMenuBootstrapTests`
+2. Main window starts **minimized**, opacity 0, no taskbar button
+3. `SettingsPanel` / `TuningMenuPanel` are created only when those menus open
+4. After `Opened`, paint the preloaded frame and await warmup **while minimized**, then restore to normal
+5. Tests: `TitleScreenAnimationTests`, `TitleToMenuBootstrapTests`
 
 **Related files:** `TitleScreenController.cs`, `GameInitializationHandler.cs`, `App.axaml.cs`, `MainWindow.axaml`
 
@@ -135,6 +161,17 @@ This document contains solutions to common problems encountered during developme
 6. Tests: `SkillTreeProgressionTests`, `SkillEffectRankScalingTests`, updated `ClassActionManagerTests`
 
 **Related files:** `CharacterProgression.cs`, `SkillTreesConfig.cs`, `SkillTreeService.cs`, `SkillEffectRouter.cs`, `SkillTreeMenuHandler.cs`, `SkillTreeRenderer.cs`, `ClassActionManager.cs`, `GameData/SkillTrees.json`
+
+### Bug fix: Puberty +15 STR not applied (August 2026)
+**Problem:** Learning **Puberty** (R1/1, “Rite of passage: +15 Strength”) left the HUD STR unchanged (e.g. 13 instead of 28). The node was stored in `LearnedSkillRanks` with `customEffectId` `puberty`, but no runtime applied that bonus to effective attributes.
+
+**Solutions:**
+1. `SkillEffectRouter.GetSkillAttributeBonus` returns +15 per rank for Puberty (STR), Commission (AGI), Initiation (TEC), and Apprenticeship (INT)
+2. `CharacterFacade` extra-attribute bonus includes that value so `GetEffectiveStrength` / HUD / damage / item gates see it
+3. Suffix % reference and STR hover **Skill tree** line use the same source
+4. Tests: `SkillEffectRankScalingTests`, `StatTooltipFormatterTests`
+
+**Related files:** `SkillEffectRouter.cs`, `CharacterFacade.cs`, `CharacterCombatCalculator.cs`, `EquipmentBonusCalculator.cs`, `StatTooltipFormatter.cs`
 
 ### Hybrid skill side rail — Concept A (August 2026)
 **Problem:** Hybrid titles (Spellblade, Warbrute, …) existed without a skill UI for secondary-path skills, and showing all four trees was too overwhelming.

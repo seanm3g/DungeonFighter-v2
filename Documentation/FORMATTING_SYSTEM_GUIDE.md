@@ -56,7 +56,7 @@ TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction)
 - Use the constant `ACTION_BLOCK_INDENT = "     "` (5 spaces) for consistency
 - Actor-based spacing: No blank line between actions by the same actor; blank line between different actors
 - Applies to: characters, enemies, environment, and standalone status effects
-- Attack/spell headlines use a setup/punchline beat on **one line**: `{Actor} Attacks {Target}...` then ` and hits...` / ` and misses` after half of ActionDelayMs (`ActionHeadlineFormatter`, `DisplayBuffer.ReplaceLast`). On canvas, follow-up rows are reserved as blanks with the setup (`SetupPunchlineReservation`, `DisplayBuffer.ReplaceAtFromEnd`) so they fill in place instead of appending.
+- Attack/spell headlines use a setup/punchline beat on **one line**: `{Actor} Attacks {Target}...` then ` and hits...` / ` and misses` after half of ActionDelayMs (`ActionHeadlineFormatter`, `DisplayBuffer.ReplaceLast`). On canvas, follow-up rows are reserved as blanks with the setup (`SetupPunchlineReservation`, `DisplayBuffer.ReplaceAtFromEnd`) so they fill in place instead of appending. Action SFX and strip flash commit on that reveal (`PunchlineRevealFeedback`), not on the setup telegraph.
 
 ---
 

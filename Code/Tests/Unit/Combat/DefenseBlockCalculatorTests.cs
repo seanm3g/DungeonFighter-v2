@@ -12,7 +12,8 @@ using RPGGame.UI.ColorSystem;
 namespace RPGGame.Tests.Unit.Combat
 {
     /// <summary>
-    /// Hero 2d10 vs attack face: armor → per-swing block. Enemies keep 100% armor; pierce and misses do not roll.
+    /// Hero 1d20 vs attack face: armor → per-swing block (75% / 100% / 150%).
+    /// Enemies keep 100% armor; pierce and misses do not roll.
     /// </summary>
     public static class DefenseBlockCalculatorTests
     {
@@ -32,14 +33,14 @@ namespace RPGGame.Tests.Unit.Combat
             TestShouldRollHeroOnlyNotPierce();
             TestPierceDoesNotConsumeUnforcedQueue();
             TestEnemyTargetDoesNotConsumeUnforcedQueue();
-            TestCalculateDamageOpposedPunchAndGuard();
+            TestCalculateDamageOpposedAttackAheadAndGuard();
             TestCalculateDamageOmittedFaceKeepsFullArmor();
             TestNeutralAttackFaceWhenMissing();
             TestMissDoesNotConsumeUnforcedQueue();
-            TestHitStoresDefenseTotalFromUnforcedQueue();
-            TestMultiHitReusesOneDefenseTotal();
+            TestHitStoresDefenseFaceFromUnforcedQueue();
+            TestMultiHitReusesOneDefenseFace();
             TestFormatterFooterMatchesCalculateDamage();
-            TestEnumerate2d10VsD20Distribution();
+            TestEnumerate1d20VsD20Distribution();
 
             TestBase.PrintSummary("DefenseBlockCalculator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -48,19 +49,18 @@ namespace RPGGame.Tests.Unit.Combat
         {
             Console.WriteLine("--- Testing opposed margin bands and rounding ---");
 
-            TestBase.AssertEqual(0.0, DefenseBlockCalculator.GetMultiplier(20, 2), "20 vs 2 = punch 0%", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0.0, DefenseBlockCalculator.GetMultiplier(16, 8), "16 vs 8 = +8 punch", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0.0, DefenseBlockCalculator.GetMultiplier(20, 11), "20 vs 11 = +9 punch", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0.25, DefenseBlockCalculator.GetMultiplierFromMargin(7), "margin +7 = 25%", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0.25, DefenseBlockCalculator.GetMultiplierFromMargin(4), "margin +4 = 25%", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0.75, DefenseBlockCalculator.GetMultiplier(20, 2), "20 vs 2 = attack-ahead 75%", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0.75, DefenseBlockCalculator.GetMultiplier(16, 8), "16 vs 8 = +8 → 75%", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0.75, DefenseBlockCalculator.GetMultiplier(20, 11), "20 vs 11 = +9 → 75%", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0.75, DefenseBlockCalculator.GetMultiplierFromMargin(7), "margin +7 = 75%", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0.75, DefenseBlockCalculator.GetMultiplierFromMargin(4), "margin +4 = 75%", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1.0, DefenseBlockCalculator.GetMultiplierFromMargin(3), "margin +3 = 100%", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1.0, DefenseBlockCalculator.GetMultiplier(12, 14), "12 vs 14 = scrape 100%", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1.0, DefenseBlockCalculator.GetMultiplier(10, 11), "10 vs 11 = scrape 100%", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1.0, DefenseBlockCalculator.GetMultiplierFromMargin(-3), "margin -3 = 100%", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1.25, DefenseBlockCalculator.GetMultiplierFromMargin(-4), "margin -4 = 125%", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1.25, DefenseBlockCalculator.GetMultiplierFromMargin(-7), "margin -7 = 125%", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(2.0, DefenseBlockCalculator.GetMultiplierFromMargin(-8), "margin -8 = 200%", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(2.0, DefenseBlockCalculator.GetMultiplier(2, 20), "2 vs 20 = 200%", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.5, DefenseBlockCalculator.GetMultiplierFromMargin(-4), "margin -4 = 150%", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.5, DefenseBlockCalculator.GetMultiplierFromMargin(-7), "margin -7 = 150%", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.5, DefenseBlockCalculator.GetMultiplier(2, 20), "2 vs 20 = 150%", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             TestBase.AssertEqual(18, DefenseBlockCalculator.GetMargin(20, 2), "margin 20-2", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(-2, DefenseBlockCalculator.GetMargin(12, 14), "margin 12-14", ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -69,13 +69,13 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertEqual("0", DefenseBlockCalculator.FormatMarginSigned(0), "zero margin", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("-3", DefenseBlockCalculator.FormatMarginSigned(-3), "negative margin", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            TestBase.AssertEqual(0, DefenseBlockCalculator.ComputeBlock(8, 20, 2), "punch block 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, DefenseBlockCalculator.ComputeBlock(5, 15, 11), "5 * 0.25 rounds to 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, DefenseBlockCalculator.ComputeBlock(2, 15, 11), "2 * 0.25 = 0.5 away-from-zero = 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0, DefenseBlockCalculator.ComputeBlock(1, 15, 11), "1 * 0.25 = 0.25 rounds to 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(6, DefenseBlockCalculator.ComputeBlock(8, 20, 2), "8 * 0.75 = 6", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(4, DefenseBlockCalculator.ComputeBlock(5, 15, 11), "5 * 0.75 = 3.75 away-from-zero = 4", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, DefenseBlockCalculator.ComputeBlock(2, 15, 11), "2 * 0.75 = 1.5 away-from-zero = 2", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, DefenseBlockCalculator.ComputeBlock(1, 15, 11), "1 * 0.75 = 0.75 away-from-zero = 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(8, DefenseBlockCalculator.ComputeBlock(8, 10, 11), "scrape = 100% armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(5, DefenseBlockCalculator.ComputeBlock(4, 10, 16), "4 * 1.25 = 5", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(16, DefenseBlockCalculator.ComputeBlock(8, 2, 20), "2 vs 20 = 200%", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(6, DefenseBlockCalculator.ComputeBlock(4, 10, 16), "4 * 1.5 = 6", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(12, DefenseBlockCalculator.ComputeBlock(8, 2, 20), "2 vs 20 = 150% of 8 = 12", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestShouldRollHeroOnlyNotPierce()
@@ -128,9 +128,9 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertEqual(17, leftover, "unforced queue unused vs enemy", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestCalculateDamageOpposedPunchAndGuard()
+        private static void TestCalculateDamageOpposedAttackAheadAndGuard()
         {
-            Console.WriteLine("\n--- CalculateDamage opposed punch and great guard ---");
+            Console.WriteLine("\n--- CalculateDamage opposed attack-ahead and great guard ---");
 
             var attacker = TestDataBuilders.Enemy().WithName("Orc").WithHealth(100).Build();
             var hero = TestDataBuilders.Character().WithName("Tank").WithLevel(1).Build();
@@ -141,11 +141,11 @@ namespace RPGGame.Tests.Unit.Combat
             int raw = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
             int min = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
 
-            int dmgPunch = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10, true, 2, 20);
-            TestBase.AssertEqual(Math.Max(min, raw), dmgPunch, "20 vs 2 uses 0 block", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int dmgAhead = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10, true, 2, 20);
+            TestBase.AssertEqual(Math.Max(min, raw - 6), dmgAhead, "20 vs 2 uses 75% armor (6)", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             int dmgGuard = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10, true, 20, 2);
-            TestBase.AssertEqual(Math.Max(min, raw - 16), dmgGuard, "2 vs 20 uses 200% armor (16)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(Math.Max(min, raw - 12), dmgGuard, "2 vs 20 uses 150% armor (12)", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestCalculateDamageOmittedFaceKeepsFullArmor()
@@ -166,7 +166,7 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void TestNeutralAttackFaceWhenMissing()
         {
-            Console.WriteLine("\n--- Missing attack face uses 2d10 mean 11 ---");
+            Console.WriteLine("\n--- Missing attack face uses d20 stand-in 11 ---");
 
             var hero = TestDataBuilders.Character().WithName("EnvHero").WithLevel(1).Build();
             hero.EquipItem(new ChestItem("Plate", 1, 8), "body");
@@ -183,7 +183,7 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void TestMissDoesNotConsumeUnforcedQueue()
         {
-            Console.WriteLine("\n--- Miss path does not dequeue unforced 2d10 ---");
+            Console.WriteLine("\n--- Miss path does not dequeue unforced 1d20 ---");
 
             _ = GameConfiguration.Instance;
             var enemy = TestDataBuilders.Enemy().WithName("Misser").Build();
@@ -204,16 +204,14 @@ namespace RPGGame.Tests.Unit.Combat
             if (missBase > 20) missBase = 20;
             Dice.ClearUnforcedTestRolls();
             Dice.SetTestRoll(missBase);
-            Dice.QueueUnforcedTestRolls(7, 4);
+            Dice.QueueUnforcedTestRolls(17);
             try
             {
                 var result = ActionExecutionFlow.Execute(enemy, hero, null, null, jab, null, lastUsed, lastCrit);
                 TestBase.AssertTrue(!result.Hit, $"forced face {missBase} should miss (bonus {missBonus})", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(result.DefenseFace == null, "miss stores no defense face", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                int leftoverA = Dice.RollUnforced(10);
-                int leftoverB = Dice.RollUnforced(10);
-                TestBase.AssertEqual(7, leftoverA, "miss must not consume first unforced d10", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(4, leftoverB, "miss must not consume second unforced d10", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int leftover = Dice.RollUnforced(20);
+                TestBase.AssertEqual(17, leftover, "miss must not consume unforced d20", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {
@@ -222,9 +220,9 @@ namespace RPGGame.Tests.Unit.Combat
             }
         }
 
-        private static void TestHitStoresDefenseTotalFromUnforcedQueue()
+        private static void TestHitStoresDefenseFaceFromUnforcedQueue()
         {
-            Console.WriteLine("\n--- Hit stores 2d10 sum from unforced queue ---");
+            Console.WriteLine("\n--- Hit stores 1d20 face from unforced queue ---");
 
             _ = GameConfiguration.Instance;
             var enemy = TestDataBuilders.Enemy().WithName("Hitter").Build();
@@ -239,12 +237,12 @@ namespace RPGGame.Tests.Unit.Combat
             var lastCrit = new Dictionary<Actor, bool>();
             Dice.ClearUnforcedTestRolls();
             Dice.SetTestRoll(10);
-            Dice.QueueUnforcedTestRolls(1, 1);
+            Dice.QueueUnforcedTestRolls(7);
             try
             {
                 var result = ActionExecutionFlow.Execute(enemy, hero, null, null, jab, null, lastUsed, lastCrit);
                 TestBase.AssertTrue(result.Hit, "roll 10 should hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(2, result.DefenseFace ?? -1, "hit stores 2d10 sum 1+1=2", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(7, result.DefenseFace ?? -1, "hit stores unforced d20 face 7", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {
@@ -253,9 +251,9 @@ namespace RPGGame.Tests.Unit.Combat
             }
         }
 
-        private static void TestMultiHitReusesOneDefenseTotal()
+        private static void TestMultiHitReusesOneDefenseFace()
         {
-            Console.WriteLine("\n--- Multi-hit reuses one 2d10 total ---");
+            Console.WriteLine("\n--- Multi-hit reuses one 1d20 face ---");
 
             var attacker = TestDataBuilders.Enemy().WithName("MultiOrc").WithHealth(100).Build();
             var hero = TestDataBuilders.Character().WithName("MultiHero").WithLevel(1).Build();
@@ -274,14 +272,14 @@ namespace RPGGame.Tests.Unit.Combat
             int oneHit = CombatCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, rollBonus, totalRoll, true, 20, 2);
 
             Dice.ClearUnforcedTestRolls();
-            Dice.QueueUnforcedTestRolls(1, 1);
+            Dice.QueueUnforcedTestRolls(3);
             int total = MultiHitProcessor.ProcessMultiHit(
                 attacker, hero, action, 1.0, totalRoll, totalRoll, rollBonus, 10, null, 0, 20, 2);
-            int leftover = Dice.RollUnforced(10);
+            int leftover = Dice.RollUnforced(20);
             Dice.ClearUnforcedTestRolls();
 
             TestBase.AssertEqual(oneHit * 3, total, "three ticks share 2 vs 20 block", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, leftover, "ProcessMultiHit must not roll when total is passed", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, leftover, "ProcessMultiHit must not roll when total is passed", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestFormatterFooterMatchesCalculateDamage()
@@ -324,43 +322,52 @@ namespace RPGGame.Tests.Unit.Combat
                 "enemy target has no def: segment", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestEnumerate2d10VsD20Distribution()
+        private static void TestEnumerate1d20VsD20Distribution()
         {
-            Console.WriteLine("\n--- Enumerate 20 x 10 x 10 opposed outcomes ---");
+            Console.WriteLine("\n--- Enumerate 20 x 20 opposed outcomes ---");
 
             int n = 0;
             double sum = 0;
-            int punch = 0;
             int weak = 0;
             int scrape = 0;
             int strong = 0;
-            int guard = 0;
+            int other = 0;
+            int critWeak = 0;
+            int critScrape = 0;
+            int critStrong = 0;
             for (int attack = 1; attack <= 20; attack++)
             {
-                for (int d1 = 1; d1 <= 10; d1++)
+                for (int defense = 1; defense <= 20; defense++)
                 {
-                    for (int d2 = 1; d2 <= 10; d2++)
+                    double m = DefenseBlockCalculator.GetMultiplier(attack, defense);
+                    sum += m;
+                    n++;
+                    if (m == 0.75) weak++;
+                    else if (m == 1.0) scrape++;
+                    else if (m == 1.5) strong++;
+                    else other++;
+
+                    if (attack == 20)
                     {
-                        double m = DefenseBlockCalculator.GetMultiplier(attack, d1 + d2);
-                        sum += m;
-                        n++;
-                        if (m == 0.0) punch++;
-                        else if (m == 0.25) weak++;
-                        else if (m == 1.0) scrape++;
-                        else if (m == 1.25) strong++;
-                        else if (m == 2.0) guard++;
+                        if (m == 0.75) critWeak++;
+                        else if (m == 1.0) critScrape++;
+                        else if (m == 1.5) critStrong++;
                     }
                 }
             }
 
             double mean = sum / n;
-            TestBase.AssertEqual(2000, n, "20 x 10 x 10 = 2000 outcomes", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(scrape > punch && scrape > weak && scrape > strong && scrape > guard,
-                $"100% scrape should be the mode (punch {punch}, weak {weak}, scrape {scrape}, strong {strong}, guard {guard})",
+            TestBase.AssertEqual(400, n, "20 x 20 = 400 outcomes", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, other, "only 75 / 100 / 150 bands", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(136, weak, "margin ≥ +4 = 136/400", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(128, scrape, "margin −3…+3 = 128/400", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(136, strong, "margin ≤ −4 = 136/400", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(mean > 1.0 && mean < 1.2,
+                $"mean multiplier near 1.08 (got {mean:F3})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(mean > 0.85 && mean < 1.25,
-                $"mean multiplier near 1 (got {mean:F3}; punch {punch}/2000, guard {guard}/2000)",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(16, critWeak, "attack 20 vs def 1–16 = 75%", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(4, critScrape, "attack 20 vs def 17–20 = 100%", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, critStrong, "attack 20 never reaches 150%", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

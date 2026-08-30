@@ -35,7 +35,7 @@ namespace RPGGame
         /// <summary>How many naiveté charges were spent this swing for miss→advantage rerolls.</summary>
         public int NaiveteAdvantageUses { get; set; }
         public int Damage { get; set; }
-        /// <summary>Hero 2d10 defense total for this swing (null when not rolled: miss, pierce, or non-hero target).</summary>
+        /// <summary>Hero 1d20 defense face for this swing (null when not rolled: miss, pierce, or non-hero target).</summary>
         public int? DefenseFace { get; set; }
         public int HealAmount { get; set; }
         /// <summary>

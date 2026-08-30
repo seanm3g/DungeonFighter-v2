@@ -40,7 +40,7 @@ DungeonFighter/
 - **`Code/Combat/CombatTurnHandlerSimplified.cs`** - Simplified turn processing logic (high-performance turn handler)
 - **`Code/Combat/CombatCalculator.cs`** - Centralized damage, speed, and stat calculations
 - **`Code/Combat/Calculators/DamageCalculator.cs`** - Raw and final damage; optional hero `defenseFace` + `attackFace` convert armor to opposed-margin block; material convert adds +5 per banked keyword
-- **`Code/Combat/Calculators/DefenseBlockCalculator.cs`** - Hero-only unforced 2d10 vs attack face (armor → per-swing block). Not the unused CombatBalance “block/dodge/parry” stub.
+- **`Code/Combat/Calculators/DefenseBlockCalculator.cs`** - Hero-only unforced 1d20 vs attack face (armor → per-swing block at 75% / 100% / 150%). Not the unused CombatBalance “block/dodge/parry” stub.
 - **`Code/Combat/CombatEffectsSimplified.cs`** - Simplified status effects management (optimized effects system)
 - **`Code/Combat/EffectHandlerRegistry.cs`** - Strategy pattern for handling different combat effects
 - **`Code/Combat/StunProcessor.cs`** - Stun skips: one turn = victim `GetTotalAttackSpeed()`, scheduled via `ActionSpeedSystem.AdvanceOwnTimeline`
@@ -65,7 +65,7 @@ DungeonFighter/
 - **`Code/Config/SkillTreesConfig.cs`** + **`GameData/SkillTrees.json`** - Four class skill trees (Bronze Skin / Iron Discipline / Shadowcraft / Arcane Weave). On load/pull, `PromoteLevelOneAsRoot` makes **Level 1 - {Class}** (material-tag unlock) the free Core root; identity passives (e.g. Bronze Skin) become T1 children. Node costs are **1 SP per rank** (roots free); Action nodes maxRank 1; scalable Passive/Mastery sinks allow up to maxRank 5. Optional `sharedWith` (weapon/class keys) marks nodes that appear on the hybrid **side rail** when that path is secondary.
 - **`Code/Data/SkillTreesSheetConverter.cs`** - Class Upgrades sheet (gid `829575756`) ↔ `SkillTrees.json` flatten/nest for Sheets pull/push (includes `SharedWith`)
 - **`Code/Game/SkillTree/SkillTreeService.cs`** - Learn API, node view state, action unlock names, Concept A shared-rail display model (`BuildDisplayModel` / `GetSharedRailNodes`)
-- **`Code/Game/SkillTree/SkillEffectRouter.cs`** - CombatEventBus passive/rule/mastery runtime; `CollectActionCardBonuses` previews standing swing bonuses for action cards
+- **`Code/Game/SkillTree/SkillEffectRouter.cs`** - CombatEventBus passive/rule/mastery runtime; `GetSkillAttributeBonus` standing rite attributes (Puberty +15 STR, Commission AGI, Initiation TEC, Apprenticeship INT) folded into effective stats; `CollectActionCardBonuses` previews standing swing bonuses for action cards
 - **`Code/Game/SkillTreeMenuHandler.cs`** - GameLoop hub (`GameState.SkillTree`) learn UI (no respec); primary tree + optional shared secondary rail
 
 ### **Character Actions System (Phase 1 Refactoring ✅ COMPLETE)**
@@ -138,7 +138,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 
 ### **Action System**
 - **`Code/Actions/Action.cs`** - Base action class with properties and effects
-- **`Code/Actions/ActionSelector.cs`** - Handles action selection logic for different entity types
+- **`Code/Actions/ActionSelector.cs`** - Handles action selection logic for different entity types. Initial combo vs unnamed pick uses the first d20; `ResolveActionForResolvedDie` then matches the luck/naiveté-resolved face so `18/5 → 18` fires the strip action.
 - **`Code/Actions/ActionExecutor.cs`** - Handles action execution logic, damage application, and effect processing
 - **`Code/Actions/ActionFactory.cs`** - Creates and manages action instances (see CharacterActions system for refactoring)
 - **`Code/Actions/ActionUtilities.cs`** - Shared utilities for action-related operations
@@ -163,6 +163,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 #### Event System
 - **`Code/Combat/Events/CombatEventBus.cs`** - Event bus for conditional triggers (Observer pattern, Singleton)
 - **`Code/Combat/Events/CombatEventTypes.cs`** - Event type definitions and base event class
+- **`Code/Actions/Execution/ActionEventPublisher.cs`** - Publishes hit/miss/death/threshold events; queues combat action SFX until punchline (`AudioCues.QueueForPunchline`)
 
 #### Conditional Triggers
 - **`Code/Actions/Conditional/ActionTriggerGate.cs`** - Live gate: OR of outcomes (`ONHIT`…`ONROOMSCLEARED`, `ONFIRSTHIT`, `ONAFTERMISS`, `ONNATURALROLL`) AND filters (`ONWIELD`, `IFCLUTCH`/HP, same/diff action, status/DoT, tags, `IFLASTENEMY`); standalone filters ⇒ connect. `ONROLLVALUE` = attack total; `ONNATURALROLL` = die face (`NaturalRollValue`).
@@ -271,6 +272,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
   - **`BlockMessageCollector.cs`** - Collects messages for action blocks
   - **`EntityNameExtractor.cs`** - Extracts entity names from messages (`Attacks` setup headlines)
   - **`SetupPunchlineReservation.cs`** - Reserves blank follow-up rows with the setup so canvas fill-in does not scroll
+  - **`PunchlineRevealFeedback.cs`** - Commits strip flash + action SFX on punchline reveal (not setup)
   - **`BlockDelayManager.cs`** - Manages delays for block display (`CalculateActionBlockHalfDelay`)
   - **`Renderers/CanvasUIRenderer.cs`** - Renderer for CanvasUICoordinator
   - **`Renderers/GenericUIRenderer.cs`** - Renderer for generic UI managers
@@ -335,7 +337,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/UI/DungeonThemeColors.cs`** - Theme-based color mapping for dungeons (24 unique dungeon themes)
 
 #### **Avalonia UI System (New Modular Architecture)**
-- **`Code/UI/Avalonia/App.axaml.cs`** / **`ApplicationShutdownHelper.cs`** - Desktop lifetime: `ShutdownMode.OnMainWindowClose`; `TitleScreenHelper.Preload()` runs before `new MainWindow()` so color tables and the first idle frame are ready; the window starts at opacity 0 and `GameInitializationHandler.StartTitleScreenAfterWindowReady` paints then reveals. Title-bar X and Exit Game call `PerformShutdown(forceProcessExit: true)` (non-blocking ticker stop + 1.5s exit watchdog). `Code.csproj` also kills leftover `DF.exe` before build to avoid MSB3026
+- **`Code/UI/Avalonia/App.axaml.cs`** / **`ApplicationShutdownHelper.cs`** - Desktop lifetime: `ShutdownMode.OnMainWindowClose`; `TitleScreenHelper.Preload()` runs before `new MainWindow()` so color tables and the first idle frame are ready; the window starts minimized (opacity 0 still shows a black frame on Windows) and `GameInitializationHandler.StartTitleScreenAfterWindowReadyAsync` paints + finishes GameCoordinator warmup before revealing. `SettingsPanel` / `TuningMenuPanel` are created lazily on first open so `Show()` does not measure those trees. Title-bar X and Exit Game call `PerformShutdown(forceProcessExit: true)` (non-blocking ticker stop + 1.5s exit watchdog). `Code.csproj` also kills leftover `DF.exe` before build to avoid MSB3026
 - **Inventory item rows** — `ItemRendererHelper` + `ItemStatFormatter`: the `[n] [Rarity] [Slot] name` line is left-justified; subsequent **Actions:** and stat lines use a two-space indent (`ItemStatFormatter.ItemDetailLineIndent`) attached to the first content segment (ColoredTextBuilder collapses a whitespace-only prefix to one space)
 - **Hover tooltips (items/actions)** — `ItemTooltipFormatter` / `CombatActionStripBuilder.Tooltips`: default Name + Rarity + Tags (items) + Requirements (items) + Stats + Triggers; action Stats also list standing class / material-convert / WHILE_EQUIPPED tag bonuses (`ActionCardExternalBonusCollector`). Hold **Alt** (`HoverTooltipDetailState`, synced from MainWindow keys + pointer modifiers) for remaining detail. Drawn via `DungeonRenderer.RoomAndCombat` / `RightPanelRenderer` / `LeftPanelTooltipBuilder`. Left-panel GEAR/STATS/Sets tips dock to the center panel’s left inner edge at the hovered row (`HoverTooltipDrawing.GetHorizontalPositionAvoidingTarget` / `GetVerticalPositionNearTarget`) so they overlay the center as an extension of the sidebar.
 - **`Code/UI/Avalonia/CanvasUICoordinator.cs`** - Main coordinator implementing IUIManager, delegates to specialized managers
@@ -432,7 +434,7 @@ GameData/
 - **`Item`** - Base item class in `Item.cs`
 
 ### **Configuration Classes**
-- **`CombatBalanceConfig`** - Critical hits, roll-band damage multipliers, status/environmental knobs. Live hero **block** is `DefenseBlockCalculator` (armor × opposed 2d10 margin), not this config’s leftover block/dodge/parry mention.
+- **`CombatBalanceConfig`** - Critical hits, roll-band damage multipliers, status/environmental knobs. Live hero **block** is `DefenseBlockCalculator` (armor × opposed 1d20 margin, 75% / 100% / 150%), not this config’s leftover block/dodge/parry mention.
 - **`ExperienceSystemConfig`** - Character progression and experience formulas
 - **`LootSystemConfig`** - Loot drop rates and economy settings
 - **`DungeonScalingConfig`** - Dungeon generation and scaling parameters
@@ -618,7 +620,7 @@ The `Scripts/count-cs-lines-no-tests.ps1` script flags `.cs` files over **400 li
 ## ⚙️ Configuration Systems
 
 ### **Implemented Configurable Systems**
-1. **CombatBalance** - Critical hits, armor reduction; hero block uses `DefenseBlockCalculator` 2d10 opposed margin (not a CombatBalance dodge/parry table)
+1. **CombatBalance** - Critical hits, armor reduction; hero block uses `DefenseBlockCalculator` 1d20 opposed margin (75% / 100% / 150%; not a CombatBalance dodge/parry table)
 2. **ExperienceSystem** - Character progression and experience formulas
 3. **LootSystem** - Drop chances, magic find, and economy settings
 4. **DungeonScaling** - Room counts, enemy spawns, and generation parameters

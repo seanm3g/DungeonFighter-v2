@@ -1,4 +1,5 @@
 using System;
+using Avalonia.Controls;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Handlers;
 
@@ -76,6 +77,14 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
             TestBase.AssertTrue(
                 TitleToMenuBootstrap.GetStartupShowInTaskbar(titleFirstFrameReady: true),
                 "Taskbar button should appear with the title frame",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqualEnum(WindowState.Minimized,
+                TitleToMenuBootstrap.GetStartupWindowState(titleFirstFrameReady: false),
+                "Window should start minimized so a black frame cannot flash on Windows",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqualEnum(WindowState.Normal,
+                TitleToMenuBootstrap.GetStartupWindowState(titleFirstFrameReady: true),
+                "Window should restore to normal after the first title frame is painted",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

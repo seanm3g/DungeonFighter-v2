@@ -3,19 +3,19 @@ using System;
 namespace RPGGame.Combat.Calculators
 {
     /// <summary>
-    /// Hero-only defense: unforced 2d10 vs the attack face. Margin converts armor into per-swing block.
-    /// Enemies keep 100% armor. Pierce and non-hero targets do not roll.
+    /// Hero-only defense: unforced 1d20 vs the attack face. Margin converts armor into per-swing block
+    /// with a 75% floor and 150% ceiling. Enemies keep 100% armor. Pierce and non-hero targets do not roll.
     /// </summary>
     public static class DefenseBlockCalculator
     {
-        /// <summary>2d10 mean; used when a defense total exists but the attack has no d20 face (env hazards).</summary>
+        /// <summary>d20 mean is 10.5; used when a defense total exists but the attack has no d20 face (env hazards).</summary>
         public const int NeutralAttackFace = 11;
 
         public static bool IsHeroDefender(Actor? target) =>
             target is Character character && character is not Enemy;
 
         /// <summary>
-        /// True when a successful hit against this target should roll an unforced 2d10 defense.
+        /// True when a successful hit against this target should roll an unforced 1d20 defense.
         /// </summary>
         public static bool ShouldRoll(Actor? target, Action? action) =>
             IsHeroDefender(target) && !DamageCalculator.IgnoresArmor(target, action);
@@ -30,27 +30,24 @@ namespace RPGGame.Combat.Calculators
             return attackFace.Value;
         }
 
-        /// <summary>Classic opposed: attack face minus 2d10 total.</summary>
+        /// <summary>Classic opposed: attack face minus defense face.</summary>
         public static int GetMargin(int attackFace, int defenseTotal) =>
             ResolveAttackFace(attackFace) - defenseTotal;
 
         /// <summary>
-        /// Armor-to-block multiplier from opposed margin. High margin (punch) is weaker block.
+        /// Armor-to-block multiplier from opposed margin. Attack-ahead is the 75% floor;
+        /// defense-ahead is 150%. Close contests stay at 100%.
         /// </summary>
         public static double GetMultiplierFromMargin(int margin)
         {
-            if (margin >= 8)
-                return 0.0;
             if (margin >= 4)
-                return 0.25;
+                return 0.75;
             if (margin >= -3)
                 return 1.0;
-            if (margin >= -7)
-                return 1.25;
-            return 2.0;
+            return 1.5;
         }
 
-        /// <summary>Armor-to-block multiplier for an attack face vs a 2d10 defense total.</summary>
+        /// <summary>Armor-to-block multiplier for an attack face vs a 1d20 defense face.</summary>
         public static double GetMultiplier(int attackFace, int defenseTotal) =>
             GetMultiplierFromMargin(GetMargin(attackFace, defenseTotal));
 
@@ -82,14 +79,14 @@ namespace RPGGame.Combat.Calculators
         }
 
         /// <summary>
-        /// Rolls two unforced d10s (does not consume attack-scripted d20 queues) and returns the sum (2–20).
+        /// Rolls one unforced d20 (does not consume attack-scripted d20 queues) and returns the face (1–20).
         /// Returns null when the target should not roll (enemy, pierce, non-hero).
         /// </summary>
         public static int? TryRollDefenseFace(Actor? target, Action? action)
         {
             if (!ShouldRoll(target, action))
                 return null;
-            return Dice.RollUnforced(10) + Dice.RollUnforced(10);
+            return Dice.RollUnforced(20);
         }
     }
 }

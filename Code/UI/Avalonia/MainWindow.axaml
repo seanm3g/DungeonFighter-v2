@@ -8,6 +8,8 @@
         Icon="/UI/Avalonia/Assets/df_icon.ico"
         Title="DungeonFighter v2 - ASCII Edition"
         Background="Black"
+        WindowState="Minimized"
+        ShowActivated="False"
         Opacity="0"
         ShowInTaskbar="False"
         Width="1920" Height="1080" MinWidth="800" MinHeight="600" WindowStartupLocation="CenterScreen">
@@ -66,36 +68,22 @@
                 FontWeight="Bold"
                 Padding="15,10,15,10"/>
         
-        <!-- Tuning Menu Panel Overlay -->
+        <!-- Overlays stay empty at startup. SettingsPanel / TuningMenuPanel freeze Show() for
+             seconds if they are in the visual tree (same reason SettingsWindow creates them late). -->
         <Border Grid.Row="0" 
                 Background="#E0000000" 
                 IsVisible="False"
                 x:Name="TuningPanelOverlay"
                 ZIndex="1000"
                 IsHitTestVisible="True">
-            <local:TuningMenuPanel x:Name="TuningMenuPanel" 
-                                   HorizontalAlignment="Center" 
-                                   VerticalAlignment="Center"
-                                   Width="1000"
-                                   Height="650"
-                                   MinWidth="900"
-                                   MinHeight="650"/>
         </Border>
         
-        <!-- Settings Panel Overlay -->
         <Border Grid.Row="0" 
                 Background="#E0000000" 
                 IsVisible="False"
                 x:Name="SettingsPanelOverlay"
                 ZIndex="1000"
                 IsHitTestVisible="True">
-            <local:SettingsPanel x:Name="SettingsMenuPanel" 
-                                HorizontalAlignment="Center" 
-                                VerticalAlignment="Center"
-                                Width="1728"
-                                Height="972"
-                                MinWidth="1400"
-                                MinHeight="800"/>
         </Border>
     </Grid>
 </Window>

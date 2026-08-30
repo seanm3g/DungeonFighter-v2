@@ -46,6 +46,7 @@ namespace RPGGame.Tests.Unit.Actions
             TestEdgeCases();
             TestRollBoundaries();
             TestEnemyComboOnlyPoolBelowThresholdIsUnnamedNormal();
+            TestPendingLuckDoesNotRerollDuringSelection();
 
             // Clean up test mode
             Dice.ClearTestRoll();
@@ -393,6 +394,33 @@ namespace RPGGame.Tests.Unit.Actions
 
             TestBase.AssertTrue(ActionSelector.WouldNaturalRollSelectComboAction(enemy, 16),
                 "WouldNaturalRollSelectComboAction should be true for enemy roll 16",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Luck 2d20 is rolled once during combat resolution. Action selection must not consume the unforced second die.
+        /// </summary>
+        private static void TestPendingLuckDoesNotRerollDuringSelection()
+        {
+            Console.WriteLine("\n--- Testing pending luck does not consume the 2d20 second die during selection ---");
+
+            var character = CreateTestCharacterWithBothActionTypes();
+            CadenceScopedBuffApplicator.DepositToScope(character, "FIGHT",
+                new[] { new ActionAttackBonusItem { Type = MultiDiceRollMapper.AdvantageBonusType, Value = 0 } });
+
+            Dice.SetTestRoll(5);
+            Dice.QueueUnforcedTestRolls(18);
+            ActionSelector.ClearStoredRolls();
+            var action = ActionSelector.SelectActionBasedOnRoll(character);
+            int leftover = Dice.RollUnforced(20);
+            Dice.ClearTestRoll();
+            Dice.ClearUnforcedTestRolls();
+
+            TestBase.AssertTrue(action != null && !action.IsComboAction,
+                "First die 5 should pick unnamed normal before luck is applied",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(18, leftover,
+                "Selection must not consume the luck second d20",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

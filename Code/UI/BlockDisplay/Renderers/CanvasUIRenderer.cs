@@ -76,7 +76,7 @@ namespace RPGGame.UI.BlockDisplay.Renderers
                     completeHeadline,
                     character,
                     headlineType);
-                RPGGame.UI.Avalonia.Feedback.HeroActionStripFeedback.CommitQueued();
+                PunchlineRevealFeedback.CommitQueued();
 
                 for (int i = 0; i < n; i++)
                 {

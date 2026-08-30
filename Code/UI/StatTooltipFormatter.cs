@@ -48,6 +48,8 @@ namespace RPGGame
                 AddSignedStatRow(lines, "Temp bonus", b.TempBonus);
             if (code == "STR" && b.GodlikeBonus != 0)
                 AddSignedStatRow(lines, "Godlike mod", b.GodlikeBonus);
+            if (b.SkillBonus != 0)
+                AddSignedStatRow(lines, "Skill tree", b.SkillBonus);
             AddStatRow(lines, "After character mods", b.AttributeModifiedValue);
 
             if (b.GearTotalBonus != 0 || b.GearFlatBonus != 0 || b.GearSuffixBonus != 0)
@@ -376,6 +378,8 @@ namespace RPGGame
                 AddSignedStatRow(lines, "Temp bonus", b.TempBonus);
             if (b.GodlikeBonus != 0)
                 AddSignedStatRow(lines, "Godlike mod", b.GodlikeBonus);
+            if (b.SkillBonus != 0)
+                AddSignedStatRow(lines, "Skill tree", b.SkillBonus);
             AddStatRow(lines, "After character mods", b.AttributeModifiedValue);
             if (b.GearTotalBonus != 0)
                 AddSignedStatRow(lines, "Gear", b.GearTotalBonus);
@@ -388,6 +392,7 @@ namespace RPGGame
                 int baseValue,
                 int tempBonus,
                 int godlikeBonus,
+                int skillBonus,
                 int attributeModifiedValue,
                 int gearFlatBonus,
                 int gearSuffixBonus,
@@ -397,6 +402,7 @@ namespace RPGGame
                 BaseValue = baseValue;
                 TempBonus = tempBonus;
                 GodlikeBonus = godlikeBonus;
+                SkillBonus = skillBonus;
                 AttributeModifiedValue = attributeModifiedValue;
                 GearFlatBonus = gearFlatBonus;
                 GearSuffixBonus = gearSuffixBonus;
@@ -407,6 +413,7 @@ namespace RPGGame
             public int BaseValue { get; }
             public int TempBonus { get; }
             public int GodlikeBonus { get; }
+            public int SkillBonus { get; }
             public int AttributeModifiedValue { get; }
             public int GearFlatBonus { get; }
             public int GearSuffixBonus { get; }
@@ -447,10 +454,11 @@ namespace RPGGame
                 _ => 0
             };
             int god = code == "STR" ? c.GetModificationGodlikeBonus() : 0;
+            int skill = SkillEffectRouter.Instance.GetSkillAttributeBonus(c, code);
             int gearFlat = c.Equipment.GetFlatEquipmentStatExcludingSuffixes(code);
             int gearTotal = c.Equipment.GetEquipmentStatBonus(code, c);
             int gearSuffix = gearTotal - gearFlat;
-            int attributeModified = baseVal + temp + god;
+            int attributeModified = baseVal + temp + god + skill;
             int effective = code switch
             {
                 "STR" => c.GetEffectiveStrength(),
@@ -460,7 +468,7 @@ namespace RPGGame
                 _ => attributeModified + gearTotal
             };
 
-            return new AttributeBreakdown(baseVal, temp, god, attributeModified, gearFlat, gearSuffix, gearTotal, effective);
+            return new AttributeBreakdown(baseVal, temp, god, skill, attributeModified, gearFlat, gearSuffix, gearTotal, effective);
         }
 
         private static void AddEquationLine(List<List<ColoredText>> lines, AttributeBreakdown b, bool includeGodlike)
@@ -477,6 +485,11 @@ namespace RPGGame
             {
                 seg.Add(" ", Colors.Gray);
                 seg.Add(FormatSigned(b.GodlikeBonus), ValueColor(b.GodlikeBonus));
+            }
+            if (b.SkillBonus != 0)
+            {
+                seg.Add(" ", Colors.Gray);
+                seg.Add(FormatSigned(b.SkillBonus), ValueColor(b.SkillBonus));
             }
             if (b.GearTotalBonus != 0)
             {

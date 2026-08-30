@@ -96,7 +96,7 @@ namespace RPGGame.UI.BlockDisplay.Renderers
             if (completeHeadline != null && completeHeadline.Count > 0)
                 uiManager.WriteColoredSegments(completeHeadline, headlineType);
 
-            RPGGame.UI.Avalonia.Feedback.HeroActionStripFeedback.CommitQueued();
+            PunchlineRevealFeedback.CommitQueued();
 
             if (followUps != null && followUps.Count > 0)
             {

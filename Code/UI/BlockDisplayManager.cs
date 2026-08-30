@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using RPGGame.Combat.Formatting;
 using RPGGame.UI;
-using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.UI.BlockDisplay;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Services;
@@ -81,13 +80,13 @@ namespace RPGGame
                 // Check if we should display this combat action
                 if (!ShouldDisplayCombatLog(character))
                 {
-                    HeroActionStripFeedback.ClearQueued();
+                    PunchlineRevealFeedback.ClearQueued();
                     return;
                 }
 
                 if (CombatManager.DisableCombatUIOutput)
                 {
-                    HeroActionStripFeedback.ClearQueued();
+                    PunchlineRevealFeedback.ClearQueued();
                     return;
                 }
                 
@@ -112,7 +111,7 @@ namespace RPGGame
                     int delayAfterBatchMs = BlockDelayManager.CalculateActionBlockDelay();
                     var renderer = BlockRendererFactory.GetRenderer();
                     renderer.RenderMessageGroups(messageGroups, delayAfterBatchMs, character);
-                    HeroActionStripFeedback.CommitQueued();
+                    PunchlineRevealFeedback.CommitQueued();
                 }
                 
                 // Update the last acting Actor (for backward compatibility)
@@ -158,13 +157,13 @@ namespace RPGGame
                 // Check if we should display this combat action
                 if (!ShouldDisplayCombatLog(character))
                 {
-                    HeroActionStripFeedback.ClearQueued();
+                    PunchlineRevealFeedback.ClearQueued();
                     return;
                 }
 
                 if (CombatManager.DisableCombatUIOutput)
                 {
-                    HeroActionStripFeedback.ClearQueued();
+                    PunchlineRevealFeedback.ClearQueued();
                     return;
                 }
                 
@@ -205,7 +204,7 @@ namespace RPGGame
                     }
                     else
                     {
-                        HeroActionStripFeedback.CommitQueued();
+                        PunchlineRevealFeedback.CommitQueued();
                         await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs, character);
                     }
                 }

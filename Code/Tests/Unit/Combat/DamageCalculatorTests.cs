@@ -277,7 +277,7 @@ namespace RPGGame.Tests.Unit.Combat
             int full = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10);
             int punch = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10, true, 2, 20);
             TestBase.AssertEqual(Math.Max(min, raw - 8), full, "omitted face = 100% armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(Math.Max(min, raw), punch, "20 vs 2 = 0 block", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(Math.Max(min, raw - 6), punch, "20 vs 2 = 75% of 8 armor (6 block)", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestResolveTargetArmor_SubtractsAcidArmorReduction()

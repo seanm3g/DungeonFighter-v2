@@ -250,7 +250,7 @@ namespace RPGGame.Combat.Calculators
                 totalDamage = (int)(totalDamage * tagModifier);
             }
 
-            // Flat reduction: enemies use 100% armor; hero hits with a 2d10 defense convert armor to block via opposed margin.
+            // Flat reduction: enemies use 100% armor; hero hits with a 1d20 defense convert armor to block via opposed margin (75% / 100% / 150%).
             // Pierce: CausesPierce on the swing, or HasPierce on the target, ignores armor.
             int targetArmor = DefenseBlockCalculator.ResolveMitigation(target, action, defenseFace, attackFace);
 

@@ -112,9 +112,10 @@ namespace RPGGame.UI.Avalonia.Handlers
 
         /// <summary>
         /// Called once the main window has a GPU surface (Opened). Paints the preloaded first
-        /// title frame while still hidden, reveals the window, then starts idle + game warmup.
+        /// title frame and finishes GameCoordinator warmup while the window is still hidden,
+        /// then reveals and starts idle.
         /// </summary>
-        public void StartTitleScreenAfterWindowReady()
+        public async Task StartTitleScreenAfterWindowReadyAsync()
         {
             if (Interlocked.Exchange(ref titleScreenStarted, 1) != 0)
                 return;
@@ -151,49 +152,66 @@ namespace RPGGame.UI.Avalonia.Handlers
                         $"Preloaded title frame failed: {ex.Message}");
                 }
 
-                waitingForKeyAfterAnimation = true;
-                mainWindow.RevealAfterTitleReady();
-
-                titleIdleCts?.Cancel();
-                titleIdleCts?.Dispose();
-                titleIdleCts = new CancellationTokenSource();
-                var idleToken = titleIdleCts.Token;
-
-                _ = Task.Run(async () =>
+                if (gameWarmupTask != null)
                 {
                     try
                     {
-                        await TitleScreenHelper.ShowAnimatedTitleScreenAsync(
-                            idleToken,
-                            onReadyForKey: null,
-                            firstFrameAlreadyRendered: true).ConfigureAwait(false);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // Expected when the player presses a key during idle.
+                        await gameWarmupTask.ConfigureAwait(true);
                     }
                     catch (Exception ex)
                     {
                         DebugLogger.Log("GameInitializationHandler",
-                            $"Title animation failed: {ex.Message}");
-                        await Dispatcher.UIThread.InvokeAsync(() =>
-                        {
-                            if (!isInitialized)
-                            {
-                                status($"Error displaying title screen: {ex.Message}");
-                                InitializeGameAfterAnimation(status);
-                            }
-                        });
+                            $"Game warmup failed: {ex.Message}");
                     }
-                });
+                }
+
+                waitingForKeyAfterAnimation = true;
+                mainWindow.RevealAfterTitleReady();
+                StartTitleIdleLoop(status);
             }
             catch (Exception ex)
             {
                 DebugLogger.Log("GameInitializationHandler",
-                    $"StartTitleScreenAfterWindowReady failed: {ex.Message}");
+                    $"StartTitleScreenAfterWindowReadyAsync failed: {ex.Message}");
                 mainWindow.RevealAfterTitleReady();
                 InitializeGameAfterAnimation(status);
             }
+        }
+
+        private void StartTitleIdleLoop(Action<string> status)
+        {
+            titleIdleCts?.Cancel();
+            titleIdleCts?.Dispose();
+            titleIdleCts = new CancellationTokenSource();
+            var idleToken = titleIdleCts.Token;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await TitleScreenHelper.ShowAnimatedTitleScreenAsync(
+                        idleToken,
+                        onReadyForKey: null,
+                        firstFrameAlreadyRendered: true).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Expected when the player presses a key during idle.
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log("GameInitializationHandler",
+                        $"Title animation failed: {ex.Message}");
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        if (!isInitialized)
+                        {
+                            status($"Error displaying title screen: {ex.Message}");
+                            InitializeGameAfterAnimation(status);
+                        }
+                    });
+                }
+            });
         }
 
         /// <summary>
