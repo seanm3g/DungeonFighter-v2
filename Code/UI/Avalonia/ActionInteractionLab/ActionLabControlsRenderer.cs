@@ -487,6 +487,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                     var threadBtn = InventoryButtonFactory.CreateButton(x, y, threadLabel.Length, "lab_sim_parallel_toggle", threadLabel);
                     interactionManager!.AddClickableElement(threadBtn);
                     canvas.AddText(x, y, threadLabel, threadColor);
+                    RenderHudStepToggle(canvas, interactionManager, lab, interactive: true, y, x + threadLabel.Length + 2);
                     y++;
                 }
                 var exit = InventoryButtonFactory.CreateButton(x, y, 20, "lab_exit", "[ Exit lab ]");
@@ -511,6 +512,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 y++;
                 string threadHint = lab.UseParallelEncounterSimulation ? "[ Par ]" : "[ 1T ]";
                 canvas.AddText(x, y, threadHint, AsciiArtAssets.Colors.DarkGray);
+                RenderHudStepToggle(canvas, interactionManager: null, lab, interactive: false, y, x + threadHint.Length + 2);
                 y++;
                 canvas.AddText(x, y, "[ Exit lab ]", AsciiArtAssets.Colors.DarkGray);
             }
@@ -539,6 +541,30 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             }
             else
                 canvas.AddText(reqX, y, reqLabel, AsciiArtAssets.Colors.DarkGray);
+        }
+
+        /// <summary>
+        /// Swing vs Piece sequencer toggle beside Par/1T. Yellow = Piece (each HUD formula piece is a Step).
+        /// </summary>
+        private static void RenderHudStepToggle(
+            GameCanvasControl canvas,
+            ICanvasInteractionManager? interactionManager,
+            ActionInteractionLabSession lab,
+            bool interactive,
+            int y,
+            int x)
+        {
+            bool piece = lab.SequenceStepMode == LabSequenceStepMode.Piece;
+            string label = piece ? "[ Piece ]" : "[ Swing ]";
+            if (interactive && interactionManager != null)
+            {
+                var color = piece ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.Cyan;
+                var btn = InventoryButtonFactory.CreateButton(x, y, label.Length, "lab_hud_step_toggle", label);
+                interactionManager.AddClickableElement(btn);
+                canvas.AddText(x, y, label, color);
+            }
+            else
+                canvas.AddText(x, y, label, AsciiArtAssets.Colors.DarkGray);
         }
     }
 }

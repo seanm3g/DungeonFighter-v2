@@ -14,17 +14,35 @@ namespace RPGGame.Combat.Sequence
     /// telegraph and punchline.
     /// The HUD shows every calculation step in a two-row horizontal strip (titles over results);
     /// the active column is highlighted. Skipped for console, mute, and instant combat log.
+    /// Action Lab Piece mode waits for <see cref="TryAdvanceManualBeat"/> between formula pieces
+    /// instead of using beat delays.
     /// </summary>
     public static class CombatSequencePresenter
     {
         private static List<CombatSequenceStep>? _pending;
         private static bool _playedThisBlock;
         private static System.Action? _requestInvalidate;
+        private static TaskCompletionSource<bool>? _manualAdvance;
+        private static bool _flushRemaining;
+        private static bool _isManualPlaybackWaiting;
+        private static bool _manualPlaybackActive;
 
         internal static List<CombatSequenceCue> CuesFiredForTests { get; } = new();
         internal static bool RecordCuesForTests { get; set; }
         internal static bool BypassCanvasCheckForTests { get; set; }
         internal static bool SkipDelaysForTests { get; set; }
+
+        /// <summary>
+        /// When true, HUD playback waits for <see cref="TryAdvanceManualBeat"/> (or
+        /// <see cref="FlushRemainingManualBeats"/>) instead of timed delays.
+        /// </summary>
+        public static bool UseManualPlayback { get; set; }
+
+        /// <summary>True while Piece-mode playback is blocked on the next Step click.</summary>
+        public static bool IsManualPlaybackWaiting => _isManualPlaybackWaiting;
+
+        /// <summary>True from the start of a manual HUD play until it finishes or is cancelled.</summary>
+        public static bool IsManualPlaybackActive => _manualPlaybackActive;
 
         public static void SetRequestInvalidate(System.Action? invalidate) =>
             _requestInvalidate = invalidate;
@@ -60,6 +78,41 @@ namespace RPGGame.Combat.Sequence
         }
 
         /// <summary>
+        /// Completes the current Piece-mode wait so the next formula piece (or finish) can run.
+        /// </summary>
+        /// <returns><c>true</c> when a waiter was waiting.</returns>
+        public static bool TryAdvanceManualBeat()
+        {
+            var tcs = _manualAdvance;
+            if (tcs == null)
+                return false;
+            return tcs.TrySetResult(true);
+        }
+
+        /// <summary>
+        /// Reveals remaining HUD pieces without further clicks (undo/reset/toggle back to Swing).
+        /// </summary>
+        public static void FlushRemainingManualBeats()
+        {
+            _flushRemaining = true;
+            _manualAdvance?.TrySetResult(true);
+        }
+
+        /// <summary>
+        /// Aborts a Piece-mode wait so <see cref="PlayPendingAsync"/> can return (lab exit).
+        /// </summary>
+        public static void CancelManualPlayback()
+        {
+            _flushRemaining = false;
+            var tcs = _manualAdvance;
+            _manualAdvance = null;
+            _isManualPlaybackWaiting = false;
+            _manualPlaybackActive = false;
+            tcs?.TrySetCanceled();
+            CancelPlaybackHolds();
+        }
+
+        /// <summary>
         /// After the log setup telegraph: play the HUD if a swing is pending, otherwise wait
         /// <paramref name="halfDelayMs"/> so punchline timing matches the no-HUD path.
         /// </summary>
@@ -78,21 +131,26 @@ namespace RPGGame.Combat.Sequence
             _playedThisBlock = false;
             var steps = _pending;
             _pending = null;
+            _flushRemaining = false;
 
             if (steps == null || steps.Count == 0 || !ShouldPlay())
                 return;
 
             _playedThisBlock = true;
+            _manualPlaybackActive = UseManualPlayback;
             CombatSequenceHudState.Begin(steps);
             try
             {
                 for (int i = 0; i < steps.Count; i++)
                 {
                     var step = steps[i];
-                    CombatSequenceHudState.SetActive(i, resultRevealed: false);
-                    Invalidate();
-                    if (!SkipDelaysForTests)
-                        await CombatDelayManager.DelayAfterSequenceHudBeatAsync();
+                    if (!UseManualPlayback)
+                    {
+                        CombatSequenceHudState.SetActive(i, resultRevealed: false);
+                        Invalidate();
+                        if (!await WaitForBeatAsync())
+                            return;
+                    }
 
                     var beats = step.MathBeats;
                     for (int b = 0; b < beats.Count; b++)
@@ -101,13 +159,17 @@ namespace RPGGame.Combat.Sequence
                         if (b == beats.Count - 1)
                             FireCue(step.Cue);
                         Invalidate();
-                        if (!SkipDelaysForTests)
-                            await CombatDelayManager.DelayAfterSequenceHudBeatAsync();
+                        if (!await WaitForBeatAsync())
+                            return;
                     }
                 }
             }
             finally
             {
+                _flushRemaining = false;
+                _manualPlaybackActive = false;
+                _isManualPlaybackWaiting = false;
+                _manualAdvance = null;
                 CombatSequenceHudState.FinishSequence();
                 HealthBarDisplayHold.ReleaseAll();
                 Invalidate();
@@ -119,6 +181,46 @@ namespace RPGGame.Combat.Sequence
             HealthBarDisplayHold.ReleaseAll();
             CombatSequenceHudState.ClearStep();
             ClearPending();
+        }
+
+        /// <summary>
+        /// Timed delay in Swing/live play; Piece mode waits for <see cref="TryAdvanceManualBeat"/>.
+        /// </summary>
+        /// <returns><c>false</c> when playback was cancelled.</returns>
+        private static async Task<bool> WaitForBeatAsync()
+        {
+            if (UseManualPlayback)
+            {
+                if (_flushRemaining)
+                    return true;
+
+                var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _manualAdvance = tcs;
+                _isManualPlaybackWaiting = true;
+                try
+                {
+                    return await tcs.Task.ConfigureAwait(false);
+                }
+                catch (TaskCanceledException)
+                {
+                    return false;
+                }
+                catch (OperationCanceledException)
+                {
+                    return false;
+                }
+                finally
+                {
+                    _isManualPlaybackWaiting = false;
+                    if (ReferenceEquals(_manualAdvance, tcs))
+                        _manualAdvance = null;
+                }
+            }
+
+            if (SkipDelaysForTests)
+                return true;
+            await CombatDelayManager.DelayAfterSequenceHudBeatAsync();
+            return true;
         }
 
         private static void FireCue(CombatSequenceCue cue)
@@ -159,6 +261,13 @@ namespace RPGGame.Combat.Sequence
             RecordCuesForTests = false;
             BypassCanvasCheckForTests = false;
             SkipDelaysForTests = false;
+            UseManualPlayback = false;
+            _flushRemaining = false;
+            _isManualPlaybackWaiting = false;
+            _manualPlaybackActive = false;
+            var tcs = _manualAdvance;
+            _manualAdvance = null;
+            tcs?.TrySetCanceled();
             CuesFiredForTests.Clear();
             CombatSequenceHudState.ResetForTests();
             HealthBarDisplayHold.ResetForTests();

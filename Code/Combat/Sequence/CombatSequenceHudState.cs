@@ -14,10 +14,12 @@ namespace RPGGame.Combat.Sequence
         public static bool IsBandReserved { get; set; }
 
         /// <summary>
-        /// Sequence HUD is dungeon chrome: visible while exploring and during combat, not only when a fight starts.
+        /// Sequence HUD is dungeon chrome: visible while exploring, during combat, and in the Action Lab sandbox.
         /// </summary>
         public static bool ShouldReserveBand(GameState? state) =>
-            state == GameState.Dungeon || state == GameState.Combat;
+            state == GameState.Dungeon
+            || state == GameState.Combat
+            || state == GameState.ActionInteractionLab;
 
         public static IReadOnlyList<CombatSequenceStep> Steps { get; private set; } = new List<CombatSequenceStep>();
 

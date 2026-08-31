@@ -36,6 +36,8 @@ namespace RPGGame.Tests.Unit.Combat
             TestCompletedColumnsKeepResults();
             TestFinishSequenceMarksEveryColumnComplete();
             TestMathBeatsFireCueOnLastPiece();
+            TestManualPlaybackAdvancesOneBeatPerClick();
+            TestManualPlaybackCancelUnblocksPlayPending();
 
             CombatSequencePresenter.ResetForTests();
             TestBase.PrintSummary("CombatSequencePresenter Tests", _run, _passed, _failed);
@@ -296,6 +298,8 @@ namespace RPGGame.Tests.Unit.Combat
                 "dungeon exploration reserves the HUD", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(CombatSequenceHudState.ShouldReserveBand(GameState.Combat),
                 "combat keeps the same HUD", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(CombatSequenceHudState.ShouldReserveBand(GameState.ActionInteractionLab),
+                "Action Lab reserves the HUD", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.MainMenu),
                 "main menu does not show the HUD", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.DungeonSelection),
@@ -491,6 +495,110 @@ namespace RPGGame.Tests.Unit.Combat
                 CombatUiMuteScope.GlobalMute = prevMute;
                 CombatSequencePresenter.ResetForTests();
             }
+        }
+
+        private static void TestManualPlaybackAdvancesOneBeatPerClick()
+        {
+            Console.WriteLine("--- Piece mode reveals one math beat per TryAdvanceManualBeat ---");
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                CombatUiMuteScope.GlobalMute = false;
+                DeveloperModeState.SetCombatLogInstant(false);
+                CombatSequencePresenter.BypassCanvasCheckForTests = true;
+                CombatSequencePresenter.SkipDelaysForTests = true;
+                CombatSequencePresenter.UseManualPlayback = true;
+
+                var beatA = new ColoredTextBuilder().Add("14", ColorPalette.Info).Build();
+                var beatB = new ColoredTextBuilder().Add("+2 → 16", ColorPalette.Success).Build();
+                var steps = new List<CombatSequenceStep>
+                {
+                    new CombatSequenceStep(CombatSequenceStepKind.Roll, "ROLL", beatB,
+                        CombatSequenceCue.None, new List<List<ColoredText>> { beatA, beatB })
+                };
+                CombatSequencePresenter.SetPending(steps);
+                var play = Task.Run(() => CombatSequencePresenter.PlayPendingAsync());
+                TestBase.AssertTrue(WaitUntilManualWaiting(),
+                    "first piece is waiting after setup", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(CombatSequenceHudState.ResultRevealed,
+                    "first formula piece is revealed without an empty title pause", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(
+                    ColoredTextRenderer.RenderAsPlainText(CombatSequenceHudState.VisibleResult.ToList())
+                        .Contains("14", StringComparison.Ordinal),
+                    "visible result is the first ROLL piece", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(CombatSequencePresenter.TryAdvanceManualBeat(),
+                    "advance consumes the waiter", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(
+                    WaitUntilVisibleContains("16"),
+                    "second piece shows the roll total", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(CombatSequencePresenter.IsManualPlaybackWaiting,
+                    "second piece waits for another Step", ref _run, ref _passed, ref _failed);
+                CombatSequencePresenter.FlushRemainingManualBeats();
+                TestBase.AssertTrue(play.Wait(TimeSpan.FromSeconds(2)),
+                    "flush completes PlayPendingAsync", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequencePresenter.ResetForTests();
+            }
+        }
+
+        private static void TestManualPlaybackCancelUnblocksPlayPending()
+        {
+            Console.WriteLine("--- CancelManualPlayback unblocks PlayPendingAsync ---");
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                CombatUiMuteScope.GlobalMute = false;
+                DeveloperModeState.SetCombatLogInstant(false);
+                CombatSequencePresenter.BypassCanvasCheckForTests = true;
+                CombatSequencePresenter.SkipDelaysForTests = true;
+                CombatSequencePresenter.UseManualPlayback = true;
+                CombatSequencePresenter.SetPending(SampleSwingSteps());
+                var play = Task.Run(() => CombatSequencePresenter.PlayPendingAsync());
+                TestBase.AssertTrue(WaitUntilManualWaiting(),
+                    "manual play is waiting", ref _run, ref _passed, ref _failed);
+                CombatSequencePresenter.CancelManualPlayback();
+                TestBase.AssertTrue(play.Wait(TimeSpan.FromSeconds(2)),
+                    "cancel completes PlayPendingAsync", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequencePresenter.ResetForTests();
+            }
+        }
+
+        private static bool WaitUntilManualWaiting(int timeoutMs = 2000)
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            while (sw.ElapsedMilliseconds < timeoutMs)
+            {
+                if (CombatSequencePresenter.IsManualPlaybackWaiting)
+                    return true;
+                System.Threading.Thread.Sleep(10);
+            }
+            return false;
+        }
+
+        private static bool WaitUntilVisibleContains(string fragment, int timeoutMs = 2000)
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            while (sw.ElapsedMilliseconds < timeoutMs)
+            {
+                string visible = ColoredTextRenderer.RenderAsPlainText(
+                    CombatSequenceHudState.VisibleResult.ToList());
+                if (visible.Contains(fragment, StringComparison.Ordinal)
+                    && CombatSequencePresenter.IsManualPlaybackWaiting)
+                    return true;
+                System.Threading.Thread.Sleep(10);
+            }
+            return false;
         }
 
         private static List<CombatSequenceStep> SampleSwingSteps()

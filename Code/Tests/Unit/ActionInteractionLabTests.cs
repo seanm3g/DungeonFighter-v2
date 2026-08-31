@@ -44,6 +44,8 @@ namespace RPGGame.Tests.Unit
             Lab.ActionInteractionLabUndoResetTests.ResetLabEncounterAsync_ClearsHistoryHpEffectsKeepsStripEnemy(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabUndoResetTests.ResetLabEncounterAsync_RestoresCombatLogEnemyAlignment(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabSessionTests.RefreshGameDataAsync_ReloadsAndPreservesComboStrip(ref run, ref passed, ref failed);
+            Lab.ActionInteractionLabSessionTests.SequenceStepMode_DefaultsSwingAndToggles(ref run, ref passed, ref failed);
+            Lab.ActionInteractionLabSessionTests.PieceStep_DoesNotStartSecondTurnWhileHudWaiting(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabComboTests.LabEnemyTurnUsesEnemyPoolNotForcedCatalog(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabComboTests.LabTotalActionTicks_StepUndoSimAndFightReset(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabCatalogTests.LabCatalogSyncShowsSecondSlotWhenComboStepOne(ref run, ref passed, ref failed);
@@ -67,6 +69,8 @@ namespace RPGGame.Tests.Unit
             Lab.ActionInteractionLabGearTests.ActionLabArmorFactory_FilterMapsBodyToChest(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabGearTests.ActionLabGearCatalogFilter_Basics(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabGearTests.ClearLabGear_UnequipsSlot(ref run, ref passed, ref failed);
+            Lab.ActionInteractionLabGearTests.ActionLabWeaponFactory_SelectedMaterialPrefixWins(ref run, ref passed, ref failed);
+            Lab.ActionInteractionLabGearTests.ActionLabArmorFactory_WithoutAffixesStampsMaterial(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabComboTests.WouldNaturalRollSelectComboAction_MatchesSelectActionBasedOnRoll(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabCatalogTests.ApplyCatalogScrollOffsetDelta_Clamps(ref run, ref passed, ref failed);
             Lab.ActionInteractionLabCatalogTests.ApplyEnemyCatalogScrollOffsetDelta_Clamps(ref run, ref passed, ref failed);

@@ -85,7 +85,7 @@ namespace RPGGame.ActionInteractionLab
 
             item.RecomputeAttributeRequirementsIncludingModifications();
             ApplyMinimumRarity(item);
-            item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
+            ActionLabGearMaterial.Stamp(item);
             return item;
         }
 

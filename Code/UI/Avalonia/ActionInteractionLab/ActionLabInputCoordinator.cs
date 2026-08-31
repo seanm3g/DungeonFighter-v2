@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
+using RPGGame.Combat.Sequence;
 using RPGGame.Items.ItemTriggerScenario;
 
 namespace RPGGame.UI.Avalonia.ActionInteractionLab
@@ -108,11 +109,33 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
         public static async Task HandleLabControlAsync(string value, CanvasUICoordinator? canvasUI, GameCoordinator? game)
         {
             if (canvasUI == null || game == null) return;
+
+            // Piece-mode HUD waits inside the first Step; a second click must not hit the in-flight lock.
+            if (value == "lab_step" && CombatSequencePresenter.TryAdvanceManualBeat())
+                return;
+
+            if (value == "lab_undo" || value == "lab_reset_combo" || value == "lab_exit")
+            {
+                if (CombatSequencePresenter.IsManualPlaybackActive)
+                    CombatSequencePresenter.FlushRemainingManualBeats();
+            }
+
             if (Interlocked.CompareExchange(ref _labControlInFlight, 1, 0) != 0)
                 return;
 
             try
             {
+                if (value == "lab_step")
+                {
+                    Interlocked.Exchange(ref _labControlInFlight, 0);
+                    var session = ActionInteractionLabSession.Current;
+                    if (session == null || !session.CanStepForward)
+                        return;
+                    await session.StepAsync(session.ResolveD20ForNextStep(), session.SelectedCatalogActionName)
+                        .ConfigureAwait(true);
+                    return;
+                }
+
                 await HandleLabControlCoreAsync(value, canvasUI, game).ConfigureAwait(true);
             }
             finally
@@ -502,6 +525,13 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             if (value == "lab_req_toggle")
             {
                 session.IgnoreActionRequirements = !session.IgnoreActionRequirements;
+                RefreshLabCombat();
+                return;
+            }
+
+            if (value == "lab_hud_step_toggle")
+            {
+                session.ToggleSequenceStepMode();
                 RefreshLabCombat();
                 return;
             }

@@ -4,6 +4,18 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Action Lab sequence HUD Step lock and missing Material (August 2026)
+**Problem:** The Action Lab combat canvas did not show the sequence HUD (or Material set UI on lab-edited gear). Piece-by-piece stepping also could not work because `_labControlInFlight` held the tools lock for the whole `StepAsync`.
+
+**Root cause:** `ShouldReserveBand` omitted `GameState.ActionInteractionLab`. Lab weapon/armor factories cleared mods and never set `Item.Material`. The tools in-flight gate dropped a second `[ Step ]` while HUD playback waited.
+
+**Solutions:**
+1. Reserve the HUD band in the lab; Piece mode waits on `TryAdvanceManualBeat` (advance before the in-flight lock; release the lock before awaiting a Swing/Piece turn)
+2. Stamp Material on lab-built items (`ActionLabGearMaterial.Stamp`)
+3. Tests: `CombatSequencePresenterTests` manual advance/cancel; `ActionInteractionLabTests` toggle + factory Material
+
+**Related files:** `CombatSequenceHudState.cs`, `CombatSequencePresenter.cs`, `ActionLabInputCoordinator.cs`, `ActionLabWeaponFactory.cs`, `ActionLabArmorFactory.cs`
+
 ### Bug fix: sequence HUD froze the canvas while attack audio still played (August 2026)
 **Problem:** The first live swing left the window stuck (action on the strip, enemy HP unchanged, combat log not advancing) while hit/miss SFX still played.
 

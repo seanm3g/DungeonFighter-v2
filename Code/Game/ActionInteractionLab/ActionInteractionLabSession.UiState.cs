@@ -1,4 +1,5 @@
 using System;
+using RPGGame.Combat.Sequence;
 
 namespace RPGGame.ActionInteractionLab
 {
@@ -75,6 +76,22 @@ namespace RPGGame.ActionInteractionLab
         /// When true, those gates are bypassed for sandbox testing.
         /// </summary>
         public bool IgnoreActionRequirements { get; set; }
+
+        /// <summary>
+        /// <see cref="LabSequenceStepMode.Swing"/> (default): one Step is one combat turn and the HUD auto-plays.
+        /// <see cref="LabSequenceStepMode.Piece"/>: one Step reveals one sequence-HUD formula piece.
+        /// </summary>
+        public LabSequenceStepMode SequenceStepMode { get; set; } = LabSequenceStepMode.Swing;
+
+        /// <summary>Toggles Swing vs Piece; flushing remaining HUD pieces when leaving Piece mid-playback.</summary>
+        public void ToggleSequenceStepMode()
+        {
+            SequenceStepMode = SequenceStepMode == LabSequenceStepMode.Swing
+                ? LabSequenceStepMode.Piece
+                : LabSequenceStepMode.Swing;
+            if (SequenceStepMode == LabSequenceStepMode.Swing)
+                CombatSequencePresenter.FlushRemainingManualBeats();
+        }
 
         private static readonly int[] EncounterSimulationBatchTiers = { 1, 10, 100, 1000 };
 
