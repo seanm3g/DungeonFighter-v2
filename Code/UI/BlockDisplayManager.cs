@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RPGGame.Combat.Formatting;
+using RPGGame.Combat.Sequence;
 using RPGGame.UI;
 using RPGGame.UI.BlockDisplay;
 using RPGGame.UI.ColorSystem;
@@ -158,12 +159,14 @@ namespace RPGGame
                 if (!ShouldDisplayCombatLog(character))
                 {
                     PunchlineRevealFeedback.ClearQueued();
+                    CombatSequencePresenter.CancelPlaybackHolds();
                     return;
                 }
 
                 if (CombatManager.DisableCombatUIOutput)
                 {
                     PunchlineRevealFeedback.ClearQueued();
+                    CombatSequencePresenter.CancelPlaybackHolds();
                     return;
                 }
                 
@@ -178,6 +181,9 @@ namespace RPGGame
                 // Apply context-aware spacing based on what came before and actor changes
                 // Note: Spacing system handles all spacing - no manual blank lines needed
                 TextSpacingSystem.ApplySpacingBefore(blockType, currentEntity);
+
+                await CombatSequencePresenter.PlayPendingAsync();
+                bool hudPlayed = CombatSequencePresenter.PlayedThisBlock;
                 
                 // Collect all messages for this combat action block
                 var messageGroups = BlockMessageCollector.CollectActionBlockMessages(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives, blockType);
@@ -192,7 +198,13 @@ namespace RPGGame
                     bool environmentalBlock = blockType == TextSpacingSystem.BlockType.EnvironmentalAction;
                     UIMessageType headlineType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.Combat;
 
-                    if (halfDelayMs > 0
+                    // After HUD playback, archive the complete block in one shot (no second punchline).
+                    if (hudPlayed)
+                    {
+                        PunchlineRevealFeedback.CommitQueued();
+                        await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs, character);
+                    }
+                    else if (halfDelayMs > 0
                         && actionText != null
                         && ActionHeadlineFormatter.TrySplit(actionText, out var setup, out _)
                         && setup.Count > 0)

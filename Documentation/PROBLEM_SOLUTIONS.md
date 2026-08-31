@@ -4,6 +4,18 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: sequence HUD froze the canvas while attack audio still played (August 2026)
+**Problem:** The first live swing left the window stuck (action on the strip, enemy HP unchanged, combat log not advancing) while hit/miss SFX still played.
+
+**Root cause:** Encounter combat runs on a threadpool task. `CombatSequencePresenter` called `gameCanvas.Refresh()` (`InvalidateVisual`) from that thread, which deadlocks or stalls Avalonia painting. HUD text is drawn in `RenderLayout`, so a visual invalidate also never rebuilt the two-row band; HP stays on the pre-swing hold until a real layout paint.
+
+**Solutions:**
+1. Post HUD paints with `Dispatcher.UIThread.Post` (never invoke ForceRender/InvalidateVisual inline on combat, and never nest ForceRender inside a paint callback)
+2. Wire the live callback to `CanvasUICoordinator.ForceRender` so ACTION/ROLL/OUTCOME and the HP drop rebuild chrome
+3. Tests: `CombatSequencePresenterTests` asserts the invalidate callback does not run inline from a background thread
+
+**Related files:** `CombatSequencePresenter.cs`, `GameInitializationHandler.cs`
+
 ### Bug fix: luck 18 showed a normal hit instead of the named action (August 2026)
 **Problem:** Combat log could show `2d20 luck 18/5 → 18` with `and hits for N damage` (unnamed) instead of `and hits with {ACTION}`.
 

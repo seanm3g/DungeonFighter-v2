@@ -174,7 +174,7 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             var gameRef = game;
             bool skillTree = gameRef?.StateManager?.CurrentState == GameState.SkillTree;
-            bool inCenter = LayoutConstants.ContainsCenterPanelContent(grid.X, grid.Y)
+            bool inCenter = LayoutConstants.ContainsCombatLogScrollRegion(grid.X, grid.Y)
                 || (skillTree && LayoutConstants.ContainsCenterColumnFull(grid.X, grid.Y));
             if (!inCenter)
                 return;
@@ -248,7 +248,8 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             // Combat log / framed center: clear menu and strip-adjacent hover highlights so nothing sticks
             // when reading the log (and ensure tooltip overlay can fully clear on the next draw).
-            if (LayoutConstants.ContainsCenterPanelContent(gridPos.X, gridPos.Y))
+            if (LayoutConstants.ContainsCenterPanelContent(gridPos.X, gridPos.Y)
+                || LayoutConstants.ContainsCombatSequenceHud(gridPos.X, gridPos.Y))
                 canvasUI.ClearHoverStates();
 
             // Update hover state for menu / clickable elements

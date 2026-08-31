@@ -342,6 +342,10 @@ namespace RPGGame.Actions.Execution
             if (CombatTriggerContext.TryGetCritFaceMin(source, out int naturalCritMin)
                 && result.ModifiedBaseRoll >= naturalCritMin)
                 result.IsCritical = true;
+            result.ResolvedCritMissThreshold = criticalMissThreshold;
+            result.ResolvedHitThreshold = hitThreshold;
+            result.ResolvedComboThreshold = thresholdManager.GetComboThreshold(source);
+            result.ResolvedCritThreshold = thresholdManager.GetCriticalHitThreshold(source);
         }
 
         /// <summary>

@@ -242,7 +242,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 return;
 
             int innerLeft = LayoutConstants.CENTER_PANEL_X + 1;
-            int innerTop = LayoutConstants.CENTER_PANEL_Y + 1;
+            int innerTop = LayoutConstants.CombatLogContentY;
             int innerRight = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
             int innerW = Math.Max(8, innerRight - innerLeft + 1);
             // Item tooltips (animal suffixes + taxon synergies) need more rows than action tips:

@@ -45,6 +45,7 @@ DungeonFighter/
 - **`Code/Combat/EffectHandlerRegistry.cs`** - Strategy pattern for handling different combat effects
 - **`Code/Combat/StunProcessor.cs`** - Stun skips: one turn = victim `GetTotalAttackSpeed()`, scheduled via `ActionSpeedSystem.AdvanceOwnTimeline`
 - **`Code/Combat/CombatResults.cs`** - Handles UI display and result formatting
+- **`Code/Combat/Sequence/`** - Live combat sequence HUD: dungeon chrome (visible in `GameState.Dungeon` and `GameState.Combat`) in a two-row framed panel under the action strip with a one-row gap above the combat log. Columns are always ATTACKER / ROLL / OUTCOME / ACTION / DEFENSE / DAMAGE / EFFECTS. `CombatSequenceBuilder` records named beats from `ActionExecutionResult`; each column plays sequential formula pieces (`CombatSequenceMathBeats`); `CombatSequencePresenter` plays them (`MessageDelayMs`) and posts HUD paints to the UI thread (`ForceRender`, never combat-thread `InvalidateVisual`); `HealthBarDisplayHold` keeps HP bars at pre-swing values until the DAMAGE/HEAL cue. Instant/mute/console skip the HUD and keep setup/punchline.
 - **`Code/Combat/TurnManager.cs`** - Manages turn-based combat logic
 - **`Code/Combat/BattleNarrative.cs`** - Event-driven battle descriptions
 - **`Code/Combat/BattleHealthTracker.cs`** - Health tracking for battle narrative system

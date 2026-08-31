@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using RPGGame;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat.Sequence;
 using RPGGame.Diagnostics;
 
 namespace RPGGame.Combat.Calculators
@@ -12,6 +13,19 @@ namespace RPGGame.Combat.Calculators
     /// </summary>
     public static class DamageCalculator
     {
+        [ThreadStatic]
+        private static CombatSequenceDamageTrace? _sequenceTrace;
+
+        /// <summary>Start capturing formula pieces for the live sequence HUD (one swing, this thread).</summary>
+        public static void BeginSequenceTrace() => _sequenceTrace = new CombatSequenceDamageTrace();
+
+        /// <summary>Take the captured formula, if any, and stop recording.</summary>
+        public static CombatSequenceDamageTrace? TakeSequenceTrace()
+        {
+            var trace = _sequenceTrace;
+            _sequenceTrace = null;
+            return trace;
+        }
         /// <summary>
         /// Legacy hook for callers that invalidate when equipment or stats change; no-op (caching removed).
         /// </summary>
@@ -149,6 +163,7 @@ namespace RPGGame.Combat.Calculators
             var combatBalance = GameConfiguration.Instance.CombatBalance;
 
             // Apply roll-based damage scaling
+            bool appliedCritDamage = false;
             if (roll > 0)
             {
                 // Get threshold from threshold manager if available, otherwise use config
@@ -166,6 +181,7 @@ namespace RPGGame.Combat.Calculators
                 // Natural 20+ on the swing total still forces crit damage when bonuses push the die (legacy safety).
                 if (critEvalRoll >= criticalThreshold || roll >= 20)
                 {
+                    appliedCritDamage = true;
                     if (GameConfiguration.IsDebugEnabled)
                     {
                         if (!ActionExecutor.DisableCombatDebugOutput)
@@ -220,6 +236,8 @@ namespace RPGGame.Combat.Calculators
             if (attacker is Character convertHero && convertHero is not Enemy)
                 result += MaterialSetController.GetConvertDamageBonus(convertHero, action);
 
+            int convertFlat = result - (int)totalDamage;
+
             int maxCap = Math.Max(1, combatConfig.MaximumDamageCap);
             if (result > maxCap)
                 result = maxCap;
@@ -228,6 +246,16 @@ namespace RPGGame.Combat.Calculators
             if (result <= 0)
             {
                 result = 1;
+            }
+
+            if (_sequenceTrace != null)
+            {
+                _sequenceTrace.BaseDamage = baseDamage;
+                _sequenceTrace.ActionMultiplier = actionMultiplier;
+                _sequenceTrace.Amp = comboAmplifier;
+                _sequenceTrace.ConvertFlat = convertFlat;
+                _sequenceTrace.Raw = result;
+                _sequenceTrace.CritDamage = appliedCritDamage;
             }
 
             return result;
@@ -268,6 +296,12 @@ namespace RPGGame.Combat.Calculators
             if (finalDamage <= 0)
             {
                 finalDamage = 1;
+            }
+
+            if (_sequenceTrace != null)
+            {
+                _sequenceTrace.Block = targetArmor;
+                _sequenceTrace.Final = finalDamage;
             }
 
             if (sw != null)

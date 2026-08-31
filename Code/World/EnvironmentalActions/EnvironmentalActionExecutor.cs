@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.Combat.Calculators;
+using RPGGame.Combat.Sequence;
+using RPGGame.Combat.UI;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
 using static RPGGame.Combat.Formatting.DamageFormatter;
@@ -62,6 +64,7 @@ namespace RPGGame
             
             // Roll separately for each target and track which ones are affected
             var affectedTargets = new List<(Actor target, int duration, int? defenseFace)>();
+            var envHealthHolds = new List<(string EntityId, int Health)>();
             
             foreach (var target in aliveTargets)
             {
@@ -71,6 +74,9 @@ namespace RPGGame
                 // If duration is 0, the effect is not applied to this target
                 if (duration > 0)
                 {
+                    string? holdId = HealthBarEntityId.ForActor(target);
+                    if (!string.IsNullOrEmpty(holdId))
+                        envHealthHolds.Add((holdId, ActionUtilities.GetEntityHealth(target)));
                     int? defenseFace = action.Type == ActionType.Attack
                         ? DefenseBlockCalculator.TryRollDefenseFace(target, action)
                         : null;
@@ -104,6 +110,8 @@ namespace RPGGame
                 
                 // Use standard damage formatting for attacks
                 var (damageText, attackRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, action, 1.0, damageMultiplier, 0, 0, 1, false, null, default, defenseFace);
+
+                TryQueueEnvironmentalSequence(action.Name, damage, defenseFace, target, envHealthHolds);
                 
                 // For environmental attacks, we replace the action text with the damage text
                 // and use the roll info
@@ -120,7 +128,22 @@ namespace RPGGame
                 }
             }
             
+            TryQueueEnvironmentalSequence(action.Name, 0, null, affectedTargets.Count > 0 ? affectedTargets[0].target : null, envHealthHolds);
             return ((actionText, rollInfo), statusEffects);
+        }
+
+        private static void TryQueueEnvironmentalSequence(
+            string actionName,
+            int damage,
+            int? defenseFace,
+            Actor? target,
+            List<(string EntityId, int Health)> healthHolds)
+        {
+            if (!CombatSequencePresenter.ShouldPlay())
+                return;
+            CombatSequencePresenter.SetPending(
+                CombatSequenceBuilder.FromEnvironmental(actionName, damage, defenseFace, target),
+                healthHolds);
         }
 
         /// <summary>

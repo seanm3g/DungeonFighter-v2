@@ -61,6 +61,15 @@ namespace RPGGame.UI.Avalonia.Handlers
                 HeroActionStripFeedback.SetRequestInvalidate(() => gameCanvas.Refresh());
                 ThresholdBarFeedback.SetRequestInvalidate(() => gameCanvas.Refresh());
                 ActionBonusBorderShimmer.SetRequestInvalidate(() => gameCanvas.Refresh());
+                // HUD text is drawn during RenderLayout, so a visual invalidate is not enough.
+                // CombatSequencePresenter posts this to the UI thread before invoking it.
+                RPGGame.Combat.Sequence.CombatSequencePresenter.SetRequestInvalidate(() =>
+                {
+                    if (canvasUIManager is CanvasUICoordinator canvasUi)
+                        canvasUi.ForceRender();
+                    else
+                        gameCanvas.Refresh();
+                });
 
                 // Set the close action for the UI manager
                 if (canvasUIManager is CanvasUICoordinator canvasUI)

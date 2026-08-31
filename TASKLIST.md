@@ -4,6 +4,16 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Combat / sequence HUD — unnamed ACTION is hit or miss:** Empty action names no longer show “unnamed hit”; ACTION is **hit** or **miss**. Tests: `CombatSequenceBuilderTests`. Docs: `OVERVIEW.md`, `FORMATTING_SYSTEM_GUIDE.md`.
+
+- [x] **Combat / sequence HUD — dungeon chrome with padding + ATTACKER order:** Sequence HUD is a framed 2-row panel under the action strip for the whole dungeon (not only when combat starts), with a one-row gap above the combat log. Headers: ATTACKER / ROLL / OUTCOME / ACTION / DEFENSE / DAMAGE / EFFECTS. Tests: `CombatSequenceBuilderTests`, `CombatSequencePresenterTests`, `LayoutConstantsCenterPanelHitTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `FORMATTING_SYSTEM_GUIDE.md`.
+
+- [x] **Bug fix / UI — sequence HUD froze canvas while attack audio played:** Combat-thread `InvalidateVisual` plus refresh-without-layout left the first swing stuck (HP hold, empty log, SFX still committed). Presenter posts HUD paints to the UI thread; live callback is `ForceRender` so the two-row band and HP drop rebuild. Tests: `CombatSequencePresenterTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `PROBLEM_SOLUTIONS.md`.
+
+- [x] **Combat / sequence HUD — sequential math inside each column:** ROLL walks dice → keep → bonus; OUTCOME climbs the threshold ladder; DAMAGE walks base × action × amp − block (trace captured during `CalculateDamage`). Same two-row horizontal strip. Tests: `CombatSequenceBuilderTests`, `CombatSequencePresenterTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `FORMATTING_SYSTEM_GUIDE.md`.
+
+- [x] **Combat / sequence HUD — horizontal calculation strip:** Live canvas combat shows ACTION / ROLL / OUTCOME / DEFENSE / DAMAGE (or HEAL) as a two-row band under the action strip: all step titles on row 1, results on row 2, active column gold/`[STEP]`. Finished strip stays until the next swing; log archives the full block. Strip flash + SFX on OUTCOME; HP bar held until DAMAGE. Instant/mute/console keep setup/punchline. Tests: `CombatSequenceBuilderTests`, `CombatSequencePresenterTests`, `LayoutConstantsCenterPanelHitTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `FORMATTING_SYSTEM_GUIDE.md`.
+
 - [x] **Bug fix / Progression — Puberty +15 STR was not applied:** Learned rite passives now add a standing attribute via `SkillEffectRouter.GetSkillAttributeBonus` (Puberty +15 STR, Commission +15 AGI, Initiation +15 TEC, Apprenticeship +15 INT) into `GetEffectiveStrength` / sister getters, item thresholds, suffix % reference, and STR hover. Tests: `SkillEffectRankScalingTests`, `StatTooltipFormatterTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `PROBLEM_SOLUTIONS.md`.
 
 - [x] **Bug fix / Combat — luck-resolved face picks named combo vs unnamed hit:** 2d20 luck/unluck and naiveté advantage are applied once; the kept face (e.g. `18/5 → 18`) selects the combo-strip action instead of leaving a first-die-5 synthetic normal. Unluck that keeps a low face stays unnamed. `ActionSelector.ResolveActionForResolvedDie`, reconcile in `ActionExecutionFlow.SelectActionAndResolveRoll`. Tests: `ActionExecutionFlowTests`, `NaiveteThresholdBonusesTests`, `ActionSelectorRollBasedTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `PROBLEM_SOLUTIONS.md`.

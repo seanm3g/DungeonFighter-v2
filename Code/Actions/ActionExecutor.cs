@@ -5,6 +5,7 @@ using System.Linq;
 using Avalonia.Media;
 using RPGGame.Actions.Execution;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat.Sequence;
 using RPGGame.Combat.Events;
 using RPGGame.Combat.Outcomes;
 using RPGGame.Actions.Conditional;
@@ -37,6 +38,13 @@ namespace RPGGame
         public int Damage { get; set; }
         /// <summary>Hero 1d20 defense face for this swing (null when not rolled: miss, pierce, or non-hero target).</summary>
         public int? DefenseFace { get; set; }
+        /// <summary>Ladder values used to classify this swing (snapshotted at resolution).</summary>
+        public int? ResolvedCritMissThreshold { get; set; }
+        public int? ResolvedHitThreshold { get; set; }
+        public int? ResolvedComboThreshold { get; set; }
+        public int? ResolvedCritThreshold { get; set; }
+        /// <summary>Damage formula pieces for the sequence HUD (null when not captured, e.g. multi-hit).</summary>
+        public CombatSequenceDamageTrace? DamageTrace { get; set; }
         public int HealAmount { get; set; }
         /// <summary>
         /// Hit/tick count used when dealing damage for this swing (base MultiHitCount + redeemed ConsumedMultiHitMod + chain).
@@ -57,6 +65,10 @@ namespace RPGGame
         public Actor? EffectiveTarget { get; set; }
         /// <summary>Temp stat values before TURN cadence stat bonuses were tentatively applied for this roll (reverted on miss).</summary>
         public ActionExecutionFlow.TempStatSnapshot? TurnStatSnapshot { get; set; }
+        /// <summary>
+        /// Pre-swing HP snapshots for sequence-HUD health-bar hold (entity id, health before this swing's ApplyDamage/Heal).
+        /// </summary>
+        public List<(string EntityId, int Health)> HealthBarHolds { get; } = new();
     }
 
     /// <summary>
@@ -257,6 +269,12 @@ namespace RPGGame
             AppendNestedRetriggerDisplay(result, source, target, coloredStatusEffects);
             
             var mainResult = FormatAsColoredText(result, source, target);
+            if (CombatSequencePresenter.ShouldPlay())
+            {
+                CombatSequencePresenter.SetPending(
+                    CombatSequenceBuilder.From(result, source, target),
+                    result.HealthBarHolds);
+            }
             return (mainResult, coloredStatusEffects);
         }
 

@@ -81,6 +81,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             LayoutConstantsCenterPanelHitTests.RunAllTests();
             Console.WriteLine();
+            RPGGame.Tests.Unit.Combat.CombatSequencePresenterTests.RunAllTests();
+            Console.WriteLine();
             CombatLogCopyInputTests.RunAllTests();
             Console.WriteLine();
             CanvasElementManagerSnapshotTests.RunAllTests();

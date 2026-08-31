@@ -123,12 +123,15 @@ namespace RPGGame.UI.Avalonia.Layout
                         heightScale: D20ThresholdBarRenderer.CombatArmorHeightScale);
                 }
 
+                int displayHp = RPGGame.Combat.UI.HealthBarDisplayHold.Resolve($"player_{character.Name}", character.CurrentHealth);
+                int maxHp = character.GetEffectiveMaxHealth();
+
                 canvas.AddHealthBar(
                     x,
                     healthBarY,
                     healthBarWidth,
-                    character.CurrentHealth,
-                    character.GetEffectiveMaxHealth(),
+                    displayHp,
+                    maxHp,
                     entityId: $"player_{character.Name}",
                     heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale,
                     verticalOffsetScale: hasArmorBar ? D20ThresholdBarRenderer.CombatArmorHeightScale : 0.0);
@@ -148,7 +151,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     canvas.AddText(
                         x,
                         hpValueY,
-                        $"Health {character.CurrentHealth}/{character.GetEffectiveMaxHealth()}  Armor {maxArmor}",
+                        $"Health {displayHp}/{maxHp}  Armor {maxArmor}",
                         AsciiArtAssets.Colors.White);
                 }
                 else
@@ -156,7 +159,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     canvas.AddText(
                         x,
                         hpValueY,
-                        $"Health {character.CurrentHealth}/{character.GetEffectiveMaxHealth()}",
+                        $"Health {displayHp}/{maxHp}",
                         AsciiArtAssets.Colors.White);
                 }
 

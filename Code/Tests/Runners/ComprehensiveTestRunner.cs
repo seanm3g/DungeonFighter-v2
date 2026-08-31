@@ -37,6 +37,10 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ActionExecutionFlowTests.RunAllTests();
             Console.WriteLine();
+            RPGGame.Tests.Unit.Combat.CombatSequenceBuilderTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.Combat.CombatSequencePresenterTests.RunAllTests();
+            Console.WriteLine();
             ActionEffectTargetTests.RunAllTests();
             Console.WriteLine();
             ActionSequenceTests.RunAllTests();

@@ -73,7 +73,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public (int x, int y, int width, int height) GetCenterContentArea()
         {
-            return (LayoutConstants.CENTER_PANEL_X + 1, LayoutConstants.CENTER_PANEL_Y + 1, LayoutConstants.CENTER_PANEL_WIDTH - 2, LayoutConstants.CENTER_PANEL_HEIGHT - 2);
+            return (LayoutConstants.CENTER_PANEL_X + 1, LayoutConstants.CombatLogContentY, LayoutConstants.CENTER_PANEL_WIDTH - 2, LayoutConstants.CombatLogContentHeight);
         }
     }
 }

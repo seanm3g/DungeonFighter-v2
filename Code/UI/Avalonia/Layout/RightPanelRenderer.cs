@@ -442,11 +442,12 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.ClearSegmentedBarsInArea(x, healthBarY, healthBarWidth, enemyBarAreaHeight);
                 canvas.ClearTextInArea(x, hpValueY, healthBarWidth, 1);
                 
+                int displayEnemyHp = RPGGame.Combat.UI.HealthBarDisplayHold.Resolve($"enemy_{enemy.Name}", enemy.CurrentHealth);
                 canvas.AddHealthBar(
                     x,
                     healthBarY,
                     healthBarWidth,
-                    enemy.CurrentHealth,
+                    displayEnemyHp,
                     enemy.MaxHealth,
                     entityId: $"enemy_{enemy.Name}",
                     heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale);
@@ -458,7 +459,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     enemy,
                     ThresholdBarPanel.Enemy,
                     verticalOffsetScale: D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor);
-                canvas.AddText(x, hpValueY, $"{enemy.CurrentHealth}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
+                canvas.AddText(x, hpValueY, $"{displayEnemyHp}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
                 y += 3;
 
                 int weaponDamage = (enemy.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;

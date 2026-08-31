@@ -6,6 +6,7 @@ using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
 using RPGGame.Combat.Calculators;
 using RPGGame.Combat.Events;
+using RPGGame.Combat.Sequence;
 using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.Utils;
 using RPGGame.Data;
@@ -21,6 +22,8 @@ namespace RPGGame.Actions.Execution
         {
             var selected = result.SelectedAction;
             if (selected == null) return;
+
+            CombatSequenceBuilder.SnapshotHealthHolds(result, source, target);
 
             if (source is Character turnBonusCharacter && !(turnBonusCharacter is Enemy))
             {
@@ -76,9 +79,11 @@ namespace RPGGame.Actions.Execution
                 }
                 else
                 {
+                    DamageCalculator.BeginSequenceTrace();
                     result.Damage = selected.DamageMultiplier > 0
                         ? CombatCalculator.CalculateDamage(source, target, selected, damageMultiplier, 1.0, result.RollBonus, totalRoll, true, defenseFace, result.ModifiedBaseRoll)
                         : 0;
+                    result.DamageTrace = DamageCalculator.TakeSequenceTrace();
                     if (result.Damage > 0)
                     {
                         if (selected.Target == TargetType.SelfAndTarget)
