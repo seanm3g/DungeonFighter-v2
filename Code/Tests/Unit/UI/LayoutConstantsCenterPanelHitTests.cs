@@ -4,8 +4,7 @@ using RPGGame.UI.Avalonia.Layout;
 namespace RPGGame.Tests.Unit.UI
 {
     /// <summary>
-    /// Hit tests for <see cref="LayoutConstants.ContainsCenterPanelContent"/> (combat log vs action strip).
-    /// Main-window mouse wheel scrolling uses the same predicate so the wheel only moves the log, not when the pointer is over the action strip or side panels.
+    /// Hit tests for <see cref="LayoutConstants.ContainsCenterPanelContent"/> (combat arena vs action strip).
     /// </summary>
     public static class LayoutConstantsCenterPanelHitTests
     {
@@ -18,15 +17,22 @@ namespace RPGGame.Tests.Unit.UI
 
             int stripTop = LayoutConstants.ACTION_INFO_Y;
             int centerTop = LayoutConstants.CENTER_PANEL_Y;
+            int centerBottomExclusive = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT;
+
+            TestBase.AssertTrue(
+                LayoutConstants.ContainsCenterPanelContent(LayoutConstants.CENTER_PANEL_X + 1, centerTop),
+                "first row of framed center panel counts as center panel content",
+                ref run, ref passed, ref failed);
 
             TestBase.AssertTrue(
                 !LayoutConstants.ContainsCenterPanelContent(LayoutConstants.CENTER_PANEL_X + 1, stripTop),
                 "action-info strip row is not center panel content",
                 ref run, ref passed, ref failed);
 
-            TestBase.AssertTrue(
-                LayoutConstants.ContainsCenterPanelContent(LayoutConstants.CENTER_PANEL_X + 1, centerTop),
-                "first row of framed center panel counts as center panel content",
+            TestBase.AssertEqual(
+                stripTop,
+                centerBottomExclusive,
+                "center panel ends where action strip begins",
                 ref run, ref passed, ref failed);
 
             TestBase.AssertTrue(

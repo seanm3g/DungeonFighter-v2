@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -14,35 +15,40 @@ namespace RPGGame.UI.Avalonia.Feedback
 
     /// <summary>
     /// Pulses the selected d20 threshold bar segment after a combat roll resolves.
-    /// Segment highlight uses the same on/off half-period as hero action strip success feedback;
-    /// the roll caret stays visible for the full <see cref="FeedbackDurationMs"/> window.
+    /// The yellow roll diamond travels along the bar, then lands on the rolled face.
+    /// Hero and enemy panels track feedback independently.
     /// </summary>
     public static class ThresholdBarFeedback
     {
-        /// <summary>Total time segment pulse and roll caret remain visible after a combat roll.</summary>
         internal const int FeedbackDurationMs = 3000;
+        internal const int TravelDurationMs = 400;
 
         private static readonly TimeSpan TimerInterval = TimeSpan.FromMilliseconds(16);
 
         private static System.Action? _requestInvalidate;
         private static DispatcherTimer? _timer;
 
-        private static ThresholdBarPanel _panel;
-        private static int _segmentIndex = -1;
-        private static int _roll = -1;
-        private static DateTimeOffset _pulseSequenceEndAt;
-        private static DateTimeOffset _pulseSequenceStartAt;
-        private static int _pulseHalfPeriodMs = 150;
-        private static bool _pulseActive;
+        private sealed class PanelFeedback
+        {
+            public int SegmentIndex = -1;
+            public int Roll = -1;
+            public DateTimeOffset PulseSequenceEndAt;
+            public DateTimeOffset PulseSequenceStartAt;
+            public int PulseHalfPeriodMs = 150;
+            public bool PulseActive;
+        }
 
-        /// <summary>For unit tests: fixed clock; when null, <see cref="DateTimeOffset.UtcNow"/> is used.</summary>
+        private static readonly Dictionary<ThresholdBarPanel, PanelFeedback> States = new()
+        {
+            [ThresholdBarPanel.Hero] = new PanelFeedback(),
+            [ThresholdBarPanel.Enemy] = new PanelFeedback()
+        };
+
         internal static Func<DateTimeOffset>? UtcNowProviderForTests;
-
         private static DateTimeOffset Now() => UtcNowProviderForTests?.Invoke() ?? DateTimeOffset.UtcNow;
 
         public static void SetRequestInvalidate(System.Action? invalidate) => _requestInvalidate = invalidate;
 
-        /// <summary>Starts or refreshes a blink on the given bar segment and roll caret.</summary>
         public static void Trigger(ThresholdBarPanel panel, int segmentIndex, int roll)
         {
             if (segmentIndex < 0)
@@ -53,14 +59,14 @@ namespace RPGGame.UI.Avalonia.Feedback
                 var gs = GameSettings.Instance;
                 gs.ValidateAndFix();
 
-                _panel = panel;
-                _segmentIndex = segmentIndex;
-                _roll = roll >= 1 && roll <= 20 ? roll : -1;
+                var state = States[panel];
+                state.SegmentIndex = segmentIndex;
+                state.Roll = roll >= 1 && roll <= 20 ? roll : -1;
                 var t = Now();
-                _pulseActive = true;
-                _pulseSequenceStartAt = t;
-                _pulseHalfPeriodMs = Math.Max(50, gs.ActionStripSuccessFlashPulseHalfPeriodMs);
-                _pulseSequenceEndAt = t.AddMilliseconds(FeedbackDurationMs);
+                state.PulseActive = true;
+                state.PulseSequenceStartAt = t;
+                state.PulseHalfPeriodMs = Math.Max(50, gs.ActionStripSuccessFlashPulseHalfPeriodMs);
+                state.PulseSequenceEndAt = t.AddMilliseconds(FeedbackDurationMs);
 
                 EnsureTimerStarted();
                 _requestInvalidate?.Invoke();
@@ -78,64 +84,72 @@ namespace RPGGame.UI.Avalonia.Feedback
                 Dispatcher.UIThread.Post(Arm, DispatcherPriority.Normal);
         }
 
-        /// <summary>
-        /// When active and in the pulse "on" phase, returns a highlight color for the segment.
-        /// </summary>
         public static bool TryGetSegmentHighlight(ThresholdBarPanel panel, int segmentIndex, out Color color)
         {
             color = default;
-            if (!_pulseActive || _segmentIndex < 0 || panel != _panel || segmentIndex != _segmentIndex)
+            var state = States[panel];
+            if (!state.PulseActive || state.SegmentIndex < 0 || segmentIndex != state.SegmentIndex)
                 return false;
 
             var t = Now();
-            if (t >= _pulseSequenceEndAt)
+            if (t >= state.PulseSequenceEndAt)
             {
-                ClearFlashState();
+                ClearPanel(state);
                 return false;
             }
 
-            double elapsedMs = (t - _pulseSequenceStartAt).TotalMilliseconds;
-            int half = Math.Max(1, _pulseHalfPeriodMs);
-            if ((int)(elapsedMs / half) % 2 != 0)
+            double elapsedMs = (t - state.PulseSequenceStartAt).TotalMilliseconds;
+            if (elapsedMs < TravelDurationMs)
+                return false;
+
+            int half = Math.Max(1, state.PulseHalfPeriodMs);
+            if ((int)((elapsedMs - TravelDurationMs) / half) % 2 != 0)
                 return false;
 
             color = AsciiArtAssets.Colors.Gold;
             return true;
         }
 
-        /// <summary>
-        /// When active, returns the base d20 roll (1–20) for a pixel caret under the threshold bar.
-        /// Visible for the full flash window (not only the segment pulse on-phase).
-        /// </summary>
         public static bool TryGetRollMarker(ThresholdBarPanel panel, out int roll)
         {
             roll = -1;
-            if (!_pulseActive || _roll < 1 || panel != _panel)
+            var state = States[panel];
+            if (!state.PulseActive || state.Roll < 1)
                 return false;
 
             var t = Now();
-            if (t >= _pulseSequenceEndAt)
+            if (t >= state.PulseSequenceEndAt)
             {
-                ClearFlashState();
+                ClearPanel(state);
                 return false;
             }
 
-            roll = _roll;
+            double elapsedMs = (t - state.PulseSequenceStartAt).TotalMilliseconds;
+            if (elapsedMs < TravelDurationMs)
+            {
+                double progress = Math.Clamp(elapsedMs / TravelDurationMs, 0.0, 1.0);
+                double eased = 1.0 - Math.Pow(1.0 - progress, 2.0);
+                roll = Math.Clamp((int)Math.Round(1 + (state.Roll - 1) * eased), 1, 20);
+                return true;
+            }
+
+            roll = state.Roll;
             return true;
         }
 
         internal static void ResetForTests()
         {
-            ClearFlashState();
+            foreach (var kv in States)
+                ClearPanel(kv.Value);
             UtcNowProviderForTests = null;
             _timer?.Stop();
         }
 
-        private static void ClearFlashState()
+        private static void ClearPanel(PanelFeedback state)
         {
-            _segmentIndex = -1;
-            _roll = -1;
-            _pulseActive = false;
+            state.SegmentIndex = -1;
+            state.Roll = -1;
+            state.PulseActive = false;
         }
 
         private static void EnsureTimerStarted()
@@ -152,17 +166,20 @@ namespace RPGGame.UI.Avalonia.Feedback
 
         private static void OnTimerTick(object? sender, EventArgs e)
         {
-            if (_segmentIndex < 0)
+            bool anyActive = false;
+            var t = Now();
+            foreach (var kv in States)
             {
-                _timer?.Stop();
-                return;
+                var state = kv.Value;
+                if (!state.PulseActive)
+                    continue;
+                if (t >= state.PulseSequenceEndAt)
+                    ClearPanel(state);
+                else
+                    anyActive = true;
             }
 
-            var t = Now();
-            if (_pulseActive && t >= _pulseSequenceEndAt)
-                ClearFlashState();
-
-            if (_segmentIndex < 0)
+            if (!anyActive)
                 _timer?.Stop();
 
             _requestInvalidate?.Invoke();

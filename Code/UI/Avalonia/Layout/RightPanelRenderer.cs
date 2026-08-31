@@ -374,32 +374,10 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName, bool registerActionLabEnemyLevelHover, int? heroLevelForLabEnemyCaption)
         {
-            // Location section - always shown
-            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Location), AsciiArtAssets.Colors.Gold);
-            y += 2;
-            
-            // Dungeon — value line omitted when empty
-            canvas.AddText(x, y, "Dungeon:", AsciiArtAssets.Colors.Gray);
-            y++;
-            if (!string.IsNullOrEmpty(dungeonName))
-            {
-                string displayDungeon = RightPanelContentText.EllipsizeToPanelWidth(dungeonName);
-                canvas.AddText(x, y, displayDungeon, AsciiArtAssets.Colors.Cyan);
-                y++;
-            }
-            
-            // Room — value line omitted when empty
-            canvas.AddText(x, y, "Room:", AsciiArtAssets.Colors.Gray);
-            y++;
-            if (!string.IsNullOrEmpty(roomName))
-            {
-                string displayRoom = RightPanelContentText.EllipsizeToPanelWidth(roomName);
-                canvas.AddText(x, y, displayRoom, AsciiArtAssets.Colors.Yellow);
-                y++;
-            }
-            
-            y += 1;
-            
+            // Location lives on the left panel in the combat mock; right panel focuses on enemy stats.
+            _ = dungeonName;
+            _ = roomName;
+
             // Enemy section - always shown
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Enemy), AsciiArtAssets.Colors.Gold);
             y += 2;
@@ -431,35 +409,6 @@ namespace RPGGame.UI.Avalonia.Layout
                     });
                 }
                 y++;
-
-                // Health bar + d20 threshold strip
-                int healthBarWidth = LayoutConstants.RIGHT_PANEL_WIDTH - 8;
-                int healthBarY = y;
-                int enemyBarAreaHeight = D20ThresholdBarRenderer.CombatBarAreaRowCount;
-                int thresholdBarY = healthBarY;
-                int hpValueY = healthBarY + enemyBarAreaHeight;
-                canvas.ClearProgressBarsInArea(x, healthBarY, healthBarWidth, enemyBarAreaHeight);
-                canvas.ClearSegmentedBarsInArea(x, healthBarY, healthBarWidth, enemyBarAreaHeight);
-                canvas.ClearTextInArea(x, hpValueY, healthBarWidth, 1);
-                
-                canvas.AddHealthBar(
-                    x,
-                    healthBarY,
-                    healthBarWidth,
-                    enemy.CurrentHealth,
-                    enemy.MaxHealth,
-                    entityId: $"enemy_{enemy.Name}",
-                    heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale);
-                D20ThresholdBarRenderer.RenderBar(
-                    canvas,
-                    x,
-                    thresholdBarY,
-                    healthBarWidth,
-                    enemy,
-                    ThresholdBarPanel.Enemy,
-                    verticalOffsetScale: D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor);
-                canvas.AddText(x, hpValueY, $"{enemy.CurrentHealth}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
-                y += 3;
 
                 int weaponDamage = (enemy.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
                 int totalDamage = enemy.GetAttributeDamageBonus() + weaponDamage;

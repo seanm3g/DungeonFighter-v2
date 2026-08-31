@@ -178,6 +178,11 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("data", "SkillTreesSheetConverter", () => RPGGame.Tests.Unit.Data.SkillTreesSheetConverterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "FlavorTextWindowPlacement", () => RPGGame.Tests.Unit.UI.FlavorTextWindowPlacementTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionLabWindowPlacement", () => RPGGame.Tests.Unit.UI.ActionLabWindowPlacementTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ActionInfoStripLayout", () => RPGGame.Tests.Unit.UI.ActionInfoStripLayoutTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "CombatArenaHudLayout", () => RPGGame.Tests.Unit.UI.CombatArenaHudLayoutTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ThresholdBarFeedback", () => RPGGame.Tests.Unit.UI.ThresholdBarFeedbackTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "DisplayRendererClearBand", () => RPGGame.Tests.Unit.UI.DisplayRendererClearBandRegressionTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "LayoutConstantsCenterPanelHit", () => RPGGame.Tests.Unit.UI.LayoutConstantsCenterPanelHitTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "SettingsMenuHandler", () => RPGGame.Tests.Unit.Game.Handlers.SettingsMenuHandlerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ApplicationShutdownHelper", () => RPGGame.Tests.Unit.UI.ApplicationShutdownHelperTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "BlockDisplayManager", () => RPGGame.Tests.Unit.UI.BlockDisplayManagerTests.RunAllTests()));

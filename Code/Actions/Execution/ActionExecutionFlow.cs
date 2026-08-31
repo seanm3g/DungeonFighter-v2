@@ -186,6 +186,8 @@ namespace RPGGame.Actions.Execution
                 var comboForFeedback = ActionUtilities.GetComboActions(heroStrip);
                 if (comboForFeedback.Count > 0)
                     stripIndexForFeedback = heroStrip.ComboStep % comboForFeedback.Count;
+                if (result.SelectedAction != null)
+                    FighterResolveActionStackState.BeginResolve(heroStrip, result.SelectedAction);
             }
 
             if (result.Hit)
@@ -246,6 +248,9 @@ namespace RPGGame.Actions.Execution
                     flashKind = HeroActionStripFlashKind.Hit;
                 HeroActionStripFeedback.Trigger(stripIndexForFeedback.Value, flashKind);
             }
+
+            if (heroForStripFeedback != null)
+                FighterResolveActionStackState.EndResolve();
 
             source.ConsumeRollPenaltyAfterCombatRoll(result.SelectedAction);
             source.ConsumeConfusionAfterCombatAction(result.SelectedAction);

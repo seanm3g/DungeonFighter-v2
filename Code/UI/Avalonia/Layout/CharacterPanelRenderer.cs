@@ -45,9 +45,9 @@ namespace RPGGame.UI.Avalonia.Layout
         
         /// <summary>
         /// Renders the character information panel (left side). The player hero is expected; dice thresholds
-        /// and status lines use this character as the roll source.
+        /// and status lines use this character as the roll source. HP / armor / d20 bars live in the center arena during combat.
         /// </summary>
-        public void RenderCharacterPanel(Character character)
+        public void RenderCharacterPanel(Character character, string? dungeonName = null, string? roomName = null)
         {
             // Clear the left panel area before drawing so re-renders with clearCanvas: false (e.g. after level-up) do not leave duplicate content
             int leftX = LayoutConstants.LEFT_PANEL_X;
@@ -66,7 +66,7 @@ namespace RPGGame.UI.Avalonia.Layout
             int x = LayoutConstants.LEFT_PANEL_X + 2; // Reduced from +4 since border now starts at 0
             int headerClickWidth = LayoutConstants.LEFT_PANEL_WIDTH - 4;
             
-            // --- HERO --- (left-aligned like STATS/GEAR; body order: name, HP bar, Lvl+class, XP)
+            // --- HERO --- (name / level / XP; combat HP+roll bars are in the center arena)
             int heroHeaderY = y;
             string heroHeaderText = FormatLeftPanelSectionHeader(UIConstants.Headers.Hero);
             canvas.AddText(x, y, heroHeaderText, AsciiArtAssets.Colors.Gold);
@@ -93,75 +93,6 @@ namespace RPGGame.UI.Avalonia.Layout
                 textWriter.RenderSegments(heroNameSegments, x, nameY);
                 y++;
 
-                int healthBarWidth = LayoutConstants.LEFT_PANEL_WIDTH - 4;
-                int healthBarY = y;
-                int maxArmor = character.GetMaxArmor();
-                bool hasArmorBar = maxArmor > 0;
-                int barAreaHeight = D20ThresholdBarRenderer.CombatBarAreaRowCount;
-                double thresholdVerticalOffset = hasArmorBar
-                    ? D20ThresholdBarRenderer.CombatStripVerticalOffsetWithArmor
-                    : D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor;
-                int thresholdBarY = healthBarY;
-                int thresholdHoverRowY = healthBarY + 1;
-                int hpValueY = healthBarY + barAreaHeight;
-
-                canvas.ClearProgressBarsInArea(x, healthBarY, healthBarWidth, barAreaHeight);
-                canvas.ClearSegmentedBarsInArea(x, healthBarY, healthBarWidth, barAreaHeight);
-                canvas.ClearTextInArea(x, hpValueY, healthBarWidth, 1);
-
-                if (hasArmorBar)
-                {
-                    canvas.AddHealthBar(
-                        x,
-                        healthBarY,
-                        healthBarWidth,
-                        maxArmor,
-                        maxArmor,
-                        AsciiArtAssets.Colors.DarkBlue,
-                        AsciiArtAssets.Colors.White,
-                        entityId: $"player_{character.Name}_armor",
-                        heightScale: D20ThresholdBarRenderer.CombatArmorHeightScale);
-                }
-
-                canvas.AddHealthBar(
-                    x,
-                    healthBarY,
-                    healthBarWidth,
-                    character.CurrentHealth,
-                    character.GetEffectiveMaxHealth(),
-                    entityId: $"player_{character.Name}",
-                    heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale,
-                    verticalOffsetScale: hasArmorBar ? D20ThresholdBarRenderer.CombatArmorHeightScale : 0.0);
-
-                var thresholdSegments = D20ThresholdBarRenderer.RenderBar(
-                    canvas,
-                    x,
-                    thresholdBarY,
-                    healthBarWidth,
-                    character,
-                    ThresholdBarPanel.Hero,
-                    D20ThresholdBarRenderer.CombatStripHeightScale,
-                    thresholdVerticalOffset);
-
-                if (hasArmorBar)
-                {
-                    canvas.AddText(
-                        x,
-                        hpValueY,
-                        $"Health {character.CurrentHealth}/{character.GetEffectiveMaxHealth()}  Armor {maxArmor}",
-                        AsciiArtAssets.Colors.White);
-                }
-                else
-                {
-                    canvas.AddText(
-                        x,
-                        hpValueY,
-                        $"Health {character.CurrentHealth}/{character.GetEffectiveMaxHealth()}",
-                        AsciiArtAssets.Colors.White);
-                }
-
-                y = hpValueY + 1;
-
                 string currentClass = character.GetCurrentClass();
                 int levelY = y;
                 canvas.AddText(x, y, $"Lvl {character.Level} {currentClass}", AsciiArtAssets.Colors.Gold);
@@ -184,21 +115,6 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (interactionManager != null && stateManager != null)
                 {
                     RegisterLeftPanelHoverRow(x, nameY, headerClickWidth, 1, "hero:name");
-                    if (hasArmorBar)
-                        RegisterLeftPanelHoverRow(x, healthBarY, headerClickWidth, barAreaHeight, "hero:armor");
-                    RegisterLeftPanelHoverRow(x, healthBarY, headerClickWidth, barAreaHeight, "hero:hp");
-                    var thresholdHoverWidths = D20ThresholdBarRenderer.GetSegmentHoverWidths(healthBarWidth, thresholdSegments);
-                    int thresholdHoverX = x;
-                    for (int i = 0; i < thresholdSegments.Length; i++)
-                    {
-                        RegisterLeftPanelHoverRow(
-                            thresholdHoverX,
-                            thresholdHoverRowY,
-                            thresholdHoverWidths[i],
-                            1,
-                            ThresholdChanceLabelToHoverId(thresholdSegments[i].Label));
-                        thresholdHoverX += thresholdHoverWidths[i];
-                    }
                     RegisterLeftPanelHoverRow(x, levelY, headerClickWidth, 1, "hero:level");
                     RegisterLeftPanelHoverRow(x, xpY, headerClickWidth, 1, "hero:xp");
                     if (classPointsY.HasValue)
@@ -437,6 +353,30 @@ namespace RPGGame.UI.Avalonia.Layout
                     canvas.AddText(x, y, $"+{heroEffects.Count - maxHeroEffectLines} more", AsciiArtAssets.Colors.Gray);
                     if (interactionManager != null && stateManager != null)
                         RegisterLeftPanelHoverRow(x, overflowY, headerClickWidth, 1, "status:overflow");
+                    y++;
+                }
+            }
+
+            // --- LOCATION --- (mock: bottom of left column)
+            if (!string.IsNullOrEmpty(dungeonName) || !string.IsNullOrEmpty(roomName))
+            {
+                y += 1;
+                canvas.AddText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.Location), AsciiArtAssets.Colors.Gold);
+                y += 2;
+                if (!string.IsNullOrEmpty(dungeonName))
+                {
+                    canvas.AddText(x, y, "Dungeon:", AsciiArtAssets.Colors.Gray);
+                    y++;
+                    string displayDungeon = dungeonName.Length > 28 ? dungeonName.Substring(0, 25) + "..." : dungeonName;
+                    canvas.AddText(x, y, displayDungeon, AsciiArtAssets.Colors.Cyan);
+                    y++;
+                }
+                if (!string.IsNullOrEmpty(roomName))
+                {
+                    canvas.AddText(x, y, "Room:", AsciiArtAssets.Colors.Gray);
+                    y++;
+                    string displayRoom = roomName.Length > 28 ? roomName.Substring(0, 25) + "..." : roomName;
+                    canvas.AddText(x, y, displayRoom, AsciiArtAssets.Colors.Yellow);
                     y++;
                 }
             }

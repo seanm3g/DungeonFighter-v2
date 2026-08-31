@@ -77,20 +77,20 @@ namespace RPGGame.UI.Avalonia.Layout
         // This ensures panels fit within the actual visible area, not just the grid width
         private static int EffectiveVisibleWidth => _effectiveVisibleWidth;
         
-        // Center column: action-info strip at top, combat log (framed center panel) below. Positioned right after left panel with 1 char gap.
+        // Center column: framed arena/combat content above, action-info (combo) strip at bottom. Positioned right after left panel with 1 char gap.
         public static int CENTER_PANEL_X => LEFT_PANEL_X + LEFT_PANEL_WIDTH + 1; // +1 to match original gap
         // Calculate width using effective visible width to ensure right panel stays within visible area
         // Total effective width = LEFT_PANEL_WIDTH + gap(1) + CENTER_PANEL_WIDTH + gap(1) + RIGHT_PANEL_WIDTH
         // Clamp: before first Arrange or very narrow windows, raw width can go negative and breaks strip hit-tests / clears.
         public static int CENTER_PANEL_WIDTH => Math.Max(1, EffectiveVisibleWidth - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH - 3); // Accounts for gaps between panels
-        private const int BASE_ACTION_INFO_STRIP_HEIGHT = 11;
+        private const int BASE_ACTION_INFO_STRIP_HEIGHT = 13;
         public static int ACTION_INFO_STRIP_HEIGHT => BASE_ACTION_INFO_STRIP_HEIGHT;
-        /// <summary>First row of the action-info strip (top of center column, aligned with side panels).</summary>
-        public static int ACTION_INFO_Y => 0;
-        /// <summary>Combat log and main center content start below the action-info strip.</summary>
-        public static int CENTER_PANEL_Y => ACTION_INFO_STRIP_HEIGHT;
-        /// <summary>Height of the framed center panel (combat log); leaves room for the action-info strip above.</summary>
-        public static int CENTER_PANEL_HEIGHT => _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT;
+        /// <summary>First row of the action-info strip (bottom of center column, above the grid floor).</summary>
+        public static int ACTION_INFO_Y => Math.Max(0, _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT);
+        /// <summary>Arena HUD / combat log and main center content start at the top of the center column.</summary>
+        public static int CENTER_PANEL_Y => 0;
+        /// <summary>Height of the framed center panel; leaves room for the action-info strip below.</summary>
+        public static int CENTER_PANEL_HEIGHT => Math.Max(1, _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT);
 
         /// <summary>
         /// Monospace width used for wrapped / center-aligned combat log text inside the framed center panel.
@@ -129,8 +129,8 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int TITLE_Y => ScaleHeight(BASE_TITLE_Y);
 
         /// <summary>
-        /// True when <paramref name="gridX"/>, <paramref name="gridY"/> lies inside the framed combat-log
-        /// center panel (below the action-info strip, cyan border). Used to drop peripheral hover chrome.
+        /// True when <paramref name="gridX"/>, <paramref name="gridY"/> lies inside the framed combat
+        /// center panel (above the action-info strip, cyan border). Used to drop peripheral hover chrome.
         /// </summary>
         public static bool ContainsCenterPanelContent(int gridX, int gridY)
         {
@@ -142,7 +142,7 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         /// <summary>
-        /// Full center column including the action-info strip band (e.g. Skill Tree chrome).
+        /// Full center column including the bottom action-info strip band (e.g. Skill Tree chrome).
         /// </summary>
         public static bool ContainsCenterColumnFull(int gridX, int gridY)
         {
@@ -182,9 +182,10 @@ namespace RPGGame.UI.Avalonia.Layout
 
         /// <summary>
         /// Center column including the action-info strip band (for screens that hide the combo strip).
+        /// Always starts at the top of the center column regardless of strip placement.
         /// </summary>
-        public static int CENTER_COLUMN_FULL_Y => ACTION_INFO_Y;
-        public static int CENTER_COLUMN_FULL_HEIGHT => ACTION_INFO_STRIP_HEIGHT + CENTER_PANEL_HEIGHT;
+        public static int CENTER_COLUMN_FULL_Y => 0;
+        public static int CENTER_COLUMN_FULL_HEIGHT => _gridHeight + 1;
 
         /// <summary>
         /// Inset content rect for the full center column (strip + framed combat-log region).

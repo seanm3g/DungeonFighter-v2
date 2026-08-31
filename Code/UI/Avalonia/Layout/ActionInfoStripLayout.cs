@@ -4,7 +4,7 @@ using Avalonia.Media;
 namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
-    /// Shared layout math for the action-info strip (per-action panels at the top of the center column, above the combat log).
+    /// Shared layout math for the action-info strip (per-action panels at the bottom of the center column, below the combat arena).
     /// Must stay in sync with <see cref="Renderers.DungeonRenderer.RoomAndCombat.RenderActionInfoStrip"/>.
     /// <paramref name="panelCount"/> in <see cref="GetPanelRect"/> and <see cref="TryGetPanelIndex"/> is the display slot count (after padding to <see cref="LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT"/> when applicable).
     /// </summary>

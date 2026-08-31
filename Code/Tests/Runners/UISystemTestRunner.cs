@@ -58,6 +58,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ActionInfoStripLayoutTests.RunAllTests();
             Console.WriteLine();
+            CombatArenaHudLayoutTests.RunAllTests();
+            Console.WriteLine();
             HeroActionStripFeedbackTests.RunAllTests();
             Console.WriteLine();
             ActionBonusBorderShimmerTests.RunAllTests();

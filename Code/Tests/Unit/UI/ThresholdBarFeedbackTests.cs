@@ -18,24 +18,30 @@ namespace RPGGame.Tests.Unit.UI
             TestWrongSegmentNoHighlight(ref run, ref passed, ref failed);
             TestNegativeIndexNoOp(ref run, ref passed, ref failed);
             TestOffPhaseNoHighlight(ref run, ref passed, ref failed);
-            TestRollMarkerDuringFlash(ref run, ref passed, ref failed);
+            TestRollMarkerTravelsThenLands(ref run, ref passed, ref failed);
             TestRollMarkerWrongPanel(ref run, ref passed, ref failed);
             TestRollMarkerOffPhaseStillVisible(ref run, ref passed, ref failed);
             TestFeedbackExpiresAfterThreeSeconds(ref run, ref passed, ref failed);
+            TestHeroAndEnemyIndependent(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ThresholdBarFeedback Tests", run, passed, failed);
         }
 
         private static void TestHeroSegmentHighlightOnPhase(ref int run, ref int passed, ref int failed)
         {
+            var start = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
             try
             {
                 ThresholdBarFeedback.ResetForTests();
+                ThresholdBarFeedback.UtcNowProviderForTests = () => start;
                 ThresholdBarFeedback.Trigger(ThresholdBarPanel.Hero, 2, 12);
+                // Pulse begins after diamond travel completes.
+                ThresholdBarFeedback.UtcNowProviderForTests = () =>
+                    start.AddMilliseconds(ThresholdBarFeedback.TravelDurationMs);
                 TestBase.AssertTrue(
                     ThresholdBarFeedback.TryGetSegmentHighlight(ThresholdBarPanel.Hero, 2, out var c)
                     && c == AsciiArtAssets.Colors.Gold,
-                    "Hero segment 2 returns gold on pulse on-phase",
+                    "Hero segment 2 returns gold on pulse on-phase after travel",
                     ref run, ref passed, ref failed);
             }
             finally
@@ -46,10 +52,14 @@ namespace RPGGame.Tests.Unit.UI
 
         private static void TestWrongPanelNoHighlight(ref int run, ref int passed, ref int failed)
         {
+            var start = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
             try
             {
                 ThresholdBarFeedback.ResetForTests();
+                ThresholdBarFeedback.UtcNowProviderForTests = () => start;
                 ThresholdBarFeedback.Trigger(ThresholdBarPanel.Hero, 1, 8);
+                ThresholdBarFeedback.UtcNowProviderForTests = () =>
+                    start.AddMilliseconds(ThresholdBarFeedback.TravelDurationMs);
                 TestBase.AssertFalse(
                     ThresholdBarFeedback.TryGetSegmentHighlight(ThresholdBarPanel.Enemy, 1, out _),
                     "Enemy panel does not highlight hero flash",
@@ -63,10 +73,14 @@ namespace RPGGame.Tests.Unit.UI
 
         private static void TestWrongSegmentNoHighlight(ref int run, ref int passed, ref int failed)
         {
+            var start = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
             try
             {
                 ThresholdBarFeedback.ResetForTests();
+                ThresholdBarFeedback.UtcNowProviderForTests = () => start;
                 ThresholdBarFeedback.Trigger(ThresholdBarPanel.Enemy, 3, 16);
+                ThresholdBarFeedback.UtcNowProviderForTests = () =>
+                    start.AddMilliseconds(ThresholdBarFeedback.TravelDurationMs);
                 TestBase.AssertFalse(
                     ThresholdBarFeedback.TryGetSegmentHighlight(ThresholdBarPanel.Enemy, 0, out _),
                     "Non-selected segment does not highlight",
@@ -100,6 +114,7 @@ namespace RPGGame.Tests.Unit.UI
             var gs = GameSettings.Instance;
             int savedPulse = gs.ActionStripSuccessFlashPulseHalfPeriodMs;
             var start = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            int travel = ThresholdBarFeedback.TravelDurationMs;
 
             try
             {
@@ -108,13 +123,13 @@ namespace RPGGame.Tests.Unit.UI
                 ThresholdBarFeedback.UtcNowProviderForTests = () => start;
                 ThresholdBarFeedback.Trigger(ThresholdBarPanel.Hero, 1, 5);
 
-                ThresholdBarFeedback.UtcNowProviderForTests = () => start.AddMilliseconds(150);
+                ThresholdBarFeedback.UtcNowProviderForTests = () => start.AddMilliseconds(travel + 150);
                 TestBase.AssertFalse(
                     ThresholdBarFeedback.TryGetSegmentHighlight(ThresholdBarPanel.Hero, 1, out _),
                     "Off phase returns no highlight",
                     ref run, ref passed, ref failed);
 
-                ThresholdBarFeedback.UtcNowProviderForTests = () => start.AddMilliseconds(200);
+                ThresholdBarFeedback.UtcNowProviderForTests = () => start.AddMilliseconds(travel + 200);
                 TestBase.AssertTrue(
                     ThresholdBarFeedback.TryGetSegmentHighlight(ThresholdBarPanel.Hero, 1, out _),
                     "Second on phase returns highlight",
@@ -127,15 +142,26 @@ namespace RPGGame.Tests.Unit.UI
             }
         }
 
-        private static void TestRollMarkerDuringFlash(ref int run, ref int passed, ref int failed)
+        private static void TestRollMarkerTravelsThenLands(ref int run, ref int passed, ref int failed)
         {
+            var start = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
             try
             {
                 ThresholdBarFeedback.ResetForTests();
+                ThresholdBarFeedback.UtcNowProviderForTests = () => start;
                 ThresholdBarFeedback.Trigger(ThresholdBarPanel.Hero, 2, 14);
+
+                ThresholdBarFeedback.UtcNowProviderForTests = () => start.AddMilliseconds(0);
                 TestBase.AssertTrue(
-                    ThresholdBarFeedback.TryGetRollMarker(ThresholdBarPanel.Hero, out int roll) && roll == 14,
-                    "Hero roll marker returns triggered roll",
+                    ThresholdBarFeedback.TryGetRollMarker(ThresholdBarPanel.Hero, out int early) && early >= 1 && early <= 14,
+                    "Hero roll marker is visible during travel",
+                    ref run, ref passed, ref failed);
+
+                ThresholdBarFeedback.UtcNowProviderForTests = () =>
+                    start.AddMilliseconds(ThresholdBarFeedback.TravelDurationMs);
+                TestBase.AssertTrue(
+                    ThresholdBarFeedback.TryGetRollMarker(ThresholdBarPanel.Hero, out int landed) && landed == 14,
+                    "Hero roll marker lands on triggered roll after travel",
                     ref run, ref passed, ref failed);
             }
             finally
@@ -166,6 +192,7 @@ namespace RPGGame.Tests.Unit.UI
             var gs = GameSettings.Instance;
             int savedPulse = gs.ActionStripSuccessFlashPulseHalfPeriodMs;
             var start = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            int travel = ThresholdBarFeedback.TravelDurationMs;
 
             try
             {
@@ -174,7 +201,7 @@ namespace RPGGame.Tests.Unit.UI
                 ThresholdBarFeedback.UtcNowProviderForTests = () => start;
                 ThresholdBarFeedback.Trigger(ThresholdBarPanel.Hero, 1, 11);
 
-                ThresholdBarFeedback.UtcNowProviderForTests = () => start.AddMilliseconds(150);
+                ThresholdBarFeedback.UtcNowProviderForTests = () => start.AddMilliseconds(travel + 150);
                 TestBase.AssertFalse(
                     ThresholdBarFeedback.TryGetSegmentHighlight(ThresholdBarPanel.Hero, 1, out _),
                     "Off phase hides segment highlight",
@@ -201,10 +228,11 @@ namespace RPGGame.Tests.Unit.UI
                 ThresholdBarFeedback.UtcNowProviderForTests = () => start;
                 ThresholdBarFeedback.Trigger(ThresholdBarPanel.Hero, 0, 9);
 
-                ThresholdBarFeedback.UtcNowProviderForTests = () => start.AddMilliseconds(50);
+                ThresholdBarFeedback.UtcNowProviderForTests = () =>
+                    start.AddMilliseconds(ThresholdBarFeedback.TravelDurationMs + 50);
                 TestBase.AssertTrue(
                     ThresholdBarFeedback.TryGetSegmentHighlight(ThresholdBarPanel.Hero, 0, out _),
-                    "Segment pulse still active during three-second window",
+                    "Segment pulse still active during three-second window after travel",
                     ref run, ref passed, ref failed);
 
                 ThresholdBarFeedback.UtcNowProviderForTests = () =>
@@ -223,6 +251,32 @@ namespace RPGGame.Tests.Unit.UI
                 TestBase.AssertFalse(
                     ThresholdBarFeedback.TryGetSegmentHighlight(ThresholdBarPanel.Hero, 0, out _),
                     "Segment pulse clears after three seconds",
+                    ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                ThresholdBarFeedback.ResetForTests();
+            }
+        }
+
+        private static void TestHeroAndEnemyIndependent(ref int run, ref int passed, ref int failed)
+        {
+            var start = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            try
+            {
+                ThresholdBarFeedback.ResetForTests();
+                ThresholdBarFeedback.UtcNowProviderForTests = () => start;
+                ThresholdBarFeedback.Trigger(ThresholdBarPanel.Hero, 1, 10);
+                ThresholdBarFeedback.Trigger(ThresholdBarPanel.Enemy, 2, 18);
+                ThresholdBarFeedback.UtcNowProviderForTests = () =>
+                    start.AddMilliseconds(ThresholdBarFeedback.TravelDurationMs);
+                TestBase.AssertTrue(
+                    ThresholdBarFeedback.TryGetRollMarker(ThresholdBarPanel.Hero, out int hr) && hr == 10,
+                    "Hero marker independent after dual trigger",
+                    ref run, ref passed, ref failed);
+                TestBase.AssertTrue(
+                    ThresholdBarFeedback.TryGetRollMarker(ThresholdBarPanel.Enemy, out int er) && er == 18,
+                    "Enemy marker independent after dual trigger",
                     ref run, ref passed, ref failed);
             }
             finally

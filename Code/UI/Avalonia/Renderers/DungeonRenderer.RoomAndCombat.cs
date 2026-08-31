@@ -85,7 +85,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>
-        /// Renders the action-info strip at the top of the center column (combat, inventory, etc.), above the combat log.
+        /// Renders the action-info strip at the bottom of the center column (combat, inventory, etc.), below the combat arena.
         /// Shows at least <see cref="LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT"/> panels (empty placeholders when the combo is shorter or empty);
         /// selected (next combo step) panel border is white when the sequence is non-empty; other filled slots use neutral gray darkened 50%; brief pulsing red/green/gold border after each hero swing is handled by <see cref="RPGGame.UI.Avalonia.Feedback.HeroActionStripFeedback"/> (thicker stroke for the flashing panel during the sequence).
         /// Cards with pending ACTION-cadence buffs (slot queue / bank on current step) shimmer via <see cref="RPGGame.UI.Avalonia.Feedback.ActionBonusBorderShimmer"/> (flash still overrides). Granting actions alone do not shimmer.

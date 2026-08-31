@@ -250,7 +250,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                 RenderRollCaret(context, x, y, width, height, totalFaces, rollMarker.Value);
         }
 
-        /// <summary>Upward-pointing pixel caret centered on the rolled d20 face, just below the bar.</summary>
+        /// <summary>Yellow diamond centered on the rolled d20 face, just above the bar top.</summary>
         private static void RenderRollCaret(
             DrawingContext context,
             double barLeftX,
@@ -262,16 +262,17 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             double faceWidth = barWidthPx / totalFaces;
             double centerX = barLeftX + (roll - 0.5) * faceWidth;
-            double tipY = barTopY + barHeightPx;
-            double caretHeight = System.Math.Clamp(barHeightPx * 0.85, 3, 6);
-            double halfWidth = System.Math.Clamp(faceWidth * 0.22, 2, 4);
+            double caretHeight = System.Math.Clamp(barHeightPx * 0.85, 5, 11);
+            double halfWidth = System.Math.Clamp(faceWidth * 0.28, 3, 6);
+            double midY = barTopY - caretHeight * 0.15;
 
             var geometry = new StreamGeometry();
             using (var figure = geometry.Open())
             {
-                figure.BeginFigure(new Point(centerX, tipY), true);
-                figure.LineTo(new Point(centerX - halfWidth, tipY + caretHeight));
-                figure.LineTo(new Point(centerX + halfWidth, tipY + caretHeight));
+                figure.BeginFigure(new Point(centerX, midY - caretHeight * 0.5), true);
+                figure.LineTo(new Point(centerX + halfWidth, midY));
+                figure.LineTo(new Point(centerX, midY + caretHeight * 0.5));
+                figure.LineTo(new Point(centerX - halfWidth, midY));
                 figure.EndFigure(true);
             }
 

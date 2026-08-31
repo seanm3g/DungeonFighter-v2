@@ -78,8 +78,21 @@ namespace RPGGame.UI.Avalonia.Renderers
                         {
                             var displayManager = canvasTextManager.DisplayManager;
                             var buffer = displayManager.Buffer;
+                            // No enemy: keep room / exit-choice narrative in the mid band so combat
+                            // history cannot fill reserved HUD rows (or the whole center column).
+                            FighterResolveActionStackState.Clear();
+                            CombatArenaHudLayout.ClearArenaInner(canvas);
+                            CombatArenaHudLayout.GetNarrativeBand(out int nx, out int ny, out int nw, out int nh);
                             var renderer = new DisplayRenderer(new ColoredTextWriter(canvas));
-                            renderer.Render(buffer, contentX, contentY, contentWidth, contentHeight, clearContent: true, combatEnemyNamesForPrimaryLineRightAlign: contextManager.GetCombatLogEnemyAlignmentNames(), combatHeroNameForLineAlignment: player?.Name);
+                            renderer.Render(
+                                buffer,
+                                nx,
+                                ny,
+                                nw,
+                                nh,
+                                clearContent: true,
+                                combatEnemyNamesForPrimaryLineRightAlign: contextManager.GetCombatLogEnemyAlignmentNames(),
+                                combatHeroNameForLineAlignment: player?.Name);
                         }
                     },
                     context,
@@ -139,15 +152,45 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (currentEnemy == null && filteredDungeonContext != null && filteredDungeonContext.Count > 0)
                 filteredDungeonContext = new List<string>();
             bool shouldClear = context.IsFirstCombatRender;
+            DisplayBuffer? combatBuffer = null;
+            if (textManager is CanvasTextManager canvasTextManager)
+                combatBuffer = canvasTextManager.GetDisplayManagerForCharacter(player).Buffer;
+
             RenderWithLayout(player, "COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                if (currentEnemy != null)
-                {
-                    dungeonRenderer.RenderCombatScreen(contentX, contentY, contentWidth, contentHeight,
-                        null, null, currentEnemy, textManager, player, filteredDungeonContext,
-                        contextManager.GetCombatLogEnemyAlignmentNames());
-                }
+                CombatArenaHudLayout.ClearArenaInner(canvas);
             }, context, currentEnemy, context.DungeonName, context.RoomName, clearCanvas: shouldClear);
+
+            if (currentEnemy != null)
+            {
+                var arenaTextWriter = new ColoredTextWriter(canvas);
+                CombatArenaHudRenderer.Render(
+                    canvas,
+                    arenaTextWriter,
+                    player,
+                    currentEnemy,
+                    combatBuffer,
+                    contextManager.GetCombatLogEnemyAlignmentNames());
+                FighterResolveActionStackRenderer.Render(canvas);
+            }
+            else if (combatBuffer != null)
+            {
+                // Between fights: keep narrative between reserved HUD bands so defeat/room text
+                // cannot overlap leftover or upcoming HP bar chrome.
+                FighterResolveActionStackState.Clear();
+                CombatArenaHudLayout.GetNarrativeBand(out int nx, out int ny, out int nw, out int nh);
+                var displayRenderer = new DisplayRenderer(new ColoredTextWriter(canvas));
+                displayRenderer.Render(
+                    combatBuffer,
+                    nx,
+                    ny,
+                    nw,
+                    nh,
+                    clearContent: true,
+                    combatEnemyNamesForPrimaryLineRightAlign: contextManager.GetCombatLogEnemyAlignmentNames(),
+                    combatHeroNameForLineAlignment: player.Name);
+            }
+
             dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
             if (shouldClear)
@@ -165,7 +208,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             RenderWithLayout(player, "COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                dungeonRenderer.RenderEnemyEncounter(contentX, contentY, contentWidth, contentHeight, enemy, textManager, context.DungeonContext, contextManager.GetCombatLogEnemyAlignmentNames());
+                CombatArenaHudLayout.ClearArenaInner(canvas);
+                CombatArenaHudLayout.GetNarrativeBand(out int nx, out int ny, out int nw, out int nh);
+                dungeonRenderer.RenderEnemyEncounter(nx, ny, nw, nh, enemy, textManager, context.DungeonContext, contextManager.GetCombatLogEnemyAlignmentNames());
             }, context, enemy, dungeonName, roomName, clearCanvas: false);
             dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
@@ -174,6 +219,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderCombatResult(bool playerSurvived, Character player, Enemy enemy, BattleNarrative? battleNarrative, string? dungeonName, string? roomName, CanvasContext context)
         {
             CombatActionInfoState.Clear();
+            FighterResolveActionStackState.Clear();
             ActionStripHoverState.Clear();
             LeftPanelHoverState.Clear();
             if (textManager is CanvasTextManager canvasTextManager)
@@ -183,7 +229,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             RenderWithLayout(player, "COMBAT RESULT", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                combatRenderer.RenderCombatResult(contentX, contentY, contentWidth, contentHeight, playerSurvived, enemy, battleNarrative);
+                CombatArenaHudLayout.ClearArenaInner(canvas);
+                CombatArenaHudLayout.GetNarrativeBand(out int nx, out int ny, out int nw, out int nh);
+                combatRenderer.RenderCombatResult(nx, ny, nw, nh, playerSurvived, enemy, battleNarrative);
             }, context, enemy, dungeonName, roomName);
             dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
@@ -191,9 +239,12 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderRoomCompletion(Environment room, Character player, string? dungeonName, CanvasContext context)
         {
+            FighterResolveActionStackState.Clear();
             RenderWithLayout(player, $"ROOM CLEARED: {room.Name.ToUpper()}", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                dungeonRenderer.RenderRoomCompletion(contentX, contentY, contentWidth, contentHeight, room, player);
+                CombatArenaHudLayout.ClearArenaInner(canvas);
+                CombatArenaHudLayout.GetNarrativeBand(out int nx, out int ny, out int nw, out int nh);
+                dungeonRenderer.RenderRoomCompletion(nx, ny, nw, nh, room, player);
             }, context, null, dungeonName, null);
             dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
@@ -223,6 +274,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             EnsureDisplayManagerForPlayer(player);
             CombatActionInfoState.Clear();
+            FighterResolveActionStackState.Clear();
             ActionStripHoverState.Clear();
             LeftPanelHoverState.Clear();
             if (textManager is CanvasTextManager canvasTextManager)

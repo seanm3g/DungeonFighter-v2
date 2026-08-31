@@ -64,7 +64,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     // Render left panel (Character Info) - Always visible
                     if (character != null)
                     {
-                        characterPanelRenderer.RenderCharacterPanel(character);
+                        characterPanelRenderer.RenderCharacterPanel(character, dungeonName, roomName);
                     }
                     else
                     {
@@ -78,7 +78,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     // When not clearing, only update panels that need updating
                     if (character != null)
                     {
-                        characterPanelRenderer.RenderCharacterPanel(character);
+                        characterPanelRenderer.RenderCharacterPanel(character, dungeonName, roomName);
                     }
                     else
                     {
