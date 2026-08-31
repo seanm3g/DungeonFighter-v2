@@ -23,6 +23,8 @@ namespace RPGGame.Tests.Unit.Combat
             TestShouldPlayFalseWhenMuted();
             TestShouldPlayFalseWhenInstant();
             TestMutedPlaySkipsAndClearsPending();
+            TestPlayPendingOrWaitPlaysHudWhenPending();
+            TestPlayPendingOrWaitDoesNotMarkPlayedWhenEmpty();
             TestCueOrderOutcomeBeforeDamage();
             TestHealthHoldReleasedOnDamageCue();
             TestLayoutHudBetweenStripAndLog();
@@ -98,6 +100,57 @@ namespace RPGGame.Tests.Unit.Combat
             }
             finally
             {
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequencePresenter.ResetForTests();
+            }
+        }
+
+        private static void TestPlayPendingOrWaitPlaysHudWhenPending()
+        {
+            Console.WriteLine("--- PlayPendingOrWait plays HUD instead of waiting when pending ---");
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                CombatUiMuteScope.GlobalMute = false;
+                DeveloperModeState.SetCombatLogInstant(false);
+                CombatSequencePresenter.BypassCanvasCheckForTests = true;
+                CombatSequencePresenter.SkipDelaysForTests = true;
+                CombatSequencePresenter.SetPending(new List<CombatSequenceStep>
+                {
+                    new CombatSequenceStep(CombatSequenceStepKind.Outcome, "OUTCOME",
+                        new ColoredTextBuilder().Add("HIT", ColorPalette.Success).Build())
+                });
+                CombatSequencePresenter.PlayPendingOrWaitAsync(5000).GetAwaiter().GetResult();
+                TestBase.AssertTrue(CombatSequencePresenter.PlayedThisBlock,
+                    "pending HUD plays between setup and punchline", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequencePresenter.ResetForTests();
+            }
+        }
+
+        private static void TestPlayPendingOrWaitDoesNotMarkPlayedWhenEmpty()
+        {
+            Console.WriteLine("--- PlayPendingOrWait does not mark played when nothing is pending ---");
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                CombatUiMuteScope.GlobalMute = false;
+                DeveloperModeState.SetCombatLogInstant(false);
+                CombatSequencePresenter.BypassCanvasCheckForTests = true;
+                CombatSequencePresenter.SkipDelaysForTests = true;
+                CombatSequencePresenter.PlayPendingOrWaitAsync(5000).GetAwaiter().GetResult();
+                TestBase.AssertTrue(!CombatSequencePresenter.PlayedThisBlock,
+                    "no pending HUD does not mark PlayedThisBlock", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
                 CombatUiMuteScope.GlobalMute = prevMute;
                 CombatSequencePresenter.ResetForTests();
             }

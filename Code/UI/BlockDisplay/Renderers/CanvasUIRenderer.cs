@@ -58,7 +58,8 @@ namespace RPGGame.UI.BlockDisplay.Renderers
             List<(List<ColoredText> segments, UIMessageType messageType)> followUps,
             int halfDelayMs,
             Character? character,
-            UIMessageType headlineType)
+            UIMessageType headlineType,
+            Func<Task>? betweenBeats = null)
         {
             try
             {
@@ -67,7 +68,9 @@ namespace RPGGame.UI.BlockDisplay.Renderers
                 // Sync dump: setup + blank placeholders in one pass so one scroll happens up front.
                 coordinator.WriteColoredSegmentsBatch(dump, 0, character);
 
-                if (halfDelayMs > 0)
+                if (betweenBeats != null)
+                    await betweenBeats();
+                else if (halfDelayMs > 0)
                     await Task.Delay(halfDelayMs);
 
                 int n = reserved.Count;

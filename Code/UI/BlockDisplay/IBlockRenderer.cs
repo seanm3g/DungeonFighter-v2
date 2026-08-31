@@ -14,9 +14,9 @@ namespace RPGGame.UI.BlockDisplay
         Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null);
 
         /// <summary>
-        /// Two-beat attack headline: show setup (and reserved follow-up rows on canvas), wait
-        /// <paramref name="halfDelayMs"/>, replace with the complete line (and commit action SFX /
-        /// strip flash), then fill follow-ups in place.
+        /// Two-beat attack headline: show setup (and reserved follow-up rows on canvas), then either
+        /// play the sequence HUD or wait <paramref name="halfDelayMs"/>, then replace with the complete
+        /// line (and commit action SFX / strip flash if the HUD did not), then fill follow-ups in place.
         /// </summary>
         Task RenderSetupPunchlineAsync(
             List<ColoredText> setup,
@@ -24,6 +24,7 @@ namespace RPGGame.UI.BlockDisplay
             List<(List<ColoredText> segments, UIMessageType messageType)> followUps,
             int halfDelayMs,
             Character? character,
-            UIMessageType headlineType);
+            UIMessageType headlineType,
+            System.Func<System.Threading.Tasks.Task>? betweenBeats = null);
     }
 }

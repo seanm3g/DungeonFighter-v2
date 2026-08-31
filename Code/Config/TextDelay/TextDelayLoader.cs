@@ -79,6 +79,8 @@ namespace RPGGame.Config.TextDelay
                             configData.MessageDelayMs = messageDelay.GetInt32();
                         if (combatDelays.TryGetProperty("TutorialCombatDelayMultiplier", out var tutorialCombatDelayMultiplier))
                             configData.TutorialCombatDelayMultiplier = tutorialCombatDelayMultiplier.GetDouble();
+                        if (combatDelays.TryGetProperty("SequenceHudDelayMultiplier", out var sequenceHudDelayMultiplier))
+                            configData.SequenceHudDelayMultiplier = sequenceHudDelayMultiplier.GetDouble();
                     }
 
                     // Load progressive menu delays
@@ -132,6 +134,11 @@ namespace RPGGame.Config.TextDelay
             if (configData.TutorialCombatDelayMultiplier <= 0)
             {
                 configData.TutorialCombatDelayMultiplier = RPGGame.GameConstants.TutorialCombatDelayMultiplier;
+            }
+
+            if (configData.SequenceHudDelayMultiplier <= 0)
+            {
+                configData.SequenceHudDelayMultiplier = RPGGame.GameConstants.SequenceHudDelayMultiplier;
             }
 
             // Default message type delays
@@ -228,7 +235,8 @@ namespace RPGGame.Config.TextDelay
                 {
                     ActionDelayMs = configData.ActionDelayMs,
                     MessageDelayMs = configData.MessageDelayMs,
-                    TutorialCombatDelayMultiplier = configData.TutorialCombatDelayMultiplier
+                    TutorialCombatDelayMultiplier = configData.TutorialCombatDelayMultiplier,
+                    SequenceHudDelayMultiplier = configData.SequenceHudDelayMultiplier
                 };
                 
                 // Copy progressive menu delays
@@ -281,6 +289,7 @@ namespace RPGGame.Config.TextDelay
             public int ActionDelayMs { get; set; } = 3000;
             public int MessageDelayMs { get; set; } = 200;
             public double TutorialCombatDelayMultiplier { get; set; } = RPGGame.GameConstants.TutorialCombatDelayMultiplier;
+            public double SequenceHudDelayMultiplier { get; set; } = RPGGame.GameConstants.SequenceHudDelayMultiplier;
             public int EnvironmentalLineDelay { get; set; } = 500;
             public ProgressiveMenuDelaysConfig ProgressiveMenuDelays { get; set; } = new ProgressiveMenuDelaysConfig();
             public TravelRouteRollPacingConfig TravelRouteRollPacing { get; set; } = new TravelRouteRollPacingConfig();
@@ -311,6 +320,7 @@ namespace RPGGame.Config.TextDelay
             public int ActionDelayMs { get; set; }
             public int MessageDelayMs { get; set; }
             public double TutorialCombatDelayMultiplier { get; set; } = RPGGame.GameConstants.TutorialCombatDelayMultiplier;
+            public double SequenceHudDelayMultiplier { get; set; } = RPGGame.GameConstants.SequenceHudDelayMultiplier;
         }
     }
 }

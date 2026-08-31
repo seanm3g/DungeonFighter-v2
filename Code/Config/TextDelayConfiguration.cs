@@ -126,6 +126,17 @@ namespace RPGGame.Config
         }
 
         /// <summary>
+        /// Sequence HUD beat gap vs <see cref="GetMessageDelayMs"/> (1.5 = 50% slower than the combat log).
+        /// </summary>
+        public static double GetSequenceHudDelayMultiplier()
+        {
+            var configData = GetConfigData();
+            return configData.SequenceHudDelayMultiplier > 0
+                ? configData.SequenceHudDelayMultiplier
+                : RPGGame.GameConstants.SequenceHudDelayMultiplier;
+        }
+
+        /// <summary>
         /// Gets the environmental line delay (delay between lines in environmental actions)
         /// </summary>
         public static int GetEnvironmentalLineDelay()

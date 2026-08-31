@@ -4,6 +4,10 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Combat / sequence HUD — 50% slower beats:** HUD column/math gaps are `MessageDelayMs × 1.5` (`SequenceHudDelayMultiplier` in `TextDelayConfig.json`). Combat-log inter-line delay is unchanged. Tests: `CombatDelayManagerTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `FORMATTING_SYSTEM_GUIDE.md`.
+
+- [x] **Combat / sequence HUD — setup, then HUD, then punchline:** Live canvas dumps `{Actor} Attacks {Target}...`, plays the sequence HUD, then completes the log line. `CombatSequencePresenter.PlayPendingOrWaitAsync`. Tests: `CombatSequencePresenterTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `FORMATTING_SYSTEM_GUIDE.md`.
+
 - [x] **Combat / sequence HUD — unnamed ACTION is hit or miss:** Empty action names no longer show “unnamed hit”; ACTION is **hit** or **miss**. Tests: `CombatSequenceBuilderTests`. Docs: `OVERVIEW.md`, `FORMATTING_SYSTEM_GUIDE.md`.
 
 - [x] **Combat / sequence HUD — dungeon chrome with padding + ATTACKER order:** Sequence HUD is a framed 2-row panel under the action strip for the whole dungeon (not only when combat starts), with a one-row gap above the combat log. Headers: ATTACKER / ROLL / OUTCOME / ACTION / DEFENSE / DAMAGE / EFFECTS. Tests: `CombatSequenceBuilderTests`, `CombatSequencePresenterTests`, `LayoutConstantsCenterPanelHitTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `FORMATTING_SYSTEM_GUIDE.md`.

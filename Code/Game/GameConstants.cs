@@ -146,6 +146,9 @@ namespace RPGGame
 
         /// <summary>Pre-weapon Training Ground: multiply normal combat log delays by this factor (2 = twice as long as default pacing).</summary>
         public const double TutorialCombatDelayMultiplier = 2.0;
+
+        /// <summary>Live sequence HUD beat gap vs combat-log <c>MessageDelayMs</c> (1.5 = 50% slower).</summary>
+        public const double SequenceHudDelayMultiplier = 1.5;
         
         // Combat Constants
         public const double DefaultNarrativeBalance = 0.5;

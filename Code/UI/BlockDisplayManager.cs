@@ -182,9 +182,6 @@ namespace RPGGame
                 // Note: Spacing system handles all spacing - no manual blank lines needed
                 TextSpacingSystem.ApplySpacingBefore(blockType, currentEntity);
 
-                await CombatSequencePresenter.PlayPendingAsync();
-                bool hudPlayed = CombatSequencePresenter.PlayedThisBlock;
-                
                 // Collect all messages for this combat action block
                 var messageGroups = BlockMessageCollector.CollectActionBlockMessages(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives, blockType);
                 
@@ -198,13 +195,8 @@ namespace RPGGame
                     bool environmentalBlock = blockType == TextSpacingSystem.BlockType.EnvironmentalAction;
                     UIMessageType headlineType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.Combat;
 
-                    // After HUD playback, archive the complete block in one shot (no second punchline).
-                    if (hudPlayed)
-                    {
-                        PunchlineRevealFeedback.CommitQueued();
-                        await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs, character);
-                    }
-                    else if (halfDelayMs > 0
+                    // Setup telegraph, then sequence HUD (or half delay), then punchline / follow-ups.
+                    if (halfDelayMs > 0
                         && actionText != null
                         && ActionHeadlineFormatter.TrySplit(actionText, out var setup, out _)
                         && setup.Count > 0)
@@ -212,10 +204,18 @@ namespace RPGGame
                         var followUps = messageGroups.Count > 1
                             ? messageGroups.GetRange(1, messageGroups.Count - 1)
                             : new List<(List<ColoredText> segments, UIMessageType messageType)>();
-                        await renderer.RenderSetupPunchlineAsync(setup, actionText, followUps, halfDelayMs, character, headlineType);
+                        await renderer.RenderSetupPunchlineAsync(
+                            setup,
+                            actionText,
+                            followUps,
+                            halfDelayMs,
+                            character,
+                            headlineType,
+                            () => CombatSequencePresenter.PlayPendingOrWaitAsync(halfDelayMs));
                     }
                     else
                     {
+                        await CombatSequencePresenter.PlayPendingAsync();
                         PunchlineRevealFeedback.CommitQueued();
                         await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs, character);
                     }

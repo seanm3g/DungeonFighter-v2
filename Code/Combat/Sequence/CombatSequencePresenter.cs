@@ -10,7 +10,8 @@ using RPGGame.UI.BlockDisplay;
 namespace RPGGame.Combat.Sequence
 {
     /// <summary>
-    /// Plays recorded combat-sequence steps on the live canvas HUD, then lets the combat log archive.
+    /// Plays recorded combat-sequence steps on the live canvas HUD between the combat-log setup
+    /// telegraph and punchline.
     /// The HUD shows every calculation step in a two-row horizontal strip (titles over results);
     /// the active column is highlighted. Skipped for console, mute, and instant combat log.
     /// </summary>
@@ -58,6 +59,20 @@ namespace RPGGame.Combat.Sequence
             _playedThisBlock = false;
         }
 
+        /// <summary>
+        /// After the log setup telegraph: play the HUD if a swing is pending, otherwise wait
+        /// <paramref name="halfDelayMs"/> so punchline timing matches the no-HUD path.
+        /// </summary>
+        public static async Task PlayPendingOrWaitAsync(int halfDelayMs)
+        {
+            await PlayPendingAsync();
+            if (PlayedThisBlock)
+                return;
+            if (SkipDelaysForTests || halfDelayMs <= 0)
+                return;
+            await Task.Delay(halfDelayMs);
+        }
+
         public static async Task PlayPendingAsync()
         {
             _playedThisBlock = false;
@@ -77,7 +92,7 @@ namespace RPGGame.Combat.Sequence
                     CombatSequenceHudState.SetActive(i, resultRevealed: false);
                     Invalidate();
                     if (!SkipDelaysForTests)
-                        await CombatDelayManager.DelayAfterMessageAsync();
+                        await CombatDelayManager.DelayAfterSequenceHudBeatAsync();
 
                     var beats = step.MathBeats;
                     for (int b = 0; b < beats.Count; b++)
@@ -87,7 +102,7 @@ namespace RPGGame.Combat.Sequence
                             FireCue(step.Cue);
                         Invalidate();
                         if (!SkipDelaysForTests)
-                            await CombatDelayManager.DelayAfterMessageAsync();
+                            await CombatDelayManager.DelayAfterSequenceHudBeatAsync();
                     }
                 }
             }

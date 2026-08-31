@@ -87,7 +87,8 @@ namespace RPGGame.UI.BlockDisplay.Renderers
             List<(List<ColoredText> segments, UIMessageType messageType)> followUps,
             int halfDelayMs,
             Character? character,
-            UIMessageType headlineType)
+            UIMessageType headlineType,
+            Func<Task>? betweenBeats = null)
         {
             _ = setup;
             _ = character;
@@ -95,11 +96,15 @@ namespace RPGGame.UI.BlockDisplay.Renderers
 
             if (UIManager.DisableAllUIOutput)
             {
+                if (betweenBeats != null)
+                    await betweenBeats();
                 PunchlineRevealFeedback.CommitQueued();
                 return;
             }
 
-            if (halfDelayMs > 0)
+            if (betweenBeats != null)
+                await betweenBeats();
+            else if (halfDelayMs > 0)
                 await Task.Delay(halfDelayMs);
 
             if (completeHeadline != null && completeHeadline.Count > 0)
