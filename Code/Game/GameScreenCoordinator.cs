@@ -131,6 +131,8 @@ namespace RPGGame
                 return;
             }
 
+            MaterialSetController.SyncConvertActionsToPool(player);
+
             // Ensure inventory is never null - use player's inventory if state manager's is null
             if (inventory == null)
             {

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using RPGGame;
 using RPGGame.Data;
 using RPGGame.Utils;
@@ -52,11 +51,16 @@ namespace RPGGame.Entity.Services
                 Legs = character.Equipment.Legs,
                 Weapon = character.Equipment.Weapon,
                 Feet = character.Equipment.Feet,
+                ComboStripActionNames = character.GetComboActions()
+                    .Where(a => a != null && !string.IsNullOrWhiteSpace(a.Name))
+                    .Select(a => a.Name)
+                    .ToList(),
                 IsDead = markDead,
                 PendingPreWeaponTrainingGround = character.PendingPreWeaponTrainingGround,
                 CurrentRegionId = string.IsNullOrWhiteSpace(character.CurrentRegionId)
                     ? GameConstants.DefaultRegionId
-                    : character.CurrentRegionId
+                    : character.CurrentRegionId,
+                DungeonDifficultyAnchorLevel = character.DungeonDifficultyAnchorLevel
             };
 
             var options = new JsonSerializerOptions
@@ -129,6 +133,7 @@ namespace RPGGame.Entity.Services
             character.CurrentRegionId = string.IsNullOrWhiteSpace(saveData.CurrentRegionId)
                 ? GameConstants.DefaultRegionId
                 : saveData.CurrentRegionId;
+            character.DungeonDifficultyAnchorLevel = saveData.DungeonDifficultyAnchorLevel;
             
             // Restore equipment with proper type conversion
             character.Equipment.Inventory = ItemTypeConverter.ConvertItemsToProperTypes(saveData.Inventory);
@@ -138,7 +143,20 @@ namespace RPGGame.Entity.Services
             character.Equipment.Weapon = ItemTypeConverter.ConvertItemToProperType(saveData.Weapon) as WeaponItem;
             character.Equipment.Feet = ItemTypeConverter.ConvertItemToProperType(saveData.Feet);
 
-            RebuildCharacterActions(character);
+            // New characters have an empty strip; rebuild the pool, then restore the saved order
+            // (or fall back to InitializeDefaultCombo inside RebuildCharacterActions).
+            var savedComboNames = saveData.ComboStripActionNames;
+            if (savedComboNames != null && savedComboNames.Count > 0)
+            {
+                RebuildCharacterActions(character, preserveComboSequence: false);
+                if (!character.RestoreComboFromActionNames(savedComboNames))
+                    character.InitializeDefaultCombo();
+                character.ComboStep = 0;
+            }
+            else
+            {
+                RebuildCharacterActions(character);
+            }
 
             return character;
         }
@@ -192,6 +210,8 @@ namespace RPGGame.Entity.Services
                 if (loaded != null)
                     character.AddAction(loaded, 1.0);
             }
+
+            MaterialSetController.SyncConvertActionsToPool(character);
 
             // Restore user's combo sequence if possible; otherwise use default
             bool restored = character.RestoreComboFromActionNames(savedComboNames);

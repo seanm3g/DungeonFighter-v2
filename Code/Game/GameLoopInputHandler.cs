@@ -84,10 +84,10 @@ namespace RPGGame
                             var characterId = stateManager.GetCharacterId(activeCharacter);
                             await activeCharacter.SaveCharacterAsync(characterId).ConfigureAwait(true);
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            // Error already logged and shown by CharacterSaveService
-                            // Continue to return to main menu even if save failed
+                            // Error already logged/shown by CharacterSaveService; still warn and exit.
+                            ShowMessageEvent?.Invoke($"Save failed ({ex.Message}). Returning to main menu.");
                         }
                     }
                     stateManager.TransitionToState(GameState.MainMenu);

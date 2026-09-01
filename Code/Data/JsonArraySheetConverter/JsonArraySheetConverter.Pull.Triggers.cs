@@ -14,14 +14,27 @@ namespace RPGGame.Data
             MoveTriggerJsonKeyIfPresent(obj, "id", "Id", "index", "Index");
             MoveTriggerJsonKeyIfPresent(obj, "name", "Name", "identity", "Identity");
             MoveTriggerJsonKeyIfPresent(obj, "description", "Description", "desc", "Desc", "SUMMARY", "Summary");
+            MoveTriggerJsonKeyIfPresent(obj, "effectTarget", "EffectTarget", "effect_target", "Effect Target", "target", "Target");
             MoveTriggerJsonKeyIfPresent(obj, "when", "When", "WHEN");
+            MoveTriggerJsonKeyIfPresent(obj, "whenArg", "WhenArg", "when_arg", "When Arg", "WHEN ARG");
             MoveTriggerJsonKeyIfPresent(obj, "count", "Count", "COUNT");
             MoveTriggerJsonKeyIfPresent(obj, "scope", "Scope", "SCOPE");
             MoveTriggerJsonKeyIfPresent(obj, "mechanics", "Mechanics", "MECHANICS", "mechanic");
+            MoveTriggerJsonKeyIfPresent(obj, "mechanicArg", "MechanicArg", "mechanic_arg", "Mechanic Arg", "MECHANIC ARG");
             MoveTriggerJsonKeyIfPresent(obj, "value", "Value", "VALUE", "magnitude");
             MoveTriggerJsonKeyIfPresent(obj, "filters", "Filters", "FILTERS", "filter");
             MoveTriggerJsonKeyIfPresent(obj, "channel", "Channel", "CHANNEL");
             MoveTriggerJsonKeyIfPresent(obj, "scaleFrom", "ScaleFrom", "SCALEFROM", "scale_from", "Scale From");
+
+            // Fill blank authoring meta from authoritative when/mechanics so pull stays scannable.
+            string whenCell = ReadTriggerStringCell(obj, "when");
+            string mechanicsCell = ReadTriggerStringCell(obj, "mechanics");
+            if (string.IsNullOrWhiteSpace(ReadTriggerStringCell(obj, "effectTarget")))
+                obj["effectTarget"] = TriggerIdentitySheetMeta.DeriveEffectTarget(mechanicsCell);
+            if (string.IsNullOrWhiteSpace(ReadTriggerStringCell(obj, "whenArg")))
+                obj["whenArg"] = TriggerIdentitySheetMeta.ParseColonArg(whenCell);
+            if (string.IsNullOrWhiteSpace(ReadTriggerStringCell(obj, "mechanicArg")))
+                obj["mechanicArg"] = TriggerIdentitySheetMeta.ParseColonArg(mechanicsCell);
 
             if (obj.TryGetPropertyValue("filters", out JsonNode? filtersNode) && filtersNode is JsonArray fa)
             {
@@ -86,6 +99,15 @@ namespace RPGGame.Data
                 if (!JsonArraySheetSchemas.TriggersAuthorizedJsonKeys.Contains(key))
                     obj.Remove(key);
             }
+        }
+
+        private static string ReadTriggerStringCell(JsonObject obj, string key)
+        {
+            if (!obj.TryGetPropertyValue(key, out JsonNode? node) || node is null)
+                return "";
+            if (node is JsonValue jv && jv.TryGetValue<string>(out string? s))
+                return s ?? "";
+            return node.ToString() ?? "";
         }
 
         private static void MoveTriggerJsonKeyIfPresent(JsonObject obj, string canonicalKey, params string[] sourceAliases)

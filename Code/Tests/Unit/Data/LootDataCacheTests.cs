@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Data
@@ -28,6 +29,7 @@ namespace RPGGame.Tests.Unit.Data
             TestReload();
             TestClear();
             TestDataProperties();
+            TestAffixCatalogDistribution();
 
             TestBase.PrintSummary("LootDataCache Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -190,6 +192,80 @@ namespace RPGGame.Tests.Unit.Data
             {
                 TestBase.AssertTrue(false,
                     $"Data properties should be accessible: {ex.Message}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        #endregion
+
+        #region Affix catalog distribution
+
+        /// <summary>
+        /// Guards against sheet/settings overwrites that flood Modifications.json with one prefix
+        /// (e.g. every row becoming Caustic) and against empty suffix catalogs.
+        /// </summary>
+        private static void TestAffixCatalogDistribution()
+        {
+            Console.WriteLine("\n--- Testing Affix Catalog Distribution ---");
+            TestBase.SetCurrentTestName(nameof(TestAffixCatalogDistribution));
+
+            try
+            {
+                var cache = LootDataCache.Load();
+                TestBase.AssertNotNull(cache, "cache loaded", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                if (cache == null)
+                    return;
+
+                TestBase.AssertTrue(cache.Modifications.Count >= 10,
+                    $"Modifications catalog should have variety (got {cache.Modifications.Count})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var modNameGroups = cache.Modifications
+                    .Where(m => !string.IsNullOrWhiteSpace(m.Name))
+                    .GroupBy(m => m.Name.Trim(), StringComparer.OrdinalIgnoreCase)
+                    .Select(g => new { Name = g.Key, Count = g.Count() })
+                    .OrderByDescending(x => x.Count)
+                    .ToList();
+
+                int maxDup = modNameGroups.Count > 0 ? modNameGroups[0].Count : 0;
+                string topName = modNameGroups.Count > 0 ? modNameGroups[0].Name : "(none)";
+                TestBase.AssertTrue(maxDup <= 2,
+                    $"No modification name should dominate the catalog (top '{topName}' x{maxDup})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var uncommonAdjectives = cache.Modifications
+                    .Where(m => m.GetPrefixCategory() == ModificationPrefixCategory.Adjective)
+                    .Where(m => string.Equals(
+                        string.IsNullOrWhiteSpace(m.ItemRank) ? "Common" : m.ItemRank.Trim(),
+                        "Uncommon",
+                        StringComparison.OrdinalIgnoreCase))
+                    .Select(m => m.Name)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                TestBase.AssertTrue(uncommonAdjectives.Count >= 3,
+                    $"Uncommon adjective pool should share several names (got {uncommonAdjectives.Count}: {string.Join(", ", uncommonAdjectives)})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TestBase.AssertTrue(cache.StatBonuses.Count >= 20,
+                    $"StatBonuses catalog should have variety (got {cache.StatBonuses.Count})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var suffixNameGroups = cache.StatBonuses
+                    .Where(s => !string.IsNullOrWhiteSpace(s.Name))
+                    .GroupBy(s => s.Name.Trim(), StringComparer.OrdinalIgnoreCase)
+                    .Select(g => g.Count())
+                    .DefaultIfEmpty(0)
+                    .Max();
+
+                TestBase.AssertTrue(suffixNameGroups <= 2,
+                    $"No StatBonus name should dominate the catalog (max duplicates {suffixNameGroups})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            catch (Exception ex)
+            {
+                TestBase.AssertTrue(false,
+                    $"Affix catalog distribution should not throw: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }

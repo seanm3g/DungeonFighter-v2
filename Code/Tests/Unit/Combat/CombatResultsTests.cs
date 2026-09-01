@@ -1,8 +1,12 @@
 using System;
+using System.Linq;
+using RPGGame;
 using RPGGame.Actions;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Calculators;
+using RPGGame.Data;
 using RPGGame.Tests;
+using RPGGame.UI.BlockDisplay;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Tests.Unit.Combat
@@ -44,6 +48,8 @@ namespace RPGGame.Tests.Unit.Combat
             TestWeaponPoisonSingleApplicationColoredExecutePath();
             TestWeaponPoisonNotAppliedOnNonCritColoredExecutePath();
             TestQueuedActionModsShowImmediatelyAfterQueuingAction();
+            TestMaterialFeedLineSitsBelowRollOnHit();
+            TestMaterialFeedLineSitsBelowRollOnMiss();
 
             TestBase.PrintSummary("CombatResults Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -169,6 +175,12 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertNotNull(rollInfo,
                 "Miss roll info should not be null",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string missPlain = ColoredTextRenderer.RenderAsPlainText(missText);
+            TestBase.AssertTrue(missPlain.Contains("Attacks", System.StringComparison.Ordinal)
+                    && missPlain.Contains("and misses", System.StringComparison.Ordinal),
+                "Miss headline should be setup... and misses",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -410,6 +422,86 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(
                 combined.Contains("Next turn", StringComparison.OrdinalIgnoreCase) && combined.Contains("SPD", StringComparison.OrdinalIgnoreCase),
                 $"Queued SPEED_MOD should be displayed immediately after action. Got:\n{combined}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            ActionSelector.RemoveStoredRoll(hero);
+        }
+
+        private static void TestMaterialFeedLineSitsBelowRollOnHit()
+        {
+            Console.WriteLine("\n--- Material feed line sits below roll on hit ---");
+
+            MaterialBuildsLoader.Reload();
+            RollModificationManager.GetThresholdManager().Clear();
+            ActionSelector.ClearStoredRolls();
+
+            var hero = TestDataBuilders.Character().WithName("GlassHero").WithStats(12, 12, 12, 1).Build();
+            hero.Equipment.Head = new HeadItem("G1", 1, 1) { Material = "Glass" };
+            hero.Equipment.Body = new ChestItem("G2", 1, 1) { Material = "Glass" };
+            var target = TestDataBuilders.Enemy().WithName("Target").WithHealth(200).Build();
+            var jab = TestDataBuilders.CreateMockAction("JAB");
+            jab.IsComboAction = false;
+            ActionSelector.SetStoredActionRoll(hero, 10);
+
+            var ((actionText, rollInfo), statusEffects) =
+                CombatResults.ExecuteActionWithUIAndStatusEffectsColored(hero, target, jab, null, null, null);
+
+            var groups = BlockMessageCollector.CollectActionBlockMessages(
+                actionText, rollInfo, statusEffects, null, null);
+
+            TestBase.AssertTrue(groups.Count >= 3,
+                "action block should have action + roll + feed line",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            string rollPlain = groups.Count > 1
+                ? ColoredTextRenderer.RenderAsPlainText(groups[1].segments)
+                : "";
+            TestBase.AssertTrue(rollPlain.IndexOf("roll:", StringComparison.OrdinalIgnoreCase) >= 0,
+                "second line is the roll footer",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            string feedPlain = groups.Count > 2
+                ? ColoredTextRenderer.RenderAsPlainText(groups[2].segments)
+                : "";
+            TestBase.AssertTrue(
+                feedPlain.IndexOf("GRAZE", StringComparison.OrdinalIgnoreCase) >= 0
+                && feedPlain.IndexOf("feeds", StringComparison.OrdinalIgnoreCase) >= 0,
+                $"line under roll should feed GRAZE. Got:\n{feedPlain}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            ActionSelector.RemoveStoredRoll(hero);
+        }
+
+        private static void TestMaterialFeedLineSitsBelowRollOnMiss()
+        {
+            Console.WriteLine("\n--- Material feed line sits below roll on miss (ON ATTACK) ---");
+
+            MaterialBuildsLoader.Reload();
+            RollModificationManager.GetThresholdManager().Clear();
+            ActionSelector.ClearStoredRolls();
+
+            var hero = TestDataBuilders.Character().WithName("ShadowHero").WithStats(12, 12, 12, 1).Build();
+            hero.Equipment.Head = new HeadItem("S1", 1, 1) { Material = "Shadow" };
+            hero.Equipment.Body = new ChestItem("S2", 1, 1) { Material = "Shadow" };
+            var target = TestDataBuilders.Enemy().WithName("Target").WithHealth(200).Build();
+            var jab = TestDataBuilders.CreateMockAction("JAB");
+            jab.IsComboAction = false;
+            ActionSelector.SetStoredActionRoll(hero, 4);
+
+            var ((actionText, rollInfo), statusEffects) =
+                CombatResults.ExecuteActionWithUIAndStatusEffectsColored(hero, target, jab, null, null, null);
+
+            var groups = BlockMessageCollector.CollectActionBlockMessages(
+                actionText, rollInfo, statusEffects, null, null);
+
+            TestBase.AssertTrue(groups.Count >= 3,
+                "miss block should still have a feed line under the roll",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            string feedPlain = groups.Count > 2
+                ? ColoredTextRenderer.RenderAsPlainText(groups[2].segments)
+                : "";
+            TestBase.AssertTrue(
+                feedPlain.IndexOf("SWING", StringComparison.OrdinalIgnoreCase) >= 0
+                && feedPlain.IndexOf("feeds", StringComparison.OrdinalIgnoreCase) >= 0,
+                $"miss roll should still feed SWING. Got:\n{feedPlain}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             ActionSelector.RemoveStoredRoll(hero);

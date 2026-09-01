@@ -34,7 +34,9 @@ namespace RPGGame.Actions.Execution
             int rollBonus,
             int naturalRoll,
             BattleNarrative? battleNarrative,
-            int rollPenalty = 0)
+            int rollPenalty = 0,
+            int? defenseFace = null,
+            int? attackFace = null)
         {
             int multiHitCount = action.Advanced.MultiHitCount;
             if (source is Character character && character.Effects.ConsumedMultiHitMod != 0)
@@ -49,7 +51,7 @@ namespace RPGGame.Actions.Execution
                 // Roll-based damage: apply RollPenalty per hit (hit 0 uses the same total as the hit roll; later hits stack the debuff again)
                 int perHitTotalRoll = GetMultihitDamageTotalRoll(totalRoll, source, hit);
                 int hitDamage = action.DamageMultiplier > 0
-                    ? CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, rollBonus, perHitTotalRoll)
+                    ? CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, rollBonus, perHitTotalRoll, true, defenseFace, attackFace ?? modifiedBaseRoll)
                     : 0;
 
                 if (hitDamage <= 0)

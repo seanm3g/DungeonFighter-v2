@@ -61,6 +61,11 @@ namespace RPGGame.Data
             MoveStatBonusJsonKeyIfPresent(obj, "StatType", "stat type", "Stat type");
             MoveStatBonusJsonKeyIfPresent(obj, "Value", "value");
             MoveStatBonusJsonKeyIfPresent(obj, "Rarity", "rarity");
+            MoveStatBonusJsonKeyIfPresent(obj, "triggerName", "Trigger Name", "TriggerName", "trigger name");
+            MoveStatBonusJsonKeyIfPresent(obj, "triggerNames", "Trigger Names", "TriggerNames", "trigger names");
+            MoveStatBonusJsonKeyIfPresent(obj, "tags", "Tags", "Taxon", "taxon", "Taxon tags");
+            NormalizeStatBonusTriggerNamesCell(obj);
+            NormalizeStatBonusTagsCell(obj);
         }
 
         /// <summary>When <paramref name="canonicalKey"/> is missing, copies the first matching alias key onto it and removes the alias.</summary>
@@ -212,6 +217,40 @@ namespace RPGGame.Data
 
         internal static string NormalizeStatBonusSheetStatType(string rawKey) =>
             StatBonusSheetBracketParser.NormalizeStatBonusSheetStatType(rawKey);
+
+        private static void NormalizeStatBonusTriggerNamesCell(JsonObject obj)
+        {
+            if (!obj.TryGetPropertyValue("triggerNames", out var node) || node is null || IsJsonNodeNullOrMissing(node))
+                return;
+            if (node is JsonArray)
+                return;
+            string text = StatBonusRarityCellToString(node) ?? "";
+            var arr = new JsonArray();
+            foreach (var part in text.Split(new[] { ',', ';', '|' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                string t = part.Trim();
+                if (t.Length > 0)
+                    arr.Add(t);
+            }
+            obj["triggerNames"] = arr;
+        }
+
+        private static void NormalizeStatBonusTagsCell(JsonObject obj)
+        {
+            if (!obj.TryGetPropertyValue("tags", out var node) || node is null || IsJsonNodeNullOrMissing(node))
+                return;
+            if (node is JsonArray)
+                return;
+            string text = StatBonusRarityCellToString(node) ?? "";
+            var arr = new JsonArray();
+            foreach (var part in text.Split(new[] { ',', ';', '|' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                string t = part.Trim();
+                if (t.Length > 0)
+                    arr.Add(t);
+            }
+            obj["tags"] = arr;
+        }
 
         private static string? StatBonusRarityCellToString(JsonNode? n)
         {

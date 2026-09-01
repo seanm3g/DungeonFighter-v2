@@ -363,7 +363,7 @@
   "enemySystem": {
     "globalMultipliers": {
       "healthMultiplier": 1.0,
-      "damageMultiplier": 1,
+      "damageMultiplier": 0.7,
       "armorMultiplier": 1,
       "speedMultiplier": 1,
       "description": ""

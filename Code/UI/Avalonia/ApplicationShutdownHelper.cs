@@ -20,6 +20,16 @@ namespace RPGGame.UI.Avalonia
     public static class ApplicationShutdownHelper
     {
         private static int _shutdownStarted;
+        private static System.Action? _bestEffortCharacterSave;
+
+        /// <summary>
+        /// Registers a best-effort character save invoked once at process shutdown
+        /// (window close, Exit Game, etc.). Replaces any previous callback.
+        /// </summary>
+        public static void RegisterBestEffortCharacterSave(System.Action? saveCallback)
+        {
+            _bestEffortCharacterSave = saveCallback;
+        }
 
         /// <summary>
         /// Max time cleanup may take before a forced exit watchdog ends the process.
@@ -45,6 +55,15 @@ namespace RPGGame.UI.Avalonia
 
             try
             {
+                try
+                {
+                    _bestEffortCharacterSave?.Invoke();
+                }
+                catch
+                {
+                    // Best-effort save must never block or throw through shutdown.
+                }
+
                 ActionLabControlsWindow.CloseIfOpen();
                 BalanceTuningWorkbenchWindow.CloseForShutdown();
                 CloseVisibleWindows<SettingsWindow>();

@@ -1,0 +1,1188 @@
+{
+  "name": "Lothar Skullbreaker",
+  "level": 11,
+  "xp": 2825,
+  "currentHealth": 392,
+  "maxHealth": 350,
+  "strength": 33,
+  "agility": 13,
+  "technique": 13,
+  "intelligence": 13,
+  "barbarianPoints": 10,
+  "warriorPoints": 0,
+  "roguePoints": 0,
+  "wizardPoints": 0,
+  "learnedSkillRanks": {
+    "b-tribe": 1,
+    "b-puberty": 1,
+    "b-age1": 5,
+    "b-might": 1,
+    "b-bludgeon": 1,
+    "b-lvl2": 1,
+    "b-stun": 1
+  },
+  "learnedSkillNodeIds": [],
+  "comboStep": 0,
+  "comboBonus": 0,
+  "tempComboBonus": 0,
+  "tempComboBonusTurns": 0,
+  "damageReduction": 0,
+  "inventory": [
+    {
+      "$itemType": "weapon",
+      "baseDamage": 2,
+      "rolledDamageBonus": 3,
+      "baseAttackSpeed": 0.61,
+      "name": "Like New Glass Fang",
+      "type": 3,
+      "tier": 1,
+      "level": 2,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Rare",
+      "material": "Glass",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Rare",
+          "prefixCategory": "QUALITY",
+          "name": "Like New",
+          "description": "Affects the base stats of an item \u002B/-",
+          "effect": "gearPrimaryStatMultiplier",
+          "triggerWhen": "",
+          "minValue": 1.06,
+          "maxValue": 1.06,
+          "rolledValue": 1.06,
+          "statusEffects": [],
+          "attributeRequirements": {},
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Glass",
+          "description": "Rogue",
+          "effect": "TECHNIQUE",
+          "triggerWhen": "",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "technique": 10
+          },
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 3,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "dagger",
+        "rogue",
+        "glass"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 1,
+      "attributeRequirements": {
+        "technique": 10
+      },
+      "catalogAttributeRequirements": {},
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "legs",
+      "armor": 3,
+      "name": "Worn Brutal Strange shinguards of the Stallion of killing lost of will",
+      "type": 4,
+      "tier": 1,
+      "level": 6,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 2,
+      "baseTechnique": 0,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 1,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Rare",
+      "material": "Strange",
+      "statBonuses": [
+        {
+          "name": "of killing",
+          "description": "weapon damage",
+          "value": 5,
+          "rarity": "Common",
+          "statType": "Damage",
+          "ItemRank": "",
+          "mechanics": [
+            {
+              "statType": "Damage",
+              "value": 5
+            }
+          ],
+          "triggerName": "",
+          "triggerNames": null,
+          "tags": null,
+          "Requirements": null
+        },
+        {
+          "name": "lost of will",
+          "description": "given up",
+          "value": -5,
+          "rarity": "Rare",
+          "statType": "STR",
+          "ItemRank": "",
+          "mechanics": [
+            {
+              "statType": "STR",
+              "value": -5
+            },
+            {
+              "statType": "AGI",
+              "value": -5
+            },
+            {
+              "statType": "TEC",
+              "value": -5
+            }
+          ],
+          "triggerName": "",
+          "triggerNames": null,
+          "tags": null,
+          "Requirements": null
+        },
+        {
+          "name": "of the Stallion",
+          "description": "On first hit, next action \u002B10% speed.",
+          "value": 0,
+          "rarity": "Uncommon",
+          "statType": "",
+          "ItemRank": "",
+          "mechanics": null,
+          "triggerName": "",
+          "triggerNames": null,
+          "tags": null,
+          "Requirements": null
+        }
+      ],
+      "actionBonuses": [
+        {
+          "name": "DEEP BREATHING",
+          "description": "Gain 1 AGI for the duration of this fight",
+          "weight": 1
+        },
+        {
+          "name": "LUCKY CHARM",
+          "description": "\u002B1 ACCURACY",
+          "weight": 3
+        },
+        {
+          "name": "TAKING AIM",
+          "description": "Gain 1 TECH next TURN",
+          "weight": 1
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "QUALITY",
+          "name": "Worn",
+          "description": "Affects the base stats of an item \u002B/-",
+          "effect": "gearPrimaryStatMultiplier",
+          "triggerWhen": "",
+          "minValue": 0.95,
+          "maxValue": 0.95,
+          "rolledValue": 0.95,
+          "statusEffects": [],
+          "attributeRequirements": {},
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "ADJECTIVE",
+          "name": "Brutal",
+          "description": "",
+          "effect": "DAMAGE",
+          "triggerWhen": "",
+          "minValue": 10,
+          "maxValue": 10,
+          "rolledValue": 10,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "strength": 2
+          },
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Rare",
+          "prefixCategory": "MATERIAL",
+          "name": "Strange",
+          "description": "Strange essence",
+          "effect": "",
+          "triggerWhen": "",
+          "minValue": 0,
+          "maxValue": 0,
+          "rolledValue": 0,
+          "statusEffects": [],
+          "attributeRequirements": {},
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "starter",
+        "strange"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 0,
+      "attributeRequirements": {
+        "agility": 5,
+        "strength": 2
+      },
+      "catalogAttributeRequirements": {
+        "agility": 5
+      },
+      "gearAction": null,
+      "isStarterItem": true
+    },
+    {
+      "$itemType": "feet",
+      "armor": 0,
+      "name": "Broken Charged Unknown Galoshs of Technique owed to heir",
+      "type": 1,
+      "tier": 1,
+      "level": 3,
+      "comboBonus": 0,
+      "baseStrength": 5,
+      "baseAgility": 0,
+      "baseTechnique": 2,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Uncommon",
+      "material": "Unknown",
+      "statBonuses": [
+        {
+          "name": "of Technique",
+          "description": "5% technique",
+          "value": 2,
+          "rarity": "Common",
+          "statType": "TEC",
+          "ItemRank": "",
+          "mechanics": [
+            {
+              "statType": "TEC",
+              "value": 2
+            }
+          ],
+          "triggerName": "",
+          "triggerNames": null,
+          "tags": null,
+          "Requirements": null
+        },
+        {
+          "name": "owed to heir",
+          "description": "Promised to the next in line \u2014 its power strains toward the future",
+          "value": 4,
+          "rarity": "Rare",
+          "statType": "STR",
+          "ItemRank": "",
+          "mechanics": [
+            {
+              "statType": "STR",
+              "value": 4
+            },
+            {
+              "statType": "INT",
+              "value": 3
+            },
+            {
+              "statType": "MagicFind",
+              "value": 3
+            }
+          ],
+          "triggerName": "",
+          "triggerNames": null,
+          "tags": null,
+          "Requirements": null
+        }
+      ],
+      "actionBonuses": [
+        {
+          "name": "BLUR",
+          "description": "\u002B1 WEAPON SPEED",
+          "weight": 1
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "QUALITY",
+          "name": "Broken",
+          "description": "Affects the base stats of an item \u002B/-",
+          "effect": "gearPrimaryStatMultiplier",
+          "triggerWhen": "",
+          "minValue": 0.75,
+          "maxValue": 0.75,
+          "rolledValue": 0.75,
+          "statusEffects": [],
+          "attributeRequirements": {},
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "ADJECTIVE",
+          "name": "Charged",
+          "description": "",
+          "effect": "CRIT",
+          "triggerWhen": "",
+          "minValue": 1,
+          "maxValue": 1,
+          "rolledValue": 1,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "strength": 2
+          },
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Uncommon",
+          "prefixCategory": "MATERIAL",
+          "name": "Unknown",
+          "description": "Mystery tag",
+          "effect": "",
+          "triggerWhen": "",
+          "minValue": 0,
+          "maxValue": 0,
+          "rolledValue": 0,
+          "statusEffects": [],
+          "attributeRequirements": {},
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "unknown"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 0,
+      "attributeRequirements": {
+        "technique": 6,
+        "strength": 2
+      },
+      "catalogAttributeRequirements": {
+        "technique": 6
+      },
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "weapon",
+      "baseDamage": 4,
+      "rolledDamageBonus": 2,
+      "baseAttackSpeed": 0.83,
+      "name": "Acrobatic Bronze Long Edge",
+      "type": 3,
+      "tier": 1,
+      "level": 7,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Common",
+      "material": "Bronze",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "ADJECTIVE",
+          "name": "Acrobatic",
+          "description": "",
+          "effect": "MULTI-HIT",
+          "triggerWhen": "",
+          "minValue": 1,
+          "maxValue": 1,
+          "rolledValue": 1,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "agility": 2
+          },
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Bronze",
+          "description": "Warrior",
+          "effect": "AGILITY",
+          "triggerWhen": "",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "agility": 10
+          },
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 3,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "sword",
+        "warrior",
+        "bronze"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 0,
+      "attributeRequirements": {
+        "agility": 10
+      },
+      "catalogAttributeRequirements": {},
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "weapon",
+      "baseDamage": 6,
+      "rolledDamageBonus": 1,
+      "baseAttackSpeed": 1.24,
+      "name": "serrated Bone Pounder",
+      "type": 3,
+      "tier": 1,
+      "level": 9,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Common",
+      "material": "Bone",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "ADJECTIVE",
+          "name": "serrated",
+          "description": "",
+          "effect": "BLEED",
+          "triggerWhen": "",
+          "minValue": 10,
+          "maxValue": 10,
+          "rolledValue": 10,
+          "statusEffects": [],
+          "attributeRequirements": {},
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Bone",
+          "description": "Barbarian",
+          "effect": "STRENGTH",
+          "triggerWhen": "",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "strength": 10
+          },
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 3,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "mace",
+        "barbarian",
+        "bone"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 2,
+      "attributeRequirements": {
+        "strength": 10
+      },
+      "catalogAttributeRequirements": {},
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "legs",
+      "armor": 0,
+      "name": "Battle Scarred Willow trousers",
+      "type": 4,
+      "tier": 1,
+      "level": 8,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 3,
+      "baseTechnique": 0,
+      "baseIntelligence": 5,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 1,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Common",
+      "material": "Willow",
+      "statBonuses": [],
+      "actionBonuses": [
+        {
+          "name": "ACTION BONUS",
+          "description": "NEXT ACTION BONUS",
+          "weight": 1
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "QUALITY",
+          "name": "Battle Scarred",
+          "description": "Affects the base stats of an item \u002B/-",
+          "effect": "gearPrimaryStatMultiplier",
+          "triggerWhen": "",
+          "minValue": 0.9,
+          "maxValue": 0.9,
+          "rolledValue": 0.9,
+          "statusEffects": [],
+          "attributeRequirements": {},
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Willow",
+          "description": "Wizard",
+          "effect": "INTELLIGENCE",
+          "triggerWhen": "",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "intelligence": 10
+          },
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "willow"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 0,
+      "attributeRequirements": {
+        "agility": 11,
+        "intelligence": 10
+      },
+      "catalogAttributeRequirements": {
+        "agility": 11
+      },
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "weapon",
+      "baseDamage": 6,
+      "rolledDamageBonus": 2,
+      "baseAttackSpeed": 1.35,
+      "name": "Bone Log",
+      "type": 3,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Common",
+      "material": "Bone",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Bone",
+          "description": "Barbarian",
+          "effect": "STRENGTH",
+          "triggerWhen": "",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "strength": 10
+          },
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "mace",
+        "barbarian",
+        "starter",
+        "bone"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 2,
+      "attributeRequirements": {},
+      "catalogAttributeRequirements": {},
+      "gearAction": "SLAM",
+      "isStarterItem": true
+    }
+  ],
+  "head": {
+    "$itemType": "head",
+    "armor": 0,
+    "name": "Nimble IRON Wrap",
+    "type": 0,
+    "tier": 1,
+    "level": 4,
+    "comboBonus": 0,
+    "baseStrength": 5,
+    "baseAgility": 0,
+    "baseTechnique": 0,
+    "baseIntelligence": 2,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 0,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 1,
+    "rarity": "Common",
+    "material": "IRON",
+    "statBonuses": [],
+    "actionBonuses": [
+      {
+        "name": "SHARPEN",
+        "description": "\u002B10 WEAPON DAMAGE",
+        "weight": 1
+      }
+    ],
+    "modifications": [
+      {
+        "diceResult": 0,
+        "itemRank": "Common",
+        "prefixCategory": "ADJECTIVE",
+        "name": "Nimble",
+        "description": "",
+        "effect": "SPEED",
+        "triggerWhen": "",
+        "minValue": 0,
+        "maxValue": 0,
+        "rolledValue": 0,
+        "statusEffects": [],
+        "attributeRequirements": {
+          "agility": 2
+        },
+        "tags": null
+      },
+      {
+        "diceResult": 0,
+        "itemRank": "Common",
+        "prefixCategory": "MATERIAL",
+        "name": "IRON",
+        "description": "Barbarian",
+        "effect": "STRENGTH",
+        "triggerWhen": "",
+        "minValue": 4,
+        "maxValue": 4,
+        "rolledValue": 4,
+        "statusEffects": [],
+        "attributeRequirements": {
+          "strength": 10
+        },
+        "tags": null
+      }
+    ],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "iron"
+    ],
+    "triggerBundles": [],
+    "equipEffects": [],
+    "roomSearchConsumableKind": 0,
+    "consumableHealAmount": 0,
+    "consumablePotionPotency": 0,
+    "weaponType": 0,
+    "attributeRequirements": {
+      "intelligence": 5,
+      "agility": 2,
+      "strength": 10
+    },
+    "catalogAttributeRequirements": {
+      "intelligence": 5
+    },
+    "gearAction": null,
+    "isStarterItem": false
+  },
+  "body": {
+    "$itemType": "chest",
+    "armor": 1,
+    "name": "Broken Short Unknown Duelist Coat of fleeting stitched by a mother",
+    "type": 2,
+    "tier": 1,
+    "level": 2,
+    "comboBonus": 0,
+    "baseStrength": 3,
+    "baseAgility": 0,
+    "baseTechnique": 5,
+    "baseIntelligence": 0,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 0,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Uncommon",
+    "material": "Unknown",
+    "statBonuses": [
+      {
+        "name": "of fleeting",
+        "description": "attack speed",
+        "value": 5,
+        "rarity": "Common",
+        "statType": "AttackSpeed",
+        "ItemRank": "",
+        "mechanics": [
+          {
+            "statType": "AttackSpeed",
+            "value": 5
+          }
+        ],
+        "triggerName": "",
+        "triggerNames": null,
+        "tags": null,
+        "Requirements": null
+      },
+      {
+        "name": "stitched by a mother",
+        "description": "Mended with love and quiet ferocity \u2014 nothing may break what she kept whole",
+        "value": 12,
+        "rarity": "Rare",
+        "statType": "Health",
+        "ItemRank": "",
+        "mechanics": [
+          {
+            "statType": "Health",
+            "value": 12
+          },
+          {
+            "statType": "HealthRegen",
+            "value": 5
+          }
+        ],
+        "triggerName": "",
+        "triggerNames": null,
+        "tags": null,
+        "Requirements": null
+      }
+    ],
+    "actionBonuses": [
+      {
+        "name": "CRIT HEAL",
+        "description": "ON CRIT: heal 10 (ONCRITICAL)",
+        "weight": 1
+      },
+      {
+        "name": "SPRINT",
+        "description": "\u002B5% SPEED",
+        "weight": 1
+      }
+    ],
+    "modifications": [
+      {
+        "diceResult": 0,
+        "itemRank": "Common",
+        "prefixCategory": "QUALITY",
+        "name": "Broken",
+        "description": "Affects the base stats of an item \u002B/-",
+        "effect": "gearPrimaryStatMultiplier",
+        "triggerWhen": "",
+        "minValue": 0.75,
+        "maxValue": 0.75,
+        "rolledValue": 0.75,
+        "statusEffects": [],
+        "attributeRequirements": {},
+        "tags": null
+      },
+      {
+        "diceResult": 0,
+        "itemRank": "Common",
+        "prefixCategory": "ADJECTIVE",
+        "name": "Short",
+        "description": "",
+        "effect": "HIT",
+        "triggerWhen": "",
+        "minValue": 2,
+        "maxValue": 2,
+        "rolledValue": 2,
+        "statusEffects": [],
+        "attributeRequirements": {
+          "agility": 2
+        },
+        "tags": null
+      },
+      {
+        "diceResult": 0,
+        "itemRank": "Uncommon",
+        "prefixCategory": "MATERIAL",
+        "name": "Unknown",
+        "description": "Mystery tag",
+        "effect": "",
+        "triggerWhen": "",
+        "minValue": 0,
+        "maxValue": 0,
+        "rolledValue": 0,
+        "statusEffects": [],
+        "attributeRequirements": {},
+        "tags": null
+      }
+    ],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "unknown"
+    ],
+    "triggerBundles": [],
+    "equipEffects": [],
+    "roomSearchConsumableKind": 0,
+    "consumableHealAmount": 0,
+    "consumablePotionPotency": 0,
+    "weaponType": 0,
+    "attributeRequirements": {
+      "strength": 15,
+      "agility": 2
+    },
+    "catalogAttributeRequirements": {
+      "strength": 15
+    },
+    "gearAction": null,
+    "isStarterItem": false
+  },
+  "legs": {
+    "$itemType": "legs",
+    "armor": 0,
+    "name": "Battle Scarred IRON breeches",
+    "type": 4,
+    "tier": 1,
+    "level": 4,
+    "comboBonus": 0,
+    "baseStrength": 0,
+    "baseAgility": 3,
+    "baseTechnique": 5,
+    "baseIntelligence": 0,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 1,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Common",
+    "material": "IRON",
+    "statBonuses": [],
+    "actionBonuses": [
+      {
+        "name": "LOADED DICE",
+        "description": "Replace next natural roll with 12.",
+        "weight": 3
+      }
+    ],
+    "modifications": [
+      {
+        "diceResult": 0,
+        "itemRank": "Common",
+        "prefixCategory": "QUALITY",
+        "name": "Battle Scarred",
+        "description": "Affects the base stats of an item \u002B/-",
+        "effect": "gearPrimaryStatMultiplier",
+        "triggerWhen": "",
+        "minValue": 0.9,
+        "maxValue": 0.9,
+        "rolledValue": 0.9,
+        "statusEffects": [],
+        "attributeRequirements": {},
+        "tags": null
+      },
+      {
+        "diceResult": 0,
+        "itemRank": "Common",
+        "prefixCategory": "MATERIAL",
+        "name": "IRON",
+        "description": "Barbarian",
+        "effect": "STRENGTH",
+        "triggerWhen": "",
+        "minValue": 4,
+        "maxValue": 4,
+        "rolledValue": 4,
+        "statusEffects": [],
+        "attributeRequirements": {
+          "strength": 10
+        },
+        "tags": null
+      }
+    ],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "iron"
+    ],
+    "triggerBundles": [],
+    "equipEffects": [],
+    "roomSearchConsumableKind": 0,
+    "consumableHealAmount": 0,
+    "consumablePotionPotency": 0,
+    "weaponType": 0,
+    "attributeRequirements": {
+      "agility": 5,
+      "strength": 10
+    },
+    "catalogAttributeRequirements": {
+      "agility": 5
+    },
+    "gearAction": null,
+    "isStarterItem": false
+  },
+  "weapon": {
+    "$itemType": "weapon",
+    "baseDamage": 7,
+    "rolledDamageBonus": 3,
+    "baseAttackSpeed": 1.2,
+    "name": "Second Hand Poisonous Steel Knocker of the Kestrel of Precision",
+    "type": 3,
+    "tier": 2,
+    "level": 10,
+    "comboBonus": 0,
+    "baseStrength": 0,
+    "baseAgility": 0,
+    "baseTechnique": 0,
+    "baseIntelligence": 0,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 0,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Uncommon",
+    "material": "Steel",
+    "statBonuses": [
+      {
+        "name": "of Precision",
+        "description": "1 to combo",
+        "value": 1,
+        "rarity": "Common",
+        "statType": "COMBO",
+        "ItemRank": "",
+        "mechanics": [
+          {
+            "statType": "COMBO",
+            "value": 1
+          }
+        ],
+        "triggerName": "",
+        "triggerNames": null,
+        "tags": null,
+        "Requirements": null
+      },
+      {
+        "name": "of the Kestrel",
+        "description": "On connect, apply Focus.",
+        "value": 0,
+        "rarity": "Uncommon",
+        "statType": "",
+        "ItemRank": "",
+        "mechanics": null,
+        "triggerName": "",
+        "triggerNames": null,
+        "tags": null,
+        "Requirements": null
+      }
+    ],
+    "actionBonuses": [
+      {
+        "name": "RETRIGGER OPENER",
+        "description": "ON KILL: nested resolve of opener (retrigger_opener)",
+        "weight": 1
+      }
+    ],
+    "modifications": [
+      {
+        "diceResult": 0,
+        "itemRank": "Uncommon",
+        "prefixCategory": "QUALITY",
+        "name": "Second Hand",
+        "description": "Affects the base stats of an item \u002B/-",
+        "effect": "gearPrimaryStatMultiplier",
+        "triggerWhen": "",
+        "minValue": 0.97,
+        "maxValue": 0.97,
+        "rolledValue": 0.97,
+        "statusEffects": [],
+        "attributeRequirements": {},
+        "tags": null
+      },
+      {
+        "diceResult": 0,
+        "itemRank": "Common",
+        "prefixCategory": "ADJECTIVE",
+        "name": "Poisonous",
+        "description": "",
+        "effect": "POISON",
+        "triggerWhen": "",
+        "minValue": 0,
+        "maxValue": 0,
+        "rolledValue": 0,
+        "statusEffects": [],
+        "attributeRequirements": {},
+        "tags": null
+      },
+      {
+        "diceResult": 0,
+        "itemRank": "Common",
+        "prefixCategory": "MATERIAL",
+        "name": "Steel",
+        "description": "Barbarian",
+        "effect": "STRENGTH",
+        "triggerWhen": "",
+        "minValue": 3,
+        "maxValue": 3,
+        "rolledValue": 3,
+        "statusEffects": [],
+        "attributeRequirements": {
+          "strength": 10
+        },
+        "tags": null
+      }
+    ],
+    "armorStatuses": [],
+    "bonusDamage": 6,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "mace",
+      "barbarian",
+      "steel"
+    ],
+    "triggerBundles": [],
+    "equipEffects": [],
+    "roomSearchConsumableKind": 0,
+    "consumableHealAmount": 0,
+    "consumablePotionPotency": 0,
+    "weaponType": 2,
+    "attributeRequirements": {
+      "strength": 10
+    },
+    "catalogAttributeRequirements": {},
+    "gearAction": null,
+    "isStarterItem": false
+  },
+  "feet": null,
+  "comboStripActionNames": [
+    "MIGHT",
+    "IRON CULL",
+    "SLAM"
+  ],
+  "isDead": false,
+  "pendingPreWeaponTrainingGround": false,
+  "currentRegionId": "forest",
+  "dungeonDifficultyAnchorLevel": null
+}

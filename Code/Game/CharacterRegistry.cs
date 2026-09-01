@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Entity.Services;
 
 namespace RPGGame
 {
@@ -221,8 +222,11 @@ namespace RPGGame
         {
             if (character == null) throw new ArgumentNullException(nameof(character));
             
-            // Sanitize name for filename use
-            var sanitizedName = character.Name?.Replace(" ", "_").Replace("/", "_").Replace("\\", "_") ?? "Character";
+            // Sanitize name for filename use (strip all OS-illegal filename characters)
+            var sanitizedName = CharacterFileManager.SanitizeForFilename(
+                character.Name ?? "Character");
+            if (string.IsNullOrEmpty(sanitizedName))
+                sanitizedName = "Character";
             var shortGuid = Guid.NewGuid().ToString("N")[..8];
             return $"{sanitizedName}_{character.Level}_{shortGuid}";
         }

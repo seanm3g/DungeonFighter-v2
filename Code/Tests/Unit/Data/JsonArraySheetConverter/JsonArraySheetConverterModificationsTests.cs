@@ -15,7 +15,10 @@ namespace RPGGame.Tests.Unit.Data.JsonArraySheetConverter
             ModificationsRoundTrip(ref run, ref pass, ref fail);
             ModificationsPushIncludesTagsColumn(ref run, ref pass, ref fail);
             ModificationsCsvImportTagsColumn(ref run, ref pass, ref fail);
-            ModificationsCsvImportValueAndAttributeRequirementColumns(ref run, ref pass, ref fail);
+            ModificationsCsvImportMinMaxAndAttributeRequirementColumns(ref run, ref pass, ref fail);
+            ModificationsCsvImportLegacyValueColumnMapsToMinMax(ref run, ref pass, ref fail);
+            ModificationsCsvImportLiveSheetColumnOrder(ref run, ref pass, ref fail);
+            ModificationsPushSplitsAttributeRequirements(ref run, ref pass, ref fail);
             MergeJsonRootArraysCoreThenExtra(ref run, ref pass, ref fail);
             SplitModificationsMergedJsonMaterialQualityToSecondFile(ref run, ref pass, ref fail);
         }
@@ -55,8 +58,8 @@ namespace RPGGame.Tests.Unit.Data.JsonArraySheetConverter
         {
             TestBase.SetCurrentTestName(nameof(ModificationsCsvImportTagsColumn));
             const string csv = """
-            DiceResult,ItemRank,Name,Description,Effect,value,prefixCategory,ATTRIBUTE REQUIREMENT,REQUIREMENT VALUE,ATTRIBUTE REQUREMENT,MaxValue,MinValue,RolledValue,tags
-            0,Common,flaming,,BURN,10,ADJECTIVE,,,,10,10,0,fire
+            DiceResult,ItemRank,prefixCategory,Name,Description,Effect,MaxValue,MinValue,ATTRIBUTE REQUIREMENT,REQUIREMENT VALUE,ATTRIBUTE REQUREMENT,RolledValue,tags
+            0,Common,ADJECTIVE,flaming,,BURN,10,10,,,,0,fire
             """;
             string outJson = SheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Modifications);
             using var doc = JsonDocument.Parse(outJson);
@@ -66,13 +69,31 @@ namespace RPGGame.Tests.Unit.Data.JsonArraySheetConverter
         }
 
 
-        /// <summary>PREFIX sheet A–I: <c>value</c> maps to Min/Max; <c>ATTRIBUTE REQUIREMENT</c> + <c>REQUIREMENT VALUE</c> → <c>attributeRequirements</c>.</summary>
-        private static void ModificationsCsvImportValueAndAttributeRequirementColumns(ref int run, ref int pass, ref int fail)
+        /// <summary>PREFIX sheet: <c>MinValue</c>/<c>MaxValue</c> import directly; <c>ATTRIBUTE REQUIREMENT</c> + <c>REQUIREMENT VALUE</c> → <c>attributeRequirements</c>.</summary>
+        private static void ModificationsCsvImportMinMaxAndAttributeRequirementColumns(ref int run, ref int pass, ref int fail)
         {
-            TestBase.SetCurrentTestName(nameof(ModificationsCsvImportValueAndAttributeRequirementColumns));
+            TestBase.SetCurrentTestName(nameof(ModificationsCsvImportMinMaxAndAttributeRequirementColumns));
             const string csv = """
-            DiceResult,ItemRank,Name,Description,Effect,value,prefixCategory,ATTRIBUTE REQUIREMENT,REQUIREMENT VALUE
-            0,Common,Reinforced,,ARMOR,1,ADJECTIVE,strength,2
+            DiceResult,ItemRank,prefixCategory,Name,Description,Effect,MaxValue,MinValue,ATTRIBUTE REQUIREMENT,REQUIREMENT VALUE
+            0,Common,ADJECTIVE,Reinforced,,ARMOR,1,1,strength,2
+            """;
+            string outJson = SheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Modifications);
+            using var a = JsonDocument.Parse(outJson);
+            var row = a.RootElement[0];
+            TestBase.AssertEqual(1, row.GetProperty("MinValue").GetDouble(), "MinValue", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(1, row.GetProperty("MaxValue").GetDouble(), "MaxValue", ref run, ref pass, ref fail);
+            var reqs = row.GetProperty("attributeRequirements");
+            TestBase.AssertEqual(2, reqs.GetProperty("strength").GetInt32(), "strength requirement", ref run, ref pass, ref fail);
+        }
+
+
+        /// <summary>Legacy PREFIX exports with a <c>value</c> column still map to Min/Max on import.</summary>
+        private static void ModificationsCsvImportLegacyValueColumnMapsToMinMax(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(ModificationsCsvImportLegacyValueColumnMapsToMinMax));
+            const string csv = """
+            DiceResult,ItemRank,Name,Description,Effect,value,prefixCategory
+            0,Common,Reinforced,,ARMOR,1,ADJECTIVE
             """;
             string outJson = SheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Modifications);
             using var a = JsonDocument.Parse(outJson);
@@ -80,8 +101,63 @@ namespace RPGGame.Tests.Unit.Data.JsonArraySheetConverter
             TestBase.AssertEqual(1, row.GetProperty("MinValue").GetDouble(), "value→MinValue", ref run, ref pass, ref fail);
             TestBase.AssertEqual(1, row.GetProperty("MaxValue").GetDouble(), "value→MaxValue", ref run, ref pass, ref fail);
             TestBase.AssertFalse(row.TryGetProperty("value", out _), "value column removed", ref run, ref pass, ref fail);
-            var reqs = row.GetProperty("attributeRequirements");
-            TestBase.AssertEqual(2, reqs.GetProperty("strength").GetInt32(), "strength requirement", ref run, ref pass, ref fail);
+        }
+
+
+        /// <summary>Live PREFIX tab: stat in <c>ATTRIBUTE REQUREMENT</c>, value in <c>REQUIREMENT VALUE</c> (any column order).</summary>
+        private static void ModificationsCsvImportLiveSheetColumnOrder(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(ModificationsCsvImportLiveSheetColumnOrder));
+            const string csv = """
+            DiceResult,ItemRank,prefixCategory,Name,Description,Effect,MaxValue,MinValue,ATTRIBUTE REQUIREMENT,REQUIREMENT VALUE,ATTRIBUTE REQUREMENT,RolledValue,tags
+            0,Common,ADJECTIVE,Reinforced,,ARMOR,1,1,,2,strength,0,
+            0,Common,MATERIAL,Bone,Barbarian,STRENGTH,2,2,,10,strength,0,Bone tag to the item
+            """;
+            string outJson = SheetConverter.CsvToJsonArrayText(csv.Trim(), GameDataTabularSheetKind.Modifications);
+            using var doc = JsonDocument.Parse(outJson);
+            var reinforced = doc.RootElement[0];
+            var bone = doc.RootElement[1];
+            TestBase.AssertEqual(2, reinforced.GetProperty("attributeRequirements").GetProperty("strength").GetInt32(),
+                "Reinforced strength gate", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(10, bone.GetProperty("attributeRequirements").GetProperty("strength").GetInt32(),
+                "Bone strength gate", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("ADJECTIVE", reinforced.GetProperty("prefixCategory").GetString(),
+                "prefixCategory", ref run, ref pass, ref fail);
+        }
+
+
+        private static void ModificationsPushSplitsAttributeRequirements(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(ModificationsPushSplitsAttributeRequirements));
+            const string json = """
+            [{"DiceResult":0,"ItemRank":"Common","Name":"Reinforced","Effect":"ARMOR","prefixCategory":"ADJECTIVE","MinValue":1,"MaxValue":1,"attributeRequirements":{"strength":2}}]
+            """;
+            var rows = SheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Modifications);
+            var headers = rows[0].Select(c => c?.ToString() ?? "").ToList();
+            int reqIx = headers.FindIndex(h => string.Equals(h, "REQUIREMENT VALUE", StringComparison.OrdinalIgnoreCase));
+            int attrIx = headers.FindIndex(h => string.Equals(h, "ATTRIBUTE REQUIREMENT", StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertTrue(reqIx >= 0 && attrIx >= 0, "requirement columns present", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("2", rows[1][reqIx]?.ToString(), "requirement value cell", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("strength", rows[1][attrIx]?.ToString(), "attribute requirement cell", ref run, ref pass, ref fail);
+            TestBase.AssertFalse(headers.Any(h => string.Equals(h, "attributeRequirements", StringComparison.OrdinalIgnoreCase)),
+                "no raw attributeRequirements column", ref run, ref pass, ref fail);
+        }
+
+
+        private static void ModificationsPushOmitsValueColumn(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(ModificationsPushOmitsValueColumn));
+            const string json = """
+            [{"DiceResult":1,"ItemRank":"Common","Name":"Worn","Effect":"damage","MinValue":-3,"MaxValue":-1}]
+            """;
+            var rows = SheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Modifications);
+            var headers = rows[0].Select(c => c?.ToString() ?? "").ToList();
+            TestBase.AssertFalse(headers.Any(h => string.Equals(h, "value", StringComparison.OrdinalIgnoreCase)),
+                "push omits value column", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(headers.Any(h => string.Equals(h, "MinValue", StringComparison.OrdinalIgnoreCase)),
+                "push includes MinValue", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(headers.Any(h => string.Equals(h, "MaxValue", StringComparison.OrdinalIgnoreCase)),
+                "push includes MaxValue", ref run, ref pass, ref fail);
         }
 
 

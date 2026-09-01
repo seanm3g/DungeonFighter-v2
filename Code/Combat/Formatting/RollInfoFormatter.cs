@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat.Calculators;
 using RPGGame.UI.ColorSystem;
 using static RPGGame.Combat.Formatting.DamageFormatter;
 
@@ -84,7 +85,8 @@ namespace RPGGame.Combat.Formatting
             double? comboAmplifier = null, 
             Action? action = null,
             MultiDiceRollDetail multiDiceDetail = default,
-            int multiHitCount = 1)
+            int multiHitCount = 1,
+            int? defenseFace = null)
         {
             var builder = new ColoredTextBuilder();
             builder.Add("     (", Colors.Gray);
@@ -107,11 +109,22 @@ namespace RPGGame.Combat.Formatting
                 builder.Add(" = ", Colors.White);
                 builder.Add((roll + rollBonus).ToString(), Colors.White);
             }
+
+            if (defenseFace.HasValue)
+            {
+                builder.Add(" | ", Colors.Gray);
+                builder.Add("def:", ColorPalette.Info);
+                builder.AddSpace();
+                builder.Add(defenseFace.Value.ToString(), Colors.White);
+                int margin = DefenseBlockCalculator.GetMargin(roll, defenseFace.Value);
+                builder.Add(" | ", Colors.Gray);
+                builder.Add(DefenseBlockCalculator.FormatMarginSigned(margin), Colors.White);
+            }
             
             // Attack vs Defense (net + optional × hits so footer matches the damage line)
             if (rawDamage > 0 || targetDefense > 0)
             {
-                AddAttackVsArmor(builder, rawDamage, targetDefense, multiHitCount);
+                AddAttackVsArmor(builder, rawDamage, targetDefense, multiHitCount, useBlockLabel: defenseFace.HasValue);
             }
             
             // Speed information

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using RPGGame.Actions.Conditional;
 using RPGGame.Actions.RollModification;
@@ -47,6 +48,7 @@ namespace RPGGame
                 return false;
 
             bool any = false;
+            var firedIdentities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var item in EnumerateEquipped(character))
             {
                 if (item?.TriggerBundles == null || item.TriggerBundles.Count == 0)
@@ -54,7 +56,9 @@ namespace RPGGame
                 if (!item.TriggerBundles.Any(b => b != null && b.IsEnabled && !ItemEquipEffectApplicator.IsWhileEquipped(b)))
                     continue;
 
-                var carrier = BuildCarrierAction(item);
+                var carrier = BuildCarrierAction(item, firedIdentities: firedIdentities);
+                if (carrier.Triggers?.Bundles == null || carrier.Triggers.Bundles.Count == 0)
+                    continue;
                 any |= ActionTriggerBundleApplicator.ApplyMatchingBundles(
                     carrier, combatEvent, character, target ?? character, messages);
             }
@@ -77,6 +81,7 @@ namespace RPGGame
                 return false;
 
             bool any = false;
+            var firedIdentities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var item in EnumerateEquipped(hero))
             {
                 if (item?.TriggerBundles == null || item.TriggerBundles.Count == 0)
@@ -88,7 +93,9 @@ namespace RPGGame
                         && IsTakeHitWhen(b.When)))
                     continue;
 
-                var carrier = BuildCarrierAction(item, onlyWhenTakeHit: true);
+                var carrier = BuildCarrierAction(item, onlyWhenTakeHit: true, firedIdentities: firedIdentities);
+                if (carrier.Triggers?.Bundles == null || carrier.Triggers.Bundles.Count == 0)
+                    continue;
                 any |= ActionTriggerBundleApplicator.ApplyMatchingBundles(
                     carrier, combatEvent, hero, attacker ?? hero, messages);
             }
@@ -143,6 +150,54 @@ namespace RPGGame
             }
 
             return any;
+        }
+
+        /// <summary>
+        /// Standing WHILE_EQUIPPED same-swing damage/speed/amp bonuses that currently apply to
+        /// <paramref name="swingAction"/> on strip slot <paramref name="comboSlotIndex"/> (0-based).
+        /// Situational filters (same-action, even/odd, clutch, target tags) are omitted so cards
+        /// only list bonuses that are properties of this action + loadout + slot.
+        /// </summary>
+        public static IEnumerable<(string Source, string MechanicId, double Magnitude)> CollectWhileEquippedSameSwingPreview(
+            Character character,
+            Action swingAction,
+            int comboSlotIndex)
+        {
+            if (character == null || swingAction == null)
+                yield break;
+
+            var provisional = new CombatEvent(CombatEventType.ActionHit, character)
+            {
+                Target = character,
+                Action = swingAction,
+                IsMiss = false
+            };
+
+            foreach (var item in EnumerateEquipped(character))
+            {
+                if (item == null)
+                    continue;
+                foreach (var bundle in EnumerateSameSwingBundles(item, SameSwingMechanicIds, includeWhileEquipped: true))
+                {
+                    if (!ItemEquipEffectApplicator.IsWhileEquipped(bundle))
+                        continue;
+                    if (!PassesCardPreviewFilters(bundle, character, swingAction, comboSlotIndex, provisional))
+                        continue;
+
+                    double mag = ItemTriggerMagnitude.ResolveOrZero(bundle, character);
+                    if (mag == 0)
+                        continue;
+
+                    string source = ResolvePreviewSource(item, bundle);
+                    foreach (string rawId in bundle.ParseMechanicIds())
+                    {
+                        string id = NormalizeMechanicId(rawId);
+                        if (!SameSwingMechanicIds.Contains(id))
+                            continue;
+                        yield return (source, id, mag);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -246,7 +301,8 @@ namespace RPGGame
         public static Action BuildCarrierAction(
             Item item,
             string? onlyMechanic = null,
-            bool onlyWhenTakeHit = false)
+            bool onlyWhenTakeHit = false,
+            HashSet<string>? firedIdentities = null)
         {
             var bundles = ItemGenerator.CloneTriggerBundles(item.TriggerBundles) ?? new List<ActionTriggerBundle>();
             if (!string.IsNullOrWhiteSpace(onlyMechanic))
@@ -270,6 +326,9 @@ namespace RPGGame
                     .Where(b => !ItemEquipEffectApplicator.IsWhileEquipped(b) && !IsTakeHitWhen(b?.When))
                     .ToList();
             }
+
+            if (firedIdentities != null)
+                bundles = FilterAndMarkIdentities(bundles, firedIdentities);
 
             var filters = new List<string>();
             foreach (var b in bundles)
@@ -315,6 +374,31 @@ namespace RPGGame
                 },
                 RollMods = new RollModificationProperties()
             };
+        }
+
+        /// <summary>
+        /// Drops bundles whose <see cref="ActionTriggerBundle.IdentityName"/> already fired this pass;
+        /// marks newly included named identities so later gear pieces skip duplicates (taxon synergies).
+        /// </summary>
+        internal static List<ActionTriggerBundle> FilterAndMarkIdentities(
+            List<ActionTriggerBundle> bundles,
+            HashSet<string> firedIdentities)
+        {
+            var kept = new List<ActionTriggerBundle>(bundles.Count);
+            foreach (var b in bundles)
+            {
+                if (b == null)
+                    continue;
+                string? id = b.IdentityName;
+                if (!string.IsNullOrWhiteSpace(id))
+                {
+                    if (firedIdentities.Contains(id))
+                        continue;
+                    firedIdentities.Add(id.Trim());
+                }
+                kept.Add(b);
+            }
+            return kept;
         }
 
         private static bool ApplySameSwingFromItem(
@@ -412,6 +496,89 @@ namespace RPGGame
             }
 
             return filters;
+        }
+
+        private static readonly HashSet<string> SituationalPreviewFilterFamilies = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "IFSAMESACTION", "IFDIFFERENTACTION", "IFMIRROR", "IFSWITCHUP",
+            "ONEVEN", "ONODD",
+            "IFCLUTCH", "IFLASTENEMY", "IFLASTSTAND",
+            "IFTARGETHASTAG", "IFTARGETUNDERDOT", "IFTARGETSTATUS",
+            "IFSOURCEUNDERDOT", "IFSOURCESTATUS",
+            "IFSOURCEHEALTHBELOW", "IFSOURCEHEALTHABOVE",
+            "IFTARGETHEALTHBELOW", "IFTARGETHEALTHABOVE"
+        };
+
+        private static bool PassesCardPreviewFilters(
+            ActionTriggerBundle bundle,
+            Character character,
+            Action swingAction,
+            int comboSlotIndex,
+            CombatEvent provisional)
+        {
+            if (bundle.Filters == null || bundle.Filters.Count == 0)
+                return true;
+
+            var remaining = new List<string>();
+            foreach (var raw in bundle.Filters)
+            {
+                if (string.IsNullOrWhiteSpace(raw))
+                    continue;
+                if (!ActionTriggerPredicates.TryClassifyFilter(raw, out string family, out string? arg))
+                {
+                    remaining.Add(raw);
+                    continue;
+                }
+
+                if (SituationalPreviewFilterFamilies.Contains(family))
+                    return false;
+
+                if (family == "IFSLOT")
+                {
+                    if (!int.TryParse(arg, NumberStyles.Integer, CultureInfo.InvariantCulture, out int oneBased)
+                        || oneBased < 1
+                        || comboSlotIndex + 1 != oneBased)
+                        return false;
+                    continue;
+                }
+
+                remaining.Add(raw);
+            }
+
+            if (remaining.Count == 0)
+                return true;
+
+            var previewBundle = CloneBundle(bundle);
+            previewBundle.Filters = remaining;
+            return PassesBundleFilters(previewBundle, character, provisional, swingAction);
+        }
+
+        private static string ResolvePreviewSource(Item item, ActionTriggerBundle bundle)
+        {
+            if (!string.IsNullOrWhiteSpace(bundle.IdentityName))
+                return bundle.IdentityName!.Trim();
+
+            if (bundle.Filters != null)
+            {
+                foreach (var raw in bundle.Filters)
+                {
+                    if (!ActionTriggerPredicates.TryClassifyFilter(raw, out string family, out string? arg))
+                        continue;
+                    if (family == "IFACTIONHASTAG" && !string.IsNullOrWhiteSpace(arg))
+                    {
+                        string tag = arg.Trim();
+                        if (tag.Length == 0)
+                            continue;
+                        return char.ToUpperInvariant(tag[0]) + tag.Substring(1).ToLowerInvariant();
+                    }
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(item.Material))
+                return ItemMaterialRules.RemapLegacyMaterial(item.Material);
+            if (!string.IsNullOrWhiteSpace(item.Name))
+                return item.Name.Trim();
+            return "Gear";
         }
 
         private static bool PassesBundleFilters(

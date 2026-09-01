@@ -32,31 +32,52 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Restores Material + one pool trigger when gear still has a Material prefix but lost
-        /// <see cref="Item.TriggerBundles"/> (e.g. older save/load that omitted those fields).
-        /// No-op when combat/equip procs are already present.
+        /// Remaps legacy Damascus→Iron on the item and its Material prefix. Does not re-roll procs.
+        /// </summary>
+        public static void RemapLegacyMaterialOnItem(Item item)
+        {
+            if (item == null)
+                return;
+
+            string remapped = ItemMaterialRules.RemapLegacyMaterial(item.Material);
+            if (!string.IsNullOrWhiteSpace(remapped))
+                item.Material = remapped;
+
+            if (item.Modifications == null)
+                return;
+            foreach (var mod in item.Modifications)
+            {
+                if (mod == null)
+                    continue;
+                if (mod.GetPrefixCategory() == ModificationPrefixCategory.Material
+                    && !string.IsNullOrWhiteSpace(mod.Name))
+                {
+                    string next = ItemMaterialRules.RemapLegacyMaterial(mod.Name);
+                    if (!string.Equals(next, mod.Name, StringComparison.Ordinal))
+                        mod.Name = next;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remaps leftover Damascus material names. Does not re-roll a random pool proc.
         /// </summary>
         public static void RepairMissingMaterialTrigger(Item item, Random? random = null)
         {
             if (item == null)
                 return;
 
+            RemapLegacyMaterialOnItem(item);
+
             string material = ResolveMaterialName(item);
             if (string.IsNullOrWhiteSpace(material))
                 return;
 
             if (string.IsNullOrWhiteSpace(item.Material))
-                item.Material = material;
+                item.Material = ItemMaterialRules.RemapLegacyMaterial(material);
 
-            bool hasProcs = (item.TriggerBundles != null && item.TriggerBundles.Count > 0)
-                            || (item.EquipEffects != null && item.EquipEffects.Count > 0);
-            if (hasProcs)
-                return;
-
-            if (!MaterialTriggerCatalog.TryGetPool(material, out _))
-                return;
-
-            ApplyMaterialTrigger(item, random);
+            // MATERIAL BUILDS owns combat triggers; drop catalog/pool stamps so they cannot fire.
+            ClearCatalogTriggerStamp(item);
         }
 
         /// <summary>Prefer <see cref="Item.Material"/>; fall back to the Material prefix modification name.</summary>

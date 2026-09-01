@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using RPGGame;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat.Sequence;
 using RPGGame.Diagnostics;
 
 namespace RPGGame.Combat.Calculators
@@ -12,6 +13,19 @@ namespace RPGGame.Combat.Calculators
     /// </summary>
     public static class DamageCalculator
     {
+        [ThreadStatic]
+        private static CombatSequenceDamageTrace? _sequenceTrace;
+
+        /// <summary>Start capturing formula pieces for the live sequence HUD (one swing, this thread).</summary>
+        public static void BeginSequenceTrace() => _sequenceTrace = new CombatSequenceDamageTrace();
+
+        /// <summary>Take the captured formula, if any, and stop recording.</summary>
+        public static CombatSequenceDamageTrace? TakeSequenceTrace()
+        {
+            var trace = _sequenceTrace;
+            _sequenceTrace = null;
+            return trace;
+        }
         /// <summary>
         /// Legacy hook for callers that invalidate when equipment or stats change; no-op (caching removed).
         /// </summary>
@@ -149,6 +163,7 @@ namespace RPGGame.Combat.Calculators
             var combatBalance = GameConfiguration.Instance.CombatBalance;
 
             // Apply roll-based damage scaling
+            bool appliedCritDamage = false;
             if (roll > 0)
             {
                 // Get threshold from threshold manager if available, otherwise use config
@@ -166,6 +181,7 @@ namespace RPGGame.Combat.Calculators
                 // Natural 20+ on the swing total still forces crit damage when bonuses push the die (legacy safety).
                 if (critEvalRoll >= criticalThreshold || roll >= 20)
                 {
+                    appliedCritDamage = true;
                     if (GameConfiguration.IsDebugEnabled)
                     {
                         if (!ActionExecutor.DisableCombatDebugOutput)
@@ -217,6 +233,11 @@ namespace RPGGame.Combat.Calculators
 
             int result = (int)totalDamage;
 
+            if (attacker is Character convertHero && convertHero is not Enemy)
+                result += MaterialSetController.GetConvertDamageBonus(convertHero, action);
+
+            int convertFlat = result - (int)totalDamage;
+
             int maxCap = Math.Max(1, combatConfig.MaximumDamageCap);
             if (result > maxCap)
                 result = maxCap;
@@ -227,13 +248,23 @@ namespace RPGGame.Combat.Calculators
                 result = 1;
             }
 
+            if (_sequenceTrace != null)
+            {
+                _sequenceTrace.BaseDamage = baseDamage;
+                _sequenceTrace.ActionMultiplier = actionMultiplier;
+                _sequenceTrace.Amp = comboAmplifier;
+                _sequenceTrace.ConvertFlat = convertFlat;
+                _sequenceTrace.Raw = result;
+                _sequenceTrace.CritDamage = appliedCritDamage;
+            }
+
             return result;
         }
 
         /// <summary>
         /// Calculates damage dealt by an attacker to a target
         /// </summary>
-        public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true)
+        public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true, int? defenseFace = null, int? attackFace = null)
         {
             var sw = CombatHotPathMetrics.IsEnabled ? Stopwatch.StartNew() : null;
 
@@ -247,11 +278,11 @@ namespace RPGGame.Combat.Calculators
                 totalDamage = (int)(totalDamage * tagModifier);
             }
 
-            // Flat armor reduction for both heroes and enemies (persistent; not consumed).
+            // Flat reduction: enemies use 100% armor; hero hits with a 1d20 defense convert armor to block via opposed margin (75% / 100% / 150%).
             // Pierce: CausesPierce on the swing, or HasPierce on the target, ignores armor.
-            int targetArmor = ResolveTargetArmor(target, action);
+            int targetArmor = DefenseBlockCalculator.ResolveMitigation(target, action, defenseFace, attackFace);
 
-            // Calculate final damage after armor reduction
+            // Calculate final damage after armor / block reduction
             int minimumDamage = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage); // Ensure at least 1
             int finalDamage = Math.Max(minimumDamage, (int)totalDamage - targetArmor);
 
@@ -267,6 +298,12 @@ namespace RPGGame.Combat.Calculators
                 finalDamage = 1;
             }
 
+            if (_sequenceTrace != null)
+            {
+                _sequenceTrace.Block = targetArmor;
+                _sequenceTrace.Final = finalDamage;
+            }
+
             if (sw != null)
             {
                 sw.Stop();
@@ -279,9 +316,9 @@ namespace RPGGame.Combat.Calculators
         /// <summary>
         /// Calculates damage reduction from armor and other sources
         /// </summary>
-        public static int ApplyDamageReduction(Actor target, int damage, Action? action = null)
+        public static int ApplyDamageReduction(Actor target, int damage, Action? action = null, int? defenseFace = null, int? attackFace = null)
         {
-            int armorReduction = ResolveTargetArmor(target, action);
+            int armorReduction = DefenseBlockCalculator.ResolveMitigation(target, action, defenseFace, attackFace);
 
             // Apply damage reduction from effects
             double damageReductionMultiplier = 1.0;

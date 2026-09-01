@@ -35,7 +35,7 @@ namespace RPGGame
                 _ => item
             };
 
-            // Saves that lost triggers via the old copy path still have a Material prefix — re-roll one.
+            // Remap Damascus→Iron; do not re-roll item trigger identities.
             MaterialTriggerMerge.RepairMissingMaterialTrigger(result);
             return result;
         }

@@ -241,9 +241,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     // Render actions if available
                     if (itemActions != null && itemActions.Count > 0)
                     {
-                        string actionsText = "Actions: " + string.Join(", ", itemActions);
-                        // Truncate if too long to fit in available width
-                        int maxActionWidth = width - 10;
+                        string actionsText = ItemStatFormatter.ItemDetailLineIndent + "Actions: " + string.Join(", ", itemActions);
+                        // Truncate if too long to fit in available width (indent is part of the string)
+                        int maxActionWidth = width - 8;
                         if (actionsText.Length > maxActionWidth)
                         {
                             actionsText = actionsText.Substring(0, maxActionWidth - 3) + "...";
@@ -253,7 +253,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                             : ItemNameFormatter.IsCommonRarity(item.Rarity)
                                 ? AsciiArtAssets.Colors.White
                                 : AsciiArtAssets.Colors.Cyan;
-                        canvas.AddText(x + 4, y, actionsText, actionsColor);
+                        canvas.AddText(x + 2, y, actionsText, actionsColor);
                         y++;
                         currentLineCount++;
                     }

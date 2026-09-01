@@ -12,6 +12,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
     /// </summary>
     public static class ItemStatFormatter
     {
+        /// <summary>
+        /// Indent for item detail lines (actions, stats) under the left-justified name.
+        /// Two spaces matches inventory Actions drawn two columns right of the name.
+        /// Must be attached to the first content segment — a whitespace-only
+        /// <see cref="ColoredTextBuilder"/> segment is collapsed to one space by SpacingHelper.
+        /// </summary>
+        public const string ItemDetailLineIndent = "  ";
+
         /// <summary>All mechanical modifiers on this item (catalog, affixes, suffixes).</summary>
         public static List<ItemStatContribution> GetStatContributions(Item item) =>
             ItemStatContributionCollector.Collect(item);
@@ -108,7 +116,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         public static List<ColoredText> FormatStatLine(string stat, Item? displayedItem = null, WeaponItem? weaponSpeedBaseline = null, Item? armorComparisonBaseline = null)
         {
             var builder = new ColoredTextBuilder();
-            builder.Add("    ", Colors.White);
 
             if (stat.StartsWith("Armor: +"))
             {
@@ -228,7 +235,29 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 builder.Add(stat, Colors.White);
             }
             
-            return builder.Build();
+            return ApplyItemDetailIndent(builder.Build());
+        }
+
+        /// <summary>
+        /// Prefixes the first segment with <see cref="ItemDetailLineIndent"/> so the indent survives
+        /// ColoredTextBuilder spacing (whitespace-only segments collapse to a single space).
+        /// </summary>
+        public static List<ColoredText> ApplyItemDetailIndent(List<ColoredText> segments)
+        {
+            if (segments == null || segments.Count == 0)
+                return segments ?? new List<ColoredText>();
+
+            var first = segments[0];
+            string text = first.Text ?? "";
+            if (text.StartsWith(ItemDetailLineIndent, StringComparison.Ordinal))
+                return segments;
+
+            segments[0] = new ColoredText(
+                ItemDetailLineIndent + text,
+                first.Color,
+                first.SourceTemplate,
+                first.ColorReadyForCanvas);
+            return segments;
         }
 
         private static bool TryFormatWeaponAttackSpeedLine(

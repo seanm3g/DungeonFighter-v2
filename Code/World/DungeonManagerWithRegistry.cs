@@ -60,9 +60,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Regenerates available dungeons based on player level using actual dungeons from Dungeons.json.
-        /// Randomly selects 3 dungeons (scaled to player level ±1), then appends a fixed "custom difficulty" option
-        /// where the player can enter any level on the next prompt.
+        /// Regenerates available dungeons based on the current difficulty anchor using Dungeons.json.
+        /// Randomly selects 3 dungeons (scaled to the anchor ±1), then appends a "custom difficulty" option
+        /// and a "reset to default level" option. The anchor is a stored custom level, or the hero's level.
         /// </summary>
         /// <param name="player">The player character</param>
         /// <param name="availableDungeons">List to populate with available dungeons</param>
@@ -70,6 +70,7 @@ namespace RPGGame
         {
             availableDungeons.Clear();
             int playerLevel = player.Level;
+            int anchorLevel = DungeonLevelMath.ResolveSelectionAnchorLevel(playerLevel, player.DungeonDifficultyAnchorLevel);
             
             // Load all dungeons from Dungeons.json
             var allDungeons = LoadAllDungeons();
@@ -109,14 +110,14 @@ namespace RPGGame
                     selectedDungeons.Add(fallback);
             }
 
-            // Create Dungeon objects with appropriate level scaling
-            // First dungeon: player level - 1 (easier)
-            // Second dungeon: player level (current difficulty)
-            // Third dungeon: player level + 1 (harder)
+            // Create Dungeon objects with appropriate level scaling around the difficulty anchor
+            // First dungeon: anchor - 1 (easier)
+            // Second dungeon: anchor (current difficulty)
+            // Third dungeon: anchor + 1 (harder)
             for (int i = 0; i < selectedDungeons.Count; i++)
             {
                 var dungeonData = selectedDungeons[i];
-                int dungeonLevel = Math.Max(1, playerLevel + (i - 1)); // -1, 0, +1
+                int dungeonLevel = DungeonLevelMath.ResolveDungeonLevelAroundAnchor(anchorLevel, i - 1);
                 
                 availableDungeons.Add(new Dungeon(
                     dungeonData.name,
@@ -143,6 +144,14 @@ namespace RPGGame
                 customTemplate.possibleEnemies,
                 customTemplate.colorOverride,
                 player.CurrentRegionId));
+
+            int defaultLevel = Math.Max(RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL, playerLevel);
+            availableDungeons.Add(new Dungeon(
+                GameConstants.DungeonResetDifficultyMenuName,
+                defaultLevel,
+                defaultLevel,
+                string.Empty,
+                spawnRegionId: player.CurrentRegionId));
         }
 
 

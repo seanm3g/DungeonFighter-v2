@@ -44,6 +44,12 @@ namespace RPGGame
         public int ComboOrder { get; set; }
         public double DamageMultiplier { get; set; }
         public double Length { get; set; }
+        /// <summary>ACTIONS DS — material whose equipped count scales this convert action.</summary>
+        public string MaterialScale { get; set; } = "";
+        /// <summary>ACTIONS DT — synthesis keyword this convert action reads.</summary>
+        public string KeywordScale { get; set; } = "";
+        /// <summary>ACTIONS DU — source override for convert add (<c>keyword</c>/<c>bank</c> or <c>material</c>/<c>count</c>).</summary>
+        public string ScaleFormula { get; set; } = "";
         public bool CausesBleed { get; set; }
         public bool CausesWeaken { get; set; }
         public bool CausesSlow { get; set; }

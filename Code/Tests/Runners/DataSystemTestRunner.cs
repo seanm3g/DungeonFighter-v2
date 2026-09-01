@@ -45,6 +45,7 @@ namespace RPGGame.Tests.Runners
             ("WeaponTypeFromCatalog", () => WeaponTypeFromCatalogTests.RunAllTests()),
             ("StarterCatalogItems", () => StarterCatalogItemsTests.RunAllTests()),
             ("LootBonusApplier", () => LootBonusApplierTests.RunAllTests()),
+            ("MaterialTrigger", () => RPGGame.Tests.Unit.MaterialTriggerTests.RunAllTests()),
             ("ItemPrefixHelper", () => ItemPrefixHelperTests.RunAllTests()),
             ("ItemGetTotalArmorNullSafety", () => ItemGetTotalArmorNullSafetyTests.RunAllTests()),
             ("ItemGenerationLabService", () => ItemGenerationLabServiceTests.RunAllTests()),

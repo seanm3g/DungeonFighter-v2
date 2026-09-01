@@ -82,6 +82,17 @@ namespace RPGGame
         public void ActivateComboMode() => _state.ActivateComboMode();
         public void DeactivateComboMode() => _state.DeactivateComboMode();
         public void ResetCombo() => _state.ResetCombo();
+        public void ClearCombo() => _state.ClearCombo();
+
+        public int GetMaterialKeyword(string keyword) => _state.GetMaterialKeyword(keyword);
+        public void AddMaterialKeyword(string keyword, int amount) => _state.AddMaterialKeyword(keyword, amount);
+        public void ClearMaterialKeywordBank() => _state.ClearMaterialKeywordBank();
+        public List<(string Keyword, int Count)> GetMaterialKeywordCounts() => _state.GetMaterialKeywordCounts();
+        public int MaterialConsecutiveConnects
+        {
+            get => _state.MaterialConsecutiveConnects;
+            set => _state.MaterialConsecutiveConnects = value;
+        }
         public void ApplySlow(double slowMultiplier, int duration) => _state.ApplySlow(slowMultiplier, duration);
         public void ApplyShield() => _state.ApplyShield();
         public bool ConsumeShield() => _state.ConsumeShield();

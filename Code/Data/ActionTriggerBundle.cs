@@ -12,6 +12,13 @@ namespace RPGGame.Data
     /// </summary>
     public sealed class ActionTriggerBundle
     {
+        /// <summary>
+        /// Optional catalog identity name (from Triggers.json). Used to dedupe the same proc
+        /// when multiple equipped pieces carry identical taxon synergies.
+        /// </summary>
+        [JsonPropertyName("identityName")]
+        public string? IdentityName { get; set; }
+
         /// <summary>Canonical WHEN token (e.g. ONKILL, ONHIT, ONMISS).</summary>
         [JsonPropertyName("when")]
         public string When { get; set; } = "";
@@ -52,10 +59,6 @@ namespace RPGGame.Data
         /// </summary>
         [JsonPropertyName("scaleFrom")]
         public string? ScaleFrom { get; set; }
-
-        /// <summary>Optional catalog / material identity key for tooltips (not used by combat).</summary>
-        [JsonPropertyName("identityName")]
-        public string? IdentityName { get; set; }
 
         /// <summary>Optional player-facing one-liner for tooltips (not used by combat).</summary>
         [JsonPropertyName("description")]

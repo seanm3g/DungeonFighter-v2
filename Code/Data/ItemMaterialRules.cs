@@ -11,7 +11,7 @@ namespace RPGGame
     {
         public static readonly string[] ClassMaterials =
         {
-            "Bone", "Steel", "Damascus",
+            "Bone", "Steel", "Iron",
             "Bronze", "Gold", "Mithril",
             "Glass", "Obsidian", "Shadow",
             "Willow", "Silver", "Crystal"
@@ -31,7 +31,7 @@ namespace RPGGame
             switch (weaponType)
             {
                 case WeaponType.Mace:
-                    common = "Bone"; uncommon = "Steel"; rare = "Damascus";
+                    common = "Bone"; uncommon = "Steel"; rare = "Iron";
                     return true;
                 case WeaponType.Sword:
                     common = "Bronze"; uncommon = "Gold"; rare = "Mithril";
@@ -91,6 +91,17 @@ namespace RPGGame
                 .ToList();
             var pool = matching.Count > 0 ? matching : list;
             return pool[random.Next(pool.Count)].Name.Trim();
+        }
+
+        /// <summary>Legacy saves/sheets used Damascus as the rare Mace material; MATERIAL BUILDS uses Iron.</summary>
+        public static string RemapLegacyMaterial(string? material)
+        {
+            string t = (material ?? "").Trim();
+            if (t.Equals("Damascus", StringComparison.OrdinalIgnoreCase))
+                return "Iron";
+            if (t.Equals("MITHIRL", StringComparison.OrdinalIgnoreCase))
+                return "Mithril";
+            return t;
         }
     }
 }

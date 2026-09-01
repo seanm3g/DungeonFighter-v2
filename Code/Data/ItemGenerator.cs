@@ -80,8 +80,8 @@ namespace RPGGame
             }
 
             weapon.Tags = GameDataTagHelper.NormalizeDistinct(weaponData.Tags);
-            ApplyCatalogTrigger(weaponData.TriggerName, weaponData.TriggerBundles, weaponData.EquipEffects,
-                out var combat, out var equip);
+            // Catalog triggerName stamps are unused: combat procs come from MATERIAL BUILDS.
+            ApplyCatalogTrigger(null, null, null, out var combat, out var equip);
             weapon.TriggerBundles = combat;
             weapon.EquipEffects = equip;
             
@@ -112,8 +112,7 @@ namespace RPGGame
             }
 
             item.Tags = GameDataTagHelper.NormalizeDistinct(armorData.Tags);
-            ApplyCatalogTrigger(armorData.TriggerName, armorData.TriggerBundles, armorData.EquipEffects,
-                out var combat, out var equip);
+            ApplyCatalogTrigger(null, null, null, out var combat, out var equip);
             item.TriggerBundles = combat;
             item.EquipEffects = equip;
 
@@ -179,6 +178,7 @@ namespace RPGGame
                     continue;
                 list.Add(new ActionTriggerBundle
                 {
+                    IdentityName = b.IdentityName,
                     When = b.When ?? "",
                     Count = b.Count ?? "",
                     Scope = b.Scope ?? "",
@@ -186,7 +186,6 @@ namespace RPGGame
                     Value = b.Value,
                     Filters = b.Filters == null ? null : new List<string>(b.Filters),
                     ScaleFrom = b.ScaleFrom,
-                    IdentityName = b.IdentityName,
                     Description = b.Description
                 });
             }
@@ -547,7 +546,8 @@ namespace RPGGame
                 switch (selectedBonus)
                 {
                     case StatBonus statBonus:
-                        item.StatBonuses.Add(statBonus.CloneForItemInstance());
+                        var suffixInstance = statBonus.CloneForItemInstance();
+                        item.StatBonuses.Add(suffixInstance);
                         break;
                     case ActionBonus actionBonus:
                         item.ActionBonuses.Add(actionBonus);

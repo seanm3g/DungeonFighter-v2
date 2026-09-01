@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Data;
 
 namespace RPGGame.ActionInteractionLab
 {
@@ -75,13 +76,16 @@ namespace RPGGame.ActionInteractionLab
                 foreach (var suffixTemplate in suffixTemplates)
                 {
                     if (suffixTemplate != null)
-                        item.StatBonuses.Add(CloneStatBonus(suffixTemplate));
+                    {
+                        var instance = CloneStatBonus(suffixTemplate);
+                        item.StatBonuses.Add(instance);
+                    }
                 }
             }
 
             item.RecomputeAttributeRequirementsIncludingModifications();
             ApplyMinimumRarity(item);
-            item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
+            ActionLabGearMaterial.Stamp(item);
             return item;
         }
 

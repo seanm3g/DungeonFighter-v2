@@ -163,7 +163,15 @@ namespace RPGGame
         /// <returns>True if stat meets threshold</returns>
         public bool MeetsStatThreshold(string statType, double threshold)
         {
-            return character.Stats.MeetsStatThreshold(statType, threshold, character.Equipment.GetEquipmentStatBonus(statType, character), character.Equipment.GetModificationGodlikeBonus());
+            int value = (statType ?? "").Trim().ToUpperInvariant() switch
+            {
+                "STR" => character.GetEffectiveStrength(),
+                "AGI" => character.GetEffectiveAgility(),
+                "TEC" => character.GetEffectiveTechnique(),
+                "INT" => character.GetEffectiveIntelligence(),
+                _ => 0
+            };
+            return value >= threshold;
         }
 
         /// <summary>

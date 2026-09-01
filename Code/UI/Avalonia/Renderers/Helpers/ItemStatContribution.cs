@@ -121,6 +121,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                         string? tag = string.IsNullOrEmpty(bonus.Name) ? null : bonus.Name;
                         list.Add(new ItemStatContribution(label, value, tag, isDebuff: contribValue < 0));
                     }
+                    // Trigger-only animal suffixes belong under Triggers (ItemTriggerBundleDisplay),
+                    // not Stats — duplicating them ate hover wrap budget and clipped trigger body text.
                 }
             }
 

@@ -1,4 +1,5 @@
 using System;
+using Avalonia.Controls;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Handlers;
 
@@ -24,6 +25,7 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
             TestWarmupCompleteMeansInstantMenu();
             TestWarmupIncompleteMeansWait();
             TestTitleKeyOnlyAfterReady();
+            TestHiddenUntilFirstFrameThenReveal();
 
             TestBase.PrintSummary("TitleToMenu Bootstrap Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -56,6 +58,33 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
             TestBase.AssertTrue(
                 TitleToMenuBootstrap.ShouldAcceptTitleKey(waitingForKeyAfterAnimation: true),
                 "Keys after ready should be accepted",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestHiddenUntilFirstFrameThenReveal()
+        {
+            Console.WriteLine("--- Testing window stays hidden until first title frame ---");
+            TestBase.AssertEqual(0.0, TitleToMenuBootstrap.GetStartupWindowOpacity(titleFirstFrameReady: false),
+                "Window opacity should be 0 until the first title frame is painted",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.0, TitleToMenuBootstrap.GetStartupWindowOpacity(titleFirstFrameReady: true),
+                "Window opacity should be 1 after the first title frame is painted",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                !TitleToMenuBootstrap.GetStartupShowInTaskbar(titleFirstFrameReady: false),
+                "Taskbar button should stay hidden until the title frame is ready",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                TitleToMenuBootstrap.GetStartupShowInTaskbar(titleFirstFrameReady: true),
+                "Taskbar button should appear with the title frame",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqualEnum(WindowState.Minimized,
+                TitleToMenuBootstrap.GetStartupWindowState(titleFirstFrameReady: false),
+                "Window should start minimized so a black frame cannot flash on Windows",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqualEnum(WindowState.Normal,
+                TitleToMenuBootstrap.GetStartupWindowState(titleFirstFrameReady: true),
+                "Window should restore to normal after the first title frame is painted",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

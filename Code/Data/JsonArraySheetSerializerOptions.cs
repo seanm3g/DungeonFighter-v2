@@ -12,7 +12,7 @@ namespace RPGGame.Data
             if (kind == GameDataTabularSheetKind.Weapons || kind == GameDataTabularSheetKind.Armor
                 || kind == GameDataTabularSheetKind.Enemies || kind == GameDataTabularSheetKind.Environments
                 || kind == GameDataTabularSheetKind.Dungeons || kind == GameDataTabularSheetKind.Consumables
-                || kind == GameDataTabularSheetKind.Triggers)
+                || kind == GameDataTabularSheetKind.Triggers || kind == GameDataTabularSheetKind.MaterialBuilds)
                 o.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             else
                 o.PropertyNamingPolicy = null;

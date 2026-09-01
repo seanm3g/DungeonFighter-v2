@@ -143,7 +143,7 @@ namespace RPGGame.UI.Avalonia.Settings
             set { _isSelected = value; OnPropertyChanged(); OnPropertyChanged(nameof(BackgroundColor)); }
         }
 
-        public string BackgroundColor => IsSelected ? "#FFE3F2FD" : "White";
+        public string BackgroundColor => IsSelected ? "#FF2F65B2" : "#FF2A2A2A";
 
         public ObservableCollection<string> AvailableRarities { get; set; } = new ObservableCollection<string>();
 

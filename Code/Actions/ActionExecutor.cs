@@ -5,6 +5,7 @@ using System.Linq;
 using Avalonia.Media;
 using RPGGame.Actions.Execution;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat.Sequence;
 using RPGGame.Combat.Events;
 using RPGGame.Combat.Outcomes;
 using RPGGame.Actions.Conditional;
@@ -35,6 +36,15 @@ namespace RPGGame
         /// <summary>How many naiveté charges were spent this swing for miss→advantage rerolls.</summary>
         public int NaiveteAdvantageUses { get; set; }
         public int Damage { get; set; }
+        /// <summary>Hero 1d20 defense face for this swing (null when not rolled: miss, pierce, or non-hero target).</summary>
+        public int? DefenseFace { get; set; }
+        /// <summary>Ladder values used to classify this swing (snapshotted at resolution).</summary>
+        public int? ResolvedCritMissThreshold { get; set; }
+        public int? ResolvedHitThreshold { get; set; }
+        public int? ResolvedComboThreshold { get; set; }
+        public int? ResolvedCritThreshold { get; set; }
+        /// <summary>Damage formula pieces for the sequence HUD (null when not captured, e.g. multi-hit).</summary>
+        public CombatSequenceDamageTrace? DamageTrace { get; set; }
         public int HealAmount { get; set; }
         /// <summary>
         /// Hit/tick count used when dealing damage for this swing (base MultiHitCount + redeemed ConsumedMultiHitMod + chain).
@@ -55,6 +65,10 @@ namespace RPGGame
         public Actor? EffectiveTarget { get; set; }
         /// <summary>Temp stat values before TURN cadence stat bonuses were tentatively applied for this roll (reverted on miss).</summary>
         public ActionExecutionFlow.TempStatSnapshot? TurnStatSnapshot { get; set; }
+        /// <summary>
+        /// Pre-swing HP snapshots for sequence-HUD health-bar hold (entity id, health before this swing's ApplyDamage/Heal).
+        /// </summary>
+        public List<(string EntityId, int Health)> HealthBarHolds { get; } = new();
     }
 
     /// <summary>
@@ -104,7 +118,7 @@ namespace RPGGame
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
                     // Use the hit count resolved for this swing — not strip peek after next-action Multihit was queued.
                     int multiHitCount = Math.Max(1, result.ResolvedMultiHitCount);
-                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, displayTarget, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, result.IsCriticalMiss, result.IsCritical, result.MultiDiceRollDetail);
+                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, displayTarget, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, result.IsCriticalMiss, result.IsCritical, result.MultiDiceRollDetail, result.DefenseFace);
                     return (damageText, rollInfo);
                 }
                 else if (result.SelectedAction.Type == ActionType.Heal)
@@ -183,7 +197,7 @@ namespace RPGGame
                 {
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
                     int multiHitCount = Math.Max(1, result.ResolvedMultiHitCount);
-                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, false, result.IsCritical, result.MultiDiceRollDetail);
+                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, false, result.IsCritical, result.MultiDiceRollDetail, result.DefenseFace);
                     string damageString = ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
                     results.Add(damageString);
                 }
@@ -226,13 +240,16 @@ namespace RPGGame
         {
             var result = ExecuteActionCore(source, target, environment, lastPlayerAction, forcedAction, battleNarrative);
             var coloredStatusEffects = new List<List<ColoredText>>();
-            
-            // Apply status effects as ColoredText
-            if (result.SelectedAction != null && result.Hit)
+
+            if (result.SelectedAction != null)
             {
-                ActionStatusEffectApplier.AppendColoredStatusEffectMessages(result.StatusEffectMessages, coloredStatusEffects);
-                ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
-                ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
+                ActionStatusEffectApplier.AppendColoredStatusEffectMessages(
+                    result.StatusEffectMessages, coloredStatusEffects, includeNonFeedMessages: result.Hit);
+                if (result.Hit)
+                {
+                    ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
+                    ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
+                }
             }
 
             // Action mods (SPEED_MOD / DAMAGE_MOD / MULTIHIT_MOD / AMP_MOD) should be visible immediately when queued by the action,
@@ -252,6 +269,12 @@ namespace RPGGame
             AppendNestedRetriggerDisplay(result, source, target, coloredStatusEffects);
             
             var mainResult = FormatAsColoredText(result, source, target);
+            if (CombatSequencePresenter.ShouldPlay())
+            {
+                CombatSequencePresenter.SetPending(
+                    CombatSequenceBuilder.From(result, source, target),
+                    result.HealthBarHolds);
+            }
             return (mainResult, coloredStatusEffects);
         }
 
@@ -274,9 +297,9 @@ namespace RPGGame
                     coloredStatusEffects.Add(nestedAction);
                 if (nestedRoll != null && nestedRoll.Count > 0)
                     coloredStatusEffects.Add(nestedRoll);
-                if (nested.Hit && nested.StatusEffectMessages.Count > 0)
+                if (nested.StatusEffectMessages.Count > 0)
                     ActionStatusEffectApplier.AppendColoredStatusEffectMessages(
-                        nested.StatusEffectMessages, coloredStatusEffects);
+                        nested.StatusEffectMessages, coloredStatusEffects, includeNonFeedMessages: nested.Hit);
             }
         }
         
@@ -287,12 +310,15 @@ namespace RPGGame
         {
             var result = ExecuteActionCore(source, target, environment, lastPlayerAction, forcedAction, battleNarrative);
             
-            // Apply status effects as ColoredText
-            if (result.SelectedAction != null && result.Hit)
+            if (result.SelectedAction != null)
             {
-                ActionStatusEffectApplier.AppendColoredStatusEffectMessages(result.StatusEffectMessages, coloredStatusEffects);
-                ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
-                ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
+                ActionStatusEffectApplier.AppendColoredStatusEffectMessages(
+                    result.StatusEffectMessages, coloredStatusEffects, includeNonFeedMessages: result.Hit);
+                if (result.Hit)
+                {
+                    ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
+                    ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
+                }
             }
             
             return FormatAsColoredText(result, source, target);

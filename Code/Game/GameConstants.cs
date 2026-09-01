@@ -37,6 +37,8 @@ namespace RPGGame
         /// <summary>CONSUMABLES sheet pull → room-search food and potion definitions.</summary>
         public const string ConsumablesJson = "Consumables.json";
         public const string TriggersJson = "Triggers.json";
+        /// <summary>MATERIAL BUILDS sheet pull → material-set synthesis / convert / feed rows.</summary>
+        public const string MaterialBuildsJson = "MaterialBuilds.json";
         public const string CharacterSaveJson = "character_save.json";
         /// <summary>Tombstone save for legacy single-slot flow when the hero dies (not loadable).</summary>
         public const string CharacterSaveDeadJson = "character_save_dead.json";
@@ -113,6 +115,17 @@ namespace RPGGame
         /// </summary>
         public const string DungeonCustomLevelMenuName = "Custom difficulty";
 
+        /// <summary>
+        /// Dungeon selection list row that clears a custom difficulty anchor and restores the hero's level.
+        /// </summary>
+        public const string DungeonResetDifficultyMenuName = "Reset to default level";
+
+        /// <summary>
+        /// True for dungeon-selection rows that are menu commands rather than enterable dungeons.
+        /// </summary>
+        public static bool IsDungeonSelectionUtilityOption(string? name) =>
+            name == DungeonCustomLevelMenuName || name == DungeonResetDifficultyMenuName;
+
         /// <summary>Legacy/default character region. Matches the Ancient Forest entry in Regions.json.</summary>
         public const string DefaultRegionId = "forest";
 
@@ -133,6 +146,9 @@ namespace RPGGame
 
         /// <summary>Pre-weapon Training Ground: multiply normal combat log delays by this factor (2 = twice as long as default pacing).</summary>
         public const double TutorialCombatDelayMultiplier = 2.0;
+
+        /// <summary>Live sequence HUD beat gap vs combat-log <c>MessageDelayMs</c> (1.5 = 50% slower).</summary>
+        public const double SequenceHudDelayMultiplier = 1.5;
         
         // Combat Constants
         public const double DefaultNarrativeBalance = 0.5;

@@ -20,8 +20,7 @@
                             <TextBlock Text="Item prefixes" 
                                        Classes="settings-panel-title" 
                                        Margin="0,0,0,8"/>
-                            <TextBlock FontSize="14" 
-                                       Foreground="#FF666666" 
+                            <TextBlock Classes="settings-muted"
                                        TextWrapping="Wrap"
                                        Text="Prefix lines from Modifications.json (adjective / material / quality dice rows). Use the Item suffixes tab for StatBonuses.json. Add, edit, or delete rows below; click Save in the settings footer to write Modifications.json."/>
                         </StackPanel>
@@ -75,7 +74,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="settings:ModifierViewModel">
                                             <Border Background="{Binding BackgroundColor}"
-                                                    BorderBrush="#FF404040"
+                                                    BorderBrush="#FF555555"
                                                     BorderThickness="1"
                                                     CornerRadius="4"
                                                     Padding="8"
@@ -99,8 +98,7 @@
                                                                MinWidth="120"/>
                                                     <TextBlock Grid.Column="1"
                                                                Text="{Binding Description}" 
-                                                               FontSize="13" 
-                                                               Foreground="#FF666666"
+                                                               Classes="settings-muted"
                                                                VerticalAlignment="Center"
                                                                TextWrapping="Wrap"
                                                                Margin="0,0,10,0"/>

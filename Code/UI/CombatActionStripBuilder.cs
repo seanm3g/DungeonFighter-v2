@@ -106,7 +106,7 @@ namespace RPGGame
             if (character.Weapon is WeaponItem classWeapon)
                 total *= ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType);
 
-            int result = (int)total;
+            int result = (int)total + MaterialSetController.GetConvertDamageBonus(character, action);
             int maxCap = Math.Max(1, GameConfiguration.Instance.Combat.MaximumDamageCap);
             if (result > maxCap)
                 result = maxCap;
@@ -182,6 +182,10 @@ namespace RPGGame
                     }
                 }
 
+                var external = ActionCardExternalBonusCollector.Collect(character, action, i);
+                damageModPercent += external.DamageModPercent;
+                speedModPercent += external.SpeedModPercent;
+
                 double modifiedDamagePct = damageModPercent != 0
                     ? baseDamagePct * (1.0 + damageModPercent / 100.0)
                     : baseDamagePct;
@@ -201,6 +205,8 @@ namespace RPGGame
                 // Strip preview: pending ACTION cadence only — not Consumed* from a just-resolved swing.
                 int effectiveHits = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(
                     action, character, i, includeConsumedMods: false);
+                if (external.MultiHitMod != 0)
+                    effectiveHits = Math.Max(1, effectiveHits + (int)Math.Max(0, external.MultiHitMod));
 
                 list.Add(new ActionPanelInfo(name, baseDamagePct, modifiedDamagePct, baseSpeedPct, modifiedSpeedPct, thresholdText, accuracyRollBonus, effectiveHits));
             }
@@ -278,6 +284,7 @@ namespace RPGGame
 
             double slotMult = ActionUtilities.CalculateDamageMultiplier(character, action);
             double ampModPct = PeekAmpModPercentForStripSlot(character, slot);
+            ampModPct += ActionCardExternalBonusCollector.Collect(character, action, slot).AmpModPercent;
             if (Math.Abs(ampModPct) < 0.0001)
                 return slotMult;
 

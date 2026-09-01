@@ -129,6 +129,15 @@ namespace RPGGame
                 effectsApplied |= EquippedItemTriggerApplicator.ApplyFromAttacker(
                     attacker, target, combatEvent, results);
             }
+
+            if (attacker is Character heroSynth && heroSynth is not Enemy && combatEvent != null)
+            {
+                if (combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsMiss)
+                    heroSynth.Effects.MaterialConsecutiveConnects++;
+                else if (combatEvent.Type == CombatEventType.ActionMiss || combatEvent.IsMiss)
+                    heroSynth.Effects.MaterialConsecutiveConnects = 0;
+                MaterialSetController.TryMintFromEvent(heroSynth, combatEvent, action, results);
+            }
             
             return effectsApplied;
         }

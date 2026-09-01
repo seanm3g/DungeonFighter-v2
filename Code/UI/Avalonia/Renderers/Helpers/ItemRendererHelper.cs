@@ -171,7 +171,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 }
                 else
                 {
-                    var statSegments = ColoredTextParser.Parse($"    {stat}");
+                    var statSegments = ColoredTextParser.Parse($"{ItemStatFormatter.ItemDetailLineIndent}{stat}");
                     if (statSegments != null && statSegments.Count > 0)
                     {
                         if (statsAllRed)
@@ -181,7 +181,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                     else
                     {
                         var lineColor = statsAllRed ? AsciiArtAssets.Colors.Red : AsciiArtAssets.Colors.White;
-                        canvas.AddText(x, currentY, $"    {stat}", lineColor);
+                        canvas.AddText(x, currentY, $"{ItemStatFormatter.ItemDetailLineIndent}{stat}", lineColor);
                     }
                 }
                 currentY++;

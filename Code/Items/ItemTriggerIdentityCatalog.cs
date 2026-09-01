@@ -66,6 +66,7 @@ namespace RPGGame
         {
             return new ActionTriggerBundle
             {
+                IdentityName = identity.Name,
                 When = identity.When,
                 Count = "1",
                 Scope = identity.Scope ?? "",
@@ -75,7 +76,6 @@ namespace RPGGame
                     ? null
                     : identity.Filters.ToList(),
                 ScaleFrom = string.IsNullOrWhiteSpace(identity.ScaleFrom) ? null : identity.ScaleFrom,
-                IdentityName = identity.Name,
                 Description = identity.Description ?? ""
             };
         }
@@ -126,21 +126,26 @@ namespace RPGGame
         public static List<TriggerIdentityData> BuildSeedRows()
         {
             return BuildSeedIdentities()
-                .Select(id => new TriggerIdentityData
+                .Select(id =>
                 {
-                    Id = id.Index,
-                    Name = id.Name,
-                    Description = id.Description ?? "",
-                    When = id.When,
-                    Count = "1",
-                    Scope = id.Scope ?? "",
-                    Mechanics = id.Mechanics,
-                    Value = id.Value,
-                    Filters = id.Filters == null || id.Filters.Count == 0
-                        ? null
-                        : string.Join(",", id.Filters),
-                    Channel = id.IsEquipEffect ? "equip" : "combat",
-                    ScaleFrom = string.IsNullOrWhiteSpace(id.ScaleFrom) ? null : id.ScaleFrom
+                    var row = new TriggerIdentityData
+                    {
+                        Id = id.Index,
+                        Name = id.Name,
+                        Description = id.Description ?? "",
+                        When = id.When,
+                        Count = "1",
+                        Scope = id.Scope ?? "",
+                        Mechanics = id.Mechanics,
+                        Value = id.Value,
+                        Filters = id.Filters == null || id.Filters.Count == 0
+                            ? null
+                            : string.Join(",", id.Filters),
+                        Channel = id.IsEquipEffect ? "equip" : "combat",
+                        ScaleFrom = string.IsNullOrWhiteSpace(id.ScaleFrom) ? null : id.ScaleFrom
+                    };
+                    TriggerIdentitySheetMeta.EnsureAuthoringMeta(row);
+                    return row;
                 })
                 .ToList();
         }

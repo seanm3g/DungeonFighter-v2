@@ -29,6 +29,9 @@ namespace RPGGame
             if (statLines != null && statLines.Count > 0)
                 return statLines;
 
+            if (key.StartsWith("set:", StringComparison.Ordinal))
+                return BuildColoredSet(character, key.Substring(4), maxLines);
+
             return key switch
             {
                 "gear:weapon" => BuildColoredGear(character, character.Weapon, "Weapon", maxLines),
@@ -158,6 +161,9 @@ namespace RPGGame
                     break;
                 case "gear:feet":
                     AppendGear(character, character.Feet, "Feet", result, AddWrapped, maxLines);
+                    break;
+                case string setKey when setKey.StartsWith("set:", StringComparison.Ordinal):
+                    AppendSet(character, setKey.Substring(4), result, AddWrapped, maxLines);
                     break;
                 case string invKey when invKey.StartsWith("inv:", StringComparison.Ordinal):
                     AppendInventoryListItem(character, invKey, result, AddWrapped, maxLines);
@@ -416,6 +422,30 @@ namespace RPGGame
         {
             addWrapped(title);
             addWrapped(detail);
+        }
+
+        private static List<List<ColoredText>> BuildColoredSet(Character c, string material, int maxLines)
+        {
+            var lines = new List<List<ColoredText>>();
+            foreach (var summary in MaterialSetController.FormatSetStatusLinesForMaterial(c, material))
+            {
+                if (lines.Count >= maxLines)
+                    break;
+                var b = new ColoredTextBuilder();
+                b.Add(summary, Colors.White);
+                lines.Add(b.Build());
+            }
+            return lines;
+        }
+
+        private static void AppendSet(Character c, string material, List<string> result, Action<string> addWrapped, int maxLines)
+        {
+            foreach (var line in MaterialSetController.FormatSetStatusLinesForMaterial(c, material))
+            {
+                if (result.Count >= maxLines)
+                    return;
+                addWrapped(line);
+            }
         }
 
         private static void AppendGear(Character c, Item? item, string slot, List<string> result, Action<string> addWrapped, int maxLines)

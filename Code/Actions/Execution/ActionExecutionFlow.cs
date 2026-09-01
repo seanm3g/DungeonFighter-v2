@@ -154,6 +154,8 @@ namespace RPGGame.Actions.Execution
             var sw = CombatHotPathMetrics.IsEnabled ? Stopwatch.StartNew() : null;
 
             var result = new ActionExecutionResult();
+            if (source is Character heroTurn && heroTurn is not Enemy && RetriggerDepth == 0)
+                MaterialSetController.NotifyHeroTurnStart(heroTurn, result.StatusEffectMessages);
             if (source is Character tempDecayCharacter)
                 tempDecayCharacter.UpdateTempEffects(Character.DEFAULT_ACTION_LENGTH);
             ApplyPreRollBonuses(source);
@@ -246,7 +248,9 @@ namespace RPGGame.Actions.Execution
                     flashKind = HeroActionStripFlashKind.ComboComplete;
                 else
                     flashKind = HeroActionStripFlashKind.Hit;
-                HeroActionStripFeedback.Trigger(stripIndexForFeedback.Value, flashKind);
+                HeroActionStripFeedback.QueueForPunchline(stripIndexForFeedback.Value, flashKind);
+                if (CombatManager.DisableCombatUIOutput || DeveloperModeState.IsCombatLogInstant)
+                    HeroActionStripFeedback.CommitQueued();
             }
 
             if (heroForStripFeedback != null)

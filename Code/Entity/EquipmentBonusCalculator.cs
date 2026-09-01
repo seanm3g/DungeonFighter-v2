@@ -308,24 +308,28 @@ namespace RPGGame
             {
                 // Godlike is added once in CharacterStats.GetEffectiveStrength(..., godlike); do not include it in % reference.
                 return character.Stats.Strength + character.Stats.TempStrengthBonus
+                    + SkillEffectRouter.Instance.GetSkillAttributeBonus(character, "STR")
                     + eq.GetFlatEquipmentStatExcludingSuffixes("STR");
             }
 
             if (string.Equals(norm, "AGI", StringComparison.OrdinalIgnoreCase))
             {
                 return character.Stats.Agility + character.Stats.TempAgilityBonus
+                    + SkillEffectRouter.Instance.GetSkillAttributeBonus(character, "AGI")
                     + eq.GetFlatEquipmentStatExcludingSuffixes("AGI");
             }
 
             if (string.Equals(norm, "TEC", StringComparison.OrdinalIgnoreCase))
             {
                 return character.Stats.Technique + character.Stats.TempTechniqueBonus
+                    + SkillEffectRouter.Instance.GetSkillAttributeBonus(character, "TEC")
                     + eq.GetFlatEquipmentStatExcludingSuffixes("TEC");
             }
 
             if (string.Equals(norm, "INT", StringComparison.OrdinalIgnoreCase))
             {
                 return character.Stats.Intelligence + character.Stats.TempIntelligenceBonus
+                    + SkillEffectRouter.Instance.GetSkillAttributeBonus(character, "INT")
                     + eq.GetFlatEquipmentStatExcludingSuffixes("INT");
             }
 
@@ -349,6 +353,7 @@ namespace RPGGame
             if (string.Equals(norm, "Damage", StringComparison.OrdinalIgnoreCase))
             {
                 int strLike = character.Stats.Strength + character.Stats.TempStrengthBonus
+                    + SkillEffectRouter.Instance.GetSkillAttributeBonus(character, "STR")
                     + eq.GetFlatEquipmentStatExcludingSuffixes("STR");
                 int weaponDmg = character.Weapon is WeaponItem w ? w.GetTotalDamage() : 0;
                 return strLike + weaponDmg + eq.GetModificationDamageBonus();

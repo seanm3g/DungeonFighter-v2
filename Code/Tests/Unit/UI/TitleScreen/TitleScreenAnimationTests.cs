@@ -40,6 +40,9 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
             TestPhasedOffsetShiftsNonWhitespaceColors();
             TestComposedIdleUsesDungeonSelectionUndulation();
             TestIdleCycleExitsOnCancellation();
+            TestPreloadBuildsFirstIdleFrame();
+            TestPreloadIsIdempotentUntilReload();
+            TestIdleSkipsOpeningPaintWhenFirstFrameAlreadyRendered();
 
             TestBase.PrintSummary("TitleScreen Animation Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -621,6 +624,84 @@ namespace RPGGame.Tests.Unit.UI.TitleScreen
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0, renderer.PressKeyCount,
                 "Idle cycle should not call separate ShowPressKeyMessage",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestPreloadBuildsFirstIdleFrame()
+        {
+            Console.WriteLine("--- Testing title preload builds first idle frame ---");
+
+            TitleScreenHelper.ReloadConfiguration();
+            var preload = TitleScreenHelper.Preload();
+
+            TestBase.AssertTrue(preload.FirstFrame?.Lines != null && preload.FirstFrame.Lines.Length > 0,
+                "Preload should build a first idle frame with lines",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!string.IsNullOrWhiteSpace(preload.Palette.TemplateName),
+                "Preload should pick an idle palette",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TitleScreenHelper.ReloadConfiguration();
+        }
+
+        private static void TestPreloadIsIdempotentUntilReload()
+        {
+            Console.WriteLine("--- Testing title preload is idempotent ---");
+
+            TitleScreenHelper.ReloadConfiguration();
+            var first = TitleScreenHelper.Preload();
+            var second = TitleScreenHelper.Preload();
+            TestBase.AssertTrue(object.ReferenceEquals(first, second),
+                "Preload should reuse the same warmup until reload",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TitleScreenHelper.ReloadConfiguration();
+            var third = TitleScreenHelper.Preload();
+            TestBase.AssertTrue(!object.ReferenceEquals(first, third),
+                "ReloadConfiguration should drop the preloaded frame",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TitleScreenHelper.ReloadConfiguration();
+        }
+
+        private static void TestIdleSkipsOpeningPaintWhenFirstFrameAlreadyRendered()
+        {
+            Console.WriteLine("--- Testing idle skips opening paint after preload ---");
+
+            var config = new TitleAnimationConfig { FramesPerSecond = 50 };
+            var palette = new TitleIdlePalette(
+                "test",
+                new List<string> { "R", "O" },
+                new List<string> { "O", "R" });
+
+            using var alreadyCancelled = new CancellationTokenSource();
+            alreadyCancelled.Cancel();
+
+            var skipped = new CountingTitleRenderer();
+            var skipController = new TitleScreenController(config, skipped, palette);
+            bool completedSkip = skipController
+                .RunIdleCycleAsync(alreadyCancelled.Token, firstFrameAlreadyRendered: true)
+                .Wait(TimeSpan.FromSeconds(2));
+            TestBase.AssertTrue(completedSkip,
+                "Preloaded idle should exit immediately when already cancelled",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, skipped.RenderCount,
+                "Preloaded idle should not paint again when cancelled before the first tick",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, skipped.ResetBackgroundCount,
+                "Preloaded idle should only reset background on exit, not at start",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var normal = new CountingTitleRenderer();
+            var normalController = new TitleScreenController(config, normal, palette);
+            bool completedNormal = normalController
+                .RunIdleCycleAsync(alreadyCancelled.Token, firstFrameAlreadyRendered: false)
+                .Wait(TimeSpan.FromSeconds(2));
+            TestBase.AssertTrue(completedNormal,
+                "Normal idle should exit immediately when already cancelled",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, normal.ResetBackgroundCount,
+                "Normal idle should reset background at start and on exit",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

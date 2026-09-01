@@ -301,6 +301,9 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             if (healthColor == default) healthColor = Colors.Red;
             if (backgroundColor == default) backgroundColor = Colors.DarkRed;
+
+            if (!string.IsNullOrEmpty(entityId))
+                currentHealth = HealthBarDisplayHold.Resolve(entityId, currentHealth);
             
             double progress = maxHealth > 0
                 ? Math.Clamp((double)currentHealth / maxHealth, 0.0, 1.0)

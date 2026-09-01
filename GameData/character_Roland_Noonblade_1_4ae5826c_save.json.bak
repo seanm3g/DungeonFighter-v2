@@ -1,0 +1,292 @@
+{
+  "name": "Roland Noonblade",
+  "level": 2,
+  "xp": 60,
+  "currentHealth": 260,
+  "maxHealth": 260,
+  "strength": 4,
+  "agility": 6,
+  "technique": 4,
+  "intelligence": 4,
+  "barbarianPoints": 0,
+  "warriorPoints": 1,
+  "roguePoints": 0,
+  "wizardPoints": 0,
+  "comboStep": 0,
+  "comboBonus": 0,
+  "tempComboBonus": 0,
+  "tempComboBonusTurns": 0,
+  "damageReduction": 0,
+  "inventory": [
+    {
+      "$itemType": "legs",
+      "armor": 5,
+      "name": "Light Willow shinguards of the Armadillo of Vitality",
+      "type": 4,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Uncommon",
+      "statBonuses": [
+        {
+          "name": "of Vitality",
+          "description": "max health",
+          "value": 10,
+          "rarity": "Common",
+          "statType": "HealthRegen",
+          "ItemRank": "",
+          "mechanics": [
+            {
+              "statType": "HealthRegen",
+              "value": 10
+            }
+          ],
+          "Requirements": null
+        },
+        {
+          "name": "of the Armadillo",
+          "description": "",
+          "value": 4,
+          "rarity": "Uncommon",
+          "statType": "Armor",
+          "ItemRank": "",
+          "mechanics": [
+            {
+              "statType": "Armor",
+              "value": 4
+            },
+            {
+              "statType": "ACCURACY",
+              "value": 3
+            }
+          ],
+          "Requirements": null
+        }
+      ],
+      "actionBonuses": [
+        {
+          "name": "ACTION BONUS",
+          "description": "NEXT ACTION BONUS",
+          "weight": 1
+        },
+        {
+          "name": "SELF TARGET",
+          "description": "TARGET YOURSELF",
+          "weight": 1
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "ADJECTIVE",
+          "name": "Light",
+          "description": "",
+          "effect": "MULTI-HIT",
+          "triggerWhen": "",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "agility": 2
+          },
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Willow",
+          "description": "Wizard",
+          "effect": "INTELLIGENCE",
+          "triggerWhen": "",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "intelligence": 10
+          },
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "willow"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [
+        {
+          "when": "WHILE_EQUIPPED",
+          "count": "1",
+          "scope": "",
+          "mechanics": "armor",
+          "value": 3,
+          "filters": [
+            "IFGEARHASTAG:steel"
+          ],
+          "scaleFrom": null,
+          "isEnabled": true
+        }
+      ],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 0,
+      "attributeRequirements": {
+        "agility": 2,
+        "intelligence": 10
+      },
+      "catalogAttributeRequirements": {},
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "weapon",
+      "baseDamage": 3,
+      "rolledDamageBonus": 1,
+      "baseAttackSpeed": 1.35,
+      "name": "Broken Log",
+      "type": 3,
+      "tier": 1,
+      "level": 2,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Common",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "QUALITY",
+          "name": "Broken",
+          "description": "Affects the base stats of an item \u002B/-",
+          "effect": "gearPrimaryStatMultiplier",
+          "triggerWhen": "",
+          "minValue": 0.75,
+          "maxValue": 0.75,
+          "rolledValue": 0.75,
+          "statusEffects": [],
+          "attributeRequirements": {},
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 3,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "mace",
+        "barbarian",
+        "starter"
+      ],
+      "triggerBundles": [
+        {
+          "when": "ONCOMBOEND",
+          "count": "1",
+          "scope": "ACTION",
+          "mechanics": "hero_next_action_damage",
+          "value": 10,
+          "filters": null,
+          "scaleFrom": null,
+          "isEnabled": true
+        }
+      ],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 2,
+      "attributeRequirements": {},
+      "catalogAttributeRequirements": {},
+      "gearAction": null,
+      "isStarterItem": true
+    }
+  ],
+  "head": null,
+  "body": null,
+  "legs": null,
+  "weapon": {
+    "$itemType": "weapon",
+    "baseDamage": 5,
+    "rolledDamageBonus": 2,
+    "baseAttackSpeed": 1.18,
+    "name": "Branch",
+    "type": 3,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "baseStrength": 0,
+    "baseAgility": 0,
+    "baseTechnique": 0,
+    "baseIntelligence": 0,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 0,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "sword",
+      "warrior",
+      "starter"
+    ],
+    "triggerBundles": [
+      {
+        "when": "ONCOMBOEND",
+        "count": "1",
+        "scope": "",
+        "mechanics": "vulnerability",
+        "value": null,
+        "filters": null,
+        "scaleFrom": null,
+        "isEnabled": true
+      }
+    ],
+    "equipEffects": [],
+    "roomSearchConsumableKind": 0,
+    "consumableHealAmount": 0,
+    "consumablePotionPotency": 0,
+    "weaponType": 0,
+    "attributeRequirements": {},
+    "catalogAttributeRequirements": {},
+    "gearAction": "STRIKE",
+    "isStarterItem": true
+  },
+  "feet": null,
+  "comboStripActionNames": [
+    "STRIKE"
+  ],
+  "isDead": false,
+  "pendingPreWeaponTrainingGround": false,
+  "currentRegionId": "forest"
+}

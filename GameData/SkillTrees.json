@@ -16,7 +16,7 @@
           "cost": 0,
           "maxRank": 1,
           "requires": [],
-          "effect": "Bone, Steel, and Damascus tags now count as a Barbarian tag.",
+          "effect": "Bone, Steel, and Iron tags now count as a Barbarian tag.",
           "payoff": "Class materials become the stacking currency.",
           "customEffectId": "tribe_metal"
         },

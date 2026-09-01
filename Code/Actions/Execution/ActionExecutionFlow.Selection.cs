@@ -55,9 +55,13 @@ namespace RPGGame.Actions.Execution
             if (CombatTriggerContext.TryGetCritFaceMin(source, out int critFaceMin))
                 thresholdManager.SetCriticalHitThreshold(source, critFaceMin);
 
+            bool actionChoiceLocked = forcedAction != null;
             Action? selected = forcedAction;
             if (selected == null && StripMutationApplier.TryConsumeReplaceNext(source, out var stripReplace) && stripReplace != null)
+            {
                 selected = stripReplace;
+                actionChoiceLocked = true;
+            }
             result.SelectedAction = selected ?? ActionSelector.SelectActionByEntityType(source);
             if (result.SelectedAction == null) return;
             lastUsedActions[source] = result.SelectedAction;
@@ -74,7 +78,12 @@ namespace RPGGame.Actions.Execution
             if (CombatTriggerContext.TryConsumePendingReplaceRollFace(source, out int replacedFace))
                 result.BaseRoll = replacedFace;
             if (source is Character character && !(character is Enemy) && forcedAction == null)
+            {
+                Action beforeUnique = result.SelectedAction!;
                 result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
+                if (!ReferenceEquals(beforeUnique, result.SelectedAction))
+                    actionChoiceLocked = true;
+            }
 
             // Roll and threshold bonuses: TURN (consumed per roll), ACTION (peek slot + bank; redeem on hit+combo only — miss/non-combo keep pending)
             int actionBonusAccumulator = 0, actionBonusHit = 0, actionBonusCombo = 0, actionBonusCrit = 0, actionBonusCritMiss = 0;
@@ -241,15 +250,84 @@ namespace RPGGame.Actions.Execution
                     thresholdManager.AdjustComboThreshold(comboThresholdBonusCharacter, bonus);
             }
 
-            result.RollBonus = ActionUtilities.CalculateRollBonus(source, result.SelectedAction);
+            if (!actionChoiceLocked
+                && TryReconcileSelectedActionToResolvedDie(source, result, lastUsedActions))
+            {
+                ActionRollTagProcessor.ApplyRollTags(result.SelectedAction, source);
+            }
+
+            RefreshRollOutcomeFlags(
+                source, result, thresholdManager, lastCriticalMissStatus, consumeRollBonus: true);
+            result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
+            ResolveNaiveteAdvantageOnMiss(source, target, result, thresholdManager, lastCriticalMissStatus);
+            if (!actionChoiceLocked
+                && TryReconcileSelectedActionToResolvedDie(source, result, lastUsedActions))
+            {
+                ActionRollTagProcessor.ApplyRollTags(result.SelectedAction, source);
+                RefreshRollOutcomeFlags(
+                    source, result, thresholdManager, lastCriticalMissStatus, consumeRollBonus: false);
+                result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
+            }
+            if (!result.Hit && !result.IsCriticalMiss && CombatTriggerContext.TryConsumeMissSalvage(source))
+            {
+                result.Hit = true;
+                result.MissSalvaged = true;
+            }
+            ActionEventPublisher.PublishActionExecuted(
+                source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical, result.NaturalRollValue);
+            // Sheet accuracy + threshold adjustments (and deferred overrides when not TURN cadence) queue for the next application.
+            RollModificationManager.EnqueueDeferredRollModThresholdAdjustmentsForNextRoll(result.SelectedAction, source, target);
+        }
+
+        /// <summary>
+        /// Named combo vs unnamed normal must follow the luck-resolved face (the number after <c>→</c>), not the first d20.
+        /// </summary>
+        private static bool TryReconcileSelectedActionToResolvedDie(
+            Actor source,
+            ActionExecutionResult result,
+            IDictionary<Actor, Action> lastUsedActions)
+        {
+            if (result.SelectedAction == null)
+                return false;
+
+            Action? resolved = ActionSelector.ResolveActionForResolvedDie(source, result.ModifiedBaseRoll);
+            if (resolved == null)
+                return false;
+            if (ActionsMatchForComboVsNormal(result.SelectedAction, resolved))
+                return false;
+
+            result.SelectedAction = resolved;
+            lastUsedActions[source] = resolved;
+            return true;
+        }
+
+        private static bool ActionsMatchForComboVsNormal(Action current, Action resolved)
+        {
+            if (ReferenceEquals(current, resolved))
+                return true;
+            bool currentUnnamed = string.IsNullOrEmpty(current.Name) && !current.IsComboAction;
+            bool resolvedUnnamed = string.IsNullOrEmpty(resolved.Name) && !resolved.IsComboAction;
+            if (currentUnnamed && resolvedUnnamed)
+                return true;
+            return current.IsComboAction
+                && resolved.IsComboAction
+                && string.Equals(current.Name, resolved.Name, StringComparison.Ordinal);
+        }
+
+        private static void RefreshRollOutcomeFlags(
+            Actor source,
+            ActionExecutionResult result,
+            ThresholdManager thresholdManager,
+            IDictionary<Actor, bool> lastCriticalMissStatus,
+            bool consumeRollBonus)
+        {
+            result.RollBonus = ActionUtilities.CalculateRollBonus(source, result.SelectedAction, consumeRollBonus);
             result.AttackRoll = result.ModifiedBaseRoll + result.RollBonus;
             result.NaturalRollValue = result.ModifiedBaseRoll;
             int hitThreshold = thresholdManager.GetHitThreshold(source);
             int criticalMissThreshold = thresholdManager.GetCriticalMissThreshold(source);
-            // Crit / crit-miss: exclude full roll bonus (stats + temp + chain/sheet terms in bonus) from attack total.
             int critThresholdRoll = CombatCalculator.GetCritThresholdEvaluationRoll(
                 result.AttackRoll, result.RollBonus, source.RollPenalty);
-            // Critical miss only when crit-eval roll is both <= crit-miss threshold and in miss band (<= hit threshold).
             result.IsCriticalMiss = critThresholdRoll <= criticalMissThreshold && critThresholdRoll <= hitThreshold;
             if (result.IsCriticalMiss)
             {
@@ -257,23 +335,17 @@ namespace RPGGame.Actions.Execution
                 source.CriticalMissPenaltyTurns = 1;
             }
             lastCriticalMissStatus[source] = result.IsCriticalMiss;
-            // Combo flag: combo-slot action and attack total meets combo threshold (avoids "combo" on unnamed normal hits that hit 14+ total)
-            result.IsCombo = result.SelectedAction.IsComboAction && result.AttackRoll >= thresholdManager.GetComboThreshold(source);
+            result.IsCombo = result.SelectedAction != null
+                && result.SelectedAction.IsComboAction
+                && result.AttackRoll >= thresholdManager.GetComboThreshold(source);
             result.IsCritical = critThresholdRoll >= thresholdManager.GetCriticalHitThreshold(source);
-            // Natural-face crit override (Balatro-style high faces): ModifiedBaseRoll is the die after adv/replace.
             if (CombatTriggerContext.TryGetCritFaceMin(source, out int naturalCritMin)
                 && result.ModifiedBaseRoll >= naturalCritMin)
                 result.IsCritical = true;
-            ActionEventPublisher.PublishActionExecuted(source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical, result.NaturalRollValue);
-            result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
-            ResolveNaiveteAdvantageOnMiss(source, target, result, thresholdManager, lastCriticalMissStatus);
-            if (!result.Hit && !result.IsCriticalMiss && CombatTriggerContext.TryConsumeMissSalvage(source))
-            {
-                result.Hit = true;
-                result.MissSalvaged = true;
-            }
-            // Sheet accuracy + threshold adjustments (and deferred overrides when not TURN cadence) queue for the next application.
-            RollModificationManager.EnqueueDeferredRollModThresholdAdjustmentsForNextRoll(result.SelectedAction, source, target);
+            result.ResolvedCritMissThreshold = criticalMissThreshold;
+            result.ResolvedHitThreshold = hitThreshold;
+            result.ResolvedComboThreshold = thresholdManager.GetComboThreshold(source);
+            result.ResolvedCritThreshold = thresholdManager.GetCriticalHitThreshold(source);
         }
 
         /// <summary>

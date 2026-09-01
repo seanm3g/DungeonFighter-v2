@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using RPGGame.Combat.Formatting;
+using RPGGame.Combat.Sequence;
 using RPGGame.UI;
 using RPGGame.UI.BlockDisplay;
 using RPGGame.UI.ColorSystem;
@@ -79,11 +81,15 @@ namespace RPGGame
                 // Check if we should display this combat action
                 if (!ShouldDisplayCombatLog(character))
                 {
+                    PunchlineRevealFeedback.ClearQueued();
                     return;
                 }
 
                 if (CombatManager.DisableCombatUIOutput)
+                {
+                    PunchlineRevealFeedback.ClearQueued();
                     return;
+                }
                 
                 // Extract entity name from ColoredText for tracking
                 string? currentEntity = null;
@@ -103,13 +109,10 @@ namespace RPGGame
                 // Only render if we have messages to display
                 if (messageGroups != null && messageGroups.Count > 0)
                 {
-                    // Calculate delay after batch (use ActionDelayMs for complete action blocks)
                     int delayAfterBatchMs = BlockDelayManager.CalculateActionBlockDelay();
-                    
-                    // Render using appropriate renderer
-                    // Pass character to route to correct per-character display manager
                     var renderer = BlockRendererFactory.GetRenderer();
                     renderer.RenderMessageGroups(messageGroups, delayAfterBatchMs, character);
+                    PunchlineRevealFeedback.CommitQueued();
                 }
                 
                 // Update the last acting Actor (for backward compatibility)
@@ -155,11 +158,17 @@ namespace RPGGame
                 // Check if we should display this combat action
                 if (!ShouldDisplayCombatLog(character))
                 {
+                    PunchlineRevealFeedback.ClearQueued();
+                    CombatSequencePresenter.CancelPlaybackHolds();
                     return;
                 }
 
                 if (CombatManager.DisableCombatUIOutput)
+                {
+                    PunchlineRevealFeedback.ClearQueued();
+                    CombatSequencePresenter.CancelPlaybackHolds();
                     return;
+                }
                 
                 // Extract entity name from ColoredText for tracking
                 string? currentEntity = null;
@@ -172,20 +181,44 @@ namespace RPGGame
                 // Apply context-aware spacing based on what came before and actor changes
                 // Note: Spacing system handles all spacing - no manual blank lines needed
                 TextSpacingSystem.ApplySpacingBefore(blockType, currentEntity);
-                
+
                 // Collect all messages for this combat action block
                 var messageGroups = BlockMessageCollector.CollectActionBlockMessages(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives, blockType);
                 
                 // Only render if we have messages to display
                 if (messageGroups != null && messageGroups.Count > 0)
                 {
-                    // Calculate delay after batch (use ActionDelayMs for complete action blocks)
                     int delayAfterBatchMs = BlockDelayManager.CalculateActionBlockDelay();
-                    
-                    // Render using appropriate renderer (async)
-                    // Pass character to route to correct per-character display manager
+                    int halfDelayMs = BlockDelayManager.CalculateActionBlockHalfDelay();
                     var renderer = BlockRendererFactory.GetRenderer();
-                    await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs, character);
+
+                    bool environmentalBlock = blockType == TextSpacingSystem.BlockType.EnvironmentalAction;
+                    UIMessageType headlineType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.Combat;
+
+                    // Setup telegraph, then sequence HUD (or half delay), then punchline / follow-ups.
+                    if (halfDelayMs > 0
+                        && actionText != null
+                        && ActionHeadlineFormatter.TrySplit(actionText, out var setup, out _)
+                        && setup.Count > 0)
+                    {
+                        var followUps = messageGroups.Count > 1
+                            ? messageGroups.GetRange(1, messageGroups.Count - 1)
+                            : new List<(List<ColoredText> segments, UIMessageType messageType)>();
+                        await renderer.RenderSetupPunchlineAsync(
+                            setup,
+                            actionText,
+                            followUps,
+                            halfDelayMs,
+                            character,
+                            headlineType,
+                            () => CombatSequencePresenter.PlayPendingOrWaitAsync(halfDelayMs));
+                    }
+                    else
+                    {
+                        await CombatSequencePresenter.PlayPendingAsync();
+                        PunchlineRevealFeedback.CommitQueued();
+                        await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs, character);
+                    }
                 }
                 
                 // Update the last acting Actor (for backward compatibility)

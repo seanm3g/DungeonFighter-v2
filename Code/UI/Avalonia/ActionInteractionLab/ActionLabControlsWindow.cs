@@ -27,8 +27,9 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
         private ActionLabControlsWindow()
         {
             Title = "Action Lab — tools";
-            // Single-column tools: snapshots / dungeon / turn / d20 / footer.
-            _canvas = new GameCanvasControl(isAuxiliaryLayoutCanvas: true, auxiliaryGridWidth: 38, auxiliaryGridHeight: 44);
+            // Single-column tools: snapshots / dungeon / triggers / turn / d20 / footer.
+            // Height must fit Triggers + full Step/Sim/Exit footer (was 44; footer clipped after Triggers).
+            _canvas = new GameCanvasControl(isAuxiliaryLayoutCanvas: true, auxiliaryGridWidth: 38, auxiliaryGridHeight: 58);
             _canvas.Focusable = true;
             _canvas.PointerPressed += OnCanvasPointerPressed;
             _canvas.PointerMoved += OnCanvasPointerMoved;
@@ -43,11 +44,11 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             };
 
             Width = 480;
-            Height = 820;
+            Height = 1040;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
             CanResize = true;
             MinWidth = 360;
-            MinHeight = 480;
+            MinHeight = 640;
 
             Closed += OnClosed;
             KeyDown += OnKeyDown;

@@ -20,6 +20,12 @@ namespace RPGGame
         public string Description { get; set; } = "";
         [JsonPropertyName("damageMultiplier")]
         public double DamageMultiplier { get; set; }
+        [JsonPropertyName("materialScale")]
+        public string MaterialScale { get; set; } = "";
+        [JsonPropertyName("keywordScale")]
+        public string KeywordScale { get; set; } = "";
+        [JsonPropertyName("scaleFormula")]
+        public string ScaleFormula { get; set; } = "";
         [JsonPropertyName("length")]
         public double Length { get; set; }
         [JsonPropertyName("causesBleed")]

@@ -1,11 +1,11 @@
-using System;
+using RPGGame.Combat.Sequence;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.Tests.Unit.UI
 {
     /// <summary>
-    /// Regression: display buffer clear band must not wipe the action-info strip rows
+    /// Regression: display buffer clear band must not start inside the action-info strip rows
     /// (must match <see cref="RPGGame.UI.Avalonia.Display.DisplayRenderer.Render"/> clear logic).
     /// </summary>
     public static class DisplayRendererClearBandRegressionTests
@@ -17,20 +17,13 @@ namespace RPGGame.Tests.Unit.UI
             LayoutConstants.UpdateGridDimensions(210, 52);
             LayoutConstants.UpdateEffectiveVisibleWidth(2100, 10);
 
-            int stripTop = LayoutConstants.ACTION_INFO_Y;
+            int firstRowBelowStrip = LayoutConstants.ACTION_INFO_Y + LayoutConstants.ACTION_INFO_HEIGHT;
             int persistentInnerContentY = LayoutConstants.CENTER_PANEL_Y + 1;
-            int persistentContentHeight = LayoutConstants.CENTER_PANEL_HEIGHT - 2;
 
             TestBase.AssertEqual(
-                Math.Max(0, persistentInnerContentY - 2),
+                firstRowBelowStrip,
                 ComputeClearStartY(persistentInnerContentY),
-                "persistent center content clear starts near content top (strip is below)",
-                ref run, ref passed, ref failed);
-
-            TestBase.AssertEqual(
-                Math.Min(persistentInnerContentY + persistentContentHeight, stripTop),
-                ComputeClearEndY(persistentInnerContentY, persistentContentHeight),
-                "persistent center content clear ends at content bottom (clamped to strip top)",
+                "persistent center content clear starts at first row below action strip",
                 ref run, ref passed, ref failed);
 
             TestBase.AssertEqual(
@@ -39,17 +32,42 @@ namespace RPGGame.Tests.Unit.UI
                 "chromeless content at y=0 clear starts at row 0",
                 ref run, ref passed, ref failed);
 
-            TestBase.AssertTrue(
-                LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT == stripTop,
-                "framed center panel bottom aligns with action strip top",
+            TestBase.AssertEqual(
+                LayoutConstants.CENTER_PANEL_Y,
+                firstRowBelowStrip,
+                "first row below strip aligns with framed center panel top",
                 ref run, ref passed, ref failed);
+
+            CombatSequenceHudState.IsBandReserved = true;
+            try
+            {
+                int hudY = LayoutConstants.CombatSequenceHudY;
+                int logContentY = LayoutConstants.CombatLogContentY;
+                TestBase.AssertTrue(
+                    ComputeClearStartY(logContentY) >= LayoutConstants.CENTER_PANEL_Y,
+                    "combat log clear stays at or below the log frame when the sequence panel is reserved",
+                    ref run, ref passed, ref failed);
+                TestBase.AssertTrue(
+                    ComputeClearStartY(logContentY) > hudY,
+                    "combat log clear does not erase the sequence HUD panel",
+                    ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                CombatSequenceHudState.IsBandReserved = false;
+            }
 
             TestBase.PrintSummary("DisplayRendererClearBandRegressionTests", run, passed, failed);
         }
 
-        private static int ComputeClearStartY(int contentY) => Math.Max(0, contentY - 2);
-
-        private static int ComputeClearEndY(int contentY, int contentHeight) =>
-            Math.Min(contentY + contentHeight, LayoutConstants.ACTION_INFO_Y);
+        /// <summary>Mirrors DisplayRenderer scroll-area clear start calculation.</summary>
+        private static int ComputeClearStartY(int contentY)
+        {
+            int scrollOverflowPad = System.Math.Max(0, contentY - 2);
+            int framedLogTop = LayoutConstants.CENTER_PANEL_Y;
+            return contentY >= framedLogTop
+                ? System.Math.Max(scrollOverflowPad, framedLogTop)
+                : scrollOverflowPad;
+        }
     }
 }

@@ -128,6 +128,12 @@ namespace RPGGame
                         return;
                     }
 
+                    if (picked.Name == GameConstants.DungeonResetDifficultyMenuName)
+                    {
+                        ResetDifficultyAnchorToDefault();
+                        return;
+                    }
+
                     if (customUIManager is CanvasUICoordinator canvasUI)
                     {
                         canvasUI.StopDungeonSelectionAnimation();
@@ -234,6 +240,10 @@ namespace RPGGame
 
             awaitingCustomDungeonLevel = false;
             customLevelBuffer = "";
+            var player = stateManager.CurrentPlayer;
+            if (player == null)
+                return;
+            player.DungeonDifficultyAnchorLevel = level;
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.SetDungeonSelectionCustomLevelPrompt(null);
@@ -245,6 +255,17 @@ namespace RPGGame
             var dungeon = new Dungeon(runName, level, level, template.Theme, template.PossibleEnemies, template.ColorOverride, template.SpawnRegionId);
             stateManager.SetCurrentDungeon(dungeon);
             await BeginCurrentDungeonRunAsync();
+        }
+
+        private void ResetDifficultyAnchorToDefault()
+        {
+            if (stateManager.CurrentPlayer == null || dungeonManager == null)
+                return;
+
+            stateManager.CurrentPlayer.DungeonDifficultyAnchorLevel = null;
+            dungeonManager.RegenerateDungeons(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
+            RefreshDungeonSelectionScreen();
+            ShowNonBlockingDungeonMessage("Difficulty reset to your default level.");
         }
 
         /// <summary>
@@ -259,8 +280,12 @@ namespace RPGGame
                 ShowMessageEvent?.Invoke("Invalid dungeon selection.");
                 return;
             }
-            
-            stateManager.SetCurrentDungeon(stateManager.AvailableDungeons[dungeonIndex]);
+
+            var selected = stateManager.AvailableDungeons[dungeonIndex];
+            if (GameConstants.IsDungeonSelectionUtilityOption(selected.Name))
+                return;
+
+            stateManager.SetCurrentDungeon(selected);
             await BeginCurrentDungeonRunAsync();
         }
 

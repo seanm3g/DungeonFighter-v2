@@ -26,7 +26,6 @@ namespace RPGGame.UI.Avalonia.Layout
     public class CanvasTitleLayoutCoordinator
     {
         private readonly GameCanvasControl canvas;
-        private string lastRenderedTitle = "";
         
         public CanvasTitleLayoutCoordinator(GameCanvasControl canvas)
         {
@@ -51,9 +50,6 @@ namespace RPGGame.UI.Avalonia.Layout
             RightPanelRenderer rightPanelRenderer,
             bool registerActionLabEnemyLevelHover = false)
         {
-            // Check if title changed - used for border rendering when persistent chrome is on
-            bool titleChanged = title != lastRenderedTitle;
-            
             if (usePersistentChrome)
             {
                 if (clearCanvas)
@@ -70,8 +66,6 @@ namespace RPGGame.UI.Avalonia.Layout
                     {
                         characterPanelRenderer.RenderEmptyCharacterPanel();
                     }
-                    
-                    CenterPanelModeTint.RenderFrame(canvas);
                 }
                 else
                 {
@@ -85,12 +79,10 @@ namespace RPGGame.UI.Avalonia.Layout
                         // ScreenTransitionProtocol clears the canvas then renders with clearCanvas:false;
                         characterPanelRenderer.RenderEmptyCharacterPanel();
                     }
-                    
-                    if (titleChanged)
-                    {
-                        CenterPanelModeTint.RenderFrame(canvas);
-                    }
                 }
+
+                // Always ensure log + sequence HUD frames match the current combat band split.
+                CenterPanelModeTint.RenderFrame(canvas);
             }
             else
             {
@@ -101,8 +93,6 @@ namespace RPGGame.UI.Avalonia.Layout
                 }
             }
             
-            lastRenderedTitle = title;
-            
             int contentX;
             int contentY;
             int contentW;
@@ -110,9 +100,9 @@ namespace RPGGame.UI.Avalonia.Layout
             if (usePersistentChrome)
             {
                 contentX = LayoutConstants.CENTER_PANEL_X + 1;
-                contentY = LayoutConstants.CENTER_PANEL_Y + 1;
+                contentY = LayoutConstants.CombatLogContentY;
                 contentW = LayoutConstants.CENTER_PANEL_WIDTH - 2;
-                contentH = LayoutConstants.CENTER_PANEL_HEIGHT - 2;
+                contentH = LayoutConstants.CombatLogContentHeight;
             }
             else
             {
@@ -120,9 +110,10 @@ namespace RPGGame.UI.Avalonia.Layout
             }
             
             renderCenterContent?.Invoke(contentX, contentY, contentW, contentH);
-            
+
             if (usePersistentChrome)
             {
+                RPGGame.Combat.Sequence.CombatSequenceHudRenderer.Render(canvas);
                 rightPanelRenderer.RenderRightPanel(enemy, dungeonName, roomName, title, characterForRightPanel, inventoryComboRightPanel, registerActionLabEnemyLevelHover);
             }
             

@@ -141,7 +141,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     var itemActions = character.Equipment.GetGearActions(item);
                     if (itemActions != null && itemActions.Count > 0)
                     {
-                        string actionsText = "    Actions: " + string.Join(", ", itemActions);
+                        string actionsText = ItemStatFormatter.ItemDetailLineIndent + "Actions: " + string.Join(", ", itemActions);
                         int maxActionWidth = width - 4;
                         if (actionsText.Length > maxActionWidth)
                         {

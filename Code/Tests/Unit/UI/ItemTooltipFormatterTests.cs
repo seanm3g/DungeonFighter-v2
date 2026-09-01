@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using RPGGame;
+using RPGGame.Data;
 using RPGGame.Tests;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
@@ -94,6 +95,7 @@ namespace RPGGame.Tests.Unit.UI
             {
                 Rarity = "Common",
                 Level = 1,
+                Material = "Iron",
                 TriggerBundles = new System.Collections.Generic.List<RPGGame.Data.ActionTriggerBundle>
                 {
                     ItemTriggerIdentityCatalog.ToBundle(ItemTriggerIdentityCatalog.Get(0))
@@ -101,15 +103,14 @@ namespace RPGGame.Tests.Unit.UI
             };
             var trigLines = ItemTooltipFormatter.BuildItemTooltipLines(hero, triggered, "Legs", 30);
             string trigFlat = string.Join("\n", trigLines.Select(ColoredTextRenderer.RenderAsPlainText));
-            TestBase.AssertTrue(trigFlat.Contains("Triggers", StringComparison.Ordinal),
-                "tooltip has Triggers section",
+            TestBase.AssertTrue(trigFlat.Contains("Material", StringComparison.Ordinal),
+                "tooltip has Material set section",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(trigFlat.Contains("On connect", StringComparison.OrdinalIgnoreCase),
-                "tooltip trigger shows WHEN",
+            TestBase.AssertTrue(trigFlat.Contains("Iron", StringComparison.OrdinalIgnoreCase),
+                "tooltip shows Iron set",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(trigFlat.Contains("DAMAGE", StringComparison.OrdinalIgnoreCase)
-                    || trigFlat.Contains("damage", StringComparison.OrdinalIgnoreCase),
-                "tooltip trigger shows mechanic",
+            TestBase.AssertTrue(!trigFlat.Contains("Triggers", StringComparison.Ordinal),
+                "tooltip no longer lists item Triggers",
                 ref run, ref passed, ref failed);
             string summary = ItemTriggerBundleDisplay.FormatSummary(triggered.TriggerBundles[0]);
             TestBase.AssertTrue(summary.Contains("Wound Momentum", StringComparison.Ordinal)
@@ -120,6 +121,59 @@ namespace RPGGame.Tests.Unit.UI
             string armorDesc = ItemDisplayFormatter.GetModificationEffectDescription(wrap.Modifications[0]);
             TestBase.AssertTrue(armorDesc.Contains("armor", StringComparison.OrdinalIgnoreCase),
                 "GetModificationEffectDescription handles ARMOR",
+                ref run, ref passed, ref failed);
+
+            var namedBundle = new RPGGame.Data.ActionTriggerBundle
+            {
+                IdentityName = "BoarSuffix",
+                Description = "On connect, gain miss salvage for the fight.",
+                When = "ONHIT",
+                Count = "1",
+                Mechanics = "salvage_miss",
+                Scope = "FIGHT"
+            };
+            string boarSummary = ItemTriggerBundleDisplay.FormatSummary(namedBundle);
+            TestBase.AssertTrue(boarSummary.Contains("Boar", StringComparison.OrdinalIgnoreCase),
+                "named-bundle summary uses identity name",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!boarSummary.Contains("Salvage Charm", StringComparison.OrdinalIgnoreCase),
+                "named-bundle summary is not collapsed onto SalvageCharm",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(boarSummary.Contains("miss salvage", StringComparison.OrdinalIgnoreCase)
+                    || boarSummary.Contains("On connect", StringComparison.OrdinalIgnoreCase),
+                "named-bundle summary includes trigger body text after em dash",
+                ref run, ref passed, ref failed);
+            int dash = boarSummary.IndexOf(" — ", StringComparison.Ordinal);
+            TestBase.AssertTrue(dash > 0 && dash + 3 < boarSummary.Length
+                    && !string.IsNullOrWhiteSpace(boarSummary.Substring(dash + 3)),
+                "named-bundle summary has non-empty text after em dash",
+                ref run, ref passed, ref failed);
+
+            var boarLegs = new LegsItem("breeches", 1, 0)
+            {
+                Rarity = "Common",
+                Level = 1,
+                BaseAgility = 3,
+                BaseTechnique = 5,
+                ExtraActionSlots = 1
+            };
+            boarLegs.StatBonuses.Add(new StatBonus
+            {
+                Name = "of the Boar",
+                TriggerName = "BoarSuffix",
+                Tags = new System.Collections.Generic.List<string> { "beast" },
+                Description = "On connect, gain miss salvage for the fight."
+            });
+            TestBase.AssertEqual(0, boarLegs.TriggerBundles.Count,
+                "animal suffix does not stamp combat bundles",
+                ref run, ref passed, ref failed);
+            var boarLines = ItemTooltipFormatter.BuildItemTooltipLines(hero, boarLegs, "Legs", 40);
+            string boarFlat = string.Join("\n", boarLines.Select(ColoredTextRenderer.RenderAsPlainText));
+            TestBase.AssertTrue(!boarFlat.Contains("Triggers", StringComparison.Ordinal),
+                "animal-suffix tooltip has no Triggers section",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!boarFlat.Contains("of the Boar — Trigger", StringComparison.OrdinalIgnoreCase),
+                "Boar suffix is not duplicated under Stats as a trigger",
                 ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ItemTooltipFormatter Tests", run, passed, failed);

@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             MapPageStepInput_MapsUndoAndStep(ref run, ref pass, ref fail);
             CharacterLabSnapshot_RoundTripIncludesGearAndStrip(ref run, ref pass, ref fail);
             LoadCharacterSnapshot_ReplacesLabHeroBaseline(ref run, ref pass, ref fail);
+            TriggerScenario_LoadStagesForcedD20(ref run, ref pass, ref fail);
         }
 
 
@@ -178,6 +179,39 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             {
                 ActionInteractionLabSession.EndSession();
                 CharacterLabSnapshotService.Delete(snapName);
+            }
+        }
+
+        internal static void TriggerScenario_LoadStagesForcedD20(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("TrigLab").Build();
+            var cm = new CombatManager();
+            try
+            {
+                ActionInteractionLabSession.Begin(hero, cm, () => { }, null);
+                var lab = ActionInteractionLabSession.Current!;
+                var identity = ItemTriggerIdentityCatalog.Identities
+                    .FirstOrDefault(i =>
+                        !i.IsEquipEffect
+                        && (i.When?.Contains("CRITICAL", StringComparison.OrdinalIgnoreCase) ?? false)
+                        && !(i.When?.Contains("MISS", StringComparison.OrdinalIgnoreCase) ?? false));
+                if (identity == null)
+                {
+                    TestBase.AssertTrue(false, "need ONCRITICAL identity for lab load", ref run, ref passed, ref failed);
+                    return;
+                }
+
+                lab.SelectedTriggerIdentityIndex = identity.Index;
+                bool ok = lab.TryLoadSelectedTriggerScenario(out var err);
+                TestBase.AssertTrue(ok, $"Load trigger scenario ({err})", ref run, ref passed, ref failed);
+                TestBase.AssertEqual(20, lab.SelectedD20, "ONCRITICAL load sets d20=20", ref run, ref passed, ref failed);
+                TestBase.AssertTrue(lab.LabPlayer.GetComboActions().Count > 0,
+                    "Load stages combo strip", ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                ActionInteractionLabSession.EndSession();
             }
         }
     }

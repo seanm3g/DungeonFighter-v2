@@ -78,6 +78,9 @@ namespace RPGGame
             action.CausesPierce = data.CausesPierce;
             action.CausesStatDrain = data.CausesStatDrain;
             action.CausesFocus = data.CausesFocus;
+            action.MaterialScale = data.MaterialScale ?? "";
+            action.KeywordScale = data.KeywordScale ?? "";
+            action.ScaleFormula = data.ScaleFormula ?? "";
             action.CausesConfusion = data.CausesConfusion;
             action.CausesDisrupt = data.CausesDisrupt;
             action.CausesFortify = data.CausesFortify;

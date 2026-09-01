@@ -37,6 +37,12 @@ namespace RPGGame
         public Item? Legs { get; set; }
         public Item? Weapon { get; set; }
         public Item? Feet { get; set; }
+
+        /// <summary>
+        /// Ordered combo-strip action names. Omitted/empty on legacy saves falls back to default combo after load.
+        /// </summary>
+        public List<string> ComboStripActionNames { get; set; } = new List<string>();
+
         /// <summary>When true, this file is a tombstone only; the game will not load this adventurer.</summary>
         public bool IsDead { get; set; }
 
@@ -45,6 +51,11 @@ namespace RPGGame
 
         /// <summary>Current region id for the character; omitted legacy saves default to Ancient Forest.</summary>
         public string CurrentRegionId { get; set; } = GameConstants.DefaultRegionId;
+
+        /// <summary>
+        /// Optional dungeon-selection difficulty anchor. Null/omitted uses the hero's current level.
+        /// </summary>
+        public int? DungeonDifficultyAnchorLevel { get; set; }
     }
 }
 

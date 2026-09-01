@@ -172,9 +172,19 @@ namespace RPGGame.World.Tags
             foreach (var t in new[]
                      {
                          "bone", "bronze", "glass", "willow", "steel", "gold", "obsidian", "silver",
-                         "damascus", "mithril", "shadow", "crystal", "stone", "unknown", "strange"
+                         "iron", "mithril", "shadow", "crystal", "stone", "unknown", "strange"
                      })
                 Add(t, TagLayer.Match, TagEntityScope.Item);
+            foreach (var t in new[] { "shell", "reptile", "bird", "bug", "fish", "beast" })
+                Add(t, TagLayer.Match, TagEntityScope.Item | TagEntityScope.Enemy);
+            // mythic rarity already registered as FieldDuplicate/Action — expand Item scope for taxon gear tags
+            if (list.Exists(d => d.NormalizedName == "mythic"))
+            {
+                var idx = list.FindIndex(d => d.NormalizedName == "mythic");
+                list[idx] = new TagDefinition("mythic", TagLayer.Match, TagEntityScope.Action | TagEntityScope.Item | TagEntityScope.Enemy);
+            }
+            else
+                Add("mythic", TagLayer.Match, TagEntityScope.Action | TagEntityScope.Item | TagEntityScope.Enemy);
             foreach (var t in new[] { "required", "opener", "finisher" })
                 Add(t, TagLayer.Match, TagEntityScope.Action);
             foreach (var t in new[] { "swift", "bludgeon", "focus", "insight" })

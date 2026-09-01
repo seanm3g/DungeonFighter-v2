@@ -28,9 +28,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             new("Enemies", "Enemies", () => new EnemiesSettingsPanel(), SettingsContentArea.MainScroll, typeof(EnemiesSettingsPanel), UsesTabManager: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 4),
             new("Items", "Items", () => new ItemsSettingsPanel(), SettingsContentArea.MainScroll, typeof(ItemsSettingsPanel), UsesTabManager: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 5),
             new("ItemAffixes", "Item Affixes", () => new ItemAffixesSettingsPanel(), SettingsContentArea.MainScroll, typeof(ItemAffixesSettingsPanel), UsesTabManager: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 6),
-            new("Patches", "Patches", () => new PatchesSettingsPanel(), SettingsContentArea.MainScroll, typeof(PatchesSettingsPanel), UsesHandler: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 7),
-            new("FlavorText", "Flavor Text", () => new FlavorTextSettingsPanel(), SettingsContentArea.Actions, typeof(FlavorTextSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 8),
-            new("BalanceTuning", "Spreadsheet Import", () => new BalanceTuningSettingsPanel(), SettingsContentArea.MainScroll, typeof(BalanceTuningSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 9),
+            new("MaterialBuilds", "Material Builds", () => new MaterialBuildsSettingsPanel(), SettingsContentArea.MainScroll, typeof(MaterialBuildsSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 7),
+            new("Patches", "Patches", () => new PatchesSettingsPanel(), SettingsContentArea.MainScroll, typeof(PatchesSettingsPanel), UsesHandler: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 8),
+            new("FlavorText", "Flavor Text", () => new FlavorTextSettingsPanel(), SettingsContentArea.Actions, typeof(FlavorTextSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 9),
+            new("BalanceTuning", "Spreadsheet Import", () => new BalanceTuningSettingsPanel(), SettingsContentArea.MainScroll, typeof(BalanceTuningSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 10),
 
             // Balance & Tuning
             new("CombatTuning", "Combat Tuning", () => new CombatAndEnemyTuningSettingsPanel(), SettingsContentArea.MainScroll, typeof(CombatAndEnemyTuningSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Balance, Order: 1),
@@ -48,7 +49,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         public static readonly IReadOnlyList<string> HandlerSaveCategoryTags = new[]
         {
             "Travel", "TextAndAnimation", "Appearance", "FlavorText",
-            "BalanceTuning", "ItemGeneration", "CombatTuning", "Classes", "Audio"
+            "BalanceTuning", "MaterialBuilds", "ItemGeneration", "CombatTuning", "Classes", "Audio"
         };
 
         private static readonly Dictionary<string, SettingsPanelDescriptor> ByTag =

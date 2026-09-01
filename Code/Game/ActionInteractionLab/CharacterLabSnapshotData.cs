@@ -4,8 +4,9 @@ using System.Collections.Generic;
 namespace RPGGame.ActionInteractionLab
 {
     /// <summary>
-    /// On-disk Action Lab character preset: campaign save JSON plus combo strip names
-    /// (strip is not stored in <see cref="Entity.Save.CharacterSaveData"/>).
+    /// On-disk Action Lab character preset: campaign save JSON plus combo strip names.
+    /// Campaign saves also persist strip names on <see cref="CharacterSaveData"/>; lab snapshots
+    /// keep an explicit list so older snapshot files without that field still restore correctly.
     /// </summary>
     public sealed class CharacterLabSnapshotData
     {

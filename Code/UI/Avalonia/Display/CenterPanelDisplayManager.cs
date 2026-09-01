@@ -237,6 +237,28 @@ namespace RPGGame.UI.Avalonia.Display
                 TriggerRender();
             }
         }
+
+        /// <summary>
+        /// Replaces the last combat-log line in place (setup telegraph → punchline).
+        /// </summary>
+        public void ReplaceLastMessage(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
+        {
+            if (bufferOperations.TryReplaceLast(segments, messageType))
+            {
+                TriggerRender();
+            }
+        }
+
+        /// <summary>
+        /// Replaces a reserved combat-log line counted from the end (0 = last) so follow-ups fill in place.
+        /// </summary>
+        public void ReplaceMessageFromEnd(int offsetFromEnd, List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
+        {
+            if (bufferOperations.TryReplaceAtFromEnd(offsetFromEnd, segments, messageType))
+            {
+                TriggerRender();
+            }
+        }
         
         /// <summary>
         /// Adds multiple messages to the display buffer and schedules a render

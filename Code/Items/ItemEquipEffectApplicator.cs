@@ -97,6 +97,7 @@ namespace RPGGame
             if (character == null)
                 yield break;
 
+            var seenIdentities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var item in EquippedItemTriggerApplicator.EnumerateEquipped(character))
             {
                 if (item == null)
@@ -105,6 +106,13 @@ namespace RPGGame
                 {
                     if (!PassesEquipFilters(character, item, bundle))
                         continue;
+                    string? id = bundle.IdentityName;
+                    if (!string.IsNullOrWhiteSpace(id))
+                    {
+                        if (seenIdentities.Contains(id))
+                            continue;
+                        seenIdentities.Add(id.Trim());
+                    }
                     yield return (item, bundle);
                 }
             }

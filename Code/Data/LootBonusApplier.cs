@@ -7,8 +7,8 @@ namespace RPGGame
 {
     /// <summary>
     /// Applies bonuses, modifications, and stat adjustments to items.
-    /// Handles Quality/Adjective prefix lottery (0–2), always-on Material, material trigger pools,
-    /// stat bonuses, and action bonuses.
+    /// Handles Quality/Adjective prefix lottery (0–2), always-on Material,
+    /// stat bonuses, and action bonuses. Combat procs come from MATERIAL BUILDS set counts, not per-item rolls.
     /// </summary>
     public class LootBonusApplier
     {
@@ -36,7 +36,8 @@ namespace RPGGame
         /// <summary>
         /// Applies all bonuses to an item based on its rarity.
         /// <paramref name="magicFind"/> (0–100) tilts affix-line tier rolls and optional affix extra chances; it does not change base item rarity.
-        /// Material is always assigned (weapons: class ladder; armor: any). One material trigger is rolled from that material's pool.
+        /// Material is always assigned (weapons: class ladder; armor: any).
+        /// Item combat procs are not rolled — MATERIAL BUILDS gates synthesis by equipped count.
         /// </summary>
         public void ApplyBonuses(Item item, RarityData rarity, LootContext? context = null, int magicFind = 0)
         {
@@ -74,7 +75,7 @@ namespace RPGGame
                 ApplyPrefixSlots(item, prefixSlots, context);
                 EnsureMaterial(item, rarityName);
                 MaterialTriggerMerge.ClearCatalogTriggerStamp(item);
-                MaterialTriggerMerge.ApplyMaterialTrigger(item, _random);
+                MaterialTriggerMerge.RemapLegacyMaterialOnItem(item);
                 SyncMaterialPrefixTags(item);
 
                 item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
@@ -172,14 +173,14 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Ensures Material + one material trigger without rolling Quality/Adjective/suffixes
-        /// (starter weapons, lab helpers).
+        /// Ensures Material without rolling Quality/Adjective/suffixes (starter weapons, lab helpers).
+        /// Combat procs come from MATERIAL BUILDS set counts, not per-item trigger stamps.
         /// </summary>
         public void ApplyAlwaysMaterialAndTrigger(Item item, string? itemRarity = null)
         {
             EnsureMaterial(item, itemRarity);
             MaterialTriggerMerge.ClearCatalogTriggerStamp(item);
-            MaterialTriggerMerge.ApplyMaterialTrigger(item, _random);
+            MaterialTriggerMerge.RemapLegacyMaterialOnItem(item);
             SyncMaterialPrefixTags(item);
             item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
         }
@@ -368,7 +369,8 @@ namespace RPGGame
                     continue;
 
                 usedAffixRarities.Add(NormalizeStatBonusAffixRarity(pick.Rarity));
-                item.StatBonuses.Add(pick.CloneForItemInstance());
+                var instance = pick.CloneForItemInstance();
+                item.StatBonuses.Add(instance);
             }
 
             // Suffix Requirements (when authored on rolled rows) merge into the equip gate.

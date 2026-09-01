@@ -26,7 +26,7 @@ namespace RPGGame
         /// <param name="rollBonus">Roll bonus applied</param>
         /// <param name="roll">The attack roll</param>
         /// <returns>Tuple of (damageText, rollInfo)</returns>
-        public static (string damageText, string rollInfo) FormatDamageDisplaySeparated(Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
+        public static (string damageText, string rollInfo) FormatDamageDisplaySeparated(Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default, int? defenseFace = null)
         {
             ArgumentNullException.ThrowIfNull(attacker);
             ArgumentNullException.ThrowIfNull(target);
@@ -34,31 +34,19 @@ namespace RPGGame
             bool hasDisplayableAction = !string.IsNullOrEmpty(action?.Name);
             string actionName = action?.Name ?? "attack";
 
-            // Critical: same rule as combat resolution (crit-eval roll vs threshold), with natural-20+ total safety.
             int totalRoll = roll + rollBonus;
             int critThreshold = RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(attacker);
             int critEval = CombatCalculator.GetCritThresholdEvaluationRoll(totalRoll, rollBonus, attacker.RollPenalty);
             bool isCritical = critEval >= critThreshold || totalRoll >= 20;
-
-            // Add CRITICAL prefix to action name if it's a critical hit and action has a name
-            if (isCritical && hasDisplayableAction)
-            {
-                actionName = $"CRITICAL {actionName}";
-            }
-
-            // Show action name only when action has a displayable name (normal attack has none)
             bool isComboAction = hasDisplayableAction && (action != null && action.IsComboAction);
 
-            // First line: Format for combo actions (with name) vs normal attack (no name)
-            string damageText;
+            string damageText = $"{attacker.Name} Attacks {target.Name}... and ";
+            if (isCritical)
+                damageText += "CRITICAL ";
+            damageText += "hits";
             if (isComboAction)
-            {
-                damageText = $"{attacker.Name} hits {target.Name} with {actionName} for {actualDamage} damage";
-            }
-            else
-            {
-                damageText = $"{attacker.Name} hits {target.Name} for {actualDamage} damage";
-            }
+                damageText += $" with {actionName}";
+            damageText += $" for {actualDamage} damage";
             
             // Build the detailed roll and damage information
             var rollInfo = new List<string>();
@@ -75,11 +63,17 @@ namespace RPGGame
             }
             // If rollBonus is 0, don't add the = total part (totalRoll will equal roll)
             rollInfo.Add($"roll: {rollDisplay}");
+            if (defenseFace.HasValue)
+            {
+                rollInfo.Add($"def: {defenseFace.Value}");
+                rollInfo.Add(DefenseBlockCalculator.FormatMarginSigned(
+                    DefenseBlockCalculator.GetMargin(roll, defenseFace.Value)));
+            }
             
             // Attack vs Defense information (net shown so footer matches headline damage)
-            int targetDefense = DamageCalculator.ResolveTargetArmor(target, action);
+            int targetDefense = DefenseBlockCalculator.ResolveMitigation(target, action, defenseFace, roll);
             int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, totalRoll, rollBonus);
-            rollInfo.Add(DamageFormatter.FormatAttackVsArmorPlain(actualRawDamage, targetDefense));
+            rollInfo.Add(DamageFormatter.FormatAttackVsArmorPlain(actualRawDamage, targetDefense, useBlockLabel: defenseFace.HasValue));
             
             // Speed information - calculate actual action speed
             if (action != null && action.Length > 0)
@@ -176,10 +170,11 @@ namespace RPGGame
         public static (List<ColoredText> damageText, List<ColoredText> rollInfo) FormatDamageDisplayColored(
             Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, 
             double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, int multiHitCount = 1, bool isCriticalMiss = false, bool? resolvedCritical = null,
-            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
+            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default,
+            int? defenseFace = null)
         {
             return CombatResultsColoredText.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, 
-                action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical, multiDiceDetail);
+                action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical, multiDiceDetail, defenseFace);
         }
         
         /// <summary>

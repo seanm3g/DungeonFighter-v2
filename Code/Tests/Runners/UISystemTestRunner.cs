@@ -54,6 +54,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CombatActionStripBuilderTests.RunAllTests();
             Console.WriteLine();
+            ActionCardExternalBonusCollectorTests.RunAllTests();
+            Console.WriteLine();
             CadenceCardLineFormatterTests.RunAllTests();
             Console.WriteLine();
             ActionInfoStripLayoutTests.RunAllTests();
@@ -80,6 +82,8 @@ namespace RPGGame.Tests.Runners
             ColoredTextCoordinatorTests.RunAllTests();
             Console.WriteLine();
             LayoutConstantsCenterPanelHitTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.Combat.CombatSequencePresenterTests.RunAllTests();
             Console.WriteLine();
             CombatLogCopyInputTests.RunAllTests();
             Console.WriteLine();
@@ -150,6 +154,8 @@ namespace RPGGame.Tests.Runners
             BlockMessageCollectorTests.RunAllTests();
             Console.WriteLine();
             EntityNameExtractorTests.RunAllTests();
+            Console.WriteLine();
+            DisplayBufferReplaceLastTests.RunAllTests();
             Console.WriteLine();
             
             // UI Services Tests

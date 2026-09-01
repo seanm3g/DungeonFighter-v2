@@ -71,6 +71,6 @@ Or download from: https://dotnet.microsoft.com/download/dotnet/8.0
 
 ## Related launchers
 
-- Windows: `Dungeon Fighter(PC).bat`
+- Windows: `DungeonFighter-PC.bat` (or `Dungeon Fighter(PC).bat`)
 - macOS: `Dungeon Fighter(Mac).sh`
 - CLI play helper: `./play.sh` (from repo root)

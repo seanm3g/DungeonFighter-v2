@@ -362,7 +362,7 @@ namespace RPGGame.Data
             }
         }
 
-        /// <summary>Normalizes a single PREFIX / modifications CSV row object (sheet columns A–I and legacy Min/Max).</summary>
+        /// <summary>Normalizes a single PREFIX / modifications CSV row object (canonical headers + legacy <c>value</c> column).</summary>
         public static void NormalizeModificationsImportRow(JsonObject row)
         {
             if (row == null)
@@ -372,6 +372,7 @@ namespace RPGGame.Data
 
         private static void NormalizeModificationRow(JsonObject o)
         {
+            JsonArraySheetConverter.RenameModificationSheetImportHeaders(o);
             MergeModificationSheetColumnsAttributeRequirement(o);
             MergeSheetAbbrevAttributeRequirementsIfPresent(o);
             if (FindPropertyIgnoreCase(o, "attributeRequirements") is JsonObject reqObj)
@@ -386,42 +387,98 @@ namespace RPGGame.Data
         }
 
         /// <summary>
-        /// PREFIX tab columns <c>ATTRIBUTE REQUIREMENT</c> + <c>REQUIREMENT VALUE</c> (case-insensitive) merge into
-        /// <c>attributeRequirements</c> object, same canonical keys as weapons/armor.
+        /// PREFIX attribute-gate columns merge into <c>attributeRequirements</c> by header name, not column index.
+        /// Stat abbrev vs numeric threshold is inferred from cell content so rearranged columns still import.
         /// </summary>
         private static void MergeModificationSheetColumnsAttributeRequirement(JsonObject o)
         {
-            JsonNode? abbrevNode = FindPropertyIgnoreCase(o, "ATTRIBUTE REQUIREMENT")
-                ?? FindPropertyIgnoreCase(o, "ATTRIBUTE REQUREMENT");
-            if (abbrevNode is not JsonValue jv || !jv.TryGetValue<string>(out var abbrevRaw) ||
-                string.IsNullOrWhiteSpace(abbrevRaw))
-                return;
-
-            JsonNode? reqNode = FindPropertyIgnoreCase(o, "REQUIREMENT VALUE");
-            if (reqNode == null || IsJsonNull(reqNode))
-                return;
-
-            int reqVal = CoerceInt(reqNode);
-            string statKey = MapSheetStatAbbrevToRequirementKey(abbrevRaw.Trim());
-            RemovePropertyIgnoreCase(o, "ATTRIBUTE REQUIREMENT");
-            RemovePropertyIgnoreCase(o, "ATTRIBUTE REQUREMENT");
-            RemovePropertyIgnoreCase(o, "REQUIREMENT VALUE");
-
             JsonNode? existing = FindPropertyIgnoreCase(o, "attributeRequirements");
-            if (existing is JsonObject eo)
+            if (existing is JsonObject eo && eo.Count > 0)
             {
-                int prior = CoerceInt(FindPropertyIgnoreCase(eo, statKey));
-                eo[statKey] = JsonValue.Create(Math.Max(prior, reqVal));
                 CanonicalizeAttributeRequirementKeys(eo);
+                RemoveModificationSheetRequirementColumns(o);
+                return;
+            }
+
+            string? statRaw = null;
+            int? reqVal = null;
+            foreach (var header in new[] { "ATTRIBUTE REQUIREMENT", "REQUIREMENT VALUE", "ATTRIBUTE REQUREMENT" })
+            {
+                JsonNode? n = FindPropertyIgnoreCase(o, header);
+                if (n == null || IsJsonNull(n))
+                    continue;
+                string text = CellText(n);
+                if (string.IsNullOrWhiteSpace(text))
+                    continue;
+
+                if (TryParseModificationRequirementStatCell(text, out var stat))
+                    statRaw ??= stat;
+                else if (TryParseModificationRequirementValueCell(text, out var val))
+                    reqVal ??= val;
+            }
+
+            RemoveModificationSheetRequirementColumns(o);
+
+            if (string.IsNullOrWhiteSpace(statRaw) || reqVal == null)
+                return;
+
+            string statKey = MapSheetStatAbbrevToRequirementKey(statRaw.Trim());
+            JsonNode? priorReq = FindPropertyIgnoreCase(o, "attributeRequirements");
+            if (priorReq is JsonObject merged)
+            {
+                int prior = CoerceInt(FindPropertyIgnoreCase(merged, statKey));
+                merged[statKey] = JsonValue.Create(Math.Max(prior, reqVal.Value));
+                CanonicalizeAttributeRequirementKeys(merged);
             }
             else
             {
                 RemovePropertyIgnoreCase(o, "attributeRequirements");
-                o["attributeRequirements"] = new JsonObject { [statKey] = JsonValue.Create(reqVal) };
+                o["attributeRequirements"] = new JsonObject { [statKey] = JsonValue.Create(reqVal.Value) };
             }
         }
 
-        /// <summary>Sheet column <c>value</c> (case-insensitive) sets both <c>MinValue</c> and <c>MaxValue</c>, then is removed.</summary>
+        private static void RemoveModificationSheetRequirementColumns(JsonObject o)
+        {
+            RemovePropertyIgnoreCase(o, "ATTRIBUTE REQUIREMENT");
+            RemovePropertyIgnoreCase(o, "ATTRIBUTE REQUREMENT");
+            RemovePropertyIgnoreCase(o, "REQUIREMENT VALUE");
+        }
+
+        private static string CellText(JsonNode n)
+        {
+            if (n is JsonValue jv && jv.TryGetValue<string>(out var s))
+                return s?.Trim() ?? "";
+            return n.ToJsonString().Trim('"');
+        }
+
+        private static bool TryParseModificationRequirementStatCell(string text, out string stat)
+        {
+            stat = "";
+            if (string.IsNullOrWhiteSpace(text))
+                return false;
+            if (double.TryParse(text.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out _))
+                return false;
+            stat = text.Trim();
+            return true;
+        }
+
+        private static bool TryParseModificationRequirementValueCell(string text, out int value)
+        {
+            value = 0;
+            if (string.IsNullOrWhiteSpace(text))
+                return false;
+            if (int.TryParse(text.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+                return true;
+            if (double.TryParse(text.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double d))
+            {
+                value = (int)Math.Round(d);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>Legacy sheet column <c>value</c> (removed from PREFIX tab) still maps to both <c>MinValue</c> and <c>MaxValue</c> on import, then is removed.</summary>
         private static void ApplyModificationValueColumnToMinMax(JsonObject o)
         {
             JsonNode? vn = FindPropertyIgnoreCase(o, "value");

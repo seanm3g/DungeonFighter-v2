@@ -90,6 +90,17 @@ namespace RPGGame.Data
                 TriggersLoader.ClearCache();
             }
 
+            if (tabFlags.PushMaterialBuildsTab && !string.IsNullOrWhiteSpace(sc.MaterialBuildsSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.MaterialBuildsSheetUrl, cancellationToken).ConfigureAwait(false);
+                string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.MaterialBuilds);
+                string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.MaterialBuildsJson)
+                    ?? GameConstants.GetGameDataFilePath(GameConstants.MaterialBuildsJson);
+                await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                ClearJsonCacheForGameDataFile(GameConstants.MaterialBuildsJson);
+                MaterialBuildsLoader.ClearCache();
+            }
+
             if (tabFlags.PushEnemiesTab && !string.IsNullOrWhiteSpace(sc.EnemiesSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.EnemiesSheetUrl, cancellationToken).ConfigureAwait(false);
@@ -207,6 +218,7 @@ namespace RPGGame.Data
                 RoomLoader.LoadRooms();
                 RoomSearchConsumableCatalog.Reload();
                 TriggersLoader.Reload();
+                MaterialBuildsLoader.Reload();
             }
             catch (Exception ex)
             {
