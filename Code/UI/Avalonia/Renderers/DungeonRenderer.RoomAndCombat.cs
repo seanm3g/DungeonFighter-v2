@@ -139,14 +139,14 @@ namespace RPGGame.UI.Avalonia.Renderers
 
                 int borderThick = HeroActionStripFeedback.IsFlashEmphasisActive(i)
                     ? HeroActionStripFeedback.FlashBorderThicknessPixels
-                    : 1;
+                    : LayoutConstants.ACTION_SQUARE_BORDER_THICKNESS_PIXELS;
                 canvas.AddBorder(px, py, pw, panelH, borderColor, borderThick);
 
                 if (bonusCue && !flashActive)
                 {
                     var highlight = ActionBonusBorderShimmer.GetTravelHighlightColor(shimmerNow);
                     foreach (var (hx, hy, hw, hh) in ActionBonusBorderShimmer.GetTravelHighlightRects(px, py, pw, panelH, shimmerNow))
-                        canvas.AddBorder(hx, hy, hw, hh, highlight, 2);
+                        canvas.AddBorder(hx, hy, hw, hh, highlight, LayoutConstants.ACTION_SQUARE_BORDER_THICKNESS_PIXELS * 2);
                 }
 
                 if (isEmptySlot || i >= effectiveMaxSlots)

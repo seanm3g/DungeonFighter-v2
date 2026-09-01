@@ -145,6 +145,8 @@ namespace RPGGame.UI.Avalonia.Layout
         public const int ACTION_INFO_PANEL_TOP_GAP = 0;
         /// <summary>Minimum number of action strip panels shown when a character is present (empty slots render as placeholders).</summary>
         public const int ACTION_INFO_STRIP_FIXED_SLOT_COUNT = 5;
+        /// <summary>Device-pixel stroke width for combo-strip and resolve-stack action card borders.</summary>
+        public const int ACTION_SQUARE_BORDER_THICKNESS_PIXELS = 2;
         /// <summary>Content area for action info (inside border).</summary>
         public static int ACTION_INFO_CONTENT_X => ACTION_INFO_X + 1;
         public static int ACTION_INFO_CONTENT_Y => ACTION_INFO_Y + 1;

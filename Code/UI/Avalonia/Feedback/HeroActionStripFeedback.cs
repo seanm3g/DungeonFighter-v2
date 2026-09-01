@@ -24,7 +24,7 @@ namespace RPGGame.UI.Avalonia.Feedback
     public static class HeroActionStripFeedback
     {
         /// <summary>Strip border stroke width (device pixels) while a hit/miss/combo flash is active on that panel.</summary>
-        public const int FlashBorderThicknessPixels = 3;
+        public const int FlashBorderThicknessPixels = 6;
 
         private static readonly TimeSpan TimerInterval = TimeSpan.FromMilliseconds(16);
 

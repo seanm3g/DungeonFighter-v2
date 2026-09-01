@@ -59,7 +59,10 @@ namespace RPGGame.UI.Avalonia.Layout
             if (w < 8 || h < 3)
                 return;
 
-            canvas.AddBorder(x, y, w, h, fade < 0.99 ? Darken(border, fade) : border);
+            canvas.AddBorder(
+                x, y, w, h,
+                fade < 0.99 ? Darken(border, fade) : border,
+                LayoutConstants.ACTION_SQUARE_BORDER_THICKNESS_PIXELS);
             int tx = x + 1;
             int ty = y + 1;
             int textW = w - 2;
