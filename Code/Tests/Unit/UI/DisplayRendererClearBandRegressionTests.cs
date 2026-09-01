@@ -17,13 +17,12 @@ namespace RPGGame.Tests.Unit.UI
             LayoutConstants.UpdateGridDimensions(210, 52);
             LayoutConstants.UpdateEffectiveVisibleWidth(2100, 10);
 
-            int firstRowBelowStrip = LayoutConstants.ACTION_INFO_Y + LayoutConstants.ACTION_INFO_HEIGHT;
             int persistentInnerContentY = LayoutConstants.CENTER_PANEL_Y + 1;
 
             TestBase.AssertEqual(
-                firstRowBelowStrip,
+                LayoutConstants.CENTER_PANEL_Y,
                 ComputeClearStartY(persistentInnerContentY),
-                "persistent center content clear starts at first row below action strip",
+                "persistent center content clear starts at the framed combat log top",
                 ref run, ref passed, ref failed);
 
             TestBase.AssertEqual(
@@ -32,10 +31,9 @@ namespace RPGGame.Tests.Unit.UI
                 "chromeless content at y=0 clear starts at row 0",
                 ref run, ref passed, ref failed);
 
-            TestBase.AssertEqual(
-                LayoutConstants.CENTER_PANEL_Y,
-                firstRowBelowStrip,
-                "first row below strip aligns with framed center panel top",
+            TestBase.AssertTrue(
+                LayoutConstants.ACTION_INFO_Y >= LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT,
+                "action strip sits below the framed combat log",
                 ref run, ref passed, ref failed);
 
             CombatSequenceHudState.IsBandReserved = true;

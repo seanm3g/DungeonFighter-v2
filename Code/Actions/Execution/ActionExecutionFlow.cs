@@ -182,14 +182,16 @@ namespace RPGGame.Actions.Execution
 
             Character? heroForStripFeedback = null;
             int? stripIndexForFeedback = null;
-            if (source is Character heroStrip && heroStrip is not Enemy)
+            if (RetriggerDepth == 0 && result.SelectedAction != null && source is Character actor)
             {
-                heroForStripFeedback = heroStrip;
-                var comboForFeedback = ActionUtilities.GetComboActions(heroStrip);
-                if (comboForFeedback.Count > 0)
-                    stripIndexForFeedback = heroStrip.ComboStep % comboForFeedback.Count;
-                if (result.SelectedAction != null)
-                    FighterResolveActionStackState.BeginResolve(heroStrip, result.SelectedAction);
+                if (actor is not Enemy)
+                {
+                    heroForStripFeedback = actor;
+                    var comboForFeedback = ActionUtilities.GetComboActions(actor);
+                    if (comboForFeedback.Count > 0)
+                        stripIndexForFeedback = actor.ComboStep % comboForFeedback.Count;
+                }
+                FighterResolveActionStackState.BeginResolve(actor, result.SelectedAction);
             }
 
             if (result.Hit)
@@ -252,9 +254,6 @@ namespace RPGGame.Actions.Execution
                 if (CombatManager.DisableCombatUIOutput || DeveloperModeState.IsCombatLogInstant)
                     HeroActionStripFeedback.CommitQueued();
             }
-
-            if (heroForStripFeedback != null)
-                FighterResolveActionStackState.EndResolve();
 
             source.ConsumeRollPenaltyAfterCombatRoll(result.SelectedAction);
             source.ConsumeConfusionAfterCombatAction(result.SelectedAction);

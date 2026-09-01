@@ -160,7 +160,7 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
-        /// Handles pointer wheel events over the framed combat log (center column below the action strip).
+        /// Handles pointer wheel events over the framed combat log (center column above the action strip).
         /// </summary>
         public void HandlePointerWheelChanged(PointerWheelEventArgs e)
         {

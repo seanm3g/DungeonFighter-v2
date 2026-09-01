@@ -159,7 +159,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(player, "COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 CombatArenaHudLayout.ClearArenaInner(canvas);
-            }, context, currentEnemy, context.DungeonName, context.RoomName, clearCanvas: shouldClear);
+            }, context, currentEnemy, context.DungeonName, context.RoomName, clearCanvas: shouldClear, hideSidePanelHealthBars: CombatArenaHudLayout.HideSidePanelHealthBars(currentEnemy != null));
 
             if (currentEnemy != null)
             {

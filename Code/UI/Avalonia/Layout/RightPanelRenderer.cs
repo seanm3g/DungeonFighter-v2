@@ -41,7 +41,7 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         /// <param name="inventoryComboRightPanel">When true, always show sequence/pool (caller is inventory/combo UI). Avoids relying on title strings alone.</param>
         /// <param name="registerActionLabEnemyLevelHover">When true (Action Lab combat), register click target for enemy level line.</param>
-        public void RenderRightPanel(Enemy? enemy, string? dungeonName, string? roomName, string title, Character? character, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false)
+        public void RenderRightPanel(Enemy? enemy, string? dungeonName, string? roomName, string title, Character? character, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false, bool hideSidePanelHealthBars = false)
         {
             // Clear the right panel content area before rendering to prevent text overlap.
             // RIGHT_PANEL_X shifts when EffectiveVisibleWidth changes (resize / scale-up); clearing only
@@ -87,7 +87,7 @@ namespace RPGGame.UI.Avalonia.Layout
             {
                 // Render location and enemy info for other pages
                 int? heroLevelForLabCaption = registerActionLabEnemyLevelHover ? character?.Level : null;
-                RenderLocationEnemyPanel(x, y, enemy, dungeonName, roomName, registerActionLabEnemyLevelHover, heroLevelForLabCaption);
+                RenderLocationEnemyPanel(x, y, enemy, dungeonName, roomName, registerActionLabEnemyLevelHover, heroLevelForLabCaption, hideSidePanelHealthBars);
             }
         }
 
@@ -372,7 +372,7 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>
         /// Renders location and enemy information panel
         /// </summary>
-        private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName, bool registerActionLabEnemyLevelHover, int? heroLevelForLabEnemyCaption)
+        private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName, bool registerActionLabEnemyLevelHover, int? heroLevelForLabEnemyCaption, bool hideSidePanelHealthBars)
         {
             // Location section - always shown
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Location), AsciiArtAssets.Colors.Gold);
@@ -432,35 +432,38 @@ namespace RPGGame.UI.Avalonia.Layout
                 }
                 y++;
 
-                // Health bar + d20 threshold strip
-                int healthBarWidth = LayoutConstants.RIGHT_PANEL_WIDTH - 8;
-                int healthBarY = y;
-                int enemyBarAreaHeight = D20ThresholdBarRenderer.CombatBarAreaRowCount;
-                int thresholdBarY = healthBarY;
-                int hpValueY = healthBarY + enemyBarAreaHeight;
-                canvas.ClearProgressBarsInArea(x, healthBarY, healthBarWidth, enemyBarAreaHeight);
-                canvas.ClearSegmentedBarsInArea(x, healthBarY, healthBarWidth, enemyBarAreaHeight);
-                canvas.ClearTextInArea(x, hpValueY, healthBarWidth, 1);
-                
-                int displayEnemyHp = RPGGame.Combat.UI.HealthBarDisplayHold.Resolve($"enemy_{enemy.Name}", enemy.CurrentHealth);
-                canvas.AddHealthBar(
-                    x,
-                    healthBarY,
-                    healthBarWidth,
-                    displayEnemyHp,
-                    enemy.MaxHealth,
-                    entityId: $"enemy_{enemy.Name}",
-                    heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale);
-                D20ThresholdBarRenderer.RenderBar(
-                    canvas,
-                    x,
-                    thresholdBarY,
-                    healthBarWidth,
-                    enemy,
-                    ThresholdBarPanel.Enemy,
-                    verticalOffsetScale: D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor);
-                canvas.AddText(x, hpValueY, $"{displayEnemyHp}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
-                y += 3;
+                if (!hideSidePanelHealthBars)
+                {
+                    // Health bar + d20 threshold strip (omitted while the center arena HUD draws the same bars)
+                    int healthBarWidth = LayoutConstants.RIGHT_PANEL_WIDTH - 8;
+                    int healthBarY = y;
+                    int enemyBarAreaHeight = D20ThresholdBarRenderer.CombatBarAreaRowCount;
+                    int thresholdBarY = healthBarY;
+                    int hpValueY = healthBarY + enemyBarAreaHeight;
+                    canvas.ClearProgressBarsInArea(x, healthBarY, healthBarWidth, enemyBarAreaHeight);
+                    canvas.ClearSegmentedBarsInArea(x, healthBarY, healthBarWidth, enemyBarAreaHeight);
+                    canvas.ClearTextInArea(x, hpValueY, healthBarWidth, 1);
+                    
+                    int displayEnemyHp = RPGGame.Combat.UI.HealthBarDisplayHold.Resolve($"enemy_{enemy.Name}", enemy.CurrentHealth);
+                    canvas.AddHealthBar(
+                        x,
+                        healthBarY,
+                        healthBarWidth,
+                        displayEnemyHp,
+                        enemy.MaxHealth,
+                        entityId: $"enemy_{enemy.Name}",
+                        heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale);
+                    D20ThresholdBarRenderer.RenderBar(
+                        canvas,
+                        x,
+                        thresholdBarY,
+                        healthBarWidth,
+                        enemy,
+                        ThresholdBarPanel.Enemy,
+                        verticalOffsetScale: D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor);
+                    canvas.AddText(x, hpValueY, $"{displayEnemyHp}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
+                    y += 3;
+                }
 
                 int weaponDamage = (enemy.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
                 int totalDamage = enemy.GetAttributeDamageBonus() + weaponDamage;

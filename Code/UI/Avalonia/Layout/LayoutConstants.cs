@@ -77,7 +77,7 @@ namespace RPGGame.UI.Avalonia.Layout
         // This ensures panels fit within the actual visible area, not just the grid width
         private static int EffectiveVisibleWidth => _effectiveVisibleWidth;
         
-        // Center column: action-info strip at top, combat log (framed center panel) below. Positioned right after left panel with 1 char gap.
+        // Center column: sequence HUD at top, combat log in the middle, fighter combo strip at the bottom.
         public static int CENTER_PANEL_X => LEFT_PANEL_X + LEFT_PANEL_WIDTH + 1; // +1 to match original gap
         // Calculate width using effective visible width to ensure right panel stays within visible area
         // Total effective width = LEFT_PANEL_WIDTH + gap(1) + CENTER_PANEL_WIDTH + gap(1) + RIGHT_PANEL_WIDTH
@@ -85,14 +85,14 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int CENTER_PANEL_WIDTH => Math.Max(1, EffectiveVisibleWidth - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH - 3); // Accounts for gaps between panels
         private const int BASE_ACTION_INFO_STRIP_HEIGHT = 11;
         public static int ACTION_INFO_STRIP_HEIGHT => BASE_ACTION_INFO_STRIP_HEIGHT;
-        /// <summary>First row of the action-info strip (top of center column, aligned with side panels).</summary>
-        public static int ACTION_INFO_Y => 0;
+        /// <summary>First row of the fighter action-info strip (bottom of the center column).</summary>
+        public static int ACTION_INFO_Y => _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT;
         /// <summary>
         /// Combat log frame. In a dungeon this sits below the two-row sequence HUD panel and a one-row gap;
-        /// otherwise it sits directly under the action-info strip.
+        /// otherwise it sits at the top of the center column, above the action-info strip.
         /// </summary>
-        public static int CENTER_PANEL_Y => ACTION_INFO_STRIP_HEIGHT + CombatSequenceBandHeight;
-        /// <summary>Height of the framed combat-log panel; leaves room for the action-info strip (and sequence HUD in a dungeon).</summary>
+        public static int CENTER_PANEL_Y => CombatSequenceBandHeight;
+        /// <summary>Height of the framed combat-log panel; leaves room for the sequence HUD at the top and the action-info strip at the bottom.</summary>
         public static int CENTER_PANEL_HEIGHT => _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT - CombatSequenceBandHeight;
 
         /// <summary>Two content rows in the combat sequence HUD panel (titles over results).</summary>
@@ -100,8 +100,8 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>Empty rows between the sequence HUD panel and the combat-log frame.</summary>
         public const int COMBAT_SEQUENCE_LOG_GAP = 1;
 
-        /// <summary>Top row of the sequence HUD panel (flush under the action-info strip) when the dungeon band is reserved.</summary>
-        public static int CombatSequencePanelY => ACTION_INFO_STRIP_HEIGHT;
+        /// <summary>Top row of the sequence HUD panel (top of the center column) when the dungeon band is reserved.</summary>
+        public static int CombatSequencePanelY => 0;
 
         /// <summary>Framed sequence HUD height in a dungeon; zero outside the dungeon so the log uses the full center column.</summary>
         public static int CombatSequencePanelHeight =>
@@ -137,7 +137,7 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>Horizontal gap in character columns between per-action panels in the action-info strip.</summary>
         public const int ACTION_INFO_PANEL_GAP = 1;
         /// <summary>
-        /// Inset from the strip’s left and right edges for card panels (character columns), and row count left empty below the cards before the center frame.
+        /// Inset from the strip’s left and right edges for card panels (character columns), and row count left empty below the cards.
         /// Matches the horizontal padding implied by <see cref="ACTION_INFO_CONTENT_X"/> / <see cref="ACTION_INFO_CONTENT_WIDTH"/> (1 column each side when this is 1).
         /// </summary>
         public const int ACTION_INFO_PANEL_EDGE_MARGIN = 1;
@@ -183,7 +183,7 @@ namespace RPGGame.UI.Avalonia.Layout
 
         /// <summary>
         /// True when <paramref name="gridX"/>, <paramref name="gridY"/> lies inside the framed combat-log
-        /// center panel (below the action-info strip and sequence HUD panel, cyan border). Used to drop peripheral hover chrome.
+        /// center panel (below the sequence HUD panel, above the action-info strip, cyan border). Used to drop peripheral hover chrome.
         /// </summary>
         public static bool ContainsCenterPanelContent(int gridX, int gridY)
         {
@@ -236,7 +236,7 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>
         /// Center column including the action-info strip band (for screens that hide the combo strip).
         /// </summary>
-        public static int CENTER_COLUMN_FULL_Y => ACTION_INFO_Y;
+        public static int CENTER_COLUMN_FULL_Y => 0;
         public static int CENTER_COLUMN_FULL_HEIGHT => ACTION_INFO_STRIP_HEIGHT + CombatSequenceBandHeight + CENTER_PANEL_HEIGHT;
 
         /// <summary>

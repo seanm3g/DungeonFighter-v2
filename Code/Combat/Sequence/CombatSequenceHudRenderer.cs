@@ -8,7 +8,7 @@ using RPGGame.UI.ColorSystem;
 namespace RPGGame.Combat.Sequence
 {
     /// <summary>
-    /// Draws the two-row combat sequence HUD in its own framed panel (below the action strip, above the combat log).
+    /// Draws the two-row combat sequence HUD in its own framed panel (top of the center column, above the combat log).
     /// Column headers stay visible in a dungeon even with no swing in progress.
     /// </summary>
     public static class CombatSequenceHudRenderer

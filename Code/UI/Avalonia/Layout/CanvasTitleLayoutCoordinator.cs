@@ -48,7 +48,8 @@ namespace RPGGame.UI.Avalonia.Layout
             Character? characterForRightPanel,
             CharacterPanelRenderer characterPanelRenderer,
             RightPanelRenderer rightPanelRenderer,
-            bool registerActionLabEnemyLevelHover = false)
+            bool registerActionLabEnemyLevelHover = false,
+            bool hideSidePanelHealthBars = false)
         {
             if (usePersistentChrome)
             {
@@ -60,7 +61,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     // Render left panel (Character Info) - Always visible
                     if (character != null)
                     {
-                        characterPanelRenderer.RenderCharacterPanel(character, dungeonName, roomName);
+                        characterPanelRenderer.RenderCharacterPanel(character, hideSidePanelHealthBars);
                     }
                     else
                     {
@@ -72,7 +73,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     // When not clearing, only update panels that need updating
                     if (character != null)
                     {
-                        characterPanelRenderer.RenderCharacterPanel(character, dungeonName, roomName);
+                        characterPanelRenderer.RenderCharacterPanel(character, hideSidePanelHealthBars);
                     }
                     else
                     {
@@ -114,7 +115,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (usePersistentChrome)
             {
                 RPGGame.Combat.Sequence.CombatSequenceHudRenderer.Render(canvas);
-                rightPanelRenderer.RenderRightPanel(enemy, dungeonName, roomName, title, characterForRightPanel, inventoryComboRightPanel, registerActionLabEnemyLevelHover);
+                rightPanelRenderer.RenderRightPanel(enemy, dungeonName, roomName, title, characterForRightPanel, inventoryComboRightPanel, registerActionLabEnemyLevelHover, hideSidePanelHealthBars);
             }
             
             // Do not call canvas.Refresh() here: callers draw the action-info strip (and other overlays)

@@ -156,61 +156,70 @@ namespace RPGGame
 
             var list = new List<ActionPanelInfo>(actions.Count);
             for (int i = 0; i < actions.Count; i++)
-            {
-                var action = actions[i];
-                string name = action.Name ?? "";
-
-                // Damage line: multiplier as % of character base (matches Spd line style), not raw HP output.
-                double baseDamagePct = action.DamageMultiplier * 100.0;
-
-                // Pending bonuses for this slot (peek, do not consume). ACTION bank sticks to preview slot.
-                var slotBonuses = new List<ActionAttackBonusItem>(character.Effects.GetPendingActionBonusesForSlot(i));
-                int actionCount = actions.Count;
-                if (actionCount > 0
-                    && character.Effects.SlotShowsActionCadenceBank(i, character.ComboStep, actionCount))
-                {
-                    slotBonuses.AddRange(character.Effects.PeekPendingActionBonusesNextHeroRoll());
-                }
-                double damageModPercent = 0;
-                double speedModPercent = 0;
-                foreach (var b in slotBonuses)
-                {
-                    switch ((b.Type ?? "").ToUpper())
-                    {
-                        case "DAMAGE_MOD": damageModPercent += b.Value; break;
-                        case "SPEED_MOD": speedModPercent += b.Value; break;
-                    }
-                }
-
-                var external = ActionCardExternalBonusCollector.Collect(character, action, i);
-                damageModPercent += external.DamageModPercent;
-                speedModPercent += external.SpeedModPercent;
-
-                double modifiedDamagePct = damageModPercent != 0
-                    ? baseDamagePct * (1.0 + damageModPercent / 100.0)
-                    : baseDamagePct;
-
-                // Speed % matches action details (ActionDisplayFormatter), not wall-clock seconds.
-                double baseSpeedPct = action.Length > 0
-                    ? ActionDisplayFormatter.CalculateActionSpeedPercentage(action)
-                    : 0;
-                double modifiedSpeedPct = speedModPercent != 0
-                    ? baseSpeedPct * (1.0 + speedModPercent / 100.0)
-                    : baseSpeedPct;
-
-                string thresholdText = GetThresholdText(action);
-
-                int accuracyRollBonus = CombatCalculator.CalculateRollBonus(character, action, actions, i, consumeTempBonus: false);
-
-                // Strip preview: pending ACTION cadence only — not Consumed* from a just-resolved swing.
-                int effectiveHits = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(
-                    action, character, i, includeConsumedMods: false);
-                if (external.MultiHitMod != 0)
-                    effectiveHits = Math.Max(1, effectiveHits + (int)Math.Max(0, external.MultiHitMod));
-
-                list.Add(new ActionPanelInfo(name, baseDamagePct, modifiedDamagePct, baseSpeedPct, modifiedSpeedPct, thresholdText, accuracyRollBonus, effectiveHits));
-            }
+                list.Add(BuildPanelForAction(character, actions[i], i, actions));
             return list;
+        }
+
+        /// <summary>
+        /// One strip-style panel for a resolving action (fighter combo slot or a lone enemy pool action).
+        /// </summary>
+        public static ActionPanelInfo BuildPanelForAction(
+            Character character,
+            Action action,
+            int slotIndex = 0,
+            IReadOnlyList<Action>? actions = null)
+        {
+            var combo = actions != null
+                ? new List<Action>(actions)
+                : new List<Action>(character.GetComboActions() ?? new List<Action>());
+            if (combo.Count == 0)
+                combo.Add(action);
+
+            int i = Math.Clamp(slotIndex, 0, Math.Max(0, combo.Count - 1));
+            string name = action.Name ?? "";
+            double baseDamagePct = action.DamageMultiplier * 100.0;
+
+            var slotBonuses = new List<ActionAttackBonusItem>(character.Effects.GetPendingActionBonusesForSlot(i));
+            int actionCount = combo.Count;
+            if (actionCount > 0
+                && character.Effects.SlotShowsActionCadenceBank(i, character.ComboStep, actionCount))
+            {
+                slotBonuses.AddRange(character.Effects.PeekPendingActionBonusesNextHeroRoll());
+            }
+            double damageModPercent = 0;
+            double speedModPercent = 0;
+            foreach (var b in slotBonuses)
+            {
+                switch ((b.Type ?? "").ToUpper())
+                {
+                    case "DAMAGE_MOD": damageModPercent += b.Value; break;
+                    case "SPEED_MOD": speedModPercent += b.Value; break;
+                }
+            }
+
+            var external = ActionCardExternalBonusCollector.Collect(character, action, i);
+            damageModPercent += external.DamageModPercent;
+            speedModPercent += external.SpeedModPercent;
+
+            double modifiedDamagePct = damageModPercent != 0
+                ? baseDamagePct * (1.0 + damageModPercent / 100.0)
+                : baseDamagePct;
+
+            double baseSpeedPct = action.Length > 0
+                ? ActionDisplayFormatter.CalculateActionSpeedPercentage(action)
+                : 0;
+            double modifiedSpeedPct = speedModPercent != 0
+                ? baseSpeedPct * (1.0 + speedModPercent / 100.0)
+                : baseSpeedPct;
+
+            string thresholdText = GetThresholdText(action);
+            int accuracyRollBonus = CombatCalculator.CalculateRollBonus(character, action, combo, i, consumeTempBonus: false);
+            int effectiveHits = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(
+                action, character, i, includeConsumedMods: false);
+            if (external.MultiHitMod != 0)
+                effectiveHits = Math.Max(1, effectiveHits + (int)Math.Max(0, external.MultiHitMod));
+
+            return new ActionPanelInfo(name, baseDamagePct, modifiedDamagePct, baseSpeedPct, modifiedSpeedPct, thresholdText, accuracyRollBonus, effectiveHits);
         }
 
         /// <summary>

@@ -1,111 +1,116 @@
 using System;
-using System.Collections.Generic;
 using RPGGame;
 using RPGGame.Actions;
+using RPGGame.Combat.Sequence;
 
 namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
-    /// Fighter-only horizontal resolve row: Previous | Current | Next.
-    /// Begin/End happen in the same combat tick; a short hold keeps Current visible long enough to paint.
+    /// Resolve cards in the center arena. Current stays hidden until the sequence HUD lands on ACTION,
+    /// then sits in the middle. Fighter past-actions archive left; enemy past-actions archive right.
+    /// Enemy current/past cards use a red border.
     /// </summary>
     public static class FighterResolveActionStackState
     {
-        public const int CurrentHoldMs = 900;
+        private static ActionPanelInfo? _fighterPrevious;
+        private static ActionPanelInfo? _enemyPrevious;
+        private static ActionPanelInfo? _staged;
+        private static bool _revealed;
+        private static bool _stagedIsEnemy;
 
-        private static ActionPanelInfo? _previous;
-        private static ActionPanelInfo? _current;
-        private static ActionPanelInfo? _next;
-        private static bool _pendingEnd;
-        private static DateTimeOffset _holdUntil = DateTimeOffset.MinValue;
+        /// <summary>Fighter past-action (left of center).</summary>
+        public static ActionPanelInfo? Previous => _fighterPrevious;
 
-        internal static Func<DateTimeOffset>? UtcNowProviderForTests;
-        private static DateTimeOffset Now() => UtcNowProviderForTests?.Invoke() ?? DateTimeOffset.UtcNow;
+        /// <summary>Enemy past-action (right of center).</summary>
+        public static ActionPanelInfo? EnemyPrevious => _enemyPrevious;
 
-        public static ActionPanelInfo? Previous
+        public static ActionPanelInfo? Current => _revealed ? _staged : null;
+
+        public static bool CurrentIsEnemy => _revealed && _stagedIsEnemy && _staged.HasValue;
+
+        public static bool EnemyPreviousIsEnemy => _enemyPrevious.HasValue;
+
+        /// <summary>
+        /// Stage a fighter or enemy resolving action. Visible after <see cref="RevealCurrent"/> (ACTION column),
+        /// or immediately when the sequence HUD is not playing.
+        /// </summary>
+        public static void BeginResolve(Character actor, Action selectedAction)
         {
-            get { ExpireIfNeeded(); return _previous; }
-        }
-
-        public static ActionPanelInfo? Current
-        {
-            get { ExpireIfNeeded(); return _current; }
-        }
-
-        public static ActionPanelInfo? Next
-        {
-            get { ExpireIfNeeded(); return _next; }
-        }
-
-        public static void BeginResolve(Character fighter, Action selectedAction)
-        {
-            if (fighter == null || selectedAction == null || fighter is Enemy)
+            if (actor == null || selectedAction == null)
                 return;
 
-            var panels = CombatActionStripBuilder.BuildPanelData(fighter);
-            var combo = ActionUtilities.GetComboActions(fighter);
-            if (panels.Count == 0 || combo.Count == 0)
-            {
-                Clear();
-                return;
-            }
+            if (_revealed && _staged.HasValue)
+                ArchiveCurrent();
 
-            int step = fighter.ComboStep % combo.Count;
-            int currentIndex = step;
-            for (int i = 0; i < combo.Count; i++)
-            {
-                if (ReferenceEquals(combo[i], selectedAction)
-                    || string.Equals(combo[i]?.Name, selectedAction.Name, StringComparison.Ordinal))
-                {
-                    currentIndex = i;
-                    break;
-                }
-            }
-
-            if (currentIndex < 0 || currentIndex >= panels.Count)
-                currentIndex = Math.Clamp(step, 0, panels.Count - 1);
-
-            _current = panels[currentIndex];
-            int nextIndex = (currentIndex + 1) % panels.Count;
-            _next = panels.Count > 1 ? panels[nextIndex] : null;
-            _pendingEnd = false;
-            _holdUntil = DateTimeOffset.MinValue;
+            _staged = BuildStagedPanel(actor, selectedAction);
+            _stagedIsEnemy = actor is Enemy;
+            _revealed = !CombatSequencePresenter.ShouldPlay();
         }
 
-        public static void EndResolve()
+        /// <summary>Show the staged card in the center (sequence HUD reached ACTION).</summary>
+        public static void RevealCurrent()
         {
-            if (!_current.HasValue)
-                return;
-            _pendingEnd = true;
-            _holdUntil = Now().AddMilliseconds(CurrentHoldMs);
+            if (_staged.HasValue)
+                _revealed = true;
         }
+
+        /// <summary>
+        /// Move the resolving card to its past-action slot: fighter left, enemy right.
+        /// </summary>
+        public static void ArchiveCurrent()
+        {
+            if (!_staged.HasValue)
+                return;
+            if (_stagedIsEnemy)
+                _enemyPrevious = _staged;
+            else
+                _fighterPrevious = _staged;
+            _staged = null;
+            _revealed = false;
+            _stagedIsEnemy = false;
+        }
+
+        /// <summary>Legacy name for fighter-left archive; routes by whose card is current.</summary>
+        public static void ArchiveCurrentToPrevious() => ArchiveCurrent();
 
         public static void Clear()
         {
-            _previous = null;
-            _current = null;
-            _next = null;
-            _pendingEnd = false;
-            _holdUntil = DateTimeOffset.MinValue;
+            _fighterPrevious = null;
+            _enemyPrevious = null;
+            _staged = null;
+            _revealed = false;
+            _stagedIsEnemy = false;
         }
 
         internal static void ResetForTests()
         {
             Clear();
-            UtcNowProviderForTests = null;
         }
 
-        private static void ExpireIfNeeded()
+        private static ActionPanelInfo? BuildStagedPanel(Character actor, Action selectedAction)
         {
-            if (!_pendingEnd || !_current.HasValue)
-                return;
-            if (Now() < _holdUntil)
-                return;
+            var panels = CombatActionStripBuilder.BuildPanelData(actor);
+            var combo = ActionUtilities.GetComboActions(actor);
+            if (panels.Count > 0 && combo.Count > 0)
+            {
+                int step = actor.ComboStep % combo.Count;
+                int currentIndex = step;
+                for (int i = 0; i < combo.Count; i++)
+                {
+                    if (ReferenceEquals(combo[i], selectedAction)
+                        || string.Equals(combo[i]?.Name, selectedAction.Name, StringComparison.Ordinal))
+                    {
+                        currentIndex = i;
+                        break;
+                    }
+                }
 
-            _previous = _current;
-            _current = null;
-            _pendingEnd = false;
-            _holdUntil = DateTimeOffset.MinValue;
+                if (currentIndex < 0 || currentIndex >= panels.Count)
+                    currentIndex = Math.Clamp(step, 0, panels.Count - 1);
+                return panels[currentIndex];
+            }
+
+            return CombatActionStripBuilder.BuildPanelForAction(actor, selectedAction);
         }
     }
 }

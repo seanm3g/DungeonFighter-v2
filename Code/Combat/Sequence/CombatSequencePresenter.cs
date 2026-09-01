@@ -5,6 +5,7 @@ using Avalonia.Threading;
 using RPGGame.Combat.UI;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Feedback;
+using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.BlockDisplay;
 
 namespace RPGGame.Combat.Sequence
@@ -147,6 +148,8 @@ namespace RPGGame.Combat.Sequence
                     if (!UseManualPlayback)
                     {
                         CombatSequenceHudState.SetActive(i, resultRevealed: false);
+                        if (step.Kind == CombatSequenceStepKind.Action)
+                            FighterResolveActionStackState.RevealCurrent();
                         Invalidate();
                         if (!await WaitForBeatAsync())
                             return;
@@ -156,6 +159,8 @@ namespace RPGGame.Combat.Sequence
                     for (int b = 0; b < beats.Count; b++)
                     {
                         CombatSequenceHudState.SetActive(i, resultRevealed: true, beats[b]);
+                        if (step.Kind == CombatSequenceStepKind.Action)
+                            FighterResolveActionStackState.RevealCurrent();
                         if (b == beats.Count - 1)
                             FireCue(step.Cue);
                         Invalidate();
@@ -271,6 +276,7 @@ namespace RPGGame.Combat.Sequence
             CuesFiredForTests.Clear();
             CombatSequenceHudState.ResetForTests();
             HealthBarDisplayHold.ResetForTests();
+            FighterResolveActionStackState.ResetForTests();
         }
     }
 }

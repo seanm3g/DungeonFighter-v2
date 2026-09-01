@@ -24,8 +24,10 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(ey < sy && sy + sh <= fy,
                 "resolve stack band sits between enemy and fighter HUDs",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(fy + fh <= LayoutConstants.ACTION_INFO_Y,
-                "fighter HUD ends at or above the bottom combo strip",
+            TestBase.AssertTrue(
+                fy >= LayoutConstants.CENTER_PANEL_Y
+                && fy + fh <= LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT,
+                "fighter HUD stays inside the combat log frame above the action strip",
                 ref run, ref passed, ref failed);
             TestBase.AssertEqual(ex, fx, "enemy and fighter HUDs share left edge", ref run, ref passed, ref failed);
             TestBase.AssertEqual(ew, fw, "enemy and fighter HUDs share width", ref run, ref passed, ref failed);
@@ -45,6 +47,12 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(ny + nh <= fy,
                 "narrative band ends above fighter HUD",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(CombatArenaHudLayout.HideSidePanelHealthBars(true),
+                "side HP bars hide while the arena HUD is on screen",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!CombatArenaHudLayout.HideSidePanelHealthBars(false),
+                "side HP bars stay when the arena HUD is not on screen",
                 ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("CombatArenaHudLayoutTests", run, passed, failed);

@@ -5,7 +5,8 @@ using RPGGame.Combat.Sequence;
 namespace RPGGame.Tests.Unit.UI
 {
     /// <summary>
-    /// Hit tests for <see cref="LayoutConstants.ContainsCenterPanelContent"/> (combat arena vs action strip).
+    /// Hit tests for <see cref="LayoutConstants.ContainsCenterPanelContent"/> (combat log vs action strip).
+    /// Main-window mouse wheel scrolling uses the same predicate so the wheel only moves the log, not when the pointer is over the action strip or side panels.
     /// </summary>
     public static class LayoutConstantsCenterPanelHitTests
     {
@@ -15,25 +16,37 @@ namespace RPGGame.Tests.Unit.UI
 
             LayoutConstants.UpdateGridDimensions(210, 52);
             LayoutConstants.UpdateEffectiveVisibleWidth(2100, 10);
+            CombatSequenceHudState.IsBandReserved = false;
 
             int stripTop = LayoutConstants.ACTION_INFO_Y;
             int centerTop = LayoutConstants.CENTER_PANEL_Y;
-            int centerBottomExclusive = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT;
-
-            TestBase.AssertTrue(
-                LayoutConstants.ContainsCenterPanelContent(LayoutConstants.CENTER_PANEL_X + 1, centerTop),
-                "first row of framed center panel counts as center panel content",
-                ref run, ref passed, ref failed);
+            int gridBottomExclusive = 52 + 1;
 
             TestBase.AssertTrue(
                 !LayoutConstants.ContainsCenterPanelContent(LayoutConstants.CENTER_PANEL_X + 1, stripTop),
                 "action-info strip row is not center panel content",
                 ref run, ref passed, ref failed);
 
+            TestBase.AssertTrue(
+                LayoutConstants.ContainsCenterPanelContent(LayoutConstants.CENTER_PANEL_X + 1, centerTop),
+                "first row of framed center panel counts as center panel content",
+                ref run, ref passed, ref failed);
+
             TestBase.AssertEqual(
+                0,
+                centerTop,
+                "center panel starts at the top of the grid",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertEqual(
+                gridBottomExclusive - LayoutConstants.ACTION_INFO_STRIP_HEIGHT,
                 stripTop,
-                centerBottomExclusive,
-                "center panel ends where action strip begins",
+                "action strip sits at the bottom of the grid",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                stripTop >= centerTop + LayoutConstants.CENTER_PANEL_HEIGHT,
+                "action strip sits below the combat log frame",
                 ref run, ref passed, ref failed);
 
             CombatSequenceHudState.IsBandReserved = true;
@@ -41,6 +54,11 @@ namespace RPGGame.Tests.Unit.UI
             {
                 int hudY = LayoutConstants.CombatSequenceHudY;
                 int logY = LayoutConstants.CombatLogContentY;
+                TestBase.AssertEqual(
+                    0,
+                    hudY,
+                    "sequence HUD sits at the top of the center column",
+                    ref run, ref passed, ref failed);
                 TestBase.AssertTrue(
                     LayoutConstants.ContainsCombatSequenceHud(LayoutConstants.CENTER_PANEL_X + 1, hudY),
                     "HUD row is sequence HUD when band reserved",
@@ -57,9 +75,10 @@ namespace RPGGame.Tests.Unit.UI
                     !LayoutConstants.ContainsCenterPanelContent(LayoutConstants.CENTER_PANEL_X + 1, hudY),
                     "sequence HUD panel is not the combat log frame",
                     ref run, ref passed, ref failed);
-                TestBase.AssertTrue(
-                    LayoutConstants.CENTER_PANEL_Y == hudY + LayoutConstants.COMBAT_SEQUENCE_HUD_HEIGHT
+                TestBase.AssertEqual(
+                    hudY + LayoutConstants.COMBAT_SEQUENCE_HUD_HEIGHT
                         + LayoutConstants.COMBAT_SEQUENCE_LOG_GAP,
+                    LayoutConstants.CENTER_PANEL_Y,
                     "combat log frame sits one row below the two-row sequence panel",
                     ref run, ref passed, ref failed);
                 int gapY = hudY + LayoutConstants.COMBAT_SEQUENCE_HUD_HEIGHT;

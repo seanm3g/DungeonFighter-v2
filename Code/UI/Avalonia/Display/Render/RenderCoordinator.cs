@@ -251,7 +251,8 @@ namespace RPGGame.UI.Avalonia.Display.Render
                         clearCanvas: shouldClearCanvas,
                         usePersistentChrome: true,
                         inventoryComboRightPanel: false,
-                        registerActionLabEnemyLevelHover: labEnemyLevelHover);
+                        registerActionLabEnemyLevelHover: labEnemyLevelHover,
+                        hideSidePanelHealthBars: CombatArenaHudLayout.HideSidePanelHealthBars(useArenaCombatHud));
 
                     // Draw strip after left/center/right chrome so the right panel cannot paint over it when columns overlap.
                     if (layoutCharacter != null)

@@ -46,8 +46,10 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>
         /// Renders the character information panel (left side). The player hero is expected; dice thresholds
         /// and status lines use this character as the roll source.
+        /// When <paramref name="hideCombatHealthBars"/> is true (center arena HUD is showing HP), the left HP/armor
+        /// bars are omitted. Action Lab still draws a one-line Health caption for click-to-damage/heal.
         /// </summary>
-        public void RenderCharacterPanel(Character character)
+        public void RenderCharacterPanel(Character character, bool hideCombatHealthBars = false)
         {
             // Clear the left panel area before drawing so re-renders with clearCanvas: false (e.g. after level-up) do not leave duplicate content
             int leftX = LayoutConstants.LEFT_PANEL_X;
@@ -93,77 +95,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 textWriter.RenderSegments(heroNameSegments, x, nameY);
                 y++;
 
-                int healthBarWidth = LayoutConstants.LEFT_PANEL_WIDTH - 4;
-                int healthBarY = y;
-                int maxArmor = character.GetMaxArmor();
-                bool hasArmorBar = maxArmor > 0;
-                int barAreaHeight = D20ThresholdBarRenderer.CombatBarAreaRowCount;
-                double thresholdVerticalOffset = hasArmorBar
-                    ? D20ThresholdBarRenderer.CombatStripVerticalOffsetWithArmor
-                    : D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor;
-                int thresholdBarY = healthBarY;
-                int thresholdHoverRowY = healthBarY + 1;
-                int hpValueY = healthBarY + barAreaHeight;
-
-                canvas.ClearProgressBarsInArea(x, healthBarY, healthBarWidth, barAreaHeight);
-                canvas.ClearSegmentedBarsInArea(x, healthBarY, healthBarWidth, barAreaHeight);
-                canvas.ClearTextInArea(x, hpValueY, healthBarWidth, 1);
-
-                if (hasArmorBar)
-                {
-                    canvas.AddHealthBar(
-                        x,
-                        healthBarY,
-                        healthBarWidth,
-                        maxArmor,
-                        maxArmor,
-                        AsciiArtAssets.Colors.DarkBlue,
-                        AsciiArtAssets.Colors.White,
-                        entityId: $"player_{character.Name}_armor",
-                        heightScale: D20ThresholdBarRenderer.CombatArmorHeightScale);
-                }
-
-                int displayHp = RPGGame.Combat.UI.HealthBarDisplayHold.Resolve($"player_{character.Name}", character.CurrentHealth);
-                int maxHp = character.GetEffectiveMaxHealth();
-
-                canvas.AddHealthBar(
-                    x,
-                    healthBarY,
-                    healthBarWidth,
-                    displayHp,
-                    maxHp,
-                    entityId: $"player_{character.Name}",
-                    heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale,
-                    verticalOffsetScale: hasArmorBar ? D20ThresholdBarRenderer.CombatArmorHeightScale : 0.0);
-
-                var thresholdSegments = D20ThresholdBarRenderer.RenderBar(
-                    canvas,
-                    x,
-                    thresholdBarY,
-                    healthBarWidth,
-                    character,
-                    ThresholdBarPanel.Hero,
-                    D20ThresholdBarRenderer.CombatStripHeightScale,
-                    thresholdVerticalOffset);
-
-                if (hasArmorBar)
-                {
-                    canvas.AddText(
-                        x,
-                        hpValueY,
-                        $"Health {displayHp}/{maxHp}  Armor {maxArmor}",
-                        AsciiArtAssets.Colors.White);
-                }
-                else
-                {
-                    canvas.AddText(
-                        x,
-                        hpValueY,
-                        $"Health {displayHp}/{maxHp}",
-                        AsciiArtAssets.Colors.White);
-                }
-
-                y = hpValueY + 1;
+                RenderHeroHealthCluster(character, x, ref y, headerClickWidth, hideCombatHealthBars);
 
                 string currentClass = character.GetCurrentClass();
                 int levelY = y;
@@ -187,21 +119,6 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (interactionManager != null && stateManager != null)
                 {
                     RegisterLeftPanelHoverRow(x, nameY, headerClickWidth, 1, "hero:name");
-                    if (hasArmorBar)
-                        RegisterLeftPanelHoverRow(x, healthBarY, headerClickWidth, barAreaHeight, "hero:armor");
-                    RegisterLeftPanelHoverRow(x, healthBarY, headerClickWidth, barAreaHeight, "hero:hp");
-                    var thresholdHoverWidths = D20ThresholdBarRenderer.GetSegmentHoverWidths(healthBarWidth, thresholdSegments);
-                    int thresholdHoverX = x;
-                    for (int i = 0; i < thresholdSegments.Length; i++)
-                    {
-                        RegisterLeftPanelHoverRow(
-                            thresholdHoverX,
-                            thresholdHoverRowY,
-                            thresholdHoverWidths[i],
-                            1,
-                            ThresholdChanceLabelToHoverId(thresholdSegments[i].Label));
-                        thresholdHoverX += thresholdHoverWidths[i];
-                    }
                     RegisterLeftPanelHoverRow(x, levelY, headerClickWidth, 1, "hero:level");
                     RegisterLeftPanelHoverRow(x, xpY, headerClickWidth, 1, "hero:xp");
                     if (classPointsY.HasValue)
@@ -442,6 +359,103 @@ namespace RPGGame.UI.Avalonia.Layout
                     if (interactionManager != null && stateManager != null)
                         RegisterLeftPanelHoverRow(x, overflowY, headerClickWidth, 1, "status:overflow");
                     y++;
+                }
+            }
+        }
+
+        /// <summary>
+        /// HP/armor/d20 bars under the hero name. During an active fight the center arena HUD already draws these,
+        /// so they are omitted. Action Lab keeps a one-line Health caption so HP click-to-damage/heal still has a hit target.
+        /// </summary>
+        private void RenderHeroHealthCluster(Character character, int x, ref int y, int headerClickWidth, bool hideCombatHealthBars)
+        {
+            int maxArmor = character.GetMaxArmor();
+            bool hasArmorBar = maxArmor > 0;
+            int displayHp = RPGGame.Combat.UI.HealthBarDisplayHold.Resolve($"player_{character.Name}", character.CurrentHealth);
+            int maxHp = character.GetEffectiveMaxHealth();
+            string healthCaption = hasArmorBar
+                ? $"Health {displayHp}/{maxHp}  Armor {maxArmor}"
+                : $"Health {displayHp}/{maxHp}";
+
+            if (hideCombatHealthBars)
+            {
+                if (ActionInteractionLabSession.Current == null)
+                    return;
+
+                int captionY = y;
+                canvas.AddText(x, y, healthCaption, AsciiArtAssets.Colors.White);
+                y++;
+                RegisterLeftPanelHoverRow(x, captionY, headerClickWidth, 1, "hero:hp");
+                return;
+            }
+
+            int healthBarWidth = LayoutConstants.LEFT_PANEL_WIDTH - 4;
+            int healthBarY = y;
+            int barAreaHeight = D20ThresholdBarRenderer.CombatBarAreaRowCount;
+            double thresholdVerticalOffset = hasArmorBar
+                ? D20ThresholdBarRenderer.CombatStripVerticalOffsetWithArmor
+                : D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor;
+            int thresholdBarY = healthBarY;
+            int thresholdHoverRowY = healthBarY + 1;
+            int hpValueY = healthBarY + barAreaHeight;
+
+            canvas.ClearProgressBarsInArea(x, healthBarY, healthBarWidth, barAreaHeight);
+            canvas.ClearSegmentedBarsInArea(x, healthBarY, healthBarWidth, barAreaHeight);
+            canvas.ClearTextInArea(x, hpValueY, healthBarWidth, 1);
+
+            if (hasArmorBar)
+            {
+                canvas.AddHealthBar(
+                    x,
+                    healthBarY,
+                    healthBarWidth,
+                    maxArmor,
+                    maxArmor,
+                    AsciiArtAssets.Colors.DarkBlue,
+                    AsciiArtAssets.Colors.White,
+                    entityId: $"player_{character.Name}_armor",
+                    heightScale: D20ThresholdBarRenderer.CombatArmorHeightScale);
+            }
+
+            canvas.AddHealthBar(
+                x,
+                healthBarY,
+                healthBarWidth,
+                displayHp,
+                maxHp,
+                entityId: $"player_{character.Name}",
+                heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale,
+                verticalOffsetScale: hasArmorBar ? D20ThresholdBarRenderer.CombatArmorHeightScale : 0.0);
+
+            var thresholdSegments = D20ThresholdBarRenderer.RenderBar(
+                canvas,
+                x,
+                thresholdBarY,
+                healthBarWidth,
+                character,
+                ThresholdBarPanel.Hero,
+                D20ThresholdBarRenderer.CombatStripHeightScale,
+                thresholdVerticalOffset);
+
+            canvas.AddText(x, hpValueY, healthCaption, AsciiArtAssets.Colors.White);
+            y = hpValueY + 1;
+
+            if (interactionManager != null && stateManager != null)
+            {
+                if (hasArmorBar)
+                    RegisterLeftPanelHoverRow(x, healthBarY, headerClickWidth, barAreaHeight, "hero:armor");
+                RegisterLeftPanelHoverRow(x, healthBarY, headerClickWidth, barAreaHeight, "hero:hp");
+                var thresholdHoverWidths = D20ThresholdBarRenderer.GetSegmentHoverWidths(healthBarWidth, thresholdSegments);
+                int thresholdHoverX = x;
+                for (int i = 0; i < thresholdSegments.Length; i++)
+                {
+                    RegisterLeftPanelHoverRow(
+                        thresholdHoverX,
+                        thresholdHoverRowY,
+                        thresholdHoverWidths[i],
+                        1,
+                        ThresholdChanceLabelToHoverId(thresholdSegments[i].Label));
+                    thresholdHoverX += thresholdHoverWidths[i];
                 }
             }
         }

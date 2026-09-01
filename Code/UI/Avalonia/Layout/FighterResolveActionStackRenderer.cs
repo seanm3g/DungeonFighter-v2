@@ -6,8 +6,8 @@ using RPGGame.UI.Avalonia;
 namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
-    /// Draws horizontal Previous | Current | Next resolve cards in the center arena (fighter only).
-    /// Cards target a 5:3 width:height aspect and stay centered in the resolve band.
+    /// Draws the resolving action card in the center of the arena band.
+    /// Fighter past-actions sit to the left; enemy past-actions sit to the right with a red border.
     /// </summary>
     public static class FighterResolveActionStackRenderer
     {
@@ -23,46 +23,27 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.ClearTextInArea(bx, by, bw, bh);
             canvas.ClearBoxesInArea(bx, by, bw, bh);
 
-            var previous = FighterResolveActionStackState.Previous;
+            var fighterPast = FighterResolveActionStackState.Previous;
+            var enemyPast = FighterResolveActionStackState.EnemyPrevious;
             var current = FighterResolveActionStackState.Current;
-            var next = FighterResolveActionStackState.Next;
-            if (!previous.HasValue && !current.HasValue && !next.HasValue)
+            if (!fighterPast.HasValue && !enemyPast.HasValue && !current.HasValue)
                 return;
 
-            int gap = 2;
-            // Prefer using the mid-band height; derive 5:3 widths from that height.
-            int currentH = Math.Max(5, Math.Min(bh, Math.Max(7, bh - 1)));
-            int currentW = Math.Max(10, (int)Math.Round(currentH * (double)AspectWidth / AspectHeight));
-            int sideH = Math.Max(4, (int)Math.Round(currentH * 0.82));
-            int sideW = Math.Max(8, (int)Math.Round(sideH * (double)AspectWidth / AspectHeight));
+            CombatArenaHudLayout.GetResolveCurrentCardRect(out int curX, out int curY, out int curW, out int curH);
+            CombatArenaHudLayout.GetResolvePreviousCardRect(out int prevX, out int prevY, out int prevW, out int prevH);
+            CombatArenaHudLayout.GetResolveEnemyPreviousCardRect(out int enemyX, out int enemyY, out int enemyW, out int enemyH);
 
-            int totalW = sideW + gap + currentW + gap + sideW;
-            if (totalW > bw)
-            {
-                double scale = (double)bw / totalW;
-                currentW = Math.Max(8, (int)Math.Floor(currentW * scale));
-                sideW = Math.Max(6, (int)Math.Floor(sideW * scale));
-                currentH = Math.Max(4, (int)Math.Round(currentW * (double)AspectHeight / AspectWidth));
-                sideH = Math.Max(3, (int)Math.Round(sideW * (double)AspectHeight / AspectWidth));
-                currentH = Math.Min(currentH, bh);
-                sideH = Math.Min(sideH, bh);
-                totalW = sideW + gap + currentW + gap + sideW;
-            }
-
-            int startX = bx + Math.Max(0, (bw - totalW) / 2);
-            int currentY = by + Math.Max(0, (bh - currentH) / 2);
-            int sideY = by + Math.Max(0, (bh - sideH) / 2);
-
-            int prevX = startX;
-            int curX = startX + sideW + gap;
-            int nextX = curX + currentW + gap;
-
-            if (previous.HasValue)
-                DrawCard(canvas, previous.Value, prevX, sideY, sideW, sideH, AsciiArtAssets.Colors.DarkGray, 0.5);
+            if (fighterPast.HasValue)
+                DrawCard(canvas, fighterPast.Value, prevX, prevY, prevW, prevH, AsciiArtAssets.Colors.DarkGray, 0.5);
+            if (enemyPast.HasValue)
+                DrawCard(canvas, enemyPast.Value, enemyX, enemyY, enemyW, enemyH, AsciiArtAssets.Colors.Red, 0.55);
             if (current.HasValue)
-                DrawCard(canvas, current.Value, curX, currentY, currentW, currentH, AsciiArtAssets.Colors.White, 1.0);
-            if (next.HasValue)
-                DrawCard(canvas, next.Value, nextX, sideY, sideW, sideH, AsciiArtAssets.Colors.NeutralGray70, 0.7);
+            {
+                var border = FighterResolveActionStackState.CurrentIsEnemy
+                    ? AsciiArtAssets.Colors.Red
+                    : AsciiArtAssets.Colors.White;
+                DrawCard(canvas, current.Value, curX, curY, curW, curH, border, 1.0);
+            }
         }
 
         private static void DrawCard(

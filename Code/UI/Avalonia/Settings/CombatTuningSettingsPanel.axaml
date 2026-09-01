@@ -6,6 +6,7 @@
              xmlns:settings="clr-namespace:RPGGame.UI.Avalonia.Settings"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="900"
              x:Class="RPGGame.UI.Avalonia.Settings.CombatTuningSettingsPanel"
+             x:DataType="vm:CombatTuningPanelViewModel"
              Classes="settings-ui"
              Background="Transparent">
 
@@ -32,7 +33,7 @@
             </Expander>
         </DataTemplate>
 
-        <DataTemplate x:Key="StandardTuningTabTemplate">
+        <DataTemplate x:Key="StandardTuningTabTemplate" x:CompileBindings="False">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <ItemsControl ItemsSource="{Binding}" ItemTemplate="{StaticResource CombatTuningSubGroupTemplate}" Margin="20"/>
             </ScrollViewer>

@@ -5,7 +5,7 @@ using RPGGame.UI.ColorSystem;
 namespace RPGGame.Combat.Sequence
 {
     /// <summary>
-    /// Live HUD panel under the action strip while in a dungeon: all calculation steps laid out horizontally,
+    /// Live HUD panel at the top of the center column while in a dungeon: all calculation steps laid out horizontally,
     /// with the active step highlighted. <see cref="IsBandReserved"/> keeps the two-row framed panel (plus a
     /// one-row gap above the combat log) so the log does not jump when combat starts.
     /// </summary>

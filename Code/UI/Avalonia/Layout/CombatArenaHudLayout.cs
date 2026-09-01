@@ -4,10 +4,16 @@ using RPGGame.UI.Avalonia;
 namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
-    /// Character-grid regions for the combat center arena: enemy HUD (top), resolve row (middle), fighter HUD (bottom above combo strip).
+    /// Character-grid regions for the combat center arena: enemy HUD (top of the log frame), resolve row (middle), fighter HUD (bottom of the log frame, above the combo strip).
     /// </summary>
     public static class CombatArenaHudLayout
     {
+        /// <summary>
+        /// Side-panel HP/armor/d20 bars duplicate the center arena HUD. Hide them only while that HUD is on screen
+        /// (active fight). Encounter intro / result / room-cleared screens keep the side bars.
+        /// </summary>
+        public static bool HideSidePanelHealthBars(bool arenaHudVisible) => arenaHudVisible;
+
         public const int EnemyHudHeight = 5;
         public const int FighterBarsHeight = 4;
         public const int FighterLogHeight = 4;
@@ -91,6 +97,47 @@ namespace RPGGame.UI.Avalonia.Layout
             y = ay + enemyH + 1;
             width = aw;
             height = Math.Max(3, fighterY - y - 1);
+        }
+
+        /// <summary>Resolving action card, centered in the mid-band.</summary>
+        public static void GetResolveCurrentCardRect(out int x, out int y, out int width, out int height)
+        {
+            GetResolveStackBand(out int bx, out int by, out int bw, out int bh);
+            height = Math.Max(5, Math.Min(bh, Math.Max(7, bh - 1)));
+            width = Math.Max(10, (int)Math.Round(height * 5.0 / 3.0));
+            if (width > bw)
+            {
+                width = Math.Max(8, bw);
+                height = Math.Max(4, (int)Math.Round(width * 3.0 / 5.0));
+                height = Math.Min(height, bh);
+            }
+            x = bx + Math.Max(0, (bw - width) / 2);
+            y = by + Math.Max(0, (bh - height) / 2);
+        }
+
+        /// <summary>Fighter past-action card, left of the centered current card.</summary>
+        public static void GetResolvePreviousCardRect(out int x, out int y, out int width, out int height)
+        {
+            GetResolveStackBand(out int bx, out int by, out _, out int bh);
+            GetResolveCurrentCardRect(out int cx, out _, out _, out int ch);
+            height = Math.Max(4, (int)Math.Round(ch * 0.82));
+            width = Math.Max(8, (int)Math.Round(height * 5.0 / 3.0));
+            const int gap = 2;
+            x = Math.Max(bx, cx - gap - width);
+            y = by + Math.Max(0, (bh - height) / 2);
+        }
+
+        /// <summary>Enemy past-action card, right of the centered current card.</summary>
+        public static void GetResolveEnemyPreviousCardRect(out int x, out int y, out int width, out int height)
+        {
+            GetResolveStackBand(out int bx, out int by, out int bw, out int bh);
+            GetResolveCurrentCardRect(out int cx, out _, out int cw, out int ch);
+            height = Math.Max(4, (int)Math.Round(ch * 0.82));
+            width = Math.Max(8, (int)Math.Round(height * 5.0 / 3.0));
+            const int gap = 2;
+            int rightEdge = bx + bw;
+            x = Math.Min(rightEdge - width, cx + cw + gap);
+            y = by + Math.Max(0, (bh - height) / 2);
         }
 
         public static void GetNarrativeBand(out int x, out int y, out int width, out int height) =>

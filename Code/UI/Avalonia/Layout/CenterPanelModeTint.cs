@@ -7,7 +7,7 @@ namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
     /// Provides the center-panel frame colors that reflect runtime combat pacing mode.
-    /// During combat also owns the two-row sequence HUD panel above the combat log.
+    /// During combat also owns the two-row sequence HUD panel at the top of the center column (above the combat log).
     /// </summary>
     public static class CenterPanelModeTint
     {
@@ -54,8 +54,8 @@ namespace RPGGame.UI.Avalonia.Layout
             if (TryUpdateExistingFrame(canvas))
                 return;
 
-            int bandY = LayoutConstants.ACTION_INFO_STRIP_HEIGHT;
-            int bandH = LayoutConstants.CombatSequenceBandHeight + LayoutConstants.CENTER_PANEL_HEIGHT;
+            int bandY = LayoutConstants.CENTER_COLUMN_FULL_Y;
+            int bandH = LayoutConstants.ACTION_INFO_Y - bandY;
             canvas.ClearBoxesInArea(
                 LayoutConstants.CENTER_PANEL_X,
                 bandY,

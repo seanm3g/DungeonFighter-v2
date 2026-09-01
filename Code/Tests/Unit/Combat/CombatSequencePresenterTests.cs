@@ -243,27 +243,30 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void TestLayoutHudBetweenStripAndLog()
         {
-            Console.WriteLine("--- HUD rect sits between strip and combat log ---");
+            Console.WriteLine("--- HUD rect sits at the top above the combat log ---");
             LayoutConstantsRestore(() =>
             {
                 RPGGame.UI.Avalonia.Layout.LayoutConstants.UpdateGridDimensions(210, 52);
                 RPGGame.UI.Avalonia.Layout.LayoutConstants.UpdateEffectiveVisibleWidth(2100, 10);
                 CombatSequenceHudState.IsBandReserved = true;
 
-                int stripBottom = RPGGame.UI.Avalonia.Layout.LayoutConstants.ACTION_INFO_Y
-                    + RPGGame.UI.Avalonia.Layout.LayoutConstants.ACTION_INFO_HEIGHT;
+                int stripTop = RPGGame.UI.Avalonia.Layout.LayoutConstants.ACTION_INFO_Y;
                 int hudY = RPGGame.UI.Avalonia.Layout.LayoutConstants.CombatSequenceHudY;
                 int panelY = RPGGame.UI.Avalonia.Layout.LayoutConstants.CombatSequencePanelY;
                 int logFrameY = RPGGame.UI.Avalonia.Layout.LayoutConstants.CENTER_PANEL_Y;
+                int logFrameBottom = logFrameY + RPGGame.UI.Avalonia.Layout.LayoutConstants.CENTER_PANEL_HEIGHT;
                 int logY = RPGGame.UI.Avalonia.Layout.LayoutConstants.CombatLogContentY;
                 int centerX = RPGGame.UI.Avalonia.Layout.LayoutConstants.CENTER_PANEL_X + 1;
 
-                TestBase.AssertTrue(hudY == stripBottom && panelY == stripBottom,
-                    "sequence panel sits flush under the action strip", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(hudY == 0 && panelY == 0,
+                    "sequence panel sits at the top of the center column", ref _run, ref _passed, ref _failed);
                 TestBase.AssertTrue(
                     logFrameY == hudY + RPGGame.UI.Avalonia.Layout.LayoutConstants.COMBAT_SEQUENCE_HUD_HEIGHT
                         + RPGGame.UI.Avalonia.Layout.LayoutConstants.COMBAT_SEQUENCE_LOG_GAP,
                     "combat log frame sits one row below the sequence panel", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(
+                    stripTop >= logFrameBottom,
+                    "action strip sits below the combat log", ref _run, ref _passed, ref _failed);
                 int gapY = hudY + RPGGame.UI.Avalonia.Layout.LayoutConstants.COMBAT_SEQUENCE_HUD_HEIGHT;
                 TestBase.AssertTrue(
                     !RPGGame.UI.Avalonia.Layout.LayoutConstants.ContainsCombatSequenceHud(centerX, gapY)
