@@ -145,6 +145,58 @@ namespace RPGGame.Data
                 row[idx] = SheetsPushUtilities.NormalizeSheetString(value);
         }
 
+        /// <summary>First matching unscoped label, or -1.</summary>
+        public int GetFirstColumnIndex(params string[] labels)
+        {
+            if (labels == null || labels.Length == 0)
+                return -1;
+            foreach (string label in labels)
+            {
+                int idx = GetColumnIndex(null, label);
+                if (idx >= 0)
+                    return idx;
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Column indices present in <paramref name="after"/> but not in <paramref name="before"/>,
+        /// assuming <paramref name="after"/> was produced by inserting columns (no renames or deletes).
+        /// </summary>
+        public static IReadOnlyList<int> CollectInsertedColumnIndices(SpreadsheetHeader before, SpreadsheetHeader after)
+        {
+            if (before == null || after == null)
+                return Array.Empty<int>();
+
+            var inserted = new List<int>();
+            int i = 0;
+            int beforeCount = before.LabelByIndex.Count;
+            for (int j = 0; j < after.LabelByIndex.Count; j++)
+            {
+                if (i < beforeCount && SameHeaderColumn(before, i, after, j))
+                {
+                    i++;
+                    continue;
+                }
+
+                inserted.Add(j);
+            }
+
+            return inserted;
+        }
+
+        private static bool SameHeaderColumn(SpreadsheetHeader a, int ai, SpreadsheetHeader b, int bi)
+        {
+            return NormalizeLabel(LabelAt(a, ai)) == NormalizeLabel(LabelAt(b, bi))
+                && NormalizeLabel(ContextAt(a, ai)) == NormalizeLabel(ContextAt(b, bi));
+        }
+
+        private static string LabelAt(SpreadsheetHeader header, int index)
+            => index >= 0 && index < header.LabelByIndex.Count ? header.LabelByIndex[index] ?? "" : "";
+
+        private static string ContextAt(SpreadsheetHeader header, int index)
+            => index >= 0 && index < header.ContextByIndex.Count ? header.ContextByIndex[index] ?? "" : "";
+
         /// <summary>Normalizes a header cell for matching: trim, uppercase, strip all whitespace (incl. sheet line breaks), remove common punctuation in parentheses.</summary>
         public static string NormalizeLabel(string value)
         {

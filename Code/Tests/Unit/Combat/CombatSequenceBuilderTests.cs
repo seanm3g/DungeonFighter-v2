@@ -168,20 +168,18 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void TestDefenseStepWhenHeroFacePresent()
         {
-            Console.WriteLine("--- Defense step when hero defense face is set ---");
+            Console.WriteLine("--- Defense step shows leftover BLOCK + DEFENSE ---");
             var hero = DummyHero();
+            hero.LeftoverEnergy = 2;
             var result = HitResult("SLAM", damage: 5);
-            result.DefenseFace = 8;
-            result.ModifiedBaseRoll = 12;
             var steps = CombatSequenceBuilder.From(result, DummyEnemy(), hero);
             TestBase.AssertTrue(steps.Any(s => s.Kind == CombatSequenceStepKind.Defense),
-                "defense step present", ref _run, ref _passed, ref _failed);
+                "defense step present on hero hit", ref _run, ref _passed, ref _failed);
             var def = steps.First(s => s.Kind == CombatSequenceStepKind.Defense);
             string joined = JoinBeats(def);
-            TestBase.AssertTrue(joined.Contains("def", System.StringComparison.OrdinalIgnoreCase)
-                && joined.Contains("8", System.StringComparison.Ordinal)
-                && joined.Contains("block", System.StringComparison.OrdinalIgnoreCase),
-                $"defense math beats show def/block, got: {joined}", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(joined.Contains("leftover 2", System.StringComparison.Ordinal)
+                && joined.Contains("BLOCK", System.StringComparison.OrdinalIgnoreCase),
+                $"defense math beats show leftover BLOCK, got: {joined}", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestHealStep()

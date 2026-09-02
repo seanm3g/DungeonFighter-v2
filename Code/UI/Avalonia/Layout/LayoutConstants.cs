@@ -88,11 +88,11 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>First row of the action-info strip (top of center column, aligned with side panels).</summary>
         public static int ACTION_INFO_Y => 0;
         /// <summary>
-        /// Combat log frame. In a dungeon this sits below the two-row sequence HUD panel and a one-row gap;
+        /// Combat log frame. In Combat this sits below the two-row sequence HUD panel and a one-row gap;
         /// otherwise it sits directly under the action-info strip.
         /// </summary>
         public static int CENTER_PANEL_Y => ACTION_INFO_STRIP_HEIGHT + CombatSequenceBandHeight;
-        /// <summary>Height of the framed combat-log panel; leaves room for the action-info strip (and sequence HUD in a dungeon).</summary>
+        /// <summary>Height of the framed combat-log panel; leaves room for the action-info strip (and sequence HUD in Combat).</summary>
         public static int CENTER_PANEL_HEIGHT => _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT - CombatSequenceBandHeight;
 
         /// <summary>Two content rows in the combat sequence HUD panel (titles over results).</summary>
@@ -100,16 +100,16 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>Empty rows between the sequence HUD panel and the combat-log frame.</summary>
         public const int COMBAT_SEQUENCE_LOG_GAP = 1;
 
-        /// <summary>Top row of the sequence HUD panel (flush under the action-info strip) when the dungeon band is reserved.</summary>
+        /// <summary>Top row of the sequence HUD panel (flush under the action-info strip) when the combat band is reserved.</summary>
         public static int CombatSequencePanelY => ACTION_INFO_STRIP_HEIGHT;
 
-        /// <summary>Framed sequence HUD height in a dungeon; zero outside the dungeon so the log uses the full center column.</summary>
+        /// <summary>Framed sequence HUD height in Combat; zero outside Combat so the log uses the full center column.</summary>
         public static int CombatSequencePanelHeight =>
             RPGGame.Combat.Sequence.CombatSequenceHudState.IsBandReserved
                 ? COMBAT_SEQUENCE_HUD_HEIGHT
                 : 0;
 
-        /// <summary>Sequence HUD panel plus the gap above the combat log (zero outside a dungeon).</summary>
+        /// <summary>Sequence HUD panel plus the gap above the combat log (zero outside Combat).</summary>
         public static int CombatSequenceBandHeight =>
             RPGGame.Combat.Sequence.CombatSequenceHudState.IsBandReserved
                 ? COMBAT_SEQUENCE_HUD_HEIGHT + COMBAT_SEQUENCE_LOG_GAP
@@ -162,7 +162,7 @@ namespace RPGGame.UI.Avalonia.Layout
 
         /// <summary>
         /// True when <paramref name="gridX"/>, <paramref name="gridY"/> lies inside the two-row combat sequence HUD
-        /// panel (reserved while in a dungeon). Wheel scrolling should ignore this band.
+        /// panel (reserved during Combat). Wheel scrolling should ignore this band.
         /// </summary>
         public static bool ContainsCombatSequenceHud(int gridX, int gridY)
         {

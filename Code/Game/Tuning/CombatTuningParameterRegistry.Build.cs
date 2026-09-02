@@ -762,6 +762,14 @@ namespace RPGGame.Tuning
                 "Hero base armor", "Flat armor pool baseline for hero", 0, 50,
                 () => cfg().Combat.PlayerBaseArmor, v => cfg().Combat.PlayerBaseArmor = v));
 
+            list.Add(DoubleParam("leftoverBlockPercent1", tab, layer, group,
+                "Leftover BLOCK % (1 energy left)", "Dominant percent DR when leftover energy is 1", 0.0, 0.9, 0.05,
+                () => cfg().Combat.LeftoverBlockPercent1, v => cfg().Combat.LeftoverBlockPercent1 = v));
+
+            list.Add(DoubleParam("leftoverBlockPercent2", tab, layer, group,
+                "Leftover BLOCK % (2 energy left)", "Dominant percent DR when leftover energy is 2", 0.0, 0.9, 0.05,
+                () => cfg().Combat.LeftoverBlockPercent2, v => cfg().Combat.LeftoverBlockPercent2 = v));
+
             list.Add(DoubleParam("globalEnemyArmorMult", tab, layer, group,
                 "Global enemy armor multiplier", "Enemy armor at spawn", 0.25, 3.0, 0.05,
                 () => cfg().EnemySystem.GlobalMultipliers.ArmorMultiplier,

@@ -39,13 +39,14 @@ DungeonFighter/
 - **`Code/Combat/CombatStateManager.cs`** - Manages combat state, battle narrative, and entity management
 - **`Code/Combat/CombatTurnHandlerSimplified.cs`** - Simplified turn processing logic (high-performance turn handler)
 - **`Code/Combat/CombatCalculator.cs`** - Centralized damage, speed, and stat calculations
-- **`Code/Combat/Calculators/DamageCalculator.cs`** - Raw and final damage; optional hero `defenseFace` + `attackFace` convert armor to opposed-margin block; material convert adds +5 per banked keyword
-- **`Code/Combat/Calculators/DefenseBlockCalculator.cs`** - Hero-only unforced 1d20 vs attack face (armor → per-swing block at 75% / 100% / 150%). Not the unused CombatBalance “block/dodge/parry” stub.
+- **`Code/Combat/Calculators/DamageCalculator.cs`** - Raw and final damage; hero leftover BLOCK % + class DEFENSE layers; enemies 100% armor subtract; material convert adds +5 per banked keyword
+- **`Code/Combat/Calculators/LeftoverEnergy.cs`** / **`ClassDefenseCalculator.cs`** - Hero energy leftover (3 − action cost) scales BLOCK %; DEFENSE rating is class-interpreted (Warrior %, Rogue dodge, Wizard shield, Barbarian RAGE). Enemies keep 100% armor via `DamageCalculator.ResolveTargetArmor`.
+- **`Code/Combat/Calculators/DefenseBlockCalculator.cs`** - Legacy opposed 1d20 armor×band helpers (75% / 100% / 150%); not used for live hero mitigation.
 - **`Code/Combat/CombatEffectsSimplified.cs`** - Simplified status effects management (optimized effects system)
 - **`Code/Combat/EffectHandlerRegistry.cs`** - Strategy pattern for handling different combat effects
 - **`Code/Combat/StunProcessor.cs`** - Stun skips: one turn = victim `GetTotalAttackSpeed()`, scheduled via `ActionSpeedSystem.AdvanceOwnTimeline`
 - **`Code/Combat/CombatResults.cs`** - Handles UI display and result formatting
-- **`Code/Combat/Sequence/`** - Live combat sequence HUD: dungeon chrome (visible in `GameState.Dungeon`, `GameState.Combat`, and `GameState.ActionInteractionLab`) in a two-row framed panel under the action strip with a one-row gap above the combat log. Columns are always ATTACKER / ROLL / OUTCOME / ACTION / DEFENSE / DAMAGE / EFFECTS. Display order is log **setup** → HUD playback → log **punchline** (`PlayPendingOrWaitAsync` between the two beats). `CombatSequenceBuilder` records named beats from `ActionExecutionResult`; each column plays sequential formula pieces (`CombatSequenceMathBeats`); `CombatSequencePresenter` posts HUD paints to the UI thread (`ForceRender`, never combat-thread `InvalidateVisual`); Action Lab **Piece** mode waits for `[ Step ]` (`TryAdvanceManualBeat`) instead of timed delays. `HealthBarDisplayHold` keeps HP bars at pre-swing values until the DAMAGE/HEAL cue. Instant/mute/console skip the HUD and keep setup/punchline. HUD beats wait `MessageDelayMs × SequenceHudDelayMultiplier` (1.5 = 50% slower than the combat log).
+- **`Code/Combat/Sequence/`** - Live combat sequence HUD: combat chrome only (visible in `GameState.Combat` and `GameState.ActionInteractionLab`; hidden on Skill Tree, dungeon exploration, and every other screen) in a two-row framed panel under the action strip with a one-row gap above the combat log. Columns are always ATTACKER / ROLL / OUTCOME / ACTION / DEFENSE / DAMAGE / EFFECTS. Display order is log **setup** → HUD playback → log **punchline** (`PlayPendingOrWaitAsync` between the two beats). `CombatSequenceBuilder` records named beats from `ActionExecutionResult`; each column plays sequential formula pieces (`CombatSequenceMathBeats`); `CombatSequencePresenter` posts HUD paints to the UI thread (`ForceRender`, never combat-thread `InvalidateVisual`); `CombatSequenceHudState.SyncReservation` drops a leftover swing when leaving combat so menus cannot overlay the HUD. Action Lab **Piece** mode waits for `[ Step ]` (`TryAdvanceManualBeat`) instead of timed delays. `HealthBarDisplayHold` keeps HP bars at pre-swing values until the DAMAGE/HEAL cue. Instant/mute/console skip the HUD and keep setup/punchline. HUD beats wait `MessageDelayMs × SequenceHudDelayMultiplier` (1.5 = 50% slower than the combat log).
 - **`Code/Combat/TurnManager.cs`** - Manages turn-based combat logic
 - **`Code/Combat/BattleNarrative.cs`** - Event-driven battle descriptions
 - **`Code/Combat/BattleHealthTracker.cs`** - Health tracking for battle narrative system
@@ -340,7 +341,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 #### **Avalonia UI System (New Modular Architecture)**
 - **`Code/UI/Avalonia/App.axaml.cs`** / **`ApplicationShutdownHelper.cs`** - Desktop lifetime: `ShutdownMode.OnMainWindowClose`; `TitleScreenHelper.Preload()` runs before `new MainWindow()` so color tables and the first idle frame are ready; the window starts minimized (opacity 0 still shows a black frame on Windows) and `GameInitializationHandler.StartTitleScreenAfterWindowReadyAsync` paints + finishes GameCoordinator warmup before revealing. `SettingsPanel` / `TuningMenuPanel` are created lazily on first open so `Show()` does not measure those trees. Title-bar X and Exit Game call `PerformShutdown(forceProcessExit: true)` (non-blocking ticker stop + 1.5s exit watchdog). `Code.csproj` also kills leftover `DF.exe` before build to avoid MSB3026
 - **Inventory item rows** — `ItemRendererHelper` + `ItemStatFormatter`: the `[n] [Rarity] [Slot] name` line is left-justified; subsequent **Actions:** and stat lines use a two-space indent (`ItemStatFormatter.ItemDetailLineIndent`) attached to the first content segment (ColoredTextBuilder collapses a whitespace-only prefix to one space)
-- **Hover tooltips (items/actions)** — `ItemTooltipFormatter` / `CombatActionStripBuilder.Tooltips`: default Name + Rarity + Tags (items) + Requirements (items) + Stats + Triggers; action Stats also list standing class / material-convert / WHILE_EQUIPPED tag bonuses (`ActionCardExternalBonusCollector`). Hold **Alt** (`HoverTooltipDetailState`, synced from MainWindow keys + pointer modifiers) for remaining detail. Drawn via `DungeonRenderer.RoomAndCombat` / `RightPanelRenderer` / `LeftPanelTooltipBuilder`. Left-panel GEAR/STATS/Sets tips dock to the center panel’s left inner edge at the hovered row (`HoverTooltipDrawing.GetHorizontalPositionAvoidingTarget` / `GetVerticalPositionNearTarget`) so they overlay the center as an extension of the sidebar.
+- **Hover tooltips (items/actions)** — `ItemTooltipFormatter` / `CombatActionStripBuilder.Tooltips`: default Name + Rarity + Tags (items) + Requirements (items) + Stats + Triggers; action Stats include energy leftover → BLOCK (`HeroDefenseHudFormatter`) and standing class / material-convert / WHILE_EQUIPPED tag bonuses (`ActionCardExternalBonusCollector`). Hold **Alt** (`HoverTooltipDetailState`, synced from MainWindow keys + pointer modifiers) for remaining detail. Drawn via `DungeonRenderer.RoomAndCombat` / `RightPanelRenderer` / `LeftPanelTooltipBuilder`. Left-panel **HERO** (and **STATS** when HERO is collapsed) shows standing leftover energy, BLOCK %, and class DEFENSE layer (`CharacterPanelRenderer`); Defense hover (`StatTooltipFormatter`) lists the same live numbers. Left-panel GEAR/STATS/Sets tips dock to the center panel’s left inner edge at the hovered row (`HoverTooltipDrawing.GetHorizontalPositionAvoidingTarget` / `GetVerticalPositionNearTarget`) so they overlay the center as an extension of the sidebar.
 - **`Code/UI/Avalonia/CanvasUICoordinator.cs`** - Main coordinator implementing IUIManager, delegates to specialized managers
 - **`Code/UI/Avalonia/CanvasUITypes.cs`** - Shared types (ClickableElement, ElementType) for UI interactions
 - **`Code/UI/Avalonia/Managers/ICanvasContextManager.cs`** - Interface for managing UI state and context
@@ -401,6 +402,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/Utils/TestManager.cs`** - Test execution and analysis framework
 - **`Code/Data/JsonLoader.cs`** - Common JSON loading and file operations
 - **`Code/Data/JsonArraySheetConverter/`** - Google Sheets JSON array push/pull (partials by sheet type; helpers in `SheetCellFormatters`, `StatBonusSheetBracketParser`, etc.)
+- **`Code/Data/ActionSheetsPushService.cs`** - ACTIONS tab OAuth push: live-tab header, `InsertDimension` for missing ENERGY/CADENCES/TRIGGERS/RESERVE columns (writes only new header cells), preserves unknown designer columns; convert-scale aliases in `ActionConvertScaleSheetColumns`
 - **`Code/Game/GameTicker.cs`** - Game time management and ticker system
 
 ## 📊 Data Management
@@ -435,7 +437,7 @@ GameData/
 - **`Item`** - Base item class in `Item.cs`
 
 ### **Configuration Classes**
-- **`CombatBalanceConfig`** - Critical hits, roll-band damage multipliers, status/environmental knobs. Live hero **block** is `DefenseBlockCalculator` (armor × opposed 1d20 margin, 75% / 100% / 150%), not this config’s leftover block/dodge/parry mention.
+- **`CombatBalanceConfig`** - Critical hits, roll-band damage multipliers, status/environmental knobs. Live hero **BLOCK** is leftover energy % (`ClassDefenseCalculator` / `CombatConfig.LeftoverBlockPercent1/2`), not this config’s leftover block/dodge/parry mention.
 - **`ExperienceSystemConfig`** - Character progression and experience formulas
 - **`LootSystemConfig`** - Loot drop rates and economy settings
 - **`DungeonScalingConfig`** - Dungeon generation and scaling parameters
@@ -621,7 +623,7 @@ The `Scripts/count-cs-lines-no-tests.ps1` script flags `.cs` files over **400 li
 ## ⚙️ Configuration Systems
 
 ### **Implemented Configurable Systems**
-1. **CombatBalance** - Critical hits, armor reduction; hero block uses `DefenseBlockCalculator` 1d20 opposed margin (75% / 100% / 150%; not a CombatBalance dodge/parry table)
+1. **CombatBalance** - Critical hits, armor reduction; hero BLOCK uses leftover energy % (`LeftoverBlockPercent1/2`) plus class DEFENSE layers (`ClassDefenseCalculator`); enemies keep 100% armor subtract
 2. **ExperienceSystem** - Character progression and experience formulas
 3. **LootSystem** - Drop chances, magic find, and economy settings
 4. **DungeonScaling** - Room counts, enemy spawns, and generation parameters

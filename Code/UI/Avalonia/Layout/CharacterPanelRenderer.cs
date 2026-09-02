@@ -151,7 +151,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     canvas.AddText(
                         x,
                         hpValueY,
-                        $"Health {displayHp}/{maxHp}  Armor {maxArmor}",
+                        $"Health {displayHp}/{maxHp}  Defense {maxArmor}",
                         AsciiArtAssets.Colors.White);
                 }
                 else
@@ -164,6 +164,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 }
 
                 y = hpValueY + 1;
+                RenderStandingDefenseHud(character, x, ref y, out int leftoverY, out int classLayerY);
 
                 string currentClass = character.GetCurrentClass();
                 int levelY = y;
@@ -202,6 +203,9 @@ namespace RPGGame.UI.Avalonia.Layout
                             ThresholdChanceLabelToHoverId(thresholdSegments[i].Label));
                         thresholdHoverX += thresholdHoverWidths[i];
                     }
+                    RegisterLeftPanelHoverRow(x, leftoverY, headerClickWidth, 1, "stat:armor");
+                    if (classLayerY >= 0)
+                        RegisterLeftPanelHoverRow(x, classLayerY, headerClickWidth, 1, "stat:armor");
                     RegisterLeftPanelHoverRow(x, levelY, headerClickWidth, 1, "hero:level");
                     RegisterLeftPanelHoverRow(x, xpY, headerClickWidth, 1, "hero:xp");
                     if (classPointsY.HasValue)
@@ -256,8 +260,12 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x, y, ampCore, AsciiArtAssets.Colors.White);
                 y++;
                 int armorRowY = y;
-                canvas.AddCharacterStat(x, y, "Armor", character.GetMaxArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.DarkBlue);
+                canvas.AddCharacterStat(x, y, "Defense", character.GetMaxArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.DarkBlue);
                 y++;
+                int leftoverRowY = -1;
+                int classLayerRowY = -1;
+                if (!heroOpen)
+                    RenderStandingDefenseHud(character, x, ref y, out leftoverRowY, out classLayerRowY);
                 int slotsRowY = -1;
                 if (ActionInteractionLabSession.Current != null)
                 {
@@ -314,6 +322,10 @@ namespace RPGGame.UI.Avalonia.Layout
                     RegisterLeftPanelHoverRow(x, speedRowY, headerClickWidth, 1, "stat:speed");
                     RegisterLeftPanelHoverRow(x, ampRowY, headerClickWidth, 1, "stat:amp");
                     RegisterLeftPanelHoverRow(x, armorRowY, headerClickWidth, 1, "stat:armor");
+                    if (leftoverRowY >= 0)
+                        RegisterLeftPanelHoverRow(x, leftoverRowY, headerClickWidth, 1, "stat:armor");
+                    if (classLayerRowY >= 0)
+                        RegisterLeftPanelHoverRow(x, classLayerRowY, headerClickWidth, 1, "stat:armor");
                     if (slotsRowY >= 0)
                         RegisterLeftPanelHoverRow(x, slotsRowY, headerClickWidth, 1, "stat:actionslots");
                     RegisterLeftPanelHoverRow(x, strRowY, headerClickWidth, 1, "stat:str");
@@ -599,6 +611,29 @@ namespace RPGGame.UI.Avalonia.Layout
             return "";
         }
         
+        /// <summary>
+        /// Standing leftover energy, BLOCK %, and class DEFENSE layer. Shown under HP when HERO is open,
+        /// or under Defense in STATS when HERO is collapsed.
+        /// </summary>
+        private void RenderStandingDefenseHud(Character character, int x, ref int y, out int leftoverY, out int classY)
+        {
+            leftoverY = y;
+            int leftover = Math.Max(0, character.LeftoverEnergy);
+            var color = leftover > 0 ? AsciiArtAssets.Colors.Cyan : AsciiArtAssets.Colors.White;
+            canvas.AddText(x, y, HeroDefenseHudFormatter.FormatLeftoverBlockLine(character), color);
+            y++;
+            string classLine = HeroDefenseHudFormatter.FormatClassLayerLine(character);
+            if (string.IsNullOrEmpty(classLine))
+            {
+                classY = -1;
+                return;
+            }
+
+            classY = y;
+            canvas.AddText(x, y, classLine, color);
+            y++;
+        }
+
         /// <summary>
         /// Pads <c>NAME:</c> so the value starts at character column 9 (same as Damage / Armor in this panel).
         /// Single-line text avoids <see cref="CanvasElementBuilder.AddCharacterStat"/> with value 0 plus a partial overlay, which left a stray trailing <c>0</c>.

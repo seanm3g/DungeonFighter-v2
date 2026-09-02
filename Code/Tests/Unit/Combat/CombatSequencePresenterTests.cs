@@ -28,7 +28,8 @@ namespace RPGGame.Tests.Unit.Combat
             TestCueOrderOutcomeBeforeDamage();
             TestHealthHoldReleasedOnDamageCue();
             TestLayoutHudBetweenStripAndLog();
-            TestShouldReserveBandInDungeon();
+            TestShouldReserveBandCombatOnly();
+            TestSyncReservationClearsHudOutsideCombat();
             TestIdleColumnsAreTheDungeonHeaders();
             TestInvalidateDoesNotInvokeSynchronouslyOnBackgroundThread();
             TestHorizontalStripShowsAllTitles();
@@ -291,19 +292,60 @@ namespace RPGGame.Tests.Unit.Combat
             });
         }
 
-        private static void TestShouldReserveBandInDungeon()
+        private static void TestShouldReserveBandCombatOnly()
         {
-            Console.WriteLine("--- Sequence HUD band is dungeon chrome, not combat-only ---");
-            TestBase.AssertTrue(CombatSequenceHudState.ShouldReserveBand(GameState.Dungeon),
-                "dungeon exploration reserves the HUD", ref _run, ref _passed, ref _failed);
+            Console.WriteLine("--- Sequence HUD band is combat-only ---");
             TestBase.AssertTrue(CombatSequenceHudState.ShouldReserveBand(GameState.Combat),
-                "combat keeps the same HUD", ref _run, ref _passed, ref _failed);
+                "combat reserves the HUD", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(CombatSequenceHudState.ShouldReserveBand(GameState.ActionInteractionLab),
-                "Action Lab reserves the HUD", ref _run, ref _passed, ref _failed);
+                "Action Lab combat canvas reserves the HUD", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.Dungeon),
+                "dungeon exploration does not show the HUD", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.SkillTree),
+                "skill tree does not show the HUD", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.GameLoop),
+                "game loop hub does not show the HUD", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.Inventory),
+                "inventory does not show the HUD", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.DungeonCompletion),
+                "dungeon completion does not show the HUD", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.MainMenu),
                 "main menu does not show the HUD", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.DungeonSelection),
                 "dungeon selection does not show the HUD", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestSyncReservationClearsHudOutsideCombat()
+        {
+            Console.WriteLine("--- SyncReservation drops leftover swing when leaving combat ---");
+            CombatSequenceHudState.ResetForTests();
+            try
+            {
+                CombatSequenceHudState.IsBandReserved = true;
+                CombatSequenceHudState.Begin(SampleSwingSteps());
+                CombatSequenceHudState.SetActive(0, resultRevealed: true);
+                CombatSequenceHudState.FinishSequence();
+                TestBase.AssertTrue(CombatSequenceHudState.HasVisibleSequence,
+                    "combat swing is visible before sync", ref _run, ref _passed, ref _failed);
+
+                CombatSequenceHudState.SyncReservation(GameState.SkillTree);
+                TestBase.AssertTrue(!CombatSequenceHudState.IsBandReserved,
+                    "skill tree unreserves the HUD band", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(!CombatSequenceHudState.HasVisibleSequence,
+                    "leftover swing columns are cleared", ref _run, ref _passed, ref _failed);
+
+                CombatSequenceHudState.SyncReservation(GameState.Combat);
+                TestBase.AssertTrue(CombatSequenceHudState.IsBandReserved,
+                    "combat re-reserves the HUD band", ref _run, ref _passed, ref _failed);
+
+                CombatSequenceHudState.SyncReservation(null);
+                TestBase.AssertTrue(CombatSequenceHudState.IsBandReserved,
+                    "null state leaves an explicit reservation alone", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                CombatSequenceHudState.ResetForTests();
+            }
         }
 
         private static void TestIdleColumnsAreTheDungeonHeaders()

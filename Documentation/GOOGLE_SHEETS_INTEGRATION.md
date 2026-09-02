@@ -86,7 +86,7 @@ On pull, the console prints a **column usage summary** (see `SpreadsheetActionCo
 
 | Tier | Meaning | Examples |
 |------|---------|----------|
-| **Combat / runtime** | Pulled → `Actions.json` → `ActionData` → `Action` → combat | `ACTION`, `DAMAGE` / `DAMAGE(%)`, `SPEED(x)`, `# OF HITS`, `TARGET` (column **M**: `enemy` / `self` / `environment`; empty = enemy), action-sheet status columns (`WEAKEN`, `CONFUSE`, `DISRUPT`, `LIFESTEAL`, …), hero/enemy dice mods, `CADENCE`+`DURATION` keyword bonuses, `MECHANICS` (declarative; validated on pull), next-action mods under `HERO BASE STATS` / `ENEMY BASE STATS`, flat **WEAPON SPEED** / **WEAPON DAMAGE** under `HERO BASE` / `ENEMY BASE` (or `… BASE STATS`), `JUMP`/`SHIFT`, `OPENER`/`FINISHER`, `HEAL` (under **HERO HEAL**), convert scale **DS** / **DT** / **DU** |
+| **Combat / runtime** | Pulled → `Actions.json` → `ActionData` → `Action` → combat | `ACTION`, `DAMAGE` / `DAMAGE(%)`, `SPEED(x)`, **`ENERGY`** (1–3; leftover `3−cost` scales BLOCK), `# OF HITS`, `TARGET` (column **M**: `enemy` / `self` / `environment`; empty = enemy), action-sheet status columns (`WEAKEN`, `CONFUSE`, `DISRUPT`, `LIFESTEAL`, …), hero/enemy dice mods, `CADENCE`+`DURATION` keyword bonuses, `MECHANICS` (declarative; validated on pull), next-action mods under `HERO BASE STATS` / `ENEMY BASE STATS`, flat **WEAPON SPEED** / **WEAPON DAMAGE** under `HERO BASE` / `ENEMY BASE` (or `… BASE STATS`), `JUMP`/`SHIFT`, `OPENER`/`FINISHER`, `HEAL` (under **HERO HEAL**), convert scale **DS** / **DT** / **DU** (or **bonus per keyword** / **effect** / **keyword**) |
 | **Loot / pools only** | Pool assignment, not combat math | `RARITY`, `CATEGORY`, `TAGS` |
 | **JSON round-trip / sheet reference** | Stored in `Actions.json`; not applied in combat | `DPS(%)` (authoring reference — combat uses `DAMAGE(%)`), `DESCRIPTION` |
 | **Not ingested on CSV pull** | Push/Settings know these labels; **pull ignores** sheet cells | `WEAPON TYPES`, `CHAIN LENGTH`, `RESET`, `GRACE`, `LOOP CHAIN`, JSON blob columns, threshold flat columns, … |
@@ -162,7 +162,7 @@ Single header row; fixed columns **A–H** → `GameData/MaterialBuilds.json` (C
 | G | `stack3` | Label only; additive feed is code **3** |
 | H | `stack5` | Label only; multiply feed is code **5** |
 
-Class-less materials (Wood/Leather/Cloth/…) have no row → no synthesis/convert. Convert payoff is **+5 per banked keyword**; ACTIONS **DS/DT/DU** select material / keyword / source (`keyword` vs `material`). Feed 3/5 only changes mint amount.
+Class-less materials (Wood/Leather/Cloth/…) have no row → no synthesis/convert. Convert payoff is **+5 per banked keyword**; ACTIONS **DS/DT/DU** (or **bonus per keyword** / **effect** / **keyword**) select material / keyword / source (`keyword` vs `material`). Feed 3/5 only changes mint amount.
 
 ### ENEMIES
 
@@ -207,7 +207,18 @@ Single header row; columns match `Dungeons.json`: `name`, `theme`, `minLevel`, `
 
 Optional **TAGS** cell (column **E** on the standard layout): comma/semicolon list of extra tokens (pool gates like `environment`, `enemy`, `weapon`, `reserve_pool`, elements, etc.). Category and rarity are merged into runtime tags separately on import. **Push** writes TAGS from `Actions.json`; column **F** (e.g. `e(V)` formulas) is left unchanged.
 
+### ACTIONS — ENERGY column
+
+**ENERGY** (ensured on ACTIONS push): integer **1–3**. Missing or invalid cells default to **2**. **Leftover** energy is `3 − cost` and scales hero **BLOCK** percent until the next hero action. Settings → Actions has an **Energy** field (1–3). Tune 1s and 3s in the sheet after the first PUSH fills the column from `Actions.json`.
+
+Push **inserts a physical column** after **SPEED** (Sheets `InsertDimension`) and writes only the new ENERGY header cells. It does **not** rewrite the rest of row 1–2, so designer labels on other columns stay put.
+
+### ACTIONS — convert scale (DS / DT / DU)
+
+Convert payoff columns (material / keyword / source) accept either the letter headers **DS** / **DT** / **DU** or the designer labels **bonus per keyword** / **effect** / **keyword**. Push keeps those custom headers. Empty JSON convert fields do not blank non-empty sheet cells in those columns. Unknown extra columns on the tab are preserved when updating a row.
+
 ### ACTIONS — RESERVE POOL column
+
 
 Optional **RESERVE POOL** column (ensured on ACTIONS push, typically after **FINISHER**): mark with `1` / `true` to put the action in the **reserve pool**. Runtime tag: `reserve_pool` (also accepted in **TAGS** alone).
 

@@ -7,6 +7,7 @@ namespace RPGGame
     using System.Text.Json;
     using Avalonia.Media;
     using RPGGame.Audio;
+    using RPGGame.Combat.Calculators;
     using RPGGame.Display.Dungeon;
     using RPGGame.GameCore.Display.Helpers;
     using RPGGame.UI;
@@ -132,6 +133,7 @@ namespace RPGGame
 
             // Fresh dungeon run: opener slot for HUD and any logic that runs before the first room's combat init
             player.ResetCombo();
+            LeftoverEnergy.Reset(player);
 
             // Clear display buffer to prevent duplicate messages from previous runs
             if (canvasUI != null)

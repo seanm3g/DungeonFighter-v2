@@ -427,13 +427,16 @@ namespace RPGGame.Combat.Formatting
             AddForAmountUnit(punchBuilder, actualDamage.ToString(), damageColor, "damage", Colors.White);
             var damageText = ActionHeadlineFormatter.Combine(setup, punchBuilder.Build());
             
-            // Calculate roll info
-            int targetDefense = DefenseBlockCalculator.ResolveMitigation(target, action, defenseFace, roll);
-            
-            // Match combat damage: roll bands use total attack (modified base + bonuses), not base alone.
             int rollForDamageScaling = roll + rollBonus;
             int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, rollForDamageScaling, rollBonus);
             double rollInfoCombo = DamageCalculator.GetDisplayedComboMultiplier(attacker, comboAmplifier, action);
+
+            string? leftoverFooter = null;
+            int targetDefense = 0;
+            if (target is Character hero && hero is not Enemy)
+                leftoverFooter = ClassDefenseCalculator.FormatCombatFooter(hero, DamageCalculator.IgnoresArmor(hero, action));
+            else
+                targetDefense = DamageCalculator.ResolveTargetArmor(target, action);
             
             double actualSpeed = 0;
             if (action != null && action.Length > 0)
@@ -443,7 +446,8 @@ namespace RPGGame.Combat.Formatting
             
             var rollInfo = RollInfoFormatter.FormatRollInfoColored(
                 roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, rollInfoCombo, action,
-                multiDiceDetail: multiDiceDetail, multiHitCount: multiHitCount, defenseFace: defenseFace);
+                multiDiceDetail: multiDiceDetail, multiHitCount: multiHitCount, defenseFace: leftoverFooter == null ? defenseFace : null,
+                leftoverDefenseFooter: leftoverFooter);
             
             return (damageText, rollInfo);
         }

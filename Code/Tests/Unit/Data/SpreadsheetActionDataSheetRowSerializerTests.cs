@@ -34,6 +34,9 @@ namespace RPGGame.Tests.Unit.Data
             TestTierSectionMarkers_StampMultipleTiers(ref testsRun, ref testsPassed, ref testsFailed);
             TestColumnUsage_IgnoredLabelsOnPull(ref testsRun, ref testsPassed, ref testsFailed);
             TestConvertScaleColumns_DsDtDuRoundTrip(ref testsRun, ref testsPassed, ref testsFailed);
+            TestConvertScaleColumns_FriendlyHeadersRoundTrip(ref testsRun, ref testsPassed, ref testsFailed);
+            TestToRow_PreservesUnknownColumnFromExistingRow(ref testsRun, ref testsPassed, ref testsFailed);
+            TestToRow_KeepsFriendlyConvertCellsWhenJsonEmpty(ref testsRun, ref testsPassed, ref testsFailed);
             TestTargetColumn_IngestsEnemySelfEnvironment(ref testsRun, ref testsPassed, ref testsFailed);
             TestHeroHealAndStatusColumns_ConvertToActionData(ref testsRun, ref testsPassed, ref testsFailed);
             TestSelfTargetHarden_ClassifiedAsBuff(ref testsRun, ref testsPassed, ref testsFailed);
@@ -506,6 +509,62 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual("Iron", row[2], "push DS", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual("CRISIS", row[3], "push DT", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual("keyword", row[4], "push DU", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestConvertScaleColumns_FriendlyHeadersRoundTrip(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestConvertScaleColumns_FriendlyHeadersRoundTrip));
+            var labelRow = new[] { "ACTION", "DAMAGE(%)", "bonus per keyword", "effect", "keyword" };
+            var (header, _) = SpreadsheetActionParser.BuildHeaderFromSheetRows(new List<string[]> { labelRow });
+            TestBase.AssertTrue(header != null, "header parsed", ref testsRun, ref testsPassed, ref testsFailed);
+            if (header == null) return;
+
+            var parsed = SpreadsheetActionData.FromCsvRow(new[] { "IRON CULL", "100%", "Iron", "CRISIS", "keyword" }, header);
+            TestBase.AssertEqual("Iron", parsed.MaterialScale, "bonus per keyword → MaterialScale", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("CRISIS", parsed.KeywordScale, "effect → KeywordScale", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("keyword", parsed.ScaleFormula, "keyword → ScaleFormula", ref testsRun, ref testsPassed, ref testsFailed);
+
+            var row = SpreadsheetActionDataSheetRowSerializer.ToRow(parsed, header);
+            TestBase.AssertEqual("Iron", row[2], "push bonus per keyword", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("CRISIS", row[3], "push effect", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("keyword", row[4], "push keyword", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(SpreadsheetActionColumnUsage.IsIngestedOnPull("bonus per keyword", null),
+                "bonus per keyword ingested", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(SpreadsheetActionColumnUsage.IsIngestedOnPull("effect", null),
+                "effect ingested", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertTrue(SpreadsheetActionColumnUsage.IsIngestedOnPull("keyword", null),
+                "keyword ingested", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestToRow_PreservesUnknownColumnFromExistingRow(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestToRow_PreservesUnknownColumnFromExistingRow));
+            var labelRow = new[] { "ACTION", "DESCRIPTION", "DESIGNER NOTE" };
+            var (header, _) = SpreadsheetActionParser.BuildHeaderFromSheetRows(new List<string[]> { labelRow });
+            TestBase.AssertTrue(header != null, "header parsed", ref testsRun, ref testsPassed, ref testsFailed);
+            if (header == null) return;
+
+            var data = new SpreadsheetActionData { Action = "JAB", Description = "new jab" };
+            var row = SpreadsheetActionDataSheetRowSerializer.ToRow(
+                data, header, existingRow: new[] { "JAB", "old jab", "keep me" });
+            TestBase.AssertEqual("new jab", row[1], "JSON description overwrites", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("keep me", row[2], "unknown column preserved", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestToRow_KeepsFriendlyConvertCellsWhenJsonEmpty(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestToRow_KeepsFriendlyConvertCellsWhenJsonEmpty));
+            var labelRow = new[] { "ACTION", "bonus per keyword", "effect", "keyword" };
+            var (header, _) = SpreadsheetActionParser.BuildHeaderFromSheetRows(new List<string[]> { labelRow });
+            TestBase.AssertTrue(header != null, "header parsed", ref testsRun, ref testsPassed, ref testsFailed);
+            if (header == null) return;
+
+            var data = new SpreadsheetActionData { Action = "BONE WRATH" };
+            var row = SpreadsheetActionDataSheetRowSerializer.ToRow(
+                data, header, existingRow: new[] { "BONE WRATH", "5", "stun", "RAGE" });
+            TestBase.AssertEqual("5", row[1], "empty JSON keeps bonus per keyword", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("stun", row[2], "empty JSON keeps effect", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("RAGE", row[3], "empty JSON keeps keyword", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         private static void TestTargetColumn_IngestsEnemySelfEnvironment(ref int testsRun, ref int testsPassed, ref int testsFailed)

@@ -7,11 +7,14 @@ namespace RPGGame.Data
     public static class SpreadsheetActionDataSheetRowSerializer
     {
         public static string[] ToRow(SpreadsheetActionData data, SpreadsheetHeader header)
+            => ToRow(data, header, existingRow: null);
+
+        public static string[] ToRow(SpreadsheetActionData data, SpreadsheetHeader header, string[]? existingRow)
         {
             int w = header.LabelByIndex.Count;
             var row = new string[w];
             for (int i = 0; i < w; i++)
-                row[i] = "";
+                row[i] = existingRow != null && i < existingRow.Length ? existingRow[i] ?? "" : "";
 
             var h = header;
 
@@ -23,6 +26,7 @@ namespace RPGGame.Data
             h.SetCell(row, null, "# OF HITS", data.NumberOfHits);
             h.SetDamagePercentCell(row, data.Damage);
             h.SetCell(row, null, "SPEED(x)", data.Speed);
+            h.SetCell(row, null, ActionEnergySheetColumns.Label, data.Energy);
             // Legacy DURATION / CADENCE / MECHANICS: no longer written — CADENCES triples are authoritative.
             h.SetCell(row, "MECHANICS", "MECHANICS", "", null, allowUnscopedLabelFallback: true);
             h.SetCell(row, null, "DURATION", "");
@@ -32,9 +36,7 @@ namespace RPGGame.Data
             h.SetCell(row, null, "OPENER", data.Opener);
             h.SetCell(row, null, "FINISHER", data.Finisher);
             h.SetCell(row, null, ActionTagSyncHelper.ReservePoolColumnLabel, data.ReservePool);
-            h.SetCell(row, null, "DS", data.MaterialScale);
-            h.SetCell(row, null, "DT", data.KeywordScale);
-            h.SetCell(row, null, "DU", data.ScaleFormula);
+            ActionConvertScaleSheetColumns.Write(h, row, data, existingRow);
             h.SetCell(row, null, "TARGET", data.Target);
 
             WriteHeroEnemyAccuracy(h, row, data.HeroAccuracy, isHero: true);

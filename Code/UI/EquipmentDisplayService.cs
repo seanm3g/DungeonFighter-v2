@@ -43,7 +43,7 @@ namespace RPGGame
             if (armor != null)
             {
                 writeMenuLine($"{slotName}: {ItemDisplayFormatter.GetColoredItemName(armor)}");
-                writeMenuLine($"    Armor: {GetArmorValue(armor)}");
+                writeMenuLine($"    Defense: {GetArmorValue(armor)}");
                 
                 // Show armor bonuses and modifications
                 ItemDisplayFormatter.FormatItemBonuses(armor, writeMenuLine);

@@ -253,9 +253,9 @@ namespace RPGGame.Tests.Unit.Combat
 
             int rawVsHero = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
             int dmgVsHero = DamageCalculator.CalculateDamage(attacker, heroTarget, action, 1.0, 1.0, 0, 10);
-            int expectedHero = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, rawVsHero - 5);
+            int expectedHero = ExpectedHeroPercentDamage(rawVsHero, ClassDefenseCalculator.GetWarriorArmorPercent(5));
             TestBase.AssertEqual(expectedHero, dmgVsHero,
-                "Hero armor should flat-reduce incoming attack damage",
+                "Hero leftover 0 uses Warrior DEFENSE % (unarmed), not flat armor subtract",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(5, heroTarget.GetMaxArmor(),
                 "Hero armor must remain after damage calculation",
@@ -264,7 +264,7 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void TestHeroDefenseFaceScalesArmor()
         {
-            Console.WriteLine("\n--- Testing hero defenseFace scales armor ---");
+            Console.WriteLine("\n--- Testing leftover BLOCK % vs leftover 0 DEFENSE ---");
 
             var attacker = TestDataBuilders.Enemy().WithName("DefAtk").WithHealth(100).Build();
             var hero = TestDataBuilders.Character().WithName("DefTgt").WithLevel(1).Build();
@@ -274,10 +274,28 @@ namespace RPGGame.Tests.Unit.Combat
 
             int raw = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
             int min = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
-            int full = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10);
-            int punch = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10, true, 2, 20);
-            TestBase.AssertEqual(Math.Max(min, raw - 8), full, "omitted face = 100% armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(Math.Max(min, raw - 6), punch, "20 vs 2 = 75% of 8 armor (6 block)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            hero.LeftoverEnergy = 0;
+            int open = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10);
+            int expectedOpen = ExpectedHeroPercentDamage(raw, ClassDefenseCalculator.GetWarriorArmorPercent(8));
+            TestBase.AssertEqual(expectedOpen, open, "leftover 0 = DEFENSE % only", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            hero.LeftoverEnergy = 2;
+            int blocked = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10);
+            double blockPct = ClassDefenseCalculator.GetBlockPercent(2);
+            int afterBlock = (int)Math.Round(raw * (1.0 - blockPct), MidpointRounding.AwayFromZero);
+            int expectedBlocked = ExpectedHeroPercentDamage(afterBlock, ClassDefenseCalculator.GetWarriorArmorPercent(8));
+            TestBase.AssertEqual(expectedBlocked, blocked, "leftover 2 = BLOCK then Warrior DEFENSE", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(blocked < open || blockPct == 0,
+                "leftover 2 should reduce more than leftover 0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static int ExpectedHeroPercentDamage(int incoming, double armorPct)
+        {
+            int remaining = (int)Math.Round(incoming * (1.0 - armorPct), MidpointRounding.AwayFromZero);
+            int min = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
+            return remaining <= 0 ? 0 : Math.Max(min, remaining);
         }
 
         private static void TestResolveTargetArmor_SubtractsAcidArmorReduction()

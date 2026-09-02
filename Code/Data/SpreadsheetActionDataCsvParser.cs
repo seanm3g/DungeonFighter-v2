@@ -41,6 +41,10 @@ namespace RPGGame.Data
             data.NumberOfHits = header.GetValue(columns, null, "# OF HITS");
             data.Damage = header.GetDamagePercentValue(columns);
             data.Speed = header.GetValue(columns, null, "SPEED(x)");
+            data.Energy = FirstNonEmpty(
+                header.GetValue(columns, null, ActionEnergySheetColumns.Label),
+                header.GetValue(columns, null, "ENERGY COST"),
+                header.GetValue(columns, null, "ENERGYCOST"));
             data.Duration = FirstNonEmpty(
                 header.GetValue(columns, SpreadsheetDurationSemantics.StatusEffectContext, "DURATION", allowUnscopedLabelFallback: false),
                 header.GetValue(columns, null, "DURATION"));
@@ -55,21 +59,9 @@ namespace RPGGame.Data
                 header.GetValue(columns, null, ActionTagSyncHelper.ReservePoolColumnLabel),
                 header.GetValue(columns, null, "RESERVEPOOL"),
                 header.GetValue(columns, null, "RESERVE"));
-            data.MaterialScale = FirstNonEmpty(
-                header.GetValue(columns, null, "DS"),
-                header.GetValue(columns, null, "MATERIAL SCALE"),
-                header.GetValue(columns, null, "MATERIALSCALE"),
-                header.GetValue(columns, null, "CONVERT MATERIAL"));
-            data.KeywordScale = FirstNonEmpty(
-                header.GetValue(columns, null, "DT"),
-                header.GetValue(columns, null, "KEYWORD SCALE"),
-                header.GetValue(columns, null, "KEYWORDSCALE"),
-                header.GetValue(columns, null, "CONVERT KEYWORD"));
-            data.ScaleFormula = FirstNonEmpty(
-                header.GetValue(columns, null, "DU"),
-                header.GetValue(columns, null, "SCALE FORMULA"),
-                header.GetValue(columns, null, "SCALEFORMULA"),
-                header.GetValue(columns, null, "CONVERT FORMULA"));
+            data.MaterialScale = ActionConvertScaleSheetColumns.ReadMaterialScale(header, columns);
+            data.KeywordScale = ActionConvertScaleSheetColumns.ReadKeywordScale(header, columns);
+            data.ScaleFormula = ActionConvertScaleSheetColumns.ReadScaleFormula(header, columns);
             data.Target = header.GetValue(columns, null, "TARGET");
 
             data.HeroAccuracy = header.GetValue(columns, "HERO DICE ROLL MODIFICATIONS", "ACCUARCY");

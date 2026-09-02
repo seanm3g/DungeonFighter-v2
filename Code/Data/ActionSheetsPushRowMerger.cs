@@ -47,7 +47,7 @@ namespace RPGGame.Data
 
                 if (!string.IsNullOrWhiteSpace(actionName) && actionByName.TryGetValue(actionName, out SpreadsheetActionJson? json))
                 {
-                    bodyRows.Add(BuildUploadRow(json, header, width));
+                    bodyRows.Add(BuildUploadRow(json, header, width, existingRow));
                     pushedNames.Add(actionName);
                     updatedActions++;
                     continue;
@@ -68,7 +68,7 @@ namespace RPGGame.Data
                 if (pushedNames.Contains(name))
                     continue;
 
-                bodyRows.Add(BuildUploadRow(json, header, width));
+                bodyRows.Add(BuildUploadRow(json, header, width, existingRow: null));
                 pushedNames.Add(name);
                 appended++;
             }
@@ -127,11 +127,15 @@ namespace RPGGame.Data
             return list;
         }
 
-        private static List<object> BuildUploadRow(SpreadsheetActionJson json, SpreadsheetHeader header, int width)
+        private static List<object> BuildUploadRow(
+            SpreadsheetActionJson json,
+            SpreadsheetHeader header,
+            int width,
+            string[]? existingRow)
         {
             var data = json.ToSpreadsheetActionData();
             ActionMechanicsSheetSync.SyncRow(data);
-            string[] cells = SpreadsheetActionDataSheetRowSerializer.ToRow(data, header);
+            string[] cells = SpreadsheetActionDataSheetRowSerializer.ToRow(data, header, existingRow);
             var row = cells.Select(c => SheetsPushUtilities.NormalizeCellValueForUpload(c)).ToList();
             while (row.Count < width)
                 row.Add("");

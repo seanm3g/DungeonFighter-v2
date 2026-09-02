@@ -6,6 +6,7 @@ namespace RPGGame
     using System.Text.Json;
     using Avalonia.Media;
     using RPGGame.Actions.RollModification;
+    using RPGGame.Combat.Calculators;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.ColorSystem;
     using RPGGame.UI.ColorSystem.Applications;
@@ -84,6 +85,8 @@ namespace RPGGame
                 stateManager.CurrentPlayer.RefreshRoomArmor();
                 // New room: combo strip and routing always start from the opener (matches new-enemy encounter reset)
                 stateManager.CurrentPlayer.ResetCombo();
+                LeftoverEnergy.Reset(stateManager.CurrentPlayer);
+                ClassDefenseCalculator.RefillWizardShield(stateManager.CurrentPlayer);
             }
             
             // Pre-combat exploration

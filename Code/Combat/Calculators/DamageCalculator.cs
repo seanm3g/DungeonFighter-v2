@@ -278,29 +278,43 @@ namespace RPGGame.Combat.Calculators
                 totalDamage = (int)(totalDamage * tagModifier);
             }
 
-            // Flat reduction: enemies use 100% armor; hero hits with a 1d20 defense convert armor to block via opposed margin (75% / 100% / 150%).
-            // Pierce: CausesPierce on the swing, or HasPierce on the target, ignores armor.
-            int targetArmor = DefenseBlockCalculator.ResolveMitigation(target, action, defenseFace, attackFace);
+            bool pierce = IgnoresArmor(target, action);
+            int minimumDamage = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
+            int finalDamage;
+            int reducedAmount;
 
-            // Calculate final damage after armor / block reduction
-            int minimumDamage = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage); // Ensure at least 1
-            int finalDamage = Math.Max(minimumDamage, (int)totalDamage - targetArmor);
-
-            // Apply weakened effect if target is weakened
-            if (target.IsWeakened && showWeakenedMessage)
+            if (target is Character hero && hero is not Enemy)
             {
-                finalDamage = (int)(finalDamage * 1.5); // 50% more damage to weakened targets
+                var mit = ClassDefenseCalculator.ApplyIncoming(hero, totalDamage, pierce);
+                if (mit.Dodged)
+                {
+                    finalDamage = 0;
+                    reducedAmount = mit.ReducedAmount;
+                }
+                else
+                {
+                    finalDamage = mit.Remaining;
+                    reducedAmount = mit.ReducedAmount;
+                    if (hero.IsWeakened && showWeakenedMessage)
+                        finalDamage = (int)(finalDamage * 1.5);
+                    if (finalDamage > 0 && finalDamage < minimumDamage)
+                        finalDamage = minimumDamage;
+                }
             }
-
-            // Final safeguard: ensure damage is never 0 (prevents issues with misconfigured MinimumDamage)
-            if (finalDamage <= 0)
+            else
             {
-                finalDamage = 1;
+                int targetArmor = DamageCalculator.ResolveTargetArmor(target, action);
+                finalDamage = Math.Max(minimumDamage, totalDamage - targetArmor);
+                reducedAmount = Math.Max(0, totalDamage - finalDamage);
+                if (target.IsWeakened && showWeakenedMessage)
+                    finalDamage = (int)(finalDamage * 1.5);
+                if (finalDamage <= 0)
+                    finalDamage = 1;
             }
 
             if (_sequenceTrace != null)
             {
-                _sequenceTrace.Block = targetArmor;
+                _sequenceTrace.Block = reducedAmount;
                 _sequenceTrace.Final = finalDamage;
             }
 
@@ -318,24 +332,33 @@ namespace RPGGame.Combat.Calculators
         /// </summary>
         public static int ApplyDamageReduction(Actor target, int damage, Action? action = null, int? defenseFace = null, int? attackFace = null)
         {
-            int armorReduction = DefenseBlockCalculator.ResolveMitigation(target, action, defenseFace, attackFace);
+            bool pierce = IgnoresArmor(target, action);
+            int remaining;
+            if (target is Character hero && hero is not Enemy)
+            {
+                remaining = ClassDefenseCalculator.ApplyIncoming(hero, damage, pierce).Remaining;
+            }
+            else
+            {
+                int armorReduction = ResolveTargetArmor(target, action);
+                remaining = damage - armorReduction;
+            }
 
-            // Apply damage reduction from effects
             double damageReductionMultiplier = 1.0;
             if (target.DamageReduction > 0)
             {
                 damageReductionMultiplier = 1.0 - (target.DamageReduction / 100.0);
             }
 
-            // Apply simple armor reduction (flat reduction) with damage reduction multiplier
-            int preMitigation = damage - armorReduction;
-            int finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)(preMitigation * damageReductionMultiplier));
-
+            int finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)(remaining * damageReductionMultiplier));
+            if (target is Character dodgeHero && dodgeHero is not Enemy && remaining <= 0)
+                return 0;
             return finalDamage;
         }
 
         /// <summary>
-        /// True when this swing ignores flat armor: the action has pierce, or the target is pierced.
+        /// True when this swing ignores leftover BLOCK, Warrior DEFENSE %, and Wizard shield
+        /// (action pierce, or the target is pierced). Rogue dodge can still apply.
         /// </summary>
         public static bool IgnoresArmor(Actor? target, Action? action = null)
         {

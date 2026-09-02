@@ -84,14 +84,17 @@ namespace RPGGame.Combat.Sequence
             Actor target,
             Action? action)
         {
-            int margin = DefenseBlockCalculator.GetMargin(attackFace, defenseFace);
-            int block = DefenseBlockCalculator.ResolveMitigation(target, action, defenseFace, attackFace);
-            var beats = new List<List<ColoredText>>
+            var beats = new List<List<ColoredText>>();
+            if (target is Character hero && hero is not Enemy)
             {
-                Plain($"def {defenseFace}", ColorPalette.Info),
-                Plain(DefenseBlockCalculator.FormatMarginSigned(margin), Colors.White),
-                Plain($"{block} block", ColorPalette.Block)
-            };
+                bool pierce = DamageCalculator.IgnoresArmor(hero, action);
+                foreach (string line in ClassDefenseCalculator.FormatHudLines(hero, pierce))
+                    beats.Add(Plain(line, ColorPalette.Block));
+                return beats;
+            }
+
+            int armor = DamageCalculator.ResolveTargetArmor(target, action);
+            beats.Add(Plain($"{armor} armor", ColorPalette.Block));
             return beats;
         }
 

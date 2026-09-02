@@ -38,6 +38,10 @@ namespace RPGGame.Data
         [JsonPropertyName("speed")]
         public string Speed { get; set; } = "";
 
+        /// <summary>ENERGY column — action cost 1–3; leftover (3−cost) scales BLOCK.</summary>
+        [JsonPropertyName("energy")]
+        public string Energy { get; set; } = "";
+
         [JsonPropertyName("duration")]
         public string Duration { get; set; } = "";
 

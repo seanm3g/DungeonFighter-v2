@@ -69,7 +69,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                     _ => null
                 };
                 if (armor.HasValue)
-                    list.Add(new ItemStatContribution("Armor", $"+{armor.Value}"));
+                    list.Add(new ItemStatContribution("Defense", $"+{armor.Value}"));
             }
 
             AddCatalogAttribute(list, item, item.BaseStrength, "Strength");
@@ -185,7 +185,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 "HIT" => "Hit threshold",
                 "COMBO" => "Combo threshold",
                 "CRIT" => "Crit threshold",
-                "ARMOR" => "Armor",
+                "ARMOR" => "Defense",
                 "SPEED" => "Attack speed",
                 "MULTI-HIT" or "MULTIHIT" => "Extra hits",
                 "MAGIC FIND" or "MAGICFIND" => "Magic find",
@@ -302,7 +302,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 "HIT" => "Hit threshold",
                 "COMBO" => "Combo threshold",
                 "CRIT" => "Crit threshold",
-                "ARMOR" => "Armor",
+                "ARMOR" => "Defense",
                 "HEALTH" => "Max health",
                 "HEALTHREGEN" => "Health regen",
                 "MAGICFIND" => "Magic find",

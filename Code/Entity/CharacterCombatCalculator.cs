@@ -209,7 +209,7 @@ namespace RPGGame
             int magicFind = GetMagicFind();
 
             int primaryAttr = character.GetEffectivePrimaryAttributeValue();
-            string stats = $"Damage: {damage} (STR: {character.GetEffectiveStrength()} + Primary: {primaryAttr} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}";
+            string stats = $"Damage: {damage} (STR: {character.GetEffectiveStrength()} + Primary: {primaryAttr} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Defense: {armor}";
             
             if (magicFind > 0)
             {

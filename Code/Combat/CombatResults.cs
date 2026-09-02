@@ -63,17 +63,17 @@ namespace RPGGame
             }
             // If rollBonus is 0, don't add the = total part (totalRoll will equal roll)
             rollInfo.Add($"roll: {rollDisplay}");
-            if (defenseFace.HasValue)
-            {
-                rollInfo.Add($"def: {defenseFace.Value}");
-                rollInfo.Add(DefenseBlockCalculator.FormatMarginSigned(
-                    DefenseBlockCalculator.GetMargin(roll, defenseFace.Value)));
-            }
-            
-            // Attack vs Defense information (net shown so footer matches headline damage)
-            int targetDefense = DefenseBlockCalculator.ResolveMitigation(target, action, defenseFace, roll);
             int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, totalRoll, rollBonus);
-            rollInfo.Add(DamageFormatter.FormatAttackVsArmorPlain(actualRawDamage, targetDefense, useBlockLabel: defenseFace.HasValue));
+            if (target is Character hero && hero is not Enemy)
+            {
+                bool pierce = DamageCalculator.IgnoresArmor(hero, action);
+                rollInfo.Add(ClassDefenseCalculator.FormatCombatFooter(hero, pierce));
+            }
+            else
+            {
+                int targetDefense = DamageCalculator.ResolveTargetArmor(target, action);
+                rollInfo.Add(DamageFormatter.FormatAttackVsArmorPlain(actualRawDamage, targetDefense, useBlockLabel: false));
+            }
             
             // Speed information - calculate actual action speed
             if (action != null && action.Length > 0)

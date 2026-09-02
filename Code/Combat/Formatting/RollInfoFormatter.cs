@@ -86,7 +86,8 @@ namespace RPGGame.Combat.Formatting
             Action? action = null,
             MultiDiceRollDetail multiDiceDetail = default,
             int multiHitCount = 1,
-            int? defenseFace = null)
+            int? defenseFace = null,
+            string? leftoverDefenseFooter = null)
         {
             var builder = new ColoredTextBuilder();
             builder.Add("     (", Colors.Gray);
@@ -110,21 +111,28 @@ namespace RPGGame.Combat.Formatting
                 builder.Add((roll + rollBonus).ToString(), Colors.White);
             }
 
-            if (defenseFace.HasValue)
+            if (!string.IsNullOrWhiteSpace(leftoverDefenseFooter))
             {
                 builder.Add(" | ", Colors.Gray);
-                builder.Add("def:", ColorPalette.Info);
-                builder.AddSpace();
-                builder.Add(defenseFace.Value.ToString(), Colors.White);
-                int margin = DefenseBlockCalculator.GetMargin(roll, defenseFace.Value);
-                builder.Add(" | ", Colors.Gray);
-                builder.Add(DefenseBlockCalculator.FormatMarginSigned(margin), Colors.White);
+                builder.Add(leftoverDefenseFooter, ColorPalette.Block);
             }
-            
-            // Attack vs Defense (net + optional × hits so footer matches the damage line)
-            if (rawDamage > 0 || targetDefense > 0)
+            else
             {
-                AddAttackVsArmor(builder, rawDamage, targetDefense, multiHitCount, useBlockLabel: defenseFace.HasValue);
+                if (defenseFace.HasValue)
+                {
+                    builder.Add(" | ", Colors.Gray);
+                    builder.Add("def:", ColorPalette.Info);
+                    builder.AddSpace();
+                    builder.Add(defenseFace.Value.ToString(), Colors.White);
+                    int margin = DefenseBlockCalculator.GetMargin(roll, defenseFace.Value);
+                    builder.Add(" | ", Colors.Gray);
+                    builder.Add(DefenseBlockCalculator.FormatMarginSigned(margin), Colors.White);
+                }
+
+                if (rawDamage > 0 || targetDefense > 0)
+                {
+                    AddAttackVsArmor(builder, rawDamage, targetDefense, multiHitCount, useBlockLabel: defenseFace.HasValue);
+                }
             }
             
             // Speed information

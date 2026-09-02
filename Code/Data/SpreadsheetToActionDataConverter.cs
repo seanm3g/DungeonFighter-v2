@@ -72,6 +72,8 @@ namespace RPGGame.Data
             {
                 actionData.Length = 1.0; // Default
             }
+
+            actionData.EnergyCost = ParseEnergyCost(spreadsheet.Energy);
             
             // Multi-hit
             actionData.MultiHitCount = SpreadsheetActionData.ParseIntValue(spreadsheet.NumberOfHits);
@@ -531,6 +533,16 @@ namespace RPGGame.Data
 
             actionData.ActionAttackBonuses = ActionAttackKeywordProcessor.ProcessBonuses(spreadsheet);
             ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(actionData);
+        }
+
+        private static int ParseEnergyCost(string? raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+                return 2;
+            int n = SpreadsheetActionData.ParseIntValue(raw);
+            if (n < 1 || n > 3)
+                return 2;
+            return n;
         }
 
         private static bool SpreadsheetRowHasKeywordBonusSource(SpreadsheetActionData spreadsheet)

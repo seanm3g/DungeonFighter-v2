@@ -3,6 +3,7 @@ using RPGGame.ActionInteractionLab;
 using RPGGame.Actions.Conditional;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
+using RPGGame.Combat.Calculators;
 using RPGGame.Combat.Events;
 using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.Utils;
@@ -64,6 +65,7 @@ namespace RPGGame.Actions.Execution
             }
             result.SelectedAction = selected ?? ActionSelector.SelectActionByEntityType(source);
             if (result.SelectedAction == null) return;
+            LeftoverEnergy.ApplyFromAction(source, result.SelectedAction);
             lastUsedActions[source] = result.SelectedAction;
             if (source is Character preRollHero && preRollHero is not Enemy)
             {

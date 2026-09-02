@@ -4,6 +4,30 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: ACTIONS push skipped ENERGY and overwrote keyword-bonus headers (September 2026)
+**Problem:** Pushing ACTIONS did not add an ENERGY column, and it overwrote designer convert-scale headers at DS/DT/DU (**bonus per keyword**, **effect**, **keyword**).
+
+**Root cause:** Ensuring ENERGY inserted the label into the in-memory header, then `WriteHeaderRowsAsync` dumped the entire header row as cell values with no Sheets `InsertDimension`. That overwrote every subsequent header (and blanked extra columns on data write) instead of adding a column. Push also preferred a stale published CSV header over the live tab.
+
+**Solutions:**
+1. Read the live ACTIONS tab header; insert new columns with `InsertDimension`; write only those header cells
+2. Overlay existing row cells for unknown columns; map **bonus per keyword** / **effect** / **keyword** as DS/DT/DU aliases; do not blank non-empty convert cells with empty JSON
+3. **`SpreadsheetActionJsonConverter`** must read/write `"energy"` on `Actions.json` round-trip (otherwise every action loads as cost **2** after pull)
+4. Tests: `ActionEnergySheetColumnsTests`, `SpreadsheetActionDataSheetRowSerializerTests`, `ActionSheetsPushRowMergerTests`
+
+**Related files:** `ActionSheetsPushService.cs`, `ActionEnergySheetColumns.cs`, `ActionConvertScaleSheetColumns.cs`, `SpreadsheetActionDataSheetRowSerializer.cs`, `ActionSheetsPushRowMerger.cs`, `SpreadsheetActionJsonConverter.cs`
+
+### Bug fix: sequence HUD painted over the Skill Tree (September 2026)
+**Problem:** Opening the Skill Tree (or other hub/menu screens) still showed the combat sequence HUD (ATTACKER / ROLL / OUTCOME / …) over the tree boxes.
+
+**Root cause:** The HUD was reserved as dungeon chrome (`GameState.Dungeon` plus Combat). Skill Tree is a menu that paints through `CoordinateLayout`, which always calls `CombatSequenceHudRenderer.Render`. Display-buffer rendering is suppressed for menus, so `IsBandReserved` stayed true from the last fight and the leftover swing overlaid the tree.
+
+**Solutions:**
+1. `ShouldReserveBand` is Combat + Action Lab only (not Dungeon, Skill Tree, inventory, hub, or completion)
+2. `SyncReservation` clears leftover columns when leaving combat; called from state-change, layout, and the display-buffer paint path
+
+**Related files:** `CombatSequenceHudState.cs`, `CanvasUICoordinator.cs`, `PersistentLayoutRenderCoordinator.cs`, `RenderCoordinator.cs`
+
 ### Action Lab sequence HUD Step lock and missing Material (August 2026)
 **Problem:** The Action Lab combat canvas did not show the sequence HUD (or Material set UI on lab-edited gear). Piece-by-piece stepping also could not work because `_labControlInFlight` held the tools lock for the whole `StepAsync`.
 

@@ -4,6 +4,14 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Bug fix / Data — ACTIONS push ENERGY + keyword-bonus headers:** Push inserts ENERGY as a real column (Sheets `InsertDimension` after SPEED) and writes only new header cells, so designer labels **bonus per keyword** / **effect** / **keyword** (DS/DT/DU) are not rewritten. Live-tab header; unknown columns preserved; convert-scale aliases on pull/push. Tests: `ActionEnergySheetColumnsTests`, `SpreadsheetActionDataSheetRowSerializerTests`, `ActionSheetsPushRowMergerTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `GOOGLE_SHEETS_INTEGRATION.md`, `PROBLEM_SOLUTIONS.md`.
+
+- [x] **Bug fix / UI — sequence HUD only in Combat:** Sequence HUD must not paint over Skill Tree (or dungeon/hub/inventory). Reserve the band only in `GameState.Combat` and Action Lab; sync reservation on state change and layout so a leftover swing cannot overlay menus. Tests: `CombatSequencePresenterTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `FORMATTING_SYSTEM_GUIDE.md`, `PROBLEM_SOLUTIONS.md`.
+
+- [x] **UI / leftover energy BLOCK + DEFENSE visible standing:** Left-panel **HERO** shows leftover + BLOCK % + class layer between swings (STATS repeats them when HERO is collapsed). Defense hover lists live leftover / BLOCK / class. Strip cards append `| En`; action hover Stats preview energy leftover → BLOCK. Tests: `HeroDefenseHudFormatterTests`, `StatTooltipFormatterTests`, `CombatActionStripBuilderTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`.
+
+- [x] **Combat / leftover energy BLOCK + DEFENSE:** Actions cost **1–3** energy (ACTIONS **ENERGY** column, default 2). Leftover `3 − cost` scales hero BLOCK % (25% / 45%). Gear armor rating is player-facing **Defense** with class layers (Warrior %, Rogue dodge, Wizard shield, Barbarian RAGE). Leftover 0 = DEFENSE only. Enemies keep flat armor. Tests: `ActionEnergySheetColumnsTests`, `ClassDefenseCalculatorTests`, `DamageCalculatorTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `GOOGLE_SHEETS_INTEGRATION.md`.
+
 - [x] **UI / Action Lab — sequence HUD + Material parity:** Lab canvas reserves the dungeon sequence HUD. Tools **`[ Swing ]` / `[ Piece ]`** toggle whether `[ Step ]` plays a whole swing or one HUD formula piece. Lab gear factories stamp `Item.Material`. Tests: `CombatSequencePresenterTests`, `ActionInteractionLabTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `PROBLEM_SOLUTIONS.md`.
 
 - [x] **Combat / sequence HUD — 50% slower beats:** HUD column/math gaps are `MessageDelayMs × 1.5` (`SequenceHudDelayMultiplier` in `TextDelayConfig.json`). Combat-log inter-line delay is unchanged. Tests: `CombatDelayManagerTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `FORMATTING_SYSTEM_GUIDE.md`.

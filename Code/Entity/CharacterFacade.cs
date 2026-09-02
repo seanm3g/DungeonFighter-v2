@@ -169,7 +169,7 @@ namespace RPGGame
         public int GetAttributeDamageBonus()
         {
             if (_character is Enemy enemy && enemy.UsesDirectCombatStats())
-                return GetEffectiveStrength();
+                return enemy.GetEffectiveStrength();
             return GetEffectiveStrength() + GetEffectivePrimaryAttributeValue();
         }
 

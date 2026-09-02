@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat.Calculators;
 using RPGGame.Data;
 using RPGGame.Utils;
 
@@ -38,7 +39,10 @@ namespace RPGGame
                 name: "",
                 damageMultiplier: 1.0,
                 length: 1.0,
-                isComboAction: false);
+                isComboAction: false)
+            {
+                EnergyCost = LeftoverEnergy.DefaultCost
+            };
 
         /// <summary>
         /// Selects an action based on Actor type - heroes use roll-based logic, enemies use random selection

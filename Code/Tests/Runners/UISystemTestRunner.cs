@@ -41,6 +41,7 @@ namespace RPGGame.Tests.Runners
             LeftPanelTooltipBuilderTests.RunAllTests();
             ThresholdModificationTooltipBuilderTests.RunAllTests();
             StatTooltipFormatterTests.RunAllTests();
+            HeroDefenseHudFormatterTests.RunAllTests();
             ItemTooltipFormatterTests.RunAllTests();
             HoverTooltipDetailStateTests.RunAllTests();
             Console.WriteLine();

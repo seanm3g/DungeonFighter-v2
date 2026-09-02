@@ -77,6 +77,7 @@ namespace RPGGame.Data
 
             row.Damage = FormatDamage(data.DamageMultiplier);
             row.Speed = data.Length.ToString("F2");
+            row.Energy = ClampEnergyCost(data.EnergyCost).ToString();
             row.NumberOfHits = data.MultiHitCount <= 0 ? "1" : data.MultiHitCount.ToString();
             if (baseRow == null && data.DamageMultiplier > 0 && data.Length > 0)
             {
@@ -248,6 +249,8 @@ namespace RPGGame.Data
             }
             return result;
         }
+
+        private static int ClampEnergyCost(int cost) => cost < 1 || cost > 3 ? 2 : cost;
 
         private static string FormatTargetForSheet(string? targetType)
         {

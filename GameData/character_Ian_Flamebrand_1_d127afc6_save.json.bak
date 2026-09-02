@@ -1,0 +1,360 @@
+{
+  "name": "Ian Flamebrand",
+  "level": 1,
+  "xp": 0,
+  "currentHealth": 250,
+  "maxHealth": 250,
+  "strength": 3,
+  "agility": 3,
+  "technique": 3,
+  "intelligence": 3,
+  "barbarianPoints": 0,
+  "warriorPoints": 0,
+  "roguePoints": 0,
+  "wizardPoints": 0,
+  "learnedSkillRanks": {},
+  "learnedSkillNodeIds": [],
+  "comboStep": 0,
+  "comboBonus": 0,
+  "tempComboBonus": 0,
+  "tempComboBonusTurns": 0,
+  "damageReduction": 0,
+  "inventory": [
+    {
+      "$itemType": "chest",
+      "armor": 1,
+      "name": "refined Gold Duelist Coat",
+      "type": 2,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "baseStrength": 3,
+      "baseAgility": 0,
+      "baseTechnique": 5,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Common",
+      "material": "Gold",
+      "statBonuses": [],
+      "actionBonuses": [
+        {
+          "name": "BARBARIAN RAGE",
+          "description": "Next 2 actions gain damage and speed. Kill retriggers opener.",
+          "weight": 3
+        },
+        {
+          "name": "FLIP ROOM SWITCH",
+          "description": "triggers environment action",
+          "weight": 1
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "ADJECTIVE",
+          "name": "refined",
+          "description": "",
+          "effect": "AMP",
+          "triggerWhen": "",
+          "minValue": 0.1,
+          "maxValue": 0.1,
+          "rolledValue": 0.1,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "technique": 2
+          },
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Gold",
+          "description": "Warrior",
+          "effect": "AGILITY",
+          "triggerWhen": "",
+          "minValue": 3,
+          "maxValue": 3,
+          "rolledValue": 3,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "agility": 10
+          },
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "gold"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 0,
+      "attributeRequirements": {
+        "strength": 15,
+        "technique": 2,
+        "agility": 10
+      },
+      "catalogAttributeRequirements": {
+        "strength": 15
+      },
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "feet",
+      "armor": 0,
+      "name": "Ancient Gold Moccassins",
+      "type": 1,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 5,
+      "baseTechnique": 1,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Common",
+      "material": "Gold",
+      "statBonuses": [],
+      "actionBonuses": [
+        {
+          "name": "AFTER MISS HEAL",
+          "description": "ON AFTER MISS: heal 10 when connecting after a miss (ONAFTERMISS)",
+          "weight": 1
+        },
+        {
+          "name": "LOADED DICE",
+          "description": "Replace next natural roll with 12.",
+          "weight": 3
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "ADJECTIVE",
+          "name": "Ancient",
+          "description": "",
+          "effect": "HEALTH BONUS",
+          "triggerWhen": "",
+          "minValue": 10,
+          "maxValue": 10,
+          "rolledValue": 10,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "primary": 2
+          },
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Gold",
+          "description": "Warrior",
+          "effect": "AGILITY",
+          "triggerWhen": "",
+          "minValue": 3,
+          "maxValue": 3,
+          "rolledValue": 3,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "agility": 10
+          },
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "gold"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 0,
+      "attributeRequirements": {
+        "technique": 5,
+        "primary": 2,
+        "agility": 10
+      },
+      "catalogAttributeRequirements": {
+        "technique": 5
+      },
+      "gearAction": null,
+      "isStarterItem": false
+    }
+  ],
+  "head": null,
+  "body": {
+    "$itemType": "chest",
+    "armor": 2,
+    "name": "Shirt",
+    "type": 2,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "baseStrength": 2,
+    "baseAgility": 0,
+    "baseTechnique": 0,
+    "baseIntelligence": 0,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 0,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Common",
+    "material": "",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "starter"
+    ],
+    "triggerBundles": [],
+    "equipEffects": [],
+    "roomSearchConsumableKind": 0,
+    "consumableHealAmount": 0,
+    "consumablePotionPotency": 0,
+    "weaponType": 0,
+    "attributeRequirements": {},
+    "catalogAttributeRequirements": {},
+    "gearAction": null,
+    "isStarterItem": true
+  },
+  "legs": {
+    "$itemType": "legs",
+    "armor": 3,
+    "name": "shinguards",
+    "type": 4,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "baseStrength": 0,
+    "baseAgility": 2,
+    "baseTechnique": 0,
+    "baseIntelligence": 0,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 1,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Common",
+    "material": "",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "starter"
+    ],
+    "triggerBundles": [],
+    "equipEffects": [],
+    "roomSearchConsumableKind": 0,
+    "consumableHealAmount": 0,
+    "consumablePotionPotency": 0,
+    "weaponType": 0,
+    "attributeRequirements": {},
+    "catalogAttributeRequirements": {},
+    "gearAction": null,
+    "isStarterItem": true
+  },
+  "weapon": {
+    "$itemType": "weapon",
+    "baseDamage": 6,
+    "rolledDamageBonus": 3,
+    "baseAttackSpeed": 1.35,
+    "name": "Bone Log",
+    "type": 3,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "baseStrength": 0,
+    "baseAgility": 0,
+    "baseTechnique": 0,
+    "baseIntelligence": 0,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 0,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Common",
+    "material": "Bone",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [
+      {
+        "diceResult": 0,
+        "itemRank": "Common",
+        "prefixCategory": "MATERIAL",
+        "name": "Bone",
+        "description": "Barbarian",
+        "effect": "STRENGTH",
+        "triggerWhen": "",
+        "minValue": 2,
+        "maxValue": 2,
+        "rolledValue": 2,
+        "statusEffects": [],
+        "attributeRequirements": {
+          "strength": 10
+        },
+        "tags": null
+      }
+    ],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "mace",
+      "barbarian",
+      "starter",
+      "bone"
+    ],
+    "triggerBundles": [],
+    "equipEffects": [],
+    "roomSearchConsumableKind": 0,
+    "consumableHealAmount": 0,
+    "consumablePotionPotency": 0,
+    "weaponType": 2,
+    "attributeRequirements": {},
+    "catalogAttributeRequirements": {},
+    "gearAction": "SLAM",
+    "isStarterItem": true
+  },
+  "feet": null,
+  "comboStripActionNames": [
+    "SLAM"
+  ],
+  "isDead": false,
+  "pendingPreWeaponTrainingGround": false,
+  "currentRegionId": "forest",
+  "dungeonDifficultyAnchorLevel": null
+}

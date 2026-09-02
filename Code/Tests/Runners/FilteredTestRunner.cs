@@ -140,6 +140,8 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "HoverTooltipDetailState", () => RPGGame.Tests.Unit.UI.HoverTooltipDetailStateTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "InventoryRightPanelLayout", () => RPGGame.Tests.Unit.UI.InventoryRightPanelLayoutTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatActionStripBuilder", () => RPGGame.Tests.Unit.UI.CombatActionStripBuilderTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "HeroDefenseHudFormatter", () => RPGGame.Tests.Unit.UI.HeroDefenseHudFormatterTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "StatTooltipFormatter", () => RPGGame.Tests.Unit.UI.StatTooltipFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionCardExternalBonusCollector", () => RPGGame.Tests.Unit.UI.ActionCardExternalBonusCollectorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TitleScreenAsciiSpacing", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleScreenAsciiSpacingTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TitleScreenAnimation", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleScreenAnimationTests.RunAllTests()));
@@ -171,6 +173,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "MultiHit", () => RPGGame.Tests.Unit.MultiHitTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "DamageCalculator", () => RPGGame.Tests.Unit.Combat.DamageCalculatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "DefenseBlock", () => RPGGame.Tests.Unit.Combat.DefenseBlockCalculatorTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "ClassDefense", () => RPGGame.Tests.Unit.Combat.ClassDefenseCalculatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatSequenceBuilder", () => RPGGame.Tests.Unit.Combat.CombatSequenceBuilderTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatSequencePresenter", () => RPGGame.Tests.Unit.Combat.CombatSequencePresenterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "WeaponBaseModCadence", () => RPGGame.Tests.Unit.Combat.WeaponBaseModCadenceTests.RunAllTests()));

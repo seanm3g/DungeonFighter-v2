@@ -92,11 +92,12 @@ namespace RPGGame.Combat.Sequence
             steps.Add(BuildActionStep(selected, result.Hit));
 
             if (result.Hit
-                && result.DefenseFace.HasValue
                 && target != null
+                && target is Character heroTarget
+                && heroTarget is not Enemy
                 && (selected.Type == ActionType.Attack || selected.Type == ActionType.Spell))
             {
-                steps.Add(BuildDefenseStep(result.DefenseFace.Value, result.ModifiedBaseRoll, target, selected));
+                steps.Add(BuildDefenseStep(result.DefenseFace ?? 0, result.ModifiedBaseRoll, target, selected));
             }
 
             if (result.Hit && selected.Type == ActionType.Heal)

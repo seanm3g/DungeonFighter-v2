@@ -67,7 +67,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             if (contribution.Label == "Attack speed" && displayedItem is WeaponItem ws && weaponSpeedBaseline != null)
                 return RecolorLastNumeric(segments, ws.GetTotalAttackSpeed(), weaponSpeedBaseline.GetTotalAttackSpeed(), higherIsBetter: false);
 
-            if (contribution.Label == "Armor" && TryGetArmorPieceTotal(displayedItem, out int mine) &&
+            if ((contribution.Label == "Armor" || contribution.Label == "Defense") && TryGetArmorPieceTotal(displayedItem, out int mine) &&
                 TryGetArmorPieceTotal(armorComparisonBaseline, out int baseline))
                 return RecolorLastNumeric(segments, mine, baseline, higherIsBetter: true);
 
@@ -117,12 +117,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         {
             var builder = new ColoredTextBuilder();
 
-            if (stat.StartsWith("Armor: +"))
+            if (stat.StartsWith("Armor: +") || stat.StartsWith("Defense: +"))
             {
                 var parts = stat.Split(new[] { ": +" }, StringSplitOptions.None);
                 if (parts.Length == 2)
                 {
-                    builder.Add("Armor: +", ColorPalette.Info);
+                    string label = stat.StartsWith("Defense: +", StringComparison.Ordinal) ? "Defense: +" : "Armor: +";
+                    builder.Add(label, ColorPalette.Info);
                     if (TryGetArmorPieceTotal(displayedItem, out int mine) && TryGetArmorPieceTotal(armorComparisonBaseline, out int baseline))
                     {
                         if (mine > baseline)

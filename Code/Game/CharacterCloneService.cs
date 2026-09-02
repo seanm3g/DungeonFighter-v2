@@ -30,6 +30,7 @@ namespace RPGGame
             character.Effects.RerollCharges = character.Equipment.GetTotalRerollCharges();
             character.CurrentHealth = character.GetEffectiveMaxHealth();
             character.ResetCombo();
+            LeftoverEnergy.Reset(character);
             CharacterSerializer.RebuildCharacterActions(character, preserveComboSequence: false);
 
             character.Progression.Level = preservedLevel;

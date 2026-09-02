@@ -124,7 +124,7 @@ namespace RPGGame.UI.ColorSystem
             
             // Armor (Defense)
             var defenseLine = new ColoredTextBuilder();
-            defenseLine.Add("Armor: ", ColorPalette.Info);
+            defenseLine.Add("Defense: ", ColorPalette.Info);
             defenseLine.Add(character.GetTotalArmor().ToString(), ColorPalette.Success);
             lines.Add(defenseLine.Build());
             

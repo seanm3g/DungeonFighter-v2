@@ -43,6 +43,9 @@ namespace RPGGame.Data
         
         // Column I — SPEED(x)
         public string Speed { get; set; } = "";
+
+        /// <summary>ENERGY — action cost 1–3; leftover (3−cost) scales BLOCK.</summary>
+        public string Energy { get; set; } = "";
         
         /// <summary>STATUS EFFECT / DURATION (column K) — cadence duration (ACTION/ATTACK/ABILITY application count).</summary>
         public string Duration { get; set; } = "";

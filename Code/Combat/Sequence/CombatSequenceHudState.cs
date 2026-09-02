@@ -5,21 +5,36 @@ using RPGGame.UI.ColorSystem;
 namespace RPGGame.Combat.Sequence
 {
     /// <summary>
-    /// Live HUD panel under the action strip while in a dungeon: all calculation steps laid out horizontally,
+    /// Live HUD panel under the action strip during combat: all calculation steps laid out horizontally,
     /// with the active step highlighted. <see cref="IsBandReserved"/> keeps the two-row framed panel (plus a
-    /// one-row gap above the combat log) so the log does not jump when combat starts.
+    /// one-row gap above the combat log) only in Combat and the Action Lab — never on Skill Tree or other menus.
     /// </summary>
     public static class CombatSequenceHudState
     {
         public static bool IsBandReserved { get; set; }
 
         /// <summary>
-        /// Sequence HUD is dungeon chrome: visible while exploring, during combat, and in the Action Lab sandbox.
+        /// Sequence HUD is combat chrome: live fights and the Action Lab sandbox. Hidden everywhere else
+        /// (Skill Tree, dungeon exploration, inventory, hub, completion).
         /// </summary>
         public static bool ShouldReserveBand(GameState? state) =>
-            state == GameState.Dungeon
-            || state == GameState.Combat
+            state == GameState.Combat
             || state == GameState.ActionInteractionLab;
+
+        /// <summary>
+        /// Aligns <see cref="IsBandReserved"/> with <paramref name="state"/>. No-ops when state is unknown
+        /// so tests can set the flag directly. Leaving combat clears leftover swing columns.
+        /// </summary>
+        public static void SyncReservation(GameState? state)
+        {
+            if (state == null)
+                return;
+
+            bool next = ShouldReserveBand(state);
+            if (!next)
+                ClearStep();
+            IsBandReserved = next;
+        }
 
         public static IReadOnlyList<CombatSequenceStep> Steps { get; private set; } = new List<CombatSequenceStep>();
 

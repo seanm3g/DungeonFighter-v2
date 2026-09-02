@@ -31,6 +31,7 @@ namespace RPGGame.Data
             action.NumberOfHits = GetStringValue(root, "numberOfHits");
             action.Damage = GetStringValue(root, "damage");
             action.Speed = GetStringValue(root, "speed");
+            action.Energy = GetStringValue(root, "energy");
             action.Duration = GetStringValue(root, "duration");
             action.Cadence = GetStringValue(root, "cadence");
             action.Mechanics = GetStringValue(root, "mechanics");
@@ -177,6 +178,7 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "numberOfHits", value.NumberOfHits);
             WriteIfNotEmpty(writer, "damage", value.Damage);
             WriteIfNotEmpty(writer, "speed", value.Speed);
+            WriteIfNotEmpty(writer, "energy", value.Energy);
             WriteIfNotEmpty(writer, "duration", value.Duration);
             WriteIfNotEmpty(writer, "cadence", value.Cadence);
             WriteIfNotEmpty(writer, "mechanics", value.Mechanics);

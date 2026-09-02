@@ -202,9 +202,18 @@ namespace RPGGame
             int slotSum = h + b + lg + f;
             int globalBonus = total - slotSum;
 
-            AddTitle(lines, "Armor");
+            AddTitle(lines, "Defense");
             AddBlank(lines);
             AddHighlight(lines, "Total", total.ToString(CultureInfo.InvariantCulture));
+            AddBlank(lines);
+            AddSection(lines, "Incoming hits");
+            int leftover = Math.Max(0, c.LeftoverEnergy);
+            int block = (int)Math.Round(ClassDefenseCalculator.GetBlockPercent(leftover) * 100.0, MidpointRounding.AwayFromZero);
+            AddStatRow(lines, "Leftover energy", leftover);
+            AddTextStatRow(lines, "BLOCK", $"{block}%");
+            string classLayer = HeroDefenseHudFormatter.FormatClassLayerLine(c);
+            if (!string.IsNullOrEmpty(classLayer))
+                AddTextStatRow(lines, "Class layer", classLayer);
             AddBlank(lines);
             AddSection(lines, "Equipped pieces");
             AddStatRow(lines, "Head", h);
@@ -215,11 +224,11 @@ namespace RPGGame
             {
                 AddBlank(lines);
                 AddSection(lines, "Global bonuses");
-                AddSignedStatRow(lines, "From all gear (Armor stat)", globalBonus);
+                AddSignedStatRow(lines, "From all gear (Defense stat)", globalBonus);
             }
             AddBlank(lines);
-            AddNoteLine(lines, "Piece values include that item's armor stats and affixes.");
-            AddNoteLine(lines, "Armor is flat damage reduction and is not consumed by hits.");
+            AddNoteLine(lines, "Piece values include that item's defense rating and affixes.");
+            AddNoteLine(lines, "DEFENSE is the class layer. Leftover energy scales BLOCK % (dominant when leftover is 1 or 2). Leftover 0 is DEFENSE only.");
 
             return Trim(lines, maxLines);
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Combat.Calculators;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
@@ -140,6 +141,8 @@ namespace RPGGame
             // (covers dungeon room changes, successive enemies, Action Lab, and simulators — not only RunCombat).
             player.ResetCombo();
             enemy.ResetCombo();
+            LeftoverEnergy.Reset(player);
+            ClassDefenseCalculator.RefillWizardShield(player);
             // Keyword currency is dungeon-run scoped; only consecutive-connect tracking resets per fight.
             MaterialSetController.ResetFightConnects(player);
             MaterialSetController.SyncConvertActionsToPool(player);

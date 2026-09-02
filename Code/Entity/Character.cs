@@ -70,6 +70,15 @@ namespace RPGGame
         /// </summary>
         public int? DungeonDifficultyAnchorLevel { get; set; }
 
+        /// <summary>Leftover energy (0–2) from the last hero action; covers incoming hits until the next hero action.</summary>
+        public int LeftoverEnergy { get; set; }
+
+        /// <summary>Wizard energy shield remaining this fight (from DEFENSE rating).</summary>
+        public int EnergyShieldCurrent { get; set; }
+
+        /// <summary>Wizard energy shield max this fight.</summary>
+        public int EnergyShieldMax { get; set; }
+
         /// <summary>Action Interaction Lab only: added to <see cref="GetTotalArmor"/> for sandbox tuning (default 0).</summary>
         public int ActionLabArmorBonus { get; set; }
 

@@ -18,6 +18,7 @@ namespace RPGGame.Tests.Unit.Data
             TestPreservesLayerHeaders(ref testsRun, ref testsPassed, ref testsFailed);
             TestAppendsMissingActionsAfterSheetRows(ref testsRun, ref testsPassed, ref testsFailed);
             TestEmptySheetFallsBackToJsonOrder(ref testsRun, ref testsPassed, ref testsFailed);
+            TestPreservesUnknownDesignerColumn(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("ActionSheetsPushRowMerger Tests", testsRun, testsPassed, testsFailed);
         }
@@ -116,6 +117,25 @@ namespace RPGGame.Tests.Unit.Data
                 "JSON order used when sheet has no rows",
                 ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual(2, merge.AppendedActionCount, "both counted as appended", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestPreservesUnknownDesignerColumn(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestPreservesUnknownDesignerColumn));
+            var labelRow = new[] { "ACTION", "DESCRIPTION", "DESIGNER NOTE" };
+            var (header, _) = SpreadsheetActionParser.BuildHeaderFromSheetRows(new List<string[]> { labelRow });
+            if (header == null)
+                throw new InvalidOperationException("test header failed to parse");
+
+            var existing = new List<string[]>
+            {
+                new[] { "JAB", "old jab", "keep me" }
+            };
+            var json = new List<SpreadsheetActionJson> { MakeAction("JAB", "new jab") };
+            var merge = ActionSheetsPushRowMerger.BuildBodyRowsPreservingSheetOrder(existing, json, header);
+
+            TestBase.AssertEqual("new jab", merge.BodyRows[0][1]?.ToString(), "description from JSON", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual("keep me", merge.BodyRows[0][2]?.ToString(), "designer column preserved", ref testsRun, ref testsPassed, ref testsFailed);
         }
     }
 }
