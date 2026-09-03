@@ -133,7 +133,7 @@ namespace RPGGame
 
             // Fresh dungeon run: opener slot for HUD and any logic that runs before the first room's combat init
             player.ResetCombo();
-            LeftoverEnergy.Reset(player);
+            StandingBlock.Reset(player);
 
             // Clear display buffer to prevent duplicate messages from previous runs
             if (canvasUI != null)

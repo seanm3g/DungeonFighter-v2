@@ -41,7 +41,7 @@ namespace RPGGame
                 length: 1.0,
                 isComboAction: false)
             {
-                EnergyCost = LeftoverEnergy.DefaultCost
+                BlockPercent = 0
             };
 
         /// <summary>

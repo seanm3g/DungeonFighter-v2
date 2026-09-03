@@ -1,4 +1,5 @@
 using System;
+using RPGGame.Combat.Calculators;
 
 namespace RPGGame.Data
 {
@@ -41,10 +42,13 @@ namespace RPGGame.Data
             data.NumberOfHits = header.GetValue(columns, null, "# OF HITS");
             data.Damage = header.GetDamagePercentValue(columns);
             data.Speed = header.GetValue(columns, null, "SPEED(x)");
-            data.Energy = FirstNonEmpty(
-                header.GetValue(columns, null, ActionEnergySheetColumns.Label),
-                header.GetValue(columns, null, "ENERGY COST"),
-                header.GetValue(columns, null, "ENERGYCOST"));
+            data.Block = FirstNonEmpty(
+                header.GetValue(columns, null, ActionBlockSheetColumns.Label),
+                header.GetValue(columns, null, "BLOCK %"),
+                header.GetValue(columns, null, "BLOCKPERCENT"),
+                MigrateLegacyEnergyCell(header.GetValue(columns, null, "ENERGY")),
+                MigrateLegacyEnergyCell(header.GetValue(columns, null, "ENERGY COST")),
+                MigrateLegacyEnergyCell(header.GetValue(columns, null, "ENERGYCOST")));
             data.Duration = FirstNonEmpty(
                 header.GetValue(columns, SpreadsheetDurationSemantics.StatusEffectContext, "DURATION", allowUnscopedLabelFallback: false),
                 header.GetValue(columns, null, "DURATION"));
@@ -308,6 +312,15 @@ namespace RPGGame.Data
                     return v.Trim();
             }
             return "";
+        }
+
+        private static string MigrateLegacyEnergyCell(string? raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+                return "";
+            if (!int.TryParse(raw.Trim(), out int energyCost))
+                return "";
+            return StandingBlock.FormatPercentPoints(StandingBlock.FromLegacyEnergyCost(energyCost));
         }
 
         private static void ParseJumpShiftDisruptMechanics(SpreadsheetActionData data, string[] columns, SpreadsheetHeader header)

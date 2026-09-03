@@ -368,9 +368,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Full swing readout for strip cards: <c>25 damage | 8.3s | E2</c> (or multihit <c>2x25 damage | … | E2</c>).
-        /// Combo amp is baked into the damage number; the separate amp label is omitted on cards.
-        /// Energy suffix is the action's 1–3 cost.
+        /// Damage/speed readout for strip cards: <c>25 damage | 8.3s</c> (or multihit <c>2x25 damage | …</c>).
+        /// Combo amp is baked into the damage number; Block % is drawn on the next card line.
         /// </summary>
         public static string FormatStripSwingLine(
             in ActionPanelInfo info,
@@ -380,7 +379,7 @@ namespace RPGGame
             int comboSlotIndex = -1)
         {
             GetStripSwingDisplayValues(in info, character, action, mode, out int damage, out double seconds, comboSlotIndex);
-            return $"{FormatSwingDamageLine(info.EffectiveMultiHitCount, damage)} | {FormatSwingSpeedLine(seconds)} | {HeroDefenseHudFormatter.FormatActionEnergySuffix(action)}";
+            return $"{FormatSwingDamageLine(info.EffectiveMultiHitCount, damage)} | {FormatSwingSpeedLine(seconds)}";
         }
 
         /// <summary>

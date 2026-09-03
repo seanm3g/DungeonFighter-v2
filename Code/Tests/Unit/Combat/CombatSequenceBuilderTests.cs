@@ -168,18 +168,18 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void TestDefenseStepWhenHeroFacePresent()
         {
-            Console.WriteLine("--- Defense step shows leftover BLOCK + DEFENSE ---");
+            Console.WriteLine("--- Defense step shows standing BLOCK + DEFENSE ---");
             var hero = DummyHero();
-            hero.LeftoverEnergy = 2;
+            hero.StandingBlockPercent = 0.45;
             var result = HitResult("SLAM", damage: 5);
             var steps = CombatSequenceBuilder.From(result, DummyEnemy(), hero);
             TestBase.AssertTrue(steps.Any(s => s.Kind == CombatSequenceStepKind.Defense),
                 "defense step present on hero hit", ref _run, ref _passed, ref _failed);
             var def = steps.First(s => s.Kind == CombatSequenceStepKind.Defense);
             string joined = JoinBeats(def);
-            TestBase.AssertTrue(joined.Contains("leftover 2", System.StringComparison.Ordinal)
-                && joined.Contains("BLOCK", System.StringComparison.OrdinalIgnoreCase),
-                $"defense math beats show leftover BLOCK, got: {joined}", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(joined.Contains("BLOCK 45%", System.StringComparison.Ordinal)
+                && !joined.Contains("leftover", System.StringComparison.OrdinalIgnoreCase),
+                $"defense math beats show standing BLOCK, got: {joined}", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestHealStep()

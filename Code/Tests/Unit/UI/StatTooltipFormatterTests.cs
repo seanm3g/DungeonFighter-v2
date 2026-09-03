@@ -67,19 +67,19 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(armorFlat.Contains("Equipped pieces", StringComparison.Ordinal) && armorFlat.Contains("Head", StringComparison.Ordinal),
                 "armor per-slot breakdown",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(armorFlat.Contains("Leftover energy", StringComparison.Ordinal)
-                    && armorFlat.Contains("BLOCK", StringComparison.Ordinal)
-                    && armorFlat.Contains("Class layer", StringComparison.Ordinal),
-                "armor tooltip shows leftover, BLOCK, and class layer",
+            TestBase.AssertTrue(armorFlat.Contains("BLOCK", StringComparison.Ordinal)
+                    && armorFlat.Contains("Class layer", StringComparison.Ordinal)
+                    && !armorFlat.Contains("Leftover energy", StringComparison.Ordinal),
+                "armor tooltip shows BLOCK and class layer (no leftover energy)",
                 ref run, ref passed, ref failed);
 
-            c.LeftoverEnergy = 2;
+            c.StandingBlockPercent = 0.45;
             var armorLive = StatTooltipFormatter.TryBuild(c, "stat:armor", 24)!;
             string armorLiveFlat = string.Join("\n", armorLive.Select(ColoredTextRenderer.RenderAsPlainText));
             TestBase.AssertTrue(armorLiveFlat.Contains("45%", StringComparison.Ordinal),
-                "armor tooltip BLOCK matches leftover 2",
+                "armor tooltip BLOCK matches standing 45%",
                 ref run, ref passed, ref failed);
-            c.LeftoverEnergy = 0;
+            c.StandingBlockPercent = 0;
 
             c.Stats.Agility = 10;
             c.Stats.TempAgilityBonus = 2;

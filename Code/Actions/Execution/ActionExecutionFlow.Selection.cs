@@ -65,7 +65,6 @@ namespace RPGGame.Actions.Execution
             }
             result.SelectedAction = selected ?? ActionSelector.SelectActionByEntityType(source);
             if (result.SelectedAction == null) return;
-            LeftoverEnergy.ApplyFromAction(source, result.SelectedAction);
             lastUsedActions[source] = result.SelectedAction;
             if (source is Character preRollHero && preRollHero is not Enemy)
             {
@@ -86,6 +85,8 @@ namespace RPGGame.Actions.Execution
                 if (!ReferenceEquals(beforeUnique, result.SelectedAction))
                     actionChoiceLocked = true;
             }
+
+            // Standing BLOCK is applied after luck/naiveté reconcile so the final named vs unnamed swing wins.
 
             // Roll and threshold bonuses: TURN (consumed per roll), ACTION (peek slot + bank; redeem on hit+combo only — miss/non-combo keep pending)
             int actionBonusAccumulator = 0, actionBonusHit = 0, actionBonusCombo = 0, actionBonusCrit = 0, actionBonusCritMiss = 0;
@@ -270,6 +271,10 @@ namespace RPGGame.Actions.Execution
                     source, result, thresholdManager, lastCriticalMissStatus, consumeRollBonus: false);
                 result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
             }
+
+            // Final named vs unnamed swing: named sets standing BLOCK; unnamed hit/miss clears to DEFENSE only.
+            StandingBlock.ApplyFromAction(source, result.SelectedAction);
+
             if (!result.Hit && !result.IsCriticalMiss && CombatTriggerContext.TryConsumeMissSalvage(source))
             {
                 result.Hit = true;

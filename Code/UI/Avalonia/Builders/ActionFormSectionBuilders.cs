@@ -6,6 +6,7 @@ using Avalonia.Media;
 using RPGGame;
 using RPGGame.Actions;
 using RPGGame.Actions.Conditional;
+using RPGGame.Combat.Calculators;
 using RPGGame.Data;
 using RPGGame.Editors;
 using RPGGame.UI.Avalonia.Resources;
@@ -69,16 +70,14 @@ namespace RPGGame.UI.Avalonia.Builders
                 if (double.TryParse(value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double v))
                     action.Length = v;
             }
-            void SetEnergyCost(string value)
+            void SetBlockPercent(string value)
             {
-                if (int.TryParse(value, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out int v)
-                    && v >= 1 && v <= 3)
-                    action.EnergyCost = v;
+                action.BlockPercent = StandingBlock.ParsePercentPoints(value);
             }
             _ctx.Factory.AddFormField(stack, "MultiHitCount", action.MultiHitCount.ToString(), SetMultiHitCount, description: "e.g. 1 (number of hits)", onTextChanged: SetMultiHitCount);
             _ctx.Factory.AddFormField(stack, "DamageMultiplier", action.DamageMultiplier.ToString(), SetDamageMultiplier, description: "e.g. 1.0", onTextChanged: SetDamageMultiplier);
             _ctx.Factory.AddFormField(stack, "Speed", action.Length.ToString(), SetSpeed, description: "e.g. 1.0 (action length)", onTextChanged: SetSpeed);
-            _ctx.Factory.AddFormField(stack, "Energy", action.EnergyCost.ToString(), SetEnergyCost, description: "1–3. Leftover (3−cost) scales BLOCK.", onTextChanged: SetEnergyCost);
+            _ctx.Factory.AddFormField(stack, "Block %", StandingBlock.FormatPercentPoints(action.BlockPercent), SetBlockPercent, description: "0–100. Standing BLOCK until next hero action.", onTextChanged: SetBlockPercent);
 
             AddActionAssignmentToStack(stack, action);
         }

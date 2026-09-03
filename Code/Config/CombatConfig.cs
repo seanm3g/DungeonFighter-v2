@@ -21,10 +21,6 @@ namespace RPGGame
         public int PlayerBaseArmor { get; set; }
         public int MaximumDamageCap { get; set; } = 999;
         public double ArmorReductionFactor { get; set; } = 100.0;
-        /// <summary>BLOCK percent when leftover energy is 1 (dominant DR layer).</summary>
-        public double LeftoverBlockPercent1 { get; set; } = 0.25;
-        /// <summary>BLOCK percent when leftover energy is 2 (dominant DR layer).</summary>
-        public double LeftoverBlockPercent2 { get; set; } = 0.45;
         public double WeaponAttackTimeClampMin { get; set; } = 0.5;
         public double WeaponAttackTimeClampMax { get; set; } = 1.5;
         public double TutorialCombatDelayMultiplier { get; set; } = 2.0;
@@ -68,10 +64,6 @@ namespace RPGGame
                 MaximumDamageCap = 999;
             if (ArmorReductionFactor <= 0)
                 ArmorReductionFactor = 100.0;
-            if (LeftoverBlockPercent1 <= 0)
-                LeftoverBlockPercent1 = 0.25;
-            if (LeftoverBlockPercent2 <= 0)
-                LeftoverBlockPercent2 = 0.45;
             if (WeaponAttackTimeClampMin <= 0)
                 WeaponAttackTimeClampMin = 0.5;
             if (WeaponAttackTimeClampMax <= WeaponAttackTimeClampMin)

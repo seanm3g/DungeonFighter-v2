@@ -86,7 +86,7 @@ On pull, the console prints a **column usage summary** (see `SpreadsheetActionCo
 
 | Tier | Meaning | Examples |
 |------|---------|----------|
-| **Combat / runtime** | Pulled → `Actions.json` → `ActionData` → `Action` → combat | `ACTION`, `DAMAGE` / `DAMAGE(%)`, `SPEED(x)`, **`ENERGY`** (1–3; leftover `3−cost` scales BLOCK), `# OF HITS`, `TARGET` (column **M**: `enemy` / `self` / `environment`; empty = enemy), action-sheet status columns (`WEAKEN`, `CONFUSE`, `DISRUPT`, `LIFESTEAL`, …), hero/enemy dice mods, `CADENCE`+`DURATION` keyword bonuses, `MECHANICS` (declarative; validated on pull), next-action mods under `HERO BASE STATS` / `ENEMY BASE STATS`, flat **WEAPON SPEED** / **WEAPON DAMAGE** under `HERO BASE` / `ENEMY BASE` (or `… BASE STATS`), `JUMP`/`SHIFT`, `OPENER`/`FINISHER`, `HEAL` (under **HERO HEAL**), convert scale **DS** / **DT** / **DU** (or **bonus per keyword** / **effect** / **keyword**) |
+| **Combat / runtime** | Pulled → `Actions.json` → `ActionData` → `Action` → combat | `ACTION`, `DAMAGE` / `DAMAGE(%)`, `SPEED(x)`, **`BLOCK`** (0–100 percent points; standing BLOCK until next hero action), `# OF HITS`, `TARGET` (column **M**: `enemy` / `self` / `environment`; empty = enemy), action-sheet status columns (`WEAKEN`, `CONFUSE`, `DISRUPT`, `LIFESTEAL`, …), hero/enemy dice mods, `CADENCE`+`DURATION` keyword bonuses, `MECHANICS` (declarative; validated on pull), next-action mods under `HERO BASE STATS` / `ENEMY BASE STATS`, flat **WEAPON SPEED** / **WEAPON DAMAGE** under `HERO BASE` / `ENEMY BASE` (or `… BASE STATS`), `JUMP`/`SHIFT`, `OPENER`/`FINISHER`, `HEAL` (under **HERO HEAL**), convert scale **DS** / **DT** / **DU** (or **bonus per keyword** / **effect** / **keyword**) |
 | **Loot / pools only** | Pool assignment, not combat math | `RARITY`, `CATEGORY`, `TAGS` |
 | **JSON round-trip / sheet reference** | Stored in `Actions.json`; not applied in combat | `DPS(%)` (authoring reference — combat uses `DAMAGE(%)`), `DESCRIPTION` |
 | **Not ingested on CSV pull** | Push/Settings know these labels; **pull ignores** sheet cells | `WEAPON TYPES`, `CHAIN LENGTH`, `RESET`, `GRACE`, `LOOP CHAIN`, JSON blob columns, threshold flat columns, … |
@@ -207,11 +207,11 @@ Single header row; columns match `Dungeons.json`: `name`, `theme`, `minLevel`, `
 
 Optional **TAGS** cell (column **E** on the standard layout): comma/semicolon list of extra tokens (pool gates like `environment`, `enemy`, `weapon`, `reserve_pool`, elements, etc.). Category and rarity are merged into runtime tags separately on import. **Push** writes TAGS from `Actions.json`; column **F** (e.g. `e(V)` formulas) is left unchanged.
 
-### ACTIONS — ENERGY column
+### ACTIONS — BLOCK column
 
-**ENERGY** (ensured on ACTIONS push): integer **1–3**. Missing or invalid cells default to **2**. **Leftover** energy is `3 − cost` and scales hero **BLOCK** percent until the next hero action. Settings → Actions has an **Energy** field (1–3). Tune 1s and 3s in the sheet after the first PUSH fills the column from `Actions.json`.
+**BLOCK** (ensured on ACTIONS push; aliases `BLOCK %` / `BLOCKPERCENT`): percent points **0–100**. Missing or invalid cells default to **25**. That value becomes the hero’s **standing BLOCK** until the next hero action. Settings → Actions has a **Block %** field. Legacy **ENERGY** 1–3 cells migrate on pull (1→45, 2→25, 3→0).
 
-Push **inserts a physical column** after **SPEED** (Sheets `InsertDimension`) and writes only the new ENERGY header cells. It does **not** rewrite the rest of row 1–2, so designer labels on other columns stay put.
+On **PUSH**, the live tab’s **ENERGY** / **ENERGY COST** header is **renamed in place to BLOCK** (same column). Any leftover ENERGY columns (duplicates, or ENERGY beside an existing BLOCK) are **deleted** via Sheets `DeleteDimension`. If neither ENERGY nor BLOCK exists, push **inserts** BLOCK after **SPEED** and writes only that new header cell.
 
 ### ACTIONS — convert scale (DS / DT / DU)
 

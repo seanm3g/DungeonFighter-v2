@@ -70,8 +70,8 @@ namespace RPGGame
         /// </summary>
         public int? DungeonDifficultyAnchorLevel { get; set; }
 
-        /// <summary>Leftover energy (0–2) from the last hero action; covers incoming hits until the next hero action.</summary>
-        public int LeftoverEnergy { get; set; }
+        /// <summary>Standing BLOCK % (0–1) from the last hero action; covers incoming hits until the next hero action.</summary>
+        public double StandingBlockPercent { get; set; }
 
         /// <summary>Wizard energy shield remaining this fight (from DEFENSE rating).</summary>
         public int EnergyShieldCurrent { get; set; }

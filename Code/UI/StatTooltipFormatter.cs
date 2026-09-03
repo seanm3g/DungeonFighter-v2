@@ -207,9 +207,7 @@ namespace RPGGame
             AddHighlight(lines, "Total", total.ToString(CultureInfo.InvariantCulture));
             AddBlank(lines);
             AddSection(lines, "Incoming hits");
-            int leftover = Math.Max(0, c.LeftoverEnergy);
-            int block = (int)Math.Round(ClassDefenseCalculator.GetBlockPercent(leftover) * 100.0, MidpointRounding.AwayFromZero);
-            AddStatRow(lines, "Leftover energy", leftover);
+            int block = (int)Math.Round(ClassDefenseCalculator.GetBlockPercent(c) * 100.0, MidpointRounding.AwayFromZero);
             AddTextStatRow(lines, "BLOCK", $"{block}%");
             string classLayer = HeroDefenseHudFormatter.FormatClassLayerLine(c);
             if (!string.IsNullOrEmpty(classLayer))
@@ -228,7 +226,7 @@ namespace RPGGame
             }
             AddBlank(lines);
             AddNoteLine(lines, "Piece values include that item's defense rating and affixes.");
-            AddNoteLine(lines, "DEFENSE is the class layer. Leftover energy scales BLOCK % (dominant when leftover is 1 or 2). Leftover 0 is DEFENSE only.");
+            AddNoteLine(lines, "BLOCK is the standing % from the last hero action (dominant DR). DEFENSE is the class layer. Block 0% is DEFENSE only.");
 
             return Trim(lines, maxLines);
         }

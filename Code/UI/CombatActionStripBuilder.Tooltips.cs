@@ -460,7 +460,7 @@ namespace RPGGame
             var segments = new List<string>();
             AppendComboRoleAndWeaponRequirementNotation(segments, character, action);
             segments.Add(BuildTooltipSwingModsLine(character, action, panelIndex, swingLineMode));
-            AddSegment(segments, HeroDefenseHudFormatter.FormatActionEnergyTooltip(action));
+            AddSegment(segments, HeroDefenseHudFormatter.FormatActionBlockTooltip(action));
             if (character != null)
             {
                 string ampCalc = FormatSwingAmpCalculationLine(character, action, panelIndex);

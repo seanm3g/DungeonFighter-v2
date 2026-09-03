@@ -13,22 +13,22 @@ namespace RPGGame.Tests.Unit.UI
             int run = 0, passed = 0, failed = 0;
 
             var hero = new Character("Hud", 1);
-            hero.LeftoverEnergy = 0;
+            hero.StandingBlockPercent = 0;
             TestBase.AssertTrue(
-                HeroDefenseHudFormatter.FormatLeftoverBlockLine(hero) == "Leftover 0  BLOCK 0%",
-                "leftover 0 shows BLOCK 0%",
+                HeroDefenseHudFormatter.FormatStandingBlockLine(hero) == "BLOCK 0%",
+                "standing 0 shows BLOCK 0%",
                 ref run, ref passed, ref failed);
 
-            hero.LeftoverEnergy = 1;
+            hero.StandingBlockPercent = 0.25;
             TestBase.AssertTrue(
-                HeroDefenseHudFormatter.FormatLeftoverBlockLine(hero) == "Leftover 1  BLOCK 25%",
-                "leftover 1 shows BLOCK 25%",
+                HeroDefenseHudFormatter.FormatStandingBlockLine(hero) == "BLOCK 25%",
+                "standing 25%",
                 ref run, ref passed, ref failed);
 
-            hero.LeftoverEnergy = 2;
+            hero.StandingBlockPercent = 0.60;
             TestBase.AssertTrue(
-                HeroDefenseHudFormatter.FormatLeftoverBlockLine(hero) == "Leftover 2  BLOCK 45%",
-                "leftover 2 shows BLOCK 45%",
+                HeroDefenseHudFormatter.FormatStandingBlockLine(hero) == "BLOCK 60%",
+                "standing free 60%",
                 ref run, ref passed, ref failed);
 
             TestBase.AssertTrue(
@@ -60,26 +60,26 @@ namespace RPGGame.Tests.Unit.UI
                 "mace class layer is RAGE mint",
                 ref run, ref passed, ref failed);
 
-            var action = new RPGGame.Action { Name = "Strike", EnergyCost = 2 };
+            var action = new RPGGame.Action { Name = "Strike", BlockPercent = 0.25 };
             TestBase.AssertTrue(
-                HeroDefenseHudFormatter.FormatActionEnergySuffix(action) == "E2",
-                "strip energy suffix E2",
+                HeroDefenseHudFormatter.FormatActionBlockSuffix(action) == "Block 25%",
+                "strip block suffix Block 25%",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(
-                HeroDefenseHudFormatter.FormatActionEnergyTooltip(action) == "Energy 2 (leftover 1 → BLOCK 25%)",
-                "energy tooltip leftover 1 BLOCK 25%",
-                ref run, ref passed, ref failed);
-
-            action.EnergyCost = 3;
-            TestBase.AssertTrue(
-                HeroDefenseHudFormatter.FormatActionEnergyTooltip(action) == "Energy 3 (leftover 0, DEFENSE only)",
-                "energy 3 is leftover 0 DEFENSE only",
+                HeroDefenseHudFormatter.FormatActionBlockTooltip(action) == "Block 25%",
+                "block tooltip 25%",
                 ref run, ref passed, ref failed);
 
-            action.EnergyCost = 1;
+            action.BlockPercent = 0;
             TestBase.AssertTrue(
-                HeroDefenseHudFormatter.FormatActionEnergyTooltip(action) == "Energy 1 (leftover 2 → BLOCK 45%)",
-                "energy 1 leftover 2 BLOCK 45%",
+                HeroDefenseHudFormatter.FormatActionBlockTooltip(action) == "Block 0% (DEFENSE only)",
+                "block 0 is DEFENSE only",
+                ref run, ref passed, ref failed);
+
+            action.BlockPercent = 0.10;
+            TestBase.AssertTrue(
+                HeroDefenseHudFormatter.FormatActionBlockTooltip(action) == "Block 10%",
+                "free block 10%",
                 ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("HeroDefenseHudFormatter Tests", run, passed, failed);

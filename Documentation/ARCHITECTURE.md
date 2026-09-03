@@ -40,7 +40,7 @@ DungeonFighter/
 - **`Code/Combat/CombatTurnHandlerSimplified.cs`** - Simplified turn processing logic (high-performance turn handler)
 - **`Code/Combat/CombatCalculator.cs`** - Centralized damage, speed, and stat calculations
 - **`Code/Combat/Calculators/DamageCalculator.cs`** - Raw and final damage; hero leftover BLOCK % + class DEFENSE layers; enemies 100% armor subtract; material convert adds +5 per banked keyword
-- **`Code/Combat/Calculators/LeftoverEnergy.cs`** / **`ClassDefenseCalculator.cs`** - Hero energy leftover (3 − action cost) scales BLOCK %; DEFENSE rating is class-interpreted (Warrior %, Rogue dodge, Wizard shield, Barbarian RAGE). Enemies keep 100% armor via `DamageCalculator.ResolveTargetArmor`.
+- **`Code/Combat/Calculators/StandingBlock.cs`** / **`ClassDefenseCalculator.cs`** - Hero standing BLOCK % from the last action's free Block %; DEFENSE rating is class-interpreted (Warrior %, Rogue dodge, Wizard shield, Barbarian RAGE). Enemies keep 100% armor via `DamageCalculator.ResolveTargetArmor`.
 - **`Code/Combat/Calculators/DefenseBlockCalculator.cs`** - Legacy opposed 1d20 armor×band helpers (75% / 100% / 150%); not used for live hero mitigation.
 - **`Code/Combat/CombatEffectsSimplified.cs`** - Simplified status effects management (optimized effects system)
 - **`Code/Combat/EffectHandlerRegistry.cs`** - Strategy pattern for handling different combat effects
@@ -341,7 +341,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 #### **Avalonia UI System (New Modular Architecture)**
 - **`Code/UI/Avalonia/App.axaml.cs`** / **`ApplicationShutdownHelper.cs`** - Desktop lifetime: `ShutdownMode.OnMainWindowClose`; `TitleScreenHelper.Preload()` runs before `new MainWindow()` so color tables and the first idle frame are ready; the window starts minimized (opacity 0 still shows a black frame on Windows) and `GameInitializationHandler.StartTitleScreenAfterWindowReadyAsync` paints + finishes GameCoordinator warmup before revealing. `SettingsPanel` / `TuningMenuPanel` are created lazily on first open so `Show()` does not measure those trees. Title-bar X and Exit Game call `PerformShutdown(forceProcessExit: true)` (non-blocking ticker stop + 1.5s exit watchdog). `Code.csproj` also kills leftover `DF.exe` before build to avoid MSB3026
 - **Inventory item rows** — `ItemRendererHelper` + `ItemStatFormatter`: the `[n] [Rarity] [Slot] name` line is left-justified; subsequent **Actions:** and stat lines use a two-space indent (`ItemStatFormatter.ItemDetailLineIndent`) attached to the first content segment (ColoredTextBuilder collapses a whitespace-only prefix to one space)
-- **Hover tooltips (items/actions)** — `ItemTooltipFormatter` / `CombatActionStripBuilder.Tooltips`: default Name + Rarity + Tags (items) + Requirements (items) + Stats + Triggers; action Stats include energy leftover → BLOCK (`HeroDefenseHudFormatter`) and standing class / material-convert / WHILE_EQUIPPED tag bonuses (`ActionCardExternalBonusCollector`). Hold **Alt** (`HoverTooltipDetailState`, synced from MainWindow keys + pointer modifiers) for remaining detail. Drawn via `DungeonRenderer.RoomAndCombat` / `RightPanelRenderer` / `LeftPanelTooltipBuilder`. Left-panel **HERO** (and **STATS** when HERO is collapsed) shows standing leftover energy, BLOCK %, and class DEFENSE layer (`CharacterPanelRenderer`); Defense hover (`StatTooltipFormatter`) lists the same live numbers. Left-panel GEAR/STATS/Sets tips dock to the center panel’s left inner edge at the hovered row (`HoverTooltipDrawing.GetHorizontalPositionAvoidingTarget` / `GetVerticalPositionNearTarget`) so they overlay the center as an extension of the sidebar.
+- **Hover tooltips (items/actions)** — `ItemTooltipFormatter` / `CombatActionStripBuilder.Tooltips`: default Name + Rarity + Tags (items) + Requirements (items) + Stats + Triggers; action Stats include Block % (`HeroDefenseHudFormatter`) and standing class / material-convert / WHILE_EQUIPPED tag bonuses (`ActionCardExternalBonusCollector`). Hold **Alt** (`HoverTooltipDetailState`, synced from MainWindow keys + pointer modifiers) for remaining detail. Drawn via `DungeonRenderer.RoomAndCombat` / `RightPanelRenderer` / `LeftPanelTooltipBuilder`. Left-panel **HERO** (and **STATS** when HERO is collapsed) shows standing BLOCK % and class DEFENSE layer (`CharacterPanelRenderer`); Defense hover (`StatTooltipFormatter`) lists the same live numbers. Left-panel GEAR/STATS/Sets tips dock to the center panel’s left inner edge at the hovered row (`HoverTooltipDrawing.GetHorizontalPositionAvoidingTarget` / `GetVerticalPositionNearTarget`) so they overlay the center as an extension of the sidebar.
 - **`Code/UI/Avalonia/CanvasUICoordinator.cs`** - Main coordinator implementing IUIManager, delegates to specialized managers
 - **`Code/UI/Avalonia/CanvasUITypes.cs`** - Shared types (ClickableElement, ElementType) for UI interactions
 - **`Code/UI/Avalonia/Managers/ICanvasContextManager.cs`** - Interface for managing UI state and context
@@ -402,7 +402,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/Utils/TestManager.cs`** - Test execution and analysis framework
 - **`Code/Data/JsonLoader.cs`** - Common JSON loading and file operations
 - **`Code/Data/JsonArraySheetConverter/`** - Google Sheets JSON array push/pull (partials by sheet type; helpers in `SheetCellFormatters`, `StatBonusSheetBracketParser`, etc.)
-- **`Code/Data/ActionSheetsPushService.cs`** - ACTIONS tab OAuth push: live-tab header, `InsertDimension` for missing ENERGY/CADENCES/TRIGGERS/RESERVE columns (writes only new header cells), preserves unknown designer columns; convert-scale aliases in `ActionConvertScaleSheetColumns`
+- **`Code/Data/ActionSheetsPushService.cs`** - ACTIONS tab OAuth push: live-tab header, `InsertDimension` for missing BLOCK/CADENCES/TRIGGERS/RESERVE columns (writes only new header cells), preserves unknown designer columns; convert-scale aliases in `ActionConvertScaleSheetColumns`
 - **`Code/Game/GameTicker.cs`** - Game time management and ticker system
 
 ## 📊 Data Management
@@ -437,7 +437,7 @@ GameData/
 - **`Item`** - Base item class in `Item.cs`
 
 ### **Configuration Classes**
-- **`CombatBalanceConfig`** - Critical hits, roll-band damage multipliers, status/environmental knobs. Live hero **BLOCK** is leftover energy % (`ClassDefenseCalculator` / `CombatConfig.LeftoverBlockPercent1/2`), not this config’s leftover block/dodge/parry mention.
+- **`CombatBalanceConfig`** - Critical hits, roll-band damage multipliers, status/environmental knobs. Live hero **BLOCK** is standing action Block % (`ClassDefenseCalculator` / `StandingBlock`), not this config’s leftover block/dodge/parry mention.
 - **`ExperienceSystemConfig`** - Character progression and experience formulas
 - **`LootSystemConfig`** - Loot drop rates and economy settings
 - **`DungeonScalingConfig`** - Dungeon generation and scaling parameters
@@ -623,7 +623,7 @@ The `Scripts/count-cs-lines-no-tests.ps1` script flags `.cs` files over **400 li
 ## ⚙️ Configuration Systems
 
 ### **Implemented Configurable Systems**
-1. **CombatBalance** - Critical hits, armor reduction; hero BLOCK uses leftover energy % (`LeftoverBlockPercent1/2`) plus class DEFENSE layers (`ClassDefenseCalculator`); enemies keep 100% armor subtract
+1. **CombatBalance** - Critical hits, armor reduction; hero BLOCK uses standing action Block % (`StandingBlock` / `ClassDefenseCalculator`) plus class DEFENSE layers; enemies keep 100% armor subtract
 2. **ExperienceSystem** - Character progression and experience formulas
 3. **LootSystem** - Drop chances, magic find, and economy settings
 4. **DungeonScaling** - Room counts, enemy spawns, and generation parameters

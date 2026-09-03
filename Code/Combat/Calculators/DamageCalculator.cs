@@ -357,7 +357,7 @@ namespace RPGGame.Combat.Calculators
         }
 
         /// <summary>
-        /// True when this swing ignores leftover BLOCK, Warrior DEFENSE %, and Wizard shield
+        /// True when this swing ignores standing BLOCK, Warrior DEFENSE %, and Wizard shield
         /// (action pierce, or the target is pierced). Rogue dodge can still apply.
         /// </summary>
         public static bool IgnoresArmor(Actor? target, Action? action = null)

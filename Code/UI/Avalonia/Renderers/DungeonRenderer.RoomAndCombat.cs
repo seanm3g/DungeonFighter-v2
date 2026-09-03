@@ -198,6 +198,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                         : AsciiArtAssets.Colors.White;
                 string swingLine = CombatActionStripBuilder.FormatStripSwingLine(in info, player, action, damageLineMode, i);
                 drawLine(swingLine, swingLineColor);
+                drawLine(HeroDefenseHudFormatter.FormatActionBlockSuffix(action), AsciiArtAssets.Colors.White);
 
                 foreach (var bonus in ActionCardExternalBonusCollector.BuildLines(player, action, i))
                 {

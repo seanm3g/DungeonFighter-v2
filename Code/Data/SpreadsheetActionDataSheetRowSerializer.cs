@@ -26,7 +26,7 @@ namespace RPGGame.Data
             h.SetCell(row, null, "# OF HITS", data.NumberOfHits);
             h.SetDamagePercentCell(row, data.Damage);
             h.SetCell(row, null, "SPEED(x)", data.Speed);
-            h.SetCell(row, null, ActionEnergySheetColumns.Label, data.Energy);
+            h.SetCell(row, null, ActionBlockSheetColumns.Label, data.Block);
             // Legacy DURATION / CADENCE / MECHANICS: no longer written — CADENCES triples are authoritative.
             h.SetCell(row, "MECHANICS", "MECHANICS", "", null, allowUnscopedLabelFallback: true);
             h.SetCell(row, null, "DURATION", "");

@@ -130,7 +130,7 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void TestCalculateDamageOpposedAttackAheadAndGuard()
         {
-            Console.WriteLine("\n--- CalculateDamage leftover BLOCK independent of 1d20 faces ---");
+            Console.WriteLine("\n--- CalculateDamage standing BLOCK independent of 1d20 faces ---");
 
             var attacker = TestDataBuilders.Enemy().WithName("Orc").WithHealth(100).Build();
             var hero = TestDataBuilders.Character().WithName("Tank").WithLevel(1).Build();
@@ -139,20 +139,20 @@ namespace RPGGame.Tests.Unit.Combat
             action.DamageMultiplier = 1.0;
 
             int raw = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
-            hero.LeftoverEnergy = 0;
+            hero.StandingBlockPercent = 0;
             int open = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10, true, 2, 20);
-            hero.LeftoverEnergy = 0;
+            hero.StandingBlockPercent = 0;
             int openOtherFace = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10, true, 20, 2);
             int warrior = (int)Math.Round(raw * (1.0 - ClassDefenseCalculator.GetWarriorArmorPercent(8)), MidpointRounding.AwayFromZero);
             int min = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
             int expected = Math.Max(min, warrior);
-            TestBase.AssertEqual(expected, open, "defense faces do not change leftover-0 DEFENSE %", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(expected, openOtherFace, "other defense face still leftover-0 DEFENSE %", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(expected, open, "defense faces do not change standing-0 DEFENSE %", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(expected, openOtherFace, "other defense face still standing-0 DEFENSE %", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestCalculateDamageOmittedFaceKeepsFullArmor()
         {
-            Console.WriteLine("\n--- Omitted defenseFace uses leftover 0 DEFENSE % ---");
+            Console.WriteLine("\n--- Omitted defenseFace uses standing 0 DEFENSE % ---");
 
             var attacker = TestDataBuilders.Enemy().WithName("Orc").WithHealth(100).Build();
             var hero = TestDataBuilders.Character().WithName("Tank").WithLevel(1).Build();
@@ -164,7 +164,7 @@ namespace RPGGame.Tests.Unit.Combat
             int min = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
             int dmg = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10);
             int warrior = (int)Math.Round(raw * (1.0 - ClassDefenseCalculator.GetWarriorArmorPercent(8)), MidpointRounding.AwayFromZero);
-            TestBase.AssertEqual(Math.Max(min, warrior), dmg, "leftover 0 = Warrior DEFENSE %", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(Math.Max(min, warrior), dmg, "standing 0 = Warrior DEFENSE %", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestNeutralAttackFaceWhenMissing()
@@ -287,13 +287,13 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void TestFormatterFooterMatchesCalculateDamage()
         {
-            Console.WriteLine("\n--- Formatter footer matches leftover BLOCK / DEFENSE ---");
+            Console.WriteLine("\n--- Formatter footer matches standing BLOCK / DEFENSE ---");
 
             var attacker = TestDataBuilders.Enemy().WithName("FmtOrc").WithHealth(100).Build();
             attacker.EquipItem(new WeaponItem("Club", 1, 12), "weapon");
             var hero = TestDataBuilders.Character().WithName("FmtHero").WithLevel(1).Build();
             hero.EquipItem(new ChestItem("Plate", 1, 8), "body");
-            hero.LeftoverEnergy = 2;
+            hero.StandingBlockPercent = 0.45;
             var action = TestDataBuilders.CreateMockAction("JAB");
             action.DamageMultiplier = 1.0;
             action.IsComboAction = false;
@@ -304,19 +304,19 @@ namespace RPGGame.Tests.Unit.Combat
             var (_, rollInfo) = CombatResults.FormatDamageDisplayColored(
                 attacker, hero, dmg, dmg, action, 1.0, 1.0, 0, 10, 1, false, null, default, 8);
             string footer = ColoredTextRenderer.RenderAsPlainText(rollInfo);
-            TestBase.AssertTrue(footer.Contains("leftover 2", StringComparison.Ordinal),
-                $"footer should show leftover 2, got: {footer}", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(footer.Contains("BLOCK", StringComparison.Ordinal),
-                $"footer should show BLOCK, got: {footer}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(footer.Contains("BLOCK 45%", StringComparison.Ordinal),
+                $"footer should show BLOCK 45%, got: {footer}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!footer.Contains("leftover", StringComparison.OrdinalIgnoreCase),
+                "hero footer does not show leftover energy", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!footer.Contains("def: 8", StringComparison.Ordinal),
-                "hero leftover footer does not use opposed 1d20 def:", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                "hero standing footer does not use opposed 1d20 def:", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var enemy = TestDataBuilders.Enemy().WithName("FmtFoe").WithHealth(100).Build();
             var (_, enemyInfo) = CombatResults.FormatDamageDisplayColored(
                 attacker, enemy, 10, 10, action, 1.0, 1.0, 0, 10);
             string enemyFooter = ColoredTextRenderer.RenderAsPlainText(enemyInfo);
-            TestBase.AssertTrue(!enemyFooter.Contains("leftover", StringComparison.Ordinal),
-                "enemy target has no leftover BLOCK", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!enemyFooter.Contains("BLOCK", StringComparison.Ordinal),
+                "enemy target has no standing BLOCK footer", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestEnumerate1d20VsD20Distribution()

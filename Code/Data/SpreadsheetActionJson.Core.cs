@@ -38,9 +38,9 @@ namespace RPGGame.Data
         [JsonPropertyName("speed")]
         public string Speed { get; set; } = "";
 
-        /// <summary>ENERGY column — action cost 1–3; leftover (3−cost) scales BLOCK.</summary>
-        [JsonPropertyName("energy")]
-        public string Energy { get; set; } = "";
+        /// <summary>BLOCK column — standing block percent points (0–100) until next hero action.</summary>
+        [JsonPropertyName("block")]
+        public string Block { get; set; } = "";
 
         [JsonPropertyName("duration")]
         public string Duration { get; set; } = "";

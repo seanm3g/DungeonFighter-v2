@@ -4,6 +4,18 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Combat: free action Block % replaces energy (September 2026)
+**Problem:** Energy was only a proxy for BLOCK (cost 1–3 → leftover → fixed % table) and cluttered the action budget metaphor.
+
+**Solutions:**
+1. Remove `EnergyCost` / ENERGY / leftover ledger; actions author free **Block %** (`StandingBlock`, ACTIONS **BLOCK**)
+2. Standing BLOCK until next hero action; class DEFENSE + Wizard Energy Shield unchanged
+3. Migrate legacy energy 1/2/3 → block 45/25/0; JSON field `"block"`
+4. **ACTIONS push** renames ENERGY → BLOCK in place (or deletes leftover ENERGY); inserts BLOCK only when neither exists
+5. Tests: `ActionBlockSheetColumnsTests`, `ClassDefenseCalculatorTests`, `HeroDefenseHudFormatterTests`
+
+**Related files:** `StandingBlock.cs`, `ClassDefenseCalculator.cs`, `ActionBlockSheetColumns.cs`, `ActionSheetsPushService.cs`, `Actions.json`, `HeroDefenseHudFormatter.cs`
+
 ### Bug fix: ACTIONS push skipped ENERGY and overwrote keyword-bonus headers (September 2026)
 **Problem:** Pushing ACTIONS did not add an ENERGY column, and it overwrote designer convert-scale headers at DS/DT/DU (**bonus per keyword**, **effect**, **keyword**).
 
@@ -12,10 +24,10 @@ This document contains solutions to common problems encountered during developme
 **Solutions:**
 1. Read the live ACTIONS tab header; insert new columns with `InsertDimension`; write only those header cells
 2. Overlay existing row cells for unknown columns; map **bonus per keyword** / **effect** / **keyword** as DS/DT/DU aliases; do not blank non-empty convert cells with empty JSON
-3. **`SpreadsheetActionJsonConverter`** must read/write `"energy"` on `Actions.json` round-trip (otherwise every action loads as cost **2** after pull)
-4. Tests: `ActionEnergySheetColumnsTests`, `SpreadsheetActionDataSheetRowSerializerTests`, `ActionSheetsPushRowMergerTests`
+3. Column is now **BLOCK** (`"block"`); legacy `"energy"` still migrates on load
+4. Tests: `ActionBlockSheetColumnsTests`, `SpreadsheetActionDataSheetRowSerializerTests`, `ActionSheetsPushRowMergerTests`
 
-**Related files:** `ActionSheetsPushService.cs`, `ActionEnergySheetColumns.cs`, `ActionConvertScaleSheetColumns.cs`, `SpreadsheetActionDataSheetRowSerializer.cs`, `ActionSheetsPushRowMerger.cs`, `SpreadsheetActionJsonConverter.cs`
+**Related files:** `ActionSheetsPushService.cs`, `ActionBlockSheetColumns.cs`, `ActionConvertScaleSheetColumns.cs`, `SpreadsheetActionDataSheetRowSerializer.cs`, `ActionSheetsPushRowMerger.cs`, `SpreadsheetActionJsonConverter.cs`
 
 ### Bug fix: sequence HUD painted over the Skill Tree (September 2026)
 **Problem:** Opening the Skill Tree (or other hub/menu screens) still showed the combat sequence HUD (ATTACKER / ROLL / OUTCOME / …) over the tree boxes.

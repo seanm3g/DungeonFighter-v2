@@ -231,9 +231,10 @@ namespace RPGGame.Tests.Unit.UI
                 in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic, 0);
             TestBase.AssertTrue(
                 stripSwing.StartsWith($"2x{multiFlatDmg} damage | ", StringComparison.Ordinal)
-                && stripSwing.Contains(" | E", StringComparison.Ordinal)
+                && stripSwing.Contains("s", StringComparison.Ordinal)
+                && !stripSwing.Contains("Block ", StringComparison.Ordinal)
                 && !stripSwing.Contains("amp:", StringComparison.Ordinal),
-                "FormatStripSwingLine is NxN damage | seconds | En (no amp label)",
+                "FormatStripSwingLine is NxN damage | seconds (Block is a separate card line)",
                 ref run, ref passed, ref failed);
             CombatActionStripBuilder.GetStripSwingDisplayPercents(
                 in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic,
@@ -254,10 +255,10 @@ namespace RPGGame.Tests.Unit.UI
             string tipMultiJoined = tipMulti != null ? string.Join("\n", tipMulti) : "";
             TestBase.AssertTrue(tipMultiJoined.Contains($"2x{multiDmgPct:F0}% damage", StringComparison.Ordinal)
                 && tipMultiJoined.Contains($"Spd {multiSpdPct:F0}%", StringComparison.Ordinal)
-                && tipMultiJoined.Contains("Energy ", StringComparison.Ordinal)
+                && tipMultiJoined.Contains("Block ", StringComparison.Ordinal)
                 && !tipMultiJoined.Contains("amp:", StringComparison.Ordinal)
                 && tipMultiJoined.Contains("AMP:", StringComparison.Ordinal),
-                "BuildActionTooltipLines includes multihit % damage/speed, energy leftover, and AMP calc (no compact amp:)",
+                "BuildActionTooltipLines includes multihit % damage/speed, block %, and AMP calc (no compact amp:)",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(!tipJoined.Contains("(Normal)", StringComparison.Ordinal),
                 "BuildActionTooltipLines omits speed flavor labels from action details",

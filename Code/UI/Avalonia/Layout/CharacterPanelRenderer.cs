@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
+using RPGGame.Combat.Calculators;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Feedback;
@@ -612,15 +613,15 @@ namespace RPGGame.UI.Avalonia.Layout
         }
         
         /// <summary>
-        /// Standing leftover energy, BLOCK %, and class DEFENSE layer. Shown under HP when HERO is open,
+        /// Standing BLOCK % and class DEFENSE layer. Shown under HP when HERO is open,
         /// or under Defense in STATS when HERO is collapsed.
         /// </summary>
         private void RenderStandingDefenseHud(Character character, int x, ref int y, out int leftoverY, out int classY)
         {
             leftoverY = y;
-            int leftover = Math.Max(0, character.LeftoverEnergy);
-            var color = leftover > 0 ? AsciiArtAssets.Colors.Cyan : AsciiArtAssets.Colors.White;
-            canvas.AddText(x, y, HeroDefenseHudFormatter.FormatLeftoverBlockLine(character), color);
+            double blockPct = ClassDefenseCalculator.GetBlockPercent(character);
+            var color = blockPct > 0 ? AsciiArtAssets.Colors.Cyan : AsciiArtAssets.Colors.White;
+            canvas.AddText(x, y, HeroDefenseHudFormatter.FormatStandingBlockLine(character), color);
             y++;
             string classLine = HeroDefenseHudFormatter.FormatClassLayerLine(character);
             if (string.IsNullOrEmpty(classLine))

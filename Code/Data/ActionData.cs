@@ -28,9 +28,9 @@ namespace RPGGame
         public string ScaleFormula { get; set; } = "";
         [JsonPropertyName("length")]
         public double Length { get; set; }
-        /// <summary>Action energy cost 1–3. Leftover (3−cost) scales BLOCK. Missing/invalid defaults to 2.</summary>
-        [JsonPropertyName("energyCost")]
-        public int EnergyCost { get; set; } = 2;
+        /// <summary>Standing BLOCK fraction 0–1 from this action. Missing/invalid defaults to 0.25.</summary>
+        [JsonPropertyName("blockPercent")]
+        public double BlockPercent { get; set; } = 0.25;
         [JsonPropertyName("causesBleed")]
         public bool CausesBleed { get; set; }
         [JsonPropertyName("causesWeaken")]

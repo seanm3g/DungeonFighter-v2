@@ -31,7 +31,7 @@ namespace RPGGame.Tests.Runners
             ("JsonArraySheetConverter", () => JsonArraySheetConverterTests.RunAllTests()),
             ("GameDataTagHelper", () => GameDataTagHelperTests.RunAllTests()),
             ("ReservePoolAction", () => ReservePoolActionTests.RunAllTests()),
-            ("ActionEnergy", () => ActionEnergySheetColumnsTests.RunAllTests()),
+            ("ActionBlock", () => ActionBlockSheetColumnsTests.RunAllTests()),
             ("ClassPresentationSheetConverter", () => ClassPresentationSheetConverterTests.RunAllTests()),
             ("ClassActionsSheetConverter", () => ClassActionsSheetConverterTests.RunAllTests()),
             ("SkillTreesSheetConverter", () => SkillTreesSheetConverterTests.RunAllTests()),

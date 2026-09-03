@@ -131,6 +131,10 @@ namespace RPGGame.Data
                     service, cfg, header, cancellationToken)
                 .ConfigureAwait(false);
 
+            header = await ReplaceEnergyColumnWithBlockAsync(
+                    service, cfg, header, cancellationToken)
+                .ConfigureAwait(false);
+
             SpreadsheetHeader headerBeforeEnsure = header;
 
             var ensuredTriggers = ActionTriggerSheetColumns.EnsureHeader(header);
@@ -145,9 +149,9 @@ namespace RPGGame.Data
             header = ensuredReserve.Header;
             headerExpanded = headerExpanded || ensuredReserve.ColumnsAdded;
 
-            var ensuredEnergy = ActionEnergySheetColumns.EnsureHeader(header);
-            header = ensuredEnergy.Header;
-            headerExpanded = headerExpanded || ensuredEnergy.ColumnsAdded;
+            var ensuredBlock = ActionBlockSheetColumns.EnsureHeader(header);
+            header = ensuredBlock.Header;
+            headerExpanded = headerExpanded || ensuredBlock.ColumnsAdded;
 
             if (headerExpanded)
             {
@@ -259,6 +263,90 @@ namespace RPGGame.Data
                 $"column F left unchanged for sheet formulas; TAGS column E included; API reports TotalUpdatedRows={updated}, TotalUpdatedCells={updatedCells}).");
 
             return new ActionSheetsPushOutcome(bodyRows.Count, firstDataRowOneBased, updated, updatedCells);
+        }
+
+        /// <summary>
+        /// Replaces ACTIONS <c>ENERGY</c> with <c>BLOCK</c>: rename the first ENERGY header in place,
+        /// then delete any remaining ENERGY columns (duplicates or ENERGY beside an existing BLOCK).
+        /// </summary>
+        private static async Task<SpreadsheetHeader> ReplaceEnergyColumnWithBlockAsync(
+            SheetsService service,
+            SheetsPushConfig cfg,
+            SpreadsheetHeader header,
+            CancellationToken cancellationToken)
+        {
+            var (renamedHeader, renamedIndices) = ActionBlockSheetColumns.TryRenameEnergyToBlock(header);
+            header = renamedHeader;
+
+            if (renamedIndices.Count > 0)
+            {
+                string sheet = SheetsPushUtilities.EscapeSheetName(cfg.ActionsSheetTabName);
+                int labelRowOneBased = header.LabelRowIndex + 1;
+                var batchData = new List<ValueRange>(renamedIndices.Count);
+                foreach (int index in renamedIndices)
+                {
+                    string letter = SheetsPushUtilities.ColumnIndexToA1Letters(index);
+                    batchData.Add(new ValueRange
+                    {
+                        Range = $"{sheet}!{letter}{labelRowOneBased}",
+                        MajorDimension = "ROWS",
+                        Values = new List<IList<object>> { new List<object> { ActionBlockSheetColumns.Label } }
+                    });
+                }
+
+                SheetsPushUtilities.NormalizeValueRangeGridsForUpload(batchData);
+                await service.Spreadsheets.Values
+                    .BatchUpdate(
+                        new BatchUpdateValuesRequest
+                        {
+                            ValueInputOption = "RAW",
+                            Data = batchData
+                        },
+                        cfg.SpreadsheetId)
+                    .ExecuteAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
+                string letters = string.Join(", ",
+                    renamedIndices.Select(SheetsPushUtilities.ColumnIndexToA1Letters));
+                Console.WriteLine(
+                    $"Sheets push: renamed ENERGY → BLOCK on tab {cfg.ActionsSheetTabName} ({letters}).");
+            }
+
+            var leftoverEnergy = ActionBlockSheetColumns.CollectEnergyColumnIndicesToRemove(header);
+            if (leftoverEnergy.Count == 0)
+                return header;
+
+            var ranges = ActionCadenceSheetColumns.BuildDescendingDeleteRanges(leftoverEnergy);
+            int sheetId = await ResolveActionsSheetIdAsync(service, cfg, cancellationToken).ConfigureAwait(false);
+            var requests = new List<Request>(ranges.Count);
+            foreach (var (start, end) in ranges)
+            {
+                requests.Add(new Request
+                {
+                    DeleteDimension = new DeleteDimensionRequest
+                    {
+                        Range = new DimensionRange
+                        {
+                            SheetId = sheetId,
+                            Dimension = "COLUMNS",
+                            StartIndex = start,
+                            EndIndex = end
+                        }
+                    }
+                });
+            }
+
+            await service.Spreadsheets
+                .BatchUpdate(new BatchUpdateSpreadsheetRequest { Requests = requests }, cfg.SpreadsheetId)
+                .ExecuteAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            string deletedLetters = string.Join(", ",
+                leftoverEnergy.Select(SheetsPushUtilities.ColumnIndexToA1Letters));
+            Console.WriteLine(
+                $"Sheets push: deleted {leftoverEnergy.Count} leftover ENERGY column(s) on tab {cfg.ActionsSheetTabName} ({deletedLetters}).");
+
+            return ActionCadenceSheetColumns.RemoveColumns(header, leftoverEnergy);
         }
 
         /// <summary>

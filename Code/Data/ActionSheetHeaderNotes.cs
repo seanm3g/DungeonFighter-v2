@@ -182,10 +182,10 @@ namespace RPGGame.Data
                 "Flat weapon speed points (HERO/ENEMY BASE). Not ACTION SPEED %. Cadence-scoped (TURN/ACTION/FIGHT/DUNGEON).",
             ["WEAPONDAMAGE"] =
                 "Flat weapon damage (HERO/ENEMY BASE). Not ACTION DAMAGE / DAMAGE(%). Cadence-scoped.",
-            ["ENERGY"] =
-                "1–3 energy. Leftover (3−cost) scales BLOCK.",
-            ["ENERGYCOST"] =
-                "1–3 energy. Leftover (3−cost) scales BLOCK.",
+            ["BLOCK"] =
+                "Standing BLOCK % (0–100) until the next hero action. Predominant damage reduction.",
+            ["BLOCKPERCENT"] =
+                "Standing BLOCK % (0–100) until the next hero action. Predominant damage reduction.",
             ["DS"] =
                 "Convert scale: material this action reads (ACTIONS DS). Alias header: bonus per keyword.",
             ["BONUSPERKEYWORD"] =

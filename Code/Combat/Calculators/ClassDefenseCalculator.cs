@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace RPGGame.Combat.Calculators
 {
     /// <summary>
-    /// Result of leftover BLOCK + class DEFENSE applied to one incoming hit on the hero.
+    /// Result of standing BLOCK + class DEFENSE applied to one incoming hit on the hero.
     /// </summary>
     public readonly struct HeroMitigationResult
     {
@@ -18,7 +18,7 @@ namespace RPGGame.Combat.Calculators
     }
 
     /// <summary>
-    /// Leftover BLOCK % (dominant when leftover &gt; 0) plus class interpretation of the DEFENSE rating.
+    /// Standing BLOCK % (dominant when &gt; 0) plus class interpretation of the DEFENSE rating.
     /// Does not read material sets.
     /// </summary>
     public static class ClassDefenseCalculator
@@ -37,15 +37,8 @@ namespace RPGGame.Combat.Calculators
             return null;
         }
 
-        public static double GetBlockPercent(int leftover)
-        {
-            var cfg = GameConfiguration.Instance?.Combat;
-            if (leftover >= 2)
-                return Clamp01(cfg?.LeftoverBlockPercent2 ?? 0.45);
-            if (leftover == 1)
-                return Clamp01(cfg?.LeftoverBlockPercent1 ?? 0.25);
-            return 0.0;
-        }
+        public static double GetBlockPercent(Character? hero) =>
+            StandingBlock.ClampFraction(hero?.StandingBlockPercent ?? 0);
 
         /// <summary>Warrior / unarmed: always-on armor % from DEFENSE rating (diminishing, cap 25%).</summary>
         public static double GetWarriorArmorPercent(int defenseRating)
@@ -102,8 +95,8 @@ namespace RPGGame.Combat.Calculators
         }
 
         /// <summary>
-        /// Hero-only mitigation: Rogue dodge (even on pierce), leftover BLOCK %, Warrior DEFENSE %,
-        /// Wizard shield absorb, Barbarian Rage mint. Leftover 0 skips BLOCK.
+        /// Hero-only mitigation: Rogue dodge (even on pierce), standing BLOCK %, Warrior DEFENSE %,
+        /// Wizard shield absorb, Barbarian Rage mint. Standing 0 skips BLOCK.
         /// </summary>
         public static HeroMitigationResult ApplyIncoming(Character hero, int incoming, bool pierce)
         {
@@ -122,7 +115,7 @@ namespace RPGGame.Combat.Calculators
                 };
             }
 
-            double blockPct = pierce ? 0.0 : GetBlockPercent(hero.LeftoverEnergy);
+            double blockPct = pierce ? 0.0 : GetBlockPercent(hero);
             if (blockPct > 0)
                 remaining = RoundMul(remaining, 1.0 - blockPct);
 
@@ -171,13 +164,11 @@ namespace RPGGame.Combat.Calculators
             return roll <= threshold;
         }
 
-        /// <summary>Sequence HUD DEFENSE beats: leftover, BLOCK %, class layer.</summary>
+        /// <summary>Sequence HUD DEFENSE beats: BLOCK %, class layer.</summary>
         public static List<string> FormatHudLines(Character hero, bool pierce)
         {
             var lines = new List<string>();
-            int leftover = Math.Max(0, hero.LeftoverEnergy);
-            double blockPct = pierce ? 0.0 : GetBlockPercent(leftover);
-            lines.Add($"leftover {leftover}");
+            double blockPct = pierce ? 0.0 : GetBlockPercent(hero);
             lines.Add($"BLOCK {(int)Math.Round(blockPct * 100.0, MidpointRounding.AwayFromZero)}%");
 
             var weapon = GetDefenseWeaponType(hero);
@@ -214,12 +205,5 @@ namespace RPGGame.Combat.Calculators
 
         private static int RoundMul(int value, double factor) =>
             Math.Max(0, (int)Math.Round(value * factor, MidpointRounding.AwayFromZero));
-
-        private static double Clamp01(double v)
-        {
-            if (v < 0) return 0;
-            if (v > 1) return 1;
-            return v;
-        }
     }
 }

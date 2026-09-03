@@ -4,23 +4,25 @@ using RPGGame.Combat.Calculators;
 namespace RPGGame
 {
     /// <summary>
-    /// Player-facing leftover energy, BLOCK %, class DEFENSE, and action ENERGY strings for HUD and tooltips.
+    /// Player-facing standing BLOCK %, class DEFENSE, and action block strings for HUD and tooltips.
     /// </summary>
     public static class HeroDefenseHudFormatter
     {
-        public static string FormatLeftoverBlockLine(Character hero)
+        public static string FormatStandingBlockLine(Character hero)
         {
-            int leftover = Math.Max(0, hero.LeftoverEnergy);
-            int block = Percent(ClassDefenseCalculator.GetBlockPercent(leftover));
-            return $"Leftover {leftover}  BLOCK {block}%";
+            int block = Percent(ClassDefenseCalculator.GetBlockPercent(hero));
+            return $"BLOCK {block}%";
         }
+
+        /// <summary>Backward-compatible alias for standing BLOCK line.</summary>
+        public static string FormatLeftoverBlockLine(Character hero) => FormatStandingBlockLine(hero);
 
         public static string FormatClassLayerLine(Character hero)
         {
             var lines = ClassDefenseCalculator.FormatHudLines(hero, pierce: false);
-            if (lines.Count < 3)
+            if (lines.Count < 2)
                 return "";
-            string raw = lines[2];
+            string raw = lines[1];
             if (raw.StartsWith("dodge ", StringComparison.Ordinal))
                 return "Dodge " + raw.Substring("dodge ".Length);
             if (raw.StartsWith("shield ", StringComparison.Ordinal))
@@ -28,17 +30,15 @@ namespace RPGGame
             return raw;
         }
 
-        public static string FormatActionEnergySuffix(Action action) =>
-            $"E{LeftoverEnergy.ResolveCost(action)}";
+        public static string FormatActionBlockSuffix(Action action) =>
+            $"Block {Percent(StandingBlock.ResolveFromAction(action))}%";
 
-        public static string FormatActionEnergyTooltip(Action action)
+        public static string FormatActionBlockTooltip(Action action)
         {
-            int cost = LeftoverEnergy.ResolveCost(action);
-            int leftover = LeftoverEnergy.LeftoverFromCost(cost);
-            int block = Percent(ClassDefenseCalculator.GetBlockPercent(leftover));
-            if (leftover <= 0)
-                return $"Energy {cost} (leftover 0, DEFENSE only)";
-            return $"Energy {cost} (leftover {leftover} → BLOCK {block}%)";
+            int block = Percent(StandingBlock.ResolveFromAction(action));
+            if (block <= 0)
+                return "Block 0% (DEFENSE only)";
+            return $"Block {block}%";
         }
 
         private static int Percent(double fraction) =>

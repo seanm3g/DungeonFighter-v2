@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using RPGGame.Combat.Calculators;
 
 namespace RPGGame.Data
 {
@@ -31,7 +32,18 @@ namespace RPGGame.Data
             action.NumberOfHits = GetStringValue(root, "numberOfHits");
             action.Damage = GetStringValue(root, "damage");
             action.Speed = GetStringValue(root, "speed");
-            action.Energy = GetStringValue(root, "energy");
+            action.Block = GetStringValue(root, "block");
+            if (string.IsNullOrWhiteSpace(action.Block))
+            {
+                // Migrate legacy energy cost 1–3 → block percent points.
+                string legacyEnergy = GetStringValue(root, "energy");
+                if (!string.IsNullOrWhiteSpace(legacyEnergy)
+                    && int.TryParse(legacyEnergy.Trim(), out int energyCost))
+                {
+                    action.Block = StandingBlock.FormatPercentPoints(
+                        StandingBlock.FromLegacyEnergyCost(energyCost));
+                }
+            }
             action.Duration = GetStringValue(root, "duration");
             action.Cadence = GetStringValue(root, "cadence");
             action.Mechanics = GetStringValue(root, "mechanics");
@@ -178,7 +190,7 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "numberOfHits", value.NumberOfHits);
             WriteIfNotEmpty(writer, "damage", value.Damage);
             WriteIfNotEmpty(writer, "speed", value.Speed);
-            WriteIfNotEmpty(writer, "energy", value.Energy);
+            WriteIfNotEmpty(writer, "block", value.Block);
             WriteIfNotEmpty(writer, "duration", value.Duration);
             WriteIfNotEmpty(writer, "cadence", value.Cadence);
             WriteIfNotEmpty(writer, "mechanics", value.Mechanics);

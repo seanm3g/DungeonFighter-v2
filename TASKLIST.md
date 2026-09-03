@@ -4,6 +4,8 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Combat / action Block % (no energy):** Remove energy budget. Named actions author free **Block %**; last named swing’s standing BLOCK applies until the next named action. Unnamed hit/miss clears BLOCK (DEFENSE only). PUSH renames ENERGY → BLOCK. Tests: `ActionBlockSheetColumnsTests`, `ClassDefenseCalculatorTests`, `HeroDefenseHudFormatterTests`, `DamageCalculatorTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `GOOGLE_SHEETS_INTEGRATION.md`, `PROBLEM_SOLUTIONS.md`.
+
 - [x] **Bug fix / Data — ACTIONS push ENERGY + keyword-bonus headers:** Push inserts ENERGY as a real column (Sheets `InsertDimension` after SPEED) and writes only new header cells, so designer labels **bonus per keyword** / **effect** / **keyword** (DS/DT/DU) are not rewritten. Live-tab header; unknown columns preserved; convert-scale aliases on pull/push. Tests: `ActionEnergySheetColumnsTests`, `SpreadsheetActionDataSheetRowSerializerTests`, `ActionSheetsPushRowMergerTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `GOOGLE_SHEETS_INTEGRATION.md`, `PROBLEM_SOLUTIONS.md`.
 
 - [x] **Bug fix / UI — sequence HUD only in Combat:** Sequence HUD must not paint over Skill Tree (or dungeon/hub/inventory). Reserve the band only in `GameState.Combat` and Action Lab; sync reservation on state change and layout so a leftover swing cannot overlay menus. Tests: `CombatSequencePresenterTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `FORMATTING_SYSTEM_GUIDE.md`, `PROBLEM_SOLUTIONS.md`.
