@@ -199,6 +199,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                 string swingLine = CombatActionStripBuilder.FormatStripSwingLine(in info, player, action, damageLineMode, i);
                 drawLine(swingLine, swingLineColor);
 
+                // Spreadsheet DESCRIPTION directly under damage/speed (name → swing → description).
+                int rowsLeftAfterSwing = Math.Max(0, panelBottomExclusive - contentY - reserveBottomRows);
+                int descBudget = Math.Min(2, rowsLeftAfterSwing);
+                foreach (var descLine in CombatActionStripBuilder.BuildActionStripDescriptionLines(action, contentW, descBudget))
+                    drawLine(descLine, AsciiArtAssets.Colors.Gray);
+
                 foreach (var bonus in ActionCardExternalBonusCollector.BuildLines(player, action, i))
                 {
                     if (string.IsNullOrWhiteSpace(bonus.Text))

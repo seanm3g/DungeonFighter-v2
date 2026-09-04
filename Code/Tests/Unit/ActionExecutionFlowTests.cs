@@ -6,6 +6,7 @@ using RPGGame;
 using RPGGame.Tests;
 using RPGGame.Utils;
 using RPGGame.Actions;
+using RPGGame.Actions.Conditional;
 using RPGGame.Actions.Execution;
 using RPGGame.Actions.RollModification;
 using RPGGame.Data;
@@ -47,6 +48,7 @@ namespace RPGGame.Tests.Unit
             TestEnemySheetDamageModDoesNotPersistAcrossEnemySwings();
             TestDeferredSheetAccuracyOnEnemyHitQueuesEnemyFifo();
             TestEnemyComboSelectionUsesFreshThresholdAfterPriorSwingOverrides();
+            TestReplaceNextRollFaceGatesComboSelection();
             TestShouldFlashComboCompleteRules();
             TestConcurrentLastActionMapsDoNotThrow();
 
@@ -60,17 +62,23 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
             var enemy = TestDataBuilders.Enemy().WithName("TestEnemy").Build();
 
-            // Test character action selection
+            // Test character action selection (unnamed synthetic normal is valid below combo threshold)
             var charAction = ActionSelector.SelectActionByEntityType(character);
             var charActionPool = character.GetActionPool();
-            TestBase.AssertTrue(charAction == null || charActionPool.Contains(charAction), 
-                "Character action selection should return action from pool", 
+            TestBase.AssertTrue(
+                charAction == null
+                || charActionPool.Contains(charAction)
+                || (!charAction.IsComboAction && string.IsNullOrEmpty(charAction.Name)),
+                "Character action selection should return pool action or unnamed normal",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test enemy action selection
+            // Test enemy action selection (combo-only pools yield unnamed normal below threshold)
             var enemyAction = ActionSelector.SelectActionByEntityType(enemy);
-            TestBase.AssertTrue(enemyAction == null || enemy.ActionPool.Any(item => item.action == enemyAction), 
-                "Enemy action selection should return action from pool", 
+            TestBase.AssertTrue(
+                enemyAction == null
+                || enemy.ActionPool.Any(item => item.action == enemyAction)
+                || (!enemyAction.IsComboAction && string.IsNullOrEmpty(enemyAction.Name)),
+                "Enemy action selection should return pool action or unnamed normal",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test selection when stunned
@@ -718,6 +726,80 @@ namespace RPGGame.Tests.Unit
                 ActionSelector.ClearStoredRolls();
                 tm.ResetThresholds(enemy);
                 tm.ResetThresholds(hero);
+            }
+        }
+
+        /// <summary>
+        /// LOADED DICE / replace_next_roll must force the natural face used for combo-vs-normal selection.
+        /// Previously selection used a fresh d20, then the face was overwritten — so roll 18 could pick SLAM
+        /// while the log showed roll 12 with combo amp.
+        /// </summary>
+        private static void TestReplaceNextRollFaceGatesComboSelection()
+        {
+            Console.WriteLine("\n--- replace_next_roll face gates combo selection (Loaded Dice) ---");
+
+            _ = GameConfiguration.Instance;
+            CombatTriggerContext.ResetForBattle();
+
+            var hero = TestDataBuilders.Character().WithName("LoadedDiceHero").WithStats(10, 10, 10, 0).Build();
+            var enemy = TestDataBuilders.Enemy().WithName("LoadedDiceFoe").Build();
+            hero.ActionPool.Clear();
+            var slam = TestDataBuilders.CreateMockAction("SLAM", ActionType.Attack);
+            slam.IsComboAction = true;
+            slam.ComboOrder = 1;
+            slam.DamageMultiplier = 1.0;
+            slam.Length = 1.0;
+            hero.AddAction(slam, 1.0);
+            hero.Actions.AddToCombo(slam);
+            hero.ComboStep = 0;
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCrit = new Dictionary<Actor, bool>();
+
+            try
+            {
+                // Raw die would be combo (18), but Loaded Dice replaces next natural with 12 (below threshold).
+                CombatTriggerContext.SetPendingReplaceRollFace(hero, 12);
+                Dice.SetTestRoll(18);
+                ActionSelector.ClearStoredRolls();
+
+                var outcome = ActionExecutionFlow.Execute(hero, enemy, null, null, null, null, lastUsed, lastCrit);
+
+                TestBase.AssertEqual(12, outcome.BaseRoll,
+                    "Base roll should be the replaced face 12",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(12, outcome.ModifiedBaseRoll,
+                    "Modified base roll should stay 12 when no multi-dice mods",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                var sel = outcome.SelectedAction;
+                TestBase.AssertTrue(sel != null && !sel.IsComboAction && string.IsNullOrEmpty(sel.Name),
+                    "Replaced face 12 must select unnamed normal (not SLAM), despite Dice.SetTestRoll(18)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!outcome.IsCombo,
+                    "IsCombo must be false for below-threshold replaced face",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                double amp = ActionUtilities.CalculateDamageMultiplier(hero, sel!);
+                TestBase.AssertTrue(amp <= 1.0001,
+                    "Combo amp must not apply on unnamed normal after replace_next_roll 12",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // Above-threshold replace still selects the strip action.
+                CombatTriggerContext.SetPendingReplaceRollFace(hero, 15);
+                Dice.SetTestRoll(3);
+                ActionSelector.ClearStoredRolls();
+                var comboOutcome = ActionExecutionFlow.Execute(hero, enemy, null, null, null, null, lastUsed, lastCrit);
+                TestBase.AssertEqual(15, comboOutcome.BaseRoll,
+                    "Above-threshold replace face 15 is the natural roll",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(comboOutcome.SelectedAction != null && comboOutcome.SelectedAction.IsComboAction,
+                    "Replaced face 15 must select combo strip action",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.SetTestRoll(null);
+                ActionSelector.ClearStoredRolls();
+                CombatTriggerContext.ResetForBattle();
             }
         }
 

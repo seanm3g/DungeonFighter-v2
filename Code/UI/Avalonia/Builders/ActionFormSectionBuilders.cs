@@ -32,7 +32,7 @@ namespace RPGGame.UI.Avalonia.Builders
             var (section, stack) = _ctx.Factory.CreateFormSection("Basic Properties");
             parent.Children.Add(section);
             _ctx.Factory.AddFormField(stack, "Name", action.Name, (value) => action.Name = value, description: "e.g. Basic Attack or action id", onTextChanged: (value) => action.Name = value);
-            _ctx.Factory.AddFormField(stack, "Description", action.Description, (value) => action.Description = value, isMultiline: true, description: "Optional flavor / design notes. Combat cards and strip hover list mechanical mods only.", onTextChanged: (value) => action.Description = value);
+            _ctx.Factory.AddFormField(stack, "Description", action.Description, (value) => action.Description = value, isMultiline: true, description: "ACTIONS spreadsheet DESCRIPTION — shown on combat/inventory action-card body. Strip hover still lists mechanical mods (not this prose).", onTextChanged: (value) => action.Description = value);
 
             var rarityOptions = new List<string> { ActionFormOptions.NoneOption };
             rarityOptions.AddRange(ActionFormOptions.RarityDropdownOptions.Skip(1));

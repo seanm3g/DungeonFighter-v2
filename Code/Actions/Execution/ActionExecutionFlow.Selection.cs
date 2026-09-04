@@ -55,10 +55,17 @@ namespace RPGGame.Actions.Execution
             if (CombatTriggerContext.TryGetCritFaceMin(source, out int critFaceMin))
                 thresholdManager.SetCriticalHitThreshold(source, critFaceMin);
 
+            // Consume replace_next_roll (Loaded Dice, etc.) before combo-vs-normal selection so the forced
+            // face gates strip picks. Applying it only after SelectActionByEntityType allowed a high raw d20
+            // to select SLAM/etc. while the log showed the replaced below-threshold face with combo amp.
+            int? replaceFace = null;
+            if (CombatTriggerContext.TryConsumePendingReplaceRollFace(source, out int replacedFace))
+                replaceFace = replacedFace;
+
             Action? selected = forcedAction;
             if (selected == null && StripMutationApplier.TryConsumeReplaceNext(source, out var stripReplace) && stripReplace != null)
                 selected = stripReplace;
-            result.SelectedAction = selected ?? ActionSelector.SelectActionByEntityType(source);
+            result.SelectedAction = selected ?? ActionSelector.SelectActionByEntityType(source, replaceFace);
             if (result.SelectedAction == null) return;
             lastUsedActions[source] = result.SelectedAction;
             if (source is Character preRollHero && preRollHero is not Enemy)
@@ -71,8 +78,12 @@ namespace RPGGame.Actions.Execution
             if (forcedAction != null && RetriggerDepth > 0)
                 ActionSelector.SetStoredActionRoll(source, Dice.Roll(1, 20));
             result.BaseRoll = ActionSelector.GetActionRoll(source);
-            if (CombatTriggerContext.TryConsumePendingReplaceRollFace(source, out int replacedFace))
-                result.BaseRoll = replacedFace;
+            // Forced / strip-replaced actions skip selection; still apply the consumed replace face to the die.
+            if (replaceFace.HasValue)
+            {
+                result.BaseRoll = replaceFace.Value;
+                ActionSelector.SetStoredActionRoll(source, replaceFace.Value);
+            }
             if (source is Character character && !(character is Enemy) && forcedAction == null)
                 result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
 

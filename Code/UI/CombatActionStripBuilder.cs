@@ -434,6 +434,57 @@ namespace RPGGame
             action == null ? "" : BuildActionMetadataLine(action);
 
         /// <summary>
+        /// Author description from the ACTIONS spreadsheet / <c>Actions.json</c> (<see cref="ActionData.Description"/>).
+        /// Prefers loaded sheet data so mechanical enhancer suffixes on <see cref="Action.Description"/> stay off the card.
+        /// </summary>
+        public static string ResolveActionCardDescription(Action? action)
+        {
+            if (action == null)
+                return "";
+
+            if (!string.IsNullOrWhiteSpace(action.Name))
+            {
+                var data = ActionLoader.GetActionData(action.Name);
+                if (data != null && !string.IsNullOrWhiteSpace(data.Description))
+                    return data.Description.Trim();
+            }
+
+            string raw = (action.Description ?? "").Trim();
+            if (string.IsNullOrEmpty(raw))
+                return "";
+
+            // ActionDescriptionEnhancer appends " | Roll: …" mechanical notes — keep only the author prefix.
+            int pipe = raw.IndexOf(" | ", StringComparison.Ordinal);
+            if (pipe > 0)
+                return raw.Substring(0, pipe).Trim();
+
+            return raw;
+        }
+
+        /// <summary>
+        /// Wrapped spreadsheet/author description lines for the action-card body (directly under damage/speed).
+        /// </summary>
+        public static List<string> BuildActionStripDescriptionLines(Action? action, int maxWidth, int maxLines)
+        {
+            var lines = new List<string>();
+            if (action == null || maxLines <= 0 || maxWidth < 4)
+                return lines;
+
+            string desc = ResolveActionCardDescription(action);
+            if (string.IsNullOrWhiteSpace(desc))
+                return lines;
+
+            foreach (string line in WrapTextToLines(desc, maxWidth))
+            {
+                if (lines.Count >= maxLines)
+                    break;
+                lines.Add(line);
+            }
+
+            return lines;
+        }
+
+        /// <summary>
         /// Extra modifier lines for compact action strip cards after the swing (damage/seconds) line: deferred sheet accuracy
         /// (and related lines) so cards match tooltip behavior, compact stat bonuses, and cadence bonus groups.
         /// Current-roll accuracy is shown only under TURN/ACTION cadence headers, not as a standalone Acc line.

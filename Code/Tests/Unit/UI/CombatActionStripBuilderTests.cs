@@ -291,6 +291,42 @@ namespace RPGGame.Tests.Unit.UI
                 "BuildActionTooltipLines omits narrative Action.Description",
                 ref run, ref passed, ref failed);
 
+            var flavorOnly = TestDataBuilders.CreateMockAction("FlavorCardOnly", ActionType.Attack);
+            flavorOnly.Description = "SHEET_DESC_FOR_CARD_BODY";
+            var cardDescLines = CombatActionStripBuilder.BuildActionStripDescriptionLines(flavorOnly, 80, 2);
+            TestBase.AssertTrue(
+                cardDescLines.Count == 1 && cardDescLines[0] == "SHEET_DESC_FOR_CARD_BODY",
+                "BuildActionStripDescriptionLines shows author Action.Description on the card body",
+                ref run, ref passed, ref failed);
+
+            flavorOnly.Description = "Author flavor | Roll: +1, Damage: 1.2x";
+            TestBase.AssertEqual(
+                "Author flavor",
+                CombatActionStripBuilder.ResolveActionCardDescription(flavorOnly),
+                "ResolveActionCardDescription strips ActionDescriptionEnhancer mechanical suffix",
+                ref run, ref passed, ref failed);
+
+            var longDesc = TestDataBuilders.CreateMockAction("LongDescCard", ActionType.Attack);
+            longDesc.Description = "word word word word word word";
+            var wrappedDesc = CombatActionStripBuilder.BuildActionStripDescriptionLines(longDesc, 10, 2);
+            TestBase.AssertTrue(
+                wrappedDesc.Count == 2 && wrappedDesc.TrueForAll(l => l.Length <= 10),
+                "BuildActionStripDescriptionLines wraps and respects maxLines",
+                ref run, ref passed, ref failed);
+
+            var slamData = ActionLoader.GetActionData("SLAM");
+            if (slamData != null && !string.IsNullOrWhiteSpace(slamData.Description))
+            {
+                var slamRuntime = ActionLoader.GetAction("SLAM")
+                    ?? TestDataBuilders.CreateMockAction("SLAM", ActionType.Attack);
+                string cardSlam = CombatActionStripBuilder.ResolveActionCardDescription(slamRuntime);
+                TestBase.AssertEqual(
+                    slamData.Description.Trim(),
+                    cardSlam,
+                    "ResolveActionCardDescription uses Actions.json DESCRIPTION for SLAM",
+                    ref run, ref passed, ref failed);
+            }
+
             string tipStrikeJoined = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charWithCombo, 0, 80));
             TestBase.AssertTrue(
                 !tipStrikeJoined.Contains("Weapon basic", StringComparison.Ordinal) && !tipStrikeJoined.Contains("must stay in your sequence", StringComparison.Ordinal),

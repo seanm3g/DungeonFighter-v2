@@ -88,7 +88,7 @@ On pull, the console prints a **column usage summary** (see `SpreadsheetActionCo
 |------|---------|----------|
 | **Combat / runtime** | Pulled → `Actions.json` → `ActionData` → `Action` → combat | `ACTION`, `DAMAGE` / `DAMAGE(%)`, `SPEED(x)`, `# OF HITS`, `TARGET` (column **M**: `enemy` / `self` / `environment`; empty = enemy), action-sheet status columns (`WEAKEN`, `CONFUSE`, `DISRUPT`, `LIFESTEAL`, …), hero/enemy dice mods, `CADENCE`+`DURATION` keyword bonuses, `MECHANICS` (declarative; validated on pull), next-action mods under `HERO BASE STATS` / `ENEMY BASE STATS`, flat **WEAPON SPEED** / **WEAPON DAMAGE** under `HERO BASE` / `ENEMY BASE` (or `… BASE STATS`), `JUMP`/`SHIFT`, `OPENER`/`FINISHER`, `HEAL` (under **HERO HEAL**), convert scale **DS** / **DT** / **DU** |
 | **Loot / pools only** | Pool assignment, not combat math | `RARITY`, `CATEGORY`, `TAGS` |
-| **JSON round-trip / sheet reference** | Stored in `Actions.json`; not applied in combat | `DPS(%)` (authoring reference — combat uses `DAMAGE(%)`), `DESCRIPTION` |
+| **JSON round-trip / sheet reference** | Stored in `Actions.json`; `DESCRIPTION` also shown on action-card body | `DPS(%)` (authoring reference — combat uses `DAMAGE(%)`), `DESCRIPTION` |
 | **Not ingested on CSV pull** | Push/Settings know these labels; **pull ignores** sheet cells | `WEAPON TYPES`, `CHAIN LENGTH`, `RESET`, `GRACE`, `LOOP CHAIN`, JSON blob columns, threshold flat columns, … |
 | **Sheet-only** | Never pulled | Column **F** (formulas) |
 

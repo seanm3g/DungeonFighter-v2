@@ -43,6 +43,7 @@ namespace RPGGame.Tests.Unit.Actions
             TestRoll13WithLowTechniqueStaysNormal();
             TestNatural20();
             TestPeekPendingThresholdHudShiftsFromFifo();
+            TestForcedBaseRollOverridesDiceForSelection();
             TestEdgeCases();
             TestRollBoundaries();
             TestEnemyComboOnlyPoolBelowThresholdIsUnnamedNormal();
@@ -305,6 +306,37 @@ namespace RPGGame.Tests.Unit.Actions
             p = ActionSelector.PeekPendingThresholdHudShifts(hero);
             TestBase.AssertEqual(0, p.SharedAccuracy + p.HitDelta + p.ComboDelta + p.CritDelta + p.CritMissDelta,
                 "after consume, peeked threshold shifts are zero",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// <see cref="ActionSelector.SelectActionBasedOnRoll"/> must honor an explicit forced face
+        /// (replace_next_roll) over <see cref="Dice.SetTestRoll"/> / a fresh d20.
+        /// </summary>
+        private static void TestForcedBaseRollOverridesDiceForSelection()
+        {
+            Console.WriteLine("\n--- Testing forcedBaseRoll overrides Dice for combo selection ---");
+
+            var character = CreateTestCharacterWithBothActionTypes();
+
+            Dice.SetTestRoll(18);
+            ActionSelector.ClearStoredRolls();
+            var below = ActionSelector.SelectActionBasedOnRoll(character, forcedBaseRoll: 12);
+            TestBase.AssertTrue(below != null && !below.IsComboAction,
+                "forcedBaseRoll 12 selects normal despite Dice 18",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(12, ActionSelector.GetActionRoll(character),
+                "stored action roll is the forced face",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            Dice.SetTestRoll(3);
+            ActionSelector.ClearStoredRolls();
+            var above = ActionSelector.SelectActionBasedOnRoll(character, forcedBaseRoll: 15);
+            TestBase.AssertTrue(above != null && above.IsComboAction,
+                "forcedBaseRoll 15 selects combo despite Dice 3",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(15, ActionSelector.GetActionRoll(character),
+                "stored action roll is forced 15",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -4,6 +4,10 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Bug fix / Combat — Loaded Dice replace_next_roll still triggered combo:** `replace_next_roll` was applied *after* `ActionSelector` rolled a fresh d20 for combo-vs-normal selection, so a high raw die could pick SLAM (and strip amp) while the log showed the forced face (e.g. 12). Consume the pending face before selection and pass it as `forcedBaseRoll`. Tests: `ActionExecutionFlowTests.TestReplaceNextRollFaceGatesComboSelection`, `ActionSelectorRollBasedTests.TestForcedBaseRollOverridesDiceForSelection`. Docs: `OVERVIEW.md`, `PROBLEM_SOLUTIONS.md`, `ARCHITECTURE.md`.
+
+- [x] **UI / action cards — spreadsheet DESCRIPTION in card body:** ACTIONS `DESCRIPTION` (via `Actions.json` / `ActionData.Description`) renders on combat and inventory strip cards under the damage|seconds line (name → damage/speed → description; up to 2 wrapped lines). Hover tips still omit narrative prose. `CombatActionStripBuilder.ResolveActionCardDescription` / `BuildActionStripDescriptionLines`. Tests: `CombatActionStripBuilderTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`.
+
 - [x] **UI / inventory item rows — detail lines indent under the name:** Only the `[n] [Rarity] [Slot] name` line is left-justified. **Actions:** and every stat line use a two-space indent (`ItemStatFormatter.ItemDetailLineIndent`) attached to the first content segment so ColoredTextBuilder cannot collapse it. Tests: `ItemStatFormatterTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`.
 
 - [x] **Build / CS0618 StatBonusTriggerMerge:** Removed leftover animal-suffix merge call sites (`ItemGenerator`, `LootBonusApplier`, lab factories, save load, item-stat collector). Suffixes stay dual-stat only; combat procs stay on MATERIAL BUILDS. Tests: `StatBonusAnimalSuffixTriggerTests`, `ItemTooltipFormatterTests`. Docs: `OVERVIEW.md`, `TAG_REGISTRY.md`.

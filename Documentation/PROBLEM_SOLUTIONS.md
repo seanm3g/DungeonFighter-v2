@@ -4,6 +4,18 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: Loaded Dice (replace_next_roll) still triggered combo amp (September 2026)
+**Problem:** After **LOADED DICE** set the next natural roll to **12**, the follow-up swing logged `roll: 12` but still executed a named strip action (**SLAM**) with `amp: 1.04x` despite 12 being below the combo threshold.
+
+**Root cause:** `ActionExecutionFlow.SelectActionAndResolveRoll` called `ActionSelector.SelectActionByEntityType` (which rolls a fresh d20 for combo-vs-normal selection) **before** consuming `CombatTriggerContext`’s pending replace face. A high raw die could pick the strip action; only the displayed/resolved face was overwritten to 12. Combo amp follows `action.IsComboAction`, so the wrong pick showed amp.
+
+**Solutions:**
+1. Consume `replace_next_roll` **before** selection and pass the face as `forcedBaseRoll` into `SelectActionBasedOnRoll` / `SelectEnemyActionBasedOnRoll`
+2. Forced / strip-replaced actions that skip selection still apply the same face to `BaseRoll`
+3. Tests: `ActionExecutionFlowTests.TestReplaceNextRollFaceGatesComboSelection`, `ActionSelectorRollBasedTests.TestForcedBaseRollOverridesDiceForSelection`
+
+**Related files:** `ActionExecutionFlow.Selection.cs`, `ActionSelector.cs`
+
 ### Material keyword currency now lasts the dungeon (August 2026)
 **Problem:** Material-set keyword currency (CRISIS, DRAG, …) reset at the start of every fight, so convert scale could not grow across rooms in a dungeon.
 

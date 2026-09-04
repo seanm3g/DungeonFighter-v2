@@ -44,18 +44,20 @@ namespace RPGGame
         /// Selects an action based on Actor type - heroes use roll-based logic, enemies use random selection
         /// </summary>
         /// <param name="source">The Actor selecting the action</param>
+        /// <param name="forcedBaseRoll">When set (e.g. <c>replace_next_roll</c>), use this natural face for
+        /// combo-vs-normal selection instead of rolling a fresh d20. Must match the face used for hit resolution.</param>
         /// <returns>The selected action or null if no action available</returns>
-        public static Action? SelectActionByEntityType(Actor source)
+        public static Action? SelectActionByEntityType(Actor source, int? forcedBaseRoll = null)
         {
             // Heroes/Characters use advanced roll-based system with combos
             if (source is Character character && !(character is Enemy))
             {
-                return SelectActionBasedOnRoll(source);
+                return SelectActionBasedOnRoll(source, forcedBaseRoll);
             }
             // Enemies use simple random probability-based selection
             else
             {
-                return SelectEnemyActionBasedOnRoll(source);
+                return SelectEnemyActionBasedOnRoll(source, forcedBaseRoll);
             }
         }
 
@@ -70,8 +72,10 @@ namespace RPGGame
         /// For heroes only.
         /// </summary>
         /// <param name="source">The Actor selecting the action</param>
+        /// <param name="forcedBaseRoll">Optional forced natural face (Loaded Dice / replace_next_roll). When set, selection and the
+        /// stored action roll both use this face so a below-threshold replace cannot still pick a named combo strip action.</param>
         /// <returns>The selected action or null if no action available</returns>
-        public static Action? SelectActionBasedOnRoll(Actor source)
+        public static Action? SelectActionBasedOnRoll(Actor source, int? forcedBaseRoll = null)
         {
             if (source.ActionPool.Count == 0)
                 return null;
@@ -80,8 +84,10 @@ namespace RPGGame
             if (source.IsStunned)
                 return null;
 
-            // Roll first to determine what type of action to use
-            int baseRoll = Dice.Roll(1, 20);
+            // Roll first to determine what type of action to use (or use replace_next_roll face).
+            int baseRoll = forcedBaseRoll.HasValue
+                ? Math.Clamp(forcedBaseRoll.Value, 1, 20)
+                : Dice.Roll(1, 20);
 
             // Store the base roll for use in the main execution
             _lastActionSelectionRolls.AddOrUpdate(source, baseRoll, (_, _) => baseRoll);
@@ -335,8 +341,9 @@ namespace RPGGame
         /// Selects an enemy action based on roll thresholds
         /// </summary>
         /// <param name="source">The enemy Actor</param>
+        /// <param name="forcedBaseRoll">Optional forced natural face; same contract as <see cref="SelectActionBasedOnRoll"/>.</param>
         /// <returns>The selected action or null if no action available</returns>
-        public static Action? SelectEnemyActionBasedOnRoll(Actor source)
+        public static Action? SelectEnemyActionBasedOnRoll(Actor source, int? forcedBaseRoll = null)
         {
             if (source.ActionPool.Count == 0)
                 return null;
@@ -345,7 +352,9 @@ namespace RPGGame
             if (source.IsStunned)
                 return null;
 
-            int baseRoll = Dice.Roll(1, 20);
+            int baseRoll = forcedBaseRoll.HasValue
+                ? Math.Clamp(forcedBaseRoll.Value, 1, 20)
+                : Dice.Roll(1, 20);
 
             // Store the base roll for use in hit calculation (same as heroes)
             _lastActionSelectionRolls.AddOrUpdate(source, baseRoll, (_, _) => baseRoll);
