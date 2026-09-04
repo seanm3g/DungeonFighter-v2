@@ -139,9 +139,11 @@ namespace RPGGame.Tuning
                             suggestion.SuggestedValue);
 
                     case "enemy_progression":
-                        return BalanceTuningConsole.AdjustEnemyProgressionScale(
-                            suggestion.Parameter,
-                            suggestion.SuggestedValue);
+                        if (BalanceTuningConsole.AdjustEnemyProgressionScale(
+                                suggestion.Parameter,
+                                suggestion.SuggestedValue))
+                            return true;
+                        break;
 
                     case "starting_weapon":
                         if (EarlyGameBalanceHelper.TryParseWeaponType(suggestion.Target, out var startWeapon)
@@ -172,7 +174,16 @@ namespace RPGGame.Tuning
                             suggestion.Target,
                             suggestion.Parameter,
                             suggestion.SuggestedValue);
+
+                    case "lab_balance":
+                    case "lab_fallback":
+                        break;
                 }
+
+                // Action Lab Balance (and similar) stage registry knob ids — apply by id when category
+                // handlers do not recognize the parameter (e.g. enemyBaselineHealth under enemy_progression).
+                if (TryApplyRegistryParameter(suggestion))
+                    return true;
 
                 return false;
             }
@@ -181,6 +192,19 @@ namespace RPGGame.Tuning
                 ScrollDebugLogger.Log($"TuningSuggestionApplier: Error applying suggestion: {ex.Message}");
                 return false;
             }
+        }
+
+        private static bool TryApplyRegistryParameter(TuningSuggestion suggestion)
+        {
+            if (string.IsNullOrWhiteSpace(suggestion.Parameter))
+                return false;
+
+            var param = CombatTuningParameterRegistry.GetById(suggestion.Parameter);
+            if (param == null || !param.IsImplemented)
+                return false;
+
+            param.SetValue(suggestion.SuggestedValue);
+            return true;
         }
     }
 }

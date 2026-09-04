@@ -143,11 +143,10 @@ namespace RPGGame.Tests.Unit.Combat
             int open = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10, true, 2, 20);
             hero.StandingBlockPercent = 0;
             int openOtherFace = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10, true, 20, 2);
-            int warrior = (int)Math.Round(raw * (1.0 - ClassDefenseCalculator.GetWarriorArmorPercent(8)), MidpointRounding.AwayFromZero);
             int min = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
-            int expected = Math.Max(min, warrior);
-            TestBase.AssertEqual(expected, open, "defense faces do not change standing-0 DEFENSE %", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(expected, openOtherFace, "other defense face still standing-0 DEFENSE %", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int expected = raw <= 0 ? 0 : Math.Max(min, raw);
+            TestBase.AssertEqual(expected, open, "defense faces do not change standing-0 (Tempo not DR)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(expected, openOtherFace, "other defense face still standing-0", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestCalculateDamageOmittedFaceKeepsFullArmor()
@@ -163,8 +162,8 @@ namespace RPGGame.Tests.Unit.Combat
             int raw = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
             int min = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
             int dmg = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10);
-            int warrior = (int)Math.Round(raw * (1.0 - ClassDefenseCalculator.GetWarriorArmorPercent(8)), MidpointRounding.AwayFromZero);
-            TestBase.AssertEqual(Math.Max(min, warrior), dmg, "standing 0 = Warrior DEFENSE %", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int expected = raw <= 0 ? 0 : Math.Max(min, raw);
+            TestBase.AssertEqual(expected, dmg, "standing 0 = full hit (Tempo not DR)", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestNeutralAttackFaceWhenMissing()

@@ -93,20 +93,46 @@ namespace RPGGame.UI.Avalonia.Tuning
             Closed += (_, _) => { if (ReferenceEquals(_instance, this)) _instance = null; };
         }
 
-        public static void Open(Window? owner)
+        public static void Open(Window? owner, string? preferredProfileId = null)
         {
             if (_instance != null)
             {
+                if (!string.IsNullOrWhiteSpace(preferredProfileId))
+                    _instance.TrySelectProfile(preferredProfileId);
                 _instance.Activate();
                 return;
             }
 
             var window = new BalanceTuningWorkbenchWindow();
             _instance = window;
+            if (!string.IsNullOrWhiteSpace(preferredProfileId))
+            {
+                window._pendingProfileId = preferredProfileId.Trim();
+                window.TrySelectProfile(window._pendingProfileId);
+                window._pendingProfileId = null;
+            }
             if (owner != null)
                 window.Show(owner);
             else
                 window.Show();
+        }
+
+        private string? _pendingProfileId;
+
+        private void TrySelectProfile(string profileId)
+        {
+            if (_profileComboBox?.ItemsSource is not System.Collections.IEnumerable items)
+                return;
+            foreach (var item in items)
+            {
+                if (item is ProfileListItem pli
+                    && string.Equals(pli.Profile.Id, profileId, StringComparison.OrdinalIgnoreCase))
+                {
+                    _profileComboBox.SelectedItem = pli;
+                    LoadParametersFromProfile(pli.Profile);
+                    return;
+                }
+            }
         }
 
         /// <summary>Stops any in-flight tuning run and closes the workbench during app shutdown.</summary>
@@ -208,8 +234,15 @@ namespace RPGGame.UI.Avalonia.Tuning
 
             _profileComboBox.ItemsSource = profiles;
             _profileComboBox.SelectedIndex = 0;
-            if (_profileComboBox.SelectedItem is ProfileListItem first)
+            if (!string.IsNullOrWhiteSpace(_pendingProfileId))
+            {
+                TrySelectProfile(_pendingProfileId);
+                _pendingProfileId = null;
+            }
+            else if (_profileComboBox.SelectedItem is ProfileListItem first)
+            {
                 LoadParametersFromProfile(first.Profile);
+            }
         }
 
         private void OnProfileSelectionChanged(object? sender, SelectionChangedEventArgs e)

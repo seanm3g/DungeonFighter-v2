@@ -42,6 +42,8 @@ namespace RPGGame
         public int NextTurnStatBonus { get => _state.NextTurnStatBonus; set => _state.NextTurnStatBonus = value; }
         public string NextTurnStatBonusType { get => _state.NextTurnStatBonusType; set => _state.NextTurnStatBonusType = value; }
         public int NextTurnStatBonusDuration { get => _state.NextTurnStatBonusDuration; set => _state.NextTurnStatBonusDuration = value; }
+        public double PendingDefenseTempoSpeedPct { get => _state.PendingDefenseTempoSpeedPct; set => _state.PendingDefenseTempoSpeedPct = value; }
+        public double PendingDefenseCounterDamagePct { get => _state.PendingDefenseCounterDamagePct; set => _state.PendingDefenseCounterDamagePct = value; }
 
         // Reroll
         public int RerollCharges { get => _state.RerollCharges; set => _state.RerollCharges = value; }
@@ -78,6 +80,8 @@ namespace RPGGame
         public int GetTempRollBonus() => _state.GetTempRollBonus();
         public int ConsumeTempRollBonus() => _state.ConsumeTempRollBonus();
         public double ConsumeNextTurnDamageMultiplier() => _state.ConsumeNextTurnDamageMultiplier();
+        public double ConsumePendingDefenseTempoSpeedPct() => _state.ConsumePendingDefenseTempoSpeedPct();
+        public double ConsumePendingDefenseCounterDamagePct() => _state.ConsumePendingDefenseCounterDamagePct();
         public (int bonus, string statType, int duration) ConsumeNextTurnStatBonus() => _state.ConsumeNextTurnStatBonus();
         public void ActivateComboMode() => _state.ActivateComboMode();
         public void DeactivateComboMode() => _state.DeactivateComboMode();

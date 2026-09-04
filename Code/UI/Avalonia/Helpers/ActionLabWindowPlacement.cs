@@ -110,5 +110,39 @@ namespace RPGGame.UI.Avalonia.Helpers
                     EdgeMarginPixels);
             }
         }
+
+        /// <summary>
+        /// Places the Balance Layers window to the left of the foes/actions catalog (or left-anchored if no catalog).
+        /// </summary>
+        public static void PlaceBalanceBesideCatalog(
+            Window mainGameWindow,
+            Window? catalogWindow,
+            Window balanceWindow)
+        {
+            var screens = mainGameWindow.Screens;
+            if (screens == null)
+                return;
+
+            Screen? host = screens.ScreenFromWindow(mainGameWindow) ?? screens.Primary;
+            if (host == null)
+                return;
+
+            PixelRect wa = host.WorkingArea;
+            int balW = GetWindowPixelWidth(balanceWindow);
+            int balH = GetWindowPixelHeight(balanceWindow);
+
+            if (catalogWindow != null)
+            {
+                int x = catalogWindow.Position.X - balW - EdgeMarginPixels;
+                if (x < wa.X)
+                    x = wa.X;
+                int y = wa.Y + Math.Max(0, (wa.Height - balH) / 2);
+                balanceWindow.Position = new PixelPoint(x, y);
+            }
+            else
+            {
+                balanceWindow.Position = ComputeLeftAnchoredTopLeft(wa, balW, balH, EdgeMarginPixels);
+            }
+        }
     }
 }

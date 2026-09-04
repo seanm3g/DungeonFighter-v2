@@ -487,7 +487,18 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                     var threadBtn = InventoryButtonFactory.CreateButton(x, y, threadLabel.Length, "lab_sim_parallel_toggle", threadLabel);
                     interactionManager!.AddClickableElement(threadBtn);
                     canvas.AddText(x, y, threadLabel, threadColor);
-                    RenderHudStepToggle(canvas, interactionManager, lab, interactive: true, y, x + threadLabel.Length + 2);
+                    int hudX = x + threadLabel.Length + 2;
+                    RenderHudStepToggle(canvas, interactionManager, lab, interactive: true, y, hudX);
+                    string balLabel = "[ Balance ]";
+                    int balX = hudX + 9 + 2; // "[ Swing ]" / "[ Piece ]"
+                    if (balX + balLabel.Length > ColX + ColWidth)
+                    {
+                        y++;
+                        balX = x;
+                    }
+                    var balBtn = InventoryButtonFactory.CreateButton(balX, y, balLabel.Length, "lab_balance_toggle", balLabel);
+                    interactionManager!.AddClickableElement(balBtn);
+                    canvas.AddText(balX, y, balLabel, AsciiArtAssets.Colors.Gold);
                     y++;
                 }
                 var exit = InventoryButtonFactory.CreateButton(x, y, 20, "lab_exit", "[ Exit lab ]");

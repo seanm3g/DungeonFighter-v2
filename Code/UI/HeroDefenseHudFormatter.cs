@@ -23,10 +23,14 @@ namespace RPGGame
             if (lines.Count < 2)
                 return "";
             string raw = lines[1];
-            if (raw.StartsWith("dodge ", StringComparison.Ordinal))
-                return "Dodge " + raw.Substring("dodge ".Length);
             if (raw.StartsWith("shield ", StringComparison.Ordinal))
                 return "Shield " + raw.Substring("shield ".Length);
+            if (raw.StartsWith("TEMPO ", StringComparison.Ordinal))
+                return "TEMPO " + raw.Substring("TEMPO ".Length);
+            if (raw.StartsWith("COUNTER ", StringComparison.Ordinal))
+                return "COUNTER " + raw.Substring("COUNTER ".Length);
+            if (raw.StartsWith("GRIT ", StringComparison.Ordinal))
+                return "GRIT " + raw.Substring("GRIT ".Length);
             return raw;
         }
 

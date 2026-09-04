@@ -8,6 +8,7 @@ using RPGGame.BattleStatistics;
 using RPGGame.Combat;
 using RPGGame.Data;
 using RPGGame.Entity.Services;
+using RPGGame.Tuning.LabBalance;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
@@ -67,6 +68,13 @@ namespace RPGGame.ActionInteractionLab
         public Character LabPlayer => _labPlayer;
         public Enemy LabEnemy => _labEnemy;
         public Environment LabRoom => _labRoom;
+
+        /// <summary>Loader enemy type currently selected for the lab (null = default test dummy).</summary>
+        public string? SessionEnemyLoaderType => _sessionEnemyLoaderType;
+
+        /// <summary>Active Action Lab Balance process layer (scenario recipe).</summary>
+        public LabBalanceProcessLayer ActiveBalanceProcessLayer { get; set; } =
+            LabBalanceProcessLayer.CombatEquation;
 
         /// <summary>GUI forward steps use no artificial block delays in the lab.</summary>
         public bool ZeroDisplayDelays { get; set; } = true;

@@ -1,0 +1,214 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:RPGGame.Tuning.LabBalance"
+        xmlns:settingsVm="clr-namespace:RPGGame.UI.Avalonia.Settings.ViewModels"
+        x:Class="RPGGame.UI.Avalonia.ActionInteractionLab.ActionLabBalanceWindow"
+        Title="Action Lab — Balance Layers"
+        Width="720"
+        Height="900"
+        MinWidth="560"
+        MinHeight="640"
+        Background="#FF1A1A1A">
+
+  <Window.Resources>
+    <DataTemplate x:Key="KnobRow" x:DataType="settingsVm:CombatTuningParameterViewModel">
+      <Grid ColumnDefinitions="200,*,90" Margin="0,0,0,8">
+        <TextBlock Grid.Column="0" Text="{Binding Label}" Foreground="#DDDDDD"
+                   FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap"/>
+        <StackPanel Grid.Column="1" Margin="8,0">
+          <Slider Minimum="{Binding Minimum}" Maximum="{Binding Maximum}"
+                  TickFrequency="{Binding TickFrequency}"
+                  Value="{Binding Value, Mode=TwoWay}"
+                  IsEnabled="{Binding IsImplemented}"/>
+          <TextBlock Text="{Binding DisplayAffects}" Foreground="#888888" FontSize="11" TextWrapping="Wrap"/>
+        </StackPanel>
+        <TextBox Grid.Column="2" Text="{Binding ValueText, Mode=TwoWay}"
+                 Width="85" Height="28" FontSize="13" VerticalAlignment="Center"/>
+      </Grid>
+    </DataTemplate>
+  </Window.Resources>
+
+  <Grid Margin="14" RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+    <StackPanel Grid.Row="0" Spacing="4">
+      <TextBlock Text="BALANCE LAYERS"
+                 FontSize="18" FontWeight="Bold" Foreground="#FFD700"/>
+      <TextBlock Text="Manual: Run Stats → Suggest → Apply. RUN loop repeats that until every checklist line PASS or MAX iterations (also stops if checklist stops improving)."
+                 Foreground="#AAAAAA" TextWrapping="Wrap" FontSize="12"/>
+    </StackPanel>
+
+    <Border Grid.Row="1" Background="#FF252525" CornerRadius="6" Padding="10" Margin="0,10,0,0"
+            BorderBrush="#FF444444" BorderThickness="1">
+      <StackPanel Spacing="8">
+        <Grid ColumnDefinitions="*,Auto,Auto">
+          <StackPanel Grid.Column="0" Spacing="4">
+            <TextBlock Text="Process layer" Foreground="#CCCCCC" FontSize="12"/>
+            <ComboBox x:Name="LayerComboBox"
+                      ItemsSource="{Binding Layers}"
+                      SelectedItem="{Binding SelectedLayerDefinition, Mode=TwoWay}"
+                      MinWidth="260">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:LabBalanceLayerDefinition">
+                  <TextBlock Text="{Binding DisplayName}"/>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </StackPanel>
+          <Button Grid.Column="1" x:Name="ApplyScenarioButton" Content="Apply scenario"
+                  Margin="8,16,0,0" Height="32" Padding="12,0"/>
+          <Button Grid.Column="2" x:Name="ReapplyButton" Content="Re-apply"
+                  Margin="8,16,0,0" Height="32" Padding="12,0"/>
+        </Grid>
+        <TextBlock x:Name="ScenarioSummaryText" Text="{Binding ScenarioSummary}"
+                   Foreground="#AADDFF" FontSize="12" TextWrapping="Wrap"/>
+        <TextBlock Text="{Binding TargetRecipe}"
+                   Foreground="#BBBB88" FontSize="11" TextWrapping="Wrap"/>
+        <Expander IsVisible="{Binding ShowTargetEditor}" IsExpanded="True"
+                  Header="Edit checklist targets" Foreground="#FFD700" FontWeight="SemiBold">
+          <StackPanel Spacing="8" Margin="0,8,0,0">
+            <TextBlock Text="These bands drive PASS/FAIL, Suggest, and RUN loop for the selected layer (session-only until you change them again)."
+                       Foreground="#888888" FontSize="11" TextWrapping="Wrap"/>
+            <WrapPanel IsVisible="{Binding ShowDurationTargets}">
+              <StackPanel Width="140" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="Median combined" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="1" Maximum="200" Increment="1" FormatString="0"
+                               Value="{Binding TargetMedianCombined, Mode=TwoWay}" Width="130" Height="30"/>
+              </StackPanel>
+              <StackPanel Width="140" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="Median hero turns" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="1" Maximum="100" Increment="1" FormatString="0"
+                               Value="{Binding TargetMedianHeroTurns, Mode=TwoWay}" Width="130" Height="30"/>
+              </StackPanel>
+              <StackPanel Width="140" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="Median enemy turns" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="1" Maximum="100" Increment="1" FormatString="0"
+                               Value="{Binding TargetMedianEnemyTurns, Mode=TwoWay}" Width="130" Height="30"/>
+              </StackPanel>
+              <StackPanel Width="140" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="± tolerance" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="0.1" Maximum="20" Increment="0.1" FormatString="0.0"
+                               Value="{Binding TargetTempoTolerance, Mode=TwoWay}" Width="130" Height="30"/>
+              </StackPanel>
+              <StackPanel Width="140" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="Mean combined min" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="1" Maximum="200" Increment="1" FormatString="0"
+                               Value="{Binding TargetMeanMin, Mode=TwoWay}" Width="130" Height="30"/>
+              </StackPanel>
+              <StackPanel Width="140" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="Mean combined max" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="1" Maximum="200" Increment="1" FormatString="0"
+                               Value="{Binding TargetMeanMax, Mode=TwoWay}" Width="130" Height="30"/>
+              </StackPanel>
+            </WrapPanel>
+            <WrapPanel IsVisible="{Binding ShowComboTargets}">
+              <StackPanel Width="160" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="Min combo runs (2+)" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="0" Maximum="20" Increment="0.1" FormatString="0.0"
+                               Value="{Binding TargetMinComboRuns, Mode=TwoWay}" Width="150" Height="30"/>
+              </StackPanel>
+              <StackPanel Width="160" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="Min max combo streak" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="0" Maximum="40" Increment="0.5" FormatString="0.0"
+                               Value="{Binding TargetMinMaxComboStreak, Mode=TwoWay}" Width="150" Height="30"/>
+              </StackPanel>
+            </WrapPanel>
+            <WrapPanel IsVisible="{Binding ShowFeelVarianceTarget}">
+              <StackPanel Width="160" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="Max turn std-dev" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="0" Maximum="50" Increment="0.5" FormatString="0.0"
+                               Value="{Binding TargetMaxTurnStdDev, Mode=TwoWay}" Width="150" Height="30"/>
+              </StackPanel>
+            </WrapPanel>
+            <WrapPanel IsVisible="{Binding ShowWinRateFixedTargets}">
+              <StackPanel Width="140" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="Win rate min %" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="0" Maximum="100" Increment="1" FormatString="0"
+                               Value="{Binding TargetWinRateMinPct, Mode=TwoWay}" Width="130" Height="30"/>
+              </StackPanel>
+              <StackPanel Width="140" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="Win rate max %" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="0" Maximum="100" Increment="1" FormatString="0"
+                               Value="{Binding TargetWinRateMaxPct, Mode=TwoWay}" Width="130" Height="30"/>
+              </StackPanel>
+            </WrapPanel>
+            <WrapPanel IsVisible="{Binding ShowWeaponSpreadTarget}">
+              <StackPanel Width="180" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="Max weapon WR spread pp" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="0" Maximum="100" Increment="1" FormatString="0"
+                               Value="{Binding TargetWeaponWrSpreadPp, Mode=TwoWay}" Width="170" Height="30"/>
+              </StackPanel>
+            </WrapPanel>
+            <WrapPanel IsVisible="{Binding ShowDungeonClearTargets}">
+              <StackPanel Width="150" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="Clear rate min %" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="0" Maximum="100" Increment="1" FormatString="0"
+                               Value="{Binding TargetDungeonClearMinPct, Mode=TwoWay}" Width="140" Height="30"/>
+              </StackPanel>
+              <StackPanel Width="150" Margin="0,0,10,8" Spacing="2">
+                <TextBlock Text="Clear rate max %" Foreground="#CCCCCC" FontSize="11"/>
+                <NumericUpDown Minimum="0" Maximum="100" Increment="1" FormatString="0"
+                               Value="{Binding TargetDungeonClearMaxPct, Mode=TwoWay}" Width="140" Height="30"/>
+              </StackPanel>
+            </WrapPanel>
+            <Button x:Name="ResetTargetsButton" Content="Reset targets to defaults"
+                    HorizontalAlignment="Left" Height="30" Padding="12,0"/>
+          </StackPanel>
+        </Expander>
+      </StackPanel>
+    </Border>
+
+    <WrapPanel Grid.Row="2" Margin="0,10,0,0" Orientation="Horizontal">
+      <Button x:Name="RunStatsButton" Content="Run Stats" Width="100" Height="34" Margin="0,0,8,8"
+              Background="#FF0078D4" Foreground="White" FontWeight="SemiBold"/>
+      <Button x:Name="SuggestButton" Content="Suggest" Width="90" Height="34" Margin="0,0,8,8"/>
+      <Button x:Name="ApplySuggestionButton" Content="Apply suggestion" Width="130" Height="34" Margin="0,0,8,8"/>
+      <Button x:Name="SaveKnobsButton" Content="Save knobs" Width="100" Height="34" Margin="0,0,8,8"/>
+      <Button x:Name="OpenWorkbenchButton" Content="Workbench" Width="100" Height="34" Margin="0,0,8,8"/>
+      <Button x:Name="OpenCombatTuningButton" Content="Combat Tuning" Width="120" Height="34" Margin="0,0,8,8"/>
+    </WrapPanel>
+
+    <Border Grid.Row="3" Background="#FF1E2A1E" CornerRadius="4" Padding="10,8" Margin="0,0,0,0"
+            BorderBrush="#FF2E7D32" BorderThickness="1">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock Text="MAX iterations" Foreground="#CCFFCC" FontSize="13" FontWeight="SemiBold"
+                   VerticalAlignment="Center"
+                   ToolTip.Tip="Stop RUN loop after this many Run Stats cycles if goals are not met"/>
+        <NumericUpDown x:Name="AutoIterationsUpDown"
+                       Minimum="1" Maximum="50" Increment="1" FormatString="0"
+                       Width="100" Height="34" VerticalAlignment="Center"
+                       Value="{Binding AutoIterationsDecimal, Mode=TwoWay}"
+                       ToolTip.Tip="Max RUN loop iterations (1–50)"/>
+        <Button x:Name="AutoLoopButton" Content="RUN loop" MinWidth="110" Height="34"
+                Background="#FF2E7D32" Foreground="White" FontWeight="SemiBold"
+                ToolTip.Tip="Run Stats → Suggest → Apply until PASS, MAX, or no improvement"/>
+        <TextBlock Text="{Binding AutoIterations, StringFormat=Timeout after {0} cycles}"
+                   Foreground="#88AA88" FontSize="12" VerticalAlignment="Center"/>
+      </StackPanel>
+    </Border>
+
+    <Grid Grid.Row="4" ColumnDefinitions="*,*" Margin="0,10,0,0">
+      <Border Grid.Column="0" Background="#FF222222" CornerRadius="4" Padding="8" Margin="0,0,6,0"
+              BorderBrush="#FF444444" BorderThickness="1">
+        <DockPanel>
+          <TextBlock DockPanel.Dock="Top" Text="Layer knobs" Foreground="#FFD700" FontWeight="SemiBold" Margin="0,0,0,8"/>
+          <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Knobs}" ItemTemplate="{StaticResource KnobRow}"/>
+          </ScrollViewer>
+        </DockPanel>
+      </Border>
+      <Border Grid.Column="1" Background="#FF222222" CornerRadius="4" Padding="8" Margin="6,0,0,0"
+              BorderBrush="#FF444444" BorderThickness="1">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Top" Spacing="4" Margin="0,0,0,8">
+            <TextBlock Text="Report / targets" Foreground="#FFD700" FontWeight="SemiBold"/>
+            <TextBlock Text="{Binding SuggestionText}" Foreground="#FFCC88" FontSize="12" TextWrapping="Wrap"/>
+          </StackPanel>
+          <TextBox Text="{Binding ReportText}" AcceptsReturn="True" TextWrapping="Wrap"
+                   IsReadOnly="True" FontFamily="Consolas, Cascadia Mono, monospace" FontSize="12"
+                   Background="#FF1A1A1A" Foreground="#DDDDDD"/>
+        </DockPanel>
+      </Border>
+    </Grid>
+
+    <TextBlock Grid.Row="5" Text="{Binding StatusText}" Foreground="#88FF88" Margin="0,8,0,0" FontSize="12"/>
+  </Grid>
+</Window>

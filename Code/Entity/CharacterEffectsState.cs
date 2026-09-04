@@ -120,14 +120,39 @@ namespace RPGGame
         public string NextTurnStatBonusType { get; set; } = "";
         public int NextTurnStatBonusDuration { get; set; }
 
+        /// <summary>Warrior DEFENSE Tempo: SPEED_MOD % for the next hero action (replace on take-hit).</summary>
+        public double PendingDefenseTempoSpeedPct { get; set; }
+        /// <summary>Rogue DEFENSE Counter: DAMAGE_MOD % for the next hero swing (replace on take-hit).</summary>
+        public double PendingDefenseCounterDamagePct { get; set; }
+
         public double ConsumeNextTurnDamageMultiplier() { var m = NextTurnDamageMultiplier; NextTurnDamageMultiplier = 1.0; return m; }
+        public double ConsumePendingDefenseTempoSpeedPct()
+        {
+            double pct = PendingDefenseTempoSpeedPct;
+            PendingDefenseTempoSpeedPct = 0;
+            return pct;
+        }
+        public double ConsumePendingDefenseCounterDamagePct()
+        {
+            double pct = PendingDefenseCounterDamagePct;
+            PendingDefenseCounterDamagePct = 0;
+            return pct;
+        }
         public (int bonus, string statType, int duration) ConsumeNextTurnStatBonus()
         {
             var r = (NextTurnStatBonus, NextTurnStatBonusType, NextTurnStatBonusDuration);
             NextTurnStatBonus = 0; NextTurnStatBonusType = ""; NextTurnStatBonusDuration = 0;
             return r;
         }
-        public void ClearNextTurn() { NextTurnDamageMultiplier = 1.0; NextTurnStatBonus = 0; NextTurnStatBonusType = ""; NextTurnStatBonusDuration = 0; }
+        public void ClearNextTurn()
+        {
+            NextTurnDamageMultiplier = 1.0;
+            NextTurnStatBonus = 0;
+            NextTurnStatBonusType = "";
+            NextTurnStatBonusDuration = 0;
+            PendingDefenseTempoSpeedPct = 0;
+            PendingDefenseCounterDamagePct = 0;
+        }
         #endregion
 
         #region Reroll

@@ -69,8 +69,9 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(armorFlat.Contains("BLOCK", StringComparison.Ordinal)
                     && armorFlat.Contains("Class layer", StringComparison.Ordinal)
+                    && armorFlat.Contains("Tempo", StringComparison.Ordinal)
                     && !armorFlat.Contains("Leftover energy", StringComparison.Ordinal),
-                "armor tooltip shows BLOCK and class layer (no leftover energy)",
+                "armor tooltip shows BLOCK, class layer, Tempo note (no leftover energy)",
                 ref run, ref passed, ref failed);
 
             c.StandingBlockPercent = 0.45;

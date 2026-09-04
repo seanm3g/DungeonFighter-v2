@@ -123,6 +123,48 @@ namespace RPGGame.Tuning
                 "Runtime enemy damage multiplier", "Difficulty overlay on enemy damage per swing", 0.5, 3.0, 0.1,
                 () => gs().EnemyDamageMultiplier, v => gs().EnemyDamageMultiplier = v, usesGameSettings: true));
 
+            // Legacy EnemyBalance pools / conversion (still used by enemy generation tooling)
+            list.Add(IntParam("enemyAttributePoolBase", tab, CombatTuningLayer.Duration, "Enemy Balance Pools",
+                "Attribute pool base (L1)", "Total attribute points shared across enemies at level 1", 1, 200,
+                () => cfg().EnemyBalance.AttributePool.BasePointsAtLevel1,
+                v => cfg().EnemyBalance.AttributePool.BasePointsAtLevel1 = (int)v));
+            list.Add(IntParam("enemyAttributePoolPerLevel", tab, CombatTuningLayer.Duration, "Enemy Balance Pools",
+                "Attribute pool per level", "Attribute points added per level to the shared pool", 0, 50,
+                () => cfg().EnemyBalance.AttributePool.PointsPerLevel,
+                v => cfg().EnemyBalance.AttributePool.PointsPerLevel = (int)v));
+            list.Add(IntParam("enemySustainPoolBase", tab, CombatTuningLayer.Duration, "Enemy Balance Pools",
+                "Sustain pool base (L1)", "Health/armor budget points at level 1", 1, 500,
+                () => cfg().EnemyBalance.SustainPool.BasePointsAtLevel1,
+                v => cfg().EnemyBalance.SustainPool.BasePointsAtLevel1 = (int)v));
+            list.Add(IntParam("enemySustainPoolPerLevel", tab, CombatTuningLayer.Duration, "Enemy Balance Pools",
+                "Sustain pool per level", "Sustain budget points per level", 0, 100,
+                () => cfg().EnemyBalance.SustainPool.PointsPerLevel,
+                v => cfg().EnemyBalance.SustainPool.PointsPerLevel = (int)v));
+            list.Add(DoubleParam("statConversionStrength", tab, CombatTuningLayer.WinRate, "Stat Conversion",
+                "STR per point", "Enemy strength conversion from attribute pool", 0.1, 3.0, 0.05,
+                () => cfg().EnemyBalance.StatConversionRates.StrengthPerPoint,
+                v => cfg().EnemyBalance.StatConversionRates.StrengthPerPoint = v));
+            list.Add(DoubleParam("statConversionAgility", tab, CombatTuningLayer.Duration, "Stat Conversion",
+                "AGI per point", "Enemy agility conversion (attack speed)", 0.1, 3.0, 0.05,
+                () => cfg().EnemyBalance.StatConversionRates.AgilityPerPoint,
+                v => cfg().EnemyBalance.StatConversionRates.AgilityPerPoint = v));
+            list.Add(DoubleParam("statConversionTechnique", tab, CombatTuningLayer.RollFeel, "Stat Conversion",
+                "TEC per point", "Enemy technique conversion (legacy roll milestones)", 0.1, 3.0, 0.05,
+                () => cfg().EnemyBalance.StatConversionRates.TechniquePerPoint,
+                v => cfg().EnemyBalance.StatConversionRates.TechniquePerPoint = v));
+            list.Add(DoubleParam("statConversionIntelligence", tab, CombatTuningLayer.ComboAffordance, "Stat Conversion",
+                "INT per point", "Enemy intelligence conversion (combo amp)", 0.1, 3.0, 0.05,
+                () => cfg().EnemyBalance.StatConversionRates.IntelligencePerPoint,
+                v => cfg().EnemyBalance.StatConversionRates.IntelligencePerPoint = v));
+            list.Add(DoubleParam("statConversionHealth", tab, CombatTuningLayer.Duration, "Stat Conversion",
+                "Health per point", "Enemy health conversion from sustain pool", 0.1, 3.0, 0.05,
+                () => cfg().EnemyBalance.StatConversionRates.HealthPerPoint,
+                v => cfg().EnemyBalance.StatConversionRates.HealthPerPoint = v));
+            list.Add(DoubleParam("statConversionArmor", tab, CombatTuningLayer.WinRate, "Stat Conversion",
+                "Armor per point", "Enemy armor conversion from sustain pool", 0.1, 3.0, 0.05,
+                () => cfg().EnemyBalance.StatConversionRates.ArmorPerPoint,
+                v => cfg().EnemyBalance.StatConversionRates.ArmorPerPoint = v));
+
             BuildVarianceCompressionParameters(list, cfg, tab);
 
             // Roll feel — threshold and band knobs (not driven by variance compression master)

@@ -522,6 +522,14 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
                 return;
             }
 
+            if (value == "lab_balance_toggle")
+            {
+                if (session.IsEncounterSimulationRunning)
+                    return;
+                ActionLabBalanceWindow.Toggle(canvasUI.GetMainWindow());
+                return;
+            }
+
             if (value == "lab_req_toggle")
             {
                 session.IgnoreActionRequirements = !session.IgnoreActionRequirements;

@@ -85,6 +85,8 @@ namespace RPGGame.Combat.Calculators
                 hero.StandingBlockPercent = 0;
                 hero.EnergyShieldCurrent = 0;
                 hero.EnergyShieldMax = 0;
+                hero.Effects.PendingDefenseTempoSpeedPct = 0;
+                hero.Effects.PendingDefenseCounterDamagePct = 0;
             }
         }
 

@@ -1,15 +1,15 @@
 {
   "character": {
-    "playerBaseHealth": 277,
-    "healthPerLevel": 10,
+    "playerBaseHealth": 136,
+    "healthPerLevel": 2,
     "enemyHealthPerLevel": 0
   },
   "attributes": {
     "playerBaseAttributes": {
-      "strength": 3,
-      "agility": 3,
-      "technique": 3,
-      "intelligence": 3
+      "strength": 1,
+      "agility": 1,
+      "technique": 1,
+      "intelligence": 1
     },
     "playerAttributesPerLevel": 2,
     "playerPrimaryStatPerLevel": 3,
@@ -130,9 +130,9 @@
   "combat": {
     "criticalHitThreshold": 20,
     "criticalHitMultiplier": 2,
-    "minimumDamage": 3,
-    "playerBaseArmor": 8,
-    "maximumDamageCap": 730,
+    "minimumDamage": 1,
+    "playerBaseArmor": 0,
+    "maximumDamageCap": 40,
     "armorReductionFactor": 185,
     "weaponAttackTimeClampMin": 0.5,
     "weaponAttackTimeClampMax": 1.5,
@@ -273,31 +273,31 @@
   },
   "enemyBalance": {
     "attributePool": {
-      "basePointsAtLevel1": 0,
+      "basePointsAtLevel1": 1,
       "pointsPerLevel": 0
     },
     "sustainPool": {
-      "basePointsAtLevel1": 0,
+      "basePointsAtLevel1": 1,
       "pointsPerLevel": 0
     },
     "statConversionRates": {
       "strengthPerPoint": 0,
-      "agilityPerPoint": 0,
+      "agilityPerPoint": 0.1,
       "techniquePerPoint": 0,
       "intelligencePerPoint": 0.1,
-      "healthPerPoint": 0,
+      "healthPerPoint": 0.1,
       "armorPerPoint": 0
     },
     "baseEnemyConfigs": {},
     "archetypeConfigs": {}
   },
   "enemyBaseline": {
-    "health": 50,
-    "strength": 3,
-    "agility": 3,
-    "technique": 3,
-    "intelligence": 3,
-    "armor": 2,
+    "health": 45,
+    "strength": 1,
+    "agility": 1,
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 0,
     "description": ""
   },
   "enemyArchetypes": {
@@ -372,22 +372,22 @@
       "baseHealthScale": 1,
       "healthGrowthScale": 1,
       "attributeGrowthScale": 1.25,
-      "combatTempoScale": 1,
+      "combatTempoScale": 3,
       "progressionShape": 0.5,
       "playerEnemyParity": 0,
       "progressionPivotLevel": 30
     },
     "baselineStats": {
-      "health": 175,
-      "strength": 3,
-      "agility": 3,
-      "technique": 3,
-      "intelligence": 3,
-      "armor": 2,
+      "health": 45,
+      "strength": 1,
+      "agility": 1,
+      "technique": 1,
+      "intelligence": 1,
+      "armor": 0,
       "description": ""
     },
     "scalingPerLevel": {
-      "health": 10,
+      "health": 2,
       "attributes": 0,
       "armor": 0
     },
@@ -505,10 +505,10 @@
   },
   "weaponScaling": {
     "startingWeaponDamage": {
-      "mace": 6,
-      "sword": 5,
-      "dagger": 3,
-      "wand": 4
+      "mace": 1,
+      "sword": 1,
+      "dagger": 1,
+      "wand": 1
     },
     "tierDamageRanges": {
       "tier1": {

@@ -9,7 +9,7 @@ This document contains solutions to common problems encountered during developme
 
 **Solutions:**
 1. Remove `EnergyCost` / ENERGY / leftover ledger; actions author free **Block %** (`StandingBlock`, ACTIONS **BLOCK**)
-2. Standing BLOCK until next hero action; class DEFENSE + Wizard Energy Shield unchanged
+2. Standing BLOCK until next named hero action; class DEFENSE = Tempo / Counter / Shield / Grit (no Warrior %, dodge, or armor RAGE)
 3. Migrate legacy energy 1/2/3 → block 45/25/0; JSON field `"block"`
 4. **ACTIONS push** renames ENERGY → BLOCK in place (or deletes leftover ENERGY); inserts BLOCK only when neither exists
 5. Tests: `ActionBlockSheetColumnsTests`, `ClassDefenseCalculatorTests`, `HeroDefenseHudFormatterTests`

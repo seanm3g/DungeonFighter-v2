@@ -8,27 +8,26 @@ namespace RPGGame.Combat.Calculators
     /// </summary>
     public readonly struct HeroMitigationResult
     {
-        public bool Dodged { get; init; }
         public double BlockPercent { get; init; }
-        public double WarriorArmorPercent { get; init; }
+        public int GritIgnored { get; init; }
         public int ShieldAbsorbed { get; init; }
-        public int RageMinted { get; init; }
+        public int TempoPct { get; init; }
+        public int CounterPct { get; init; }
         public int Remaining { get; init; }
         public int ReducedAmount { get; init; }
     }
 
     /// <summary>
-    /// Standing BLOCK % (dominant when &gt; 0) plus class interpretation of the DEFENSE rating.
-    /// Does not read material sets.
+    /// Standing BLOCK % plus class DEFENSE: Tempo (Sword), Counter (Dagger), Shield (Wand), Grit (Mace).
+    /// Does not read material sets. Never mints material keywords from armor.
     /// </summary>
     public static class ClassDefenseCalculator
     {
-        public const double WarriorArmorPercentCap = 0.25;
-        public const double WarriorArmorCurveK = 20.0;
-        public const double RogueDodgePerPoint = 0.015;
-        public const double RogueDodgeCap = 0.35;
+        public const double DefenseScaleK = 20.0;
+        public const int WarriorTempoCap = 25;
+        public const int RogueCounterCap = 30;
+        public const int BarbarianGritCap = 25;
         public const int WizardShieldPerDefense = 2;
-        public const int BarbarianRagePerDefense = 8;
 
         public static WeaponType? GetDefenseWeaponType(Character? hero)
         {
@@ -40,24 +39,26 @@ namespace RPGGame.Combat.Calculators
         public static double GetBlockPercent(Character? hero) =>
             StandingBlock.ClampFraction(hero?.StandingBlockPercent ?? 0);
 
-        /// <summary>Warrior / unarmed: always-on armor % from DEFENSE rating (diminishing, cap 25%).</summary>
-        public static double GetWarriorArmorPercent(int defenseRating)
+        /// <summary>Shared diminishing scale: round(cap * r / (r + K)).</summary>
+        public static int ScaleFromDefense(int defenseRating, int cap)
         {
             int r = Math.Max(0, defenseRating);
-            return WarriorArmorPercentCap * r / (r + WarriorArmorCurveK);
+            if (r <= 0 || cap <= 0)
+                return 0;
+            return (int)Math.Round(cap * r / (r + DefenseScaleK), MidpointRounding.AwayFromZero);
         }
 
-        public static double GetRogueDodgeChance(int defenseRating)
-        {
-            int r = Math.Max(0, defenseRating);
-            return Math.Min(RogueDodgeCap, RogueDodgePerPoint * r);
-        }
+        public static int GetWarriorTempoSpeedPct(int defenseRating) =>
+            ScaleFromDefense(defenseRating, WarriorTempoCap);
+
+        public static int GetRogueCounterDamagePct(int defenseRating) =>
+            ScaleFromDefense(defenseRating, RogueCounterCap);
+
+        public static int GetBarbarianGrit(int defenseRating) =>
+            ScaleFromDefense(defenseRating, BarbarianGritCap);
 
         public static int GetWizardShieldPool(int defenseRating) =>
             Math.Max(0, defenseRating * WizardShieldPerDefense);
-
-        public static int GetBarbarianRageOnTakeHit(int defenseRating) =>
-            defenseRating <= 0 ? 0 : Math.Max(0, defenseRating / BarbarianRagePerDefense);
 
         public static void RefillWizardShield(Character? hero)
         {
@@ -85,18 +86,26 @@ namespace RPGGame.Combat.Calculators
             return damage - absorbed;
         }
 
-        public static void MintBarbarianRageFromDefense(Character hero)
+        public static void MintWarriorTempoFromDefense(Character hero)
         {
-            if (GetDefenseWeaponType(hero) != WeaponType.Mace)
+            var weapon = GetDefenseWeaponType(hero);
+            if (weapon != null && weapon != WeaponType.Sword)
                 return;
-            int rage = GetBarbarianRageOnTakeHit(Math.Max(0, hero.GetMaxArmor()));
-            if (rage > 0)
-                hero.Effects.AddMaterialKeyword("RAGE", rage);
+            int pct = GetWarriorTempoSpeedPct(Math.Max(0, hero.GetMaxArmor()));
+            hero.Effects.PendingDefenseTempoSpeedPct = pct;
+        }
+
+        public static void MintRogueCounterFromDefense(Character hero)
+        {
+            if (GetDefenseWeaponType(hero) != WeaponType.Dagger)
+                return;
+            int pct = GetRogueCounterDamagePct(Math.Max(0, hero.GetMaxArmor()));
+            hero.Effects.PendingDefenseCounterDamagePct = pct;
         }
 
         /// <summary>
-        /// Hero-only mitigation: Rogue dodge (even on pierce), standing BLOCK %, Warrior DEFENSE %,
-        /// Wizard shield absorb, Barbarian Rage mint. Standing 0 skips BLOCK.
+        /// Hero-only: standing BLOCK %, then Grit / Shield, then mint Tempo / Counter.
+        /// Pierce skips Block, Grit, and Shield; still mints Counter/Tempo.
         /// </summary>
         public static HeroMitigationResult ApplyIncoming(Character hero, int incoming, bool pierce)
         {
@@ -105,27 +114,16 @@ namespace RPGGame.Combat.Calculators
             var weapon = GetDefenseWeaponType(hero);
             int rating = Math.Max(0, hero.GetMaxArmor());
 
-            if (weapon == WeaponType.Dagger && TryRogueDodge(rating))
-            {
-                return new HeroMitigationResult
-                {
-                    Dodged = true,
-                    Remaining = 0,
-                    ReducedAmount = start
-                };
-            }
-
             double blockPct = pierce ? 0.0 : GetBlockPercent(hero);
             if (blockPct > 0)
                 remaining = RoundMul(remaining, 1.0 - blockPct);
 
-            double warriorPct = 0.0;
-            bool warriorLayer = !pierce && (weapon == WeaponType.Sword || weapon == null);
-            if (warriorLayer)
+            int grit = 0;
+            if (!pierce && weapon == WeaponType.Mace)
             {
-                warriorPct = GetWarriorArmorPercent(rating);
-                if (warriorPct > 0)
-                    remaining = RoundMul(remaining, 1.0 - warriorPct);
+                grit = GetBarbarianGrit(rating);
+                if (grit > 0)
+                    remaining = Math.Max(0, remaining - grit);
             }
 
             int absorbed = 0;
@@ -136,32 +134,29 @@ namespace RPGGame.Combat.Calculators
                 absorbed = before - remaining;
             }
 
-            int rage = 0;
-            if (weapon == WeaponType.Mace)
+            int tempoPct = 0;
+            int counterPct = 0;
+            if (weapon == WeaponType.Dagger)
             {
-                rage = GetBarbarianRageOnTakeHit(rating);
-                MintBarbarianRageFromDefense(hero);
+                counterPct = GetRogueCounterDamagePct(rating);
+                MintRogueCounterFromDefense(hero);
+            }
+            else if (weapon == WeaponType.Sword || weapon == null)
+            {
+                tempoPct = GetWarriorTempoSpeedPct(rating);
+                MintWarriorTempoFromDefense(hero);
             }
 
             return new HeroMitigationResult
             {
                 BlockPercent = blockPct,
-                WarriorArmorPercent = warriorPct,
+                GritIgnored = grit,
                 ShieldAbsorbed = absorbed,
-                RageMinted = rage,
+                TempoPct = tempoPct,
+                CounterPct = counterPct,
                 Remaining = remaining,
                 ReducedAmount = start - remaining
             };
-        }
-
-        public static bool TryRogueDodge(int defenseRating)
-        {
-            double chance = GetRogueDodgeChance(defenseRating);
-            if (chance <= 0)
-                return false;
-            int threshold = Math.Max(1, (int)Math.Round(chance * 100.0, MidpointRounding.AwayFromZero));
-            int roll = Dice.RollUnforced(100);
-            return roll <= threshold;
         }
 
         /// <summary>Sequence HUD DEFENSE beats: BLOCK %, class layer.</summary>
@@ -173,25 +168,26 @@ namespace RPGGame.Combat.Calculators
 
             var weapon = GetDefenseWeaponType(hero);
             int rating = Math.Max(0, hero.GetMaxArmor());
-            if (pierce && weapon != WeaponType.Dagger)
-            {
-                lines.Add("pierce");
-                return lines;
-            }
 
             switch (weapon)
             {
                 case WeaponType.Dagger:
-                    lines.Add($"dodge {(int)Math.Round(GetRogueDodgeChance(rating) * 100.0, MidpointRounding.AwayFromZero)}%");
+                    lines.Add($"COUNTER +{GetRogueCounterDamagePct(rating)}%");
                     break;
                 case WeaponType.Wand:
-                    lines.Add($"shield {hero.EnergyShieldCurrent}/{Math.Max(hero.EnergyShieldMax, GetWizardShieldPool(rating))}");
+                    if (pierce)
+                        lines.Add("pierce");
+                    else
+                        lines.Add($"shield {hero.EnergyShieldCurrent}/{Math.Max(hero.EnergyShieldMax, GetWizardShieldPool(rating))}");
                     break;
                 case WeaponType.Mace:
-                    lines.Add($"RAGE +{GetBarbarianRageOnTakeHit(rating)}");
+                    if (pierce)
+                        lines.Add("pierce");
+                    else
+                        lines.Add($"GRIT {GetBarbarianGrit(rating)}");
                     break;
                 default:
-                    lines.Add($"DEFENSE {(int)Math.Round(GetWarriorArmorPercent(rating) * 100.0, MidpointRounding.AwayFromZero)}%");
+                    lines.Add($"TEMPO +{GetWarriorTempoSpeedPct(rating)}%");
                     break;
             }
 

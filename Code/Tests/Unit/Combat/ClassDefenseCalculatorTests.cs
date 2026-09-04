@@ -1,6 +1,7 @@
 using System;
 using RPGGame;
 using RPGGame.Combat.Calculators;
+using RPGGame.Combat.Formatting;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Combat
@@ -18,14 +19,17 @@ namespace RPGGame.Tests.Unit.Combat
             TestApplyFromActionHeroOnly();
             TestUnnamedSwingClearsStandingBlock();
             TestNamedSwingReplacesPriorStandingBlock();
-            TestResetClearsStandingAndShield();
-            TestWarriorPercentCurve();
-            TestStandingZeroWarriorOnly();
-            TestFreeBlockDominant();
-            TestPierceIgnoresBlockAndWarrior();
-            TestRogueDodgeAvoidsEvenOnPierce();
+            TestResetClearsStandingShieldAndPending();
+            TestDefenseScaleCurve();
+            TestStandingZeroUnarmedMintsTempoNoDr();
+            TestFreeBlockDominantThenTempo();
+            TestPierceStillMintsTempo();
+            TestRogueCounterMintOnPierce();
             TestWizardShieldAbsorbsAfterBlock();
-            TestBarbarianMintsRageWithoutBlockAtZero();
+            TestBarbarianGritAfterBlock();
+            TestBarbarianGritSkippedOnPierce();
+            TestTempoConsumeShortensActionLength();
+            TestCounterConsumeBoostsDamage();
             TestUnnamedSyntheticBlockPercent();
 
             TestBase.PrintSummary("ClassDefenseCalculator / StandingBlock Tests", _run, _pass, _fail);
@@ -91,75 +95,83 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertEqual(0.60, hero.StandingBlockPercent, "second named overwrites first", ref _run, ref _pass, ref _fail);
         }
 
-        private static void TestResetClearsStandingAndShield()
+        private static void TestResetClearsStandingShieldAndPending()
         {
-            Console.WriteLine("--- Reset standing + shield ---");
+            Console.WriteLine("--- Reset standing + shield + pending ---");
             var hero = TestDataBuilders.Character().WithName("ResetHero").WithLevel(1).Build();
             hero.StandingBlockPercent = 0.45;
             hero.EnergyShieldCurrent = 9;
             hero.EnergyShieldMax = 9;
+            hero.Effects.PendingDefenseTempoSpeedPct = 12;
+            hero.Effects.PendingDefenseCounterDamagePct = 15;
             StandingBlock.Reset(hero);
             TestBase.AssertEqual(0.0, hero.StandingBlockPercent, "reset standing 0", ref _run, ref _pass, ref _fail);
             TestBase.AssertEqual(0, hero.EnergyShieldCurrent, "reset shield 0", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(0.0, hero.Effects.PendingDefenseTempoSpeedPct, "reset tempo 0", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(0.0, hero.Effects.PendingDefenseCounterDamagePct, "reset counter 0", ref _run, ref _pass, ref _fail);
         }
 
-        private static void TestWarriorPercentCurve()
+        private static void TestDefenseScaleCurve()
         {
-            Console.WriteLine("--- Warrior DEFENSE % curve ---");
-            TestBase.AssertEqual(0.0, ClassDefenseCalculator.GetWarriorArmorPercent(0), "rating 0 = 0%", ref _run, ref _pass, ref _fail);
-            double at20 = ClassDefenseCalculator.GetWarriorArmorPercent(20);
-            TestBase.AssertTrue(at20 > 0.12 && at20 < 0.13, $"rating 20 ≈ 12.5%, got {at20}", ref _run, ref _pass, ref _fail);
-            TestBase.AssertTrue(ClassDefenseCalculator.GetWarriorArmorPercent(10000) < ClassDefenseCalculator.WarriorArmorPercentCap + 0.0001,
-                "cap 25%", ref _run, ref _pass, ref _fail);
+            Console.WriteLine("--- DEFENSE scale curve ---");
+            TestBase.AssertEqual(0, ClassDefenseCalculator.GetWarriorTempoSpeedPct(0), "rating 0 tempo 0", ref _run, ref _pass, ref _fail);
+            int at20 = ClassDefenseCalculator.GetWarriorTempoSpeedPct(20);
+            TestBase.AssertEqual(13, at20, "rating 20 tempo ≈ 13%", ref _run, ref _pass, ref _fail);
+            TestBase.AssertTrue(ClassDefenseCalculator.GetWarriorTempoSpeedPct(10000) <= ClassDefenseCalculator.WarriorTempoCap,
+                "tempo cap 25", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(15, ClassDefenseCalculator.GetRogueCounterDamagePct(20), "rating 20 counter 15%", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(13, ClassDefenseCalculator.GetBarbarianGrit(20), "rating 20 grit 13", ref _run, ref _pass, ref _fail);
         }
 
-        private static void TestStandingZeroWarriorOnly()
+        private static void TestStandingZeroUnarmedMintsTempoNoDr()
         {
-            Console.WriteLine("--- standing 0 warrior only ---");
+            Console.WriteLine("--- standing 0 unarmed Tempo mint, no DR ---");
             var hero = UnarmedHeroWithDefense(8);
             hero.StandingBlockPercent = 0;
             var mit = ClassDefenseCalculator.ApplyIncoming(hero, 100, pierce: false);
-            int expected = (int)Math.Round(100 * (1.0 - ClassDefenseCalculator.GetWarriorArmorPercent(8)), MidpointRounding.AwayFromZero);
+            int expectedTempo = ClassDefenseCalculator.GetWarriorTempoSpeedPct(8);
             TestBase.AssertEqual(0.0, mit.BlockPercent, "no BLOCK", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(expected, mit.Remaining, "DEFENSE % only", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(100, mit.Remaining, "Tempo is not DR", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(expectedTempo, mit.TempoPct, "tempo minted", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual((double)expectedTempo, hero.Effects.PendingDefenseTempoSpeedPct, "pending tempo", ref _run, ref _pass, ref _fail);
         }
 
-        private static void TestFreeBlockDominant()
+        private static void TestFreeBlockDominantThenTempo()
         {
-            Console.WriteLine("--- free BLOCK then warrior ---");
+            Console.WriteLine("--- free BLOCK then Tempo mint ---");
             var hero = UnarmedHeroWithDefense(8);
             hero.StandingBlockPercent = 0.60;
             var mit = ClassDefenseCalculator.ApplyIncoming(hero, 100, pierce: false);
             TestBase.AssertEqual(0.60, mit.BlockPercent, "BLOCK 60%", ref _run, ref _pass, ref _fail);
             int afterBlock = (int)Math.Round(100 * (1.0 - mit.BlockPercent), MidpointRounding.AwayFromZero);
-            int expected = (int)Math.Round(afterBlock * (1.0 - mit.WarriorArmorPercent), MidpointRounding.AwayFromZero);
-            TestBase.AssertEqual(expected, mit.Remaining, "multiplicative BLOCK then DEFENSE", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(afterBlock, mit.Remaining, "BLOCK only (Tempo not DR)", ref _run, ref _pass, ref _fail);
             TestBase.AssertTrue(mit.Remaining < 50, "60% BLOCK is dominant", ref _run, ref _pass, ref _fail);
+            TestBase.AssertTrue(mit.TempoPct > 0, "tempo still minted", ref _run, ref _pass, ref _fail);
         }
 
-        private static void TestPierceIgnoresBlockAndWarrior()
+        private static void TestPierceStillMintsTempo()
         {
-            Console.WriteLine("--- pierce ignores BLOCK and warrior % ---");
+            Console.WriteLine("--- pierce skips BLOCK, still mints Tempo ---");
             var hero = UnarmedHeroWithDefense(8);
             hero.StandingBlockPercent = 0.45;
             var mit = ClassDefenseCalculator.ApplyIncoming(hero, 100, pierce: true);
             TestBase.AssertEqual(0.0, mit.BlockPercent, "pierce BLOCK 0", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(0.0, mit.WarriorArmorPercent, "pierce warrior 0", ref _run, ref _pass, ref _fail);
             TestBase.AssertEqual(100, mit.Remaining, "pierce full hit", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(ClassDefenseCalculator.GetWarriorTempoSpeedPct(8), mit.TempoPct, "pierce still Tempo", ref _run, ref _pass, ref _fail);
         }
 
-        private static void TestRogueDodgeAvoidsEvenOnPierce()
+        private static void TestRogueCounterMintOnPierce()
         {
-            Console.WriteLine("--- rogue dodge on pierce ---");
+            Console.WriteLine("--- rogue Counter mint on pierce ---");
             var hero = TestDataBuilders.Character().WithName("Rogue").WithLevel(1).Build();
             hero.EquipItem(new WeaponItem("Stiletto", 1, 4, 0.05, WeaponType.Dagger), "weapon");
             hero.EquipItem(new ChestItem("Leather", 1, 10), "body");
             hero.StandingBlockPercent = 0.45;
-            Dice.QueueUnforcedTestRolls(1);
             var mit = ClassDefenseCalculator.ApplyIncoming(hero, 40, pierce: true);
-            Dice.QueueUnforcedTestRolls();
-            TestBase.AssertTrue(mit.Dodged, "dodge succeeds", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(0, mit.Remaining, "true avoid", ref _run, ref _pass, ref _fail);
+            int expected = ClassDefenseCalculator.GetRogueCounterDamagePct(10);
+            TestBase.AssertEqual(40, mit.Remaining, "no dodge — full pierce hit", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(expected, mit.CounterPct, "counter minted", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual((double)expected, hero.Effects.PendingDefenseCounterDamagePct, "pending counter", ref _run, ref _pass, ref _fail);
         }
 
         private static void TestWizardShieldAbsorbsAfterBlock()
@@ -178,18 +190,63 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertEqual(4, hero.EnergyShieldCurrent, "shield remainder", ref _run, ref _pass, ref _fail);
         }
 
-        private static void TestBarbarianMintsRageWithoutBlockAtZero()
+        private static void TestBarbarianGritAfterBlock()
         {
-            Console.WriteLine("--- barbarian standing 0 rage ---");
+            Console.WriteLine("--- barbarian Grit after BLOCK ---");
             var hero = TestDataBuilders.Character().WithName("Barb").WithLevel(1).Build();
             hero.EquipItem(new WeaponItem("Club", 1, 8, 0.05, WeaponType.Mace), "weapon");
             hero.EquipItem(new ChestItem("Hide", 1, 16), "body");
             hero.StandingBlockPercent = 0;
+            int grit = ClassDefenseCalculator.GetBarbarianGrit(16);
             var mit = ClassDefenseCalculator.ApplyIncoming(hero, 50, pierce: false);
             TestBase.AssertEqual(0.0, mit.BlockPercent, "no BLOCK", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(50, mit.Remaining, "Rage is not DR", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(2, mit.RageMinted, "16/8 = 2 rage", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(2, hero.Effects.GetMaterialKeyword("RAGE"), "banked RAGE", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(grit, mit.GritIgnored, "grit applied", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(50 - grit, mit.Remaining, "flat ignore", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(0, hero.Effects.GetMaterialKeyword("RAGE"), "no armor RAGE mint", ref _run, ref _pass, ref _fail);
+        }
+
+        private static void TestBarbarianGritSkippedOnPierce()
+        {
+            Console.WriteLine("--- barbarian Grit skipped on pierce ---");
+            var hero = TestDataBuilders.Character().WithName("BarbPierce").WithLevel(1).Build();
+            hero.EquipItem(new WeaponItem("Club", 1, 8, 0.05, WeaponType.Mace), "weapon");
+            hero.EquipItem(new ChestItem("Hide", 1, 16), "body");
+            hero.StandingBlockPercent = 0.45;
+            var mit = ClassDefenseCalculator.ApplyIncoming(hero, 50, pierce: true);
+            TestBase.AssertEqual(0, mit.GritIgnored, "pierce no grit", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(50, mit.Remaining, "pierce full", ref _run, ref _pass, ref _fail);
+        }
+
+        private static void TestTempoConsumeShortensActionLength()
+        {
+            Console.WriteLine("--- Tempo consume shortens display length ---");
+            var hero = UnarmedHeroWithDefense(20);
+            var action = TestDataBuilders.CreateMockAction("JAB");
+            action.Length = 1.0;
+            double baseSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(hero, action);
+            hero.Effects.PendingDefenseTempoSpeedPct = 25;
+            double withTempo = ActionSpeedCalculator.CalculateActualActionSpeed(hero, action);
+            TestBase.AssertTrue(withTempo < baseSpeed, "tempo shortens duration", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(25.0, hero.Effects.PendingDefenseTempoSpeedPct, "display does not consume", ref _run, ref _pass, ref _fail);
+            double consumed = hero.Effects.ConsumePendingDefenseTempoSpeedPct();
+            TestBase.AssertEqual(25.0, consumed, "consume returns pct", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(0.0, hero.Effects.PendingDefenseTempoSpeedPct, "cleared after consume", ref _run, ref _pass, ref _fail);
+        }
+
+        private static void TestCounterConsumeBoostsDamage()
+        {
+            Console.WriteLine("--- Counter consume boosts hero damage ---");
+            var hero = TestDataBuilders.Character().WithName("CounterHero").WithLevel(1).Build();
+            hero.EquipItem(new WeaponItem("Stiletto", 1, 10, 0.05, WeaponType.Dagger), "weapon");
+            var foe = TestDataBuilders.Enemy().WithName("Foe").WithHealth(500).Build();
+            var action = TestDataBuilders.CreateMockAction("STAB");
+            action.DamageMultiplier = 1.0;
+
+            int baseline = DamageCalculator.CalculateDamage(hero, foe, action, 1.0, 1.0, 0, 10);
+            hero.Effects.PendingDefenseCounterDamagePct = 30;
+            int boosted = DamageCalculator.CalculateDamage(hero, foe, action, 1.0, 1.0, 0, 10);
+            TestBase.AssertTrue(boosted > baseline, "counter boosts damage", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(0.0, hero.Effects.PendingDefenseCounterDamagePct, "counter consumed", ref _run, ref _pass, ref _fail);
         }
 
         private static void TestUnnamedSyntheticBlockPercent()

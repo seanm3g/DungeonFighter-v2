@@ -40,7 +40,7 @@ DungeonFighter/
 - **`Code/Combat/CombatTurnHandlerSimplified.cs`** - Simplified turn processing logic (high-performance turn handler)
 - **`Code/Combat/CombatCalculator.cs`** - Centralized damage, speed, and stat calculations
 - **`Code/Combat/Calculators/DamageCalculator.cs`** - Raw and final damage; hero leftover BLOCK % + class DEFENSE layers; enemies 100% armor subtract; material convert adds +5 per banked keyword
-- **`Code/Combat/Calculators/StandingBlock.cs`** / **`ClassDefenseCalculator.cs`** - Hero standing BLOCK % from the last action's free Block %; DEFENSE rating is class-interpreted (Warrior %, Rogue dodge, Wizard shield, Barbarian RAGE). Enemies keep 100% armor via `DamageCalculator.ResolveTargetArmor`.
+- **`Code/Combat/Calculators/StandingBlock.cs`** / **`ClassDefenseCalculator.cs`** - Hero standing BLOCK % from the last named action's free Block %; DEFENSE rating is Tempo (Sword/unarmed), Counter (Dagger), Shield (Wand), Grit (Mace). Enemies keep 100% armor via `DamageCalculator.ResolveTargetArmor`.
 - **`Code/Combat/Calculators/DefenseBlockCalculator.cs`** - Legacy opposed 1d20 armor×band helpers (75% / 100% / 150%); not used for live hero mitigation.
 - **`Code/Combat/CombatEffectsSimplified.cs`** - Simplified status effects management (optimized effects system)
 - **`Code/Combat/EffectHandlerRegistry.cs`** - Strategy pattern for handling different combat effects

@@ -43,10 +43,10 @@
     "name": "Goblin",
     "archetype": "Assassin",
     "baseAttributes": {
-      "strength": 5,
-      "agility": 3,
+      "strength": 1,
+      "agility": 1,
       "technique": 1,
-      "intelligence": 3
+      "intelligence": 1
     },
     "growthPerLevel": {
       "strength": 0.8,

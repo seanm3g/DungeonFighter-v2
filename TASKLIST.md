@@ -4,6 +4,20 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **UI / Action Lab — Balance Layers editable targets:** **Edit checklist targets** expander under the Goal recipe; session edits drive PASS/FAIL / Suggest / RUN loop; Reset restores defaults. Tests: `LabBalanceTests`. Docs: `OVERVIEW.md`, `LEVEL_BALANCE_TUNING.md`, `TASKLIST.md`.
+
+- [x] **UI / Action Lab — Balance Layers RUN loop:** **RUN loop** + **MAX iterations** (own toolbar row; decimal NumericUpDown binding) automates Run Stats → Suggest → Apply until PASS / max / stagnation; progress report start→end. Loop applies knobs without mid-loop canvas refresh; UI refresh marshaled to UI thread. Tests: `LabBalanceTests`. Docs: `OVERVIEW.md`, `LEVEL_BALANCE_TUNING.md`, `TASKLIST.md`.
+
+- [x] **Balance / L1 micro scale experiment (`l1-micro` patch):** Shrink L1 numbers toward tiny combat — player/enemy HP **45**, attrs **1**, armor **0**, min damage **1**, fundamentals starting weapons **1**, Goblin sheet attrs **1**, starter gear baseDamage **1**. Active patch `l1-micro` (revert via PatchProfile → `7-30-26`). L1 TUNESIM: median hero/enemy ~13, combined ~26. Docs: `LEVEL_BALANCE_TUNING.md`, `TASKLIST.md`.
+
+- [x] **UI / Action Lab — Balance Layers per-layer targets:** Each process step has its own Goal + checklist (L1 tempo; Feel combo/stddev; all-anchor WR+tempo; weapon WR spread; L25 roster; gear WR 90–99%; dungeon clear 70–95%). Docs/tests updated.
+
+- [x] **UI / Action Lab — Balance Layers targets + Suggest clarity:** Always-visible target recipe (OK = every checklist PASS); status `Targets met (k/N)` / unmet; Suggest gated on AllPassed with honest empty reasons; Feel uses layer targets; FAIL→knob Lab fallback with Reason prefix. Tests: `LabBalanceTests`. Docs: `OVERVIEW.md`, `LEVEL_BALANCE_TUNING.md`, `TASKLIST.md`.
+
+- [x] **UI / Action Lab — Balance Layers workflow:** Process-layer picker applies fundamentals-style scenarios; Run Stats / Suggest / Apply / Auto N; layer-filtered registry knobs; Workbench deep-link for playthrough. Tests: `LabBalanceTests`. Docs: `OVERVIEW.md`, `LEVEL_BALANCE_TUNING.md`, `TASKLIST.md`.
+
+- [x] **Combat / class DEFENSE Tempo·Counter·Shield·Grit:** Replace Warrior %, Rogue dodge, armor RAGE with guaranteed layers from gear DEFENSE rating. Tempo/Counter pending consume on next swing; Grit flat ignore; Shield pool unchanged. Tests: `ClassDefenseCalculatorTests`, `HeroDefenseHudFormatterTests`, `DamageCalculatorTests`, `DefenseBlockCalculatorTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `PROBLEM_SOLUTIONS.md`, `TASKLIST.md`.
+
 - [x] **Combat / action Block % (no energy):** Remove energy budget. Named actions author free **Block %**; last named swing’s standing BLOCK applies until the next named action. Unnamed hit/miss clears BLOCK (DEFENSE only). PUSH renames ENERGY → BLOCK. Tests: `ActionBlockSheetColumnsTests`, `ClassDefenseCalculatorTests`, `HeroDefenseHudFormatterTests`, `DamageCalculatorTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `GOOGLE_SHEETS_INTEGRATION.md`, `PROBLEM_SOLUTIONS.md`.
 
 - [x] **Bug fix / Data — ACTIONS push ENERGY + keyword-bonus headers:** Push inserts ENERGY as a real column (Sheets `InsertDimension` after SPEED) and writes only new header cells, so designer labels **bonus per keyword** / **effect** / **keyword** (DS/DT/DU) are not rewritten. Live-tab header; unknown columns preserved; convert-scale aliases on pull/push. Tests: `ActionEnergySheetColumnsTests`, `SpreadsheetActionDataSheetRowSerializerTests`, `ActionSheetsPushRowMergerTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `GOOGLE_SHEETS_INTEGRATION.md`, `PROBLEM_SOLUTIONS.md`.

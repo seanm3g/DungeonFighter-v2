@@ -31,8 +31,18 @@ namespace RPGGame.Tests.Unit.Tuning
             TestRuntimeDifficulty_UsesGameSettings();
             TestClassDamageMultiplier_WiredInRegistry();
             TestDifficultyPresets_MarkedUnimplemented();
+            TestEnemyBalancePoolKnobs_Registered();
 
             TestBase.PrintSummary("CombatTuningParameterRegistry Tests", _testsRun, _testsPassed, _testsFailed);
+        }
+
+        private static void TestEnemyBalancePoolKnobs_Registered()
+        {
+            Console.WriteLine("--- EnemyBalance pool / conversion knobs ---");
+            TestBase.AssertTrue(CombatTuningParameterRegistry.GetById("enemyAttributePoolBase") != null,
+                "enemyAttributePoolBase", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(CombatTuningParameterRegistry.GetById("statConversionStrength") != null,
+                "statConversionStrength", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestRegistry_HasExpandedParameterCount()

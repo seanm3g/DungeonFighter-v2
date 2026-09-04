@@ -137,6 +137,14 @@ namespace RPGGame.Combat.Calculators
             if (attacker is Character damageModCharacter && damageModCharacter.Effects.ConsumedDamageModPercent != 0)
                 actionMultiplier *= (1.0 + damageModCharacter.Effects.ConsumedDamageModPercent / 100.0);
 
+            // Rogue DEFENSE Counter: one-shot DAMAGE_MOD % from last take-hit
+            if (attacker is Character counterHero && counterHero is not Enemy)
+            {
+                double counterPct = counterHero.Effects.ConsumePendingDefenseCounterDamagePct();
+                if (counterPct != 0)
+                    actionMultiplier *= (1.0 + counterPct / 100.0);
+            }
+
             // Apply consumed AMP_MOD from ACTION/ABILITY keyword (next action/ability only; % bonus, multiply).
             // Combo: sheet amp applies on top of technique baseline when slot mult is 1.0 (opener tier), matching HUD + combat log.
             if (attacker is Character ampModCharacter && ampModCharacter.Effects.ConsumedAmpModPercent != 0)
@@ -286,20 +294,12 @@ namespace RPGGame.Combat.Calculators
             if (target is Character hero && hero is not Enemy)
             {
                 var mit = ClassDefenseCalculator.ApplyIncoming(hero, totalDamage, pierce);
-                if (mit.Dodged)
-                {
-                    finalDamage = 0;
-                    reducedAmount = mit.ReducedAmount;
-                }
-                else
-                {
-                    finalDamage = mit.Remaining;
-                    reducedAmount = mit.ReducedAmount;
-                    if (hero.IsWeakened && showWeakenedMessage)
-                        finalDamage = (int)(finalDamage * 1.5);
-                    if (finalDamage > 0 && finalDamage < minimumDamage)
-                        finalDamage = minimumDamage;
-                }
+                finalDamage = mit.Remaining;
+                reducedAmount = mit.ReducedAmount;
+                if (hero.IsWeakened && showWeakenedMessage)
+                    finalDamage = (int)(finalDamage * 1.5);
+                if (finalDamage > 0 && finalDamage < minimumDamage)
+                    finalDamage = minimumDamage;
             }
             else
             {
@@ -357,8 +357,8 @@ namespace RPGGame.Combat.Calculators
         }
 
         /// <summary>
-        /// True when this swing ignores standing BLOCK, Warrior DEFENSE %, and Wizard shield
-        /// (action pierce, or the target is pierced). Rogue dodge can still apply.
+        /// True when this swing ignores standing BLOCK, Grit, and Wizard shield
+        /// (action pierce, or the target is pierced). Pierce still mints Tempo/Counter.
         /// </summary>
         public static bool IgnoresArmor(Actor? target, Action? action = null)
         {

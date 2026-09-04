@@ -92,10 +92,10 @@
   {
     "type": "Mace",
     "name": "Log",
-    "baseDamage": 3,
+    "baseDamage": 1,
     "attackSpeed": 1.35,
-    "damageBonusMin": 1,
-    "damageBonusMax": 4,
+    "damageBonusMin": 0,
+    "damageBonusMax": 1,
     "tier": 1,
     "attributeRequirements": null,
     "tags": [
@@ -867,10 +867,10 @@
   {
     "type": "Sword",
     "name": "Branch",
-    "baseDamage": 2,
+    "baseDamage": 1,
     "attackSpeed": 1.18,
-    "damageBonusMin": 1,
-    "damageBonusMax": 4,
+    "damageBonusMin": 0,
+    "damageBonusMax": 1,
     "tier": 1,
     "attributeRequirements": null,
     "tags": [
@@ -1930,10 +1930,10 @@
   {
     "type": "Dagger",
     "name": "Twig",
-    "baseDamage": 2,
+    "baseDamage": 1,
     "attackSpeed": 0.8,
-    "damageBonusMin": 1,
-    "damageBonusMax": 4,
+    "damageBonusMin": 0,
+    "damageBonusMax": 1,
     "tier": 1,
     "attributeRequirements": null,
     "tags": [
@@ -2849,10 +2849,10 @@
   {
     "type": "Wand",
     "name": "Stick",
-    "baseDamage": 2,
+    "baseDamage": 1,
     "attackSpeed": 1.14,
-    "damageBonusMin": 1,
-    "damageBonusMax": 4,
+    "damageBonusMin": 0,
+    "damageBonusMax": 1,
     "tier": 1,
     "attributeRequirements": null,
     "tags": [

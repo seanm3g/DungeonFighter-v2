@@ -226,7 +226,7 @@ namespace RPGGame
             }
             AddBlank(lines);
             AddNoteLine(lines, "Piece values include that item's defense rating and affixes.");
-            AddNoteLine(lines, "BLOCK is the standing % from the last hero action (dominant DR). DEFENSE is the class layer. Block 0% is DEFENSE only.");
+            AddNoteLine(lines, "BLOCK is standing % DR from the last named action. DEFENSE (gear rating) is Tempo / Counter / Shield / Grit by weapon — never another Block %. Block 0% is DEFENSE only.");
 
             return Trim(lines, maxLines);
         }

@@ -19,6 +19,10 @@ namespace RPGGame.Combat.Formatting
             // Apply consumed SPEED_MOD from ACTION/ABILITY keyword (positive = faster = shorter time)
             if (actor is Character speedModChar && speedModChar.Effects.ConsumedSpeedModPercent != 0)
                 actionLength = actionLength / (1.0 + speedModChar.Effects.ConsumedSpeedModPercent / 100.0);
+
+            // Warrior DEFENSE Tempo (pending until the next hero action executes)
+            if (actor is Character tempoHero && tempoHero is not Enemy && tempoHero.Effects.PendingDefenseTempoSpeedPct != 0)
+                actionLength = actionLength / (1.0 + tempoHero.Effects.PendingDefenseTempoSpeedPct / 100.0);
             
             // Apply critical miss penalty (doubles action length)
             if (isCriticalMiss || actor.HasCriticalMissPenalty)

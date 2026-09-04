@@ -57,6 +57,7 @@ namespace RPGGame.Tests.Runners
             ("AdjustmentExecutor", () => AdjustmentExecutorTests.RunAllTests()),
             ("PlayerTuningApplier", () => RPGGame.Tests.Unit.Tuning.PlayerTuningApplierTests.RunAllTests()),
             ("CombatTuningParameterRegistry", () => RPGGame.Tests.Unit.Tuning.CombatTuningParameterRegistryTests.RunAllTests()),
+            ("LabBalance", () => RPGGame.Tests.Unit.Tuning.LabBalanceTests.RunAllTests()),
             ("LevelWinRateCurve", () => RPGGame.Tests.Unit.Tuning.LevelWinRateCurveTests.RunAllTests()),
             ("LevelTuningSessionStore", () => RPGGame.Tests.Unit.Tuning.LevelTuningSessionStoreTests.RunAllTests()),
             ("BalanceTuningProfile", () => RPGGame.Tests.Unit.Tuning.BalanceTuningProfileTests.RunAllTests()),

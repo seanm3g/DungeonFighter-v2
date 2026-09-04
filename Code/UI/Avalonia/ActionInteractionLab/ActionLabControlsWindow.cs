@@ -109,6 +109,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
 
         public static void CloseIfOpen()
         {
+            ActionLabBalanceWindow.CloseIfOpen();
             ActionLabCatalogWindow.CloseIfOpen();
             if (_instance == null)
                 return;
