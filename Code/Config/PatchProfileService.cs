@@ -37,8 +37,9 @@ namespace RPGGame.Config
             string fallback = GameConstants.GetGameDataFilePath(string.Empty);
             try
             {
-                string? dir = Path.GetDirectoryName(Path.GetFullPath(fallback));
-                _cachedGameDataRoot = string.IsNullOrEmpty(dir) ? GameConstants.GameDataDirectory : dir;
+                // An empty filename resolves to the GameData directory itself.
+                // Taking its parent silently selects a different patch library.
+                _cachedGameDataRoot = NormalizeFallbackRoot(fallback);
             }
             catch
             {
@@ -49,6 +50,8 @@ namespace RPGGame.Config
 
         public static string GetProfileFilePath() =>
             Path.Combine(GetGameDataRoot(), ProfileFileName);
+
+        internal static string NormalizeFallbackRoot(string directory) => Path.GetFullPath(directory);
 
         public static string GetPatchesRoot() =>
             Path.Combine(GetGameDataRoot(), "Patches");

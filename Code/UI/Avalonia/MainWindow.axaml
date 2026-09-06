@@ -6,7 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
         x:Class="RPGGame.UI.Avalonia.MainWindow"
         Icon="/UI/Avalonia/Assets/df_icon.ico"
-        Title="DungeonFighter v2 - ASCII Edition"
+        Title="Demon Fighter"
         Background="Black"
         WindowState="Minimized"
         ShowActivated="False"

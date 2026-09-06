@@ -56,14 +56,15 @@ namespace RPGGame.UI.Avalonia.Display
             IReadOnlyList<string>? combatEnemyNamesForLogAlignment,
             string? heroName)
         {
+            var snapshot = CopyLinesStable(lines);
             IReadOnlyList<string> enemyNames = NormalizeEnemyNames(combatEnemyNamesForLogAlignment);
 
-            var result = new bool[lines.Count];
+            var result = new bool[snapshot.Count];
             bool inEnemyContinuation = false;
 
-            for (int i = 0; i < lines.Count; i++)
+            for (int i = 0; i < snapshot.Count; i++)
             {
-                var segments = lines[i];
+                var segments = snapshot[i];
                 if (segments == null || segments.Count == 0)
                 {
                     result[i] = false;
@@ -116,6 +117,41 @@ namespace RPGGame.UI.Avalonia.Display
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Copies log rows with a frozen length so combat-thread appends cannot grow
+        /// <see cref="IReadOnlyList{T}.Count"/> past a flags array allocated from an earlier Count.
+        /// </summary>
+        internal static List<List<ColoredText>> CopyLinesStable(IReadOnlyList<List<ColoredText>>? lines)
+        {
+            if (lines == null)
+                return new List<List<ColoredText>>();
+
+            int n = lines.Count;
+            if (n <= 0)
+                return new List<List<ColoredText>>();
+
+            var copy = new List<List<ColoredText>>(n);
+            for (int i = 0; i < n; i++)
+            {
+                try
+                {
+                    if (i >= lines.Count)
+                        break;
+                    copy.Add(lines[i]);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    break;
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    break;
+                }
+            }
+
+            return copy;
         }
 
         private static IReadOnlyList<string> NormalizeEnemyNames(IReadOnlyList<string>? combatEnemyNamesForLogAlignment)

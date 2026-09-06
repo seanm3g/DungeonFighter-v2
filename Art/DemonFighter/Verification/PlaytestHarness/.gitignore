@@ -1,0 +1,7 @@
+bin/
+obj/
+GameData/
+Patches/
+PatchProfile.json
+*.log
+baseline-default-config-results.json

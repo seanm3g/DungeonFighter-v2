@@ -47,6 +47,7 @@ namespace RPGGame.Combat.Sequence
         }
 
         public CombatSequenceStepKind Kind { get; }
+        public CombatVisualAction? VisualAction { get; set; }
         public string Title { get; }
         public List<ColoredText> Result { get; }
         public CombatSequenceCue Cue { get; }

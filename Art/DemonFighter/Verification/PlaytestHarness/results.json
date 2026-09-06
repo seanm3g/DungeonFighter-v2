@@ -1,0 +1,458 @@
+[
+  {
+    "level": 1,
+    "weapon": "Sword",
+    "enemy": "Wolf",
+    "battles": 30,
+    "wins": 29,
+    "errors": [],
+    "averageTurns": 14.866666666666667,
+    "minTurns": 12,
+    "maxTurns": 21,
+    "averageHealthLeft": 99.4,
+    "playerMaxHealth": 250,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "STRIKE"
+    ]
+  },
+  {
+    "level": 1,
+    "weapon": "Sword",
+    "enemy": "Skeleton",
+    "battles": 30,
+    "wins": 27,
+    "errors": [],
+    "averageTurns": 14.933333333333334,
+    "minTurns": 13,
+    "maxTurns": 21,
+    "averageHealthLeft": 83.96666666666667,
+    "playerMaxHealth": 250,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "STRIKE"
+    ]
+  },
+  {
+    "level": 1,
+    "weapon": "Sword",
+    "enemy": "Lava Golem",
+    "battles": 30,
+    "wins": 28,
+    "errors": [],
+    "averageTurns": 14.433333333333334,
+    "minTurns": 12,
+    "maxTurns": 17,
+    "averageHealthLeft": 89.63333333333334,
+    "playerMaxHealth": 250,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "STRIKE"
+    ]
+  },
+  {
+    "level": 1,
+    "weapon": "Mace",
+    "enemy": "Wolf",
+    "battles": 30,
+    "wins": 29,
+    "errors": [],
+    "averageTurns": 11,
+    "minTurns": 9,
+    "maxTurns": 13,
+    "averageHealthLeft": 120.56666666666666,
+    "playerMaxHealth": 250,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "SLAM"
+    ]
+  },
+  {
+    "level": 1,
+    "weapon": "Mace",
+    "enemy": "Skeleton",
+    "battles": 30,
+    "wins": 30,
+    "errors": [],
+    "averageTurns": 10.733333333333333,
+    "minTurns": 8,
+    "maxTurns": 12,
+    "averageHealthLeft": 125.03333333333333,
+    "playerMaxHealth": 250,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "SLAM"
+    ]
+  },
+  {
+    "level": 1,
+    "weapon": "Mace",
+    "enemy": "Lava Golem",
+    "battles": 30,
+    "wins": 30,
+    "errors": [],
+    "averageTurns": 11.133333333333333,
+    "minTurns": 8,
+    "maxTurns": 17,
+    "averageHealthLeft": 123.5,
+    "playerMaxHealth": 250,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "SLAM"
+    ]
+  },
+  {
+    "level": 1,
+    "weapon": "Dagger",
+    "enemy": "Wolf",
+    "battles": 30,
+    "wins": 24,
+    "errors": [],
+    "averageTurns": 16.233333333333334,
+    "minTurns": 9,
+    "maxTurns": 22,
+    "averageHealthLeft": 62.6,
+    "playerMaxHealth": 250,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "STAB"
+    ]
+  },
+  {
+    "level": 1,
+    "weapon": "Dagger",
+    "enemy": "Skeleton",
+    "battles": 30,
+    "wins": 24,
+    "errors": [],
+    "averageTurns": 16.766666666666666,
+    "minTurns": 14,
+    "maxTurns": 22,
+    "averageHealthLeft": 56,
+    "playerMaxHealth": 250,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "STAB"
+    ]
+  },
+  {
+    "level": 1,
+    "weapon": "Dagger",
+    "enemy": "Lava Golem",
+    "battles": 30,
+    "wins": 22,
+    "errors": [],
+    "averageTurns": 16.733333333333334,
+    "minTurns": 13,
+    "maxTurns": 20,
+    "averageHealthLeft": 50.733333333333334,
+    "playerMaxHealth": 250,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "STAB"
+    ]
+  },
+  {
+    "level": 1,
+    "weapon": "Wand",
+    "enemy": "Wolf",
+    "battles": 30,
+    "wins": 28,
+    "errors": [],
+    "averageTurns": 15.066666666666666,
+    "minTurns": 12,
+    "maxTurns": 20,
+    "averageHealthLeft": 81.56666666666666,
+    "playerMaxHealth": 250,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "MAGIC MISSLE"
+    ]
+  },
+  {
+    "level": 1,
+    "weapon": "Wand",
+    "enemy": "Skeleton",
+    "battles": 30,
+    "wins": 25,
+    "errors": [],
+    "averageTurns": 14.5,
+    "minTurns": 10,
+    "maxTurns": 19,
+    "averageHealthLeft": 60.266666666666666,
+    "playerMaxHealth": 250,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "MAGIC MISSLE"
+    ]
+  },
+  {
+    "level": 1,
+    "weapon": "Wand",
+    "enemy": "Lava Golem",
+    "battles": 30,
+    "wins": 27,
+    "errors": [],
+    "averageTurns": 15,
+    "minTurns": 10,
+    "maxTurns": 20,
+    "averageHealthLeft": 78.43333333333334,
+    "playerMaxHealth": 250,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "MAGIC MISSLE"
+    ]
+  },
+  {
+    "level": 3,
+    "weapon": "Sword",
+    "enemy": "Wolf",
+    "battles": 30,
+    "wins": 27,
+    "errors": [],
+    "averageTurns": 8.266666666666667,
+    "minTurns": 7,
+    "maxTurns": 12,
+    "averageHealthLeft": 126.8,
+    "playerMaxHealth": 256,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "STRIKE"
+    ]
+  },
+  {
+    "level": 3,
+    "weapon": "Sword",
+    "enemy": "Skeleton",
+    "battles": 30,
+    "wins": 30,
+    "errors": [],
+    "averageTurns": 8.233333333333333,
+    "minTurns": 7,
+    "maxTurns": 12,
+    "averageHealthLeft": 140.9,
+    "playerMaxHealth": 256,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "STRIKE"
+    ]
+  },
+  {
+    "level": 3,
+    "weapon": "Sword",
+    "enemy": "Lava Golem",
+    "battles": 30,
+    "wins": 29,
+    "errors": [],
+    "averageTurns": 8.7,
+    "minTurns": 7,
+    "maxTurns": 12,
+    "averageHealthLeft": 102.4,
+    "playerMaxHealth": 256,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "STRIKE"
+    ]
+  },
+  {
+    "level": 3,
+    "weapon": "Mace",
+    "enemy": "Wolf",
+    "battles": 30,
+    "wins": 30,
+    "errors": [],
+    "averageTurns": 6.666666666666667,
+    "minTurns": 5,
+    "maxTurns": 10,
+    "averageHealthLeft": 154.63333333333333,
+    "playerMaxHealth": 256,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "SLAM"
+    ]
+  },
+  {
+    "level": 3,
+    "weapon": "Mace",
+    "enemy": "Skeleton",
+    "battles": 30,
+    "wins": 30,
+    "errors": [],
+    "averageTurns": 6.533333333333333,
+    "minTurns": 5,
+    "maxTurns": 10,
+    "averageHealthLeft": 149.9,
+    "playerMaxHealth": 256,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "SLAM"
+    ]
+  },
+  {
+    "level": 3,
+    "weapon": "Mace",
+    "enemy": "Lava Golem",
+    "battles": 30,
+    "wins": 30,
+    "errors": [],
+    "averageTurns": 7.033333333333333,
+    "minTurns": 5,
+    "maxTurns": 10,
+    "averageHealthLeft": 110.33333333333333,
+    "playerMaxHealth": 256,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "SLAM"
+    ]
+  },
+  {
+    "level": 3,
+    "weapon": "Dagger",
+    "enemy": "Wolf",
+    "battles": 30,
+    "wins": 30,
+    "errors": [],
+    "averageTurns": 8.333333333333334,
+    "minTurns": 7,
+    "maxTurns": 10,
+    "averageHealthLeft": 107.13333333333334,
+    "playerMaxHealth": 256,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "STAB"
+    ]
+  },
+  {
+    "level": 3,
+    "weapon": "Dagger",
+    "enemy": "Skeleton",
+    "battles": 30,
+    "wins": 30,
+    "errors": [],
+    "averageTurns": 8.133333333333333,
+    "minTurns": 6,
+    "maxTurns": 11,
+    "averageHealthLeft": 139.16666666666666,
+    "playerMaxHealth": 256,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "STAB"
+    ]
+  },
+  {
+    "level": 3,
+    "weapon": "Dagger",
+    "enemy": "Lava Golem",
+    "battles": 30,
+    "wins": 29,
+    "errors": [],
+    "averageTurns": 8.166666666666666,
+    "minTurns": 6,
+    "maxTurns": 11,
+    "averageHealthLeft": 101.03333333333333,
+    "playerMaxHealth": 256,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "STAB"
+    ]
+  },
+  {
+    "level": 3,
+    "weapon": "Wand",
+    "enemy": "Wolf",
+    "battles": 30,
+    "wins": 28,
+    "errors": [],
+    "averageTurns": 8.366666666666667,
+    "minTurns": 7,
+    "maxTurns": 10,
+    "averageHealthLeft": 108.93333333333334,
+    "playerMaxHealth": 256,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "MAGIC MISSLE"
+    ]
+  },
+  {
+    "level": 3,
+    "weapon": "Wand",
+    "enemy": "Skeleton",
+    "battles": 30,
+    "wins": 30,
+    "errors": [],
+    "averageTurns": 8.3,
+    "minTurns": 6,
+    "maxTurns": 12,
+    "averageHealthLeft": 124.33333333333333,
+    "playerMaxHealth": 256,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "MAGIC MISSLE"
+    ]
+  },
+  {
+    "level": 3,
+    "weapon": "Wand",
+    "enemy": "Lava Golem",
+    "battles": 30,
+    "wins": 29,
+    "errors": [],
+    "averageTurns": 8.633333333333333,
+    "minTurns": 6,
+    "maxTurns": 12,
+    "averageHealthLeft": 105.63333333333334,
+    "playerMaxHealth": 256,
+    "enemyMaxHealth": 150,
+    "playerArmor": 0,
+    "enemyArmor": 1,
+    "actions": [
+      "MAGIC MISSLE"
+    ]
+  }
+]

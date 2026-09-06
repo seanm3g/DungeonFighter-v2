@@ -34,7 +34,9 @@ namespace RPGGame.UI.Avalonia.Canvas
             List<CanvasBox> boxElements,
             List<CanvasProgressBar> progressBars,
             List<CanvasSegmentedBar> segmentedBars,
-            Color clearBackground = default)
+            List<CanvasLine>? lineElements = null,
+            Color clearBackground = default,
+            System.Action<DrawingContext>? drawScene = null)
         {
             // default(Color) / transparent → solid black (normal game backdrop)
             if (clearBackground.A == 0)
@@ -44,11 +46,13 @@ namespace RPGGame.UI.Avalonia.Canvas
             context.FillRectangle(new SolidColorBrush(clearBackground), new Rect(0, 0, boundsWidth, boundsHeight));
             
             RenderBoxes(context, boxElements, overlayPass: false);
+            drawScene?.Invoke(context);
             RenderProgressBars(context, progressBars);
             RenderSegmentedBars(context, segmentedBars);
             RenderText(context, textElements, overlayPass: false);
             RenderBoxes(context, boxElements, overlayPass: true);
             RenderText(context, textElements, overlayPass: true);
+            RenderLines(context, lineElements);
         }
         
         private void RenderBoxes(DrawingContext context, List<CanvasBox> boxElements, bool overlayPass)
@@ -347,6 +351,24 @@ namespace RPGGame.UI.Avalonia.Canvas
             else
             {
                 context.DrawText(formatted, new Point(x, y));
+            }
+        }
+
+        private void RenderLines(DrawingContext context, List<CanvasLine>? lines)
+        {
+            if (lines == null || lines.Count == 0)
+                return;
+
+            double charWidth = coordinateConverter.GetCharWidth();
+            double charHeight = coordinateConverter.GetCharHeight();
+            foreach (var line in lines)
+            {
+                double thickness = System.Math.Max(1, line.ThicknessPixels);
+                var pen = new Pen(new SolidColorBrush(line.Color), thickness);
+                context.DrawLine(
+                    pen,
+                    new Point(line.X1 * charWidth, line.Y1 * charHeight),
+                    new Point(line.X2 * charWidth, line.Y2 * charHeight));
             }
         }
     }

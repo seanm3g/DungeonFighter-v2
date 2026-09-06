@@ -48,6 +48,15 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(1, manager5.BoxElements.Count, "TryUpdateBox does not add duplicate boxes", ref run, ref passed, ref failed);
             TestBase.AssertEqual(Colors.DarkBlue, manager5.BoxElements[0].BackgroundColor, "TryUpdateBox changes background color", ref run, ref passed, ref failed);
 
+            var manager6 = new CanvasElementManager();
+            manager6.AddLine(new CanvasLine { X1 = 10, Y1 = 10, X2 = 20, Y2 = 18, Color = Colors.Red, ThicknessPixels = 4 });
+            manager6.AddLine(new CanvasLine { X1 = 80, Y1 = 2, X2 = 90, Y2 = 4, Color = Colors.White, ThicknessPixels = 2 });
+            manager6.ClearLinesInArea(8, 8, 16, 12);
+            TestBase.AssertEqual(1, manager6.LineElements.Count, "ClearLinesInArea removes strokes in the rect", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(80, manager6.LineElements[0].X1, "ClearLinesInArea keeps strokes outside the rect", ref run, ref passed, ref failed);
+            manager6.Clear();
+            TestBase.AssertEqual(0, manager6.LineElements.Count, "Clear removes leftover line strokes", ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("CanvasPrimitiveStackingTests", run, passed, failed);
         }
     }

@@ -57,6 +57,21 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             y += 2;
             currentLineCount += 2;
             
+            // Reserve the header for a non-mutating appearance preview and a plain-language comparison.
+            if (height >= 30 && width >= 55)
+            {
+                canvas.SetEquipmentPreview(RPGGame.UI.Avalonia.CombatVisuals.EquipmentPreview.Asset(character, newItem), x + width - 18, y, 16, 7);
+                string summary = newItem is WeaponItem weapon
+                    ? $"Weapon damage {weapon.GetTotalDamage()} ({weapon.GetTotalDamage() - ((currentItem as WeaponItem)?.GetTotalDamage() ?? 0):+0;-0;0}) · time multiplier {weapon.GetTotalAttackSpeed():0.##}x (lower is faster)"
+                    : "Compare protection and granted actions below; requirements still apply.";
+                int row = y;
+                foreach (var line in TextWrapper.WrapText(summary, width - 23))
+                    canvas.AddText(x + 2, row++, line, AsciiArtAssets.Colors.White);
+                foreach (var line in TextWrapper.WrapText(BuildIdentity.Describe(character), width - 23))
+                    if (row < y + 7) canvas.AddText(x + 2, row++, line, AsciiArtAssets.Colors.Gold);
+                y += 8;
+                currentLineCount += 8;
+            }
             // Calculate column widths for side-by-side display
             int columnWidth = (width - 6) / 2; // Leave space for separator
             int leftColumnX = x + 2;
@@ -333,4 +348,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         }
     }
 }
+
+
+
 

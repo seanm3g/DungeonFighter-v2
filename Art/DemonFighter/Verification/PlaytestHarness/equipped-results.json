@@ -1,0 +1,134 @@
+[
+  {
+    "weapon": "Sword",
+    "enemyName": "Wolf",
+    "battles": 10,
+    "wins": 10,
+    "meanFighterHpLost": 16.5,
+    "actions": [
+      "HARDEN",
+      "STRIKE"
+    ]
+  },
+  {
+    "weapon": "Sword",
+    "enemyName": "Skeleton",
+    "battles": 10,
+    "wins": 10,
+    "meanFighterHpLost": 21,
+    "actions": [
+      "HARDEN",
+      "STRIKE"
+    ]
+  },
+  {
+    "weapon": "Sword",
+    "enemyName": "Lava Golem",
+    "battles": 10,
+    "wins": 10,
+    "meanFighterHpLost": 17.1,
+    "actions": [
+      "HARDEN",
+      "STRIKE"
+    ]
+  },
+  {
+    "weapon": "Mace",
+    "enemyName": "Wolf",
+    "battles": 10,
+    "wins": 10,
+    "meanFighterHpLost": 10.8,
+    "actions": [
+      "WEAKEN",
+      "SLAM"
+    ]
+  },
+  {
+    "weapon": "Mace",
+    "enemyName": "Skeleton",
+    "battles": 10,
+    "wins": 10,
+    "meanFighterHpLost": 11.4,
+    "actions": [
+      "WEAKEN",
+      "SLAM"
+    ]
+  },
+  {
+    "weapon": "Mace",
+    "enemyName": "Lava Golem",
+    "battles": 10,
+    "wins": 10,
+    "meanFighterHpLost": 8.7,
+    "actions": [
+      "WEAKEN",
+      "SLAM"
+    ]
+  },
+  {
+    "weapon": "Dagger",
+    "enemyName": "Wolf",
+    "battles": 10,
+    "wins": 10,
+    "meanFighterHpLost": 21.9,
+    "actions": [
+      "HARDEN",
+      "STAB"
+    ]
+  },
+  {
+    "weapon": "Dagger",
+    "enemyName": "Skeleton",
+    "battles": 10,
+    "wins": 10,
+    "meanFighterHpLost": 17.7,
+    "actions": [
+      "HARDEN",
+      "STAB"
+    ]
+  },
+  {
+    "weapon": "Dagger",
+    "enemyName": "Lava Golem",
+    "battles": 10,
+    "wins": 10,
+    "meanFighterHpLost": 15.3,
+    "actions": [
+      "HARDEN",
+      "STAB"
+    ]
+  },
+  {
+    "weapon": "Wand",
+    "enemyName": "Wolf",
+    "battles": 10,
+    "wins": 10,
+    "meanFighterHpLost": 21.9,
+    "actions": [
+      "HARDEN",
+      "MAGIC MISSLE"
+    ]
+  },
+  {
+    "weapon": "Wand",
+    "enemyName": "Skeleton",
+    "battles": 10,
+    "wins": 10,
+    "meanFighterHpLost": 18.9,
+    "actions": [
+      "HARDEN",
+      "MAGIC MISSLE"
+    ]
+  },
+  {
+    "weapon": "Wand",
+    "enemyName": "Lava Golem",
+    "battles": 10,
+    "wins": 10,
+    "meanFighterHpLost": 15,
+    "actions": [
+      "HARDEN",
+      "MAGIC MISSLE"
+    ]
+  }
+]

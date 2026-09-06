@@ -1,0 +1,561 @@
+{
+  "name": "Roric Lionheart",
+  "level": 3,
+  "xp": 553,
+  "currentHealth": 256,
+  "maxHealth": 256,
+  "strength": 9,
+  "agility": 5,
+  "technique": 5,
+  "intelligence": 5,
+  "barbarianPoints": 2,
+  "warriorPoints": 0,
+  "roguePoints": 0,
+  "wizardPoints": 0,
+  "learnedSkillRanks": {
+    "b-tribe": 1
+  },
+  "learnedSkillNodeIds": [],
+  "comboStep": 0,
+  "comboBonus": 0,
+  "tempComboBonus": 0,
+  "tempComboBonusTurns": 0,
+  "damageReduction": 0,
+  "inventory": [
+    {
+      "$itemType": "feet",
+      "armor": 0,
+      "name": "Heavy Silver Galoshs",
+      "type": 1,
+      "tier": 1,
+      "level": 2,
+      "comboBonus": 0,
+      "baseStrength": 5,
+      "baseAgility": 0,
+      "baseTechnique": 2,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Common",
+      "material": "Silver",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "ADJECTIVE",
+          "name": "Heavy",
+          "description": "",
+          "effect": "DAMAGE",
+          "triggerWhen": "",
+          "minValue": 5,
+          "maxValue": 5,
+          "rolledValue": 5,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "strength": 2
+          },
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Silver",
+          "description": "Wizard",
+          "effect": "INTELLIGENCE",
+          "triggerWhen": "",
+          "minValue": 3,
+          "maxValue": 3,
+          "rolledValue": 3,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "intelligence": 10
+          },
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "silver"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 0,
+      "attributeRequirements": {
+        "technique": 6,
+        "strength": 2,
+        "intelligence": 10
+      },
+      "catalogAttributeRequirements": {
+        "technique": 6
+      },
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "legs",
+      "armor": 0,
+      "name": "Heavy Bronze Villager\u0027s Tassets",
+      "type": 4,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 2,
+      "baseTechnique": 0,
+      "baseIntelligence": 5,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 1,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Common",
+      "material": "Bronze",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "ADJECTIVE",
+          "name": "Heavy",
+          "description": "",
+          "effect": "DAMAGE",
+          "triggerWhen": "",
+          "minValue": 5,
+          "maxValue": 5,
+          "rolledValue": 5,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "strength": 2
+          },
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Bronze",
+          "description": "Warrior",
+          "effect": "AGILITY",
+          "triggerWhen": "",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "agility": 10
+          },
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "bronze"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 0,
+      "attributeRequirements": {
+        "agility": 10,
+        "strength": 2
+      },
+      "catalogAttributeRequirements": {
+        "agility": 6
+      },
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "head",
+      "armor": 0,
+      "name": "Long Bronze Veil",
+      "type": 0,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "baseStrength": 5,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 1,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 1,
+      "rarity": "Common",
+      "material": "Bronze",
+      "statBonuses": [],
+      "actionBonuses": [
+        {
+          "name": "FIGHTER",
+          "description": "Gain 1 STR for the duration of this fight",
+          "weight": 1
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "ADJECTIVE",
+          "name": "Long",
+          "description": "",
+          "effect": "CRIT",
+          "triggerWhen": "",
+          "minValue": 1,
+          "maxValue": 1,
+          "rolledValue": 1,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "strength": 2
+          },
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Bronze",
+          "description": "Warrior",
+          "effect": "AGILITY",
+          "triggerWhen": "",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "agility": 10
+          },
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "bronze"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 0,
+      "attributeRequirements": {
+        "intelligence": 10,
+        "strength": 2,
+        "agility": 10
+      },
+      "catalogAttributeRequirements": {
+        "intelligence": 10
+      },
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "$itemType": "weapon",
+      "baseDamage": 4,
+      "rolledDamageBonus": 4,
+      "baseAttackSpeed": 0.7,
+      "name": "Battle Scarred Hardened Obsidian Stiletto of the Jaguar of Protection",
+      "type": 3,
+      "tier": 2,
+      "level": 3,
+      "comboBonus": 0,
+      "baseStrength": 0,
+      "baseAgility": 0,
+      "baseTechnique": 0,
+      "baseIntelligence": 0,
+      "baseHit": 0,
+      "baseCombo": 0,
+      "baseCrit": 0,
+      "extraActionSlots": 0,
+      "catalogAttackSpeed": 0,
+      "minGeneratedActionBonuses": 0,
+      "rarity": "Uncommon",
+      "material": "Obsidian",
+      "statBonuses": [
+        {
+          "name": "of Protection",
+          "description": "armor",
+          "value": 1,
+          "rarity": "Common",
+          "statType": "Armor",
+          "ItemRank": "",
+          "mechanics": [
+            {
+              "statType": "Armor",
+              "value": 1
+            }
+          ],
+          "triggerName": "",
+          "triggerNames": null,
+          "tags": null,
+          "Requirements": null
+        },
+        {
+          "name": "of the Jaguar",
+          "description": "On first hit, crit threshold \u002B1 this turn.",
+          "value": 0,
+          "rarity": "Uncommon",
+          "statType": "",
+          "ItemRank": "",
+          "mechanics": null,
+          "triggerName": "",
+          "triggerNames": null,
+          "tags": null,
+          "Requirements": null
+        }
+      ],
+      "actionBonuses": [
+        {
+          "name": "EXPLODING DICE",
+          "description": "Die explodes on 20 (exploding_dice)",
+          "weight": 1
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "QUALITY",
+          "name": "Battle Scarred",
+          "description": "Affects the base stats of an item \u002B/-",
+          "effect": "gearPrimaryStatMultiplier",
+          "triggerWhen": "",
+          "minValue": 0.9,
+          "maxValue": 0.9,
+          "rolledValue": 0.9,
+          "statusEffects": [],
+          "attributeRequirements": {},
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "ADJECTIVE",
+          "name": "Hardened",
+          "description": "",
+          "effect": "ARMOR",
+          "triggerWhen": "",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "strength": 2
+          },
+          "tags": null
+        },
+        {
+          "diceResult": 0,
+          "itemRank": "Common",
+          "prefixCategory": "MATERIAL",
+          "name": "Obsidian",
+          "description": "Rogue",
+          "effect": "TECHNIQUE",
+          "triggerWhen": "",
+          "minValue": 3,
+          "maxValue": 3,
+          "rolledValue": 3,
+          "statusEffects": [],
+          "attributeRequirements": {
+            "technique": 10
+          },
+          "tags": null
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 6,
+      "bonusAttackSpeed": 0,
+      "tags": [
+        "dagger",
+        "rogue",
+        "obsidian"
+      ],
+      "triggerBundles": [],
+      "equipEffects": [],
+      "roomSearchConsumableKind": 0,
+      "consumableHealAmount": 0,
+      "consumablePotionPotency": 0,
+      "weaponType": 1,
+      "attributeRequirements": {
+        "strength": 2,
+        "technique": 10
+      },
+      "catalogAttributeRequirements": {},
+      "gearAction": null,
+      "isStarterItem": false
+    }
+  ],
+  "head": null,
+  "body": {
+    "$itemType": "chest",
+    "armor": 2,
+    "name": "Shirt",
+    "type": 2,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "baseStrength": 2,
+    "baseAgility": 0,
+    "baseTechnique": 0,
+    "baseIntelligence": 0,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 0,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Common",
+    "material": "",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "starter"
+    ],
+    "triggerBundles": [],
+    "equipEffects": [],
+    "roomSearchConsumableKind": 0,
+    "consumableHealAmount": 0,
+    "consumablePotionPotency": 0,
+    "weaponType": 0,
+    "attributeRequirements": {},
+    "catalogAttributeRequirements": {},
+    "gearAction": null,
+    "isStarterItem": true
+  },
+  "legs": {
+    "$itemType": "legs",
+    "armor": 3,
+    "name": "shinguards",
+    "type": 4,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "baseStrength": 0,
+    "baseAgility": 2,
+    "baseTechnique": 0,
+    "baseIntelligence": 0,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 1,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Common",
+    "material": "",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "starter"
+    ],
+    "triggerBundles": [],
+    "equipEffects": [],
+    "roomSearchConsumableKind": 0,
+    "consumableHealAmount": 0,
+    "consumablePotionPotency": 0,
+    "weaponType": 0,
+    "attributeRequirements": {},
+    "catalogAttributeRequirements": {},
+    "gearAction": null,
+    "isStarterItem": true
+  },
+  "weapon": {
+    "$itemType": "weapon",
+    "baseDamage": 6,
+    "rolledDamageBonus": 1,
+    "baseAttackSpeed": 1.35,
+    "name": "Bone Log",
+    "type": 3,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "baseStrength": 0,
+    "baseAgility": 0,
+    "baseTechnique": 0,
+    "baseIntelligence": 0,
+    "baseHit": 0,
+    "baseCombo": 0,
+    "baseCrit": 0,
+    "extraActionSlots": 0,
+    "catalogAttackSpeed": 0,
+    "minGeneratedActionBonuses": 0,
+    "rarity": "Common",
+    "material": "Bone",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [
+      {
+        "diceResult": 0,
+        "itemRank": "Common",
+        "prefixCategory": "MATERIAL",
+        "name": "Bone",
+        "description": "Barbarian",
+        "effect": "STRENGTH",
+        "triggerWhen": "",
+        "minValue": 2,
+        "maxValue": 2,
+        "rolledValue": 2,
+        "statusEffects": [],
+        "attributeRequirements": {
+          "strength": 10
+        },
+        "tags": null
+      }
+    ],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [
+      "mace",
+      "barbarian",
+      "starter",
+      "bone"
+    ],
+    "triggerBundles": [],
+    "equipEffects": [],
+    "roomSearchConsumableKind": 0,
+    "consumableHealAmount": 0,
+    "consumablePotionPotency": 0,
+    "weaponType": 2,
+    "attributeRequirements": {},
+    "catalogAttributeRequirements": {},
+    "gearAction": "SLAM",
+    "isStarterItem": true
+  },
+  "feet": null,
+  "comboStripActionNames": [
+    "SLAM"
+  ],
+  "isDead": false,
+  "pendingPreWeaponTrainingGround": false,
+  "currentRegionId": "forest",
+  "dungeonDifficultyAnchorLevel": null
+}

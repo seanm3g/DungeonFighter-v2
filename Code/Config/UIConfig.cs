@@ -8,6 +8,10 @@ namespace RPGGame
     /// </summary>
     public class UICustomizationConfig
     {
+        public bool IllustratedCombat { get; set; }
+        public bool AnimateCombat { get; set; } = true;
+        public bool CombatVisualEffects { get; set; } = true;
+        public bool ReducedCombatMotion { get; set; }
         public string MenuSeparator { get; set; } = "";
         public string SubMenuSeparator { get; set; } = "";
         public string InvalidChoiceMessage { get; set; } = "";

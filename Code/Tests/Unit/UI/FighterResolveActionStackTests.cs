@@ -27,7 +27,47 @@ namespace RPGGame.Tests.Unit.UI
             TestCurrentCardIsCenteredInBand(ref run, ref passed, ref failed);
             TestPreviousCardSitsLeftOfCurrent(ref run, ref passed, ref failed);
             TestEnemyPreviousCardSitsRightOfCurrent(ref run, ref passed, ref failed);
+            TestMissMarksCurrentAfterReveal(ref run, ref passed, ref failed);
+            TestPlainHitMarksUnusedX(ref run, ref passed, ref failed);
+            TestComboDoesNotMarkX(ref run, ref passed, ref failed);
+            TestCritDoesNotMarkX(ref run, ref passed, ref failed);
+            TestMissArchivesWithPrevious(ref run, ref passed, ref failed);
 
+            FighterResolveActionStackState.Clear();
+            var historyHero = HeroWithSlam();
+            var foreignAction = TestDataBuilders.CreateMockAction("RIPOSTE");
+            foreignAction.Description = "Counter with a quick blade strike.";
+            FighterResolveActionStackState.BeginResolve(historyHero, foreignAction);
+            FighterResolveActionStackState.RevealCurrent();
+            TestBase.AssertEqual("RIPOSTE", FighterResolveActionStackState.Current!.Value.Name,
+                "non-combo action retains selected identity", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(foreignAction.Description, FighterResolveActionStackState.Current!.Value.Description,
+                "selected description reaches the card", ref run, ref passed, ref failed);
+            FighterResolveActionStackState.MarkCurrentMissed();
+            FighterResolveActionStackState.ArchiveCurrent();
+            FighterResolveActionStackState.ArchiveCurrent();
+            TestBase.AssertEqual(1, FighterResolveActionStackState.FighterHistory.Count,
+                "archiving twice does not duplicate cards", ref run, ref passed, ref failed);
+            FighterResolveActionStackState.BeginResolve(EnemyWithBite(), foreignAction);
+            FighterResolveActionStackState.RevealCurrent();
+            FighterResolveActionStackState.ArchiveCurrent();
+            TestBase.AssertTrue(FighterResolveActionStackState.FighterHistory[0].Unused &&
+                !FighterResolveActionStackState.EnemyHistory[0].Unused,
+                "separate histories retain their own outcomes", ref run, ref passed, ref failed);
+            for (int i = 0; i < 15; i++)
+            {
+                var action = TestDataBuilders.CreateMockAction("ACTION " + i);
+                FighterResolveActionStackState.BeginResolve(historyHero, action);
+                FighterResolveActionStackState.RevealCurrent();
+                FighterResolveActionStackState.ArchiveCurrent();
+            }
+            TestBase.AssertEqual(12, FighterResolveActionStackState.FighterHistory.Count,
+                "history remains bounded", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("ACTION 14", FighterResolveActionStackState.FighterHistory[0].Info.Name,
+                "newest action is on top", ref run, ref passed, ref failed);
+            FighterResolveActionStackState.Clear();
+            TestBase.AssertTrue(FighterResolveActionStackState.FighterHistory.Count == 0 && FighterResolveActionStackState.EnemyHistory.Count == 0,
+                "encounter reset clears both piles", ref run, ref passed, ref failed);
             TestBase.PrintSummary("FighterResolveActionStack Tests", run, passed, failed);
         }
 
@@ -290,5 +330,150 @@ namespace RPGGame.Tests.Unit.UI
                 "enemy past-action square sits to the right of the resolving card",
                 ref run, ref passed, ref failed);
         }
+
+        private static void TestMissMarksCurrentAfterReveal(ref int run, ref int passed, ref int failed)
+        {
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                CombatUiMuteScope.GlobalMute = false;
+                DeveloperModeState.SetCombatLogInstant(false);
+                CombatSequencePresenter.BypassCanvasCheckForTests = true;
+                CombatSequencePresenter.SkipDelaysForTests = true;
+                FighterResolveActionStackState.ResetForTests();
+
+                var hero = HeroWithSlam();
+                FighterResolveActionStackState.BeginResolve(hero, hero.GetComboActions()[0]);
+                FighterResolveActionStackState.ApplyResolveOutcome(isCombo: false, isCritical: false);
+                TestBase.AssertFalse(FighterResolveActionStackState.CurrentMissed,
+                    "unused stamp waits until the centered card is revealed",
+                    ref run, ref passed, ref failed);
+
+                FighterResolveActionStackState.RevealCurrent();
+                TestBase.AssertTrue(FighterResolveActionStackState.CurrentMissed,
+                    "revealed miss shows the red X on the centered card",
+                    ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequencePresenter.ResetForTests();
+            }
+        }
+
+        private static void TestPlainHitMarksUnusedX(ref int run, ref int passed, ref int failed)
+        {
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                CombatUiMuteScope.GlobalMute = false;
+                DeveloperModeState.SetCombatLogInstant(true);
+                CombatSequencePresenter.BypassCanvasCheckForTests = true;
+                FighterResolveActionStackState.ResetForTests();
+
+                var hero = HeroWithSlam();
+                FighterResolveActionStackState.BeginResolve(hero, hero.GetComboActions()[0]);
+                FighterResolveActionStackState.ApplyResolveOutcome(isCombo: false, isCritical: false);
+                TestBase.AssertTrue(FighterResolveActionStackState.Current.HasValue,
+                    "instant HUD reveals the card on a plain hit",
+                    ref run, ref passed, ref failed);
+                TestBase.AssertTrue(FighterResolveActionStackState.CurrentMissed,
+                    "a plain hit stamps a red X because the combo action was not used",
+                    ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequencePresenter.ResetForTests();
+            }
+        }
+
+        private static void TestComboDoesNotMarkX(ref int run, ref int passed, ref int failed)
+        {
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                CombatUiMuteScope.GlobalMute = false;
+                DeveloperModeState.SetCombatLogInstant(true);
+                CombatSequencePresenter.BypassCanvasCheckForTests = true;
+                FighterResolveActionStackState.ResetForTests();
+
+                var hero = HeroWithSlam();
+                FighterResolveActionStackState.BeginResolve(hero, hero.GetComboActions()[0]);
+                FighterResolveActionStackState.ApplyResolveOutcome(isCombo: true, isCritical: false);
+                TestBase.AssertFalse(FighterResolveActionStackState.CurrentMissed,
+                    "a combo does not stamp a red X",
+                    ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequencePresenter.ResetForTests();
+            }
+        }
+
+        private static void TestCritDoesNotMarkX(ref int run, ref int passed, ref int failed)
+        {
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                CombatUiMuteScope.GlobalMute = false;
+                DeveloperModeState.SetCombatLogInstant(true);
+                CombatSequencePresenter.BypassCanvasCheckForTests = true;
+                FighterResolveActionStackState.ResetForTests();
+
+                var hero = HeroWithSlam();
+                FighterResolveActionStackState.BeginResolve(hero, hero.GetComboActions()[0]);
+                FighterResolveActionStackState.ApplyResolveOutcome(isCombo: false, isCritical: true);
+                TestBase.AssertFalse(FighterResolveActionStackState.CurrentMissed,
+                    "a crit does not stamp a red X",
+                    ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequencePresenter.ResetForTests();
+            }
+        }
+
+        private static void TestMissArchivesWithPrevious(ref int run, ref int passed, ref int failed)
+        {
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                CombatUiMuteScope.GlobalMute = false;
+                DeveloperModeState.SetCombatLogInstant(true);
+                CombatSequencePresenter.BypassCanvasCheckForTests = true;
+                FighterResolveActionStackState.ResetForTests();
+
+                var hero = HeroWithSlam();
+                FighterResolveActionStackState.BeginResolve(hero, hero.GetComboActions()[0]);
+                FighterResolveActionStackState.MarkCurrentMissed();
+                FighterResolveActionStackState.ArchiveCurrent();
+
+                TestBase.AssertFalse(FighterResolveActionStackState.CurrentMissed,
+                    "archiving clears the centered miss stamp",
+                    ref run, ref passed, ref failed);
+                TestBase.AssertTrue(FighterResolveActionStackState.PreviousMissed,
+                    "fighter past-action keeps the miss X after archive",
+                    ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequencePresenter.ResetForTests();
+            }
+        }
     }
 }
+

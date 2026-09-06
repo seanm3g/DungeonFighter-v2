@@ -76,6 +76,10 @@ namespace RPGGame.Combat.Sequence
                     CombatSequenceCue.HealthBar));
             }
 
+            var visual = new CombatVisualAction(CombatVisualPlayback.NextActionId(), 0,
+                CombatVisualPlayback.ActorId(target), true, false, damage, 0,
+                damage > 0 && target is Character victim && victim.CurrentHealth <= 0, "cast");
+            foreach (var step in steps) step.VisualAction = visual;
             return steps;
         }
 
@@ -85,11 +89,12 @@ namespace RPGGame.Combat.Sequence
             Actor source,
             Actor? target)
         {
+            int firstStep = steps.Count;
             var selected = result.SelectedAction!;
             steps.Add(BuildAttackerStep(source));
             steps.Add(BuildRollStep(result));
             steps.Add(BuildOutcomeStep(result));
-            steps.Add(BuildActionStep(selected, result.Hit));
+            steps.Add(BuildActionStep(selected, result));
 
             if (result.Hit
                 && result.DefenseFace.HasValue
@@ -133,6 +138,18 @@ namespace RPGGame.Combat.Sequence
                         Plain(first.Trim(), ColorPalette.Info)));
                 }
             }
+            var visual = new CombatVisualAction(CombatVisualPlayback.NextActionId(),
+                CombatVisualPlayback.ActorId(source), CombatVisualPlayback.ActorId(selected.Target == TargetType.Self ? source : target),
+                result.Hit, result.IsCritical, result.Damage, result.HealAmount,
+                result.VisualTargetHealthAfter is <= 0,
+                selected.Type == ActionType.Attack ? "attack" : "cast",
+                selected.Type != ActionType.Attack || source is Character { Weapon.WeaponType: WeaponType.Wand }
+                    || selected.Tags?.Any(t => t.Equals("ranged", StringComparison.OrdinalIgnoreCase) || t.Equals("projectile", StringComparison.OrdinalIgnoreCase)) == true
+                    ? "projectile" : "melee", selected.Name, result.DamageTrace?.Block,
+                string.Join("; ", result.StatusEffectMessages ?? new List<string>()), result.IsCombo || result.IsCritical,
+                source is Enemy, selected.Type == ActionType.Heal ? "healing" : selected.Type == ActionType.Spell ? "spell cast" :
+                selected.Type != ActionType.Attack ? "support" : selected.DamageMultiplier > 1 ? "heavy strike" : "strike");
+            for (int i = firstStep; i < steps.Count; i++) steps[i].VisualAction = visual;
         }
 
         private static CombatSequenceStep BuildAttackerStep(Actor source)
@@ -142,13 +159,31 @@ namespace RPGGame.Combat.Sequence
             return new CombatSequenceStep(CombatSequenceStepKind.Attacker, "ATTACKER", builder.Build());
         }
 
-        private static CombatSequenceStep BuildActionStep(Action selected, bool hit)
+        private static CombatSequenceStep BuildActionStep(Action selected, ActionExecutionResult result)
         {
+            bool actionUsed = result.IsCombo || result.IsCritical;
+            if (actionUsed && !string.IsNullOrWhiteSpace(selected.Name))
+            {
+                return new CombatSequenceStep(
+                    CombatSequenceStepKind.Action,
+                    "ACTION",
+                    Plain(selected.Name, ColorPalette.Success));
+            }
+
+            if (result.Hit)
+            {
+                return new CombatSequenceStep(
+                    CombatSequenceStepKind.Action,
+                    "ACTION",
+                    Plain("N/A", ColorPalette.Gray));
+            }
+
             if (string.IsNullOrWhiteSpace(selected.Name))
             {
-                return hit
-                    ? new CombatSequenceStep(CombatSequenceStepKind.Action, "ACTION", Plain("hit", ColorPalette.Success))
-                    : new CombatSequenceStep(CombatSequenceStepKind.Action, "ACTION", Plain("miss", ColorPalette.Miss));
+                return new CombatSequenceStep(
+                    CombatSequenceStepKind.Action,
+                    "ACTION",
+                    Plain("miss", ColorPalette.Miss));
             }
 
             return new CombatSequenceStep(

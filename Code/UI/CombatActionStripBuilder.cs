@@ -16,6 +16,7 @@ namespace RPGGame
     public readonly struct ActionPanelInfo
     {
         public string Name { get; }
+        public string Description { get; }
         /// <summary>Damage as % of character base damage (DamageMultiplier × 100), before slot DAMAGE_MOD.</summary>
         public double DamageBase { get; }
         /// <summary>Effective damage % after pending slot DAMAGE_MOD (same basis as DamageBase).</summary>
@@ -30,9 +31,10 @@ namespace RPGGame
         /// <summary>Effective number of damage ticks for strip preview (base multi-hit + pending ACTION cadence + chain), excluding redeemed Consumed* so cards reset after the swing.</summary>
         public int EffectiveMultiHitCount { get; }
 
-        public ActionPanelInfo(string name, double damageBase, double damageModified, double speedBase, double speedModified, string thresholdText, int accuracyRollBonus, int effectiveMultiHitCount)
+        public ActionPanelInfo(string name, double damageBase, double damageModified, double speedBase, double speedModified, string thresholdText, int accuracyRollBonus, int effectiveMultiHitCount, string description = "")
         {
             Name = name ?? "";
+            Description = description ?? string.Empty;
             DamageBase = damageBase;
             DamageModified = damageModified;
             SpeedBase = speedBase;
@@ -219,7 +221,7 @@ namespace RPGGame
             if (external.MultiHitMod != 0)
                 effectiveHits = Math.Max(1, effectiveHits + (int)Math.Max(0, external.MultiHitMod));
 
-            return new ActionPanelInfo(name, baseDamagePct, modifiedDamagePct, baseSpeedPct, modifiedSpeedPct, thresholdText, accuracyRollBonus, effectiveHits);
+            return new ActionPanelInfo(name, baseDamagePct, modifiedDamagePct, baseSpeedPct, modifiedSpeedPct, thresholdText, accuracyRollBonus, effectiveHits, action.Description);
         }
 
         /// <summary>
@@ -531,3 +533,4 @@ namespace RPGGame
         }
     }
 }
+

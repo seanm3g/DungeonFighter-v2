@@ -6,6 +6,18 @@
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="RPGGame.UI.Avalonia.Settings.AppearanceSettingsPanel" Classes="settings-ui" Background="Transparent">
     <TabControl x:Name="AppearanceTabControl">
+        <TabItem Header="Battle visuals">
+            <StackPanel Spacing="12" Margin="20">
+                <TextBlock Text="Demon Fighter" FontSize="22" FontWeight="Bold"/>
+                <CheckBox x:Name="IllustratedCombatCheckBox" Content="Show illustrated battle stage"/>
+                <CheckBox x:Name="AnimateCombatCheckBox" Content="Animate combatants"/>
+                <CheckBox x:Name="CombatVfxCheckBox" Content="Show combat impact effects"/>
+                <CheckBox x:Name="ReducedCombatMotionCheckBox" Content="Reduce motion (static poses and simple feedback)"/>
+                <TextBlock x:Name="BattleVisualsSaveStatus" TextWrapping="Wrap"/>
+                <TextBlock Text="Adds a battle scene beside the action cards. Enemies without artwork keep a named placeholder. The Action Lab shows the prototype demon model. Turn this off to keep the text-only layout."
+                           TextWrapping="Wrap" MaxWidth="650" HorizontalAlignment="Left"/>
+            </StackPanel>
+        </TabItem>
         <TabItem Header="Settings UI">
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                          HorizontalScrollBarVisibility="Disabled">

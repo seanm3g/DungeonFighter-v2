@@ -4,6 +4,18 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: unused-action X stayed on screen after combat (September 2026)
+**Problem:** After a fight ended, the red X over unused resolve cards remained in the center column even though the action squares were gone.
+
+**Root cause:** Miss/hit X marks are canvas line strokes. Room-cleared / combat-result layouts call `CombatArenaHudLayout.ClearArenaInner`, which wiped text, bars, and boxes but not lines. `FighterResolveActionStackRenderer` only clears those lines when it paints, and it is skipped when there is no live enemy.
+
+**Solutions:**
+1. `ClearArenaInner` also calls `ClearLinesInArea` so leftover X strokes leave with the squares
+2. Combat HUD wipe in `RenderCoordinator` clears lines the same way
+3. Tests: `CanvasPrimitiveStackingTests` for `ClearLinesInArea`
+
+**Related files:** `CombatArenaHudLayout.cs`, `RenderCoordinator.cs`, `CanvasElementManager.cs`
+
 ### Action Lab sequence HUD Step lock and missing Material (August 2026)
 **Problem:** The Action Lab combat canvas did not show the sequence HUD (or Material set UI on lab-edited gear). Piece-by-piece stepping also could not work because `_labControlInFlight` held the tools lock for the whole `StepAsync`.
 
@@ -145,6 +157,18 @@ This document contains solutions to common problems encountered during developme
 3. Tests: `MaterialSetControllerTests.TestKeywordBankSurvivesCombatInitAndClearsOnDungeonEnd`, `CombatStateManagerTests.TestInitializeCombatEntitiesPreservesMaterialKeywordBank`
 
 **Related files:** `MaterialSetController.cs`, `CombatStateManager.cs`, `Character.cs`, `DungeonOrchestrator.cs`
+
+### Bug fix: combat HUD crashed with IndexOutOfRangeException (September 2026)
+**Problem:** During a fight the process died with `IndexOutOfRangeException` in `CombatCenterPanelEnemyLineAlignment.ResolveRightAlignFlags` while painting the enemy near-entity log.
+
+**Root cause:** The UI thread allocated `bool[lines.Count]` then looped `for (i = 0; i < lines.Count; i++)` over the live combat `DisplayBuffer`. Combat-thread appends grew `Count` past the flags array, so `result[i]` threw.
+
+**Solutions:**
+1. Snapshot log rows at a frozen length before building alignment flags
+2. Arena HUD lane render uses the same snapshot so flags and rows stay the same size
+3. Test: `CombatCenterPanelEnemyLineAlignmentTests.TestResolveDoesNotThrowWhenLiveCountGrowsDuringRead`
+
+**Related files:** `CombatCenterPanelEnemyLineAlignment.cs`, `CombatLocalLogView.cs`
 
 ### Bug fix: strip_random crashed dungeon on 1-slot combo (August 2026)
 **Problem:** After an action announced "next combo slot is randomized", the dungeon aborted with `Dice must have at least 2 sides (Parameter 'sides')`.

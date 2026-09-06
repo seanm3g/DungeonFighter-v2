@@ -1,0 +1,14 @@
+[
+  {
+    "reversed": false,
+    "wins": 20,
+    "battles": 20,
+    "averageTurns": 0
+  },
+  {
+    "reversed": true,
+    "wins": 20,
+    "battles": 20,
+    "averageTurns": 0
+  }
+]

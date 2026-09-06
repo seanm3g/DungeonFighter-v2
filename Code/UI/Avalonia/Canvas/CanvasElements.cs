@@ -50,6 +50,20 @@ namespace RPGGame.UI.Avalonia.Canvas
     }
 
     /// <summary>
+    /// Pixel stroke between two character-grid corners (top-left of each cell).
+    /// Drawn after overlay text so marks such as a miss X sit on top of action cards.
+    /// </summary>
+    public class CanvasLine
+    {
+        public int X1 { get; set; }
+        public int Y1 { get; set; }
+        public int X2 { get; set; }
+        public int Y2 { get; set; }
+        public Color Color { get; set; } = Colors.White;
+        public int ThicknessPixels { get; set; } = 3;
+    }
+
+    /// <summary>
     /// One colored strip inside the health bar damage-delta overlay (DoT chunk or fallback single color).
     /// </summary>
     public class HealthBarDamageDeltaSegment

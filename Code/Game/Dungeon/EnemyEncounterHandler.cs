@@ -148,6 +148,7 @@ namespace RPGGame
                 }
             }
             
+            displayManager.AddCombatEvent(EncounterReport.Summary(player, enemy), player);
             if (!playerWon)
             {
                 // Player died - tombstone the active per-character save immediately so a force-quit
@@ -184,6 +185,8 @@ namespace RPGGame
                 if (enemy != null)
                 {
                     Progression.XPRewardSystem.AwardEnemyKillXP(player, enemy);
+                    int gained = enemy.XPReward > 0 ? enemy.XPReward : CharacterProgression.GetBaseXpForContentLevel(enemy.Level);
+                    displayManager.AddCombatEvent($"VICTORY · +{gained} XP · Level {player.Level} · XP {player.XP}/{CharacterProgression.GetXpRequiredToAdvanceFromLevel(player.Level)}", player);
                 }
             }
 
@@ -347,4 +350,5 @@ namespace RPGGame
         }
     }
 }
+
 

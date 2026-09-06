@@ -1338,6 +1338,7 @@
     "quadraticGrowth": 0
   },
   "uiCustomization": {
+    "illustratedCombat": true,
     "menuSeparator": "",
     "subMenuSeparator": "",
     "invalidChoiceMessage": "",

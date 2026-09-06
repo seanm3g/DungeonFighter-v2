@@ -46,6 +46,7 @@ namespace RPGGame
         /// <summary>Damage formula pieces for the sequence HUD (null when not captured, e.g. multi-hit).</summary>
         public CombatSequenceDamageTrace? DamageTrace { get; set; }
         public int HealAmount { get; set; }
+        public int? VisualTargetHealthAfter { get; set; }
         /// <summary>
         /// Hit/tick count used when dealing damage for this swing (base MultiHitCount + redeemed ConsumedMultiHitMod + chain).
         /// Set before ACTION cadence next-action Multihit is deposited so combat-log formatting does not peek the grant's own Multihit.

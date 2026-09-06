@@ -26,6 +26,8 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             _testsRun = 0;
             _testsPassed = 0;
             _testsFailed = 0;
+            bool priorMcp = RPGGame.MCP.MCPMode.IsActive;
+            RPGGame.MCP.MCPMode.IsActive = false;
 
             try
             {
@@ -46,6 +48,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             }
             finally
             {
+                RPGGame.MCP.MCPMode.IsActive = priorMcp;
                 TestBase.PrintSummary("DungeonExitChoiceHandler Tests", _testsRun, _testsPassed, _testsFailed);
             }
         }
@@ -76,7 +79,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
 
             var lines = DungeonExitChoiceHandler.BuildExitChoiceMenuLines();
 
-            TestBase.AssertEqual(5, lines.Count,
+            TestBase.AssertEqual(6, lines.Count,
                 "Exit choice menu should contain blank line, top divider, two options, and bottom divider",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
@@ -92,7 +95,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             TestBase.AssertTrue(GetPlainText(lines[3]).Contains("2 - Leave the dungeon"),
                 "Exit choice menu should draw leave option after continue option",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, GetPlainText(lines[4]),
+            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, GetPlainText(lines[5]),
                 "Exit choice menu should draw a divider immediately below both options",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
@@ -109,7 +112,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                 var handler = new DungeonExitChoiceHandler(stateManager, null, displayManager);
                 
                 // Start the exit choice menu
-                var menuTask = Task.Run(async () => await handler.ShowExitChoiceMenu(1, 5));
+                var menuTask = handler.ShowExitChoiceMenu(1, 5);
                 
                 // Give it a moment to start
                 System.Threading.Thread.Sleep(100);
@@ -170,7 +173,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                 var handler = new DungeonExitChoiceHandler(stateManager, null, displayManager);
                 
                 // Start the exit choice menu
-                var menuTask = Task.Run(async () => await handler.ShowExitChoiceMenu(1, 5));
+                var menuTask = handler.ShowExitChoiceMenu(1, 5);
                 
                 // Give it a moment to start
                 System.Threading.Thread.Sleep(100);
@@ -208,7 +211,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                 var handler = new DungeonExitChoiceHandler(stateManager, null, displayManager);
                 
                 // Start the exit choice menu
-                var menuTask = Task.Run(async () => await handler.ShowExitChoiceMenu(1, 5));
+                var menuTask = handler.ShowExitChoiceMenu(1, 5);
                 
                 // Give it a moment to start
                 System.Threading.Thread.Sleep(100);
@@ -248,7 +251,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                 handler.ShowMessageEvent += (msg) => { messageReceived = msg; };
                 
                 // Start the exit choice menu
-                var menuTask = Task.Run(async () => await handler.ShowExitChoiceMenu(1, 5));
+                var menuTask = handler.ShowExitChoiceMenu(1, 5);
                 
                 // Give it a moment to start
                 System.Threading.Thread.Sleep(100);
@@ -302,3 +305,5 @@ namespace RPGGame.Tests.Unit.Game.Handlers
         }
     }
 }
+
+

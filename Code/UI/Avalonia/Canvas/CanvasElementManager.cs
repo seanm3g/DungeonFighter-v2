@@ -17,6 +17,7 @@ namespace RPGGame.UI.Avalonia.Canvas
         private readonly List<CanvasBox> boxElements;
         private readonly List<CanvasProgressBar> progressBars;
         private readonly List<CanvasSegmentedBar> segmentedBars;
+        private readonly List<CanvasLine> lineElements;
         
         public CanvasElementManager()
         {
@@ -24,6 +25,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             this.boxElements = new List<CanvasBox>();
             this.progressBars = new List<CanvasProgressBar>();
             this.segmentedBars = new List<CanvasSegmentedBar>();
+            this.lineElements = new List<CanvasLine>();
         }
         
         /// <summary>
@@ -45,6 +47,11 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// Gets all segmented bar elements (mutable list for rendering)
         /// </summary>
         public List<CanvasSegmentedBar> SegmentedBars => segmentedBars;
+
+        /// <summary>
+        /// Gets all line elements (mutable list for rendering)
+        /// </summary>
+        public List<CanvasLine> LineElements => lineElements;
         
         /// <summary>
         /// Clears all elements
@@ -55,6 +62,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             boxElements.Clear();
             progressBars.Clear();
             segmentedBars.Clear();
+            lineElements.Clear();
         }
         
         /// <summary>
@@ -118,6 +126,23 @@ namespace RPGGame.UI.Avalonia.Canvas
             boxElements.RemoveAll(box =>
                 box.X >= startX && box.X < endX &&
                 box.Y >= startY && box.Y < endY);
+        }
+
+        /// <summary>
+        /// Clears line strokes whose bounding box intersects the given rectangle.
+        /// </summary>
+        public void ClearLinesInArea(int startX, int startY, int width, int height)
+        {
+            int endX = startX + width;
+            int endY = startY + height;
+            lineElements.RemoveAll(line =>
+            {
+                int left = Math.Min(line.X1, line.X2);
+                int right = Math.Max(line.X1, line.X2);
+                int top = Math.Min(line.Y1, line.Y2);
+                int bottom = Math.Max(line.Y1, line.Y2);
+                return left < endX && right >= startX && top < endY && bottom >= startY;
+            });
         }
 
         /// <summary>
@@ -237,6 +262,14 @@ namespace RPGGame.UI.Avalonia.Canvas
         public void AddSegmentedBar(CanvasSegmentedBar segmentedBar)
         {
             segmentedBars.Add(segmentedBar);
+        }
+
+        /// <summary>
+        /// Adds a line stroke between two character-grid corners.
+        /// </summary>
+        public void AddLine(CanvasLine line)
+        {
+            lineElements.Add(line);
         }
         
         /// <summary>

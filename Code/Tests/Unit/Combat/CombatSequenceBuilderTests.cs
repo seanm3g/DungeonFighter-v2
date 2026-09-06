@@ -22,13 +22,15 @@ namespace RPGGame.Tests.Unit.Combat
             TestHitIncludesActionRollOutcomeDamage();
             TestMissSkipsDefenseAndDamage();
             TestCritComboLabel();
+            TestComboShowsActionName();
+            TestCritShowsActionName();
             TestLuckRollText();
             TestRollLuckMathBeatsAreSequential();
             TestOutcomeMathBeatsClimbHitLadder();
             TestDamageMathBeatsWalkTheFormula();
             TestDefenseStepWhenHeroFacePresent();
             TestHealStep();
-            TestUnnamedActionIsHitOrMiss();
+            TestUnnamedHitActionIsNA();
             TestEnvironmentalActionAndDamage();
             TestSnapshotHealthHoldBeforeDamage();
             TestEmptyWhenNoAction();
@@ -48,8 +50,8 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(Plain(steps[0]).Contains("SeqHero", System.StringComparison.Ordinal),
                 "ATTACKER is the actor name", ref _run, ref _passed, ref _failed);
             var action = steps.First(s => s.Kind == CombatSequenceStepKind.Action);
-            TestBase.AssertTrue(Plain(action).Contains("STRIKE", System.StringComparison.Ordinal),
-                "ACTION result is the attack name", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(Plain(action) == "N/A",
+                "plain HIT ACTION is N/A because no strip action was used", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(Plain(steps[2]).Contains("HIT", System.StringComparison.Ordinal),
                 "OUTCOME is HIT", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(Plain(steps[4]).Contains("12", System.StringComparison.Ordinal),
@@ -88,6 +90,29 @@ namespace RPGGame.Tests.Unit.Combat
             var outcome = steps.First(s => s.Kind == CombatSequenceStepKind.Outcome);
             TestBase.AssertTrue(Plain(outcome).Contains("CRIT COMBO", System.StringComparison.Ordinal),
                 "crit+combo label", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestComboShowsActionName()
+        {
+            Console.WriteLine("--- Combo ACTION is the attack name ---");
+            var result = HitResult("STRIKE", damage: 12);
+            result.IsCombo = true;
+            result.SelectedAction!.IsComboAction = true;
+            var action = CombatSequenceBuilder.From(result, DummyHero(), DummyEnemy())
+                .First(s => s.Kind == CombatSequenceStepKind.Action);
+            TestBase.AssertTrue(Plain(action).Contains("STRIKE", System.StringComparison.Ordinal),
+                "combo ACTION is the attack name", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestCritShowsActionName()
+        {
+            Console.WriteLine("--- Crit ACTION is the attack name ---");
+            var result = HitResult("STRIKE", damage: 12);
+            result.IsCritical = true;
+            var action = CombatSequenceBuilder.From(result, DummyHero(), DummyEnemy())
+                .First(s => s.Kind == CombatSequenceStepKind.Action);
+            TestBase.AssertTrue(Plain(action).Contains("STRIKE", System.StringComparison.Ordinal),
+                "crit ACTION is the attack name", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestLuckRollText()
@@ -204,13 +229,13 @@ namespace RPGGame.Tests.Unit.Combat
                 "heal amount 7", ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestUnnamedActionIsHitOrMiss()
+        private static void TestUnnamedHitActionIsNA()
         {
-            Console.WriteLine("--- Unnamed ACTION is hit or miss, not unnamed hit ---");
+            Console.WriteLine("--- Unnamed ACTION is N/A on hit, miss on miss ---");
             var hitSteps = CombatSequenceBuilder.From(HitResult("", damage: 3), DummyHero(), DummyEnemy());
             var hitAction = hitSteps.First(s => s.Kind == CombatSequenceStepKind.Action);
-            TestBase.AssertTrue(Plain(hitAction) == "hit",
-                "unnamed hit ACTION is hit", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(Plain(hitAction) == "N/A",
+                "unnamed hit ACTION is N/A", ref _run, ref _passed, ref _failed);
 
             var missResult = new ActionExecutionResult
             {

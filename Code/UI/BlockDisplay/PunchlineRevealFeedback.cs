@@ -9,10 +9,10 @@ namespace RPGGame.UI.BlockDisplay
     /// </summary>
     internal static class PunchlineRevealFeedback
     {
-        public static void CommitQueued()
+        public static void CommitQueued(bool includeAudio = true)
         {
             HeroActionStripFeedback.CommitQueued();
-            AudioCues.CommitQueued();
+            if (includeAudio) AudioCues.CommitQueued();
         }
 
         public static void ClearQueued()

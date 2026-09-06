@@ -26,6 +26,12 @@ namespace RPGGame.UI.Avalonia.Layout
             if (canvas == null || fighter == null || enemy == null)
                 return;
 
+            canvas.SetBattlePresentation(RPGGame.UI.Avalonia.CombatVisuals.BattlePresentation.Capture(fighter, enemy));
+            canvas.ConfigureCombatScene(GameConfiguration.Instance.UICustomization.IllustratedCombat,
+                enemy.Name, RPGGame.ActionInteractionLab.ActionInteractionLabSession.Current != null,
+                RPGGame.Combat.Sequence.CombatVisualPlayback.ActorId(fighter),
+                RPGGame.Combat.Sequence.CombatVisualPlayback.ActorId(enemy));
+
             RenderEnemyHud(canvas, textWriter, enemy, combatBuffer, combatEnemyNamesForLogAlignment, fighter.Name);
             RenderFighterHud(canvas, textWriter, fighter, combatBuffer, combatEnemyNamesForLogAlignment);
         }

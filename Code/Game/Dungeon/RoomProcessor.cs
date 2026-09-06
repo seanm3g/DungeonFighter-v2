@@ -55,6 +55,7 @@ namespace RPGGame
             
             stateManager.SetCurrentRoom(room);
             bool isLastRoom = (roomNumber == totalRooms);
+            displayManager.AddCombatEvent($"{(isLastRoom ? "FINAL ROOM" : "ROOM")} {roomNumber}/{totalRooms} · {room.Name}", stateManager.CurrentPlayer);
             
             // Show room entry screen (handles entering room, adding to buffer, and rendering)
             if (stateManager.CurrentPlayer != null && customUIManager is CanvasUICoordinator canvasUI)
@@ -240,6 +241,12 @@ namespace RPGGame
                     }
                     
                     // Process all enemies in the room
+                    if (stateManager.CurrentPlayer is { } restingHero && DungeonRestChoice.Consume(restingHero))
+                    {
+                        playerGetsFirstAttack = false;
+                        enemyGetsFirstAttack = true;
+                        displayManager.AddCombatEvent("Your rest restored health, but the enemy seized the initiative.", stateManager.CurrentPlayer);
+                    }
                     while (room.HasLivingEnemies())
                     {
                         Enemy? currentEnemy = room.GetNextLivingEnemy();
@@ -322,4 +329,6 @@ namespace RPGGame
         }
     }
 }
+
+
 

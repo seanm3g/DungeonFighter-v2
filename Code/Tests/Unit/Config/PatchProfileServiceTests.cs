@@ -13,6 +13,9 @@ namespace RPGGame.Tests.Unit.Config
             Console.WriteLine("=== PatchProfileService Tests ===\n");
 
             int testsRun = 0, testsPassed = 0, testsFailed = 0;
+            string alternateRoot = Path.Combine(Path.GetTempPath(), "demon-fighter-alternate-launch", "GameData");
+            TestBase.AssertEqual(Path.GetFullPath(alternateRoot), PatchProfileService.NormalizeFallbackRoot(alternateRoot),
+                "alternate launch keeps GameData instead of selecting its parent patch library", ref testsRun, ref testsPassed, ref testsFailed);
 
             TestListAndActivePatch(ref testsRun, ref testsPassed, ref testsFailed);
             TestGameSettingsAlwaysUseDefault(ref testsRun, ref testsPassed, ref testsFailed);

@@ -1,0 +1,3 @@
+[mcp_servers.dungeonfighter]
+command = 'D:\Code Projects\github projects\DungeonFighter-v2\Code\bin\_agent_build\DF.exe'
+args = ["MCP"]

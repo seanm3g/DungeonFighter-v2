@@ -135,7 +135,10 @@ namespace RPGGame.Combat.Sequence
             _flushRemaining = false;
 
             if (steps == null || steps.Count == 0 || !ShouldPlay())
+            {
+                if (!ShouldPlay()) CombatVisualPlayback.Clear();
                 return;
+            }
 
             _playedThisBlock = true;
             _manualPlaybackActive = UseManualPlayback;
@@ -162,7 +165,11 @@ namespace RPGGame.Combat.Sequence
                         if (step.Kind == CombatSequenceStepKind.Action)
                             FighterResolveActionStackState.RevealCurrent();
                         if (b == beats.Count - 1)
-                            FireCue(step.Cue);
+                        {
+                            FireCue(step.Cue, GameConfiguration.Instance.UICustomization.IllustratedCombat
+                                && step.VisualAction is { Hit: true } visualSound && (visualSound.Damage > 0 || visualSound.Heal > 0));
+                            FireVisualCue(step);
+                        }
                         Invalidate();
                         if (!await WaitForBeatAsync())
                             return;
@@ -183,6 +190,7 @@ namespace RPGGame.Combat.Sequence
 
         public static void CancelPlaybackHolds()
         {
+            CombatVisualPlayback.Clear();
             HealthBarDisplayHold.ReleaseAll();
             CombatSequenceHudState.ClearStep();
             ClearPending();
@@ -224,11 +232,32 @@ namespace RPGGame.Combat.Sequence
 
             if (SkipDelaysForTests)
                 return true;
+            await CombatPlaybackControls.WaitAsync();
             await CombatDelayManager.DelayAfterSequenceHudBeatAsync();
+            await CombatPlaybackControls.WaitAsync();
             return true;
         }
 
-        private static void FireCue(CombatSequenceCue cue)
+        internal static void FireVisualCue(CombatSequenceStep step)
+        {
+            if (step.VisualAction is not { } visual) return;
+            string? phase = step.Kind switch
+            {
+                CombatSequenceStepKind.Action => visual.Hit ? visual.Style : "miss",
+                CombatSequenceStepKind.Defense when visual.Damage == 0 => "guard",
+                CombatSequenceStepKind.Damage => "impact",
+                CombatSequenceStepKind.Heal => "heal",
+                CombatSequenceStepKind.Effect => "effect",
+                _ => null
+            };
+            if (phase != null) FighterResolveActionStackState.ApplyVisualResult(visual, phase);
+            if (phase != null)
+                CombatVisualPlayback.Publish(visual, phase, CombatDelayManager.GetSequenceHudBeatDelayMs());
+            if (GameConfiguration.Instance.UICustomization.IllustratedCombat && phase is "impact" or "heal")
+                RPGGame.Audio.AudioCues.CommitQueued();
+        }
+
+        private static void FireCue(CombatSequenceCue cue, bool deferAudio = false)
         {
             if (RecordCuesForTests)
                 CuesFiredForTests.Add(cue);
@@ -236,7 +265,7 @@ namespace RPGGame.Combat.Sequence
             switch (cue)
             {
                 case CombatSequenceCue.StripFlashAndSfx:
-                    PunchlineRevealFeedback.CommitQueued();
+                    PunchlineRevealFeedback.CommitQueued(!deferAudio);
                     break;
                 case CombatSequenceCue.HealthBar:
                     HealthBarDisplayHold.ReleaseAll();
@@ -261,6 +290,7 @@ namespace RPGGame.Combat.Sequence
 
         internal static void ResetForTests()
         {
+            CombatVisualPlayback.Clear();
             _pending = null;
             _playedThisBlock = false;
             RecordCuesForTests = false;
@@ -280,3 +310,5 @@ namespace RPGGame.Combat.Sequence
         }
     }
 }
+
+

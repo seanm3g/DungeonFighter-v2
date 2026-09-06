@@ -21,6 +21,7 @@ namespace RPGGame.Tests.Unit.UI
             TestResolveEnemyRollRightAlignedAfterPrimary(ref run, ref passed, ref failed);
             TestResolveHeroRollStaysLeft(ref run, ref passed, ref failed);
             TestResolveMultiEnemyEncounterNames(ref run, ref passed, ref failed);
+            TestResolveDoesNotThrowWhenLiveCountGrowsDuringRead(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("CombatCenterPanelEnemyLineAlignment Tests", run, passed, failed);
         }
@@ -132,6 +133,68 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(flags[0] && flags[1] && flags[2] && flags[3],
                 "both enemy encounters right-align when multiple enemy names are supplied",
                 ref run, ref passed, ref failed);
+        }
+
+        private static void TestResolveDoesNotThrowWhenLiveCountGrowsDuringRead(ref int run, ref int passed, ref int failed)
+        {
+            var inner = new List<List<ColoredText>>
+            {
+                new List<ColoredText>
+                {
+                    new ColoredText("Skeleton", Colors.White),
+                    new ColoredText(" Attacks Tyler Quickstrike...", Colors.White)
+                },
+                new List<ColoredText> { new ColoredText(BlockMessageCollector.ActionBlockSubsequentIndent + "(roll: 17)", Colors.Gray) }
+            };
+            var growing = new CountGrowsAfterIndexerReadList(inner);
+            bool[]? flags = null;
+            Exception? thrown = null;
+            try
+            {
+                flags = CombatCenterPanelEnemyLineAlignment.ResolveRightAlignFlags(growing, "Skeleton", "Tyler Quickstrike");
+            }
+            catch (Exception ex)
+            {
+                thrown = ex;
+            }
+
+            TestBase.AssertTrue(thrown == null, "live buffer Count growth must not throw", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(flags != null && flags.Length == 2 && flags[0] && flags[1],
+                "alignment flags stay sized to the original snapshot",
+                ref run, ref passed, ref failed);
+        }
+
+        /// <summary>
+        /// Mimics the combat-thread race: after the first row is read, Count inflates so a loop
+        /// bound on Count walks past a flags array allocated from the earlier Count.
+        /// </summary>
+        private sealed class CountGrowsAfterIndexerReadList : IReadOnlyList<List<ColoredText>>
+        {
+            private readonly List<List<ColoredText>> _items;
+            private int _reportedCount;
+
+            public CountGrowsAfterIndexerReadList(List<List<ColoredText>> items)
+            {
+                _items = items;
+                _reportedCount = items.Count;
+            }
+
+            public int Count => _reportedCount;
+
+            public List<ColoredText> this[int index]
+            {
+                get
+                {
+                    _reportedCount = _items.Count + 8;
+                    if (index >= 0 && index < _items.Count)
+                        return _items[index];
+                    return new List<ColoredText> { new ColoredText("late", Colors.White) };
+                }
+            }
+
+            public IEnumerator<List<ColoredText>> GetEnumerator() => _items.GetEnumerator();
+
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
         }
     }
 }

@@ -25,6 +25,44 @@ namespace RPGGame.UI.Avalonia
         private readonly HealthTracker healthTracker;
         private readonly CanvasElementBuilder elementBuilder;
         private DispatcherTimer? damageDeltaAnimationTimer;
+        private readonly CombatVisuals.CombatSceneRenderer combatScene = new();
+        private readonly CombatVisuals.EquipmentPreview equipmentPreview = new();
+        public void SetEquipmentPreview(string asset, int x, int y, int w, int h) => equipmentPreview.Set(asset, new Rect(x,y,w,h));
+        private DispatcherTimer? combatSceneTimer;
+        internal RPGGame.Combat.Sequence.CombatVisualCue? ActiveCombatEffect => combatScene.ActiveEffect;
+        public void SetBattlePresentation(CombatVisuals.BattlePresentation? presentation) => combatScene.SetPresentation(presentation);
+
+        public void ConfigureCombatScene(bool enabled, string? enemyName, bool previewDemon, long heroId = 0, long enemyId = 0)
+        {
+            combatScene.Configure(enabled && !IsAuxiliaryLayoutCanvas, enemyName, previewDemon, heroId, enemyId);
+            if (!IsAuxiliaryLayoutCanvas)
+                CombatArenaHudLayout.IllustratedSceneVisible = combatScene.Visible;
+            var settings = GameConfiguration.Instance.UICustomization;
+            if (combatScene.Visible && !DeveloperModeState.IsCombatLogInstant && (settings.AnimateCombat || settings.CombatVisualEffects))
+            {
+                if (combatSceneTimer == null)
+                {
+                    combatSceneTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+                    combatSceneTimer.Tick += (_, _) =>
+                    {
+                        if (!combatScene.Visible || DeveloperModeState.IsCombatLogInstant) { combatSceneTimer?.Stop(); return; }
+                        InvalidateVisual();
+                    };
+                }
+                combatSceneTimer.Start();
+            }
+            else combatSceneTimer?.Stop();
+            InvalidateVisual();
+        }
+
+        private void DrawCombatScene(DrawingContext context)
+        {
+            equipmentPreview.Draw(context, GetCharWidth(), GetCharHeight());
+            if (!combatScene.Visible) return;
+            CombatArenaHudLayout.GetSceneRect(out int x, out int y, out int w, out int h);
+            combatScene.Draw(context, new Rect(x * GetCharWidth(), y * GetCharHeight(),
+                w * GetCharWidth(), h * GetCharHeight()));
+        }
         
         // Base grid dimensions (original design size)
         private const int BASE_GRID_WIDTH = 210;
@@ -285,13 +323,31 @@ namespace RPGGame.UI.Avalonia
                 elementManager.BoxElements.ToList(),
                 elementManager.ProgressBars.ToList(),
                 elementManager.SegmentedBars.ToList(),
-                ClearBackgroundColor);
+                elementManager.LineElements.ToList(),
+                ClearBackgroundColor,
+                DrawCombatScene);
+            var visualSettings = GameConfiguration.Instance.UICustomization;
+            if (combatScene.Visible && visualSettings.CombatVisualEffects && !visualSettings.ReducedCombatMotion)
+            {
+                double age = (System.Diagnostics.Stopwatch.GetTimestamp() - FighterResolveActionStackState.ResultTimestamp)
+                    / (double)System.Diagnostics.Stopwatch.Frequency;
+                var card = FighterResolveActionStackRenderer.ActiveCardBounds;
+                if (age >= 0 && age < .25 && card.Width > 0)
+                {
+                    using var fade = context.PushOpacity(1 - age / .25);
+                    context.DrawRectangle(null, new Pen(Brushes.White, 3), new Rect(card.X * GetCharWidth(), card.Y * GetCharHeight(), card.Width * GetCharWidth(), card.Height * GetCharHeight()));
+                }
+            }
         }
 
         // Public methods for adding elements
         public void Clear()
         {
+            equipmentPreview.Dispose();
             elementManager.Clear();
+            combatScene.Hide();
+            if (!IsAuxiliaryLayoutCanvas)
+                CombatArenaHudLayout.IllustratedSceneVisible = false;
         }
         
         /// <summary>
@@ -311,6 +367,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public void ClearTextInArea(int startX, int startY, int width, int height)
         {
+            if (equipmentPreview.Bounds.Intersects(new Rect(startX, startY, width, height))) equipmentPreview.Dispose();
             elementManager.ClearTextInArea(startX, startY, width, height);
         }
         
@@ -338,6 +395,12 @@ namespace RPGGame.UI.Avalonia
         public void ClearBoxesInArea(int startX, int startY, int width, int height)
         {
             elementManager.ClearBoxesInArea(startX, startY, width, height);
+        }
+
+        /// <summary>See <see cref="CanvasElementManager.ClearLinesInArea"/>.</summary>
+        public void ClearLinesInArea(int startX, int startY, int width, int height)
+        {
+            elementManager.ClearLinesInArea(startX, startY, width, height);
         }
 
         /// <summary>See <see cref="CanvasElementManager.ClearOverlayTextInArea"/>.</summary>
@@ -474,6 +537,12 @@ namespace RPGGame.UI.Avalonia
             elementBuilder.AddBorder(x, y, width, height, color, borderThicknessPixels);
         }
 
+        /// <summary>See <see cref="CanvasElementBuilder.AddLine"/>.</summary>
+        public void AddLine(int x1, int y1, int x2, int y2, Color color, int thicknessPixels = 3)
+        {
+            elementBuilder.AddLine(x1, y1, x2, y2, color, thicknessPixels);
+        }
+
         /// <summary>
         /// Adds centered text to the canvas
         /// </summary>
@@ -549,6 +618,10 @@ namespace RPGGame.UI.Avalonia
         {
             damageDeltaAnimationTimer?.Stop();
             damageDeltaAnimationTimer = null;
+            equipmentPreview.Dispose();
+            combatScene.Dispose();
+            combatSceneTimer?.Stop();
+            combatSceneTimer = null;
             base.OnDetachedFromVisualTree(e);
         }
 
@@ -558,3 +631,5 @@ namespace RPGGame.UI.Avalonia
         }
     }
 }
+
+

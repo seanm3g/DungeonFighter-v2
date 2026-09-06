@@ -40,6 +40,14 @@ namespace RPGGame
             }
         }
 
+        public string DescribeReadiness(Character hero)
+        {
+            double now = GameTicker.Instance.GetCurrentGameTime();
+            return "READY: " + string.Join(" > ", entities.Where(e => IsEntityAlive(e.Entity))
+                .OrderBy(e => e.NextActionTime).ThenBy(e => e.Entity.Name)
+                .Select(e => $"{(ReferenceEquals(e.Entity, hero) ? "Fighter" : e.Entity is Enemy ? "Enemy" : "Hazard")} {Math.Max(0, e.NextActionTime - now):0.0}s"));
+        }
+
         public Actor? GetNextEntityToAct()
         {
             double currentTime = GameTicker.Instance.GetCurrentGameTime();
@@ -294,5 +302,6 @@ namespace RPGGame
         public double NextActionTime { get; set; }
     }
 }
+
 
 

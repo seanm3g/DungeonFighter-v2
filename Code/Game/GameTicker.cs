@@ -150,7 +150,7 @@ namespace RPGGame
                     double gameTimeElapsed = realTimeElapsed * speedMultiplier;
                     lock (_timeLock)
                     {
-                        _gameTime += gameTimeElapsed;
+                        if (!CombatPlaybackControls.Paused) _gameTime += gameTimeElapsed;
                         _lastRealTime = currentRealTime;
                     }
 
@@ -181,7 +181,7 @@ namespace RPGGame
                     double currentRealTime = DateTime.Now.Ticks / (double)TimeSpan.TicksPerSecond;
                     double realTimeElapsed = currentRealTime - _lastRealTime;
                     double gameTimeElapsed = realTimeElapsed * GameConfiguration.Instance.GameSpeed.GameSpeedMultiplier;
-                    _gameTime += gameTimeElapsed;
+                    if (!CombatPlaybackControls.Paused) _gameTime += gameTimeElapsed;
                     _lastRealTime = currentRealTime;
                 }
 
@@ -205,3 +205,4 @@ namespace RPGGame
         }
     }
 }
+

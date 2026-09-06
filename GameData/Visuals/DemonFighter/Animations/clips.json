@@ -1,0 +1,4147 @@
+{
+  "version": 1,
+  "canvasWidth": 800,
+  "canvasHeight": 450,
+  "actors": {
+    "fighter": {
+      "idle": {
+        "file": "fighter-idle.png",
+        "frames": 8,
+        "frameWidth": 115,
+        "frameHeight": 187,
+        "x": 183,
+        "y": 127,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "fighter-attack.png",
+        "frames": 10,
+        "frameWidth": 217,
+        "frameHeight": 195,
+        "x": 167,
+        "y": 121,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "fighter-hit.png",
+        "frames": 6,
+        "frameWidth": 136,
+        "frameHeight": 183,
+        "x": 165,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "fighter-cast.png",
+        "frames": 10,
+        "frameWidth": 156,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "fighter-guard.png",
+        "frames": 6,
+        "frameWidth": 135,
+        "frameHeight": 190,
+        "x": 174,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "fighter-evade.png",
+        "frames": 6,
+        "frameWidth": 199,
+        "frameHeight": 187,
+        "x": 98,
+        "y": 125,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "fighter-death.png",
+        "frames": 8,
+        "frameWidth": 212,
+        "frameHeight": 215,
+        "x": 183,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "fighter-victory.png",
+        "frames": 6,
+        "frameWidth": 156,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "demon": {
+      "idle": {
+        "file": "demon-idle.png",
+        "frames": 8,
+        "frameWidth": 106,
+        "frameHeight": 249,
+        "x": 492,
+        "y": 89,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "demon-attack.png",
+        "frames": 10,
+        "frameWidth": 195,
+        "frameHeight": 260,
+        "x": 442,
+        "y": 81,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "demon-hit.png",
+        "frames": 6,
+        "frameWidth": 134,
+        "frameHeight": 247,
+        "x": 485,
+        "y": 90,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "demon-cast.png",
+        "frames": 10,
+        "frameWidth": 151,
+        "frameHeight": 250,
+        "x": 456,
+        "y": 86,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "demon-guard.png",
+        "frames": 6,
+        "frameWidth": 143,
+        "frameHeight": 254,
+        "x": 462,
+        "y": 90,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "demon-evade.png",
+        "frames": 6,
+        "frameWidth": 223,
+        "frameHeight": 248,
+        "x": 494,
+        "y": 90,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "demon-death.png",
+        "frames": 8,
+        "frameWidth": 254,
+        "frameHeight": 285,
+        "x": 342,
+        "y": 90,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "demon-victory.png",
+        "frames": 6,
+        "frameWidth": 151,
+        "frameHeight": 250,
+        "x": 456,
+        "y": 86,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "skeleton": {
+      "idle": {
+        "file": "skeleton-idle.png",
+        "frames": 8,
+        "frameWidth": 106,
+        "frameHeight": 199,
+        "x": 492,
+        "y": 135,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "skeleton-attack.png",
+        "frames": 10,
+        "frameWidth": 195,
+        "frameHeight": 209,
+        "x": 442,
+        "y": 128,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "skeleton-hit.png",
+        "frames": 6,
+        "frameWidth": 134,
+        "frameHeight": 197,
+        "x": 485,
+        "y": 137,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "skeleton-cast.png",
+        "frames": 10,
+        "frameWidth": 151,
+        "frameHeight": 214,
+        "x": 456,
+        "y": 119,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "skeleton-guard.png",
+        "frames": 6,
+        "frameWidth": 142,
+        "frameHeight": 204,
+        "x": 462,
+        "y": 137,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "skeleton-evade.png",
+        "frames": 6,
+        "frameWidth": 197,
+        "frameHeight": 196,
+        "x": 494,
+        "y": 137,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "skeleton-death.png",
+        "frames": 8,
+        "frameWidth": 212,
+        "frameHeight": 238,
+        "x": 383,
+        "y": 137,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "skeleton-victory.png",
+        "frames": 6,
+        "frameWidth": 151,
+        "frameHeight": 214,
+        "x": 456,
+        "y": 119,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "bat": {
+      "idle": {
+        "file": "bat-idle.png",
+        "frames": 8,
+        "frameWidth": 224,
+        "frameHeight": 182,
+        "x": 442,
+        "y": 85,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "bat-attack.png",
+        "frames": 10,
+        "frameWidth": 339,
+        "frameHeight": 170,
+        "x": 350,
+        "y": 80,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "bat-hit.png",
+        "frames": 6,
+        "frameWidth": 251,
+        "frameHeight": 130,
+        "x": 446,
+        "y": 126,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "bat-cast.png",
+        "frames": 10,
+        "frameWidth": 210,
+        "frameHeight": 120,
+        "x": 448,
+        "y": 130,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "bat-guard.png",
+        "frames": 6,
+        "frameWidth": 218,
+        "frameHeight": 125,
+        "x": 453,
+        "y": 133,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "bat-evade.png",
+        "frames": 6,
+        "frameWidth": 312,
+        "frameHeight": 150,
+        "x": 453,
+        "y": 110,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "bat-death.png",
+        "frames": 8,
+        "frameWidth": 292,
+        "frameHeight": 279,
+        "x": 363,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "bat-victory.png",
+        "frames": 6,
+        "frameWidth": 209,
+        "frameHeight": 120,
+        "x": 448,
+        "y": 130,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "bear": {
+      "idle": {
+        "file": "bear-idle.png",
+        "frames": 8,
+        "frameWidth": 149,
+        "frameHeight": 122,
+        "x": 475,
+        "y": 214,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "bear-attack.png",
+        "frames": 10,
+        "frameWidth": 212,
+        "frameHeight": 133,
+        "x": 428,
+        "y": 207,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "bear-hit.png",
+        "frames": 6,
+        "frameWidth": 171,
+        "frameHeight": 124,
+        "x": 473,
+        "y": 214,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "bear-cast.png",
+        "frames": 10,
+        "frameWidth": 150,
+        "frameHeight": 126,
+        "x": 475,
+        "y": 209,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "bear-guard.png",
+        "frames": 6,
+        "frameWidth": 157,
+        "frameHeight": 128,
+        "x": 475,
+        "y": 215,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "bear-evade.png",
+        "frames": 6,
+        "frameWidth": 210,
+        "frameHeight": 140,
+        "x": 475,
+        "y": 205,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "bear-death.png",
+        "frames": 8,
+        "frameWidth": 175,
+        "frameHeight": 186,
+        "x": 448,
+        "y": 215,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "bear-victory.png",
+        "frames": 6,
+        "frameWidth": 150,
+        "frameHeight": 126,
+        "x": 475,
+        "y": 209,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "beetle": {
+      "idle": {
+        "file": "beetle-idle.png",
+        "frames": 8,
+        "frameWidth": 154,
+        "frameHeight": 116,
+        "x": 464,
+        "y": 231,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "beetle-attack.png",
+        "frames": 10,
+        "frameWidth": 226,
+        "frameHeight": 151,
+        "x": 406,
+        "y": 209,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "beetle-hit.png",
+        "frames": 6,
+        "frameWidth": 183,
+        "frameHeight": 143,
+        "x": 459,
+        "y": 220,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "beetle-cast.png",
+        "frames": 10,
+        "frameWidth": 168,
+        "frameHeight": 166,
+        "x": 447,
+        "y": 180,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "beetle-guard.png",
+        "frames": 6,
+        "frameWidth": 162,
+        "frameHeight": 127,
+        "x": 457,
+        "y": 219,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "beetle-evade.png",
+        "frames": 6,
+        "frameWidth": 207,
+        "frameHeight": 127,
+        "x": 467,
+        "y": 229,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "beetle-death.png",
+        "frames": 8,
+        "frameWidth": 148,
+        "frameHeight": 172,
+        "x": 467,
+        "y": 233,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "beetle-victory.png",
+        "frames": 6,
+        "frameWidth": 166,
+        "frameHeight": 166,
+        "x": 449,
+        "y": 180,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "bird": {
+      "idle": {
+        "file": "bird-idle.png",
+        "frames": 8,
+        "frameWidth": 134,
+        "frameHeight": 154,
+        "x": 491,
+        "y": 122,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "bird-attack.png",
+        "frames": 10,
+        "frameWidth": 252,
+        "frameHeight": 125,
+        "x": 403,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "bird-hit.png",
+        "frames": 6,
+        "frameWidth": 146,
+        "frameHeight": 90,
+        "x": 482,
+        "y": 158,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "bird-cast.png",
+        "frames": 10,
+        "frameWidth": 168,
+        "frameHeight": 96,
+        "x": 475,
+        "y": 160,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "bird-guard.png",
+        "frames": 6,
+        "frameWidth": 154,
+        "frameHeight": 109,
+        "x": 491,
+        "y": 160,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "bird-evade.png",
+        "frames": 6,
+        "frameWidth": 229,
+        "frameHeight": 115,
+        "x": 491,
+        "y": 145,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "bird-death.png",
+        "frames": 8,
+        "frameWidth": 206,
+        "frameHeight": 204,
+        "x": 419,
+        "y": 160,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "bird-victory.png",
+        "frames": 6,
+        "frameWidth": 168,
+        "frameHeight": 94,
+        "x": 475,
+        "y": 160,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "boar": {
+      "idle": {
+        "file": "boar-idle.png",
+        "frames": 8,
+        "frameWidth": 149,
+        "frameHeight": 130,
+        "x": 475,
+        "y": 206,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "boar-attack.png",
+        "frames": 10,
+        "frameWidth": 212,
+        "frameHeight": 144,
+        "x": 428,
+        "y": 196,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "boar-hit.png",
+        "frames": 6,
+        "frameWidth": 171,
+        "frameHeight": 141,
+        "x": 473,
+        "y": 197,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "boar-cast.png",
+        "frames": 10,
+        "frameWidth": 150,
+        "frameHeight": 142,
+        "x": 475,
+        "y": 193,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "boar-guard.png",
+        "frames": 6,
+        "frameWidth": 157,
+        "frameHeight": 134,
+        "x": 475,
+        "y": 209,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "boar-evade.png",
+        "frames": 6,
+        "frameWidth": 220,
+        "frameHeight": 140,
+        "x": 475,
+        "y": 205,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "boar-death.png",
+        "frames": 8,
+        "frameWidth": 175,
+        "frameHeight": 203,
+        "x": 448,
+        "y": 198,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "boar-victory.png",
+        "frames": 6,
+        "frameWidth": 150,
+        "frameHeight": 142,
+        "x": 475,
+        "y": 193,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "crab": {
+      "idle": {
+        "file": "crab-idle.png",
+        "frames": 8,
+        "frameWidth": 168,
+        "frameHeight": 117,
+        "x": 450,
+        "y": 230,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "crab-attack.png",
+        "frames": 10,
+        "frameWidth": 238,
+        "frameHeight": 151,
+        "x": 394,
+        "y": 209,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "crab-hit.png",
+        "frames": 6,
+        "frameWidth": 193,
+        "frameHeight": 143,
+        "x": 449,
+        "y": 220,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "crab-cast.png",
+        "frames": 10,
+        "frameWidth": 168,
+        "frameHeight": 179,
+        "x": 447,
+        "y": 167,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "crab-guard.png",
+        "frames": 6,
+        "frameWidth": 168,
+        "frameHeight": 158,
+        "x": 451,
+        "y": 188,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "crab-evade.png",
+        "frames": 6,
+        "frameWidth": 223,
+        "frameHeight": 157,
+        "x": 451,
+        "y": 199,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "crab-death.png",
+        "frames": 8,
+        "frameWidth": 174,
+        "frameHeight": 188,
+        "x": 441,
+        "y": 230,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "crab-victory.png",
+        "frames": 6,
+        "frameWidth": 166,
+        "frameHeight": 178,
+        "x": 449,
+        "y": 168,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "firehound": {
+      "idle": {
+        "file": "firehound-idle.png",
+        "frames": 8,
+        "frameWidth": 202,
+        "frameHeight": 136,
+        "x": 475,
+        "y": 200,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "firehound-attack.png",
+        "frames": 10,
+        "frameWidth": 266,
+        "frameHeight": 147,
+        "x": 433,
+        "y": 193,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "firehound-hit.png",
+        "frames": 6,
+        "frameWidth": 220,
+        "frameHeight": 137,
+        "x": 473,
+        "y": 201,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "firehound-cast.png",
+        "frames": 10,
+        "frameWidth": 201,
+        "frameHeight": 140,
+        "x": 475,
+        "y": 195,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "firehound-guard.png",
+        "frames": 6,
+        "frameWidth": 210,
+        "frameHeight": 141,
+        "x": 475,
+        "y": 202,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "firehound-evade.png",
+        "frames": 6,
+        "frameWidth": 249,
+        "frameHeight": 151,
+        "x": 475,
+        "y": 194,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "firehound-death.png",
+        "frames": 8,
+        "frameWidth": 231,
+        "frameHeight": 207,
+        "x": 445,
+        "y": 194,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "firehound-victory.png",
+        "frames": 6,
+        "frameWidth": 201,
+        "frameHeight": 140,
+        "x": 475,
+        "y": 195,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "fish": {
+      "idle": {
+        "file": "fish-idle.png",
+        "frames": 8,
+        "frameWidth": 155,
+        "frameHeight": 118,
+        "x": 491,
+        "y": 151,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "fish-attack.png",
+        "frames": 10,
+        "frameWidth": 260,
+        "frameHeight": 127,
+        "x": 412,
+        "y": 134,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "fish-hit.png",
+        "frames": 6,
+        "frameWidth": 163,
+        "frameHeight": 113,
+        "x": 489,
+        "y": 150,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "fish-cast.png",
+        "frames": 10,
+        "frameWidth": 156,
+        "frameHeight": 116,
+        "x": 491,
+        "y": 145,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "fish-guard.png",
+        "frames": 6,
+        "frameWidth": 164,
+        "frameHeight": 110,
+        "x": 491,
+        "y": 159,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "fish-evade.png",
+        "frames": 6,
+        "frameWidth": 233,
+        "frameHeight": 118,
+        "x": 491,
+        "y": 159,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "fish-death.png",
+        "frames": 8,
+        "frameWidth": 241,
+        "frameHeight": 221,
+        "x": 405,
+        "y": 155,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "fish-victory.png",
+        "frames": 6,
+        "frameWidth": 156,
+        "frameHeight": 116,
+        "x": 491,
+        "y": 145,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "flame": {
+      "idle": {
+        "file": "flame-idle.png",
+        "frames": 8,
+        "frameWidth": 99,
+        "frameHeight": 164,
+        "x": 499,
+        "y": 151,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "flame-attack.png",
+        "frames": 10,
+        "frameWidth": 194,
+        "frameHeight": 169,
+        "x": 430,
+        "y": 138,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "flame-hit.png",
+        "frames": 6,
+        "frameWidth": 132,
+        "frameHeight": 149,
+        "x": 495,
+        "y": 158,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "flame-cast.png",
+        "frames": 10,
+        "frameWidth": 111,
+        "frameHeight": 154,
+        "x": 501,
+        "y": 153,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "flame-guard.png",
+        "frames": 6,
+        "frameWidth": 113,
+        "frameHeight": 156,
+        "x": 501,
+        "y": 159,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "flame-evade.png",
+        "frames": 6,
+        "frameWidth": 193,
+        "frameHeight": 166,
+        "x": 501,
+        "y": 153,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "flame-death.png",
+        "frames": 8,
+        "frameWidth": 193,
+        "frameHeight": 211,
+        "x": 405,
+        "y": 159,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "flame-victory.png",
+        "frames": 6,
+        "frameWidth": 111,
+        "frameHeight": 154,
+        "x": 501,
+        "y": 153,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "goblin": {
+      "idle": {
+        "file": "goblin-idle.png",
+        "frames": 8,
+        "frameWidth": 94,
+        "frameHeight": 224,
+        "x": 502,
+        "y": 109,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "goblin-attack.png",
+        "frames": 10,
+        "frameWidth": 172,
+        "frameHeight": 236,
+        "x": 465,
+        "y": 100,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "goblin-hit.png",
+        "frames": 6,
+        "frameWidth": 125,
+        "frameHeight": 222,
+        "x": 498,
+        "y": 110,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "goblin-cast.png",
+        "frames": 10,
+        "frameWidth": 128,
+        "frameHeight": 228,
+        "x": 481,
+        "y": 103,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "goblin-guard.png",
+        "frames": 6,
+        "frameWidth": 126,
+        "frameHeight": 229,
+        "x": 486,
+        "y": 110,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "goblin-evade.png",
+        "frames": 6,
+        "frameWidth": 218,
+        "frameHeight": 224,
+        "x": 503,
+        "y": 108,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "goblin-death.png",
+        "frames": 8,
+        "frameWidth": 230,
+        "frameHeight": 262,
+        "x": 365,
+        "y": 110,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "goblin-victory.png",
+        "frames": 6,
+        "frameWidth": 128,
+        "frameHeight": 228,
+        "x": 481,
+        "y": 103,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "golem": {
+      "idle": {
+        "file": "golem-idle.png",
+        "frames": 8,
+        "frameWidth": 121,
+        "frameHeight": 191,
+        "x": 489,
+        "y": 142,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "golem-attack.png",
+        "frames": 10,
+        "frameWidth": 174,
+        "frameHeight": 201,
+        "x": 466,
+        "y": 134,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "golem-hit.png",
+        "frames": 6,
+        "frameWidth": 150,
+        "frameHeight": 188,
+        "x": 485,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "golem-cast.png",
+        "frames": 10,
+        "frameWidth": 149,
+        "frameHeight": 193,
+        "x": 467,
+        "y": 138,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "golem-guard.png",
+        "frames": 6,
+        "frameWidth": 145,
+        "frameHeight": 195,
+        "x": 473,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "golem-evade.png",
+        "frames": 6,
+        "frameWidth": 211,
+        "frameHeight": 188,
+        "x": 490,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "golem-death.png",
+        "frames": 8,
+        "frameWidth": 219,
+        "frameHeight": 235,
+        "x": 389,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "golem-victory.png",
+        "frames": 6,
+        "frameWidth": 149,
+        "frameHeight": 193,
+        "x": 467,
+        "y": 138,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "hunter": {
+      "idle": {
+        "file": "hunter-idle.png",
+        "frames": 8,
+        "frameWidth": 94,
+        "frameHeight": 191,
+        "x": 502,
+        "y": 142,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "hunter-attack.png",
+        "frames": 10,
+        "frameWidth": 172,
+        "frameHeight": 202,
+        "x": 465,
+        "y": 134,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "hunter-hit.png",
+        "frames": 6,
+        "frameWidth": 125,
+        "frameHeight": 188,
+        "x": 498,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "hunter-cast.png",
+        "frames": 10,
+        "frameWidth": 128,
+        "frameHeight": 193,
+        "x": 481,
+        "y": 138,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "hunter-guard.png",
+        "frames": 6,
+        "frameWidth": 126,
+        "frameHeight": 195,
+        "x": 486,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "hunter-evade.png",
+        "frames": 6,
+        "frameWidth": 190,
+        "frameHeight": 188,
+        "x": 503,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "hunter-death.png",
+        "frames": 8,
+        "frameWidth": 206,
+        "frameHeight": 228,
+        "x": 389,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "hunter-victory.png",
+        "frames": 6,
+        "frameWidth": 128,
+        "frameHeight": 193,
+        "x": 481,
+        "y": 138,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "knight": {
+      "idle": {
+        "file": "knight-idle.png",
+        "frames": 8,
+        "frameWidth": 112,
+        "frameHeight": 191,
+        "x": 484,
+        "y": 142,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "knight-attack.png",
+        "frames": 10,
+        "frameWidth": 187,
+        "frameHeight": 202,
+        "x": 450,
+        "y": 134,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "knight-hit.png",
+        "frames": 6,
+        "frameWidth": 143,
+        "frameHeight": 188,
+        "x": 480,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "knight-cast.png",
+        "frames": 10,
+        "frameWidth": 139,
+        "frameHeight": 196,
+        "x": 470,
+        "y": 135,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "knight-guard.png",
+        "frames": 6,
+        "frameWidth": 136,
+        "frameHeight": 195,
+        "x": 476,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "knight-evade.png",
+        "frames": 6,
+        "frameWidth": 208,
+        "frameHeight": 188,
+        "x": 485,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "knight-death.png",
+        "frames": 8,
+        "frameWidth": 206,
+        "frameHeight": 239,
+        "x": 389,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "knight-victory.png",
+        "frames": 6,
+        "frameWidth": 138,
+        "frameHeight": 196,
+        "x": 471,
+        "y": 135,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "lavagolem": {
+      "idle": {
+        "file": "lavagolem-idle.png",
+        "frames": 8,
+        "frameWidth": 121,
+        "frameHeight": 191,
+        "x": 489,
+        "y": 142,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "lavagolem-attack.png",
+        "frames": 10,
+        "frameWidth": 174,
+        "frameHeight": 201,
+        "x": 466,
+        "y": 134,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "lavagolem-hit.png",
+        "frames": 6,
+        "frameWidth": 150,
+        "frameHeight": 188,
+        "x": 485,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "lavagolem-cast.png",
+        "frames": 10,
+        "frameWidth": 149,
+        "frameHeight": 193,
+        "x": 467,
+        "y": 138,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "lavagolem-guard.png",
+        "frames": 6,
+        "frameWidth": 145,
+        "frameHeight": 195,
+        "x": 473,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "lavagolem-evade.png",
+        "frames": 6,
+        "frameWidth": 211,
+        "frameHeight": 188,
+        "x": 490,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "lavagolem-death.png",
+        "frames": 8,
+        "frameWidth": 219,
+        "frameHeight": 235,
+        "x": 389,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "lavagolem-victory.png",
+        "frames": 6,
+        "frameWidth": 149,
+        "frameHeight": 193,
+        "x": 467,
+        "y": 138,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "leech": {
+      "idle": {
+        "file": "leech-idle.png",
+        "frames": 8,
+        "frameWidth": 85,
+        "frameHeight": 143,
+        "x": 511,
+        "y": 179,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "leech-attack.png",
+        "frames": 10,
+        "frameWidth": 166,
+        "frameHeight": 157,
+        "x": 454,
+        "y": 169,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "leech-hit.png",
+        "frames": 6,
+        "frameWidth": 126,
+        "frameHeight": 139,
+        "x": 508,
+        "y": 181,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "leech-cast.png",
+        "frames": 10,
+        "frameWidth": 83,
+        "frameHeight": 156,
+        "x": 512,
+        "y": 164,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "leech-guard.png",
+        "frames": 6,
+        "frameWidth": 92,
+        "frameHeight": 147,
+        "x": 512,
+        "y": 181,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "leech-evade.png",
+        "frames": 6,
+        "frameWidth": 173,
+        "frameHeight": 139,
+        "x": 512,
+        "y": 181,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "leech-death.png",
+        "frames": 8,
+        "frameWidth": 154,
+        "frameHeight": 183,
+        "x": 441,
+        "y": 180,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "leech-victory.png",
+        "frames": 6,
+        "frameWidth": 83,
+        "frameHeight": 156,
+        "x": 512,
+        "y": 164,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "lich": {
+      "idle": {
+        "file": "lich-idle.png",
+        "frames": 8,
+        "frameWidth": 100,
+        "frameHeight": 227,
+        "x": 502,
+        "y": 109,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "lich-attack.png",
+        "frames": 10,
+        "frameWidth": 238,
+        "frameHeight": 236,
+        "x": 440,
+        "y": 100,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "lich-hit.png",
+        "frames": 6,
+        "frameWidth": 157,
+        "frameHeight": 226,
+        "x": 498,
+        "y": 110,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "lich-cast.png",
+        "frames": 10,
+        "frameWidth": 151,
+        "frameHeight": 230,
+        "x": 481,
+        "y": 103,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "lich-guard.png",
+        "frames": 6,
+        "frameWidth": 153,
+        "frameHeight": 229,
+        "x": 486,
+        "y": 110,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "lich-evade.png",
+        "frames": 6,
+        "frameWidth": 218,
+        "frameHeight": 235,
+        "x": 503,
+        "y": 108,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "lich-death.png",
+        "frames": 8,
+        "frameWidth": 244,
+        "frameHeight": 265,
+        "x": 357,
+        "y": 110,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "lich-victory.png",
+        "frames": 6,
+        "frameWidth": 151,
+        "frameHeight": 230,
+        "x": 481,
+        "y": 103,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "lizard": {
+      "idle": {
+        "file": "lizard-idle.png",
+        "frames": 8,
+        "frameWidth": 202,
+        "frameHeight": 126,
+        "x": 475,
+        "y": 210,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "lizard-attack.png",
+        "frames": 10,
+        "frameWidth": 266,
+        "frameHeight": 142,
+        "x": 433,
+        "y": 198,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "lizard-hit.png",
+        "frames": 6,
+        "frameWidth": 220,
+        "frameHeight": 140,
+        "x": 473,
+        "y": 198,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "lizard-cast.png",
+        "frames": 10,
+        "frameWidth": 201,
+        "frameHeight": 139,
+        "x": 475,
+        "y": 196,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "lizard-guard.png",
+        "frames": 6,
+        "frameWidth": 210,
+        "frameHeight": 130,
+        "x": 475,
+        "y": 213,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "lizard-evade.png",
+        "frames": 6,
+        "frameWidth": 249,
+        "frameHeight": 132,
+        "x": 475,
+        "y": 213,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "lizard-death.png",
+        "frames": 8,
+        "frameWidth": 218,
+        "frameHeight": 207,
+        "x": 458,
+        "y": 194,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "lizard-victory.png",
+        "frames": 6,
+        "frameWidth": 201,
+        "frameHeight": 139,
+        "x": 475,
+        "y": 196,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "mage": {
+      "idle": {
+        "file": "mage-idle.png",
+        "frames": 8,
+        "frameWidth": 100,
+        "frameHeight": 210,
+        "x": 502,
+        "y": 126,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "mage-attack.png",
+        "frames": 10,
+        "frameWidth": 238,
+        "frameHeight": 210,
+        "x": 440,
+        "y": 126,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "mage-hit.png",
+        "frames": 6,
+        "frameWidth": 157,
+        "frameHeight": 208,
+        "x": 498,
+        "y": 128,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "mage-cast.png",
+        "frames": 10,
+        "frameWidth": 151,
+        "frameHeight": 218,
+        "x": 481,
+        "y": 115,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "mage-guard.png",
+        "frames": 6,
+        "frameWidth": 153,
+        "frameHeight": 213,
+        "x": 486,
+        "y": 126,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "mage-evade.png",
+        "frames": 6,
+        "frameWidth": 217,
+        "frameHeight": 215,
+        "x": 503,
+        "y": 128,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "mage-death.png",
+        "frames": 8,
+        "frameWidth": 244,
+        "frameHeight": 250,
+        "x": 357,
+        "y": 125,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "mage-victory.png",
+        "frames": 6,
+        "frameWidth": 151,
+        "frameHeight": 211,
+        "x": 481,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "mimic": {
+      "idle": {
+        "file": "mimic-idle.png",
+        "frames": 8,
+        "frameWidth": 92,
+        "frameHeight": 124,
+        "x": 502,
+        "y": 192,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "mimic-attack.png",
+        "frames": 10,
+        "frameWidth": 167,
+        "frameHeight": 139,
+        "x": 443,
+        "y": 181,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "mimic-hit.png",
+        "frames": 6,
+        "frameWidth": 105,
+        "frameHeight": 123,
+        "x": 502,
+        "y": 193,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "mimic-cast.png",
+        "frames": 10,
+        "frameWidth": 100,
+        "frameHeight": 144,
+        "x": 499,
+        "y": 170,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "mimic-guard.png",
+        "frames": 6,
+        "frameWidth": 99,
+        "frameHeight": 130,
+        "x": 503,
+        "y": 193,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "mimic-evade.png",
+        "frames": 6,
+        "frameWidth": 175,
+        "frameHeight": 123,
+        "x": 503,
+        "y": 193,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "mimic-death.png",
+        "frames": 8,
+        "frameWidth": 146,
+        "frameHeight": 176,
+        "x": 447,
+        "y": 193,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "mimic-victory.png",
+        "frames": 6,
+        "frameWidth": 100,
+        "frameHeight": 144,
+        "x": 499,
+        "y": 170,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "rat": {
+      "idle": {
+        "file": "rat-idle.png",
+        "frames": 8,
+        "frameWidth": 202,
+        "frameHeight": 136,
+        "x": 475,
+        "y": 200,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "rat-attack.png",
+        "frames": 10,
+        "frameWidth": 266,
+        "frameHeight": 147,
+        "x": 433,
+        "y": 193,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "rat-hit.png",
+        "frames": 6,
+        "frameWidth": 220,
+        "frameHeight": 137,
+        "x": 473,
+        "y": 201,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "rat-cast.png",
+        "frames": 10,
+        "frameWidth": 201,
+        "frameHeight": 140,
+        "x": 475,
+        "y": 195,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "rat-guard.png",
+        "frames": 6,
+        "frameWidth": 210,
+        "frameHeight": 141,
+        "x": 475,
+        "y": 202,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "rat-evade.png",
+        "frames": 6,
+        "frameWidth": 249,
+        "frameHeight": 151,
+        "x": 475,
+        "y": 194,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "rat-death.png",
+        "frames": 8,
+        "frameWidth": 231,
+        "frameHeight": 207,
+        "x": 445,
+        "y": 194,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "rat-victory.png",
+        "frames": 6,
+        "frameWidth": 201,
+        "frameHeight": 140,
+        "x": 475,
+        "y": 195,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "scorpion": {
+      "idle": {
+        "file": "scorpion-idle.png",
+        "frames": 8,
+        "frameWidth": 184,
+        "frameHeight": 179,
+        "x": 450,
+        "y": 168,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "scorpion-attack.png",
+        "frames": 10,
+        "frameWidth": 259,
+        "frameHeight": 201,
+        "x": 394,
+        "y": 159,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "scorpion-hit.png",
+        "frames": 6,
+        "frameWidth": 193,
+        "frameHeight": 193,
+        "x": 449,
+        "y": 170,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "scorpion-cast.png",
+        "frames": 10,
+        "frameWidth": 186,
+        "frameHeight": 185,
+        "x": 447,
+        "y": 161,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "scorpion-guard.png",
+        "frames": 6,
+        "frameWidth": 191,
+        "frameHeight": 175,
+        "x": 451,
+        "y": 171,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "scorpion-evade.png",
+        "frames": 6,
+        "frameWidth": 266,
+        "frameHeight": 185,
+        "x": 451,
+        "y": 171,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "scorpion-death.png",
+        "frames": 8,
+        "frameWidth": 211,
+        "frameHeight": 248,
+        "x": 422,
+        "y": 170,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "scorpion-victory.png",
+        "frames": 6,
+        "frameWidth": 184,
+        "frameHeight": 185,
+        "x": 449,
+        "y": 161,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "snake": {
+      "idle": {
+        "file": "snake-idle.png",
+        "frames": 8,
+        "frameWidth": 102,
+        "frameHeight": 143,
+        "x": 502,
+        "y": 179,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "snake-attack.png",
+        "frames": 10,
+        "frameWidth": 184,
+        "frameHeight": 157,
+        "x": 442,
+        "y": 169,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "snake-hit.png",
+        "frames": 6,
+        "frameWidth": 140,
+        "frameHeight": 139,
+        "x": 500,
+        "y": 181,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "snake-cast.png",
+        "frames": 10,
+        "frameWidth": 106,
+        "frameHeight": 156,
+        "x": 499,
+        "y": 164,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "snake-guard.png",
+        "frames": 6,
+        "frameWidth": 110,
+        "frameHeight": 147,
+        "x": 503,
+        "y": 181,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "snake-evade.png",
+        "frames": 6,
+        "frameWidth": 182,
+        "frameHeight": 143,
+        "x": 503,
+        "y": 181,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "snake-death.png",
+        "frames": 8,
+        "frameWidth": 163,
+        "frameHeight": 190,
+        "x": 441,
+        "y": 180,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "snake-victory.png",
+        "frames": 6,
+        "frameWidth": 106,
+        "frameHeight": 156,
+        "x": 499,
+        "y": 164,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "spider": {
+      "idle": {
+        "file": "spider-idle.png",
+        "frames": 8,
+        "frameWidth": 154,
+        "frameHeight": 116,
+        "x": 464,
+        "y": 231,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "spider-attack.png",
+        "frames": 10,
+        "frameWidth": 226,
+        "frameHeight": 151,
+        "x": 406,
+        "y": 209,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "spider-hit.png",
+        "frames": 6,
+        "frameWidth": 183,
+        "frameHeight": 143,
+        "x": 459,
+        "y": 220,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "spider-cast.png",
+        "frames": 10,
+        "frameWidth": 168,
+        "frameHeight": 166,
+        "x": 447,
+        "y": 180,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "spider-guard.png",
+        "frames": 6,
+        "frameWidth": 162,
+        "frameHeight": 127,
+        "x": 457,
+        "y": 219,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "spider-evade.png",
+        "frames": 6,
+        "frameWidth": 207,
+        "frameHeight": 127,
+        "x": 467,
+        "y": 229,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "spider-death.png",
+        "frames": 8,
+        "frameWidth": 148,
+        "frameHeight": 172,
+        "x": 467,
+        "y": 233,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "spider-victory.png",
+        "frames": 6,
+        "frameWidth": 166,
+        "frameHeight": 166,
+        "x": 449,
+        "y": 180,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "spore": {
+      "idle": {
+        "file": "spore-idle.png",
+        "frames": 8,
+        "frameWidth": 103,
+        "frameHeight": 178,
+        "x": 499,
+        "y": 137,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "spore-attack.png",
+        "frames": 10,
+        "frameWidth": 220,
+        "frameHeight": 180,
+        "x": 411,
+        "y": 127,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "spore-hit.png",
+        "frames": 6,
+        "frameWidth": 132,
+        "frameHeight": 164,
+        "x": 495,
+        "y": 143,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "spore-cast.png",
+        "frames": 10,
+        "frameWidth": 111,
+        "frameHeight": 177,
+        "x": 501,
+        "y": 130,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "spore-guard.png",
+        "frames": 6,
+        "frameWidth": 113,
+        "frameHeight": 172,
+        "x": 501,
+        "y": 143,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "spore-evade.png",
+        "frames": 6,
+        "frameWidth": 203,
+        "frameHeight": 177,
+        "x": 501,
+        "y": 142,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "spore-death.png",
+        "frames": 8,
+        "frameWidth": 209,
+        "frameHeight": 227,
+        "x": 392,
+        "y": 143,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "spore-victory.png",
+        "frames": 6,
+        "frameWidth": 111,
+        "frameHeight": 177,
+        "x": 501,
+        "y": 130,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "sprite": {
+      "idle": {
+        "file": "sprite-idle.png",
+        "frames": 8,
+        "frameWidth": 99,
+        "frameHeight": 164,
+        "x": 499,
+        "y": 151,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "sprite-attack.png",
+        "frames": 10,
+        "frameWidth": 194,
+        "frameHeight": 169,
+        "x": 430,
+        "y": 138,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "sprite-hit.png",
+        "frames": 6,
+        "frameWidth": 132,
+        "frameHeight": 149,
+        "x": 495,
+        "y": 158,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "sprite-cast.png",
+        "frames": 10,
+        "frameWidth": 111,
+        "frameHeight": 154,
+        "x": 501,
+        "y": 153,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "sprite-guard.png",
+        "frames": 6,
+        "frameWidth": 113,
+        "frameHeight": 156,
+        "x": 501,
+        "y": 159,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "sprite-evade.png",
+        "frames": 6,
+        "frameWidth": 193,
+        "frameHeight": 166,
+        "x": 501,
+        "y": 153,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "sprite-death.png",
+        "frames": 8,
+        "frameWidth": 193,
+        "frameHeight": 211,
+        "x": 405,
+        "y": 159,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "sprite-victory.png",
+        "frames": 6,
+        "frameWidth": 111,
+        "frameHeight": 154,
+        "x": 501,
+        "y": 153,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "swarm": {
+      "idle": {
+        "file": "swarm-idle.png",
+        "frames": 8,
+        "frameWidth": 164,
+        "frameHeight": 172,
+        "x": 485,
+        "y": 122,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "swarm-attack.png",
+        "frames": 10,
+        "frameWidth": 268,
+        "frameHeight": 163,
+        "x": 397,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "swarm-hit.png",
+        "frames": 6,
+        "frameWidth": 172,
+        "frameHeight": 131,
+        "x": 482,
+        "y": 158,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "swarm-cast.png",
+        "frames": 10,
+        "frameWidth": 168,
+        "frameHeight": 154,
+        "x": 475,
+        "y": 131,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "swarm-guard.png",
+        "frames": 6,
+        "frameWidth": 160,
+        "frameHeight": 136,
+        "x": 485,
+        "y": 160,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "swarm-evade.png",
+        "frames": 6,
+        "frameWidth": 235,
+        "frameHeight": 154,
+        "x": 485,
+        "y": 145,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "swarm-death.png",
+        "frames": 8,
+        "frameWidth": 214,
+        "frameHeight": 217,
+        "x": 419,
+        "y": 160,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "swarm-victory.png",
+        "frames": 6,
+        "frameWidth": 168,
+        "frameHeight": 154,
+        "x": 475,
+        "y": 131,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "toad": {
+      "idle": {
+        "file": "toad-idle.png",
+        "frames": 8,
+        "frameWidth": 153,
+        "frameHeight": 111,
+        "x": 475,
+        "y": 225,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "toad-attack.png",
+        "frames": 10,
+        "frameWidth": 209,
+        "frameHeight": 121,
+        "x": 433,
+        "y": 219,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "toad-hit.png",
+        "frames": 6,
+        "frameWidth": 176,
+        "frameHeight": 112,
+        "x": 473,
+        "y": 226,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "toad-cast.png",
+        "frames": 10,
+        "frameWidth": 155,
+        "frameHeight": 115,
+        "x": 475,
+        "y": 220,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "toad-guard.png",
+        "frames": 6,
+        "frameWidth": 161,
+        "frameHeight": 116,
+        "x": 475,
+        "y": 227,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "toad-evade.png",
+        "frames": 6,
+        "frameWidth": 207,
+        "frameHeight": 131,
+        "x": 475,
+        "y": 214,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "toad-death.png",
+        "frames": 8,
+        "frameWidth": 169,
+        "frameHeight": 174,
+        "x": 458,
+        "y": 227,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "toad-victory.png",
+        "frames": 6,
+        "frameWidth": 155,
+        "frameHeight": 115,
+        "x": 475,
+        "y": 220,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "tortoise": {
+      "idle": {
+        "file": "tortoise-idle.png",
+        "frames": 8,
+        "frameWidth": 152,
+        "frameHeight": 129,
+        "x": 475,
+        "y": 207,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "tortoise-attack.png",
+        "frames": 10,
+        "frameWidth": 212,
+        "frameHeight": 141,
+        "x": 433,
+        "y": 199,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "tortoise-hit.png",
+        "frames": 6,
+        "frameWidth": 171,
+        "frameHeight": 132,
+        "x": 473,
+        "y": 206,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "tortoise-cast.png",
+        "frames": 10,
+        "frameWidth": 152,
+        "frameHeight": 138,
+        "x": 475,
+        "y": 197,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "tortoise-guard.png",
+        "frames": 6,
+        "frameWidth": 161,
+        "frameHeight": 134,
+        "x": 475,
+        "y": 209,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "tortoise-evade.png",
+        "frames": 6,
+        "frameWidth": 223,
+        "frameHeight": 136,
+        "x": 475,
+        "y": 209,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "tortoise-death.png",
+        "frames": 8,
+        "frameWidth": 169,
+        "frameHeight": 193,
+        "x": 458,
+        "y": 208,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "tortoise-victory.png",
+        "frames": 6,
+        "frameWidth": 152,
+        "frameHeight": 138,
+        "x": 475,
+        "y": 197,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "treant": {
+      "idle": {
+        "file": "treant-idle.png",
+        "frames": 8,
+        "frameWidth": 132,
+        "frameHeight": 226,
+        "x": 487,
+        "y": 109,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "treant-attack.png",
+        "frames": 10,
+        "frameWidth": 174,
+        "frameHeight": 239,
+        "x": 466,
+        "y": 100,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "treant-hit.png",
+        "frames": 6,
+        "frameWidth": 150,
+        "frameHeight": 225,
+        "x": 485,
+        "y": 110,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "treant-cast.png",
+        "frames": 10,
+        "frameWidth": 165,
+        "frameHeight": 230,
+        "x": 467,
+        "y": 103,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "treant-guard.png",
+        "frames": 6,
+        "frameWidth": 159,
+        "frameHeight": 232,
+        "x": 473,
+        "y": 110,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "treant-evade.png",
+        "frames": 6,
+        "frameWidth": 240,
+        "frameHeight": 237,
+        "x": 489,
+        "y": 108,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "treant-death.png",
+        "frames": 8,
+        "frameWidth": 251,
+        "frameHeight": 269,
+        "x": 365,
+        "y": 110,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "treant-victory.png",
+        "frames": 6,
+        "frameWidth": 165,
+        "frameHeight": 230,
+        "x": 467,
+        "y": 103,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "vine": {
+      "idle": {
+        "file": "vine-idle.png",
+        "frames": 8,
+        "frameWidth": 102,
+        "frameHeight": 143,
+        "x": 502,
+        "y": 179,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "vine-attack.png",
+        "frames": 10,
+        "frameWidth": 187,
+        "frameHeight": 157,
+        "x": 439,
+        "y": 169,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "vine-hit.png",
+        "frames": 6,
+        "frameWidth": 140,
+        "frameHeight": 139,
+        "x": 500,
+        "y": 181,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "vine-cast.png",
+        "frames": 10,
+        "frameWidth": 106,
+        "frameHeight": 156,
+        "x": 499,
+        "y": 164,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "vine-guard.png",
+        "frames": 6,
+        "frameWidth": 110,
+        "frameHeight": 147,
+        "x": 503,
+        "y": 181,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "vine-evade.png",
+        "frames": 6,
+        "frameWidth": 182,
+        "frameHeight": 143,
+        "x": 503,
+        "y": 181,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "vine-death.png",
+        "frames": 8,
+        "frameWidth": 165,
+        "frameHeight": 190,
+        "x": 439,
+        "y": 180,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "vine-victory.png",
+        "frames": 6,
+        "frameWidth": 106,
+        "frameHeight": 156,
+        "x": 499,
+        "y": 164,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "wolf": {
+      "idle": {
+        "file": "wolf-idle.png",
+        "frames": 8,
+        "frameWidth": 202,
+        "frameHeight": 136,
+        "x": 475,
+        "y": 200,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "wolf-attack.png",
+        "frames": 10,
+        "frameWidth": 266,
+        "frameHeight": 147,
+        "x": 433,
+        "y": 193,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "wolf-hit.png",
+        "frames": 6,
+        "frameWidth": 220,
+        "frameHeight": 137,
+        "x": 473,
+        "y": 201,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "wolf-cast.png",
+        "frames": 10,
+        "frameWidth": 201,
+        "frameHeight": 140,
+        "x": 475,
+        "y": 195,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "wolf-guard.png",
+        "frames": 6,
+        "frameWidth": 210,
+        "frameHeight": 141,
+        "x": 475,
+        "y": 202,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "wolf-evade.png",
+        "frames": 6,
+        "frameWidth": 249,
+        "frameHeight": 151,
+        "x": 475,
+        "y": 194,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "wolf-death.png",
+        "frames": 8,
+        "frameWidth": 231,
+        "frameHeight": 207,
+        "x": 445,
+        "y": 194,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "wolf-victory.png",
+        "frames": 6,
+        "frameWidth": 201,
+        "frameHeight": 140,
+        "x": 475,
+        "y": 195,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "wraith": {
+      "idle": {
+        "file": "wraith-idle.png",
+        "frames": 8,
+        "frameWidth": 99,
+        "frameHeight": 164,
+        "x": 499,
+        "y": 151,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "wraith-attack.png",
+        "frames": 10,
+        "frameWidth": 194,
+        "frameHeight": 169,
+        "x": 430,
+        "y": 138,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "wraith-hit.png",
+        "frames": 6,
+        "frameWidth": 132,
+        "frameHeight": 149,
+        "x": 495,
+        "y": 158,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "wraith-cast.png",
+        "frames": 10,
+        "frameWidth": 111,
+        "frameHeight": 154,
+        "x": 501,
+        "y": 153,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "wraith-guard.png",
+        "frames": 6,
+        "frameWidth": 113,
+        "frameHeight": 156,
+        "x": 501,
+        "y": 159,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "wraith-evade.png",
+        "frames": 6,
+        "frameWidth": 193,
+        "frameHeight": 166,
+        "x": 501,
+        "y": 153,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "wraith-death.png",
+        "frames": 8,
+        "frameWidth": 193,
+        "frameHeight": 211,
+        "x": 405,
+        "y": 159,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "wraith-victory.png",
+        "frames": 6,
+        "frameWidth": 111,
+        "frameHeight": 154,
+        "x": 501,
+        "y": 153,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "zombie": {
+      "idle": {
+        "file": "zombie-idle.png",
+        "frames": 8,
+        "frameWidth": 94,
+        "frameHeight": 191,
+        "x": 502,
+        "y": 142,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "zombie-attack.png",
+        "frames": 10,
+        "frameWidth": 172,
+        "frameHeight": 202,
+        "x": 465,
+        "y": 134,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "zombie-hit.png",
+        "frames": 6,
+        "frameWidth": 125,
+        "frameHeight": 188,
+        "x": 498,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "zombie-cast.png",
+        "frames": 10,
+        "frameWidth": 120,
+        "frameHeight": 193,
+        "x": 481,
+        "y": 138,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "zombie-guard.png",
+        "frames": 6,
+        "frameWidth": 119,
+        "frameHeight": 195,
+        "x": 486,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "zombie-evade.png",
+        "frames": 6,
+        "frameWidth": 186,
+        "frameHeight": 188,
+        "x": 503,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "zombie-death.png",
+        "frames": 8,
+        "frameWidth": 206,
+        "frameHeight": 228,
+        "x": 389,
+        "y": 144,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "zombie-victory.png",
+        "frames": 6,
+        "frameWidth": 120,
+        "frameHeight": 193,
+        "x": 481,
+        "y": 138,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "fighter-dagger-cloth": {
+      "idle": {
+        "file": "fighter-dagger-cloth-idle.png",
+        "frames": 8,
+        "frameWidth": 115,
+        "frameHeight": 187,
+        "x": 183,
+        "y": 127,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "fighter-dagger-cloth-attack.png",
+        "frames": 10,
+        "frameWidth": 187,
+        "frameHeight": 195,
+        "x": 167,
+        "y": 121,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "fighter-dagger-cloth-hit.png",
+        "frames": 6,
+        "frameWidth": 136,
+        "frameHeight": 183,
+        "x": 165,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "fighter-dagger-cloth-cast.png",
+        "frames": 10,
+        "frameWidth": 135,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "fighter-dagger-cloth-guard.png",
+        "frames": 6,
+        "frameWidth": 127,
+        "frameHeight": 190,
+        "x": 174,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "fighter-dagger-cloth-evade.png",
+        "frames": 6,
+        "frameWidth": 189,
+        "frameHeight": 187,
+        "x": 108,
+        "y": 125,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "fighter-dagger-cloth-death.png",
+        "frames": 8,
+        "frameWidth": 212,
+        "frameHeight": 215,
+        "x": 183,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "fighter-dagger-cloth-victory.png",
+        "frames": 6,
+        "frameWidth": 134,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "fighter-dagger-plate": {
+      "idle": {
+        "file": "fighter-dagger-plate-idle.png",
+        "frames": 8,
+        "frameWidth": 115,
+        "frameHeight": 187,
+        "x": 183,
+        "y": 127,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "fighter-dagger-plate-attack.png",
+        "frames": 10,
+        "frameWidth": 187,
+        "frameHeight": 195,
+        "x": 167,
+        "y": 121,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "fighter-dagger-plate-hit.png",
+        "frames": 6,
+        "frameWidth": 136,
+        "frameHeight": 183,
+        "x": 165,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "fighter-dagger-plate-cast.png",
+        "frames": 10,
+        "frameWidth": 135,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "fighter-dagger-plate-guard.png",
+        "frames": 6,
+        "frameWidth": 127,
+        "frameHeight": 190,
+        "x": 174,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "fighter-dagger-plate-evade.png",
+        "frames": 6,
+        "frameWidth": 199,
+        "frameHeight": 187,
+        "x": 98,
+        "y": 125,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "fighter-dagger-plate-death.png",
+        "frames": 8,
+        "frameWidth": 212,
+        "frameHeight": 215,
+        "x": 183,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "fighter-dagger-plate-victory.png",
+        "frames": 6,
+        "frameWidth": 134,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "fighter-mace-cloth": {
+      "idle": {
+        "file": "fighter-mace-cloth-idle.png",
+        "frames": 8,
+        "frameWidth": 110,
+        "frameHeight": 187,
+        "x": 183,
+        "y": 127,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "fighter-mace-cloth-attack.png",
+        "frames": 10,
+        "frameWidth": 210,
+        "frameHeight": 196,
+        "x": 167,
+        "y": 120,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "fighter-mace-cloth-hit.png",
+        "frames": 6,
+        "frameWidth": 136,
+        "frameHeight": 183,
+        "x": 165,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "fighter-mace-cloth-cast.png",
+        "frames": 10,
+        "frameWidth": 154,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "fighter-mace-cloth-guard.png",
+        "frames": 6,
+        "frameWidth": 139,
+        "frameHeight": 190,
+        "x": 174,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "fighter-mace-cloth-evade.png",
+        "frames": 6,
+        "frameWidth": 185,
+        "frameHeight": 187,
+        "x": 108,
+        "y": 125,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "fighter-mace-cloth-death.png",
+        "frames": 8,
+        "frameWidth": 212,
+        "frameHeight": 219,
+        "x": 183,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "fighter-mace-cloth-victory.png",
+        "frames": 6,
+        "frameWidth": 153,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "fighter-mace-plate": {
+      "idle": {
+        "file": "fighter-mace-plate-idle.png",
+        "frames": 8,
+        "frameWidth": 110,
+        "frameHeight": 187,
+        "x": 183,
+        "y": 127,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "fighter-mace-plate-attack.png",
+        "frames": 10,
+        "frameWidth": 210,
+        "frameHeight": 196,
+        "x": 167,
+        "y": 120,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "fighter-mace-plate-hit.png",
+        "frames": 6,
+        "frameWidth": 136,
+        "frameHeight": 183,
+        "x": 165,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "fighter-mace-plate-cast.png",
+        "frames": 10,
+        "frameWidth": 154,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "fighter-mace-plate-guard.png",
+        "frames": 6,
+        "frameWidth": 139,
+        "frameHeight": 190,
+        "x": 174,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "fighter-mace-plate-evade.png",
+        "frames": 6,
+        "frameWidth": 195,
+        "frameHeight": 187,
+        "x": 98,
+        "y": 125,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "fighter-mace-plate-death.png",
+        "frames": 8,
+        "frameWidth": 212,
+        "frameHeight": 219,
+        "x": 183,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "fighter-mace-plate-victory.png",
+        "frames": 6,
+        "frameWidth": 153,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "fighter-sword-cloth": {
+      "idle": {
+        "file": "fighter-sword-cloth-idle.png",
+        "frames": 8,
+        "frameWidth": 115,
+        "frameHeight": 187,
+        "x": 183,
+        "y": 127,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "fighter-sword-cloth-attack.png",
+        "frames": 10,
+        "frameWidth": 217,
+        "frameHeight": 195,
+        "x": 167,
+        "y": 121,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "fighter-sword-cloth-hit.png",
+        "frames": 6,
+        "frameWidth": 136,
+        "frameHeight": 183,
+        "x": 165,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "fighter-sword-cloth-cast.png",
+        "frames": 10,
+        "frameWidth": 156,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "fighter-sword-cloth-guard.png",
+        "frames": 6,
+        "frameWidth": 135,
+        "frameHeight": 190,
+        "x": 174,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "fighter-sword-cloth-evade.png",
+        "frames": 6,
+        "frameWidth": 189,
+        "frameHeight": 187,
+        "x": 108,
+        "y": 125,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "fighter-sword-cloth-death.png",
+        "frames": 8,
+        "frameWidth": 212,
+        "frameHeight": 215,
+        "x": 183,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "fighter-sword-cloth-victory.png",
+        "frames": 6,
+        "frameWidth": 156,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "fighter-sword-plate": {
+      "idle": {
+        "file": "fighter-sword-plate-idle.png",
+        "frames": 8,
+        "frameWidth": 115,
+        "frameHeight": 187,
+        "x": 183,
+        "y": 127,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "fighter-sword-plate-attack.png",
+        "frames": 10,
+        "frameWidth": 217,
+        "frameHeight": 195,
+        "x": 167,
+        "y": 121,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "fighter-sword-plate-hit.png",
+        "frames": 6,
+        "frameWidth": 136,
+        "frameHeight": 183,
+        "x": 165,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "fighter-sword-plate-cast.png",
+        "frames": 10,
+        "frameWidth": 156,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "fighter-sword-plate-guard.png",
+        "frames": 6,
+        "frameWidth": 135,
+        "frameHeight": 190,
+        "x": 174,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "fighter-sword-plate-evade.png",
+        "frames": 6,
+        "frameWidth": 199,
+        "frameHeight": 187,
+        "x": 98,
+        "y": 125,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "fighter-sword-plate-death.png",
+        "frames": 8,
+        "frameWidth": 212,
+        "frameHeight": 215,
+        "x": 183,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "fighter-sword-plate-victory.png",
+        "frames": 6,
+        "frameWidth": 156,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "fighter-unarmed-cloth": {
+      "idle": {
+        "file": "fighter-unarmed-cloth-idle.png",
+        "frames": 8,
+        "frameWidth": 106,
+        "frameHeight": 187,
+        "x": 183,
+        "y": 127,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "fighter-unarmed-cloth-attack.png",
+        "frames": 10,
+        "frameWidth": 167,
+        "frameHeight": 195,
+        "x": 167,
+        "y": 121,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "fighter-unarmed-cloth-hit.png",
+        "frames": 6,
+        "frameWidth": 128,
+        "frameHeight": 183,
+        "x": 165,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "fighter-unarmed-cloth-cast.png",
+        "frames": 10,
+        "frameWidth": 121,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "fighter-unarmed-cloth-guard.png",
+        "frames": 6,
+        "frameWidth": 118,
+        "frameHeight": 190,
+        "x": 174,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "fighter-unarmed-cloth-evade.png",
+        "frames": 6,
+        "frameWidth": 180,
+        "frameHeight": 187,
+        "x": 108,
+        "y": 125,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "fighter-unarmed-cloth-death.png",
+        "frames": 8,
+        "frameWidth": 212,
+        "frameHeight": 215,
+        "x": 183,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "fighter-unarmed-cloth-victory.png",
+        "frames": 6,
+        "frameWidth": 120,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "fighter-unarmed-plate": {
+      "idle": {
+        "file": "fighter-unarmed-plate-idle.png",
+        "frames": 8,
+        "frameWidth": 106,
+        "frameHeight": 187,
+        "x": 183,
+        "y": 127,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "fighter-unarmed-plate-attack.png",
+        "frames": 10,
+        "frameWidth": 167,
+        "frameHeight": 195,
+        "x": 167,
+        "y": 121,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "fighter-unarmed-plate-hit.png",
+        "frames": 6,
+        "frameWidth": 128,
+        "frameHeight": 183,
+        "x": 165,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "fighter-unarmed-plate-cast.png",
+        "frames": 10,
+        "frameWidth": 121,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "fighter-unarmed-plate-guard.png",
+        "frames": 6,
+        "frameWidth": 118,
+        "frameHeight": 190,
+        "x": 174,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "fighter-unarmed-plate-evade.png",
+        "frames": 6,
+        "frameWidth": 190,
+        "frameHeight": 187,
+        "x": 98,
+        "y": 125,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "fighter-unarmed-plate-death.png",
+        "frames": 8,
+        "frameWidth": 212,
+        "frameHeight": 215,
+        "x": 183,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "fighter-unarmed-plate-victory.png",
+        "frames": 6,
+        "frameWidth": 120,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "fighter-wand-cloth": {
+      "idle": {
+        "file": "fighter-wand-cloth-idle.png",
+        "frames": 8,
+        "frameWidth": 106,
+        "frameHeight": 187,
+        "x": 183,
+        "y": 127,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "fighter-wand-cloth-attack.png",
+        "frames": 10,
+        "frameWidth": 202,
+        "frameHeight": 195,
+        "x": 167,
+        "y": 121,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "fighter-wand-cloth-hit.png",
+        "frames": 6,
+        "frameWidth": 128,
+        "frameHeight": 183,
+        "x": 165,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "fighter-wand-cloth-cast.png",
+        "frames": 10,
+        "frameWidth": 144,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "fighter-wand-cloth-guard.png",
+        "frames": 6,
+        "frameWidth": 127,
+        "frameHeight": 190,
+        "x": 174,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "fighter-wand-cloth-evade.png",
+        "frames": 6,
+        "frameWidth": 180,
+        "frameHeight": 187,
+        "x": 108,
+        "y": 125,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "fighter-wand-cloth-death.png",
+        "frames": 8,
+        "frameWidth": 212,
+        "frameHeight": 215,
+        "x": 183,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "fighter-wand-cloth-victory.png",
+        "frames": 6,
+        "frameWidth": 144,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    },
+    "fighter-wand-plate": {
+      "idle": {
+        "file": "fighter-wand-plate-idle.png",
+        "frames": 8,
+        "frameWidth": 106,
+        "frameHeight": 187,
+        "x": 183,
+        "y": 127,
+        "fps": 12,
+        "loop": true,
+        "impactFrame": null
+      },
+      "attack": {
+        "file": "fighter-wand-plate-attack.png",
+        "frames": 10,
+        "frameWidth": 202,
+        "frameHeight": 195,
+        "x": 167,
+        "y": 121,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "hit": {
+        "file": "fighter-wand-plate-hit.png",
+        "frames": 6,
+        "frameWidth": 128,
+        "frameHeight": 183,
+        "x": 165,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "cast": {
+        "file": "fighter-wand-plate-cast.png",
+        "frames": 10,
+        "frameWidth": 144,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": 5
+      },
+      "guard": {
+        "file": "fighter-wand-plate-guard.png",
+        "frames": 6,
+        "frameWidth": 127,
+        "frameHeight": 190,
+        "x": 174,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "evade": {
+        "file": "fighter-wand-plate-evade.png",
+        "frames": 6,
+        "frameWidth": 190,
+        "frameHeight": 187,
+        "x": 98,
+        "y": 125,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "death": {
+        "file": "fighter-wand-plate-death.png",
+        "frames": 8,
+        "frameWidth": 212,
+        "frameHeight": 215,
+        "x": 183,
+        "y": 129,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      },
+      "victory": {
+        "file": "fighter-wand-plate-victory.png",
+        "frames": 6,
+        "frameWidth": 144,
+        "frameHeight": 190,
+        "x": 183,
+        "y": 122,
+        "fps": 12,
+        "loop": false,
+        "impactFrame": null
+      }
+    }
+  }
+}

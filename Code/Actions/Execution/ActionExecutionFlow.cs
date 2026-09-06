@@ -192,6 +192,7 @@ namespace RPGGame.Actions.Execution
                         stripIndexForFeedback = actor.ComboStep % comboForFeedback.Count;
                 }
                 FighterResolveActionStackState.BeginResolve(actor, result.SelectedAction);
+                FighterResolveActionStackState.ApplyResolveOutcome(result.IsCombo, result.IsCritical);
             }
 
             if (result.Hit)
@@ -202,6 +203,9 @@ namespace RPGGame.Actions.Execution
             // Nested strip retrigger (max depth 1) — distinct from Multihit damage ticks.
             // Nested HP damage is applied inside the nested Execute; keep outer Damage as this swing only
             // so the combat log headline stays correct. Nested lines are formatted separately.
+            var visualRecipient = result.SelectedAction?.Target == TargetType.Self ? source : (result.EffectiveTarget ?? target);
+            result.VisualTargetHealthAfter = visualRecipient is Character visualTarget ? visualTarget.CurrentHealth : null;
+
             if (RetriggerDepth == 0
                 && result.Hit
                 && RetriggerScheduler.TryConsume(source, out Action? retriggerAction)

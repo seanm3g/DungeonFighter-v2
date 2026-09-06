@@ -205,6 +205,17 @@ namespace RPGGame.UI.Avalonia
 
         private bool TryHandleCombatSpeedKey(Key key)
         {
+            if (key == Key.P && initializationHandler?.Game?.CurrentState == GameState.Combat)
+            {
+                if (SimulationPacing.ShouldSkipDelays)
+                {
+                    ShowCombatSpeedNotification("Pause is available at timed combat speeds.");
+                    return true;
+                }
+                CombatPlaybackControls.Toggle();
+                ShowCombatSpeedNotification(CombatPlaybackControls.Paused ? "PAUSED — P to resume" : "Combat resumed");
+                return true;
+            }
             if (key != Key.PageUp && key != Key.PageDown)
                 return false;
 
@@ -561,3 +572,5 @@ namespace RPGGame.UI.Avalonia
         }
     }
 }
+
+

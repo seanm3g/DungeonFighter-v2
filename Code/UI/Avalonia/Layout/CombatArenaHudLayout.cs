@@ -8,6 +8,19 @@ namespace RPGGame.UI.Avalonia.Layout
     /// </summary>
     public static class CombatArenaHudLayout
     {
+        public static bool IllustratedSceneVisible { get; set; }
+
+        public static void GetSceneRect(out int x, out int y, out int width, out int height)
+        {
+            var (ax, ay, aw, _) = GetArenaInnerRect();
+            GetFighterHud(out _, out int fighterY, out _, out _);
+            x = ax;
+            y = ay + EnemyHudHeight + 1;
+            int available = fighterY - y - 1;
+            bool split = CombatVisuals.CombatSceneGeometry.CanSplit(aw, available, IllustratedSceneVisible);
+            width = split ? aw * 2 / 3 : 0;
+            height = split ? available : 0;
+        }
         /// <summary>
         /// Side-panel HP/armor/d20 bars duplicate the center arena HUD. Hide them only while that HUD is on screen
         /// (active fight). Encounter intro / result / room-cleared screens keep the side bars.
@@ -97,12 +110,19 @@ namespace RPGGame.UI.Avalonia.Layout
             y = ay + enemyH + 1;
             width = aw;
             height = Math.Max(3, fighterY - y - 1);
+            if (CombatVisuals.CombatSceneGeometry.CanSplit(width, height, IllustratedSceneVisible))
+            {
+                int sceneWidth = width * 2 / 3;
+                x += sceneWidth + 1;
+                width -= sceneWidth + 1;
+            }
         }
 
         /// <summary>Resolving action card, centered in the mid-band.</summary>
         public static void GetResolveCurrentCardRect(out int x, out int y, out int width, out int height)
         {
             GetResolveStackBand(out int bx, out int by, out int bw, out int bh);
+            if (TryGetVisualCardRect(0, out x, out y, out width, out height)) return;
             height = Math.Max(5, Math.Min(bh, Math.Max(7, bh - 1)));
             width = Math.Max(10, (int)Math.Round(height * 5.0 / 3.0));
             if (width > bw)
@@ -118,6 +138,7 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>Fighter past-action card, left of the centered current card.</summary>
         public static void GetResolvePreviousCardRect(out int x, out int y, out int width, out int height)
         {
+            if (TryGetVisualCardRect(1, out x, out y, out width, out height)) return;
             GetResolveStackBand(out int bx, out int by, out _, out int bh);
             GetResolveCurrentCardRect(out int cx, out _, out _, out int ch);
             height = Math.Max(4, (int)Math.Round(ch * 0.82));
@@ -130,6 +151,7 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>Enemy past-action card, right of the centered current card.</summary>
         public static void GetResolveEnemyPreviousCardRect(out int x, out int y, out int width, out int height)
         {
+            if (TryGetVisualCardRect(2, out x, out y, out width, out height)) return;
             GetResolveStackBand(out int bx, out int by, out int bw, out int bh);
             GetResolveCurrentCardRect(out int cx, out _, out int cw, out int ch);
             height = Math.Max(4, (int)Math.Round(ch * 0.82));
@@ -140,9 +162,25 @@ namespace RPGGame.UI.Avalonia.Layout
             y = by + Math.Max(0, (bh - height) / 2);
         }
 
+        private static bool TryGetVisualCardRect(int index, out int x, out int y, out int width, out int height)
+        {
+            GetSceneRect(out _, out _, out int sceneWidth, out _);
+            x = y = width = height = 0;
+            if (sceneWidth == 0) return false;
+            GetResolveStackBand(out int bx, out int by, out int bw, out int bh);
+            height = (bh - 2) / 3;
+            width = bw;
+            x = bx;
+            y = by + index * (height + 1);
+            return true;
+        }
+
         public static void GetNarrativeBand(out int x, out int y, out int width, out int height) =>
             GetResolveStackBand(out x, out y, out width, out height);
 
+        /// <summary>
+        /// Erase arena chrome (HUD bars, resolve cards, and unused-action X strokes) before a new paint.
+        /// </summary>
         public static void ClearArenaInner(GameCanvasControl canvas)
         {
             if (canvas == null)
@@ -152,6 +190,7 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.ClearProgressBarsInArea(x, y, w, h);
             canvas.ClearSegmentedBarsInArea(x, y, w, h);
             canvas.ClearBoxesInArea(x, y, w, h);
+            canvas.ClearLinesInArea(x, y, w, h);
         }
     }
 }

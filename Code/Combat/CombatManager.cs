@@ -203,7 +203,7 @@ namespace RPGGame
             Enemy currentEnemy,
             Environment room,
             Action? forcedAction = null,
-            TrainingGroundTutorialScript? tutorialScript = null)
+            TrainingGroundTutorialScript? tutorialScript = null, CancellationToken cancellationToken = default)
         {
             int maxTurns = 1000;
             int turnCount = 0;
@@ -221,6 +221,9 @@ namespace RPGGame
                     return CombatSingleTurnResult.LoopLimitExceeded;
                 }
 
+                await CombatPlaybackControls.WaitAsync(cancellationToken);
+                if (!CombatManager.DisableCombatUIOutput)
+                    CombatPlaybackControls.SetTimeline(GetCurrentActionSpeedSystem()?.DescribeReadiness(player) ?? string.Empty);
                 Actor? nextEntity = GetNextEntityToAct();
 
                 if (nextEntity == null)
@@ -368,13 +371,16 @@ namespace RPGGame
             // Reset environment action count for new fight (AsyncLocal-scoped so parallel sims do not share room)
             using var roomScope = CombatEnvironmentContext.BeginScope(room);
             room.ResetForNewFight();
+            EncounterReport.Begin(player);
+            EncounterReport.Begin(currentEnemy);
 
             try
             {
                 while (player.IsAlive && currentEnemy.IsAlive)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    var step = await AdvanceSingleTurnAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: tutorialScript);
+                    await CombatPlaybackControls.WaitAsync(cancellationToken);
+                    var step = await AdvanceSingleTurnAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: tutorialScript, cancellationToken: cancellationToken);
                     if (step == CombatSingleTurnResult.Advanced)
                         continue;
                     break;
@@ -403,10 +409,16 @@ namespace RPGGame
             }
             finally
             {
+                EncounterReport.End(player);
+                EncounterReport.End(currentEnemy);
+                CombatPlaybackControls.Resume();
                 Cleanup();
             }
         }
     }
 }
+
+
+
 
 

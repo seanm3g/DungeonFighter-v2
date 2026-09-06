@@ -1,0 +1,192 @@
+{
+  "fighter": {
+    "decodedMiB": 7.48,
+    "clips": 8
+  },
+  "demon": {
+    "decodedMiB": 10.11,
+    "clips": 8
+  },
+  "skeleton": {
+    "decodedMiB": 7.86,
+    "clips": 8
+  },
+  "bat": {
+    "decodedMiB": 9.91,
+    "clips": 8
+  },
+  "bear": {
+    "decodedMiB": 5.4,
+    "clips": 8
+  },
+  "beetle": {
+    "decodedMiB": 5.99,
+    "clips": 8
+  },
+  "bird": {
+    "decodedMiB": 5.38,
+    "clips": 8
+  },
+  "boar": {
+    "decodedMiB": 5.88,
+    "clips": 8
+  },
+  "crab": {
+    "decodedMiB": 6.83,
+    "clips": 8
+  },
+  "firehound": {
+    "decodedMiB": 7.73,
+    "clips": 8
+  },
+  "fish": {
+    "decodedMiB": 6.01,
+    "clips": 8
+  },
+  "flame": {
+    "decodedMiB": 5.62,
+    "clips": 8
+  },
+  "goblin": {
+    "decodedMiB": 8.22,
+    "clips": 8
+  },
+  "golem": {
+    "decodedMiB": 7.57,
+    "clips": 8
+  },
+  "hunter": {
+    "decodedMiB": 6.73,
+    "clips": 8
+  },
+  "knight": {
+    "decodedMiB": 7.37,
+    "clips": 8
+  },
+  "lavagolem": {
+    "decodedMiB": 7.57,
+    "clips": 8
+  },
+  "leech": {
+    "decodedMiB": 4.28,
+    "clips": 8
+  },
+  "lich": {
+    "decodedMiB": 9.72,
+    "clips": 8
+  },
+  "lizard": {
+    "decodedMiB": 7.38,
+    "clips": 8
+  },
+  "mage": {
+    "decodedMiB": 8.96,
+    "clips": 8
+  },
+  "mimic": {
+    "decodedMiB": 3.98,
+    "clips": 8
+  },
+  "rat": {
+    "decodedMiB": 7.73,
+    "clips": 8
+  },
+  "scorpion": {
+    "decodedMiB": 9.42,
+    "clips": 8
+  },
+  "snake": {
+    "decodedMiB": 4.91,
+    "clips": 8
+  },
+  "spider": {
+    "decodedMiB": 5.99,
+    "clips": 8
+  },
+  "spore": {
+    "decodedMiB": 6.48,
+    "clips": 8
+  },
+  "sprite": {
+    "decodedMiB": 5.62,
+    "clips": 8
+  },
+  "swarm": {
+    "decodedMiB": 7.37,
+    "clips": 8
+  },
+  "toad": {
+    "decodedMiB": 4.97,
+    "clips": 8
+  },
+  "tortoise": {
+    "decodedMiB": 5.72,
+    "clips": 8
+  },
+  "treant": {
+    "decodedMiB": 9.79,
+    "clips": 8
+  },
+  "vine": {
+    "decodedMiB": 4.94,
+    "clips": 8
+  },
+  "wolf": {
+    "decodedMiB": 7.73,
+    "clips": 8
+  },
+  "wraith": {
+    "decodedMiB": 5.62,
+    "clips": 8
+  },
+  "zombie": {
+    "decodedMiB": 6.59,
+    "clips": 8
+  },
+  "fighter-dagger-cloth": {
+    "decodedMiB": 6.93,
+    "clips": 8
+  },
+  "fighter-dagger-plate": {
+    "decodedMiB": 6.97,
+    "clips": 8
+  },
+  "fighter-mace-cloth": {
+    "decodedMiB": 7.36,
+    "clips": 8
+  },
+  "fighter-mace-plate": {
+    "decodedMiB": 7.41,
+    "clips": 8
+  },
+  "fighter-sword-cloth": {
+    "decodedMiB": 7.44,
+    "clips": 8
+  },
+  "fighter-sword-plate": {
+    "decodedMiB": 7.48,
+    "clips": 8
+  },
+  "fighter-unarmed-cloth": {
+    "decodedMiB": 6.46,
+    "clips": 8
+  },
+  "fighter-unarmed-plate": {
+    "decodedMiB": 6.5,
+    "clips": 8
+  },
+  "fighter-wand-cloth": {
+    "decodedMiB": 7.03,
+    "clips": 8
+  },
+  "fighter-wand-plate": {
+    "decodedMiB": 7.07,
+    "clips": 8
+  },
+  "summary": {
+    "actors": 46,
+    "atlases": 368,
+    "maxActorMiB": 10.11,
+    "checks": "dimensions, nonempty frames, distinct poses, transparent trim borders"
+  }
+}

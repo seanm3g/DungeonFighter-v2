@@ -135,6 +135,10 @@ namespace RPGGame.UI.Avalonia.Renderers
 
 
             AddLogLine(lines, BuildMetricLine("Experience Gained:", $"{xpGained:N0} XP", AsciiArtAssets.Colors.Gold, AsciiArtAssets.Colors.White));
+            int needed = CharacterProgression.GetXpRequiredToAdvanceFromLevel(player.Level);
+            int filled = System.Math.Clamp((int)(20.0 * player.XP / System.Math.Max(1, needed)), 0, 20);
+            AddLogLine(lines, new List<ColoredText> { new ColoredText($"LEVEL {player.Level}  [{new string('|', filled)}{new string('.', 20-filled)}] {player.XP}/{needed} XP", AsciiArtAssets.Colors.Gold) });
+            AddLogLine(lines, new List<ColoredText> { new ColoredText("Inspect rewards in Inventory to compare stats, actions and appearance before equipping.", AsciiArtAssets.Colors.White) });
 
 
 
@@ -449,5 +453,6 @@ namespace RPGGame.UI.Avalonia.Renderers
     }
 
 }
+
 
 

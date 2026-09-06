@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit.Audio
             TestPublisherRoutesCombatHitToHitCue(ref run, ref passed, ref failed);
             TestPublisherQueuesCombatCueUntilPunchlineCommit(ref run, ref passed, ref failed);
             TestClearQueuedDropsCombatCueWithoutPlaying(ref run, ref passed, ref failed);
+            TestIllustratedImpactCommit(ref run, ref passed, ref failed);
             TestPublisherRoutesComboHitToComboCue(ref run, ref passed, ref failed);
             TestPublisherRoutesCriticalHitToCriticalHitCue(ref run, ref passed, ref failed);
             TestPublisherRoutesEnemyHitToHeroHurtCue(ref run, ref passed, ref failed);
@@ -134,6 +135,34 @@ namespace RPGGame.Tests.Unit.Audio
                 }
             }
             finally { TryDelete(stub); }
+        }
+
+        private static void TestIllustratedImpactCommit(ref int run, ref int passed, ref int failed)
+        {
+            string stub = CreateStubFile();
+            bool previous = GameConfiguration.Instance.UICustomization.IllustratedCombat;
+            try
+            {
+                var engine = new NullAudioEngine { RecordCalls = true };
+                var cfg = CreateTestConfig(stub);
+                using var dispatcher = new AudioCueDispatcher(engine, configResolver: () => cfg, globalEnabledResolver: () => true);
+                AudioCues.SetDispatcher(dispatcher);
+                GameConfiguration.Instance.UICustomization.IllustratedCombat = true;
+                AudioCues.QueueForPunchline(AudioCue.Combat_Hit);
+                RPGGame.UI.BlockDisplay.PunchlineRevealFeedback.CommitQueued(false);
+                TestBase.AssertEqual(0, engine.PlayCalls.Count, "illustrated setup holds sound until contact", ref run, ref passed, ref failed);
+                var step = new RPGGame.Combat.Sequence.CombatSequenceStep(RPGGame.Combat.Sequence.CombatSequenceStepKind.Damage,
+                    "DAMAGE", new RPGGame.UI.ColorSystem.ColoredTextBuilder().Build())
+                    { VisualAction = new RPGGame.Combat.Sequence.CombatVisualAction(1, 1, 2, true, false, 10, 0, false, "attack") };
+                RPGGame.Combat.Sequence.CombatSequencePresenter.FireVisualCue(step);
+                RPGGame.Combat.Sequence.CombatSequencePresenter.FireVisualCue(step);
+                TestBase.AssertEqual(1, engine.PlayCalls.Count, "contact commits queued sound exactly once", ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                GameConfiguration.Instance.UICustomization.IllustratedCombat = previous;
+                AudioCues.SetDispatcher(null); RPGGame.Combat.Sequence.CombatVisualPlayback.Clear(); TryDelete(stub);
+            }
         }
 
         private static void TestPublisherRoutesCombatHitToHitCue(ref int run, ref int passed, ref int failed)

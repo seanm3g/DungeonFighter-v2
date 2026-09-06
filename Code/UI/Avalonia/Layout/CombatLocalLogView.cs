@@ -37,7 +37,32 @@ namespace RPGGame.UI.Avalonia.Layout
             if (buffer == null || buffer.Count == 0)
                 return;
 
-            var lines = buffer.Messages;
+            try
+            {
+                RenderLaneCore(canvas, textWriter, buffer, lane, x, y, width, height, combatEnemyNames, heroName);
+            }
+            catch (Exception)
+            {
+                // Combat still appends to the same buffer on another thread; never let log paint kill the process.
+            }
+        }
+
+        private static void RenderLaneCore(
+            GameCanvasControl canvas,
+            ColoredTextWriter textWriter,
+            DisplayBuffer buffer,
+            CombatLocalLogLane lane,
+            int x,
+            int y,
+            int width,
+            int height,
+            IReadOnlyList<string>? combatEnemyNames,
+            string? heroName)
+        {
+            var lines = CombatCenterPanelEnemyLineAlignment.CopyLinesStable(buffer.Messages);
+            if (lines.Count == 0)
+                return;
+
             bool[] enemyFlags = CombatCenterPanelEnemyLineAlignment.ResolveRightAlignFlags(
                 lines,
                 combatEnemyNames,

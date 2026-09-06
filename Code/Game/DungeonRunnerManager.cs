@@ -125,7 +125,9 @@ namespace RPGGame
                 context.SnapshotInventory();
             }
             
-            await orchestrator.RunDungeon();
+            DungeonRestChoice.Clear(activeCharacter);
+            try { await orchestrator.RunDungeon(); }
+            finally { DungeonRestChoice.Clear(activeCharacter); }
             
             // Clear dungeon state from character context when dungeon completes or exits
             if (context != null)
@@ -174,4 +176,5 @@ namespace RPGGame
         }
     }
 }
+
 

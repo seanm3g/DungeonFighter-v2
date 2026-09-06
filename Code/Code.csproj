@@ -26,6 +26,12 @@
 
   <ItemGroup>
     <AvaloniaResource Include="UI\Avalonia\Assets\df_icon.ico" />
+    <AvaloniaResource Include="..\GameData\Visuals\DemonFighter\arena-*.png" Link="Visuals/%(Filename)%(Extension)" />
+    <AvaloniaResource Include="..\GameData\Visuals\DemonFighter\*-layer.png" Link="Visuals/%(Filename)%(Extension)" />
+    <AvaloniaResource Include="..\GameData\Visuals\DemonFighter\enemies.json" Link="Visuals/enemies.json" />
+    <AvaloniaResource Include="..\GameData\Visuals\DemonFighter\arenas.json" Link="Visuals/arenas.json" />
+    <AvaloniaResource Include="..\GameData\Visuals\DemonFighter\Animations\*.png" Exclude="..\GameData\Visuals\DemonFighter\Animations\*working*.png" Link="Visuals/Animations/%(Filename)%(Extension)" />
+    <AvaloniaResource Include="..\GameData\Visuals\DemonFighter\Animations\clips.json" Link="Visuals/Animations/clips.json" />
   </ItemGroup>
 
   <ItemGroup>

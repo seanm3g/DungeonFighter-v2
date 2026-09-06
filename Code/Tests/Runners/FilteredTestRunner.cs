@@ -172,6 +172,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "DamageCalculator", () => RPGGame.Tests.Unit.Combat.DamageCalculatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "DefenseBlock", () => RPGGame.Tests.Unit.Combat.DefenseBlockCalculatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatSequenceBuilder", () => RPGGame.Tests.Unit.Combat.CombatSequenceBuilderTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "CombatVisualDirector", () => RPGGame.Tests.Unit.Combat.CombatVisualDirectorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatSequencePresenter", () => RPGGame.Tests.Unit.Combat.CombatSequencePresenterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "WeaponBaseModCadence", () => RPGGame.Tests.Unit.Combat.WeaponBaseModCadenceTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "DamageFormatter", () => RPGGame.Tests.Unit.Combat.DamageFormatterTests.RunAllTests()));
@@ -189,7 +190,15 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "ActionLabWindowPlacement", () => RPGGame.Tests.Unit.UI.ActionLabWindowPlacementTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionInfoStripLayout", () => RPGGame.Tests.Unit.UI.ActionInfoStripLayoutTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatArenaHudLayout", () => RPGGame.Tests.Unit.UI.CombatArenaHudLayoutTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "CombatSceneGeometry", () => RPGGame.Tests.Unit.UI.CombatSceneGeometryTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "CombatSceneRender", () => RPGGame.Tests.Unit.UI.CombatSceneRenderTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("entity", "CharacterHealthManager", () => RPGGame.Tests.Unit.Entity.CharacterHealthManagerTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "DungeonCompletionRenderer", () => RPGGame.Tests.Unit.UI.DungeonCompletionRendererTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "InventoryRenderer", () => RPGGame.Tests.Unit.UI.InventoryRendererTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "CombatExperience", () => RPGGame.Tests.Unit.Combat.CombatExperienceTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "FighterResolveActionStack", () => RPGGame.Tests.Unit.UI.FighterResolveActionStackTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "CanvasPrimitiveStacking", () => RPGGame.Tests.Unit.UI.CanvasPrimitiveStackingTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "CombatCenterPanelEnemyLineAlignment", () => RPGGame.Tests.Unit.UI.CombatCenterPanelEnemyLineAlignmentTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ThresholdBarFeedback", () => RPGGame.Tests.Unit.UI.ThresholdBarFeedbackTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "DisplayRendererClearBand", () => RPGGame.Tests.Unit.UI.DisplayRendererClearBandRegressionTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "LayoutConstantsCenterPanelHit", () => RPGGame.Tests.Unit.UI.LayoutConstantsCenterPanelHitTests.RunAllTests()));
@@ -237,3 +246,5 @@ namespace RPGGame.Tests.Runners
         }
     }
 }
+
+

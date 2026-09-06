@@ -25,11 +25,13 @@ namespace RPGGame
             get => _currentHealth;
             set 
             {
+                int before = _currentHealth;
                 int maxHealth = GetEffectiveMaxHealth();
                 if (RPGGame.Tuning.DeveloperSimMode.ContinuePastZeroHp)
                     _currentHealth = Math.Min(value, maxHealth);
                 else
                     _currentHealth = Math.Max(0, Math.Min(value, maxHealth));
+                EncounterReport.Record(character, before, _currentHealth);
             }
         }
         public int MaxHealth { get; set; }
@@ -289,3 +291,4 @@ namespace RPGGame
         }
     }
 }
+

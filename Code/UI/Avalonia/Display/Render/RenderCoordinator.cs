@@ -211,6 +211,9 @@ namespace RPGGame.UI.Avalonia.Display.Render
                             || paintState == GameState.Dungeon
                             || modeManager.CurrentMode is CombatDisplayMode);
 
+                    if (!useArenaCombatHud)
+                        canvas.ConfigureCombatScene(false, null, false);
+
                     if (useNarrativeBandOnly)
                         FighterResolveActionStackState.Clear();
 
@@ -224,6 +227,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
                                 canvas.ClearProgressBarsInArea(x, y, w, h);
                                 canvas.ClearSegmentedBarsInArea(x, y, w, h);
                                 canvas.ClearBoxesInArea(x, y, w, h);
+                                canvas.ClearLinesInArea(x, y, w, h);
                             }
                             else if (useNarrativeBandOnly)
                             {

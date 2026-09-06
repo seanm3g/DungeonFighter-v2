@@ -101,6 +101,13 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// </summary>
         public void AddBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor = default, int opaqueBackgroundBleedDevicePixels = 0, int borderThicknessPixels = 1)
         {
+            if (RPGGame.UI.Avalonia.Layout.CombatArenaHudLayout.IllustratedSceneVisible)
+            {
+                if (borderColor == Colors.Cyan || borderColor == Colors.Magenta || borderColor == Colors.White)
+                    borderColor = Color.Parse("#56605A");
+                if (borderColor == Colors.Red) borderColor = CombatVisuals.BattleOverlay.Crimson;
+                if (backgroundColor == Colors.Black) backgroundColor = CombatVisuals.BattleOverlay.Ink;
+            }
             if (backgroundColor == default) backgroundColor = Colors.Transparent;
             elementManager.AddBox(new CanvasBox 
             { 
@@ -108,6 +115,22 @@ namespace RPGGame.UI.Avalonia.Canvas
                 BorderColor = borderColor, BackgroundColor = backgroundColor,
                 OpaqueBackgroundBleedDevicePixels = opaqueBackgroundBleedDevicePixels,
                 BorderThicknessPixels = System.Math.Max(1, borderThicknessPixels)
+            });
+        }
+
+        /// <summary>
+        /// Adds a device-pixel stroke between two character-grid corners (top-left of each cell).
+        /// </summary>
+        public void AddLine(int x1, int y1, int x2, int y2, Color color, int thicknessPixels = 3)
+        {
+            elementManager.AddLine(new CanvasLine
+            {
+                X1 = x1,
+                Y1 = y1,
+                X2 = x2,
+                Y2 = y2,
+                Color = color,
+                ThicknessPixels = System.Math.Max(1, thicknessPixels)
             });
         }
 
@@ -301,6 +324,12 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             if (healthColor == default) healthColor = Colors.Red;
             if (backgroundColor == default) backgroundColor = Colors.DarkRed;
+            if (RPGGame.UI.Avalonia.Layout.CombatArenaHudLayout.IllustratedSceneVisible)
+            {
+                if (healthColor == Colors.Red) healthColor = CombatVisuals.BattleOverlay.Crimson;
+                if (healthColor == Colors.DarkBlue) healthColor = Color.Parse("#859396");
+                backgroundColor = CombatVisuals.BattleOverlay.Ink;
+            }
 
             if (!string.IsNullOrEmpty(entityId))
                 currentHealth = HealthBarDisplayHold.Resolve(entityId, currentHealth);

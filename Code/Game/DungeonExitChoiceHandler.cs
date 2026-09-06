@@ -45,6 +45,8 @@ namespace RPGGame
             if (RPGGame.MCP.MCPMode.IsActive)
                 return false;
 
+            if (stateManager.CurrentPlayer is { } traveler)
+                displayManager.AddCombatEvent($"JOURNEY {currentRoom}/{totalRooms} · {Math.Max(0, totalRooms-currentRoom)} rooms remain · HP {traveler.CurrentHealth}/{traveler.GetEffectiveMaxHealth()}. Continue for completion rewards, or rest at the cost of initiative.", traveler);
             // Create task completion source to wait for player choice
             exitChoiceTaskSource = new TaskCompletionSource<bool>();
             
@@ -94,6 +96,7 @@ namespace RPGGame
                 separatorBuilder.Build(),
                 option1Builder.Build(),
                 option2Builder.Build(),
+                new ColoredTextBuilder().Add("3 - Rest: recover 10% max HP; next enemy attacks first", ColorPalette.Warning).Build(),
                 separatorBuilder.Build()
             };
         }
@@ -117,12 +120,19 @@ namespace RPGGame
                     // Continue exploring
                     exitChoiceTaskSource.SetResult(false);
                     break;
+                case "3":
+                    if (stateManager.CurrentPlayer is { } resting)
+                    {
+                        DungeonRestChoice.Rest(resting);
+                        exitChoiceTaskSource.TrySetResult(false);
+                    }
+                    break;
                 case "2":
                     // Leave dungeon safely
                     exitChoiceTaskSource.SetResult(true);
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Please select 1 (Continue) or 2 (Leave safely).");
+                    ShowMessageEvent?.Invoke("Invalid choice. Please select 1 (Continue) 2 (Leave safely), or 3 (Rest).");
                     break;
             }
         }
@@ -133,4 +143,5 @@ namespace RPGGame
         public bool IsWaitingForChoice => exitChoiceTaskSource != null && !exitChoiceTaskSource.Task.IsCompleted;
     }
 }
+
 
