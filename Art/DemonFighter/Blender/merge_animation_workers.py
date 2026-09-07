@@ -5,7 +5,7 @@ HERE=Path(__file__).resolve().parent
 TEMP=HERE.parent/'Verification/animation-workers'
 OUT=HERE.parents[2]/'GameData/Visuals/DemonFighter/Animations'
 manifest={'version':1,'canvasWidth':800,'canvasHeight':450,'actors':{}}
-base=HERE/'progression-kit.blend'
+base=HERE/('detailed-kit.blend' if (HERE/'detailed-kit.blend').exists() else 'progression-kit.blend')
 bpy.ops.wm.open_mainfile(filepath=str(base if base.exists() else HERE/'roster-kit.blend'))
 bpy.context.preferences.filepaths.save_version=0
 for i in range(4):

@@ -13,11 +13,12 @@ CACHE.mkdir(parents=True,exist_ok=True)
 os.environ['OPTIX_CACHE_PATH']=str(CACHE)
 OUT=SOURCE.parents[2]/'GameData/Visuals/DemonFighter/Animations'
 OUT.mkdir(parents=True,exist_ok=True)
-bpy.ops.wm.open_mainfile(filepath=str(SOURCE/('progression-kit.blend' if (SOURCE/'progression-kit.blend').exists() else 'roster-kit.blend')))
+base=next(SOURCE/name for name in ['detailed-kit.blend','progression-kit.blend','roster-kit.blend'] if (SOURCE/name).exists())
+bpy.ops.wm.open_mainfile(filepath=str(base))
 bpy.context.preferences.filepaths.save_version=0
 scene=bpy.context.scene
 scene.render.resolution_x=800; scene.render.resolution_y=450
-scene.cycles.samples=8
+scene.cycles.samples=16
 scene.render.use_persistent_data=True
 try:
     preferences=bpy.context.preferences.addons['cycles'].preferences
@@ -195,7 +196,7 @@ for actor in actors[shard::shards]:
         metadata={'file':filename,'frames':count,'frameWidth':w,'frameHeight':h,
             'x':x0,'y':y0,'fps':12,'loop':clip=='idle','impactFrame':count//2 if clip in ['attack','cast'] else None}
         cached=OUT/filename
-        if resume and cached.exists() and cached.stat().st_mtime>(SOURCE/'roster-kit.blend').stat().st_mtime:
+        if resume and cached.exists() and cached.stat().st_mtime>max(base.stat().st_mtime,Path(__file__).stat().st_mtime):
             im=bpy.data.images.load(str(cached),check_existing=False)
             valid=tuple(im.size)==(w*count,h); bpy.data.images.remove(im)
             if valid:

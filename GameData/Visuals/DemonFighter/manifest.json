@@ -1,6 +1,6 @@
 {
-  "name": "Demon Fighter / Fanged Gate prototype",
-  "version": 1,
+  "name": "Demon Fighter / Gothic ruined sanctuary",
+  "version": 2,
   "canvas": {
     "width": 1600,
     "height": 900,
@@ -14,68 +14,10 @@
   ],
   "optionalPortalLayer": "portal-layer.png",
   "notes": [
-    "Draw background and combatant layers into the same destination rectangle.",
-    "Portal is already present in the background; the separate portal is for other compositions.",
-    "Transparent layers omit cast ground shadows; the composite has full scene lighting.",
-    "GLB files retain scene placement. Blender units are meters; glTF exporter converts to Y-up.",
-    "Procedural grain is Blender-only; GLB exports use base material colors.",
-    "Static prototype models: no skeletal rig, animation clips, or live combat integration."
-  ],
-  "verifiedAssets": [
-    {
-      "file": "battle-stage.png",
-      "alphaRange": [
-        1.0,
-        1.0
-      ]
-    },
-    {
-      "file": "arena-background.png",
-      "alphaRange": [
-        1.0,
-        1.0
-      ]
-    },
-    {
-      "file": "fighter-layer.png",
-      "alphaRange": [
-        0.0,
-        1.0
-      ]
-    },
-    {
-      "file": "demon-layer.png",
-      "alphaRange": [
-        0.0,
-        1.0
-      ]
-    },
-    {
-      "file": "portal-layer.png",
-      "alphaRange": [
-        0.0,
-        1.0
-      ]
-    },
-    {
-      "file": "demon-fighter-kit.glb",
-      "meshes": 259,
-      "bytes": 500288
-    },
-    {
-      "file": "fighter.glb",
-      "meshes": 26,
-      "bytes": 57816
-    },
-    {
-      "file": "demon.glb",
-      "meshes": 58,
-      "bytes": 127636
-    },
-    {
-      "file": "portal.glb",
-      "meshes": 42,
-      "bytes": 78812
-    }
+    "Detailed layered geometry and procedural weathering authored in detailed-kit.blend.",
+    "All actor layers and stages share the original 1600x900 orthographic camera.",
+    "Animated runtime atlas frames use an 800x450 canvas; see Animations/clips.json.",
+    "GLB exports preserve detailed geometry and base PBR colors; Blender procedural grain is rendered into PNGs, not baked into GLB textures.",
+    "46 actor presentations share rigid-part animation rigs; all 127 enemy definitions map through enemies.json."
   ]
 }

@@ -1,7 +1,31 @@
-# Demon Fighter — first visual asset kit
+# Demon Fighter — visual asset kit
+
+## Repository contents
+
+The runtime PNGs, animation atlases, JSON manifests and exported GLB models are
+tracked in `GameData/Visuals/DemonFighter/`. Editable Blender kits and their
+generation scripts are tracked in `Art/DemonFighter/Blender/`. A normal clone
+includes these files; no separate asset download or Blender installation is
+needed to build or play the game.
+
+Build `Code/Code.csproj` after pulling asset updates. Avalonia embeds the PNGs
+and animation manifests in the game assembly, so an older executable still
+shows its older artwork. `Verification/bin/` contains local build output and
+is intentionally excluded from Git. Enable the illustrated battle stage in
+the game's appearance settings to display the assets.
 
 This is an animated art prototype for the existing DungeonFighter-v2 project. The
 player-facing art uses **Demon Fighter**. An opt-in Avalonia stage is now integrated.
+
+The current gothic detail pass adds layered armor, worn surfaces, folded torn
+cloth, skeletal details and ruined cathedral architecture across the full roster
+and all stages. `Blender/detailed-kit.blend` preserves the editable models;
+`Verification/gothic-detail-pass.md` documents the reference, rebuild and limits.
+This remains stylized 3D artwork with rigid-part animation, rather than a
+hand-painted or fully sculpted reproduction of the reference illustration.
+The detailed pass validates all 46 actors and 368 atlases; the largest actor set
+decodes to 11.38 MiB. Static exports, frame borders and native Avalonia rendering
+checks pass. The updated executable is `Verification/bin/DF.exe`.
 
 Enable **Settings → Appearance → Battle visuals → Show illustrated battle stage**,
 then resume combat. All 127 entries in `GameData/Enemies.json` have exact mappings
@@ -32,27 +56,31 @@ latest-cue handoff discards superseded cosmetic cues at high speeds. Actor IDs
 are weak-reference identities, so stale cues cannot affect a different encounter.
 
 Build `Blender/build_enemy_assets.py` after `build_assets.py`, then run
-`Blender/build_roster.py`, `Blender/build_progression.py` and `Blender/build_animations.py` in that order.
+`Blender/build_roster.py` and `Blender/build_progression.py` for the base blockout.
+Then run `Blender/refine_models.py`, inspect its preview, run
+`Blender/export_detailed.py`, and rebuild with `Blender/build_animations.py`.
 These produce `enemy-kit.blend`, `roster-kit.blend`,
 `animated-kit.blend`, and `GameData/Visuals/DemonFighter/Animations/clips.json`
 with 368 embedded atlas PNGs. The progression kit also preserves equipment variants and biome stages. The animated Blender file preserves named actions
 and editable rigs. Existing GLB files remain static exports.
 
-For faster exports on a multi-core machine, run four Blender processes with
-`build_animations.py -- 0 4` through `-- 3 4` (arguments follow Blender's `--`).
+Split animation exports into four jobs with `build_animations.py -- 0 4` through
+`-- 3 4` (arguments follow Blender's `--`). Run at most two Blender render processes
+concurrently on the 12 GB development GPU; higher concurrency exhausts VRAM.
 Wait for every worker to finish, then run `Blender/merge_animation_workers.py`.
 Intermediate kits live in ignored `Verification/animation-workers/`. Do not build
 the game while atlases are exporting; the merged manifest is published last.
 `Verification/contact-sheet.ps1` regenerates the model review sheet.
 The exporter uses OptiX when available, with a CPU fallback, persistent render
 data and per-clip camera crops. A final `resume` argument reuses complete atlases
-newer than the roster kit; omit it after changing poses, materials or lighting.
+newer than both the selected source kit and animation script. The detailed kit
+takes precedence over the progression and roster kits.
 `Blender/validate_animations.py` checks nonempty, changing frames and transparent
 crop borders, and reports decoded atlas memory in `Verification/atlas-validation.json`.
 The native `CombatSceneRender` suite checks every live enemy mapping, every family
 atlas and still, anticipation/contact timing, enemy switching and instant mode.
 
-Validated September 5, 2026: 127 roster entries, 46 animated actors and 368 atlases.
+Baseline validation before the gothic detail pass: 127 roster entries, 46 animated actors and 368 atlases.
 All GLBs contain meshes; every actor retains its editable rig and eight actions.
 Atlas content checks passed for dimensions, visible/changing frames and crop
 borders. The largest actor atlas set decodes to 10.11 MiB; the renderer retains
