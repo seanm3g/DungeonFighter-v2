@@ -127,6 +127,11 @@ namespace RPGGame.Combat.Calculators
                     if (classSpeed > 0)
                         finalAttackTime /= classSpeed;
                 }
+
+                // Animal ladder general bonus: % faster (shorter swing time).
+                int animalSpeedPct = AnimalSetController.GetGeneralSpeedPct(charEntity);
+                if (animalSpeedPct > 0)
+                    finalAttackTime *= Math.Max(0.1, 1.0 - animalSpeedPct / 100.0);
                 
                 // Ensure result is never negative or zero
                 // Apply minimum cap - ensure MinimumAttackTime is at least 0.01 to match test expectations

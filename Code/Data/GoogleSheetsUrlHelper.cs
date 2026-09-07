@@ -230,7 +230,9 @@ namespace RPGGame.Data
                     sheetsConfig.ClassActionsSheetUrl,
                     sheetsConfig.ConsumablesSheetUrl,
                     sheetsConfig.TriggersSheetUrl,
-                    sheetsConfig.MaterialBuildsSheetUrl
+                    sheetsConfig.MaterialBuildsSheetUrl,
+                    sheetsConfig.CharmsSheetUrl,
+                    sheetsConfig.VariablesSheetUrl
                 };
 
                 foreach (string? u in candidates)

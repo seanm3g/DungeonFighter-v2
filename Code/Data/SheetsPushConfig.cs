@@ -58,6 +58,12 @@ namespace RPGGame.Data
         [JsonPropertyName("materialBuildsSheetTabName")]
         public string MaterialBuildsSheetTabName { get; set; } = "";
 
+        [JsonPropertyName("charmsSheetTabName")]
+        public string CharmsSheetTabName { get; set; } = "";
+
+        [JsonPropertyName("variablesSheetTabName")]
+        public string VariablesSheetTabName { get; set; } = "";
+
         [JsonPropertyName("flavorSheetTabName")]
         public string FlavorSheetTabName { get; set; } = "";
 
@@ -97,6 +103,12 @@ namespace RPGGame.Data
 
         [JsonPropertyName("pushMaterialBuildsTab")]
         public bool PushMaterialBuildsTab { get; set; } = true;
+
+        [JsonPropertyName("pushCharmsTab")]
+        public bool PushCharmsTab { get; set; } = true;
+
+        [JsonPropertyName("pushVariablesTab")]
+        public bool PushVariablesTab { get; set; } = true;
 
         [JsonPropertyName("pushEnemiesTab")]
         public bool PushEnemiesTab { get; set; } = true;
@@ -138,6 +150,10 @@ namespace RPGGame.Data
 
         public const string DefaultMaterialBuildsSheetTabName = "MATERIAL BUILDS";
 
+        public const string DefaultCharmsSheetTabName = "CHARMS";
+
+        public const string DefaultVariablesSheetTabName = "VARIABLES";
+
         public const string DefaultFlavorSheetTabName = "flavor";
 
         /// <summary>
@@ -160,6 +176,8 @@ namespace RPGGame.Data
                 || !string.IsNullOrWhiteSpace(ConsumablesSheetTabName)
                 || !string.IsNullOrWhiteSpace(TriggersSheetTabName)
                 || !string.IsNullOrWhiteSpace(MaterialBuildsSheetTabName)
+                || !string.IsNullOrWhiteSpace(CharmsSheetTabName)
+                || !string.IsNullOrWhiteSpace(VariablesSheetTabName)
                 || !string.IsNullOrWhiteSpace(FlavorSheetTabName))
                 return false;
 
@@ -176,6 +194,8 @@ namespace RPGGame.Data
             ConsumablesSheetTabName = DefaultConsumablesSheetTabName;
             TriggersSheetTabName = DefaultTriggersSheetTabName;
             MaterialBuildsSheetTabName = DefaultMaterialBuildsSheetTabName;
+            CharmsSheetTabName = DefaultCharmsSheetTabName;
+            VariablesSheetTabName = DefaultVariablesSheetTabName;
             FlavorSheetTabName = DefaultFlavorSheetTabName;
             return true;
         }
@@ -248,6 +268,24 @@ namespace RPGGame.Data
             if (!string.IsNullOrWhiteSpace(MaterialBuildsSheetTabName))
                 return false;
             MaterialBuildsSheetTabName = DefaultMaterialBuildsSheetTabName;
+            return true;
+        }
+
+        /// <summary>Fills <see cref="CharmsSheetTabName"/> when still blank (configs created before CHARMS push).</summary>
+        public bool ApplyDefaultCharmsTabNameIfUnset()
+        {
+            if (!string.IsNullOrWhiteSpace(CharmsSheetTabName))
+                return false;
+            CharmsSheetTabName = DefaultCharmsSheetTabName;
+            return true;
+        }
+
+        /// <summary>Fills <see cref="VariablesSheetTabName"/> when still blank (configs created before VARIABLES push).</summary>
+        public bool ApplyDefaultVariablesTabNameIfUnset()
+        {
+            if (!string.IsNullOrWhiteSpace(VariablesSheetTabName))
+                return false;
+            VariablesSheetTabName = DefaultVariablesSheetTabName;
             return true;
         }
 
@@ -371,6 +409,10 @@ namespace RPGGame.Data
                     cfg.PushTriggersTab = true;
                 if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushMaterialBuildsTab"))
                     cfg.PushMaterialBuildsTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushCharmsTab"))
+                    cfg.PushCharmsTab = true;
+                if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushVariablesTab"))
+                    cfg.PushVariablesTab = true;
                 if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushEnemiesTab"))
                     cfg.PushEnemiesTab = true;
                 if (!JsonHasPropertyIgnoreCase(doc.RootElement, "pushEnvironmentsTab"))
@@ -414,6 +456,8 @@ namespace RPGGame.Data
             cfg.PushConsumablesTab = true;
             cfg.PushTriggersTab = true;
             cfg.PushMaterialBuildsTab = true;
+            cfg.PushCharmsTab = true;
+            cfg.PushVariablesTab = true;
             cfg.PushEnemiesTab = true;
             cfg.PushEnvironmentsTab = true;
             cfg.PushDungeonsTab = true;

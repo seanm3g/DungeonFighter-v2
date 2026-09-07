@@ -21,6 +21,7 @@ namespace RPGGame.Data
         public static readonly string[] ConsumablesCanonicalHeaders = JsonArraySheetSchemas.ConsumablesCanonicalHeaders;
         public static readonly string[] TriggersCanonicalHeaders = JsonArraySheetSchemas.TriggersCanonicalHeaders;
         public static readonly string[] MaterialBuildsCanonicalHeaders = JsonArraySheetSchemas.MaterialBuildsCanonicalHeaders;
+        public static readonly string[] CharmsCanonicalHeaders = JsonArraySheetSchemas.CharmsCanonicalHeaders;
 
         public static int GetTabularSheetHeaderRowCount(GameDataTabularSheetKind kind) =>
             JsonArraySheetSchemas.GetTabularSheetHeaderRowCount(kind);
@@ -66,10 +67,12 @@ namespace RPGGame.Data
             // CONSUMABLES tab is fixed A–D.
             // TRIGGERS tab is fixed A–K.
             // MATERIAL BUILDS tab is fixed A–H.
+            // CHARMS tab is fixed A–K.
             if (kind != GameDataTabularSheetKind.StatBonuses
                 && kind != GameDataTabularSheetKind.Consumables
                 && kind != GameDataTabularSheetKind.Triggers
-                && kind != GameDataTabularSheetKind.MaterialBuilds)
+                && kind != GameDataTabularSheetKind.MaterialBuilds
+                && kind != GameDataTabularSheetKind.Charms)
             {
                 foreach (var el in doc.RootElement.EnumerateArray())
                 {
@@ -199,6 +202,8 @@ namespace RPGGame.Data
                     headerCount = Math.Min(headerCount, TriggersCanonicalHeaders.Length);
                 if (kind == GameDataTabularSheetKind.MaterialBuilds)
                     headerCount = Math.Min(headerCount, MaterialBuildsCanonicalHeaders.Length);
+                if (kind == GameDataTabularSheetKind.Charms)
+                    headerCount = Math.Min(headerCount, CharmsCanonicalHeaders.Length);
                 for (int i = 0; i < headerCount; i++)
                 {
                     // Google / Excel CSV exports may prefix the file with U+FEFF, which lands on the first header cell.
@@ -255,6 +260,10 @@ namespace RPGGame.Data
                 else if (kind == GameDataTabularSheetKind.MaterialBuilds)
                 {
                     NormalizeMaterialBuildsJsonArrayRow(obj);
+                }
+                else if (kind == GameDataTabularSheetKind.Charms)
+                {
+                    NormalizeCharmsJsonArrayRow(obj);
                 }
                 else if (kind == GameDataTabularSheetKind.Environments)
                 {

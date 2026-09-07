@@ -246,6 +246,7 @@ namespace RPGGame
         public Item? Legs => Facade.Properties.Legs;
         public Item? Weapon { get => Facade.Properties.Weapon; set => Facade.Properties.Weapon = value; }
         public Item? Feet => Facade.Properties.Feet;
+        public Item? Charm => Facade.Properties.Charm;
 
         public void AddToInventory(Item item) => Facade.AddToInventory(item);
         public bool RemoveFromInventory(Item item) => Facade.RemoveFromInventory(item);

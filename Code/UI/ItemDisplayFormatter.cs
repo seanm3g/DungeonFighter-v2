@@ -140,6 +140,7 @@ namespace RPGGame
                 ItemType.Chest => "Chest",
                 ItemType.Legs => "Legs",
                 ItemType.Feet => "Feet",
+                ItemType.Charm => "Charm",
                 ItemType.Consumable => item.RoomSearchConsumableKind == RoomSearchConsumableKind.Food ? "Food" : "Potion",
                 _ => "Item"
             };

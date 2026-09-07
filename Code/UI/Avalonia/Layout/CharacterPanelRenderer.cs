@@ -372,7 +372,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 RenderEquipmentSlot(x, ref y, headerClickWidth, "Body", character.Body, "gear:body", 1);
                 RenderEquipmentSlot(x, ref y, headerClickWidth, "Legs", character.Legs, "gear:legs", 1);
                 RenderEquipmentSlot(x, ref y, headerClickWidth, "Feet", character.Feet, "gear:feet", 1);
+                RenderEquipmentSlot(x, ref y, headerClickWidth, "Charm", character.Charm, "gear:charm", 1);
                 RenderFormingSets(character, x, ref y, headerClickWidth);
+                RenderAnimalSets(character, x, ref y, headerClickWidth);
             }
 
             // --- THRESHOLDS / CHANCES --- (ladder numbers or exclusive d20 %; bar is under health)
@@ -556,6 +558,31 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x, y, line, AsciiArtAssets.Colors.Cyan);
                 y++;
                 RegisterLeftPanelHoverRow(x, rowY, hoverWidth, 1, "set:" + material);
+            }
+
+            y++;
+        }
+
+        /// <summary>Animal tag ladder progress under GEAR (Animals / taxon / specific).</summary>
+        private void RenderAnimalSets(Character character, int x, ref int y, int hoverWidth)
+        {
+            var sets = AnimalSetController.GetFormingSets(character);
+            if (sets.Count == 0)
+                return;
+
+            canvas.AddText(x, y, "Animals:", AsciiArtAssets.Colors.Gray);
+            y++;
+
+            const int maxWidth = 29;
+            foreach (var (label, _) in sets)
+            {
+                int rowY = y;
+                string line = label;
+                if (line.Length > maxWidth)
+                    line = line.Substring(0, maxWidth - 3) + "...";
+                canvas.AddText(x, y, line, AsciiArtAssets.Colors.Green);
+                y++;
+                RegisterLeftPanelHoverRow(x, rowY, hoverWidth, 1, "animal:" + label);
             }
 
             y++;

@@ -24,6 +24,10 @@
 
   "materialBuildsSheetTabName": "MATERIAL BUILDS",
 
+  "charmsSheetTabName": "CHARMS",
+
+  "variablesSheetTabName": "VARIABLES",
+
   "classPresentationSheetTabName": "CLASSES",
 
   "classActionsSheetTabName": "CLASS ACTIONS",
@@ -53,6 +57,10 @@
   "pushTriggersTab": true,
 
   "pushMaterialBuildsTab": true,
+
+  "pushCharmsTab": true,
+
+  "pushVariablesTab": true,
 
   "pushEnemiesTab": true,
 

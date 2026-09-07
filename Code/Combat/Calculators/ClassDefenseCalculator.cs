@@ -72,6 +72,7 @@ namespace RPGGame.Combat.Calculators
             }
 
             int pool = GetWizardShieldPool(Math.Max(0, hero.GetMaxArmor()));
+            pool = Math.Max(0, (int)Math.Round(pool * CharmBonusController.GetClassDefenseMultiplier(hero)));
             hero.EnergyShieldMax = pool;
             hero.EnergyShieldCurrent = pool;
         }
@@ -113,6 +114,7 @@ namespace RPGGame.Combat.Calculators
             int remaining = start;
             var weapon = GetDefenseWeaponType(hero);
             int rating = Math.Max(0, hero.GetMaxArmor());
+            double classMult = CharmBonusController.GetClassDefenseMultiplier(hero);
 
             double blockPct = pierce ? 0.0 : GetBlockPercent(hero);
             if (blockPct > 0)
@@ -121,7 +123,7 @@ namespace RPGGame.Combat.Calculators
             int grit = 0;
             if (!pierce && weapon == WeaponType.Mace)
             {
-                grit = GetBarbarianGrit(rating);
+                grit = Math.Max(0, (int)Math.Round(GetBarbarianGrit(rating) * classMult));
                 if (grit > 0)
                     remaining = Math.Max(0, remaining - grit);
             }
@@ -138,13 +140,13 @@ namespace RPGGame.Combat.Calculators
             int counterPct = 0;
             if (weapon == WeaponType.Dagger)
             {
-                counterPct = GetRogueCounterDamagePct(rating);
-                MintRogueCounterFromDefense(hero);
+                counterPct = Math.Max(0, (int)Math.Round(GetRogueCounterDamagePct(rating) * classMult));
+                hero.Effects.PendingDefenseCounterDamagePct = counterPct;
             }
             else if (weapon == WeaponType.Sword || weapon == null)
             {
-                tempoPct = GetWarriorTempoSpeedPct(rating);
-                MintWarriorTempoFromDefense(hero);
+                tempoPct = Math.Max(0, (int)Math.Round(GetWarriorTempoSpeedPct(rating) * classMult));
+                hero.Effects.PendingDefenseTempoSpeedPct = tempoPct;
             }
 
             return new HeroMitigationResult

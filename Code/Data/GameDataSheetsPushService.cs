@@ -28,7 +28,7 @@ namespace RPGGame.Data
                 {
                     cfg.Save(pushConfigPath);
                     result.AddLine(
-                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, Prefix (Modifications.json + PrefixMaterialQuality.json), ARMOR, SUFFIXES, CONSUMABLES, triggers, MATERIAL BUILDS, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES, CLASS ACTIONS, flavor " +
+                        "Set default push tab names in SheetsPushConfig.json: WEAPONS, Prefix (Modifications.json + PrefixMaterialQuality.json), ARMOR, SUFFIXES, CONSUMABLES, triggers, MATERIAL BUILDS, CHARMS, VARIABLES, ENEMIES, ENVIRONMENTS, DUNGEONS, CLASSES, CLASS ACTIONS, flavor " +
                         "(all optional tabs were blank). Edit the file if your sheet uses different tab titles.");
                 }
                 catch (Exception ex)
@@ -130,6 +130,38 @@ namespace RPGGame.Data
                 {
                     result.AddLine(
                         $"Note: could not save SheetsPushConfig after MATERIAL BUILDS default ({ex.Message}); push still uses that tab name for this run.");
+                }
+            }
+
+            if (cfg.ApplyDefaultCharmsTabNameIfUnset())
+            {
+                try
+                {
+                    cfg.Save(pushConfigPath);
+                    result.AddLine(
+                        "Set default CHARMS tab name in SheetsPushConfig.json (charmsSheetTabName was blank). " +
+                        "Edit if your spreadsheet uses a different tab title.");
+                }
+                catch (Exception ex)
+                {
+                    result.AddLine(
+                        $"Note: could not save SheetsPushConfig after CHARMS default ({ex.Message}); push still uses that tab name for this run.");
+                }
+            }
+
+            if (cfg.ApplyDefaultVariablesTabNameIfUnset())
+            {
+                try
+                {
+                    cfg.Save(pushConfigPath);
+                    result.AddLine(
+                        "Set default VARIABLES tab name in SheetsPushConfig.json (variablesSheetTabName was blank). " +
+                        "Edit if your spreadsheet uses a different tab title.");
+                }
+                catch (Exception ex)
+                {
+                    result.AddLine(
+                        $"Note: could not save SheetsPushConfig after VARIABLES default ({ex.Message}); push still uses that tab name for this run.");
                 }
             }
 
@@ -308,6 +340,20 @@ namespace RPGGame.Data
                     service,
                     cfg,
                     tabGids,
+                    cfg.PushCharmsTab,
+                    "CHARMS",
+                    cfg.CharmsSheetTabName,
+                    GameConstants.CharmsJson,
+                    GameDataTabularSheetKind.Charms,
+                    "Charms.json",
+                    result,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            await PushOptionalJsonArrayTabAsync(
+                    service,
+                    cfg,
+                    tabGids,
                     cfg.PushEnemiesTab,
                     "ENEMIES",
                     cfg.EnemiesSheetTabName,
@@ -348,6 +394,8 @@ namespace RPGGame.Data
 
             await PushOptionalClassPresentationTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
 
+            await PushOptionalVariablesTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
+
             await PushOptionalClassActionsTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
 
             await PushOptionalSkillTreesTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
@@ -383,6 +431,9 @@ namespace RPGGame.Data
             if (cfg.PushMaterialBuildsTab && !string.IsNullOrWhiteSpace(cfg.MaterialBuildsSheetTabName))
                 yield return cfg.MaterialBuildsSheetTabName.Trim();
 
+            if (cfg.PushCharmsTab && !string.IsNullOrWhiteSpace(cfg.CharmsSheetTabName))
+                yield return cfg.CharmsSheetTabName.Trim();
+
             if (cfg.PushEnemiesTab && !string.IsNullOrWhiteSpace(cfg.EnemiesSheetTabName))
                 yield return cfg.EnemiesSheetTabName.Trim();
 
@@ -394,6 +445,9 @@ namespace RPGGame.Data
 
             if (cfg.PushClassPresentationTab && !string.IsNullOrWhiteSpace(cfg.ClassPresentationSheetTabName))
                 yield return cfg.ClassPresentationSheetTabName.Trim();
+
+            if (cfg.PushVariablesTab && !string.IsNullOrWhiteSpace(cfg.VariablesSheetTabName))
+                yield return cfg.VariablesSheetTabName.Trim();
 
             if (cfg.PushClassActionsTab && !string.IsNullOrWhiteSpace(cfg.ClassActionsSheetTabName))
                 yield return cfg.ClassActionsSheetTabName.Trim();
@@ -535,6 +589,40 @@ namespace RPGGame.Data
             string openHint = FormatOpenTabHint(cfg.SpreadsheetId, tabGids, tab);
             result.AddLine(
                 $"Tab '{tab}' (class presentation): 1 payload row + header " +
+                $"(API UpdatedRows={apiUpdatedRows}, UpdatedCells={apiUpdatedCells}).{note}{openHint}");
+        }
+
+        private static async Task PushOptionalVariablesTabAsync(
+            SheetsService service,
+            SheetsPushConfig cfg,
+            IReadOnlyDictionary<string, int> tabGids,
+            GameDataSheetsPushResult result,
+            CancellationToken cancellationToken)
+        {
+            if (!cfg.PushVariablesTab)
+            {
+                if (!string.IsNullOrWhiteSpace(cfg.VariablesSheetTabName))
+                    result.AddLine($"Skipped tab '{cfg.VariablesSheetTabName.Trim()}' (VARIABLES) — push disabled in SheetsPushConfig.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(cfg.VariablesSheetTabName))
+                return;
+
+            string tab = cfg.VariablesSheetTabName.Trim();
+            string tuningPath = GameConfiguration.GetTuningConfigFilePathForWrite();
+            string jsonText = File.Exists(tuningPath)
+                ? await File.ReadAllTextAsync(tuningPath, cancellationToken).ConfigureAwait(false)
+                : "{}";
+
+            var rows = VariablesSheetConverter.BuildPushValueRowsFromJsonText(jsonText);
+            var (apiUpdatedRows, apiUpdatedCells) = await PushRowsAtA1Async(service, cfg.SpreadsheetId, tab, rows, headerRowCount: 1, cancellationToken).ConfigureAwait(false);
+
+            int dataRows = Math.Max(0, rows.Count - 1);
+            string note = File.Exists(tuningPath) ? "" : " Balance patch was not found — pushed header only.";
+            string openHint = FormatOpenTabHint(cfg.SpreadsheetId, tabGids, tab);
+            result.AddLine(
+                $"Tab '{tab}' (variables): {dataRows} property row(s) + header " +
                 $"(API UpdatedRows={apiUpdatedRows}, UpdatedCells={apiUpdatedCells}).{note}{openHint}");
         }
 

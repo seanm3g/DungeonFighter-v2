@@ -56,6 +56,7 @@ namespace RPGGame.Handlers.Inventory
                 ItemType.Chest => "body",
                 ItemType.Legs => "legs",
                 ItemType.Feet => "feet",
+                ItemType.Charm => "charm",
                 _ => ""
             };
             

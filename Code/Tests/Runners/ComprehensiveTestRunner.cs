@@ -95,6 +95,7 @@ namespace RPGGame.Tests.Runners
             ConditionalTriggersTests.RunAllTests();
             ActionTriggerGateTests.RunAllTests();
             RPGGame.Tests.Unit.Combat.MaterialSetControllerTests.RunAllTests();
+            RPGGame.Tests.Unit.Combat.CharmAndAnimalLadderTests.RunAllTests();
             ActionTriggerBundleApplicatorTests.RunAllTests();
             StripMutationTests.RunAllTests();
             RetriggerTests.RunAllTests();

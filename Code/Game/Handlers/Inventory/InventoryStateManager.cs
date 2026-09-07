@@ -44,7 +44,7 @@ namespace RPGGame.Handlers.Inventory
 
         private static readonly string[] InventoryEquipSlotFilterCycleOrder =
         {
-            "weapon", "head", "body", "legs", "feet"
+            "weapon", "head", "body", "legs", "feet", "charm"
         };
 
         /// <summary>

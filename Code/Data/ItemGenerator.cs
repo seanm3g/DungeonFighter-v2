@@ -559,6 +559,7 @@ namespace RPGGame
             }
 
             item.RecomputeAttributeRequirementsIncludingModifications();
+            AnimalTagHelper.SyncSuffixTags(item);
         }
     }
 }

@@ -37,9 +37,14 @@ namespace RPGGame.Tests.Unit
                 Tags = new System.Collections.Generic.List<string> { "shell" }
             };
             weapon.StatBonuses.Add(suffix);
+            AnimalTagHelper.SyncSuffixTags(weapon);
 
-            TestBase.AssertTrue(!GameDataTagHelper.HasTag(weapon.Tags, "shell"),
-                "taxon tag not copied onto item", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(GameDataTagHelper.HasTag(weapon.Tags, "shell"),
+                "taxon tag stamped onto item", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(GameDataTagHelper.HasTag(weapon.Tags, "animal"),
+                "animal tag stamped onto item", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(GameDataTagHelper.HasTag(weapon.Tags, "tortoise"),
+                "specific animal tag stamped", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, weapon.TriggerBundles.Count, "no combat bundles from suffix",
                 ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, weapon.EquipEffects.Count, "no equip effects from suffix",
@@ -67,10 +72,14 @@ namespace RPGGame.Tests.Unit
                 Tags = new System.Collections.Generic.List<string> { "shell" }
             });
             hero.TryEquipItem(chest, "Body", out _, out _, ignoreAttributeRequirements: true);
+            AnimalTagHelper.SyncSuffixTags(helm);
+            AnimalTagHelper.SyncSuffixTags(chest);
 
             int armor = ItemEquipEffectApplicator.GetEquippedArmorBonus(hero);
             TestBase.AssertEqual(0, armor, "suffixes do not grant shell set armor",
                 ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(AnimalSetController.HasTaxonSet(hero, "shell"),
+                "two shell pieces form taxon set", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestAnimalSuffixRowsKeepLegacyTriggerNameButNoMechanics()

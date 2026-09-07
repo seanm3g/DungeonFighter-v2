@@ -66,6 +66,7 @@ DungeonFighter/
 - **`Code/Entity/CharacterSaveManager.cs`** - Save/load functionality for character data
 - **`Code/Config/SkillTreesConfig.cs`** + **`GameData/SkillTrees.json`** - Four class skill trees (Bronze Skin / Iron Discipline / Shadowcraft / Arcane Weave). On load/pull, `PromoteLevelOneAsRoot` makes **Level 1 - {Class}** (material-tag unlock) the free Core root; identity passives (e.g. Bronze Skin) become T1 children. Node costs are **1 SP per rank** (roots free); Action nodes maxRank 1; scalable Passive/Mastery sinks allow up to maxRank 5. Optional `sharedWith` (weapon/class keys) marks nodes that appear on the hybrid **side rail** when that path is secondary.
 - **`Code/Data/SkillTreesSheetConverter.cs`** - Class Upgrades sheet (gid `829575756`) ↔ `SkillTrees.json` flatten/nest for Sheets pull/push (includes `SharedWith`)
+- **`Code/Data/VariablesSheetConverter.cs`** - VARIABLES sheet (gid `1650964207`) ↔ active balance-patch scalar leaves (`property`/`value`; skips `classPresentation`)
 - **`Code/Game/SkillTree/SkillTreeService.cs`** - Learn API, node view state, action unlock names, Concept A shared-rail display model (`BuildDisplayModel` / `GetSharedRailNodes`)
 - **`Code/Game/SkillTree/SkillEffectRouter.cs`** - CombatEventBus passive/rule/mastery runtime; `GetSkillAttributeBonus` standing rite attributes (Puberty +15 STR, Commission AGI, Initiation TEC, Apprenticeship INT) folded into effective stats; `CollectActionCardBonuses` previews standing swing bonuses for action cards
 - **`Code/Game/SkillTreeMenuHandler.cs`** - GameLoop hub (`GameState.SkillTree`) learn UI (no respec); primary tree + optional shared secondary rail
@@ -221,7 +222,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
     - Optional `scaleFrom` on bundles: effective mag = `value` × attr/class/level (`ItemTriggerMagnitude`)
     - Dice/threshold/accuracy/`crit_face_min` item procs use **TURN** (demos may use **DUNGEON**)
     - Optional `ActionTriggerBundle.Value` magnitude fallback when sheet fields are empty
-  - StatBonus / animal suffixes do **not** own combat WHEN (legacy `triggerName` on suffixes is ignored)
+  - StatBonus / animal suffixes do **not** own combat WHEN (legacy `triggerName` on suffixes is ignored); they stamp `animal` / taxon / specific tags via `AnimalTagHelper.SyncSuffixTags` for the in-game animal ladder (`AnimalSetController`). Charm slot (`CharmItem` / `Charms.json`) amplifies Class, Material, or Animal layers via `CharmBonusController`.
   - ActionBonuses stay “grant a named action that carries its own triggers”
   - Affordance sentence: SOURCE × WHEN × IF* × DO × TARGET × MAG × SCOPE (equip = `WHILE_EQUIPPED`)
 #### Outcome Handlers

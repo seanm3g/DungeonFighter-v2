@@ -11,7 +11,7 @@ namespace RPGGame
     /// </summary>
     public static class CharacterCloneService
     {
-        private static readonly string[] EquipmentSlots = { "head", "body", "legs", "weapon", "feet" };
+        private static readonly string[] EquipmentSlots = { "head", "body", "legs", "weapon", "feet", "charm" };
 
         public static void CloneAfterDeath(Character character)
         {

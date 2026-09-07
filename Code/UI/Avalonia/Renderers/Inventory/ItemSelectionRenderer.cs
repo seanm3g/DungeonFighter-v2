@@ -47,6 +47,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 ItemType.Chest => "Body",
                 ItemType.Legs => "Legs",
                 ItemType.Feet => "Feet",
+                ItemType.Charm => "Charm",
                 ItemType.Consumable => "Use",
                 _ => "Item"
             };
@@ -198,7 +199,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 (2, "Head", character.Head?.Name ?? "(empty)"),
                 (3, "Body", character.Body?.Name ?? "(empty)"),
                 (4, "Legs", character.Legs?.Name ?? "(empty)"),
-                (5, "Feet", character.Feet?.Name ?? "(empty)")
+                (5, "Feet", character.Feet?.Name ?? "(empty)"),
+                (6, "Charm", character.Charm?.Name ?? "(empty)")
             };
             
             foreach (var (number, slotName, itemName) in slots)

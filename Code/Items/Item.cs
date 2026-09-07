@@ -15,7 +15,9 @@ namespace RPGGame
         /// <summary>Leg armor slot; appended last so legacy numeric enum values in saves stay stable.</summary>
         Legs,
         /// <summary>Room food/potions from search; not equipment.</summary>
-        Consumable
+        Consumable,
+        /// <summary>Single accessory that amplifies Class, Material, or Animal build layer.</summary>
+        Charm
     }
 
     public enum WeaponType
@@ -159,7 +161,10 @@ namespace RPGGame
                 Requirements = reqCopy,
                 TriggerName = "",
                 TriggerNames = null,
-                Tags = null
+                // Preserve taxon / animal tags so loot can stamp them onto Item.Tags.
+                Tags = Tags == null || Tags.Count == 0
+                    ? null
+                    : new List<string>(Tags)
             };
         }
     }
@@ -221,6 +226,7 @@ namespace RPGGame
     [JsonDerivedType(typeof(FeetItem), "feet")]
     [JsonDerivedType(typeof(LegsItem), "legs")]
     [JsonDerivedType(typeof(WeaponItem), "weapon")]
+    [JsonDerivedType(typeof(CharmItem), "charm")]
     public class Item
     {
         public string Name { get; set; } = "";
@@ -546,7 +552,9 @@ namespace RPGGame
                 ? "Unknown Weapon"
                 : type == ItemType.Consumable
                     ? "Unnamed Consumable"
-                    : "Unknown Armor");
+                    : type == ItemType.Charm
+                        ? "Unknown Charm"
+                        : "Unknown Armor");
             Tier = tier;
             ComboBonus = comboBonus;
         }
@@ -701,6 +709,37 @@ namespace RPGGame
             double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
             if (q <= 0) q = 1.0;
             return Math.Max(0.1, Math.Min(10.0, normalizedSpeed / q));
+        }
+    }
+
+    /// <summary>Single-slot accessory that amplifies Class, Material, or Animal build layer.</summary>
+    public class CharmItem : Item
+    {
+        /// <summary>Target layer: <c>class</c>, <c>material</c>, or <c>animal</c>.</summary>
+        [JsonPropertyName("layer")]
+        public string Layer { get; set; } = "";
+
+        [JsonPropertyName("amplifyMint")]
+        public double AmplifyMint { get; set; } = 1.0;
+
+        [JsonPropertyName("amplifyConvert")]
+        public double AmplifyConvert { get; set; } = 1.0;
+
+        [JsonPropertyName("amplifyClassDefense")]
+        public double AmplifyClassDefense { get; set; } = 1.0;
+
+        [JsonPropertyName("amplifyClassTagDamage")]
+        public double AmplifyClassTagDamage { get; set; } = 1.0;
+
+        [JsonPropertyName("amplifyAnimalLadder")]
+        public double AmplifyAnimalLadder { get; set; } = 1.0;
+
+        [JsonPropertyName("unlockAnimalAction")]
+        public bool UnlockAnimalAction { get; set; }
+
+        public CharmItem(string? name = null, int tier = 1)
+            : base(ItemType.Charm, name ?? "Unknown Charm", tier)
+        {
         }
     }
 } 

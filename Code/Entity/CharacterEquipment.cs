@@ -65,6 +65,12 @@ namespace RPGGame
             set => slotManager.Feet = value;
         }
 
+        public Item? Charm
+        {
+            get => slotManager.Charm;
+            set => slotManager.Charm = value;
+        }
+
         public Item? EquipItem(Item item, string slot) => slotManager.EquipItem(item, slot);
         public Item? UnequipItem(string slot) => slotManager.UnequipItem(slot);
 

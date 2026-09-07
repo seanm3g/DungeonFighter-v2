@@ -62,6 +62,14 @@ namespace RPGGame.Data
         [JsonPropertyName("materialBuildsSheetUrl")]
         public string MaterialBuildsSheetUrl { get; set; } = "";
 
+        /// <summary>Published CSV URL for the CHARMS tab (→ <c>Charms.json</c>).</summary>
+        [JsonPropertyName("charmsSheetUrl")]
+        public string CharmsSheetUrl { get; set; } = "";
+
+        /// <summary>Published CSV / edit?gid URL for VARIABLES → scalar leaves in the active balance patch (excludes classPresentation).</summary>
+        [JsonPropertyName("variablesSheetUrl")]
+        public string VariablesSheetUrl { get; set; } = "";
+
         /// <summary>Edit/CSV URL for the flavor tab (→ <c>FlavorText.json</c>). Push-only today; pull does not overwrite local JSON.</summary>
         [JsonPropertyName("flavorSheetUrl")]
         public string FlavorSheetUrl { get; set; } = "";

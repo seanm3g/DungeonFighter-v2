@@ -51,6 +51,7 @@ namespace RPGGame.Entity.Services
                 Legs = character.Equipment.Legs,
                 Weapon = character.Equipment.Weapon,
                 Feet = character.Equipment.Feet,
+                Charm = character.Equipment.Charm,
                 ComboStripActionNames = character.GetComboActions()
                     .Where(a => a != null && !string.IsNullOrWhiteSpace(a.Name))
                     .Select(a => a.Name)
@@ -142,6 +143,7 @@ namespace RPGGame.Entity.Services
             character.Equipment.Legs = ItemTypeConverter.ConvertItemToProperType(saveData.Legs);
             character.Equipment.Weapon = ItemTypeConverter.ConvertItemToProperType(saveData.Weapon) as WeaponItem;
             character.Equipment.Feet = ItemTypeConverter.ConvertItemToProperType(saveData.Feet);
+            character.Equipment.Charm = ItemTypeConverter.ConvertItemToProperType(saveData.Charm);
 
             // New characters have an empty strip; rebuild the pool, then restore the saved order
             // (or fall back to InitializeDefaultCombo inside RebuildCharacterActions).
@@ -212,6 +214,7 @@ namespace RPGGame.Entity.Services
             }
 
             MaterialSetController.SyncConvertActionsToPool(character);
+            AnimalSetController.SyncAnimalActionsToPool(character);
 
             // Restore user's combo sequence if possible; otherwise use default
             bool restored = character.RestoreComboFromActionNames(savedComboNames);

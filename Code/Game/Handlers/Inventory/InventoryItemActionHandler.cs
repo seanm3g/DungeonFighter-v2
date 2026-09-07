@@ -17,7 +17,8 @@ namespace RPGGame.Handlers.Inventory
             ("head", "Head"),
             ("body", "Body"),
             ("legs", "Legs"),
-            ("feet", "Feet")
+            ("feet", "Feet"),
+            ("charm", "Charm")
         };
 
         private readonly GameStateManager stateManager;
@@ -259,6 +260,7 @@ namespace RPGGame.Handlers.Inventory
             "body" => player.Body,
             "legs" => player.Legs,
             "feet" => player.Feet,
+            "charm" => player.Charm,
             _ => null
         };
 
@@ -283,6 +285,7 @@ namespace RPGGame.Handlers.Inventory
                 3 => "body",
                 4 => "legs",
                 5 => "feet",
+                6 => "charm",
                 _ => ""
             };
             

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using RPGGame;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Sequence;
+using RPGGame.Data;
 using RPGGame.Diagnostics;
 
 namespace RPGGame.Combat.Calculators
@@ -239,6 +240,14 @@ namespace RPGGame.Combat.Calculators
                 totalDamage *= ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType);
             }
 
+            // Mark of Class: amplify primary class-tagged actions
+            if (attacker is Character tagHero && tagHero is not Enemy && action != null)
+            {
+                double classTagMult = CharmBonusController.GetClassTagDamageMultiplier(tagHero);
+                if (classTagMult > 1.0 && ActionHasHeroPrimaryClassTag(tagHero, action))
+                    totalDamage *= classTagMult;
+            }
+
             int result = (int)totalDamage;
 
             if (attacker is Character convertHero && convertHero is not Enemy)
@@ -394,6 +403,33 @@ namespace RPGGame.Combat.Calculators
             if (target.AcidArmorReduction > 0)
                 baseArmor -= target.AcidArmorReduction;
             return Math.Max(0, baseArmor);
+        }
+
+        /// <summary>True when the action carries the hero's highest class-point tag (barbarian/warrior/rogue/wizard).</summary>
+        private static bool ActionHasHeroPrimaryClassTag(Character hero, Action action)
+        {
+            if (action?.Tags == null || action.Tags.Count == 0)
+                return false;
+            string primary = ResolvePrimaryClassTag(hero);
+            if (primary.Length == 0)
+                return false;
+            return GameDataTagHelper.HasTag(action.Tags, primary);
+        }
+
+        private static string ResolvePrimaryClassTag(Character hero)
+        {
+            int barb = hero.BarbarianPoints;
+            int war = hero.WarriorPoints;
+            int rog = hero.RoguePoints;
+            int wiz = hero.WizardPoints;
+            int max = Math.Max(Math.Max(barb, war), Math.Max(rog, wiz));
+            if (max <= 0)
+                return "";
+            if (barb == max) return "barbarian";
+            if (war == max) return "warrior";
+            if (rog == max) return "rogue";
+            if (wiz == max) return "wizard";
+            return "";
         }
     }
 }

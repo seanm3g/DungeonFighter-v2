@@ -37,6 +37,7 @@ namespace RPGGame
         public Item? Legs { get; set; }
         public Item? Weapon { get; set; }
         public Item? Feet { get; set; }
+        public Item? Charm { get; set; }
 
         /// <summary>
         /// Ordered combo-strip action names. Omitted/empty on legacy saves falls back to default combo after load.

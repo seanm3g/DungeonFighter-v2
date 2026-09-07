@@ -125,6 +125,14 @@ namespace RPGGame
                 // and inventory parameter is a reference to the same list)
                 player.AddToInventory(reward);
                 
+                // Rare charm drop (~5%) — separate from armor/weapon affix loot.
+                var charm = LootGenerator.TryRollCharmLoot();
+                if (charm != null)
+                {
+                    player.AddToInventory(charm);
+                    UIManager.WriteSystemLine($"Also found a charm: {charm.Name}");
+                }
+
                 // Award XP for finding item
                 Progression.XPRewardSystem.AwardItemFoundXP(player, reward);
                 
@@ -165,6 +173,10 @@ namespace RPGGame
                 // and inventory parameter is a reference to the same list)
                 player.AddToInventory(reward);
                 
+                var charm = LootGenerator.TryRollCharmLoot();
+                if (charm != null)
+                    player.AddToInventory(charm);
+
                 // Track item collection statistics
                 player.RecordItemCollected(reward);
             }

@@ -154,7 +154,7 @@ The game exposes itself as an MCP server for AI control:
 - `GamePlaySession` (`Code/Game/GamePlaySession.cs`) — session lifecycle (Initialize, StartNewGame, ExecuteAction, GetGameState, SaveGame)
 - `GameWrapper` + `McpToolState` — bridge between MCP tools and game instance
 - Tool groups: `GameControlTools`, `NavigationTools`, `InformationTools`
-- `InteractiveMCPGamePlayer.cs`, `AutomatedGameplaySession.cs`, `FastAutomatedPlayer.cs` — player implementations
+- `InteractiveMCPGamePlayer.cs`, `ClaudeAIGamePlayer.cs` — player implementations
 
 ### Balance / Tuning Tools
 

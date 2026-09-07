@@ -516,7 +516,7 @@ RAPID STRIKE (and similar Settings-authored next-action rows) store the same gra
 3. `SaveGameAsync` / `SaveCharacterAsync` on settings and death paths
 4. Batch sim uses `QueueAsyncForcedD20Rolls` (1d20 queue only)
 
-**Related files:** See `COMBAT_RELIABILITY_PHASE4.md`
+**Related files:** `ActionLabEncounterSimulator`, `GameStateManager`, `SettingsMenuHandler`, `DeathScreenHandler`
 
 ### Issue: Combat Reliability Phase 3 — Scoped Static State (July 2026)
 **Symptoms:**
@@ -533,7 +533,7 @@ RAPID STRIKE (and similar Settings-authored next-action rows) store the same gra
 4. `ConcurrentDictionary` for `ActionExecutor` last-action maps; `IDictionary` in `ActionExecutionFlow`
 5. Action Lab session holds `GameTicker.BeginIsolatedEncounterGameTime` from `Begin` to `EndSession`
 
-**Related files:** See `COMBAT_RELIABILITY_PHASE3.md`
+**Related files:** `Dice`, `DeveloperSimMode`, `HealthBarDeltaDamageHint`, `CombatUiMuteScope`, `ActionExecutor`, `GameTicker`
 
 ### Issue: Combat Reliability Phase 2 — Secondary Nicks (July 2026)
 **Symptoms:**
@@ -549,7 +549,7 @@ RAPID STRIKE (and similar Settings-authored next-action rows) store the same gra
 3. `GameStateManager` context-first dungeon/room (no dual-write bleed)
 4. Isolated encounter game time whenever combat UI is muted
 
-**Related files:** See `COMBAT_RELIABILITY_PHASE2.md`
+**Related files:** `BlockDisplayManager`, `CharacterSaveService`, `GameStateManager`, `CombatUiMuteScope`, `GameTicker`
 
 ### Issue: Hero Armor Was a Consumable Room Pool (July 2026)
 **Symptoms:**

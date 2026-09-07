@@ -159,6 +159,8 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "CombatEffectsSimplified", () => RPGGame.Tests.Unit.Combat.CombatEffectsSimplifiedTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTriggerGate", () => RPGGame.Tests.Unit.ActionTriggerGateTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "MaterialSet", () => RPGGame.Tests.Unit.Combat.MaterialSetControllerTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "CharmAnimal", () => RPGGame.Tests.Unit.Combat.CharmAndAnimalLadderTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "StatBonusAnimalSuffix", () => RPGGame.Tests.Unit.StatBonusAnimalSuffixTriggerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTriggerBundleApplicator", () => RPGGame.Tests.Unit.ActionTriggerBundleApplicatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StripMutation", () => RPGGame.Tests.Unit.StripMutationTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "Retrigger", () => RPGGame.Tests.Unit.RetriggerTests.RunAllTests()));

@@ -20,10 +20,6 @@ Essential project documentation. For product overview and active tasks, see root
 | [DEBUGGING_GUIDE.md](DEBUGGING_GUIDE.md) | Systematic debugging |
 | [KNOWN_ISSUES.md](KNOWN_ISSUES.md) | Current issue tracker |
 | [PERFORMANCE_NOTES.md](PERFORMANCE_NOTES.md) | Performance targets and notes |
-| [COMBAT_RELIABILITY_PHASE1.md](COMBAT_RELIABILITY_PHASE1.md) | Combat display pacing / mute scope verification |
-| [COMBAT_RELIABILITY_PHASE2.md](COMBAT_RELIABILITY_PHASE2.md) | Display logging, save/load cancel, GSM dual-state, ticker isolation |
-| [COMBAT_RELIABILITY_PHASE3.md](COMBAT_RELIABILITY_PHASE3.md) | AsyncLocal dice, scoped sim floor, muted health hints, lab ticker isolation |
-| [COMBAT_RELIABILITY_PHASE4.md](COMBAT_RELIABILITY_PHASE4.md) | Cleanup gaps, GSM legacy fallbacks, async save UI paths, lab sim dice parity |
 
 ## Design
 

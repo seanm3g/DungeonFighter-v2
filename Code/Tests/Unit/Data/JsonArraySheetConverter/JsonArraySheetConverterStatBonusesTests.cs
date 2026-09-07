@@ -111,7 +111,8 @@ of Test,desc,1,Common,Armor,,"[ARMOR:2]","[strength:5]",Armor,999
             """;
             var rows = SheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.StatBonuses);
             TestBase.AssertEqual(2, rows.Count, "header+data", ref run, ref pass, ref fail);
-            TestBase.AssertEqual(8, rows[0].Count, "eight headers (A–H including Requirements)", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(JsonArraySheetSchemas.StatBonusesCanonicalHeaders.Length, rows[0].Count,
+                "canonical SUFFIXES header count (Name…tags)", ref run, ref pass, ref fail);
         }
 
 

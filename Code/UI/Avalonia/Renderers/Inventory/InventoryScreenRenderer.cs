@@ -72,6 +72,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 ItemType.Chest => "Body",
                 ItemType.Legs => "Legs",
                 ItemType.Feet => "Feet",
+                ItemType.Charm => "Charm",
                 _ => "Item"
             };
         }
@@ -543,7 +544,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 ItemType.Chest => 2,
                 ItemType.Legs => 3,
                 ItemType.Feet => 4,
-                ItemType.Consumable => 5,
+                ItemType.Charm => 5,
+                ItemType.Consumable => 6,
                 _ => 99
             };
         }

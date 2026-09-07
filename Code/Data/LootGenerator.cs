@@ -256,6 +256,19 @@ namespace RPGGame
             return item;
         }
 
+        /// <summary>
+        /// Rare charm catalog drop (~5%). Independent of armor/weapon affix rolls.
+        /// </summary>
+        public static CharmItem? TryRollCharmLoot(Random? rng = null)
+        {
+            if (CharmsLoader.GetAll().Count == 0)
+                return null;
+            rng ??= new Random();
+            if (rng.NextDouble() >= 0.05)
+                return null;
+            return CharmsLoader.CreateRandomItem(rng);
+        }
+
         private static readonly string[] NewGameBonusArmorJsonSlots = { "head", "chest", "legs", "feet" };
 
         /// <summary>

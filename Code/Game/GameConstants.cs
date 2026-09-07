@@ -39,6 +39,7 @@ namespace RPGGame
         public const string TriggersJson = "Triggers.json";
         /// <summary>MATERIAL BUILDS sheet pull → material-set synthesis / convert / feed rows.</summary>
         public const string MaterialBuildsJson = "MaterialBuilds.json";
+        public const string CharmsJson = "Charms.json";
         public const string CharacterSaveJson = "character_save.json";
         /// <summary>Tombstone save for legacy single-slot flow when the hero dies (not loadable).</summary>
         public const string CharacterSaveDeadJson = "character_save_dead.json";

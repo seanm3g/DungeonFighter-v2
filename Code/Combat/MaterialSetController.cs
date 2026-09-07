@@ -189,6 +189,7 @@ namespace RPGGame
                 int amount = MaterialBuildData.ComputeMintAmount(unlock, feedCount);
                 if (amount <= 0)
                     continue;
+                amount = Math.Max(1, (int)Math.Round(amount * CharmBonusController.GetMintMultiplier(hero)));
                 hero.Effects.AddMaterialKeyword(build.Keyword, amount);
                 int total = hero.Effects.GetMaterialKeyword(build.Keyword);
                 messages?.Add(FormatFeedCombatLine(build.Synthesis, build.Keyword, amount, total));
@@ -269,7 +270,8 @@ namespace RPGGame
 
             if (units <= 0)
                 return 0;
-            return units * MaterialBuildData.ConvertDamagePerKeyword;
+            int flat = units * MaterialBuildData.ConvertDamagePerKeyword;
+            return Math.Max(0, (int)Math.Round(flat * CharmBonusController.GetConvertMultiplier(hero)));
         }
 
         /// <summary>
