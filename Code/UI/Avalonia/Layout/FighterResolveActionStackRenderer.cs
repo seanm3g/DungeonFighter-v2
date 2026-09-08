@@ -18,6 +18,22 @@ namespace RPGGame.UI.Avalonia.Layout
         {
             if (canvas == null)
                 return;
+            if (CombatArenaHudLayout.UseCinematic)
+            {
+                ActiveCardBounds = default;
+                int cardY = CombatArenaHudLayout.SideCardY;
+                int cardH = CombatArenaHudLayout.SidePileHeight;
+                foreach (bool enemy in new[] { false, true })
+                {
+                    int cardX = (enemy ? LayoutConstants.RIGHT_PANEL_X : LayoutConstants.LEFT_PANEL_X) + 2;
+                    int cardW = (enemy ? LayoutConstants.RIGHT_PANEL_WIDTH : LayoutConstants.LEFT_PANEL_WIDTH) - 4;
+                    canvas.ClearTextInArea(cardX, cardY, cardW, cardH);
+                    canvas.ClearBoxesInArea(cardX, cardY, cardW, cardH);
+                    canvas.ClearLinesInArea(cardX, cardY, cardW, cardH);
+                    DrawPile(canvas, enemy, cardX, cardY, cardW, cardH);
+                }
+                return;
+            }
 
             CombatArenaHudLayout.GetResolveStackBand(out int bx, out int by, out int bw, out int bh);
             ActiveCardBounds = default;

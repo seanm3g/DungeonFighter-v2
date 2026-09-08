@@ -32,6 +32,21 @@ namespace RPGGame.UI.Avalonia.Layout
                 RPGGame.Combat.Sequence.CombatVisualPlayback.ActorId(fighter),
                 RPGGame.Combat.Sequence.CombatVisualPlayback.ActorId(enemy));
 
+            if (CombatArenaHudLayout.UseCinematic)
+            {
+                int logY = CombatArenaHudLayout.SideCardY + CombatArenaHudLayout.SidePileHeight + 1;
+                foreach (bool enemyLane in new[] { false, true })
+                {
+                    int logX = (enemyLane ? LayoutConstants.RIGHT_PANEL_X : LayoutConstants.LEFT_PANEL_X) + 2;
+                    int logW = (enemyLane ? LayoutConstants.RIGHT_PANEL_WIDTH : LayoutConstants.LEFT_PANEL_WIDTH) - 4;
+                    canvas.AddText(logX,logY,"RECENT EVENTS",UI.Avalonia.CombatVisuals.BattleOverlay.Bone);
+                    CombatLocalLogView.RenderLane(canvas,textWriter,combatBuffer,
+                        enemyLane ? CombatLocalLogLane.Enemy : CombatLocalLogLane.Fighter,
+                        logX,logY+1,logW,Math.Max(1,LayoutConstants.SCREEN_HEIGHT-logY-2),
+                        combatEnemyNamesForLogAlignment,fighter.Name);
+                }
+                return;
+            }
             RenderEnemyHud(canvas, textWriter, enemy, combatBuffer, combatEnemyNamesForLogAlignment, fighter.Name);
             RenderFighterHud(canvas, textWriter, fighter, combatBuffer, combatEnemyNamesForLogAlignment);
         }

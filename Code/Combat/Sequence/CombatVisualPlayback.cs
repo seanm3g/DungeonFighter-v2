@@ -9,7 +9,9 @@ namespace RPGGame.Combat.Sequence;
 public sealed record CombatVisualAction(long Id, long SourceId, long TargetId,
     bool Hit, bool Critical, int Damage, int Heal, bool TargetDied, string Style,
     string Delivery = "melee", string Name = "", int? Blocked = null, string Effects = "", bool ActionUsed = true,
-    bool SourceIsEnemy = false, string Intent = "attack");
+    bool SourceIsEnemy = false, string Intent = "attack", int? RollTotal = null,
+    int? HitThreshold = null, int? ComboThreshold = null, int? CritThreshold = null, int? CritMissThreshold = null,
+    string DamageBreakdown = "");
 public sealed record CombatVisualCue(CombatVisualAction Action, string Phase, long Timestamp, int DurationMs);
 
 public static class CombatVisualPlayback

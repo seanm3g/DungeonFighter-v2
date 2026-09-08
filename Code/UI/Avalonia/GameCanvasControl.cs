@@ -62,6 +62,11 @@ namespace RPGGame.UI.Avalonia
             CombatArenaHudLayout.GetSceneRect(out int x, out int y, out int w, out int h);
             combatScene.Draw(context, new Rect(x * GetCharWidth(), y * GetCharHeight(),
                 w * GetCharWidth(), h * GetCharHeight()));
+            if (CombatArenaHudLayout.UseCinematic)
+            {
+                CombatArenaHudLayout.GetResolutionRect(out x, out y, out w, out h);
+                CombatVisuals.BattleResolutionRenderer.Draw(context, new Rect(x * GetCharWidth(), y * GetCharHeight(), w * GetCharWidth(), h * GetCharHeight()));
+            }
         }
         
         // Base grid dimensions (original design size)

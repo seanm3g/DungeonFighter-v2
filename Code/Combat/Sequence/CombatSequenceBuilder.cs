@@ -149,6 +149,11 @@ namespace RPGGame.Combat.Sequence
                 string.Join("; ", result.StatusEffectMessages ?? new List<string>()), result.IsCombo || result.IsCritical,
                 source is Enemy, selected.Type == ActionType.Heal ? "healing" : selected.Type == ActionType.Spell ? "spell cast" :
                 selected.Type != ActionType.Attack ? "support" : selected.DamageMultiplier > 1 ? "heavy strike" : "strike");
+            visual = visual with { RollTotal = result.AttackRoll != 0 ? result.AttackRoll : result.ModifiedBaseRoll + result.RollBonus,
+                HitThreshold = result.ResolvedHitThreshold, ComboThreshold = result.ResolvedComboThreshold,
+                CritThreshold = result.ResolvedCritThreshold, CritMissThreshold = result.ResolvedCritMissThreshold,
+                DamageBreakdown = string.Join(" → ", steps.Skip(firstStep).Where(s => s.Kind == CombatSequenceStepKind.Damage)
+                    .SelectMany(s => s.MathBeats).Select(beat => string.Concat(beat.Select(t => t.Text)))) };
             for (int i = firstStep; i < steps.Count; i++) steps[i].VisualAction = visual;
         }
 

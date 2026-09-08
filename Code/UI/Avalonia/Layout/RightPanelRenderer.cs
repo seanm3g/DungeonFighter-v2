@@ -73,6 +73,10 @@ namespace RPGGame.UI.Avalonia.Layout
             int y = LayoutConstants.RIGHT_PANEL_Y + 1;
             int x = LayoutConstants.RIGHT_PANEL_X + 2;
             
+            if (hideSidePanelHealthBars && enemy != null && CombatArenaHudLayout.CanUseCinematic)
+            {
+                CombatantSummaryRenderer.Render(canvas, enemy, true, dungeonName, roomName); return;
+            }
             // Inventory / combo management: sequence + pool. Prefer explicit flag from CanvasRenderer; keep title fallback for compatibility.
             bool useInventoryPanel = character != null && (inventoryComboRightPanel
                 || title == "INVENTORY"

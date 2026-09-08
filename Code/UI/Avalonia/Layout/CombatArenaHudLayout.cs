@@ -9,9 +9,25 @@ namespace RPGGame.UI.Avalonia.Layout
     public static class CombatArenaHudLayout
     {
         public static bool IllustratedSceneVisible { get; set; }
+        public static bool CanUseCinematic => GameConfiguration.Instance.UICustomization.IllustratedCombat
+            && RPGGame.ActionInteractionLab.ActionInteractionLabSession.Current == null
+            && LayoutConstants.CENTER_PANEL_WIDTH >= 64 && LayoutConstants.CENTER_PANEL_HEIGHT >= 26;
+        public static bool UseCinematic => IllustratedSceneVisible && CanUseCinematic;
+        public static int SideCardY => Math.Min(23, LayoutConstants.SCREEN_HEIGHT / 2);
+        public static int SidePileHeight => Math.Max(6, Math.Min(18, LayoutConstants.SCREEN_HEIGHT - SideCardY - 8));
+        public static void GetResolutionRect(out int x, out int y, out int width, out int height)
+        {
+            var (ax, ay, aw, ah) = GetArenaInnerRect();
+            x = ax; width = aw; height = 8; y = ay + ah - height;
+        }
 
         public static void GetSceneRect(out int x, out int y, out int width, out int height)
         {
+            if (UseCinematic)
+            {
+                var (cx, cy, cw, ch) = GetArenaInnerRect();
+                x = cx; y = cy; width = cw; height = Math.Max(1, ch - 9); return;
+            }
             var (ax, ay, aw, _) = GetArenaInnerRect();
             GetFighterHud(out _, out int fighterY, out _, out _);
             x = ax;

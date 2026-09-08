@@ -488,3 +488,6 @@ Network Trash Folder
 Temporary Items
 .apdisk 
 dist-test/DF.exe
+
+# Local convenience launcher; recreate with Scripts/Build-WithModelsLauncher.ps1.
+/With models.exe

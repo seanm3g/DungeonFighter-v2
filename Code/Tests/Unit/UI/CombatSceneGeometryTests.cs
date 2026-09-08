@@ -14,9 +14,18 @@ public static class CombatSceneGeometryTests
         TestBase.AssertTrue(!CombatSceneGeometry.CanSplit(100, 30, false), "text mode keeps full resolve band", ref run, ref passed, ref failed);
         TestBase.AssertTrue(CombatSceneGeometry.CanSplit(70, 17, true), "minimum supported arena fits visual mode", ref run, ref passed, ref failed);
         bool previous = CombatArenaHudLayout.IllustratedSceneVisible;
+        bool priorIllustrated = GameConfiguration.Instance.UICustomization.IllustratedCombat;
         try
         {
             CombatArenaHudLayout.IllustratedSceneVisible = true;
+            GameConfiguration.Instance.UICustomization.IllustratedCombat = true;
+            if (CombatArenaHudLayout.UseCinematic)
+            {
+                CombatArenaHudLayout.GetSceneRect(out int cx,out int cinematicY,out int cw,out int chh);
+                CombatArenaHudLayout.GetResolutionRect(out int dx,out int dy,out int dw,out int dh);
+                TestBase.AssertTrue(cinematicY+chh<=dy && cx==dx && cw==dw,"cinematic resolution stays below full width scene",ref run,ref passed,ref failed);
+            }
+            GameConfiguration.Instance.UICustomization.IllustratedCombat = false;
             CombatArenaHudLayout.GetSceneRect(out int sx, out int sy, out int sw, out int sh);
             CombatArenaHudLayout.GetResolveStackBand(out int rx, out int ry, out _, out int rh);
             CombatArenaHudLayout.GetFighterHud(out _, out int fy, out _, out _);
@@ -28,7 +37,7 @@ public static class CombatSceneGeometryTests
             TestBase.AssertTrue(sh == 0 || (cy + ch <= py && py + ph <= ey && ey + eh <= ry + rh),
                 "vertical cards remain separate and inside resolve band", ref run, ref passed, ref failed);
         }
-        finally { CombatArenaHudLayout.IllustratedSceneVisible = previous; }
+        finally { CombatArenaHudLayout.IllustratedSceneVisible = previous; GameConfiguration.Instance.UICustomization.IllustratedCombat = priorIllustrated; }
         TestBase.PrintSummary("CombatSceneGeometryTests", run, passed, failed);
     }
 }

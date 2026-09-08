@@ -1,0 +1,186 @@
+{
+  "Fighter": {
+    "originalMeshes": 26,
+    "detailedMeshes": 87
+  },
+  "Demon": {
+    "originalMeshes": 58,
+    "detailedMeshes": 124
+  },
+  "Skeleton": {
+    "originalMeshes": 45,
+    "detailedMeshes": 63
+  },
+  "Bat": {
+    "originalMeshes": 22,
+    "detailedMeshes": 36
+  },
+  "Bear": {
+    "originalMeshes": 21,
+    "detailedMeshes": 27
+  },
+  "Beetle": {
+    "originalMeshes": 22,
+    "detailedMeshes": 27
+  },
+  "Bird": {
+    "originalMeshes": 15,
+    "detailedMeshes": 27
+  },
+  "Boar": {
+    "originalMeshes": 25,
+    "detailedMeshes": 31
+  },
+  "Crab": {
+    "originalMeshes": 26,
+    "detailedMeshes": 31
+  },
+  "Fighter-dagger-cloth": {
+    "originalMeshes": 23,
+    "detailedMeshes": 68
+  },
+  "Fighter-dagger-plate": {
+    "originalMeshes": 26,
+    "detailedMeshes": 87
+  },
+  "Fighter-mace-cloth": {
+    "originalMeshes": 23,
+    "detailedMeshes": 65
+  },
+  "Fighter-mace-plate": {
+    "originalMeshes": 26,
+    "detailedMeshes": 84
+  },
+  "Fighter-sword-cloth": {
+    "originalMeshes": 23,
+    "detailedMeshes": 68
+  },
+  "Fighter-sword-plate": {
+    "originalMeshes": 26,
+    "detailedMeshes": 87
+  },
+  "Fighter-unarmed-cloth": {
+    "originalMeshes": 20,
+    "detailedMeshes": 62
+  },
+  "Fighter-unarmed-plate": {
+    "originalMeshes": 23,
+    "detailedMeshes": 81
+  },
+  "Fighter-wand-cloth": {
+    "originalMeshes": 23,
+    "detailedMeshes": 65
+  },
+  "Fighter-wand-plate": {
+    "originalMeshes": 26,
+    "detailedMeshes": 84
+  },
+  "Firehound": {
+    "originalMeshes": 20,
+    "detailedMeshes": 26
+  },
+  "Fish": {
+    "originalMeshes": 23,
+    "detailedMeshes": 25
+  },
+  "Flame": {
+    "originalMeshes": 13,
+    "detailedMeshes": 14
+  },
+  "Goblin": {
+    "originalMeshes": 17,
+    "detailedMeshes": 32
+  },
+  "Golem": {
+    "originalMeshes": 14,
+    "detailedMeshes": 29
+  },
+  "Hunter": {
+    "originalMeshes": 15,
+    "detailedMeshes": 30
+  },
+  "Knight": {
+    "originalMeshes": 16,
+    "detailedMeshes": 31
+  },
+  "Lavagolem": {
+    "originalMeshes": 14,
+    "detailedMeshes": 29
+  },
+  "Leech": {
+    "originalMeshes": 19,
+    "detailedMeshes": 34
+  },
+  "Lich": {
+    "originalMeshes": 19,
+    "detailedMeshes": 42
+  },
+  "Lizard": {
+    "originalMeshes": 25,
+    "detailedMeshes": 31
+  },
+  "Mage": {
+    "originalMeshes": 17,
+    "detailedMeshes": 32
+  },
+  "Mimic": {
+    "originalMeshes": 19,
+    "detailedMeshes": 29
+  },
+  "Rat": {
+    "originalMeshes": 20,
+    "detailedMeshes": 26
+  },
+  "Scorpion": {
+    "originalMeshes": 29,
+    "detailedMeshes": 34
+  },
+  "Snake": {
+    "originalMeshes": 19,
+    "detailedMeshes": 34
+  },
+  "Spider": {
+    "originalMeshes": 22,
+    "detailedMeshes": 27
+  },
+  "Spore": {
+    "originalMeshes": 14,
+    "detailedMeshes": 17
+  },
+  "Sprite": {
+    "originalMeshes": 13,
+    "detailedMeshes": 14
+  },
+  "Swarm": {
+    "originalMeshes": 24,
+    "detailedMeshes": 33
+  },
+  "Toad": {
+    "originalMeshes": 19,
+    "detailedMeshes": 25
+  },
+  "Tortoise": {
+    "originalMeshes": 18,
+    "detailedMeshes": 23
+  },
+  "Treant": {
+    "originalMeshes": 26,
+    "detailedMeshes": 30
+  },
+  "Vine": {
+    "originalMeshes": 25,
+    "detailedMeshes": 40
+  },
+  "Wolf": {
+    "originalMeshes": 20,
+    "detailedMeshes": 26
+  },
+  "Wraith": {
+    "originalMeshes": 13,
+    "detailedMeshes": 14
+  },
+  "Zombie": {
+    "originalMeshes": 15,
+    "detailedMeshes": 30
+  }
+}

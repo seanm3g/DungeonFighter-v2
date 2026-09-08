@@ -192,6 +192,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "CombatArenaHudLayout", () => RPGGame.Tests.Unit.UI.CombatArenaHudLayoutTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatSceneGeometry", () => RPGGame.Tests.Unit.UI.CombatSceneGeometryTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatSceneRender", () => RPGGame.Tests.Unit.UI.CombatSceneRenderTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "CombatResolution", () => RPGGame.Tests.Unit.Combat.CombatResolutionTests.RunAllTests()));
             list.Add(new TestSuiteEntry("entity", "CharacterHealthManager", () => RPGGame.Tests.Unit.Entity.CharacterHealthManagerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "DungeonCompletionRenderer", () => RPGGame.Tests.Unit.UI.DungeonCompletionRendererTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "InventoryRenderer", () => RPGGame.Tests.Unit.UI.InventoryRendererTests.RunAllTests()));

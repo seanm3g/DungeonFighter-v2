@@ -19,6 +19,12 @@ public static class BattleOverlay
     public static void Draw(DrawingContext c, Rect stage, BattlePresentation data, CombatVisualDirector director, double now, bool effects)
     {
         using var clip = c.PushClip(stage);
+        if (RPGGame.UI.Avalonia.Layout.CombatArenaHudLayout.UseCinematic)
+        {
+            Badges(c, stage, data.HeroStatuses, false, effects, now, false);
+            Badges(c, stage, data.EnemyStatuses, true, effects, now, false);
+            return;
+        }
         var panel = new SolidColorBrush(Color.Parse("#EF111517"));
         c.FillRectangle(panel, new Rect(stage.X, stage.Y, stage.Width, 76));
         c.DrawLine(new Pen(new SolidColorBrush(Color.Parse("#46514A")), 1), new Point(stage.X+8,stage.Y+35), new Point(stage.Right-8,stage.Y+35));
@@ -62,16 +68,19 @@ public static class BattleOverlay
                 }
         }
     }
-    private static void Badges(DrawingContext c, Rect stage, BattleStatus[] statuses, bool enemy, bool effects, double now)
+    private static void Badges(DrawingContext c, Rect stage, BattleStatus[] statuses, bool enemy, bool effects, double now, bool labels = true)
     {
         double x=stage.X+stage.Width*(enemy ? .53 : .02), y=stage.Bottom-101;
         int shown=Math.Min(4,statuses.Length);
         for(int i=0;i<shown;i++)
         {
             var s=statuses[i]; double bx=x+(i%2)*stage.Width*.225, by=y+(i/2)*17;
+            if (labels)
+            {
             c.FillRectangle(new SolidColorBrush(Color.Parse("#E0111517")),new Rect(bx,by,stage.Width*.22,16));
             c.DrawEllipse(new SolidColorBrush(Color.Parse(s.Color)),null,new Point(bx+6,by+8),3,3);
             Text(c,s.Text,new Point(bx+13,by+1),stage.Width*.22-15,Color.Parse(s.Color),9);
+            }
             if(effects)
             {
                 double t=(now*.8+i*.27)%1;
@@ -83,7 +92,7 @@ public static class BattleOverlay
                 else if(s.Key=="break") { c.DrawLine(new Pen(new SolidColorBrush(Crimson),2),center+new Vector(-12,-15),center+new Vector(5,15)); }
             }
         }
-        if(statuses.Length>shown) Text(c,$"+{statuses.Length-shown} effects: see status panel",new Point(x,y-14),stage.Width*.45,Bone,9);
+        if(labels && statuses.Length>shown) Text(c,$"+{statuses.Length-shown} effects: see status panel",new Point(x,y-14),stage.Width*.45,Bone,9);
     }
 }
 

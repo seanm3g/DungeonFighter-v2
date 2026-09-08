@@ -1,0 +1,8 @@
+{
+  "actors": 46,
+  "enemyDefinitions": 127,
+  "stages": 8,
+  "meshesBefore": 1007,
+  "meshesAfter": 1961,
+  "checks": "complete roster, added geometry for every presentation, valid rigid-part tags, static canvas dimensions, alpha, unclipped layers, GLB integrity"
+}

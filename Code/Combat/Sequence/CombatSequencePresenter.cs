@@ -136,6 +136,12 @@ namespace RPGGame.Combat.Sequence
 
             if (steps == null || steps.Count == 0 || !ShouldPlay())
             {
+                if (steps is { Count: > 0 } && DeveloperModeState.IsCombatLogInstant && !CombatManager.DisableCombatUIOutput)
+                {
+                    CombatSequenceHudState.Begin(steps);
+                    CombatSequenceHudState.FinishSequence();
+                    Invalidate();
+                }
                 if (!ShouldPlay()) CombatVisualPlayback.Clear();
                 return;
             }

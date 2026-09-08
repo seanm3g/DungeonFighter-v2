@@ -51,6 +51,10 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         public void RenderCharacterPanel(Character character, bool hideCombatHealthBars = false)
         {
+            if (hideCombatHealthBars && CombatArenaHudLayout.CanUseCinematic)
+            {
+                CombatantSummaryRenderer.Render(canvas, character, false); return;
+            }
             // Clear the left panel area before drawing so re-renders with clearCanvas: false (e.g. after level-up) do not leave duplicate content
             int leftX = LayoutConstants.LEFT_PANEL_X;
             int leftY = LayoutConstants.LEFT_PANEL_Y;

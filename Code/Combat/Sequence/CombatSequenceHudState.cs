@@ -40,6 +40,7 @@ namespace RPGGame.Combat.Sequence
             CurrentIndex = Steps.Count > 0 ? 0 : -1;
             ResultRevealed = false;
             VisibleResult = new List<ColoredText>();
+            CombatResolutionState.Update();
         }
 
         public static void SetActive(int index, bool resultRevealed, IReadOnlyList<ColoredText>? visibleResult = null)
@@ -47,6 +48,7 @@ namespace RPGGame.Combat.Sequence
             CurrentIndex = index;
             ResultRevealed = resultRevealed;
             VisibleResult = visibleResult ?? new List<ColoredText>();
+            CombatResolutionState.Update();
         }
 
         /// <summary>Leave every column complete so the finished calculation stays visible until the next swing.</summary>
@@ -60,6 +62,7 @@ namespace RPGGame.Combat.Sequence
 
             CurrentIndex = Steps.Count;
             ResultRevealed = true;
+            CombatResolutionState.Update();
         }
 
         public static void ClearStep()
@@ -68,6 +71,7 @@ namespace RPGGame.Combat.Sequence
             CurrentIndex = -1;
             ResultRevealed = false;
             VisibleResult = new List<ColoredText>();
+            CombatResolutionState.Update();
         }
 
         public static void Reset()

@@ -23,6 +23,12 @@ namespace RPGGame.Combat.Sequence
             int w = Math.Max(1, LayoutConstants.CENTER_PANEL_WIDTH - 2);
             int h = LayoutConstants.COMBAT_SEQUENCE_HUD_HEIGHT;
             canvas.ClearTextInArea(x, y, w, h);
+            if (CombatArenaHudLayout.UseCinematic)
+            {
+                canvas.AddText(x, y, FighterResolveActionStackRenderer.Fit(CombatPlaybackControls.Timeline, w), RPGGame.UI.Avalonia.CombatVisuals.BattleOverlay.Bone);
+                canvas.AddText(x, y + 1, FighterResolveActionStackRenderer.Fit($"{(CombatPlaybackControls.Paused ? "PAUSED" : "P: pause")}  |  PgUp/PgDn: {DeveloperModeState.CombatSpeedMultiplier}x  |  Roll and outcome below battlefield", w), RPGGame.UI.Avalonia.CombatVisuals.BattleOverlay.Sulfur);
+                return;
+            }
 
             int colCount = CombatSequenceHudLayout.ColumnTitles.Length;
             var columns = CombatSequenceHudLayout.MeasureColumns(x, w, colCount);

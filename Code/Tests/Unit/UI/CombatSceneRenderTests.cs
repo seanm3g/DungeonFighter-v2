@@ -10,6 +10,7 @@ using RPGGame.Tests;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.CombatVisuals;
+using RPGGame.Combat.Sequence;
 
 namespace RPGGame.Tests.Unit.UI;
 
@@ -34,6 +35,8 @@ public static class CombatSceneRenderTests
         bool priorInstant = DeveloperModeState.IsCombatLogInstant;
         bool priorAnimation = visualSettings.AnimateCombat, priorEffects = visualSettings.CombatVisualEffects;
         bool priorReduced = visualSettings.ReducedCombatMotion;
+        bool priorIllustrated = visualSettings.IllustratedCombat;
+        bool priorBand = CombatSequenceHudState.IsBandReserved;
         var rosterPath = JsonLoader.FindGameDataFile(GameConstants.EnemiesJson)
             ?? GameConstants.TryGetExistingGameDataFilePath(GameConstants.EnemiesJson);
         TestBase.AssertTrue(rosterPath != null, "live enemy roster is available for coverage check", ref run, ref passed, ref failed);
@@ -89,12 +92,16 @@ public static class CombatSceneRenderTests
             DeveloperModeState.SetCombatLogInstant(false);
             visualSettings.AnimateCombat = visualSettings.CombatVisualEffects = true;
             visualSettings.ReducedCombatMotion = false;
+            visualSettings.IllustratedCombat = true;
             canvas.Measure(new Size(1600, 900));
             canvas.Arrange(new Rect(0, 0, 1600, 900));
             canvas.ConfigureCombatScene(true, "Prototype demon", true);
             CombatArenaHudLayout.GetResolveStackBand(out int x, out int y, out int w, out int h);
-            canvas.AddBorder(x, y, w, h, Colors.White);
-            canvas.AddText(x + 2, y + 1, "ACTION RESOLUTION", Colors.White);
+            if (!CombatArenaHudLayout.UseCinematic)
+            {
+                canvas.AddBorder(x, y, w, h, Colors.White);
+                canvas.AddText(x + 2, y + 1, "ACTION RESOLUTION", Colors.White);
+            }
             using var target = new RenderTargetBitmap(new PixelSize(1600, 900), new Vector(96, 96));
             target.Render(canvas);
             var output = System.Environment.GetEnvironmentVariable("DEMON_FIGHTER_RENDER_CHECK");
@@ -159,10 +166,33 @@ public static class CombatSceneRenderTests
                 if (!string.IsNullOrWhiteSpace(output)) piles.Save(Path.Combine(Path.GetDirectoryName(Path.GetFullPath(output))!, "action-piles.png"));
                 foreach (var size in new[] { new PixelSize(1280, 800), new PixelSize(1920, 1080) })
                 {
+                    CombatSequenceHudState.IsBandReserved = true;
                     canvas.Measure(new Size(size.Width, size.Height));
                     canvas.Arrange(new Rect(0, 0, size.Width, size.Height));
                     using var resized = new RenderTargetBitmap(size, new Vector(96,96));
                     resized.Render(canvas); // update responsive grid before rebuilding cards
+                    canvas.Clear();
+                    canvas.SetBattlePresentation(snapshot with { Rank = "Rare" });
+                    canvas.ConfigureCombatScene(true,"Wolf",false,CombatVisualPlayback.ActorId(sampleHero),CombatVisualPlayback.ActorId(sampleEnemy));
+                    CombatantSummaryRenderer.Render(canvas,sampleHero,false);
+                    CombatantSummaryRenderer.Render(canvas,sampleEnemy,true,"Haunted Crypt","Nothingness Room");
+                    var demoResult = new ActionExecutionResult {
+                        SelectedAction = new RPGGame.Action { Name="SLAM" }, ModifiedBaseRoll=14,RollBonus=3,AttackRoll=17,
+                        Hit=true,IsCombo=true,Damage=49,ResolvedHitThreshold=6,ResolvedComboThreshold=14,
+                        ResolvedCritThreshold=20,ResolvedCritMissThreshold=1,
+                        DamageTrace=new CombatSequenceDamageTrace { BaseDamage=42,ActionMultiplier=1.2,Raw=50,Block=1,Final=49 }
+                    };
+                    var demoSteps=CombatSequenceBuilder.From(demoResult,sampleHero,sampleEnemy);
+                    CombatSequenceHudState.Begin(demoSteps);
+                    CombatSequenceHudState.FinishSequence();
+                    var writer = new RPGGame.UI.Avalonia.Renderers.ColoredTextWriter(canvas);
+                    var demoBuffer = new RPGGame.UI.Avalonia.Display.DisplayBuffer();
+                    demoBuffer.Add("Visual test Attacks Wolf... and hits with SLAM for 49 damage");
+                    demoBuffer.Add("Wolf Attacks Visual test... and hits for 18 damage");
+                    CombatArenaHudRenderer.Render(canvas,writer,sampleHero,sampleEnemy,demoBuffer,new[] { "Wolf" });
+                    CombatSequenceHudRenderer.Render(canvas);
+                    new RPGGame.UI.Avalonia.Renderers.DungeonRenderer(canvas,writer,new System.Collections.Generic.List<ClickableElement>())
+                        .RenderActionInfoStrip(sampleHero,drawHoverDetailOverlay:false);
                     FighterResolveActionStackRenderer.Render(canvas);
                     resized.Render(canvas);
                     var cardBounds = FighterResolveActionStackRenderer.ActiveCardBounds;
@@ -170,6 +200,20 @@ public static class CombatSceneRenderTests
                         cardBounds.Bottom * canvas.GetCharHeight() <= size.Height + 1,
                         $"active card stays inside {size.Width}x{size.Height}", ref run, ref passed, ref failed);
                     if (!string.IsNullOrWhiteSpace(output)) resized.Save(Path.Combine(Path.GetDirectoryName(Path.GetFullPath(output))!, $"battle-{size.Width}.png"));
+                    CombatArenaHudLayout.GetSceneRect(out int sceneX,out int sceneY,out int sceneW,out int sceneH);
+                    CombatArenaHudLayout.GetResolutionRect(out int resolutionX,out int resolutionY,out int resolutionW,out int resolutionH);
+                    TestBase.AssertTrue(CombatArenaHudLayout.UseCinematic && sceneY+sceneH<=resolutionY && sceneW==resolutionW,
+                        $"full width scene and resolution separate at {size.Width}",ref run,ref passed,ref failed);
+                    if(size.Width==1920 && !string.IsNullOrWhiteSpace(output))
+                    {
+                        foreach(var kind in new[] {CombatSequenceStepKind.Roll,CombatSequenceStepKind.Outcome,CombatSequenceStepKind.Damage})
+                        {
+                            int index=demoSteps.FindIndex(s=>s.Kind==kind);
+                            CombatSequenceHudState.SetActive(index,true,demoSteps[index].Result);
+                            resized.Render(canvas);
+                            resized.Save(Path.Combine(Path.GetDirectoryName(Path.GetFullPath(output))!, $"resolution-{kind}.png"));
+                        }
+                    }
                 }
                 canvas.Measure(new Size(1600,900));
                 canvas.Arrange(new Rect(0,0,1600,900));
@@ -197,6 +241,9 @@ public static class CombatSceneRenderTests
             visualSettings.AnimateCombat = priorAnimation;
             visualSettings.CombatVisualEffects = priorEffects;
             visualSettings.ReducedCombatMotion = priorReduced;
+            visualSettings.IllustratedCombat = priorIllustrated;
+            CombatSequenceHudState.ClearStep();
+            CombatSequenceHudState.IsBandReserved = priorBand;
             RPGGame.Combat.Sequence.CombatVisualPlayback.Clear();
         }
         TestBase.PrintSummary("CombatSceneRenderTests", run, passed, failed);

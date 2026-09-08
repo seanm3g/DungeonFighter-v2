@@ -176,6 +176,15 @@ public sealed class CombatSceneRenderer : IDisposable
             destination.Width * .045, destination.Height * .018);
         context.DrawEllipse(shadow, null, new Point(enemyStage.X + destination.Width * .69, destination.Y + destination.Height * .70),
             destination.Width * .045, destination.Height * .018);
+        var resolving = CombatResolutionState.Current;
+        if (resolving.Phase != "RESULT" && resolving.Visual is { SourceId: not 0 } acting && (acting.SourceId == heroId || acting.SourceId == enemyId))
+        {
+            bool enemyActing = acting.SourceId == enemyId;
+            var actorStage = enemyActing ? enemyStage : heroStage;
+            context.DrawEllipse(null, new Pen(new SolidColorBrush(enemyActing ? BattleOverlay.Crimson : BattleOverlay.Sulfur), 2),
+                new Point(actorStage.X + destination.Width * (enemyActing ? .69 : .30), destination.Y + destination.Height * .70),
+                destination.Width * .05, destination.Height * .02);
+        }
         if (!animated || heroClips == null || !heroClips.Draw(context, heroStage, heroPose.Clip, Elapsed(heroPose), heroPose.Duration))
             context.DrawImage(fighter!, heroStage);
         if (enemyArtwork != null)
@@ -223,7 +232,7 @@ public sealed class CombatSceneRenderer : IDisposable
             double x = stage.X + stage.Width * (.46 + .10 * Math.Sin(i * 2.4 + phase));
             double y = stage.Y + stage.Height * (.64 - phase * .28);
             using var fade = context.PushOpacity(Math.Sin(phase * Math.PI) * .45);
-            context.DrawEllipse(new SolidColorBrush(BattleOverlay.Sulfur), null, new Point(x,y), 1.2, 2.2);
+            context.DrawEllipse(new SolidColorBrush(Color.Parse("#E99D56")), null, new Point(x,y), 1.2, 2.2);
         }
     }
 
