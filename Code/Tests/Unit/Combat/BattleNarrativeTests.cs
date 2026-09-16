@@ -29,6 +29,9 @@ namespace RPGGame.Tests.Unit.Combat
             TestConstructor();
             TestAddEvent();
             TestGetNarratives();
+            TestEventOrderIsInsertionOrder();
+            TestCriticalMissFlavorDoesNotReplayOnLaterHits();
+            TestCriticalMissFlavorIsConsumedOnce();
             TestInformationalSummaryExcludesComboCounts();
 
             TestBase.PrintSummary("BattleNarrative Tests", _testsRun, _testsPassed, _testsFailed);
@@ -109,6 +112,91 @@ namespace RPGGame.Tests.Unit.Combat
                     $"GetTriggeredNarratives failed: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestEventOrderIsInsertionOrder()
+        {
+            Console.WriteLine("\n--- Testing event insertion order ---");
+
+            var narrative = new BattleNarrative("Hero", "Goblin", "Test", 100, 100);
+            var first = new BattleEvent { Actor = "Hero", Target = "Goblin", Action = "A", IsSuccess = false, NaturalRoll = 1 };
+            var second = new BattleEvent { Actor = "Goblin", Target = "Hero", Action = "B", IsSuccess = true, NaturalRoll = 12, Damage = 3 };
+            var third = new BattleEvent { Actor = "Hero", Target = "Goblin", Action = "C", IsSuccess = true, NaturalRoll = 15, Damage = 8 };
+            narrative.AddEvent(first);
+            narrative.AddEvent(second);
+            narrative.AddEvent(third);
+
+            var events = narrative.GetAllEvents();
+            TestBase.AssertEqual(3, events.Count, "GetAllEvents should keep three events",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ReferenceEquals(events[0], first),
+                "First recorded event should stay first (not ConcurrentBag LIFO)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ReferenceEquals(events[2], third),
+                "Last recorded event should stay last",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCriticalMissFlavorDoesNotReplayOnLaterHits()
+        {
+            Console.WriteLine("\n--- Testing crit-miss flavor does not replay on later hits ---");
+
+            var narrative = new BattleNarrative("Hero", "Goblin", "Test", 100, 100);
+            narrative.AddEvent(new BattleEvent
+            {
+                Actor = "Hero",
+                Target = "Goblin",
+                Action = "Swing",
+                IsSuccess = false,
+                NaturalRoll = 1,
+                Damage = 0
+            });
+            var missLines = narrative.GetTriggeredNarrativesIfSignificant();
+            TestBase.AssertTrue(
+                missLines.Exists(BattleEventAnalyzer.IsCriticalMissFlavorText),
+                "Natural 1 miss should surface critical-miss flavor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            for (int i = 0; i < 5; i++)
+            {
+                narrative.AddEvent(new BattleEvent
+                {
+                    Actor = i % 2 == 0 ? "Goblin" : "Hero",
+                    Target = i % 2 == 0 ? "Hero" : "Goblin",
+                    Action = "Hit",
+                    IsSuccess = true,
+                    NaturalRoll = 12 + (i % 6),
+                    Damage = 5
+                });
+                var later = narrative.GetTriggeredNarrativesIfSignificant();
+                TestBase.AssertTrue(
+                    !later.Exists(BattleEventAnalyzer.IsCriticalMissFlavorText),
+                    $"Hit {i + 1} after a crit miss must not reuse miss flavor",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestCriticalMissFlavorIsConsumedOnce()
+        {
+            Console.WriteLine("\n--- Testing crit-miss flavor is consumed once ---");
+
+            var narrative = new BattleNarrative("Hero", "Goblin", "Test", 100, 100);
+            narrative.AddEvent(new BattleEvent
+            {
+                Actor = "Hero",
+                Target = "Goblin",
+                Action = "Swing",
+                IsSuccess = false,
+                NaturalRoll = 1
+            });
+            var first = narrative.GetTriggeredNarrativesIfSignificant();
+            var second = narrative.GetTriggeredNarrativesIfSignificant();
+            TestBase.AssertTrue(first.Count > 0,
+                "First display pass should return the miss flavor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, second.Count,
+                "Second display pass without a new event should not replay flavor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestInformationalSummaryExcludesComboCounts()

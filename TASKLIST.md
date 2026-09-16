@@ -4,6 +4,8 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **Bug fix / Combat log — miss flavor on hits:** After a hero natural 1, leftover crit-miss flavor (`goes astray` / `off-target` / `poorly timed strike`) was reprinting on later hits and enemy turns. `BattleNarrative` now keeps FIFO events, generates flavor once per swing, and consumes it for display; hit lines drop miss flavor. Tests: `BattleNarrativeTests`, `BattleEventAnalyzerTests`, `CombatLogDisplayTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `PROBLEM_SOLUTIONS.md`, `TASKLIST.md`.
+
 - [x] **Data / Sheets — ACTIONS ENERGY → BLOCK push:** Live ACTIONS tab still had **ENERGY** (costs 1–3). `PUSH_ACTIONS` renamed header to **BLOCK** (col K) and wrote percent points from `Actions.json` (118 actions). Docs: `TASKLIST.md`.
 
 - [x] **Repo hygiene — scaffolding / unused cleanup:** Untracked agent build dumps (`_build_out*`, `bin_agent_*`, …); hardened `.gitignore`; removed scratch dumps/`.bak`s, duplicate build-design doc, combat-reliability phase checklists, orphan ColorSystem demos, unwired gameplay `Main`s, obsolete animal-suffix shims, `ClassActionManagerSimplified` + `ActionAdditionTemplate`, empty MCP tool bases, and legacy `TestManager` runner tree. Docs: `OVERVIEW.md`, `Documentation/README.md`, `Code/Tests/README.md`, `TASKLIST.md`. Verify: `dotnet build`; smoke `--run-test-filter` on live suites.

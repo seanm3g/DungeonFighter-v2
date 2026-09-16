@@ -4,6 +4,18 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Bug fix: hero miss flavor replayed on every later swing (September 2026)
+**Problem:** After a hero critical miss, the combat log kept printing random hero-miss flavor (`goes astray`, `off-target`, `poorly timed strike`) on later hits and enemy turns.
+
+**Root cause:** `BattleNarrative` stored events in a `ConcurrentBag` and treated `ToList()[Count-1]` as the latest swing. The bag is unordered (often LIFO), so the original natural-1 event stayed "last." `GetTriggeredNarrativesIfSignificant` re-analyzed that miss each turn and minted a new random miss line. Display filtering also missed several FlavorText phrases, so leftover miss copy leaked onto hits.
+
+**Solutions:**
+1. Store events in a FIFO `ConcurrentQueue`; generate narratives once in `AddEvent`; consume them once for display
+2. Classify all current crit-miss flavor phrases and drop them unless the action line is a critical miss
+3. Tests: `BattleNarrativeTests`, `BattleEventAnalyzerTests`, `CombatLogDisplayTests`
+
+**Related files:** `BattleNarrative.cs`, `BattleEventAnalyzer.cs`, `TextDisplayIntegration.cs`
+
 ### Combat: free action Block % replaces energy (September 2026)
 **Problem:** Energy was only a proxy for BLOCK (cost 1–3 → leftover → fixed % table) and cluttered the action budget metaphor.
 

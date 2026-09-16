@@ -157,8 +157,7 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Gets the narratives that were triggered by the last event
-        /// Returns cached narratives to prevent duplicate analysis
+        /// Gets the narratives that were triggered by the last recorded event (no re-analysis).
         /// </summary>
         /// <returns>List of triggered narrative messages</returns>
         public List<string> GetTriggeredNarratives()

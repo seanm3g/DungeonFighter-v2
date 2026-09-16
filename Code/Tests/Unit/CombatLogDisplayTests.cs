@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Avalonia.Media;
+using RPGGame;
 using RPGGame.Tests;
 using RPGGame.UI.ColorSystem;
 
@@ -29,6 +30,7 @@ namespace RPGGame.Tests.Unit
             TestRollInfoDisplay();
             TestStatusEffectDisplay();
             TestCriticalMissNarrative();
+            TestHitActionDropsCriticalMissFlavor();
             TestNarrativeIntegration();
             TestBlockSpacing();
             TestEntityChangeSpacing();
@@ -125,6 +127,35 @@ namespace RPGGame.Tests.Unit
             var plainText = ColoredTextRenderer.RenderAsPlainText(criticalMissNarrative);
             TestBase.AssertTrue(!string.IsNullOrEmpty(plainText), 
                 "Critical miss narrative should render to plain text", 
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestHitActionDropsCriticalMissFlavor()
+        {
+            Console.WriteLine("\n--- Testing hit action drops leftover crit-miss flavor ---");
+
+            var hitAction = new List<ColoredText> { new ColoredText("Hero Attacks Goblin... and hits for 25 damage", Colors.White) };
+            var missFlavor = new List<List<ColoredText>>
+            {
+                new List<ColoredText> { new ColoredText("The attack from Hero goes completely off-target, a moment of embarrassing failure!", Colors.White) },
+                new List<ColoredText> { new ColoredText("The battle rages on!", Colors.Cyan) }
+            };
+
+            TextDisplayIntegration.SplitCombatNarratives(hitAction, missFlavor, out var critMiss, out var remaining);
+            TestBase.AssertTrue(critMiss == null,
+                "Hit action must not keep critical-miss flavor as attached miss text",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, remaining.Count,
+                "Hit action should keep non-miss narratives only",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var critAction = new List<ColoredText> { new ColoredText("Hero CRITICAL MISS vs Goblin", Colors.White) };
+            TextDisplayIntegration.SplitCombatNarratives(critAction, missFlavor, out var attached, out var leftover);
+            TestBase.AssertTrue(attached != null && attached.Count > 0,
+                "Critical miss action should keep matching miss flavor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, leftover.Count,
+                "Critical miss action should still keep unrelated narratives",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
