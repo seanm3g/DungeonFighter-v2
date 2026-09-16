@@ -44,8 +44,8 @@ namespace RPGGame
     /// </summary>
     public class BattleNarrative
     {
-        // Core data - use thread-safe collections for parallel battle testing
-        private readonly ConcurrentBag<BattleEvent> events;
+        // FIFO so "last event" is the swing just recorded (ConcurrentBag is unordered / LIFO).
+        private readonly ConcurrentQueue<BattleEvent> events;
         private readonly string playerName;
         private readonly string enemyName;
         private readonly string currentLocation;
@@ -67,6 +67,11 @@ namespace RPGGame
         
         // Cache narratives for the last event to prevent re-analysis
         private readonly BattleNarrativeCache narrativeCache;
+        private readonly object lastEventLock = new object();
+        private BattleEvent? lastAddedEvent;
+        private List<string> lastAddedNarratives = new List<string>();
+        private bool lastAddedNarrativesConsumed;
+        private int eventCount;
 
         public BattleNarrative(string playerName, string enemyName, string environmentName = "", int playerHealth = 0, int enemyHealth = 0)
         {
@@ -79,7 +84,7 @@ namespace RPGGame
             this.finalEnemyHealth = enemyHealth;
 
             // Initialize collections - use thread-safe collections for parallel testing
-            this.events = new ConcurrentBag<BattleEvent>();
+            this.events = new ConcurrentQueue<BattleEvent>();
             this.narrativeEvents = new ConcurrentBag<string>();
             this.pendingNarrativeEvents = new ConcurrentBag<string>();
             this.narrativeCache = new BattleNarrativeCache();
@@ -96,7 +101,8 @@ namespace RPGGame
 
         public void AddEvent(BattleEvent evt)
         {
-            events.Add(evt);
+            events.Enqueue(evt);
+            int addedIndex = System.Threading.Interlocked.Increment(ref eventCount) - 1;
 
             // Update final health based on damage/healing
             if (evt.Actor == playerName && evt.Target == enemyName && evt.Damage > 0)
@@ -121,8 +127,16 @@ namespace RPGGame
                 funMomentTracker.RecordEvent(evt, finalPlayerHealth, finalEnemyHealth);
             }
 
-            // Check for significant events that trigger narrative
-            AnalyzeEventForNarratives(evt);
+            // Analyze once per event. Re-analyzing a crit miss later would mint a new random
+            // miss line and attach it to whatever swing is currently on screen.
+            var triggeredNarratives = AnalyzeEventForNarratives(evt);
+            narrativeCache.CacheNarratives(evt, triggeredNarratives, addedIndex);
+            lock (lastEventLock)
+            {
+                lastAddedEvent = evt;
+                lastAddedNarratives = triggeredNarratives;
+                lastAddedNarrativesConsumed = false;
+            }
         }
 
         /// <summary>
@@ -149,27 +163,12 @@ namespace RPGGame
         /// <returns>List of triggered narrative messages</returns>
         public List<string> GetTriggeredNarratives()
         {
-            if (events.Count == 0)
+            lock (lastEventLock)
             {
-                return new List<string>();
+                return lastAddedEvent == null
+                    ? new List<string>()
+                    : new List<string>(lastAddedNarratives);
             }
-
-            // Convert to list to access last element (ConcurrentBag doesn't support indexing)
-            var eventsList = events.ToList();
-            var lastEventIndex = eventsList.Count - 1;
-            var lastEvent = eventsList[lastEventIndex];
-            
-            // Return cached narratives if this is the same event we've already analyzed
-            var cachedNarratives = narrativeCache.GetCachedNarratives(lastEvent, lastEventIndex);
-            if (cachedNarratives != null)
-            {
-                return cachedNarratives;
-            }
-            
-            // If not cached or different event, analyze and cache it
-            var triggeredNarratives = AnalyzeEventForNarratives(lastEvent);
-            narrativeCache.CacheNarratives(lastEvent, triggeredNarratives, lastEventIndex);
-            return triggeredNarratives;
         }
 
         /// <summary>
@@ -180,37 +179,30 @@ namespace RPGGame
         /// <returns>List of significant narrative messages that should be displayed</returns>
         public List<string> GetTriggeredNarrativesIfSignificant()
         {
-            if (events.Count == 0)
+            BattleEvent? evt;
+            List<string> narratives;
+            int displayedIndex;
+            lock (lastEventLock)
+            {
+                if (lastAddedEvent == null || lastAddedNarrativesConsumed)
+                {
+                    return new List<string>();
+                }
+
+                evt = lastAddedEvent;
+                narratives = lastAddedNarratives;
+                displayedIndex = Math.Max(0, eventCount - 1);
+                lastAddedNarrativesConsumed = true;
+            }
+
+            narrativeCache.MarkAsDisplayed(displayedIndex);
+
+            if (!ShouldDisplayNarrativesForEvent(evt))
             {
                 return new List<string>();
             }
 
-            // Convert to list to access last element (ConcurrentBag doesn't support indexing)
-            var eventsList = events.ToList();
-            var lastEventIndex = eventsList.Count - 1;
-            var lastEvent = eventsList[lastEventIndex];
-            
-            // Check if this event is significant enough to warrant narrative display
-            if (!ShouldDisplayNarrativesForEvent(lastEvent))
-            {
-                return new List<string>();
-            }
-            
-            // Return cached narratives if this is the same event we've already analyzed
-            var cachedNarratives = narrativeCache.GetCachedNarratives(lastEvent, lastEventIndex);
-            if (cachedNarratives != null)
-            {
-                // Filter to only significant narratives
-                return FilterSignificantNarratives(cachedNarratives, lastEvent);
-            }
-            
-            // If not cached or different event, analyze and cache it
-            var triggeredNarratives = AnalyzeEventForNarratives(lastEvent);
-            narrativeCache.CacheNarratives(lastEvent, triggeredNarratives, lastEventIndex);
-            
-            // Filter to only significant narratives
-            var filteredNarratives = FilterSignificantNarratives(triggeredNarratives, lastEvent);
-            return filteredNarratives;
+            return FilterSignificantNarratives(narratives, evt);
         }
 
         /// <summary>

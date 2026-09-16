@@ -98,7 +98,8 @@ namespace RPGGame
                 }
             }
 
-            // Critical Miss - when a critical miss occurs (natural 1 only)
+            // Critical Miss - when a critical miss occurs (natural 1 only).
+            // Do not re-run AnalyzeEvent on this same BattleEvent: each call picks a new random line.
             if (!evt.IsSuccess && evt.NaturalRoll == 1)
             {
                 var replacements = new Dictionary<string, string> { { "name", evt.Actor } };
@@ -298,6 +299,33 @@ namespace RPGGame
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// True when <paramref name="narrativeText"/> is a critical-miss flavor line (JSON bank or fallback).
+        /// Hit/miss actions must not show these unless the swing itself was a critical miss.
+        /// </summary>
+        public static bool IsCriticalMissFlavorText(string? narrativeText)
+        {
+            if (string.IsNullOrEmpty(narrativeText))
+            {
+                return false;
+            }
+
+            return narrativeText.Contains("wild swing", StringComparison.OrdinalIgnoreCase)
+                || narrativeText.Contains("misses completely", StringComparison.OrdinalIgnoreCase)
+                || narrativeText.Contains("goes wide", StringComparison.OrdinalIgnoreCase)
+                || narrativeText.Contains("falters at the crucial moment", StringComparison.OrdinalIgnoreCase)
+                || narrativeText.Contains("fails spectacularly", StringComparison.OrdinalIgnoreCase)
+                || narrativeText.Contains("critical miss", StringComparison.OrdinalIgnoreCase)
+                || narrativeText.Contains("poorly timed strike", StringComparison.OrdinalIgnoreCase)
+                || narrativeText.Contains("fails to connect", StringComparison.OrdinalIgnoreCase)
+                || narrativeText.Contains("off-target", StringComparison.OrdinalIgnoreCase)
+                || narrativeText.Contains("embarrassing failure", StringComparison.OrdinalIgnoreCase)
+                || narrativeText.Contains("devastating miss", StringComparison.OrdinalIgnoreCase)
+                || narrativeText.Contains("empty space", StringComparison.OrdinalIgnoreCase)
+                || narrativeText.Contains("goes astray", StringComparison.OrdinalIgnoreCase)
+                || narrativeText.Contains("finding nothing but disappointment", StringComparison.OrdinalIgnoreCase);
         }
 
     }

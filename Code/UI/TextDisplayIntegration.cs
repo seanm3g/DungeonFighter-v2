@@ -42,43 +42,9 @@ namespace RPGGame
             List<List<ColoredText>>? narrativeMessages = null,
             Character? character = null)
         {
-            // Check if this is a critical miss and extract critical miss narrative
-            List<ColoredText>? criticalMissNarrative = null;
-            var remainingNarratives = new List<List<ColoredText>>();
-            
-            // Only process narratives if the list is not null and not empty
-            if (narrativeMessages != null && narrativeMessages.Count > 0)
-            {
-                // Check if action text contains "CRITICAL MISS" (only for critical misses, not regular misses)
-                string actionPlainText = ColoredTextRenderer.RenderAsPlainText(actionText);
-                bool isCriticalMiss = actionPlainText.Contains("CRITICAL MISS", StringComparison.OrdinalIgnoreCase);
-                
-                foreach (var narrative in narrativeMessages)
-                {
-                    if (narrative != null && narrative.Count > 0)
-                    {
-                        string narrativeText = ColoredTextRenderer.RenderAsPlainText(narrative);
-                        // Check if this is a critical miss narrative (contains keywords like "wild swing", "misses completely", etc.)
-                        bool isCriticalMissNarrative = narrativeText.Contains("wild swing", StringComparison.OrdinalIgnoreCase) ||
-                                                      narrativeText.Contains("misses completely", StringComparison.OrdinalIgnoreCase) ||
-                                                      narrativeText.Contains("goes wide", StringComparison.OrdinalIgnoreCase) ||
-                                                      narrativeText.Contains("fails spectacularly", StringComparison.OrdinalIgnoreCase) ||
-                                                      narrativeText.Contains("critical miss", StringComparison.OrdinalIgnoreCase);
-                        
-                        // If this is a critical miss action and the narrative is a critical miss narrative, include it in the action block
-                        if (isCriticalMiss && isCriticalMissNarrative && criticalMissNarrative == null)
-                        {
-                            criticalMissNarrative = narrative;
-                        }
-                        else if (!isCriticalMissNarrative)
-                        {
-                            // Keep other narratives to display separately (but skip critical miss narratives if action is not a miss)
-                            remainingNarratives.Add(narrative);
-                        }
-                        // If isCriticalMissNarrative is true but isCriticalMiss is false, skip it (don't display critical miss narrative for regular misses or successful hits)
-                    }
-                }
-            }
+            List<ColoredText>? criticalMissNarrative;
+            List<List<ColoredText>> remainingNarratives;
+            SplitCombatNarratives(actionText, narrativeMessages, out criticalMissNarrative, out remainingNarratives);
             
             // Display the action block with ColoredText, including critical miss narrative and all other narratives
             // All narratives are included in the turn block to ensure each character's turn is displayed as a single unit
@@ -102,46 +68,54 @@ namespace RPGGame
             List<List<ColoredText>>? narrativeMessages = null,
             Character? character = null)
         {
-            // Check if this is a critical miss and extract critical miss narrative
-            List<ColoredText>? criticalMissNarrative = null;
-            var remainingNarratives = new List<List<ColoredText>>();
-            
-            // Only process narratives if the list is not null and not empty
-            if (narrativeMessages != null && narrativeMessages.Count > 0)
-            {
-                // Check if action text contains "CRITICAL MISS" (only for critical misses, not regular misses)
-                string actionPlainText = ColoredTextRenderer.RenderAsPlainText(actionText);
-                bool isCriticalMiss = actionPlainText.Contains("CRITICAL MISS", StringComparison.OrdinalIgnoreCase);
-                
-                foreach (var narrative in narrativeMessages)
-                {
-                    if (narrative != null && narrative.Count > 0)
-                    {
-                        string narrativeText = ColoredTextRenderer.RenderAsPlainText(narrative);
-                        // Check if this is a critical miss narrative (contains keywords like "wild swing", "misses completely", etc.)
-                        bool isCriticalMissNarrative = narrativeText.Contains("wild swing", StringComparison.OrdinalIgnoreCase) ||
-                                                      narrativeText.Contains("misses completely", StringComparison.OrdinalIgnoreCase) ||
-                                                      narrativeText.Contains("goes wide", StringComparison.OrdinalIgnoreCase) ||
-                                                      narrativeText.Contains("fails spectacularly", StringComparison.OrdinalIgnoreCase) ||
-                                                      narrativeText.Contains("critical miss", StringComparison.OrdinalIgnoreCase);
-                        
-                        // If this is a critical miss action and the narrative is a critical miss narrative, include it in the action block
-                        if (isCriticalMiss && isCriticalMissNarrative && criticalMissNarrative == null)
-                        {
-                            criticalMissNarrative = narrative;
-                        }
-                        else if (!isCriticalMissNarrative)
-                        {
-                            // Keep other narratives to display separately (but skip critical miss narratives if action is not a miss)
-                            remainingNarratives.Add(narrative);
-                        }
-                        // If isCriticalMissNarrative is true but isCriticalMiss is false, skip it (don't display critical miss narrative for regular misses or successful hits)
-                    }
-                }
-            }
+            List<ColoredText>? criticalMissNarrative;
+            List<List<ColoredText>> remainingNarratives;
+            SplitCombatNarratives(actionText, narrativeMessages, out criticalMissNarrative, out remainingNarratives);
             // Display the action block with ColoredText, including critical miss narrative and all other narratives
             // All narratives are included in the turn block to ensure each character's turn is displayed as a single unit
             await BlockDisplayManager.DisplayActionBlockAsync(actionText, rollInfo, statusEffects, criticalMissNarrative, remainingNarratives, character);
+        }
+
+        /// <summary>
+        /// Attaches critical-miss flavor only to swings whose action line is a critical miss.
+        /// Miss lines on hits (or ordinary misses) are dropped so they cannot appear as leftover flavor.
+        /// </summary>
+        public static void SplitCombatNarratives(
+            List<ColoredText> actionText,
+            List<List<ColoredText>>? narrativeMessages,
+            out List<ColoredText>? criticalMissNarrative,
+            out List<List<ColoredText>> remainingNarratives)
+        {
+            criticalMissNarrative = null;
+            remainingNarratives = new List<List<ColoredText>>();
+
+            if (narrativeMessages == null || narrativeMessages.Count == 0)
+            {
+                return;
+            }
+
+            string actionPlainText = ColoredTextRenderer.RenderAsPlainText(actionText);
+            bool isCriticalMiss = actionPlainText.Contains("CRITICAL MISS", StringComparison.OrdinalIgnoreCase);
+
+            foreach (var narrative in narrativeMessages)
+            {
+                if (narrative == null || narrative.Count == 0)
+                {
+                    continue;
+                }
+
+                string narrativeText = ColoredTextRenderer.RenderAsPlainText(narrative);
+                bool isCriticalMissNarrative = BattleEventAnalyzer.IsCriticalMissFlavorText(narrativeText);
+
+                if (isCriticalMiss && isCriticalMissNarrative && criticalMissNarrative == null)
+                {
+                    criticalMissNarrative = narrative;
+                }
+                else if (!isCriticalMissNarrative)
+                {
+                    remainingNarratives.Add(narrative);
+                }
+            }
         }
         
         
