@@ -1,0 +1,8701 @@
+{
+  "version": 1,
+  "size": 16,
+  "columns": 24,
+  "entries": [
+    {
+      "Id": "weapons:0",
+      "Name": "Bludgeon",
+      "Family": "mace",
+      "Tier": 1,
+      "Shape": "club",
+      "source": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:0",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:1",
+      "Name": "Clonker",
+      "Family": "mace",
+      "Tier": 1,
+      "Shape": "mace",
+      "source": [
+        16,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:1",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:2",
+      "Name": "Club",
+      "Family": "mace",
+      "Tier": 1,
+      "Shape": "club",
+      "source": [
+        32,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:2",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:3",
+      "Name": "Cudgel",
+      "Family": "mace",
+      "Tier": 1,
+      "Shape": "club",
+      "source": [
+        48,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:3",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:4",
+      "Name": "Knob",
+      "Family": "mace",
+      "Tier": 1,
+      "Shape": "mace",
+      "source": [
+        64,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:4",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:5",
+      "Name": "Log",
+      "Family": "mace",
+      "Tier": 1,
+      "Shape": "club",
+      "source": [
+        80,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:5",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:6",
+      "Name": "Lump",
+      "Family": "mace",
+      "Tier": 1,
+      "Shape": "mace",
+      "source": [
+        96,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:6",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:7",
+      "Name": "Mallet",
+      "Family": "mace",
+      "Tier": 1,
+      "Shape": "hammer",
+      "source": [
+        112,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:7",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:8",
+      "Name": "Pounder",
+      "Family": "mace",
+      "Tier": 1,
+      "Shape": "mace",
+      "source": [
+        128,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:8",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:9",
+      "Name": "Basher",
+      "Family": "mace",
+      "Tier": 2,
+      "Shape": "mace",
+      "source": [
+        144,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:9",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:10",
+      "Name": "Breaker",
+      "Family": "mace",
+      "Tier": 2,
+      "Shape": "mace",
+      "source": [
+        160,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:10",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:11",
+      "Name": "Cracker",
+      "Family": "mace",
+      "Tier": 2,
+      "Shape": "mace",
+      "source": [
+        176,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:11",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:12",
+      "Name": "Crusher",
+      "Family": "mace",
+      "Tier": 2,
+      "Shape": "mace",
+      "source": [
+        192,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:12",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:13",
+      "Name": "Flail",
+      "Family": "mace",
+      "Tier": 2,
+      "Shape": "flail",
+      "source": [
+        208,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:13",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:14",
+      "Name": "Hammer",
+      "Family": "mace",
+      "Tier": 2,
+      "Shape": "hammer",
+      "source": [
+        224,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:14",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:15",
+      "Name": "Knocker",
+      "Family": "mace",
+      "Tier": 2,
+      "Shape": "mace",
+      "source": [
+        240,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:15",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:16",
+      "Name": "Mace",
+      "Family": "mace",
+      "Tier": 2,
+      "Shape": "mace",
+      "source": [
+        256,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:16",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:17",
+      "Name": "Mace",
+      "Family": "mace",
+      "Tier": 2,
+      "Shape": "mace",
+      "source": [
+        272,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:17",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:18",
+      "Name": "Striker",
+      "Family": "mace",
+      "Tier": 2,
+      "Shape": "mace",
+      "source": [
+        288,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:18",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:19",
+      "Name": "Thumper",
+      "Family": "mace",
+      "Tier": 2,
+      "Shape": "mace",
+      "source": [
+        304,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:19",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:20",
+      "Name": "Battle Flail",
+      "Family": "mace",
+      "Tier": 3,
+      "Shape": "flail",
+      "source": [
+        320,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:20",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:21",
+      "Name": "Doomhammer",
+      "Family": "mace",
+      "Tier": 3,
+      "Shape": "hammer",
+      "source": [
+        336,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:21",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:22",
+      "Name": "Headcracker",
+      "Family": "mace",
+      "Tier": 3,
+      "Shape": "mace",
+      "source": [
+        352,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:22",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:23",
+      "Name": "Maul",
+      "Family": "mace",
+      "Tier": 3,
+      "Shape": "hammer",
+      "source": [
+        368,
+        0,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:23",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:24",
+      "Name": "Morningstar",
+      "Family": "mace",
+      "Tier": 3,
+      "Shape": "mace",
+      "source": [
+        0,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:24",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:25",
+      "Name": "Reckoner",
+      "Family": "mace",
+      "Tier": 3,
+      "Shape": "mace",
+      "source": [
+        16,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:25",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:26",
+      "Name": "Skullcrusher",
+      "Family": "mace",
+      "Tier": 3,
+      "Shape": "mace",
+      "source": [
+        32,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:26",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:27",
+      "Name": "Smasher",
+      "Family": "mace",
+      "Tier": 3,
+      "Shape": "mace",
+      "source": [
+        48,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:27",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:28",
+      "Name": "Tombstone",
+      "Family": "mace",
+      "Tier": 3,
+      "Shape": "mace",
+      "source": [
+        64,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:28",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:29",
+      "Name": "Warclub",
+      "Family": "mace",
+      "Tier": 3,
+      "Shape": "club",
+      "source": [
+        80,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:29",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:30",
+      "Name": "Annihilator",
+      "Family": "mace",
+      "Tier": 4,
+      "Shape": "mace",
+      "source": [
+        96,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:30",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:31",
+      "Name": "Desolator",
+      "Family": "mace",
+      "Tier": 4,
+      "Shape": "mace",
+      "source": [
+        112,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:31",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:32",
+      "Name": "Devastator",
+      "Family": "mace",
+      "Tier": 4,
+      "Shape": "mace",
+      "source": [
+        128,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:32",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:33",
+      "Name": "Doomfall",
+      "Family": "mace",
+      "Tier": 4,
+      "Shape": "mace",
+      "source": [
+        144,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:33",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:34",
+      "Name": "Judgement",
+      "Family": "mace",
+      "Tier": 4,
+      "Shape": "mace",
+      "source": [
+        160,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:34",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:35",
+      "Name": "Obliterator",
+      "Family": "mace",
+      "Tier": 4,
+      "Shape": "mace",
+      "source": [
+        176,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:35",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:36",
+      "Name": "Pulverizer",
+      "Family": "mace",
+      "Tier": 4,
+      "Shape": "mace",
+      "source": [
+        192,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:36",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:37",
+      "Name": "Shatter",
+      "Family": "mace",
+      "Tier": 4,
+      "Shape": "mace",
+      "source": [
+        208,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:37",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:38",
+      "Name": "Verdict",
+      "Family": "mace",
+      "Tier": 4,
+      "Shape": "mace",
+      "source": [
+        224,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:38",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:39",
+      "Name": "Epoch",
+      "Family": "mace",
+      "Tier": 5,
+      "Shape": "mace",
+      "source": [
+        240,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:39",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:40",
+      "Name": "Godfall",
+      "Family": "mace",
+      "Tier": 5,
+      "Shape": "mace",
+      "source": [
+        256,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:40",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:41",
+      "Name": "Oblivion",
+      "Family": "mace",
+      "Tier": 5,
+      "Shape": "mace",
+      "source": [
+        272,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:41",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:42",
+      "Name": "Reckoning",
+      "Family": "mace",
+      "Tier": 5,
+      "Shape": "mace",
+      "source": [
+        288,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:42",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:43",
+      "Name": "Ruination",
+      "Family": "mace",
+      "Tier": 5,
+      "Shape": "mace",
+      "source": [
+        304,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:43",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:44",
+      "Name": "Sunderking",
+      "Family": "mace",
+      "Tier": 5,
+      "Shape": "mace",
+      "source": [
+        320,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:44",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:45",
+      "Name": "Terminus",
+      "Family": "mace",
+      "Tier": 5,
+      "Shape": "mace",
+      "source": [
+        336,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:45",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:46",
+      "Name": "Warhammer",
+      "Family": "mace",
+      "Tier": 5,
+      "Shape": "hammer",
+      "source": [
+        352,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:46",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:47",
+      "Name": "Worldender",
+      "Family": "mace",
+      "Tier": 5,
+      "Shape": "mace",
+      "source": [
+        368,
+        16,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:47",
+        "Material": "Bone",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:48",
+      "Name": "Branch",
+      "Family": "sword",
+      "Tier": 1,
+      "Shape": "sword",
+      "source": [
+        0,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:48",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:49",
+      "Name": "Chopoper",
+      "Family": "sword",
+      "Tier": 1,
+      "Shape": "cleaver",
+      "source": [
+        16,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:49",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:50",
+      "Name": "Cleaver",
+      "Family": "sword",
+      "Tier": 1,
+      "Shape": "cleaver",
+      "source": [
+        32,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:50",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:51",
+      "Name": "Cutter",
+      "Family": "sword",
+      "Tier": 1,
+      "Shape": "sword",
+      "source": [
+        48,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:51",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:52",
+      "Name": "Long Edge",
+      "Family": "sword",
+      "Tier": 1,
+      "Shape": "sword",
+      "source": [
+        64,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:52",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:53",
+      "Name": "Machete",
+      "Family": "sword",
+      "Tier": 1,
+      "Shape": "sword",
+      "source": [
+        80,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:53",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:54",
+      "Name": "One Armed Scissor",
+      "Family": "sword",
+      "Tier": 1,
+      "Shape": "sword",
+      "source": [
+        96,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:54",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:55",
+      "Name": "Sword",
+      "Family": "sword",
+      "Tier": 1,
+      "Shape": "sword",
+      "source": [
+        112,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:55",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:56",
+      "Name": "Broadsword",
+      "Family": "sword",
+      "Tier": 2,
+      "Shape": "sword",
+      "source": [
+        128,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:56",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:57",
+      "Name": "Cutlass",
+      "Family": "sword",
+      "Tier": 2,
+      "Shape": "saber",
+      "source": [
+        144,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:57",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:58",
+      "Name": "Falchion",
+      "Family": "sword",
+      "Tier": 2,
+      "Shape": "sword",
+      "source": [
+        160,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:58",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:59",
+      "Name": "Fine Saber",
+      "Family": "sword",
+      "Tier": 2,
+      "Shape": "saber",
+      "source": [
+        176,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:59",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:60",
+      "Name": "Glaive",
+      "Family": "sword",
+      "Tier": 2,
+      "Shape": "polearm",
+      "source": [
+        192,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:60",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:61",
+      "Name": "Longsword",
+      "Family": "sword",
+      "Tier": 2,
+      "Shape": "sword",
+      "source": [
+        208,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:61",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:62",
+      "Name": "Scimitar",
+      "Family": "sword",
+      "Tier": 2,
+      "Shape": "saber",
+      "source": [
+        224,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:62",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:63",
+      "Name": "Shortsword",
+      "Family": "sword",
+      "Tier": 2,
+      "Shape": "sword",
+      "source": [
+        240,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:63",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:64",
+      "Name": "Slasher",
+      "Family": "sword",
+      "Tier": 2,
+      "Shape": "sword",
+      "source": [
+        256,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:64",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:65",
+      "Name": "Slicer",
+      "Family": "sword",
+      "Tier": 2,
+      "Shape": "sword",
+      "source": [
+        272,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:65",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:66",
+      "Name": "Bastard Sword",
+      "Family": "sword",
+      "Tier": 3,
+      "Shape": "cleaver",
+      "source": [
+        288,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:66",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:67",
+      "Name": "Claymore",
+      "Family": "sword",
+      "Tier": 3,
+      "Shape": "cleaver",
+      "source": [
+        304,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:67",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:68",
+      "Name": "Demonblade",
+      "Family": "sword",
+      "Tier": 3,
+      "Shape": "sword",
+      "source": [
+        320,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:68",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:69",
+      "Name": "Divine Cutlass",
+      "Family": "sword",
+      "Tier": 3,
+      "Shape": "saber",
+      "source": [
+        336,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:69",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:70",
+      "Name": "Elvin Glaive",
+      "Family": "sword",
+      "Tier": 3,
+      "Shape": "polearm",
+      "source": [
+        352,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:70",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:71",
+      "Name": "Greatsword",
+      "Family": "sword",
+      "Tier": 3,
+      "Shape": "cleaver",
+      "source": [
+        368,
+        32,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:71",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:72",
+      "Name": "Rapier",
+      "Family": "sword",
+      "Tier": 3,
+      "Shape": "rapier",
+      "source": [
+        0,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:72",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:73",
+      "Name": "Rune Slicer",
+      "Family": "sword",
+      "Tier": 3,
+      "Shape": "sword",
+      "source": [
+        16,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:73",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:74",
+      "Name": "Soul Render",
+      "Family": "sword",
+      "Tier": 3,
+      "Shape": "sword",
+      "source": [
+        32,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:74",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:75",
+      "Name": "Warblade",
+      "Family": "sword",
+      "Tier": 3,
+      "Shape": "sword",
+      "source": [
+        48,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:75",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:76",
+      "Name": "Destroyer",
+      "Family": "sword",
+      "Tier": 4,
+      "Shape": "sword",
+      "source": [
+        64,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:76",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:77",
+      "Name": "Executioner",
+      "Family": "sword",
+      "Tier": 4,
+      "Shape": "sword",
+      "source": [
+        80,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:77",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:78",
+      "Name": "Flayer",
+      "Family": "sword",
+      "Tier": 4,
+      "Shape": "sword",
+      "source": [
+        96,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:78",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:79",
+      "Name": "Foil",
+      "Family": "sword",
+      "Tier": 4,
+      "Shape": "rapier",
+      "source": [
+        112,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:79",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:80",
+      "Name": "Halbred",
+      "Family": "sword",
+      "Tier": 4,
+      "Shape": "polearm",
+      "source": [
+        128,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:80",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:81",
+      "Name": "Hell Reaper",
+      "Family": "sword",
+      "Tier": 4,
+      "Shape": "polearm",
+      "source": [
+        144,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:81",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:82",
+      "Name": "Kukri",
+      "Family": "sword",
+      "Tier": 4,
+      "Shape": "saber",
+      "source": [
+        160,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:82",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:83",
+      "Name": "Ravager",
+      "Family": "sword",
+      "Tier": 4,
+      "Shape": "sword",
+      "source": [
+        176,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:83",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:84",
+      "Name": "Ravager",
+      "Family": "sword",
+      "Tier": 4,
+      "Shape": "sword",
+      "source": [
+        192,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:84",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:85",
+      "Name": "Scythe",
+      "Family": "sword",
+      "Tier": 4,
+      "Shape": "polearm",
+      "source": [
+        208,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:85",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:86",
+      "Name": "Splitter",
+      "Family": "sword",
+      "Tier": 4,
+      "Shape": "cleaver",
+      "source": [
+        224,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:86",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:87",
+      "Name": "Crystal Stiletto",
+      "Family": "sword",
+      "Tier": 5,
+      "Shape": "rapier",
+      "source": [
+        240,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:87",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:88",
+      "Name": "Dominion",
+      "Family": "sword",
+      "Tier": 5,
+      "Shape": "sword",
+      "source": [
+        256,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:88",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:89",
+      "Name": "Dominion",
+      "Family": "sword",
+      "Tier": 5,
+      "Shape": "sword",
+      "source": [
+        272,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:89",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:90",
+      "Name": "Doomstrike",
+      "Family": "sword",
+      "Tier": 5,
+      "Shape": "sword",
+      "source": [
+        288,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:90",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:91",
+      "Name": "Eternal Blade",
+      "Family": "sword",
+      "Tier": 5,
+      "Shape": "sword",
+      "source": [
+        304,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:91",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:92",
+      "Name": "Fatebringer",
+      "Family": "sword",
+      "Tier": 5,
+      "Shape": "sword",
+      "source": [
+        320,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:92",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:93",
+      "Name": "Ghost Sword",
+      "Family": "sword",
+      "Tier": 5,
+      "Shape": "sword",
+      "source": [
+        336,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:93",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:94",
+      "Name": "Oblivion Sword",
+      "Family": "sword",
+      "Tier": 5,
+      "Shape": "sword",
+      "source": [
+        352,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:94",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:95",
+      "Name": "Soulreaver",
+      "Family": "sword",
+      "Tier": 5,
+      "Shape": "sword",
+      "source": [
+        368,
+        48,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:95",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:96",
+      "Name": "Twinblade",
+      "Family": "sword",
+      "Tier": 5,
+      "Shape": "sword",
+      "source": [
+        0,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:96",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:97",
+      "Name": "Worldcleave",
+      "Family": "sword",
+      "Tier": 5,
+      "Shape": "cleaver",
+      "source": [
+        16,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:97",
+        "Material": "Bronze",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:98",
+      "Name": "Claw",
+      "Family": "dagger",
+      "Tier": 1,
+      "Shape": "kris",
+      "source": [
+        32,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:98",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:99",
+      "Name": "Fang",
+      "Family": "dagger",
+      "Tier": 1,
+      "Shape": "dagger",
+      "source": [
+        48,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:99",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:100",
+      "Name": "Knife",
+      "Family": "dagger",
+      "Tier": 1,
+      "Shape": "dagger",
+      "source": [
+        64,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:100",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:101",
+      "Name": "Peeler",
+      "Family": "dagger",
+      "Tier": 1,
+      "Shape": "dagger",
+      "source": [
+        80,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:101",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:102",
+      "Name": "Pick",
+      "Family": "dagger",
+      "Tier": 1,
+      "Shape": "needle",
+      "source": [
+        96,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:102",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:103",
+      "Name": "Razor",
+      "Family": "dagger",
+      "Tier": 1,
+      "Shape": "dagger",
+      "source": [
+        112,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:103",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:104",
+      "Name": "Spike",
+      "Family": "dagger",
+      "Tier": 1,
+      "Shape": "needle",
+      "source": [
+        128,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:104",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:105",
+      "Name": "Splinter",
+      "Family": "dagger",
+      "Tier": 1,
+      "Shape": "dagger",
+      "source": [
+        144,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:105",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:106",
+      "Name": "Thorn",
+      "Family": "dagger",
+      "Tier": 1,
+      "Shape": "needle",
+      "source": [
+        160,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:106",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:107",
+      "Name": "Twig",
+      "Family": "dagger",
+      "Tier": 1,
+      "Shape": "dagger",
+      "source": [
+        176,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:107",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:108",
+      "Name": "Blade",
+      "Family": "dagger",
+      "Tier": 2,
+      "Shape": "dagger",
+      "source": [
+        192,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:108",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:109",
+      "Name": "Blade",
+      "Family": "dagger",
+      "Tier": 2,
+      "Shape": "dagger",
+      "source": [
+        208,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:109",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:110",
+      "Name": "Dagger",
+      "Family": "dagger",
+      "Tier": 2,
+      "Shape": "dagger",
+      "source": [
+        224,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:110",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:111",
+      "Name": "Dirk",
+      "Family": "dagger",
+      "Tier": 2,
+      "Shape": "dagger",
+      "source": [
+        240,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:111",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:112",
+      "Name": "Gutter",
+      "Family": "dagger",
+      "Tier": 2,
+      "Shape": "dagger",
+      "source": [
+        256,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:112",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:113",
+      "Name": "Hook",
+      "Family": "dagger",
+      "Tier": 2,
+      "Shape": "kris",
+      "source": [
+        272,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:113",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:114",
+      "Name": "Kris",
+      "Family": "dagger",
+      "Tier": 2,
+      "Shape": "kris",
+      "source": [
+        288,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:114",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:115",
+      "Name": "Needle",
+      "Family": "dagger",
+      "Tier": 2,
+      "Shape": "needle",
+      "source": [
+        304,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:115",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:116",
+      "Name": "Point",
+      "Family": "dagger",
+      "Tier": 2,
+      "Shape": "dagger",
+      "source": [
+        320,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:116",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:117",
+      "Name": "Shiv",
+      "Family": "dagger",
+      "Tier": 2,
+      "Shape": "dagger",
+      "source": [
+        336,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:117",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:118",
+      "Name": "Stiletto",
+      "Family": "dagger",
+      "Tier": 2,
+      "Shape": "needle",
+      "source": [
+        352,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:118",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:119",
+      "Name": "Barbed Hook",
+      "Family": "dagger",
+      "Tier": 3,
+      "Shape": "kris",
+      "source": [
+        368,
+        64,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:119",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:120",
+      "Name": "Dark Blade",
+      "Family": "dagger",
+      "Tier": 3,
+      "Shape": "dagger",
+      "source": [
+        0,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:120",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:121",
+      "Name": "Dire Fang",
+      "Family": "dagger",
+      "Tier": 3,
+      "Shape": "dagger",
+      "source": [
+        16,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:121",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:122",
+      "Name": "Duskrift Dagger",
+      "Family": "dagger",
+      "Tier": 3,
+      "Shape": "dagger",
+      "source": [
+        32,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:122",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:123",
+      "Name": "Elvin Dirk",
+      "Family": "dagger",
+      "Tier": 3,
+      "Shape": "dagger",
+      "source": [
+        48,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:123",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:124",
+      "Name": "Ghost Kris",
+      "Family": "dagger",
+      "Tier": 3,
+      "Shape": "kris",
+      "source": [
+        64,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:124",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:125",
+      "Name": "Guilded Gutter",
+      "Family": "dagger",
+      "Tier": 3,
+      "Shape": "dagger",
+      "source": [
+        80,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:125",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:126",
+      "Name": "Hardened Shiv",
+      "Family": "dagger",
+      "Tier": 3,
+      "Shape": "dagger",
+      "source": [
+        96,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:126",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:127",
+      "Name": "Shadow Dagger",
+      "Family": "dagger",
+      "Tier": 3,
+      "Shape": "dagger",
+      "source": [
+        112,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:127",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:128",
+      "Name": "Silver Stiletto",
+      "Family": "dagger",
+      "Tier": 3,
+      "Shape": "needle",
+      "source": [
+        128,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:128",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:129",
+      "Name": "Ashblaze Knife",
+      "Family": "dagger",
+      "Tier": 4,
+      "Shape": "dagger",
+      "source": [
+        144,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:129",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:130",
+      "Name": "Dawnrift Stiletto",
+      "Family": "dagger",
+      "Tier": 4,
+      "Shape": "needle",
+      "source": [
+        160,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:130",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:131",
+      "Name": "Embervenom",
+      "Family": "dagger",
+      "Tier": 4,
+      "Shape": "dagger",
+      "source": [
+        176,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:131",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:132",
+      "Name": "Hellbound Dirk",
+      "Family": "dagger",
+      "Tier": 4,
+      "Shape": "dagger",
+      "source": [
+        192,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:132",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:133",
+      "Name": "Hellstring",
+      "Family": "dagger",
+      "Tier": 4,
+      "Shape": "dagger",
+      "source": [
+        208,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:133",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:134",
+      "Name": "Ruinblade",
+      "Family": "dagger",
+      "Tier": 4,
+      "Shape": "dagger",
+      "source": [
+        224,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:134",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:135",
+      "Name": "Sorrows Kris",
+      "Family": "dagger",
+      "Tier": 4,
+      "Shape": "kris",
+      "source": [
+        240,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:135",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:136",
+      "Name": "Soulpiercer",
+      "Family": "dagger",
+      "Tier": 4,
+      "Shape": "dagger",
+      "source": [
+        256,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:136",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:137",
+      "Name": "Stormshard Fang",
+      "Family": "dagger",
+      "Tier": 4,
+      "Shape": "dagger",
+      "source": [
+        272,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:137",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:138",
+      "Name": "Void Dagger",
+      "Family": "dagger",
+      "Tier": 4,
+      "Shape": "dagger",
+      "source": [
+        288,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:138",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:139",
+      "Name": "Archon Dirk",
+      "Family": "dagger",
+      "Tier": 5,
+      "Shape": "dagger",
+      "source": [
+        304,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:139",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:140",
+      "Name": "Demonpiercer",
+      "Family": "dagger",
+      "Tier": 5,
+      "Shape": "dagger",
+      "source": [
+        320,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:140",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:141",
+      "Name": "Devil Blade",
+      "Family": "dagger",
+      "Tier": 5,
+      "Shape": "dagger",
+      "source": [
+        336,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:141",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:142",
+      "Name": "Duskrift Stiletto",
+      "Family": "dagger",
+      "Tier": 5,
+      "Shape": "needle",
+      "source": [
+        352,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:142",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:143",
+      "Name": "Epochal Sting",
+      "Family": "dagger",
+      "Tier": 5,
+      "Shape": "dagger",
+      "source": [
+        368,
+        80,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:143",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:144",
+      "Name": "Eternal Dagger",
+      "Family": "dagger",
+      "Tier": 5,
+      "Shape": "dagger",
+      "source": [
+        0,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:144",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:145",
+      "Name": "Eternity\u0027S Shiv",
+      "Family": "dagger",
+      "Tier": 5,
+      "Shape": "dagger",
+      "source": [
+        16,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:145",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:146",
+      "Name": "Godsbane Fang",
+      "Family": "dagger",
+      "Tier": 5,
+      "Shape": "dagger",
+      "source": [
+        32,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:146",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:147",
+      "Name": "Hellsong Kris",
+      "Family": "dagger",
+      "Tier": 5,
+      "Shape": "kris",
+      "source": [
+        48,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:147",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:148",
+      "Name": "Oblivions Prick",
+      "Family": "dagger",
+      "Tier": 5,
+      "Shape": "dagger",
+      "source": [
+        64,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:148",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:149",
+      "Name": "Bead",
+      "Family": "wand",
+      "Tier": 1,
+      "Shape": "orb",
+      "source": [
+        80,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:149",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:150",
+      "Name": "Charm",
+      "Family": "wand",
+      "Tier": 1,
+      "Shape": "charm",
+      "source": [
+        96,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:150",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:151",
+      "Name": "Grimoire",
+      "Family": "wand",
+      "Tier": 1,
+      "Shape": "book",
+      "source": [
+        112,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:151",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:152",
+      "Name": "Gylgh",
+      "Family": "wand",
+      "Tier": 1,
+      "Shape": "charm",
+      "source": [
+        128,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:152",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:153",
+      "Name": "Prong",
+      "Family": "wand",
+      "Tier": 1,
+      "Shape": "wand",
+      "source": [
+        144,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:153",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:154",
+      "Name": "Rod",
+      "Family": "wand",
+      "Tier": 1,
+      "Shape": "wand",
+      "source": [
+        160,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:154",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:155",
+      "Name": "Rune",
+      "Family": "wand",
+      "Tier": 1,
+      "Shape": "charm",
+      "source": [
+        176,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:155",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:156",
+      "Name": "Shard",
+      "Family": "wand",
+      "Tier": 1,
+      "Shape": "crystal",
+      "source": [
+        192,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:156",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:157",
+      "Name": "Staff",
+      "Family": "wand",
+      "Tier": 1,
+      "Shape": "wand",
+      "source": [
+        208,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:157",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:158",
+      "Name": "Stick",
+      "Family": "wand",
+      "Tier": 1,
+      "Shape": "wand",
+      "source": [
+        224,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:158",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:159",
+      "Name": "Stick",
+      "Family": "wand",
+      "Tier": 1,
+      "Shape": "wand",
+      "source": [
+        240,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:159",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:160",
+      "Name": "Idol",
+      "Family": "wand",
+      "Tier": 2,
+      "Shape": "charm",
+      "source": [
+        256,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:160",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:161",
+      "Name": "Lens",
+      "Family": "wand",
+      "Tier": 2,
+      "Shape": "orb",
+      "source": [
+        272,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:161",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:162",
+      "Name": "Orb",
+      "Family": "wand",
+      "Tier": 2,
+      "Shape": "orb",
+      "source": [
+        288,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:162",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:163",
+      "Name": "Sigil",
+      "Family": "wand",
+      "Tier": 2,
+      "Shape": "charm",
+      "source": [
+        304,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:163",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:164",
+      "Name": "Tailsman",
+      "Family": "wand",
+      "Tier": 2,
+      "Shape": "charm",
+      "source": [
+        320,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:164",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:165",
+      "Name": "Tome",
+      "Family": "wand",
+      "Tier": 2,
+      "Shape": "book",
+      "source": [
+        336,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:165",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:166",
+      "Name": "Tome",
+      "Family": "wand",
+      "Tier": 2,
+      "Shape": "book",
+      "source": [
+        352,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:166",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:167",
+      "Name": "Totem",
+      "Family": "wand",
+      "Tier": 2,
+      "Shape": "totem",
+      "source": [
+        368,
+        96,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:167",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:168",
+      "Name": "Trinket",
+      "Family": "wand",
+      "Tier": 2,
+      "Shape": "charm",
+      "source": [
+        0,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:168",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:169",
+      "Name": "Candle",
+      "Family": "wand",
+      "Tier": 3,
+      "Shape": "lantern",
+      "source": [
+        16,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:169",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:170",
+      "Name": "Crystal",
+      "Family": "wand",
+      "Tier": 3,
+      "Shape": "crystal",
+      "source": [
+        32,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:170",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:171",
+      "Name": "Effigy",
+      "Family": "wand",
+      "Tier": 3,
+      "Shape": "charm",
+      "source": [
+        48,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:171",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:172",
+      "Name": "Essence",
+      "Family": "wand",
+      "Tier": 3,
+      "Shape": "orb",
+      "source": [
+        64,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:172",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:173",
+      "Name": "Essence",
+      "Family": "wand",
+      "Tier": 3,
+      "Shape": "orb",
+      "source": [
+        80,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:173",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:174",
+      "Name": "Geode",
+      "Family": "wand",
+      "Tier": 3,
+      "Shape": "crystal",
+      "source": [
+        96,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:174",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:175",
+      "Name": "Prism",
+      "Family": "wand",
+      "Tier": 3,
+      "Shape": "crystal",
+      "source": [
+        112,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:175",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:176",
+      "Name": "Relic",
+      "Family": "wand",
+      "Tier": 3,
+      "Shape": "charm",
+      "source": [
+        128,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:176",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:177",
+      "Name": "Skull",
+      "Family": "wand",
+      "Tier": 3,
+      "Shape": "skull",
+      "source": [
+        144,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:177",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:178",
+      "Name": "Spirit Compass",
+      "Family": "wand",
+      "Tier": 3,
+      "Shape": "charm",
+      "source": [
+        160,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:178",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:179",
+      "Name": "Vessel",
+      "Family": "wand",
+      "Tier": 3,
+      "Shape": "potion",
+      "source": [
+        176,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:179",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:180",
+      "Name": "Altar",
+      "Family": "wand",
+      "Tier": 4,
+      "Shape": "totem",
+      "source": [
+        192,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:180",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:181",
+      "Name": "Artifact",
+      "Family": "wand",
+      "Tier": 4,
+      "Shape": "charm",
+      "source": [
+        208,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:181",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:182",
+      "Name": "Binding",
+      "Family": "wand",
+      "Tier": 4,
+      "Shape": "scroll",
+      "source": [
+        224,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:182",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:183",
+      "Name": "Catalyst",
+      "Family": "wand",
+      "Tier": 4,
+      "Shape": "charm",
+      "source": [
+        240,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:183",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:184",
+      "Name": "Demon Seed",
+      "Family": "wand",
+      "Tier": 4,
+      "Shape": "orb",
+      "source": [
+        256,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:184",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:185",
+      "Name": "Ghost Cradle",
+      "Family": "wand",
+      "Tier": 4,
+      "Shape": "charm",
+      "source": [
+        272,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:185",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:186",
+      "Name": "Pocket Monolith",
+      "Family": "wand",
+      "Tier": 4,
+      "Shape": "totem",
+      "source": [
+        288,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:186",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:187",
+      "Name": "Sanctum Rod",
+      "Family": "wand",
+      "Tier": 4,
+      "Shape": "wand",
+      "source": [
+        304,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:187",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:188",
+      "Name": "Scroll",
+      "Family": "wand",
+      "Tier": 4,
+      "Shape": "scroll",
+      "source": [
+        320,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:188",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:189",
+      "Name": "Shunken Head",
+      "Family": "wand",
+      "Tier": 4,
+      "Shape": "skull",
+      "source": [
+        336,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:189",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:190",
+      "Name": "Axiom",
+      "Family": "wand",
+      "Tier": 5,
+      "Shape": "orb",
+      "source": [
+        352,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:190",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:191",
+      "Name": "Cauldron",
+      "Family": "wand",
+      "Tier": 5,
+      "Shape": "potion",
+      "source": [
+        368,
+        112,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:191",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:192",
+      "Name": "Convergence",
+      "Family": "wand",
+      "Tier": 5,
+      "Shape": "orb",
+      "source": [
+        0,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:192",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:193",
+      "Name": "Covenant",
+      "Family": "wand",
+      "Tier": 5,
+      "Shape": "book",
+      "source": [
+        16,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:193",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:194",
+      "Name": "Death Lantern",
+      "Family": "wand",
+      "Tier": 5,
+      "Shape": "lantern",
+      "source": [
+        32,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:194",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:195",
+      "Name": "Devil Tome",
+      "Family": "wand",
+      "Tier": 5,
+      "Shape": "book",
+      "source": [
+        48,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:195",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:196",
+      "Name": "Floating Obelisk",
+      "Family": "wand",
+      "Tier": 5,
+      "Shape": "totem",
+      "source": [
+        64,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:196",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:197",
+      "Name": "Ghost Pillar",
+      "Family": "wand",
+      "Tier": 5,
+      "Shape": "totem",
+      "source": [
+        80,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:197",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:198",
+      "Name": "Vial Of Darkness",
+      "Family": "wand",
+      "Tier": 5,
+      "Shape": "potion",
+      "source": [
+        96,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:198",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "weapons:199",
+      "Name": "Void Tome",
+      "Family": "wand",
+      "Tier": 5,
+      "Shape": "book",
+      "source": [
+        112,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "weapons:199",
+        "Material": "Willow",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:0",
+      "Name": "Band",
+      "Family": "head",
+      "Tier": 1,
+      "Shape": "crown",
+      "source": [
+        128,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:0",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:1",
+      "Name": "Cap",
+      "Family": "head",
+      "Tier": 1,
+      "Shape": "cap",
+      "source": [
+        144,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:1",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:2",
+      "Name": "Cowl",
+      "Family": "head",
+      "Tier": 1,
+      "Shape": "hood",
+      "source": [
+        160,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:2",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:3",
+      "Name": "Hat",
+      "Family": "head",
+      "Tier": 1,
+      "Shape": "cap",
+      "source": [
+        176,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:3",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:4",
+      "Name": "Hood",
+      "Family": "head",
+      "Tier": 1,
+      "Shape": "hood",
+      "source": [
+        192,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:4",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:5",
+      "Name": "Scraps",
+      "Family": "head",
+      "Tier": 1,
+      "Shape": "cap",
+      "source": [
+        208,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:5",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:6",
+      "Name": "Skullcap",
+      "Family": "head",
+      "Tier": 1,
+      "Shape": "cap",
+      "source": [
+        224,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:6",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:7",
+      "Name": "Toque",
+      "Family": "head",
+      "Tier": 1,
+      "Shape": "cap",
+      "source": [
+        240,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:7",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:8",
+      "Name": "Veil",
+      "Family": "head",
+      "Tier": 1,
+      "Shape": "hood",
+      "source": [
+        256,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:8",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:9",
+      "Name": "Wrap",
+      "Family": "head",
+      "Tier": 1,
+      "Shape": "hood",
+      "source": [
+        272,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:9",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:10",
+      "Name": "Chainhood",
+      "Family": "head",
+      "Tier": 2,
+      "Shape": "hood",
+      "source": [
+        288,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:10",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:11",
+      "Name": "Circlet",
+      "Family": "head",
+      "Tier": 2,
+      "Shape": "crown",
+      "source": [
+        304,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:11",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:12",
+      "Name": "Face Helm",
+      "Family": "head",
+      "Tier": 2,
+      "Shape": "helm",
+      "source": [
+        320,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:12",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:13",
+      "Name": "Faceplate",
+      "Family": "head",
+      "Tier": 2,
+      "Shape": "mask",
+      "source": [
+        336,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:13",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:14",
+      "Name": "Helm",
+      "Family": "head",
+      "Tier": 2,
+      "Shape": "helm",
+      "source": [
+        352,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:14",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:15",
+      "Name": "Kerfcheif",
+      "Family": "head",
+      "Tier": 2,
+      "Shape": "hood",
+      "source": [
+        368,
+        128,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:15",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:16",
+      "Name": "Nasal Helm",
+      "Family": "head",
+      "Tier": 2,
+      "Shape": "helm",
+      "source": [
+        0,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:16",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:17",
+      "Name": "Pointed Helm",
+      "Family": "head",
+      "Tier": 2,
+      "Shape": "helm",
+      "source": [
+        16,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:17",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:18",
+      "Name": "Visored Cap",
+      "Family": "head",
+      "Tier": 2,
+      "Shape": "cap",
+      "source": [
+        32,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:18",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:19",
+      "Name": "War Cap",
+      "Family": "head",
+      "Tier": 2,
+      "Shape": "cap",
+      "source": [
+        48,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:19",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:20",
+      "Name": "Forg-Mouth Helm",
+      "Family": "head",
+      "Tier": 3,
+      "Shape": "helm",
+      "source": [
+        64,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:20",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:21",
+      "Name": "Greathelm",
+      "Family": "head",
+      "Tier": 3,
+      "Shape": "helm",
+      "source": [
+        80,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:21",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:22",
+      "Name": "Hounskull",
+      "Family": "head",
+      "Tier": 3,
+      "Shape": "helm",
+      "source": [
+        96,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:22",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:23",
+      "Name": "Ironhood",
+      "Family": "head",
+      "Tier": 3,
+      "Shape": "hood",
+      "source": [
+        112,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:23",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:24",
+      "Name": "Sealed Helm",
+      "Family": "head",
+      "Tier": 3,
+      "Shape": "helm",
+      "source": [
+        128,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:24",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:25",
+      "Name": "Throat Guard",
+      "Family": "head",
+      "Tier": 3,
+      "Shape": "helm",
+      "source": [
+        144,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:25",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:26",
+      "Name": "Visor",
+      "Family": "head",
+      "Tier": 3,
+      "Shape": "mask",
+      "source": [
+        160,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:26",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:27",
+      "Name": "Visored Helm",
+      "Family": "head",
+      "Tier": 3,
+      "Shape": "mask",
+      "source": [
+        176,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:27",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:28",
+      "Name": "Visored Helm",
+      "Family": "head",
+      "Tier": 3,
+      "Shape": "mask",
+      "source": [
+        192,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:28",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:29",
+      "Name": "Warhelf",
+      "Family": "head",
+      "Tier": 3,
+      "Shape": "helm",
+      "source": [
+        208,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:29",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:30",
+      "Name": "Doomhelm",
+      "Family": "head",
+      "Tier": 4,
+      "Shape": "helm",
+      "source": [
+        224,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:30",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:31",
+      "Name": "Face Guard",
+      "Family": "head",
+      "Tier": 4,
+      "Shape": "helm",
+      "source": [
+        240,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:31",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:32",
+      "Name": "Godhelm",
+      "Family": "head",
+      "Tier": 4,
+      "Shape": "helm",
+      "source": [
+        256,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:32",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:33",
+      "Name": "Headdress",
+      "Family": "head",
+      "Tier": 4,
+      "Shape": "hood",
+      "source": [
+        272,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:33",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:34",
+      "Name": "Linked Hood",
+      "Family": "head",
+      "Tier": 4,
+      "Shape": "hood",
+      "source": [
+        288,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:34",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:35",
+      "Name": "Mask",
+      "Family": "head",
+      "Tier": 4,
+      "Shape": "mask",
+      "source": [
+        304,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:35",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:36",
+      "Name": "Siegehelm",
+      "Family": "head",
+      "Tier": 4,
+      "Shape": "helm",
+      "source": [
+        320,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:36",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:37",
+      "Name": "Warcrown",
+      "Family": "head",
+      "Tier": 4,
+      "Shape": "crown",
+      "source": [
+        336,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:37",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:38",
+      "Name": "Warcrown",
+      "Family": "head",
+      "Tier": 4,
+      "Shape": "crown",
+      "source": [
+        352,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:38",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:39",
+      "Name": "Worldcrown",
+      "Family": "head",
+      "Tier": 4,
+      "Shape": "crown",
+      "source": [
+        368,
+        144,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:39",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:40",
+      "Name": "Corinthian",
+      "Family": "head",
+      "Tier": 5,
+      "Shape": "helm",
+      "source": [
+        0,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:40",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:41",
+      "Name": "Death Mask",
+      "Family": "head",
+      "Tier": 5,
+      "Shape": "mask",
+      "source": [
+        16,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:41",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:42",
+      "Name": "Dragon Scale Helmet",
+      "Family": "head",
+      "Tier": 5,
+      "Shape": "helm",
+      "source": [
+        32,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:42",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:43",
+      "Name": "Full Plate Helmet",
+      "Family": "head",
+      "Tier": 5,
+      "Shape": "helm",
+      "source": [
+        48,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:43",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:44",
+      "Name": "Jawplate",
+      "Family": "head",
+      "Tier": 5,
+      "Shape": "mask",
+      "source": [
+        64,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:44",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:45",
+      "Name": "Kabuto",
+      "Family": "head",
+      "Tier": 5,
+      "Shape": "helm",
+      "source": [
+        80,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:45",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:46",
+      "Name": "Neckguard",
+      "Family": "head",
+      "Tier": 5,
+      "Shape": "helm",
+      "source": [
+        96,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:46",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:47",
+      "Name": "Plated Hood",
+      "Family": "head",
+      "Tier": 5,
+      "Shape": "hood",
+      "source": [
+        112,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:47",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:48",
+      "Name": "Plumed Helm",
+      "Family": "head",
+      "Tier": 5,
+      "Shape": "helm",
+      "source": [
+        128,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:48",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:49",
+      "Name": "Skull Plate",
+      "Family": "head",
+      "Tier": 5,
+      "Shape": "helm",
+      "source": [
+        144,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:49",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:50",
+      "Name": "Coat",
+      "Family": "chest",
+      "Tier": 1,
+      "Shape": "coat",
+      "source": [
+        160,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:50",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:51",
+      "Name": "Corselet",
+      "Family": "chest",
+      "Tier": 1,
+      "Shape": "plate",
+      "source": [
+        176,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:51",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:52",
+      "Name": "Curiass",
+      "Family": "chest",
+      "Tier": 1,
+      "Shape": "plate",
+      "source": [
+        192,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:52",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:53",
+      "Name": "Duelist Coat",
+      "Family": "chest",
+      "Tier": 1,
+      "Shape": "coat",
+      "source": [
+        208,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:53",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:54",
+      "Name": "Jerkin",
+      "Family": "chest",
+      "Tier": 1,
+      "Shape": "coat",
+      "source": [
+        224,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:54",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:55",
+      "Name": "Sentinel Vest",
+      "Family": "chest",
+      "Tier": 1,
+      "Shape": "shirt",
+      "source": [
+        240,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:55",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:56",
+      "Name": "Shirt",
+      "Family": "chest",
+      "Tier": 1,
+      "Shape": "shirt",
+      "source": [
+        256,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:56",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:57",
+      "Name": "Surcoat",
+      "Family": "chest",
+      "Tier": 1,
+      "Shape": "coat",
+      "source": [
+        272,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:57",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:58",
+      "Name": "Thick Wrap",
+      "Family": "chest",
+      "Tier": 1,
+      "Shape": "shirt",
+      "source": [
+        288,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:58",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:59",
+      "Name": "Vest",
+      "Family": "chest",
+      "Tier": 1,
+      "Shape": "shirt",
+      "source": [
+        304,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:59",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:60",
+      "Name": "Breastplate",
+      "Family": "chest",
+      "Tier": 2,
+      "Shape": "plate",
+      "source": [
+        320,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:60",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:61",
+      "Name": "Chainmail",
+      "Family": "chest",
+      "Tier": 2,
+      "Shape": "mail",
+      "source": [
+        336,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:61",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:62",
+      "Name": "Defender Cuirass",
+      "Family": "chest",
+      "Tier": 2,
+      "Shape": "plate",
+      "source": [
+        352,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:62",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:63",
+      "Name": "Demi-Plate",
+      "Family": "chest",
+      "Tier": 2,
+      "Shape": "plate",
+      "source": [
+        368,
+        160,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:63",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:64",
+      "Name": "Half-Plate",
+      "Family": "chest",
+      "Tier": 2,
+      "Shape": "plate",
+      "source": [
+        0,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:64",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:65",
+      "Name": "Rover Jacket",
+      "Family": "chest",
+      "Tier": 2,
+      "Shape": "coat",
+      "source": [
+        16,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:65",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:66",
+      "Name": "Stalker\u0027s Mantle",
+      "Family": "chest",
+      "Tier": 2,
+      "Shape": "coat",
+      "source": [
+        32,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:66",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:67",
+      "Name": "Studded Vest",
+      "Family": "chest",
+      "Tier": 2,
+      "Shape": "shirt",
+      "source": [
+        48,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:67",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:68",
+      "Name": "Tabard",
+      "Family": "chest",
+      "Tier": 2,
+      "Shape": "shirt",
+      "source": [
+        64,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:68",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:69",
+      "Name": "War Coat",
+      "Family": "chest",
+      "Tier": 2,
+      "Shape": "coat",
+      "source": [
+        80,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:69",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:70",
+      "Name": "Aegis",
+      "Family": "chest",
+      "Tier": 3,
+      "Shape": "plate",
+      "source": [
+        96,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:70",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:71",
+      "Name": "Bastion Armor",
+      "Family": "chest",
+      "Tier": 3,
+      "Shape": "plate",
+      "source": [
+        112,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:71",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:72",
+      "Name": "Bulwark",
+      "Family": "chest",
+      "Tier": 3,
+      "Shape": "plate",
+      "source": [
+        128,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:72",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:73",
+      "Name": "Full Plate",
+      "Family": "chest",
+      "Tier": 3,
+      "Shape": "plate",
+      "source": [
+        144,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:73",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:74",
+      "Name": "Ironwall",
+      "Family": "chest",
+      "Tier": 3,
+      "Shape": "plate",
+      "source": [
+        160,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:74",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:75",
+      "Name": "Ironwall",
+      "Family": "chest",
+      "Tier": 3,
+      "Shape": "plate",
+      "source": [
+        176,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:75",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:76",
+      "Name": "Pauldron",
+      "Family": "chest",
+      "Tier": 3,
+      "Shape": "plate",
+      "source": [
+        192,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:76",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:77",
+      "Name": "Phalaanx",
+      "Family": "chest",
+      "Tier": 3,
+      "Shape": "plate",
+      "source": [
+        208,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:77",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:78",
+      "Name": "Skirmisher Coat",
+      "Family": "chest",
+      "Tier": 3,
+      "Shape": "coat",
+      "source": [
+        224,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:78",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:79",
+      "Name": "Spaulder",
+      "Family": "chest",
+      "Tier": 3,
+      "Shape": "plate",
+      "source": [
+        240,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:79",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:80",
+      "Name": "Adamantine Chestplate",
+      "Family": "chest",
+      "Tier": 4,
+      "Shape": "plate",
+      "source": [
+        256,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:80",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:81",
+      "Name": "Banded Mail",
+      "Family": "chest",
+      "Tier": 4,
+      "Shape": "mail",
+      "source": [
+        272,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:81",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:82",
+      "Name": "Fortress",
+      "Family": "chest",
+      "Tier": 4,
+      "Shape": "plate",
+      "source": [
+        288,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:82",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:83",
+      "Name": "Ironclad",
+      "Family": "chest",
+      "Tier": 4,
+      "Shape": "plate",
+      "source": [
+        304,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:83",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:84",
+      "Name": "Mithril Chestplate",
+      "Family": "chest",
+      "Tier": 4,
+      "Shape": "plate",
+      "source": [
+        320,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:84",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:85",
+      "Name": "Ring Mail",
+      "Family": "chest",
+      "Tier": 4,
+      "Shape": "mail",
+      "source": [
+        336,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:85",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:86",
+      "Name": "Scale Mail",
+      "Family": "chest",
+      "Tier": 4,
+      "Shape": "mail",
+      "source": [
+        352,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:86",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:87",
+      "Name": "Splint Mail",
+      "Family": "chest",
+      "Tier": 4,
+      "Shape": "mail",
+      "source": [
+        368,
+        176,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:87",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:88",
+      "Name": "Stormwall",
+      "Family": "chest",
+      "Tier": 4,
+      "Shape": "plate",
+      "source": [
+        0,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:88",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:89",
+      "Name": "Vanguard Plate",
+      "Family": "chest",
+      "Tier": 4,
+      "Shape": "plate",
+      "source": [
+        16,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:89",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:90",
+      "Name": "Champion",
+      "Family": "chest",
+      "Tier": 5,
+      "Shape": "plate",
+      "source": [
+        32,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:90",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:91",
+      "Name": "Citadel",
+      "Family": "chest",
+      "Tier": 5,
+      "Shape": "plate",
+      "source": [
+        48,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:91",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:92",
+      "Name": "Colossus",
+      "Family": "chest",
+      "Tier": 5,
+      "Shape": "plate",
+      "source": [
+        64,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:92",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:93",
+      "Name": "Crusader",
+      "Family": "chest",
+      "Tier": 5,
+      "Shape": "plate",
+      "source": [
+        80,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:93",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:94",
+      "Name": "Dragon Scale Armor",
+      "Family": "chest",
+      "Tier": 5,
+      "Shape": "mail",
+      "source": [
+        96,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:94",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:95",
+      "Name": "Full Plate Armor",
+      "Family": "chest",
+      "Tier": 5,
+      "Shape": "plate",
+      "source": [
+        112,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:95",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:96",
+      "Name": "Plated Mail",
+      "Family": "chest",
+      "Tier": 5,
+      "Shape": "mail",
+      "source": [
+        128,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:96",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:97",
+      "Name": "Protector",
+      "Family": "chest",
+      "Tier": 5,
+      "Shape": "plate",
+      "source": [
+        144,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:97",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:98",
+      "Name": "Sovereign Plate",
+      "Family": "chest",
+      "Tier": 5,
+      "Shape": "plate",
+      "source": [
+        160,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:98",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:99",
+      "Name": "Vanguard",
+      "Family": "chest",
+      "Tier": 5,
+      "Shape": "plate",
+      "source": [
+        176,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:99",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:100",
+      "Name": "breeches",
+      "Family": "legs",
+      "Tier": 1,
+      "Shape": "pants",
+      "source": [
+        192,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:100",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:101",
+      "Name": "Handed Down Breeches",
+      "Family": "legs",
+      "Tier": 1,
+      "Shape": "pants",
+      "source": [
+        208,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:101",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:102",
+      "Name": "leggings",
+      "Family": "legs",
+      "Tier": 1,
+      "Shape": "pants",
+      "source": [
+        224,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:102",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:103",
+      "Name": "shinguards",
+      "Family": "legs",
+      "Tier": 1,
+      "Shape": "guards",
+      "source": [
+        240,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:103",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:104",
+      "Name": "Squire\u0027s Greaves",
+      "Family": "legs",
+      "Tier": 1,
+      "Shape": "guards",
+      "source": [
+        256,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:104",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:105",
+      "Name": "tassets",
+      "Family": "legs",
+      "Tier": 1,
+      "Shape": "tassets",
+      "source": [
+        272,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:105",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:106",
+      "Name": "Tattered Wraps",
+      "Family": "legs",
+      "Tier": 1,
+      "Shape": "wrap",
+      "source": [
+        288,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:106",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:107",
+      "Name": "trousers",
+      "Family": "legs",
+      "Tier": 1,
+      "Shape": "pants",
+      "source": [
+        304,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:107",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:108",
+      "Name": "Villager\u0027s Tassets",
+      "Family": "legs",
+      "Tier": 1,
+      "Shape": "tassets",
+      "source": [
+        320,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:108",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:109",
+      "Name": "wraps",
+      "Family": "legs",
+      "Tier": 1,
+      "Shape": "wrap",
+      "source": [
+        336,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:109",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:110",
+      "Name": "Frayed Breeches",
+      "Family": "legs",
+      "Tier": 2,
+      "Shape": "pants",
+      "source": [
+        352,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:110",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:111",
+      "Name": "Hardened Breeches",
+      "Family": "legs",
+      "Tier": 2,
+      "Shape": "pants",
+      "source": [
+        368,
+        192,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:111",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:112",
+      "Name": "Knee Guards",
+      "Family": "legs",
+      "Tier": 2,
+      "Shape": "guards",
+      "source": [
+        0,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:112",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:113",
+      "Name": "Patched Trousers",
+      "Family": "legs",
+      "Tier": 2,
+      "Shape": "pants",
+      "source": [
+        16,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:113",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:114",
+      "Name": "Ranger\u0027s Breeches",
+      "Family": "legs",
+      "Tier": 2,
+      "Shape": "pants",
+      "source": [
+        32,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:114",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:115",
+      "Name": "Reinforced Breeches",
+      "Family": "legs",
+      "Tier": 2,
+      "Shape": "pants",
+      "source": [
+        48,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:115",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:116",
+      "Name": "Scout\u0027s Breeches",
+      "Family": "legs",
+      "Tier": 2,
+      "Shape": "pants",
+      "source": [
+        64,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:116",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:117",
+      "Name": "Simple Breeches",
+      "Family": "legs",
+      "Tier": 2,
+      "Shape": "pants",
+      "source": [
+        80,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:117",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:118",
+      "Name": "Strider\u0027s Wraps",
+      "Family": "legs",
+      "Tier": 2,
+      "Shape": "wrap",
+      "source": [
+        96,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:118",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:119",
+      "Name": "Traveler\u0027s Breeches",
+      "Family": "legs",
+      "Tier": 2,
+      "Shape": "pants",
+      "source": [
+        112,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:119",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:120",
+      "Name": "Battle Greaves",
+      "Family": "legs",
+      "Tier": 3,
+      "Shape": "guards",
+      "source": [
+        128,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:120",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:121",
+      "Name": "Footman\u0027s Greaves",
+      "Family": "legs",
+      "Tier": 3,
+      "Shape": "guards",
+      "source": [
+        144,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:121",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:122",
+      "Name": "Heavy Greaves",
+      "Family": "legs",
+      "Tier": 3,
+      "Shape": "guards",
+      "source": [
+        160,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:122",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:123",
+      "Name": "Linked Greaves",
+      "Family": "legs",
+      "Tier": 3,
+      "Shape": "guards",
+      "source": [
+        176,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:123",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:124",
+      "Name": "Plated Greaves",
+      "Family": "legs",
+      "Tier": 3,
+      "Shape": "guards",
+      "source": [
+        192,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:124",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:125",
+      "Name": "Plated Greaves",
+      "Family": "legs",
+      "Tier": 3,
+      "Shape": "guards",
+      "source": [
+        208,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:125",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:126",
+      "Name": "Reinforced Greaves",
+      "Family": "legs",
+      "Tier": 3,
+      "Shape": "guards",
+      "source": [
+        224,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:126",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:127",
+      "Name": "Riveted Breeches",
+      "Family": "legs",
+      "Tier": 3,
+      "Shape": "pants",
+      "source": [
+        240,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:127",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:128",
+      "Name": "Soldier\u0027s Breeches",
+      "Family": "legs",
+      "Tier": 3,
+      "Shape": "pants",
+      "source": [
+        256,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:128",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:129",
+      "Name": "Stompers",
+      "Family": "legs",
+      "Tier": 3,
+      "Shape": "guards",
+      "source": [
+        272,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:129",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:130",
+      "Name": "Bulwark Greaves",
+      "Family": "legs",
+      "Tier": 4,
+      "Shape": "guards",
+      "source": [
+        288,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:130",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:131",
+      "Name": "Champion\u0027s Greaves",
+      "Family": "legs",
+      "Tier": 4,
+      "Shape": "guards",
+      "source": [
+        304,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:131",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:132",
+      "Name": "Crusader\u0027s Greaves",
+      "Family": "legs",
+      "Tier": 4,
+      "Shape": "guards",
+      "source": [
+        320,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:132",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:133",
+      "Name": "Defender\u0027s Greaves",
+      "Family": "legs",
+      "Tier": 4,
+      "Shape": "guards",
+      "source": [
+        336,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:133",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:134",
+      "Name": "Fortress Greaves",
+      "Family": "legs",
+      "Tier": 4,
+      "Shape": "guards",
+      "source": [
+        352,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:134",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:135",
+      "Name": "Guardian Greaves",
+      "Family": "legs",
+      "Tier": 4,
+      "Shape": "guards",
+      "source": [
+        368,
+        208,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:135",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:136",
+      "Name": "Knight\u0027s Greaves",
+      "Family": "legs",
+      "Tier": 4,
+      "Shape": "guards",
+      "source": [
+        0,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:136",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:137",
+      "Name": "Red Octobers",
+      "Family": "legs",
+      "Tier": 4,
+      "Shape": "pants",
+      "source": [
+        16,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:137",
+        "Material": "Cloth",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:138",
+      "Name": "Sentinel Greaves",
+      "Family": "legs",
+      "Tier": 4,
+      "Shape": "guards",
+      "source": [
+        32,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:138",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:139",
+      "Name": "War Greaves",
+      "Family": "legs",
+      "Tier": 4,
+      "Shape": "guards",
+      "source": [
+        48,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:139",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:140",
+      "Name": "Absolute Greaves",
+      "Family": "legs",
+      "Tier": 5,
+      "Shape": "guards",
+      "source": [
+        64,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:140",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:141",
+      "Name": "Conqueror\u0027s Greaves",
+      "Family": "legs",
+      "Tier": 5,
+      "Shape": "guards",
+      "source": [
+        80,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:141",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:142",
+      "Name": "Eternal Greaves",
+      "Family": "legs",
+      "Tier": 5,
+      "Shape": "guards",
+      "source": [
+        96,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:142",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:143",
+      "Name": "Full Greaves",
+      "Family": "legs",
+      "Tier": 5,
+      "Shape": "guards",
+      "source": [
+        112,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:143",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:144",
+      "Name": "Godplate Greaves",
+      "Family": "legs",
+      "Tier": 5,
+      "Shape": "guards",
+      "source": [
+        128,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:144",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:145",
+      "Name": "Overlord\u0027s Greaves",
+      "Family": "legs",
+      "Tier": 5,
+      "Shape": "guards",
+      "source": [
+        144,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:145",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:146",
+      "Name": "Siege Plates",
+      "Family": "legs",
+      "Tier": 5,
+      "Shape": "guards",
+      "source": [
+        160,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:146",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:147",
+      "Name": "Sovereign Greaves",
+      "Family": "legs",
+      "Tier": 5,
+      "Shape": "guards",
+      "source": [
+        176,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:147",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:148",
+      "Name": "Warden\u0027s Greaves",
+      "Family": "legs",
+      "Tier": 5,
+      "Shape": "guards",
+      "source": [
+        192,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:148",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:149",
+      "Name": "Warplate Greaves",
+      "Family": "legs",
+      "Tier": 5,
+      "Shape": "guards",
+      "source": [
+        208,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:149",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:150",
+      "Name": "Bindings",
+      "Family": "feet",
+      "Tier": 1,
+      "Shape": "sandals",
+      "source": [
+        224,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:150",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:151",
+      "Name": "Boots",
+      "Family": "feet",
+      "Tier": 1,
+      "Shape": "boot",
+      "source": [
+        240,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:151",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:152",
+      "Name": "Brogues",
+      "Family": "feet",
+      "Tier": 1,
+      "Shape": "shoe",
+      "source": [
+        256,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:152",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:153",
+      "Name": "Galoshs",
+      "Family": "feet",
+      "Tier": 1,
+      "Shape": "boot",
+      "source": [
+        272,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:153",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:154",
+      "Name": "High Boots",
+      "Family": "feet",
+      "Tier": 1,
+      "Shape": "boot",
+      "source": [
+        288,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:154",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:155",
+      "Name": "Moccassins",
+      "Family": "feet",
+      "Tier": 1,
+      "Shape": "shoe",
+      "source": [
+        304,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:155",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:156",
+      "Name": "Sandals",
+      "Family": "feet",
+      "Tier": 1,
+      "Shape": "sandals",
+      "source": [
+        320,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:156",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:157",
+      "Name": "Shoes",
+      "Family": "feet",
+      "Tier": 1,
+      "Shape": "shoe",
+      "source": [
+        336,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:157",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:158",
+      "Name": "Sneakers",
+      "Family": "feet",
+      "Tier": 1,
+      "Shape": "shoe",
+      "source": [
+        352,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:158",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:159",
+      "Name": "Titan\u0027s Greaves",
+      "Family": "feet",
+      "Tier": 1,
+      "Shape": "boot",
+      "source": [
+        368,
+        224,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:159",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:160",
+      "Name": "Chausses",
+      "Family": "feet",
+      "Tier": 2,
+      "Shape": "boot",
+      "source": [
+        0,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:160",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:161",
+      "Name": "Courtly Shoes",
+      "Family": "feet",
+      "Tier": 2,
+      "Shape": "shoe",
+      "source": [
+        16,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:161",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:162",
+      "Name": "Duskwalker",
+      "Family": "feet",
+      "Tier": 2,
+      "Shape": "boot",
+      "source": [
+        32,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:162",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:163",
+      "Name": "Greaves",
+      "Family": "feet",
+      "Tier": 2,
+      "Shape": "boot",
+      "source": [
+        48,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:163",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:164",
+      "Name": "Ironfoot",
+      "Family": "feet",
+      "Tier": 2,
+      "Shape": "boot",
+      "source": [
+        64,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:164",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:165",
+      "Name": "Legguard",
+      "Family": "feet",
+      "Tier": 2,
+      "Shape": "boot",
+      "source": [
+        80,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:165",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:166",
+      "Name": "Pelt Boots",
+      "Family": "feet",
+      "Tier": 2,
+      "Shape": "boot",
+      "source": [
+        96,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:166",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:167",
+      "Name": "Ranger\u0027s Boots",
+      "Family": "feet",
+      "Tier": 2,
+      "Shape": "boot",
+      "source": [
+        112,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:167",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:168",
+      "Name": "Slippers",
+      "Family": "feet",
+      "Tier": 2,
+      "Shape": "shoe",
+      "source": [
+        128,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:168",
+        "Material": "Leather",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:169",
+      "Name": "Treads",
+      "Family": "feet",
+      "Tier": 2,
+      "Shape": "boot",
+      "source": [
+        144,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:169",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:170",
+      "Name": "Crushers",
+      "Family": "feet",
+      "Tier": 3,
+      "Shape": "boot",
+      "source": [
+        160,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:170",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:171",
+      "Name": "Ironshod Greaves",
+      "Family": "feet",
+      "Tier": 3,
+      "Shape": "boot",
+      "source": [
+        176,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:171",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:172",
+      "Name": "Mail Boots",
+      "Family": "feet",
+      "Tier": 3,
+      "Shape": "boot",
+      "source": [
+        192,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:172",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:173",
+      "Name": "Marchers",
+      "Family": "feet",
+      "Tier": 3,
+      "Shape": "boot",
+      "source": [
+        208,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:173",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:174",
+      "Name": "Plate Boots",
+      "Family": "feet",
+      "Tier": 3,
+      "Shape": "boot",
+      "source": [
+        224,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:174",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:175",
+      "Name": "Shin Guards",
+      "Family": "feet",
+      "Tier": 3,
+      "Shape": "boot",
+      "source": [
+        240,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:175",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:176",
+      "Name": "Shinguard",
+      "Family": "feet",
+      "Tier": 3,
+      "Shape": "boot",
+      "source": [
+        256,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:176",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:177",
+      "Name": "Striders",
+      "Family": "feet",
+      "Tier": 3,
+      "Shape": "boot",
+      "source": [
+        272,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:177",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:178",
+      "Name": "Tramplers",
+      "Family": "feet",
+      "Tier": 3,
+      "Shape": "boot",
+      "source": [
+        288,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:178",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:179",
+      "Name": "Warboots",
+      "Family": "feet",
+      "Tier": 3,
+      "Shape": "boot",
+      "source": [
+        304,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:179",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:180",
+      "Name": "Battlesteps",
+      "Family": "feet",
+      "Tier": 4,
+      "Shape": "boot",
+      "source": [
+        320,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:180",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:181",
+      "Name": "Battlestriders",
+      "Family": "feet",
+      "Tier": 4,
+      "Shape": "boot",
+      "source": [
+        336,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:181",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:182",
+      "Name": "Doomtreads",
+      "Family": "feet",
+      "Tier": 4,
+      "Shape": "boot",
+      "source": [
+        352,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:182",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:183",
+      "Name": "Irontrods",
+      "Family": "feet",
+      "Tier": 4,
+      "Shape": "boot",
+      "source": [
+        368,
+        240,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:183",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:184",
+      "Name": "Kneeguards",
+      "Family": "feet",
+      "Tier": 4,
+      "Shape": "boot",
+      "source": [
+        0,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:184",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:185",
+      "Name": "Legplates",
+      "Family": "feet",
+      "Tier": 4,
+      "Shape": "boot",
+      "source": [
+        16,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:185",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:186",
+      "Name": "Oathbound Boots",
+      "Family": "feet",
+      "Tier": 4,
+      "Shape": "boot",
+      "source": [
+        32,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:186",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:187",
+      "Name": "Shadowstep",
+      "Family": "feet",
+      "Tier": 4,
+      "Shape": "boot",
+      "source": [
+        48,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:187",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:188",
+      "Name": "Siegeboots",
+      "Family": "feet",
+      "Tier": 4,
+      "Shape": "boot",
+      "source": [
+        64,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:188",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:189",
+      "Name": "Warstriders",
+      "Family": "feet",
+      "Tier": 4,
+      "Shape": "boot",
+      "source": [
+        80,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:189",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:190",
+      "Name": "Battlecharges",
+      "Family": "feet",
+      "Tier": 5,
+      "Shape": "boot",
+      "source": [
+        96,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:190",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:191",
+      "Name": "Dragon Scale Boots",
+      "Family": "feet",
+      "Tier": 5,
+      "Shape": "boot",
+      "source": [
+        112,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:191",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:192",
+      "Name": "Full Plate Boots",
+      "Family": "feet",
+      "Tier": 5,
+      "Shape": "boot",
+      "source": [
+        128,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:192",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:193",
+      "Name": "Ironsteps",
+      "Family": "feet",
+      "Tier": 5,
+      "Shape": "boot",
+      "source": [
+        144,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:193",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:194",
+      "Name": "Plate Mail Boots",
+      "Family": "feet",
+      "Tier": 5,
+      "Shape": "boot",
+      "source": [
+        160,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:194",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:195",
+      "Name": "Siegetreads",
+      "Family": "feet",
+      "Tier": 5,
+      "Shape": "boot",
+      "source": [
+        176,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:195",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:196",
+      "Name": "Soultreads",
+      "Family": "feet",
+      "Tier": 5,
+      "Shape": "boot",
+      "source": [
+        192,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:196",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:197",
+      "Name": "Warsteps",
+      "Family": "feet",
+      "Tier": 5,
+      "Shape": "boot",
+      "source": [
+        208,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:197",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:198",
+      "Name": "Wayfarer",
+      "Family": "feet",
+      "Tier": 5,
+      "Shape": "boot",
+      "source": [
+        224,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:198",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "armor:199",
+      "Name": "Worldstriders",
+      "Family": "feet",
+      "Tier": 5,
+      "Shape": "boot",
+      "source": [
+        240,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "armor:199",
+        "Material": "Steel",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:0",
+      "Name": "Vial of Iron Blood",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "potion",
+      "source": [
+        256,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:0",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:1",
+      "Name": "Elixir of Quicksilver",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "potion",
+      "source": [
+        272,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:1",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:2",
+      "Name": "Tincture of Fine Motion",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "potion",
+      "source": [
+        288,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:2",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:3",
+      "Name": "Draught of Clear Thought",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "potion",
+      "source": [
+        304,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:3",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:4",
+      "Name": "Oil of True Aim",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "potion",
+      "source": [
+        320,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:4",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:5",
+      "Name": "Serum of Flow",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "potion",
+      "source": [
+        336,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:5",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:6",
+      "Name": "Essence of Razor\u0027s Edge",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "potion",
+      "source": [
+        352,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:6",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:7",
+      "Name": "Balm of Steady Hands",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "potion",
+      "source": [
+        368,
+        256,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:7",
+        "Material": "Glass",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:8",
+      "Name": "Waxed Apple",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "apple",
+      "source": [
+        0,
+        272,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:8",
+        "Material": "Wood",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:9",
+      "Name": "Travel\u0027s Ration",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "bread",
+      "source": [
+        16,
+        272,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:9",
+        "Material": "Wood",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:10",
+      "Name": "Salted Bread",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "bread",
+      "source": [
+        32,
+        272,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:10",
+        "Material": "Wood",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:11",
+      "Name": "Camp Jerky",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "meat",
+      "source": [
+        48,
+        272,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:11",
+        "Material": "Wood",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:12",
+      "Name": "Smoked Cheese",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "cheese",
+      "source": [
+        64,
+        272,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:12",
+        "Material": "Wood",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    },
+    {
+      "Id": "consumables:13",
+      "Name": "Honeyed Sausage",
+      "Family": "consumable",
+      "Tier": 1,
+      "Shape": "meat",
+      "source": [
+        80,
+        272,
+        16,
+        16
+      ],
+      "recipe": {
+        "CatalogId": "consumables:13",
+        "Material": "Wood",
+        "Quality": "",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 0
+      }
+    }
+  ]
+}

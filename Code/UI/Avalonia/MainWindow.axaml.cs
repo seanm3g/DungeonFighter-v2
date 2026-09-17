@@ -22,6 +22,8 @@ namespace RPGGame.UI.Avalonia
         private GameInitializationHandler? initializationHandler;
         private MainWindowInputHandler? inputHandler;
         private DispatcherTimer? combatSpeedNotificationTimer;
+        private ArtLab.ArtLabWindow? artLabWindow;
+        private DispatcherTimer? artStartupTimer;
 
         public MainWindow()
         {
@@ -111,8 +113,50 @@ namespace RPGGame.UI.Avalonia
             Dispatcher.UIThread.Post(() => SettingsMenuPanel?.OpenCombatTuningProgressionCurve(), DispatcherPriority.Loaded);
         }
 
+        public void OpenArtViewWhenReady(string? capturePath = null)
+        {
+            if (artLabWindow != null)
+            {
+                artLabWindow.WindowState = WindowState.Normal;
+                artLabWindow.Activate();
+                return;
+            }
+            if (artStartupTimer != null) return;
+            artStartupTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
+            artStartupTimer.Tick += (_, _) =>
+            {
+                initializationHandler?.HandleKeyAfterAnimation(UpdateStatus);
+                if (initializationHandler?.IsInitialized != true || initializationHandler.Game == null || initializationHandler.CanvasUIManager is not CanvasUICoordinator canvasUI) return;
+                artStartupTimer!.Stop();
+                artStartupTimer = null;
+                artLabWindow = new ArtLab.ArtLabWindow(initializationHandler.Game, canvasUI, () =>
+                {
+                    WindowState = WindowState.Normal;
+                    Activate();
+                    GameCanvas.Focus();
+                });
+                artLabWindow.Closed += (_, _) => artLabWindow = null;
+                artLabWindow.Show(this);
+                if (capturePath != null)
+                {
+                    var captureTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                    captureTimer.Tick += (_, _) => { captureTimer.Stop(); artLabWindow?.Capture(capturePath); };
+                    captureTimer.Start();
+                }
+            };
+            artStartupTimer.Start();
+            Closed += (_, _) => { artStartupTimer?.Stop(); artStartupTimer = null; };
+        }
+
         private async void OnKeyDown(object? sender, KeyEventArgs e)
         {
+            if (e.Key == Key.F9)
+            {
+                e.Handled = true;
+                OpenArtViewWhenReady();
+                return;
+            }
+
             TrySyncAltTooltipDetail(e.KeyModifiers);
 
             if (TryHandleCombatSpeedKey(e.Key))

@@ -1,0 +1,1 @@
+PASS: 382,040 checks; 94,350 renders; 414 catalog entries; 217 affix mappings; 4,096 mixed permutations. Exhaustive single-affix × item coverage; combinatorial space sampled, not exhaustively enumerated.

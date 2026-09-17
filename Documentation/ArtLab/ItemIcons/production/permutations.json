@@ -1,0 +1,618 @@
+[
+  {
+    "CatalogId": "armor:102",
+    "Material": "Crystal",
+    "Quality": "Cosmic",
+    "Prefixes": [],
+    "Suffixes": [
+      "of Power",
+      "of the Dire Wolf"
+    ],
+    "Seed": 0
+  },
+  {
+    "CatalogId": "armor:145",
+    "Material": "Obsidian",
+    "Quality": "Preowned",
+    "Prefixes": [
+      "Brutal"
+    ],
+    "Suffixes": [
+      "of the Thunderbird",
+      "burden of kin",
+      "of the Horseshoe Crab",
+      "of the Rhinoceros",
+      "of the Otter"
+    ],
+    "Seed": 1
+  },
+  {
+    "CatalogId": "weapons:65",
+    "Material": "Iron",
+    "Quality": "Cosmic",
+    "Prefixes": [],
+    "Suffixes": [
+      "claimed by none"
+    ],
+    "Seed": 2
+  },
+  {
+    "CatalogId": "consumables:3",
+    "Material": "Wood",
+    "Quality": "Battle Scarred",
+    "Prefixes": [
+      "serrated",
+      "Nimble"
+    ],
+    "Suffixes": [],
+    "Seed": 3
+  },
+  {
+    "CatalogId": "armor:99",
+    "Material": "Strange",
+    "Quality": "Broken",
+    "Prefixes": [],
+    "Suffixes": [
+      "of the Grizzly Bear"
+    ],
+    "Seed": 4
+  },
+  {
+    "CatalogId": "armor:12",
+    "Material": "Obsidian",
+    "Quality": "Heirloom",
+    "Prefixes": [
+      "Poisonous",
+      "Enchanted"
+    ],
+    "Suffixes": [
+      "of the Corvid",
+      "cherished by lovers",
+      "of the Mule"
+    ],
+    "Seed": 5
+  },
+  {
+    "CatalogId": "weapons:147",
+    "Material": "Wood",
+    "Quality": "Battle Scarred",
+    "Prefixes": [
+      "Acrobatic",
+      "Blessed",
+      "Light"
+    ],
+    "Suffixes": [
+      "of the Saltwater Crocodile",
+      "of the Magpie",
+      "of Technique",
+      "of Strength",
+      "of the Otter"
+    ],
+    "Seed": 6
+  },
+  {
+    "CatalogId": "armor:168",
+    "Material": "Stone",
+    "Quality": "Broken",
+    "Prefixes": [
+      "Short",
+      "Charged"
+    ],
+    "Suffixes": [
+      "named after a father"
+    ],
+    "Seed": 7
+  },
+  {
+    "CatalogId": "armor:34",
+    "Material": "Stone",
+    "Quality": "Broken",
+    "Prefixes": [],
+    "Suffixes": [],
+    "Seed": 8
+  },
+  {
+    "CatalogId": "weapons:116",
+    "Material": "Willow",
+    "Quality": "Worn",
+    "Prefixes": [
+      "Acrobatic",
+      "Keen"
+    ],
+    "Suffixes": [],
+    "Seed": 9
+  },
+  {
+    "CatalogId": "weapons:154",
+    "Material": "Celestial",
+    "Quality": "Perfect",
+    "Prefixes": [
+      "Sturdy",
+      "Enchanted"
+    ],
+    "Suffixes": [
+      "of the Mantis"
+    ],
+    "Seed": 10
+  },
+  {
+    "CatalogId": "weapons:18",
+    "Material": "Silver",
+    "Quality": "Masterwork",
+    "Prefixes": [],
+    "Suffixes": [
+      "carried til waking",
+      "stitched by a mother"
+    ],
+    "Seed": 11
+  },
+  {
+    "CatalogId": "consumables:3",
+    "Material": "Unknown",
+    "Quality": "Cosmic",
+    "Prefixes": [],
+    "Suffixes": [
+      "of the Sawfish",
+      "of the Ox",
+      "of the Water Buffalo"
+    ],
+    "Seed": 12
+  },
+  {
+    "CatalogId": "weapons:94",
+    "Material": "Iron",
+    "Quality": "Masterwork",
+    "Prefixes": [
+      "Featherweight"
+    ],
+    "Suffixes": [
+      "of the Trilobite",
+      "of Precision",
+      "carried til waking",
+      "of the Jay"
+    ],
+    "Seed": 13
+  },
+  {
+    "CatalogId": "armor:189",
+    "Material": "Bronze",
+    "Quality": "Battle Scarred",
+    "Prefixes": [
+      "Short",
+      "Charged",
+      "refined"
+    ],
+    "Suffixes": [
+      "of the Tiger"
+    ],
+    "Seed": 14
+  },
+  {
+    "CatalogId": "armor:174",
+    "Material": "Bone",
+    "Quality": "Cosmic",
+    "Prefixes": [
+      "Keen",
+      "Heavy",
+      "Light"
+    ],
+    "Suffixes": [
+      "of the Nighthawk",
+      "of the Rhinoceros",
+      "of the Jaguar"
+    ],
+    "Seed": 15
+  },
+  {
+    "CatalogId": "weapons:21",
+    "Material": "Willow",
+    "Quality": "Heirloom",
+    "Prefixes": [],
+    "Suffixes": [
+      "of the Orangutan",
+      "of the Deer"
+    ],
+    "Seed": 16
+  },
+  {
+    "CatalogId": "weapons:30",
+    "Material": "Steel",
+    "Quality": "Perfect",
+    "Prefixes": [
+      "Enchanted"
+    ],
+    "Suffixes": [
+      "cherished by lovers",
+      "of the Nighthawk",
+      "of the Sperm Whale",
+      "gambled by debt",
+      "rusted by Dew"
+    ],
+    "Seed": 17
+  },
+  {
+    "CatalogId": "weapons:135",
+    "Material": "Shadow",
+    "Quality": "Second Hand",
+    "Prefixes": [
+      "Nimble"
+    ],
+    "Suffixes": [
+      "of the Tortoise",
+      "of the Golem",
+      "of the Hummingbird"
+    ],
+    "Seed": 18
+  },
+  {
+    "CatalogId": "weapons:54",
+    "Material": "Iron",
+    "Quality": "Heirloom",
+    "Prefixes": [],
+    "Suffixes": [
+      "of the Lion"
+    ],
+    "Seed": 19
+  },
+  {
+    "CatalogId": "weapons:194",
+    "Material": "Glass",
+    "Quality": "Like New",
+    "Prefixes": [
+      "Precise"
+    ],
+    "Suffixes": [
+      "cradled on edge",
+      "of the Hawk",
+      "of the Viper"
+    ],
+    "Seed": 20
+  },
+  {
+    "CatalogId": "weapons:80",
+    "Material": "Steel",
+    "Quality": "New",
+    "Prefixes": [
+      "Balanced",
+      "Brutal"
+    ],
+    "Suffixes": [],
+    "Seed": 21
+  },
+  {
+    "CatalogId": "armor:56",
+    "Material": "Obsidian",
+    "Quality": "New",
+    "Prefixes": [],
+    "Suffixes": [],
+    "Seed": 22
+  },
+  {
+    "CatalogId": "weapons:5",
+    "Material": "Unknown",
+    "Quality": "New",
+    "Prefixes": [],
+    "Suffixes": [
+      "of the Caracal"
+    ],
+    "Seed": 23
+  },
+  {
+    "CatalogId": "weapons:74",
+    "Material": "Steel",
+    "Quality": "Cosmic",
+    "Prefixes": [],
+    "Suffixes": [
+      "of Accuracy",
+      "of Vitality"
+    ],
+    "Seed": 24
+  },
+  {
+    "CatalogId": "weapons:171",
+    "Material": "Willow",
+    "Quality": "Broken",
+    "Prefixes": [
+      "serrated"
+    ],
+    "Suffixes": [
+      "of the Marten",
+      "of the Caracal"
+    ],
+    "Seed": 25
+  },
+  {
+    "CatalogId": "armor:38",
+    "Material": "Bronze",
+    "Quality": "Masterwork",
+    "Prefixes": [],
+    "Suffixes": [
+      "of the Ferret"
+    ],
+    "Seed": 26
+  },
+  {
+    "CatalogId": "weapons:165",
+    "Material": "Cloth",
+    "Quality": "Like New",
+    "Prefixes": [
+      "Keen"
+    ],
+    "Suffixes": [],
+    "Seed": 27
+  },
+  {
+    "CatalogId": "weapons:110",
+    "Material": "Shadow",
+    "Quality": "Perfect",
+    "Prefixes": [
+      "Swift",
+      "refined",
+      "Long"
+    ],
+    "Suffixes": [
+      "of the Elk",
+      "bound by shame",
+      "worshipped by a child",
+      "of the Scarab Beetle"
+    ],
+    "Seed": 28
+  },
+  {
+    "CatalogId": "armor:59",
+    "Material": "Shadow",
+    "Quality": "New",
+    "Prefixes": [
+      "Precise"
+    ],
+    "Suffixes": [
+      "of the Raven"
+    ],
+    "Seed": 29
+  },
+  {
+    "CatalogId": "weapons:56",
+    "Material": "Unknown",
+    "Quality": "Broken",
+    "Prefixes": [
+      "Charged"
+    ],
+    "Suffixes": [
+      "of the Crab",
+      "worn to the bone",
+      "gambled by debt",
+      "of the Viper"
+    ],
+    "Seed": 30
+  },
+  {
+    "CatalogId": "weapons:36",
+    "Material": "Shadow",
+    "Quality": "Perfect",
+    "Prefixes": [
+      "Brutal",
+      "serrated"
+    ],
+    "Suffixes": [
+      "forgotten and remembered",
+      "of the Corvid",
+      "of the Deer",
+      "lost of will",
+      "of Accuracy"
+    ],
+    "Seed": 31
+  },
+  {
+    "CatalogId": "armor:124",
+    "Material": "Leather",
+    "Quality": "Masterwork",
+    "Prefixes": [],
+    "Suffixes": [],
+    "Seed": 32
+  },
+  {
+    "CatalogId": "weapons:156",
+    "Material": "Celestial",
+    "Quality": "New",
+    "Prefixes": [
+      "Nimble",
+      "Hardened",
+      "refined"
+    ],
+    "Suffixes": [
+      "of the Jaguar",
+      "of the Fer-de-Lance",
+      "of fleeting"
+    ],
+    "Seed": 33
+  },
+  {
+    "CatalogId": "weapons:46",
+    "Material": "Steel",
+    "Quality": "Cosmic",
+    "Prefixes": [
+      "Charged",
+      "Nimble",
+      "Swift"
+    ],
+    "Suffixes": [
+      "of the Gecko",
+      "hushed in secret"
+    ],
+    "Seed": 34
+  },
+  {
+    "CatalogId": "armor:94",
+    "Material": "Stone",
+    "Quality": "Perfect",
+    "Prefixes": [
+      "Brutal",
+      "Balanced"
+    ],
+    "Suffixes": [
+      "of the Boar",
+      "kissed by time",
+      "of the Basilisk",
+      "of the Sphinx"
+    ],
+    "Seed": 35
+  },
+  {
+    "CatalogId": "weapons:149",
+    "Material": "Crystal",
+    "Quality": "Masterwork",
+    "Prefixes": [],
+    "Suffixes": [
+      "of the Weasel"
+    ],
+    "Seed": 36
+  },
+  {
+    "CatalogId": "weapons:83",
+    "Material": "Gold",
+    "Quality": "Heirloom",
+    "Prefixes": [],
+    "Suffixes": [
+      "of the Panther",
+      "lost and found again",
+      "of the Trilobite"
+    ],
+    "Seed": 37
+  },
+  {
+    "CatalogId": "weapons:29",
+    "Material": "Gold",
+    "Quality": "Broken",
+    "Prefixes": [
+      "Nimble"
+    ],
+    "Suffixes": [
+      "of the Jay",
+      "gambled by debt",
+      "of the Fer-de-Lance",
+      "of the Sicklebill"
+    ],
+    "Seed": 38
+  },
+  {
+    "CatalogId": "weapons:64",
+    "Material": "Cloth",
+    "Quality": "Preowned",
+    "Prefixes": [
+      "Featherweight",
+      "Featherweight",
+      "Long"
+    ],
+    "Suffixes": [
+      "of the Cape Buffalo",
+      "of the Horseshoe Crab"
+    ],
+    "Seed": 39
+  },
+  {
+    "CatalogId": "armor:111",
+    "Material": "Willow",
+    "Quality": "Battle Scarred",
+    "Prefixes": [
+      "Light",
+      "Precise"
+    ],
+    "Suffixes": [
+      "of the Cape Buffalo",
+      "of the Kraken",
+      "of the Tasmanian Devil",
+      "of the Cobra",
+      "of the Abalone"
+    ],
+    "Seed": 40
+  },
+  {
+    "CatalogId": "armor:104",
+    "Material": "Strange",
+    "Quality": "Heirloom",
+    "Prefixes": [
+      "Acrobatic",
+      "Keen",
+      "Balanced"
+    ],
+    "Suffixes": [
+      "of the Grizzly Bear",
+      "of the Millipede"
+    ],
+    "Seed": 41
+  },
+  {
+    "CatalogId": "weapons:149",
+    "Material": "Iron",
+    "Quality": "Broken",
+    "Prefixes": [
+      "Short"
+    ],
+    "Suffixes": [
+      "of Protection"
+    ],
+    "Seed": 42
+  },
+  {
+    "CatalogId": "armor:75",
+    "Material": "Strange",
+    "Quality": "Battle Scarred",
+    "Prefixes": [
+      "Acrobatic"
+    ],
+    "Suffixes": [],
+    "Seed": 43
+  },
+  {
+    "CatalogId": "armor:40",
+    "Material": "Steel",
+    "Quality": "Preowned",
+    "Prefixes": [],
+    "Suffixes": [
+      "of the Wolverine",
+      "of the Fer-de-Lance",
+      "of the Marten",
+      "of the Nighthawk"
+    ],
+    "Seed": 44
+  },
+  {
+    "CatalogId": "armor:6",
+    "Material": "Steel",
+    "Quality": "Worn",
+    "Prefixes": [
+      "Precise",
+      "Short"
+    ],
+    "Suffixes": [
+      "of the Trilobite",
+      "of the Kitsune",
+      "of the Velociraptor"
+    ],
+    "Seed": 45
+  },
+  {
+    "CatalogId": "weapons:9",
+    "Material": "Mithril",
+    "Quality": "Battle Scarred",
+    "Prefixes": [],
+    "Suffixes": [
+      "named after a father",
+      "of the Tiger",
+      "of the Squid"
+    ],
+    "Seed": 46
+  },
+  {
+    "CatalogId": "weapons:33",
+    "Material": "Strange",
+    "Quality": "Cosmic",
+    "Prefixes": [],
+    "Suffixes": [
+      "of the Bloodhound",
+      "of the Tasmanian Devil",
+      "of the Gecko"
+    ],
+    "Seed": 47
+  }
+]

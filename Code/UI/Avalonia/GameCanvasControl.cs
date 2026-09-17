@@ -25,6 +25,17 @@ namespace RPGGame.UI.Avalonia
         private readonly HealthTracker healthTracker;
         private readonly CanvasElementBuilder elementBuilder;
         private DispatcherTimer? damageDeltaAnimationTimer;
+        private readonly Dictionary<(int X, int Y), ArtLab.ItemIconFrame> itemIcons = new();
+        internal int ItemIconCount => itemIcons.Count;
+
+        /// <summary>Small inventory icon in the text grid; returns reserved character columns.</summary>
+        public int AddItemIcon(int x, int y, Item item)
+        {
+            // At compact text scales preserve the readable name rather than clip a native pixel icon.
+            if (coordinateConverter.GetCharHeight() < 16) { itemIcons.Remove((x,y)); return 0; }
+            itemIcons[(x, y)] = ArtLab.ItemIconRenderer.Render(item);
+            return 3;
+        }
         
         // Base grid dimensions (original design size)
         private const int BASE_GRID_WIDTH = 210;
@@ -285,13 +296,21 @@ namespace RPGGame.UI.Avalonia
                 elementManager.BoxElements.ToList(),
                 elementManager.ProgressBars.ToList(),
                 elementManager.SegmentedBars.ToList(),
-                ClearBackgroundColor);
+                ClearBackgroundColor,
+                ctx =>
+                {
+                    double cw = coordinateConverter.GetCharWidth(), ch = coordinateConverter.GetCharHeight();
+                    if (ch < 16) return;
+                    foreach (var pair in itemIcons)
+                        ArtLab.ItemIconRenderer.Draw(ctx, pair.Value, new Rect(pair.Key.X * cw, pair.Key.Y * ch, cw * 2, ch));
+                });
         }
 
         // Public methods for adding elements
         public void Clear()
         {
             elementManager.Clear();
+            itemIcons.Clear();
         }
         
         /// <summary>
@@ -302,6 +321,7 @@ namespace RPGGame.UI.Avalonia
         public void ClearTextInRange(int startY, int endY)
         {
             elementManager.ClearTextInRange(startY, endY);
+            foreach (var key in itemIcons.Keys.Where(k => k.Y >= startY && k.Y <= endY).ToArray()) itemIcons.Remove(key);
         }
         
         /// <summary>
@@ -312,6 +332,7 @@ namespace RPGGame.UI.Avalonia
         public void ClearTextInArea(int startX, int startY, int width, int height)
         {
             elementManager.ClearTextInArea(startX, startY, width, height);
+            foreach (var key in itemIcons.Keys.Where(k => k.X + 2 > startX && k.X < startX + width && k.Y >= startY && k.Y < startY + height).ToArray()) itemIcons.Remove(key);
         }
         
         /// <summary>

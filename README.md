@@ -24,7 +24,19 @@ dotnet build
 dotnet run
 ```
 
-## Where things are
+## Pixel-art UI exploration
+
+Run **`Dungeon Fighter Art Lab.bat`** on Windows, or `dotnet run --project Code -- ART` on other platforms. After rebuilding the regular game, **F9** opens the same Art Lab in a separate window.
+
+The art view shares the existing `GameCoordinator`, active character, generated dungeon, inventory, and auto-combat. Click the next room on the map or press **Space** at the normal between-room prompt. Click bag items to equip them through the existing inventory handler. **F1** opens the field guide.
+
+**Game Menu** uses the backend's choices; **Classic UI** returns to the full interface for character management, settings, and combo editing. This is an alternative presentation of the real game: actions affect the same character and normal saves. The initial asset set uses one cathedral backdrop and three approximate equipment portrait families. See [the Art Lab notes](Documentation/ArtLab/README.md).
+
+## Modular inventory icons
+
+Run **`Dungeon Fighter Item Icons.bat`**, or `dotnet run --project Code -p:KeepRunningInstance=true -- ICONLAB`, for the standalone Rarity Gallery. Generate side-by-side rows from Common through Mythic, filter by family/tier, shuffle a new seed, inspect a card, and export PNGs or a batch. **Affix editor** opens the unrestricted editor covering all 414 catalog items, materials, qualities, and prefixes/suffixes. The shared 16×16 renderer also supplies regular inventory/comparison icons and Art Lab bag icons. See [the icon system guide](Documentation/ArtLab/ItemIcons/README.md) for the atlas and verification commands.
+
+## Source layout
 
 - **Main code**: `Code/`
 - **Game data**: `GameData/`

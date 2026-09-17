@@ -1,0 +1,362 @@
+[
+  {
+    "number": 1,
+    "items": [
+      {
+        "slot": "head",
+        "name": "Band",
+        "index": 0
+      },
+      {
+        "slot": "chest",
+        "name": "Pauldron",
+        "index": 26
+      },
+      {
+        "slot": "legs",
+        "name": "Absolute Greaves",
+        "index": 40
+      },
+      {
+        "slot": "feet",
+        "name": "Tramplers",
+        "index": 28
+      },
+      {
+        "slot": "weapon",
+        "name": "Crusher",
+        "index": 12
+      }
+    ]
+  },
+  {
+    "number": 2,
+    "items": [
+      {
+        "slot": "head",
+        "name": "Cap",
+        "index": 1
+      },
+      {
+        "slot": "chest",
+        "name": "Colossus",
+        "index": 42
+      },
+      {
+        "slot": "legs",
+        "name": "Godplate Greaves",
+        "index": 44
+      },
+      {
+        "slot": "feet",
+        "name": "Warstriders",
+        "index": 39
+      },
+      {
+        "slot": "weapon",
+        "name": "Kukri",
+        "index": 34
+      }
+    ]
+  },
+  {
+    "number": 3,
+    "items": [
+      {
+        "slot": "head",
+        "name": "Skull Plate",
+        "index": 49
+      },
+      {
+        "slot": "chest",
+        "name": "Fortress",
+        "index": 32
+      },
+      {
+        "slot": "legs",
+        "name": "Defender's Greaves",
+        "index": 33
+      },
+      {
+        "slot": "feet",
+        "name": "Kneeguards",
+        "index": 34
+      },
+      {
+        "slot": "weapon",
+        "name": "Floating Obelisk",
+        "index": 47
+      }
+    ]
+  },
+  {
+    "number": 4,
+    "items": [
+      {
+        "slot": "head",
+        "name": "Hat",
+        "index": 3
+      },
+      {
+        "slot": "chest",
+        "name": "Spaulder",
+        "index": 29
+      },
+      {
+        "slot": "legs",
+        "name": "Warden's Greaves",
+        "index": 48
+      },
+      {
+        "slot": "feet",
+        "name": "Legplates",
+        "index": 35
+      },
+      {
+        "slot": "weapon",
+        "name": "Sunderking",
+        "index": 44
+      }
+    ]
+  },
+  {
+    "number": 5,
+    "items": [
+      {
+        "slot": "head",
+        "name": "Hounskull",
+        "index": 22
+      },
+      {
+        "slot": "chest",
+        "name": "Vanguard",
+        "index": 49
+      },
+      {
+        "slot": "legs",
+        "name": "Red Octobers",
+        "index": 37
+      },
+      {
+        "slot": "feet",
+        "name": "Warstriders",
+        "index": 39
+      },
+      {
+        "slot": "weapon",
+        "name": "Ghost Pillar",
+        "index": 48
+      }
+    ]
+  },
+  {
+    "number": 6,
+    "items": [
+      {
+        "slot": "head",
+        "name": "Neckguard",
+        "index": 46
+      },
+      {
+        "slot": "chest",
+        "name": "Ironwall",
+        "index": 24
+      },
+      {
+        "slot": "legs",
+        "name": "Scout's Breeches",
+        "index": 16
+      },
+      {
+        "slot": "feet",
+        "name": "Worldstriders",
+        "index": 49
+      },
+      {
+        "slot": "weapon",
+        "name": "Pounder",
+        "index": 8
+      }
+    ]
+  },
+  {
+    "number": 7,
+    "items": [
+      {
+        "slot": "head",
+        "name": "Kerfcheif",
+        "index": 15
+      },
+      {
+        "slot": "chest",
+        "name": "Ironclad",
+        "index": 33
+      },
+      {
+        "slot": "legs",
+        "name": "Absolute Greaves",
+        "index": 40
+      },
+      {
+        "slot": "feet",
+        "name": "Warstriders",
+        "index": 39
+      },
+      {
+        "slot": "weapon",
+        "name": "Ruination",
+        "index": 43
+      }
+    ]
+  },
+  {
+    "number": 8,
+    "items": [
+      {
+        "slot": "head",
+        "name": "War Cap",
+        "index": 19
+      },
+      {
+        "slot": "chest",
+        "name": "Vanguard Plate",
+        "index": 39
+      },
+      {
+        "slot": "legs",
+        "name": "Linked Greaves",
+        "index": 23
+      },
+      {
+        "slot": "feet",
+        "name": "Full Plate Boots",
+        "index": 42
+      },
+      {
+        "slot": "weapon",
+        "name": "Chopoper",
+        "index": 1
+      }
+    ]
+  },
+  {
+    "number": 9,
+    "items": [
+      {
+        "slot": "head",
+        "name": "Hat",
+        "index": 3
+      },
+      {
+        "slot": "chest",
+        "name": "Stormwall",
+        "index": 38
+      },
+      {
+        "slot": "legs",
+        "name": "Knee Guards",
+        "index": 12
+      },
+      {
+        "slot": "feet",
+        "name": "Chausses",
+        "index": 10
+      },
+      {
+        "slot": "weapon",
+        "name": "Worldcleave",
+        "index": 49
+      }
+    ]
+  },
+  {
+    "number": 10,
+    "items": [
+      {
+        "slot": "head",
+        "name": "Skull Plate",
+        "index": 49
+      },
+      {
+        "slot": "chest",
+        "name": "Jerkin",
+        "index": 4
+      },
+      {
+        "slot": "legs",
+        "name": "Sovereign Greaves",
+        "index": 47
+      },
+      {
+        "slot": "feet",
+        "name": "Tramplers",
+        "index": 28
+      },
+      {
+        "slot": "weapon",
+        "name": "Sunderking",
+        "index": 44
+      }
+    ]
+  },
+  {
+    "number": 11,
+    "items": [
+      {
+        "slot": "head",
+        "name": "Face Helm",
+        "index": 12
+      },
+      {
+        "slot": "chest",
+        "name": "Rover Jacket",
+        "index": 15
+      },
+      {
+        "slot": "legs",
+        "name": "Sentinel Greaves",
+        "index": 38
+      },
+      {
+        "slot": "feet",
+        "name": "Shinguard",
+        "index": 26
+      },
+      {
+        "slot": "weapon",
+        "name": "Stick",
+        "index": 9
+      }
+    ]
+  },
+  {
+    "number": 12,
+    "items": [
+      {
+        "slot": "head",
+        "name": "War Cap",
+        "index": 19
+      },
+      {
+        "slot": "chest",
+        "name": "Dragon Scale Armor",
+        "index": 44
+      },
+      {
+        "slot": "legs",
+        "name": "Stompers",
+        "index": 29
+      },
+      {
+        "slot": "feet",
+        "name": "Warsteps",
+        "index": 47
+      },
+      {
+        "slot": "weapon",
+        "name": "Axiom",
+        "index": 41
+      }
+    ]
+  }
+]

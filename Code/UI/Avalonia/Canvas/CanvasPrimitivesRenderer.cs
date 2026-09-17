@@ -34,7 +34,8 @@ namespace RPGGame.UI.Avalonia.Canvas
             List<CanvasBox> boxElements,
             List<CanvasProgressBar> progressBars,
             List<CanvasSegmentedBar> segmentedBars,
-            Color clearBackground = default)
+            Color clearBackground = default,
+            System.Action<DrawingContext>? drawInventoryIcons = null)
         {
             // default(Color) / transparent → solid black (normal game backdrop)
             if (clearBackground.A == 0)
@@ -47,6 +48,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             RenderProgressBars(context, progressBars);
             RenderSegmentedBars(context, segmentedBars);
             RenderText(context, textElements, overlayPass: false);
+            drawInventoryIcons?.Invoke(context);
             RenderBoxes(context, boxElements, overlayPass: true);
             RenderText(context, textElements, overlayPass: true);
         }

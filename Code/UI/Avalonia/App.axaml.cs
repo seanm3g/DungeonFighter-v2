@@ -23,7 +23,15 @@ namespace RPGGame.UI.Avalonia
                 // (settings, Action Lab, tuning workbench) are still open.
                 desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-                desktop.MainWindow = new MainWindow();
+                bool artLab = desktop.Args?.Any(a => a.Equals("ART", StringComparison.OrdinalIgnoreCase)) == true;
+                var mainWindow = new MainWindow();
+                desktop.MainWindow = mainWindow;
+                if (artLab)
+                {
+                    int captureIndex = Array.IndexOf(desktop.Args!, "--capture");
+                    string? capturePath = captureIndex >= 0 && captureIndex + 1 < desktop.Args!.Length ? desktop.Args[captureIndex + 1] : null;
+                    mainWindow.Opened += (_, _) => mainWindow.OpenArtViewWhenReady(capturePath);
+                }
 
                 // Title-bar X (and any other main-window close) must fully exit the process.
                 // Avalonia shutdown alone can leave SoundFlow/native threads alive, which

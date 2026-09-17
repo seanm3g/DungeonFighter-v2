@@ -1,0 +1,506 @@
+[
+  {
+    "Name": "Common",
+    "Color": "#ADB8C7",
+    "Recipes": [
+      {
+        "CatalogId": "armor:92",
+        "Material": "Shadow",
+        "Quality": "Worn",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:15",
+        "Material": "Bone",
+        "Quality": "Battle Scarred",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:16",
+        "Material": "Bone",
+        "Quality": "Broken",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "armor:133",
+        "Material": "Mithril",
+        "Quality": "Battle Scarred",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:103",
+        "Material": "Glass",
+        "Quality": "Worn",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "armor:194",
+        "Material": "Willow",
+        "Quality": "Worn",
+        "Prefixes": [],
+        "Suffixes": [],
+        "Seed": 1717
+      }
+    ]
+  },
+  {
+    "Name": "Uncommon",
+    "Color": "#79C996",
+    "Recipes": [
+      {
+        "CatalogId": "armor:126",
+        "Material": "Unknown",
+        "Quality": "Second Hand",
+        "Prefixes": [
+          "Precise"
+        ],
+        "Suffixes": [
+          "of the Deer",
+          "of the Elephant"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "armor:90",
+        "Material": "Unknown",
+        "Quality": "Preowned",
+        "Prefixes": [
+          "Featherweight"
+        ],
+        "Suffixes": [
+          "of the Jaguar",
+          "of the Marten"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "armor:47",
+        "Material": "Unknown",
+        "Quality": "Preowned",
+        "Prefixes": [
+          "Long"
+        ],
+        "Suffixes": [
+          "of the Peregrine Falcon",
+          "of Intelligence"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:41",
+        "Material": "Steel",
+        "Quality": "Second Hand",
+        "Prefixes": [
+          "Keen"
+        ],
+        "Suffixes": [
+          "of the Sicklebill",
+          "of the Jaguar"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:14",
+        "Material": "Steel",
+        "Quality": "Second Hand",
+        "Prefixes": [
+          "Featherweight"
+        ],
+        "Suffixes": [
+          "of the Rhinoceros",
+          "of the Nautilus"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:106",
+        "Material": "Obsidian",
+        "Quality": "Second Hand",
+        "Prefixes": [
+          "Brutal"
+        ],
+        "Suffixes": [
+          "of the Toad",
+          "of Protection"
+        ],
+        "Seed": 1717
+      }
+    ]
+  },
+  {
+    "Name": "Rare",
+    "Color": "#73B9F4",
+    "Recipes": [
+      {
+        "CatalogId": "armor:161",
+        "Material": "Strange",
+        "Quality": "Like New",
+        "Prefixes": [
+          "Keen"
+        ],
+        "Suffixes": [
+          "of the Mantis Shrimp",
+          "kept in faith",
+          "of the Mule"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "armor:175",
+        "Material": "Strange",
+        "Quality": "New",
+        "Prefixes": [
+          "refined"
+        ],
+        "Suffixes": [
+          "of the Dire Wolf",
+          "of the Auroch",
+          "of the Rhinoceros"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:62",
+        "Material": "Mithril",
+        "Quality": "New",
+        "Prefixes": [
+          "Heavy"
+        ],
+        "Suffixes": [
+          "of Vitality",
+          "of the Peregrine Falcon",
+          "of the Tasmanian Devil"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "armor:60",
+        "Material": "Strange",
+        "Quality": "New",
+        "Prefixes": [
+          "Brutal"
+        ],
+        "Suffixes": [
+          "of the Salamander",
+          "of the Tortoise",
+          "of the Phoenix"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:156",
+        "Material": "Crystal",
+        "Quality": "Like New",
+        "Prefixes": [
+          "Hardened"
+        ],
+        "Suffixes": [
+          "worshipped by a child",
+          "of the Magpie",
+          "rusted by Dew"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:118",
+        "Material": "Shadow",
+        "Quality": "Like New",
+        "Prefixes": [
+          "Acrobatic"
+        ],
+        "Suffixes": [
+          "of the Panther",
+          "worn to the bone",
+          "of fleeting"
+        ],
+        "Seed": 1717
+      }
+    ]
+  },
+  {
+    "Name": "Epic",
+    "Color": "#BA91EE",
+    "Recipes": [
+      {
+        "CatalogId": "armor:195",
+        "Material": "Celestial",
+        "Quality": "Perfect",
+        "Prefixes": [
+          "refined"
+        ],
+        "Suffixes": [
+          "of the Elk",
+          "of the Crane",
+          "of the Ram"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:70",
+        "Material": "Mithril",
+        "Quality": "Perfect",
+        "Prefixes": [
+          "Short"
+        ],
+        "Suffixes": [
+          "of the Tiger",
+          "of the Peregrine Falcon",
+          "of the Weasel"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "armor:166",
+        "Material": "Celestial",
+        "Quality": "Perfect",
+        "Prefixes": [
+          "Light"
+        ],
+        "Suffixes": [
+          "of the Cheetah",
+          "of the Swift",
+          "of the Clockwork Beetle"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "armor:140",
+        "Material": "Celestial",
+        "Quality": "Perfect",
+        "Prefixes": [
+          "Light"
+        ],
+        "Suffixes": [
+          "of the Cobra",
+          "gambled by debt",
+          "of the Hyena"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:133",
+        "Material": "Shadow",
+        "Quality": "Perfect",
+        "Prefixes": [
+          "Balanced"
+        ],
+        "Suffixes": [
+          "dipped in moonlight",
+          "of the Corvid",
+          "cherished by lovers"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "armor:53",
+        "Material": "Celestial",
+        "Quality": "Perfect",
+        "Prefixes": [
+          "Ancient"
+        ],
+        "Suffixes": [
+          "of the Nautilus",
+          "of the Deer",
+          "worn to the bone"
+        ],
+        "Seed": 1717
+      }
+    ]
+  },
+  {
+    "Name": "Legendary",
+    "Color": "#EBC86D",
+    "Recipes": [
+      {
+        "CatalogId": "weapons:29",
+        "Material": "Iron",
+        "Quality": "Heirloom",
+        "Prefixes": [
+          "refined"
+        ],
+        "Suffixes": [
+          "lost of will",
+          "of the Fox",
+          "of the Panther"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:4",
+        "Material": "Iron",
+        "Quality": "Heirloom",
+        "Prefixes": [
+          "Poisonous"
+        ],
+        "Suffixes": [
+          "of the Weasel",
+          "of the Caracal",
+          "of the Pangolin"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:51",
+        "Material": "Mithril",
+        "Quality": "Masterwork",
+        "Prefixes": [
+          "Swift"
+        ],
+        "Suffixes": [
+          "of the Viper",
+          "of killing",
+          "of the Lion"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "armor:113",
+        "Material": "Gold",
+        "Quality": "Masterwork",
+        "Prefixes": [
+          "Blessed"
+        ],
+        "Suffixes": [
+          "of fleeting",
+          "of the Lynx",
+          "of the Fiddler Crab"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:134",
+        "Material": "Shadow",
+        "Quality": "Masterwork",
+        "Prefixes": [
+          "Acrobatic"
+        ],
+        "Suffixes": [
+          "of the Rhinoceros",
+          "of the Sphinx",
+          "worn to the bone"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:113",
+        "Material": "Shadow",
+        "Quality": "Heirloom",
+        "Prefixes": [
+          "Poisonous"
+        ],
+        "Suffixes": [
+          "of the Tasmanian Devil",
+          "of the Heron",
+          "lost of will"
+        ],
+        "Seed": 1717
+      }
+    ]
+  },
+  {
+    "Name": "Mythic",
+    "Color": "#F38DA6",
+    "Recipes": [
+      {
+        "CatalogId": "weapons:64",
+        "Material": "Mithril",
+        "Quality": "Cosmic",
+        "Prefixes": [
+          "Featherweight"
+        ],
+        "Suffixes": [
+          "of the Badger",
+          "of the Gorilla",
+          "of the Sparrowhawk",
+          "of killing"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:73",
+        "Material": "Mithril",
+        "Quality": "Cosmic",
+        "Prefixes": [
+          "Precise"
+        ],
+        "Suffixes": [
+          "of the Hummingbird",
+          "of Power",
+          "of the Hawk",
+          "of the Thunderbird"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "armor:148",
+        "Material": "Steel",
+        "Quality": "Cosmic",
+        "Prefixes": [
+          "Light"
+        ],
+        "Suffixes": [
+          "given by dying hands",
+          "of the Sicklebill",
+          "of the Crab",
+          "of the Hippopotamus"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:92",
+        "Material": "Mithril",
+        "Quality": "Cosmic",
+        "Prefixes": [
+          "Heavy"
+        ],
+        "Suffixes": [
+          "kept in faith",
+          "absent for long",
+          "of Precision",
+          "of the Armadillo"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:15",
+        "Material": "Iron",
+        "Quality": "Cosmic",
+        "Prefixes": [
+          "Long"
+        ],
+        "Suffixes": [
+          "of Power",
+          "burden of kin",
+          "of the Wolf",
+          "of Accuracy"
+        ],
+        "Seed": 1717
+      },
+      {
+        "CatalogId": "weapons:169",
+        "Material": "Crystal",
+        "Quality": "Cosmic",
+        "Prefixes": [
+          "Enchanted"
+        ],
+        "Suffixes": [
+          "hushed in secret",
+          "of the Scorpion",
+          "cherished by lovers",
+          "of the Snow Leopard"
+        ],
+        "Seed": 1717
+      }
+    ]
+  }
+]

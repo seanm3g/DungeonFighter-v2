@@ -75,6 +75,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         public static void RenderItemName(ColoredTextWriter textWriter, GameCanvasControl canvas, 
             int x, int y, int itemIndex, Item item, bool useColoredText = true, Character? character = null)
         {
+            x += canvas.AddItemIcon(x, y, item);
             if (useColoredText)
             {
                 var segments = BuildItemNameSegments(itemIndex, item, character);

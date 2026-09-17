@@ -488,3 +488,7 @@ Network Trash Folder
 Temporary Items
 .apdisk 
 dist-test/DF.exe
+
+# Optional native art exploration build
+/bin_art_lab/
+/bin_art_live/

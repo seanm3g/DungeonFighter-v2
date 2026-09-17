@@ -1,0 +1,253 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:art="clr-namespace:RPGGame.UI.Avalonia.ArtLab"
+        x:Class="RPGGame.UI.Avalonia.ArtLab.ArtLabWindow"
+        Title="Dungeon Fighters — Art Lab" Width="1500" Height="940"
+        MinWidth="1050" MinHeight="680" Background="#090D0E"
+        WindowStartupLocation="CenterScreen" RequestedThemeVariant="Dark">
+  <Window.Styles>
+    <Style Selector="TextBlock">
+      <Setter Property="FontFamily" Value="Consolas, monospace"/>
+      <Setter Property="Foreground" Value="#E3E0D2"/>
+      <Setter Property="FontSize" Value="13"/>
+    </Style>
+    <Style Selector="TextBlock.label">
+      <Setter Property="Foreground" Value="#929A90"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="LetterSpacing" Value="2"/>
+    </Style>
+    <Style Selector="TextBlock.acid"><Setter Property="Foreground" Value="#DCF54A"/></Style>
+    <Style Selector="Border.panel">
+      <Setter Property="Background" Value="#101617"/>
+      <Setter Property="BorderBrush" Value="#34403B"/>
+      <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Button">
+      <Setter Property="FontFamily" Value="Consolas, monospace"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Foreground" Value="#E3E0D2"/>
+      <Setter Property="Background" Value="#151D1C"/>
+      <Setter Property="BorderBrush" Value="#425045"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="Padding" Value="12,8"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Button:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#333F29"/>
+      <Setter Property="BorderBrush" Value="#DCF54A"/>
+    </Style>
+    <Style Selector="Button:focus-visible /template/ ContentPresenter">
+      <Setter Property="BorderBrush" Value="#DCF54A"/>
+      <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="#DCF54A"/>
+      <Setter Property="Foreground" Value="#10150B"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="BorderBrush" Value="#DCF54A"/>
+    </Style>
+    <Style Selector="Button.selected">
+      <Setter Property="Background" Value="#252E19"/>
+      <Setter Property="BorderBrush" Value="#DCF54A"/>
+      <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+    <Style Selector="Button.room">
+      <Setter Property="Width" Value="30"/>
+      <Setter Property="Height" Value="30"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FontSize" Value="13"/>
+    </Style>
+    <Style Selector="Button:disabled"><Setter Property="Opacity" Value="0.4"/></Style>
+    <Style Selector="Button.room:disabled /template/ ContentPresenter">
+      <Setter Property="Background" Value="#141D19"/>
+      <Setter Property="Foreground" Value="#879379"/>
+      <Setter Property="BorderBrush" Value="#435046"/>
+    </Style>
+    <Style Selector="Button.room.current:disabled /template/ ContentPresenter">
+      <Setter Property="Background" Value="#DCF54A"/>
+      <Setter Property="Foreground" Value="#11180C"/>
+      <Setter Property="BorderBrush" Value="#DCF54A"/>
+    </Style>
+  </Window.Styles>
+  <Viewbox Stretch="Uniform">
+    <Grid Width="1500" Height="940" Background="#090D0E">
+      <art:PrintGrain IsHitTestVisible="False" Opacity="0.24"/>
+      <Grid x:Name="Shell" Margin="24" RowDefinitions="62,90,500,16,180,44">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <Border Background="#DCF54A" Width="42" Height="42">
+              <TextBlock Text="◈" Foreground="#11160E" FontSize="34" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="DUNGEON / FIGHTERS" FontWeight="Bold" FontSize="19" LetterSpacing="2"/>
+              <TextBlock Classes="label" Text="STEEL. STATIC. SURVIVAL." FontSize="10" Margin="0,3,0,0"/>
+            </StackPanel>
+          </StackPanel>
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+            <TextBlock Classes="label" Text="ART LAB  /  01" VerticalAlignment="Center" Margin="0,0,14,0"/>
+            <Button x:Name="HelpButton" Content="?  FIELD GUIDE" Click="ShowHelp"/>
+            <Button Content="GAME MENU" Click="ShowGameMenu"/>
+            <Button Content="CLASSIC UI" Click="ShowClassic"/>
+          </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+          <StackPanel>
+            <TextBlock x:Name="RegionText" Classes="label acid" Text="DUNGEON FIGHTERS / LIVE GAME" Margin="0,5,0,7"/>
+            <TextBlock x:Name="DungeonTitle" Text="THE DESCENT AWAITS" FontFamily="Georgia, serif" FontWeight="Bold" FontSize="38" LetterSpacing="-1" MaxWidth="1000" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis"/>
+          </StackPanel>
+          <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="7">
+            <TextBlock x:Name="GameStateText" Classes="label" Text="LIVE GAME STATE"/>
+            <TextBlock x:Name="RunProgress" Classes="acid" Text="01 / 11 ROOMS DISCOVERED" HorizontalAlignment="Right"/>
+          </StackPanel>
+        </Grid>
+        <Grid Grid.Row="2" ColumnDefinitions="270,16,844,16,306">
+          <Border Classes="panel">
+            <Grid RowDefinitions="69,271,*,45">
+              <StackPanel Margin="16,12,16,0" Spacing="5">
+                <TextBlock Classes="label" Text="YOUR FIGHTER"/>
+                <TextBlock x:Name="HeroName" Text="NO FIGHTER" FontFamily="Georgia, serif" FontWeight="Bold" FontSize="22" TextTrimming="CharacterEllipsis"/>
+              </StackPanel>
+              <Grid Grid.Row="1" ClipToBounds="True">
+                <art:HeroPortrait x:Name="Portrait"/>
+                <Border Background="#D0090D0E" Padding="7,4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,0">
+                  <TextBlock x:Name="LoadoutLabel" Classes="label acid" Text="THE REAVER"/>
+                </Border>
+                <Border Background="#D0090D0E" Padding="7,4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="12">
+                  <TextBlock x:Name="HeroClass" Text="CREATE OR LOAD A HERO" FontSize="10"/>
+                </Border>
+              </Grid>
+              <StackPanel Grid.Row="2" Margin="16,12,16,0" Spacing="7">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Classes="label" Text="VITALITY"/>
+                  <TextBlock x:Name="HealthText" Grid.Column="1" Classes="acid"/>
+                </Grid>
+                <ProgressBar x:Name="HealthBar" Minimum="0" Maximum="100" Height="8" Foreground="#DCF54A" Background="#35372A"/>
+                <Grid ColumnDefinitions="*,*,*" Margin="0,6,0,0">
+                  <StackPanel><TextBlock Classes="label" Text="DMG"/><TextBlock x:Name="DamageText" FontSize="23" FontWeight="Bold"/></StackPanel>
+                  <StackPanel Grid.Column="1"><TextBlock Classes="label" Text="ARM"/><TextBlock x:Name="ArmorText" FontSize="23" FontWeight="Bold"/></StackPanel>
+                  <StackPanel Grid.Column="2"><TextBlock Classes="label" Text="XP"/><TextBlock x:Name="KillsText" FontSize="23" FontWeight="Bold"/></StackPanel>
+                </Grid>
+              </StackPanel>
+              <Border Grid.Row="3" BorderBrush="#34403B" BorderThickness="0,1,0,0" Padding="16,10">
+                <TextBlock x:Name="WeaponText" FontSize="12" Classes="acid"/>
+              </Border>
+            </Grid>
+          </Border>
+          <Border Grid.Column="2" BorderBrush="#535D41" BorderThickness="1" ClipToBounds="True">
+            <Grid>
+              <Image Source="/UI/Avalonia/Assets/ArtLab/cathedral.png" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="None"/>
+              <Border Height="150" VerticalAlignment="Top">
+                <Border.Background><LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%"><GradientStop Color="#D8090D0E" Offset="0"/><GradientStop Color="#00090D0E" Offset="1"/></LinearGradientBrush></Border.Background>
+              </Border>
+              <StackPanel Margin="22,18" VerticalAlignment="Top" Spacing="7">
+                <TextBlock x:Name="RoomType" Classes="label acid"/>
+                <TextBlock x:Name="RoomTitle" FontFamily="Georgia, serif" FontWeight="Bold" FontSize="28"/>
+              </StackPanel>
+              <Border x:Name="EnemyPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,70,0,0" Background="#E9090D0E" BorderBrush="#F14C45" BorderThickness="1" Padding="22,14" Width="330">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="†" Foreground="#F14C45" FontSize="30" HorizontalAlignment="Center"/>
+                  <TextBlock x:Name="EnemyName" Foreground="#F14C45" FontWeight="Bold" HorizontalAlignment="Center"/>
+                  <ProgressBar x:Name="EnemyBar" Height="5" Foreground="#F14C45" Background="#4C2725"/>
+                  <TextBlock x:Name="EnemyHealthText" FontSize="11" HorizontalAlignment="Center"/>
+                </StackPanel>
+              </Border>
+              <Border VerticalAlignment="Bottom" Padding="22,42,22,18">
+                <Border.Background><LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%"><GradientStop Color="#00090D0E" Offset="0"/><GradientStop Color="#F5090D0E" Offset="0.45"/></LinearGradientBrush></Border.Background>
+                <StackPanel Spacing="14">
+                  <TextBlock x:Name="RoomDescription" TextWrapping="Wrap" FontFamily="Georgia, serif" FontSize="17" MaxWidth="750" HorizontalAlignment="Left"/>
+                  <Grid ColumnDefinitions="*,Auto,12,Auto">
+                    <TextBlock x:Name="SceneStatus" Classes="label acid" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" x:Name="SearchButton" Click="LeaveDungeon" Content="LEAVE DUNGEON"/>
+                    <Button Grid.Column="3" x:Name="StrikeButton" Classes="primary" Click="ContinueGame" Content="CONTINUE [SPACE]"/>
+                  </Grid>
+                </StackPanel>
+              </Border>
+            </Grid>
+          </Border>
+          <Grid Grid.Column="4" RowDefinitions="330,12,*">
+            <Border Classes="panel">
+              <Grid RowDefinitions="50,220,*">
+                <Grid Margin="16,15" ColumnDefinitions="*,Auto">
+                  <TextBlock Classes="label" Text="THE DESCENT"/>
+                  <TextBlock Grid.Column="1" Classes="label acid" Text="MAP / I"/>
+                </Grid>
+                <Grid Grid.Row="1" Margin="8,0">
+                  <art:DungeonMapLines x:Name="MapLines"/>
+                  <Canvas x:Name="MapNodes"/>
+                </Grid>
+                <StackPanel Grid.Row="2" Margin="16,2" Spacing="8">
+                  <TextBlock FontSize="10" Text="◆ YOU    · CLEARED    □ UNEXPLORED" Foreground="#A7B09B"/>
+                  <TextBlock x:Name="MapHint" Classes="label acid" LetterSpacing="0" FontSize="10" Text="CLICK A CONNECTED ROOM TO MOVE"/>
+                </StackPanel>
+              </Grid>
+            </Border>
+            <Border Grid.Row="2" Classes="panel" Padding="16,13">
+              <StackPanel Spacing="9">
+                <TextBlock Classes="label" Text="EQUIPPED RELICS"/>
+                <TextBlock x:Name="HeadText" TextWrapping="Wrap"/>
+                <TextBlock x:Name="BodyText" TextWrapping="Wrap"/>
+                <Border Background="#34403B" Height="1" Margin="0,2"/>
+                <TextBlock x:Name="ExtraGearText" Text="Equipment from your active character." FontSize="11" Foreground="#929A90" TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+          </Grid>
+        </Grid>
+        <Grid Grid.Row="4" ColumnDefinitions="270,16,844,16,306">
+          <Border Classes="panel" Padding="14,12">
+            <Grid RowDefinitions="25,*">
+              <TextBlock Classes="label" Text="YOUR BAG / CLICK TO EQUIP"/>
+              <ScrollViewer Grid.Row="1"><StackPanel x:Name="BagItems" Spacing="7"/></ScrollViewer>
+            </Grid>
+          </Border>
+          <Grid Grid.Column="2" RowDefinitions="27,*">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Classes="label" Text="YOUR COMBO / LIVE SEQUENCE"/>
+              <TextBlock x:Name="ComboHint" Classes="label" Grid.Column="1" Text="AUTO COMBAT / CLICK TO INSPECT" LetterSpacing="1"/>
+            </Grid>
+            <UniformGrid x:Name="ActionCards" Grid.Row="1" Columns="5" Rows="1"/>
+          </Grid>
+          <Border Grid.Column="4" Classes="panel" Padding="14,12">
+            <Grid RowDefinitions="24,*">
+              <TextBlock Classes="label" Text="BLOOD &amp; MARGINALIA"/>
+              <ScrollViewer x:Name="JournalScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <TextBlock x:Name="JournalText" TextWrapping="Wrap" FontSize="11" LineHeight="18" Foreground="#ADB5A6"/>
+              </ScrollViewer>
+            </Grid>
+          </Border>
+        </Grid>
+        <Grid Grid.Row="5" ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+          <TextBlock Classes="label" Text="ART VIEW / LIVE CHARACTER · LIVE DUNGEON · ORIGINAL COMBAT ENGINE" FontSize="10" LetterSpacing="1"/>
+          <TextBlock Grid.Column="1" Classes="label" Text="NO GODS. JUST GOOD GEAR." Foreground="#C44A41" FontSize="10"/>
+        </Grid>
+      </Grid>
+      <Border x:Name="HelpOverlay" IsVisible="False" Background="#E5090D0E">
+        <Border Classes="panel" Width="610" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="32">
+          <StackPanel Spacing="18">
+            <TextBlock Classes="label acid" Text="A FIELD GUIDE TO THE DESCENT"/>
+            <TextBlock Text="Outlive the cathedral." FontFamily="Georgia, serif" FontSize="34"/>
+            <TextBlock Text="This view shares the original game's active character and backend. Combat, loot, search, progression, saves, and room generation use the existing game systems." TextWrapping="Wrap" LineHeight="22"/>
+            <TextBlock Text="Combat runs automatically through your equipped combo. When the room is clear, click the next room on the map or press Space to continue. Leave Dungeon uses the existing exit choice." TextWrapping="Wrap" LineHeight="22"/>
+            <TextBlock Text="Click an item in your bag to equip it through the normal requirement checks. Gear is locked during a dungeon run. The hero art uses three approximate visual families while exact item sprites are developed." TextWrapping="Wrap" LineHeight="22"/>
+            <TextBlock Text="Game Menu provides the backend's choices. Classic UI returns to the existing interface for full inventory management, settings, and combo editing. Press F9 there to return to this same live view." TextWrapping="Wrap" Foreground="#929A90" LineHeight="22"/>
+            <Button x:Name="CloseHelpButton" Classes="primary" Content="BACK TO THE DESCENT  [ESC]" Click="HideHelp" HorizontalAlignment="Stretch"/>
+          </StackPanel>
+        </Border>
+      </Border>
+      <Border x:Name="GameMenuOverlay" IsVisible="False" Background="#EF090D0E">
+        <Border Classes="panel" Width="760" MaxHeight="800" Padding="28" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <Grid RowDefinitions="Auto,Auto,*,Auto">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock x:Name="MenuTitle" Classes="acid" FontSize="22" Text="GAME MENU"/>
+              <Button Grid.Column="1" Content="CLOSE [ESC]" Click="CloseGameMenu"/>
+            </Grid>
+            <TextBlock Grid.Row="1" Text="Ready your fighter. Choose your next move." Foreground="#929A90" Margin="0,12" TextWrapping="Wrap"/>
+            <ScrollViewer Grid.Row="2" MaxHeight="560"><StackPanel x:Name="GameChoices" Spacing="8"/></ScrollViewer>
+            <Button Grid.Row="3" Content="OPEN FULL CLASSIC CONTROLS" Click="ShowClassic" Margin="0,18,0,0" HorizontalAlignment="Stretch"/>
+          </Grid>
+        </Border>
+      </Border>
+    </Grid>
+  </Viewbox>
+</Window>

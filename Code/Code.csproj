@@ -26,6 +26,15 @@
 
   <ItemGroup>
     <AvaloniaResource Include="UI\Avalonia\Assets\df_icon.ico" />
+    <AvaloniaResource Include="UI\Avalonia\Assets\ArtLab\*.png" />
+    <EmbeddedResource Include="UI\Avalonia\Assets\ArtLab\equipment-sprites.json" LogicalName="EquipmentSprites" />
+    <EmbeddedResource Include="..\GameData\Weapons.json" LogicalName="IconCatalog.Weapons" />
+    <EmbeddedResource Include="..\GameData\Armor.json" LogicalName="IconCatalog.Armor" />
+    <EmbeddedResource Include="..\GameData\Consumables.json" LogicalName="IconCatalog.Consumables" />
+    <EmbeddedResource Include="..\GameData\PrefixMaterialQuality.json" LogicalName="IconCatalog.PrefixMaterialQuality" />
+    <EmbeddedResource Include="..\GameData\Modifications.json" LogicalName="IconCatalog.Modifications" />
+    <EmbeddedResource Include="..\GameData\StatBonuses.json" LogicalName="IconCatalog.StatBonuses" />
+    <EmbeddedResource Include="..\GameData\RarityTable.json" LogicalName="IconCatalog.RarityTable" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,7 +58,7 @@
   </ItemGroup>
 
   <!-- Kill a leftover GUI process before build copies overwrite DF.exe (MSB3026). -->
-  <Target Name="StopRunningInstanceBeforeBuild" BeforeTargets="BeforeBuild" Condition="'$(OS)' == 'Windows_NT'">
+  <Target Name="StopRunningInstanceBeforeBuild" BeforeTargets="BeforeBuild" Condition="'$(OS)' == 'Windows_NT' and '$(KeepRunningInstance)' != 'true'">
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;$ErrorActionPreference='SilentlyContinue'; Get-Process -Name DF | Stop-Process -Force; Start-Sleep -Milliseconds 400&quot;"
           IgnoreExitCode="true"
           StandardOutputImportance="low"

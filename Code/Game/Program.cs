@@ -20,6 +20,33 @@ namespace RPGGame
         [STAThread]
         public static async Task Main(string[] args)
         {
+            if (args.Length > 0 && args[0].Equals("RARITYTEST", StringComparison.OrdinalIgnoreCase))
+            {
+                RPGGame.Tests.Unit.ItemRarityGalleryTests.Run(args.Length > 1 ? args[1] : "Documentation/ArtLab/ItemIcons/production");
+                return;
+            }
+            if (args.Length > 0 && (args[0].Equals("ICONLAB", StringComparison.OrdinalIgnoreCase) || args[0].Equals("ICONEDITOR", StringComparison.OrdinalIgnoreCase)))
+            {
+                AppBuilder.Configure<RPGGame.UI.Avalonia.ArtLab.ItemIconLabApp>().UsePlatformDetect().StartWithClassicDesktopLifetime(args);
+                return;
+            }
+            if (args.Length > 0 && args[0].Equals("ICONTEST", StringComparison.OrdinalIgnoreCase))
+            {
+                RPGGame.Tests.Unit.ItemIconTests.Run(args.Length > 1 ? args[1] : "Documentation/ArtLab/ItemIcons/production");
+                return;
+            }
+            if (args.Length > 0 && args[0].Equals("SPRITETEST", StringComparison.OrdinalIgnoreCase))
+            {
+                RPGGame.Tests.Unit.EquipmentSpriteRenderTests.Run(args.Length > 1 ? args[1] : "equipment-native.png");
+                return;
+            }
+            if (args.Length > 0 && args[0].Equals("ARTTEST", StringComparison.OrdinalIgnoreCase))
+            {
+                try { await RPGGame.Tests.Unit.ArtLabSessionTests.Run(); }
+                finally { GameTicker.Instance.Stop(); }
+                return;
+            }
+
             // Check if metrics summary is requested
             if (args.Length > 0 && args[0] == "METRICS")
             {
@@ -382,7 +409,9 @@ namespace RPGGame
 
                 // Launch Avalonia GUI (execution time tracked until app closes)
                 // Launch time will be recorded when the window is ready
-                const string guiMutexName = "DungeonFighter-v2-GUI-SingleInstance";
+                string guiMutexName = args.Any(a => a.Equals("ART", StringComparison.OrdinalIgnoreCase))
+                    ? "DungeonFighter-v2-ArtLab-SingleInstance"
+                    : "DungeonFighter-v2-GUI-SingleInstance";
                 using var guiMutex = new Mutex(true, guiMutexName, out bool createdNewGuiInstance);
                 if (!createdNewGuiInstance)
                 {
