@@ -100,7 +100,7 @@ namespace RPGGame.Tuning.Profiles
 
         private static void StripNonWeaponGear(Character character)
         {
-            foreach (string slot in new[] { "weapon", "head", "body", "legs", "feet" })
+            foreach (string slot in new[] { "weapon", "head", "body", "legs", "feet", "charm" })
             {
                 try { character.UnequipItem(slot); }
                 catch { /* slot may already be empty */ }

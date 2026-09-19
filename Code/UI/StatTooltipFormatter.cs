@@ -48,6 +48,8 @@ namespace RPGGame
                 AddSignedStatRow(lines, "Temp bonus", b.TempBonus);
             if (code == "STR" && b.GodlikeBonus != 0)
                 AddSignedStatRow(lines, "Godlike mod", b.GodlikeBonus);
+            if (b.SkillBonus != 0)
+                AddSignedStatRow(lines, "Skill tree", b.SkillBonus);
             AddStatRow(lines, "After character mods", b.AttributeModifiedValue);
 
             if (b.GearTotalBonus != 0 || b.GearFlatBonus != 0 || b.GearSuffixBonus != 0)
@@ -200,9 +202,16 @@ namespace RPGGame
             int slotSum = h + b + lg + f;
             int globalBonus = total - slotSum;
 
-            AddTitle(lines, "Armor");
+            AddTitle(lines, "Defense");
             AddBlank(lines);
             AddHighlight(lines, "Total", total.ToString(CultureInfo.InvariantCulture));
+            AddBlank(lines);
+            AddSection(lines, "Incoming hits");
+            int block = (int)Math.Round(ClassDefenseCalculator.GetBlockPercent(c) * 100.0, MidpointRounding.AwayFromZero);
+            AddTextStatRow(lines, "BLOCK", $"{block}%");
+            string classLayer = HeroDefenseHudFormatter.FormatClassLayerLine(c);
+            if (!string.IsNullOrEmpty(classLayer))
+                AddTextStatRow(lines, "Class layer", classLayer);
             AddBlank(lines);
             AddSection(lines, "Equipped pieces");
             AddStatRow(lines, "Head", h);
@@ -213,11 +222,11 @@ namespace RPGGame
             {
                 AddBlank(lines);
                 AddSection(lines, "Global bonuses");
-                AddSignedStatRow(lines, "From all gear (Armor stat)", globalBonus);
+                AddSignedStatRow(lines, "From all gear (Defense stat)", globalBonus);
             }
             AddBlank(lines);
-            AddNoteLine(lines, "Piece values include that item's armor stats and affixes.");
-            AddNoteLine(lines, "Armor is flat damage reduction and is not consumed by hits.");
+            AddNoteLine(lines, "Piece values include that item's defense rating and affixes.");
+            AddNoteLine(lines, "BLOCK is standing % DR from the last named action. DEFENSE (gear rating) is Tempo / Counter / Shield / Grit by weapon — never another Block %. Block 0% is DEFENSE only.");
 
             return Trim(lines, maxLines);
         }
@@ -376,6 +385,8 @@ namespace RPGGame
                 AddSignedStatRow(lines, "Temp bonus", b.TempBonus);
             if (b.GodlikeBonus != 0)
                 AddSignedStatRow(lines, "Godlike mod", b.GodlikeBonus);
+            if (b.SkillBonus != 0)
+                AddSignedStatRow(lines, "Skill tree", b.SkillBonus);
             AddStatRow(lines, "After character mods", b.AttributeModifiedValue);
             if (b.GearTotalBonus != 0)
                 AddSignedStatRow(lines, "Gear", b.GearTotalBonus);
@@ -388,6 +399,7 @@ namespace RPGGame
                 int baseValue,
                 int tempBonus,
                 int godlikeBonus,
+                int skillBonus,
                 int attributeModifiedValue,
                 int gearFlatBonus,
                 int gearSuffixBonus,
@@ -397,6 +409,7 @@ namespace RPGGame
                 BaseValue = baseValue;
                 TempBonus = tempBonus;
                 GodlikeBonus = godlikeBonus;
+                SkillBonus = skillBonus;
                 AttributeModifiedValue = attributeModifiedValue;
                 GearFlatBonus = gearFlatBonus;
                 GearSuffixBonus = gearSuffixBonus;
@@ -407,6 +420,7 @@ namespace RPGGame
             public int BaseValue { get; }
             public int TempBonus { get; }
             public int GodlikeBonus { get; }
+            public int SkillBonus { get; }
             public int AttributeModifiedValue { get; }
             public int GearFlatBonus { get; }
             public int GearSuffixBonus { get; }
@@ -447,10 +461,11 @@ namespace RPGGame
                 _ => 0
             };
             int god = code == "STR" ? c.GetModificationGodlikeBonus() : 0;
+            int skill = SkillEffectRouter.Instance.GetSkillAttributeBonus(c, code);
             int gearFlat = c.Equipment.GetFlatEquipmentStatExcludingSuffixes(code);
             int gearTotal = c.Equipment.GetEquipmentStatBonus(code, c);
             int gearSuffix = gearTotal - gearFlat;
-            int attributeModified = baseVal + temp + god;
+            int attributeModified = baseVal + temp + god + skill;
             int effective = code switch
             {
                 "STR" => c.GetEffectiveStrength(),
@@ -460,7 +475,7 @@ namespace RPGGame
                 _ => attributeModified + gearTotal
             };
 
-            return new AttributeBreakdown(baseVal, temp, god, attributeModified, gearFlat, gearSuffix, gearTotal, effective);
+            return new AttributeBreakdown(baseVal, temp, god, skill, attributeModified, gearFlat, gearSuffix, gearTotal, effective);
         }
 
         private static void AddEquationLine(List<List<ColoredText>> lines, AttributeBreakdown b, bool includeGodlike)
@@ -477,6 +492,11 @@ namespace RPGGame
             {
                 seg.Add(" ", Colors.Gray);
                 seg.Add(FormatSigned(b.GodlikeBonus), ValueColor(b.GodlikeBonus));
+            }
+            if (b.SkillBonus != 0)
+            {
+                seg.Add(" ", Colors.Gray);
+                seg.Add(FormatSigned(b.SkillBonus), ValueColor(b.SkillBonus));
             }
             if (b.GearTotalBonus != 0)
             {

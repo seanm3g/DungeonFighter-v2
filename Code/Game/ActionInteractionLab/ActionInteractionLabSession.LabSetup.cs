@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Entity.Services;
 using RPGGame.Tuning;
+using RPGGame.Tuning.LabBalance;
 using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.ActionInteractionLab
@@ -305,12 +306,21 @@ namespace RPGGame.ActionInteractionLab
         }
 
         /// <summary>When Action Lab is active, reapplies combat tuning to the sandbox hero (e.g. after settings save).</summary>
-        public static void ApplyTuningToActiveLabHeroIfAny()
+        /// <param name="refreshUi">When false, updates hero stats only (safe from background threads during RUN loop).</param>
+        public static void ApplyTuningToActiveLabHeroIfAny(bool refreshUi = true)
         {
             if (_current == null)
                 return;
             _current.SyncLabHeroFromTuning();
-            _current._refreshCombatUi();
+            if (!refreshUi)
+                return;
+
+            var session = _current;
+            void Refresh() => session._refreshCombatUi();
+            if (Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+                Refresh();
+            else
+                Avalonia.Threading.Dispatcher.UIThread.Post(Refresh);
         }
 
         /// <summary>Replace the lab enemy from <see cref="EnemyLoader"/> data (level 1 by default). Clears step history.</summary>
@@ -424,6 +434,79 @@ namespace RPGGame.ActionInteractionLab
         private void ReapplyLabHeroComboStrip(IReadOnlyList<string> orderedActionNames)
         {
             LabCombatEntityFactory.ReapplyComboStrip(_labPlayer, orderedActionNames, preferActionPool: true);
+        }
+
+        /// <summary>
+        /// Balance Layer workflow: replace lab hero/enemy from a fundamentals-style <see cref="LabCombatSnapshot"/>.
+        /// </summary>
+        public void ApplyBalanceScenarioFromSnapshot(LabCombatSnapshot snapshot, bool stripArmorSlots)
+        {
+            if (snapshot == null)
+                throw new ArgumentNullException(nameof(snapshot));
+
+            var hero = LabCombatEntityFactory.ClonePlayerFromJson(snapshot.InitialPlayerJson);
+            if (stripArmorSlots)
+            {
+                foreach (string slot in new[] { "head", "body", "legs", "feet" })
+                {
+                    try { hero.UnequipItem(slot); }
+                    catch { /* already empty */ }
+                }
+            }
+
+            LabCombatEntityFactory.ApplyPanelDeltas(hero, snapshot);
+            LabCombatEntityFactory.ReapplyComboStrip(hero, snapshot.ComboStripActionNames, preferActionPool: true);
+
+            _labPlayer = hero;
+            var serializer = new CharacterSerializer();
+            _initialPlayerJson = serializer.Serialize(_labPlayer);
+            ResetLabPanelDeltas();
+
+            string enemyType = snapshot.SessionEnemyLoaderType
+                ?? FundamentalsCombatSetupDefaultEnemy();
+            SetLabEnemyFromLoader(enemyType, snapshot.EnemyLevel);
+
+            SelectedCatalogActionName = snapshot.SelectedCatalogActionName ?? "";
+            if (string.IsNullOrWhiteSpace(SelectedCatalogActionName))
+                SyncCatalogSelectionToUpcomingActor();
+
+            ClearStepHistoryAndSnapshots();
+            ResetSimulatedCombatTurnAccumulator();
+            BootstrapCombatState();
+            SyncLabEnemyToCanvasContext();
+            if (_restoreTarget != null)
+                ApplyLabToCanvasContext(_restoreTarget);
+            _refreshCombatUi();
+        }
+
+        /// <summary>
+        /// Balance Layer workflow: retarget enemy and nudge hero level without rebuilding gear (Gear Injection).
+        /// </summary>
+        public void ApplyBalanceLevelAndEnemy(string enemyType, int enemyLevel, int targetHeroLevel)
+        {
+            int levelDelta = Math.Clamp(targetHeroLevel, 1, 99) - Math.Clamp(_labPlayer.Level, 1, 99);
+            if (levelDelta != 0)
+            {
+                _labPlayer.ApplyActionLabLevelDelta(levelDelta);
+                RecordLabPanelLevelDelta(levelDelta);
+            }
+
+            SyncLabHeroFromTuning();
+            SetLabEnemyFromLoader(enemyType, enemyLevel);
+            SyncCatalogSelectionToUpcomingActor();
+            if (_restoreTarget != null)
+                ApplyLabToCanvasContext(_restoreTarget);
+            _refreshCombatUi();
+        }
+
+        private static string FundamentalsCombatSetupDefaultEnemy()
+        {
+            EnemyLoader.LoadEnemies();
+            var types = EnemyLoader.GetAllEnemyTypes();
+            string? match = types.FirstOrDefault(t =>
+                string.Equals(t, RPGGame.Tuning.Profiles.FundamentalsCombatSetup.DefaultFundamentalsEnemyType,
+                    StringComparison.OrdinalIgnoreCase));
+            return match ?? (types.Count > 0 ? types[0] : "Goblin");
         }
     }
 }

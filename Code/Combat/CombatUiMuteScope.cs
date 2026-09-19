@@ -36,7 +36,10 @@ namespace RPGGame.Combat
             bool enteringMute = muted && !IsMuted;
             AsyncMuted.Value = muted;
             if (enteringMute)
+            {
                 HealthBarDeltaDamageHint.ClearAll();
+                HealthBarDisplayHold.ReleaseAll();
+            }
             return new Scope(previous);
         }
 

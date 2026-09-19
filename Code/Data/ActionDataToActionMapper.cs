@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Actions;
+using RPGGame.Combat.Calculators;
 using RPGGame.Data;
 
 namespace RPGGame
@@ -85,6 +86,7 @@ namespace RPGGame
             action.CausesDisrupt = data.CausesDisrupt;
             action.CausesFortify = data.CausesFortify;
             action.FortifyArmorPerStack = data.FortifyArmorPerStack;
+            action.BlockPercent = StandingBlock.ClampFraction(data.BlockPercent);
 
             data.NormalizeStatBonuses();
             action.Advanced.StatBonuses = data.StatBonuses == null ? new List<StatBonusEntry>() : new List<StatBonusEntry>(data.StatBonuses);

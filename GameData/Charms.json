@@ -1,0 +1,41 @@
+[
+  {
+    "name": "Mark of Class",
+    "description": "Amplifies class DEFENSE and primary class-tagged action damage.",
+    "layer": "class",
+    "amplifyMint": 1.0,
+    "amplifyConvert": 1.0,
+    "amplifyClassDefense": 1.5,
+    "amplifyClassTagDamage": 1.25,
+    "amplifyAnimalLadder": 1.0,
+    "unlockAnimalAction": false,
+    "rarity": "Rare",
+    "tags": ["charm", "class"]
+  },
+  {
+    "name": "Forge Sigil",
+    "description": "Amplifies material keyword mint and convert payoff.",
+    "layer": "material",
+    "amplifyMint": 1.5,
+    "amplifyConvert": 1.5,
+    "amplifyClassDefense": 1.0,
+    "amplifyClassTagDamage": 1.0,
+    "amplifyAnimalLadder": 1.0,
+    "unlockAnimalAction": false,
+    "rarity": "Rare",
+    "tags": ["charm", "material"]
+  },
+  {
+    "name": "Menagerie Charm",
+    "description": "Amplifies animal tag ladder bonuses and unlocks specific-animal actions at 3 stacks.",
+    "layer": "animal",
+    "amplifyMint": 1.0,
+    "amplifyConvert": 1.0,
+    "amplifyClassDefense": 1.0,
+    "amplifyClassTagDamage": 1.0,
+    "amplifyAnimalLadder": 2.0,
+    "unlockAnimalAction": true,
+    "rarity": "Rare",
+    "tags": ["charm", "animal"]
+  }
+]

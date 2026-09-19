@@ -73,6 +73,10 @@
                             <TextBox x:Name="TriggersTabGidTextBox" MinHeight="28" Watermark="42970568" FontSize="13" Padding="8" BorderThickness="1"/>
                             <TextBlock Text="MATERIAL BUILDS → MaterialBuilds.json (material-set synthesis / convert / feed)" FontSize="12" Classes="settings-muted"/>
                             <TextBox x:Name="MaterialBuildsTabGidTextBox" MinHeight="28" Watermark="1297941995" FontSize="13" Padding="8" BorderThickness="1"/>
+                            <TextBlock Text="CHARMS → Charms.json (charm slot amplifiers)" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="CharmsTabGidTextBox" MinHeight="28" Watermark="765918074" FontSize="13" Padding="8" BorderThickness="1"/>
+                            <TextBlock Text="VARIABLES → balance patch leaves (excludes classPresentation)" FontSize="12" Classes="settings-muted"/>
+                            <TextBox x:Name="VariablesTabGidTextBox" MinHeight="28" Watermark="1650964207" FontSize="13" Padding="8" BorderThickness="1"/>
                             <TextBlock Text="ENEMIES → Enemies.json" FontSize="12" Classes="settings-muted"/>
                             <TextBox x:Name="EnemiesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" BorderThickness="1"/>
                             <TextBlock Text="ENVIRONMENTS → Rooms.json" FontSize="12" Classes="settings-muted"/>
@@ -105,6 +109,8 @@
                                 <CheckBox x:Name="PushConsumablesTabCheckBox" Content="CONSUMABLES" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushTriggersTabCheckBox" Content="triggers" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushMaterialBuildsTabCheckBox" Content="MATERIAL BUILDS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushCharmsTabCheckBox" Content="CHARMS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
+                                <CheckBox x:Name="PushVariablesTabCheckBox" Content="VARIABLES" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushEnemiesTabCheckBox" Content="ENEMIES" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushEnvironmentsTabCheckBox" Content="ENVIRONMENTS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>
                                 <CheckBox x:Name="PushDungeonsTabCheckBox" Content="DUNGEONS" IsChecked="True" Margin="0,0,16,6" Classes="settings-field-label"/>

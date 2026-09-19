@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace RPGGame
 {
     /// <summary>
-    /// Manages equipment slots (Head, Body, Legs, Weapon, Feet) for a character.
+    /// Manages equipment slots (Head, Body, Legs, Weapon, Feet, Charm) for a character.
     /// Handles equipping and unequipping items from specific slots.
     /// </summary>
     public class EquipmentSlotManager
@@ -14,6 +14,7 @@ namespace RPGGame
         public Item? Legs { get; set; }
         public Item? Weapon { get; set; }
         public Item? Feet { get; set; }
+        public Item? Charm { get; set; }
 
         public EquipmentSlotManager()
         {
@@ -22,13 +23,14 @@ namespace RPGGame
             Legs = null;
             Weapon = null;
             Feet = null;
+            Charm = null;
         }
 
         /// <summary>
         /// Equips an item to a specific slot, returning any previously equipped item.
         /// </summary>
         /// <param name="item">The item to equip</param>
-        /// <param name="slot">The slot name (head, body, legs, weapon, feet)</param>
+        /// <param name="slot">The slot name (head, body, legs, weapon, feet, charm)</param>
         /// <returns>The previously equipped item, or null if slot was empty</returns>
         public Item? EquipItem(Item item, string slot)
         {
@@ -55,6 +57,10 @@ namespace RPGGame
                     previousItem = Feet;
                     Feet = item;
                     break;
+                case "charm":
+                    previousItem = Charm;
+                    Charm = item;
+                    break;
             }
             return previousItem;
         }
@@ -62,7 +68,7 @@ namespace RPGGame
         /// <summary>
         /// Unequips an item from a specific slot.
         /// </summary>
-        /// <param name="slot">The slot name (head, body, legs, weapon, feet)</param>
+        /// <param name="slot">The slot name (head, body, legs, weapon, feet, charm)</param>
         /// <returns>The unequipped item, or null if slot was empty</returns>
         public Item? UnequipItem(string slot)
         {
@@ -89,15 +95,26 @@ namespace RPGGame
                     unequippedItem = Feet;
                     Feet = null;
                     break;
+                case "charm":
+                    unequippedItem = Charm;
+                    Charm = null;
+                    break;
             }
             return unequippedItem;
         }
 
         /// <summary>
-        /// Gets all currently equipped items.
+        /// Gets all currently equipped items (including charm).
         /// </summary>
-        /// <returns>Array of equipped items (may contain nulls)</returns>
         public Item?[] GetEquippedItems()
+        {
+            return new[] { Head, Body, Legs, Weapon, Feet, Charm };
+        }
+
+        /// <summary>
+        /// Armor + weapon slots only (excludes charm). Used by material sets and animal tag counts.
+        /// </summary>
+        public Item?[] GetGearEquippedItems()
         {
             return new[] { Head, Body, Legs, Weapon, Feet };
         }
@@ -105,8 +122,6 @@ namespace RPGGame
         /// <summary>
         /// Checks if a specific slot is occupied.
         /// </summary>
-        /// <param name="slot">The slot name</param>
-        /// <returns>True if the slot has an item, false otherwise</returns>
         public bool IsSlotEquipped(string slot)
         {
             return (slot.ToLower()) switch
@@ -116,6 +131,7 @@ namespace RPGGame
                 "legs" => Legs != null,
                 "weapon" => Weapon != null,
                 "feet" => Feet != null,
+                "charm" => Charm != null,
                 _ => false
             };
         }
@@ -123,8 +139,6 @@ namespace RPGGame
         /// <summary>
         /// Gets the item in a specific slot.
         /// </summary>
-        /// <param name="slot">The slot name</param>
-        /// <returns>The item in the slot, or null if empty</returns>
         public Item? GetSlotItem(string slot)
         {
             return (slot.ToLower()) switch
@@ -134,6 +148,7 @@ namespace RPGGame
                 "legs" => Legs,
                 "weapon" => Weapon,
                 "feet" => Feet,
+                "charm" => Charm,
                 _ => null
             };
         }
@@ -148,6 +163,7 @@ namespace RPGGame
             Legs = null;
             Weapon = null;
             Feet = null;
+            Charm = null;
         }
     }
 }

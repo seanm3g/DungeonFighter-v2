@@ -44,11 +44,13 @@ namespace RPGGame
         public int ComboOrder { get; set; }
         public double DamageMultiplier { get; set; }
         public double Length { get; set; }
+        /// <summary>Standing BLOCK fraction (0–1) granted until the next named hero action. Default 0.25. Unnamed synthetic uses 0.</summary>
+        public double BlockPercent { get; set; } = 0.25;
         /// <summary>ACTIONS DS — material whose equipped count scales this convert action.</summary>
         public string MaterialScale { get; set; } = "";
         /// <summary>ACTIONS DT — synthesis keyword this convert action reads.</summary>
         public string KeywordScale { get; set; } = "";
-        /// <summary>ACTIONS DU — optional formula override (add / mul / keyword / material).</summary>
+        /// <summary>ACTIONS DU — source override for convert add (<c>keyword</c>/<c>bank</c> or <c>material</c>/<c>count</c>).</summary>
         public string ScaleFormula { get; set; } = "";
         public bool CausesBleed { get; set; }
         public bool CausesWeaken { get; set; }

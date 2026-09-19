@@ -51,6 +51,7 @@ namespace RPGGame.Entity.Services
                 Legs = character.Equipment.Legs,
                 Weapon = character.Equipment.Weapon,
                 Feet = character.Equipment.Feet,
+                Charm = character.Equipment.Charm,
                 ComboStripActionNames = character.GetComboActions()
                     .Where(a => a != null && !string.IsNullOrWhiteSpace(a.Name))
                     .Select(a => a.Name)
@@ -59,7 +60,8 @@ namespace RPGGame.Entity.Services
                 PendingPreWeaponTrainingGround = character.PendingPreWeaponTrainingGround,
                 CurrentRegionId = string.IsNullOrWhiteSpace(character.CurrentRegionId)
                     ? GameConstants.DefaultRegionId
-                    : character.CurrentRegionId
+                    : character.CurrentRegionId,
+                DungeonDifficultyAnchorLevel = character.DungeonDifficultyAnchorLevel
             };
 
             var options = new JsonSerializerOptions
@@ -132,6 +134,7 @@ namespace RPGGame.Entity.Services
             character.CurrentRegionId = string.IsNullOrWhiteSpace(saveData.CurrentRegionId)
                 ? GameConstants.DefaultRegionId
                 : saveData.CurrentRegionId;
+            character.DungeonDifficultyAnchorLevel = saveData.DungeonDifficultyAnchorLevel;
             
             // Restore equipment with proper type conversion
             character.Equipment.Inventory = ItemTypeConverter.ConvertItemsToProperTypes(saveData.Inventory);
@@ -140,6 +143,7 @@ namespace RPGGame.Entity.Services
             character.Equipment.Legs = ItemTypeConverter.ConvertItemToProperType(saveData.Legs);
             character.Equipment.Weapon = ItemTypeConverter.ConvertItemToProperType(saveData.Weapon) as WeaponItem;
             character.Equipment.Feet = ItemTypeConverter.ConvertItemToProperType(saveData.Feet);
+            character.Equipment.Charm = ItemTypeConverter.ConvertItemToProperType(saveData.Charm);
 
             // New characters have an empty strip; rebuild the pool, then restore the saved order
             // (or fall back to InitializeDefaultCombo inside RebuildCharacterActions).
@@ -209,17 +213,8 @@ namespace RPGGame.Entity.Services
                     character.AddAction(loaded, 1.0);
             }
 
-            foreach (string actionName in MaterialSetController.GetGrantedConvertActionNames(character))
-            {
-                if (string.IsNullOrWhiteSpace(actionName))
-                    continue;
-                if (character.ActionPool.Any(e =>
-                        string.Equals(e.action.Name, actionName, StringComparison.OrdinalIgnoreCase)))
-                    continue;
-                var loadedConvert = ActionLoader.GetAction(actionName);
-                if (loadedConvert != null)
-                    character.AddAction(loadedConvert, 1.0);
-            }
+            MaterialSetController.SyncConvertActionsToPool(character);
+            AnimalSetController.SyncAnimalActionsToPool(character);
 
             // Restore user's combo sequence if possible; otherwise use default
             bool restored = character.RestoreComboFromActionNames(savedComboNames);

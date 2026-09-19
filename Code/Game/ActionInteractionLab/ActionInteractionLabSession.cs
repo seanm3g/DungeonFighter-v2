@@ -3,16 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using RPGGame.Combat.Sequence;
 using RPGGame.BattleStatistics;
 using RPGGame.Combat;
 using RPGGame.Data;
 using RPGGame.Entity.Services;
+using RPGGame.Tuning.LabBalance;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.ActionInteractionLab
 {
+    /// <summary>
+    /// How Action Lab <c>[ Step ]</c> advances: a whole combat swing, or one sequence-HUD formula piece.
+    /// </summary>
+    public enum LabSequenceStepMode
+    {
+        Swing,
+        Piece
+    }
+
     /// <summary>
     /// Sandbox combat session for stepped play with forced actions and fixed d20.
     /// Does not mutate the real save character; uses an in-memory clone for <see cref="LabPlayer"/>.
@@ -57,6 +68,13 @@ namespace RPGGame.ActionInteractionLab
         public Character LabPlayer => _labPlayer;
         public Enemy LabEnemy => _labEnemy;
         public Environment LabRoom => _labRoom;
+
+        /// <summary>Loader enemy type currently selected for the lab (null = default test dummy).</summary>
+        public string? SessionEnemyLoaderType => _sessionEnemyLoaderType;
+
+        /// <summary>Active Action Lab Balance process layer (scenario recipe).</summary>
+        public LabBalanceProcessLayer ActiveBalanceProcessLayer { get; set; } =
+            LabBalanceProcessLayer.CombatEquation;
 
         /// <summary>GUI forward steps use no artificial block delays in the lab.</summary>
         public bool ZeroDisplayDelays { get; set; } = true;
@@ -260,6 +278,7 @@ namespace RPGGame.ActionInteractionLab
         public async Task ResetLabEncounterAsync()
         {
             BumpInputEpoch();
+            CombatSequencePresenter.FlushRemainingManualBeats();
             await _turnGate.WaitAsync().ConfigureAwait(true);
             try
             {
@@ -505,17 +524,25 @@ namespace RPGGame.ActionInteractionLab
 
         /// <summary>
         /// False once either fighter dies in the lab combat log, while history is replaying, or during batch sim.
-        /// Use <see cref="UndoLastStepAsync"/> or <see cref="ResetLabEncounterAsync"/> to step again.
+        /// Stays true while Piece-mode HUD is waiting so the strip can finish after a kill.
+        /// Use <see cref="UndoLastStepAsync"/> or <see cref="ResetLabEncounterAsync"/> to step again after a finished dead fight.
         /// </summary>
         public bool CanStepForward =>
-            !IsReplayingHistory
-            && !IsEncounterSimulationRunning
-            && _labPlayer.IsAlive
-            && _labEnemy.IsAlive;
+            CombatSequencePresenter.IsManualPlaybackWaiting
+            || (!IsReplayingHistory
+                && !IsEncounterSimulationRunning
+                && _labPlayer.IsAlive
+                && _labEnemy.IsAlive);
 
         /// <summary>Runs one lab turn with the chosen catalog action name and d20.</summary>
         public async Task<CombatSingleTurnResult> StepAsync(int d20, string forcedActionName)
         {
+            if (CombatSequencePresenter.IsManualPlaybackWaiting)
+            {
+                CombatSequencePresenter.TryAdvanceManualBeat();
+                return CombatSingleTurnResult.Advanced;
+            }
+
             int epochAtEntry = _inputEpoch;
             await _turnGate.WaitAsync().ConfigureAwait(true);
             try
@@ -523,6 +550,12 @@ namespace RPGGame.ActionInteractionLab
                 // Queued Steps that waited behind undo/reset must not advance the new fight state.
                 if (epochAtEntry != _inputEpoch)
                     return CombatSingleTurnResult.Advanced;
+
+                if (CombatSequencePresenter.IsManualPlaybackWaiting)
+                {
+                    CombatSequencePresenter.TryAdvanceManualBeat();
+                    return CombatSingleTurnResult.Advanced;
+                }
 
                 if (!CanStepForward)
                 {
@@ -574,6 +607,7 @@ namespace RPGGame.ActionInteractionLab
             ActionSelector.SetStoredActionRoll(_labPlayer, d20);
             ActionSelector.SetStoredActionRoll(_labEnemy, d20);
 
+            CombatSequencePresenter.UseManualPlayback = !silent && SequenceStepMode == LabSequenceStepMode.Piece;
             IDisposable? muteScope = silent ? CombatUiMuteScope.Begin(muted: true) : null;
             try
             {
@@ -586,6 +620,7 @@ namespace RPGGame.ActionInteractionLab
             }
             finally
             {
+                CombatSequencePresenter.UseManualPlayback = false;
                 muteScope?.Dispose();
                 Dice.ClearAsyncForcedD20Rolls();
             }
@@ -595,6 +630,7 @@ namespace RPGGame.ActionInteractionLab
         public async Task UndoLastStepAsync()
         {
             BumpInputEpoch();
+            CombatSequencePresenter.FlushRemainingManualBeats();
             await _turnGate.WaitAsync().ConfigureAwait(true);
             try
             {
@@ -627,6 +663,8 @@ namespace RPGGame.ActionInteractionLab
             Dice.ClearTestRoll();
             Dice.ClearAsyncForcedD20Rolls();
             ActionSelector.ClearStoredRolls();
+            CombatSequencePresenter.CancelManualPlayback();
+            CombatSequencePresenter.UseManualPlayback = false;
             var restore = session._restoreTarget;
             var snap = session._contextSnapshot;
             session.SetEncounterSimulationRunning(false);

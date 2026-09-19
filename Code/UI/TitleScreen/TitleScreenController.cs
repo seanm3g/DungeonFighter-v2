@@ -51,11 +51,17 @@ namespace RPGGame.UI.TitleScreen
         /// Skips the intro sequence and runs idle gradient with press-key until cancelled.
         /// </summary>
         /// <param name="onReadyForKey">Invoked after the first idle frame (with press-key) is shown.</param>
+        /// <param name="firstFrameAlreadyRendered">
+        /// When true, the first idle frame was already painted (hidden-window preload).
+        /// Skip the opening clear/paint so revealing the window does not flash black.
+        /// </param>
         public async Task ShowAnimatedTitleScreenAsync(
             CancellationToken idleCancellationToken = default,
-            System.Action? onReadyForKey = null)
+            System.Action? onReadyForKey = null,
+            bool firstFrameAlreadyRendered = false)
         {
-            await RunIdleCycleAsync(idleCancellationToken, onReadyForKey).ConfigureAwait(false);
+            await RunIdleCycleAsync(idleCancellationToken, onReadyForKey, firstFrameAlreadyRendered)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -66,7 +72,8 @@ namespace RPGGame.UI.TitleScreen
         /// </summary>
         public async Task RunIdleCycleAsync(
             CancellationToken cancellationToken,
-            System.Action? onReadyForKey = null)
+            System.Action? onReadyForKey = null,
+            bool firstFrameAlreadyRendered = false)
         {
             var animConfig = UIConfiguration.LoadFromFile().DungeonSelectionAnimation
                 ?? new DungeonSelectionAnimationConfig();
@@ -81,17 +88,39 @@ namespace RPGGame.UI.TitleScreen
             int holdAccumMs = 0;
             int transitionAccumMs = 0;
             bool notifiedReady = false;
+            bool skipOpeningPaint = firstFrameAlreadyRendered;
 
             TitleIdlePalette current = _animation.Palette;
             TitleIdlePalette? next = null;
 
-            // Ensure letterbox / clear fill stay black for the whole idle loop.
-            _renderer.ResetBackground();
+            // Opening clear would flash black if the first frame was already painted while hidden.
+            if (!skipOpeningPaint)
+                _renderer.ResetBackground();
 
             try
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
+                    if (skipOpeningPaint)
+                    {
+                        skipOpeningPaint = false;
+                        if (!notifiedReady)
+                        {
+                            onReadyForKey?.Invoke();
+                            notifiedReady = true;
+                        }
+
+                        try
+                        {
+                            await Task.Delay(undulationMs, cancellationToken).ConfigureAwait(false);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            break;
+                        }
+
+                        continue;
+                    }
                     float blendProgress = 1f;
                     TitleIdlePalette? blendFrom = null;
                     TitleIdlePalette blendTo = current;
@@ -172,11 +201,29 @@ namespace RPGGame.UI.TitleScreen
     }
 
     /// <summary>
-    /// Static helper class for easy title screen display
+    /// CPU-side title idle assets built before the main window is shown.
+    /// </summary>
+    public sealed class TitleScreenPreload
+    {
+        public TitleAnimationConfig Config { get; }
+        public TitleIdlePalette Palette { get; }
+        public TitleFrame FirstFrame { get; }
+
+        public TitleScreenPreload(TitleAnimationConfig config, TitleIdlePalette palette, TitleFrame firstFrame)
+        {
+            Config = config ?? throw new ArgumentNullException(nameof(config));
+            Palette = palette ?? throw new ArgumentNullException(nameof(palette));
+            FirstFrame = firstFrame ?? throw new ArgumentNullException(nameof(firstFrame));
+        }
+    }
+
+    /// <summary>
+    /// Static helper for title screen preload, first-frame paint, and idle display.
     /// </summary>
     public static class TitleScreenHelper
     {
         private static TitleAnimationConfig? _cachedConfig;
+        private static TitleScreenPreload? _preload;
 
         private static TitleAnimationConfig GetConfig()
         {
@@ -190,23 +237,66 @@ namespace RPGGame.UI.TitleScreen
         public static void ReloadConfiguration()
         {
             _cachedConfig = null;
+            _preload = null;
+        }
+
+        /// <summary>
+        /// Loads color tables, title config, and the first idle frame before the window is visible.
+        /// Idempotent; later idle uses the same palette so the first paint does not flash.
+        /// </summary>
+        public static TitleScreenPreload Preload()
+        {
+            if (_preload != null)
+                return _preload;
+
+            var config = GetConfig();
+            _ = ColorCodeLoader.GetColor("W");
+            _ = ColorCodeLoader.GetColor("o");
+            ColorTemplateLoader.LoadColorTemplates();
+            _ = UIConfiguration.LoadFromFile();
+
+            var palette = TitleIdlePalettePicker.PickRandom();
+            var animation = new TitleAnimation(config, palette);
+            var firstFrame = animation.BuildIdleFrame(DungeonSelectionAnimationState.Instance);
+            _preload = new TitleScreenPreload(config, palette, firstFrame);
+            return _preload;
+        }
+
+        /// <summary>
+        /// Paints the preloaded first idle frame (including press-key) on the current renderer.
+        /// </summary>
+        public static void RenderPreloadedFirstFrame()
+        {
+            var preload = Preload();
+            var renderer = CreateRenderer();
+            if (renderer == null)
+                return;
+
+            renderer.ResetBackground();
+            renderer.RenderFrame(preload.FirstFrame, includePressKey: true);
         }
 
         /// <summary>
         /// Shows the animated title screen with random idle palette and cancelable idle loop.
         /// </summary>
+        /// <param name="firstFrameAlreadyRendered">
+        /// True when <see cref="RenderPreloadedFirstFrame"/> already painted while the window was hidden.
+        /// </param>
         public static async Task ShowAnimatedTitleScreenAsync(
             CancellationToken idleCancellationToken = default,
-            System.Action? onReadyForKey = null)
+            System.Action? onReadyForKey = null,
+            bool firstFrameAlreadyRendered = false)
         {
-            var config = GetConfig();
+            var preload = Preload();
             var renderer = CreateRenderer();
-            var palette = TitleIdlePalettePicker.PickRandom();
 
             if (renderer != null)
             {
-                var controller = new TitleScreenController(config, renderer, palette);
-                await controller.ShowAnimatedTitleScreenAsync(idleCancellationToken, onReadyForKey)
+                var controller = new TitleScreenController(preload.Config, renderer, preload.Palette);
+                await controller.ShowAnimatedTitleScreenAsync(
+                        idleCancellationToken,
+                        onReadyForKey,
+                        firstFrameAlreadyRendered)
                     .ConfigureAwait(false);
             }
             else

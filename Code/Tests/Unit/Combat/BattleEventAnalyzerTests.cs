@@ -31,6 +31,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestInitialize();
             TestUpdateFinalHealth();
             TestAnalyzeEvent();
+            TestIsCriticalMissFlavorText();
 
             TestBase.PrintSummary("BattleEventAnalyzer Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -142,6 +143,24 @@ namespace RPGGame.Tests.Unit.Combat
                     $"AnalyzeEvent failed: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestIsCriticalMissFlavorText()
+        {
+            Console.WriteLine("\n--- Testing IsCriticalMissFlavorText ---");
+
+            TestBase.AssertTrue(
+                BattleEventAnalyzer.IsCriticalMissFlavorText("The attack from Hero goes completely off-target, a moment of embarrassing failure!"),
+                "off-target miss line should classify as crit-miss flavor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                BattleEventAnalyzer.IsCriticalMissFlavorText("Hero's poorly timed strike fails to connect, leaving them vulnerable and exposed!"),
+                "fails-to-connect miss line should classify as crit-miss flavor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                !BattleEventAnalyzer.IsCriticalMissFlavorText("Hero delivers a devastating blow that shakes the very foundations of the battlefield!"),
+                "critical-hit flavor should not classify as crit-miss",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

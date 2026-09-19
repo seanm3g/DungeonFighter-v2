@@ -22,7 +22,7 @@ The published CSV is **public** (anyone with the link can read it). Push uses th
 |------------|---------|
 | `spreadsheetEditUrl` | **Browser Edit link** (`…/spreadsheets/d/<realId>/edit…`). Used to sync **`spreadsheetId`** into `SheetsPushConfig.json` for OAuth **push**. Published CSV links often use `d/e/2PACX-…` — that value is **not** accepted by the Sheets API as `spreadsheetId` (you get HTTP 404 on push). |
 | `actionsSheetUrl` | Published CSV URL for the **Actions** tab (two-row header). Acts as the **template** for other tabs when you use gids (same link, different `gid=`). |
-| `weaponsSheetUrl`, `modificationsSheetUrl`, `armorSheetUrl`, `classPresentationSheetUrl`, `classActionsSheetUrl`, `skillTreesSheetUrl`, `enemiesSheetUrl`, `environmentsSheetUrl`, `dungeonsSheetUrl`, `statBonusesSheetUrl`, `consumablesSheetUrl`, `triggersSheetUrl`, `materialBuildsSheetUrl` | Full published CSV or **edit?gid=…** URLs per tab. The Balance Tuning panel **derives** these from `actionsSheetUrl` + numeric tab gids when you save; you can still hand-edit full URLs here. |
+| `weaponsSheetUrl`, `modificationsSheetUrl`, `armorSheetUrl`, `classPresentationSheetUrl`, `classActionsSheetUrl`, `skillTreesSheetUrl`, `enemiesSheetUrl`, `environmentsSheetUrl`, `dungeonsSheetUrl`, `statBonusesSheetUrl`, `consumablesSheetUrl`, `triggersSheetUrl`, `materialBuildsSheetUrl`, `charmsSheetUrl`, `variablesSheetUrl` | Full published CSV or **edit?gid=…** URLs per tab. The Balance Tuning panel **derives** these from `actionsSheetUrl` + numeric tab gids when you save; you can still hand-edit full URLs here. |
 
 Leave a derived URL / gid empty to skip that section on pull.
 
@@ -55,6 +55,8 @@ These are the canonical authoring links for this repo (also stored in `GameData/
 | CONSUMABLES | `828815998` | `GameData/Consumables.json` |
 | triggers | `42970568` | `GameData/Triggers.json` (item trigger identities; unused by loot) |
 | MATERIAL BUILDS | `1297941995` | `GameData/MaterialBuilds.json` (material-set synthesis / convert) |
+| CHARMS | `765918074` | `GameData/Charms.json` (charm slot amplifiers: class / material / animal) |
+| VARIABLES | `1650964207` | scalar leaves in active balance patch (excludes `classPresentation`) |
 | flavor | `825117964` | **PUSH only** → from `GameData/FlavorText.json` (PULL does not overwrite local JSON) |
 
 Example **ACTIONS** tab edit link:  
@@ -68,7 +70,8 @@ Copy from `SheetsPushConfig.template.json` if needed. Important fields:
 
 - `spreadsheetId` — spreadsheet ID from the edit URL.
 - `actionsSheetTabName` — tab name for actions (must match your sheet; default template uses `ACTIONS`).
-- `weaponsSheetTabName`, `modificationsSheetTabName`, `armorSheetTabName`, `classPresentationSheetTabName`, `flavorSheetTabName` — optional; if set, push writes that tab when the local file exists (weapons / mods / armor / FlavorText) or when `TuningConfig.json` exists (classes). Empty string skips that tab.
+- `weaponsSheetTabName`, `modificationsSheetTabName`, `armorSheetTabName`, `classPresentationSheetTabName`, `variablesSheetTabName`, `flavorSheetTabName` — optional; if set, push writes that tab when the local file exists (weapons / mods / armor / FlavorText) or when the active balance patch exists (classes / variables). Empty string skips that tab.
+- `pushVariablesTab` — when true (default), OAuth push flattens every scalar leaf in the active balance patch (except `classPresentation`) onto the **VARIABLES** tab.
 - `pushFlavorTab` — when true (default), OAuth push writes the **flavor** tab from `FlavorText.json` as a long table (`section` / `bank` / `key` / `text`). PULL never reconstructs FlavorText from the sheet.
 - `oauthClientSecretsPath`, `oauthTokenStorePath` — OAuth desktop client and token directory.
 
@@ -86,7 +89,7 @@ On pull, the console prints a **column usage summary** (see `SpreadsheetActionCo
 
 | Tier | Meaning | Examples |
 |------|---------|----------|
-| **Combat / runtime** | Pulled → `Actions.json` → `ActionData` → `Action` → combat | `ACTION`, `DAMAGE` / `DAMAGE(%)`, `SPEED(x)`, `# OF HITS`, `TARGET` (column **M**: `enemy` / `self` / `environment`; empty = enemy), action-sheet status columns (`WEAKEN`, `CONFUSE`, `DISRUPT`, `LIFESTEAL`, …), hero/enemy dice mods, `CADENCE`+`DURATION` keyword bonuses, `MECHANICS` (declarative; validated on pull), next-action mods under `HERO BASE STATS` / `ENEMY BASE STATS`, flat **WEAPON SPEED** / **WEAPON DAMAGE** under `HERO BASE` / `ENEMY BASE` (or `… BASE STATS`), `JUMP`/`SHIFT`, `OPENER`/`FINISHER`, `HEAL` (under **HERO HEAL**), convert scale **DS** / **DT** / **DU** |
+| **Combat / runtime** | Pulled → `Actions.json` → `ActionData` → `Action` → combat | `ACTION`, `DAMAGE` / `DAMAGE(%)`, `SPEED(x)`, **`BLOCK`** (0–100 percent points; standing BLOCK until next hero action), `# OF HITS`, `TARGET` (column **M**: `enemy` / `self` / `environment`; empty = enemy), action-sheet status columns (`WEAKEN`, `CONFUSE`, `DISRUPT`, `LIFESTEAL`, …), hero/enemy dice mods, `CADENCE`+`DURATION` keyword bonuses, `MECHANICS` (declarative; validated on pull), next-action mods under `HERO BASE STATS` / `ENEMY BASE STATS`, flat **WEAPON SPEED** / **WEAPON DAMAGE** under `HERO BASE` / `ENEMY BASE` (or `… BASE STATS`), `JUMP`/`SHIFT`, `OPENER`/`FINISHER`, `HEAL` (under **HERO HEAL**), convert scale **DS** / **DT** / **DU** (or **bonus per keyword** / **effect** / **keyword**) |
 | **Loot / pools only** | Pool assignment, not combat math | `RARITY`, `CATEGORY`, `TAGS` |
 | **JSON round-trip / sheet reference** | Stored in `Actions.json`; `DESCRIPTION` also shown on action-card body | `DPS(%)` (authoring reference — combat uses `DAMAGE(%)`), `DESCRIPTION` |
 | **Not ingested on CSV pull** | Push/Settings know these labels; **pull ignores** sheet cells | `WEAPON TYPES`, `CHAIN LENGTH`, `RESET`, `GRACE`, `LOOP CHAIN`, JSON blob columns, threshold flat columns, … |
@@ -162,7 +165,28 @@ Single header row; fixed columns **A–H** → `GameData/MaterialBuilds.json` (C
 | G | `stack3` | Label only; additive feed is code **3** |
 | H | `stack5` | Label only; multiply feed is code **5** |
 
-Class-less materials (Wood/Leather/Cloth/…) have no row → no synthesis/convert. Convert damage also reads ACTIONS **DS/DT/DU** when present.
+Class-less materials (Wood/Leather/Cloth/…) have no row → no synthesis/convert. Convert payoff is **+5 per banked keyword**; ACTIONS **DS/DT/DU** (or **bonus per keyword** / **effect** / **keyword**) select material / keyword / source (`keyword` vs `material`). Feed 3/5 only changes mint amount.
+
+### CHARMS (charm slot amplifiers)
+
+Single header row; fixed columns **A–K** → `GameData/Charms.json`. Tab name **`CHARMS`** (gid `765918074`). Columns: `name`, `description`, `layer` (`class` / `material` / `animal`), amplify multipliers, `unlockAnimalAction`, `rarity`, `tags`. Settings → Spreadsheet Import has the gid box and **Push CHARMS**. Shipped catalog: Mark of Class, Forge Sigil, Menagerie Charm.
+
+Animal tag ladders (2+ animal / taxon / specific) are **in-game only** (not a spreadsheet tab).
+
+### VARIABLES (balance patch knobs)
+
+Vertical **`property`** / **`value`** rows (same layout as CLASSES). Tab name **`VARIABLES`** (gid `1650964207`).
+
+- **Push:** flattens every scalar leaf in the **active balance patch** (`GameData/Patches/Balance/<active>.json`) with dotted camelCase paths (e.g. `character.playerBaseHealth`, `lootSystem.magicFindEffectiveness`). Arrays use indexed segments (`progression.thresholds.0`). Empty objects are skipped. **`classPresentation` is never exported** (owned by CLASSES).
+- **Pull:** merges each sheet row into the active patch by path (preserves siblings); ignores any `classPresentation.*` rows; then reloads `GameConfiguration`.
+- Settings → Spreadsheet Import has the gid box and **Push VARIABLES**.
+
+Orphan content catalogs (`RarityTable`, `TierDistribution`, `TravelEvents`, …) stay on their own JSON files — not this tab.
+
+| Col | Header | Notes |
+|-----|--------|-------|
+| A | `property` | Dotted path into the balance patch |
+| B | `value` | Scalar cell text (bool / number / string) |
 
 ### ENEMIES
 
@@ -207,7 +231,18 @@ Single header row; columns match `Dungeons.json`: `name`, `theme`, `minLevel`, `
 
 Optional **TAGS** cell (column **E** on the standard layout): comma/semicolon list of extra tokens (pool gates like `environment`, `enemy`, `weapon`, `reserve_pool`, elements, etc.). Category and rarity are merged into runtime tags separately on import. **Push** writes TAGS from `Actions.json`; column **F** (e.g. `e(V)` formulas) is left unchanged.
 
+### ACTIONS — BLOCK column
+
+**BLOCK** (ensured on ACTIONS push; aliases `BLOCK %` / `BLOCKPERCENT`): percent points **0–100**. Missing or invalid cells default to **25**. That value becomes the hero’s **standing BLOCK** until the next hero action. Settings → Actions has a **Block %** field. Legacy **ENERGY** 1–3 cells migrate on pull (1→45, 2→25, 3→0).
+
+On **PUSH**, the live tab’s **ENERGY** / **ENERGY COST** header is **renamed in place to BLOCK** (same column). Any leftover ENERGY columns (duplicates, or ENERGY beside an existing BLOCK) are **deleted** via Sheets `DeleteDimension`. If neither ENERGY nor BLOCK exists, push **inserts** BLOCK after **SPEED** and writes only that new header cell.
+
+### ACTIONS — convert scale (DS / DT / DU)
+
+Convert payoff columns (material / keyword / source) accept either the letter headers **DS** / **DT** / **DU** or the designer labels **bonus per keyword** / **effect** / **keyword**. Push keeps those custom headers. Empty JSON convert fields do not blank non-empty sheet cells in those columns. Unknown extra columns on the tab are preserved when updating a row.
+
 ### ACTIONS — RESERVE POOL column
+
 
 Optional **RESERVE POOL** column (ensured on ACTIONS push, typically after **FINISHER**): mark with `1` / `true` to put the action in the **reserve pool**. Runtime tag: `reserve_pool` (also accepted in **TAGS** alone).
 

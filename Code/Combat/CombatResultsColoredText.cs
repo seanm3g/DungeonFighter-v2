@@ -37,9 +37,10 @@ namespace RPGGame
             int multiHitCount = 1,
             bool isCriticalMiss = false,
             bool? resolvedCritical = null,
-            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
+            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default,
+            int? defenseFace = null)
         {
-            return DamageFormatter.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical, multiDiceDetail);
+            return DamageFormatter.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical, multiDiceDetail, defenseFace);
         }
         
         /// <summary>
@@ -108,36 +109,27 @@ namespace RPGGame
             int naturalRoll,
             Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
         {
-            var builder = new ColoredTextBuilder();
-            
             int totalRoll = roll + rollBonus;
-            
-            // Create combat outcome to centralize color decisions
             var outcome = CombatOutcome.CreateMiss(action, totalRoll, naturalRoll);
-            
-            // Use centralized color strategy
             ColorPalette missColor = CombatColorStrategy.GetMissColor(outcome);
-            
-            // Attacker name with enemy-specific colors
-            EntityColorHelper.AppendActorNameColored(builder, attacker);
-            
+
+            var setup = ActionHeadlineFormatter.FormatSetup(attacker, target);
+            var punchBuilder = new ColoredTextBuilder();
+            punchBuilder.AddSpace();
+            punchBuilder.Add("and", Colors.White);
+            punchBuilder.AddSpace();
             if (outcome.IsCriticalMiss)
             {
-                builder.AddSpace(); // Explicit space between attacker name and "CRITICAL"
-                builder.Add("CRITICAL", ColorPalette.Critical);
-                builder.AddSpace(); // Explicit space between "CRITICAL" and "MISS"
-                builder.Add("MISS", missColor);
+                punchBuilder.Add("CRITICAL", ColorPalette.Critical);
+                punchBuilder.AddSpace();
+                punchBuilder.Add("MISS", missColor);
             }
             else
             {
-                builder.AddSpace(); // Explicit space between attacker name and "misses"
-                builder.Add("misses", missColor);
+                punchBuilder.Add("misses", missColor);
             }
-            
-            builder.AddSpace(); // Explicit space between "MISS"/"misses" and target name
-            EntityColorHelper.AppendActorNameColored(builder, target);
-            
-            var missText = builder.Build();
+
+            var missText = ActionHeadlineFormatter.Combine(setup, punchBuilder.Build());
             
             // Calculate roll info
             double actualSpeed = 0;

@@ -69,6 +69,22 @@ namespace RPGGame.UI.Avalonia.Display
             scrollManager.UpdateBufferCount(storage.Count);
             storage.Add(segments, scrollManager, messageType);
         }
+
+        /// <summary>
+        /// Replaces an existing line counted from the end (0 = last). Does not change count.
+        /// </summary>
+        public void ReplaceAtFromEnd(int offsetFromEnd, List<ColoredText> segments, UIMessageType? messageType = null)
+        {
+            storage.ReplaceAtFromEnd(offsetFromEnd, segments, messageType);
+        }
+
+        /// <summary>
+        /// Replaces the last buffered line without changing count (combat setup → punchline).
+        /// </summary>
+        public void ReplaceLast(List<ColoredText> segments, UIMessageType? messageType = null)
+        {
+            storage.ReplaceAtFromEnd(0, segments, messageType);
+        }
         
         /// <summary>
         /// Adds a message to the buffer (string version - parses to ColoredText for storage)

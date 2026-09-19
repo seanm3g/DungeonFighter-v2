@@ -65,9 +65,30 @@ namespace RPGGame
         /// </summary>
         public static async Task DelayAfterMessageAsync()
         {
-            if (!ShouldApplyDelay()) return;
+            await DelayAsync(DeveloperModeState.ScaleDelayMs(Config.MessageDelayMs));
+        }
 
-            int delayMs = DeveloperModeState.ScaleDelayMs(Config.MessageDelayMs);
+        /// <summary>
+        /// Delay between sequence HUD column/math beats. 50% slower than the combat-log
+        /// inter-line gap (<see cref="TextDelayConfiguration.GetSequenceHudDelayMultiplier"/>).
+        /// </summary>
+        public static int GetSequenceHudBeatDelayMs()
+        {
+            int messageMs = DeveloperModeState.ScaleDelayMs(Config.MessageDelayMs);
+            double multiplier = TextDelayConfiguration.GetSequenceHudDelayMultiplier();
+            if (multiplier <= 0)
+                multiplier = GameConstants.SequenceHudDelayMultiplier;
+            return (int)Math.Ceiling(messageMs * multiplier);
+        }
+
+        public static async Task DelayAfterSequenceHudBeatAsync()
+        {
+            await DelayAsync(GetSequenceHudBeatDelayMs());
+        }
+
+        private static async Task DelayAsync(int delayMs)
+        {
+            if (!ShouldApplyDelay()) return;
             if (delayMs > 0)
                 await Task.Delay(delayMs);
         }

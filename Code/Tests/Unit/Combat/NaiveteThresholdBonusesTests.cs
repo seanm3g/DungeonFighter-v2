@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.Actions.Conditional;
 using RPGGame.Actions.Execution;
 using RPGGame.Actions.RollModification;
+using RPGGame.Data;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Combat
@@ -21,6 +23,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestMissConsumesChargeAndAdvantageCanHit(ref run, ref passed, ref failed);
             TestChainedMissesDrainCharges(ref run, ref passed, ref failed);
             TestZeroChargesNoAdvantage(ref run, ref passed, ref failed);
+            TestMissAdvantageComboFaceSelectsNamedAction(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("Naivete Advantage Tests", run, passed, failed);
         }
@@ -203,6 +206,60 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertFalse(result.Hit, "L6 with 0 naiveté stays a miss", ref runRef, ref passedRef, ref failedRef);
             TestBase.AssertEqual(0, result.NaiveteAdvantageUses, "no naiveté spends", ref runRef, ref passedRef, ref failedRef);
+        }
+
+        private static void TestMissAdvantageComboFaceSelectsNamedAction(ref int runRef, ref int passedRef, ref int failedRef)
+        {
+            CombatTriggerContext.ResetForBattle();
+            var cfg = GameConfiguration.Instance.EarlyGame.Naivete;
+            int savedStart = cfg.StartingNaivete;
+            cfg.StartingNaivete = 5;
+            try
+            {
+                var hero = TestDataBuilders.Character().WithName("NaiveComboHero").WithLevel(1).WithStats(3, 3, 3, 3).Build();
+                var combo = TestDataBuilders.CreateMockAction("STRIKE", ActionType.Attack);
+                combo.IsComboAction = true;
+                combo.DamageMultiplier = 1.0;
+                combo.Length = 1.0;
+                hero.AddAction(combo, 1.0);
+                hero.Actions.AddToCombo(combo);
+
+                var enemy = TestDataBuilders.Enemy().WithName("Target").WithLevel(1).Build();
+                var tm = RollModificationManager.GetThresholdManager();
+                tm.Clear();
+                tm.ResetThresholds(hero);
+                TechniqueMilestoneThresholdBonuses.Apply(tm, hero);
+
+                var unnamed = TestDataBuilders.CreateMockAction("", ActionType.Attack);
+                unnamed.IsComboAction = false;
+                int rollBonus = ActionUtilities.CalculateRollBonus(hero, unnamed, consumeTempBonus: false);
+                int hitTh = tm.GetHitThreshold(hero);
+                int missFace = Math.Max(2, hitTh - rollBonus - 1);
+
+                Dice.SetTestRoll(missFace);
+                Dice.QueueUnforcedTestRolls(18);
+                ActionSelector.ClearStoredRolls();
+                var result = ActionExecutionFlow.Execute(
+                    hero, enemy, null, null, null, null,
+                    new Dictionary<Actor, Action>(), new Dictionary<Actor, bool>());
+                Dice.ClearTestRoll();
+                Dice.ClearUnforcedTestRolls();
+
+                TestBase.AssertTrue(result.Hit, "Naiveté 18 should hit", ref runRef, ref passedRef, ref failedRef);
+                TestBase.AssertEqual(1, result.NaiveteAdvantageUses, "spent one naiveté charge", ref runRef, ref passedRef, ref failedRef);
+                TestBase.AssertEqual(18, result.ModifiedBaseRoll, "luck-resolved face is 18", ref runRef, ref passedRef, ref failedRef);
+                TestBase.AssertTrue(result.SelectedAction != null && result.SelectedAction.IsComboAction,
+                    "Naiveté 18 should execute the named combo action, not an unnamed hit",
+                    ref runRef, ref passedRef, ref failedRef);
+                TestBase.AssertEqual("STRIKE", result.SelectedAction?.Name ?? "",
+                    "Named combo should be the strip action",
+                    ref runRef, ref passedRef, ref failedRef);
+                TestBase.AssertTrue(result.IsCombo, "18 should flag combo", ref runRef, ref passedRef, ref failedRef);
+            }
+            finally
+            {
+                cfg.StartingNaivete = savedStart;
+            }
         }
     }
 }

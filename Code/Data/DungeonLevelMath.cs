@@ -16,6 +16,30 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Dungeon-selection menu center level: a stored custom anchor when valid, otherwise the hero's level.
+        /// </summary>
+        public static int ResolveSelectionAnchorLevel(int heroLevel, int? customAnchor)
+        {
+            if (customAnchor is int anchor
+                && anchor >= Utils.GameConstants.MIN_DUNGEON_LEVEL
+                && anchor <= Utils.GameConstants.MAX_DUNGEON_LEVEL)
+            {
+                return anchor;
+            }
+
+            return Math.Clamp(heroLevel, Utils.GameConstants.MIN_DUNGEON_LEVEL, Utils.GameConstants.MAX_DUNGEON_LEVEL);
+        }
+
+        /// <summary>
+        /// Offered dungeon level relative to a selection anchor (typically -1 / 0 / +1), clamped to dungeon bounds.
+        /// </summary>
+        public static int ResolveDungeonLevelAroundAnchor(int anchorLevel, int dungeonDelta)
+        {
+            anchorLevel = Math.Clamp(anchorLevel, Utils.GameConstants.MIN_DUNGEON_LEVEL, Utils.GameConstants.MAX_DUNGEON_LEVEL);
+            return Math.Clamp(anchorLevel + dungeonDelta, Utils.GameConstants.MIN_DUNGEON_LEVEL, Utils.GameConstants.MAX_DUNGEON_LEVEL);
+        }
+
+        /// <summary>
         /// Clamp deltas so they cannot push beyond the configured dungeon level range.
         /// </summary>
         public static int ClampDungeonDelta(int heroLevel, int dungeonDelta)

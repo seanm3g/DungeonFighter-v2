@@ -163,7 +163,15 @@ namespace RPGGame
         /// <returns>True if stat meets threshold</returns>
         public bool MeetsStatThreshold(string statType, double threshold)
         {
-            return character.Stats.MeetsStatThreshold(statType, threshold, character.Equipment.GetEquipmentStatBonus(statType, character), character.Equipment.GetModificationGodlikeBonus());
+            int value = (statType ?? "").Trim().ToUpperInvariant() switch
+            {
+                "STR" => character.GetEffectiveStrength(),
+                "AGI" => character.GetEffectiveAgility(),
+                "TEC" => character.GetEffectiveTechnique(),
+                "INT" => character.GetEffectiveIntelligence(),
+                _ => 0
+            };
+            return value >= threshold;
         }
 
         /// <summary>
@@ -201,7 +209,7 @@ namespace RPGGame
             int magicFind = GetMagicFind();
 
             int primaryAttr = character.GetEffectivePrimaryAttributeValue();
-            string stats = $"Damage: {damage} (STR: {character.GetEffectiveStrength()} + Primary: {primaryAttr} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}";
+            string stats = $"Damage: {damage} (STR: {character.GetEffectiveStrength()} + Primary: {primaryAttr} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Defense: {armor}";
             
             if (magicFind > 0)
             {

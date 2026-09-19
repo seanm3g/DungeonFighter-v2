@@ -19,6 +19,8 @@ namespace RPGGame.Data
         /// <summary><c>Triggers.json</c> — item trigger identity catalog (sheet tab triggers).</summary>
         Triggers,
         /// <summary><c>MaterialBuilds.json</c> — material-set synthesis / convert / feed (sheet tab MATERIAL BUILDS).</summary>
-        MaterialBuilds
+        MaterialBuilds,
+        /// <summary><c>Charms.json</c> — charm slot amplifiers (sheet tab CHARMS).</summary>
+        Charms
     }
 }

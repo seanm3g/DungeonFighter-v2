@@ -67,6 +67,20 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(armorFlat.Contains("Equipped pieces", StringComparison.Ordinal) && armorFlat.Contains("Head", StringComparison.Ordinal),
                 "armor per-slot breakdown",
                 ref run, ref passed, ref failed);
+            TestBase.AssertTrue(armorFlat.Contains("BLOCK", StringComparison.Ordinal)
+                    && armorFlat.Contains("Class layer", StringComparison.Ordinal)
+                    && armorFlat.Contains("Tempo", StringComparison.Ordinal)
+                    && !armorFlat.Contains("Leftover energy", StringComparison.Ordinal),
+                "armor tooltip shows BLOCK, class layer, Tempo note (no leftover energy)",
+                ref run, ref passed, ref failed);
+
+            c.StandingBlockPercent = 0.45;
+            var armorLive = StatTooltipFormatter.TryBuild(c, "stat:armor", 24)!;
+            string armorLiveFlat = string.Join("\n", armorLive.Select(ColoredTextRenderer.RenderAsPlainText));
+            TestBase.AssertTrue(armorLiveFlat.Contains("45%", StringComparison.Ordinal),
+                "armor tooltip BLOCK matches standing 45%",
+                ref run, ref passed, ref failed);
+            c.StandingBlockPercent = 0;
 
             c.Stats.Agility = 10;
             c.Stats.TempAgilityBonus = 2;
@@ -105,6 +119,21 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(ampFlat.Contains("Slot 1", StringComparison.Ordinal) && ampFlat.Contains('×'),
                 "amp strip slot rows",
                 ref run, ref passed, ref failed);
+
+            var trees = SkillTreesConfig.TryLoadFromGameDataFile();
+            TestBase.AssertTrue(trees != null, "SkillTrees.json loads for Puberty tooltip",
+                ref run, ref passed, ref failed);
+            if (trees != null)
+            {
+                GameConfiguration.Instance.SkillTrees = trees;
+                c.Progression.LearnedSkillRanks["b-puberty"] = 1;
+                var strSkill = StatTooltipFormatter.TryBuild(c, "stat:str", 24)!;
+                string strSkillFlat = string.Join("\n", strSkill.Select(ColoredTextRenderer.RenderAsPlainText));
+                TestBase.AssertTrue(strSkillFlat.Contains("Skill tree", StringComparison.Ordinal)
+                        && strSkillFlat.Contains("+15", StringComparison.Ordinal),
+                    "STR tooltip lists Puberty skill bonus",
+                    ref run, ref passed, ref failed);
+            }
 
             TestBase.PrintSummary("StatTooltipFormatter Tests", run, passed, failed);
         }

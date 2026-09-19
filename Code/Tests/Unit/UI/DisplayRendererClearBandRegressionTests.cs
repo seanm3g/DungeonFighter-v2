@@ -1,3 +1,4 @@
+using RPGGame.Combat.Sequence;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Layout;
 
@@ -37,6 +38,25 @@ namespace RPGGame.Tests.Unit.UI
                 "first row below strip aligns with framed center panel top",
                 ref run, ref passed, ref failed);
 
+            CombatSequenceHudState.IsBandReserved = true;
+            try
+            {
+                int hudY = LayoutConstants.CombatSequenceHudY;
+                int logContentY = LayoutConstants.CombatLogContentY;
+                TestBase.AssertTrue(
+                    ComputeClearStartY(logContentY) >= LayoutConstants.CENTER_PANEL_Y,
+                    "combat log clear stays at or below the log frame when the sequence panel is reserved",
+                    ref run, ref passed, ref failed);
+                TestBase.AssertTrue(
+                    ComputeClearStartY(logContentY) > hudY,
+                    "combat log clear does not erase the sequence HUD panel",
+                    ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                CombatSequenceHudState.IsBandReserved = false;
+            }
+
             TestBase.PrintSummary("DisplayRendererClearBandRegressionTests", run, passed, failed);
         }
 
@@ -44,9 +64,9 @@ namespace RPGGame.Tests.Unit.UI
         private static int ComputeClearStartY(int contentY)
         {
             int scrollOverflowPad = System.Math.Max(0, contentY - 2);
-            int firstRowBelowActionStrip = LayoutConstants.ACTION_INFO_Y + LayoutConstants.ACTION_INFO_HEIGHT;
-            return contentY >= firstRowBelowActionStrip
-                ? System.Math.Max(scrollOverflowPad, firstRowBelowActionStrip)
+            int framedLogTop = LayoutConstants.CENTER_PANEL_Y;
+            return contentY >= framedLogTop
+                ? System.Math.Max(scrollOverflowPad, framedLogTop)
                 : scrollOverflowPad;
         }
     }

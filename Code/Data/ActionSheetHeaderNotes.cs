@@ -182,6 +182,22 @@ namespace RPGGame.Data
                 "Flat weapon speed points (HERO/ENEMY BASE). Not ACTION SPEED %. Cadence-scoped (TURN/ACTION/FIGHT/DUNGEON).",
             ["WEAPONDAMAGE"] =
                 "Flat weapon damage (HERO/ENEMY BASE). Not ACTION DAMAGE / DAMAGE(%). Cadence-scoped.",
+            ["BLOCK"] =
+                "Standing BLOCK % (0–100) until the next hero action. Predominant damage reduction.",
+            ["BLOCKPERCENT"] =
+                "Standing BLOCK % (0–100) until the next hero action. Predominant damage reduction.",
+            ["DS"] =
+                "Convert scale: material this action reads (ACTIONS DS). Alias header: bonus per keyword.",
+            ["BONUSPERKEYWORD"] =
+                "Convert scale: material this action reads (ACTIONS DS / bonus per keyword).",
+            ["DT"] =
+                "Convert scale: keyword this action reads (ACTIONS DT). Alias header: effect.",
+            ["EFFECT"] =
+                "Convert scale: keyword this action reads (ACTIONS DT / effect).",
+            ["DU"] =
+                "Convert scale source: keyword/bank vs material/count (ACTIONS DU). Alias header: keyword.",
+            ["KEYWORD"] =
+                "Convert scale source: keyword/bank vs material/count (ACTIONS DU / keyword).",
             ["RESERVEPOOL"] =
                 "RESERVE POOL: mark with 1/true to exclude from default weighted action rolls. "
                 + "Action stays available for combo strip / explicit picks. Synced to tag reserve_pool (also accepted in TAGS).",

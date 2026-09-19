@@ -11,7 +11,7 @@ namespace RPGGame
     /// </summary>
     public static class CharacterCloneService
     {
-        private static readonly string[] EquipmentSlots = { "head", "body", "legs", "weapon", "feet" };
+        private static readonly string[] EquipmentSlots = { "head", "body", "legs", "weapon", "feet", "charm" };
 
         public static void CloneAfterDeath(Character character)
         {
@@ -30,6 +30,7 @@ namespace RPGGame
             character.Effects.RerollCharges = character.Equipment.GetTotalRerollCharges();
             character.CurrentHealth = character.GetEffectiveMaxHealth();
             character.ResetCombo();
+            StandingBlock.Reset(character);
             CharacterSerializer.RebuildCharacterActions(character, preserveComboSequence: false);
 
             character.Progression.Level = preservedLevel;

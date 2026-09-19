@@ -81,6 +81,13 @@ namespace RPGGame.Data
         public static readonly string[] MaterialBuildsCanonicalHeaders =
             { "class", "material", "synthesis", "convertAction", "feed", "stack2", "stack3", "stack5" };
 
+        public static readonly string[] CharmsCanonicalHeaders =
+        {
+            "name", "description", "layer", "amplifyMint", "amplifyConvert",
+            "amplifyClassDefense", "amplifyClassTagDamage", "amplifyAnimalLadder",
+            "unlockAnimalAction", "rarity", "tags"
+        };
+
         internal static readonly HashSet<string> ConsumablesAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
         {
             "displayName", "internalKind", "effect", "potency"
@@ -95,6 +102,13 @@ namespace RPGGame.Data
         internal static readonly HashSet<string> MaterialBuildsAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
         {
             "class", "material", "synthesis", "convertAction", "feed", "stack2", "stack3", "stack5"
+        };
+
+        internal static readonly HashSet<string> CharmsAuthorizedJsonKeys = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "name", "description", "layer", "amplifyMint", "amplifyConvert",
+            "amplifyClassDefense", "amplifyClassTagDamage", "amplifyAnimalLadder",
+            "unlockAnimalAction", "rarity", "tags"
         };
 
         internal static readonly HashSet<string> StatBonusAuthorizedJsonKeys = new(StringComparer.Ordinal)
@@ -116,6 +130,7 @@ namespace RPGGame.Data
                 GameDataTabularSheetKind.Consumables => ConsumablesCanonicalHeaders,
                 GameDataTabularSheetKind.Triggers => TriggersCanonicalHeaders,
                 GameDataTabularSheetKind.MaterialBuilds => MaterialBuildsCanonicalHeaders,
+                GameDataTabularSheetKind.Charms => CharmsCanonicalHeaders,
                 _ => Array.Empty<string>()
             };
     }

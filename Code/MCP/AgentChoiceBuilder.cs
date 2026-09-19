@@ -162,8 +162,11 @@ namespace RPGGame.MCP
             {
                 var d = dungeons[i];
                 bool isCustom = d.Name == GameConstants.DungeonCustomLevelMenuName;
+                bool isReset = d.Name == GameConstants.DungeonResetDifficultyMenuName;
                 string label = isCustom
                     ? "Custom dungeon level (opens digit entry — avoid unless intentional)"
+                    : isReset
+                    ? "Reset dungeon difficulty to your default (character) level — does not start a dungeon"
                     : $"{d.Name} (levels {d.MinLevel}-{d.MaxLevel}, {d.Theme})";
 
                 choices.Add(new AgentChoice
@@ -172,7 +175,7 @@ namespace RPGGame.MCP
                     Label = label
                 });
 
-                if (!isCustom)
+                if (!isCustom && !isReset)
                 {
                     int delta = Math.Abs(d.MinLevel - playerLevel);
                     if (delta < bestDelta)

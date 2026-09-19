@@ -29,6 +29,8 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             ActionLabArmorFactory_FilterMapsBodyToChest(ref run, ref pass, ref fail);
             ActionLabGearCatalogFilter_Basics(ref run, ref pass, ref fail);
             ClearLabGear_UnequipsSlot(ref run, ref pass, ref fail);
+            ActionLabWeaponFactory_SelectedMaterialPrefixWins(ref run, ref pass, ref fail);
+            ActionLabArmorFactory_WithoutAffixesStampsMaterial(ref run, ref pass, ref fail);
         }
 
 
@@ -57,7 +59,8 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var w = ActionLabWeaponFactory.CreateWeapon(data, prefix, suffix);
             TestBase.AssertTrue(w.Name.Contains("Sharp", StringComparison.Ordinal), "prefix in generated name", ref run, ref passed, ref failed);
             TestBase.AssertTrue(w.Name.Contains("of Power", StringComparison.Ordinal), "suffix in generated name", ref run, ref passed, ref failed);
-            TestBase.AssertEqual(1, w.Modifications.Count, "one modification", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!string.IsNullOrWhiteSpace(w.Material), "lab weapon always has Material", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, CountNonMaterialMods(w), "one non-material modification", ref run, ref passed, ref failed);
             TestBase.AssertEqual(1, w.StatBonuses.Count, "one stat bonus", ref run, ref passed, ref failed);
         }
 
@@ -104,7 +107,8 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             TestBase.AssertTrue(w.Name.Contains("Heavy", StringComparison.Ordinal), "second prefix in name", ref run, ref passed, ref failed);
             TestBase.AssertTrue(w.Name.Contains("of Power", StringComparison.Ordinal), "first suffix in name", ref run, ref passed, ref failed);
             TestBase.AssertTrue(w.Name.Contains("of Speed", StringComparison.Ordinal), "second suffix in name", ref run, ref passed, ref failed);
-            TestBase.AssertEqual(2, w.Modifications.Count, "two modifications", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!string.IsNullOrWhiteSpace(w.Material), "lab weapon always has Material", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(2, CountNonMaterialMods(w), "two non-material modifications", ref run, ref passed, ref failed);
             TestBase.AssertEqual(2, w.StatBonuses.Count, "two stat bonuses", ref run, ref passed, ref failed);
         }
 
@@ -144,7 +148,8 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var item = ActionLabArmorFactory.CreateArmor(data, prefix, suffix);
             TestBase.AssertTrue(item.Name.Contains("Sturdy", StringComparison.Ordinal), "prefix in generated name", ref run, ref passed, ref failed);
             TestBase.AssertTrue(item.Name.Contains("of Warding", StringComparison.Ordinal), "suffix in generated name", ref run, ref passed, ref failed);
-            TestBase.AssertEqual(1, item.Modifications.Count, "one modification", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!string.IsNullOrWhiteSpace(item.Material), "lab armor always has Material", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, CountNonMaterialMods(item), "one non-material modification", ref run, ref passed, ref failed);
             TestBase.AssertEqual(1, item.StatBonuses.Count, "one stat bonus", ref run, ref passed, ref failed);
             TestBase.AssertTrue(item is HeadItem, "head armor type", ref run, ref passed, ref failed);
         }
@@ -190,7 +195,8 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             TestBase.AssertTrue(item.Name.Contains("Reinforced", StringComparison.Ordinal), "second prefix in name", ref run, ref passed, ref failed);
             TestBase.AssertTrue(item.Name.Contains("of Warding", StringComparison.Ordinal), "first suffix in name", ref run, ref passed, ref failed);
             TestBase.AssertTrue(item.Name.Contains("of Health", StringComparison.Ordinal), "second suffix in name", ref run, ref passed, ref failed);
-            TestBase.AssertEqual(2, item.Modifications.Count, "two modifications", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!string.IsNullOrWhiteSpace(item.Material), "lab armor always has Material", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(2, CountNonMaterialMods(item), "two non-material modifications", ref run, ref passed, ref failed);
             TestBase.AssertEqual(2, item.StatBonuses.Count, "two stat bonuses", ref run, ref passed, ref failed);
         }
 
@@ -288,5 +294,43 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             TestBase.AssertTrue(lab.LabPlayer.Head == null, "ClearLabGear post: head empty", ref run, ref passed, ref failed);
             ActionInteractionLabSession.EndSession();
         }
+
+        internal static void ActionLabWeaponFactory_SelectedMaterialPrefixWins(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var data = new WeaponData
+            {
+                Type = "Mace",
+                Name = "Lab Mace",
+                BaseDamage = 8,
+                AttackSpeed = 1.2,
+                Tier = 1,
+            };
+            var bone = new Modification
+            {
+                Name = "Bone",
+                PrefixCategory = "Material",
+                ItemRank = "Common",
+                Effect = "",
+                MinValue = 0,
+                MaxValue = 0,
+            };
+            var w = ActionLabWeaponFactory.CreateWeapon(data, bone, suffixTemplate: null);
+            TestBase.AssertEqual("Bone", w.Material, "selected Material prefix stamps Item.Material", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(w.Modifications.Any(m =>
+                    m.GetPrefixCategory() == ModificationPrefixCategory.Material
+                    && string.Equals(m.Name, "Bone", StringComparison.OrdinalIgnoreCase)),
+                "Bone material prefix kept", ref run, ref passed, ref failed);
+        }
+
+        internal static void ActionLabArmorFactory_WithoutAffixesStampsMaterial(ref int run, ref int passed, ref int failed)
+        {
+            var data = new ArmorData { Slot = "head", Name = "LabHelmBare", Armor = 2, Tier = 1 };
+            var head = ActionLabArmorFactory.CreateArmorWithoutAffixes(data);
+            TestBase.AssertTrue(!string.IsNullOrWhiteSpace(head.Material), "affix-less lab armor still has Material", ref run, ref passed, ref failed);
+        }
+
+        private static int CountNonMaterialMods(Item item) =>
+            item.Modifications.Count(m => m.GetPrefixCategory() != ModificationPrefixCategory.Material);
     }
 }

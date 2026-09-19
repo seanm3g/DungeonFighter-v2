@@ -2,7 +2,7 @@ namespace RPGGame.UI.BlockDisplay
 {
     /// <summary>
     /// Extracts Actor name from messages
-    /// Supports formats: "[EntityName] ...", "EntityName hits ...", "EntityName misses ...", "EntityName CRITICAL MISS ...", "EntityName uses ...", "EntityName takes ...", "EntityName is affected ..."
+    /// Supports formats: "[EntityName] ...", "EntityName Attacks ...", "EntityName hits ...", "EntityName misses ...", "EntityName CRITICAL MISS ...", "EntityName uses ...", "EntityName takes ...", "EntityName is affected ..."
     /// </summary>
     public static class EntityNameExtractor
     {
@@ -30,6 +30,13 @@ namespace RPGGame.UI.BlockDisplay
                 }
             }
             
+            // Try format: "EntityName Attacks ..." (setup/punchline headlines)
+            int attacksIndex = message.IndexOf(" Attacks ");
+            if (attacksIndex > 0)
+            {
+                return message.Substring(0, attacksIndex).Trim();
+            }
+
             // Try format without brackets: "EntityName hits ..."
             int hitsIndex = message.IndexOf(" hits ");
             if (hitsIndex > 0)

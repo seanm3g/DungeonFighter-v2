@@ -41,6 +41,7 @@ namespace RPGGame.Tests.Runners
             LeftPanelTooltipBuilderTests.RunAllTests();
             ThresholdModificationTooltipBuilderTests.RunAllTests();
             StatTooltipFormatterTests.RunAllTests();
+            HeroDefenseHudFormatterTests.RunAllTests();
             ItemTooltipFormatterTests.RunAllTests();
             HoverTooltipDetailStateTests.RunAllTests();
             Console.WriteLine();
@@ -80,6 +81,8 @@ namespace RPGGame.Tests.Runners
             ColoredTextCoordinatorTests.RunAllTests();
             Console.WriteLine();
             LayoutConstantsCenterPanelHitTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.Combat.CombatSequencePresenterTests.RunAllTests();
             Console.WriteLine();
             CombatLogCopyInputTests.RunAllTests();
             Console.WriteLine();
@@ -150,6 +153,8 @@ namespace RPGGame.Tests.Runners
             BlockMessageCollectorTests.RunAllTests();
             Console.WriteLine();
             EntityNameExtractorTests.RunAllTests();
+            Console.WriteLine();
+            DisplayBufferReplaceLastTests.RunAllTests();
             Console.WriteLine();
             
             // UI Services Tests

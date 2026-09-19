@@ -248,7 +248,7 @@ namespace RPGGame.MCP.Tools
                 
                 try
                 {
-                    // Use TestManager or directly call unit tests
+                    // Call unit tests via FilteredTestRunner / ComprehensiveTestRunner
                     // For now, run the unit tests we can access directly
                     output.AppendLine("=== Running All Settings Tests ===");
                     output.AppendLine();

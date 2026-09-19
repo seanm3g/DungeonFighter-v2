@@ -24,11 +24,13 @@ namespace RPGGame.UI.Avalonia.Handlers
         private GameCoordinator? game;
         private IUIManager? canvasUIManager;
         private MouseInteractionHandler? mouseHandler;
+        private Action<string>? updateStatus;
         private bool isInitialized = false;
         private bool waitingForKeyAfterAnimation = false;
         private CancellationTokenSource? titleIdleCts;
         private Task? gameWarmupTask;
         private int gameWarmupStarted;
+        private int titleScreenStarted;
 
         public GameInitializationHandler(GameCanvasControl gameCanvas, MainWindow mainWindow)
         {
@@ -49,6 +51,8 @@ namespace RPGGame.UI.Avalonia.Handlers
         /// </summary>
         public void InitializeGame(Action<string> updateStatus)
         {
+            this.updateStatus = updateStatus;
+
             try
             {
                 // Initialize the canvas UI manager
@@ -57,6 +61,15 @@ namespace RPGGame.UI.Avalonia.Handlers
                 HeroActionStripFeedback.SetRequestInvalidate(() => gameCanvas.Refresh());
                 ThresholdBarFeedback.SetRequestInvalidate(() => gameCanvas.Refresh());
                 ActionBonusBorderShimmer.SetRequestInvalidate(() => gameCanvas.Refresh());
+                // HUD text is drawn during RenderLayout, so a visual invalidate is not enough.
+                // CombatSequencePresenter posts this to the UI thread before invoking it.
+                RPGGame.Combat.Sequence.CombatSequencePresenter.SetRequestInvalidate(() =>
+                {
+                    if (canvasUIManager is CanvasUICoordinator canvasUi)
+                        canvasUi.ForceRender();
+                    else
+                        gameCanvas.Refresh();
+                });
 
                 // Set the close action for the UI manager
                 if (canvasUIManager is CanvasUICoordinator canvasUI)
@@ -78,80 +91,23 @@ namespace RPGGame.UI.Avalonia.Handlers
                     mouseHandler = new MouseInteractionHandler(gameCanvas, canvasUIForMouse, null);
                 }
 
-                // Animated title: idle gradient until any key. Warm GameCoordinator in parallel
-                // so a keypress only needs to show the main menu (avoids post-key hitch).
+                // Title idle starts after the window is created so the first frame can paint
+                // while the window is still hidden. Do not start the loop here.
                 if (canvasUIManager is CanvasUICoordinator canvasUI2)
                 {
-                    // Suppress display buffer rendering to prevent it from clearing the title screen
                     canvasUI2.SuppressDisplayBufferRendering();
                     canvasUI2.ClearDisplayBufferWithoutRender();
-
-                    try
-                    {
-                        try
-                        {
-                            AudioBootstrap.InitializeTitleScreenMusic();
-                        }
-                        catch (Exception ex)
-                        {
-                            DebugLogger.Log("GameInitializationHandler", $"InitializeTitleScreenMusic: {ex.Message}");
-                        }
-
-                        // Start heavy init while the title idle plays (Background priority so frames stay smooth).
-                        StartGameWarmup(updateStatus);
-
-                        titleIdleCts?.Cancel();
-                        titleIdleCts?.Dispose();
-                        titleIdleCts = new CancellationTokenSource();
-                        var idleToken = titleIdleCts.Token;
-
-                        _ = Task.Run(async () =>
-                        {
-                            try
-                            {
-                                await TitleScreenHelper.ShowAnimatedTitleScreenAsync(
-                                    idleToken,
-                                    onReadyForKey: () =>
-                                    {
-                                        waitingForKeyAfterAnimation = true;
-                                    }).ConfigureAwait(false);
-                            }
-                            catch (OperationCanceledException)
-                            {
-                                // Expected when the player presses a key during idle.
-                            }
-                            catch (Exception ex)
-                            {
-                                DebugLogger.Log("GameInitializationHandler",
-                                    $"Title animation failed: {ex.Message}");
-                                await Dispatcher.UIThread.InvokeAsync(() =>
-                                {
-                                    if (!waitingForKeyAfterAnimation && !isInitialized)
-                                    {
-                                        updateStatus($"Error displaying title screen: {ex.Message}");
-                                        InitializeGameAfterAnimation(updateStatus);
-                                    }
-                                });
-                            }
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        updateStatus($"Error displaying title screen: {ex.Message}");
-                        InitializeGameAfterAnimation(updateStatus);
-                    }
-
-                    // Don't proceed to main menu yet - wait for key press after intro
                     return;
                 }
 
                 // If no animation, initialize normally
+                mainWindow.RevealAfterTitleReady();
                 InitializeGameAfterAnimation(updateStatus);
             }
             catch (Exception ex)
             {
                 updateStatus($"Error initializing game: {ex.Message}");
-                // If initialization fails, try to initialize without animation
+                mainWindow.RevealAfterTitleReady();
                 try
                 {
                     InitializeGameAfterAnimation(updateStatus);
@@ -161,6 +117,110 @@ namespace RPGGame.UI.Avalonia.Handlers
                     updateStatus($"Critical error: {ex2.Message}");
                 }
             }
+        }
+
+        /// <summary>
+        /// Called once the main window has a GPU surface (Opened). Paints the preloaded first
+        /// title frame and finishes GameCoordinator warmup while the window is still hidden,
+        /// then reveals and starts idle.
+        /// </summary>
+        public async Task StartTitleScreenAfterWindowReadyAsync()
+        {
+            if (Interlocked.Exchange(ref titleScreenStarted, 1) != 0)
+                return;
+
+            var status = updateStatus ?? (_ => { });
+
+            try
+            {
+                if (canvasUIManager is not CanvasUICoordinator)
+                {
+                    mainWindow.RevealAfterTitleReady();
+                    InitializeGameAfterAnimation(status);
+                    return;
+                }
+
+                try
+                {
+                    AudioBootstrap.InitializeTitleScreenMusic();
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log("GameInitializationHandler", $"InitializeTitleScreenMusic: {ex.Message}");
+                }
+
+                StartGameWarmup(status);
+
+                try
+                {
+                    TitleScreenHelper.RenderPreloadedFirstFrame();
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log("GameInitializationHandler",
+                        $"Preloaded title frame failed: {ex.Message}");
+                }
+
+                if (gameWarmupTask != null)
+                {
+                    try
+                    {
+                        await gameWarmupTask.ConfigureAwait(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        DebugLogger.Log("GameInitializationHandler",
+                            $"Game warmup failed: {ex.Message}");
+                    }
+                }
+
+                waitingForKeyAfterAnimation = true;
+                mainWindow.RevealAfterTitleReady();
+                StartTitleIdleLoop(status);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log("GameInitializationHandler",
+                    $"StartTitleScreenAfterWindowReadyAsync failed: {ex.Message}");
+                mainWindow.RevealAfterTitleReady();
+                InitializeGameAfterAnimation(status);
+            }
+        }
+
+        private void StartTitleIdleLoop(Action<string> status)
+        {
+            titleIdleCts?.Cancel();
+            titleIdleCts?.Dispose();
+            titleIdleCts = new CancellationTokenSource();
+            var idleToken = titleIdleCts.Token;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await TitleScreenHelper.ShowAnimatedTitleScreenAsync(
+                        idleToken,
+                        onReadyForKey: null,
+                        firstFrameAlreadyRendered: true).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Expected when the player presses a key during idle.
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log("GameInitializationHandler",
+                        $"Title animation failed: {ex.Message}");
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        if (!isInitialized)
+                        {
+                            status($"Error displaying title screen: {ex.Message}");
+                            InitializeGameAfterAnimation(status);
+                        }
+                    });
+                }
+            });
         }
 
         /// <summary>

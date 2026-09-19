@@ -32,12 +32,14 @@ Comparison is **case-insensitive**. Canonical registry lives in `Code/World/Tags
 - **Encounter role:** `boss`, `minion`
 - **Materials (prefix names):** `bone`, `bronze`, `glass`, `willow`, `steel`, `gold`, `obsidian`, `silver`, `damascus`, `mithril`, `shadow`, `crystal`, `stone`, `unknown`, `strange`
 - **Animal taxon (suffix tags):** `shell`, `reptile`, `bird`, `bug`, `fish`, `beast`, `mythic` (also Item/Enemy match; `mythic` shares the rarity token with expanded Item scope)
+- **Animal presence:** `animal` (Item) — stamped when any animal suffix is present
+- **Charm:** `charm` (Item) — charm-slot catalog tags
 - **Action routing:** `required`, `opener`, `finisher`
 - **Mechanic tags:** `swift`, `bludgeon`, `focus`, `insight` (next-action bonuses)
 - **Roll tags:** `confidence`, `footwork`, `target`, `aim` (threshold shifts)
 
 Material tags are copied onto `Item.Tags` when a Material prefix is rolled at loot time.
-Animal taxon tags on leftover `StatBonuses.json` suffix rows (`shell`, `beast`, …) are deserialize-only; they are not copied onto items and do not grant combat procs. Gear procs come from MATERIAL BUILDS.
+Animal suffixes stamp `animal` + taxon (`shell`/`reptile`/`bird`/`bug`/`fish`/`beast`/`mythic`) + specific token (`of the Cape Buffalo` → `cape_buffalo`) onto `Item.Tags` via `AnimalTagHelper.SyncSuffixTags`. Specific animal tags are registered dynamically for Item match scope. Counts drive the in-game animal ladder (`AnimalSetController`); combat procs still come from MATERIAL BUILDS, not suffix `triggerName`.
 
 ## Enemy archetypes (field — not freeform tags)
 

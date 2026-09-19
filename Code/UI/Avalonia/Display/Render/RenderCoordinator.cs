@@ -151,6 +151,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
                         return;
 
                     var paintState = stateManager?.CurrentState;
+                    RPGGame.Combat.Sequence.CombatSequenceHudState.SyncReservation(paintState);
                     if (DisplayStateCoordinator.ShouldSuppressRendering(paintState, stateManager))
                     {
                         if (!(force && paintState == GameState.Settings))

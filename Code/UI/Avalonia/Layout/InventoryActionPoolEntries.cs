@@ -39,6 +39,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 ItemType.Chest => "body",
                 ItemType.Legs => "legs",
                 ItemType.Feet => "feet",
+                ItemType.Charm => "charm",
                 _ => null
             };
         }

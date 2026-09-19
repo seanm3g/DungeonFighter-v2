@@ -4,7 +4,9 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using RPGGame;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.TitleScreen;
 using RPGGame.Utils;
+using System;
 
 namespace RPGGame.UI.Avalonia
 {
@@ -22,6 +24,17 @@ namespace RPGGame.UI.Avalonia
                 // Closing the main window must exit the process even if auxiliary windows
                 // (settings, Action Lab, tuning workbench) are still open.
                 desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
+
+                // Load title colors/config/first frame before the window exists so Show()
+                // does not hitch on the first idle paint.
+                try
+                {
+                    TitleScreenHelper.Preload();
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log("App", $"TitleScreenHelper.Preload failed: {ex.Message}");
+                }
 
                 desktop.MainWindow = new MainWindow();
 

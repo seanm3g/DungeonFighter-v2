@@ -5,6 +5,7 @@ using System.Text.Json;
 using RPGGame.Actions;
 using RPGGame.Actions.Conditional;
 using RPGGame;
+using RPGGame.Combat.Calculators;
 
 namespace RPGGame.Data
 {
@@ -72,6 +73,8 @@ namespace RPGGame.Data
             {
                 actionData.Length = 1.0; // Default
             }
+
+            actionData.BlockPercent = StandingBlock.ParsePercentPoints(spreadsheet.Block);
             
             // Multi-hit
             actionData.MultiHitCount = SpreadsheetActionData.ParseIntValue(spreadsheet.NumberOfHits);

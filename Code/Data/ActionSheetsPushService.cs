@@ -85,49 +85,57 @@ namespace RPGGame.Data
 
             string sheet = SheetsPushUtilities.EscapeSheetName(cfg.ActionsSheetTabName);
 
-            SpreadsheetHeader? header;
-            int firstDataRowOneBased;
+            SpreadsheetHeader? header = null;
+            int firstDataRowOneBased = 0;
 
-            // Prefer the same CSV source as pull (SheetsConfig.actionsSheetUrl) so column labels/order match Update-from-Sheets / Resync.
-            string sheetsConfigPath = GameConstants.TryGetExistingGameDataFilePath("SheetsConfig.json")
-                ?? GameConstants.GetGameDataFilePath("SheetsConfig.json");
-            var sheetsCfg = SheetsConfig.Load(sheetsConfigPath);
-            if (!string.IsNullOrWhiteSpace(sheetsCfg.ActionsSheetUrl))
-            {
-                try
-                {
-                    var csvResult = await SpreadsheetActionParser.ParseCsvAsync(sheetsCfg.ActionsSheetUrl)
-                        .ConfigureAwait(false);
-                    if (csvResult.Header != null)
-                    {
-                        header = csvResult.Header;
-                        firstDataRowOneBased = header.DataStartRowIndex + 1;
-                    }
-                    else
-                    {
-                        (header, firstDataRowOneBased) = await FetchHeaderFromSheetApiAsync(
-                            service, cfg, sheet, cancellationToken).ConfigureAwait(false);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Sheets push: could not use CSV header from SheetsConfig ({ex.Message}); using live sheet preview.");
-                    (header, firstDataRowOneBased) = await FetchHeaderFromSheetApiAsync(
-                        service, cfg, sheet, cancellationToken).ConfigureAwait(false);
-                }
-            }
-            else
+            // Read the live tab we are writing to so designer header names (e.g. bonus per keyword) are kept.
+            try
             {
                 (header, firstDataRowOneBased) = await FetchHeaderFromSheetApiAsync(
                     service, cfg, sheet, cancellationToken).ConfigureAwait(false);
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Sheets push: live tab header failed ({ex.Message}); trying published CSV.");
+            }
 
             if (header == null)
-                throw new InvalidOperationException("Could not parse header rows. Set actionsSheetUrl in GameData/SheetsConfig.json to match the published CSV used for pull, or check actionsSheetTabName and header rows on the tab.");
+            {
+                string sheetsConfigPath = GameConstants.TryGetExistingGameDataFilePath("SheetsConfig.json")
+                    ?? GameConstants.GetGameDataFilePath("SheetsConfig.json");
+                var sheetsCfg = SheetsConfig.Load(sheetsConfigPath);
+                if (!string.IsNullOrWhiteSpace(sheetsCfg.ActionsSheetUrl))
+                {
+                    try
+                    {
+                        var csvResult = await SpreadsheetActionParser.ParseCsvAsync(sheetsCfg.ActionsSheetUrl)
+                            .ConfigureAwait(false);
+                        if (csvResult.Header != null)
+                        {
+                            header = csvResult.Header;
+                            firstDataRowOneBased = header.DataStartRowIndex + 1;
+                            Console.WriteLine("Sheets push: live tab header missing; using published CSV header.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Sheets push: published CSV header fallback failed ({ex.Message}).");
+                    }
+                }
+            }
+
+            if (header == null)
+                throw new InvalidOperationException("Could not parse header rows. Check actionsSheetTabName and header rows on the tab, or set actionsSheetUrl in GameData/SheetsConfig.json.");
 
             header = await RemoveLegacyCadenceColumnsIfPresentAsync(
                     service, cfg, header, cancellationToken)
                 .ConfigureAwait(false);
+
+            header = await ReplaceEnergyColumnWithBlockAsync(
+                    service, cfg, header, cancellationToken)
+                .ConfigureAwait(false);
+
+            SpreadsheetHeader headerBeforeEnsure = header;
 
             var ensuredTriggers = ActionTriggerSheetColumns.EnsureHeader(header);
             header = ensuredTriggers.Header;
@@ -141,11 +149,15 @@ namespace RPGGame.Data
             header = ensuredReserve.Header;
             headerExpanded = headerExpanded || ensuredReserve.ColumnsAdded;
 
+            var ensuredBlock = ActionBlockSheetColumns.EnsureHeader(header);
+            header = ensuredBlock.Header;
+            headerExpanded = headerExpanded || ensuredBlock.ColumnsAdded;
+
             if (headerExpanded)
             {
-                await WriteHeaderRowsAsync(service, cfg, sheet, header, cancellationToken).ConfigureAwait(false);
-                Console.WriteLine(
-                    $"Sheets push: appended TRIGGERS / CADENCES / RESERVE POOL columns to tab {cfg.ActionsSheetTabName} header.");
+                await InsertNewColumnsAndWriteHeadersAsync(
+                        service, cfg, sheet, headerBeforeEnsure, header, cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             try
@@ -254,6 +266,90 @@ namespace RPGGame.Data
         }
 
         /// <summary>
+        /// Replaces ACTIONS <c>ENERGY</c> with <c>BLOCK</c>: rename the first ENERGY header in place,
+        /// then delete any remaining ENERGY columns (duplicates or ENERGY beside an existing BLOCK).
+        /// </summary>
+        private static async Task<SpreadsheetHeader> ReplaceEnergyColumnWithBlockAsync(
+            SheetsService service,
+            SheetsPushConfig cfg,
+            SpreadsheetHeader header,
+            CancellationToken cancellationToken)
+        {
+            var (renamedHeader, renamedIndices) = ActionBlockSheetColumns.TryRenameEnergyToBlock(header);
+            header = renamedHeader;
+
+            if (renamedIndices.Count > 0)
+            {
+                string sheet = SheetsPushUtilities.EscapeSheetName(cfg.ActionsSheetTabName);
+                int labelRowOneBased = header.LabelRowIndex + 1;
+                var batchData = new List<ValueRange>(renamedIndices.Count);
+                foreach (int index in renamedIndices)
+                {
+                    string letter = SheetsPushUtilities.ColumnIndexToA1Letters(index);
+                    batchData.Add(new ValueRange
+                    {
+                        Range = $"{sheet}!{letter}{labelRowOneBased}",
+                        MajorDimension = "ROWS",
+                        Values = new List<IList<object>> { new List<object> { ActionBlockSheetColumns.Label } }
+                    });
+                }
+
+                SheetsPushUtilities.NormalizeValueRangeGridsForUpload(batchData);
+                await service.Spreadsheets.Values
+                    .BatchUpdate(
+                        new BatchUpdateValuesRequest
+                        {
+                            ValueInputOption = "RAW",
+                            Data = batchData
+                        },
+                        cfg.SpreadsheetId)
+                    .ExecuteAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
+                string letters = string.Join(", ",
+                    renamedIndices.Select(SheetsPushUtilities.ColumnIndexToA1Letters));
+                Console.WriteLine(
+                    $"Sheets push: renamed ENERGY → BLOCK on tab {cfg.ActionsSheetTabName} ({letters}).");
+            }
+
+            var leftoverEnergy = ActionBlockSheetColumns.CollectEnergyColumnIndicesToRemove(header);
+            if (leftoverEnergy.Count == 0)
+                return header;
+
+            var ranges = ActionCadenceSheetColumns.BuildDescendingDeleteRanges(leftoverEnergy);
+            int sheetId = await ResolveActionsSheetIdAsync(service, cfg, cancellationToken).ConfigureAwait(false);
+            var requests = new List<Request>(ranges.Count);
+            foreach (var (start, end) in ranges)
+            {
+                requests.Add(new Request
+                {
+                    DeleteDimension = new DeleteDimensionRequest
+                    {
+                        Range = new DimensionRange
+                        {
+                            SheetId = sheetId,
+                            Dimension = "COLUMNS",
+                            StartIndex = start,
+                            EndIndex = end
+                        }
+                    }
+                });
+            }
+
+            await service.Spreadsheets
+                .BatchUpdate(new BatchUpdateSpreadsheetRequest { Requests = requests }, cfg.SpreadsheetId)
+                .ExecuteAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            string deletedLetters = string.Join(", ",
+                leftoverEnergy.Select(SheetsPushUtilities.ColumnIndexToA1Letters));
+            Console.WriteLine(
+                $"Sheets push: deleted {leftoverEnergy.Count} leftover ENERGY column(s) on tab {cfg.ActionsSheetTabName} ({deletedLetters}).");
+
+            return ActionCadenceSheetColumns.RemoveColumns(header, leftoverEnergy);
+        }
+
+        /// <summary>
         /// Deletes legacy cadence columns (old <c>* CADENCE</c> triples + compact DURATION/CADENCE/MECHANICS,
         /// typically sheet columns K–Y) via Sheets API, then returns an in-memory header with those columns removed.
         /// </summary>
@@ -322,42 +418,78 @@ namespace RPGGame.Data
             }
 
             throw new InvalidOperationException(
-                $"Could not resolve sheetId for ACTIONS tab '{want}' when deleting legacy cadence columns.");
+                $"Could not resolve sheetId for ACTIONS tab '{want}'.");
         }
 
-        private static async Task WriteHeaderRowsAsync(
+        /// <summary>
+        /// Physically inserts new columns (Sheets InsertDimension) and writes only those header cells.
+        /// Existing designer labels are not rewritten.
+        /// </summary>
+        private static async Task InsertNewColumnsAndWriteHeadersAsync(
             SheetsService service,
             SheetsPushConfig cfg,
             string escapedSheetName,
-            SpreadsheetHeader header,
+            SpreadsheetHeader before,
+            SpreadsheetHeader after,
             CancellationToken cancellationToken)
         {
-            int labelRowOneBased = header.LabelRowIndex + 1;
-            int endColIndex = Math.Max(0, header.LabelByIndex.Count - 1);
-            string endLetter = SheetsPushUtilities.ColumnIndexToA1Letters(endColIndex);
+            var inserted = SpreadsheetHeader.CollectInsertedColumnIndices(before, after);
+            if (inserted.Count == 0)
+                return;
 
-            var batchData = new List<ValueRange>();
-
-            if (header.LabelRowIndex > 0)
+            int sheetId = await ResolveActionsSheetIdAsync(service, cfg, cancellationToken).ConfigureAwait(false);
+            var requests = new List<Request>(inserted.Count);
+            foreach (int index in inserted.OrderByDescending(i => i))
             {
-                int contextRowOneBased = header.LabelRowIndex; // 0-based LabelRowIndex=1 → context row 1
-                batchData.Add(new ValueRange
+                requests.Add(new Request
                 {
-                    Range = $"{escapedSheetName}!A{contextRowOneBased}:{endLetter}{contextRowOneBased}",
-                    MajorDimension = "ROWS",
-                    Values = new List<IList<object>> { ActionTriggerSheetColumns.BuildHeaderContextRow(header).ToList() }
+                    InsertDimension = new InsertDimensionRequest
+                    {
+                        InheritFromBefore = false,
+                        Range = new DimensionRange
+                        {
+                            SheetId = sheetId,
+                            Dimension = "COLUMNS",
+                            StartIndex = index,
+                            EndIndex = index + 1
+                        }
+                    }
                 });
             }
 
-            batchData.Add(new ValueRange
+            await service.Spreadsheets
+                .BatchUpdate(new BatchUpdateSpreadsheetRequest { Requests = requests }, cfg.SpreadsheetId)
+                .ExecuteAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            int labelRowOneBased = after.LabelRowIndex + 1;
+            var batchData = new List<ValueRange>();
+            foreach (int index in inserted)
             {
-                Range = $"{escapedSheetName}!A{labelRowOneBased}:{endLetter}{labelRowOneBased}",
-                MajorDimension = "ROWS",
-                Values = new List<IList<object>> { ActionTriggerSheetColumns.BuildHeaderLabelRow(header).ToList() }
-            });
+                string letter = SheetsPushUtilities.ColumnIndexToA1Letters(index);
+                string label = index < after.LabelByIndex.Count ? after.LabelByIndex[index] ?? "" : "";
+                string context = index < after.ContextByIndex.Count ? after.ContextByIndex[index] ?? "" : "";
+
+                if (after.LabelRowIndex > 0)
+                {
+                    int contextRowOneBased = after.LabelRowIndex;
+                    batchData.Add(new ValueRange
+                    {
+                        Range = $"{escapedSheetName}!{letter}{contextRowOneBased}",
+                        MajorDimension = "ROWS",
+                        Values = new List<IList<object>> { new List<object> { context } }
+                    });
+                }
+
+                batchData.Add(new ValueRange
+                {
+                    Range = $"{escapedSheetName}!{letter}{labelRowOneBased}",
+                    MajorDimension = "ROWS",
+                    Values = new List<IList<object>> { new List<object> { label } }
+                });
+            }
 
             SheetsPushUtilities.NormalizeValueRangeGridsForUpload(batchData);
-
             await service.Spreadsheets.Values
                 .BatchUpdate(
                     new BatchUpdateValuesRequest
@@ -368,6 +500,12 @@ namespace RPGGame.Data
                     cfg.SpreadsheetId)
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
+
+            string names = string.Join(", ",
+                inserted.Select(i => i < after.LabelByIndex.Count ? after.LabelByIndex[i] : $"col {i}"));
+            Console.WriteLine(
+                $"Sheets push: inserted {inserted.Count} column(s) on tab {cfg.ActionsSheetTabName} ({names}) " +
+                "without rewriting existing headers.");
         }
 
         private static async Task<(SpreadsheetHeader? Header, int FirstDataRowOneBased)> FetchHeaderFromSheetApiAsync(

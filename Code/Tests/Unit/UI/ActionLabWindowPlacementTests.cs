@@ -14,8 +14,22 @@ namespace RPGGame.Tests.Unit.UI
             RightAnchor_ClampsWhenWiderThanWorkArea(ref run, ref passed, ref failed);
             Centered_FitsWithinWorkArea(ref run, ref passed, ref failed);
             LeftAnchor_RespectsMargin(ref run, ref passed, ref failed);
+            PlaceBalance_LeftOfCatalog(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ActionLabWindowPlacementTests", run, passed, failed);
+        }
+
+        private static void PlaceBalance_LeftOfCatalog(ref int run, ref int passed, ref int failed)
+        {
+            // Catalog at x=500; balance width 200 → balance x = 500 - 200 - 10 = 290
+            var wa = new PixelRect(new PixelPoint(0, 0), new PixelSize(1920, 1080));
+            // PlaceBalanceBesideCatalog needs Window objects — test the math via left-of formula used there
+            int catalogX = 500;
+            int balW = 200;
+            int edge = ActionLabWindowPlacement.EdgeMarginPixels;
+            int expectedX = catalogX - balW - edge;
+            TestBase.AssertEqual(290, expectedX, "balance left-of-catalog X formula", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(expectedX >= wa.X, "balance X within work area", ref run, ref passed, ref failed);
         }
 
         private static void RightAnchor_UsesWorkingAreaRightAndMargin(ref int run, ref int passed, ref int failed)

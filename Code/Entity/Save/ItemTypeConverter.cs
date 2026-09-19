@@ -31,6 +31,8 @@ namespace RPGGame
                 ItemType.Feet => ConvertToFeetItem(item),
                 ItemType.Legs when item is LegsItem => item,
                 ItemType.Legs => ConvertToLegsItem(item),
+                ItemType.Charm when item is CharmItem => item,
+                ItemType.Charm => ConvertToCharmItem(item),
                 ItemType.Consumable => item,
                 _ => item
             };
@@ -151,6 +153,41 @@ namespace RPGGame
                 legs.Armor = ResolveArmorWhenDeserializedAsBaseItem(item);
 
             return legs;
+        }
+
+        private static CharmItem ConvertToCharmItem(Item item)
+        {
+            var charm = new CharmItem(item.Name, item.Tier);
+            CopyBaseItemProperties(item, charm);
+            if (item is CharmItem original)
+            {
+                charm.Layer = original.Layer ?? "";
+                charm.AmplifyMint = original.AmplifyMint;
+                charm.AmplifyConvert = original.AmplifyConvert;
+                charm.AmplifyClassDefense = original.AmplifyClassDefense;
+                charm.AmplifyClassTagDamage = original.AmplifyClassTagDamage;
+                charm.AmplifyAnimalLadder = original.AmplifyAnimalLadder;
+                charm.UnlockAnimalAction = original.UnlockAnimalAction;
+            }
+            else
+            {
+                // Recover amplify fields from catalog by name when polymorphic JSON was lost.
+                var fromCatalog = Data.CharmsLoader.CreateItemByName(item.Name);
+                if (fromCatalog != null)
+                {
+                    charm.Layer = fromCatalog.Layer;
+                    charm.AmplifyMint = fromCatalog.AmplifyMint;
+                    charm.AmplifyConvert = fromCatalog.AmplifyConvert;
+                    charm.AmplifyClassDefense = fromCatalog.AmplifyClassDefense;
+                    charm.AmplifyClassTagDamage = fromCatalog.AmplifyClassTagDamage;
+                    charm.AmplifyAnimalLadder = fromCatalog.AmplifyAnimalLadder;
+                    charm.UnlockAnimalAction = fromCatalog.UnlockAnimalAction;
+                    charm.Rarity = fromCatalog.Rarity;
+                    charm.Tags = fromCatalog.Tags;
+                }
+            }
+
+            return charm;
         }
 
         private static void CopyBaseItemProperties(Item source, Item destination)

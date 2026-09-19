@@ -2,6 +2,8 @@ using System;
 using System.Diagnostics;
 using RPGGame;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat.Sequence;
+using RPGGame.Data;
 using RPGGame.Diagnostics;
 
 namespace RPGGame.Combat.Calculators
@@ -12,6 +14,19 @@ namespace RPGGame.Combat.Calculators
     /// </summary>
     public static class DamageCalculator
     {
+        [ThreadStatic]
+        private static CombatSequenceDamageTrace? _sequenceTrace;
+
+        /// <summary>Start capturing formula pieces for the live sequence HUD (one swing, this thread).</summary>
+        public static void BeginSequenceTrace() => _sequenceTrace = new CombatSequenceDamageTrace();
+
+        /// <summary>Take the captured formula, if any, and stop recording.</summary>
+        public static CombatSequenceDamageTrace? TakeSequenceTrace()
+        {
+            var trace = _sequenceTrace;
+            _sequenceTrace = null;
+            return trace;
+        }
         /// <summary>
         /// Legacy hook for callers that invalidate when equipment or stats change; no-op (caching removed).
         /// </summary>
@@ -113,9 +128,6 @@ namespace RPGGame.Combat.Calculators
             // Apply action damage multiplier if action is provided
             double actionMultiplier = action?.DamageMultiplier ?? 1.0;
 
-            if (attacker is Character convertScaleHero && convertScaleHero is not Enemy)
-                actionMultiplier *= MaterialSetController.GetConvertDamageMultiplier(convertScaleHero, action);
-
             if (attacker is Character earlyGameCharacter)
             {
                 double startingActionMult = EarlyGameBalanceHelper.GetStartingActionDamageMultiplier(earlyGameCharacter, action);
@@ -125,6 +137,14 @@ namespace RPGGame.Combat.Calculators
             // Apply consumed DAMAGE_MOD from ACTION/ABILITY keyword (next action/ability only)
             if (attacker is Character damageModCharacter && damageModCharacter.Effects.ConsumedDamageModPercent != 0)
                 actionMultiplier *= (1.0 + damageModCharacter.Effects.ConsumedDamageModPercent / 100.0);
+
+            // Rogue DEFENSE Counter: one-shot DAMAGE_MOD % from last take-hit
+            if (attacker is Character counterHero && counterHero is not Enemy)
+            {
+                double counterPct = counterHero.Effects.ConsumePendingDefenseCounterDamagePct();
+                if (counterPct != 0)
+                    actionMultiplier *= (1.0 + counterPct / 100.0);
+            }
 
             // Apply consumed AMP_MOD from ACTION/ABILITY keyword (next action/ability only; % bonus, multiply).
             // Combo: sheet amp applies on top of technique baseline when slot mult is 1.0 (opener tier), matching HUD + combat log.
@@ -152,6 +172,7 @@ namespace RPGGame.Combat.Calculators
             var combatBalance = GameConfiguration.Instance.CombatBalance;
 
             // Apply roll-based damage scaling
+            bool appliedCritDamage = false;
             if (roll > 0)
             {
                 // Get threshold from threshold manager if available, otherwise use config
@@ -169,6 +190,7 @@ namespace RPGGame.Combat.Calculators
                 // Natural 20+ on the swing total still forces crit damage when bonuses push the die (legacy safety).
                 if (critEvalRoll >= criticalThreshold || roll >= 20)
                 {
+                    appliedCritDamage = true;
                     if (GameConfiguration.IsDebugEnabled)
                     {
                         if (!ActionExecutor.DisableCombatDebugOutput)
@@ -218,7 +240,20 @@ namespace RPGGame.Combat.Calculators
                 totalDamage *= ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType);
             }
 
+            // Mark of Class: amplify primary class-tagged actions
+            if (attacker is Character tagHero && tagHero is not Enemy && action != null)
+            {
+                double classTagMult = CharmBonusController.GetClassTagDamageMultiplier(tagHero);
+                if (classTagMult > 1.0 && ActionHasHeroPrimaryClassTag(tagHero, action))
+                    totalDamage *= classTagMult;
+            }
+
             int result = (int)totalDamage;
+
+            if (attacker is Character convertHero && convertHero is not Enemy)
+                result += MaterialSetController.GetConvertDamageBonus(convertHero, action);
+
+            int convertFlat = result - (int)totalDamage;
 
             int maxCap = Math.Max(1, combatConfig.MaximumDamageCap);
             if (result > maxCap)
@@ -230,13 +265,23 @@ namespace RPGGame.Combat.Calculators
                 result = 1;
             }
 
+            if (_sequenceTrace != null)
+            {
+                _sequenceTrace.BaseDamage = baseDamage;
+                _sequenceTrace.ActionMultiplier = actionMultiplier;
+                _sequenceTrace.Amp = comboAmplifier;
+                _sequenceTrace.ConvertFlat = convertFlat;
+                _sequenceTrace.Raw = result;
+                _sequenceTrace.CritDamage = appliedCritDamage;
+            }
+
             return result;
         }
 
         /// <summary>
         /// Calculates damage dealt by an attacker to a target
         /// </summary>
-        public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true)
+        public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true, int? defenseFace = null, int? attackFace = null)
         {
             var sw = CombatHotPathMetrics.IsEnabled ? Stopwatch.StartNew() : null;
 
@@ -250,24 +295,36 @@ namespace RPGGame.Combat.Calculators
                 totalDamage = (int)(totalDamage * tagModifier);
             }
 
-            // Flat armor reduction for both heroes and enemies (persistent; not consumed).
-            // Pierce: CausesPierce on the swing, or HasPierce on the target, ignores armor.
-            int targetArmor = ResolveTargetArmor(target, action);
+            bool pierce = IgnoresArmor(target, action);
+            int minimumDamage = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
+            int finalDamage;
+            int reducedAmount;
 
-            // Calculate final damage after armor reduction
-            int minimumDamage = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage); // Ensure at least 1
-            int finalDamage = Math.Max(minimumDamage, (int)totalDamage - targetArmor);
-
-            // Apply weakened effect if target is weakened
-            if (target.IsWeakened && showWeakenedMessage)
+            if (target is Character hero && hero is not Enemy)
             {
-                finalDamage = (int)(finalDamage * 1.5); // 50% more damage to weakened targets
+                var mit = ClassDefenseCalculator.ApplyIncoming(hero, totalDamage, pierce);
+                finalDamage = mit.Remaining;
+                reducedAmount = mit.ReducedAmount;
+                if (hero.IsWeakened && showWeakenedMessage)
+                    finalDamage = (int)(finalDamage * 1.5);
+                if (finalDamage > 0 && finalDamage < minimumDamage)
+                    finalDamage = minimumDamage;
+            }
+            else
+            {
+                int targetArmor = DamageCalculator.ResolveTargetArmor(target, action);
+                finalDamage = Math.Max(minimumDamage, totalDamage - targetArmor);
+                reducedAmount = Math.Max(0, totalDamage - finalDamage);
+                if (target.IsWeakened && showWeakenedMessage)
+                    finalDamage = (int)(finalDamage * 1.5);
+                if (finalDamage <= 0)
+                    finalDamage = 1;
             }
 
-            // Final safeguard: ensure damage is never 0 (prevents issues with misconfigured MinimumDamage)
-            if (finalDamage <= 0)
+            if (_sequenceTrace != null)
             {
-                finalDamage = 1;
+                _sequenceTrace.Block = reducedAmount;
+                _sequenceTrace.Final = finalDamage;
             }
 
             if (sw != null)
@@ -282,26 +339,35 @@ namespace RPGGame.Combat.Calculators
         /// <summary>
         /// Calculates damage reduction from armor and other sources
         /// </summary>
-        public static int ApplyDamageReduction(Actor target, int damage, Action? action = null)
+        public static int ApplyDamageReduction(Actor target, int damage, Action? action = null, int? defenseFace = null, int? attackFace = null)
         {
-            int armorReduction = ResolveTargetArmor(target, action);
+            bool pierce = IgnoresArmor(target, action);
+            int remaining;
+            if (target is Character hero && hero is not Enemy)
+            {
+                remaining = ClassDefenseCalculator.ApplyIncoming(hero, damage, pierce).Remaining;
+            }
+            else
+            {
+                int armorReduction = ResolveTargetArmor(target, action);
+                remaining = damage - armorReduction;
+            }
 
-            // Apply damage reduction from effects
             double damageReductionMultiplier = 1.0;
             if (target.DamageReduction > 0)
             {
                 damageReductionMultiplier = 1.0 - (target.DamageReduction / 100.0);
             }
 
-            // Apply simple armor reduction (flat reduction) with damage reduction multiplier
-            int preMitigation = damage - armorReduction;
-            int finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)(preMitigation * damageReductionMultiplier));
-
+            int finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)(remaining * damageReductionMultiplier));
+            if (target is Character dodgeHero && dodgeHero is not Enemy && remaining <= 0)
+                return 0;
             return finalDamage;
         }
 
         /// <summary>
-        /// True when this swing ignores flat armor: the action has pierce, or the target is pierced.
+        /// True when this swing ignores standing BLOCK, Grit, and Wizard shield
+        /// (action pierce, or the target is pierced). Pierce still mints Tempo/Counter.
         /// </summary>
         public static bool IgnoresArmor(Actor? target, Action? action = null)
         {
@@ -337,6 +403,33 @@ namespace RPGGame.Combat.Calculators
             if (target.AcidArmorReduction > 0)
                 baseArmor -= target.AcidArmorReduction;
             return Math.Max(0, baseArmor);
+        }
+
+        /// <summary>True when the action carries the hero's highest class-point tag (barbarian/warrior/rogue/wizard).</summary>
+        private static bool ActionHasHeroPrimaryClassTag(Character hero, Action action)
+        {
+            if (action?.Tags == null || action.Tags.Count == 0)
+                return false;
+            string primary = ResolvePrimaryClassTag(hero);
+            if (primary.Length == 0)
+                return false;
+            return GameDataTagHelper.HasTag(action.Tags, primary);
+        }
+
+        private static string ResolvePrimaryClassTag(Character hero)
+        {
+            int barb = hero.BarbarianPoints;
+            int war = hero.WarriorPoints;
+            int rog = hero.RoguePoints;
+            int wiz = hero.WizardPoints;
+            int max = Math.Max(Math.Max(barb, war), Math.Max(rog, wiz));
+            if (max <= 0)
+                return "";
+            if (barb == max) return "barbarian";
+            if (war == max) return "warrior";
+            if (rog == max) return "rogue";
+            if (wiz == max) return "wizard";
+            return "";
         }
     }
 }

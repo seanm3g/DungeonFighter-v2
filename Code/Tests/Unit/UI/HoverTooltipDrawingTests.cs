@@ -41,6 +41,31 @@ namespace RPGGame.Tests.Unit.UI
                 targetWidth: 30);
             TestBase.AssertEqual(52, rightOfLeftColumn, "left-side target opens tooltip to the right", ref run, ref passed, ref failed);
 
+            int leftSidebarDock = HoverTooltipDrawing.GetHorizontalPositionAvoidingTarget(
+                defaultX: 50,
+                boxW: 20,
+                innerLeft: 35,
+                innerRightInclusive: 99,
+                targetX: 3,
+                targetWidth: 28);
+            TestBase.AssertEqual(35, leftSidebarDock, "left-panel target docks tooltip to inner left", ref run, ref passed, ref failed);
+
+            int rightSidebarDock = HoverTooltipDrawing.GetHorizontalPositionAvoidingTarget(
+                defaultX: 50,
+                boxW: 20,
+                innerLeft: 10,
+                innerRightInclusive: 40,
+                targetX: 50,
+                targetWidth: 20);
+            TestBase.AssertEqual(21, rightSidebarDock, "right-of-band target docks tooltip to inner right", ref run, ref passed, ref failed);
+
+            TestBase.AssertEqual(40, HoverTooltipDrawing.GetVerticalPositionNearTarget(40, 6, 12, 50),
+                "tooltip top follows hovered row", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(12, HoverTooltipDrawing.GetVerticalPositionNearTarget(5, 6, 12, 50),
+                "tooltip clamps up to inner top", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(41, HoverTooltipDrawing.GetVerticalPositionNearTarget(48, 10, 12, 50),
+                "tooltip clamps down so the box stays in band", ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("HoverTooltipDrawing Tests", run, passed, failed);
         }
     }

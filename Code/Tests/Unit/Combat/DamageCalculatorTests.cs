@@ -38,10 +38,12 @@ namespace RPGGame.Tests.Unit.Combat
             TestCacheStats();
             TestEdgeCases();
             TestDamageWithArmor();
+            TestHeroDefenseFaceScalesArmor();
             TestResolveTargetArmor_SubtractsAcidArmorReduction();
             TestPierceIgnoresArmor();
             TestComboBandRollDoesNotAmplifyRawDamage();
             TestDamageWithMultipliers();
+            TestConvertKeywordAddsFlatDamage();
 
             TestBase.PrintSummary("DamageCalculator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -251,13 +253,53 @@ namespace RPGGame.Tests.Unit.Combat
 
             int rawVsHero = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
             int dmgVsHero = DamageCalculator.CalculateDamage(attacker, heroTarget, action, 1.0, 1.0, 0, 10);
-            int expectedHero = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, rawVsHero - 5);
-            TestBase.AssertEqual(expectedHero, dmgVsHero,
-                "Hero armor should flat-reduce incoming attack damage",
+            TestBase.AssertEqual(ExpectedHeroBlockOnly(rawVsHero, 0), dmgVsHero,
+                "Hero standing 0 unarmed: Tempo mint, no % DR",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(5, heroTarget.GetMaxArmor(),
                 "Hero armor must remain after damage calculation",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestHeroDefenseFaceScalesArmor()
+        {
+            Console.WriteLine("\n--- Testing standing BLOCK % vs standing 0 Tempo ---");
+
+            var attacker = TestDataBuilders.Enemy().WithName("DefAtk").WithHealth(100).Build();
+            var hero = TestDataBuilders.Character().WithName("DefTgt").WithLevel(1).Build();
+            hero.EquipItem(new ChestItem("Plate", 1, 8), "body");
+            var action = TestDataBuilders.CreateMockAction("JAB");
+            action.DamageMultiplier = 1.0;
+
+            int raw = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
+
+            hero.StandingBlockPercent = 0;
+            int open = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10);
+            TestBase.AssertEqual(ExpectedHeroBlockOnly(raw, 0), open, "standing 0 = full hit (Tempo not DR)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(hero.Effects.PendingDefenseTempoSpeedPct > 0, "Tempo pending after hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            hero.Effects.PendingDefenseTempoSpeedPct = 0;
+            hero.StandingBlockPercent = 0.45;
+            int blocked = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10);
+            double blockPct = ClassDefenseCalculator.GetBlockPercent(hero);
+            TestBase.AssertEqual(ExpectedHeroBlockOnly(raw, blockPct), blocked, "standing 45% = BLOCK only", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(blocked < open || blockPct == 0,
+                "standing 45% should reduce more than standing 0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static int ExpectedHeroBlockOnly(int incoming, double blockPct)
+        {
+            int remaining = (int)Math.Round(incoming * (1.0 - blockPct), MidpointRounding.AwayFromZero);
+            int min = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
+            return remaining <= 0 ? 0 : Math.Max(min, remaining);
+        }
+
+        private static int ExpectedHeroPercentDamage(int incoming, double armorPct)
+        {
+            int remaining = (int)Math.Round(incoming * (1.0 - armorPct), MidpointRounding.AwayFromZero);
+            int min = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
+            return remaining <= 0 ? 0 : Math.Max(min, remaining);
         }
 
         private static void TestResolveTargetArmor_SubtractsAcidArmorReduction()
@@ -418,6 +460,29 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertTrue(tripleDamage >= baseDamage,
                 "Triple damage multiplier should increase damage",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestConvertKeywordAddsFlatDamage()
+        {
+            Console.WriteLine("\n--- Testing convert keyword adds flat damage ---");
+            RPGGame.Data.MaterialBuildsLoader.Reload();
+
+            var attacker = TestDataBuilders.Character()
+                .WithName("BoneHero")
+                .WithStats(10, 10, 10, 10)
+                .Build();
+            attacker.Equipment.Head = new HeadItem("Skull", 1, 1) { Material = "Bone" };
+            attacker.Equipment.Weapon = new WeaponItem("Club", 1, 10, 1.0, WeaponType.Mace) { Material = "Bone" };
+
+            var wrath = new Action { Name = "BONE WRATH", DamageMultiplier = 1.0, Type = ActionType.Attack };
+            int withoutRage = DamageCalculator.CalculateRawDamage(attacker, wrath, 1.0, 1.0, roll: 0);
+
+            attacker.Effects.AddMaterialKeyword("RAGE", 2);
+            int withRage = DamageCalculator.CalculateRawDamage(attacker, wrath, 1.0, 1.0, roll: 0);
+
+            TestBase.AssertEqual(withoutRage + 10, withRage,
+                "2 RAGE adds +10 convert damage, not a 2× multiplier",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -16,6 +16,184 @@ This document contains solutions to common problems encountered during developme
 
 **Related files:** `ActionExecutionFlow.Selection.cs`, `ActionSelector.cs`
 
+### Bug fix: hero miss flavor replayed on every later swing (September 2026)
+**Problem:** After a hero critical miss, the combat log kept printing random hero-miss flavor (`goes astray`, `off-target`, `poorly timed strike`) on later hits and enemy turns.
+
+**Root cause:** `BattleNarrative` stored events in a `ConcurrentBag` and treated `ToList()[Count-1]` as the latest swing. The bag is unordered (often LIFO), so the original natural-1 event stayed "last." `GetTriggeredNarrativesIfSignificant` re-analyzed that miss each turn and minted a new random miss line. Display filtering also missed several FlavorText phrases, so leftover miss copy leaked onto hits.
+
+**Solutions:**
+1. Store events in a FIFO `ConcurrentQueue`; generate narratives once in `AddEvent`; consume them once for display
+2. Classify all current crit-miss flavor phrases and drop them unless the action line is a critical miss
+3. Tests: `BattleNarrativeTests`, `BattleEventAnalyzerTests`, `CombatLogDisplayTests`
+
+**Related files:** `BattleNarrative.cs`, `BattleEventAnalyzer.cs`, `TextDisplayIntegration.cs`
+
+### Combat: free action Block % replaces energy (September 2026)
+**Problem:** Energy was only a proxy for BLOCK (cost 1–3 → leftover → fixed % table) and cluttered the action budget metaphor.
+
+**Solutions:**
+1. Remove `EnergyCost` / ENERGY / leftover ledger; actions author free **Block %** (`StandingBlock`, ACTIONS **BLOCK**)
+2. Standing BLOCK until next named hero action; class DEFENSE = Tempo / Counter / Shield / Grit (no Warrior %, dodge, or armor RAGE)
+3. Migrate legacy energy 1/2/3 → block 45/25/0; JSON field `"block"`
+4. **ACTIONS push** renames ENERGY → BLOCK in place (or deletes leftover ENERGY); inserts BLOCK only when neither exists
+5. Tests: `ActionBlockSheetColumnsTests`, `ClassDefenseCalculatorTests`, `HeroDefenseHudFormatterTests`
+
+**Related files:** `StandingBlock.cs`, `ClassDefenseCalculator.cs`, `ActionBlockSheetColumns.cs`, `ActionSheetsPushService.cs`, `Actions.json`, `HeroDefenseHudFormatter.cs`
+
+### Bug fix: ACTIONS push skipped ENERGY and overwrote keyword-bonus headers (September 2026)
+**Problem:** Pushing ACTIONS did not add an ENERGY column, and it overwrote designer convert-scale headers at DS/DT/DU (**bonus per keyword**, **effect**, **keyword**).
+
+**Root cause:** Ensuring ENERGY inserted the label into the in-memory header, then `WriteHeaderRowsAsync` dumped the entire header row as cell values with no Sheets `InsertDimension`. That overwrote every subsequent header (and blanked extra columns on data write) instead of adding a column. Push also preferred a stale published CSV header over the live tab.
+
+**Solutions:**
+1. Read the live ACTIONS tab header; insert new columns with `InsertDimension`; write only those header cells
+2. Overlay existing row cells for unknown columns; map **bonus per keyword** / **effect** / **keyword** as DS/DT/DU aliases; do not blank non-empty convert cells with empty JSON
+3. Column is now **BLOCK** (`"block"`); legacy `"energy"` still migrates on load
+4. Tests: `ActionBlockSheetColumnsTests`, `SpreadsheetActionDataSheetRowSerializerTests`, `ActionSheetsPushRowMergerTests`
+
+**Related files:** `ActionSheetsPushService.cs`, `ActionBlockSheetColumns.cs`, `ActionConvertScaleSheetColumns.cs`, `SpreadsheetActionDataSheetRowSerializer.cs`, `ActionSheetsPushRowMerger.cs`, `SpreadsheetActionJsonConverter.cs`
+
+### Bug fix: sequence HUD painted over the Skill Tree (September 2026)
+**Problem:** Opening the Skill Tree (or other hub/menu screens) still showed the combat sequence HUD (ATTACKER / ROLL / OUTCOME / …) over the tree boxes.
+
+**Root cause:** The HUD was reserved as dungeon chrome (`GameState.Dungeon` plus Combat). Skill Tree is a menu that paints through `CoordinateLayout`, which always calls `CombatSequenceHudRenderer.Render`. Display-buffer rendering is suppressed for menus, so `IsBandReserved` stayed true from the last fight and the leftover swing overlaid the tree.
+
+**Solutions:**
+1. `ShouldReserveBand` is Combat + Action Lab only (not Dungeon, Skill Tree, inventory, hub, or completion)
+2. `SyncReservation` clears leftover columns when leaving combat; called from state-change, layout, and the display-buffer paint path
+
+**Related files:** `CombatSequenceHudState.cs`, `CanvasUICoordinator.cs`, `PersistentLayoutRenderCoordinator.cs`, `RenderCoordinator.cs`
+
+### Action Lab sequence HUD Step lock and missing Material (August 2026)
+**Problem:** The Action Lab combat canvas did not show the sequence HUD (or Material set UI on lab-edited gear). Piece-by-piece stepping also could not work because `_labControlInFlight` held the tools lock for the whole `StepAsync`.
+
+**Root cause:** `ShouldReserveBand` omitted `GameState.ActionInteractionLab`. Lab weapon/armor factories cleared mods and never set `Item.Material`. The tools in-flight gate dropped a second `[ Step ]` while HUD playback waited.
+
+**Solutions:**
+1. Reserve the HUD band in the lab; Piece mode waits on `TryAdvanceManualBeat` (advance before the in-flight lock; release the lock before awaiting a Swing/Piece turn)
+2. Stamp Material on lab-built items (`ActionLabGearMaterial.Stamp`)
+3. Tests: `CombatSequencePresenterTests` manual advance/cancel; `ActionInteractionLabTests` toggle + factory Material
+
+**Related files:** `CombatSequenceHudState.cs`, `CombatSequencePresenter.cs`, `ActionLabInputCoordinator.cs`, `ActionLabWeaponFactory.cs`, `ActionLabArmorFactory.cs`
+
+### Bug fix: sequence HUD froze the canvas while attack audio still played (August 2026)
+**Problem:** The first live swing left the window stuck (action on the strip, enemy HP unchanged, combat log not advancing) while hit/miss SFX still played.
+
+**Root cause:** Encounter combat runs on a threadpool task. `CombatSequencePresenter` called `gameCanvas.Refresh()` (`InvalidateVisual`) from that thread, which deadlocks or stalls Avalonia painting. HUD text is drawn in `RenderLayout`, so a visual invalidate also never rebuilt the two-row band; HP stays on the pre-swing hold until a real layout paint.
+
+**Solutions:**
+1. Post HUD paints with `Dispatcher.UIThread.Post` (never invoke ForceRender/InvalidateVisual inline on combat, and never nest ForceRender inside a paint callback)
+2. Wire the live callback to `CanvasUICoordinator.ForceRender` so ACTION/ROLL/OUTCOME and the HP drop rebuild chrome
+3. Tests: `CombatSequencePresenterTests` asserts the invalidate callback does not run inline from a background thread
+
+**Related files:** `CombatSequencePresenter.cs`, `GameInitializationHandler.cs`
+
+### Bug fix: luck 18 showed a normal hit instead of the named action (August 2026)
+**Problem:** Combat log could show `2d20 luck 18/5 → 18` with `and hits for N damage` (unnamed) instead of `and hits with {ACTION}`.
+
+**Root cause:** Combo-strip vs unnamed normal was chosen from the first d20, then luck/naiveté rolled a second die for display only (and luck was sometimes rolled twice). A 5 that luck-kept 18 still executed the synthetic normal.
+
+**Solutions:**
+1. Action selection no longer rolls luck; the unforced second d20 is consumed once during resolution
+2. After luck (and after naiveté miss→advantage), reconcile the selected action to that kept face vs the combo threshold
+3. Tests: `ActionExecutionFlowTests`, `NaiveteThresholdBonusesTests`, `ActionSelectorRollBasedTests`
+
+**Related files:** `ActionSelector.cs`, `ActionExecutionFlow.Selection.cs`
+
+### Bug fix: action SFX played on combat-log setup instead of reveal (August 2026)
+**Problem:** Hit/miss/crit/combo/hurt sound effects played when `{Actor} Attacks {Target}...` appeared, before the line revealed `and hits` / `and misses`.
+
+**Root cause:** `ActionEventPublisher` fired `AudioCues.Trigger` as soon as the swing resolved, which is before `DisplayActionBlockAsync` shows the setup telegraph.
+
+**Solutions:**
+1. Queue the outcome cue with `AudioCues.QueueForPunchline` at publish time
+2. Commit it with strip flash on punchline reveal (`PunchlineRevealFeedback.CommitQueued`)
+3. Drop the cue when the action block is not shown (`ClearQueued`)
+4. Tests: `AudioCueDispatcherTests` queue-until-commit and clear-without-play
+
+**Related files:** `AudioCues.cs`, `ActionEventPublisher.cs`, `PunchlineRevealFeedback.cs`, `CanvasUIRenderer.cs`
+
+### Bug fix: left-panel gear hover tooltip sat far from the mouse (August 2026)
+**Problem:** Hovering equipped gear or **Sets:** in the left sidebar opened the yellow tooltip in the upper-middle of the center panel, away from the cursor.
+
+**Root cause:** Left-panel hit targets do not overlap the center inner band (1-cell gap). `GetHorizontalPositionAvoidingTarget` then kept the centered default X, and the overlay always used the top of the framed center panel for Y.
+
+**Solutions:**
+1. Dock X to the nearer inner edge when the hover target is entirely left (or right) of the center band
+2. Align tooltip top with the hovered row, clamped so the box stays inside the band (`GetVerticalPositionNearTarget`)
+3. Tests: `HoverTooltipDrawingTests`
+
+**Related files:** `HoverTooltipDrawing.cs`, `DungeonRenderer.RoomAndCombat.cs`
+
+### Bug fix: combat follow-up lines scrolled the setup block up (August 2026)
+**Problem:** Near the bottom of the combat log, `{Actor} Attacks {Target}...` appeared, then roll/feed/status lines appended after the half delay and pushed the whole block up a line.
+
+**Root cause:** Canvas two-beat display wrote the setup line first, waited, then appended follow-ups. Each new row grew the buffer and scrolled.
+
+**Solutions:**
+1. Dump setup plus one blank placeholder per follow-up in the same immediate pass (`SetupPunchlineReservation`)
+2. After the wait, `ReplaceAtFromEnd` fills the headline and follow-ups in place (line count does not grow)
+3. Inter-line `MessageDelayMs` still applies between filled follow-ups
+4. Tests: `DisplayBufferReplaceLastTests`
+
+**Related files:** `CanvasUIRenderer.cs`, `SetupPunchlineReservation.cs`, `BufferStorage.cs`, `CanvasUICoordinator.IUIManager.cs`
+
+### Bug fix: title screen hitch on first window show (August 2026)
+**Problem:** The main window appeared, froze for about a second with the Windows wait cursor (blue circle), then the title idle started.
+
+**Root cause:** Opacity 0 still shows a black window on Windows. `Show()` also measured `SettingsPanel` (the same 2563-line tree `SettingsWindow` already delayed because it freezes layout). Revealing before `GameCoordinator` warmup meant that UI-thread construction froze the visible window.
+
+**Solutions:**
+1. `TitleScreenHelper.Preload()` runs in `App.OnFrameworkInitializationCompleted` before `new MainWindow()`
+2. Main window starts **minimized**, opacity 0, no taskbar button
+3. `SettingsPanel` / `TuningMenuPanel` are created only when those menus open
+4. After `Opened`, paint the preloaded frame and await warmup **while minimized**, then restore to normal
+5. Tests: `TitleScreenAnimationTests`, `TitleToMenuBootstrapTests`
+
+**Related files:** `TitleScreenController.cs`, `GameInitializationHandler.cs`, `App.axaml.cs`, `MainWindow.axaml`
+
+### Bug fix: Windows PC launcher failed for friends (August 2026)
+**Problem:** Sharing the repo (zip or folder) and double-clicking `Dungeon Fighter(PC).bat` failed on a friend's PC: no .NET SDK, the installer wanted administrator rights, downloaded files were blocked by Mark of the Web, or they ran the `.bat` from inside the zip window.
+
+**Root cause:** The launcher always rebuilt from source and installed the SDK into Program Files. Friends typically have no SDK, no admin, and an incomplete extract.
+
+**Solutions:**
+1. Real launcher is `Scripts/launch-windows.bat`; `DungeonFighter-PC.bat` is the preferred trampoline (no parentheses)
+2. Unblock downloaded scripts/exes; refuse zip-internal paths; require `Code` + `GameData`
+3. Install .NET 8 SDK to `%USERPROFILE%\.dotnet` without admin
+4. If `dist\DF.exe` already exists, launch it instead of failing the build
+5. Tests: `WindowsLauncherTests`
+
+**Related files:** `Scripts/launch-windows.bat`, `Scripts/install-dotnet.ps1`, `DungeonFighter-PC.bat`, `Dungeon Fighter(PC).bat`
+
+### Bug fix: convert actions added +5 per keyword instead of multiplying (August 2026)
+**Problem:** Convert actions (BONE WRATH / IRON CULL / …) multiplied swing damage by the keyword bank (2 RAGE doubled the hit). Feed 3/5 was also folded into that multiplier.
+
+**Root cause:** `GetConvertDamageMultiplier` treated bank (+ 3/5 feed) as an action damage multiplier.
+
+**Solutions:**
+1. Convert adds **+5 per banked keyword** (`GetConvertDamageBonus`; 2 RAGE → +10)
+2. Feed 3/5 still only changes how much currency is minted
+3. Card line is `{KEYWORD} +N`; strip preview adds the flat bonus
+4. Tests: `MaterialSetControllerTests.TestTwoRageAddsTenConvertDamage`, `DamageCalculatorTests.TestConvertKeywordAddsFlatDamage`, `ActionCardExternalBonusCollectorTests`
+
+**Related files:** `MaterialSetController.cs`, `DamageCalculator.cs`, `ActionCardExternalBonusCollector.cs`, `CombatActionStripBuilder.cs`
+
+### Bug fix: material convert unlocked in tooltip but missing from action pool (August 2026)
+**Problem:** Bone 2/5 hover said `Convert: BONE WRATH (unlocked)`, but **POOL (from gear)** still listed only weapon/class actions.
+
+**Root cause:** Hover only checks equipped material count. Convert grant into the pool lived on `RebuildCharacterActions` (dungeon start / save load). Inventory `EquipmentManager` updated gear/class actions on equip and never synced material converts.
+
+**Solutions:**
+1. `MaterialSetController.SyncConvertActionsToPool` adds granted converts and removes them from pool + combo when the set drops below 2
+2. `EquipmentManager.UpdateActionsAfterGearChange` calls that sync after every equip/unequip
+3. Opening inventory and combat init also sync so an already-equipped 2-set heals without re-equipping
+4. `RebuildCharacterActions` uses the same helper
+5. Convert load falls back to raw action data if the workshop active-set tier filter would hide the row
+6. Tests: `MaterialSetControllerTests.TestSyncConvertActionsToPoolOnEquipAndUnequip`, `EquipmentManagerTests.TestEquipSecondMaterialPieceAddsConvertToPool`
+
+**Related files:** `MaterialSetController.cs`, `EquipmentManager.cs`, `CharacterSerializer.cs`
+
 ### Material keyword currency now lasts the dungeon (August 2026)
 **Problem:** Material-set keyword currency (CRISIS, DRAG, …) reset at the start of every fight, so convert scale could not grow across rooms in a dungeon.
 
@@ -67,6 +245,17 @@ This document contains solutions to common problems encountered during developme
 6. Tests: `SkillTreeProgressionTests`, `SkillEffectRankScalingTests`, updated `ClassActionManagerTests`
 
 **Related files:** `CharacterProgression.cs`, `SkillTreesConfig.cs`, `SkillTreeService.cs`, `SkillEffectRouter.cs`, `SkillTreeMenuHandler.cs`, `SkillTreeRenderer.cs`, `ClassActionManager.cs`, `GameData/SkillTrees.json`
+
+### Bug fix: Puberty +15 STR not applied (August 2026)
+**Problem:** Learning **Puberty** (R1/1, “Rite of passage: +15 Strength”) left the HUD STR unchanged (e.g. 13 instead of 28). The node was stored in `LearnedSkillRanks` with `customEffectId` `puberty`, but no runtime applied that bonus to effective attributes.
+
+**Solutions:**
+1. `SkillEffectRouter.GetSkillAttributeBonus` returns +15 per rank for Puberty (STR), Commission (AGI), Initiation (TEC), and Apprenticeship (INT)
+2. `CharacterFacade` extra-attribute bonus includes that value so `GetEffectiveStrength` / HUD / damage / item gates see it
+3. Suffix % reference and STR hover **Skill tree** line use the same source
+4. Tests: `SkillEffectRankScalingTests`, `StatTooltipFormatterTests`
+
+**Related files:** `SkillEffectRouter.cs`, `CharacterFacade.cs`, `CharacterCombatCalculator.cs`, `EquipmentBonusCalculator.cs`, `StatTooltipFormatter.cs`
 
 ### Hybrid skill side rail — Concept A (August 2026)
 **Problem:** Hybrid titles (Spellblade, Warbrute, …) existed without a skill UI for secondary-path skills, and showing all four trees was too overwhelming.
@@ -351,7 +540,7 @@ RAPID STRIKE (and similar Settings-authored next-action rows) store the same gra
 3. `SaveGameAsync` / `SaveCharacterAsync` on settings and death paths
 4. Batch sim uses `QueueAsyncForcedD20Rolls` (1d20 queue only)
 
-**Related files:** See `COMBAT_RELIABILITY_PHASE4.md`
+**Related files:** `ActionLabEncounterSimulator`, `GameStateManager`, `SettingsMenuHandler`, `DeathScreenHandler`
 
 ### Issue: Combat Reliability Phase 3 — Scoped Static State (July 2026)
 **Symptoms:**
@@ -368,7 +557,7 @@ RAPID STRIKE (and similar Settings-authored next-action rows) store the same gra
 4. `ConcurrentDictionary` for `ActionExecutor` last-action maps; `IDictionary` in `ActionExecutionFlow`
 5. Action Lab session holds `GameTicker.BeginIsolatedEncounterGameTime` from `Begin` to `EndSession`
 
-**Related files:** See `COMBAT_RELIABILITY_PHASE3.md`
+**Related files:** `Dice`, `DeveloperSimMode`, `HealthBarDeltaDamageHint`, `CombatUiMuteScope`, `ActionExecutor`, `GameTicker`
 
 ### Issue: Combat Reliability Phase 2 — Secondary Nicks (July 2026)
 **Symptoms:**
@@ -384,7 +573,7 @@ RAPID STRIKE (and similar Settings-authored next-action rows) store the same gra
 3. `GameStateManager` context-first dungeon/room (no dual-write bleed)
 4. Isolated encounter game time whenever combat UI is muted
 
-**Related files:** See `COMBAT_RELIABILITY_PHASE2.md`
+**Related files:** `BlockDisplayManager`, `CharacterSaveService`, `GameStateManager`, `CombatUiMuteScope`, `GameTicker`
 
 ### Issue: Hero Armor Was a Consumable Room Pool (July 2026)
 **Symptoms:**

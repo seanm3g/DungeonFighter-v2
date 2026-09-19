@@ -38,6 +38,7 @@ namespace RPGGame.Tests.Unit
             TestWeaponTypeRoundTripInCharacterSerializer();
             TestPendingPreWeaponTrainingFlagRoundTrip();
             TestCurrentRegionRoundTrip();
+            TestDungeonDifficultyAnchorRoundTrip();
             TestStarterLeatherArmorSurvivesCharacterSerializerRoundTrip();
             TestDeadCharacterTombstone();
             TestComboStripRoundTrip();
@@ -514,6 +515,29 @@ namespace RPGGame.Tests.Unit
             var loaded = serializer.CreateCharacterFromSaveData(data);
             TestBase.AssertEqual("crypt", loaded.CurrentRegionId,
                 "region id restored on character", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestDungeonDifficultyAnchorRoundTrip()
+        {
+            Console.WriteLine("\n--- Testing DungeonDifficultyAnchorLevel serializer round-trip ---");
+
+            _ = GameConfiguration.Instance;
+            var serializer = new CharacterSerializer();
+            var character = TestDataBuilders.Character().WithName("AnchorRoundTrip").WithLevel(5).Build();
+            character.DungeonDifficultyAnchorLevel = 20;
+
+            string json = serializer.Serialize(character);
+            var data = serializer.Deserialize(json);
+            TestBase.AssertNotNull(data, "deserialize anchor payload", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (data == null)
+                return;
+
+            TestBase.AssertTrue(data.DungeonDifficultyAnchorLevel == 20,
+                "anchor in save payload", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var loaded = serializer.CreateCharacterFromSaveData(data);
+            TestBase.AssertTrue(loaded.DungeonDifficultyAnchorLevel == 20,
+                "anchor restored on character", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestProgressionPersistence()

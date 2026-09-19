@@ -95,7 +95,16 @@ namespace RPGGame.UI.Avalonia.Layout
             int targetRight = targetX + targetWidth - 1;
             bool targetIntersectsInner = targetX <= innerRightInclusive && targetRight >= innerLeft;
             if (!targetIntersectsInner)
+            {
+                // Left-panel GEAR/STATS/Sets sit entirely in the sidebar (1-cell gap before the
+                // center column). Dock to the nearer inner edge so the tip reads as a panel
+                // extension overlaying the center, instead of the centered default.
+                if (targetRight < innerLeft)
+                    return Clamp(innerLeft);
+                if (targetX > innerRightInclusive)
+                    return Clamp(maxX);
                 return clampedDefault;
+            }
 
             int leftCandidate = targetX - margin - boxW;
             int rightCandidate = targetRight + margin + 1;
@@ -119,6 +128,25 @@ namespace RPGGame.UI.Avalonia.Layout
                     return leftCandidate;
             }
             return clampedDefault;
+        }
+
+        /// <summary>
+        /// Aligns the tooltip top with the hovered row, then clamps so the box stays inside the inner band.
+        /// </summary>
+        public static int GetVerticalPositionNearTarget(
+            int targetY,
+            int boxH,
+            int innerTop,
+            int maxBottomInclusive)
+        {
+            if (boxH <= 0)
+                return innerTop;
+
+            int maxY = maxBottomInclusive - boxH + 1;
+            if (maxY < innerTop)
+                return innerTop;
+
+            return System.Math.Max(innerTop, System.Math.Min(targetY, maxY));
         }
 
         /// <summary>

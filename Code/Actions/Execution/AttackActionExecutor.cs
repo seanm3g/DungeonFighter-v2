@@ -1,6 +1,7 @@
 using RPGGame;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
+using RPGGame.Combat.Calculators;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Utils;
 
@@ -41,6 +42,7 @@ namespace RPGGame.Actions.Execution
             if (source is Character multiHitCharacter && multiHitCharacter.Effects.ConsumedMultiHitMod != 0)
                 multiHitCount = Math.Max(1, multiHitCount + (int)Math.Max(0, multiHitCharacter.Effects.ConsumedMultiHitMod));
             multiHitCount = Math.Max(1, multiHitCount + ChainPositionBonusApplier.GetMultiHitDelta(source, selectedAction, ActionUtilities.GetComboActions(source), ActionUtilities.GetComboStep(source)));
+            int? defenseFace = DefenseBlockCalculator.TryRollDefenseFace(target, selectedAction);
             
             // If multi-hit, process multiple hits; otherwise single hit
             if (multiHitCount > 1)
@@ -51,7 +53,7 @@ namespace RPGGame.Actions.Execution
                 for (int hit = 0; hit < multiHitCount; hit++)
                 {
                     int perHitTotalRoll = MultiHitProcessor.GetMultihitDamageTotalRoll(totalRoll, source, hit);
-                    int hitDamage = CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, perHitTotalRoll);
+                    int hitDamage = CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, perHitTotalRoll, true, defenseFace, baseRoll);
                     
                     // Apply damage
                     ActionUtilities.ApplyDamage(target, hitDamage);
@@ -71,7 +73,7 @@ namespace RPGGame.Actions.Execution
                 // Show total damage with hit count indicator
                 // Check if this is a critical miss (natural roll <= 1 is typically critical miss)
                 bool isCriticalMiss = naturalRoll <= 1;
-                var (allDamageText, allRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, totalDamage, totalDamage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, multiHitCount, isCriticalMiss, isCriticalHit);
+                var (allDamageText, allRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, totalDamage, totalDamage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, multiHitCount, isCriticalMiss, isCriticalHit, default, defenseFace);
                 
                 // Track statistics for total damage
                 if (source is Character character)
@@ -126,7 +128,7 @@ namespace RPGGame.Actions.Execution
             else
             {
                 // Single hit (original behavior)
-                int damage = CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, totalRoll);
+                int damage = CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, totalRoll, true, defenseFace, baseRoll);
                 
                 ActionUtilities.ApplyDamage(target, damage);
                 
@@ -155,7 +157,7 @@ namespace RPGGame.Actions.Execution
                 
                 // Check if this is a critical miss (natural roll <= 1 is typically critical miss)
                 bool isCriticalMiss = naturalRoll <= 1;
-                var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, 1, isCriticalMiss, isCriticalHit);
+                var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, 1, isCriticalMiss, isCriticalHit, default, defenseFace);
                 
                 // Reset combo when a non-combo (normal) attack completes successfully
                 if (source is Character resetCharacter && !(resetCharacter is Enemy) && !selectedAction.IsComboAction

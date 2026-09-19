@@ -42,7 +42,33 @@ namespace RPGGame.World.Tags
         private static readonly HashSet<string> AllRegistryTagNames =
             new(Catalog.Keys, StringComparer.OrdinalIgnoreCase);
 
+        private static readonly object DynamicLock = new();
+        private static readonly Dictionary<string, TagDefinition> DynamicItemMatchTags =
+            new(StringComparer.OrdinalIgnoreCase);
+
         public static IEnumerable<string> AllRegistryTags => Catalog.Keys.OrderBy(t => t, StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Registers a runtime Item match tag (e.g. specific animal <c>cape_buffalo</c>) so loot stamps stay known.
+        /// </summary>
+        public static void EnsureDynamicItemMatchTag(string? tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                return;
+            string key = NormalizeKey(tag);
+            if (key.Length == 0)
+                return;
+            if (Catalog.ContainsKey(key))
+                return;
+            lock (DynamicLock)
+            {
+                if (DynamicItemMatchTags.ContainsKey(key))
+                    return;
+                var def = new TagDefinition(key, TagLayer.Match, TagEntityScope.Item);
+                DynamicItemMatchTags[key] = def;
+                AllRegistryTagNames.Add(key);
+            }
+        }
 
         public static bool IsKnownTag(string? tag) =>
             !string.IsNullOrWhiteSpace(tag) && AllRegistryTagNames.Contains(tag.Trim());
@@ -67,14 +93,30 @@ namespace RPGGame.World.Tags
         {
             if (string.IsNullOrWhiteSpace(tag))
                 return null;
-            return Catalog.TryGetValue(NormalizeKey(tag), out var def) ? def.Layer : null;
+            string key = NormalizeKey(tag);
+            if (Catalog.TryGetValue(key, out var def))
+                return def.Layer;
+            lock (DynamicLock)
+            {
+                if (DynamicItemMatchTags.TryGetValue(key, out var dyn))
+                    return dyn.Layer;
+            }
+            return null;
         }
 
         public static TagEntityScope GetScope(string? tag)
         {
             if (string.IsNullOrWhiteSpace(tag))
                 return TagEntityScope.None;
-            return Catalog.TryGetValue(NormalizeKey(tag), out var def) ? def.Scope : TagEntityScope.None;
+            string key = NormalizeKey(tag);
+            if (Catalog.TryGetValue(key, out var def))
+                return def.Scope;
+            lock (DynamicLock)
+            {
+                if (DynamicItemMatchTags.TryGetValue(key, out var dyn))
+                    return dyn.Scope;
+            }
+            return TagEntityScope.None;
         }
 
         public static bool IsAllowedOn(TagEntityScope scope, string? tag)
@@ -177,6 +219,8 @@ namespace RPGGame.World.Tags
                 Add(t, TagLayer.Match, TagEntityScope.Item);
             foreach (var t in new[] { "shell", "reptile", "bird", "bug", "fish", "beast" })
                 Add(t, TagLayer.Match, TagEntityScope.Item | TagEntityScope.Enemy);
+            Add("animal", TagLayer.Match, TagEntityScope.Item);
+            Add("charm", TagLayer.Match, TagEntityScope.Item);
             // mythic rarity already registered as FieldDuplicate/Action — expand Item scope for taxon gear tags
             if (list.Exists(d => d.NormalizedName == "mythic"))
             {

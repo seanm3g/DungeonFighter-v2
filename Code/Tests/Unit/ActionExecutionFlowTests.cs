@@ -51,6 +51,8 @@ namespace RPGGame.Tests.Unit
             TestReplaceNextRollFaceGatesComboSelection();
             TestShouldFlashComboCompleteRules();
             TestConcurrentLastActionMapsDoNotThrow();
+            TestLuckResolvedFaceSelectsNamedComboAction();
+            TestUnluckResolvedFaceSelectsUnnamedNormal();
 
             TestBase.PrintSummary("Action Execution Flow Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -74,11 +76,11 @@ namespace RPGGame.Tests.Unit
 
             // Test enemy action selection (combo-only pools yield unnamed normal below threshold)
             var enemyAction = ActionSelector.SelectActionByEntityType(enemy);
-            TestBase.AssertTrue(
-                enemyAction == null
+            bool enemyFromPool = enemyAction == null
                 || enemy.ActionPool.Any(item => item.action == enemyAction)
-                || (!enemyAction.IsComboAction && string.IsNullOrEmpty(enemyAction.Name)),
-                "Enemy action selection should return pool action or unnamed normal",
+                || (enemyAction != null && !enemyAction.IsComboAction && string.IsNullOrEmpty(enemyAction.Name));
+            TestBase.AssertTrue(enemyFromPool,
+                "Enemy action selection should return a pool action or unnamed synthetic normal",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test selection when stunned
@@ -862,6 +864,79 @@ namespace RPGGame.Tests.Unit
                 character.Actions.AddToCombo(action);
             }
             return character;
+        }
+
+        private static void TestLuckResolvedFaceSelectsNamedComboAction()
+        {
+            Console.WriteLine("\n--- Luck-resolved 18 selects named combo (not unnamed hit) ---");
+            CombatTriggerContext.ResetForBattle();
+            var hero = TestDataBuilders.Character().WithName("LuckHero").WithLevel(6).WithStats(10, 10, 0, 0).Build();
+            var combo = TestDataBuilders.CreateMockAction("STRIKE", ActionType.Attack);
+            combo.IsComboAction = true;
+            combo.DamageMultiplier = 1.0;
+            combo.Length = 1.0;
+            hero.AddAction(combo, 1.0);
+            hero.Actions.AddToCombo(combo);
+            CadenceScopedBuffApplicator.DepositToScope(hero, "FIGHT",
+                new[] { new ActionAttackBonusItem { Type = MultiDiceRollMapper.AdvantageBonusType, Value = 0 } });
+
+            var enemy = TestDataBuilders.Enemy().WithName("LuckTarget").WithLevel(1).Build();
+            Dice.SetTestRoll(5);
+            Dice.QueueUnforcedTestRolls(18);
+            ActionSelector.ClearStoredRolls();
+            var result = ActionExecutionFlow.Execute(
+                hero, enemy, null, null, null, null,
+                new Dictionary<Actor, Action>(), new Dictionary<Actor, bool>());
+            Dice.ClearTestRoll();
+            Dice.ClearUnforcedTestRolls();
+
+            TestBase.AssertTrue(result.SelectedAction != null && result.SelectedAction.IsComboAction,
+                "Luck 18/5 → 18 should execute the named combo action",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("STRIKE", result.SelectedAction?.Name ?? "",
+                "Luck-resolved combo should be the strip action",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(18, result.ModifiedBaseRoll,
+                "Displayed face should be the luck-kept 18",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(result.IsCombo, "18 vs combo threshold should flag combo",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(result.Hit, "18 should hit",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestUnluckResolvedFaceSelectsUnnamedNormal()
+        {
+            Console.WriteLine("\n--- Unluck-resolved 5 selects unnamed normal (not the strip action) ---");
+            CombatTriggerContext.ResetForBattle();
+            var hero = TestDataBuilders.Character().WithName("UnluckHero").WithLevel(6).WithStats(10, 10, 0, 0).Build();
+            var combo = TestDataBuilders.CreateMockAction("STRIKE", ActionType.Attack);
+            combo.IsComboAction = true;
+            combo.DamageMultiplier = 1.0;
+            combo.Length = 1.0;
+            hero.AddAction(combo, 1.0);
+            hero.Actions.AddToCombo(combo);
+            CadenceScopedBuffApplicator.DepositToScope(hero, "FIGHT",
+                new[] { new ActionAttackBonusItem { Type = MultiDiceRollMapper.DisadvantageBonusType, Value = 0 } });
+
+            var enemy = TestDataBuilders.Enemy().WithName("UnluckTarget").WithLevel(1).Build();
+            Dice.SetTestRoll(18);
+            Dice.QueueUnforcedTestRolls(5);
+            ActionSelector.ClearStoredRolls();
+            var result = ActionExecutionFlow.Execute(
+                hero, enemy, null, null, null, null,
+                new Dictionary<Actor, Action>(), new Dictionary<Actor, bool>());
+            Dice.ClearTestRoll();
+            Dice.ClearUnforcedTestRolls();
+
+            TestBase.AssertTrue(result.SelectedAction != null && !result.SelectedAction.IsComboAction,
+                "Unluck 18/5 → 5 should execute unnamed normal",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(5, result.ModifiedBaseRoll,
+                "Displayed face should be the unluck-kept 5",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!result.IsCombo, "Unnamed 5 should not be combo",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestConcurrentLastActionMapsDoNotThrow()

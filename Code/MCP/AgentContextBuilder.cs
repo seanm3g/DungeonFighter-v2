@@ -56,7 +56,8 @@ namespace RPGGame.MCP
                     MinLevel = d.MinLevel,
                     MaxLevel = d.MaxLevel,
                     Theme = d.Theme,
-                    IsCustomLevelEntry = d.Name == GameConstants.DungeonCustomLevelMenuName
+                    IsCustomLevelEntry = d.Name == GameConstants.DungeonCustomLevelMenuName,
+                    IsResetDifficultyEntry = d.Name == GameConstants.DungeonResetDifficultyMenuName
                 });
             }
 

@@ -64,6 +64,21 @@ namespace RPGGame
         /// </summary>
         public string CurrentRegionId { get; set; } = GameConstants.DefaultRegionId;
 
+        /// <summary>
+        /// Optional dungeon-selection difficulty anchor. When set, offered dungeons scale around this
+        /// level instead of the hero's current level. Null uses the hero's level (default).
+        /// </summary>
+        public int? DungeonDifficultyAnchorLevel { get; set; }
+
+        /// <summary>Standing BLOCK % (0–1) from the last hero action; covers incoming hits until the next hero action.</summary>
+        public double StandingBlockPercent { get; set; }
+
+        /// <summary>Wizard energy shield remaining this fight (from DEFENSE rating).</summary>
+        public int EnergyShieldCurrent { get; set; }
+
+        /// <summary>Wizard energy shield max this fight.</summary>
+        public int EnergyShieldMax { get; set; }
+
         /// <summary>Action Interaction Lab only: added to <see cref="GetTotalArmor"/> for sandbox tuning (default 0).</summary>
         public int ActionLabArmorBonus { get; set; }
 
@@ -231,6 +246,7 @@ namespace RPGGame
         public Item? Legs => Facade.Properties.Legs;
         public Item? Weapon { get => Facade.Properties.Weapon; set => Facade.Properties.Weapon = value; }
         public Item? Feet => Facade.Properties.Feet;
+        public Item? Charm => Facade.Properties.Charm;
 
         public void AddToInventory(Item item) => Facade.AddToInventory(item);
         public bool RemoveFromInventory(Item item) => Facade.RemoveFromInventory(item);

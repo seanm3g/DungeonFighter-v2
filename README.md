@@ -8,11 +8,15 @@ Requires **.NET 8 SDK** and a desktop session for the Avalonia window.
 
 ### Launchers (recommended)
 
+Extract the **whole folder** first (do not run the `.bat` from inside the zip window).
+
 | Platform | From repo root |
 |---|---|
-| **Windows** | Double-click `Dungeon Fighter(PC).bat` |
+| **Windows** | Double-click `DungeonFighter-PC.bat` (also `Dungeon Fighter(PC).bat`) |
 | **Linux** | `chmod +x "Dungeon Fighter(Linux).sh"` then `./"Dungeon Fighter(Linux).sh"` |
 | **macOS** | `chmod +x "Dungeon Fighter(Mac).sh"` then `./"Dungeon Fighter(Mac).sh"` |
+
+The Windows launcher installs the .NET 8 SDK into your user folder when needed (no administrator prompt). If `dist\DF.exe` is already in the folder, it launches that instead of building.
 
 Linux details: [LINUX_SETUP_GUIDE.md](LINUX_SETUP_GUIDE.md) · Windows details: [WINDOWS_SETUP_GUIDE.md](WINDOWS_SETUP_GUIDE.md)
 

@@ -375,6 +375,7 @@ namespace RPGGame
 
             // Suffix Requirements (when authored on rolled rows) merge into the equip gate.
             item.RecomputeAttributeRequirementsIncludingModifications();
+            AnimalTagHelper.SyncSuffixTags(item);
         }
 
         /// <summary>At most one stat suffix per affix-line rarity; duplicate rolls promote up <see cref="AffixTierOrder"/>.</summary>

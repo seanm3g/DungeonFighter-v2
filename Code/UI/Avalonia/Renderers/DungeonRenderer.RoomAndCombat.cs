@@ -198,6 +198,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                         : AsciiArtAssets.Colors.White;
                 string swingLine = CombatActionStripBuilder.FormatStripSwingLine(in info, player, action, damageLineMode, i);
                 drawLine(swingLine, swingLineColor);
+                drawLine(HeroDefenseHudFormatter.FormatActionBlockSuffix(action), AsciiArtAssets.Colors.White);
 
                 // Spreadsheet DESCRIPTION directly under damage/speed (name → swing → description).
                 int rowsLeftAfterSwing = Math.Max(0, panelBottomExclusive - contentY - reserveBottomRows);
@@ -248,7 +249,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 return;
 
             int innerLeft = LayoutConstants.CENTER_PANEL_X + 1;
-            int innerTop = LayoutConstants.CENTER_PANEL_Y + 1;
+            int innerTop = LayoutConstants.CombatLogContentY;
             int innerRight = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
             int innerW = Math.Max(8, innerRight - innerLeft + 1);
             // Item tooltips (animal suffixes + taxon synergies) need more rows than action tips:
@@ -327,9 +328,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             int idealX = anchorCenterX.HasValue
                 ? anchorCenterX.Value - boxWFinal / 2
                 : innerLeft + Math.Max(0, (innerW - boxWFinal) / 2);
+            int? hoverTargetY = null;
             if (leftPanelTooltipActive &&
-                LeftPanelHoverState.TryGetTargetBounds(out int targetX, out _, out int targetWidth, out _))
+                LeftPanelHoverState.TryGetTargetBounds(out int targetX, out int targetY, out int targetWidth, out _))
             {
+                hoverTargetY = targetY;
                 idealX = HoverTooltipDrawing.GetHorizontalPositionAvoidingTarget(
                     idealX,
                     boxWFinal,
@@ -346,7 +349,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 : tipLines!.Count;
             int boxH = contentRows + 2;
             int maxBoxBottom = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT - 2;
-            int boxY = innerTop;
+            int boxY = hoverTargetY.HasValue
+                ? HoverTooltipDrawing.GetVerticalPositionNearTarget(
+                    hoverTargetY.Value, boxH, innerTop, maxBoxBottom)
+                : innerTop;
             if (boxY + boxH - 1 > maxBoxBottom)
                 boxY = Math.Max(innerTop, maxBoxBottom - boxH + 1);
 

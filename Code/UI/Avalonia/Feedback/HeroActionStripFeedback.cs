@@ -38,6 +38,9 @@ namespace RPGGame.UI.Avalonia.Feedback
         private static bool _pulseActive;
         private static Color _pulseOnColor;
 
+        private static int _queuedPanelIndex = -1;
+        private static HeroActionStripFlashKind _queuedKind;
+
         /// <summary>For unit tests: fixed clock; when null, <see cref="DateTimeOffset.UtcNow"/> is used.</summary>
         internal static Func<DateTimeOffset>? UtcNowProviderForTests;
 
@@ -103,6 +106,34 @@ namespace RPGGame.UI.Avalonia.Feedback
         }
 
         /// <summary>
+        /// Hold strip flash until the combat-log punchline so miss/hit color does not leak during setup.
+        /// </summary>
+        public static void QueueForPunchline(int panelIndex, HeroActionStripFlashKind kind)
+        {
+            if (panelIndex < 0)
+                return;
+            _queuedPanelIndex = panelIndex;
+            _queuedKind = kind;
+        }
+
+        /// <summary>Start a previously queued strip flash, if any.</summary>
+        public static void CommitQueued()
+        {
+            if (_queuedPanelIndex < 0)
+                return;
+            int index = _queuedPanelIndex;
+            var kind = _queuedKind;
+            _queuedPanelIndex = -1;
+            Trigger(index, kind);
+        }
+
+        /// <summary>Drop a queued flash when the action block is not shown.</summary>
+        public static void ClearQueued()
+        {
+            _queuedPanelIndex = -1;
+        }
+
+        /// <summary>
         /// When a swing result flash is playing on <paramref name="panelIndex"/>, the panel uses a thicker border for the full sequence (on and off pulse phases).
         /// </summary>
         public static bool IsFlashEmphasisActive(int panelIndex)
@@ -165,6 +196,7 @@ namespace RPGGame.UI.Avalonia.Feedback
         internal static void ResetForTests()
         {
             ClearFlashState();
+            ClearQueued();
             UtcNowProviderForTests = null;
             _timer?.Stop();
         }

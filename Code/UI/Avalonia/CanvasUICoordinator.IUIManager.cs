@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using RPGGame;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia
@@ -81,6 +82,25 @@ namespace RPGGame.UI.Avalonia
         public System.Threading.Tasks.Task WriteColoredSegmentsBatchAsync(List<(List<ColoredText> segments, UIMessageType messageType)> messageGroups, int delayAfterBatchMs = 0, Character? character = null)
         {
             return batchOperationCoordinator.WriteColoredSegmentsBatchAsync(messageGroups, delayAfterBatchMs, character);
+        }
+
+        /// <summary>
+        /// Replaces the last line in the character's combat log buffer.
+        /// </summary>
+        public void ReplaceLastColoredSegments(List<ColoredText> segments, Character? character = null, UIMessageType messageType = UIMessageType.Combat)
+        {
+            ReplaceColoredSegmentsFromEnd(0, segments, character, messageType);
+        }
+
+        /// <summary>
+        /// Replaces a reserved line counted from the end (0 = last) without adding buffer rows.
+        /// </summary>
+        public void ReplaceColoredSegmentsFromEnd(int offsetFromEnd, List<ColoredText> segments, Character? character = null, UIMessageType messageType = UIMessageType.Combat)
+        {
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.GetDisplayManagerForCharacter(character).ReplaceMessageFromEnd(offsetFromEnd, segments, messageType);
+            }
         }
 
         #endregion

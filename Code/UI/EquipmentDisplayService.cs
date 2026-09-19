@@ -33,6 +33,16 @@ namespace RPGGame
             DisplayArmorPiece(character.Body, "Chest", writeMenuLine);
             DisplayArmorPiece(character.Legs, "Legs", writeMenuLine);
             DisplayArmorPiece(character.Feet, "Feet", writeMenuLine);
+            if (character.Charm != null)
+            {
+                writeMenuLine($"Charm: {ItemDisplayFormatter.GetColoredItemName(character.Charm)}");
+                if (character.Charm is CharmItem charm && !string.IsNullOrWhiteSpace(charm.Layer))
+                    writeMenuLine($"    Layer: {charm.Layer}");
+            }
+            else
+            {
+                writeMenuLine("Charm: None");
+            }
         }
 
         /// <summary>
@@ -43,7 +53,7 @@ namespace RPGGame
             if (armor != null)
             {
                 writeMenuLine($"{slotName}: {ItemDisplayFormatter.GetColoredItemName(armor)}");
-                writeMenuLine($"    Armor: {GetArmorValue(armor)}");
+                writeMenuLine($"    Defense: {GetArmorValue(armor)}");
                 
                 // Show armor bonuses and modifications
                 ItemDisplayFormatter.FormatItemBonuses(armor, writeMenuLine);

@@ -1,6 +1,6 @@
 {
   "character": {
-    "playerBaseHealth": 250,
+    "playerBaseHealth": 277,
     "healthPerLevel": 10,
     "enemyHealthPerLevel": 0
   },
@@ -160,7 +160,7 @@
     "criticalHitDamageMultiplier": 1.59,
     "rollDamageMultipliers": {
       "comboRollDamageMultiplier": 1.5,
-      "basicRollDamageMultiplier": 1.0408329997330663,
+      "basicRollDamageMultiplier": 1.2143051663552442,
       "comboAmplificationScalingMultiplier": 1,
       "tierScalingFallbackMultiplier": 1
     },
@@ -284,7 +284,7 @@
       "strengthPerPoint": 0,
       "agilityPerPoint": 0,
       "techniquePerPoint": 0,
-      "intelligencePerPoint": 0,
+      "intelligencePerPoint": 0.1,
       "healthPerPoint": 0,
       "armorPerPoint": 0
     },
@@ -378,7 +378,7 @@
       "progressionPivotLevel": 30
     },
     "baselineStats": {
-      "health": 150,
+      "health": 175,
       "strength": 3,
       "agility": 3,
       "technique": 3,

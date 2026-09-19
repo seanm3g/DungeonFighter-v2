@@ -6,7 +6,8 @@ namespace RPGGame.Actions.Execution
 {
     /// <summary>
     /// Centralizes all CombatEventBus publishing for action execution
-    /// Handles action executed, hit, miss, death, and threshold events
+    /// Handles action executed, hit, miss, death, and threshold events.
+    /// Hit/miss SFX is queued until the combat-log punchline reveal.
     /// </summary>
     internal static class ActionEventPublisher
     {
@@ -45,7 +46,7 @@ namespace RPGGame.Actions.Execution
                 IsCritical = isCritical
             };
             CombatEventBus.Instance.Publish(hitEvent);
-            AudioCues.Trigger(ResolveHitCue(source, target, isCombo, isCritical));
+            AudioCues.QueueForPunchline(ResolveHitCue(source, target, isCombo, isCritical));
             return hitEvent;
         }
 
@@ -75,7 +76,7 @@ namespace RPGGame.Actions.Execution
                 IsCriticalMiss = isCriticalMiss
             };
             CombatEventBus.Instance.Publish(missEvent);
-            AudioCues.Trigger(isCriticalMiss ? AudioCue.Combat_CriticalMiss : AudioCue.Combat_Miss);
+            AudioCues.QueueForPunchline(isCriticalMiss ? AudioCue.Combat_CriticalMiss : AudioCue.Combat_Miss);
             return missEvent;
         }
 

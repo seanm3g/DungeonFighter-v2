@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using RPGGame;
+using RPGGame.Config;
 using RPGGame.Tests;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
@@ -30,6 +31,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestDelayAfterMessageAsync_SkippedWhenMuted().GetAwaiter().GetResult();
             TestDelayAfterMessageAsync_SkippedWhenCombatLogInstant().GetAwaiter().GetResult();
             TestDelayAfterActionAsync_NoOpWithCustomUiManager().GetAwaiter().GetResult();
+            TestSequenceHudBeatIsFiftyPercentSlowerThanMessage();
 
             TestBase.PrintSummary("CombatDelayManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -157,6 +159,36 @@ namespace RPGGame.Tests.Unit.Combat
                 UIManager.EnableDelays = prevDelays;
                 CombatManager.DisableCombatUIOutput = prevMute;
                 UIManager.SetCustomUIManager(prevUi);
+            }
+        }
+
+        private static void TestSequenceHudBeatIsFiftyPercentSlowerThanMessage()
+        {
+            Console.WriteLine("\n--- Sequence HUD beat is 50% slower than MessageDelayMs ---");
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                DeveloperModeState.SetCombatLogInstant(false);
+                int messageMs = DeveloperModeState.ScaleDelayMs(CombatDelayManager.Config.MessageDelayMs);
+                double multiplier = TextDelayConfiguration.GetSequenceHudDelayMultiplier();
+                int expected = (int)Math.Ceiling(messageMs * multiplier);
+                int hudMs = CombatDelayManager.GetSequenceHudBeatDelayMs();
+                TestBase.AssertTrue(Math.Abs(multiplier - GameConstants.SequenceHudDelayMultiplier) < 0.001,
+                    $"SequenceHudDelayMultiplier should be 1.5 (got {multiplier})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(messageMs > 0,
+                    $"MessageDelayMs should be positive when not instant (got {messageMs}ms)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(hudMs == expected,
+                    $"HUD beat should be {expected}ms (MessageDelayMs {messageMs} × {multiplier}), got {hudMs}ms",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(hudMs > messageMs,
+                    $"HUD beat ({hudMs}ms) is slower than log line delay ({messageMs}ms)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
             }
         }
 

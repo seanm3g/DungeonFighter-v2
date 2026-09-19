@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using RPGGame;
 using RPGGame.Actions;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Calculators;
@@ -174,6 +175,12 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertNotNull(rollInfo,
                 "Miss roll info should not be null",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string missPlain = ColoredTextRenderer.RenderAsPlainText(missText);
+            TestBase.AssertTrue(missPlain.Contains("Attacks", System.StringComparison.Ordinal)
+                    && missPlain.Contains("and misses", System.StringComparison.Ordinal),
+                "Miss headline should be setup... and misses",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -269,9 +269,9 @@ namespace RPGGame.UI.Avalonia.Canvas
             {
                 spacesNeeded = 1; // TECH: # / NAIV: # (1 space)
             }
-            else if (statName == "Armor")
+            else if (statName == "Armor" || statName == "Defense")
             {
-                spacesNeeded = 3; // Align value column with Damage / Speed primary lines
+                spacesNeeded = statName == "Defense" ? 1 : 3; // Align value column with Damage / Speed primary lines
             }
             else
             {
@@ -301,6 +301,9 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             if (healthColor == default) healthColor = Colors.Red;
             if (backgroundColor == default) backgroundColor = Colors.DarkRed;
+
+            if (!string.IsNullOrEmpty(entityId))
+                currentHealth = HealthBarDisplayHold.Resolve(entityId, currentHealth);
             
             double progress = maxHealth > 0
                 ? Math.Clamp((double)currentHealth / maxHealth, 0.0, 1.0)

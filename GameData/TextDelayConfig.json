@@ -46,7 +46,8 @@
   "CombatDelays": {
     "ActionDelayMs": 3000,
     "MessageDelayMs": 250,
-    "TutorialCombatDelayMultiplier": 1.5
+    "TutorialCombatDelayMultiplier": 1.5,
+    "SequenceHudDelayMultiplier": 1.5
   },
   "EnvironmentalLineDelay": 500,
   "ProgressiveMenuDelays": {

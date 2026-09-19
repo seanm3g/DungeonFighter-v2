@@ -36,6 +36,7 @@ namespace RPGGame
                     ItemType.Chest => "body",
                     ItemType.Legs => "legs",
                     ItemType.Feet => "feet",
+                    ItemType.Charm => "charm",
                     _ => ""
                 };
                 
@@ -77,10 +78,11 @@ namespace RPGGame
             UIManager.WriteMenuLine("3. Body");
             UIManager.WriteMenuLine("4. Legs");
             UIManager.WriteMenuLine("5. Feet");
+            UIManager.WriteMenuLine("6. Charm");
             UIManager.Write("Enter your choice: ");
 
             if (int.TryParse(Console.ReadLine(), out int slotChoice) && 
-                slotChoice >= 1 && slotChoice <= 5)
+                slotChoice >= 1 && slotChoice <= 6)
             {
                 string slot = slotChoice switch
                 {
@@ -89,6 +91,7 @@ namespace RPGGame
                     3 => "body",
                     4 => "legs",
                     5 => "feet",
+                    6 => "charm",
                     _ => ""
                 };
                 

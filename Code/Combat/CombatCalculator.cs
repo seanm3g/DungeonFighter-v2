@@ -22,9 +22,9 @@ namespace RPGGame
         /// <summary>
         /// Calculates damage dealt by an attacker to a target
         /// </summary>
-        public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true)
+        public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true, int? defenseFace = null, int? attackFace = null)
         {
-            return DamageCalculator.CalculateDamage(attacker, target, action, comboAmplifier, damageMultiplier, rollBonus, roll, showWeakenedMessage);
+            return DamageCalculator.CalculateDamage(attacker, target, action, comboAmplifier, damageMultiplier, rollBonus, roll, showWeakenedMessage, defenseFace, attackFace);
         }
 
         /// <summary>
@@ -171,9 +171,9 @@ namespace RPGGame
         /// <summary>
         /// Calculates damage reduction from armor and other sources
         /// </summary>
-        public static int ApplyDamageReduction(Actor target, int damage)
+        public static int ApplyDamageReduction(Actor target, int damage, Action? action = null, int? defenseFace = null, int? attackFace = null)
         {
-            return DamageCalculator.ApplyDamageReduction(target, damage);
+            return DamageCalculator.ApplyDamageReduction(target, damage, action, defenseFace, attackFace);
         }
 
         /// <summary>

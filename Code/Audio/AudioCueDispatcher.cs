@@ -9,8 +9,8 @@ namespace RPGGame.Audio
     /// <summary>
     /// Resolves <see cref="AudioCue"/> values to audio files via <see cref="AudioConfig"/> and
     /// dispatches them to an <see cref="IAudioEngine"/>. Non-outcome combat cues subscribe to
-    /// <see cref="CombatEventBus"/>; the five direct action outcome cues are triggered by
-    /// <see cref="Actions.Execution.ActionEventPublisher"/>.
+    /// <see cref="CombatEventBus"/>; action outcome cues are queued by
+    /// <see cref="Actions.Execution.ActionEventPublisher"/> and committed on the combat-log punchline.
     /// </summary>
     /// <remarks>
     /// Rate-limit (per cue, from <see cref="AudioCueBinding.RateLimitMs"/>) prevents chatty cues

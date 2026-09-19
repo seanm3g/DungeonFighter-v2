@@ -76,13 +76,13 @@ namespace RPGGame.UI.Avalonia.Display
             int scrollOffset = CalculateScrollOffset(buffer, totalHeight, contentHeight);
             
             // Clear the content area BEFORE calculating render positions.
-            // Do not extend the clear band into the action-info strip (rows above framed center content).
+            // Do not extend the clear band into the action-info strip or the sequence HUD panel.
             if (clearContent)
             {
                 int scrollOverflowPad = Math.Max(0, contentY - 2);
-                int firstRowBelowActionStrip = LayoutConstants.ACTION_INFO_Y + LayoutConstants.ACTION_INFO_HEIGHT;
-                int clearStartY = contentY >= firstRowBelowActionStrip
-                    ? Math.Max(scrollOverflowPad, firstRowBelowActionStrip)
+                int framedLogTop = LayoutConstants.CENTER_PANEL_Y;
+                int clearStartY = contentY >= framedLogTop
+                    ? Math.Max(scrollOverflowPad, framedLogTop)
                     : scrollOverflowPad;
                 int clearEndY = contentY + contentHeight;
                 int clearHeight = clearEndY - clearStartY;

@@ -44,6 +44,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Layout
             if (textManager is CanvasTextManager ctm)
             {
                 stats = ctm.DisplayManager?.StatsPanelStateManager;
+                RPGGame.Combat.Sequence.CombatSequenceHudState.SyncReservation(ctm.StateManager?.CurrentState);
             }
 
             var layoutManager = new PersistentLayoutManager(canvas, interactionManager, stats);

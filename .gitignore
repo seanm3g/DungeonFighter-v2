@@ -394,7 +394,14 @@ _build_verify_out/
 **/_build_verify_out/
 # Extra agent/publish output folder names seen at repo root
 /_verify_build_out/
+/_verify_build_out*/
+/_verify_*/
+/_build_out/
+/_build_out*/
 /_build_verify*/
+/_buildcheck*/
+/_lint_build_out/
+/_vb/
 /_compile_check_out/
 /_compile_check_out2/
 /_compile_out_agent/
@@ -402,12 +409,17 @@ _build_verify_out/
 /_probe_build*/
 /_probe_build2/
 /_tmp_build_verify/
+/bin_agent_*/
+/bin_ui_*/
+/bin_buildcheck/
+/build-verify/
 /build_verify_out*/
 /build_verify_amp/
 /build-poisonfix-out/
 /build-verify-multi-affix/
 Code/_bc3/
 Code/_buildcheck*/
+tools/JsonParseProbe/
 
 # Claude AI settings
 .claude/
@@ -437,6 +449,18 @@ GameData/TuningConfig.json
 GameData/PatchProfile.json
 # Player-local general settings (game prefs + audio bus volume/mute)
 GameData/GeneralSettings.json
+# Misplaced root copies of general settings (canonical path is GameData/)
+/GeneralSettings.json
+/GeneralSettings.json.bak
+# Scratch test / tuning capture dumps
+/test-*.txt
+/test-out*.txt
+Code/_gst_out.txt
+Code/_test_*.txt
+Code/_tuning_*.txt
+Code/lab-test-out.txt
+Code/test-out.txt
+Code/test_output.txt
 # Game settings template only in repo
 GameData/Patches/GameSettings/*
 !GameData/Patches/GameSettings/default.template.json
@@ -447,8 +471,9 @@ GameData/Patches/Audio/*
 GameData/Patches/Balance/local/**
 GameData/Patches/Balance/**/*.bak
 GameData/Patches/**/*.bak
-# Legacy repo-root patch folder (runtime uses GameData/Patches/Balance/)
-Patches/Balance/**
+*.bak
+# Legacy repo-root patch folder (runtime uses GameData/Patches/)
+Patches/
 PatchProfile.json
 Code/gamesettings.json
 Code/gamesettings.json.bak
@@ -460,6 +485,12 @@ GameData/SheetsOAuthToken/
 client_secret*.json
 *.backup
 build_execution_metrics.json
+_patch_class.py
+dungeon_fighters_actions.xlsx
+Scripts/action_trim_report.json
+Scripts/_focused_wand_slot_test.csx
+Scripts/test-fade.bat
+Scripts/__pycache__/
 
 # macOS
 .DS_Store

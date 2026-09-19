@@ -37,6 +37,10 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ActionExecutionFlowTests.RunAllTests();
             Console.WriteLine();
+            RPGGame.Tests.Unit.Combat.CombatSequenceBuilderTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.Combat.CombatSequencePresenterTests.RunAllTests();
+            Console.WriteLine();
             ActionEffectTargetTests.RunAllTests();
             Console.WriteLine();
             ActionSequenceTests.RunAllTests();
@@ -70,6 +74,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             SkillTreeProgressionTests.RunAllTests();
             Console.WriteLine();
+            SkillEffectRankScalingTests.RunAllTests();
+            Console.WriteLine();
             AttributeClassNameComposerTests.RunAllTests();
             Console.WriteLine();
             ClassPresentationConfigTests.RunAllTests();
@@ -89,6 +95,7 @@ namespace RPGGame.Tests.Runners
             ConditionalTriggersTests.RunAllTests();
             ActionTriggerGateTests.RunAllTests();
             RPGGame.Tests.Unit.Combat.MaterialSetControllerTests.RunAllTests();
+            RPGGame.Tests.Unit.Combat.CharmAndAnimalLadderTests.RunAllTests();
             ActionTriggerBundleApplicatorTests.RunAllTests();
             StripMutationTests.RunAllTests();
             RetriggerTests.RunAllTests();
@@ -429,6 +436,8 @@ namespace RPGGame.Tests.Runners
             CharacterProgressionClassReferenceTests.RunAllTests();
             Console.WriteLine();
             SkillTreeProgressionTests.RunAllTests();
+            Console.WriteLine();
+            SkillEffectRankScalingTests.RunAllTests();
             Console.WriteLine();
             AttributeClassNameComposerTests.RunAllTests();
             Console.WriteLine();

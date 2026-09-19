@@ -554,7 +554,10 @@ namespace RPGGame.UI.Avalonia
 
         public void Refresh()
         {
-            InvalidateVisual();
+            if (Dispatcher.UIThread.CheckAccess())
+                InvalidateVisual();
+            else
+                Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
         }
     }
 }

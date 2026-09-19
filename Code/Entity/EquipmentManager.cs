@@ -165,6 +165,8 @@ namespace RPGGame
 
             ItemEquipEffectApplicator.RefreshGrantedActionTags(_character);
             EnsureEquipGrantedActionsInPool();
+            MaterialSetController.SyncConvertActionsToPool(_character);
+            AnimalSetController.SyncAnimalActionsToPool(_character);
 
             // Track item equipping statistics
             if (newItem != null)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using RPGGame;
+using RPGGame.Combat.Calculators;
 
 namespace RPGGame.Data
 {
@@ -77,6 +78,7 @@ namespace RPGGame.Data
 
             row.Damage = FormatDamage(data.DamageMultiplier);
             row.Speed = data.Length.ToString("F2");
+            row.Block = StandingBlock.FormatPercentPoints(data.BlockPercent);
             row.NumberOfHits = data.MultiHitCount <= 0 ? "1" : data.MultiHitCount.ToString();
             if (baseRow == null && data.DamageMultiplier > 0 && data.Length > 0)
             {

@@ -101,6 +101,17 @@ namespace RPGGame.Data
                 MaterialBuildsLoader.ClearCache();
             }
 
+            if (tabFlags.PushCharmsTab && !string.IsNullOrWhiteSpace(sc.CharmsSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.CharmsSheetUrl, cancellationToken).ConfigureAwait(false);
+                string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Charms);
+                string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.CharmsJson)
+                    ?? GameConstants.GetGameDataFilePath(GameConstants.CharmsJson);
+                await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                ClearJsonCacheForGameDataFile(GameConstants.CharmsJson);
+                CharmsLoader.ClearCache();
+            }
+
             if (tabFlags.PushEnemiesTab && !string.IsNullOrWhiteSpace(sc.EnemiesSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.EnemiesSheetUrl, cancellationToken).ConfigureAwait(false);
@@ -145,6 +156,14 @@ namespace RPGGame.Data
                 string csv = await DownloadCsvAsync(sc.ClassPresentationSheetUrl, cancellationToken).ConfigureAwait(false);
                 string tuningPath = GameConfiguration.GetTuningConfigFilePathForWrite();
                 ClassPresentationSheetConverter.MergeClassPresentationFromCsvIntoTuningFile(csv, tuningPath);
+                GameConfiguration.ResetInstance();
+            }
+
+            if (tabFlags.PushVariablesTab && !string.IsNullOrWhiteSpace(sc.VariablesSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.VariablesSheetUrl, cancellationToken).ConfigureAwait(false);
+                string tuningPath = GameConfiguration.GetTuningConfigFilePathForWrite();
+                VariablesSheetConverter.MergeVariablesFromCsvIntoTuningFile(csv, tuningPath);
                 GameConfiguration.ResetInstance();
             }
 
@@ -219,6 +238,7 @@ namespace RPGGame.Data
                 RoomSearchConsumableCatalog.Reload();
                 TriggersLoader.Reload();
                 MaterialBuildsLoader.Reload();
+                CharmsLoader.Reload();
             }
             catch (Exception ex)
             {

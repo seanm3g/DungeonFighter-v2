@@ -87,6 +87,12 @@ namespace RPGGame
             set => _character.Equipment.Feet = value;
         }
 
+        public Item? Charm
+        {
+            get => _character.Equipment.Charm;
+            set => _character.Equipment.Charm = value;
+        }
+
         // Progression properties
         public int Level
         {

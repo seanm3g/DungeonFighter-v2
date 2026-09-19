@@ -43,6 +43,9 @@ namespace RPGGame.Data
         
         // Column I — SPEED(x)
         public string Speed { get; set; } = "";
+
+        /// <summary>BLOCK — standing block percent points (0–100) until next hero action.</summary>
+        public string Block { get; set; } = "";
         
         /// <summary>STATUS EFFECT / DURATION (column K) — cadence duration (ACTION/ATTACK/ABILITY application count).</summary>
         public string Duration { get; set; } = "";
@@ -78,7 +81,7 @@ namespace RPGGame.Data
         public string MaterialScale { get; set; } = "";
         /// <summary>ACTIONS column DT — keyword this convert action reads.</summary>
         public string KeywordScale { get; set; } = "";
-        /// <summary>ACTIONS column DU — convert scale formula.</summary>
+        /// <summary>ACTIONS column DU — convert add source (`keyword`/`bank` or `material`/`count`).</summary>
         public string ScaleFormula { get; set; } = "";
         
         // Columns N-Q: Hero bonuses (ACCURACY, HIT, COMBO, CRIT)

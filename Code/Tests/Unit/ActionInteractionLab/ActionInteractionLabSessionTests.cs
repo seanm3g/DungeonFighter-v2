@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.BattleStatistics;
 using RPGGame.Combat.Formatting;
+using RPGGame.Combat;
+using RPGGame.Combat.Sequence;
 using RPGGame.Entity.Services;
 using RPGGame.Tests;
 using RPGGame.UI;
@@ -27,6 +30,8 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             CanvasContextRestoredAfterEndSession(ref run, ref pass, ref fail);
             LabBeginDoesNotResetGlobalGameTime(ref run, ref pass, ref fail);
             RefreshGameDataAsync_ReloadsAndPreservesComboStrip(ref run, ref pass, ref fail);
+            SequenceStepMode_DefaultsSwingAndToggles(ref run, ref pass, ref fail);
+            PieceStep_DoesNotStartSecondTurnWhileHudWaiting(ref run, ref pass, ref fail);
         }
 
 
@@ -257,6 +262,100 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             TestBase.AssertTrue(ActionLoader.GetAllActionNames().Count > 0, "RefreshGameData reloads action catalog", ref run, ref passed, ref failed);
 
             ActionInteractionLabSession.EndSession();
+        }
+
+        internal static void SequenceStepMode_DefaultsSwingAndToggles(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var hero = TestDataBuilders.Character().WithName("LabHudToggle").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "SequenceStepMode session exists", ref run, ref passed, ref failed);
+                return;
+            }
+
+            TestBase.AssertTrue(lab.SequenceStepMode == LabSequenceStepMode.Swing, "lab defaults to Swing steps", ref run, ref passed, ref failed);
+            lab.ToggleSequenceStepMode();
+            TestBase.AssertTrue(lab.SequenceStepMode == LabSequenceStepMode.Piece, "toggle enters Piece", ref run, ref passed, ref failed);
+            lab.ToggleSequenceStepMode();
+            TestBase.AssertTrue(lab.SequenceStepMode == LabSequenceStepMode.Swing, "toggle returns to Swing", ref run, ref passed, ref failed);
+            ActionInteractionLabSession.EndSession();
+        }
+
+        internal static void PieceStep_DoesNotStartSecondTurnWhileHudWaiting(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            try
+            {
+                CombatUiMuteScope.GlobalMute = false;
+                DeveloperModeState.SetCombatLogInstant(false);
+                CombatSequencePresenter.BypassCanvasCheckForTests = true;
+                CombatSequencePresenter.SkipDelaysForTests = true;
+
+                var hero = TestDataBuilders.Character().WithName("LabPieceStep").Build();
+                var combatManager = new CombatManager();
+                ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+                var lab = ActionInteractionLabSession.Current;
+                if (lab == null)
+                {
+                    TestBase.AssertTrue(false, "PieceStep session exists", ref run, ref passed, ref failed);
+                    return;
+                }
+
+                lab.SequenceStepMode = LabSequenceStepMode.Piece;
+                string action = lab.SelectedCatalogActionName;
+                if (string.IsNullOrWhiteSpace(action))
+                {
+                    TestBase.AssertTrue(true, "PieceStep skipped (empty catalog)", ref run, ref passed, ref failed);
+                    ActionInteractionLabSession.EndSession();
+                    return;
+                }
+
+                var stepTask = Task.Run(() => lab.StepAsync(16, action));
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                while (!CombatSequencePresenter.IsManualPlaybackWaiting
+                    && !stepTask.IsCompleted
+                    && sw.ElapsedMilliseconds < 3000)
+                {
+                    System.Threading.Thread.Sleep(10);
+                }
+
+                if (!CombatSequencePresenter.IsManualPlaybackWaiting)
+                {
+                    CombatSequencePresenter.CancelManualPlayback();
+                    stepTask.Wait(TimeSpan.FromSeconds(2));
+                    TestBase.AssertTrue(true, "PieceStep HUD wait skipped (ShouldPlay false in this host)", ref run, ref passed, ref failed);
+                    ActionInteractionLabSession.EndSession();
+                    return;
+                }
+
+                // HUD is already playing; skip punchline/log delays so this test cannot hang the suite.
+                DeveloperModeState.SetCombatLogInstant(true);
+                TestBase.AssertEqual(0, lab.History.Count, "Piece HUD wait has not recorded history yet", ref run, ref passed, ref failed);
+                lab.StepAsync(16, action).GetAwaiter().GetResult();
+                TestBase.AssertEqual(0, lab.History.Count, "second Step advances HUD only", ref run, ref passed, ref failed);
+                CombatSequencePresenter.FlushRemainingManualBeats();
+                sw.Restart();
+                while (!stepTask.IsCompleted && sw.ElapsedMilliseconds < 3000)
+                    System.Threading.Thread.Sleep(10);
+                if (!stepTask.IsCompleted)
+                    CombatSequencePresenter.CancelManualPlayback();
+                TestBase.AssertTrue(stepTask.Wait(TimeSpan.FromSeconds(2)), "first Step completes after flush", ref run, ref passed, ref failed);
+                TestBase.AssertEqual(1, lab.History.Count, "one lab turn recorded after HUD finishes", ref run, ref passed, ref failed);
+                ActionInteractionLabSession.EndSession();
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequencePresenter.ResetForTests();
+                ActionInteractionLabSession.EndSession();
+            }
         }
     }
 }

@@ -77,6 +77,50 @@ namespace RPGGame.UI.BlockDisplay.Renderers
                 await Task.Delay(scaledDelayMs);
             }
         }
+
+        public async Task RenderSetupPunchlineAsync(
+            List<ColoredText> setup,
+            List<ColoredText> completeHeadline,
+            List<(List<ColoredText> segments, UIMessageType messageType)> followUps,
+            int halfDelayMs,
+            Character? character,
+            UIMessageType headlineType,
+            Func<Task>? betweenBeats = null)
+        {
+            _ = setup;
+            _ = character;
+            _ = headlineType;
+
+            if (betweenBeats != null)
+                await betweenBeats();
+            else if (halfDelayMs > 0)
+                await Task.Delay(halfDelayMs);
+
+            if (completeHeadline != null && completeHeadline.Count > 0)
+                uiManager.WriteColoredSegments(completeHeadline, headlineType);
+
+            PunchlineRevealFeedback.CommitQueued();
+
+            if (followUps != null && followUps.Count > 0)
+            {
+                for (int i = 0; i < followUps.Count; i++)
+                {
+                    var (segments, messageType) = followUps[i];
+                    if (segments == null)
+                        continue;
+                    if (segments.Count == 0)
+                        uiManager.WriteBlankLine();
+                    else
+                        uiManager.WriteColoredSegments(segments, messageType);
+
+                    if (i < followUps.Count - 1 && !CombatManager.DisableCombatUIOutput && UIManager.EnableDelays)
+                        await CombatDelayManager.DelayAfterMessageAsync();
+                }
+            }
+
+            if (halfDelayMs > 0 && !CombatManager.DisableCombatUIOutput && UIManager.EnableDelays)
+                await Task.Delay(halfDelayMs);
+        }
     }
 }
 

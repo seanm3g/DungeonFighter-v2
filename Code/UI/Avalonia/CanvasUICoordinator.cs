@@ -293,6 +293,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private void OnStateChanged(object? sender, StateChangedEventArgs e)
         {
+            RPGGame.Combat.Sequence.CombatSequenceHudState.SyncReservation(e.NewState);
             // Don't close settings window on state changes - it should stay open independently
             // The settings window is a separate pop-out window that doesn't depend on game state
             // Users can interact with the main menu while settings window is open

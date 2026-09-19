@@ -140,6 +140,7 @@ namespace RPGGame
                 ItemType.Chest => "Chest",
                 ItemType.Legs => "Legs",
                 ItemType.Feet => "Feet",
+                ItemType.Charm => "Charm",
                 ItemType.Consumable => item.RoomSearchConsumableKind == RoomSearchConsumableKind.Food ? "Food" : "Potion",
                 _ => "Item"
             };
@@ -240,10 +241,10 @@ namespace RPGGame
             return item switch
             {
                 WeaponItem weapon => $"Damage: {weapon.GetTotalDamage()}{GetWeaponDiff(weapon, player.Weapon as WeaponItem)}, Attack Speed: {weapon.GetAttackSpeedMultiplier():F1}x",
-                HeadItem head => $"Armor: {head.GetTotalArmor()}{GetArmorDiff(head, player.Head)}",
-                ChestItem chest => $"Armor: {chest.GetTotalArmor()}{GetArmorDiff(chest, player.Body)}",
-                LegsItem legs => $"Armor: {legs.GetTotalArmor()}{GetArmorDiff(legs, player.Legs)}",
-                FeetItem feet => $"Armor: {feet.GetTotalArmor()}{GetArmorDiff(feet, player.Feet)}",
+                HeadItem head => $"Defense: {head.GetTotalArmor()}{GetArmorDiff(head, player.Head)}",
+                ChestItem chest => $"Defense: {chest.GetTotalArmor()}{GetArmorDiff(chest, player.Body)}",
+                LegsItem legs => $"Defense: {legs.GetTotalArmor()}{GetArmorDiff(legs, player.Legs)}",
+                FeetItem feet => $"Defense: {feet.GetTotalArmor()}{GetArmorDiff(feet, player.Feet)}",
                 _ => ""
             };
         }

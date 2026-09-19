@@ -6,6 +6,7 @@ namespace RPGGame.Tests.Unit
 {
     /// <summary>
     /// maxRank-5 skill nodes scale their combat bonuses by learned rank.
+    /// Standing rite passives (Puberty / Commission / Initiation / Apprenticeship) add +15 to the class stat.
     /// </summary>
     public static class SkillEffectRankScalingTests
     {
@@ -23,6 +24,8 @@ namespace RPGGame.Tests.Unit
             TestSwordHitAgiScalesWithRank();
             TestEmptyFuryScalesWithRank();
             TestScrapPreferScalesWithRank();
+            TestPubertyGrantsStandingStrength();
+            TestRitePassivesGrantStandingAttributes();
 
             TestBase.PrintSummary("SkillEffectRankScaling Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -173,6 +176,53 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(10.0, dmg1, "rank 1 Scrap Prefer +10% damage",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(20.0, dmg2, "rank 2 Scrap Prefer +20% damage",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestPubertyGrantsStandingStrength()
+        {
+            Console.WriteLine("--- Puberty grants standing +15 STR ---");
+            var hero = MakeHero("PubertyStr", WeaponType.Mace);
+            int before = hero.GetEffectiveStrength();
+            TestBase.AssertEqual(0, SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR"),
+                "no Puberty rank -> no skill STR",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            SetRank(hero, "b-puberty", 1);
+            int after = hero.GetEffectiveStrength();
+            TestBase.AssertEqual(15, SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR"),
+                "Puberty rank 1 is +15 STR",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(before + 15, after,
+                "GetEffectiveStrength includes Puberty",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(hero.MeetsStatThreshold("STR", before + 15),
+                "STR threshold uses Puberty",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRitePassivesGrantStandingAttributes()
+        {
+            Console.WriteLine("--- Sister rite passives grant standing attributes ---");
+            var warrior = MakeHero("CommissionAgi", WeaponType.Sword);
+            int agiBefore = warrior.GetEffectiveAgility();
+            SetRank(warrior, "w-puberty", 1);
+            TestBase.AssertEqual(agiBefore + 15, warrior.GetEffectiveAgility(),
+                "Commission +15 AGI",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var rogue = MakeHero("InitiationTec", WeaponType.Dagger);
+            int tecBefore = rogue.GetEffectiveTechnique();
+            SetRank(rogue, "r-puberty", 1);
+            TestBase.AssertEqual(tecBefore + 15, rogue.GetEffectiveTechnique(),
+                "Initiation +15 TEC",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var wizard = MakeHero("ApprenticeInt", WeaponType.Wand);
+            int intBefore = wizard.GetEffectiveIntelligence();
+            SetRank(wizard, "z-puberty", 1);
+            TestBase.AssertEqual(intBefore + 15, wizard.GetEffectiveIntelligence(),
+                "Apprenticeship +15 INT",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

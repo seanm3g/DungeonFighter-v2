@@ -75,21 +75,25 @@ namespace RPGGame.Tests.Unit.UI
             AddCombo(hero, cull);
 
             var snap = ActionCardExternalBonusCollector.Collect(hero, cull, 0);
-            TestBase.AssertTrue(snap.ConvertMultiplier >= 4.0 - 0.001,
-                "2-stack Iron convert uses CRISIS bank",
+            TestBase.AssertEqual(20, snap.ConvertBonus,
+                "2-stack Iron convert is +5 per CRISIS (4 → +20)",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(snap.Lines.Any(l => l.Text.IndexOf("CRISIS", StringComparison.OrdinalIgnoreCase) >= 0
-                    && l.Text.Contains("×", StringComparison.Ordinal)),
-                "convert card line names CRISIS scale",
+                    && l.Text.Contains("+20", StringComparison.Ordinal)),
+                "convert card line names CRISIS add",
                 ref run, ref passed, ref failed);
 
             var panels = CombatActionStripBuilder.BuildPanelData(hero);
             TestBase.AssertTrue(panels.Count >= 1, "panel for convert action", ref run, ref passed, ref failed);
-            CombatActionStripBuilder.GetStripSwingDisplayPercents(
+            CombatActionStripBuilder.GetStripSwingDisplayValues(
                 panels[0], hero, cull, ActionStripDamageLineMode.EffectiveWithComboAmp,
-                out double dmgPct, out _, 0);
-            TestBase.AssertTrue(dmgPct >= 400.0 - 0.5,
-                "strip damage % includes convert multiplier",
+                out int dmgWithConvert, out _, 0);
+            hero.Effects.ClearMaterialKeywordBank();
+            CombatActionStripBuilder.GetStripSwingDisplayValues(
+                panels[0], hero, cull, ActionStripDamageLineMode.EffectiveWithComboAmp,
+                out int dmgWithoutConvert, out _, 0);
+            TestBase.AssertEqual(dmgWithoutConvert + 20, dmgWithConvert,
+                "strip flat damage includes +20 convert add, not a 4× multiplier",
                 ref run, ref passed, ref failed);
         }
 

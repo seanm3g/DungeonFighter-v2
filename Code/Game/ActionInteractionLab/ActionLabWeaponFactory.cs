@@ -61,7 +61,7 @@ namespace RPGGame.ActionInteractionLab
 
             weapon.RecomputeAttributeRequirementsIncludingModifications();
             ApplyMinimumRarity(weapon);
-            weapon.Name = ItemGenerator.GenerateItemNameWithBonuses(weapon);
+            ActionLabGearMaterial.Stamp(weapon);
             AttachStarterWeaponActions(weapon);
             return weapon;
         }

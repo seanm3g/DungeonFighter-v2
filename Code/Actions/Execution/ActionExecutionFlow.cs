@@ -246,7 +246,9 @@ namespace RPGGame.Actions.Execution
                     flashKind = HeroActionStripFlashKind.ComboComplete;
                 else
                     flashKind = HeroActionStripFlashKind.Hit;
-                HeroActionStripFeedback.Trigger(stripIndexForFeedback.Value, flashKind);
+                HeroActionStripFeedback.QueueForPunchline(stripIndexForFeedback.Value, flashKind);
+                if (CombatManager.DisableCombatUIOutput || DeveloperModeState.IsCombatLogInstant)
+                    HeroActionStripFeedback.CommitQueued();
             }
 
             source.ConsumeRollPenaltyAfterCombatRoll(result.SelectedAction);

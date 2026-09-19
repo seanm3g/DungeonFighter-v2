@@ -24,6 +24,8 @@ namespace RPGGame.Tests.Unit.Audio
             TestCombatOutcomeCuesRouteToSfxBus(ref run, ref passed, ref failed);
             TestRoutesCombatHitToHitCue(ref run, ref passed, ref failed);
             TestPublisherRoutesCombatHitToHitCue(ref run, ref passed, ref failed);
+            TestPublisherQueuesCombatCueUntilPunchlineCommit(ref run, ref passed, ref failed);
+            TestClearQueuedDropsCombatCueWithoutPlaying(ref run, ref passed, ref failed);
             TestPublisherRoutesComboHitToComboCue(ref run, ref passed, ref failed);
             TestPublisherRoutesCriticalHitToCriticalHitCue(ref run, ref passed, ref failed);
             TestPublisherRoutesEnemyHitToHeroHurtCue(ref run, ref passed, ref failed);
@@ -154,10 +156,85 @@ namespace RPGGame.Tests.Unit.Audio
                     rollValue: 12,
                     isCombo: false,
                     isCritical: false);
+                AudioCues.CommitQueued();
 
                 TestBase.AssertEqual(1, engine.PlayCalls.Count, "Action hit publisher routes to Combat_Hit cue", ref run, ref passed, ref failed);
                 if (engine.PlayCalls.Count > 0)
                     TestBase.AssertEqual(stub, engine.PlayCalls[0].file, "Action hit publisher plays the hit binding", ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                AudioCues.SetDispatcher(null);
+                CombatEventBus.Reset();
+                TryDelete(stub);
+            }
+        }
+
+        private static void TestPublisherQueuesCombatCueUntilPunchlineCommit(ref int run, ref int passed, ref int failed)
+        {
+            string stub = CreateStubFile();
+            try
+            {
+                CombatEventBus.Reset();
+                var engine = new NullAudioEngine { RecordCalls = true };
+                var cfg = CreateTestConfig(stub);
+                using var dispatcher = new AudioCueDispatcher(engine,
+                    configResolver: () => cfg,
+                    globalEnabledResolver: () => true);
+                AudioCues.SetDispatcher(dispatcher);
+
+                ActionEventPublisher.PublishActionHit(
+                    new Character("Hero", 1),
+                    new Enemy(name: "Goblin", level: 1, maxHealth: 100, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0),
+                    new RPGGame.Action(name: "Strike"),
+                    rollValue: 12,
+                    isCombo: false,
+                    isCritical: false);
+
+                TestBase.AssertEqual(0, engine.PlayCalls.Count,
+                    "Action hit cue stays queued during action-block setup",
+                    ref run, ref passed, ref failed);
+
+                AudioCues.CommitQueued();
+
+                TestBase.AssertEqual(1, engine.PlayCalls.Count,
+                    "Action hit cue plays on punchline commit",
+                    ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                AudioCues.SetDispatcher(null);
+                CombatEventBus.Reset();
+                TryDelete(stub);
+            }
+        }
+
+        private static void TestClearQueuedDropsCombatCueWithoutPlaying(ref int run, ref int passed, ref int failed)
+        {
+            string stub = CreateStubFile();
+            try
+            {
+                CombatEventBus.Reset();
+                var engine = new NullAudioEngine { RecordCalls = true };
+                var cfg = CreateTestConfig(stub);
+                using var dispatcher = new AudioCueDispatcher(engine,
+                    configResolver: () => cfg,
+                    globalEnabledResolver: () => true);
+                AudioCues.SetDispatcher(dispatcher);
+
+                ActionEventPublisher.PublishActionMiss(
+                    new Character("Hero", 1),
+                    new Enemy(name: "Goblin", level: 1, maxHealth: 100, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0),
+                    new RPGGame.Action(name: "Swing"),
+                    rollValue: 3,
+                    isCriticalMiss: false);
+
+                AudioCues.ClearQueued();
+                AudioCues.CommitQueued();
+
+                TestBase.AssertEqual(0, engine.PlayCalls.Count,
+                    "ClearQueued drops the setup-queued combat cue without playing it",
+                    ref run, ref passed, ref failed);
             }
             finally
             {
@@ -189,6 +266,7 @@ namespace RPGGame.Tests.Unit.Audio
                     rollValue: 12,
                     isCombo: true,
                     isCritical: false);
+                AudioCues.CommitQueued();
 
                 TestBase.AssertEqual(1, engine.PlayCalls.Count, "Combo action hit publisher routes to one cue", ref run, ref passed, ref failed);
                 if (engine.PlayCalls.Count > 0)
@@ -225,6 +303,7 @@ namespace RPGGame.Tests.Unit.Audio
                     rollValue: 20,
                     isCombo: false,
                     isCritical: true);
+                AudioCues.CommitQueued();
 
                 TestBase.AssertEqual(1, engine.PlayCalls.Count, "Critical action hit publisher routes to one cue", ref run, ref passed, ref failed);
                 if (engine.PlayCalls.Count > 0)
@@ -261,6 +340,7 @@ namespace RPGGame.Tests.Unit.Audio
                     rollValue: 20,
                     isCombo: true,
                     isCritical: true);
+                AudioCues.CommitQueued();
 
                 TestBase.AssertEqual(1, engine.PlayCalls.Count, "Enemy successful hit publisher routes to one hero-hurt cue", ref run, ref passed, ref failed);
                 if (engine.PlayCalls.Count > 0)
@@ -294,6 +374,7 @@ namespace RPGGame.Tests.Unit.Audio
                     new RPGGame.Action(name: "Swing"),
                     rollValue: 6,
                     isCriticalMiss: false);
+                AudioCues.CommitQueued();
 
                 TestBase.AssertEqual(1, engine.PlayCalls.Count, "Miss publisher routes to one cue", ref run, ref passed, ref failed);
                 if (engine.PlayCalls.Count > 0)
@@ -328,6 +409,7 @@ namespace RPGGame.Tests.Unit.Audio
                     new RPGGame.Action(name: "Miss"),
                     rollValue: 1,
                     isCriticalMiss: true);
+                AudioCues.CommitQueued();
 
                 TestBase.AssertEqual(1, engine.PlayCalls.Count, "Critical miss publisher routes to one cue", ref run, ref passed, ref failed);
                 if (engine.PlayCalls.Count > 0)
@@ -460,6 +542,7 @@ namespace RPGGame.Tests.Unit.Audio
                     rollValue: 12,
                     isCombo: false,
                     isCritical: false);
+                AudioCues.CommitQueued();
 
                 dispatcher.Trigger(AudioCue.Combat_EnemyDied);
 

@@ -15,6 +15,8 @@ namespace RPGGame.Tests.Unit.Data
 
             TestResolveEffectiveDungeonLevel_Basic();
             TestResolveEffectiveDungeonLevel_Clamps();
+            TestResolveSelectionAnchorLevel();
+            TestResolveDungeonLevelAroundAnchor();
             TestClampDungeonDelta_RespectsHeroBounds();
 
             TestBase.PrintSummary("DungeonLevelMath Tests", _run, _pass, _fail);
@@ -41,6 +43,31 @@ namespace RPGGame.Tests.Unit.Data
 
             d = DungeonLevelMath.ResolveEffectiveDungeonLevel(heroLevel: 99, dungeonDelta: 999);
             TestBase.AssertEqual(RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL, d, "clamps dungeon to max dungeon level", ref _run, ref _pass, ref _fail);
+        }
+
+        private static void TestResolveSelectionAnchorLevel()
+        {
+            TestBase.SetCurrentTestName(nameof(TestResolveSelectionAnchorLevel));
+
+            TestBase.AssertEqual(5, DungeonLevelMath.ResolveSelectionAnchorLevel(5, null),
+                "null custom anchor uses hero level", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(20, DungeonLevelMath.ResolveSelectionAnchorLevel(5, 20),
+                "valid custom anchor overrides hero level", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(5, DungeonLevelMath.ResolveSelectionAnchorLevel(5, 0),
+                "out-of-range custom anchor falls back to hero level", ref _run, ref _pass, ref _fail);
+        }
+
+        private static void TestResolveDungeonLevelAroundAnchor()
+        {
+            TestBase.SetCurrentTestName(nameof(TestResolveDungeonLevelAroundAnchor));
+
+            TestBase.AssertEqual(19, DungeonLevelMath.ResolveDungeonLevelAroundAnchor(20, -1),
+                "anchor 20 -1 => 19", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(1, DungeonLevelMath.ResolveDungeonLevelAroundAnchor(1, -1),
+                "anchor 1 -1 clamps to 1", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL,
+                DungeonLevelMath.ResolveDungeonLevelAroundAnchor(RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL, 1),
+                "anchor max +1 clamps to max", ref _run, ref _pass, ref _fail);
         }
 
         private static void TestClampDungeonDelta_RespectsHeroBounds()
