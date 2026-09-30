@@ -1,0 +1,362 @@
+[
+  {
+    "asset": "painted-mace-v1",
+    "prefix": "flaming",
+    "pixels": 8871,
+    "surface": {
+      "center": [
+        745,
+        265
+      ],
+      "size": [
+        106,
+        164
+      ],
+      "angle": 27,
+      "shear": -0.12,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-sword-v1",
+    "prefix": "flaming",
+    "pixels": 6517,
+    "surface": {
+      "center": [
+        465,
+        855
+      ],
+      "size": [
+        90,
+        195
+      ],
+      "angle": 33,
+      "shear": 0,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-dagger-v1",
+    "prefix": "flaming",
+    "pixels": 7084,
+    "surface": {
+      "center": [
+        558,
+        696
+      ],
+      "size": [
+        94,
+        190
+      ],
+      "angle": 30,
+      "shear": 0,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-wand-v1",
+    "prefix": "flaming",
+    "pixels": 12772,
+    "surface": {
+      "center": [
+        845,
+        246
+      ],
+      "size": [
+        128,
+        185
+      ],
+      "angle": 32,
+      "shear": -0.1,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-mace-v1",
+    "prefix": "poisonous",
+    "pixels": 9541,
+    "surface": {
+      "center": [
+        745,
+        265
+      ],
+      "size": [
+        106,
+        164
+      ],
+      "angle": 27,
+      "shear": -0.12,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-sword-v1",
+    "prefix": "poisonous",
+    "pixels": 10550,
+    "surface": {
+      "center": [
+        465,
+        855
+      ],
+      "size": [
+        90,
+        195
+      ],
+      "angle": 33,
+      "shear": 0,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-dagger-v1",
+    "prefix": "poisonous",
+    "pixels": 11517,
+    "surface": {
+      "center": [
+        558,
+        696
+      ],
+      "size": [
+        94,
+        190
+      ],
+      "angle": 30,
+      "shear": 0,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-wand-v1",
+    "prefix": "poisonous",
+    "pixels": 11973,
+    "surface": {
+      "center": [
+        845,
+        246
+      ],
+      "size": [
+        128,
+        185
+      ],
+      "angle": 32,
+      "shear": -0.1,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-mace-v1",
+    "prefix": "charged",
+    "pixels": 5203,
+    "surface": {
+      "center": [
+        745,
+        265
+      ],
+      "size": [
+        106,
+        164
+      ],
+      "angle": 11,
+      "shear": -0.12,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-sword-v1",
+    "prefix": "charged",
+    "pixels": 7201,
+    "surface": {
+      "center": [
+        465,
+        855
+      ],
+      "size": [
+        90,
+        195
+      ],
+      "angle": 17,
+      "shear": 0,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-dagger-v1",
+    "prefix": "charged",
+    "pixels": 6891,
+    "surface": {
+      "center": [
+        558,
+        696
+      ],
+      "size": [
+        94,
+        190
+      ],
+      "angle": 14,
+      "shear": 0,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-wand-v1",
+    "prefix": "charged",
+    "pixels": 6526,
+    "surface": {
+      "center": [
+        845,
+        246
+      ],
+      "size": [
+        128,
+        185
+      ],
+      "angle": 16,
+      "shear": -0.1,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-mace-v1",
+    "prefix": "enchanted",
+    "pixels": 5852,
+    "surface": {
+      "center": [
+        745,
+        265
+      ],
+      "size": [
+        106,
+        164
+      ],
+      "angle": 27,
+      "shear": -0.12,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-sword-v1",
+    "prefix": "enchanted",
+    "pixels": 6683,
+    "surface": {
+      "center": [
+        465,
+        855
+      ],
+      "size": [
+        90,
+        195
+      ],
+      "angle": 33,
+      "shear": 0,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-dagger-v1",
+    "prefix": "enchanted",
+    "pixels": 7216,
+    "surface": {
+      "center": [
+        558,
+        696
+      ],
+      "size": [
+        94,
+        190
+      ],
+      "angle": 30,
+      "shear": 0,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-wand-v1",
+    "prefix": "enchanted",
+    "pixels": 7306,
+    "surface": {
+      "center": [
+        845,
+        246
+      ],
+      "size": [
+        128,
+        185
+      ],
+      "angle": 32,
+      "shear": -0.1,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-mace-v1",
+    "prefix": "blessed",
+    "pixels": 5039,
+    "surface": {
+      "center": [
+        745,
+        265
+      ],
+      "size": [
+        106,
+        106
+      ],
+      "angle": 27,
+      "shear": -0.12,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-sword-v1",
+    "prefix": "blessed",
+    "pixels": 3743,
+    "surface": {
+      "center": [
+        465,
+        855
+      ],
+      "size": [
+        90,
+        90
+      ],
+      "angle": 33,
+      "shear": 0,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-dagger-v1",
+    "prefix": "blessed",
+    "pixels": 4032,
+    "surface": {
+      "center": [
+        558,
+        696
+      ],
+      "size": [
+        94,
+        94
+      ],
+      "angle": 30,
+      "shear": 0,
+      "region": 0
+    }
+  },
+  {
+    "asset": "painted-wand-v1",
+    "prefix": "blessed",
+    "pixels": 7047,
+    "surface": {
+      "center": [
+        845,
+        246
+      ],
+      "size": [
+        128,
+        128
+      ],
+      "angle": 32,
+      "shear": -0.1,
+      "region": 0
+    }
+  }
+]

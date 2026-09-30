@@ -1,0 +1,16 @@
+# Painted helmet studies
+
+Built-in imagegen. References are rasterizations of headwearArt in headwear.js: Greathelm, Helmet and Doomhelm. The second reference was steel-mace-study-v2.png for painting style. Original SVG references, PNG references, generated study-v1 paintings, transparent base-v1 and RGB regions-v1 files are preserved in this directory.
+
+## closed
+
+Create a painted dark fantasy inventory helmet. Reference 1 is the existing SVG model: preserve its recognizable silhouette and construction. Reference 2 is the painting STYLE target only: irregular dimensional brush planes, charcoal recesses, worn pale steel bevels, aged brass fittings, substantial realistic thickness, no glossy 3D or flat vector shapes. Closed steel greathelm with narrow eye slits and enclosed lower face. Front-facing with slight dimensional perspective, empty helmet, no person/head. Neutral slate steel shell, small warm brass trim and rivets, dark brown leather lining visible at openings and bottom edge. Separate easily readable materials. No decorative affix symbols. Entire object centered with 80px margin on pure flat white background, no cast shadow, no checkerboard, no labels or text. Portrait 1024x1536. Fill most canvas width while preserving helmet proportions; do not stretch helmet tall.
+
+## open
+
+Create a painted dark fantasy inventory helmet. Reference 1 is the existing SVG model: preserve its recognizable silhouette and construction. Reference 2 is the painting STYLE target only: irregular dimensional brush planes, charcoal recesses, worn pale steel bevels, aged brass fittings, substantial realistic thickness, no glossy 3D or flat vector shapes. Open-faced steel helmet with cheek guards and nasal bar, clearly open lower face and dark brown leather lining visible inside. Front-facing with slight dimensional perspective, empty helmet, no person/head. Neutral slate steel shell, small warm brass trim and rivets, dark brown leather lining visible at openings and bottom edge. Separate easily readable materials. No decorative affix symbols. Entire object centered with 80px margin on pure flat white background, no cast shadow, no checkerboard, no labels or text. Portrait 1024x1536. Fill most canvas width while preserving helmet proportions; do not stretch helmet tall.
+
+## horned
+
+Create a painted dark fantasy inventory helmet. Reference 1 is the existing SVG model: preserve its recognizable silhouette and construction. Reference 2 is the painting STYLE target only: irregular dimensional brush planes, charcoal recesses, worn pale steel bevels, aged brass fittings, substantial realistic thickness, no glossy 3D or flat vector shapes. Horned steel helmet preserving the two large upward curving METAL horns and pointed cheek guards. Front-facing with slight dimensional perspective, empty helmet, no person/head. Neutral slate steel shell, small warm brass trim and rivets, dark brown leather lining visible at openings and bottom edge. Separate easily readable materials. No decorative affix symbols. Entire object centered with 80px margin on pure flat white background, no cast shadow, no checkerboard, no labels or text. Portrait 1024x1536. Fill most canvas width while preserving helmet proportions; do not stretch helmet tall.
+

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dungeon Fighter · Item card study</title>
+<link rel="stylesheet" href="item-card.css"></head>
+<body><main>
+<header class="page-header"><div><p class="eyebrow">DUNGEON FIGHTER / DESIGN STUDY 01</p><h1>A relic worth inspecting.</h1></div><a href="/">Return to Relic Forge ↗</a></header>
+<div class="workspace">
+<aside><p class="eyebrow">ITEM CARD</p><h2>Art first.<br>Details at a glance.</h2><p>A worn, ink-dark frame with warm ivory type. The item keeps its painted silhouette; the information has room to breathe.</p>
+<fieldset><legend>Preview item</legend><div class="choices"><button type="button" data-item="sword" aria-pressed="true">01 · Sword</button><button type="button" data-item="chest" aria-pressed="false">02 · Armor</button><button type="button" data-item="charm" aria-pressed="false">03 · Charm</button></div></fieldset>
+<label class="toggle"><input type="checkbox" id="compare" checked> Show comparison to equipped</label>
+<p class="note">Layout concept · Illustrative stats and effects.<br>Artwork from the existing item renderer.</p></aside>
+<section class="stage" aria-label="Item card preview"><article class="item-card" aria-labelledby="item-name">
+<div class="card-top"><span id="rarity">◆ RARE</span><span id="tier">TIER III</span></div>
+<div class="art" id="art" role="img" aria-label="Painted item illustration"></div>
+<div class="card-content"><p class="item-type" id="item-type"></p><h2 id="item-name"></h2><p class="craft" id="craft"></p>
+<div class="primary-stat"><div><span class="eyebrow" id="main-label"></span><div class="value"><span id="main-value"></span><span class="delta" id="main-delta"></span></div></div><p id="secondary"></p></div>
+<dl class="stats" id="stats"></dl><section class="affix"><p class="eyebrow" id="affix-label"></p><p id="affix-text"></p></section>
+<div class="requirements"><span id="requirements"></span><span class="met">✓ Met</span></div>
+<footer><button type="button" id="equip">Equip item <span aria-hidden="true">↗</span></button></footer><p class="status" id="status" role="status"></p>
+</div></article></section>
+<aside class="annotations"><p class="eyebrow">READING ORDER</p><div><span>01</span><h3>Identity</h3><p>Rarity, silhouette, name and equipment slot.</p></div><div><span>02</span><h3>Power</h3><p>The defining stat gets the largest number. Gains carry a signed value.</p></div><div><span>03</span><h3>Character</h3><p>Affixes and material effects explain what makes the item special.</p></div><div><span>04</span><h3>Decision</h3><p>Requirements lead into a clear equip action.</p></div></aside>
+</div></main><script type="module" src="item-card.js"></script></body></html>

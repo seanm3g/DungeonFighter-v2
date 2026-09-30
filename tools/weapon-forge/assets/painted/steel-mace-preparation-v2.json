@@ -1,0 +1,57 @@
+{
+  "width": 1024,
+  "height": 1536,
+  "foregroundPixels": 223627,
+  "transparentPixels": 1349237,
+  "regions": {
+    "red": "head",
+    "green": "grip",
+    "blue": "fittings"
+  },
+  "source": "steel-mace-study-v2.png",
+  "polygons": {
+    "head": [
+      [
+        580,
+        350
+      ],
+      [
+        600,
+        130
+      ],
+      [
+        742,
+        84
+      ],
+      [
+        865,
+        80
+      ],
+      [
+        915,
+        315
+      ],
+      [
+        750,
+        446
+      ],
+      [
+        715,
+        408
+      ],
+      [
+        677,
+        386
+      ],
+      [
+        642,
+        372
+      ],
+      [
+        616,
+        366
+      ]
+    ],
+    "grip": []
+  }
+}

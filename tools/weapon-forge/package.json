@@ -1,0 +1,10 @@
+{
+  "name": "dungeon-fighter-weapon-forge",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests.mjs legwear-tests.mjs raster/tests.mjs",
+    "test:raster": "node --test raster/tests.mjs"
+  }
+}
