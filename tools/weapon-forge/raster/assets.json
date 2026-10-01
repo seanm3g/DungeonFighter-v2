@@ -1,0 +1,266 @@
+[
+  {
+    "id": "painted-mace-v1",
+    "name": "Flanged mace",
+    "base": "./assets/restored/mace-base.png",
+    "mask": "./assets/restored/mace-regions.png",
+    "width": 1024,
+    "height": 1536,
+    "regions": [
+      "head",
+      "grip",
+      "fittings"
+    ],
+    "referenceLuma": [
+      105,
+      55,
+      118
+    ],
+    "regionLabels": [
+      "Steel",
+      "Grip & shaft",
+      "Metal fittings"
+    ],
+    "supportsPrefixes": true
+  },
+  {
+    "id": "painted-sword-v1",
+    "name": "Arming sword",
+    "base": "./assets/restored/sword-base.png",
+    "mask": "./assets/restored/sword-regions.png",
+    "width": 1024,
+    "height": 1536,
+    "regions": [
+      "head",
+      "grip",
+      "fittings"
+    ],
+    "referenceLuma": [
+      105,
+      55,
+      118
+    ],
+    "regionLabels": [
+      "Steel",
+      "Grip & shaft",
+      "Metal fittings"
+    ],
+    "supportsPrefixes": true
+  },
+  {
+    "id": "painted-dagger-v1",
+    "name": "Broad dagger",
+    "base": "./assets/restored/dagger-base.png",
+    "mask": "./assets/restored/dagger-regions.png",
+    "width": 1024,
+    "height": 1536,
+    "regions": [
+      "head",
+      "grip",
+      "fittings"
+    ],
+    "referenceLuma": [
+      105,
+      55,
+      118
+    ],
+    "regionLabels": [
+      "Steel",
+      "Grip & shaft",
+      "Metal fittings"
+    ],
+    "supportsPrefixes": true
+  },
+  {
+    "id": "painted-wand-v1",
+    "name": "Crystal wand",
+    "base": "./assets/restored/wand-base.png",
+    "mask": "./assets/restored/wand-regions.png",
+    "width": 1024,
+    "height": 1536,
+    "regions": [
+      "head",
+      "grip",
+      "fittings"
+    ],
+    "referenceLuma": [
+      105,
+      55,
+      118
+    ],
+    "regionLabels": [
+      "Crystal focus",
+      "Grip & shaft",
+      "Metal fittings"
+    ],
+    "supportsPrefixes": true
+  },
+  {
+    "id": "painted-helmet-closed-v2",
+    "name": "Closed greathelm",
+    "base": "./assets/restored/helmet-closed-base.png",
+    "mask": "./assets/restored/helmet-closed-regions.png",
+    "width": 1024,
+    "height": 1536,
+    "regions": [
+      "head",
+      "grip",
+      "fittings"
+    ],
+    "referenceLuma": [
+      105,
+      55,
+      118
+    ],
+    "regionLabels": [
+      "Steel",
+      "Leather & lining",
+      "Metal fittings"
+    ],
+    "supportsPrefixes": false
+  },
+  {
+    "id": "painted-helmet-open-v2",
+    "name": "Open-faced helmet",
+    "base": "./assets/restored/helmet-open-base.png",
+    "mask": "./assets/restored/helmet-open-regions.png",
+    "width": 1024,
+    "height": 1536,
+    "regions": [
+      "head",
+      "grip",
+      "fittings"
+    ],
+    "referenceLuma": [
+      105,
+      55,
+      118
+    ],
+    "regionLabels": [
+      "Steel",
+      "Leather & lining",
+      "Metal fittings"
+    ],
+    "supportsPrefixes": false
+  },
+  {
+    "id": "painted-helmet-horned-v2",
+    "name": "Horned helm",
+    "base": "./assets/restored/helmet-horned-base.png",
+    "mask": "./assets/restored/helmet-horned-regions.png",
+    "width": 1024,
+    "height": 1536,
+    "regions": [
+      "head",
+      "grip",
+      "fittings"
+    ],
+    "referenceLuma": [
+      105,
+      55,
+      118
+    ],
+    "regionLabels": [
+      "Steel",
+      "Leather & lining",
+      "Metal fittings"
+    ],
+    "supportsPrefixes": false
+  },
+  {
+    "id": "painted-chest-chestplate-v1",
+    "name": "Plate cuirass",
+    "base": "./assets/restored/chest-chestplate-base.png",
+    "mask": "./assets/restored/chest-chestplate-regions.png",
+    "width": 1024,
+    "height": 1536,
+    "regions": [
+      "head",
+      "grip",
+      "fittings"
+    ],
+    "referenceLuma": [
+      105,
+      55,
+      118
+    ],
+    "regionLabels": [
+      "Steel",
+      "Leather & lining",
+      "Metal fittings"
+    ],
+    "supportsPrefixes": false
+  },
+  {
+    "id": "painted-chest-mail-v1",
+    "name": "Chainmail hauberk",
+    "base": "./assets/restored/chest-mail-base.png",
+    "mask": "./assets/restored/chest-mail-regions.png",
+    "width": 1024,
+    "height": 1536,
+    "regions": [
+      "head",
+      "grip",
+      "fittings"
+    ],
+    "referenceLuma": [
+      105,
+      55,
+      118
+    ],
+    "regionLabels": [
+      "Steel",
+      "Leather & lining",
+      "Metal fittings"
+    ],
+    "supportsPrefixes": false
+  },
+  {
+    "id": "painted-chest-tunic-v1",
+    "name": "Padded arming tunic",
+    "base": "./assets/restored/chest-tunic-base.png",
+    "mask": "./assets/restored/chest-tunic-regions.png",
+    "width": 1024,
+    "height": 1536,
+    "regions": [
+      "head",
+      "grip",
+      "fittings"
+    ],
+    "referenceLuma": [
+      105,
+      55,
+      118
+    ],
+    "regionLabels": [
+      "Quilted fabric",
+      "Leather & lining",
+      "Metal fittings"
+    ],
+    "supportsPrefixes": false
+  },
+  {
+    "id": "painted-chest-coat-v1",
+    "name": "Adventurer coat",
+    "base": "./assets/restored/chest-coat-base.png",
+    "mask": "./assets/restored/chest-coat-regions.png",
+    "width": 1024,
+    "height": 1536,
+    "regions": [
+      "head",
+      "grip",
+      "fittings"
+    ],
+    "referenceLuma": [
+      105,
+      55,
+      118
+    ],
+    "regionLabels": [
+      "Coat fabric",
+      "Leather & lining",
+      "Metal fittings"
+    ],
+    "supportsPrefixes": false
+  }
+]

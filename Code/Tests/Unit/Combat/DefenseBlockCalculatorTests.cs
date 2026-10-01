@@ -12,7 +12,7 @@ using RPGGame.UI.ColorSystem;
 namespace RPGGame.Tests.Unit.Combat
 {
     /// <summary>
-    /// Legacy 1d20 armor×band helpers. Live hero mitigation is leftover BLOCK % + class DEFENSE.
+    /// Legacy 1d20 armor×band helpers. Live hero mitigation is WoW-style Defense DR.
     /// Enemies keep 100% armor; pierce and misses do not roll.
     /// </summary>
     public static class DefenseBlockCalculatorTests
@@ -29,18 +29,27 @@ namespace RPGGame.Tests.Unit.Combat
             _testsPassed = 0;
             _testsFailed = 0;
 
-            TestBandTableAndRounding();
-            TestShouldRollHeroOnlyNotPierce();
-            TestPierceDoesNotConsumeUnforcedQueue();
-            TestEnemyTargetDoesNotConsumeUnforcedQueue();
-            TestCalculateDamageOpposedAttackAheadAndGuard();
-            TestCalculateDamageOmittedFaceKeepsFullArmor();
-            TestNeutralAttackFaceWhenMissing();
-            TestMissDoesNotConsumeUnforcedQueue();
-            TestHitStoresDefenseFaceFromUnforcedQueue();
-            TestMultiHitReusesOneDefenseFace();
-            TestFormatterFooterMatchesCalculateDamage();
-            TestEnumerate1d20VsD20Distribution();
+            int playerBaseSnap = GameConfiguration.Instance.Combat.PlayerBaseArmor;
+            GameConfiguration.Instance.Combat.PlayerBaseArmor = 0;
+            try
+            {
+                TestBandTableAndRounding();
+                TestShouldRollHeroOnlyNotPierce();
+                TestPierceDoesNotConsumeUnforcedQueue();
+                TestEnemyTargetDoesNotConsumeUnforcedQueue();
+                TestCalculateDamageOpposedAttackAheadAndGuard();
+                TestCalculateDamageOmittedFaceKeepsFullArmor();
+                TestNeutralAttackFaceWhenMissing();
+                TestMissDoesNotConsumeUnforcedQueue();
+                TestHitStoresDefenseFaceFromUnforcedQueue();
+                TestMultiHitReusesOneDefenseFace();
+                TestFormatterFooterMatchesCalculateDamage();
+                TestEnumerate1d20VsD20Distribution();
+            }
+            finally
+            {
+                GameConfiguration.Instance.Combat.PlayerBaseArmor = playerBaseSnap;
+            }
 
             TestBase.PrintSummary("DefenseBlockCalculator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -145,7 +154,7 @@ namespace RPGGame.Tests.Unit.Combat
             int openOtherFace = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10, true, 20, 2);
             int min = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
             int expected = raw <= 0 ? 0 : Math.Max(min, raw);
-            TestBase.AssertEqual(expected, open, "defense faces do not change standing-0 (Tempo not DR)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(expected, open, "defense faces do not change standing-0", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(expected, openOtherFace, "other defense face still standing-0", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -160,10 +169,11 @@ namespace RPGGame.Tests.Unit.Combat
             action.DamageMultiplier = 1.0;
 
             int raw = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
+            hero.StandingBlockPercent = 0;
             int min = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
             int dmg = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10);
             int expected = raw <= 0 ? 0 : Math.Max(min, raw);
-            TestBase.AssertEqual(expected, dmg, "standing 0 = full hit (Tempo not DR)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(expected, dmg, "standing 0 = full hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestNeutralAttackFaceWhenMissing()
@@ -224,7 +234,7 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void TestHitStoresDefenseFaceFromUnforcedQueue()
         {
-            Console.WriteLine("\n--- Hit stores 1d20 face from unforced queue ---");
+            Console.WriteLine("\n--- Hit does not roll a live defense face ---");
 
             _ = GameConfiguration.Instance;
             var enemy = TestDataBuilders.Enemy().WithName("Hitter").Build();
@@ -244,7 +254,9 @@ namespace RPGGame.Tests.Unit.Combat
             {
                 var result = ActionExecutionFlow.Execute(enemy, hero, null, null, jab, null, lastUsed, lastCrit);
                 TestBase.AssertTrue(result.Hit, "roll 10 should hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(7, result.DefenseFace ?? -1, "hit stores unforced d20 face 7", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(result.DefenseFace == null, "live path does not store a defense face", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int leftover = Dice.RollUnforced(20);
+                TestBase.AssertEqual(7, leftover, "hit must not consume unforced d20", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {
@@ -260,6 +272,7 @@ namespace RPGGame.Tests.Unit.Combat
             var attacker = TestDataBuilders.Enemy().WithName("MultiOrc").WithHealth(100).Build();
             var hero = TestDataBuilders.Character().WithName("MultiHero").WithLevel(1).Build();
             hero.EquipItem(new ChestItem("Plate", 1, 8), "body");
+            hero.StandingBlockPercent = 1.0;
             var action = new Action
             {
                 Name = "Triple",
@@ -280,8 +293,8 @@ namespace RPGGame.Tests.Unit.Combat
             int leftover = Dice.RollUnforced(20);
             Dice.ClearUnforcedTestRolls();
 
-            TestBase.AssertEqual(oneHit * 3, total, "three ticks share 2 vs 20 block", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(3, leftover, "ProcessMultiHit must not roll when total is passed", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(oneHit * 3, total, "three ticks at 100% stance match", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, leftover, "ProcessMultiHit must not roll unforced d20", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestFormatterFooterMatchesCalculateDamage()
@@ -292,7 +305,7 @@ namespace RPGGame.Tests.Unit.Combat
             attacker.EquipItem(new WeaponItem("Club", 1, 12), "weapon");
             var hero = TestDataBuilders.Character().WithName("FmtHero").WithLevel(1).Build();
             hero.EquipItem(new ChestItem("Plate", 1, 8), "body");
-            hero.StandingBlockPercent = 0.45;
+            hero.StandingBlockPercent = 1.80;
             var action = TestDataBuilders.CreateMockAction("JAB");
             action.DamageMultiplier = 1.0;
             action.IsComboAction = false;
@@ -303,19 +316,27 @@ namespace RPGGame.Tests.Unit.Combat
             var (_, rollInfo) = CombatResults.FormatDamageDisplayColored(
                 attacker, hero, dmg, dmg, action, 1.0, 1.0, 0, 10, 1, false, null, default, 8);
             string footer = ColoredTextRenderer.RenderAsPlainText(rollInfo);
-            TestBase.AssertTrue(footer.Contains("BLOCK 45%", StringComparison.Ordinal),
-                $"footer should show BLOCK 45%, got: {footer}", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(!footer.Contains("leftover", StringComparison.OrdinalIgnoreCase),
-                "hero footer does not show leftover energy", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(!footer.Contains("def: 8", StringComparison.Ordinal),
-                "hero standing footer does not use opposed 1d20 def:", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int expectedReduction = (int)Math.Round(
+                ClassDefenseCalculator.ApplyIncoming(hero, 100, pierce: false).DrPercent * 100.0,
+                MidpointRounding.AwayFromZero);
+            TestBase.AssertTrue(footer.Contains($"reduction: {expectedReduction}%", StringComparison.Ordinal),
+                $"footer should show reduction percent, got: {footer}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!footer.Contains("BLOCK", StringComparison.Ordinal),
+                $"combat footer omits BLOCK stance, got: {footer}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!footer.Contains("def ", StringComparison.Ordinal) && !footer.Contains("def:", StringComparison.Ordinal),
+                $"combat footer omits defense math, got: {footer}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int rollAt = footer.IndexOf("roll:", StringComparison.Ordinal);
+            int reductionAt = footer.IndexOf("reduction:", StringComparison.Ordinal);
+            TestBase.AssertTrue(rollAt >= 0 && reductionAt > rollAt,
+                $"reduction follows roll, got: {footer}", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var enemy = TestDataBuilders.Enemy().WithName("FmtFoe").WithHealth(100).Build();
             var (_, enemyInfo) = CombatResults.FormatDamageDisplayColored(
                 attacker, enemy, 10, 10, action, 1.0, 1.0, 0, 10);
             string enemyFooter = ColoredTextRenderer.RenderAsPlainText(enemyInfo);
-            TestBase.AssertTrue(!enemyFooter.Contains("BLOCK", StringComparison.Ordinal),
-                "enemy target has no standing BLOCK footer", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(enemyFooter.Contains("reduction:", StringComparison.Ordinal)
+                && !enemyFooter.Contains("BLOCK", StringComparison.Ordinal),
+                $"enemy target uses the same reduction footer, got: {enemyFooter}", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestEnumerate1d20VsD20Distribution()

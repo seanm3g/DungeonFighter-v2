@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit
             TestScheduleSlotTwo();
             TestItemCritRetriggerSlotTwoExecutesNested();
             TestNestedRetriggerUsesFreshRollNotOuterFace();
+            TestEchoSpellRetriggersNextSlotThenAdvancesPastIt();
 
             CombatTriggerContext.ResetForBattle();
             RetriggerScheduler.AllowScheduling = true;
@@ -270,6 +271,97 @@ namespace RPGGame.Tests.Unit
                 TestBase.AssertEqual(7, result.NestedRetriggerResults[0].BaseRoll,
                     "nested swing used fresh forced d20 (7), not outer 20", ref _run, ref _passed, ref _failed);
             }
+
+            CombatTriggerContext.ResetForBattle();
+            RetriggerScheduler.AllowScheduling = true;
+        }
+
+        /// <summary>
+        /// ECHO SPELL (slot 1) on combo plays itself and the next strip slot, then the sequence
+        /// lands on the slot after that encore. The index must not wrap back onto Echo Spell.
+        /// </summary>
+        private static void TestEchoSpellRetriggersNextSlotThenAdvancesPastIt()
+        {
+            TestBase.SetCurrentTestName(nameof(TestEchoSpellRetriggersNextSlotThenAdvancesPastIt));
+            _ = GameConfiguration.Instance;
+            CombatTriggerContext.ResetForBattle();
+            RetriggerScheduler.AllowScheduling = true;
+
+            var hero = new Character("EchoHero", 20);
+            while (hero.GetComboActions().Count > 0)
+                hero.RemoveFromCombo(hero.GetComboActions()[0], ignoreWeaponRequirement: true);
+
+            var echo = new Action
+            {
+                Name = "ECHO SPELL",
+                Type = ActionType.Attack,
+                Target = TargetType.SingleTarget,
+                IsComboAction = true,
+                ComboOrder = 1,
+                DamageMultiplier = 1.0,
+                Length = 1.0,
+                Triggers = new ConditionalTriggerProperties
+                {
+                    Bundles = new List<ActionTriggerBundle>
+                    {
+                        new ActionTriggerBundle
+                        {
+                            When = "ONCOMBO",
+                            Count = "1",
+                            Scope = "",
+                            Mechanics = "retrigger_next"
+                        }
+                    }
+                }
+            };
+            var slam = new Action
+            {
+                Name = "SLAM",
+                Type = ActionType.Attack,
+                Target = TargetType.SingleTarget,
+                IsComboAction = true,
+                ComboOrder = 2,
+                DamageMultiplier = 1.0,
+                Length = 1.0
+            };
+            var third = new Action
+            {
+                Name = "THIRD",
+                Type = ActionType.Attack,
+                Target = TargetType.SingleTarget,
+                IsComboAction = true,
+                ComboOrder = 3,
+                DamageMultiplier = 1.0,
+                Length = 1.0
+            };
+            hero.Actions.AddToCombo(echo, maxComboLength: null);
+            hero.Actions.AddToCombo(slam, maxComboLength: null);
+            hero.Actions.AddToCombo(third, maxComboLength: null);
+            hero.ComboStep = 0;
+
+            var enemy = new Enemy("EchoFoe", 1, 500, 1, 1, 1, 1);
+            Dice.SetTestRoll(20);
+            ActionSelector.SetStoredActionRoll(hero, 20);
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCrit = new Dictionary<Actor, bool>();
+            var result = ActionExecutionFlow.Execute(
+                hero, enemy, null, null, echo, null, lastUsed, lastCrit);
+            Dice.SetTestRoll(null);
+            ActionSelector.RemoveStoredRoll(hero);
+
+            TestBase.AssertTrue(result.Hit && result.IsCombo,
+                "echo spell combo-hit", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(result.SelectedAction != null && result.SelectedAction.Name == "ECHO SPELL",
+                "outer swing is Echo Spell", ref _run, ref _passed, ref _failed);
+            var encore = result.NestedRetriggerResults.Count == 1
+                ? result.NestedRetriggerResults[0].SelectedAction
+                : null;
+            TestBase.AssertTrue(encore != null && encore.Name == "SLAM",
+                "encore is the next strip slot (SLAM), not Echo Spell again", ref _run, ref _passed, ref _failed);
+            int count = hero.GetComboActions().Count;
+            int slot = count > 0 ? hero.ComboStep % count : -1;
+            TestBase.AssertEqual(2, slot,
+                "after Echo Spell + SLAM the sequence is on slot 3", ref _run, ref _passed, ref _failed);
 
             CombatTriggerContext.ResetForBattle();
             RetriggerScheduler.AllowScheduling = true;

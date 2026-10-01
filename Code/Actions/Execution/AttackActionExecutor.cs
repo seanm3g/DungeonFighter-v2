@@ -42,18 +42,35 @@ namespace RPGGame.Actions.Execution
             if (source is Character multiHitCharacter && multiHitCharacter.Effects.ConsumedMultiHitMod != 0)
                 multiHitCount = Math.Max(1, multiHitCount + (int)Math.Max(0, multiHitCharacter.Effects.ConsumedMultiHitMod));
             multiHitCount = Math.Max(1, multiHitCount + ChainPositionBonusApplier.GetMultiHitDelta(source, selectedAction, ActionUtilities.GetComboActions(source), ActionUtilities.GetComboStep(source)));
-            int? defenseFace = DefenseBlockCalculator.TryRollDefenseFace(target, selectedAction);
+            multiHitCount = PackCombat.ResolveOutgoingHitCount(source, multiHitCount);
             
             // If multi-hit, process multiple hits; otherwise single hit
             if (multiHitCount > 1)
             {
                 int totalDamage = 0;
+                int overkillWasted = 0;
+                bool capToOneBody = target is Enemy packTarget && packTarget.IsPack;
+                int hpBefore = target is Character packHp ? packHp.CurrentHealth : 0;
 
                 // Always resolve every planned tick so totals match (attack − armor) × hits.
+                // A pack target takes the sum once so extra ticks cannot spill into the next body.
+                if (capToOneBody)
+                {
+                    int raw = 0;
+                    for (int hit = 0; hit < multiHitCount; hit++)
+                    {
+                        int perHitTotalRoll = MultiHitProcessor.GetMultihitDamageTotalRoll(totalRoll, source, hit);
+                        raw += CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, perHitTotalRoll, true, null, baseRoll, hit);
+                    }
+                    ActionUtilities.ApplyDamage(target, raw);
+                    totalDamage = Math.Max(0, hpBefore - ((Character)target).CurrentHealth);
+                    overkillWasted = ((Enemy)target).LastOverkillWasted;
+                }
+                else
                 for (int hit = 0; hit < multiHitCount; hit++)
                 {
                     int perHitTotalRoll = MultiHitProcessor.GetMultihitDamageTotalRoll(totalRoll, source, hit);
-                    int hitDamage = CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, perHitTotalRoll, true, defenseFace, baseRoll);
+                    int hitDamage = CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, perHitTotalRoll, true, null, baseRoll, hit);
                     
                     // Apply damage
                     ActionUtilities.ApplyDamage(target, hitDamage);
@@ -73,7 +90,8 @@ namespace RPGGame.Actions.Execution
                 // Show total damage with hit count indicator
                 // Check if this is a critical miss (natural roll <= 1 is typically critical miss)
                 bool isCriticalMiss = naturalRoll <= 1;
-                var (allDamageText, allRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, totalDamage, totalDamage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, multiHitCount, isCriticalMiss, isCriticalHit, default, defenseFace);
+                var (allDamageText, allRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, totalDamage, totalDamage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, multiHitCount, isCriticalMiss, isCriticalHit, default, null, overkillWasted);
+                StandingBlock.ConsumeAfterHit(target);
                 
                 // Track statistics for total damage
                 if (source is Character character)
@@ -128,9 +146,15 @@ namespace RPGGame.Actions.Execution
             else
             {
                 // Single hit (original behavior)
-                int damage = CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, totalRoll, true, defenseFace, baseRoll);
-                
+                int damage = CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, totalRoll, true, null, baseRoll);
+                int hpBefore = target is Character beforeHp ? beforeHp.CurrentHealth : 0;
                 ActionUtilities.ApplyDamage(target, damage);
+                int overkillWasted = 0;
+                if (target is Enemy singlePack && singlePack.IsPack)
+                {
+                    overkillWasted = singlePack.LastOverkillWasted;
+                    damage = Math.Max(0, hpBefore - singlePack.CurrentHealth);
+                }
                 
                 if (!ActionExecutor.DisableCombatDebugOutput)
                 {
@@ -157,7 +181,8 @@ namespace RPGGame.Actions.Execution
                 
                 // Check if this is a critical miss (natural roll <= 1 is typically critical miss)
                 bool isCriticalMiss = naturalRoll <= 1;
-                var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, 1, isCriticalMiss, isCriticalHit, default, defenseFace);
+                var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, 1, isCriticalMiss, isCriticalHit, default, null, overkillWasted);
+                StandingBlock.ConsumeAfterHit(target);
                 
                 // Reset combo when a non-combo (normal) attack completes successfully
                 if (source is Character resetCharacter && !(resetCharacter is Enemy) && !selectedAction.IsComboAction

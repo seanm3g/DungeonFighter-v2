@@ -28,9 +28,9 @@ namespace RPGGame
         public string ScaleFormula { get; set; } = "";
         [JsonPropertyName("length")]
         public double Length { get; set; }
-        /// <summary>Standing BLOCK fraction 0–1 from this action. Missing/invalid defaults to 0.25.</summary>
+        /// <summary>Standing Defense multiplier 0–5 from this action. Missing/invalid defaults to 1.0 (100%).</summary>
         [JsonPropertyName("blockPercent")]
-        public double BlockPercent { get; set; } = 0.25;
+        public double BlockPercent { get; set; } = 1.0;
         [JsonPropertyName("causesBleed")]
         public bool CausesBleed { get; set; }
         [JsonPropertyName("causesWeaken")]

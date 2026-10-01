@@ -126,6 +126,18 @@ namespace RPGGame.Tests.Unit.UI
 
             var boots = new FeetItem("Striders", tier: 1, armor: 2) { ExtraActionSlots = 2 };
             c.EquipItem(boots, "feet");
+            var equippedCharm = new CharmItem("Menagerie Charm", tier: 1);
+            c.EquipItem(equippedCharm, "charm");
+            TestBase.AssertTrue(ReferenceEquals(c.Equipment.GetSlotItem("charm"), equippedCharm),
+                "equipped charm is the item comparison lookup returns",
+                ref run, ref passed, ref failed);
+            var charmTip = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "gear:charm", 50, 30);
+            TestBase.AssertTrue(charmTip.Any(l => l.Contains("Menagerie Charm", StringComparison.Ordinal)),
+                "equipped charm name in tooltip",
+                ref run, ref passed, ref failed);
+            var charmColored = LeftPanelTooltipBuilder.BuildColoredItemLines(c, LeftPanelHoverState.Prefix + "gear:charm", 20);
+            TestBase.AssertTrue(charmColored.Count > 0, "equipped charm colored tooltip has lines", ref run, ref passed, ref failed);
+
             var feetTip = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "gear:feet", 50, 30);
             TestBase.AssertTrue(feetTip.Any(l => l.Contains("Striders", StringComparison.Ordinal)),
                 "feet item name in tooltip",

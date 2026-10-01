@@ -1,0 +1,2 @@
+const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),root=__dirname;
+http.createServer((req,res)=>{let p;try{p=path.resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));}catch{res.writeHead(400).end();return;}if(!p.startsWith(root+path.sep)){res.writeHead(403).end();return;}fs.readFile(p,(err,data)=>{if(err){res.writeHead(404).end();return;}res.setHeader('Content-Type',p.endsWith('.png')?'image/png':'text/html; charset=utf-8');res.setHeader('Cache-Control','no-store');res.end(data);});}).listen(4319,'127.0.0.1');

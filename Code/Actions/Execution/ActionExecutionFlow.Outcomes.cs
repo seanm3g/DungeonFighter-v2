@@ -24,6 +24,7 @@ namespace RPGGame.Actions.Execution
             if (selected == null) return;
 
             CombatSequenceBuilder.SnapshotHealthHolds(result, source, target);
+            PackCombat.SnapshotHeadlines(result, source, target);
 
             if (source is Character turnBonusCharacter && !(turnBonusCharacter is Enemy))
             {
@@ -53,20 +54,23 @@ namespace RPGGame.Actions.Execution
 
                 double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, selected);
                 int totalRoll = result.ModifiedBaseRoll + result.RollBonus;
-                int? defenseFace = DefenseBlockCalculator.TryRollDefenseFace(target, selected);
-                result.DefenseFace = defenseFace;
+                result.DefenseFace = null;
                 int multiHitCount = selected.Advanced.MultiHitCount;
                 if (source is Character multiHitCharacter && multiHitCharacter.Effects.ConsumedMultiHitMod != 0)
                     multiHitCount = Math.Max(1, multiHitCount + (int)Math.Max(0, multiHitCharacter.Effects.ConsumedMultiHitMod));
                 multiHitCount = Math.Max(1, multiHitCount + ChainPositionBonusApplier.GetMultiHitDelta(source, selected, ActionUtilities.GetComboActions(source), ActionUtilities.GetComboStep(source)));
+                multiHitCount = PackCombat.ResolveOutgoingHitCount(source, multiHitCount);
                 // Capture before ACTION cadence deposits next-action Multihit (must not inflate this swing's log / deferred layers).
                 result.ResolvedMultiHitCount = multiHitCount;
                 if (multiHitCount > 1)
                 {
+                    int targetLivingBefore = target is Enemy livingTarget ? livingTarget.LivingBodyCount : 0;
+                    int targetHpBefore = target is Character livingTargetHp ? livingTargetHp.CurrentHealth : 0;
                     result.Damage = MultiHitProcessor.ProcessMultiHit(
                         source, target, selected, damageMultiplier, totalRoll,
                         result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, battleNarrative,
-                        source.RollPenalty, defenseFace, result.ModifiedBaseRoll);
+                        source.RollPenalty, null, result.ModifiedBaseRoll);
+                    PackCombat.AccountAfterDamage(result, target, targetLivingBefore, targetHpBefore, replaceDamage: true);
                     ActionEffectTargetResolver.ApplyLifestealHealing(source, selected, result.Damage);
                     if (result.Damage > 0
                         && target is Character multiHurtHero
@@ -81,11 +85,15 @@ namespace RPGGame.Actions.Execution
                 {
                     DamageCalculator.BeginSequenceTrace();
                     result.Damage = selected.DamageMultiplier > 0
-                        ? CombatCalculator.CalculateDamage(source, target, selected, damageMultiplier, 1.0, result.RollBonus, totalRoll, true, defenseFace, result.ModifiedBaseRoll)
+                        ? CombatCalculator.CalculateDamage(source, target, selected, damageMultiplier, 1.0, result.RollBonus, totalRoll, true, null, result.ModifiedBaseRoll)
                         : 0;
                     result.DamageTrace = DamageCalculator.TakeSequenceTrace();
                     if (result.Damage > 0)
                     {
+                        int targetLivingBefore = target is Enemy livingTarget ? livingTarget.LivingBodyCount : 0;
+                        int targetHpBefore = target is Character livingTargetHp ? livingTargetHp.CurrentHealth : 0;
+                        int sourceLivingBefore = source is Enemy livingSource ? livingSource.LivingBodyCount : 0;
+                        int sourceHpBefore = source is Character sourceHp ? sourceHp.CurrentHealth : 0;
                         if (selected.Target == TargetType.SelfAndTarget)
                         {
                             ActionUtilities.ApplyDamage(target, result.Damage);
@@ -95,6 +103,10 @@ namespace RPGGame.Actions.Execution
                             ActionUtilities.ApplyDamage(source, result.Damage);
                         else
                             ActionUtilities.ApplyDamage(target, result.Damage);
+                        if (selected.Target == TargetType.Self)
+                            PackCombat.AccountAfterDamage(result, source, sourceLivingBefore, sourceHpBefore, replaceDamage: true);
+                        else
+                            PackCombat.AccountAfterDamage(result, target, targetLivingBefore, targetHpBefore, replaceDamage: true);
 
                         // Defender gear procs when the hero takes a successful hit from another actor.
                         if (result.Damage > 0
@@ -361,7 +373,8 @@ namespace RPGGame.Actions.Execution
             }
 
             // Heroes and enemies (Enemy : Character) share combo-step advancement on successful combo-threshold rolls.
-            if (source is Character comboCharacter)
+            // Nested retriggers do not move the strip; retrigger_next advances once after the encore.
+            if (RetriggerDepth == 0 && source is Character comboCharacter)
             {
                 int comboStepBeforeAdvance = comboCharacter.ComboStep;
                 // Must match the effective combo threshold used for IsCombo / UI (per-roll COMBO bonuses, action roll mods, cascades).
@@ -477,7 +490,7 @@ namespace RPGGame.Actions.Execution
             }
             if (source is Character characterMiss)
                 ActionStatisticsTracker.RecordMissAction(characterMiss, result.BaseRoll, result.RollBonus);
-            if (source is Character comboCharacterMiss)
+            if (RetriggerDepth == 0 && source is Character comboCharacterMiss)
             {
                 int stepBeforeMiss = comboCharacterMiss.ComboStep;
                 comboCharacterMiss.ComboStep = 0;
@@ -531,7 +544,7 @@ namespace RPGGame.Actions.Execution
 
         /// <summary>
         /// Gold strip flash: any successful combo action hit.
-        /// Non-combo hits stay green.
+        /// Non-combo hits do not flash; the combo card keeps its solid white border.
         /// </summary>
         internal static bool ShouldFlashComboComplete(Character hero, int stripIndexForResolvedSwing, ActionExecutionResult result)
         {

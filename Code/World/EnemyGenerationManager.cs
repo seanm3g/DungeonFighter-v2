@@ -333,8 +333,8 @@ namespace RPGGame
         {
             var themeEnemyMap = new Dictionary<string, string[]>
             {
-                ["Forest"] = new[] { "Goblin", "Spider", "Wolf", "Bear", "Treant" },
-                ["Lava"] = new[] { "Wraith", "Slime", "Bat", "Fire Elemental", "Lava Golem", "Salamander" },
+                ["Forest"] = new[] { "Goblin", "Spider", "Wolf", "Bear", "Treant", "Boar", "Rats", "Giant Ants" },
+                ["Lava"] = new[] { "Wraith", "Slime", "Bats", "Fire Elemental", "Lava Golem", "Salamander" },
                 ["Crypt"] = new[] { "Skeleton", "Zombie", "Wraith", "Lich", "Ghoul", "Wight" },
                 ["Crystal"] = new[] { "Crystal Golem", "Prism Spider", "Shard Beast", "Crystal Sprite", "Geode Beast", "Crystal Wyrm" },
                 ["Temple"] = new[] { "Stone Guardian", "Temple Warden", "Ancient Sentinel", "Temple Guard", "Priest", "Paladin" },

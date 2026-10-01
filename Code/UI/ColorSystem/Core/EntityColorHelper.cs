@@ -90,14 +90,23 @@ namespace RPGGame.UI.ColorSystem
             {
                 var overrideColor = ResolveColorOverride(colorOverride);
                 if (overrideColor.HasValue)
-                    return new List<ColoredText> { new ColoredText(enemy.Name, ClampEntityNameColor(overrideColor.Value)) };
+                    return AppendPackSuffix(enemy, new List<ColoredText> { new ColoredText(enemy.Name, ClampEntityNameColor(overrideColor.Value)) });
             }
 
             var animal = AnimalEnemyNameColoredText.TryBuildSegments(enemy.Name);
             if (animal != null)
-                return animal;
+                return AppendPackSuffix(enemy, animal);
 
-            return new List<ColoredText> { new ColoredText(enemy.Name, GetEnemyColorByName(enemy.Name)) };
+            return AppendPackSuffix(enemy, new List<ColoredText> { new ColoredText(enemy.Name, GetEnemyColorByName(enemy.Name)) });
+        }
+
+        /// <summary>Pack label such as <c>(3x)</c>, drawn after the creature-colored name so shading still matches the base name.</summary>
+        private static List<ColoredText> AppendPackSuffix(Enemy enemy, List<ColoredText> segments)
+        {
+            string suffix = enemy.PackSuffix;
+            if (suffix.Length > 0)
+                segments.Add(new ColoredText(suffix, Colors.White));
+            return segments;
         }
 
         /// <summary>Appends enemy display name segments (creature shading when applicable).</summary>

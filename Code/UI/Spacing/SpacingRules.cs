@@ -31,7 +31,7 @@ namespace RPGGame.UI.Spacing
         /// </summary>
         private static readonly HashSet<char> NoSpaceBefore = new HashSet<char>
         {
-            '!', '?', '.', ',', ':', ';', ']', ')', '}', '\'', '\n', '\r'  // Apostrophe added to prevent "Vault 's" spacing issues
+            '!', '?', '.', ',', ':', ';', ']', ')', '}', '(', '\'', '\n', '\r'  // '(' keeps pack labels like Bat(3x) attached; apostrophe prevents "Vault 's"
         };
         
         /// <summary>

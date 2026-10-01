@@ -281,7 +281,7 @@ namespace RPGGame.Combat.Calculators
         /// <summary>
         /// Calculates damage dealt by an attacker to a target
         /// </summary>
-        public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true, int? defenseFace = null, int? attackFace = null)
+        public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true, int? defenseFace = null, int? attackFace = null, int mitigationHitIndex = 0)
         {
             var sw = CombatHotPathMetrics.IsEnabled ? Stopwatch.StartNew() : null;
 
@@ -300,12 +300,12 @@ namespace RPGGame.Combat.Calculators
             int finalDamage;
             int reducedAmount;
 
-            if (target is Character hero && hero is not Enemy)
+            if (target is Character defender)
             {
-                var mit = ClassDefenseCalculator.ApplyIncoming(hero, totalDamage, pierce);
+                var mit = ClassDefenseCalculator.ApplyIncoming(defender, totalDamage, pierce, mitigationHitIndex);
                 finalDamage = mit.Remaining;
                 reducedAmount = mit.ReducedAmount;
-                if (hero.IsWeakened && showWeakenedMessage)
+                if (defender.IsWeakened && showWeakenedMessage)
                     finalDamage = (int)(finalDamage * 1.5);
                 if (finalDamage > 0 && finalDamage < minimumDamage)
                     finalDamage = minimumDamage;
@@ -339,13 +339,13 @@ namespace RPGGame.Combat.Calculators
         /// <summary>
         /// Calculates damage reduction from armor and other sources
         /// </summary>
-        public static int ApplyDamageReduction(Actor target, int damage, Action? action = null, int? defenseFace = null, int? attackFace = null)
+        public static int ApplyDamageReduction(Actor target, int damage, Action? action = null, int? defenseFace = null, int? attackFace = null, int mitigationHitIndex = 0)
         {
             bool pierce = IgnoresArmor(target, action);
             int remaining;
-            if (target is Character hero && hero is not Enemy)
+            if (target is Character defender)
             {
-                remaining = ClassDefenseCalculator.ApplyIncoming(hero, damage, pierce).Remaining;
+                remaining = ClassDefenseCalculator.ApplyIncoming(defender, damage, pierce, mitigationHitIndex).Remaining;
             }
             else
             {
@@ -360,14 +360,13 @@ namespace RPGGame.Combat.Calculators
             }
 
             int finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)(remaining * damageReductionMultiplier));
-            if (target is Character dodgeHero && dodgeHero is not Enemy && remaining <= 0)
+            if (target is Character remainingHero && remaining <= 0)
                 return 0;
             return finalDamage;
         }
 
         /// <summary>
-        /// True when this swing ignores standing BLOCK, Grit, and Wizard shield
-        /// (action pierce, or the target is pierced). Pierce still mints Tempo/Counter.
+        /// True when this swing ignores Defense DR (action pierce, or the target is pierced).
         /// </summary>
         public static bool IgnoresArmor(Actor? target, Action? action = null)
         {
@@ -377,7 +376,7 @@ namespace RPGGame.Combat.Calculators
         }
 
         /// <summary>
-        /// Effective flat armor for the target (hero gear+/effects, enemy base armor minus combat shred).
+        /// Base Defense rating for the target (hero gear+/effects, enemy Armor minus combat shred).
         /// Returns 0 when <paramref name="action"/> has pierce or the target is under pierce.
         /// </summary>
         public static int ResolveTargetArmor(Actor target, Action? action = null)
@@ -386,23 +385,9 @@ namespace RPGGame.Combat.Calculators
                 return 0;
             if (IgnoresArmor(target, action))
                 return 0;
-
-            int baseArmor;
-            if (target is Enemy enemy)
-                baseArmor = enemy.Armor;
-            else if (target is Character character)
+            if (target is Character character)
                 return Math.Max(0, character.GetMaxArmor());
-            else
-                return 0;
-
-            // Enemies use base Armor; subtract combat shred fields (Acid is the live shred DoT).
-            if (target.ArmorBreakReduction is int armorBreak && armorBreak > 0)
-                baseArmor -= armorBreak;
-            if (target.ExposeArmorReduction is int expose && expose > 0)
-                baseArmor -= expose;
-            if (target.AcidArmorReduction > 0)
-                baseArmor -= target.AcidArmorReduction;
-            return Math.Max(0, baseArmor);
+            return 0;
         }
 
         /// <summary>True when the action carries the hero's highest class-point tag (barbarian/warrior/rogue/wizard).</summary>

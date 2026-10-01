@@ -4,6 +4,69 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Inventory: equipped charm missing from comparison (September 2026)
+**Problem:** Choosing a bag charm while another charm was equipped showed `(empty slot)` under CURRENT ITEM. The header also read EQUIP ITEM instead of EQUIP CHARM.
+
+**Solution:** Comparison and inventory refresh look up the worn item with `CharacterEquipment.GetSlotItem`, which includes the charm slot. The current-column hover id is `gear:charm`, and the left-panel tooltip builder renders that charm.
+
+**Related files:** `InventoryItemComparisonHandler.cs`, `InventoryMenuHandler.cs`, `CharacterEquipment.cs`, `ItemComparisonRenderer.cs`, `LeftPanelTooltipBuilder.cs`
+
+### UI: neutral stance on every action card (September 2026)
+**Problem:** Every action card printed `result: neutral stance` when BLOCK was 100%. **SLAM** was authored as defensive (BLOCK 180).
+
+**Solutions:**
+1. `StandingBlock.FormatCardLine` returns an empty string for neutral. The strip skips that row so it does not leave a blank line. Hover Stats uses the same string, so the tip omits it too.
+2. `Actions.json` **SLAM** BLOCK is **0** (aggressive).
+
+**Related files:** `StandingBlock.cs`, `HeroDefenseHudFormatter.cs`, `DungeonRenderer.RoomAndCombat.cs`, `Actions.json`
+
+### Progression: Puberty adds level to Strength (September 2026)
+**Problem:** Puberty was a flat +15 Strength, so a level 5 hero gained the same Strength as a level 25 hero.
+
+**Solution:** Learned Puberty (`customEffectId` `puberty`) adds the hero's level to Strength (level 5 → +5 STR), once per rank. Commission, Initiation, and Apprenticeship stay +15. The STR hover **Skill tree** line shows that same number.
+
+**Related files:** `SkillEffectRouter.cs`, `SkillTrees.json`, `SkillEffectRankScalingTests.cs`, `StatTooltipFormatterTests.cs`
+**Problem:** Echo Spell (`retrigger_next`) played itself again, and the encore roll footer showed up as `(ro...`.
+
+**Solutions:**
+1. Snapshot the next strip index when the retrigger is scheduled, before the hit advances `ComboStep`. Consuming `ComboStep + 1` after that advance wrapped a short strip back onto the action that just fired.
+2. After the encore, move the sequence to the slot after the one that was retriggered (slot 1 Echo Spell + slot 2 Slam → next turn is slot 3). Nested swings do not change the strip.
+3. Width-cap each line inside a multi-line combat-log entry. The prepare line, encore headline, and roll footer share one buffer message; capping the whole blob chopped the roll line.
+
+**Related files:** `RetriggerScheduler.cs`, `ActionExecutionFlow.cs`, `ActionExecutionFlow.Outcomes.cs`, `BufferStorage.cs`
+
+### Combat: WoW-style Defense DR (September 2026)
+**Problem:** Standing BLOCK was a flat percent DR plus class Tempo/Counter/Shield/Grit, which did not match the diminishing-returns Defense model needed for testing.
+
+**Solutions:**
+1. `DR = effective / (effective + K)` with `effective = rating × action BLOCK%` (0–500; 100=1×); K from `Combat.ArmorReductionFactor` (default 100)
+2. Unnamed/open stance is 100%; incoming multi-hit uses the action modifier on tick 0 only
+3. Live path does not apply Grit/Shield or mint Tempo/Counter; remap Actions.json 0/25/45 → 0/100/180
+4. Tests: `ClassDefenseCalculatorTests`, `ActionBlockSheetColumnsTests`, `DamageCalculatorTests`, `HeroDefenseHudFormatterTests`, `MultiHitTests`
+
+**Related files:** `StandingBlock.cs`, `ClassDefenseCalculator.cs`, `DamageCalculator.cs`, `Actions.json`
+
+### Combat: hit resets combo BLOCK; enemies use Defense DR (September 2026)
+**Problem:** Combo BLOCK stayed until the next named action, so the left-panel Defense number did not match the live modified rating, and enemies still used flat armor subtract.
+
+**Solution:**
+1. Left-panel Defense shows `rating × standing BLOCK`
+2. A successful incoming hit resets standing BLOCK to 100% (base) after the swing HUD/footer is captured
+3. Enemies use the same WoW DR path and standing BLOCK; enemy panel shows Defense
+4. Tests: `ClassDefenseCalculatorTests`, `DamageCalculatorTests`, `HeroDefenseHudFormatterTests`
+
+**Related files:** `StandingBlock.cs`, `ClassDefenseCalculator.cs`, `DamageCalculator.cs`, `CharacterPanelRenderer.cs`, `RightPanelRenderer.cs`
+
+### UI: Defense rating on panel, % DR on hover (September 2026)
+**Problem:** Standing BLOCK % and live DR % were always visible under HERO/STATS, crowding the Defense rating the player should read at a glance.
+
+**Solution:**
+1. Left-panel HERO always shows `Health X/Y  Defense N`; STATS shows Defense rating only
+2. Defense hover highlights live **Damage reduction N%**; BLOCK / effective / K remain in the tip
+3. Tests: `HeroDefenseHudFormatterTests`, `StatTooltipFormatterTests`
+
+**Related files:** `CharacterPanelRenderer.cs`, `StatTooltipFormatter.cs`, `HeroDefenseHudFormatter.cs`
+
 ### Bug fix: Loaded Dice (replace_next_roll) still triggered combo amp (September 2026)
 **Problem:** After **LOADED DICE** set the next natural roll to **12**, the follow-up swing logged `roll: 12` but still executed a named strip action (**SLAM**) with `amp: 1.04x` despite 12 being below the combo threshold.
 
@@ -75,6 +138,13 @@ This document contains solutions to common problems encountered during developme
 3. Tests: `CombatSequencePresenterTests` manual advance/cancel; `ActionInteractionLabTests` toggle + factory Material
 
 **Related files:** `CombatSequenceHudState.cs`, `CombatSequencePresenter.cs`, `ActionLabInputCoordinator.cs`, `ActionLabWeaponFactory.cs`, `ActionLabArmorFactory.cs`
+
+### UI: normal hit no longer flashes the combo card green (September 2026)
+**Problem:** A normal hit pulsed the current combo-strip card green. The selected card should stay solid white.
+
+**Solution:** `HeroActionStripFlashKind.Hit` clears any strip pulse instead of painting green. Miss stays red; a combo-action hit stays gold.
+
+**Related files:** `HeroActionStripFeedback.cs`, `GameplaySettingsPanel.axaml`, `HeroActionStripFeedbackTests.cs`
 
 ### Bug fix: sequence HUD froze the canvas while attack audio still played (August 2026)
 **Problem:** The first live swing left the window stuck (action on the strip, enemy HP unchanged, combat log not advancing) while hit/miss SFX still played.

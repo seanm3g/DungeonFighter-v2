@@ -11,7 +11,7 @@ namespace RPGGame.Data.Validation
         // Action validation rules
         public static class Actions
         {
-            public const double MinDamageMultiplier = 0.1;
+            public const double MinDamageMultiplier = 0.03;
             public const double MaxDamageMultiplier = 10.0;
             public const double MinLength = 0.1;
             public const double MaxLength = 10.0;
@@ -20,7 +20,7 @@ namespace RPGGame.Data.Validation
             public const int MinRollBonus = -20;
             public const int MaxRollBonus = 20;
             public const int MinMultiHitCount = 1;
-            public const int MaxMultiHitCount = 10;
+            public const int MaxMultiHitCount = 30;
             public const int MinThreshold = 0;
             public const int MaxThreshold = 20;
             public const int MinThresholdAdjustment = -20;

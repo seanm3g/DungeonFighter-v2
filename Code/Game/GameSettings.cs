@@ -43,7 +43,7 @@ namespace RPGGame
         /// <summary>How long the combo strip border stays solid red after a hero miss (milliseconds).</summary>
         public int ActionStripMissFlashDurationMs { get; set; } = 1200;
 
-        /// <summary>Total time the combo strip flashes gold on successful hero actions — alternates on/off each <see cref="ActionStripSuccessFlashPulseHalfPeriodMs"/> (milliseconds).</summary>
+        /// <summary>Total time the combo strip flashes gold after a combo-action hit — alternates on/off each <see cref="ActionStripSuccessFlashPulseHalfPeriodMs"/> (milliseconds). A normal hit does not flash.</summary>
         public int ActionStripSuccessFlashDurationMs { get; set; } = 3000;
 
         /// <summary>Half-period for success pulse: gold for this long, then normal border for this long, repeating until <see cref="ActionStripSuccessFlashDurationMs"/> elapses.</summary>

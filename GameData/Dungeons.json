@@ -10,7 +10,9 @@
       "Wolf",
       "Bear",
       "Treant",
-      "Boar"
+      "Boar",
+      "Rats",
+      "Giant Ants"
     ]
   },
   {
@@ -21,7 +23,7 @@
     "possibleEnemies": [
       "Fire Elemental",
       "Lava Golem",
-      "Bat",
+      "Bats",
       "Salamander",
       "Ember Spirit",
       "Magma Beast"

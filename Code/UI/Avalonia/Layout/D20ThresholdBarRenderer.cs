@@ -11,16 +11,12 @@ namespace RPGGame.UI.Avalonia.Layout
     public static class D20ThresholdBarRenderer
     {
         public const double CombatHealthHeightScale = 1.0;
-        public const double CombatArmorHeightScale = 0.25;
         public const double CombatStripHeightScale = 0.5;
 
         /// <summary>Grid rows cleared for the combat bar block (health 1.0 + threshold 0.5).</summary>
         public const int CombatBarAreaRowCount = 2;
 
         public const double CombatStripVerticalOffsetNoArmor = CombatHealthHeightScale;
-
-        public const double CombatStripVerticalOffsetWithArmor =
-            CombatArmorHeightScale + CombatHealthHeightScale;
 
         public static ThresholdDisplayFormatting.D20OutcomeSegment[] RenderBar(
             GameCanvasControl canvas,

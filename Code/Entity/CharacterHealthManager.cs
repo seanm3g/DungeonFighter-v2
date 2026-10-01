@@ -22,17 +22,43 @@ namespace RPGGame
         private int _currentHealth;
         public int CurrentHealth 
         { 
-            get => _currentHealth;
+            get
+            {
+                if (character is Enemy packEnemy && packEnemy.IsPack)
+                    return packEnemy.PackCurrentHealth;
+                return _currentHealth;
+            }
             set 
             {
-                int maxHealth = GetEffectiveMaxHealth();
+                if (character is Enemy packEnemy && packEnemy.IsPack && !RPGGame.Tuning.DeveloperSimMode.ContinuePastZeroHp)
+                {
+                    int maxHealth = GetEffectiveMaxHealth();
+                    if (value >= maxHealth)
+                        packEnemy.RestorePackFull();
+                    else
+                        packEnemy.AssignPackHealth(value);
+                    _currentHealth = packEnemy.PackCurrentHealth;
+                    return;
+                }
+
+                int max = GetEffectiveMaxHealth();
                 if (RPGGame.Tuning.DeveloperSimMode.ContinuePastZeroHp)
-                    _currentHealth = Math.Min(value, maxHealth);
+                    _currentHealth = Math.Min(value, max);
                 else
-                    _currentHealth = Math.Max(0, Math.Min(value, maxHealth));
+                    _currentHealth = Math.Max(0, Math.Min(value, max));
             }
         }
-        public int MaxHealth { get; set; }
+        private int _maxHealth;
+        public int MaxHealth
+        {
+            get => _maxHealth;
+            set
+            {
+                _maxHealth = value;
+                if (character is Enemy packEnemy && packEnemy.IsPack && value > 0 && packEnemy.PackMaxHealth != value)
+                    packEnemy.ResizePack(value);
+            }
+        }
 
         /// <summary>
         /// Effective armor for display/compat. Armor is flat damage reduction from gear and combat
@@ -45,13 +71,20 @@ namespace RPGGame
             set { /* Armor is derived from gear/effects; kept for save/API compatibility. */ }
         }
 
-        /// <summary>Effective flat armor reduction (equipment + fortify − armor break / expose / acid).</summary>
+        /// <summary>Effective Defense rating (character base + level + equipment + fortify + skill − armor break / expose / acid).</summary>
         public int GetMaxArmor() => GetEffectiveArmor();
 
-        /// <summary>Effective flat armor reduction (equipment + fortify − armor break / expose / acid).</summary>
+        /// <summary>Effective Defense rating (character base + level + equipment + fortify + skill − armor break / expose / acid).</summary>
         public int GetEffectiveArmor()
         {
-            int max = character.GetTotalArmor();
+            int max = character is Enemy enemy
+                ? enemy.Armor
+                : character.GetTotalArmor();
+            if (character is not Enemy)
+            {
+                max += Math.Max(0, GameConfiguration.Instance.Combat.PlayerBaseArmor);
+                max += Math.Max(0, character.Level);
+            }
             if (character.FortifyArmorBonus is int fortifyBonus && fortifyBonus > 0)
                 max += fortifyBonus;
             max += SkillEffectRouter.Instance.GetSkillArmorBonus(character);
@@ -122,11 +155,22 @@ namespace RPGGame
 
             if (amount < 0)
             {
+                if (character is Enemy healingPack && healingPack.IsPack && !RPGGame.Tuning.DeveloperSimMode.ContinuePastZeroHp)
+                {
+                    healingPack.HealLivingBodies(-amount);
+                    _currentHealth = healingPack.PackCurrentHealth;
+                    return new List<string>();
+                }
                 CurrentHealth = Math.Min(GetEffectiveMaxHealth(), CurrentHealth - amount);
                 return new List<string>();
             }
 
-            if (RPGGame.Tuning.DeveloperSimMode.ContinuePastZeroHp)
+            if (character is Enemy packEnemy && packEnemy.IsPack && !RPGGame.Tuning.DeveloperSimMode.ContinuePastZeroHp)
+            {
+                packEnemy.DamageFrontBody(amount);
+                _currentHealth = packEnemy.PackCurrentHealth;
+            }
+            else if (RPGGame.Tuning.DeveloperSimMode.ContinuePastZeroHp)
                 CurrentHealth -= amount;
             else
                 CurrentHealth = Math.Max(0, CurrentHealth - amount);
@@ -187,6 +231,14 @@ namespace RPGGame
         /// <param name="amount">Amount to heal</param>
         public void Heal(int amount)
         {
+            if (amount <= 0)
+                return;
+            if (character is Enemy packEnemy && packEnemy.IsPack && !RPGGame.Tuning.DeveloperSimMode.ContinuePastZeroHp)
+            {
+                packEnemy.HealLivingBodies(amount);
+                _currentHealth = packEnemy.PackCurrentHealth;
+                return;
+            }
             CurrentHealth = Math.Min(GetEffectiveMaxHealth(), CurrentHealth + amount);
         }
 

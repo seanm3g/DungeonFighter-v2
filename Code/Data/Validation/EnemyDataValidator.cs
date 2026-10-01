@@ -101,6 +101,12 @@ namespace RPGGame.Data.Validation
             if (enemy.HealthGrowthPercent.HasValue)
                 ValidateNonNegative(result, entityName, "healthGrowthPercent", enemy.HealthGrowthPercent.Value);
 
+            if (enemy.PackSize is int packSize && packSize < 1)
+            {
+                result.AddWarning(FileName, entityName, "packSize",
+                    $"packSize {packSize} is below 1; runtime treats that as a single body.");
+            }
+
             if (!string.IsNullOrWhiteSpace(enemy.Rarity)
                 && _validRarityNames != null
                 && !_validRarityNames.Contains(enemy.Rarity.Trim()))

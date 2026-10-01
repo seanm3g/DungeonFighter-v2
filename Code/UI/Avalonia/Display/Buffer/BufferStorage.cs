@@ -54,14 +54,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                 return;
             }
             
-            // Truncate if too long
-            var displayLength = ColoredTextRenderer.GetDisplayLength(segments);
-            if (displayLength > maxLineWidth)
-            {
-                segments = ColoredTextRenderer.Truncate(segments, maxLineWidth - 3);
-                // Add "..." as a final segment
-                segments.Add(new ColoredText("...", Colors.White));
-            }
+            segments = FitToLineWidth(segments);
             
             // Prevent consecutive duplicate messages
             // BUT: Allow blank lines to be added even if previous was blank (spacing needs multiple blanks)
@@ -104,13 +97,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                 return;
             }
 
-            var processedSegments = segments;
-            var displayLength = ColoredTextRenderer.GetDisplayLength(segments);
-            if (displayLength > maxLineWidth)
-            {
-                processedSegments = ColoredTextRenderer.Truncate(segments, maxLineWidth - 3);
-                processedSegments.Add(new ColoredText("...", Colors.White));
-            }
+            var processedSegments = FitToLineWidth(segments);
 
             messages[index] = new List<ColoredText>(processedSegments);
             if (messageType.HasValue)
@@ -174,15 +161,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                     continue;
                 }
                 
-                // Truncate if too long
-                var displayLength = ColoredTextRenderer.GetDisplayLength(segments);
-                var processedSegments = segments;
-                if (displayLength > maxLineWidth)
-                {
-                    processedSegments = ColoredTextRenderer.Truncate(segments, maxLineWidth - 3);
-                    // Add "..." as a final segment
-                    processedSegments.Add(new ColoredText("...", Colors.White));
-                }
+                var processedSegments = FitToLineWidth(segments);
                 
                 // Prevent consecutive duplicate messages (only check against last message in buffer)
                 // BUT: Allow blank lines to be added even if previous was blank (spacing needs multiple blanks)
@@ -232,6 +211,83 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             for (int i = 0; i < n; i++)
                 result.Add((new List<ColoredText>(sliceMessages[i]), sliceTypes[i]));
             return result;
+        }
+
+        /// <summary>
+        /// Caps each visual line at <see cref="maxLineWidth"/>. Newlines stay inside the same buffer
+        /// entry so punchline reservations keep their line count, but a later line is not eaten by
+        /// the characters of the lines above it.
+        /// </summary>
+        private List<ColoredText> FitToLineWidth(List<ColoredText> segments)
+        {
+            if (segments == null || segments.Count == 0)
+                return segments ?? new List<ColoredText>();
+
+            bool hasBreak = false;
+            foreach (var seg in segments)
+            {
+                string text = seg?.Text ?? "";
+                if (text.IndexOf('\n') >= 0 || text.IndexOf('\r') >= 0)
+                {
+                    hasBreak = true;
+                    break;
+                }
+            }
+
+            if (!hasBreak)
+                return TruncateSingleLine(segments);
+
+            var lines = SplitLogicalLines(segments);
+            var result = new List<ColoredText>();
+            for (int i = 0; i < lines.Count; i++)
+            {
+                if (i > 0)
+                    result.Add(new ColoredText(global::System.Environment.NewLine, Colors.White));
+                result.AddRange(TruncateSingleLine(lines[i]));
+            }
+            return result;
+        }
+
+        private List<ColoredText> TruncateSingleLine(List<ColoredText> line)
+        {
+            if (line == null || line.Count == 0)
+                return line ?? new List<ColoredText>();
+            if (ColoredTextRenderer.GetDisplayLength(line) <= maxLineWidth)
+                return line;
+
+            var truncated = ColoredTextRenderer.Truncate(line, System.Math.Max(0, maxLineWidth - 3));
+            truncated.Add(new ColoredText("...", Colors.White));
+            return truncated;
+        }
+
+        private static List<List<ColoredText>> SplitLogicalLines(List<ColoredText> segments)
+        {
+            var lines = new List<List<ColoredText>>();
+            var current = new List<ColoredText>();
+            foreach (var seg in segments)
+            {
+                string text = seg?.Text ?? "";
+                if (text.IndexOf('\n') < 0 && text.IndexOf('\r') < 0)
+                {
+                    if (text.Length > 0 && seg != null)
+                        current.Add(seg);
+                    continue;
+                }
+
+                var parts = text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    if (i > 0)
+                    {
+                        lines.Add(current);
+                        current = new List<ColoredText>();
+                    }
+                    if (parts[i].Length > 0 && seg != null)
+                        current.Add(new ColoredText(parts[i], seg.Color, seg.SourceTemplate, seg.ColorReadyForCanvas));
+                }
+            }
+            lines.Add(current);
+            return lines;
         }
     }
 }

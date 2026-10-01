@@ -64,12 +64,8 @@ namespace RPGGame
             // If rollBonus is 0, don't add the = total part (totalRoll will equal roll)
             rollInfo.Add($"roll: {rollDisplay}");
             int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, totalRoll, rollBonus);
-            if (target is Character hero && hero is not Enemy)
-            {
-                bool pierce = DamageCalculator.IgnoresArmor(hero, action);
-                rollInfo.Add(ClassDefenseCalculator.FormatCombatFooter(hero, pierce));
-            }
-            else
+            Character? defender = target as Character;
+            if (defender == null)
             {
                 int targetDefense = DamageCalculator.ResolveTargetArmor(target, action);
                 rollInfo.Add(DamageFormatter.FormatAttackVsArmorPlain(actualRawDamage, targetDefense, useBlockLabel: false));
@@ -86,6 +82,12 @@ namespace RPGGame
             double displayCombo = DamageCalculator.GetDisplayedComboMultiplier(attacker, comboAmplifier, action);
             if (displayCombo > 1.0001 || (action != null && action.IsComboAction))
                 rollInfo.Add($"amp: {displayCombo:F2}x");
+
+            if (defender != null)
+            {
+                bool pierce = DamageCalculator.IgnoresArmor(defender, action);
+                rollInfo.Add(ClassDefenseCalculator.FormatCombatFooter(defender, pierce));
+            }
             
             // Return the roll information as a separate string
             string rollInfoText = "     (" + string.Join(" | ", rollInfo) + ")";
@@ -171,10 +173,11 @@ namespace RPGGame
             Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, 
             double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, int multiHitCount = 1, bool isCriticalMiss = false, bool? resolvedCritical = null,
             Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default,
-            int? defenseFace = null)
+            int? defenseFace = null,
+            int overkillWasted = 0)
         {
             return CombatResultsColoredText.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, 
-                action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical, multiDiceDetail, defenseFace);
+                action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical, multiDiceDetail, defenseFace, overkillWasted);
         }
         
         /// <summary>

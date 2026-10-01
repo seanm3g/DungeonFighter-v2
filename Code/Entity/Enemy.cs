@@ -23,6 +23,272 @@ namespace RPGGame
 
         private readonly List<string> _tags = new List<string>();
 
+        private int[]? _bodyMax;
+        private int[]? _bodyCurrent;
+        private int? _packHeadlineCount;
+
+        /// <summary>True when this enemy is several bodies that share one combat role.</summary>
+        public bool IsPack => _bodyMax != null && _bodyMax.Length > 1;
+
+        /// <summary>Authored body count. Single enemies are 1.</summary>
+        public int PackSize => _bodyMax?.Length ?? 1;
+
+        /// <summary>Bodies with HP remaining. A single enemy reports 1 while alive.</summary>
+        public int LivingBodyCount { get; private set; } = 1;
+
+        /// <summary>Sum of per-body max HP. Matches <see cref="Character.MaxHealth"/> after <see cref="InitializePack"/>.</summary>
+        public int PackMaxHealth
+        {
+            get
+            {
+                if (_bodyMax == null)
+                    return MaxHealth;
+                int sum = 0;
+                for (int i = 0; i < _bodyMax.Length; i++)
+                    sum += _bodyMax[i];
+                return sum;
+            }
+        }
+
+        /// <summary>Sum of per-body current HP.</summary>
+        public int PackCurrentHealth
+        {
+            get
+            {
+                if (_bodyCurrent == null)
+                    return 0;
+                int sum = 0;
+                for (int i = 0; i < _bodyCurrent.Length; i++)
+                    sum += _bodyCurrent[i];
+                return sum;
+            }
+        }
+
+        /// <summary>HP left on the rightmost living body (the one a swing can hit).</summary>
+        public int FrontBodyRemaining
+        {
+            get
+            {
+                int index = FrontBodyIndex;
+                return index < 0 || _bodyCurrent == null ? 0 : _bodyCurrent[index];
+            }
+        }
+
+        /// <summary>
+        /// When set, combat-log names use this body count instead of <see cref="LivingBodyCount"/>
+        /// so a killing swing still shows the count from the start of that swing.
+        /// </summary>
+        public int? PackHeadlineCount
+        {
+            get => _packHeadlineCount;
+            set => _packHeadlineCount = value;
+        }
+
+        /// <summary>Damage past the front body on the last <see cref="DamageFrontBody"/> call.</summary>
+        public int LastOverkillWasted { get; private set; }
+
+        /// <summary>Fractions of max HP where black bar dividers sit (one per boundary between bodies).</summary>
+        public double[] PackDividerFractions
+        {
+            get
+            {
+                if (!IsPack || _bodyMax == null || PackMaxHealth <= 0)
+                    return Array.Empty<double>();
+                var fractions = new double[_bodyMax.Length - 1];
+                int cumulative = 0;
+                int total = PackMaxHealth;
+                for (int i = 0; i < fractions.Length; i++)
+                {
+                    cumulative += _bodyMax[i];
+                    fractions[i] = (double)cumulative / total;
+                }
+                return fractions;
+            }
+        }
+
+        /// <summary>
+        /// Splits max HP into <paramref name="packSize"/> bodies. Values of 1 or less stay a single enemy.
+        /// Remainder HP is added to the last bodies so the pack total stays <see cref="Character.MaxHealth"/>.
+        /// </summary>
+        public void InitializePack(int packSize)
+        {
+            packSize = Math.Max(1, packSize);
+            if (packSize <= 1 || MaxHealth <= 0)
+            {
+                _bodyMax = null;
+                _bodyCurrent = null;
+                LivingBodyCount = CurrentHealth > 0 ? 1 : 0;
+                return;
+            }
+
+            if (MaxHealth < packSize)
+                packSize = MaxHealth;
+
+            _bodyMax = SplitPackHealth(MaxHealth, packSize);
+            _bodyCurrent = (int[])_bodyMax.Clone();
+            RefreshLivingBodyCount();
+        }
+
+        /// <summary>Removes HP from the rightmost living body only. Extra damage is wasted.</summary>
+        public int DamageFrontBody(int amount)
+        {
+            if (!IsPack || amount <= 0 || _bodyCurrent == null)
+            {
+                LastOverkillWasted = 0;
+                return 0;
+            }
+
+            int index = FrontBodyIndex;
+            if (index < 0)
+            {
+                LastOverkillWasted = amount;
+                return 0;
+            }
+
+            int applied = Math.Min(amount, _bodyCurrent[index]);
+            _bodyCurrent[index] -= applied;
+            LastOverkillWasted = amount - applied;
+            RefreshLivingBodyCount();
+            return applied;
+        }
+
+        /// <summary>Heals living bodies from the wounded front backward. Dead bodies stay dead.</summary>
+        public void HealLivingBodies(int amount)
+        {
+            if (!IsPack || amount <= 0 || _bodyCurrent == null || _bodyMax == null)
+                return;
+
+            for (int i = _bodyCurrent.Length - 1; i >= 0 && amount > 0; i--)
+            {
+                if (_bodyCurrent[i] <= 0)
+                    continue;
+                int room = _bodyMax[i] - _bodyCurrent[i];
+                if (room <= 0)
+                    continue;
+                int add = Math.Min(room, amount);
+                _bodyCurrent[i] += add;
+                amount -= add;
+            }
+            RefreshLivingBodyCount();
+        }
+
+        /// <summary>Fills every body, including ones already at 0. Used when current HP is assigned to max.</summary>
+        public void RestorePackFull()
+        {
+            if (!IsPack || _bodyCurrent == null || _bodyMax == null)
+                return;
+            for (int i = 0; i < _bodyCurrent.Length; i++)
+                _bodyCurrent[i] = _bodyMax[i];
+            RefreshLivingBodyCount();
+        }
+
+        public void KillAllBodies()
+        {
+            if (_bodyCurrent == null)
+            {
+                LivingBodyCount = 0;
+                return;
+            }
+            Array.Clear(_bodyCurrent, 0, _bodyCurrent.Length);
+            LivingBodyCount = 0;
+        }
+
+        /// <summary>Moves displayed HP toward <paramref name="requested"/> without spilling past one body or reviving.</summary>
+        public void AssignPackHealth(int requested)
+        {
+            if (!IsPack)
+                return;
+            int current = PackCurrentHealth;
+            if (requested >= PackMaxHealth)
+                RestorePackFull();
+            else if (requested <= 0)
+                KillAllBodies();
+            else if (requested < current)
+                DamageFrontBody(current - requested);
+            else if (requested > current)
+                HealLivingBodies(requested - current);
+        }
+
+        /// <summary>Rebuilds body maxes when max HP changes. Dead bodies stay dead; full bodies stay full.</summary>
+        public void ResizePack(int newMax)
+        {
+            if (!IsPack || _bodyMax == null || _bodyCurrent == null)
+                return;
+            int count = _bodyMax.Length;
+            if (newMax < count)
+                newMax = count;
+            var oldMax = (int[])_bodyMax.Clone();
+            var oldCurrent = (int[])_bodyCurrent.Clone();
+            var nextMax = SplitPackHealth(newMax, count);
+            for (int i = 0; i < count; i++)
+            {
+                if (oldCurrent[i] <= 0)
+                    _bodyCurrent[i] = 0;
+                else if (oldMax[i] <= 0 || oldCurrent[i] >= oldMax[i])
+                    _bodyCurrent[i] = nextMax[i];
+                else
+                {
+                    int scaled = (int)Math.Round(oldCurrent[i] * (double)nextMax[i] / oldMax[i]);
+                    _bodyCurrent[i] = Math.Clamp(scaled, 1, nextMax[i]);
+                }
+                _bodyMax[i] = nextMax[i];
+            }
+            RefreshLivingBodyCount();
+        }
+
+        /// <summary>Suffix such as <c>(3x)</c> while any body is alive. Empty for a single enemy or a wiped pack.</summary>
+        public string PackSuffix
+        {
+            get
+            {
+                if (!IsPack)
+                    return "";
+                int count = _packHeadlineCount ?? LivingBodyCount;
+                return count >= 1 ? $"({count}x)" : "";
+            }
+        }
+
+        private int FrontBodyIndex
+        {
+            get
+            {
+                if (_bodyCurrent == null)
+                    return -1;
+                for (int i = _bodyCurrent.Length - 1; i >= 0; i--)
+                {
+                    if (_bodyCurrent[i] > 0)
+                        return i;
+                }
+                return -1;
+            }
+        }
+
+        private void RefreshLivingBodyCount()
+        {
+            if (_bodyCurrent == null)
+            {
+                LivingBodyCount = 1;
+                return;
+            }
+            int living = 0;
+            for (int i = 0; i < _bodyCurrent.Length; i++)
+            {
+                if (_bodyCurrent[i] > 0)
+                    living++;
+            }
+            LivingBodyCount = living;
+        }
+
+        private static int[] SplitPackHealth(int total, int count)
+        {
+            var sizes = new int[count];
+            int baseSize = total / count;
+            int remainder = total % count;
+            for (int i = 0; i < count; i++)
+                sizes[i] = baseSize + (i >= count - remainder ? 1 : 0);
+            return sizes;
+        }
+
         internal void SetTags(IEnumerable<string>? tags)
         {
             _tags.Clear();
@@ -323,27 +589,11 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Override TakeDamage to add health milestone tracking for enemies
+        /// Same path as <see cref="Character.TakeDamage"/> so pack bodies cap overkill in one place.
         /// </summary>
-        public new void TakeDamage(int amount)
-        {
-            TakeDamageWithNotifications(amount);
-        }
-        
-        public new List<string> TakeDamageWithNotifications(int amount)
-        {
-            // Apply damage reduction if active (now inherited from Actor base class)
-            if (DamageReduction > 0)
-            {
-                amount = (int)(amount * (1.0 - DamageReduction));
-            }
-            
-            CurrentHealth = Math.Max(0, CurrentHealth - amount);
-            
-            // Check for health milestones and leadership changes
-            // Note: Health milestone checking is now handled by CombatManager
-            return new List<string>(); // Return empty list since milestone checking moved to CombatManager
-        }
+        public new void TakeDamage(int amount) => base.TakeDamage(amount);
+
+        public new List<string> TakeDamageWithNotifications(int amount) => base.TakeDamageWithNotifications(amount);
 
         public override int GetMaxHealthForPoisonDot() => MaxHealth;
 

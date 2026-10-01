@@ -44,6 +44,7 @@ namespace RPGGame
                 enemyArchetype);
 
             enemy.SetTags(BuildRuntimeTags(data));
+            enemy.InitializePack(data.ResolvedPackSize);
 
             if (data.ColorOverride != null)
             {

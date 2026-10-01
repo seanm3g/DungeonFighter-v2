@@ -5,12 +5,14 @@ using System.Linq;
 using Avalonia.Media;
 using RPGGame.Actions.Execution;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat;
 using RPGGame.Combat.Sequence;
 using RPGGame.Combat.Events;
 using RPGGame.Combat.Outcomes;
 using RPGGame.Actions.Conditional;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Combat.Formatting;
+using RPGGame.Combat.Calculators;
 
 namespace RPGGame
 {
@@ -51,6 +53,14 @@ namespace RPGGame
         /// Set before ACTION cadence next-action Multihit is deposited so combat-log formatting does not peek the grant's own Multihit.
         /// </summary>
         public int ResolvedMultiHitCount { get; set; } = 1;
+        /// <summary>Damage calculated for the swing that did not land because a pack body died.</summary>
+        public int OverkillWasted { get; set; }
+        /// <summary>Living bodies on the attacker at the start of the swing, when the attacker is a pack.</summary>
+        public int? SourcePackHeadlineCount { get; set; }
+        /// <summary>Living bodies on the target at the start of the swing, when the target is a pack.</summary>
+        public int? TargetPackHeadlineCount { get; set; }
+        /// <summary>Shown after the swing when a body dies and the pack is still alive.</summary>
+        public string? PackBodyFellText { get; set; }
         public List<string> StatusEffectMessages { get; set; } = new List<string>();
         public List<List<ColoredText>> ColoredStatusEffects { get; set; } = new List<List<ColoredText>>();
         /// <summary>
@@ -102,7 +112,19 @@ namespace RPGGame
         private static (List<ColoredText> actionText, List<ColoredText> rollInfo) FormatAsColoredText(ActionExecutionResult result, Actor source, Actor target)
         {
             Actor displayTarget = result.EffectiveTarget ?? target;
+            PackCombat.ApplyHeadlineSnapshot(result, source, displayTarget);
+            try
+            {
+                return FormatAsColoredTextCore(result, source, target, displayTarget);
+            }
+            finally
+            {
+                PackCombat.ClearHeadlineSnapshot(source, displayTarget);
+            }
+        }
 
+        private static (List<ColoredText> actionText, List<ColoredText> rollInfo) FormatAsColoredTextCore(ActionExecutionResult result, Actor source, Actor target, Actor displayTarget)
+        {
             if (result.SelectedAction == null)
             {
                 var builder = new ColoredTextBuilder();
@@ -118,7 +140,7 @@ namespace RPGGame
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
                     // Use the hit count resolved for this swing — not strip peek after next-action Multihit was queued.
                     int multiHitCount = Math.Max(1, result.ResolvedMultiHitCount);
-                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, displayTarget, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, result.IsCriticalMiss, result.IsCritical, result.MultiDiceRollDetail, result.DefenseFace);
+                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, displayTarget, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, result.IsCriticalMiss, result.IsCritical, result.MultiDiceRollDetail, result.DefenseFace, result.OverkillWasted);
                     return (damageText, rollInfo);
                 }
                 else if (result.SelectedAction.Type == ActionType.Heal)
@@ -197,8 +219,20 @@ namespace RPGGame
                 {
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
                     int multiHitCount = Math.Max(1, result.ResolvedMultiHitCount);
-                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, false, result.IsCritical, result.MultiDiceRollDetail, result.DefenseFace);
+                    PackCombat.ApplyHeadlineSnapshot(result, source, target);
+                    (List<ColoredText> damageText, List<ColoredText> rollInfo) formatted;
+                    try
+                    {
+                        formatted = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, false, result.IsCritical, result.MultiDiceRollDetail, result.DefenseFace, result.OverkillWasted);
+                    }
+                    finally
+                    {
+                        PackCombat.ClearHeadlineSnapshot(source, target);
+                    }
+                    var (damageText, rollInfo) = formatted;
                     string damageString = ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
+                    if (!string.IsNullOrEmpty(result.PackBodyFellText))
+                        damageString += "\n" + result.PackBodyFellText;
                     results.Add(damageString);
                 }
                 else if (result.SelectedAction.Type == ActionType.Heal)
@@ -269,12 +303,24 @@ namespace RPGGame
             AppendNestedRetriggerDisplay(result, source, target, coloredStatusEffects);
             
             var mainResult = FormatAsColoredText(result, source, target);
+            if (!string.IsNullOrEmpty(result.PackBodyFellText))
+                coloredStatusEffects.Add(PackCombat.FormatBodyFellLine(result.PackBodyFellText));
             if (CombatSequencePresenter.ShouldPlay())
             {
                 CombatSequencePresenter.SetPending(
                     CombatSequenceBuilder.From(result, source, target),
                     result.HealthBarHolds);
             }
+
+            if (result.Hit
+                && result.SelectedAction != null
+                && (result.SelectedAction.Type == ActionType.Attack || result.SelectedAction.Type == ActionType.Spell))
+            {
+                StandingBlock.ConsumeAfterHit(target);
+                if (result.SelectedAction.Target == TargetType.SelfAndTarget)
+                    StandingBlock.ConsumeAfterHit(source);
+            }
+
             return (mainResult, coloredStatusEffects);
         }
 
@@ -321,7 +367,10 @@ namespace RPGGame
                 }
             }
             
-            return FormatAsColoredText(result, source, target);
+            var formatted = FormatAsColoredText(result, source, target);
+            if (!string.IsNullOrEmpty(result.PackBodyFellText))
+                coloredStatusEffects.Add(PackCombat.FormatBodyFellLine(result.PackBodyFellText));
+            return formatted;
         }
         
         

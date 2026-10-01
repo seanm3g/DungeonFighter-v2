@@ -44,8 +44,8 @@ namespace RPGGame
         public int ComboOrder { get; set; }
         public double DamageMultiplier { get; set; }
         public double Length { get; set; }
-        /// <summary>Standing BLOCK fraction (0–1) granted until the next named hero action. Default 0.25. Unnamed synthetic uses 0.</summary>
-        public double BlockPercent { get; set; } = 0.25;
+        /// <summary>Standing Defense multiplier (0–5) granted until the next named hero action. Default 1.0 (100%). Unnamed synthetic uses 1.0.</summary>
+        public double BlockPercent { get; set; } = 1.0;
         /// <summary>ACTIONS DS — material whose equipped count scales this convert action.</summary>
         public string MaterialScale { get; set; } = "";
         /// <summary>ACTIONS DT — synthesis keyword this convert action reads.</summary>

@@ -70,14 +70,16 @@ namespace RPGGame.UI.Avalonia.Builders
                 if (double.TryParse(value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double v))
                     action.Length = v;
             }
-            void SetBlockPercent(string value)
+            void SetStance(string value)
             {
-                action.BlockPercent = StandingBlock.ParsePercentPoints(value);
+                action.BlockPercent = StandingBlock.MultiplierFromStanceLabel(value);
             }
             _ctx.Factory.AddFormField(stack, "MultiHitCount", action.MultiHitCount.ToString(), SetMultiHitCount, description: "e.g. 1 (number of hits)", onTextChanged: SetMultiHitCount);
             _ctx.Factory.AddFormField(stack, "DamageMultiplier", action.DamageMultiplier.ToString(), SetDamageMultiplier, description: "e.g. 1.0", onTextChanged: SetDamageMultiplier);
             _ctx.Factory.AddFormField(stack, "Speed", action.Length.ToString(), SetSpeed, description: "e.g. 1.0 (action length)", onTextChanged: SetSpeed);
-            _ctx.Factory.AddFormField(stack, "Block %", StandingBlock.FormatPercentPoints(action.BlockPercent), SetBlockPercent, description: "0–100. Standing BLOCK until next hero action.", onTextChanged: SetBlockPercent);
+            _ctx.Factory.AddFormField(stack, "Stance", StandingBlock.FormatStanceLabel(action.BlockPercent), SetStance,
+                new[] { "Aggressive", "Neutral", "Defensive" },
+                description: "Card line is result: aggressive stance or result: defensive stance (0% / 180% Defense). Neutral (100%) is not shown.");
 
             AddActionAssignmentToStack(stack, action);
         }

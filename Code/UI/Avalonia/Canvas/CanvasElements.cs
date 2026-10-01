@@ -81,6 +81,9 @@ namespace RPGGame.UI.Avalonia.Canvas
 
         /// <summary>When non-null and valid, drawn inside the delta region instead of a flat yellow overlay.</summary>
         public System.Collections.Generic.IReadOnlyList<HealthBarDamageDeltaSegment>? DamageDeltaSegments { get; set; }
+
+        /// <summary>Vertical black dividers as fractions of bar width (0–1), used by pack-enemy body boundaries.</summary>
+        public System.Collections.Generic.IReadOnlyList<double>? DividerFractions { get; set; }
     }
 
     public class CanvasBarSegment

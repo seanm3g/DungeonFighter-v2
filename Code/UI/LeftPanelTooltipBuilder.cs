@@ -39,6 +39,7 @@ namespace RPGGame
                 "gear:body" => BuildColoredGear(character, character.Body, "Body", maxLines),
                 "gear:legs" => BuildColoredGear(character, character.Legs, "Legs", maxLines),
                 "gear:feet" => BuildColoredGear(character, character.Feet, "Feet", maxLines),
+                "gear:charm" => BuildColoredGear(character, character.Charm, "Charm", maxLines),
                 string invKey when invKey.StartsWith("inv:", StringComparison.Ordinal) => BuildColoredInventory(character, invKey, maxLines),
                 _ => new List<List<ColoredText>>()
             };
@@ -161,6 +162,9 @@ namespace RPGGame
                     break;
                 case "gear:feet":
                     AppendGear(character, character.Feet, "Feet", result, AddWrapped, maxLines);
+                    break;
+                case "gear:charm":
+                    AppendGear(character, character.Charm, "Charm", result, AddWrapped, maxLines);
                     break;
                 case string setKey when setKey.StartsWith("set:", StringComparison.Ordinal):
                     AppendSet(character, setKey.Substring(4), result, AddWrapped, maxLines);

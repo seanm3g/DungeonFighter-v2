@@ -9,17 +9,17 @@ namespace RPGGame.UI.Avalonia.Feedback
     public enum HeroActionStripFlashKind
     {
         Miss,
-        /// <summary>Connected hit that is not the combo-chain completion.</summary>
+        /// <summary>Connected hit that is not a combo-action hit. The strip border stays its steady white (or gray) color.</summary>
         Hit,
-        /// <summary>Combo chain completion (last strip slot on a multi-step sequence, or a tagged finisher there).</summary>
+        /// <summary>Successful combo-action hit.</summary>
         ComboComplete
     }
 
     /// <summary>
-    /// Border feedback on the combo action strip after the hero resolves an action:
-    /// miss / hit / combo-complete each use the same on/off pulse; total time and half-period come from
-    /// <see cref="GameSettings.ActionStripMissFlashDurationMs"/> (miss) or success flash settings (hit and combo).
-    /// Colors: red, green, gold respectively.
+    /// Border feedback on the combo action strip after the hero resolves an action.
+    /// A miss pulses red. A normal hit does not pulse: the card keeps its solid white (selected) or gray border.
+    /// A combo-action hit pulses gold. Durations come from
+    /// <see cref="GameSettings.ActionStripMissFlashDurationMs"/> (miss) or the success flash settings (combo).
     /// </summary>
     public static class HeroActionStripFeedback
     {
@@ -77,9 +77,10 @@ namespace RPGGame.UI.Avalonia.Feedback
                         _pulseSequenceEndAt = t.AddMilliseconds(gs.ActionStripMissFlashDurationMs);
                         break;
                     case HeroActionStripFlashKind.Hit:
-                        _pulseOnColor = AsciiArtAssets.Colors.Green;
-                        _pulseSequenceEndAt = t.AddMilliseconds(gs.ActionStripSuccessFlashDurationMs);
-                        break;
+                        // Normal hits keep the steady strip border (selected slot is solid white).
+                        ClearFlashState();
+                        _requestInvalidate?.Invoke();
+                        return;
                     case HeroActionStripFlashKind.ComboComplete:
                         _pulseOnColor = AsciiArtAssets.Colors.Gold;
                         _pulseSequenceEndAt = t.AddMilliseconds(gs.ActionStripSuccessFlashDurationMs);

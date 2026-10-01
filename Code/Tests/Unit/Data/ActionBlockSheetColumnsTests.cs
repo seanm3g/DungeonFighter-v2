@@ -212,7 +212,7 @@ namespace RPGGame.Tests.Unit.Data
                 Speed = "1",
                 Block = "10"
             });
-            if (missing.BlockPercent == 0.25
+            if (missing.BlockPercent == 1.0
                 && zero.BlockPercent == 0.0
                 && sixty.BlockPercent == 0.60
                 && ten.BlockPercent == 0.10)
@@ -233,10 +233,10 @@ namespace RPGGame.Tests.Unit.Data
                 new[] { "ACTION", "SPEED", "BLOCK" },
                 labelRowIndex: 1,
                 dataStartRowIndex: 2);
-            var parsed = SpreadsheetActionDataCsvParser.FromCsvRow(new[] { "JAB", "1.00", "45" }, header);
+            var parsed = SpreadsheetActionDataCsvParser.FromCsvRow(new[] { "JAB", "1.00", "180" }, header);
             var data = SpreadsheetToActionDataConverter.Convert(parsed);
             var row = ActionDataToSpreadsheetJsonConverter.Merge(data, null);
-            if (parsed.Block == "45" && data.BlockPercent == 0.45 && row.Block == "45")
+            if (parsed.Block == "180" && data.BlockPercent == 1.80 && row.Block == "180")
                 pass++;
             else
             {
@@ -263,13 +263,13 @@ namespace RPGGame.Tests.Unit.Data
         private static void ConverterJsonRoundTripBlock(ref int run, ref int pass, ref int fail)
         {
             run++;
-            var original = new SpreadsheetActionJson { Action = "JAB", Speed = "1.00", Block = "45", Damage = "100%" };
+            var original = new SpreadsheetActionJson { Action = "JAB", Speed = "1.00", Block = "180", Damage = "100%" };
             var options = new JsonSerializerOptions { Converters = { new SpreadsheetActionJsonConverter() } };
             string text = JsonSerializer.Serialize(original, options);
             var loaded = JsonSerializer.Deserialize<SpreadsheetActionJson>(text, options);
             if (text.Contains("\"block\"", StringComparison.Ordinal)
-                && text.Contains("\"45\"", StringComparison.Ordinal)
-                && loaded?.Block == "45")
+                && text.Contains("\"180\"", StringComparison.Ordinal)
+                && loaded?.Block == "180")
                 pass++;
             else
             {
@@ -285,12 +285,16 @@ namespace RPGGame.Tests.Unit.Data
             var options = new JsonSerializerOptions { Converters = { new SpreadsheetActionJsonConverter() } };
             var list = JsonSerializer.Deserialize<System.Collections.Generic.List<SpreadsheetActionJson>>(json, options);
             var data = SpreadsheetToActionDataConverter.Convert(list![0]);
-            if (list[0].Block == "0" && data.BlockPercent == 0.0)
+            const string jsonLight = "[{\"action\":\"LIGHT\",\"damage\":\"100%\",\"speed\":\"1.00\",\"energy\":\"1\"}]";
+            var listLight = JsonSerializer.Deserialize<System.Collections.Generic.List<SpreadsheetActionJson>>(jsonLight, options);
+            var dataLight = SpreadsheetToActionDataConverter.Convert(listLight![0]);
+            if (list[0].Block == "0" && data.BlockPercent == 0.0
+                && listLight[0].Block == "180" && Math.Abs(dataLight.BlockPercent - 1.80) < 0.0001)
                 pass++;
             else
             {
                 fail++;
-                Console.WriteLine($"FAIL LoadJsonMigratesLegacyEnergy: block={list[0].Block} pct={data.BlockPercent}");
+                Console.WriteLine($"FAIL LoadJsonMigratesLegacyEnergy: block={list[0].Block} pct={data.BlockPercent} light={listLight[0].Block} lightPct={dataLight.BlockPercent}");
             }
         }
 
@@ -304,10 +308,10 @@ namespace RPGGame.Tests.Unit.Data
                 TargetType = "SingleTarget",
                 DamageMultiplier = 1.0,
                 Length = 1.0,
-                BlockPercent = 0.45
+                BlockPercent = 1.80
             };
             var row = ActionDataToSpreadsheetJsonConverter.Merge(data, null);
-            if (row.Block == "45")
+            if (row.Block == "180")
                 pass++;
             else
             {
@@ -319,9 +323,9 @@ namespace RPGGame.Tests.Unit.Data
         private static void MapperClampsBlockPercent(ref int run, ref int pass, ref int fail)
         {
             run++;
-            var data = new ActionData { Name = "BAD", Type = "Attack", BlockPercent = 1.5, DamageMultiplier = 1.0, Length = 1.0 };
+            var data = new ActionData { Name = "BAD", Type = "Attack", BlockPercent = 6.0, DamageMultiplier = 1.0, Length = 1.0 };
             var action = ActionDataToActionMapper.CreateAction(data);
-            if (Math.Abs(action.BlockPercent - 1.0) < 0.0001)
+            if (Math.Abs(action.BlockPercent - 5.0) < 0.0001)
                 pass++;
             else
             {

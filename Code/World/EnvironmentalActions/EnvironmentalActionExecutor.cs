@@ -77,9 +77,7 @@ namespace RPGGame
                     string? holdId = HealthBarEntityId.ForActor(target);
                     if (!string.IsNullOrEmpty(holdId))
                         envHealthHolds.Add((holdId, ActionUtilities.GetEntityHealth(target)));
-                    int? defenseFace = action.Type == ActionType.Attack
-                        ? DefenseBlockCalculator.TryRollDefenseFace(target, action)
-                        : null;
+                    int? defenseFace = null;
                     ApplyEnvironmentalEffectSilent(source, target, action, duration, defenseFace);
                     affectedTargets.Add((target, duration, defenseFace));
                 }
@@ -110,6 +108,7 @@ namespace RPGGame
                 
                 // Use standard damage formatting for attacks
                 var (damageText, attackRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, action, 1.0, damageMultiplier, 0, 0, 1, false, null, default, defenseFace);
+                StandingBlock.ConsumeAfterHit(target);
 
                 TryQueueEnvironmentalSequence(action.Name, damage, defenseFace, target, envHealthHolds);
                 
@@ -194,6 +193,7 @@ namespace RPGGame
                 
                 // Apply damage
                 ApplyDamage(target, damage);
+                StandingBlock.ConsumeAfterHit(target);
             }
         }
 

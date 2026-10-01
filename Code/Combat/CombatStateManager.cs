@@ -142,6 +142,7 @@ namespace RPGGame
             player.ResetCombo();
             enemy.ResetCombo();
             StandingBlock.Reset(player);
+            StandingBlock.Reset(enemy);
             ClassDefenseCalculator.RefillWizardShield(player);
             // Keyword currency is dungeon-run scoped; only consecutive-connect tracking resets per fight.
             MaterialSetController.ResetFightConnects(player);

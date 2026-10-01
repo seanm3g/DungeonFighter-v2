@@ -97,7 +97,7 @@ namespace RPGGame.Actions.Execution
                     actionChoiceLocked = true;
             }
 
-            // Standing BLOCK is applied after luck/naiveté reconcile so the final named vs unnamed swing wins.
+            // Stance is applied after miss salvage so the final hit/miss and named vs unnamed swing win.
 
             // Roll and threshold bonuses: TURN (consumed per roll), ACTION (peek slot + bank; redeem on hit+combo only — miss/non-combo keep pending)
             int actionBonusAccumulator = 0, actionBonusHit = 0, actionBonusCombo = 0, actionBonusCrit = 0, actionBonusCritMiss = 0;
@@ -283,14 +283,15 @@ namespace RPGGame.Actions.Execution
                 result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
             }
 
-            // Final named vs unnamed swing: named sets standing BLOCK; unnamed hit/miss clears to DEFENSE only.
-            StandingBlock.ApplyFromAction(source, result.SelectedAction);
-
             if (!result.Hit && !result.IsCriticalMiss && CombatTriggerContext.TryConsumeMissSalvage(source))
             {
                 result.Hit = true;
                 result.MissSalvaged = true;
             }
+
+            // Named hit sets that action's stance. A miss or unnamed normal hit sets neutral.
+            // A salvaged miss counts as a hit, so it takes the action's stance.
+            StandingBlock.ApplyFromResolvedSwing(source, result.SelectedAction, result.Hit);
             ActionEventPublisher.PublishActionExecuted(
                 source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical, result.NaturalRollValue);
             // Sheet accuracy + threshold adjustments (and deferred overrides when not TURN cadence) queue for the next application.

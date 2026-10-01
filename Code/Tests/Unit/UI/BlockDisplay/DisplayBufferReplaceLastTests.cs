@@ -30,8 +30,42 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
             TestReplaceAtFromEndOutOfRangeIsNoOp();
             TestReservationDumpCountMatchesFollowUps();
             TestReservedFollowUpsFillInPlaceWithoutGrowingCount();
+            TestMultilineStatusBlockDoesNotClipLaterLines();
 
             TestBase.PrintSummary("DisplayBuffer ReplaceLast Tests", _testsRun, _testsPassed, _testsFailed);
+        }
+
+        /// <summary>
+        /// A retrigger block is one buffer entry with newlines (prepare line, encore headline, roll line).
+        /// Width capping must apply per line so the roll footer is not chopped to "(ro...".
+        /// </summary>
+        private static void TestMultilineStatusBlockDoesNotClipLaterLines()
+        {
+            Console.WriteLine("--- Multiline status block keeps each line under the width cap ---");
+
+            var buffer = new DisplayBuffer(maxLines: 20, maxLineWidth: 40);
+            string prepare = new string('P', 30);
+            string headline = new string('H', 30);
+            const string roll = "(roll: 14 | attack: 74)";
+            buffer.Add(new List<ColoredText>
+            {
+                new ColoredText(prepare, Colors.White),
+                new ColoredText(global::System.Environment.NewLine, Colors.White),
+                new ColoredText(headline, Colors.White),
+                new ColoredText(global::System.Environment.NewLine, Colors.White),
+                new ColoredText(roll, Colors.White)
+            }, UIMessageType.Combat);
+
+            TestBase.AssertEqual(1, buffer.Count,
+                "Newlines stay in one buffer entry",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            string stored = buffer.MessagesAsStrings[0];
+            TestBase.AssertTrue(stored.Contains(roll, System.StringComparison.Ordinal),
+                "Roll footer survives the combined status block",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!stored.Contains("...", System.StringComparison.Ordinal),
+                "Short lines are not ellipsized just because the block is long",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestReplaceLastOverwritesWithoutGrowingCount()

@@ -32,10 +32,9 @@ namespace RPGGame.Tests.Unit.UI
                 }
             };
             var lines = CadenceCardLineFormatter.FormatBlockLinesFromEditor(block);
-            TestBase.AssertTrue(lines.Count == 2
-                && lines[0] == "TURN (3x)"
-                && lines[1] == "COMBO +1",
-                "FormatBlockLinesFromEditor emits header then mechanic line",
+            TestBase.AssertTrue(lines.Count == 1
+                && lines[0] == "turn x3: COMBO +1",
+                "FormatBlockLinesFromEditor prefixes the lingering mechanic",
                 ref run, ref passed, ref failed);
 
             var group = new ActionAttackBonusGroup
@@ -49,12 +48,14 @@ namespace RPGGame.Tests.Unit.UI
                 }
             };
             var groupLines = CadenceCardLineFormatter.FormatGroupLines(group, 2);
-            TestBase.AssertTrue(groupLines.Count == 3
-                && groupLines[0] == "ACTION (2x)"
-                && groupLines[1] == "ACC +1"
-                && groupLines[2] == "DAMAGE +20%",
-                "FormatGroupLines mirrors card layout for bonus groups",
+            TestBase.AssertTrue(groupLines.Count == 2
+                && groupLines[0] == "action x2: ACC +1"
+                && groupLines[1] == "action x2: DAMAGE +20%",
+                "FormatGroupLines prefixes each lingering mechanic",
                 ref run, ref passed, ref failed);
+
+            TestBase.AssertEqual("turn:", CadenceCardLineFormatter.FormatLingeringPrefix("TURN", 1),
+                "duration 1 omits the count", ref run, ref passed, ref failed);
 
             Console.WriteLine($"\nCadenceCardLineFormatter: {passed}/{run} passed, {failed} failed\n");
         }

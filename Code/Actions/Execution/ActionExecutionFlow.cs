@@ -200,7 +200,7 @@ namespace RPGGame.Actions.Execution
             // so the combat log headline stays correct. Nested lines are formatted separately.
             if (RetriggerDepth == 0
                 && result.Hit
-                && RetriggerScheduler.TryConsume(source, out Action? retriggerAction)
+                && RetriggerScheduler.TryConsume(source, out Action? retriggerAction, out var retriggerKind, out int retriggerSlot)
                 && retriggerAction != null)
             {
                 RetriggerDepth++;
@@ -221,6 +221,10 @@ namespace RPGGame.Actions.Execution
                     result.NestedRetriggerResults.Add(nested);
                     // Nested status lines are formatted with the nested hit/miss block in ActionExecutor
                     // (not merged here) so "prepares a retrigger" stays above the encore swing.
+                    // retrigger_next consumes the slot it just played. The outer hit already stepped
+                    // onto that slot; land on the one after it so the next turn is not the encore again.
+                    if (retriggerKind == RetriggerScheduler.RetriggerKind.Next && source is Character stripHero)
+                        AdvanceStripPastRetriggeredSlot(stripHero, retriggerSlot);
                 }
                 finally
                 {
@@ -302,6 +306,25 @@ namespace RPGGame.Actions.Execution
 
             var panel = source is Enemy ? ThresholdBarPanel.Enemy : ThresholdBarPanel.Hero;
             ThresholdBarFeedback.Trigger(panel, segmentIndex, result.BaseRoll);
+        }
+
+        /// <summary>
+        /// After <c>retrigger_next</c> plays a strip slot, point the sequence at the slot after that one.
+        /// Always moves forward (including a wrap onto the next cycle) so the following turn is not the encore.
+        /// </summary>
+        private static void AdvanceStripPastRetriggeredSlot(Character hero, int retriggeredIndex)
+        {
+            var combo = ActionUtilities.GetComboActions(hero);
+            int count = combo.Count;
+            if (count <= 0 || retriggeredIndex < 0)
+                return;
+
+            int nextSlot = ((retriggeredIndex + 1) % count + count) % count;
+            int cycles = hero.ComboStep / count;
+            int candidate = cycles * count + nextSlot;
+            if (candidate <= hero.ComboStep)
+                candidate = (cycles + 1) * count + nextSlot;
+            hero.ComboStep = candidate;
         }
     }
 }

@@ -217,7 +217,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
-    "name": "Bat",
+    "name": "Bats",
     "archetype": "Assassin",
     "baseAttributes": {
       "strength": 3,
@@ -234,16 +234,90 @@
     "healthPercent": 100,
     "healthGrowthPercent": 1.93,
     "actions": [
-      "BAT SWARM",
-      "QUICK STRIKE"
+      "BAT SWARM"
     ],
     "isLiving": true,
-    "description": "A flying bat that attacks in swarms - ultra-fast but very fragile",
+    "packSize": 3,
+    "description": "A small bat swarm - three fragile flyers; overkill on one is wasted",
     "tags": [
       "living",
       "air",
       "minion",
       "tiny",
+      "has_feet",
+      "has_legs",
+      "has_head"
+    ]
+  },
+  {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
+    "name": "Rats",
+    "archetype": "Assassin",
+    "baseAttributes": {
+      "strength": 2,
+      "agility": 3,
+      "technique": 2,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.7,
+      "agility": 2.5,
+      "technique": 2.0,
+      "intelligence": 0.8
+    },
+    "healthPercent": 100,
+    "healthGrowthPercent": 2.1,
+    "actions": [
+      "RAT SWARM"
+    ],
+    "isLiving": true,
+    "packSize": 7,
+    "description": "A squealing pack of seven rats - peels quickly if you waste overkill",
+    "tags": [
+      "living",
+      "minion",
+      "tiny",
+      "frail",
+      "has_feet",
+      "has_legs",
+      "has_head"
+    ]
+  },
+  {
+    "region": "n/a",
+    "biome": "n/a",
+    "location": "General",
+    "rarity": "common",
+    "name": "Giant Ants",
+    "archetype": "Assassin",
+    "baseAttributes": {
+      "strength": 1,
+      "agility": 4,
+      "technique": 2,
+      "intelligence": 3
+    },
+    "growthPerLevel": {
+      "strength": 0.5,
+      "agility": 2.8,
+      "technique": 2.0,
+      "intelligence": 0.7
+    },
+    "healthPercent": 60,
+    "healthGrowthPercent": 1.5,
+    "actions": [
+      "ANT SWARM"
+    ],
+    "isLiving": true,
+    "packSize": 30,
+    "description": "Thirty biting ants - tiny bites each, but the swarm hits once per living ant",
+    "tags": [
+      "living",
+      "minion",
+      "tiny",
+      "frail",
       "has_feet",
       "has_legs",
       "has_head"

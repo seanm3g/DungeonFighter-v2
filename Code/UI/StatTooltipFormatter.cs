@@ -204,14 +204,26 @@ namespace RPGGame
 
             AddTitle(lines, "Defense");
             AddBlank(lines);
-            AddHighlight(lines, "Total", total.ToString(CultureInfo.InvariantCulture));
+            AddHighlight(lines, "Damage reduction", HeroDefenseHudFormatter.FormatDamageReductionPercent(c));
+            AddBlank(lines);
+            AddStatRow(lines, "Current", ClassDefenseCalculator.GetDisplayedDefense(c));
+            int rating = c.GetMaxArmor();
+            AddStatRow(lines, "Base", rating);
+            int playerBase = Math.Max(0, GameConfiguration.Instance.Combat.PlayerBaseArmor);
+            if (playerBase > 0)
+                AddStatRow(lines, "Character base", playerBase);
+            if (c is not Enemy)
+                AddStatRow(lines, "Level", Math.Max(0, c.Level));
             AddBlank(lines);
             AddSection(lines, "Incoming hits");
-            int block = (int)Math.Round(ClassDefenseCalculator.GetBlockPercent(c) * 100.0, MidpointRounding.AwayFromZero);
-            AddTextStatRow(lines, "BLOCK", $"{block}%");
-            string classLayer = HeroDefenseHudFormatter.FormatClassLayerLine(c);
-            if (!string.IsNullOrEmpty(classLayer))
-                AddTextStatRow(lines, "Class layer", classLayer);
+            double stanceMult = ClassDefenseCalculator.GetBlockPercent(c);
+            int block = (int)Math.Round(stanceMult * 100.0, MidpointRounding.AwayFromZero);
+            AddTextStatRow(lines, "Stance", $"{StandingBlock.GetStanceName(stanceMult)} ({block}%)");
+            var preview = ClassDefenseCalculator.ApplyIncoming(c, 100, pierce: false);
+            int effPts = (int)Math.Round(preview.EffectiveDefense, MidpointRounding.AwayFromZero);
+            int kPts = (int)Math.Round(preview.K, MidpointRounding.AwayFromZero);
+            AddTextStatRow(lines, "Effective", effPts.ToString(CultureInfo.InvariantCulture));
+            AddTextStatRow(lines, "K", kPts.ToString(CultureInfo.InvariantCulture));
             AddBlank(lines);
             AddSection(lines, "Equipped pieces");
             AddStatRow(lines, "Head", h);
@@ -226,7 +238,7 @@ namespace RPGGame
             }
             AddBlank(lines);
             AddNoteLine(lines, "Piece values include that item's defense rating and affixes.");
-            AddNoteLine(lines, "BLOCK is standing % DR from the last named action. DEFENSE (gear rating) is Tempo / Counter / Shield / Grit by weapon — never another Block %. Block 0% is DEFENSE only.");
+            AddNoteLine(lines, "Current Defense is base rating × stance (aggressive 0%, neutral 100%, defensive 180%). A named hit sets that stance. A miss or a normal hit sets neutral. An incoming hit also returns you to neutral. Level is added to the rating. Damage reduction is live incoming DR. Incoming multi-hit uses the stance on tick 0 only.");
 
             return Trim(lines, maxLines);
         }

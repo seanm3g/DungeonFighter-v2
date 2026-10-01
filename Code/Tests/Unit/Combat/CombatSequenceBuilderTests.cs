@@ -170,14 +170,14 @@ namespace RPGGame.Tests.Unit.Combat
         {
             Console.WriteLine("--- Defense step shows standing BLOCK + DEFENSE ---");
             var hero = DummyHero();
-            hero.StandingBlockPercent = 0.45;
+            hero.StandingBlockPercent = 1.80;
             var result = HitResult("SLAM", damage: 5);
             var steps = CombatSequenceBuilder.From(result, DummyEnemy(), hero);
             TestBase.AssertTrue(steps.Any(s => s.Kind == CombatSequenceStepKind.Defense),
                 "defense step present on hero hit", ref _run, ref _passed, ref _failed);
             var def = steps.First(s => s.Kind == CombatSequenceStepKind.Defense);
             string joined = JoinBeats(def);
-            TestBase.AssertTrue(joined.Contains("BLOCK 45%", System.StringComparison.Ordinal)
+            TestBase.AssertTrue(joined.Contains("BLOCK 180%", System.StringComparison.Ordinal)
                 && !joined.Contains("leftover", System.StringComparison.OrdinalIgnoreCase),
                 $"defense math beats show standing BLOCK, got: {joined}", ref _run, ref _passed, ref _failed);
         }

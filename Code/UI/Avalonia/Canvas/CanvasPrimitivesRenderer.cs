@@ -197,8 +197,23 @@ namespace RPGGame.UI.Avalonia.Canvas
             double progressWidth = width * progressBar.Progress;
             context.FillRectangle(new SolidColorBrush(progressBar.ForegroundColor), new Rect(x, y, progressWidth, height));
 
-            // Border
+            // Pack body dividers sit inside the fill so they do not paint over the white border.
             const double barPenThickness = 1;
+            if (progressBar.DividerFractions != null)
+            {
+                var dividerBrush = new SolidColorBrush(Colors.Black);
+                double dividerY = y + barPenThickness;
+                double dividerHeight = System.Math.Max(0, height - 2 * barPenThickness);
+                foreach (double fraction in progressBar.DividerFractions)
+                {
+                    if (fraction <= 0 || fraction >= 1)
+                        continue;
+                    double dividerX = x + (width * fraction);
+                    context.FillRectangle(dividerBrush, new Rect(dividerX, dividerY, 1, dividerHeight));
+                }
+            }
+
+            // Border (drawn last so edges stay clean over fill and dividers)
             var pen = new Pen(new SolidColorBrush(progressBar.BorderColor), barPenThickness);
             context.DrawRectangle(null, pen, InsetRectForStroke(x, y, width, height, barPenThickness));
         }

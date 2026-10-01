@@ -297,7 +297,8 @@ namespace RPGGame.UI.Avalonia.Canvas
             Color backgroundColor = default,
             string? entityId = null,
             double heightScale = 1.0,
-            double verticalOffsetScale = 0.0)
+            double verticalOffsetScale = 0.0,
+            System.Collections.Generic.IReadOnlyList<double>? dividerFractions = null)
         {
             if (healthColor == default) healthColor = Colors.Red;
             if (backgroundColor == default) backgroundColor = Colors.DarkRed;
@@ -355,7 +356,8 @@ namespace RPGGame.UI.Avalonia.Canvas
                 MaxHealth = maxHealth,
                 DamageDeltaStartTime = damageDeltaStartTime,
                 HeightScale = heightScale,
-                VerticalOffsetScale = verticalOffsetScale
+                VerticalOffsetScale = verticalOffsetScale,
+                DividerFractions = dividerFractions
             };
 
             if (!string.IsNullOrEmpty(entityId))

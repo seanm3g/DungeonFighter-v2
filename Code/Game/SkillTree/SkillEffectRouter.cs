@@ -153,7 +153,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Standing attribute from rite-of-passage passives (Puberty / Commission / Initiation / Apprenticeship).
+        /// Standing attribute from rite-of-passage passives.
+        /// Puberty adds the hero's level to Strength (level 5 → +5 STR).
+        /// Commission / Initiation / Apprenticeship stay a flat +15 to AGI / TEC / INT.
         /// Folded into <see cref="Character.GetEffectiveStrength"/> and the other effective getters.
         /// </summary>
         public int GetSkillAttributeBonus(Character? c, string? statCode)
@@ -161,12 +163,20 @@ namespace RPGGame
             if (c == null || string.IsNullOrWhiteSpace(statCode)) return 0;
             return statCode.Trim().ToUpperInvariant() switch
             {
-                "STR" => RiteOfPassageAttributeBonus * GetRank(c, "puberty"),
+                "STR" => PubertyStrengthBonus(c),
                 "AGI" => RiteOfPassageAttributeBonus * GetRank(c, "commission"),
                 "TEC" => RiteOfPassageAttributeBonus * GetRank(c, "initiation"),
                 "INT" => RiteOfPassageAttributeBonus * GetRank(c, "apprenticeship"),
                 _ => 0
             };
+        }
+
+        /// <summary>Learned Puberty: +1 Strength per hero level, once per rank.</summary>
+        private int PubertyStrengthBonus(Character c)
+        {
+            int rank = GetRank(c, "puberty");
+            if (rank <= 0) return 0;
+            return Math.Max(0, c.Level) * rank;
         }
 
         private Character? AsBoundHero(Actor? source)

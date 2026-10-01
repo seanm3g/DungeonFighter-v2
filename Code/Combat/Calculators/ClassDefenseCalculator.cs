@@ -1,14 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace RPGGame.Combat.Calculators
 {
     /// <summary>
-    /// Result of standing BLOCK + class DEFENSE applied to one incoming hit on the hero.
+    /// Result of WoW-style Defense DR applied to one incoming hit.
+    /// Class Tempo/Counter/Shield/Grit fields stay 0 on the live path (unused for this test).
     /// </summary>
     public readonly struct HeroMitigationResult
     {
         public double BlockPercent { get; init; }
+        public double ActionMult { get; init; }
+        public double EffectiveDefense { get; init; }
+        public double K { get; init; }
+        public double DrPercent { get; init; }
+        public int Rating { get; init; }
         public int GritIgnored { get; init; }
         public int ShieldAbsorbed { get; init; }
         public int TempoPct { get; init; }
@@ -18,8 +25,10 @@ namespace RPGGame.Combat.Calculators
     }
 
     /// <summary>
-    /// Standing BLOCK % plus class DEFENSE: Tempo (Sword), Counter (Dagger), Shield (Wand), Grit (Mace).
-    /// Does not read material sets. Never mints material keywords from armor.
+    /// Defense DR for heroes and enemies: remaining = incoming × (1 − effective / (effective + K)).
+    /// effective = rating × actionMult. Tick 0 of an incoming multi-hit uses standing BLOCK;
+    /// later ticks use 1.0×. A live hit then resets standing to 100%. Class Tempo/Counter/Shield/Grit
+    /// helpers remain but are not applied here.
     /// </summary>
     public static class ClassDefenseCalculator
     {
@@ -28,6 +37,7 @@ namespace RPGGame.Combat.Calculators
         public const int RogueCounterCap = 30;
         public const int BarbarianGritCap = 25;
         public const int WizardShieldPerDefense = 2;
+        public const double DefaultArmorReductionK = 100.0;
 
         public static WeaponType? GetDefenseWeaponType(Character? hero)
         {
@@ -37,9 +47,44 @@ namespace RPGGame.Combat.Calculators
         }
 
         public static double GetBlockPercent(Character? hero) =>
-            StandingBlock.ClampFraction(hero?.StandingBlockPercent ?? 0);
+            StandingBlock.ClampMultiplier(hero?.StandingBlockPercent ?? StandingBlock.DefaultBlockPercent);
 
-        /// <summary>Shared diminishing scale: round(cap * r / (r + K)).</summary>
+        /// <summary>Base Defense rating (hero level + gear, or enemy Armor, plus shred), before stance.</summary>
+        public static int GetBaseDefenseRating(Character? defender) =>
+            defender == null ? 0 : Math.Max(0, defender.GetMaxArmor());
+
+        /// <summary>Live panel Defense: base rating × standing BLOCK (100% = base).</summary>
+        public static int GetDisplayedDefense(Character? defender)
+        {
+            int rating = GetBaseDefenseRating(defender);
+            double mult = GetBlockPercent(defender);
+            return (int)Math.Round(rating * mult, MidpointRounding.AwayFromZero);
+        }
+
+        /// <summary>K in DR = effective / (effective + K). From Combat.ArmorReductionFactor (default 100).</summary>
+        public static double GetK()
+        {
+            double k = GameConfiguration.Instance?.Combat?.ArmorReductionFactor ?? DefaultArmorReductionK;
+            if (k <= 0)
+                return DefaultArmorReductionK;
+            return k;
+        }
+
+        public static double ComputeDr(double effectiveDefense, double k, bool pierce)
+        {
+            if (pierce || effectiveDefense <= 0 || k <= 0)
+                return 0;
+            return effectiveDefense / (effectiveDefense + k);
+        }
+
+        public static double ResolveActionMult(Character hero, int mitigationHitIndex)
+        {
+            if (mitigationHitIndex > 0)
+                return StandingBlock.DefaultBlockPercent;
+            return GetBlockPercent(hero);
+        }
+
+        /// <summary>Shared diminishing scale: round(cap * r / (r + K)). Unused by live DR.</summary>
         public static int ScaleFromDefense(int defenseRating, int cap)
         {
             int r = Math.Max(0, defenseRating);
@@ -77,7 +122,7 @@ namespace RPGGame.Combat.Calculators
             hero.EnergyShieldCurrent = pool;
         }
 
-        /// <summary>Absorbs damage into the wizard shield. Returns remaining damage.</summary>
+        /// <summary>Absorbs damage into the wizard shield. Returns remaining damage. Unused by live DR.</summary>
         public static int AbsorbWizardShield(Character hero, int damage)
         {
             if (damage <= 0 || hero.EnergyShieldCurrent <= 0)
@@ -105,101 +150,75 @@ namespace RPGGame.Combat.Calculators
         }
 
         /// <summary>
-        /// Hero-only: standing BLOCK %, then Grit / Shield, then mint Tempo / Counter.
-        /// Pierce skips Block, Grit, and Shield; still mints Counter/Tempo.
+        /// WoW DR for a Character (hero or enemy). Pierce skips DR. Does not apply Grit/Shield or mint Tempo/Counter.
+        /// <paramref name="mitigationHitIndex"/> 0 uses standing BLOCK; later ticks use 1.0×.
+        /// Does not consume standing BLOCK (live damage path calls <see cref="StandingBlock.ConsumeAfterHit"/>).
         /// </summary>
-        public static HeroMitigationResult ApplyIncoming(Character hero, int incoming, bool pierce)
+        public static HeroMitigationResult ApplyIncoming(Character hero, int incoming, bool pierce, int mitigationHitIndex = 0)
         {
             int start = Math.Max(0, incoming);
-            int remaining = start;
-            var weapon = GetDefenseWeaponType(hero);
-            int rating = Math.Max(0, hero.GetMaxArmor());
-            double classMult = CharmBonusController.GetClassDefenseMultiplier(hero);
-
-            double blockPct = pierce ? 0.0 : GetBlockPercent(hero);
-            if (blockPct > 0)
-                remaining = RoundMul(remaining, 1.0 - blockPct);
-
-            int grit = 0;
-            if (!pierce && weapon == WeaponType.Mace)
-            {
-                grit = Math.Max(0, (int)Math.Round(GetBarbarianGrit(rating) * classMult));
-                if (grit > 0)
-                    remaining = Math.Max(0, remaining - grit);
-            }
-
-            int absorbed = 0;
-            if (!pierce && weapon == WeaponType.Wand)
-            {
-                int before = remaining;
-                remaining = AbsorbWizardShield(hero, remaining);
-                absorbed = before - remaining;
-            }
-
-            int tempoPct = 0;
-            int counterPct = 0;
-            if (weapon == WeaponType.Dagger)
-            {
-                counterPct = Math.Max(0, (int)Math.Round(GetRogueCounterDamagePct(rating) * classMult));
-                hero.Effects.PendingDefenseCounterDamagePct = counterPct;
-            }
-            else if (weapon == WeaponType.Sword || weapon == null)
-            {
-                tempoPct = Math.Max(0, (int)Math.Round(GetWarriorTempoSpeedPct(rating) * classMult));
-                hero.Effects.PendingDefenseTempoSpeedPct = tempoPct;
-            }
+            int rating = GetBaseDefenseRating(hero);
+            double k = GetK();
+            double actionMult = pierce ? 0.0 : ResolveActionMult(hero, mitigationHitIndex);
+            double effective = pierce ? 0.0 : rating * actionMult;
+            double dr = ComputeDr(effective, k, pierce);
+            int remaining = pierce ? start : RoundMul(start, 1.0 - dr);
 
             return new HeroMitigationResult
             {
-                BlockPercent = blockPct,
-                GritIgnored = grit,
-                ShieldAbsorbed = absorbed,
-                TempoPct = tempoPct,
-                CounterPct = counterPct,
+                BlockPercent = pierce ? 0.0 : GetBlockPercent(hero),
+                ActionMult = actionMult,
+                EffectiveDefense = effective,
+                K = k,
+                DrPercent = dr,
+                Rating = rating,
                 Remaining = remaining,
                 ReducedAmount = start - remaining
             };
         }
 
-        /// <summary>Sequence HUD DEFENSE beats: BLOCK %, class layer.</summary>
+        /// <summary>Sequence HUD DEFENSE beats: BLOCK %, rating × stance, DR %.</summary>
         public static List<string> FormatHudLines(Character hero, bool pierce)
         {
-            var lines = new List<string>();
-            double blockPct = pierce ? 0.0 : GetBlockPercent(hero);
-            lines.Add($"BLOCK {(int)Math.Round(blockPct * 100.0, MidpointRounding.AwayFromZero)}%");
-
-            var weapon = GetDefenseWeaponType(hero);
-            int rating = Math.Max(0, hero.GetMaxArmor());
-
-            switch (weapon)
+            var mit = ApplyIncoming(hero, 100, pierce, mitigationHitIndex: 0);
+            var lines = new List<string>
             {
-                case WeaponType.Dagger:
-                    lines.Add($"COUNTER +{GetRogueCounterDamagePct(rating)}%");
-                    break;
-                case WeaponType.Wand:
-                    if (pierce)
-                        lines.Add("pierce");
-                    else
-                        lines.Add($"shield {hero.EnergyShieldCurrent}/{Math.Max(hero.EnergyShieldMax, GetWizardShieldPool(rating))}");
-                    break;
-                case WeaponType.Mace:
-                    if (pierce)
-                        lines.Add("pierce");
-                    else
-                        lines.Add($"GRIT {GetBarbarianGrit(rating)}");
-                    break;
-                default:
-                    lines.Add($"TEMPO +{GetWarriorTempoSpeedPct(rating)}%");
-                    break;
+                $"BLOCK {(int)Math.Round(mit.BlockPercent * 100.0, MidpointRounding.AwayFromZero)}%"
+            };
+
+            if (pierce)
+            {
+                lines.Add("pierce");
+                lines.Add("DR 0%");
+                return lines;
             }
 
+            int stancePts = (int)Math.Round(mit.ActionMult * 100.0, MidpointRounding.AwayFromZero);
+            int effPts = (int)Math.Round(mit.EffectiveDefense, MidpointRounding.AwayFromZero);
+            int kPts = (int)Math.Round(mit.K, MidpointRounding.AwayFromZero);
+            int drPts = (int)Math.Round(mit.DrPercent * 100.0, MidpointRounding.AwayFromZero);
+            lines.Add($"def {mit.Rating} × {stancePts}% = {effPts}");
+            lines.Add($"{effPts}/({effPts}+{kPts})={drPts}%");
             return lines;
         }
 
+        /// <summary>Combat-log footer: damage reduction percent only.</summary>
         public static string FormatCombatFooter(Character hero, bool pierce)
         {
-            return string.Join(" | ", FormatHudLines(hero, pierce));
+            var mit = ApplyIncoming(hero, 100, pierce, mitigationHitIndex: 0);
+            int drPts = (int)Math.Round(mit.DrPercent * 100.0, MidpointRounding.AwayFromZero);
+            return $"reduction: {drPts}%";
         }
+
+        public static string FormatDrLine(Character hero)
+        {
+            var mit = ApplyIncoming(hero, 100, pierce: false, mitigationHitIndex: 0);
+            int drPts = (int)Math.Round(mit.DrPercent * 100.0, MidpointRounding.AwayFromZero);
+            return $"DR {drPts}%";
+        }
+
+        public static string FormatKInvariant(double k) =>
+            k.ToString("0.##", CultureInfo.InvariantCulture);
 
         private static int RoundMul(int value, double factor) =>
             Math.Max(0, (int)Math.Round(value * factor, MidpointRounding.AwayFromZero));

@@ -88,6 +88,17 @@ namespace RPGGame
         public List<string> Actions { get; set; } = new List<string>();
         [JsonPropertyName("isLiving")]
         public bool IsLiving { get; set; } = true; // Default to living if not specified
+
+        /// <summary>
+        /// Bodies inside this one enemy role. Missing, blank, or below 1 means a single body.
+        /// Only values above 1 are written to <c>Enemies.json</c>; the sheet cell stays empty otherwise.
+        /// </summary>
+        [JsonPropertyName("packSize")]
+        public int? PackSize { get; set; }
+
+        /// <summary>Runtime body count. Omitted, 0, and 1 are one body.</summary>
+        public int ResolvedPackSize => PackSize is int n && n > 1 ? n : 1;
+
         [JsonPropertyName("description")]
         public string Description { get; set; } = "";
         [JsonPropertyName("colorOverride")]

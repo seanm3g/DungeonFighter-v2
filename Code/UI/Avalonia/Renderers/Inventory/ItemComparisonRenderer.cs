@@ -51,6 +51,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 "body" => "Body",
                 "legs" => "Legs",
                 "feet" => "Feet",
+                "charm" => "Charm",
                 _ => "Item"
             };
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader($"EQUIP {slotDisplayName.ToUpper()}?"), AsciiArtAssets.Colors.Gold);
@@ -171,6 +172,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             "body" => "body",
             "legs" => "legs",
             "feet" => "feet",
+            "charm" => "charm",
             _ => null
         };
 

@@ -58,12 +58,12 @@
                     <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" Margin="0,4,0,0">
                         <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" FontSize="14" Text="Miss (red) duration" Margin="0,0,12,8"/>
                         <TextBox x:Name="ActionStripMissFlashMsTextBox" Grid.Row="0" Grid.Column="1" Width="120" HorizontalAlignment="Left" Margin="0,0,0,8" Watermark="ms"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" FontSize="14" Text="Hit / combo pulse total" Margin="0,0,12,8"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" FontSize="14" Text="Combo pulse total" Margin="0,0,12,8"/>
                         <TextBox x:Name="ActionStripSuccessFlashMsTextBox" Grid.Row="1" Grid.Column="1" Width="120" HorizontalAlignment="Left" Margin="0,0,0,8" Watermark="ms"/>
-                        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" FontSize="14" Text="Hit pulse half-blink" Margin="0,0,12,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Classes="settings-field-label" FontSize="14" Text="Pulse half-blink" Margin="0,0,12,0"/>
                         <TextBox x:Name="ActionStripSuccessPulseHalfMsTextBox" Grid.Row="2" Grid.Column="1" Width="120" HorizontalAlignment="Left" Watermark="ms"/>
                     </Grid>
-                    <TextBlock Text="Miss pulses red; a normal hit pulses green; completing a multi-step combo (last slot or finisher) pulses gold. Each uses on/off half-blinks; miss uses miss duration, hits use success total."
+                    <TextBlock Text="Miss pulses red. A normal hit leaves the combo card border solid white. A combo-action hit pulses gold. Miss and combo share the half-blink; miss uses miss duration, combo uses the combo total."
                                Classes="settings-muted"
                                FontSize="12"
                                TextWrapping="Wrap"/>

@@ -41,6 +41,7 @@ namespace RPGGame.Tests.Unit
             TestActionCadenceMultiHitSurvivesMissUntilCombo();
             TestActionCadenceMultiHitNotDoubleAppliedFromSheetAndBonuses();
             TestActionCadenceMultiHitDoesNotApplyToGrantingAction();
+            TestIncomingMultiHitFirstTickUsesStance();
 
             TestBase.PrintSummary("Multi-Hit Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -908,6 +909,42 @@ namespace RPGGame.Tests.Unit
             {
                 Dice.ClearTestRoll();
                 ActionSelector.ClearStoredRolls();
+            }
+        }
+
+        private static void TestIncomingMultiHitFirstTickUsesStance()
+        {
+            Console.WriteLine("--- Incoming multi-hit: stance on tick 0, 100% on later ticks ---");
+            double kSnap = GameConfiguration.Instance.Combat.ArmorReductionFactor;
+            int baseSnap = GameConfiguration.Instance.Combat.PlayerBaseArmor;
+            GameConfiguration.Instance.Combat.ArmorReductionFactor = 100;
+            GameConfiguration.Instance.Combat.PlayerBaseArmor = 0;
+            try
+            {
+                var attacker = TestDataBuilders.Enemy().WithName("MultiAtk").WithHealth(100).Build();
+                var hero = TestDataBuilders.Character().WithName("MultiDef").WithLevel(1).Build();
+                hero.EquipItem(new ChestItem("Plate", 1, 100), "body");
+                hero.StandingBlockPercent = 1.80;
+                var action = new Action
+                {
+                    Name = "Triple",
+                    Type = ActionType.Attack,
+                    DamageMultiplier = 1.0,
+                    Target = TargetType.SingleTarget,
+                    Advanced = new AdvancedMechanicsProperties { MultiHitCount = 2 }
+                };
+                int totalRoll = 10;
+                int tick0 = CombatCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, totalRoll, true, null, totalRoll, 0);
+                int tick1 = CombatCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, totalRoll, true, null, totalRoll, 1);
+                int total = MultiHitProcessor.ProcessMultiHit(
+                    attacker, hero, action, 1.0, totalRoll, totalRoll, 0, 10, null, 0, null, totalRoll);
+                TestBase.AssertTrue(tick0 < tick1, "first tick uses 180% stance (more DR)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(tick0 + tick1, total, "ProcessMultiHit sums tick 0 + tick 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                GameConfiguration.Instance.Combat.ArmorReductionFactor = kSnap;
+                GameConfiguration.Instance.Combat.PlayerBaseArmor = baseSnap;
             }
         }
     }

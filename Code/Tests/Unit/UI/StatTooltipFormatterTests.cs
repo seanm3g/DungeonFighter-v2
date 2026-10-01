@@ -67,20 +67,23 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(armorFlat.Contains("Equipped pieces", StringComparison.Ordinal) && armorFlat.Contains("Head", StringComparison.Ordinal),
                 "armor per-slot breakdown",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(armorFlat.Contains("BLOCK", StringComparison.Ordinal)
-                    && armorFlat.Contains("Class layer", StringComparison.Ordinal)
-                    && armorFlat.Contains("Tempo", StringComparison.Ordinal)
+            TestBase.AssertTrue(armorFlat.Contains("Damage reduction", StringComparison.Ordinal)
+                    && armorFlat.Contains("Current", StringComparison.Ordinal)
+                    && armorFlat.Contains("Stance", StringComparison.Ordinal)
+                    && armorFlat.Contains("Level", StringComparison.Ordinal)
+                    && !armorFlat.Contains("Class layer", StringComparison.Ordinal)
                     && !armorFlat.Contains("Leftover energy", StringComparison.Ordinal),
-                "armor tooltip shows BLOCK, class layer, Tempo note (no leftover energy)",
+                "armor tooltip highlights live DR and lists Current + Stance + Level",
                 ref run, ref passed, ref failed);
 
-            c.StandingBlockPercent = 0.45;
+            c.StandingBlockPercent = 1.80;
             var armorLive = StatTooltipFormatter.TryBuild(c, "stat:armor", 24)!;
             string armorLiveFlat = string.Join("\n", armorLive.Select(ColoredTextRenderer.RenderAsPlainText));
-            TestBase.AssertTrue(armorLiveFlat.Contains("45%", StringComparison.Ordinal),
-                "armor tooltip BLOCK matches standing 45%",
+            TestBase.AssertTrue(armorLiveFlat.Contains("defensive", StringComparison.Ordinal)
+                    && armorLiveFlat.Contains("180%", StringComparison.Ordinal),
+                "armor tooltip stance matches standing 180%",
                 ref run, ref passed, ref failed);
-            c.StandingBlockPercent = 0;
+            c.StandingBlockPercent = 1.0;
 
             c.Stats.Agility = 10;
             c.Stats.TempAgilityBonus = 2;
@@ -126,12 +129,13 @@ namespace RPGGame.Tests.Unit.UI
             if (trees != null)
             {
                 GameConfiguration.Instance.SkillTrees = trees;
+                c.Level = 5;
                 c.Progression.LearnedSkillRanks["b-puberty"] = 1;
                 var strSkill = StatTooltipFormatter.TryBuild(c, "stat:str", 24)!;
                 string strSkillFlat = string.Join("\n", strSkill.Select(ColoredTextRenderer.RenderAsPlainText));
                 TestBase.AssertTrue(strSkillFlat.Contains("Skill tree", StringComparison.Ordinal)
-                        && strSkillFlat.Contains("+15", StringComparison.Ordinal),
-                    "STR tooltip lists Puberty skill bonus",
+                        && strSkillFlat.Contains("+5", StringComparison.Ordinal),
+                    "STR tooltip lists Puberty skill bonus equal to level",
                     ref run, ref passed, ref failed);
             }
 

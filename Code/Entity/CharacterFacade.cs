@@ -114,7 +114,7 @@ namespace RPGGame
         public int GetEffectiveIntelligence() => _character.Stats.GetEffectiveIntelligence(ExtraAttributeBonus("INT"));
 
         /// <summary>
-        /// Gear, consumable/cadence buffs, and standing skill-tree attribute (e.g. Puberty +15 STR).
+        /// Gear, consumable/cadence buffs, and standing skill-tree attribute (e.g. Puberty adds level to STR).
         /// </summary>
         private int ExtraAttributeBonus(string code)
         {

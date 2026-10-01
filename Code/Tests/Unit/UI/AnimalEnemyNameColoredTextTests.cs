@@ -44,6 +44,13 @@ namespace RPGGame.Tests.Unit.UI
                 "dark creature palette applies entity-name brightness floor",
                 ref run, ref passed, ref failed);
 
+            TestBase.AssertTrue(AnimalEnemyNameColoredText.TryBuildSegments("Bats") != null,
+                "plural Bats uses bat palette", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(AnimalEnemyNameColoredText.TryBuildSegments("Rats") != null,
+                "Rats uses rat palette", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(AnimalEnemyNameColoredText.TryBuildSegments("Giant Ants") != null,
+                "Giant Ants uses ant palette", ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("AnimalEnemyNameColoredText Tests", run, passed, failed);
         }
     }

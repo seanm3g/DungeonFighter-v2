@@ -25,6 +25,7 @@ namespace RPGGame.Tests.Unit.Data.JsonArraySheetConverter
             EnemiesNewSheetLayoutImport(ref run, ref pass, ref fail);
             EnemiesArchetypeCanonicalization(ref run, ref pass, ref fail);
             EnemiesActionsPipePushFormat(ref run, ref pass, ref fail);
+            EnemiesPackSizeRoundTrip(ref run, ref pass, ref fail);
         }
 
 
@@ -267,6 +268,50 @@ namespace RPGGame.Tests.Unit.Data.JsonArraySheetConverter
             var rows = SheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
             int actionsIdx = Array.IndexOf(SheetConverter.EnemiesCanonicalHeaders, "actions");
             TestBase.AssertEqual("JAB|TAUNT", rows[2][actionsIdx]?.ToString(), "actions pipe cell", ref run, ref pass, ref fail);
+        }
+
+        /// <summary>
+        /// packSize stays a root ENEMIES column. A carried HEALTH band must not nest it under growth or base attributes.
+        /// Missing packSize pushes as an empty cell and stays omitted on pull.
+        /// </summary>
+        private static void EnemiesPackSizeRoundTrip(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(EnemiesPackSizeRoundTrip));
+            const string json = """
+            [{"name":"Bat","archetype":"Assassin","isLiving":true,"packSize":3,"description":"swarm"},{"name":"Goblin","archetype":"Assassin","isLiving":true,"description":"g"}]
+            """;
+            var rows = SheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
+            var headers = rows[1].Select(o => o?.ToString() ?? "").ToList();
+            int livingIdx = headers.FindIndex(h => string.Equals(h, "isLiving", StringComparison.Ordinal));
+            int packIdx = headers.FindIndex(h => string.Equals(h, "packSize", StringComparison.Ordinal));
+            TestBase.AssertEqual(livingIdx + 1, packIdx, "packSize follows isLiving", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("", rows[0][packIdx]?.ToString() ?? "", "packSize category blank", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("3", rows[2][packIdx]?.ToString(), "Bat packSize cell", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("", rows[3][packIdx]?.ToString() ?? "", "omitted packSize pushes empty", ref run, ref pass, ref fail);
+
+            var csv = JsonArraySheetConverterTestHelpers.RowsToCsv(rows);
+            string outJson = SheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Enemies);
+            using var doc = JsonDocument.Parse(outJson);
+            TestBase.AssertEqual(3, doc.RootElement[0].GetProperty("packSize").GetInt32(), "pull packSize", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(!doc.RootElement[1].TryGetProperty("packSize", out _), "empty packSize omitted", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(!outJson.Contains("growthPerLevel", StringComparison.Ordinal) || !outJson.Contains("packSize\":", StringComparison.Ordinal) || doc.RootElement[0].TryGetProperty("packSize", out _),
+                "packSize is root", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(!doc.RootElement[0].TryGetProperty("growthPerLevel", out var growth) || !growth.TryGetProperty("packSize", out _),
+                "packSize not nested in growth", ref run, ref pass, ref fail);
+
+            const string carried = """
+            ,,,,,,base attributes,,,,growth,,,,HEALTH,,,,,,
+            Region,Biome,Location,Rarity,Name,tags,Archetype,Strength,agility,technique,Intelligence,strength,agility,technique,Intelligence,healthPercent,healthGrowthPercent,actions,isLiving,packSize,description,colorOverride
+            forest,Forest,,Common,Bat,,Assassin,3,2,3,4,0.1,0.2,0.3,0.4,100,2,BAT SWARM,true,3,swarm,
+            """;
+            string carriedJson = SheetConverter.CsvToJsonArrayText(carried.Trim(), GameDataTabularSheetKind.Enemies);
+            using var carriedDoc = JsonDocument.Parse(carriedJson);
+            var bat = carriedDoc.RootElement[0];
+            TestBase.AssertEqual(3, bat.GetProperty("packSize").GetInt32(), "carried HEALTH band still root packSize", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(!bat.TryGetProperty("growthPerLevel", out var gp) || !gp.TryGetProperty("packsize", out _) && !gp.TryGetProperty("packSize", out _),
+                "carried band does not nest packSize", ref run, ref pass, ref fail);
+            TestBase.AssertTrue(!bat.TryGetProperty("baseAttributes", out var ba) || !ba.TryGetProperty("packSize", out _),
+                "packSize not nested in base attributes", ref run, ref pass, ref fail);
         }
     }
 }

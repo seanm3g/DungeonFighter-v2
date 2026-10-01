@@ -20,6 +20,8 @@ namespace RPGGame.UI.ColorSystem.Applications
             Bear,
             Spider,
             Bat,
+            Rat,
+            Ant,
             Boar,
             Treant,
             Salamander,
@@ -49,7 +51,9 @@ namespace RPGGame.UI.ColorSystem.Applications
             if (ContainsWholeWord(text, "wolf")) return CreatureKind.Wolf;
             if (ContainsWholeWord(text, "bear")) return CreatureKind.Bear;
             if (ContainsWholeWord(text, "spider")) return CreatureKind.Spider;
-            if (ContainsWholeWord(text, "bat")) return CreatureKind.Bat;
+            if (ContainsWholeWord(text, "bat") || ContainsWholeWord(text, "bats")) return CreatureKind.Bat;
+            if (ContainsWholeWord(text, "rat") || ContainsWholeWord(text, "rats")) return CreatureKind.Rat;
+            if (ContainsWholeWord(text, "ant") || ContainsWholeWord(text, "ants")) return CreatureKind.Ant;
             if (ContainsWholeWord(text, "boar")) return CreatureKind.Boar;
             if (ContainsWholeWord(text, "treant")) return CreatureKind.Treant;
             if (ContainsWholeWord(text, "salamander")) return CreatureKind.Salamander;
@@ -106,6 +110,18 @@ namespace RPGGame.UI.ColorSystem.Applications
                 C(20, 20, 30), C(40, 40, 55), C(15, 15, 25), C(55, 48, 85),
                 C(30, 30, 40), C(70, 60, 90), C(25, 25, 35), C(45, 38, 58),
                 C(35, 32, 48), C(50, 45, 68),
+            },
+            CreatureKind.Rat => new[]
+            {
+                C(110, 100, 90), C(140, 128, 110), C(90, 82, 74), C(160, 145, 125),
+                C(75, 68, 60), C(125, 112, 98), C(95, 88, 78), C(150, 135, 118),
+                C(68, 60, 52), C(118, 108, 96),
+            },
+            CreatureKind.Ant => new[]
+            {
+                C(120, 40, 20), C(160, 55, 25), C(90, 30, 15), C(180, 80, 35),
+                C(70, 25, 12), C(140, 50, 22), C(100, 35, 18), C(200, 100, 45),
+                C(85, 28, 14), C(155, 60, 28),
             },
             CreatureKind.Boar => new[]
             {

@@ -79,6 +79,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             DamageFormatterTests.RunAllTests();
             Console.WriteLine();
+            PackEnemyTests.RunAllTests();
+            Console.WriteLine();
             BattleNarrativeFormattersTests.RunAllTests();
             Console.WriteLine();
             CombatResultsColoredTextTests.RunAllTests();

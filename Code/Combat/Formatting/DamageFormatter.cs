@@ -389,7 +389,8 @@ namespace RPGGame.Combat.Formatting
             bool isCriticalMiss = false,
             bool? resolvedCritical = null,
             Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default,
-            int? defenseFace = null)
+            int? defenseFace = null,
+            int overkillWasted = 0)
         {
             string actionName = action?.Name ?? "attack";
             bool hasDisplayableAction = !string.IsNullOrEmpty(action?.Name);
@@ -425,6 +426,13 @@ namespace RPGGame.Combat.Formatting
                 punchBuilder.Add(" hits)", Colors.White);
             }
             AddForAmountUnit(punchBuilder, actualDamage.ToString(), damageColor, "damage", Colors.White);
+            if (overkillWasted > 0)
+            {
+                punchBuilder.AddSpace();
+                punchBuilder.Add("(", Colors.White);
+                punchBuilder.Add(overkillWasted.ToString(), ColorPalette.Info);
+                punchBuilder.Add(" overkill)", Colors.White);
+            }
             var damageText = ActionHeadlineFormatter.Combine(setup, punchBuilder.Build());
             
             int rollForDamageScaling = roll + rollBonus;
@@ -433,8 +441,8 @@ namespace RPGGame.Combat.Formatting
 
             string? leftoverFooter = null;
             int targetDefense = 0;
-            if (target is Character hero && hero is not Enemy)
-                leftoverFooter = ClassDefenseCalculator.FormatCombatFooter(hero, DamageCalculator.IgnoresArmor(hero, action));
+            if (target is Character defender)
+                leftoverFooter = ClassDefenseCalculator.FormatCombatFooter(defender, DamageCalculator.IgnoresArmor(defender, action));
             else
                 targetDefense = DamageCalculator.ResolveTargetArmor(target, action);
             

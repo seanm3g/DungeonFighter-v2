@@ -4,6 +4,7 @@ namespace RPGGame.UI.Avalonia.Layout
     using System.Collections.Generic;
     using RPGGame;
     using RPGGame.ActionInteractionLab;
+    using RPGGame.Combat.Calculators;
     using RPGGame.Handlers.Inventory;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
@@ -406,8 +407,16 @@ namespace RPGGame.UI.Avalonia.Layout
             
             if (enemy != null)
             {
-                string enemyNameLine = RightPanelContentText.EllipsizeToPanelWidth(enemy.Name);
-                var nameSegments = EntityColorHelper.BuildEnemyNamePanelLineSegments(enemy, enemyNameLine);
+                string packSuffix = enemy.PackSuffix;
+                string enemyNameLine = RightPanelContentText.EllipsizeToPanelWidth(enemy.Name + packSuffix);
+                List<ColoredText> nameSegments;
+                if (packSuffix.Length > 0 && enemyNameLine.EndsWith(packSuffix, StringComparison.Ordinal))
+                {
+                    nameSegments = EntityColorHelper.BuildEnemyNamePanelLineSegments(enemy, enemy.Name);
+                    nameSegments.Add(new ColoredText(packSuffix, AsciiArtAssets.Colors.White));
+                }
+                else
+                    nameSegments = EntityColorHelper.BuildEnemyNamePanelLineSegments(enemy, enemyNameLine);
                 textWriter.RenderSegments(nameSegments, x, y);
                 y++;
 
@@ -450,7 +459,8 @@ namespace RPGGame.UI.Avalonia.Layout
                     displayEnemyHp,
                     enemy.MaxHealth,
                     entityId: $"enemy_{enemy.Name}",
-                    heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale);
+                    heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale,
+                    dividerFractions: enemy.IsPack ? enemy.PackDividerFractions : null);
                 D20ThresholdBarRenderer.RenderBar(
                     canvas,
                     x,
@@ -471,7 +481,7 @@ namespace RPGGame.UI.Avalonia.Layout
 
                 canvas.AddText(x, y, dmgLine, AsciiArtAssets.Colors.White);
                 y++;
-                canvas.AddText(x, y, $"ARM:  {enemy.Armor}", AsciiArtAssets.Colors.White);
+                canvas.AddText(x, y, $"Defense {ClassDefenseCalculator.GetDisplayedDefense(enemy)}", AsciiArtAssets.Colors.White);
                 y++;
                 canvas.AddText(x, y, $"Spd:  {enemy.GetTotalAttackSpeed():F2}s", AsciiArtAssets.Colors.White);
                 y += 2;

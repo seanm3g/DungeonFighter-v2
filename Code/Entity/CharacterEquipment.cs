@@ -73,6 +73,7 @@ namespace RPGGame
 
         public Item? EquipItem(Item item, string slot) => slotManager.EquipItem(item, slot);
         public Item? UnequipItem(string slot) => slotManager.UnequipItem(slot);
+        public Item? GetSlotItem(string slot) => slotManager.GetSlotItem(slot);
 
         public void AddToInventory(Item item) => Inventory.Add(item);
         public bool RemoveFromInventory(Item item) => Inventory.Remove(item);

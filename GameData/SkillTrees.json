@@ -98,8 +98,8 @@
           "requires": [
             "b-lvl2"
           ],
-          "effect": "Rite of passage: +15 Strength.",
-          "payoff": "Marks the Mace path; baseline power before tag engines.",
+          "effect": "Rite of passage: add your level to Strength.",
+          "payoff": "Marks the Mace path; Strength grows with your level.",
           "customEffectId": "puberty"
         },
         {

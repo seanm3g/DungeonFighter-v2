@@ -44,7 +44,7 @@ namespace RPGGame.Data
             "baseAttributes.strength", "baseAttributes.agility", "baseAttributes.technique", "baseAttributes.intelligence",
             "growthPerLevel.strength", "growthPerLevel.agility", "growthPerLevel.technique", "growthPerLevel.intelligence",
             "healthPercent", "healthGrowthPercent",
-            "actions", "isLiving", "description", "colorOverride"
+            "actions", "isLiving", "packSize", "description", "colorOverride"
         };
 
         internal static readonly string[] EnemyNestedObjectNames = { "baseAttributes", "growthPerLevel" };

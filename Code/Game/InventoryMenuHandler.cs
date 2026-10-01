@@ -126,15 +126,7 @@ namespace RPGGame
                     && !string.IsNullOrEmpty(stateTracker.SelectedSlot))
                 {
                     var newItem = inv[stateTracker.SelectedItemIndex];
-                    Item? currentItem = stateTracker.SelectedSlot switch
-                    {
-                        "weapon" => player.Weapon,
-                        "head" => player.Head,
-                        "body" => player.Body,
-                        "legs" => player.Legs,
-                        "feet" => player.Feet,
-                        _ => null
-                    };
+                    Item? currentItem = player.Equipment.GetSlotItem(stateTracker.SelectedSlot);
                     canvasUI.RenderItemComparison(player, newItem, currentItem, stateTracker.SelectedSlot, stateTracker.SelectedItemIndex);
                 }
                 else if (stateTracker.WaitingForItemSelection)

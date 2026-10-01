@@ -6,7 +6,7 @@ namespace RPGGame.Tests.Unit
 {
     /// <summary>
     /// maxRank-5 skill nodes scale their combat bonuses by learned rank.
-    /// Standing rite passives (Puberty / Commission / Initiation / Apprenticeship) add +15 to the class stat.
+    /// Puberty adds the hero's level to Strength. Commission / Initiation / Apprenticeship add +15 to AGI / TEC / INT.
     /// </summary>
     public static class SkillEffectRankScalingTests
     {
@@ -181,8 +181,9 @@ namespace RPGGame.Tests.Unit
 
         private static void TestPubertyGrantsStandingStrength()
         {
-            Console.WriteLine("--- Puberty grants standing +15 STR ---");
+            Console.WriteLine("--- Puberty grants level as standing STR ---");
             var hero = MakeHero("PubertyStr", WeaponType.Mace);
+            hero.Level = 5;
             int before = hero.GetEffectiveStrength();
             TestBase.AssertEqual(0, SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR"),
                 "no Puberty rank -> no skill STR",
@@ -190,14 +191,25 @@ namespace RPGGame.Tests.Unit
 
             SetRank(hero, "b-puberty", 1);
             int after = hero.GetEffectiveStrength();
-            TestBase.AssertEqual(15, SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR"),
-                "Puberty rank 1 is +15 STR",
+            TestBase.AssertEqual(5, SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR"),
+                "Puberty at level 5 is +5 STR",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(before + 15, after,
+            TestBase.AssertEqual(0, SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "AGI"),
+                "Puberty does not add Agility",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(before + 5, after,
                 "GetEffectiveStrength includes Puberty",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(hero.MeetsStatThreshold("STR", before + 15),
+            TestBase.AssertTrue(hero.MeetsStatThreshold("STR", before + 5),
                 "STR threshold uses Puberty",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            hero.Level = 8;
+            TestBase.AssertEqual(8, SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR"),
+                "Puberty tracks the new level",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(before + 8, hero.GetEffectiveStrength(),
+                "GetEffectiveStrength follows the new Puberty level",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

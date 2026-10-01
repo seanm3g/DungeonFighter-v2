@@ -25,25 +25,34 @@ namespace RPGGame.Tests.Unit.Combat
             _testsPassed = 0;
             _testsFailed = 0;
 
-            // Clear cache before tests
-            DamageCalculator.ClearAllCaches();
+            int playerBaseSnap = GameConfiguration.Instance.Combat.PlayerBaseArmor;
+            GameConfiguration.Instance.Combat.PlayerBaseArmor = 0;
+            try
+            {
+                // Clear cache before tests
+                DamageCalculator.ClearAllCaches();
 
-            TestCalculateRawDamage();
-            TestDirectStatEnemyRawDamageUsesDamageField();
-            TestAttributeDamageIncludesStrengthAndPrimary();
-            TestCalculateDamage();
-            TestDamageReflectsStatChangesWithoutStaleCache();
-            TestCacheInvalidation();
-            TestCacheClearing();
-            TestCacheStats();
-            TestEdgeCases();
-            TestDamageWithArmor();
-            TestHeroDefenseFaceScalesArmor();
-            TestResolveTargetArmor_SubtractsAcidArmorReduction();
-            TestPierceIgnoresArmor();
-            TestComboBandRollDoesNotAmplifyRawDamage();
-            TestDamageWithMultipliers();
-            TestConvertKeywordAddsFlatDamage();
+                TestCalculateRawDamage();
+                TestDirectStatEnemyRawDamageUsesDamageField();
+                TestAttributeDamageIncludesStrengthAndPrimary();
+                TestCalculateDamage();
+                TestDamageReflectsStatChangesWithoutStaleCache();
+                TestCacheInvalidation();
+                TestCacheClearing();
+                TestCacheStats();
+                TestEdgeCases();
+                TestDamageWithArmor();
+                TestHeroDefenseFaceScalesArmor();
+                TestResolveTargetArmor_SubtractsAcidArmorReduction();
+                TestPierceIgnoresArmor();
+                TestComboBandRollDoesNotAmplifyRawDamage();
+                TestDamageWithMultipliers();
+                TestConvertKeywordAddsFlatDamage();
+            }
+            finally
+            {
+                GameConfiguration.Instance.Combat.PlayerBaseArmor = playerBaseSnap;
+            }
 
             TestBase.PrintSummary("DamageCalculator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -251,19 +260,20 @@ namespace RPGGame.Tests.Unit.Combat
             var weapon = new WeaponItem("TestSword", 1, 10);
             attacker.EquipItem(weapon, "weapon");
 
+            heroTarget.StandingBlockPercent = 0;
             int rawVsHero = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
             int dmgVsHero = DamageCalculator.CalculateDamage(attacker, heroTarget, action, 1.0, 1.0, 0, 10);
-            TestBase.AssertEqual(ExpectedHeroBlockOnly(rawVsHero, 0), dmgVsHero,
-                "Hero standing 0 unarmed: Tempo mint, no % DR",
+            TestBase.AssertEqual(ExpectedWowRemaining(rawVsHero, heroTarget, 0), dmgVsHero,
+                "Hero standing 0: 0 DR (glass)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(5, heroTarget.GetMaxArmor(),
+            TestBase.AssertEqual(6, heroTarget.GetMaxArmor(),
                 "Hero armor must remain after damage calculation",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestHeroDefenseFaceScalesArmor()
         {
-            Console.WriteLine("\n--- Testing standing BLOCK % vs standing 0 Tempo ---");
+            Console.WriteLine("\n--- Testing standing Defense % WoW DR ---");
 
             var attacker = TestDataBuilders.Enemy().WithName("DefAtk").WithHealth(100).Build();
             var hero = TestDataBuilders.Character().WithName("DefTgt").WithLevel(1).Build();
@@ -275,22 +285,28 @@ namespace RPGGame.Tests.Unit.Combat
 
             hero.StandingBlockPercent = 0;
             int open = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10);
-            TestBase.AssertEqual(ExpectedHeroBlockOnly(raw, 0), open, "standing 0 = full hit (Tempo not DR)", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(hero.Effects.PendingDefenseTempoSpeedPct > 0, "Tempo pending after hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(ExpectedWowRemaining(raw, hero, 0), open, "standing 0 = full hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0.0, hero.Effects.PendingDefenseTempoSpeedPct, "no Tempo mint on take-hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            hero.Effects.PendingDefenseTempoSpeedPct = 0;
-            hero.StandingBlockPercent = 0.45;
+            hero.StandingBlockPercent = 1.80;
             int blocked = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10);
-            double blockPct = ClassDefenseCalculator.GetBlockPercent(hero);
-            TestBase.AssertEqual(ExpectedHeroBlockOnly(raw, blockPct), blocked, "standing 45% = BLOCK only", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(blocked < open || blockPct == 0,
-                "standing 45% should reduce more than standing 0",
+            TestBase.AssertEqual(ExpectedWowRemaining(raw, hero, 1.80), blocked, "standing 180% = WoW DR", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(blocked < open,
+                "standing 180% should reduce more than standing 0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            StandingBlock.ConsumeAfterHit(hero);
+            TestBase.AssertEqual(1.0, hero.StandingBlockPercent,
+                "hit resets standing BLOCK to 100%",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static int ExpectedHeroBlockOnly(int incoming, double blockPct)
+        private static int ExpectedWowRemaining(int incoming, Character hero, double actionMult)
         {
-            int remaining = (int)Math.Round(incoming * (1.0 - blockPct), MidpointRounding.AwayFromZero);
+            int rating = Math.Max(0, hero.GetMaxArmor());
+            double k = ClassDefenseCalculator.GetK();
+            double effective = rating * actionMult;
+            double dr = ClassDefenseCalculator.ComputeDr(effective, k, pierce: false);
+            int remaining = (int)Math.Round(incoming * (1.0 - dr), MidpointRounding.AwayFromZero);
             int min = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
             return remaining <= 0 ? 0 : Math.Max(min, remaining);
         }
@@ -318,12 +334,12 @@ namespace RPGGame.Tests.Unit.Combat
 
             var hero = TestDataBuilders.Character().WithName("HeroArmor").WithLevel(1).Build();
             hero.EquipItem(new ChestItem("Plate", 1, 8), "body");
-            TestBase.AssertEqual(8, hero.GetMaxArmor(), "hero gear armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(9, hero.GetMaxArmor(), "hero gear armor plus level", ref _testsRun, ref _testsPassed, ref _testsFailed);
             hero.AcidArmorReduction = 3;
-            TestBase.AssertEqual(5, hero.GetMaxArmor(),
+            TestBase.AssertEqual(6, hero.GetMaxArmor(),
                 "hero GetMaxArmor subtracts AcidArmorReduction",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(5, DamageCalculator.ResolveTargetArmor(hero),
+            TestBase.AssertEqual(6, DamageCalculator.ResolveTargetArmor(hero),
                 "ResolveTargetArmor matches hero GetMaxArmor with acid",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
@@ -344,9 +360,9 @@ namespace RPGGame.Tests.Unit.Combat
 
             int raw = DamageCalculator.CalculateRawDamage(attacker, normalAction, 1.0, 1.0, 10);
             int withArmor = DamageCalculator.CalculateDamage(attacker, armoredEnemy, normalAction, 1.0, 1.0, 0, 10);
-            int expectedArmored = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, raw - 15);
+            int expectedArmored = ExpectedWowRemaining(raw, armoredEnemy, 1.0);
             TestBase.AssertEqual(expectedArmored, withArmor,
-                "non-pierce swing should subtract enemy armor",
+                "non-pierce swing should apply enemy WoW Defense DR",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var pierceAction = TestDataBuilders.CreateMockAction("PIERCE");
@@ -375,7 +391,7 @@ namespace RPGGame.Tests.Unit.Combat
             heroTarget.EquipItem(new ChestItem("Plate", 1, 8), "body");
             heroTarget.HasPierce = true;
             heroTarget.PierceTurns = 2;
-            TestBase.AssertEqual(8, heroTarget.GetMaxArmor(),
+            TestBase.AssertEqual(9, heroTarget.GetMaxArmor(),
                 "HUD effective armor unchanged while pierced",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0, DamageCalculator.ResolveTargetArmor(heroTarget),
@@ -390,7 +406,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(!heroTarget.HasPierce && heroTarget.PierceTurns == 0,
                 "pierce clears when turns expire",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(8, DamageCalculator.ResolveTargetArmor(heroTarget),
+            TestBase.AssertEqual(9, DamageCalculator.ResolveTargetArmor(heroTarget),
                 "armor applies again after pierce expires",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }

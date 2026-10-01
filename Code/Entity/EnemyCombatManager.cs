@@ -69,18 +69,17 @@ namespace RPGGame
             if (totalRoll >= difficulty)
             {
                 var settings = GameSettings.Instance;
-                int? defenseFace = DefenseBlockCalculator.TryRollDefenseFace(target, action);
-                int finalEffect = CombatCalculator.CalculateDamage(_enemy, target, action, 1.0, settings.EnemyDamageMultiplier, rollBonus, baseRoll, false, defenseFace, baseRoll);
+                int finalEffect = CombatCalculator.CalculateDamage(_enemy, target, action, 1.0, settings.EnemyDamageMultiplier, rollBonus, baseRoll, false, null, baseRoll);
                 
                 if (action.Type == ActionType.Attack)
                 {
                     target.TakeDamage(finalEffect);
                     // Use the same parameters as the actual damage calculation to avoid duplicate weakened messages
-                    int actualDamage = CombatCalculator.CalculateDamage(_enemy, target, action, 1.0, settings.EnemyDamageMultiplier, rollBonus, baseRoll, false, defenseFace, baseRoll);
+                    int actualDamage = CombatCalculator.CalculateDamage(_enemy, target, action, 1.0, settings.EnemyDamageMultiplier, rollBonus, baseRoll, false, null, baseRoll);
                     // Use new ColoredText system, then convert to string for backward compatibility
                     // Get multi-hit count for display formatting
                     int multiHitCount = action.Advanced?.MultiHitCount ?? 1;
-                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(_enemy, target, finalEffect, actualDamage, action, 1.0, settings.EnemyDamageMultiplier, rollBonus, baseRoll, multiHitCount, false, null, default, defenseFace);
+                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(_enemy, target, finalEffect, actualDamage, action, 1.0, settings.EnemyDamageMultiplier, rollBonus, baseRoll, multiHitCount, false, null, default, null);
                     string damageDisplay = ColoredTextRenderer.RenderAsPlainText(damageText) + "\n" + ColoredTextRenderer.RenderAsPlainText(rollInfo);
                     _enemy.ConsumeRollPenaltyAfterCombatRoll(action);
                     return ($"[{_enemy.Name}] uses [{action.Name}] on [{target.Name}]: deals {damageDisplay}. (Rolled {totalRoll}, need {difficulty})", true);

@@ -3,7 +3,7 @@ using RPGGame.Data;
 
 namespace RPGGame.UI
 {
-    /// <summary>Player-facing two-line cadence card format: header then one mechanic per line.</summary>
+    /// <summary>Player-facing cadence card lines. A keyword prefix means the effect lingers; bare lines are this swing.</summary>
     public static class CadenceCardLineFormatter
     {
         public static string FormatCadenceHeader(string? cadence, int duration)
@@ -16,18 +16,19 @@ namespace RPGGame.UI
             return $"{c} ({duration}x)";
         }
 
-        public static string FormatCadenceHeader(ActionAttackBonusGroup group, int displayCount)
+        public static string FormatCadenceHeader(ActionAttackBonusGroup group, int displayCount) =>
+            FormatCadenceHeader(ResolveGroupCadence(group), displayCount);
+
+        /// <summary>Prefix for a lingering effect. Duration 1 is <c>turn:</c>; longer is <c>turn x3:</c>.</summary>
+        public static string FormatLingeringPrefix(string? cadence, int duration)
         {
-            string cad = CadenceKeywords.NormalizeCadenceType(
-                string.IsNullOrWhiteSpace(group.CadenceType)
-                    ? (string.IsNullOrWhiteSpace(group.Keyword) ? CadenceKeywords.Turn : group.Keyword)
-                    : group.CadenceType);
-            if (!string.IsNullOrWhiteSpace(group.DurationType)
-                && !CadenceKeywords.IsKeywordCadence(group.DurationType))
-            {
-                cad = CadenceKeywords.NormalizeCadenceType(group.DurationType);
-            }
-            return FormatCadenceHeader(cad, displayCount);
+            string c = CadenceKeywords.NormalizeCadenceType(cadence ?? "");
+            if (string.IsNullOrEmpty(c))
+                c = CadenceKeywords.Turn;
+            int count = duration <= 0 ? 1 : duration;
+            return count <= 1
+                ? $"{c.ToLowerInvariant()}:"
+                : $"{c.ToLowerInvariant()} x{count}:";
         }
 
         public static string FormatMechanicLine(string mechanicId, double quantity, string? statSubType = null)
@@ -72,19 +73,8 @@ namespace RPGGame.UI
             var lines = new List<string>();
             if (bonuses == null)
                 return lines;
-            bool hasBonus = false;
             foreach (var b in bonuses)
-            {
-                string line = FormatMechanicLineFromBonusItem(b);
-                if (string.IsNullOrEmpty(line))
-                    continue;
-                if (!hasBonus)
-                {
-                    lines.Add(FormatCadenceHeader(cadence, duration));
-                    hasBonus = true;
-                }
-                lines.Add(line);
-            }
+                AddLingering(lines, cadence, duration, FormatMechanicLineFromBonusItem(b));
             return lines;
         }
 
@@ -93,19 +83,11 @@ namespace RPGGame.UI
             var lines = new List<string>();
             if (block?.Mechanics == null || block.Mechanics.Count == 0)
                 return lines;
-            bool hasMechanic = false;
             foreach (var row in block.Mechanics)
             {
                 if (string.IsNullOrWhiteSpace(row.MechanicId) || row.Quantity == 0)
                     continue;
-                if (!hasMechanic)
-                {
-                    lines.Add(FormatCadenceHeader(block.Cadence, block.Duration));
-                    hasMechanic = true;
-                }
-                string line = FormatMechanicLine(row.MechanicId, row.Quantity, row.StatSubType);
-                if (!string.IsNullOrEmpty(line))
-                    lines.Add(line);
+                AddLingering(lines, block.Cadence, block.Duration, FormatMechanicLine(row.MechanicId, row.Quantity, row.StatSubType));
             }
             return lines;
         }
@@ -134,14 +116,31 @@ namespace RPGGame.UI
             var lines = new List<string>();
             if (group?.Bonuses == null || group.Bonuses.Count == 0)
                 return lines;
-            lines.Add(FormatCadenceHeader(group, displayCount));
+            string cadence = ResolveGroupCadence(group);
             foreach (var b in group.Bonuses)
-            {
-                string line = FormatMechanicLineFromBonusItem(b);
-                if (!string.IsNullOrEmpty(line))
-                    lines.Add(line);
-            }
+                AddLingering(lines, cadence, displayCount, FormatMechanicLineFromBonusItem(b));
             return lines;
+        }
+
+        private static string ResolveGroupCadence(ActionAttackBonusGroup group)
+        {
+            string cad = CadenceKeywords.NormalizeCadenceType(
+                string.IsNullOrWhiteSpace(group.CadenceType)
+                    ? (string.IsNullOrWhiteSpace(group.Keyword) ? CadenceKeywords.Turn : group.Keyword)
+                    : group.CadenceType);
+            if (!string.IsNullOrWhiteSpace(group.DurationType)
+                && !CadenceKeywords.IsKeywordCadence(group.DurationType))
+            {
+                cad = CadenceKeywords.NormalizeCadenceType(group.DurationType);
+            }
+            return string.IsNullOrEmpty(cad) ? CadenceKeywords.Turn : cad;
+        }
+
+        private static void AddLingering(List<string> lines, string? cadence, int duration, string mechanicLine)
+        {
+            if (string.IsNullOrEmpty(mechanicLine))
+                return;
+            lines.Add($"{FormatLingeringPrefix(cadence, duration)} {mechanicLine}");
         }
 
         private static string FormatQuantityLine(string label, double quantity, bool isPercent)

@@ -86,6 +86,12 @@ namespace RPGGame.Tests.Unit.UI
                 slot: "unknown",
                 newItemInventoryIndex: 2);
             TestBase.AssertTrue(invalidSlot == null, "current comparison column ignores invalid slots", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string? currentCharm = ItemComparisonRenderer.GetComparisonTooltipHoverValue(
+                currentColumn: true,
+                slot: "charm",
+                newItemInventoryIndex: 4);
+            TestBase.AssertEqual(LeftPanelHoverState.Prefix + "gear:charm", currentCharm, "current comparison column uses equipped charm hover id", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestInventoryItemScrollRange()

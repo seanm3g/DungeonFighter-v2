@@ -87,7 +87,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the action-info strip at the top of the center column (combat, inventory, etc.), above the combat log.
         /// Shows at least <see cref="LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT"/> panels (empty placeholders when the combo is shorter or empty);
-        /// selected (next combo step) panel border is white when the sequence is non-empty; other filled slots use neutral gray darkened 50%; brief pulsing red/green/gold border after each hero swing is handled by <see cref="RPGGame.UI.Avalonia.Feedback.HeroActionStripFeedback"/> (thicker stroke for the flashing panel during the sequence).
+        /// selected (next combo step) panel border is white when the sequence is non-empty; other filled slots use neutral gray darkened 50%; a miss pulses red and a combo-action hit pulses gold via <see cref="RPGGame.UI.Avalonia.Feedback.HeroActionStripFeedback"/> (thicker stroke while that pulse runs). A normal hit leaves the selected card solid white.
         /// Cards with pending ACTION-cadence buffs (slot queue / bank on current step) shimmer via <see cref="RPGGame.UI.Avalonia.Feedback.ActionBonusBorderShimmer"/> (flash still overrides). Granting actions alone do not shimmer.
         /// Panels at indices ≥ <see cref="ComboSequenceMaxHelper.GetEffectiveMax(Character?)"/> use a black border so unused strip capacity matches the character’s combo slot limit.
         /// When player is null, strip is cleared.
@@ -198,7 +198,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                         : AsciiArtAssets.Colors.White;
                 string swingLine = CombatActionStripBuilder.FormatStripSwingLine(in info, player, action, damageLineMode, i);
                 drawLine(swingLine, swingLineColor);
-                drawLine(HeroDefenseHudFormatter.FormatActionBlockSuffix(action), AsciiArtAssets.Colors.White);
+                string stanceLine = HeroDefenseHudFormatter.FormatActionBlockSuffix(action);
+                if (!string.IsNullOrEmpty(stanceLine))
+                    drawLine(stanceLine, AsciiArtAssets.Colors.White);
 
                 // Spreadsheet DESCRIPTION directly under damage/speed (name → swing → description).
                 int rowsLeftAfterSwing = Math.Max(0, panelBottomExclusive - contentY - reserveBottomRows);

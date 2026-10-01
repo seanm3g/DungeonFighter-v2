@@ -38,9 +38,10 @@ namespace RPGGame
             bool isCriticalMiss = false,
             bool? resolvedCritical = null,
             Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default,
-            int? defenseFace = null)
+            int? defenseFace = null,
+            int overkillWasted = 0)
         {
-            return DamageFormatter.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical, multiDiceDetail, defenseFace);
+            return DamageFormatter.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss, resolvedCritical, multiDiceDetail, defenseFace, overkillWasted);
         }
         
         /// <summary>

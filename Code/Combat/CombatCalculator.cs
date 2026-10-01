@@ -22,9 +22,9 @@ namespace RPGGame
         /// <summary>
         /// Calculates damage dealt by an attacker to a target
         /// </summary>
-        public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true, int? defenseFace = null, int? attackFace = null)
+        public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true, int? defenseFace = null, int? attackFace = null, int mitigationHitIndex = 0)
         {
-            return DamageCalculator.CalculateDamage(attacker, target, action, comboAmplifier, damageMultiplier, rollBonus, roll, showWeakenedMessage, defenseFace, attackFace);
+            return DamageCalculator.CalculateDamage(attacker, target, action, comboAmplifier, damageMultiplier, rollBonus, roll, showWeakenedMessage, defenseFace, attackFace, mitigationHitIndex);
         }
 
         /// <summary>

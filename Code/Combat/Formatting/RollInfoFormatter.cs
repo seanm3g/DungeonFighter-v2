@@ -111,12 +111,7 @@ namespace RPGGame.Combat.Formatting
                 builder.Add((roll + rollBonus).ToString(), Colors.White);
             }
 
-            if (!string.IsNullOrWhiteSpace(leftoverDefenseFooter))
-            {
-                builder.Add(" | ", Colors.Gray);
-                builder.Add(leftoverDefenseFooter, ColorPalette.Block);
-            }
-            else
+            if (string.IsNullOrWhiteSpace(leftoverDefenseFooter))
             {
                 if (defenseFace.HasValue)
                 {
@@ -142,6 +137,12 @@ namespace RPGGame.Combat.Formatting
             }
             
             AppendComboAmpToRollInfo(builder, comboAmplifier, action);
+
+            if (!string.IsNullOrWhiteSpace(leftoverDefenseFooter))
+            {
+                builder.Add(" | ", Colors.Gray);
+                builder.Add(leftoverDefenseFooter, ColorPalette.Block);
+            }
             
             builder.Add(")", Colors.Gray);
             

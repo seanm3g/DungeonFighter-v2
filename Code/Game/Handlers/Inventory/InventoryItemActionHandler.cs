@@ -253,16 +253,8 @@ namespace RPGGame.Handlers.Inventory
             return true;
         }
 
-        private static Item? GetEquippedItemForSlot(Character player, string slot) => slot switch
-        {
-            "weapon" => player.Weapon,
-            "head" => player.Head,
-            "body" => player.Body,
-            "legs" => player.Legs,
-            "feet" => player.Feet,
-            "charm" => player.Charm,
-            _ => null
-        };
+        private static Item? GetEquippedItemForSlot(Character player, string slot) =>
+            player.Equipment.GetSlotItem(slot);
 
         private static bool HasEmptyEquipmentSlot(Character player) =>
             AutoEquipSlotOrder.Any(slot => GetEquippedItemForSlot(player, slot.Slot) == null);

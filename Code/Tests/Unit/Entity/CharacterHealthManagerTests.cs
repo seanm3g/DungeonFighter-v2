@@ -80,18 +80,23 @@ namespace RPGGame.Tests.Unit.Entity
             var chest = new ChestItem("TestChest", 1, 10);
             defender.EquipItem(chest, "body");
 
-            TestBase.AssertEqual(10, defender.GetMaxArmor(), "Effective armor should match equipped armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(10, defender.CurrentArmor, "CurrentArmor should alias effective armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int withChest = HeroDefenseRating(defender, 10);
+            TestBase.AssertEqual(withChest, defender.GetMaxArmor(), "Effective armor is gear plus level and character base", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(withChest, defender.CurrentArmor, "CurrentArmor should alias effective armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var action = TestDataBuilders.CreateMockAction("JAB");
             action.DamageMultiplier = 1.0;
 
             int raw = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
             int mitigated = DamageCalculator.CalculateDamage(attacker, defender, action, 1.0, 1.0, 0, 10);
-            int expected = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, raw - 10);
+            double dr = ClassDefenseCalculator.ComputeDr(defender.GetMaxArmor(), ClassDefenseCalculator.GetK(), pierce: false);
+            int expected = (int)Math.Round(raw * (1.0 - dr), MidpointRounding.AwayFromZero);
+            int min = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
+            if (expected > 0)
+                expected = Math.Max(min, expected);
 
-            TestBase.AssertEqual(expected, mitigated, "Hero armor should flat-reduce attack damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(10, defender.GetMaxArmor(), "Armor value should still be present after mitigation calc", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(expected, mitigated, "Hero Defense should apply WoW DR", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(withChest, defender.GetMaxArmor(), "Armor value should still be present after mitigation calc", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestArmorUnaffectedByHits()
@@ -109,11 +114,12 @@ namespace RPGGame.Tests.Unit.Entity
             int initialHealth = character.CurrentHealth;
             character.Health.TakeDamage(8);
 
-            TestBase.AssertEqual(8, character.GetMaxArmor(), "TakeDamage must not consume armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int withChest = HeroDefenseRating(character, 8);
+            TestBase.AssertEqual(withChest, character.GetMaxArmor(), "TakeDamage must not consume armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(initialHealth - 8, character.CurrentHealth, "TakeDamage applies amount directly to health", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             character.RefreshRoomArmor();
-            TestBase.AssertEqual(8, character.GetMaxArmor(), "RefreshRoomArmor is a no-op for flat armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(withChest, character.GetMaxArmor(), "RefreshRoomArmor is a no-op for flat armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestArmorTracksEquipUnequip()
@@ -127,17 +133,21 @@ namespace RPGGame.Tests.Unit.Entity
 
             var chest = new ChestItem("HeavyChest", 1, 10);
             character.EquipItem(chest, "body");
-            TestBase.AssertEqual(10, character.GetMaxArmor(), "Armor should match equipped piece", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(HeroDefenseRating(character, 10), character.GetMaxArmor(), "Armor should match equipped piece plus level", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             character.UnequipItem("body");
-            TestBase.AssertEqual(0, character.GetMaxArmor(), "Unequipping armor should drop effective armor to 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0, character.CurrentArmor, "CurrentArmor should match effective armor after unequip", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int levelOnly = HeroDefenseRating(character, 0);
+            TestBase.AssertEqual(levelOnly, character.GetMaxArmor(), "Unequipping armor leaves level Defense", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(levelOnly, character.CurrentArmor, "CurrentArmor should match effective armor after unequip", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var upgradedChest = new ChestItem("BetterChest", 1, 8);
             character.EquipItem(upgradedChest, "body");
             character.Health.TakeDamage(4);
-            TestBase.AssertEqual(8, character.GetMaxArmor(), "Equipping armor sets effective flat DR; hits do not deplete it", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(HeroDefenseRating(character, 8), character.GetMaxArmor(), "Equipping armor sets effective flat DR; hits do not deplete it", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
+
+        private static int HeroDefenseRating(Character hero, int gear) =>
+            gear + Math.Max(0, hero.Level) + Math.Max(0, GameConfiguration.Instance.Combat.PlayerBaseArmor);
 
         #endregion
 

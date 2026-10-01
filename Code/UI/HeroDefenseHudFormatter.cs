@@ -4,7 +4,8 @@ using RPGGame.Combat.Calculators;
 namespace RPGGame
 {
     /// <summary>
-    /// Player-facing standing BLOCK %, class DEFENSE, and action block strings for HUD and tooltips.
+    /// Player-facing live DR %, action Block % strings, and leftover standing BLOCK helpers.
+    /// Left-panel HERO/STATS show live Defense (base × standing BLOCK); % DR is on Defense hover.
     /// </summary>
     public static class HeroDefenseHudFormatter
     {
@@ -17,33 +18,19 @@ namespace RPGGame
         /// <summary>Backward-compatible alias for standing BLOCK line.</summary>
         public static string FormatLeftoverBlockLine(Character hero) => FormatStandingBlockLine(hero);
 
-        public static string FormatClassLayerLine(Character hero)
-        {
-            var lines = ClassDefenseCalculator.FormatHudLines(hero, pierce: false);
-            if (lines.Count < 2)
-                return "";
-            string raw = lines[1];
-            if (raw.StartsWith("shield ", StringComparison.Ordinal))
-                return "Shield " + raw.Substring("shield ".Length);
-            if (raw.StartsWith("TEMPO ", StringComparison.Ordinal))
-                return "TEMPO " + raw.Substring("TEMPO ".Length);
-            if (raw.StartsWith("COUNTER ", StringComparison.Ordinal))
-                return "COUNTER " + raw.Substring("COUNTER ".Length);
-            if (raw.StartsWith("GRIT ", StringComparison.Ordinal))
-                return "GRIT " + raw.Substring("GRIT ".Length);
-            return raw;
-        }
+        public static string FormatClassLayerLine(Character hero) =>
+            ClassDefenseCalculator.FormatDrLine(hero);
 
+        /// <summary>Live incoming damage reduction, e.g. <c>12%</c>.</summary>
+        public static string FormatDamageReductionPercent(Character hero) =>
+            FormatClassLayerLine(hero).Replace("DR ", "", StringComparison.Ordinal);
+
+        /// <summary>Lingering stance on the action card, e.g. <c>result: defensive stance</c>. Empty for neutral.</summary>
         public static string FormatActionBlockSuffix(Action action) =>
-            $"Block {Percent(StandingBlock.ResolveFromAction(action))}%";
+            StandingBlock.FormatCardLine(StandingBlock.ResolveFromAction(action));
 
-        public static string FormatActionBlockTooltip(Action action)
-        {
-            int block = Percent(StandingBlock.ResolveFromAction(action));
-            if (block <= 0)
-                return "Block 0% (DEFENSE only)";
-            return $"Block {block}%";
-        }
+        public static string FormatActionBlockTooltip(Action action) =>
+            FormatActionBlockSuffix(action);
 
         private static int Percent(double fraction) =>
             (int)Math.Round(fraction * 100.0, MidpointRounding.AwayFromZero);

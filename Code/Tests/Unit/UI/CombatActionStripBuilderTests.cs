@@ -251,14 +251,20 @@ namespace RPGGame.Tests.Unit.UI
                 && ampCalcLine.Contains("Pow(", StringComparison.Ordinal),
                 "FormatSwingAmpCalculationLine shows Pow(baseline, exponent)",
                 ref run, ref passed, ref failed);
+            comboMulti[0].BlockPercent = 0;
             var tipMulti = CombatActionStripBuilder.BuildActionTooltipLines(charMultiHit, 0, 80);
             string tipMultiJoined = tipMulti != null ? string.Join("\n", tipMulti) : "";
             TestBase.AssertTrue(tipMultiJoined.Contains($"2x{multiDmgPct:F0}% damage", StringComparison.Ordinal)
                 && tipMultiJoined.Contains($"Spd {multiSpdPct:F0}%", StringComparison.Ordinal)
-                && tipMultiJoined.Contains("Block ", StringComparison.Ordinal)
+                && tipMultiJoined.Contains("result: aggressive stance", StringComparison.Ordinal)
                 && !tipMultiJoined.Contains("amp:", StringComparison.Ordinal)
                 && tipMultiJoined.Contains("AMP:", StringComparison.Ordinal),
-                "BuildActionTooltipLines includes multihit % damage/speed, block %, and AMP calc (no compact amp:)",
+                "BuildActionTooltipLines includes multihit % damage/speed, aggressive stance, and AMP calc (no compact amp:)",
+                ref run, ref passed, ref failed);
+            comboMulti[0].BlockPercent = 1.0;
+            string tipNeutralJoined = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charMultiHit, 0, 80));
+            TestBase.AssertTrue(!tipNeutralJoined.Contains("result:", StringComparison.Ordinal),
+                "BuildActionTooltipLines omits a neutral stance",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(!tipJoined.Contains("(Normal)", StringComparison.Ordinal),
                 "BuildActionTooltipLines omits speed flavor labels from action details",
@@ -386,7 +392,7 @@ namespace RPGGame.Tests.Unit.UI
             var richAction = charMechanical.GetComboActions()[0];
             string summaryMechanical = CombatActionStripBuilder.BuildActionMechanicalModSummary(charMechanical, richAction, 0);
             TestBase.AssertTrue(
-                summaryMechanical.Contains("ACTION (2x)", StringComparison.Ordinal)
+                summaryMechanical.Contains("action x2:", StringComparison.Ordinal)
                 && summaryMechanical.Contains("ACC +1", StringComparison.Ordinal)
                 && summaryMechanical.Contains("DAMAGE +20%", StringComparison.Ordinal)
                 && summaryMechanical.Contains("Hero thresholds H:-1 C:+2 Cr:-1 Cm:+1", StringComparison.Ordinal)
@@ -460,9 +466,8 @@ namespace RPGGame.Tests.Unit.UI
             string abilityJoined = string.Join(" ", abilityTail);
             TestBase.AssertTrue(
                 !abilityJoined.Contains("Ability:", StringComparison.Ordinal)
-                && abilityJoined.Contains("ACTION (1x)", StringComparison.Ordinal)
-                && abilityJoined.Contains("ACC +2", StringComparison.Ordinal),
-                "BuildActionStripModifierTailLines uses two-line cadence format",
+                && abilityJoined.Contains("action: ACC +2", StringComparison.Ordinal),
+                "BuildActionStripModifierTailLines prefixes lingering cadence lines",
                 ref run, ref passed, ref failed);
 
             TestActionCadenceGrantLinesResetWhenPendingThenRedeemed(ref run, ref passed, ref failed);
@@ -633,8 +638,7 @@ namespace RPGGame.Tests.Unit.UI
             var idleRapidTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(rapid, 80, 8, hero, 0);
             string idleRapidJoined = string.Join(" | ", idleRapidTail);
             TestBase.AssertTrue(
-                idleRapidJoined.Contains("ACTION (1x)", StringComparison.Ordinal)
-                && idleRapidJoined.Contains("MULTIHIT +1", StringComparison.Ordinal),
+                idleRapidJoined.Contains("action: MULTIHIT +1", StringComparison.Ordinal),
                 "Idle Rapid Strike card shows authored ACTION Multihit grant",
                 ref run, ref passed, ref failed);
 
@@ -647,8 +651,7 @@ namespace RPGGame.Tests.Unit.UI
             var pendingRapidTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(rapid, 80, 8, hero, 0);
             string pendingRapidJoined = string.Join(" | ", pendingRapidTail);
             TestBase.AssertTrue(
-                pendingRapidJoined.Contains("ACTION (1x)", StringComparison.Ordinal)
-                && pendingRapidJoined.Contains("MULTIHIT +1", StringComparison.Ordinal),
+                pendingRapidJoined.Contains("action: MULTIHIT +1", StringComparison.Ordinal),
                 "While Multihit is pending, Rapid Strike keeps authored ACTION grant lines",
                 ref run, ref passed, ref failed);
 
@@ -683,8 +686,7 @@ namespace RPGGame.Tests.Unit.UI
             var resetRapidTail = CombatActionStripBuilder.BuildActionStripModifierTailLines(rapid, 80, 8, hero, 0);
             string resetRapidJoined = string.Join(" | ", resetRapidTail);
             TestBase.AssertTrue(
-                resetRapidJoined.Contains("ACTION (1x)", StringComparison.Ordinal)
-                && resetRapidJoined.Contains("MULTIHIT +1", StringComparison.Ordinal),
+                resetRapidJoined.Contains("action: MULTIHIT +1", StringComparison.Ordinal),
                 "After redeem: Rapid Strike ACTION grant lines remain for the next cycle",
                 ref run, ref passed, ref failed);
 

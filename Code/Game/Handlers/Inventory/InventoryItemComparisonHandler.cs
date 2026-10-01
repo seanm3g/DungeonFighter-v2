@@ -78,16 +78,7 @@ namespace RPGGame.Handlers.Inventory
                 return;
             }
 
-            // Get currently equipped item for this slot
-            Item? currentItem = slot switch
-            {
-                "weapon" => player.Weapon,
-                "head" => player.Head,
-                "body" => player.Body,
-                "legs" => player.Legs,
-                "feet" => player.Feet,
-                _ => null
-            };
+            Item? currentItem = player.Equipment.GetSlotItem(slot);
             
             // Store selection for later confirmation
             stateTracker.SelectedItemIndex = itemIndex;

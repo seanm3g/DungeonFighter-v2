@@ -173,6 +173,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("actions", "ActionSpeedSystem", () => RPGGame.Tests.Unit.Actions.ActionSpeedSystemTests.RunAllTests()));
             list.Add(new TestSuiteEntry("actions", "ActionSelectorRollBased", () => RPGGame.Tests.Unit.Actions.ActionSelectorRollBasedTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "MultiHit", () => RPGGame.Tests.Unit.MultiHitTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "PackEnemy", () => RPGGame.Tests.Unit.Combat.PackEnemyTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "DamageCalculator", () => RPGGame.Tests.Unit.Combat.DamageCalculatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "DefenseBlock", () => RPGGame.Tests.Unit.Combat.DefenseBlockCalculatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ClassDefense", () => RPGGame.Tests.Unit.Combat.ClassDefenseCalculatorTests.RunAllTests()));
@@ -183,6 +184,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "CombatResults", () => RPGGame.Tests.Unit.Combat.CombatResultsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StatusEffects", () => RPGGame.Tests.Unit.StatusEffectsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("entity", "ActorClearTempEffects", () => RPGGame.Tests.Unit.Entity.ActorClearTempEffectsTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("entity", "CharacterHealthManager", () => RPGGame.Tests.Unit.Entity.CharacterHealthManagerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "DeveloperSimMode", () => RPGGame.Tests.Unit.Tuning.DeveloperSimModeTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "LabBalance", () => RPGGame.Tests.Unit.Tuning.LabBalanceTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "ActionInteractionLab", () => RPGGame.Tests.Unit.ActionInteractionLabTests.RunAllTests()));

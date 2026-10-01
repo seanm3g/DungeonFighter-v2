@@ -35,7 +35,7 @@ namespace RPGGame.Data
             action.Block = GetStringValue(root, "block");
             if (string.IsNullOrWhiteSpace(action.Block))
             {
-                // Migrate legacy energy cost 1–3 → block percent points.
+                // Migrate legacy energy cost 1–3 → Defense % (180 / 100 / 0).
                 string legacyEnergy = GetStringValue(root, "energy");
                 if (!string.IsNullOrWhiteSpace(legacyEnergy)
                     && int.TryParse(legacyEnergy.Trim(), out int energyCost))

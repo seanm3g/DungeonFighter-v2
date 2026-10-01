@@ -34,7 +34,7 @@ namespace RPGGame.Tests.Unit.UI
 
 
 
-            TestHitFlashGreen(ref run, ref passed, ref failed);
+            TestHitLeavesBorderUnchanged(ref run, ref passed, ref failed);
 
             TestComboCompleteFlashGold(ref run, ref passed, ref failed);
 
@@ -60,7 +60,7 @@ namespace RPGGame.Tests.Unit.UI
 
 
 
-        private static void TestHitFlashGreen(ref int run, ref int passed, ref int failed)
+        private static void TestHitLeavesBorderUnchanged(ref int run, ref int passed, ref int failed)
 
         {
 
@@ -74,9 +74,11 @@ namespace RPGGame.Tests.Unit.UI
 
                 TestBase.AssertTrue(
 
-                    HeroActionStripFeedback.TryGetBorderOverride(0, out var c) && c == AsciiArtAssets.Colors.Green,
+                    !HeroActionStripFeedback.TryGetBorderOverride(0, out _)
 
-                    "Hit flash: panel 0 returns green",
+                        && !HeroActionStripFeedback.IsFlashEmphasisActive(0),
+
+                    "Hit: panel 0 stays its solid border (no green pulse)",
 
                     ref run, ref passed, ref failed);
 
@@ -172,7 +174,7 @@ namespace RPGGame.Tests.Unit.UI
 
                 HeroActionStripFeedback.ResetForTests();
 
-                HeroActionStripFeedback.Trigger(2, HeroActionStripFlashKind.Hit);
+                HeroActionStripFeedback.Trigger(2, HeroActionStripFlashKind.Miss);
 
                 TestBase.AssertTrue(
 
@@ -410,7 +412,7 @@ namespace RPGGame.Tests.Unit.UI
 
 
 
-                HeroActionStripFeedback.Trigger(0, HeroActionStripFlashKind.Hit);
+                HeroActionStripFeedback.Trigger(0, HeroActionStripFlashKind.ComboComplete);
 
                 TestBase.AssertTrue(
 
@@ -470,7 +472,7 @@ namespace RPGGame.Tests.Unit.UI
 
                 HeroActionStripFeedback.ResetForTests();
 
-                HeroActionStripFeedback.Trigger(2, HeroActionStripFlashKind.Hit);
+                HeroActionStripFeedback.Trigger(2, HeroActionStripFlashKind.Miss);
 
                 TestBase.AssertTrue(
 

@@ -85,10 +85,10 @@ namespace RPGGame.Combat.Sequence
             Action? action)
         {
             var beats = new List<List<ColoredText>>();
-            if (target is Character hero && hero is not Enemy)
+            if (target is Character defender)
             {
-                bool pierce = DamageCalculator.IgnoresArmor(hero, action);
-                foreach (string line in ClassDefenseCalculator.FormatHudLines(hero, pierce))
+                bool pierce = DamageCalculator.IgnoresArmor(defender, action);
+                foreach (string line in ClassDefenseCalculator.FormatHudLines(defender, pierce))
                     beats.Add(Plain(line, ColorPalette.Block));
                 return beats;
             }

@@ -96,12 +96,8 @@ namespace RPGGame.UI.Avalonia.Layout
 
                 int healthBarWidth = LayoutConstants.LEFT_PANEL_WIDTH - 4;
                 int healthBarY = y;
-                int maxArmor = character.GetMaxArmor();
-                bool hasArmorBar = maxArmor > 0;
+                int displayedDefense = ClassDefenseCalculator.GetDisplayedDefense(character);
                 int barAreaHeight = D20ThresholdBarRenderer.CombatBarAreaRowCount;
-                double thresholdVerticalOffset = hasArmorBar
-                    ? D20ThresholdBarRenderer.CombatStripVerticalOffsetWithArmor
-                    : D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor;
                 int thresholdBarY = healthBarY;
                 int thresholdHoverRowY = healthBarY + 1;
                 int hpValueY = healthBarY + barAreaHeight;
@@ -109,20 +105,6 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.ClearProgressBarsInArea(x, healthBarY, healthBarWidth, barAreaHeight);
                 canvas.ClearSegmentedBarsInArea(x, healthBarY, healthBarWidth, barAreaHeight);
                 canvas.ClearTextInArea(x, hpValueY, healthBarWidth, 1);
-
-                if (hasArmorBar)
-                {
-                    canvas.AddHealthBar(
-                        x,
-                        healthBarY,
-                        healthBarWidth,
-                        maxArmor,
-                        maxArmor,
-                        AsciiArtAssets.Colors.DarkBlue,
-                        AsciiArtAssets.Colors.White,
-                        entityId: $"player_{character.Name}_armor",
-                        heightScale: D20ThresholdBarRenderer.CombatArmorHeightScale);
-                }
 
                 int displayHp = RPGGame.Combat.UI.HealthBarDisplayHold.Resolve($"player_{character.Name}", character.CurrentHealth);
                 int maxHp = character.GetEffectiveMaxHealth();
@@ -134,8 +116,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     displayHp,
                     maxHp,
                     entityId: $"player_{character.Name}",
-                    heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale,
-                    verticalOffsetScale: hasArmorBar ? D20ThresholdBarRenderer.CombatArmorHeightScale : 0.0);
+                    heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale);
 
                 var thresholdSegments = D20ThresholdBarRenderer.RenderBar(
                     canvas,
@@ -145,27 +126,15 @@ namespace RPGGame.UI.Avalonia.Layout
                     character,
                     ThresholdBarPanel.Hero,
                     D20ThresholdBarRenderer.CombatStripHeightScale,
-                    thresholdVerticalOffset);
+                    D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor);
 
-                if (hasArmorBar)
-                {
-                    canvas.AddText(
-                        x,
-                        hpValueY,
-                        $"Health {displayHp}/{maxHp}  Defense {maxArmor}",
-                        AsciiArtAssets.Colors.White);
-                }
-                else
-                {
-                    canvas.AddText(
-                        x,
-                        hpValueY,
-                        $"Health {displayHp}/{maxHp}",
-                        AsciiArtAssets.Colors.White);
-                }
+                canvas.AddText(
+                    x,
+                    hpValueY,
+                    $"Health {displayHp}/{maxHp}  Defense {displayedDefense}",
+                    AsciiArtAssets.Colors.White);
 
                 y = hpValueY + 1;
-                RenderStandingDefenseHud(character, x, ref y, out int leftoverY, out int classLayerY);
 
                 string currentClass = character.GetCurrentClass();
                 int levelY = y;
@@ -189,8 +158,6 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (interactionManager != null && stateManager != null)
                 {
                     RegisterLeftPanelHoverRow(x, nameY, headerClickWidth, 1, "hero:name");
-                    if (hasArmorBar)
-                        RegisterLeftPanelHoverRow(x, healthBarY, headerClickWidth, barAreaHeight, "hero:armor");
                     RegisterLeftPanelHoverRow(x, healthBarY, headerClickWidth, barAreaHeight, "hero:hp");
                     var thresholdHoverWidths = D20ThresholdBarRenderer.GetSegmentHoverWidths(healthBarWidth, thresholdSegments);
                     int thresholdHoverX = x;
@@ -204,9 +171,7 @@ namespace RPGGame.UI.Avalonia.Layout
                             ThresholdChanceLabelToHoverId(thresholdSegments[i].Label));
                         thresholdHoverX += thresholdHoverWidths[i];
                     }
-                    RegisterLeftPanelHoverRow(x, leftoverY, headerClickWidth, 1, "stat:armor");
-                    if (classLayerY >= 0)
-                        RegisterLeftPanelHoverRow(x, classLayerY, headerClickWidth, 1, "stat:armor");
+                    RegisterLeftPanelHoverRow(x, hpValueY, headerClickWidth, 1, "stat:armor");
                     RegisterLeftPanelHoverRow(x, levelY, headerClickWidth, 1, "hero:level");
                     RegisterLeftPanelHoverRow(x, xpY, headerClickWidth, 1, "hero:xp");
                     if (classPointsY.HasValue)
@@ -261,12 +226,8 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x, y, ampCore, AsciiArtAssets.Colors.White);
                 y++;
                 int armorRowY = y;
-                canvas.AddCharacterStat(x, y, "Defense", character.GetMaxArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.DarkBlue);
+                canvas.AddCharacterStat(x, y, "Defense", ClassDefenseCalculator.GetDisplayedDefense(character), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.DarkBlue);
                 y++;
-                int leftoverRowY = -1;
-                int classLayerRowY = -1;
-                if (!heroOpen)
-                    RenderStandingDefenseHud(character, x, ref y, out leftoverRowY, out classLayerRowY);
                 int slotsRowY = -1;
                 if (ActionInteractionLabSession.Current != null)
                 {
@@ -323,10 +284,6 @@ namespace RPGGame.UI.Avalonia.Layout
                     RegisterLeftPanelHoverRow(x, speedRowY, headerClickWidth, 1, "stat:speed");
                     RegisterLeftPanelHoverRow(x, ampRowY, headerClickWidth, 1, "stat:amp");
                     RegisterLeftPanelHoverRow(x, armorRowY, headerClickWidth, 1, "stat:armor");
-                    if (leftoverRowY >= 0)
-                        RegisterLeftPanelHoverRow(x, leftoverRowY, headerClickWidth, 1, "stat:armor");
-                    if (classLayerRowY >= 0)
-                        RegisterLeftPanelHoverRow(x, classLayerRowY, headerClickWidth, 1, "stat:armor");
                     if (slotsRowY >= 0)
                         RegisterLeftPanelHoverRow(x, slotsRowY, headerClickWidth, 1, "stat:actionslots");
                     RegisterLeftPanelHoverRow(x, strRowY, headerClickWidth, 1, "stat:str");
@@ -639,29 +596,6 @@ namespace RPGGame.UI.Avalonia.Layout
             return "";
         }
         
-        /// <summary>
-        /// Standing BLOCK % and class DEFENSE layer. Shown under HP when HERO is open,
-        /// or under Defense in STATS when HERO is collapsed.
-        /// </summary>
-        private void RenderStandingDefenseHud(Character character, int x, ref int y, out int leftoverY, out int classY)
-        {
-            leftoverY = y;
-            double blockPct = ClassDefenseCalculator.GetBlockPercent(character);
-            var color = blockPct > 0 ? AsciiArtAssets.Colors.Cyan : AsciiArtAssets.Colors.White;
-            canvas.AddText(x, y, HeroDefenseHudFormatter.FormatStandingBlockLine(character), color);
-            y++;
-            string classLine = HeroDefenseHudFormatter.FormatClassLayerLine(character);
-            if (string.IsNullOrEmpty(classLine))
-            {
-                classY = -1;
-                return;
-            }
-
-            classY = y;
-            canvas.AddText(x, y, classLine, color);
-            y++;
-        }
-
         /// <summary>
         /// Pads <c>NAME:</c> so the value starts at character column 9 (same as Damage / Armor in this panel).
         /// Single-line text avoids <see cref="CanvasElementBuilder.AddCharacterStat"/> with value 0 plus a partial overlay, which left a stray trailing <c>0</c>.
