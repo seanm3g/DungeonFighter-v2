@@ -32,6 +32,35 @@ namespace RPGGame.UI.Avalonia.Effects
             public double Speed { get; }
         }
 
+        /// <summary>Matches <see cref="IsActive"/> / BeginFrame activity cutoffs so rest is exact zero.</summary>
+        internal const double ActivityEpsilon = 0.01;
+
+        /// <summary>
+        /// Ignore OS/micro jitter below this pixel travel so idle cannot sustain residual wind.
+        /// Sized above typical still-hover noise while reading item tooltips (~1–2px).
+        /// </summary>
+        internal const double MotionDeadzonePixels = 3.0;
+
+        /// <summary>
+        /// After this much stillness, residual wake is forced to exact rest.
+        /// Soft decay still runs during the grace window; past it, pixel fonts must not keep CA smear.
+        /// </summary>
+        internal const double IdleGraceSeconds = 0.16;
+
+        /// <summary>
+        /// Visual offsets/CA clear this quickly after the last meaningful motion so still-hover
+        /// (reading an item tip) does not keep smearing stats. Field energy may linger until
+        /// <see cref="IdleGraceSeconds"/> so the settle timer can paint the clean rest frame.
+        /// </summary>
+        internal const double IdleVisualRestSeconds = 0.04;
+
+        /// <summary>
+        /// Sampled glyph offsets below this pixel magnitude paint as rest (avoids subpixel AA smear on pixel fonts).
+        /// Kept under typical near-wake test magnitudes (~0.3px) so real sway still registers.
+        /// Paint still ignores sub-<see cref="WindSwayChromatic.IdleEpsilon"/> poses for CA.
+        /// </summary>
+        internal const double PixelRestEpsilon = 0.25;
+
         private readonly object _lock = new();
         private readonly Stopwatch _clock = Stopwatch.StartNew();
         private readonly List<TrailPoint> _trail = new();
@@ -42,6 +71,7 @@ namespace RPGGame.UI.Avalonia.Effects
         private double _speedCellsPerSec;
         private double _lastSampleSeconds;
         private double _lastPushSeconds;
+        private double _lastMeaningfulMotionSeconds;
         private double? _lastMouseX;
         private double? _lastMouseY;
         private double? _lastDepositX;
@@ -77,6 +107,7 @@ namespace RPGGame.UI.Avalonia.Effects
         private double _frameWakeMinY;
         private double _frameWakeMaxY;
         private bool _frameHasBounds;
+        private double _frameIdleFor;
 
         /// <summary>Current configuration (replaced atomically via <see cref="ApplyConfig"/>).</summary>
         public WindSwayConfig Config
@@ -116,11 +147,24 @@ namespace RPGGame.UI.Avalonia.Effects
 
         /// <summary>
         /// Updates the tracked mouse position without applying wind impulse (for debug overlay / idle tracking).
+        /// Also refreshes motion facing so the wake oval orients while wind/F6 is off.
         /// </summary>
         public void TrackMousePosition(double mouseX, double mouseY)
         {
             lock (_lock)
             {
+                if (_hasMouse)
+                {
+                    double dxPx = mouseX - _mouseX;
+                    double dyPx = mouseY - _mouseY;
+                    double distPx = Math.Sqrt(dxPx * dxPx + dyPx * dyPx);
+                    if (distPx > 1e-6)
+                    {
+                        _motionDirX = dxPx / distPx;
+                        _motionDirY = dyPx / distPx;
+                    }
+                }
+
                 _mouseX = mouseX;
                 _mouseY = mouseY;
                 _hasMouse = true;
@@ -166,9 +210,8 @@ namespace RPGGame.UI.Avalonia.Effects
         {
             get
             {
-                if (_frameActive)
-                    return true;
-
+                // Do not short-circuit on _frameActive: that skipped Decay/idle-rest and could
+                // leave settle thinking the wake was still live (stuck CA on idle stats text).
                 lock (_lock)
                 {
                     if (!IsEffectivelyEnabledUnlocked())
@@ -176,8 +219,8 @@ namespace RPGGame.UI.Avalonia.Effects
                     double now = _clock.Elapsed.TotalSeconds;
                     DecayUnlocked(now);
                     PruneTrailUnlocked(now);
-                    return MagnitudeUnlocked() > 0.01
-                        || _speedCellsPerSec > 0.01
+                    return MagnitudeUnlocked() > ActivityEpsilon
+                        || _speedCellsPerSec > ActivityEpsilon
                         || _trail.Count > 0;
                 }
             }
@@ -202,14 +245,15 @@ namespace RPGGame.UI.Avalonia.Effects
                 DecayUnlocked(now);
                 PruneTrailUnlocked(now);
 
-                bool alive = MagnitudeUnlocked() > 0.01
-                    || _speedCellsPerSec > 0.01
+                bool alive = MagnitudeUnlocked() > ActivityEpsilon
+                    || _speedCellsPerSec > ActivityEpsilon
                     || _trail.Count > 0;
                 if (!alive)
                     return false;
 
                 _frameConfig = _config;
                 _frameNow = now;
+                _frameIdleFor = now - _lastMeaningfulMotionSeconds;
                 _frameWindX = _windX;
                 _frameWindY = _windY;
                 _frameSpeed = _speedCellsPerSec;
@@ -248,6 +292,18 @@ namespace RPGGame.UI.Avalonia.Effects
             _frameHasBounds = false;
             _frameTrailCount = 0;
         }
+
+        /// <summary>
+        /// True while a paint <see cref="BeginFrame"/> snapshot is live.
+        /// Prefer this over <see cref="IsActive"/> during paint to avoid per-glyph locks.
+        /// </summary>
+        public bool FrameActive => _frameActive;
+
+        /// <summary>
+        /// Config snapshotted by the current paint <see cref="BeginFrame"/> (or last BeginFrame).
+        /// Safe to read during paint without locking.
+        /// </summary>
+        public WindSwayConfig FrameConfig => _frameConfig;
 
         /// <summary>
         /// Fast AABB test: true when a text run on this grid row might sit inside the wake.
@@ -299,31 +355,39 @@ namespace RPGGame.UI.Avalonia.Effects
                 {
                     double dxPx = mouseX - _lastMouseX.Value;
                     double dyPx = mouseY - _lastMouseY.Value;
-                    double dxCells = dxPx / charWidth;
-                    double dyCells = dyPx / charHeight;
-
-                    double pushDt = dtOverrideSeconds ?? (now - _lastPushSeconds);
-                    if (pushDt <= 0)
-                        pushDt = 1e-3;
-
-                    double distCells = Math.Sqrt(dxCells * dxCells + dyCells * dyCells);
-                    _speedCellsPerSec = distCells / pushDt;
-
-                    double gain = Math.Max(0, _config.ImpulseGain);
-                    _windX += dxCells * gain;
-                    _windY += dyCells * gain;
-                    ClampWindUnlocked();
-
-                    // Orient the wake ellipse's major axis along the mouse motion vector.
                     double distPx = Math.Sqrt(dxPx * dxPx + dyPx * dyPx);
-                    if (distPx > 1e-6)
+
+                    // Deadzone: track position but do not inject wind/speed from micro-jitter.
+                    if (distPx > MotionDeadzonePixels)
                     {
+                        double dxCells = dxPx / charWidth;
+                        double dyCells = dyPx / charHeight;
+
+                        double pushDt = dtOverrideSeconds ?? (now - _lastPushSeconds);
+                        if (pushDt <= 0)
+                            pushDt = 1e-3;
+
+                        double distCells = Math.Sqrt(dxCells * dxCells + dyCells * dyCells);
+                        _speedCellsPerSec = distCells / pushDt;
+
+                        double gain = Math.Max(0, _config.ImpulseGain);
+                        _windX += dxCells * gain;
+                        _windY += dyCells * gain;
+                        ClampWindUnlocked();
+
+                        // Orient the wake ellipse's major axis along the mouse motion vector.
                         _motionDirX = dxPx / distPx;
                         _motionDirY = dyPx / distPx;
+                        _lastMeaningfulMotionSeconds = now;
+
+                        TryDepositTrailUnlocked(mouseX, mouseY, charWidth, charHeight, now);
                     }
                 }
-
-                TryDepositTrailUnlocked(mouseX, mouseY, charWidth, charHeight, now);
+                else
+                {
+                    // First sample: establish position without inventing an impulse.
+                    _lastMeaningfulMotionSeconds = now;
+                }
 
                 _lastMouseX = mouseX;
                 _lastMouseY = mouseY;
@@ -354,6 +418,53 @@ namespace RPGGame.UI.Avalonia.Effects
             }
         }
 
+        /// <summary>
+        /// Radial wake influence 0..1 for interactive-text highlight.
+        /// Uses the same cell-aspect oval + near→far falloff as sway, but does not
+        /// require wind amp (works while the pointer is hovering still).
+        /// Safe to call outside a paint <see cref="BeginFrame"/> (locks briefly).
+        /// </summary>
+        public double SampleProximityInfluence(
+            int gridX,
+            int gridY,
+            int glyphIndex,
+            double charWidth,
+            double charHeight)
+        {
+            if (charWidth <= 0 || charHeight <= 0)
+                return 0;
+
+            lock (_lock)
+            {
+                if (!_config.InteractiveHighlightEnabled || !_hasMouse)
+                    return 0;
+
+                double radiusCells = Math.Max(0.01, _config.WakeRadiusCells);
+                double radiusMinorPx = radiusCells * charWidth;
+                double radiusMajorPx = radiusCells * charHeight;
+                double nearInf = Math.Max(0, _config.NearInfluence);
+                double farInf = Math.Max(0, _config.FarInfluence);
+                bool useQuadratic = _config.WakeFalloffPower > 1.05;
+
+                double glyphCenterX = ((gridX + glyphIndex) + 0.5) * charWidth;
+                double glyphCenterY = (gridY + 0.5) * charHeight;
+                double dx = glyphCenterX - _mouseX;
+                double dy = glyphCenterY - _mouseY;
+                double t = EllipticalNormalizedRadius(
+                    dx, dy, _motionDirX, _motionDirY, radiusMinorPx, radiusMajorPx);
+                if (t >= 1.0)
+                    return 0;
+
+                double curved = useQuadratic ? t * t : t;
+                // Normalize so peak (near) maps toward 1 for highlight strength.
+                double radial = Lerp(nearInf, farInf, curved);
+                double peak = Math.Max(nearInf, farInf);
+                if (peak <= 1e-6)
+                    return 0;
+                return Math.Clamp(radial / peak, 0.0, 1.0);
+            }
+        }
+
         private (double OffsetX, double OffsetY) SampleOffsetFromFrame(
             int gridX,
             int gridY,
@@ -362,6 +473,10 @@ namespace RPGGame.UI.Avalonia.Effects
             double charHeight)
         {
             if (!_frameActive || charWidth <= 0 || charHeight <= 0)
+                return (0, 0);
+
+            // Still cursor: no visual smear even if field energy has not hard-zeroed yet.
+            if (_frameIdleFor >= IdleVisualRestSeconds)
                 return (0, 0);
 
             if (_frameTrailCount == 0 && !_frameHasMouse)
@@ -440,6 +555,8 @@ namespace RPGGame.UI.Avalonia.Effects
             // Direction-only offset (no per-glyph sine ripple — was already subdued and costly).
             double ox = dirX * strength * charWidth;
             double oy = dirY * strength * charHeight * vert;
+            if (Math.Sqrt(ox * ox + oy * oy) < PixelRestEpsilon)
+                return (0, 0);
             return (ox, oy);
         }
 
@@ -463,6 +580,7 @@ namespace RPGGame.UI.Avalonia.Effects
                 double now = _clock.Elapsed.TotalSeconds;
                 _lastSampleSeconds = now;
                 _lastPushSeconds = now;
+                _lastMeaningfulMotionSeconds = now;
             }
             EndFrame();
         }
@@ -492,6 +610,42 @@ namespace RPGGame.UI.Avalonia.Effects
                 PruneTrailUnlocked(_clock.Elapsed.TotalSeconds);
                 return _trail.Count;
             }
+        }
+
+        /// <summary>
+        /// Test helper: pretends the pointer has been still past the idle grace, then applies idle rest.
+        /// </summary>
+        public void ForceIdleRestForTests()
+        {
+            lock (_lock)
+            {
+                double now = _clock.Elapsed.TotalSeconds;
+                _lastMeaningfulMotionSeconds = now - IdleGraceSeconds - 0.05;
+                DecayUnlocked(now);
+                PruneTrailUnlocked(now);
+            }
+        }
+
+        /// <summary>
+        /// Test helper: sets stillness duration without sleeping. Does not force hard-zero unless
+        /// <paramref name="idleSeconds"/> reaches <see cref="IdleGraceSeconds"/>.
+        /// </summary>
+        public void SetIdleSecondsForTests(double idleSeconds)
+        {
+            lock (_lock)
+            {
+                double now = _clock.Elapsed.TotalSeconds;
+                _lastMeaningfulMotionSeconds = now - Math.Max(0, idleSeconds);
+                DecayUnlocked(now);
+                PruneTrailUnlocked(now);
+            }
+        }
+
+        /// <summary>Seconds since last meaningful mouse motion (test diagnostics).</summary>
+        public double GetIdleSecondsForTests()
+        {
+            lock (_lock)
+                return _clock.Elapsed.TotalSeconds - _lastMeaningfulMotionSeconds;
         }
 
         private void EnsureFrameTrailCapacity(int count)
@@ -715,6 +869,20 @@ namespace RPGGame.UI.Avalonia.Effects
 
         private void DecayUnlocked(double nowSeconds)
         {
+            // Idle rest must run even when dt==0 (multiple settle/IsActive checks in one tick).
+            double idleFor = nowSeconds - _lastMeaningfulMotionSeconds;
+            if (idleFor >= IdleGraceSeconds)
+            {
+                _windX = 0;
+                _windY = 0;
+                _speedCellsPerSec = 0;
+                if (_trail.Count > 0)
+                    _trail.Clear();
+                if (nowSeconds > _lastSampleSeconds)
+                    _lastSampleSeconds = nowSeconds;
+                return;
+            }
+
             double dt = nowSeconds - _lastSampleSeconds;
             if (dt <= 0)
                 return;
@@ -728,12 +896,14 @@ namespace RPGGame.UI.Avalonia.Effects
             _windX *= factor;
             _windY *= factor;
             _speedCellsPerSec *= factor;
-            if (MagnitudeUnlocked() < 1e-4)
+
+            // Snap at the same cutoff IsActive uses so settle ends on a true rest pose.
+            if (MagnitudeUnlocked() < ActivityEpsilon)
             {
                 _windX = 0;
                 _windY = 0;
             }
-            if (_speedCellsPerSec < 1e-4)
+            if (_speedCellsPerSec < ActivityEpsilon)
                 _speedCellsPerSec = 0;
         }
 

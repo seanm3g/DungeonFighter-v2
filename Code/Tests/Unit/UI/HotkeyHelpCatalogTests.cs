@@ -80,6 +80,10 @@ namespace RPGGame.Tests.Unit.UI
                 "lists F3 font cycle", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("Ctrl+/-"),
                 "lists Ctrl+/- UI size", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("Ctrl+0"),
+                "lists Ctrl+0 UI size reset", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("Ctrl+Shift+0"),
+                "lists Ctrl+Shift+0 set default UI size", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("F5"),
                 "lists F5 video feed", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("F7"),

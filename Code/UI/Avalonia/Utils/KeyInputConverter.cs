@@ -33,6 +33,31 @@ namespace RPGGame.UI.Avalonia.Utils
             key is Key.OemPlus or Key.Add ? 1 : -1;
 
         /// <summary>
+        /// True for Ctrl+0 / Cmd+0 (main or numpad) — reset active font zoom to its per-font default.
+        /// Shift variants are reserved for <see cref="IsUiZoomSetDefaultChord"/>.
+        /// </summary>
+        public static bool IsUiZoomResetChord(Key key, KeyModifiers modifiers)
+        {
+            if (key is not (Key.D0 or Key.NumPad0))
+                return false;
+            if (!modifiers.HasFlag(KeyModifiers.Control) && !modifiers.HasFlag(KeyModifiers.Meta))
+                return false;
+            return !modifiers.HasFlag(KeyModifiers.Shift);
+        }
+
+        /// <summary>
+        /// True for Ctrl+Shift+0 / Cmd+Shift+0 (main or numpad) — save current zoom as the per-font default.
+        /// </summary>
+        public static bool IsUiZoomSetDefaultChord(Key key, KeyModifiers modifiers)
+        {
+            if (key is not (Key.D0 or Key.NumPad0))
+                return false;
+            if (!modifiers.HasFlag(KeyModifiers.Control) && !modifiers.HasFlag(KeyModifiers.Meta))
+                return false;
+            return modifiers.HasFlag(KeyModifiers.Shift);
+        }
+
+        /// <summary>
         /// Converts an Avalonia Key with modifiers to a game input string.
         /// Supports Shift+Up/Down for page scrolling (pageup/pagedown).
         /// </summary>
@@ -61,6 +86,10 @@ namespace RPGGame.UI.Avalonia.Utils
 
             // Ctrl/Cmd+/- is UI zoom — do not forward numpad +/- as inventory shortcuts.
             if ((isCtrl || isMeta) && key is Key.Add or Key.Subtract or Key.OemPlus or Key.OemMinus)
+                return null;
+
+            // Ctrl/Cmd+0 (+ optional Shift) is UI zoom reset / set-default — not menu option 0.
+            if ((isCtrl || isMeta) && key is Key.D0 or Key.NumPad0)
                 return null;
             
             return key switch

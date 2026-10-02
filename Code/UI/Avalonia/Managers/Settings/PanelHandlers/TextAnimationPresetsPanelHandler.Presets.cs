@@ -329,11 +329,29 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             WireBurstSlider(panel.ClickBurstExplodeStrengthSliderControl, panel.ClickBurstExplodeStrengthTextBoxControl, "F0");
             WireBurstSlider(panel.ClickBurstExplodeOutSliderControl, panel.ClickBurstExplodeOutTextBoxControl, "F2");
             WireBurstSlider(panel.ClickBurstClicksToExplodeSliderControl, panel.ClickBurstClicksToExplodeTextBoxControl, "F0");
+            WireBurstSlider(panel.ClickBurstDistanceVarianceMinSliderControl, panel.ClickBurstDistanceVarianceMinTextBoxControl, "F2");
+            WireBurstSlider(panel.ClickBurstDistanceVarianceMaxSliderControl, panel.ClickBurstDistanceVarianceMaxTextBoxControl, "F2");
+            WireBurstSlider(panel.ClickBurstMaxRotationSliderControl, panel.ClickBurstMaxRotationTextBoxControl, "F1");
+            WireBurstSlider(panel.ClickBurstVerticalScaleSliderControl, panel.ClickBurstVerticalScaleTextBoxControl, "F2");
+            WireBurstSlider(panel.ClickBurstChromaticVelocitySliderControl, panel.ClickBurstChromaticVelocityTextBoxControl, "F2");
+            WireBurstSlider(panel.ClickBurstChargeDecaySliderControl, panel.ClickBurstChargeDecayTextBoxControl, "F2");
+            WireBurstSlider(panel.ClickBurstImpulseDecaySliderControl, panel.ClickBurstImpulseDecayTextBoxControl, "F1");
+            WireBurstSlider(panel.ClickBurstAutoRebuildIdleSliderControl, panel.ClickBurstAutoRebuildIdleTextBoxControl, "F1");
+            WireBurstSlider(panel.ClickBurstAutoRebuildIntervalSliderControl, panel.ClickBurstAutoRebuildIntervalTextBoxControl, "F2");
 
             WireBurstLostFocus(panel.ClickBurstRadiusTextBoxControl, panel.ClickBurstRadiusSliderControl, 2, 40, "F0");
             WireBurstLostFocus(panel.ClickBurstExplodeStrengthTextBoxControl, panel.ClickBurstExplodeStrengthSliderControl, 1, 60, "F0");
             WireBurstLostFocus(panel.ClickBurstExplodeOutTextBoxControl, panel.ClickBurstExplodeOutSliderControl, 0.05, 1.5, "F2");
             WireBurstLostFocus(panel.ClickBurstClicksToExplodeTextBoxControl, panel.ClickBurstClicksToExplodeSliderControl, 1, 20, "F0");
+            WireBurstLostFocus(panel.ClickBurstDistanceVarianceMinTextBoxControl, panel.ClickBurstDistanceVarianceMinSliderControl, 0, 4, "F2");
+            WireBurstLostFocus(panel.ClickBurstDistanceVarianceMaxTextBoxControl, panel.ClickBurstDistanceVarianceMaxSliderControl, 0, 4, "F2");
+            WireBurstLostFocus(panel.ClickBurstMaxRotationTextBoxControl, panel.ClickBurstMaxRotationSliderControl, 0, 12.5, "F1");
+            WireBurstLostFocus(panel.ClickBurstVerticalScaleTextBoxControl, panel.ClickBurstVerticalScaleSliderControl, 0.1, 2, "F2");
+            WireBurstLostFocus(panel.ClickBurstChromaticVelocityTextBoxControl, panel.ClickBurstChromaticVelocitySliderControl, 0, 0.5, "F2");
+            WireBurstLostFocus(panel.ClickBurstChargeDecayTextBoxControl, panel.ClickBurstChargeDecaySliderControl, 0, 2, "F2");
+            WireBurstLostFocus(panel.ClickBurstImpulseDecayTextBoxControl, panel.ClickBurstImpulseDecaySliderControl, 0, 10, "F1");
+            WireBurstLostFocus(panel.ClickBurstAutoRebuildIdleTextBoxControl, panel.ClickBurstAutoRebuildIdleSliderControl, 0, 60, "F1");
+            WireBurstLostFocus(panel.ClickBurstAutoRebuildIntervalTextBoxControl, panel.ClickBurstAutoRebuildIntervalSliderControl, 0.05, 2, "F2");
         }
 
         private void ToggleWakeRadiusDebugOverlay(TextAnimationPresetsSettingsPanel panel)
@@ -613,6 +631,24 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 burst.ExplodeOutSeconds, "F2");
             SetSlider(panel.ClickBurstClicksToExplodeSliderControl, panel.ClickBurstClicksToExplodeTextBoxControl,
                 burst.ClicksToExplode, "F0");
+            SetSlider(panel.ClickBurstDistanceVarianceMinSliderControl, panel.ClickBurstDistanceVarianceMinTextBoxControl,
+                burst.DistanceVarianceMin, "F2");
+            SetSlider(panel.ClickBurstDistanceVarianceMaxSliderControl, panel.ClickBurstDistanceVarianceMaxTextBoxControl,
+                burst.DistanceVarianceMax, "F2");
+            SetSlider(panel.ClickBurstMaxRotationSliderControl, panel.ClickBurstMaxRotationTextBoxControl,
+                burst.MaxRotationRadians, "F1");
+            SetSlider(panel.ClickBurstVerticalScaleSliderControl, panel.ClickBurstVerticalScaleTextBoxControl,
+                burst.VerticalScale, "F2");
+            SetSlider(panel.ClickBurstChromaticVelocitySliderControl, panel.ClickBurstChromaticVelocityTextBoxControl,
+                burst.ChromaticVelocitySeconds, "F2");
+            SetSlider(panel.ClickBurstChargeDecaySliderControl, panel.ClickBurstChargeDecayTextBoxControl,
+                burst.ChargeDecayPerSecond, "F2");
+            SetSlider(panel.ClickBurstImpulseDecaySliderControl, panel.ClickBurstImpulseDecayTextBoxControl,
+                burst.ImpulseDecayPerSecond, "F1");
+            SetSlider(panel.ClickBurstAutoRebuildIdleSliderControl, panel.ClickBurstAutoRebuildIdleTextBoxControl,
+                burst.AutoRebuildIdleSeconds, "F1");
+            SetSlider(panel.ClickBurstAutoRebuildIntervalSliderControl, panel.ClickBurstAutoRebuildIntervalTextBoxControl,
+                burst.AutoRebuildIntervalSeconds, "F2");
         }
 
         private void ApplyUiToWorkingState(TextAnimationPresetsSettingsPanel panel, bool includeAccentControls = true)
@@ -784,6 +820,41 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 burst.ClicksToExplode = (int)Math.Clamp(Math.Round(clicksFromText), 1, 20);
             else if (clicksSlider != null)
                 burst.ClicksToExplode = (int)Math.Clamp(Math.Round(clicksSlider.Value), 1, 20);
+
+            ApplyBurstDouble(panel.ClickBurstDistanceVarianceMinSliderControl,
+                panel.ClickBurstDistanceVarianceMinTextBoxControl, 0, 4, v => burst.DistanceVarianceMin = v);
+            ApplyBurstDouble(panel.ClickBurstDistanceVarianceMaxSliderControl,
+                panel.ClickBurstDistanceVarianceMaxTextBoxControl, 0, 4, v => burst.DistanceVarianceMax = v);
+            if (burst.DistanceVarianceMax < burst.DistanceVarianceMin)
+                burst.DistanceVarianceMax = burst.DistanceVarianceMin;
+
+            ApplyBurstDouble(panel.ClickBurstMaxRotationSliderControl,
+                panel.ClickBurstMaxRotationTextBoxControl, 0, 12.5, v => burst.MaxRotationRadians = v);
+            ApplyBurstDouble(panel.ClickBurstVerticalScaleSliderControl,
+                panel.ClickBurstVerticalScaleTextBoxControl, 0.1, 2, v => burst.VerticalScale = v);
+            ApplyBurstDouble(panel.ClickBurstChromaticVelocitySliderControl,
+                panel.ClickBurstChromaticVelocityTextBoxControl, 0, 0.5, v => burst.ChromaticVelocitySeconds = v);
+            ApplyBurstDouble(panel.ClickBurstChargeDecaySliderControl,
+                panel.ClickBurstChargeDecayTextBoxControl, 0, 2, v => burst.ChargeDecayPerSecond = v);
+            ApplyBurstDouble(panel.ClickBurstImpulseDecaySliderControl,
+                panel.ClickBurstImpulseDecayTextBoxControl, 0, 10, v => burst.ImpulseDecayPerSecond = v);
+            ApplyBurstDouble(panel.ClickBurstAutoRebuildIdleSliderControl,
+                panel.ClickBurstAutoRebuildIdleTextBoxControl, 0, 60, v => burst.AutoRebuildIdleSeconds = v);
+            ApplyBurstDouble(panel.ClickBurstAutoRebuildIntervalSliderControl,
+                panel.ClickBurstAutoRebuildIntervalTextBoxControl, 0.05, 2, v => burst.AutoRebuildIntervalSeconds = v);
+        }
+
+        private static void ApplyBurstDouble(
+            Slider? slider,
+            TextBox? textBox,
+            double min,
+            double max,
+            Action<double> assign)
+        {
+            if (double.TryParse(textBox?.Text, out double fromText))
+                assign(Math.Clamp(fromText, min, max));
+            else if (slider != null)
+                assign(Math.Clamp(slider.Value, min, max));
         }
 
         private void ResetSelectedPresetToDefaults(TextAnimationPresetsSettingsPanel panel)

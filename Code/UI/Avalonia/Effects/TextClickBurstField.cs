@@ -172,6 +172,18 @@ namespace RPGGame.UI.Avalonia.Effects
             _frameZoneCount = 0;
         }
 
+        /// <summary>
+        /// True while a paint <see cref="BeginFrame"/> snapshot is live.
+        /// Prefer this over <see cref="IsActive"/> during paint to avoid per-element locks.
+        /// </summary>
+        public bool FrameActive => _frameActive;
+
+        /// <summary>
+        /// Config snapshotted by the current paint <see cref="BeginFrame"/>.
+        /// Safe to read during paint without locking.
+        /// </summary>
+        public TextClickBurstConfig FrameConfig => _frameConfig;
+
         public bool MayAffectText(int gridX, int gridY, int length, double charWidth, double charHeight)
         {
             if (!_frameActive || !_frameHasBounds || charWidth <= 0 || charHeight <= 0 || length <= 0)

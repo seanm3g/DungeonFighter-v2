@@ -27,7 +27,8 @@
   <ItemGroup>
     <AvaloniaResource Include="UI\Avalonia\Assets\df_icon.ico" />
     <AvaloniaResource Include="UI\Avalonia\Assets\Fonts\VT323-Regular.ttf" />
-    <AvaloniaResource Include="UI\Avalonia\Assets\Fonts\SueEllenFrancisco-Regular.ttf" />
+    <AvaloniaResource Include="UI\Avalonia\Assets\Fonts\NoplatoMono.ttf" />
+    <AvaloniaResource Include="UI\Avalonia\Assets\Fonts\Pixelzone.ttf" />
     <AvaloniaResource Include="UI\Avalonia\Assets\Fonts\Bytesized-Regular.ttf" />
   </ItemGroup>
 

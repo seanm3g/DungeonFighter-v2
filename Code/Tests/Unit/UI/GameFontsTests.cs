@@ -22,12 +22,14 @@ namespace RPGGame.Tests.Unit.UI
             _testsFailed = 0;
 
             TestVt323FamilyUri();
-            TestSueEllenFranciscoFamilyUri();
+            TestNoplatoMonoFamilyUri();
+            TestPixelzoneFamilyUri();
             TestBytesizedFamilyUri();
             TestFontCycleOrderAndWeights();
             TestCanvasTypefaceFollowsActivePreset();
             TestPerFontZoomIsIndependentAndClamped();
             TestCaptureAndApplyPreferencesRoundTrip();
+            TestResetAndSetDefaultZoomPerFont();
 
             Console.WriteLine($"\nGameFonts: {_testsPassed}/{_testsRun} passed, {_testsFailed} failed");
         }
@@ -50,19 +52,35 @@ namespace RPGGame.Tests.Unit.UI
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestSueEllenFranciscoFamilyUri()
+        private static void TestNoplatoMonoFamilyUri()
         {
-            Console.WriteLine("\n--- Sue Ellen Francisco family URI targets embedded Regular ---");
+            Console.WriteLine("\n--- Noplato Mono family URI targets embedded Regular ---");
 
             TestBase.AssertTrue(
-                GameFonts.SueEllenFranciscoFamilyName.Contains(
-                    "SueEllenFrancisco-Regular.ttf", StringComparison.Ordinal),
-                "SueEllenFranciscoFamilyName should reference the embedded TTF",
+                GameFonts.NoplatoMonoFamilyName.Contains(
+                    "NoplatoMono.ttf", StringComparison.Ordinal),
+                "NoplatoMonoFamilyName should reference the embedded TTF",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(
-                GameFonts.SueEllenFranciscoFamilyName.Contains(
-                    "#Sue Ellen Francisco ", StringComparison.Ordinal),
-                "URI fragment should use the TTF family name (trailing space)",
+                GameFonts.NoplatoMonoFamilyName.Contains(
+                    "#Noplato Demo Mono", StringComparison.Ordinal),
+                "URI fragment should use the TTF family name (Noplato Demo Mono)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestPixelzoneFamilyUri()
+        {
+            Console.WriteLine("\n--- Pixelzone family URI targets embedded Regular ---");
+
+            TestBase.AssertTrue(
+                GameFonts.PixelzoneFamilyName.Contains(
+                    "Pixelzone.ttf", StringComparison.Ordinal),
+                "PixelzoneFamilyName should reference the embedded TTF",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                GameFonts.PixelzoneFamilyName.Contains(
+                    "#Pixelzone", StringComparison.Ordinal),
+                "URI fragment should select the Pixelzone family",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -94,20 +112,26 @@ namespace RPGGame.Tests.Unit.UI
                     "VT323 has no bold face", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 var next = GameFonts.Cycle();
-                TestBase.AssertEqualEnum(GameFonts.Preset.SueEllenFrancisco, next.Id,
-                    "first cycle → Sue Ellen Francisco", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqualEnum(GameFonts.Preset.NoplatoMono, next.Id,
+                    "first cycle → Noplato Mono", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(GameFonts.ActiveWeight == FontWeight.Normal,
-                    "Sue Ellen Francisco has no bold face", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    "Noplato Mono has no bold face", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                next = GameFonts.Cycle();
+                TestBase.AssertEqualEnum(GameFonts.Preset.Pixelzone, next.Id,
+                    "second cycle → Pixelzone", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(GameFonts.ActiveWeight == FontWeight.Normal,
+                    "Pixelzone has no bold face", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 next = GameFonts.Cycle();
                 TestBase.AssertEqualEnum(GameFonts.Preset.Bytesized, next.Id,
-                    "second cycle → Bytesized", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    "third cycle → Bytesized", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(GameFonts.ActiveWeight == FontWeight.Normal,
                     "Bytesized has no bold face", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 next = GameFonts.Cycle();
                 TestBase.AssertEqualEnum(GameFonts.Preset.CourierNew, next.Id,
-                    "third cycle → Courier New", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    "fourth cycle → Courier New", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(GameFonts.ActiveWeight == FontWeight.Bold,
                     "Courier New uses Bold", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(
@@ -116,7 +140,7 @@ namespace RPGGame.Tests.Unit.UI
 
                 next = GameFonts.Cycle();
                 TestBase.AssertEqualEnum(GameFonts.Preset.Vt323, next.Id,
-                    "fourth cycle wraps to VT323", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    "fifth cycle wraps to VT323", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {
@@ -216,15 +240,15 @@ namespace RPGGame.Tests.Unit.UI
             try
             {
                 GameFonts.ResetZoomsForTests();
-                GameFonts.SetPreset(GameFonts.Preset.SueEllenFrancisco);
-                GameFonts.SetZoom(GameFonts.Preset.SueEllenFrancisco, 1.3);
+                GameFonts.SetPreset(GameFonts.Preset.NoplatoMono);
+                GameFonts.SetZoom(GameFonts.Preset.NoplatoMono, 1.3);
                 GameFonts.SetZoom(GameFonts.Preset.CourierNew, 0.7);
 
                 var prefs = GameFonts.CapturePreferences();
-                TestBase.AssertEqual("SueEllenFrancisco", prefs.ActivePreset,
+                TestBase.AssertEqual("NoplatoMono", prefs.ActivePreset,
                     "captures active preset name", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertTrue(Math.Abs(prefs.GetZoom("SueEllenFrancisco") - 1.3) < 1e-9,
-                    "captures Sue Ellen zoom", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(Math.Abs(prefs.GetZoom("NoplatoMono") - 1.3) < 1e-9,
+                    "captures Noplato Mono zoom", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(Math.Abs(prefs.GetZoom("CourierNew") - 0.7) < 1e-9,
                     "captures Courier New zoom", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
@@ -232,12 +256,62 @@ namespace RPGGame.Tests.Unit.UI
                 GameFonts.SetPreset(GameFonts.Preset.Vt323);
                 GameFonts.ApplyPreferences(prefs);
 
-                TestBase.AssertEqualEnum(GameFonts.Preset.SueEllenFrancisco, GameFonts.ActivePreset,
+                TestBase.AssertEqualEnum(GameFonts.Preset.NoplatoMono, GameFonts.ActivePreset,
                     "apply restores active preset", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(Math.Abs(GameFonts.ActiveZoom - 1.3) < 1e-9,
                     "apply restores active zoom", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(Math.Abs(GameFonts.GetZoom(GameFonts.Preset.CourierNew) - 0.7) < 1e-9,
                     "apply restores other font zoom", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                GameFonts.ResetZoomsForTests();
+                GameFonts.SetPreset(previous);
+            }
+        }
+
+        private static void TestResetAndSetDefaultZoomPerFont()
+        {
+            Console.WriteLine("\n--- Ctrl+0 reset / Ctrl+Shift+0 set-default per font ---");
+
+            var previous = GameFonts.ActivePreset;
+            try
+            {
+                GameFonts.ResetZoomsForTests();
+                GameFonts.SetPreset(GameFonts.Preset.Vt323);
+                GameFonts.SetZoom(GameFonts.Preset.Vt323, 1.2);
+                double savedDefault = GameFonts.SetActiveZoomAsDefault();
+                TestBase.AssertTrue(Math.Abs(savedDefault - 1.2) < 1e-9,
+                    "set-default captures 1.2", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(Math.Abs(GameFonts.GetDefaultZoom(GameFonts.Preset.Vt323) - 1.2) < 1e-9,
+                    "VT323 default is 1.2", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                GameFonts.AdjustActiveZoom(5);
+                TestBase.AssertTrue(Math.Abs(GameFonts.ActiveZoom - 1.3) < 1e-9,
+                    "current zoom stepped away from default", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                double reset = GameFonts.ResetActiveZoomToDefault();
+                TestBase.AssertTrue(Math.Abs(reset - 1.2) < 1e-9,
+                    "reset restores VT323 default", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(Math.Abs(GameFonts.ActiveZoom - 1.2) < 1e-9,
+                    "active zoom matches reset", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                GameFonts.SetPreset(GameFonts.Preset.Bytesized);
+                TestBase.AssertTrue(Math.Abs(GameFonts.ActiveDefaultZoom - 1.0) < 1e-9,
+                    "Bytesized keeps factory default", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                GameFonts.SetZoom(GameFonts.Preset.Bytesized, 0.8);
+                GameFonts.ResetActiveZoomToDefault();
+                TestBase.AssertTrue(Math.Abs(GameFonts.ActiveZoom - 1.0) < 1e-9,
+                    "Bytesized reset ignores VT323 default", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var prefs = GameFonts.CapturePreferences();
+                TestBase.AssertTrue(Math.Abs(prefs.GetDefaultZoom("Vt323") - 1.2) < 1e-9,
+                    "capture includes VT323 default", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                GameFonts.ResetZoomsForTests();
+                GameFonts.ApplyPreferences(prefs);
+                TestBase.AssertTrue(Math.Abs(GameFonts.GetDefaultZoom(GameFonts.Preset.Vt323) - 1.2) < 1e-9,
+                    "apply restores VT323 default", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {

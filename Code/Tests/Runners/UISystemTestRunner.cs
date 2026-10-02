@@ -116,6 +116,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             WindSwayFieldTests.RunAllTests();
             Console.WriteLine();
+            InteractiveTextHighlightTests.RunAllTests();
+            Console.WriteLine();
             TextClickBurstFieldTests.RunAllTests();
             Console.WriteLine();
             GameFontsTests.RunAllTests();

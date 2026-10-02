@@ -131,6 +131,25 @@ namespace RPGGame.UI.Avalonia.Effects
         public double ChromaticOpacity { get; set; } = 0.35;
 
         /// <summary>
+        /// When true, clickable canvas text brightens when the mouse wake is near
+        /// (same ellipse / near→far falloff as glyph sway). Default: true.
+        /// Independent of F6 distortion (affordance still works when sway is off).
+        /// </summary>
+        public bool InteractiveHighlightEnabled { get; set; } = true;
+
+        /// <summary>
+        /// How strongly proximity lerps interactive text toward cool-white (0–1).
+        /// Default: 0.55.
+        /// </summary>
+        public double InteractiveHighlightBrighten { get; set; } = 0.55;
+
+        /// <summary>
+        /// Soft cyan glow intensity on proximity-highlighted interactive text (0–1).
+        /// Default: 0.40.
+        /// </summary>
+        public double InteractiveHighlightGlow { get; set; } = 0.40;
+
+        /// <summary>
         /// Click-charge explode/reform burst nested under wind sway settings.
         /// </summary>
         public TextClickBurstConfig ClickBurst { get; set; } = new TextClickBurstConfig();

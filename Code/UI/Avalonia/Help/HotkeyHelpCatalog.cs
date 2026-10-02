@@ -45,8 +45,10 @@ namespace RPGGame.UI.Avalonia.Help
             new("Enter / Space", "Confirm selection", "General"),
             new("Arrow keys", "Navigate menus and scroll lists", "General"),
             new("Shift/Ctrl + Up/Down", "Page-scroll lists and the combat log", "General"),
-            new("F3", "Cycle game font: VT323 → Sue Ellen Francisco → Bytesized → Courier New", "General"),
-            new("Ctrl+/- / Cmd+/-", "Size the UI up/down (resizes window; saved per font)", "General"),
+            new("F3", "Cycle game font: VT323 → Noplato Mono → Pixelzone → Bytesized → Courier New", "General"),
+            new("Ctrl+/- / Cmd+/-", "Size the UI up/down (scales content; saved per font)", "General"),
+            new("Ctrl+0 / Cmd+0", "Reset UI size to this font's default", "General"),
+            new("Ctrl+Shift+0 / Cmd+Shift+0", "Save current UI size as this font's default", "General"),
             new("F6", "Toggle glyph distortion: mouse wind + click burst (default on)", "General"),
 
             new("Page Up / Page Down", "Combat speed ladder (1x → 2x → 5x → 20x)", "Combat"),

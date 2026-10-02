@@ -20,6 +20,7 @@ namespace RPGGame.Tests.Unit.UI
             TestContentBandInsideBorder(ref run, ref passed, ref failed);
             TestRowVisibility(ref run, ref passed, ref failed);
             TestClampScroll(ref run, ref passed, ref failed);
+            TestBottomSpillScrubCoversThresholdBlock(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("LeftPanelViewport Tests", run, passed, failed);
         }
@@ -71,6 +72,30 @@ namespace RPGGame.Tests.Unit.UI
                 "negative scroll clamps to 0", ref run, ref passed, ref failed);
             TestBase.AssertEqual(12, LeftPanelViewport.ClampScrollOffset(99, viewport + 12, viewport),
                 "large scroll clamps to max", ref run, ref passed, ref failed);
+        }
+
+        private static void TestBottomSpillScrubCoversThresholdBlock(ref int run, ref int passed, ref int failed)
+        {
+            // Crit on last body row => Combo/Hit/Crit Miss (+ optional Miss in CHANCES) land on/below the border.
+            const int ladderRowsAfterFirst = 3;
+            const int chancesRowsAfterFirst = 4;
+            TestBase.AssertTrue(
+                LeftPanelViewport.BottomSpillScrubRows >= chancesRowsAfterFirst,
+                "spill scrub covers full CHANCES block past last body row",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                LeftPanelViewport.BottomSpillScrubRows >= ladderRowsAfterFirst,
+                "spill scrub covers ladder Crit Miss past last body row",
+                ref run, ref passed, ref failed);
+            TestBase.AssertEqual(
+                LeftPanelViewport.ContentBottomExclusive + LeftPanelViewport.BottomSpillScrubRows,
+                LeftPanelViewport.ScrubBottomExclusive,
+                "scrub bottom exclusive = border + spill rows",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                LeftPanelViewport.ScrubBottomExclusive > LeftPanelViewport.ContentBottomExclusive,
+                "scrub extends past bottom border row",
+                ref run, ref passed, ref failed);
         }
     }
 }

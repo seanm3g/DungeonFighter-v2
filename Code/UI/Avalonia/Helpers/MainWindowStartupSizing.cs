@@ -23,89 +23,6 @@ namespace RPGGame.UI.Avalonia.Helpers
         public const double MinStartupHeight = 600;
 
         /// <summary>
-        /// Computes the client size for a UI zoom multiplier relative to a 100%-zoom reference.
-        /// Clamps into the given max bounds (working area) while preserving aspect when possible.
-        /// </summary>
-        public static (double Width, double Height) ComputeZoomedWindowSize(
-            double referenceWidth,
-            double referenceHeight,
-            double zoom,
-            double maxWidth = double.PositiveInfinity,
-            double maxHeight = double.PositiveInfinity,
-            double minWidth = MinStartupWidth,
-            double minHeight = MinStartupHeight)
-        {
-            if (referenceWidth <= 0 || referenceHeight <= 0)
-                return (DesignWidth, DesignHeight);
-
-            double safeZoom = zoom > 0 && !double.IsNaN(zoom) && !double.IsInfinity(zoom)
-                ? zoom
-                : 1.0;
-
-            double width = referenceWidth * safeZoom;
-            double height = referenceHeight * safeZoom;
-
-            if (maxWidth > 0 && !double.IsInfinity(maxWidth) && width > maxWidth)
-            {
-                double shrink = maxWidth / width;
-                width *= shrink;
-                height *= shrink;
-            }
-
-            if (maxHeight > 0 && !double.IsInfinity(maxHeight) && height > maxHeight)
-            {
-                double shrink = maxHeight / height;
-                width *= shrink;
-                height *= shrink;
-            }
-
-            if (minWidth > 0 && width < minWidth)
-            {
-                double grow = minWidth / width;
-                width *= grow;
-                height *= grow;
-            }
-
-            if (minHeight > 0 && height < minHeight)
-            {
-                double grow = minHeight / height;
-                width *= grow;
-                height *= grow;
-            }
-
-            // Re-clamp after min grow so we never exceed the working area.
-            if (maxWidth > 0 && !double.IsInfinity(maxWidth) && width > maxWidth)
-            {
-                double shrink = maxWidth / width;
-                width *= shrink;
-                height *= shrink;
-            }
-
-            if (maxHeight > 0 && !double.IsInfinity(maxHeight) && height > maxHeight)
-            {
-                double shrink = maxHeight / height;
-                width *= shrink;
-                height *= shrink;
-            }
-
-            return (width, height);
-        }
-
-        /// <summary>
-        /// Derives the 100%-zoom reference size from the current client size and active zoom.
-        /// </summary>
-        public static (double Width, double Height) ComputeZoomReferenceSize(
-            double currentWidth,
-            double currentHeight,
-            double zoom)
-        {
-            double safeZoom = zoom > 0 && !double.IsNaN(zoom) && !double.IsInfinity(zoom)
-                ? zoom
-                : 1.0;
-            return (currentWidth / safeZoom, currentHeight / safeZoom);
-        }
-
-        /// <summary>
         /// Computes a proportional startup size that fits the given logical working area.
         /// Never scales above the design size; only shrinks when the monitor is smaller.
         /// </summary>
@@ -248,46 +165,6 @@ namespace RPGGame.UI.Avalonia.Helpers
             logicalWidth = workArea.Width / scaling;
             logicalHeight = workArea.Height / scaling;
             return logicalWidth > 0 && logicalHeight > 0;
-        }
-
-        /// <summary>
-        /// Resizes <paramref name="window"/> so UI zoom is carried by client size.
-        /// Canvas font scale always fills the resulting height (no letterbox gap).
-        /// </summary>
-        public static void ApplyUiZoomWindowSize(
-            Window window,
-            double referenceWidth,
-            double referenceHeight,
-            double zoom)
-        {
-            double maxWidth = double.PositiveInfinity;
-            double maxHeight = double.PositiveInfinity;
-            if (TryGetWorkingAreaLogicalSize(window, out double workW, out double workH))
-            {
-                maxWidth = Math.Max(MinStartupWidth, workW - (MacEdgeMarginLogical * 2));
-                maxHeight = Math.Max(
-                    MinStartupHeight,
-                    workH - (MacEdgeMarginLogical * 2)
-                        - (OperatingSystem.IsMacOS() ? MacDockSafetyMarginLogical + MacTitleBarSafetyMarginLogical : 0));
-            }
-
-            double minWidth = window.MinWidth > 0 ? window.MinWidth : MinStartupWidth;
-            double minHeight = window.MinHeight > 0 ? window.MinHeight : MinStartupHeight;
-
-            var (width, height) = ComputeZoomedWindowSize(
-                referenceWidth,
-                referenceHeight,
-                zoom,
-                maxWidth,
-                maxHeight,
-                minWidth,
-                minHeight);
-
-            window.Width = width;
-            window.Height = height;
-
-            // Keep the frame on-screen after growth without forcing a re-center.
-            ClampWindowToWorkingArea(window);
         }
 
         /// <summary>

@@ -33,12 +33,17 @@ namespace RPGGame.UI.Avalonia.Effects
         private Media? _media;
         private WriteableBitmap? _frameBitmap;
         private WriteableBitmap? _maskBitmap;
+        private ImageBrush? _maskBrush;
         private IntPtr _frameBuffer = IntPtr.Zero;
         private int _frameWidth;
         private int _frameHeight;
         private int _framePitch;
         private int _frameBufferBytes;
         private bool _frameDirty;
+        private int _invalidatePending;
+        private byte[]? _rowCopyScratch;
+        private byte[]? _maskPackedScratch;
+        private int _lastOpacityFingerprint;
         private bool _disposed;
         private bool _playbackStarted;
         private bool _endReachedHooked;
@@ -75,7 +80,8 @@ namespace RPGGame.UI.Avalonia.Effects
         {
             _canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
             canvas.GridDimensionsChanged += OnGridChanged;
-            EnsureMaskTimer();
+            // Create timer but only run while overlay mode can become active.
+            SyncMaskTimerWithGates();
         }
 
         /// <summary>
@@ -104,6 +110,7 @@ namespace RPGGame.UI.Avalonia.Effects
             UpdateLayoutFromCanvas();
             RebuildMaskFromCanvas();
             UpdatePlaybackState();
+            SyncMaskTimerWithGates();
         }
 
         /// <summary>
@@ -117,7 +124,8 @@ namespace RPGGame.UI.Avalonia.Effects
             UpdateLayoutFromCanvas();
             RebuildMaskFromCanvas();
             UpdatePlaybackState();
-            InvalidateVisual();
+            SyncMaskTimerWithGates();
+            RequestInvalidateVisual();
         }
 
         /// <summary>Current effective overlay config (copy-safe for settings UI).</summary>
@@ -132,6 +140,7 @@ namespace RPGGame.UI.Avalonia.Effects
             UpdateLayoutFromCanvas();
             RebuildMaskFromCanvas();
             UpdatePlaybackState();
+            SyncMaskTimerWithGates();
         }
 
         public void Dispose()
@@ -139,7 +148,7 @@ namespace RPGGame.UI.Avalonia.Effects
             if (_disposed)
                 return;
             _disposed = true;
-            _maskTimer?.Stop();
+            StopMaskTimer();
             _maskTimer = null;
             if (_canvas != null)
                 _canvas.GridDimensionsChanged -= OnGridChanged;
@@ -152,6 +161,7 @@ namespace RPGGame.UI.Avalonia.Effects
             FreeFrameBuffer();
             _frameBitmap = null;
             _maskBitmap = null;
+            _maskBrush = null;
             _media?.Dispose();
             _media = null;
             _mediaPlayer?.Dispose();
@@ -163,6 +173,7 @@ namespace RPGGame.UI.Avalonia.Effects
         public override void Render(DrawingContext context)
         {
             base.Render(context);
+            Interlocked.Exchange(ref _invalidatePending, 0);
             if (!IsVisible || Bounds.Width <= 1 || Bounds.Height <= 1)
                 return;
 
@@ -178,16 +189,26 @@ namespace RPGGame.UI.Avalonia.Effects
             if (frame == null || _maskBitmap == null)
                 return;
 
+            var maskBrush = EnsureMaskBrush();
             var dest = new Rect(0, 0, Bounds.Width, Bounds.Height);
-            using (context.PushOpacityMask(new ImageBrush(_maskBitmap)
+            using (context.PushOpacityMask(maskBrush, dest))
+            {
+                context.DrawImage(frame, new Rect(0, 0, frame.PixelSize.Width, frame.PixelSize.Height), dest);
+            }
+        }
+
+        private ImageBrush EnsureMaskBrush()
+        {
+            if (_maskBrush != null && ReferenceEquals(_maskBrush.Source, _maskBitmap))
+                return _maskBrush;
+
+            _maskBrush = new ImageBrush(_maskBitmap)
             {
                 Stretch = Stretch.Fill,
                 AlignmentX = AlignmentX.Left,
                 AlignmentY = AlignmentY.Top
-            }, dest))
-            {
-                context.DrawImage(frame, new Rect(0, 0, frame.PixelSize.Width, frame.PixelSize.Height), dest);
-            }
+            };
+            return _maskBrush;
         }
 
         private void OnGridChanged()
@@ -201,19 +222,47 @@ namespace RPGGame.UI.Avalonia.Effects
 
         private void EnsureMaskTimer()
         {
-            if (_maskTimer != null)
+            if (_maskTimer == null)
+            {
+                _maskTimer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(66) // ~15 Hz mask refresh
+                };
+                _maskTimer.Tick += (_, _) =>
+                {
+                    UpdateLayoutFromCanvas();
+                    RebuildMaskFromCanvas();
+                    UpdatePlaybackState();
+                    SyncMaskTimerWithGates();
+                };
+            }
+
+            if (!_maskTimer.IsEnabled)
+                _maskTimer.Start();
+        }
+
+        private void StopMaskTimer()
+        {
+            if (_maskTimer != null && _maskTimer.IsEnabled)
+                _maskTimer.Stop();
+        }
+
+        /// <summary>
+        /// Keep the ~15 Hz mask timer running only while overlay mode can become active
+        /// (config + F5 + F7 + dungeon). Stops idle UI traffic on menus / F5-off.
+        /// </summary>
+        private void SyncMaskTimerWithGates()
+        {
+            if (_disposed || _canvas == null)
+            {
+                StopMaskTimer();
                 return;
-            _maskTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(66) // ~15 Hz mask refresh
-            };
-            _maskTimer.Tick += (_, _) =>
-            {
-                UpdateLayoutFromCanvas();
-                RebuildMaskFromCanvas();
-                UpdatePlaybackState();
-            };
-            _maskTimer.Start();
+            }
+
+            if (ShouldAllowOverlayMode())
+                EnsureMaskTimer();
+            else
+                StopMaskTimer();
         }
 
         private void UpdateLayoutFromCanvas()
@@ -236,7 +285,8 @@ namespace RPGGame.UI.Avalonia.Effects
                 return;
             }
 
-            Margin = new Thickness(x * cw, y * ch, 0, 0);
+            Point origin = _canvas.GetContentOriginOffset();
+            Margin = new Thickness(x * cw + origin.X, y * ch + origin.Y, 0, 0);
             Width = w * cw;
             Height = h * ch;
 
@@ -305,41 +355,60 @@ namespace RPGGame.UI.Avalonia.Effects
                 _config.HaloCells,
                 _config.HaloOpacityScale);
 
+            int fingerprint = NarrativeVideoCellMask.FingerprintOpacityGrid(
+                _opacityGrid.AsSpan(0, cellCount), cellCount);
             int bmpW = Math.Max(1, _maskCols * _maskCellPxW);
             int bmpH = Math.Max(1, _maskRows * _maskCellPxH);
-            if (_maskBitmap == null
+            bool sizeChanged = _maskBitmap == null
                 || _maskBitmap.PixelSize.Width != bmpW
-                || _maskBitmap.PixelSize.Height != bmpH
-                || _forceMaskRebuild)
+                || _maskBitmap.PixelSize.Height != bmpH;
+
+            if (!sizeChanged && !_forceMaskRebuild && fingerprint == _lastOpacityFingerprint)
+            {
+                IsVisible = true;
+                return;
+            }
+
+            if (sizeChanged || _forceMaskRebuild)
             {
                 _maskBitmap = new WriteableBitmap(
                     new PixelSize(bmpW, bmpH),
                     new Vector(96, 96),
                     PixelFormat.Bgra8888,
                     AlphaFormat.Premul);
+                _maskBrush = null;
                 _forceMaskRebuild = false;
             }
 
-            var packed = new byte[bmpW * bmpH * 4];
+            int packedLen = bmpW * bmpH * 4;
+            if (_maskPackedScratch == null || _maskPackedScratch.Length < packedLen)
+                _maskPackedScratch = new byte[packedLen];
+            var packed = _maskPackedScratch.AsSpan(0, packedLen);
             NarrativeVideoCellMask.WriteOpacityMaskBgra(
                 packed, bmpW, bmpH, _opacityGrid, _maskCols, _maskRows, _maskCellPxW, _maskCellPxH);
-            using (var fb = _maskBitmap.Lock())
+            WriteableBitmap maskBitmap = _maskBitmap!;
+            using (var fb = maskBitmap.Lock())
             {
                 if (fb.RowBytes == bmpW * 4)
                 {
-                    Marshal.Copy(packed, 0, fb.Address, packed.Length);
+                    Marshal.Copy(_maskPackedScratch, 0, fb.Address, packedLen);
                 }
                 else
                 {
                     for (int y = 0; y < bmpH; y++)
                     {
-                        Marshal.Copy(packed, y * bmpW * 4, IntPtr.Add(fb.Address, y * fb.RowBytes), bmpW * 4);
+                        Marshal.Copy(
+                            _maskPackedScratch,
+                            y * bmpW * 4,
+                            IntPtr.Add(fb.Address, y * fb.RowBytes),
+                            bmpW * 4);
                     }
                 }
             }
 
+            _lastOpacityFingerprint = fingerprint;
             IsVisible = true;
-            InvalidateVisual();
+            RequestInvalidateVisual();
         }
 
         /// <summary>
@@ -366,6 +435,7 @@ namespace RPGGame.UI.Avalonia.Effects
             {
                 StopPlayback();
                 IsVisible = false;
+                SyncMaskTimerWithGates();
                 return;
             }
 
@@ -374,12 +444,16 @@ namespace RPGGame.UI.Avalonia.Effects
             {
                 StopPlayback();
                 IsVisible = false;
+                SyncMaskTimerWithGates();
                 return;
             }
 
             EnsureLibVlc();
             if (_libVlc == null || _mediaPlayer == null)
+            {
+                SyncMaskTimerWithGates();
                 return;
+            }
 
             if (!string.Equals(_loadedPath, path, StringComparison.OrdinalIgnoreCase))
             {
@@ -398,6 +472,7 @@ namespace RPGGame.UI.Avalonia.Effects
                 catch
                 {
                     _loadedPath = null;
+                    SyncMaskTimerWithGates();
                     return;
                 }
             }
@@ -408,6 +483,9 @@ namespace RPGGame.UI.Avalonia.Effects
                 _mediaPlayer.Play();
                 _playbackStarted = true;
             }
+
+            // Playing ⇒ keep mask timer alive for glyph opacity updates.
+            EnsureMaskTimer();
         }
 
         private void EnsureEndReachedHook()
@@ -580,6 +658,17 @@ namespace RPGGame.UI.Avalonia.Effects
         {
             lock (_frameLock)
                 _frameDirty = true;
+            RequestInvalidateVisual();
+        }
+
+        /// <summary>
+        /// Posts at most one pending UI invalidate so decode faster than refresh does not pile up.
+        /// Pending flag is cleared in <see cref="Render"/>.
+        /// </summary>
+        private void RequestInvalidateVisual()
+        {
+            if (Interlocked.Exchange(ref _invalidatePending, 1) != 0)
+                return;
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
         }
 
@@ -591,7 +680,9 @@ namespace RPGGame.UI.Avalonia.Effects
             int rows = Math.Min(fb.Size.Height, _frameHeight);
             // Copy visible RGB32 row only — pitch may be 32-aligned larger than width*4.
             int rowBytes = Math.Min(fb.RowBytes, _frameWidth * NarrativeVideoFrameLayout.BytesPerPixel);
-            var row = new byte[rowBytes];
+            if (_rowCopyScratch == null || _rowCopyScratch.Length < rowBytes)
+                _rowCopyScratch = new byte[rowBytes];
+            var row = _rowCopyScratch;
             for (int y = 0; y < rows; y++)
             {
                 Marshal.Copy(_frameBuffer + y * _framePitch, row, 0, rowBytes);

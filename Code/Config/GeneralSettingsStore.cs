@@ -334,12 +334,23 @@ namespace RPGGame.Config
 
     /// <summary>
     /// Active ASCII canvas font and per-preset UI zoom multipliers (Ctrl+/-).
+    /// Current zoom and per-font default zoom are stored separately
+    /// (Ctrl+0 resets to default; Ctrl+Shift+0 saves current as default).
     /// </summary>
     public sealed class UiFontPreferences
     {
         public const double DefaultZoom = 1.0;
         public const double MinZoom = 0.5;
         public const double MaxZoom = 2.0;
+
+        private static readonly string[] KnownPresets =
+        {
+            "Vt323",
+            "NoplatoMono",
+            "Pixelzone",
+            "Bytesized",
+            "CourierNew"
+        };
 
         [JsonPropertyName("activePreset")]
         public string ActivePreset { get; set; } = "Vt323";
@@ -348,42 +359,27 @@ namespace RPGGame.Config
         public Dictionary<string, double> ZoomByPreset { get; set; } =
             new(StringComparer.OrdinalIgnoreCase);
 
+        /// <summary>
+        /// Per-font reset target for Ctrl+0. Missing keys migrate from current zoom
+        /// (or 1.0) so existing installs keep their saved size as the default.
+        /// </summary>
+        [JsonPropertyName("defaultZoomByPreset")]
+        public Dictionary<string, double> DefaultZoomByPreset { get; set; } =
+            new(StringComparer.OrdinalIgnoreCase);
+
         public void ValidateAndFix()
         {
             if (string.IsNullOrWhiteSpace(ActivePreset))
                 ActivePreset = "Vt323";
 
             ZoomByPreset ??= new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+            DefaultZoomByPreset ??= new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
 
-            // Normalize known preset keys; keep any extras clamped.
-            string[] known =
-            {
-                "Vt323",
-                "SueEllenFrancisco",
-                "Bytesized",
-                "CourierNew"
-            };
-
-            var normalized = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
-            foreach (string key in known)
-            {
-                double zoom = DefaultZoom;
-                if (ZoomByPreset.TryGetValue(key, out double stored))
-                    zoom = stored;
-                normalized[key] = ClampZoom(zoom);
-            }
-
-            foreach (var pair in ZoomByPreset)
-            {
-                if (normalized.ContainsKey(pair.Key))
-                    continue;
-                normalized[pair.Key] = ClampZoom(pair.Value);
-            }
-
-            ZoomByPreset = normalized;
+            ZoomByPreset = NormalizeZoomMap(ZoomByPreset, fallbackToCurrent: false);
+            DefaultZoomByPreset = NormalizeZoomMap(DefaultZoomByPreset, fallbackToCurrent: true);
 
             bool knownActive = false;
-            foreach (string key in known)
+            foreach (string key in KnownPresets)
             {
                 if (string.Equals(key, ActivePreset, StringComparison.OrdinalIgnoreCase))
                 {
@@ -413,6 +409,22 @@ namespace RPGGame.Config
             ZoomByPreset[presetName] = ClampZoom(zoom);
         }
 
+        public double GetDefaultZoom(string presetName)
+        {
+            if (string.IsNullOrWhiteSpace(presetName))
+                return DefaultZoom;
+            return DefaultZoomByPreset.TryGetValue(presetName, out double zoom)
+                ? ClampZoom(zoom)
+                : GetZoom(presetName);
+        }
+
+        public void SetDefaultZoom(string presetName, double zoom)
+        {
+            if (string.IsNullOrWhiteSpace(presetName))
+                return;
+            DefaultZoomByPreset[presetName] = ClampZoom(zoom);
+        }
+
         public static double ClampZoom(double zoom)
         {
             if (double.IsNaN(zoom) || double.IsInfinity(zoom) || zoom <= 0)
@@ -420,6 +432,31 @@ namespace RPGGame.Config
             if (zoom < MinZoom) return MinZoom;
             if (zoom > MaxZoom) return MaxZoom;
             return zoom;
+        }
+
+        private Dictionary<string, double> NormalizeZoomMap(
+            Dictionary<string, double> source,
+            bool fallbackToCurrent)
+        {
+            var normalized = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+            foreach (string key in KnownPresets)
+            {
+                double zoom = DefaultZoom;
+                if (source.TryGetValue(key, out double stored))
+                    zoom = stored;
+                else if (fallbackToCurrent && ZoomByPreset.TryGetValue(key, out double current))
+                    zoom = current;
+                normalized[key] = ClampZoom(zoom);
+            }
+
+            foreach (var pair in source)
+            {
+                if (normalized.ContainsKey(pair.Key))
+                    continue;
+                normalized[pair.Key] = ClampZoom(pair.Value);
+            }
+
+            return normalized;
         }
     }
 

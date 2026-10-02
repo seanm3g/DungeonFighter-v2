@@ -496,6 +496,21 @@ public void TestStressPerformance()
 - Share performance knowledge
 - Learn from performance issues
 
+## Narrative Video Overlay + Text Distortion (UI hot paths)
+
+### Narrative video (`NarrativeVideoOverlayControl`)
+- Soft-decode via LibVLC RV32 callbacks only while F5 + F7 + dungeon + occupied combat-log glyphs pass.
+- UI paints coalesce: at most one pending `InvalidateVisual` until `Render` clears the flag.
+- Frame upload reuses a grow-only row scratch buffer; mask rasterization reuses a packed BGRA buffer and skips when `FingerprintOpacityGrid` is unchanged.
+- Mask `ImageBrush` is cached against the current `_maskBitmap`.
+- The ~15 Hz mask timer stops when overlay mode cannot run (menus / F5 off), and restarts when gates become eligible.
+
+### Mouse wind / highlight / click burst
+- Paint uses `BeginFrame` snapshots (`FrameActive` / `FrameConfig`) so the renderer does not call locked `IsActive`/`Config` per text element.
+- `NotifyPointerWind` always updates field state but throttles full-canvas `Refresh` to `SettleIntervalMs`, with settle-timer catch-up so highlight does not stick stale.
+- Interactive clickable cell `HashSet` rebuilds only when `FingerprintClickableRegions` changes.
+- `CanvasPrimitivesRenderer` caches `FormattedText` + `SolidColorBrush` for the active font size (capped) to cut CA/glow draw allocations.
+
 ## Related Documentation
 
 - **`CODE_PATTERNS.md`**: Performance patterns and optimization techniques

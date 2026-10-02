@@ -7,8 +7,9 @@ namespace RPGGame.UI.Avalonia
 {
     /// <summary>
     /// Runtime-selectable Avalonia typefaces for the ASCII game surface.
-    /// F3 cycles VT323 → Sue Ellen Francisco → Bytesized → Courier New.
-    /// Ctrl+/- adjusts UI zoom per preset (persisted in GeneralSettings.json) by resizing the main window.
+    /// F3 cycles VT323 → Noplato Mono → Pixelzone → Bytesized → Courier New.
+    /// Ctrl+/- adjusts UI zoom per preset (persisted in GeneralSettings.json), scaling glyphs inside a fixed window.
+    /// Ctrl+0 resets to the per-font default; Ctrl+Shift+0 saves the current size as that default.
     /// Bold is requested only when the preset ships a real bold face.
     /// </summary>
     public static class GameFonts
@@ -16,9 +17,10 @@ namespace RPGGame.UI.Avalonia
         public enum Preset
         {
             Vt323 = 0,
-            SueEllenFrancisco = 1,
-            Bytesized = 2,
-            CourierNew = 3,
+            NoplatoMono = 1,
+            Pixelzone = 2,
+            Bytesized = 3,
+            CourierNew = 4,
         }
 
         public readonly record struct PresetInfo(
@@ -34,10 +36,14 @@ namespace RPGGame.UI.Avalonia
             "avares://DF/UI/Avalonia/Assets/Fonts/VT323-Regular.ttf#VT323, VT323, Courier New, monospace";
 
         /// <summary>
-        /// Embedded Sue Ellen Francisco Regular. The TTF name table includes a trailing space on the family name.
+        /// Embedded Noplato Mono Regular. TTF family name is "Noplato Demo Mono".
         /// </summary>
-        public const string SueEllenFranciscoFamilyName =
-            "avares://DF/UI/Avalonia/Assets/Fonts/SueEllenFrancisco-Regular.ttf#Sue Ellen Francisco , Sue Ellen Francisco, Courier New, monospace";
+        public const string NoplatoMonoFamilyName =
+            "avares://DF/UI/Avalonia/Assets/Fonts/NoplatoMono.ttf#Noplato Demo Mono, Noplato Demo Mono, Courier New, monospace";
+
+        /// <summary>Embedded Pixelzone Regular (pixel).</summary>
+        public const string PixelzoneFamilyName =
+            "avares://DF/UI/Avalonia/Assets/Fonts/Pixelzone.ttf#Pixelzone, Pixelzone, Courier New, monospace";
 
         /// <summary>Embedded Bytesized Regular (pixel monospace).</summary>
         public const string BytesizedFamilyName =
@@ -57,8 +63,10 @@ namespace RPGGame.UI.Avalonia
         public static readonly PresetInfo[] Presets =
         {
             new(Preset.Vt323, "VT323", Vt323FamilyName, FontWeight.Normal),
-            // Sue Ellen Francisco ships Regular only — no bold face in the file.
-            new(Preset.SueEllenFrancisco, "Sue Ellen Francisco", SueEllenFranciscoFamilyName, FontWeight.Normal),
+            // Noplato Mono ships Regular only.
+            new(Preset.NoplatoMono, "Noplato Mono", NoplatoMonoFamilyName, FontWeight.Normal),
+            // Pixelzone ships Regular only.
+            new(Preset.Pixelzone, "Pixelzone", PixelzoneFamilyName, FontWeight.Normal),
             // Bytesized ships Regular only.
             new(Preset.Bytesized, "Bytesized", BytesizedFamilyName, FontWeight.Normal),
             // Courier New has a real Bold face on Windows (courbd.ttf).
@@ -67,6 +75,7 @@ namespace RPGGame.UI.Avalonia
 
         private static int _presetIndex;
         private static readonly double[] ZoomByPreset = CreateDefaultZooms();
+        private static readonly double[] DefaultZoomByPreset = CreateDefaultZooms();
 
         /// <summary>Raised after <see cref="Cycle"/> / <see cref="SetPreset"/> changes the active face.</summary>
         public static event System.Action? ActiveFontChanged;
@@ -89,8 +98,11 @@ namespace RPGGame.UI.Avalonia
         public static Typeface ActiveTypeface =>
             new(ActiveFamily, FontStyle.Normal, ActiveWeight);
 
-        /// <summary>UI zoom multiplier for the active font (1.0 = fill-height default).</summary>
+        /// <summary>UI zoom multiplier for the active font (1.0 = fill-height baseline inside the current window).</summary>
         public static double ActiveZoom => GetZoom(ActivePreset);
+
+        /// <summary>Per-font default zoom for the active preset (Ctrl+0 reset target).</summary>
+        public static double ActiveDefaultZoom => GetDefaultZoom(ActivePreset);
 
         /// <summary>Legacy alias for the currently selected family (defaults to VT323).</summary>
         public static FontFamily Primary => ActiveFamily;
@@ -101,6 +113,14 @@ namespace RPGGame.UI.Avalonia
             if (index < 0)
                 index = 0;
             return UiFontPreferences.ClampZoom(Volatile.Read(ref ZoomByPreset[index]));
+        }
+
+        public static double GetDefaultZoom(Preset preset)
+        {
+            int index = Array.FindIndex(Presets, p => p.Id == preset);
+            if (index < 0)
+                index = 0;
+            return UiFontPreferences.ClampZoom(Volatile.Read(ref DefaultZoomByPreset[index]));
         }
 
         public static void SetZoom(Preset preset, double zoom)
@@ -116,6 +136,15 @@ namespace RPGGame.UI.Avalonia
 
             if (ActivePreset == preset)
                 ActiveZoomChanged?.Invoke();
+        }
+
+        public static void SetDefaultZoom(Preset preset, double zoom)
+        {
+            int index = Array.FindIndex(Presets, p => p.Id == preset);
+            if (index < 0)
+                return;
+
+            Volatile.Write(ref DefaultZoomByPreset[index], SnapZoom(zoom));
         }
 
         /// <summary>
@@ -135,6 +164,33 @@ namespace RPGGame.UI.Avalonia
             return next;
         }
 
+        /// <summary>
+        /// Resets the active font's current zoom to its per-font default (Ctrl+0).
+        /// Returns the resulting zoom.
+        /// </summary>
+        public static double ResetActiveZoomToDefault()
+        {
+            int index = ClampIndex(Volatile.Read(ref _presetIndex));
+            double defaults = UiFontPreferences.ClampZoom(Volatile.Read(ref DefaultZoomByPreset[index]));
+            double snapped = SnapZoom(defaults);
+            double previous = Interlocked.Exchange(ref ZoomByPreset[index], snapped);
+            if (Math.Abs(previous - snapped) >= 1e-9)
+                ActiveZoomChanged?.Invoke();
+            return snapped;
+        }
+
+        /// <summary>
+        /// Saves the active font's current zoom as its per-font default (Ctrl+Shift+0).
+        /// Returns the saved default zoom.
+        /// </summary>
+        public static double SetActiveZoomAsDefault()
+        {
+            int index = ClampIndex(Volatile.Read(ref _presetIndex));
+            double current = SnapZoom(Volatile.Read(ref ZoomByPreset[index]));
+            Volatile.Write(ref DefaultZoomByPreset[index], current);
+            return current;
+        }
+
         public static void SetPreset(Preset preset)
         {
             int index = Array.FindIndex(Presets, p => p.Id == preset);
@@ -146,7 +202,7 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
-        /// Advances VT323 → Sue Ellen Francisco → Bytesized → Courier New → VT323.
+        /// Advances VT323 → Noplato Mono → Pixelzone → Bytesized → Courier New → VT323.
         /// Returns the newly active preset info.
         /// </summary>
         public static PresetInfo Cycle()
@@ -181,8 +237,9 @@ namespace RPGGame.UI.Avalonia
 
             for (int i = 0; i < Presets.Length; i++)
             {
-                double zoom = prefs.GetZoom(Presets[i].Id.ToString());
-                Volatile.Write(ref ZoomByPreset[i], SnapZoom(zoom));
+                string key = Presets[i].Id.ToString();
+                Volatile.Write(ref ZoomByPreset[i], SnapZoom(prefs.GetZoom(key)));
+                Volatile.Write(ref DefaultZoomByPreset[i], SnapZoom(prefs.GetDefaultZoom(key)));
             }
 
             ActiveZoomChanged?.Invoke();
@@ -196,7 +253,11 @@ namespace RPGGame.UI.Avalonia
             };
 
             for (int i = 0; i < Presets.Length; i++)
-                prefs.SetZoom(Presets[i].Id.ToString(), Volatile.Read(ref ZoomByPreset[i]));
+            {
+                string key = Presets[i].Id.ToString();
+                prefs.SetZoom(key, Volatile.Read(ref ZoomByPreset[i]));
+                prefs.SetDefaultZoom(key, Volatile.Read(ref DefaultZoomByPreset[i]));
+            }
 
             prefs.ValidateAndFix();
             return prefs;
@@ -206,7 +267,10 @@ namespace RPGGame.UI.Avalonia
         internal static void ResetZoomsForTests()
         {
             for (int i = 0; i < ZoomByPreset.Length; i++)
+            {
                 Volatile.Write(ref ZoomByPreset[i], DefaultZoom);
+                Volatile.Write(ref DefaultZoomByPreset[i], DefaultZoom);
+            }
         }
 
         private static double[] CreateDefaultZooms()

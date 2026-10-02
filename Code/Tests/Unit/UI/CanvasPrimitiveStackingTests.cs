@@ -1,3 +1,5 @@
+using System;
+using Avalonia;
 using Avalonia.Media;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Canvas;
@@ -48,7 +50,44 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(1, manager5.BoxElements.Count, "TryUpdateBox does not add duplicate boxes", ref run, ref passed, ref failed);
             TestBase.AssertEqual(Colors.DarkBlue, manager5.BoxElements[0].BackgroundColor, "TryUpdateBox changes background color", ref run, ref passed, ref failed);
 
+            TestRotateAboutPointKeepsCenter(ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("CanvasPrimitiveStackingTests", run, passed, failed);
+        }
+
+        /// <summary>
+        /// Burst glyph spin must use T(-C)*R*T(C). The column-vector order T(C)*R*T(-C)
+        /// rotates around world (0,0) and flings letters off-screen.
+        /// </summary>
+        private static void TestRotateAboutPointKeepsCenter(ref int run, ref int passed, ref int failed)
+        {
+            Console.WriteLine("--- Rotate-about-point keeps glyph center (Avalonia row-vector) ---");
+            const double cx = 420;
+            const double cy = 260;
+            double rotation = Math.PI * 0.75;
+
+            var wrong = Matrix.CreateTranslation(cx, cy)
+                        * Matrix.CreateRotation(rotation)
+                        * Matrix.CreateTranslation(-cx, -cy);
+            var right = CanvasPrimitivesRenderer.CreateRotateAboutPointTransform(cx, cy, rotation);
+
+            var centerWrong = wrong.Transform(new Point(cx, cy));
+            var centerRight = right.Transform(new Point(cx, cy));
+            TestBase.AssertTrue(
+                Math.Abs(centerWrong.X - cx) > 1.0 || Math.Abs(centerWrong.Y - cy) > 1.0,
+                $"legacy T(C)*R*T(-C) must move the glyph center (got {centerWrong})",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                Math.Abs(centerRight.X - cx) < 1e-6 && Math.Abs(centerRight.Y - cy) < 1e-6,
+                $"T(-C)*R*T(C) must keep glyph center fixed (got {centerRight})",
+                ref run, ref passed, ref failed);
+
+            // A point one unit right of center should stay one unit from center after rotate.
+            var tip = right.Transform(new Point(cx + 10, cy));
+            double dist = Math.Sqrt((tip.X - cx) * (tip.X - cx) + (tip.Y - cy) * (tip.Y - cy));
+            TestBase.AssertTrue(Math.Abs(dist - 10) < 1e-6,
+                $"rotated tip must stay 10px from center (got dist={dist}, tip={tip})",
+                ref run, ref passed, ref failed);
         }
     }
 }

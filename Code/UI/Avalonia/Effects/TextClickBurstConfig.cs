@@ -40,9 +40,9 @@ namespace RPGGame.UI.Avalonia.Effects
 
         /// <summary>
         /// Peak explode glyph offset as a fraction of one character cell (before distance variance).
-        /// Default: 20 (per-glyph variance multiplies this).
+        /// Default: 3 (per-glyph variance multiplies this).
         /// </summary>
-        public double ExplodeMaxOffsetFraction { get; set; } = 20.0;
+        public double ExplodeMaxOffsetFraction { get; set; } = 3.0;
 
         /// <summary>
         /// Minimum per-glyph distance multiplier during explode (hash-mapped with

@@ -30,6 +30,10 @@ namespace RPGGame.UI.Avalonia
         private readonly TextClickBurstField clickBurstField = new();
         private DispatcherTimer? damageDeltaAnimationTimer;
         private DispatcherTimer? windSwaySettleTimer;
+        /// <summary>TickCount64 of last pointer-driven Refresh; used to throttle highlight/wind moves.</summary>
+        private long _lastPointerRefreshTickMs = -1;
+        /// <summary>True when a throttled pointer move still needs one catch-up paint.</summary>
+        private bool _pointerRefreshCatchupPending;
         
         // Base grid dimensions (original design size)
         private const int BASE_GRID_WIDTH = CanvasGridSizer.DesignGridWidth;
@@ -131,6 +135,12 @@ namespace RPGGame.UI.Avalonia
         public TextClickBurstField ClickBurst => clickBurstField;
 
         /// <summary>
+        /// Supplies clickable hit regions so interactive text can brighten when the mouse wake is near.
+        /// Set by <see cref="Handlers.MouseInteractionHandler"/> from the live interaction manager.
+        /// </summary>
+        public Func<IReadOnlyList<ClickableElement>?>? InteractiveHitRegionsProvider { get; set; }
+
+        /// <summary>
         /// Reloads wind-sway settings from <see cref="UIConfiguration"/> (call after settings save).
         /// </summary>
         public void ReloadWindSwayConfig()
@@ -156,7 +166,9 @@ namespace RPGGame.UI.Avalonia
 
         /// <summary>
         /// Feeds pointer motion into the wind field and keeps the canvas settling until wind dies out.
-        /// Always tracks mouse for the wake-radius debug overlay.
+        /// Always tracks mouse for the wake-radius debug overlay and interactive proximity highlight.
+        /// Full-canvas Refresh is throttled to <see cref="WindSwayConfig.SettleIntervalMs"/> so highlight
+        /// mouse moves do not paint every OS event; settle timer + click still refresh immediately.
         /// </summary>
         public void NotifyPointerWind(Point position)
         {
@@ -165,17 +177,42 @@ namespace RPGGame.UI.Avalonia
             if (charWidth <= 0 || charHeight <= 0)
                 return;
 
-            // Always track for debug circle, even when sway is disabled / F6 off.
-            windSwayField.TrackMousePosition(position.X, position.Y);
+            // Wind/highlight sample in content pixel space (matches translated draw origin).
+            Point content = ScreenToContentPixels(position);
 
-            if (windSwayField.ShowWakeRadiusDebug)
-                Refresh();
+            // Always track for debug circle / proximity highlight, even when sway is disabled / F6 off.
+            windSwayField.TrackMousePosition(content.X, content.Y);
 
-            if (!windSwayField.Config.Enabled || !DeveloperModeState.AreDistortionEffectsEnabled)
+            bool highlight = windSwayField.Config.InteractiveHighlightEnabled;
+            bool windOn = windSwayField.Config.Enabled && DeveloperModeState.AreDistortionEffectsEnabled;
+
+            if (windOn)
+            {
+                windSwayField.PushFromMouseDelta(content.X, content.Y, charWidth, charHeight);
+                EnsureWindSwaySettleTimer();
+            }
+
+            if (windOn || highlight || windSwayField.ShowWakeRadiusDebug)
+                RefreshPointerThrottled();
+        }
+
+        /// <summary>
+        /// Throttles pointer-move Refresh to the settle interval while still tracking field state every move.
+        /// Skipped paints schedule a catch-up via the settle timer so highlight does not stick stale.
+        /// </summary>
+        private void RefreshPointerThrottled()
+        {
+            int settleMs = Math.Clamp(windSwayField.Config.SettleIntervalMs, 8, 100);
+            long now = System.Environment.TickCount64;
+            if (_lastPointerRefreshTickMs >= 0 && (now - _lastPointerRefreshTickMs) < settleMs)
+            {
+                _pointerRefreshCatchupPending = true;
+                EnsureWindSwaySettleTimer();
                 return;
+            }
 
-            windSwayField.PushFromMouseDelta(position.X, position.Y, charWidth, charHeight);
-            EnsureWindSwaySettleTimer();
+            _lastPointerRefreshTickMs = now;
+            _pointerRefreshCatchupPending = false;
             Refresh();
         }
 
@@ -192,7 +229,8 @@ namespace RPGGame.UI.Avalonia
             if (!clickBurstField.Config.Enabled || !DeveloperModeState.AreDistortionEffectsEnabled)
                 return;
 
-            clickBurstField.NotifyClick(position.X, position.Y, charWidth, charHeight);
+            Point content = ScreenToContentPixels(position);
+            clickBurstField.NotifyClick(content.X, content.Y, charWidth, charHeight);
             EnsureWindSwaySettleTimer();
             Refresh();
         }
@@ -230,13 +268,18 @@ namespace RPGGame.UI.Avalonia
             };
             windSwaySettleTimer.Tick += (_, _) =>
             {
-                if (windSwayField.IsActive || clickBurstField.IsActive)
+                bool catchup = _pointerRefreshCatchupPending;
+                _pointerRefreshCatchupPending = false;
+                if (windSwayField.IsActive || clickBurstField.IsActive || catchup)
                 {
+                    _lastPointerRefreshTickMs = System.Environment.TickCount64;
                     Refresh();
                 }
                 else
                 {
+                    // One final paint at true rest so the last active frame cannot leave residual CA/offset.
                     windSwaySettleTimer.Stop();
+                    Refresh();
                 }
             };
         }
@@ -245,7 +288,7 @@ namespace RPGGame.UI.Avalonia
         {
             if (windSwaySettleTimer != null
                 && !windSwaySettleTimer.IsEnabled
-                && (windSwayField.IsActive || clickBurstField.IsActive))
+                && (windSwayField.IsActive || clickBurstField.IsActive || _pointerRefreshCatchupPending))
             {
                 windSwaySettleTimer.Start();
             }
@@ -263,6 +306,7 @@ namespace RPGGame.UI.Avalonia
         {
             if (IsAuxiliaryLayoutCanvas)
                 return;
+            LayoutConstants.UpdateUiZoom(GameFonts.ActiveZoom);
             LayoutConstants.UpdateGridDimensions(GridWidth, GridHeight);
             UpdateEffectiveVisibleWidth();
         }
@@ -320,7 +364,8 @@ namespace RPGGame.UI.Avalonia
                     availableWidth,
                     availableHeight,
                     baseCharWidth,
-                    baseCharHeight);
+                    baseCharHeight,
+                    GameFonts.ActiveZoom);
             }
             else
             {
@@ -330,13 +375,27 @@ namespace RPGGame.UI.Avalonia
             }
 
             coordinateConverter.SetScaleFactor(scaleFactor);
+            // Font size may snap to whole pixels; recompute column count from the snapped cell width.
+            coordinateConverter.EnsureCharWidthMeasured();
+            double snappedCharWidth = coordinateConverter.GetCharWidth();
+            if (!IsAuxiliaryLayoutCanvas
+                && availableWidth > 0
+                && !double.IsInfinity(availableWidth)
+                && snappedCharWidth > 0)
+            {
+                targetW = Math.Max(
+                    CanvasGridSizer.AbsoluteMinGridWidth + CanvasGridSizer.OuterPaddingRight,
+                    (int)Math.Floor(availableWidth / snappedCharWidth + 1e-6));
+            }
+
             GridWidth = targetW;
             GridHeight = targetH;
 
             if (!IsAuxiliaryLayoutCanvas)
             {
                 // Keep LayoutConstants in sync during measure/arrange (Bounds may still be stale).
-                coordinateConverter.EnsureCharWidthMeasured();
+                LayoutConstants.UpdateUiZoom(GameFonts.ActiveZoom);
+                LayoutConstants.UpdateGridDimensions(GridWidth, GridHeight);
                 double charWidth = coordinateConverter.GetCharWidth();
                 if (charWidth > 0)
                     LayoutConstants.UpdateEffectiveVisibleWidth(
@@ -355,21 +414,67 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
+        /// Pixel size of the full character grid at the current font scale (may exceed the viewport when zoomed in).
+        /// </summary>
+        public Size GetContentPixelSize()
+        {
+            coordinateConverter.EnsureCharWidthMeasured();
+            double width = GridWidth * coordinateConverter.GetCharWidth();
+            double height = IsAuxiliaryLayoutCanvas
+                ? GridHeight * coordinateConverter.GetCharHeight()
+                : CanvasGridSizer.CanvasRowCount(GridHeight) * coordinateConverter.GetCharHeight();
+            return new Size(width, height);
+        }
+
+        /// <summary>
+        /// Top-left of the character grid inside the control. Centers zoomed content so UI stays oriented on screen.
+        /// </summary>
+        public Point GetContentOriginOffset()
+        {
+            Size content = GetContentPixelSize();
+            var (ox, oy) = CanvasGridSizer.CalculateContentOrigin(
+                Bounds.Width, Bounds.Height, content.Width, content.Height);
+            return new Point(ox, oy);
+        }
+
+        /// <summary>Maps a pointer position in control space to character-grid content pixels.</summary>
+        public Point ScreenToContentPixels(Point screenPosition)
+        {
+            Point origin = GetContentOriginOffset();
+            return new Point(screenPosition.X - origin.X, screenPosition.Y - origin.Y);
+        }
+
+        /// <summary>Maps a pointer position in control space to character-grid indices.</summary>
+        public (int X, int Y) ScreenToGrid(Point screenPosition)
+        {
+            double charWidth = GetCharWidth();
+            double charHeight = GetCharHeight();
+            if (charWidth <= 0 || charHeight <= 0)
+                return (0, 0);
+
+            Point content = ScreenToContentPixels(screenPosition);
+            int gridX = (int)Math.Floor(content.X / charWidth);
+            int gridY = (int)Math.Floor(content.Y / charHeight);
+            return (gridX, gridY);
+        }
+
+        /// <summary>
         /// Measures the control size and calculates scale factor based on available space
         /// </summary>
         protected override Size MeasureOverride(Size availableSize)
         {
             CalculateScaleAndGrid(availableSize.Width, availableSize.Height);
-            
-            coordinateConverter.EnsureCharWidthMeasured();
-            
-            double width = GridWidth * coordinateConverter.GetCharWidth();
-            // Main layout: painted panel rows + thin bottom outer pad.
-            double height = IsAuxiliaryLayoutCanvas
-                ? GridHeight * coordinateConverter.GetCharHeight()
-                : CanvasGridSizer.CanvasRowCount(GridHeight) * coordinateConverter.GetCharHeight();
-            
-            return new Size(width, height);
+
+            // Prefer the allocated viewport so Ctrl+/- zoom cannot fight the fixed window size.
+            if (availableSize.Width > 0
+                && availableSize.Height > 0
+                && !double.IsInfinity(availableSize.Width)
+                && !double.IsInfinity(availableSize.Height))
+            {
+                return availableSize;
+            }
+
+            return GetContentPixelSize();
         }
         
         /// <summary>
@@ -378,15 +483,8 @@ namespace RPGGame.UI.Avalonia
         protected override Size ArrangeOverride(Size finalSize)
         {
             CalculateScaleAndGrid(finalSize.Width, finalSize.Height);
-            
-            coordinateConverter.EnsureCharWidthMeasured();
-            
-            double canvasWidth = GridWidth * coordinateConverter.GetCharWidth();
-            double canvasHeight = IsAuxiliaryLayoutCanvas
-                ? GridHeight * coordinateConverter.GetCharHeight()
-                : CanvasGridSizer.CanvasRowCount(GridHeight) * coordinateConverter.GetCharHeight();
-            
-            return new Size(canvasWidth, canvasHeight);
+            // Fill the stretch slot; content is centered inside via GetContentOriginOffset.
+            return finalSize;
         }
 
         /// <summary>
@@ -410,20 +508,30 @@ namespace RPGGame.UI.Avalonia
             // Update effective visible width before rendering (bounds are now available)
             if (!IsAuxiliaryLayoutCanvas)
                 UpdateEffectiveVisibleWidth();
-            
-            // Don't call base.Render() to prevent any default Control rendering
-            // Render all elements using renderer
-            renderer.Render(
-                context,
-                Bounds.Width,
-                Bounds.Height,
-                elementManager.TextElements.ToList(),
-                elementManager.BoxElements.ToList(),
-                elementManager.ProgressBars.ToList(),
-                elementManager.SegmentedBars.ToList(),
-                ClearBackgroundColor);
 
-            DrawWakeRadiusDebugOverlay(context);
+            Color clear = ClearBackgroundColor.A == 0 ? Colors.Black : ClearBackgroundColor;
+            context.FillRectangle(new SolidColorBrush(clear), new Rect(0, 0, Bounds.Width, Bounds.Height));
+
+            Size content = GetContentPixelSize();
+            Point origin = GetContentOriginOffset();
+
+            // Don't call base.Render() to prevent any default Control rendering
+            renderer.SetInteractiveHitRegions(InteractiveHitRegionsProvider?.Invoke());
+            using (context.PushTransform(Matrix.CreateTranslation(origin.X, origin.Y)))
+            {
+                renderer.Render(
+                    context,
+                    content.Width,
+                    content.Height,
+                    elementManager.TextElements.ToList(),
+                    elementManager.BoxElements.ToList(),
+                    elementManager.ProgressBars.ToList(),
+                    elementManager.SegmentedBars.ToList(),
+                    Colors.Transparent,
+                    fillBackground: false);
+
+                DrawWakeRadiusDebugOverlay(context);
+            }
         }
 
         private void DrawWakeRadiusDebugOverlay(DrawingContext context)
@@ -439,9 +547,9 @@ namespace RPGGame.UI.Avalonia
                 return;
 
             var pen = new Pen(new SolidColorBrush(Color.FromArgb(200, 80, 220, 255)), 1.5);
-            // Draw the cell-aspect oval in local space, then rotate so the major axis follows mouse motion.
-            using (context.PushTransform(
-                       Matrix.CreateTranslation(cx, cy) * Matrix.CreateRotation(rotationRadians)))
+            // Avalonia matrices are row-vector (p' = p * M): rotate about local origin, then translate to cursor.
+            // Translation * Rotation would spin the oval around world (0,0) as facing changes.
+            using (context.PushTransform(CreateWakeDebugTransform(cx, cy, rotationRadians)))
             {
                 context.DrawEllipse(null, pen, new Point(0, 0), rx, ry);
             }
@@ -451,6 +559,13 @@ namespace RPGGame.UI.Avalonia
             context.DrawLine(cross, new Point(cx - 6, cy), new Point(cx + 6, cy));
             context.DrawLine(cross, new Point(cx, cy - 6), new Point(cx, cy + 6));
         }
+
+        /// <summary>
+        /// Local→world transform for the wake debug oval: rotate about (0,0), then place at the cursor.
+        /// Avalonia uses row-vector composition (<c>p' = p * M</c>), so rotation must be left of translation.
+        /// </summary>
+        internal static Matrix CreateWakeDebugTransform(double centerX, double centerY, double rotationRadians)
+            => Matrix.CreateRotation(rotationRadians) * Matrix.CreateTranslation(centerX, centerY);
 
         // Public methods for adding elements
         public void Clear()

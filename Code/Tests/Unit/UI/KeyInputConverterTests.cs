@@ -83,6 +83,36 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
 
             TestBase.AssertTrue(
+                KeyInputConverter.IsUiZoomResetChord(Key.D0, KeyModifiers.Control),
+                "Ctrl+0 is UI zoom reset chord",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.IsUiZoomResetChord(Key.NumPad0, KeyModifiers.Meta),
+                "Cmd+Numpad0 is UI zoom reset chord",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                !KeyInputConverter.IsUiZoomResetChord(Key.D0, KeyModifiers.Control | KeyModifiers.Shift),
+                "Ctrl+Shift+0 is not reset chord",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.IsUiZoomSetDefaultChord(Key.D0, KeyModifiers.Control | KeyModifiers.Shift),
+                "Ctrl+Shift+0 is set-default chord",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.IsUiZoomSetDefaultChord(Key.NumPad0, KeyModifiers.Meta | KeyModifiers.Shift),
+                "Cmd+Shift+Numpad0 is set-default chord",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.ConvertKeyToInput(Key.D0, KeyModifiers.Control) == null,
+                "Ctrl+0 is not menu option 0",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
                 KeyInputConverter.ConvertKeyToInput(Key.Subtract, KeyModifiers.None) == "-",
                 "Numpad minus maps to inventory requirement filter shortcut input",
                 ref run, ref passed, ref failed);

@@ -61,7 +61,7 @@ namespace RPGGame.Tests.Unit.UI
             ImpulseDecayPerSecond = 0,
             ImpulseRadiusCells = 12,
             MaxImpulseOffsetFraction = 0.35,
-            ExplodeMaxOffsetFraction = 20.0,
+            ExplodeMaxOffsetFraction = 3.0,
             DistanceVarianceMin = 0.2,
             DistanceVarianceMax = 1.45,
             MaxRotationRadians = 7.5,

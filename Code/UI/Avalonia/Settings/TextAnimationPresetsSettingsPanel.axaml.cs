@@ -75,5 +75,23 @@ namespace RPGGame.UI.Avalonia.Settings
         public TextBox? ClickBurstExplodeOutTextBoxControl => Find<TextBox>("ClickBurstExplodeOutTextBox");
         public Slider? ClickBurstClicksToExplodeSliderControl => Find<Slider>("ClickBurstClicksToExplodeSlider");
         public TextBox? ClickBurstClicksToExplodeTextBoxControl => Find<TextBox>("ClickBurstClicksToExplodeTextBox");
+        public Slider? ClickBurstDistanceVarianceMinSliderControl => Find<Slider>("ClickBurstDistanceVarianceMinSlider");
+        public TextBox? ClickBurstDistanceVarianceMinTextBoxControl => Find<TextBox>("ClickBurstDistanceVarianceMinTextBox");
+        public Slider? ClickBurstDistanceVarianceMaxSliderControl => Find<Slider>("ClickBurstDistanceVarianceMaxSlider");
+        public TextBox? ClickBurstDistanceVarianceMaxTextBoxControl => Find<TextBox>("ClickBurstDistanceVarianceMaxTextBox");
+        public Slider? ClickBurstMaxRotationSliderControl => Find<Slider>("ClickBurstMaxRotationSlider");
+        public TextBox? ClickBurstMaxRotationTextBoxControl => Find<TextBox>("ClickBurstMaxRotationTextBox");
+        public Slider? ClickBurstVerticalScaleSliderControl => Find<Slider>("ClickBurstVerticalScaleSlider");
+        public TextBox? ClickBurstVerticalScaleTextBoxControl => Find<TextBox>("ClickBurstVerticalScaleTextBox");
+        public Slider? ClickBurstChromaticVelocitySliderControl => Find<Slider>("ClickBurstChromaticVelocitySlider");
+        public TextBox? ClickBurstChromaticVelocityTextBoxControl => Find<TextBox>("ClickBurstChromaticVelocityTextBox");
+        public Slider? ClickBurstChargeDecaySliderControl => Find<Slider>("ClickBurstChargeDecaySlider");
+        public TextBox? ClickBurstChargeDecayTextBoxControl => Find<TextBox>("ClickBurstChargeDecayTextBox");
+        public Slider? ClickBurstImpulseDecaySliderControl => Find<Slider>("ClickBurstImpulseDecaySlider");
+        public TextBox? ClickBurstImpulseDecayTextBoxControl => Find<TextBox>("ClickBurstImpulseDecayTextBox");
+        public Slider? ClickBurstAutoRebuildIdleSliderControl => Find<Slider>("ClickBurstAutoRebuildIdleSlider");
+        public TextBox? ClickBurstAutoRebuildIdleTextBoxControl => Find<TextBox>("ClickBurstAutoRebuildIdleTextBox");
+        public Slider? ClickBurstAutoRebuildIntervalSliderControl => Find<Slider>("ClickBurstAutoRebuildIntervalSlider");
+        public TextBox? ClickBurstAutoRebuildIntervalTextBoxControl => Find<TextBox>("ClickBurstAutoRebuildIntervalTextBox");
     }
 }

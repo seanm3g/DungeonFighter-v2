@@ -4,9 +4,10 @@ namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
     /// Layout constants for persistent panels.
-    /// Left and right panels keep fixed character widths; the center panel fills remaining horizontal space.
-    /// <see cref="UpdateGridDimensions"/> / <see cref="UpdateEffectiveVisibleWidth"/> track window width so
-    /// the three columns resize when the window shrinks or grows horizontally.
+    /// Left / right / action-info chrome keep design pixel footprints across Ctrl+/- zoom by shrinking
+    /// their character sizes inversely with UI zoom; the center column absorbs the leftover cells.
+    /// <see cref="UpdateGridDimensions"/> / <see cref="UpdateEffectiveVisibleWidth"/> / <see cref="UpdateUiZoom"/>
+    /// track window size and zoom so columns resize correctly.
     /// </summary>
     public static class LayoutConstants
     {
@@ -14,7 +15,7 @@ namespace RPGGame.UI.Avalonia.Layout
         private const int BASE_SCREEN_WIDTH = 210;
         private const int BASE_SCREEN_HEIGHT = 52;
         
-        // Base panel dimensions (from original design)
+        // Base panel dimensions (from original design at 100% UI zoom)
         private const int BASE_LEFT_PANEL_WIDTH = 32; // Increased from 30 to provide more space for item names
         private const int BASE_CENTER_PANEL_X = 31;
         private const int BASE_CENTER_PANEL_WIDTH = 136;
@@ -23,6 +24,16 @@ namespace RPGGame.UI.Avalonia.Layout
         private const int BASE_PANEL_Y = 0; // Panels start at the top of the frame (row 0)
         private const int BASE_PANEL_HEIGHT = 52; // Full grid height (rows 0-51)
         private const int BASE_TITLE_Y = 0;
+        private const int BASE_ACTION_INFO_STRIP_HEIGHT = 11;
+
+        /// <summary>Floor for left chrome columns when zoomed in hard.</summary>
+        public const int MinLeftPanelWidth = 16;
+
+        /// <summary>Floor for right chrome columns when zoomed in hard.</summary>
+        public const int MinRightPanelWidth = 14;
+
+        /// <summary>Floor for the top action-info strip rows when zoomed in hard.</summary>
+        public const int MinActionInfoStripHeight = 5;
         
         // Current grid dimensions (defaults to base, can be updated)
         private static int _gridWidth = BASE_SCREEN_WIDTH;
@@ -31,6 +42,11 @@ namespace RPGGame.UI.Avalonia.Layout
         // Effective visible width - calculated dynamically from actual canvas bounds
         // This accounts for the difference between grid width and actual visible area
         private static int _effectiveVisibleWidth = BASE_SCREEN_WIDTH;
+
+        private static double _uiZoom = 1.0;
+        private static int _leftPanelWidth = BASE_LEFT_PANEL_WIDTH;
+        private static int _rightPanelWidth = BASE_RIGHT_PANEL_WIDTH;
+        private static int _actionInfoStripHeight = BASE_ACTION_INFO_STRIP_HEIGHT;
         
         /// <summary>
         /// Updates the grid dimensions for dynamic scaling
@@ -40,6 +56,19 @@ namespace RPGGame.UI.Avalonia.Layout
         {
             _gridWidth = gridWidth;
             _gridHeight = gridHeight;
+            RecalculateZoomChrome();
+        }
+
+        /// <summary>
+        /// Updates UI zoom used to keep left/top/right chrome near their design pixel sizes.
+        /// Call whenever <c>GameFonts.ActiveZoom</c> changes or before layout measure.
+        /// </summary>
+        public static void UpdateUiZoom(double uiZoom)
+        {
+            _uiZoom = uiZoom > 0 && !double.IsNaN(uiZoom) && !double.IsInfinity(uiZoom)
+                ? uiZoom
+                : 1.0;
+            RecalculateZoomChrome();
         }
         
         /// <summary>
@@ -57,7 +86,40 @@ namespace RPGGame.UI.Avalonia.Layout
                 // Leave OuterPaddingRight columns outside the right panel border.
                 int maxLayoutWidth = CanvasGridSizer.LayoutColumnCount(_gridWidth);
                 _effectiveVisibleWidth = System.Math.Clamp(calculatedVisibleWidth, 1, maxLayoutWidth);
+                RecalculateZoomChrome();
             }
+        }
+
+        /// <summary>
+        /// Shrinks left/right/top chrome character sizes as UI zoom grows so their pixel footprints
+        /// stay near the 100% design size; grows them when zooming out. Center keeps the remainder.
+        /// </summary>
+        private static void RecalculateZoomChrome()
+        {
+            double z = Math.Max(_uiZoom, 0.01);
+            int left = Math.Max(MinLeftPanelWidth, (int)Math.Round(BASE_LEFT_PANEL_WIDTH / z));
+            int right = Math.Max(MinRightPanelWidth, (int)Math.Round(BASE_RIGHT_PANEL_WIDTH / z));
+            int strip = Math.Max(MinActionInfoStripHeight, (int)Math.Round(BASE_ACTION_INFO_STRIP_HEIGHT / z));
+
+            // Gaps: left inset/gap/gap between columns accounted for by CENTER_PANEL_WIDTH's -3.
+            // Always leave at least one center column.
+            int maxSideChrome = Math.Max(2, _effectiveVisibleWidth - 3 - 1);
+            if (left + right > maxSideChrome)
+            {
+                double share = (double)maxSideChrome / (left + right);
+                left = Math.Max(1, (int)Math.Floor(left * share));
+                right = Math.Max(1, maxSideChrome - left);
+            }
+
+            // Leave room for combat sequence band + at least one center log row.
+            int maxStrip = Math.Max(
+                MinActionInfoStripHeight,
+                _gridHeight + 1 - (COMBAT_SEQUENCE_HUD_HEIGHT + COMBAT_SEQUENCE_LOG_GAP) - 1);
+            strip = Math.Min(strip, maxStrip);
+
+            _leftPanelWidth = left;
+            _rightPanelWidth = right;
+            _actionInfoStripHeight = strip;
         }
         
         /// <summary>
@@ -71,10 +133,10 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int SCREEN_HEIGHT => _gridHeight;
         public static int SCREEN_CENTER => _gridWidth / 2;
         
-        // Left panel (Character Info) - fixed width
+        // Left panel (Character Info) - design pixel width preserved across UI zoom
         public static int LEFT_PANEL_X => 1;
         public static int LEFT_PANEL_Y => 0; // Always start at row 0 (top of grid)
-        public static int LEFT_PANEL_WIDTH => BASE_LEFT_PANEL_WIDTH; // Fixed width, not scaled
+        public static int LEFT_PANEL_WIDTH => _leftPanelWidth;
         public static int LEFT_PANEL_HEIGHT => _gridHeight + 1; // One character taller (rows 0 to _gridHeight)
         
         // Effective visible width - dynamically calculated from actual canvas bounds
@@ -87,8 +149,7 @@ namespace RPGGame.UI.Avalonia.Layout
         // Total effective width = LEFT_PANEL_WIDTH + gap(1) + CENTER_PANEL_WIDTH + gap(1) + RIGHT_PANEL_WIDTH
         // Clamp: before first Arrange or very narrow windows, raw width can go negative and breaks strip hit-tests / clears.
         public static int CENTER_PANEL_WIDTH => Math.Max(1, EffectiveVisibleWidth - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH - 3); // Accounts for gaps between panels
-        private const int BASE_ACTION_INFO_STRIP_HEIGHT = 11;
-        public static int ACTION_INFO_STRIP_HEIGHT => BASE_ACTION_INFO_STRIP_HEIGHT;
+        public static int ACTION_INFO_STRIP_HEIGHT => _actionInfoStripHeight;
         /// <summary>First row of the action-info strip (top of center column, aligned with side panels).</summary>
         public static int ACTION_INFO_Y => 0;
         /// <summary>
@@ -155,10 +216,10 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int ACTION_INFO_CONTENT_WIDTH => ACTION_INFO_WIDTH - 2;
         public static int ACTION_INFO_CONTENT_HEIGHT => ACTION_INFO_HEIGHT - 2;
         
-        // Right panel (Dungeon/Enemy Info) - fixed width, positioned at visible right edge
-        public static int RIGHT_PANEL_X => EffectiveVisibleWidth - BASE_RIGHT_PANEL_WIDTH; // Positioned at effective visible right edge
+        // Right panel (Dungeon/Enemy Info) - design pixel width preserved across UI zoom
+        public static int RIGHT_PANEL_X => EffectiveVisibleWidth - RIGHT_PANEL_WIDTH; // Positioned at effective visible right edge
         public static int RIGHT_PANEL_Y => 0; // Always start at row 0 (top of grid)
-        public static int RIGHT_PANEL_WIDTH => BASE_RIGHT_PANEL_WIDTH; // Fixed width, not scaled
+        public static int RIGHT_PANEL_WIDTH => _rightPanelWidth;
         public static int RIGHT_PANEL_HEIGHT => _gridHeight + 1; // One character taller (rows 0 to _gridHeight)
         
         // Top bar for title

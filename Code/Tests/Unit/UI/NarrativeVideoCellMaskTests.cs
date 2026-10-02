@@ -33,6 +33,8 @@ namespace RPGGame.Tests.Unit.UI
             Gate_BlocksVictoryAndDeathScreens();
             Gate_RequiresLogContentToShow();
             Config_Normalize_ClampsOpacityAndLevels();
+            FingerprintOpacityGrid_StableForSameValues();
+            FingerprintOpacityGrid_ChangesWhenCellChanges();
 
             TestBase.PrintSummary("NarrativeVideoCellMask Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -242,6 +244,31 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(0.35, defaults.HaloOpacityScale, "default blurry opacity 0.35",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1, defaults.HaloCells, "default video levels 1",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void FingerprintOpacityGrid_StableForSameValues()
+        {
+            Console.WriteLine("--- Opacity fingerprint stable ---");
+            var a = new float[] { 0f, 0.5f, 1f, 0.25f };
+            var b = new float[] { 0f, 0.5f, 1f, 0.25f };
+            int ha = NarrativeVideoCellMask.FingerprintOpacityGrid(a, a.Length);
+            int hb = NarrativeVideoCellMask.FingerprintOpacityGrid(b, b.Length);
+            TestBase.AssertEqual(ha, hb, "identical grids same fingerprint",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, NarrativeVideoCellMask.FingerprintOpacityGrid(ReadOnlySpan<float>.Empty, 0),
+                "empty grid fingerprint 0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void FingerprintOpacityGrid_ChangesWhenCellChanges()
+        {
+            Console.WriteLine("--- Opacity fingerprint detects change ---");
+            var a = new float[] { 0f, 0.5f, 1f, 0.25f };
+            var b = new float[] { 0f, 0.5f, 0.9f, 0.25f };
+            int ha = NarrativeVideoCellMask.FingerprintOpacityGrid(a, a.Length);
+            int hb = NarrativeVideoCellMask.FingerprintOpacityGrid(b, b.Length);
+            TestBase.AssertTrue(ha != hb, "changed cell changes fingerprint",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

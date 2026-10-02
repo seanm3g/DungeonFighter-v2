@@ -159,8 +159,10 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "EffectiveVisibleWidth", () => RPGGame.Tests.Unit.UI.EffectiveVisibleWidthRegressionTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "MainWindowStartupSizing", () => RPGGame.Tests.Unit.UI.MainWindowStartupSizingTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "WindSwayField", () => RPGGame.Tests.Unit.UI.WindSwayFieldTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "InteractiveTextHighlight", () => RPGGame.Tests.Unit.UI.InteractiveTextHighlightTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TextClickBurstField", () => RPGGame.Tests.Unit.UI.TextClickBurstFieldTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "GameFonts", () => RPGGame.Tests.Unit.UI.GameFontsTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "KeyInputConverter", () => RPGGame.Tests.Unit.UI.KeyInputConverterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "NarrativeVideoCellMask", () => RPGGame.Tests.Unit.UI.NarrativeVideoCellMaskTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "HotkeyHelpCatalog", () => RPGGame.Tests.Unit.UI.HotkeyHelpCatalogTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "MenuMouseScrollHint", () => RPGGame.Tests.Unit.UI.MenuMouseScrollHintTests.RunAllTests()));

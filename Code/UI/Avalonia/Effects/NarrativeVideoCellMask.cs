@@ -110,6 +110,36 @@ namespace RPGGame.UI.Avalonia.Effects
         }
 
         /// <summary>
+        /// Cheap fingerprint of an opacity grid so callers can skip mask rasterization when unchanged.
+        /// Mixes length, first/last non-zero cells, and a sparse sample of values.
+        /// </summary>
+        public static int FingerprintOpacityGrid(ReadOnlySpan<float> grid, int cellCount)
+        {
+            if (cellCount <= 0)
+                return 0;
+            if (grid.Length < cellCount)
+                throw new ArgumentException("grid too small for cellCount.", nameof(grid));
+
+            unchecked
+            {
+                int hash = cellCount * 397;
+                int step = Math.Max(1, cellCount / 64);
+                for (int i = 0; i < cellCount; i += step)
+                {
+                    // Quantize to 8-bit opacity so tiny float noise does not thrash the mask.
+                    int q = (int)Math.Clamp(Math.Round(grid[i] * 255.0), 0, 255);
+                    hash = (hash * 31) + q + i;
+                }
+
+                // Always include ends so small edge-only edits still invalidate.
+                int last = cellCount - 1;
+                hash = (hash * 31) + (int)Math.Clamp(Math.Round(grid[0] * 255.0), 0, 255);
+                hash = (hash * 31) + (int)Math.Clamp(Math.Round(grid[last] * 255.0), 0, 255);
+                return hash;
+            }
+        }
+
+        /// <summary>
         /// Writes an opacity grid into a premultiplied BGRA buffer (white RGB, alpha from opacity).
         /// Each cell becomes a <paramref name="cellPixelWidth"/> × <paramref name="cellPixelHeight"/> block.
         /// </summary>

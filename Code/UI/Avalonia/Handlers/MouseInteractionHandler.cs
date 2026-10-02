@@ -38,6 +38,7 @@ namespace RPGGame.UI.Avalonia.Handlers
             this.gameCanvas = gameCanvas;
             this.canvasUI = canvasUI;
             this.game = game;
+            this.gameCanvas.InteractiveHitRegionsProvider = () => this.canvasUI?.GetClickableElements();
             CombatLogActionHoverState.SetVisibilityChangedCallback(RedrawAfterCombatLogHoverVisibilityChange);
         }
 
@@ -401,18 +402,10 @@ namespace RPGGame.UI.Avalonia.Handlers
 
         /// <summary>
         /// Converts pointer coordinates (relative to the game canvas) to character grid indices.
-        /// Must match rendering: text is drawn at (gridX * charWidth, gridY * charHeight).
+        /// Must match rendering: text is drawn at content-origin + (gridX * charWidth, gridY * charHeight).
         /// </summary>
-        private (int X, int Y) ScreenToGrid(Point screenPosition)
-        {
-            double charWidth = gameCanvas.GetCharWidth();
-            double charHeight = gameCanvas.GetCharHeight();
-
-            int gridX = (int)(screenPosition.X / charWidth);
-            int gridY = (int)(screenPosition.Y / charHeight);
-
-            return (gridX, gridY);
-        }
+        private (int X, int Y) ScreenToGrid(Point screenPosition) =>
+            gameCanvas.ScreenToGrid(screenPosition);
 
         /// <summary>
         /// Left-panel chrome toggles: menu states suppress display-buffer <c>PerformRender</c>, so we re-invoke the active CanvasRenderer screen.

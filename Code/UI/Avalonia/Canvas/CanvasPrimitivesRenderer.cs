@@ -20,7 +20,24 @@ namespace RPGGame.UI.Avalonia.Canvas
         private readonly CanvasCoordinateConverter coordinateConverter;
         private WindSwayField? windSway;
         private TextClickBurstField? clickBurst;
-        
+        private HashSet<long>? interactiveCells;
+        private int _interactiveCellsFingerprint = int.MinValue;
+        private double interactiveHighlightBrighten = 0.55;
+        private double interactiveHighlightGlow = 0.40;
+        private bool interactiveHighlightEnabled;
+        /// <summary>True for the current paint while <see cref="WindSwayField.BeginFrame"/> succeeded.</summary>
+        private bool windFrameActive;
+        /// <summary>True for the current paint while <see cref="TextClickBurstField.BeginFrame"/> succeeded.</summary>
+        private bool burstFrameActive;
+        private WindSwayConfig? windFrameConfig;
+        private TextClickBurstConfig? burstFrameConfig;
+
+        // Per-paint FormattedText / brush reuse (cleared at Render start).
+        private readonly Dictionary<(string Text, uint ColorArgb, double FontSize), FormattedText> _formattedTextCache = new();
+        private readonly Dictionary<uint, SolidColorBrush> _brushCache = new();
+        private double _cachedFontSize = -1;
+        private Typeface? _cachedTypeface;
+
         public CanvasPrimitivesRenderer(CanvasCoordinateConverter coordinateConverter)
         {
             this.coordinateConverter = coordinateConverter ?? throw new ArgumentNullException(nameof(coordinateConverter));
@@ -31,6 +48,27 @@ namespace RPGGame.UI.Avalonia.Canvas
 
         /// <summary>Optional click-charge explode/reform field (any non-overlay text).</summary>
         public void SetClickBurstField(TextClickBurstField? field) => clickBurst = field;
+
+        /// <summary>
+        /// Clickable hit regions used to brighten interactive text when the mouse wake is near.
+        /// Pass null/empty to disable for this paint.
+        /// Rebuilds the cell set only when the region fingerprint changes.
+        /// </summary>
+        public void SetInteractiveHitRegions(IReadOnlyList<ClickableElement>? elements)
+        {
+            int fingerprint = InteractiveTextHighlight.FingerprintClickableRegions(elements);
+            if (interactiveCells == null || fingerprint != _interactiveCellsFingerprint)
+            {
+                interactiveCells = InteractiveTextHighlight.BuildInteractiveCells(elements);
+                _interactiveCellsFingerprint = fingerprint;
+            }
+
+            // Prefer paint-frame config when available; otherwise read live (pre-BeginFrame).
+            var cfg = windFrameConfig ?? windSway?.Config;
+            interactiveHighlightEnabled = cfg?.InteractiveHighlightEnabled ?? true;
+            interactiveHighlightBrighten = cfg?.InteractiveHighlightBrighten ?? 0.55;
+            interactiveHighlightGlow = cfg?.InteractiveHighlightGlow ?? 0.40;
+        }
         
         /// <summary>
         /// Renders all canvas elements to the drawing context.
@@ -45,19 +83,36 @@ namespace RPGGame.UI.Avalonia.Canvas
             List<CanvasBox> boxElements,
             List<CanvasProgressBar> progressBars,
             List<CanvasSegmentedBar> segmentedBars,
-            Color clearBackground = default)
+            Color clearBackground = default,
+            bool fillBackground = true)
         {
             // default(Color) / transparent → solid black (normal game backdrop)
-            if (clearBackground.A == 0)
-                clearBackground = Colors.Black;
+            if (fillBackground)
+            {
+                if (clearBackground.A == 0)
+                    clearBackground = Colors.Black;
 
-            // Clear the canvas
-            context.FillRectangle(new SolidColorBrush(clearBackground), new Rect(0, 0, boundsWidth, boundsHeight));
+                // Clear the canvas
+                context.FillRectangle(GetCachedBrush(clearBackground), new Rect(0, 0, boundsWidth, boundsHeight));
+            }
+
+            ClearDrawCachesIfFontChanged();
 
             double charWidth = coordinateConverter.GetCharWidth();
             double charHeight = coordinateConverter.GetCharHeight();
-            bool windFrame = windSway != null && windSway.BeginFrame(charWidth, charHeight);
-            bool burstFrame = clickBurst != null && clickBurst.BeginFrame(charWidth, charHeight);
+            windFrameActive = windSway != null && windSway.BeginFrame(charWidth, charHeight);
+            windFrameConfig = windFrameActive ? windSway!.FrameConfig : null;
+            burstFrameActive = clickBurst != null && clickBurst.BeginFrame(charWidth, charHeight);
+            burstFrameConfig = burstFrameActive ? clickBurst!.FrameConfig : null;
+
+            // Refresh highlight knobs from frame snapshot once BeginFrame has run.
+            if (windFrameConfig != null)
+            {
+                interactiveHighlightEnabled = windFrameConfig.InteractiveHighlightEnabled;
+                interactiveHighlightBrighten = windFrameConfig.InteractiveHighlightBrighten;
+                interactiveHighlightGlow = windFrameConfig.InteractiveHighlightGlow;
+            }
+
             try
             {
                 RenderBoxes(context, boxElements, overlayPass: false);
@@ -69,11 +124,64 @@ namespace RPGGame.UI.Avalonia.Canvas
             }
             finally
             {
-                if (burstFrame)
+                if (burstFrameActive)
                     clickBurst!.EndFrame();
-                if (windFrame)
+                if (windFrameActive)
                     windSway!.EndFrame();
+                windFrameActive = false;
+                burstFrameActive = false;
+                windFrameConfig = null;
+                burstFrameConfig = null;
             }
+        }
+
+        private void ClearDrawCachesIfFontChanged()
+        {
+            double fontSize = coordinateConverter.GetFontSize();
+            Typeface typeface = coordinateConverter.GetTypeface();
+            if (_cachedFontSize != fontSize || !Equals(_cachedTypeface, typeface))
+            {
+                _formattedTextCache.Clear();
+                _brushCache.Clear();
+                _cachedFontSize = fontSize;
+                _cachedTypeface = typeface;
+            }
+        }
+
+        private SolidColorBrush GetCachedBrush(Color color)
+        {
+            uint key = color.ToUInt32();
+            if (_brushCache.TryGetValue(key, out var brush))
+                return brush;
+            brush = new SolidColorBrush(color);
+            _brushCache[key] = brush;
+            return brush;
+        }
+
+        private FormattedText GetCachedFormattedText(string content, Color color)
+        {
+            double fontSize = coordinateConverter.GetFontSize();
+            var key = (content, color.ToUInt32(), fontSize);
+            if (_formattedTextCache.TryGetValue(key, out var formatted))
+                return formatted;
+
+            formatted = new FormattedText(
+                content,
+                CultureInfo.InvariantCulture,
+                FlowDirection.LeftToRight,
+                coordinateConverter.GetTypeface(),
+                fontSize,
+                GetCachedBrush(color)
+            )
+            {
+                MaxTextWidth = double.PositiveInfinity,
+                MaxTextHeight = double.PositiveInfinity,
+                Trimming = TextTrimming.None
+            };
+            // Cap cache growth for long unique runs (combat log lines).
+            if (_formattedTextCache.Count < 512)
+                _formattedTextCache[key] = formatted;
+            return formatted;
         }
         
         private void RenderBoxes(DrawingContext context, List<CanvasBox> boxElements, bool overlayPass)
@@ -351,11 +459,12 @@ namespace RPGGame.UI.Avalonia.Canvas
             double charHeight = coordinateConverter.GetCharHeight();
             bool distort = ShouldApplyDistortion(text);
             string content = text.Content;
+            var drawText = ResolveInteractiveHighlight(text, content.Length, charWidth, charHeight);
 
             // Outside the wake/burst AABB: one string draw (avoids per-glyph FormattedText).
             if (!distort || !MayAffectDistortedText(text.X, text.Y, content.Length, charWidth, charHeight))
             {
-                DrawTextBlock(context, text, content, text.X * charWidth, text.Y * charHeight);
+                DrawTextBlock(context, drawText, content, text.X * charWidth, text.Y * charHeight);
                 return;
             }
 
@@ -363,16 +472,16 @@ namespace RPGGame.UI.Avalonia.Canvas
             // does not shift prefix glyphs into the following space.
             if (ShouldRenderHeaderAsDistortionUnit(content))
             {
-                RenderDistortedHeaderLine(context, text, content, charWidth, charHeight);
+                RenderDistortedHeaderLine(context, drawText, content, charWidth, charHeight);
                 return;
             }
 
             // Near the disturbance: sample per glyph, but coalesce unbroken zero-offset runs into one draw.
-            var cfg = windSway?.Config ?? new WindSwayConfig();
+            var cfg = windFrameConfig ?? windSway?.FrameConfig ?? new WindSwayConfig();
             bool chromaticEnabled = cfg.ChromaticAberrationEnabled;
             double spread = cfg.ChromaticSpreadFraction;
             byte ghostAlpha = WindSwayChromatic.OpacityToAlpha(cfg.ChromaticOpacity);
-            bool windChromatic = chromaticEnabled && windSway != null && windSway.IsActive;
+            bool windChromatic = chromaticEnabled && windFrameActive;
 
             int i = 0;
             while (i < content.Length)
@@ -412,7 +521,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                     if (runLen <= 0)
                         continue;
                     string run = content.Substring(runStart, runLen);
-                    DrawTextBlock(context, text, run, (text.X + runStart) * charWidth, text.Y * charHeight);
+                    DrawTextBlock(context, drawText, run, (text.X + runStart) * charWidth, text.Y * charHeight);
                     continue;
                 }
 
@@ -441,7 +550,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                         }
                     }
 
-                    DrawTextBlock(context, text, glyph, x, y);
+                    DrawTextBlock(context, drawText, glyph, x, y);
                 }
 
                 if (Math.Abs(pose.RotationRadians) > WindSwayChromatic.IdleEpsilon)
@@ -449,9 +558,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                     double cx = x + charWidth * 0.5;
                     double cy = y + charHeight * 0.5;
                     using (context.PushTransform(
-                               Matrix.CreateTranslation(cx, cy)
-                               * Matrix.CreateRotation(pose.RotationRadians)
-                               * Matrix.CreateTranslation(-cx, -cy)))
+                               CreateRotateAboutPointTransform(cx, cy, pose.RotationRadians)))
                     {
                         DrawGlyphPasses();
                     }
@@ -465,46 +572,77 @@ namespace RPGGame.UI.Avalonia.Canvas
             }
         }
 
+        /// <summary>
+        /// When text sits on a clickable hit region and the mouse wake is near, return a
+        /// brightened/glow copy; otherwise the original element.
+        /// Section headers skip proximity highlight — cyan glow shifts gold/red labels (STR/GEAR).
+        /// </summary>
+        private CanvasText ResolveInteractiveHighlight(
+            CanvasText text,
+            int length,
+            double charWidth,
+            double charHeight)
+        {
+            if (!interactiveHighlightEnabled
+                || text.IsOverlay
+                || windSway == null
+                || interactiveCells == null
+                || interactiveCells.Count == 0
+                || ShouldRenderHeaderAsDistortionUnit(text.Content)
+                || !InteractiveTextHighlight.TextOverlapsInteractive(text.X, text.Y, length, interactiveCells))
+            {
+                return text;
+            }
+
+            // Sample at the run center so one influence drives the whole label.
+            int mid = Math.Max(0, length / 2);
+            double influence = windSway.SampleProximityInfluence(
+                text.X, text.Y, mid, charWidth, charHeight);
+            if (influence <= 1e-3)
+                return text;
+
+            Color bright = InteractiveTextHighlight.ApplyBrighten(
+                text.Color, influence, interactiveHighlightBrighten);
+            bool allowGlow = InteractiveTextHighlight.ShouldApplyProximityGlow(text.Color);
+            double glowStrength = allowGlow
+                ? Math.Clamp(interactiveHighlightGlow, 0.0, 1.0) * influence
+                : 0.0;
+
+            return new CanvasText
+            {
+                X = text.X,
+                Y = text.Y,
+                Content = text.Content,
+                Color = bright,
+                IsOverlay = text.IsOverlay,
+                HasGlow = text.HasGlow || glowStrength > 0.05,
+                GlowColor = glowStrength > 0.05
+                    ? InteractiveTextHighlight.GlowColorForInfluence(influence)
+                    : text.GlowColor,
+                GlowIntensity = text.HasGlow
+                    ? Math.Max(text.GlowIntensity, glowStrength)
+                    : glowStrength,
+                GlowRadius = text.HasGlow ? text.GlowRadius : 2
+            };
+        }
+
         private void DrawTintedGlyph(DrawingContext context, string content, double x, double y, Color color)
         {
-            var formatted = new FormattedText(
-                content,
-                CultureInfo.InvariantCulture,
-                FlowDirection.LeftToRight,
-                coordinateConverter.GetTypeface(),
-                coordinateConverter.GetFontSize(),
-                new SolidColorBrush(color)
-            )
-            {
-                MaxTextWidth = double.PositiveInfinity,
-                MaxTextHeight = double.PositiveInfinity,
-                Trimming = TextTrimming.None
-            };
-            context.DrawText(formatted, new Point(x, y));
+            var formatted = GetCachedFormattedText(content, color);
+            context.DrawText(formatted, SnapDrawPoint(x, y));
         }
 
         private void DrawTextBlock(DrawingContext context, CanvasText text, string content, double x, double y)
         {
-            var formatted = new FormattedText(
-                content,
-                CultureInfo.InvariantCulture,
-                FlowDirection.LeftToRight,
-                coordinateConverter.GetTypeface(),
-                coordinateConverter.GetFontSize(),
-                new SolidColorBrush(text.Color)
-            )
-            {
-                MaxTextWidth = double.PositiveInfinity,
-                MaxTextHeight = double.PositiveInfinity,
-                Trimming = TextTrimming.None
-            };
+            var formatted = GetCachedFormattedText(content, text.Color);
+            Point origin = SnapDrawPoint(x, y);
 
             if (text.HasGlow)
             {
                 TextGlowRenderer.RenderTextWithGlow(
                     context,
                     formatted,
-                    new Point(x, y),
+                    origin,
                     text.GlowColor,
                     text.GlowIntensity,
                     text.GlowRadius,
@@ -515,9 +653,13 @@ namespace RPGGame.UI.Avalonia.Canvas
             }
             else
             {
-                context.DrawText(formatted, new Point(x, y));
+                context.DrawText(formatted, origin);
             }
         }
+
+        /// <summary>Whole-pixel draw origins keep pixel fonts crisp when UI zoom is fractional.</summary>
+        private static Point SnapDrawPoint(double x, double y) =>
+            new(Math.Round(x), Math.Round(y));
 
         private (double OffsetX, double OffsetY) SampleDistortionOffset(
             int gridX,
@@ -553,14 +695,14 @@ namespace RPGGame.UI.Avalonia.Canvas
                 chromY += wy;
             }
 
-            if (clickBurst != null && clickBurst.Config.Enabled)
+            if (clickBurst != null && burstFrameActive && (burstFrameConfig?.Enabled ?? true))
             {
                 var burst = clickBurst.Sample(gridX, gridY, glyphIndex, charWidth, charHeight);
                 ox += burst.OffsetX;
                 oy += burst.OffsetY;
                 rot += burst.RotationRadians;
                 // Burst chromatic is velocity-only — landed scatter stays a clean letter.
-                double velScale = Math.Max(0, clickBurst.Config.ChromaticVelocitySeconds);
+                double velScale = Math.Max(0, burstFrameConfig?.ChromaticVelocitySeconds ?? 0);
                 chromX += burst.VelocityX * velScale;
                 chromY += burst.VelocityY * velScale;
             }
@@ -602,9 +744,10 @@ namespace RPGGame.UI.Avalonia.Canvas
 
         private bool ShouldSampleWind(int gridX)
         {
-            if (windSway == null || !windSway.IsActive)
+            // Use BeginFrame snapshot — avoids locked IsActive/Config per text element.
+            if (!windFrameActive || windSway == null)
                 return false;
-            var cfg = windSway.Config;
+            var cfg = windFrameConfig ?? windSway.FrameConfig;
             if (!cfg.Enabled)
                 return false;
             if (!cfg.SidePanelsOnly)
@@ -647,7 +790,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                 return;
             }
 
-            var cfg = windSway?.Config ?? new WindSwayConfig();
+            var cfg = windFrameConfig ?? windSway?.FrameConfig ?? new WindSwayConfig();
             bool chromaticEnabled = cfg.ChromaticAberrationEnabled;
             double spread = cfg.ChromaticSpreadFraction;
             byte ghostAlpha = WindSwayChromatic.OpacityToAlpha(cfg.ChromaticOpacity);
@@ -677,9 +820,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                 double cx = x + content.Length * charWidth * 0.5;
                 double cy = y + charHeight * 0.5;
                 using (context.PushTransform(
-                           Matrix.CreateTranslation(cx, cy)
-                           * Matrix.CreateRotation(pose.RotationRadians)
-                           * Matrix.CreateTranslation(-cx, -cy)))
+                           CreateRotateAboutPointTransform(cx, cy, pose.RotationRadians)))
                 {
                     DrawHeaderPasses();
                 }
@@ -695,14 +836,24 @@ namespace RPGGame.UI.Avalonia.Canvas
             if (text.IsOverlay)
                 return false;
 
-            bool burstActive = clickBurst != null
-                && clickBurst.Config.Enabled
-                && clickBurst.IsActive;
-            if (burstActive)
+            // Use BeginFrame snapshot — avoids locked IsActive/Config during paint.
+            if (burstFrameActive && (burstFrameConfig?.Enabled ?? true))
                 return true;
 
             return ShouldSampleWind(text.X);
         }
+
+        /// <summary>
+        /// Rotate about an arbitrary point under Avalonia row-vector composition (<c>p' = p * M</c>).
+        /// Must be <c>T(-C) * R * T(C)</c> — the column-vector order <c>T(C) * R * T(-C)</c> spins around world (0,0).
+        /// </summary>
+        internal static Matrix CreateRotateAboutPointTransform(
+            double centerX,
+            double centerY,
+            double rotationRadians)
+            => Matrix.CreateTranslation(-centerX, -centerY)
+               * Matrix.CreateRotation(rotationRadians)
+               * Matrix.CreateTranslation(centerX, centerY);
 
         /// <summary>Left or right character-panel columns (excludes center combat log / strip).</summary>
         internal static bool IsInSidePanel(int gridX)

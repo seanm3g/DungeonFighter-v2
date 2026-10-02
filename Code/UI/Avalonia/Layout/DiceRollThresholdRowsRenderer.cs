@@ -17,13 +17,15 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         /// <returns>Y coordinate immediately below the last row.</returns>
         public static int RenderRows(GameCanvasControl canvas, int x, int y, Actor actor) =>
-            RenderRows(canvas, x, y, actor, false, false, out _);
+            RenderRows(canvas, x, y, actor, false, false, out _, null, null);
 
         /// <summary>
         /// Draws four threshold rows or five CHANCES rows starting at <paramref name="y"/>.
         /// </summary>
         /// <param name="chanceHoverOrder">When <paramref name="showChances"/> is true, rows in on-screen order (for hover ids).</param>
-        /// <returns>Y coordinate immediately below the last row.</returns>
+        /// <param name="minYInclusive">When set, skip painting rows above this Y (scroll clip).</param>
+        /// <param name="maxYExclusive">When set, skip painting rows at or below this Y (bottom border clip).</param>
+        /// <returns>Y coordinate immediately below the last row (advances even when clipped).</returns>
         public static int RenderRows(
             GameCanvasControl canvas,
             int x,
@@ -31,13 +33,22 @@ namespace RPGGame.UI.Avalonia.Layout
             Actor actor,
             bool showChances,
             bool chancesFlashHighlight,
-            out ThresholdDisplayFormatting.D20ChanceDisplayRow[]? chanceHoverOrder)
+            out ThresholdDisplayFormatting.D20ChanceDisplayRow[]? chanceHoverOrder,
+            int? minYInclusive = null,
+            int? maxYExclusive = null)
         {
             chanceHoverOrder = null;
             var snapshot = DiceRollThresholdResolver.Resolve(actor);
 
+            bool CanDraw(int rowY) =>
+                (!minYInclusive.HasValue || rowY >= minYInclusive.Value) &&
+                (!maxYExclusive.HasValue || rowY < maxYExclusive.Value);
+
             void RenderThresholdRow(int rowY, string labelName, int current, int def, int effective, int defaultDisplayedBaseline)
             {
+                if (!CanDraw(rowY))
+                    return;
+
                 string labelPart = $"{labelName}:".PadRight(ThresholdLabelWidth);
                 var valueColor = ThresholdDisplayFormatting.GetValueColor(current, def);
                 int combinedDelta = effective - defaultDisplayedBaseline;
@@ -57,6 +68,9 @@ namespace RPGGame.UI.Avalonia.Layout
 
             void RenderChanceRow(int rowY, string labelName, int percent, int defaultPercent)
             {
+                if (!CanDraw(rowY))
+                    return;
+
                 string labelPart = $"{labelName}:".PadRight(ThresholdLabelWidth);
                 if (chancesFlashHighlight)
                 {

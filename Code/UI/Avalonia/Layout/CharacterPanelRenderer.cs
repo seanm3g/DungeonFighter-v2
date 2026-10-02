@@ -58,7 +58,8 @@ namespace RPGGame.UI.Avalonia.Layout
             int leftX = LayoutConstants.LEFT_PANEL_X;
             int leftY = LayoutConstants.LEFT_PANEL_Y;
             int leftW = LayoutConstants.LEFT_PANEL_WIDTH;
-            int leftH = LayoutConstants.LEFT_PANEL_HEIGHT + 1;
+            // Clear through bottom-border spill so prior threshold rows cannot linger below the frame.
+            int leftH = LeftPanelViewport.ScrubBottomExclusive - leftY;
             canvas.ClearTextInArea(leftX, leftY, leftW, leftH);
             canvas.ClearProgressBarsInArea(leftX, leftY, leftW, leftH);
             canvas.ClearSegmentedBarsInArea(leftX, leftY, leftW, leftH);
@@ -420,7 +421,15 @@ namespace RPGGame.UI.Avalonia.Layout
                 int thresholdsContentY = y;
                 int barWidth = LayoutConstants.LEFT_PANEL_WIDTH - 4;
                 var thresholdRender = ThresholdSectionRenderer.Render(
-                    canvas, x, y, barWidth, character, stateManager, ThresholdBarPanel.Hero);
+                    canvas,
+                    x,
+                    y,
+                    barWidth,
+                    character,
+                    stateManager,
+                    ThresholdBarPanel.Hero,
+                    contentTop,
+                    contentBottomExclusive);
                 y = thresholdRender.NextY;
 
                 if (interactionManager != null && stateManager != null)
@@ -524,7 +533,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.ClearSegmentedBarsInArea(leftX, leftY, leftW, topScrubHeight);
             }
 
-            int bottomScrubHeight = (leftY + leftH) - contentBottomExclusive;
+            // Border row plus spill below the panel (threshold/chance rows that advanced past the clip).
+            int scrubBottomExclusive = System.Math.Max(leftY + leftH, LeftPanelViewport.ScrubBottomExclusive);
+            int bottomScrubHeight = scrubBottomExclusive - contentBottomExclusive;
             if (bottomScrubHeight > 0)
             {
                 canvas.ClearTextInArea(leftX, contentBottomExclusive, leftW, bottomScrubHeight);
@@ -549,8 +560,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 var itemNameSegments = ItemDisplayColoredText.FormatFullItemName(item);
                 
                 // Wrap text if it's too long (max width accounts for padding: panel width - left padding - right border)
-                // Panel width is 32, left padding is 2, right border is 1, so available width is 29
-                const int maxWidth = 29; // Panel width (32) - left padding (2) - right border (1) = 29
+                int maxWidth = Math.Max(8, LayoutConstants.LEFT_PANEL_WIDTH - 3);
                 var wrappedLines = textWriter.WrapColoredSegments(itemNameSegments, maxWidth);
                 
                 // Render each wrapped line with proper colors

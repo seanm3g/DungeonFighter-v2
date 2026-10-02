@@ -31,7 +31,9 @@ namespace RPGGame.UI.Avalonia.Layout
             int barWidth,
             Actor actor,
             StatsPanelStateManager? stateManager,
-            ThresholdBarPanel panel = ThresholdBarPanel.Hero)
+            ThresholdBarPanel panel = ThresholdBarPanel.Hero,
+            int? minYInclusive = null,
+            int? maxYExclusive = null)
         {
             var hudMode = stateManager?.ThresholdsHudMode ?? ThresholdsHudMode.Ladder;
             bool showChances = hudMode == ThresholdsHudMode.Chances;
@@ -43,7 +45,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 actor,
                 showChances,
                 flashChances,
-                out var chanceHoverOrder);
+                out var chanceHoverOrder,
+                minYInclusive,
+                maxYExclusive);
             return new RenderResult(nextY, null, chanceHoverOrder);
         }
     }

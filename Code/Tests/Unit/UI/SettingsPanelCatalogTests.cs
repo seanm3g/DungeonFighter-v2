@@ -259,6 +259,33 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(presets.ClickBurstClicksToExplodeSliderControl != null,
                 "Presets should expose ClickBurst clicks-to-explode slider",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(presets.ClickBurstDistanceVarianceMinSliderControl != null,
+                "Presets should expose ClickBurst distance-variance-min slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(presets.ClickBurstDistanceVarianceMaxSliderControl != null,
+                "Presets should expose ClickBurst distance-variance-max slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(presets.ClickBurstMaxRotationSliderControl != null,
+                "Presets should expose ClickBurst max-rotation slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(presets.ClickBurstVerticalScaleSliderControl != null,
+                "Presets should expose ClickBurst vertical-scale slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(presets.ClickBurstChromaticVelocitySliderControl != null,
+                "Presets should expose ClickBurst chromatic-velocity slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(presets.ClickBurstChargeDecaySliderControl != null,
+                "Presets should expose ClickBurst charge-decay slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(presets.ClickBurstImpulseDecaySliderControl != null,
+                "Presets should expose ClickBurst impulse-decay slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(presets.ClickBurstAutoRebuildIdleSliderControl != null,
+                "Presets should expose ClickBurst auto-rebuild-idle slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(presets.ClickBurstAutoRebuildIntervalSliderControl != null,
+                "Presets should expose ClickBurst auto-rebuild-interval slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void BalanceTuning_DisplayName_Is_SpreadsheetImport()

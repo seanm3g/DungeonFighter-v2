@@ -43,8 +43,10 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             if (factor > 0)
             {
-                scaleFactor = factor;
-                fontSize = baseFontSize * scaleFactor;
+                // Whole-pixel EM sizes keep pixel fonts (Bytesized / Pixelzone / VT323) on-grid
+                // when Ctrl+/- multiplies fill-height scale by a fractional zoom.
+                fontSize = Math.Max(1.0, Math.Round(baseFontSize * factor));
+                scaleFactor = fontSize / baseFontSize;
                 // Reset measured dimensions so they'll be recalculated with new font size
                 InvalidateCharMetrics();
             }

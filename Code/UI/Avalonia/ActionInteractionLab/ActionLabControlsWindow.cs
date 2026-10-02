@@ -225,15 +225,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             _ = ActionLabInputCoordinator.HandleLabControlAsync(el.Value, _canvasUi, _game);
         }
 
-        private (int X, int Y) ScreenToGrid(Point screenPosition)
-        {
-            double charWidth = _canvas.GetCharWidth();
-            double charHeight = _canvas.GetCharHeight();
-            if (charWidth <= 0 || charHeight <= 0)
-                return (0, 0);
-            int gridX = (int)(screenPosition.X / charWidth);
-            int gridY = (int)(screenPosition.Y / charHeight);
-            return (gridX, gridY);
-        }
+        private (int X, int Y) ScreenToGrid(Point screenPosition) =>
+            _canvas.ScreenToGrid(screenPosition);
     }
 }

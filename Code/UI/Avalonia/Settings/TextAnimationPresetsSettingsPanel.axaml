@@ -384,9 +384,11 @@
 
                     <TextBlock Text="Click-charge explosion" FontWeight="SemiBold"/>
                     <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
-                               Text="Spam left-click to charge, then glyphs explode outward and stay scattered until you click them back. Radius is the disturbance/explode reach in character cells. F6 still toggles with wind. Save to persist; sliders apply live."/>
+                               Text="Spam left-click to charge, then glyphs explode outward and stay scattered until you click them back. Radius is the disturbance/explode reach in character cells. Variance and spin often matter more than strength for how chaotic it feels. F6 still toggles with wind. Save to persist; sliders apply live."/>
                     <CheckBox x:Name="ClickBurstEnabledCheckBox" Content="Click-charge explosion enabled" Margin="0,4,0,0"/>
-                    <Grid ColumnDefinitions="180,*,80" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,4,0,0">
+                    <Grid ColumnDefinitions="180,*,80"
+                          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                          Margin="0,4,0,0">
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Radius (cells)" VerticalAlignment="Center"
                                    ToolTip.Tip="Impulse / explode reach in character cells (impulseRadiusCells)."/>
                         <Slider x:Name="ClickBurstRadiusSlider" Grid.Row="0" Grid.Column="1"
@@ -397,7 +399,7 @@
                                    ToolTip.Tip="Peak scatter distance in character cells before per-glyph variance (explodeMaxOffsetFraction)."/>
                         <Slider x:Name="ClickBurstExplodeStrengthSlider" Grid.Row="1" Grid.Column="1"
                                 Minimum="1" Maximum="60" TickFrequency="1" IsSnapToTickEnabled="True" Margin="0,0,8,6"/>
-                        <TextBox x:Name="ClickBurstExplodeStrengthTextBox" Grid.Row="1" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="20"/>
+                        <TextBox x:Name="ClickBurstExplodeStrengthTextBox" Grid.Row="1" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="3"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Explode out (sec)" VerticalAlignment="Center"
                                    ToolTip.Tip="Seconds for glyphs to push outward (explodeOutSeconds)."/>
@@ -410,6 +412,60 @@
                         <Slider x:Name="ClickBurstClicksToExplodeSlider" Grid.Row="3" Grid.Column="1"
                                 Minimum="1" Maximum="20" TickFrequency="1" IsSnapToTickEnabled="True" Margin="0,0,8,6"/>
                         <TextBox x:Name="ClickBurstClicksToExplodeTextBox" Grid.Row="3" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="5"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Distance variance min" VerticalAlignment="Center"
+                                   ToolTip.Tip="Minimum per-glyph distance multiplier during explode (distanceVarianceMin)."/>
+                        <Slider x:Name="ClickBurstDistanceVarianceMinSlider" Grid.Row="4" Grid.Column="1"
+                                Minimum="0" Maximum="4" TickFrequency="0.05" Margin="0,0,8,6"/>
+                        <TextBox x:Name="ClickBurstDistanceVarianceMinTextBox" Grid.Row="4" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="0.2"/>
+
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Distance variance max" VerticalAlignment="Center"
+                                   ToolTip.Tip="Maximum per-glyph distance multiplier during explode (distanceVarianceMax)."/>
+                        <Slider x:Name="ClickBurstDistanceVarianceMaxSlider" Grid.Row="5" Grid.Column="1"
+                                Minimum="0" Maximum="4" TickFrequency="0.05" Margin="0,0,8,6"/>
+                        <TextBox x:Name="ClickBurstDistanceVarianceMaxTextBox" Grid.Row="5" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="1.45"/>
+
+                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Max rotation (rad)" VerticalAlignment="Center"
+                                   ToolTip.Tip="Peak random glyph spin in radians (±value; maxRotationRadians). ~6.3 ≈ one full turn."/>
+                        <Slider x:Name="ClickBurstMaxRotationSlider" Grid.Row="6" Grid.Column="1"
+                                Minimum="0" Maximum="12.5" TickFrequency="0.1" Margin="0,0,8,6"/>
+                        <TextBox x:Name="ClickBurstMaxRotationTextBox" Grid.Row="6" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="7.5"/>
+
+                        <TextBlock Grid.Row="7" Grid.Column="0" Text="Vertical scale" VerticalAlignment="Center"
+                                   ToolTip.Tip="Vertical offset scale relative to horizontal (verticalScale)."/>
+                        <Slider x:Name="ClickBurstVerticalScaleSlider" Grid.Row="7" Grid.Column="1"
+                                Minimum="0.1" Maximum="2" TickFrequency="0.05" Margin="0,0,8,6"/>
+                        <TextBox x:Name="ClickBurstVerticalScaleTextBox" Grid.Row="7" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="0.85"/>
+
+                        <TextBlock Grid.Row="8" Grid.Column="0" Text="Chromatic velocity (sec)" VerticalAlignment="Center"
+                                   ToolTip.Tip="Converts flight velocity into chromatic fringe (chromaticVelocitySeconds). Landed letters stay clean."/>
+                        <Slider x:Name="ClickBurstChromaticVelocitySlider" Grid.Row="8" Grid.Column="1"
+                                Minimum="0" Maximum="0.5" TickFrequency="0.01" Margin="0,0,8,6"/>
+                        <TextBox x:Name="ClickBurstChromaticVelocityTextBox" Grid.Row="8" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="0.12"/>
+
+                        <TextBlock Grid.Row="9" Grid.Column="0" Text="Charge decay /sec" VerticalAlignment="Center"
+                                   ToolTip.Tip="Charge lost per second while idle, not exploding (chargeDecayPerSecond)."/>
+                        <Slider x:Name="ClickBurstChargeDecaySlider" Grid.Row="9" Grid.Column="1"
+                                Minimum="0" Maximum="2" TickFrequency="0.05" Margin="0,0,8,6"/>
+                        <TextBox x:Name="ClickBurstChargeDecayTextBox" Grid.Row="9" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="0.55"/>
+
+                        <TextBlock Grid.Row="10" Grid.Column="0" Text="Impulse decay /sec" VerticalAlignment="Center"
+                                   ToolTip.Tip="How fast the post-click ripple amplitude decays (impulseDecayPerSecond)."/>
+                        <Slider x:Name="ClickBurstImpulseDecaySlider" Grid.Row="10" Grid.Column="1"
+                                Minimum="0" Maximum="10" TickFrequency="0.1" Margin="0,0,8,6"/>
+                        <TextBox x:Name="ClickBurstImpulseDecayTextBox" Grid.Row="10" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="2.5"/>
+
+                        <TextBlock Grid.Row="11" Grid.Column="0" Text="Auto-rebuild idle (sec)" VerticalAlignment="Center"
+                                   ToolTip.Tip="Seconds with no hole click after scatter lands before autofill starts (autoRebuildIdleSeconds)."/>
+                        <Slider x:Name="ClickBurstAutoRebuildIdleSlider" Grid.Row="11" Grid.Column="1"
+                                Minimum="0" Maximum="60" TickFrequency="0.5" Margin="0,0,8,6"/>
+                        <TextBox x:Name="ClickBurstAutoRebuildIdleTextBox" Grid.Row="11" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="10"/>
+
+                        <TextBlock Grid.Row="12" Grid.Column="0" Text="Auto-rebuild interval (sec)" VerticalAlignment="Center"
+                                   ToolTip.Tip="Seconds between auto-filled letters once idle autofill is running (autoRebuildIntervalSeconds)."/>
+                        <Slider x:Name="ClickBurstAutoRebuildIntervalSlider" Grid.Row="12" Grid.Column="1"
+                                Minimum="0.05" Maximum="2" TickFrequency="0.05" Margin="0,0,8,6"/>
+                        <TextBox x:Name="ClickBurstAutoRebuildIntervalTextBox" Grid.Row="12" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="0.5"/>
                     </Grid>
 
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">

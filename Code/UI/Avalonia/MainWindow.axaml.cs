@@ -30,17 +30,10 @@ namespace RPGGame.UI.Avalonia
         private SettingsPanel? settingsMenuPanel;
         private TuningMenuPanel? tuningMenuPanel;
 
-        /// <summary>Client size at 100% UI zoom; Ctrl+/- scales the window from this reference.</summary>
-        private double _uiZoomReferenceWidth;
-        private double _uiZoomReferenceHeight;
-        private bool _uiZoomReferenceReady;
-        private bool _applyingUiZoomWindowSize;
-
         public MainWindow()
         {
             InitializeComponent();
             Opened += OnMainWindowOpened;
-            Resized += OnMainWindowResized;
             // Tunnel so Ctrl/Cmd chords are handled before focused children; bubble KeyDown on the window often never runs when focus is on the canvas.
             this.AddHandler(InputElement.KeyDownEvent, OnGlobalKeyDownTunnel, RoutingStrategies.Tunnel);
             this.KeyDown += OnKeyDown;
@@ -153,85 +146,33 @@ namespace RPGGame.UI.Avalonia
                 Dispatcher.UIThread.Post(() =>
                 {
                     ApplyMacStartupWindowSizing();
-                    CaptureUiZoomReferenceFromCurrentSize(atZoom: 1.0);
-                    ApplyPersistedUiZoomWindowSize();
                     _ = initializationHandler?.StartTitleScreenAfterWindowReadyAsync();
                     BuildExecutionMetrics.RecordLaunchTime("GUI");
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        ApplyMacStartupWindowSizing();
-                        CaptureUiZoomReferenceFromCurrentSize(atZoom: 1.0);
-                        ApplyPersistedUiZoomWindowSize();
-                    }, DispatcherPriority.Background);
+                    Dispatcher.UIThread.Post(
+                        ApplyMacStartupWindowSizing,
+                        DispatcherPriority.Background);
                 }, DispatcherPriority.Loaded);
                 return;
             }
 
-            CaptureUiZoomReferenceFromCurrentSize(atZoom: 1.0);
-            ApplyPersistedUiZoomWindowSize();
             _ = initializationHandler?.StartTitleScreenAfterWindowReadyAsync();
             BuildExecutionMetrics.RecordLaunchTime("GUI");
         }
 
-        private void OnMainWindowResized(object? sender, WindowResizedEventArgs e)
-        {
-            if (_applyingUiZoomWindowSize)
-                return;
-            // Manual drag/maximize: treat current client size as zoomed size for the active zoom.
-            if (Width > 0 && Height > 0)
-                CaptureUiZoomReferenceFromCurrentSize(GameFonts.ActiveZoom);
-        }
-
         /// <summary>
-        /// Stores the 100%-zoom client size derived from the current window and <paramref name="atZoom"/>.
+        /// Re-measures glyph metrics, then rebuilds the active screen after layout so Ctrl+/- / F3
+        /// scale changes are visible even when the window size stays the same.
         /// </summary>
-        private void CaptureUiZoomReferenceFromCurrentSize(double atZoom)
+        private void ApplyActiveFontAndRefreshLayout()
         {
-            var (refW, refH) = MainWindowStartupSizing.ComputeZoomReferenceSize(Width, Height, atZoom);
-            if (refW <= 0 || refH <= 0)
-                return;
-            _uiZoomReferenceWidth = refW;
-            _uiZoomReferenceHeight = refH;
-            _uiZoomReferenceReady = true;
-        }
-
-        private void EnsureUiZoomReference()
-        {
-            if (_uiZoomReferenceReady && _uiZoomReferenceWidth > 0 && _uiZoomReferenceHeight > 0)
-                return;
-            CaptureUiZoomReferenceFromCurrentSize(GameFonts.ActiveZoom);
-        }
-
-        /// <summary>
-        /// Resizes the window so Ctrl+/- zoom fills the client area (no letterbox under the panels).
-        /// </summary>
-        private void ApplyUiZoomWindowSize(double zoom)
-        {
-            EnsureUiZoomReference();
-            if (!_uiZoomReferenceReady)
-                return;
-
-            _applyingUiZoomWindowSize = true;
-            try
+            ApplyActiveGameFontToChrome();
+            GameCanvas.ApplyActiveFont();
+            Dispatcher.UIThread.Post(() =>
             {
-                MainWindowStartupSizing.ApplyUiZoomWindowSize(
-                    this,
-                    _uiZoomReferenceWidth,
-                    _uiZoomReferenceHeight,
-                    zoom);
-            }
-            finally
-            {
-                _applyingUiZoomWindowSize = false;
-            }
-        }
-
-        private void ApplyPersistedUiZoomWindowSize()
-        {
-            double zoom = GameFonts.ActiveZoom;
-            if (Math.Abs(zoom - 1.0) < 1e-9)
-                return;
-            ApplyUiZoomWindowSize(zoom);
+                if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+                    canvasUI.ForceFullLayoutRender();
+                NarrativeVideoOverlay?.NotifyContextChanged();
+            }, DispatcherPriority.Loaded);
         }
 
         private void ApplyMacStartupWindowSizing()
@@ -464,12 +405,8 @@ namespace RPGGame.UI.Avalonia
 
             var preset = GameFonts.Cycle();
             PersistGameFontPreferences();
-            ApplyActiveGameFontToChrome();
-            // Each font keeps its own zoom; resize so the canvas still fills the client area.
-            ApplyUiZoomWindowSize(GameFonts.ActiveZoom);
-            GameCanvas.ApplyActiveFont();
-            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
-                canvasUI.ForceFullLayoutRender();
+            // Each font keeps its own zoom; re-measure and rebuild the screen inside the fixed window.
+            ApplyActiveFontAndRefreshLayout();
 
             int percent = (int)Math.Round(GameFonts.ActiveZoom * 100);
             ShowCombatSpeedNotification($"Font: {preset.DisplayName} ({percent}%)", forceAutoDismiss: true);
@@ -478,20 +415,42 @@ namespace RPGGame.UI.Avalonia
 
         private bool TryHandleUiZoomKey(Key key, KeyModifiers modifiers)
         {
+            if (KeyInputConverter.IsUiZoomResetChord(key, modifiers))
+            {
+                double zoom = GameFonts.ResetActiveZoomToDefault();
+                PersistGameFontPreferences();
+                ApplyActiveFontAndRefreshLayout();
+
+                int percent = (int)Math.Round(zoom * 100);
+                ShowCombatSpeedNotification(
+                    $"UI size reset: {percent}% ({GameFonts.ActiveInfo.DisplayName})",
+                    forceAutoDismiss: true);
+                return true;
+            }
+
+            if (KeyInputConverter.IsUiZoomSetDefaultChord(key, modifiers))
+            {
+                double zoom = GameFonts.SetActiveZoomAsDefault();
+                PersistGameFontPreferences();
+
+                int percent = (int)Math.Round(zoom * 100);
+                ShowCombatSpeedNotification(
+                    $"Default UI size: {percent}% ({GameFonts.ActiveInfo.DisplayName})",
+                    forceAutoDismiss: true);
+                return true;
+            }
+
             if (!KeyInputConverter.IsUiZoomChord(key, modifiers))
                 return false;
 
             int direction = KeyInputConverter.GetUiZoomDirection(key);
-            double zoom = GameFonts.AdjustActiveZoom(direction);
+            double stepped = GameFonts.AdjustActiveZoom(direction);
             PersistGameFontPreferences();
-            ApplyUiZoomWindowSize(zoom);
-            GameCanvas.ApplyActiveFont();
-            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
-                canvasUI.ForceFullLayoutRender();
+            ApplyActiveFontAndRefreshLayout();
 
-            int percent = (int)Math.Round(zoom * 100);
+            int steppedPercent = (int)Math.Round(stepped * 100);
             ShowCombatSpeedNotification(
-                $"UI size: {percent}% ({GameFonts.ActiveInfo.DisplayName})",
+                $"UI size: {steppedPercent}% ({GameFonts.ActiveInfo.DisplayName})",
                 forceAutoDismiss: true);
             return true;
         }
@@ -654,6 +613,7 @@ namespace RPGGame.UI.Avalonia
 
             var grid = PointerToCanvasGrid(e);
             Point localOnCanvas = e.GetPosition(GameCanvas);
+            Point contentOnCanvas = GameCanvas.ScreenToContentPixels(localOnCanvas);
             double cw = GameCanvas.GetCharWidth();
             double ch = GameCanvas.GetCharHeight();
             bool overlayOpen = SettingsPanelOverlay?.IsVisible == true || TuningPanelOverlay?.IsVisible == true;
@@ -667,8 +627,8 @@ namespace RPGGame.UI.Avalonia
                 canvasUI.IsCombatLogClipboardContext(),
                 grid.X,
                 grid.Y,
-                localOnCanvas.X,
-                localOnCanvas.Y,
+                contentOnCanvas.X,
+                contentOnCanvas.Y,
                 cw,
                 ch))
             {
@@ -682,21 +642,12 @@ namespace RPGGame.UI.Avalonia
 
         /// <summary>
         /// Maps a pointer position to character grid coordinates on the game canvas.
-        /// Uses the hit surface and canvas origin so letterboxing (canvas smaller than the border) does not skew the cell index.
+        /// Uses the hit surface and canvas origin so letterboxing / zoom centering does not skew the cell index.
         /// </summary>
         private (int X, int Y) PointerToCanvasGrid(PointerEventArgs e)
         {
-            double charWidth = GameCanvas.GetCharWidth();
-            double charHeight = GameCanvas.GetCharHeight();
-            if (charWidth <= 0 || charHeight <= 0)
-                return (0, 0);
-
-            // Prefer pointer position in GameCanvas coordinates (Avalonia handles parent/letterbox transform).
-            // TranslatePoint(canvas origin → hit surface) can be null while the tree is updating and used to force (0,0), breaking hit-tests.
             Point local = e.GetPosition(GameCanvas);
-            int gx = (int)Math.Floor(local.X / charWidth);
-            int gy = (int)Math.Floor(local.Y / charHeight);
-            return (gx, gy);
+            return GameCanvas.ScreenToGrid(local);
         }
 
         private void OnCanvasPointerMoved(object? sender, PointerEventArgs e)

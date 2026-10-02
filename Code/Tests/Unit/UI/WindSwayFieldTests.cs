@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Avalonia;
 using RPGGame;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia;
@@ -36,6 +37,9 @@ namespace RPGGame.Tests.Unit.UI
                 TestDecaySettlesWind();
                 TestSampleOffsetZeroWhenIdle();
                 TestSampleOffsetNonZeroNearMouse();
+                TestIdleSitStillClearsOffsetNearMouse();
+                TestIdleVisualRestClearsOffsetBeforeHardZero();
+                TestMotionDeadzoneIgnoresJitter();
                 TestWakeFalloffFarIsZero();
                 TestFasterMouseLargerNearOffset();
                 TestTrailLingersAfterMouseLeaves();
@@ -47,6 +51,8 @@ namespace RPGGame.Tests.Unit.UI
                 TestMaxOffsetRespectsConfigNearMouse();
                 TestWakeDebugEllipseUsesRadius();
                 TestWakeEllipseRotatesWithMouseMotion();
+                TestTrackMouseUpdatesFacingWithoutWind();
+                TestWakeDebugTransformKeepsCenter();
                 TestWakeDebugToggleDoesNotAffectSample();
                 TestChromaticFringeZeroWhenIdle();
                 TestChromaticFringeAlongOffset();
@@ -54,6 +60,7 @@ namespace RPGGame.Tests.Unit.UI
                 TestChromaticOpacityToAlpha();
                 TestChromaticConfigDefaults();
                 TestMayAffectTextUsesWakeBounds();
+                TestFrameActiveExposesBeginFrameSnapshot();
                 TestPerfDefaultsAreLeaner();
             }
             finally
@@ -210,6 +217,142 @@ namespace RPGGame.Tests.Unit.UI
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(field.GetSpeedForTests() > 1.0,
                 $"expected measurable speed (got {field.GetSpeedForTests()})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestIdleSitStillClearsOffsetNearMouse()
+        {
+            Console.WriteLine("\n--- Idle sit-still clears offset near mouse ---");
+            const double charW = 10;
+            const double charH = 16;
+            var field = new WindSwayField();
+            field.ApplyConfig(new WindSwayConfig
+            {
+                Enabled = true,
+                ImpulseGain = 1.0,
+                MaxWind = 10,
+                DecayPerSecond = 3.0,
+                MaxOffsetFraction = 0.55,
+                VerticalScale = 1.0,
+                WakeRadiusCells = 12,
+                NearInfluence = 1.0,
+                FarInfluence = 0.35,
+                WakeRearBias = 0,
+                SpeedReferenceCellsPerSec = 20,
+                // Long trail so residual would linger without idle snap/clear.
+                TrailLifetimeSeconds = 2.0,
+                TrailMaxPoints = 12,
+                TrailMinSpacingCells = 1.0,
+                ChromaticAberrationEnabled = true,
+                ChromaticSpreadFraction = 0.29,
+                ChromaticOpacity = 0.58
+            });
+
+            field.PushFromMouseDelta(100, 160, charW, charH);
+            field.PushFromMouseDelta(140, 160, charW, charH, dtOverrideSeconds: 0.05);
+            var (beforeOx, beforeOy) = field.SampleOffset(12, 10, 0, charW, charH);
+            TestBase.AssertTrue(Math.Abs(beforeOx) + Math.Abs(beforeOy) > 0.05,
+                $"expected sway right after motion (ox={beforeOx}, oy={beforeOy})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Past idle grace → hard rest under the still cursor (no leftover CA smear).
+            Thread.Sleep(250);
+            TestBase.AssertTrue(field.GetIdleSecondsForTests() >= WindSwayField.IdleGraceSeconds,
+                $"expected idle past grace after sleep (idleFor={field.GetIdleSecondsForTests()}, grace={WindSwayField.IdleGraceSeconds})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertTrue(!field.IsActive,
+                "field should be inactive after sitting still",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(field.GetTrailCountForTests() == 0,
+                $"trail should clear when idle at rest (got {field.GetTrailCountForTests()})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var (wx, wy) = field.GetWindForTests();
+            TestBase.AssertTrue(Math.Abs(wx) < 1e-6 && Math.Abs(wy) < 1e-6,
+                $"wind should snap to zero when idle (wx={wx}, wy={wy})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var (ox, oy) = field.SampleOffset(12, 10, 0, charW, charH);
+            TestBase.AssertTrue(Math.Abs(ox) < 1e-6 && Math.Abs(oy) < 1e-6,
+                $"sit-still near mouse should fully rest (ox={ox}, oy={oy})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestIdleVisualRestClearsOffsetBeforeHardZero()
+        {
+            Console.WriteLine("\n--- Idle visual rest clears offset before hard-zero ---");
+            const double charW = 10;
+            const double charH = 16;
+            var field = new WindSwayField();
+            field.ApplyConfig(new WindSwayConfig
+            {
+                Enabled = true,
+                ImpulseGain = 1.0,
+                MaxWind = 10,
+                DecayPerSecond = 0.01, // barely decays — visual rest must zero without hard-clear
+                MaxOffsetFraction = 0.55,
+                VerticalScale = 1.0,
+                WakeRadiusCells = 12,
+                NearInfluence = 1.0,
+                FarInfluence = 0.35,
+                WakeRearBias = 0,
+                SpeedReferenceCellsPerSec = 20,
+                TrailLifetimeSeconds = 2.0,
+                TrailMaxPoints = 12,
+                TrailMinSpacingCells = 1.0,
+                ChromaticAberrationEnabled = true
+            });
+
+            field.PushFromMouseDelta(100, 160, charW, charH);
+            field.PushFromMouseDelta(140, 160, charW, charH, dtOverrideSeconds: 0.05);
+            var (beforeOx, beforeOy) = field.SampleOffset(12, 10, 0, charW, charH);
+            TestBase.AssertTrue(Math.Abs(beforeOx) + Math.Abs(beforeOy) > 0.05,
+                $"expected sway right after motion (ox={beforeOx}, oy={beforeOy})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Past visual-rest window but intentionally before hard idle grace (no Thread.Sleep flake).
+            double visualIdle = WindSwayField.IdleVisualRestSeconds + 0.01;
+            TestBase.AssertTrue(visualIdle < WindSwayField.IdleGraceSeconds,
+                "test idle must sit between visual rest and hard grace",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            field.SetIdleSecondsForTests(visualIdle);
+
+            TestBase.AssertTrue(field.GetIdleSecondsForTests() >= WindSwayField.IdleVisualRestSeconds,
+                $"expected idle past visual rest (idleFor={field.GetIdleSecondsForTests()})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(field.GetIdleSecondsForTests() < WindSwayField.IdleGraceSeconds,
+                $"expected still inside hard-grace window (idleFor={field.GetIdleSecondsForTests()})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var (ox, oy) = field.SampleOffset(12, 10, 0, charW, charH);
+            TestBase.AssertTrue(Math.Abs(ox) < 1e-6 && Math.Abs(oy) < 1e-6,
+                $"visual rest should zero offsets before hard-zero (ox={ox}, oy={oy})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestMotionDeadzoneIgnoresJitter()
+        {
+            Console.WriteLine("\n--- Motion deadzone ignores jitter ---");
+            var field = new WindSwayField();
+            field.ApplyConfig(new WindSwayConfig
+            {
+                Enabled = true,
+                ImpulseGain = 1.0,
+                MaxWind = 10,
+                DecayPerSecond = 0
+            });
+
+            field.PushFromMouseDelta(0, 0, 10, 16);
+            // Sub-deadzone jitter must not invent wind.
+            field.PushFromMouseDelta(WindSwayField.MotionDeadzonePixels * 0.5, 0, 10, 16, dtOverrideSeconds: 0.016);
+            var (jitterWx, _) = field.GetWindForTests();
+            TestBase.AssertTrue(Math.Abs(jitterWx) < 1e-6,
+                $"deadzone jitter should not build wind (got {jitterWx})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            field.PushFromMouseDelta(30, 0, 10, 16, dtOverrideSeconds: 0.05);
+            var (realWx, _) = field.GetWindForTests();
+            TestBase.AssertTrue(realWx > 0.5,
+                $"real motion past deadzone should build wind (got {realWx})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -530,6 +673,45 @@ namespace RPGGame.Tests.Unit.UI
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        private static void TestTrackMouseUpdatesFacingWithoutWind()
+        {
+            Console.WriteLine("\n--- TrackMousePosition orients wake without wind push ---");
+            var field = new WindSwayField();
+            var cfg = BaseCfg();
+            cfg.WakeRadiusCells = 10;
+            field.ApplyConfig(cfg);
+
+            field.TrackMousePosition(100, 100);
+            field.TrackMousePosition(200, 100); // eastward — no PushFromMouseDelta
+
+            bool ok = field.TryGetWakeDebugEllipse(
+                10, 16, out _, out _, out _, out _, out double rotation);
+            TestBase.AssertTrue(ok, "debug ellipse available after track-only motion",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Math.Abs(rotation - (-Math.PI * 0.5)) < 1e-6,
+                $"track-only horizontal motion should rotate major onto X (got {rotation})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestWakeDebugTransformKeepsCenter()
+        {
+            Console.WriteLine("\n--- Wake debug transform keeps oval centered on cursor ---");
+            const double cx = 320;
+            const double cy = 180;
+            double rotation = -Math.PI * 0.5; // horizontal major
+            var wrong = Matrix.CreateTranslation(cx, cy) * Matrix.CreateRotation(rotation);
+            var right = GameCanvasControl.CreateWakeDebugTransform(cx, cy, rotation);
+
+            var originWrong = wrong.Transform(new Point(0, 0));
+            var originRight = right.Transform(new Point(0, 0));
+            TestBase.AssertTrue(Math.Abs(originWrong.X - cx) > 1.0 || Math.Abs(originWrong.Y - cy) > 1.0,
+                $"legacy Translation*Rotation must leave (0,0) (got {originWrong})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Math.Abs(originRight.X - cx) < 1e-9 && Math.Abs(originRight.Y - cy) < 1e-9,
+                $"Rotation*Translation must keep center at cursor (got {originRight})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         private static void TestWakeDebugToggleDoesNotAffectSample()
         {
             Console.WriteLine("\n--- Wake debug toggle is runtime-only ---");
@@ -562,8 +744,11 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(dx == 0 && dy == 0, "zero offset → zero fringe",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            var (dx2, dy2) = WindSwayChromatic.ComputeFringe(1e-6, 1e-6, 0.10);
-            TestBase.AssertTrue(dx2 == 0 && dy2 == 0, "sub-epsilon offset → zero fringe",
+            var (dx2, dy2) = WindSwayChromatic.ComputeFringe(0.2, 0.1, 0.10);
+            TestBase.AssertTrue(dx2 == 0 && dy2 == 0, "sub-IdleEpsilon offset → zero fringe",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(WindSwayChromatic.IdleEpsilon >= 0.4,
+                $"IdleEpsilon should ignore subpixel smear (got {WindSwayChromatic.IdleEpsilon})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -652,6 +837,44 @@ namespace RPGGame.Tests.Unit.UI
             {
                 field.EndFrame();
             }
+        }
+
+        private static void TestFrameActiveExposesBeginFrameSnapshot()
+        {
+            Console.WriteLine("\n--- FrameActive / FrameConfig paint snapshot ---");
+            const double charW = 10;
+            const double charH = 16;
+            var field = new WindSwayField();
+            var cfg = BaseCfg();
+            cfg.SidePanelsOnly = true;
+            cfg.ChromaticSpreadFraction = 0.22;
+            field.ApplyConfig(cfg);
+
+            TestBase.AssertTrue(!field.FrameActive, "inactive before BeginFrame",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            field.PushFromMouseDelta(50, 80, charW, charH);
+            field.PushFromMouseDelta(60, 80, charW, charH, dtOverrideSeconds: 0.05);
+            TestBase.AssertTrue(field.BeginFrame(charW, charH), "BeginFrame after impulse",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            try
+            {
+                TestBase.AssertTrue(field.FrameActive, "FrameActive during paint",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(field.FrameConfig.SidePanelsOnly, "FrameConfig mirrors SidePanelsOnly",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(
+                    Math.Abs(field.FrameConfig.ChromaticSpreadFraction - 0.22) < 1e-9,
+                    "FrameConfig mirrors chromatic spread",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                field.EndFrame();
+            }
+
+            TestBase.AssertTrue(!field.FrameActive, "FrameActive cleared after EndFrame",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestPerfDefaultsAreLeaner()

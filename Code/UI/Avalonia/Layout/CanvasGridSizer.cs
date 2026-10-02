@@ -4,10 +4,11 @@ namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
     /// Computes character-grid size and font scale from available pixel space.
-    /// Font scale fills the window height (panel rows + a thin outer bottom pad);
-    /// column count shrinks/grows with width, leaving a thin outer right pad so the
-    /// frame is not flush with the window edge. Per-font UI zoom resizes the main
-    /// window (see MainWindowStartupSizing); it is not applied here.
+    /// Font scale fills the window height (panel rows + a thin outer bottom pad), then
+    /// multiplies by per-font UI zoom (<c>Ctrl+/-</c>) so glyphs grow/shrink inside a
+    /// fixed window. Column count shrinks/grows with width, leaving a thin outer right pad.
+    /// Side/top chrome character sizes are adjusted separately in <see cref="LayoutConstants"/>
+    /// so left/top/right panels keep near their design pixel footprints while the center flexes.
     /// </summary>
     public static class CanvasGridSizer
     {
@@ -55,16 +56,16 @@ namespace RPGGame.UI.Avalonia.Layout
 
         /// <summary>
         /// Calculates scale and grid dimensions for the main game canvas.
-        /// Scale fills <paramref name="availableHeight"/> across <see cref="DesignCanvasRowCount"/> rows.
-        /// Per-font UI zoom (<c>Ctrl+/-</c>) resizes the main window instead of multiplying scale here,
-        /// so the canvas always fills the client area with no letterbox gap.
+        /// Base scale fills <paramref name="availableHeight"/> across <see cref="DesignCanvasRowCount"/> rows,
+        /// then multiplies by <paramref name="uiZoom"/> (window size stays fixed).
         /// Grid width follows <paramref name="availableWidth"/> (includes right pad column).
         /// </summary>
         public static (double ScaleFactor, int GridWidth, int GridHeight) Calculate(
             double availableWidth,
             double availableHeight,
             double baseCharWidth,
-            double baseCharHeight)
+            double baseCharHeight,
+            double uiZoom = 1.0)
         {
             if (availableWidth <= 0
                 || availableHeight <= 0
@@ -76,9 +77,13 @@ namespace RPGGame.UI.Avalonia.Layout
                 return (1.0, DesignGridWidth, DesignGridHeight);
             }
 
-            // Fill vertically for painted panels + thin bottom outer pad.
+            double safeZoom = uiZoom > 0 && !double.IsNaN(uiZoom) && !double.IsInfinity(uiZoom)
+                ? uiZoom
+                : 1.0;
+
+            // Fill vertically for painted panels + thin bottom outer pad, then apply UI zoom.
             double scaleFactor = Math.Clamp(
-                availableHeight / (DesignCanvasRowCount * baseCharHeight),
+                availableHeight / (DesignCanvasRowCount * baseCharHeight) * safeZoom,
                 MinCanvasScale,
                 MaxCanvasScale);
 
@@ -118,6 +123,39 @@ namespace RPGGame.UI.Avalonia.Layout
             double scaleY = availableHeight / (targetH * baseCharHeight);
             double scaleFactor = Math.Clamp(Math.Min(scaleX, scaleY), MinCanvasScale, MaxCanvasScale);
             return (scaleFactor, targetW, targetH);
+        }
+
+        /// <summary>
+        /// Pixel origin for drawing the character grid inside the control viewport.
+        /// Centers the content so Ctrl+/- zoom keeps menus/panels oriented on screen
+        /// (letterbox when content is smaller; centered crop when zoom makes it larger).
+        /// </summary>
+        public static (double OffsetX, double OffsetY) CalculateContentOrigin(
+            double viewportWidth,
+            double viewportHeight,
+            double contentWidth,
+            double contentHeight)
+        {
+            if (viewportWidth <= 0
+                || viewportHeight <= 0
+                || contentWidth <= 0
+                || contentHeight <= 0
+                || double.IsInfinity(viewportWidth)
+                || double.IsInfinity(viewportHeight)
+                || double.IsInfinity(contentWidth)
+                || double.IsInfinity(contentHeight)
+                || double.IsNaN(viewportWidth)
+                || double.IsNaN(viewportHeight)
+                || double.IsNaN(contentWidth)
+                || double.IsNaN(contentHeight))
+            {
+                return (0, 0);
+            }
+
+            // Whole pixels keep pixel fonts on the device grid.
+            double offsetX = Math.Round((viewportWidth - contentWidth) / 2.0);
+            double offsetY = Math.Round((viewportHeight - contentHeight) / 2.0);
+            return (offsetX, offsetY);
         }
     }
 }

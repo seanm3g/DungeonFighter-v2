@@ -7,8 +7,11 @@ namespace RPGGame.UI.Avalonia.Effects
     /// </summary>
     public static class WindSwayChromatic
     {
-        /// <summary>Offsets below this are treated as idle (no fringe).</summary>
-        public const double IdleEpsilon = 1e-4;
+        /// <summary>
+        /// Offsets below this (pixels) are treated as idle (no fringe).
+        /// Kept high enough that subpixel residuals cannot smear pixel fonts with CA ghosts.
+        /// </summary>
+        public const double IdleEpsilon = 0.45;
 
         /// <summary>
         /// Computes the red-ghost fringe delta from the glyph sway offset.

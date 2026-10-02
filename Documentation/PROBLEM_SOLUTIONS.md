@@ -4,6 +4,24 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### UI: Ctrl+/- zoom grows side panels and crushes the center (October 2026)
+**Problem:** Raising UI size (e.g. Courier New at 112%) made the left/right chrome dominate the window and squeezed the center narrative panel; top action cards also grew with zoom.
+
+**Root cause:** Zoom multiplied glyph/cell size while left/right stayed at fixed character widths (32/30) and the action-info strip stayed at 11 rows, so chrome took a larger share of the fewer columns that still fit.
+
+**Solution:** `LayoutConstants.UpdateUiZoom` shrinks left/right column counts and action-info strip rows inversely with zoom so their pixel footprints stay near the 100% design size; `CENTER_PANEL_WIDTH` / height absorb the leftover. `GameCanvasControl` passes `GameFonts.ActiveZoom` on measure/layout.
+
+**Related files:** `LayoutConstants.cs`, `GameCanvasControl.cs`, `CharacterPanelRenderer.cs`, `EffectiveVisibleWidthRegressionTests.cs`
+
+### UI: Ctrl+/- zoom pushes centered menus off-screen (October 2026)
+**Problem:** Sizing the UI up (e.g. 174%) left main-menu options near the bottom of a mostly black window, looking mis-oriented; pixel fonts also looked mushy/jagged.
+
+**Root cause:** UI zoom multiplies fill-height glyph scale, so the character grid becomes taller than the window, but paint was top-left anchored. Vertically centered content therefore slid toward the bottom of the visible crop. Fractional EM sizes also put pixel fonts off the device pixel grid.
+
+**Solution:** `GameCanvasControl` centers the grid in the viewport via `CanvasGridSizer.CalculateContentOrigin` (letterbox when smaller; centered crop when larger). Pointer hit-testing, wind/burst sampling, and the narrative video overlay use the same content origin. `CanvasCoordinateConverter` snaps font size to whole pixels; text draw points round to integers.
+
+**Related files:** `CanvasGridSizer.cs`, `GameCanvasControl.cs`, `CanvasCoordinateConverter.cs`, `CanvasPrimitivesRenderer.cs`, `MouseInteractionHandler.cs`, `NarrativeVideoOverlayControl.cs`, `EffectiveVisibleWidthRegressionTests.cs`
+
 ### UI: F7 orphan wrap left early stubs like "Skill" alone (October 2026)
 **Problem:** Narrative paragraphs showed jagged early line breaks — e.g. `Skill` alone on a line before `and luck conspire…`, and other mid-phrase stubs — even when the column still had room for a short connector.
 
@@ -65,6 +83,15 @@ This document contains solutions to common problems encountered during developme
 
 **Related files:** `LeftPanelViewport.cs`, `CharacterPanelRenderer.cs`, `StatsPanelStateManager.cs`, `LayoutConstants.cs`, `MouseInteractionHandler.cs`, `LeftPanelViewportTests.cs`
 
+### UI: left-panel Crit Miss no longer paints below the blue border (October 2026)
+**Problem:** With THRESHOLDS near the bottom of the left panel, `Crit:` stayed inside the frame but `Crit Miss:` (and other ladder/CHANCES rows) still appeared under the cyan bottom border.
+
+**Root cause:** `DiceRollThresholdRowsRenderer` always called `AddText` with no viewport clip, while `PanelText` already gated on `LeftPanelViewport.IsRowVisible`. The post-paint scrub only cleared the border row plus one spill row — not enough when Crit sat on the last body row and Crit Miss landed two+ rows below the border.
+
+**Solution:** Pass `ContentTop` / `ContentBottomExclusive` into threshold row rendering so out-of-band rows never paint; expand clear/scrub through `LeftPanelViewport.ScrubBottomExclusive` (border + full CHANCES spill).
+
+**Related files:** `DiceRollThresholdRowsRenderer.cs`, `ThresholdSectionRenderer.cs`, `CharacterPanelRenderer.cs`, `LeftPanelViewport.cs`, `LeftPanelViewportTests.cs`
+
 ### UI: soft-gray mouse + ↕ scroll affordance in menus (October 2026)
 **Problem:** Scrollable menus (inventory bag list, skill tree) did not clearly cue that the mouse wheel works, and inventory used a shouty yellow corner arrow.
 
@@ -72,12 +99,48 @@ This document contains solutions to common problems encountered during developme
 
 **Related files:** `MenuMouseScrollHint.cs`, `AsciiArtAssets.cs`, `InventoryScreenRenderer.cs`, `SkillTreeRenderer.cs`, `MenuMouseScrollHintTests.cs`
 
+### UI: click-burst glyph spin flings letters off-screen (October 2026)
+**Problem:** Exploded glyphs looked like they were thrown up/out of frame even with a small explode strength (e.g. 3 cells). Equipment lines showed huge holes mid-word.
+
+**Root cause:** Avalonia matrices use row-vector composition (`p' = p * M`). Burst/header glyph rotation built `T(C) * R * T(-C)`, which rotates around world `(0,0)` instead of the glyph center — same class of bug as the wake debug oval.
+
+**Solution:** Rotate with `T(-C) * R * T(C)` via `CanvasPrimitivesRenderer.CreateRotateAboutPointTransform`. Letters now spin in place around their small scatter offset.
+
+**Related files:** `CanvasPrimitivesRenderer.cs`, `CanvasPrimitiveStackingTests.cs`
+
+### UI: wake debug oval orbits world origin when oriented (October 2026)
+**Problem:** Turning on **Show wake radius on canvas** made the motion-oriented “vector radius” oval jump/spin away from the cursor instead of staying centered while leaning with travel.
+
+**Root cause:** Avalonia matrices use row-vector composition (`p' = p * M`). The overlay built `Translation * Rotation`, which translates first and then rotates around world `(0,0)`.
+
+**Solution:** Draw with `Rotation * Translation` (`GameCanvasControl.CreateWakeDebugTransform`). `TrackMousePosition` also updates motion facing so the oval orients when wind/F6 is off.
+
+**Related files:** `GameCanvasControl.cs`, `WindSwayField.cs`, `WindSwayFieldTests.cs`
+
 ### UI: wind wake oval rotates with mouse motion (October 2026)
 **Problem:** After forcing a screen-space circle, the wake no longer matched the familiar tall cell-aspect oval, and it did not lean with travel direction.
 
 **Solution:** Restore the cell-aspect ellipse (`cells×charWidth` × `cells×charHeight`) and rotate its major axis to follow the mouse motion vector. Debug overlay uses the same radii + rotation; sampling uses elliptical normalized distance in that oriented frame.
 
 **Related files:** `WindSwayField.cs`, `GameCanvasControl.cs`, `WindSwayFieldTests.cs`
+
+### UI: wind sway not fully clearing when pointer sits still (October 2026)
+**Problem:** After hovering/moving over menu text (chromatic fringe + glyph offset), letting the pointer sit still left residual distortion instead of a clean rest pose.
+
+**Root cause:** Residual wind amp kept sampling under the cursor; trail stamps preserved full wind after stop; OS micro-jitter could re-feed tiny impulses; settle timer stopped without a final rest paint.
+
+**Solution:** Ignore sub-deadzone motion; after a short idle grace, **hard-zero** wind/speed and clear the trail; snap sampled offsets below 0.5px to rest; raise chromatic idle epsilon so faint ghosts cannot smear pixel fonts; paint one final clean frame when the settle timer goes inactive.
+
+**Related files:** `WindSwayField.cs`, `WindSwayChromatic.cs`, `GameCanvasControl.cs`, `WindSwayFieldTests.cs`
+
+### UI: item hover still smears STR / GEAR (October 2026)
+**Problem:** Hovering a gear/item tip left left-panel **STR** looking muddy orange and **GEAR** fringed; distortion did not return to a clean pose until the cursor left the wake.
+
+**Root cause:** (1) Soft-decay offsets + chromatic fringe kept painting while reading a still tooltip; OS jitter near the deadzone could refresh idle. (2) Cyan proximity glow on saturated colors (Barbarian primary-red STR, gold section headers) shifted hue toward orange/yellow.
+
+**Solution:** Clear visual offsets/CA after a short **visual rest** (~40ms) even before hard idle zero; raise motion deadzone; skip proximity glow on saturated hues and on `====` section headers (brighten-only / no highlight).
+
+**Related files:** `WindSwayField.cs`, `InteractiveTextHighlight.cs`, `CanvasPrimitivesRenderer.cs`, `WindSwayFieldTests.cs`, `InteractiveTextHighlightTests.cs`
 
 ### UI: wind wake radius draws as a circle, not a tall ellipse (October 2026)
 **Problem:** The “Show wake radius on canvas” overlay (and the sway falloff zone) looked like a vertically stretched oval.
