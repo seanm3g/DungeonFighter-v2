@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using RPGGame.Config;
+using RPGGame.Config.TextDelay;
 
 namespace RPGGame
 {
@@ -84,6 +85,74 @@ namespace RPGGame
         public static async Task DelayAfterSequenceHudBeatAsync()
         {
             await DelayAsync(GetSequenceHudBeatDelayMs());
+        }
+
+        /// <summary>
+        /// Per-character delay for F7 narrative combat-log typewriter reveal.
+        /// When paragraph budget mode is on (<c>ParagraphTargetMs &gt; 0</c>), callers should use
+        /// <see cref="BuildNarrativeParagraphSchedule"/> / <see cref="DelayAfterNarrativeCharAsync(int)"/>.
+        /// Otherwise delay scales by sentence/word length and emphasis curve, plus battle ramp.
+        /// </summary>
+        public static int GetNarrativeCharRevealMs(int charsTyped = 0)
+        {
+            return GetNarrativeCharRevealMs(charsTyped, CharacterRevealContext.Neutral);
+        }
+
+        /// <summary>
+        /// Per-character delay with sentence/word/position context for expressive rhythm (legacy path).
+        /// </summary>
+        public static int GetNarrativeCharRevealMs(int charsTyped, in CharacterRevealContext ctx)
+        {
+            var rhythm = TextDelayConfiguration.GetCharacterRevealRhythm();
+            int delayMs = CharacterRevealRhythmCalculator.ComputeCharDelayMs(rhythm, in ctx, charsTyped);
+            return DeveloperModeState.ScaleDelayMs(delayMs);
+        }
+
+        /// <summary>
+        /// Builds a paragraph typewriter schedule when budget mode is enabled; otherwise empty
+        /// (caller falls back to <see cref="GetNarrativeCharRevealMs(int, in CharacterRevealContext)"/>).
+        /// </summary>
+        public static int[] BuildNarrativeParagraphSchedule(string plainWrapped)
+        {
+            var rhythm = TextDelayConfiguration.GetCharacterRevealRhythm();
+            if (!CharacterRevealRhythmCalculator.UsesParagraphBudget(rhythm))
+                return Array.Empty<int>();
+            return CharacterRevealRhythmCalculator.BuildParagraphSchedule(plainWrapped, rhythm.ParagraphTargetMs);
+        }
+
+        public static async Task DelayAfterNarrativeCharAsync(int charsTyped = 0)
+        {
+            await DelayAfterNarrativeCharAsync(charsTyped, CharacterRevealContext.Neutral);
+        }
+
+        public static async Task DelayAfterNarrativeCharAsync(int charsTyped, CharacterRevealContext ctx)
+        {
+            await DelayAsync(GetNarrativeCharRevealMs(charsTyped, in ctx));
+        }
+
+        /// <summary>
+        /// Awaits a precomputed per-character delay (paragraph-budget schedule), with combat-speed scaling.
+        /// </summary>
+        public static async Task DelayAfterNarrativeScheduledMsAsync(int scheduledMs)
+        {
+            int delayMs = DeveloperModeState.ScaleDelayMs(Math.Max(0, scheduledMs));
+            await DelayAsync(delayMs);
+        }
+
+        /// <summary>
+        /// Pause between F7 narrative sentences.
+        /// </summary>
+        public static int GetNarrativeSentencePauseMs()
+        {
+            int pauseMs = TextDelayConfiguration.GetNarrativeSentencePauseMs();
+            if (pauseMs <= 0)
+                pauseMs = GameConstants.NarrativeSentencePauseMs;
+            return DeveloperModeState.ScaleDelayMs(pauseMs);
+        }
+
+        public static async Task DelayAfterNarrativeSentenceAsync()
+        {
+            await DelayAsync(GetNarrativeSentencePauseMs());
         }
 
         private static async Task DelayAsync(int delayMs)

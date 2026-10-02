@@ -337,7 +337,80 @@
 
                     </Grid>
 
+                    <Border Height="1" Background="#FFE0E0E0" Margin="0,12,0,8"/>
 
+                    <TextBlock Text="Mouse wind wake" FontWeight="SemiBold"/>
+                    <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
+                               Text="One circle around the pointer with near→far falloff; stronger behind motion than in front. Optional red/cyan chromatic fringe on swayed glyphs. F6 still toggles the effect at runtime. Save to persist; sliders apply live to the main canvas."/>
+                    <CheckBox x:Name="WindSwayEnabledCheckBox" Content="Wind wake enabled" Margin="0,4,0,0"/>
+                    <CheckBox x:Name="WindSwayChromaticEnabledCheckBox" Content="Chromatic aberration" Margin="0,4,0,0"
+                              ToolTip.Tip="Red/cyan fringe on swayed glyphs; scales with wake strength."/>
+                    <Grid ColumnDefinitions="180,*,80" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Margin="0,4,0,0">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Wake radius (cells)" VerticalAlignment="Center"/>
+                        <Slider x:Name="WindSwayRadiusSlider" Grid.Row="0" Grid.Column="1"
+                                Minimum="8" Maximum="80" TickFrequency="1" IsSnapToTickEnabled="True" Margin="0,0,8,6"/>
+                        <TextBox x:Name="WindSwayRadiusTextBox" Grid.Row="0" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="36"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Near influence" VerticalAlignment="Center"/>
+                        <Slider x:Name="WindSwayNearInfluenceSlider" Grid.Row="1" Grid.Column="1"
+                                Minimum="0" Maximum="1.5" TickFrequency="0.05" Margin="0,0,8,6"/>
+                        <TextBox x:Name="WindSwayNearInfluenceTextBox" Grid.Row="1" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="1.0"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Far influence" VerticalAlignment="Center"/>
+                        <Slider x:Name="WindSwayFarInfluenceSlider" Grid.Row="2" Grid.Column="1"
+                                Minimum="0" Maximum="1" TickFrequency="0.05" Margin="0,0,8,6"/>
+                        <TextBox x:Name="WindSwayFarInfluenceTextBox" Grid.Row="2" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="0.35"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Rear bias" VerticalAlignment="Center"/>
+                        <Slider x:Name="WindSwayRearBiasSlider" Grid.Row="3" Grid.Column="1"
+                                Minimum="0" Maximum="1" TickFrequency="0.05" Margin="0,0,8,6"/>
+                        <TextBox x:Name="WindSwayRearBiasTextBox" Grid.Row="3" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="0.65"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="CA spread" VerticalAlignment="Center"/>
+                        <Slider x:Name="WindSwayChromaticSpreadSlider" Grid.Row="4" Grid.Column="1"
+                                Minimum="0" Maximum="0.4" TickFrequency="0.01" Margin="0,0,8,6"/>
+                        <TextBox x:Name="WindSwayChromaticSpreadTextBox" Grid.Row="4" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="0.10"/>
+
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="CA opacity" VerticalAlignment="Center"/>
+                        <Slider x:Name="WindSwayChromaticOpacitySlider" Grid.Row="5" Grid.Column="1"
+                                Minimum="0" Maximum="1" TickFrequency="0.05" Margin="0,0,8,6"/>
+                        <TextBox x:Name="WindSwayChromaticOpacityTextBox" Grid.Row="5" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="0.35"/>
+                    </Grid>
+                    <Button x:Name="WindSwayDebugRadiusButton" Content="Show wake radius on canvas" Margin="0,8,0,0" Padding="12,6"
+                            HorizontalAlignment="Left"
+                            ToolTip.Tip="Draws the current wake circle around the mouse on the main game canvas (debug; not saved)."/>
+
+                    <Border Height="1" Background="#FFE0E0E0" Margin="0,12,0,8"/>
+
+                    <TextBlock Text="Click-charge explosion" FontWeight="SemiBold"/>
+                    <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
+                               Text="Spam left-click to charge, then glyphs explode outward and stay scattered until you click them back. Radius is the disturbance/explode reach in character cells. F6 still toggles with wind. Save to persist; sliders apply live."/>
+                    <CheckBox x:Name="ClickBurstEnabledCheckBox" Content="Click-charge explosion enabled" Margin="0,4,0,0"/>
+                    <Grid ColumnDefinitions="180,*,80" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,4,0,0">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Radius (cells)" VerticalAlignment="Center"
+                                   ToolTip.Tip="Impulse / explode reach in character cells (impulseRadiusCells)."/>
+                        <Slider x:Name="ClickBurstRadiusSlider" Grid.Row="0" Grid.Column="1"
+                                Minimum="2" Maximum="40" TickFrequency="1" IsSnapToTickEnabled="True" Margin="0,0,8,6"/>
+                        <TextBox x:Name="ClickBurstRadiusTextBox" Grid.Row="0" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="12"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Explode strength" VerticalAlignment="Center"
+                                   ToolTip.Tip="Peak scatter distance in character cells before per-glyph variance (explodeMaxOffsetFraction)."/>
+                        <Slider x:Name="ClickBurstExplodeStrengthSlider" Grid.Row="1" Grid.Column="1"
+                                Minimum="1" Maximum="60" TickFrequency="1" IsSnapToTickEnabled="True" Margin="0,0,8,6"/>
+                        <TextBox x:Name="ClickBurstExplodeStrengthTextBox" Grid.Row="1" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="20"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Explode out (sec)" VerticalAlignment="Center"
+                                   ToolTip.Tip="Seconds for glyphs to push outward (explodeOutSeconds)."/>
+                        <Slider x:Name="ClickBurstExplodeOutSlider" Grid.Row="2" Grid.Column="1"
+                                Minimum="0.05" Maximum="1.5" TickFrequency="0.01" Margin="0,0,8,6"/>
+                        <TextBox x:Name="ClickBurstExplodeOutTextBox" Grid.Row="2" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="0.28"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Clicks to explode" VerticalAlignment="Center"
+                                   ToolTip.Tip="Clicks needed to fill charge and trigger explode (clicksToExplode)."/>
+                        <Slider x:Name="ClickBurstClicksToExplodeSlider" Grid.Row="3" Grid.Column="1"
+                                Minimum="1" Maximum="20" TickFrequency="1" IsSnapToTickEnabled="True" Margin="0,0,8,6"/>
+                        <TextBox x:Name="ClickBurstClicksToExplodeTextBox" Grid.Row="3" Grid.Column="2" Height="28" Margin="0,0,0,6" Watermark="5"/>
+                    </Grid>
 
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
 

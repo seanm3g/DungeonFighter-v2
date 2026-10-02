@@ -41,7 +41,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// <returns>X position to center the text</returns>
         public static int CalculateCenterX(int displayLength)
         {
-            return CalculateCenterX(displayLength, SCREEN_CENTER);
+            return CalculateCenterX(displayLength, RPGGame.UI.Avalonia.Layout.LayoutConstants.SCREEN_CENTER);
         }
         
         /// <summary>

@@ -34,11 +34,17 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ActionStripHoverStateTests.RunAllTests();
             Console.WriteLine();
+            CombatLogProseHoverTests.RunAllTests();
+            Console.WriteLine();
+            CombatLogDualViewTests.RunAllTests();
+            Console.WriteLine();
             RightPanelActionHoverStateTests.RunAllTests();
             Console.WriteLine();
             LeftPanelHoverStateTests.RunAllTests();
             Console.WriteLine();
             LeftPanelTooltipBuilderTests.RunAllTests();
+            LeftPanelSectionVisibilityTests.RunAllTests();
+            LeftPanelViewportTests.RunAllTests();
             ThresholdModificationTooltipBuilderTests.RunAllTests();
             StatTooltipFormatterTests.RunAllTests();
             HeroDefenseHudFormatterTests.RunAllTests();
@@ -74,6 +80,10 @@ namespace RPGGame.Tests.Runners
             ItemRendererHelperWeaponNameColorTests.RunAllTests();
             Console.WriteLine();
             EffectiveVisibleWidthRegressionTests.RunAllTests();
+            MainWindowStartupSizingTests.RunAllTests();
+            HotkeyHelpCatalogTests.RunAllTests();
+            Console.WriteLine();
+            MenuMouseScrollHintTests.RunAllTests();
             Console.WriteLine();
             DisplayRendererClearBandRegressionTests.RunAllTests();
             Console.WriteLine();
@@ -104,6 +114,14 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CanvasPrimitiveStackingTests.RunAllTests();
             Console.WriteLine();
+            WindSwayFieldTests.RunAllTests();
+            Console.WriteLine();
+            TextClickBurstFieldTests.RunAllTests();
+            Console.WriteLine();
+            GameFontsTests.RunAllTests();
+            Console.WriteLine();
+            NarrativeVideoCellMaskTests.RunAllTests();
+            Console.WriteLine();
             StatsPanelStateManagerTests.RunAllTests();
             Console.WriteLine();
             PrimaryStatRowHighlightColorsTests.RunAllTests();
@@ -119,6 +137,8 @@ namespace RPGGame.Tests.Runners
             ActionStripReorderPolicyTests.RunAllTests();
             Console.WriteLine();
             ItemDisplayFormatterTests.RunAllTests();
+            Console.WriteLine();
+            ItemComparisonRendererTests.RunAllTests();
             Console.WriteLine();
             ItemStatFormatterTests.RunAllTests();
             Console.WriteLine();
@@ -155,6 +175,8 @@ namespace RPGGame.Tests.Runners
             EntityNameExtractorTests.RunAllTests();
             Console.WriteLine();
             DisplayBufferReplaceLastTests.RunAllTests();
+            Console.WriteLine();
+            TextWrappingHelperTests.RunAllTests();
             Console.WriteLine();
             
             // UI Services Tests

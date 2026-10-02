@@ -1,17 +1,11 @@
 using System;
-
 using System.Collections.Generic;
-
 using Avalonia;
-
 using Avalonia.Controls;
-
 using Avalonia.Media;
-
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
-
 using RPGGame.UI.ColorSystem;
-
 using RPGGame.UI.TextAnimation;
 
 
@@ -114,7 +108,7 @@ namespace RPGGame.UI.Avalonia.Settings.Helpers
 
                     Text = segment.Text,
 
-                    FontFamily = new FontFamily("Courier New, Consolas, monospace"),
+                    FontFamily = GameFonts.Primary,
 
                     FontSize = 18,
 

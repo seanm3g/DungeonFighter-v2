@@ -87,19 +87,68 @@ namespace RPGGame.UI.Avalonia
         /// <summary>
         /// Replaces the last line in the character's combat log buffer.
         /// </summary>
-        public void ReplaceLastColoredSegments(List<ColoredText> segments, Character? character = null, UIMessageType messageType = UIMessageType.Combat)
+        public void ReplaceLastColoredSegments(
+            List<ColoredText> segments,
+            Character? character = null,
+            UIMessageType messageType = UIMessageType.Combat,
+            List<List<ColoredText>>? hoverInfoLines = null,
+            bool setHoverInfoLines = false)
         {
-            ReplaceColoredSegmentsFromEnd(0, segments, character, messageType);
+            ReplaceColoredSegmentsFromEnd(0, segments, character, messageType, hoverInfoLines, setHoverInfoLines);
         }
 
         /// <summary>
         /// Replaces a reserved line counted from the end (0 = last) without adding buffer rows.
         /// </summary>
-        public void ReplaceColoredSegmentsFromEnd(int offsetFromEnd, List<ColoredText> segments, Character? character = null, UIMessageType messageType = UIMessageType.Combat)
+        public void ReplaceColoredSegmentsFromEnd(
+            int offsetFromEnd,
+            List<ColoredText> segments,
+            Character? character = null,
+            UIMessageType messageType = UIMessageType.Combat,
+            List<List<ColoredText>>? hoverInfoLines = null,
+            bool setHoverInfoLines = false)
         {
             if (textManager is CanvasTextManager canvasTextManager)
             {
-                canvasTextManager.GetDisplayManagerForCharacter(character).ReplaceMessageFromEnd(offsetFromEnd, segments, messageType);
+                canvasTextManager.GetDisplayManagerForCharacter(character).ReplaceMessageFromEnd(
+                    offsetFromEnd, segments, messageType, hoverInfoLines, setHoverInfoLines);
+            }
+        }
+
+        /// <summary>
+        /// Binds mechanical combat-log tip lines to the last combat-log line (F7 narrative prose hover), then repaints.
+        /// </summary>
+        public void SetLastLineHoverInfoLines(List<List<ColoredText>>? infoLines, Character? character = null)
+        {
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                var dm = canvasTextManager.GetDisplayManagerForCharacter(character);
+                dm.SetLastLineHoverInfoLines(infoLines);
+                dm.ForceRender();
+            }
+        }
+
+        /// <summary>
+        /// After a mechanical action block write, bind silent narrative prose for F7 dual-view swap.
+        /// </summary>
+        public void BindMechanicalDualViewFromEnd(int span, List<ColoredText> proseParagraph, Character? character = null)
+        {
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.GetDisplayManagerForCharacter(character)
+                    .BindMechanicalDualViewFromEnd(span, proseParagraph);
+            }
+        }
+
+        /// <summary>
+        /// Swaps the active character's combat log between narrative and mechanical dual-view forms.
+        /// </summary>
+        public void SwapCombatLogDualView(bool currentlyShowingNarrative)
+        {
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.GetDisplayManagerForCharacter(null)
+                    .SwapCombatLogDualView(currentlyShowingNarrative);
             }
         }
 

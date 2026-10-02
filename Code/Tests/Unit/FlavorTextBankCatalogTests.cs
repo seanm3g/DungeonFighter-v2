@@ -51,6 +51,24 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(data.CombatNarratives.ContainsKey("environmentalAction"),
                 "environmentalAction should be present",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(data.CombatNarratives.ContainsKey("sequenceAttacker"),
+                "sequenceAttacker bank should load for F7 narrative combat log",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(data.CombatNarratives.ContainsKey("sequenceFollowUp"),
+                "sequenceFollowUp bank should load for same-attacker continuation",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(data.CombatNarratives.ContainsKey("sequenceAction"),
+                "sequenceAction bank should load for F7 narrative combat log",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(data.CombatNarratives.ContainsKey("sequenceActionMiss"),
+                "sequenceActionMiss bank should load for F7 miss swings",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(data.CombatNarratives.ContainsKey("sequenceEnvironment"),
+                "sequenceEnvironment bank should load for F7 env hazard prose",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(data.CombatNarratives.ContainsKey("sequenceEnvironmentEffect"),
+                "sequenceEnvironmentEffect bank should load for F7 env status prose",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void EnumerateBanks_Includes_Names_And_Combat()

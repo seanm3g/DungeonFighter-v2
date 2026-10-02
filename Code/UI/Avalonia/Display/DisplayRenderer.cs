@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
 using RPGGame.Data;
+using RPGGame.UI;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.Avalonia.Renderers.Text;
@@ -41,6 +42,7 @@ namespace RPGGame.UI.Avalonia.Display
             var rows = buffer.GetLast(buffer.MaxLines);
             if (rows.Count == 0)
             {
+                CombatLogProseHoverMap.BeginFrame();
                 // Even if no content, clear the area to remove old text
                 if (clearContent)
                 {
@@ -50,14 +52,21 @@ namespace RPGGame.UI.Avalonia.Display
                 return;
             }
 
+            CombatLogProseHoverMap.BeginFrame();
+
             var linesToRender = rows.ConvertAll(r => r.Segments);
             var messageTypes = rows.ConvertAll(r => r.MessageType);
+            var hoverInfoLines = rows.ConvertAll(r => r.HoverInfoLines);
             
             int availableWidth = contentWidth - 2;
 
+            // F7 narrative book mode: every combat-log paragraph stays left-justified.
+            // Enemy right-align per wrapped row creates a jagged staircase on long prose.
             bool[]? rightAlignPerRow = null;
             bool hasEnemyNames = combatEnemyNamesForPrimaryLineRightAlign != null && combatEnemyNamesForPrimaryLineRightAlign.Count > 0;
-            if (hasEnemyNames || !string.IsNullOrEmpty(combatHeroNameForLineAlignment))
+            bool applyEnemyRightAlign = CombatCenterPanelEnemyLineAlignment.IsEnemyRightAlignEnabled
+                && (hasEnemyNames || !string.IsNullOrEmpty(combatHeroNameForLineAlignment));
+            if (applyEnemyRightAlign)
                 rightAlignPerRow = CombatCenterPanelEnemyLineAlignment.ResolveRightAlignFlags(linesToRender, combatEnemyNamesForPrimaryLineRightAlign, combatHeroNameForLineAlignment);
 
             bool[] centerAlignPerRow = CombatCenterPanelContentAlignment.ResolveCenterAlignFlags(linesToRender, messageTypes);
@@ -77,6 +86,8 @@ namespace RPGGame.UI.Avalonia.Display
             
             // Clear the content area BEFORE calculating render positions.
             // Do not extend the clear band into the action-info strip or the sequence HUD panel.
+            // For the framed combat log, also scrub the bottom border row and outer pad so a prior
+            // wrap overflow cannot stick below the cyan frame.
             if (clearContent)
             {
                 int scrollOverflowPad = Math.Max(0, contentY - 2);
@@ -84,11 +95,13 @@ namespace RPGGame.UI.Avalonia.Display
                 int clearStartY = contentY >= framedLogTop
                     ? Math.Max(scrollOverflowPad, framedLogTop)
                     : scrollOverflowPad;
-                int clearEndY = contentY + contentHeight;
+                int clearEndY = ComputeClearEndY(contentY, contentHeight);
                 int clearHeight = clearEndY - clearStartY;
                 if (clearHeight > 0)
                     ClearContentArea(contentX, clearStartY, contentWidth, clearHeight);
             }
+
+            int viewportBottomExclusive = contentY + contentHeight;
             
             // Render lines, starting from the scroll offset position
             // Always start at contentY to ensure consistent positioning
@@ -119,7 +132,7 @@ namespace RPGGame.UI.Avalonia.Display
                 }
                 
                 // Render this line if it fits in the viewport
-                if (y < contentY + contentHeight)
+                if (y < viewportBottomExclusive)
                 {
                     // Use consistent X position - contentX is the content area start,
                     // add 1 for left padding to match availableWidth calculation (contentWidth - 2)
@@ -138,7 +151,25 @@ namespace RPGGame.UI.Avalonia.Display
                     else if (rightAlign)
                         lineAlignment = ColoredLineAlignment.Right;
 
-                    int linesRendered = textWriter.WriteLineColoredWrapped(animatedSegments, renderX, renderY, availableWidth, lineAlignment);
+                    // Clip soft-wrapped rows so a tall narrative paragraph cannot paint on/below the frame border.
+                    int linesRendered = textWriter.WriteLineColoredWrapped(
+                        animatedSegments,
+                        renderX,
+                        renderY,
+                        availableWidth,
+                        lineAlignment,
+                        maxYExclusive: viewportBottomExclusive);
+
+                    var hoverInfo = hoverInfoLines[i];
+                    if (hoverInfo != null && hoverInfo.Count > 0 && linesRendered > 0)
+                    {
+                        CombatLogProseHoverMap.Add(
+                            renderX,
+                            renderY,
+                            availableWidth,
+                            linesRendered,
+                            hoverInfo);
+                    }
                     
                     // Only advance y if we actually rendered something
                     if (linesRendered > 0)
@@ -153,6 +184,33 @@ namespace RPGGame.UI.Avalonia.Display
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        /// How many wrapped rows fit when painting starts at <paramref name="startY"/> inside a viewport
+        /// that ends at <paramref name="viewportBottomExclusive"/> (exclusive).
+        /// </summary>
+        public static int CountLinesFittingInViewport(int startY, int wrappedLineCount, int viewportBottomExclusive)
+        {
+            if (wrappedLineCount <= 0 || startY >= viewportBottomExclusive)
+                return 0;
+            return Math.Min(wrappedLineCount, viewportBottomExclusive - startY);
+        }
+
+        /// <summary>
+        /// Exclusive end Y for the combat-log clear band. Framed log clears through the bottom border
+        /// row and the outer bottom pad so spilled glyphs cannot stick below the cyan frame.
+        /// </summary>
+        public static int ComputeClearEndY(int contentY, int contentHeight)
+        {
+            int clearEndY = contentY + contentHeight;
+            int framedLogTop = LayoutConstants.CENTER_PANEL_Y;
+            if (contentY >= framedLogTop)
+            {
+                int framedBottomExclusive = framedLogTop + LayoutConstants.CENTER_PANEL_HEIGHT;
+                clearEndY = Math.Max(clearEndY, framedBottomExclusive + CanvasGridSizer.OuterPaddingBottom);
+            }
+            return clearEndY;
         }
         
         /// <summary>

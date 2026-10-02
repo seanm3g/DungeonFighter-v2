@@ -35,6 +35,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestAcidIntensityDecayPendingMergeAndArmorShred();
             TestPoisonPercentUnchangedAcrossTicks();
             TestProcessStatusEffects_DoesNotRepeatDotStateBeforeNextTick();
+            TestProcessStatusEffects_NarrativeModeEmitsPoisonProse();
             TestBleedOnActionWithoutGameTimeTick();
             TestCanEntityAct_NotStunned_ReturnsTrue();
             TestCanEntityAct_Stunned_ReturnsFalse();
@@ -246,6 +247,56 @@ namespace RPGGame.Tests.Unit.Combat
                 TestBase.AssertEqual(0, secondResults.Count,
                     "second DoT processing before next interval should not repeat poison/burn detail lines",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestProcessStatusEffects_NarrativeModeEmitsPoisonProse()
+        {
+            Console.WriteLine("--- ProcessStatusEffects: F7 narrative emits poison prose, not takes-line ---");
+            bool prevNarrative = DeveloperModeState.IsNarrativeCombatLog;
+            DeveloperModeState.SetNarrativeCombatLog(true);
+            try
+            {
+                using (GameTicker.BeginIsolatedEncounterGameTime())
+                {
+                    var enemy = TestDataBuilders.Enemy().WithName("Salamander").WithHealth(100).Build();
+                    enemy.PoisonPercentOfMaxHealth = 1;
+                    enemy.LastPoisonTickTime = 0;
+
+                    GameTicker.Instance.AdvanceGameTime(5.1);
+                    var results = new List<string>();
+                    var breakdown = CombatEffectsSimplified.ProcessStatusEffectsWithBreakdown(enemy, results);
+
+                    TestBase.AssertTrue(breakdown.PoisonDamage > 0,
+                        "poison should tick",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    TestBase.AssertEqual(1, results.Count,
+                        "narrative poison tick is one prose line (no separate % remain)",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                    string plain = ColoredTextRenderer.RenderAsPlainText(
+                        ColoredTextParser.Parse(results[0]));
+                    TestBase.AssertTrue(plain.Contains("Salamander", StringComparison.Ordinal),
+                        $"prose names victim, got: {plain}",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    TestBase.AssertTrue(plain.Contains("poison", StringComparison.OrdinalIgnoreCase)
+                            || plain.Contains("Poison", StringComparison.Ordinal),
+                        $"prose names poison, got: {plain}",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    TestBase.AssertTrue(!plain.Contains("takes", StringComparison.OrdinalIgnoreCase),
+                        $"not mechanical takes-line, got: {plain}",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    TestBase.AssertTrue(!plain.Contains("max HP", StringComparison.OrdinalIgnoreCase),
+                        $"no % of max HP detail, got: {plain}",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    TestBase.AssertTrue(!System.Text.RegularExpressions.Regex.IsMatch(plain, @"\d"),
+                        $"no numerals in narrative DoT prose, got: {plain}",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                }
+            }
+            finally
+            {
+                DeveloperModeState.SetNarrativeCombatLog(prevNarrative);
             }
         }
 

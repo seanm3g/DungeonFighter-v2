@@ -185,6 +185,61 @@ namespace RPGGame
             item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
         }
 
+        /// <summary>
+        /// Forces a specific always-on Material (e.g. starter leather kit) without rolling the loot pool.
+        /// </summary>
+        public void ApplySpecificMaterial(Item item, string materialName, string? itemRarity = null)
+        {
+            if (item == null)
+                return;
+
+            string forced = ItemMaterialRules.RemapLegacyMaterial(materialName);
+            if (string.IsNullOrWhiteSpace(forced))
+                return;
+
+            string rarityName = itemRarity?.Trim()
+                ?? item.Rarity?.Trim()
+                ?? "Common";
+
+            item.Modifications.RemoveAll(m =>
+                m != null && m.GetPrefixCategory() == ModificationPrefixCategory.Material);
+
+            var template = (_dataCache.Modifications ?? new List<Modification>())
+                .FirstOrDefault(m =>
+                    m.GetPrefixCategory() == ModificationPrefixCategory.Material
+                    && string.Equals(m.Name?.Trim(), forced, StringComparison.OrdinalIgnoreCase));
+
+            Modification mod;
+            if (template != null)
+            {
+                mod = CloneRolledModification(template, 0)!;
+            }
+            else
+            {
+                mod = new Modification
+                {
+                    Name = forced,
+                    PrefixCategory = "MATERIAL",
+                    ItemRank = rarityName,
+                    Description = "Material",
+                    MinValue = 0,
+                    MaxValue = 0,
+                    RolledValue = 0,
+                    Tags = new List<string> { forced.ToLowerInvariant() }
+                };
+            }
+
+            item.Modifications.Add(mod);
+            item.Material = forced;
+            if (string.IsNullOrWhiteSpace(item.Rarity))
+                item.Rarity = rarityName;
+            MaterialTriggerMerge.ClearCatalogTriggerStamp(item);
+            MaterialTriggerMerge.RemapLegacyMaterialOnItem(item);
+            SyncMaterialPrefixTags(item);
+            item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
+            item.RecomputeAttributeRequirementsIncludingModifications();
+        }
+
         private static List<ModificationPrefixCategory> SelectCategoriesForPrefixSlotCount(int count, Random rnd)
         {
             var all = new[]

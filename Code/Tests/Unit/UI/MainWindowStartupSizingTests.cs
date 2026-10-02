@@ -15,6 +15,9 @@ namespace RPGGame.Tests.Unit.UI
             LargeWorkingArea_KeepsDesignSize(ref run, ref passed, ref failed);
             ClampedCenter_StaysInsideWorkArea(ref run, ref passed, ref failed);
             ScaledOverlayDimensions_AppliesRatio(ref run, ref passed, ref failed);
+            UiZoom_ScalesReferenceSize(ref run, ref passed, ref failed);
+            UiZoom_ClampsToMaxWorkingArea(ref run, ref passed, ref failed);
+            UiZoom_ReferenceFromCurrentSize(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("MainWindowStartupSizingTests", run, passed, failed);
         }
@@ -97,6 +100,40 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(487.5, dims.Height, "overlay height scaled", ref run, ref passed, ref failed);
             TestBase.AssertEqual(675.0, dims.MinWidth, "overlay min width scaled", ref run, ref passed, ref failed);
             TestBase.AssertEqual(487.5, dims.MinHeight, "overlay min height scaled", ref run, ref passed, ref failed);
+        }
+
+        private static void UiZoom_ScalesReferenceSize(ref int run, ref int passed, ref int failed)
+        {
+            var (width, height) = MainWindowStartupSizing.ComputeZoomedWindowSize(
+                1920, 1080, zoom: 0.8, minWidth: 1, minHeight: 1);
+
+            TestBase.AssertEqual(1536.0, width, "80% zoom scales reference width", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(864.0, height, "80% zoom scales reference height", ref run, ref passed, ref failed);
+
+            var grown = MainWindowStartupSizing.ComputeZoomedWindowSize(
+                1920, 1080, zoom: 1.2, minWidth: 1, minHeight: 1);
+            TestBase.AssertEqual(2304.0, grown.Width, "120% zoom scales reference width", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1296.0, grown.Height, "120% zoom scales reference height", ref run, ref passed, ref failed);
+        }
+
+        private static void UiZoom_ClampsToMaxWorkingArea(ref int run, ref int passed, ref int failed)
+        {
+            var (width, height) = MainWindowStartupSizing.ComputeZoomedWindowSize(
+                1920, 1080, zoom: 2.0, maxWidth: 2000, maxHeight: 1000, minWidth: 1, minHeight: 1);
+
+            TestBase.AssertTrue(width <= 2000 + 1e-6, "zoomed width clamps to max working width", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(height <= 1000 + 1e-6, "zoomed height clamps to max working height", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                System.Math.Abs(width / height - 1920.0 / 1080.0) < 0.02,
+                "clamp preserves aspect ratio",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void UiZoom_ReferenceFromCurrentSize(ref int run, ref int passed, ref int failed)
+        {
+            var (refW, refH) = MainWindowStartupSizing.ComputeZoomReferenceSize(1536, 864, zoom: 0.8);
+            TestBase.AssertEqual(1920.0, refW, "reference width recovers 100% size", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1080.0, refH, "reference height recovers 100% size", ref run, ref passed, ref failed);
         }
     }
 }

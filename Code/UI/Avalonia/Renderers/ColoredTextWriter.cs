@@ -152,14 +152,23 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// Preserves colors while wrapping text across multiple lines
         /// </summary>
         /// <param name="lineAlignment">Horizontal placement of each wrapped row within the column of width <paramref name="maxWidth"/> starting at <paramref name="x"/>.</param>
-        /// <returns>Number of lines written</returns>
-        public int WriteLineColoredWrapped(List<ColoredText> segments, int x, int y, int maxWidth, ColoredLineAlignment lineAlignment = ColoredLineAlignment.Left)
+        /// <param name="maxYExclusive">When set, stops before writing any row at or below this Y (clips soft-wrapped overflow to the viewport).</param>
+        /// <returns>Number of lines actually written (may be less than the wrap count when clipped)</returns>
+        public int WriteLineColoredWrapped(
+            List<ColoredText> segments,
+            int x,
+            int y,
+            int maxWidth,
+            ColoredLineAlignment lineAlignment = ColoredLineAlignment.Left,
+            int? maxYExclusive = null)
         {
             if (segments == null || segments.Count == 0)
             {
                 // For blank lines, return 1 so the caller knows to advance Y by 1
                 // This creates visible spacing between sections
-                return 1; // Return 1 for blank lines to preserve spacing
+                if (maxYExclusive.HasValue && y >= maxYExclusive.Value)
+                    return 0;
+                return 1;
             }
             
             // Wrap segments while preserving colors
@@ -168,12 +177,18 @@ namespace RPGGame.UI.Avalonia.Renderers
             // If wrapping resulted in no lines (shouldn't happen for non-empty segments, but handle it)
             if (wrappedLines.Count == 0)
             {
+                if (maxYExclusive.HasValue && y >= maxYExclusive.Value)
+                    return 0;
                 return 1; // Still return 1 to preserve spacing
             }
             
             int currentY = y;
+            int linesWritten = 0;
             foreach (var lineSegments in wrappedLines)
             {
+                if (maxYExclusive.HasValue && currentY >= maxYExclusive.Value)
+                    break;
+
                 if (lineSegments != null && lineSegments.Count > 0)
                 {
                     var segmentsToRender = lineSegments;
@@ -200,9 +215,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 }
                 // Always advance Y, even for empty line segments (blank lines within wrapped text)
                 currentY++;
+                linesWritten++;
             }
             
-            return wrappedLines.Count;
+            return linesWritten;
         }
         
         /// <summary>

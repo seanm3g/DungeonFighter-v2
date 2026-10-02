@@ -363,6 +363,7 @@ namespace RPGGame
             RollModificationManager.CollectAdvantageFlags(
                 c.Effects.PeekTurnBonuses(), ref advantage, ref disadvantage);
             CadenceScopedBuffApplicator.CollectAdvantageFlags(c, ref advantage, ref disadvantage);
+            LeatherSetBonus.CollectAdvantageFlags(c, ref advantage, ref disadvantage);
         }
 
         /// <summary>

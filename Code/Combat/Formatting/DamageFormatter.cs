@@ -370,6 +370,62 @@ namespace RPGGame.Combat.Formatting
             builder.AddSpace();
             builder.Add("of max HP)", Colors.White);
         }
+
+        /// <summary>
+        /// F7 narrative DoT tick: colored prose with creature-shaded actor name and keyword
+        /// coloring for poison/burn/bleed/acid (no mechanical damage/% lines).
+        /// </summary>
+        public static List<ColoredText> FormatNarrativeDoTTick(
+            Actor actor,
+            string damageType,
+            int damage,
+            bool stillActive)
+        {
+            int maxHp = Math.Max(1, actor?.GetMaxHealthForPoisonDot() ?? 1);
+            string prose = RPGGame.Combat.Sequence.CombatSequenceFlavorTokens.InterpretDoTTick(
+                RPGGame.Combat.Sequence.CombatSequenceFlavorTokens.FormatNarrativeActorName(actor),
+                damageType,
+                damage,
+                maxHp,
+                stillActive);
+            if (prose.Length > 0
+                && !prose.EndsWith('.')
+                && !prose.EndsWith('?')
+                && !prose.EndsWith('!'))
+            {
+                prose += ".";
+            }
+
+            return ColorizeNarrativeDoTProse(actor, prose);
+        }
+
+        private static List<ColoredText> ColorizeNarrativeDoTProse(Actor? actor, string prose)
+        {
+            if (string.IsNullOrEmpty(prose))
+                return new List<ColoredText>();
+
+            string name = actor?.Name ?? string.Empty;
+            if (actor == null || string.IsNullOrEmpty(name))
+                return KeywordColorSystem.Colorize(prose);
+
+            int idx = prose.IndexOf(name, StringComparison.Ordinal);
+            if (idx < 0)
+                return KeywordColorSystem.Colorize(prose);
+
+            var result = new List<ColoredText>();
+            if (idx > 0)
+                result.AddRange(KeywordColorSystem.Colorize(prose.Substring(0, idx)));
+
+            var nameBuilder = new ColoredTextBuilder();
+            EntityColorHelper.AppendActorNameColored(nameBuilder, actor);
+            result.AddRange(nameBuilder.Build());
+
+            int after = idx + name.Length;
+            if (after < prose.Length)
+                result.AddRange(KeywordColorSystem.Colorize(prose.Substring(after)));
+
+            return result;
+        }
         
         /// <summary>
         /// Formats damage display with the new ColoredText system

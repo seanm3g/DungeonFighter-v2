@@ -8,6 +8,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     using RPGGame.Handlers.Inventory;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Help;
     using RPGGame.UI.Avalonia.Renderers.Helpers;
     using RPGGame.UI.Avalonia.Layout;
     using RPGGame.UI.ColorSystem;
@@ -201,7 +202,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 {
                     string topHint = InventoryItemScrollLayout.BuildTopScrollHint(visibleRange.FirstIndex);
                     canvas.AddText(x + 2, y, topHint, AsciiArtAssets.Colors.Gray);
-                    canvas.AddText(x + width - 3, y, AsciiArtAssets.UIElements.ArrowUp, AsciiArtAssets.Colors.Gray);
+                    MenuMouseScrollHint.DrawRightAligned(canvas, x, width, y);
                     y++;
                     currentLineCount++;
                 }
@@ -279,10 +280,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         ? AsciiArtAssets.Colors.Gray
                         : AsciiArtAssets.Colors.DarkGray;
                     canvas.AddText(x + 2, statusY, status, statusColor);
-                    if (visibleRange.HasItemsBelow)
-                        canvas.AddText(x + width - 3, statusY, AsciiArtAssets.UIElements.ArrowDown, AsciiArtAssets.Colors.Yellow);
-                    else if (visibleRange.HasItemsAbove)
-                        canvas.AddText(x + width - 3, statusY, AsciiArtAssets.UIElements.ArrowUp, AsciiArtAssets.Colors.Gray);
+                    // Soft mouse + ↕ cues wheel scroll without the shouty yellow corner arrow.
+                    MenuMouseScrollHint.DrawRightAligned(canvas, x, width, statusY);
                     currentLineCount++;
                 }
             }

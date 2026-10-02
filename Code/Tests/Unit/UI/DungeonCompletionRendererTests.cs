@@ -25,8 +25,35 @@ namespace RPGGame.Tests.Unit.UI
 
             TestBuildCompletionSummaryLinesIncludesVictoryAndOmitsTopDetailRows();
             TestBuildCompletionSummaryLinesMetricColumnsAlign();
+            TestFooterReservedRowsIncludeBottomPadding();
 
             TestBase.PrintSummary("DungeonCompletionRenderer Tests", _testsRun, _testsPassed, _testsFailed);
+        }
+
+        private static void TestFooterReservedRowsIncludeBottomPadding()
+        {
+            Console.WriteLine("--- Testing FooterReservedRows bottom padding ---");
+
+            const int promptRows = 1;
+            const int gapRows = 1;
+            const int menuOptionRows = 4;
+            int expected = promptRows + gapRows + menuOptionRows + DungeonCompletionRenderer.FooterBottomPaddingRows;
+
+            TestBase.AssertEqual(
+                5,
+                DungeonCompletionRenderer.FooterBottomPaddingRows,
+                "Dungeon completion footer should keep 5 blank rows below the menu",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+
+            TestBase.AssertEqual(
+                expected,
+                DungeonCompletionRenderer.FooterReservedRows,
+                "FooterReservedRows should include prompt, gap, 4 options, and bottom padding",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
         }
 
         private static void TestBuildCompletionSummaryLinesIncludesVictoryAndOmitsTopDetailRows()

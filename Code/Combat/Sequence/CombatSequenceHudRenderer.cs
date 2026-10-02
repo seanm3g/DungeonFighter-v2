@@ -9,7 +9,7 @@ namespace RPGGame.Combat.Sequence
 {
     /// <summary>
     /// Draws the two-row combat sequence HUD in its own framed panel (below the action strip, above the combat log).
-    /// Column headers stay visible during Combat / Action Lab even with no swing in progress.
+    /// Column headers stay visible during Dungeon / Combat / Action Lab even with no swing in progress.
     /// </summary>
     public static class CombatSequenceHudRenderer
     {
@@ -29,9 +29,9 @@ namespace RPGGame.Combat.Sequence
             var writer = new ColoredTextWriter(canvas);
             Color separatorColor = ColorPalette.DarkGray.GetColor();
             var steps = CombatSequenceHudState.Steps;
-            int current = CombatSequenceHudState.CurrentIndex;
             bool revealed = CombatSequenceHudState.ResultRevealed;
-            bool idle = steps.Count == 0 || current < 0;
+            // Empty steps = dungeon chrome idle. Selective F7 may have CurrentIndex < 0 until first reveal.
+            bool idle = steps.Count == 0;
 
             for (int i = 0; i < columns.Length; i++)
             {
@@ -45,7 +45,7 @@ namespace RPGGame.Combat.Sequence
                 if (idle)
                     phase = CombatSequenceHudLayout.Phase.Pending;
                 else if (stepIndex >= 0)
-                    phase = CombatSequenceHudLayout.GetPhase(stepIndex, current);
+                    phase = CombatSequenceHudState.GetStepPhase(stepIndex);
                 else
                     phase = CombatSequenceHudLayout.Phase.Pending;
 

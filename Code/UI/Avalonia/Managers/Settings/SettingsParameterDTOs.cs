@@ -81,6 +81,25 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         public TextBox? TravelStepExtraDelayMsPerPointTextBox { get; set; }
         public TextBox? TravelSummaryBaseMinutesTextBox { get; set; }
         public TextBox? TravelSummaryExtraMinutesPerPointTextBox { get; set; }
+
+        // Character reveal rhythm (F7 narrative typewriter)
+        public CheckBox? CharacterRevealRhythmEnabledCheckBox { get; set; }
+        public TextBox? CharacterRevealParagraphTargetMsTextBox { get; set; }
+        public TextBox? CharacterRevealBaseCharDelayMsTextBox { get; set; }
+        public TextBox? CharacterRevealMinCharDelayMsTextBox { get; set; }
+        public TextBox? CharacterRevealMaxCharDelayMsTextBox { get; set; }
+        public TextBox? CharacterRevealSentencePauseMsTextBox { get; set; }
+        public TextBox? CharacterRevealSentenceReferenceCharsTextBox { get; set; }
+        public TextBox? CharacterRevealSentenceScaleMinTextBox { get; set; }
+        public TextBox? CharacterRevealSentenceScaleMaxTextBox { get; set; }
+        public TextBox? CharacterRevealWordReferenceCharsTextBox { get; set; }
+        public TextBox? CharacterRevealWordScaleMinTextBox { get; set; }
+        public TextBox? CharacterRevealWordScaleMaxTextBox { get; set; }
+        public ComboBox? CharacterRevealWordEmphasisPresetComboBox { get; set; }
+        public TextBox? CharacterRevealWordBeginWeightTextBox { get; set; }
+        public TextBox? CharacterRevealWordMidWeightTextBox { get; set; }
+        public TextBox? CharacterRevealWordEndWeightTextBox { get; set; }
+        public TextBox? CharacterRevealBattleRampCharsTextBox { get; set; }
     }
 
     /// <summary>

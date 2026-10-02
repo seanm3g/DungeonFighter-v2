@@ -1,9 +1,12 @@
 using Avalonia;
 using Avalonia.Media;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Effects;
+using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.UI.Avalonia.Canvas
 {
@@ -15,11 +18,19 @@ namespace RPGGame.UI.Avalonia.Canvas
     public class CanvasPrimitivesRenderer
     {
         private readonly CanvasCoordinateConverter coordinateConverter;
+        private WindSwayField? windSway;
+        private TextClickBurstField? clickBurst;
         
         public CanvasPrimitivesRenderer(CanvasCoordinateConverter coordinateConverter)
         {
             this.coordinateConverter = coordinateConverter ?? throw new ArgumentNullException(nameof(coordinateConverter));
         }
+
+        /// <summary>Optional mouse-driven wind field for per-glyph side-panel sway.</summary>
+        public void SetWindSwayField(WindSwayField? field) => windSway = field;
+
+        /// <summary>Optional click-charge explode/reform field (any non-overlay text).</summary>
+        public void SetClickBurstField(TextClickBurstField? field) => clickBurst = field;
         
         /// <summary>
         /// Renders all canvas elements to the drawing context.
@@ -42,13 +53,27 @@ namespace RPGGame.UI.Avalonia.Canvas
 
             // Clear the canvas
             context.FillRectangle(new SolidColorBrush(clearBackground), new Rect(0, 0, boundsWidth, boundsHeight));
-            
-            RenderBoxes(context, boxElements, overlayPass: false);
-            RenderProgressBars(context, progressBars);
-            RenderSegmentedBars(context, segmentedBars);
-            RenderText(context, textElements, overlayPass: false);
-            RenderBoxes(context, boxElements, overlayPass: true);
-            RenderText(context, textElements, overlayPass: true);
+
+            double charWidth = coordinateConverter.GetCharWidth();
+            double charHeight = coordinateConverter.GetCharHeight();
+            bool windFrame = windSway != null && windSway.BeginFrame(charWidth, charHeight);
+            bool burstFrame = clickBurst != null && clickBurst.BeginFrame(charWidth, charHeight);
+            try
+            {
+                RenderBoxes(context, boxElements, overlayPass: false);
+                RenderProgressBars(context, progressBars);
+                RenderSegmentedBars(context, segmentedBars);
+                RenderText(context, textElements, overlayPass: false);
+                RenderBoxes(context, boxElements, overlayPass: true);
+                RenderText(context, textElements, overlayPass: true);
+            }
+            finally
+            {
+                if (burstFrame)
+                    clickBurst!.EndFrame();
+                if (windFrame)
+                    windSway!.EndFrame();
+            }
         }
         
         private void RenderBoxes(DrawingContext context, List<CanvasBox> boxElements, bool overlayPass)
@@ -319,31 +344,161 @@ namespace RPGGame.UI.Avalonia.Canvas
         
         private void RenderText(DrawingContext context, CanvasText text)
         {
+            if (string.IsNullOrEmpty(text.Content))
+                return;
+
             double charWidth = coordinateConverter.GetCharWidth();
             double charHeight = coordinateConverter.GetCharHeight();
-            
-            double x = text.X * charWidth;
-            double y = text.Y * charHeight;
+            bool distort = ShouldApplyDistortion(text);
+            string content = text.Content;
 
-            // Create FormattedText with MaxTextWidth set to prevent letter-spacing issues
-            // Using explicit monospace font (Courier New) ensures consistent character widths
+            // Outside the wake/burst AABB: one string draw (avoids per-glyph FormattedText).
+            if (!distort || !MayAffectDistortedText(text.X, text.Y, content.Length, charWidth, charHeight))
+            {
+                DrawTextBlock(context, text, content, text.X * charWidth, text.Y * charHeight);
+                return;
+            }
+
+            // Section headers (═══ LABEL ═══ / ====  LABEL  ====): draw as one block so sway/chromatic
+            // does not shift prefix glyphs into the following space.
+            if (ShouldRenderHeaderAsDistortionUnit(content))
+            {
+                RenderDistortedHeaderLine(context, text, content, charWidth, charHeight);
+                return;
+            }
+
+            // Near the disturbance: sample per glyph, but coalesce unbroken zero-offset runs into one draw.
+            var cfg = windSway?.Config ?? new WindSwayConfig();
+            bool chromaticEnabled = cfg.ChromaticAberrationEnabled;
+            double spread = cfg.ChromaticSpreadFraction;
+            byte ghostAlpha = WindSwayChromatic.OpacityToAlpha(cfg.ChromaticOpacity);
+            bool windChromatic = chromaticEnabled && windSway != null && windSway.IsActive;
+
+            int i = 0;
+            while (i < content.Length)
+            {
+                if (content[i] == '\0')
+                {
+                    i++;
+                    continue;
+                }
+
+                var pose = SampleDistortionPose(text.X, text.Y, i, charWidth, charHeight);
+                bool moving = Math.Abs(pose.OffsetX) > WindSwayChromatic.IdleEpsilon
+                    || Math.Abs(pose.OffsetY) > WindSwayChromatic.IdleEpsilon
+                    || Math.Abs(pose.RotationRadians) > WindSwayChromatic.IdleEpsilon;
+
+                if (!moving)
+                {
+                    int runStart = i;
+                    i++;
+                    while (i < content.Length)
+                    {
+                        if (content[i] == '\0')
+                        {
+                            i++;
+                            break;
+                        }
+
+                        var next = SampleDistortionPose(text.X, text.Y, i, charWidth, charHeight);
+                        if (Math.Abs(next.OffsetX) > WindSwayChromatic.IdleEpsilon
+                            || Math.Abs(next.OffsetY) > WindSwayChromatic.IdleEpsilon
+                            || Math.Abs(next.RotationRadians) > WindSwayChromatic.IdleEpsilon)
+                            break;
+                        i++;
+                    }
+
+                    int runLen = i - runStart;
+                    if (runLen <= 0)
+                        continue;
+                    string run = content.Substring(runStart, runLen);
+                    DrawTextBlock(context, text, run, (text.X + runStart) * charWidth, text.Y * charHeight);
+                    continue;
+                }
+
+                double x = (text.X + i) * charWidth + pose.OffsetX;
+                double y = text.Y * charHeight + pose.OffsetY;
+                string glyph = content[i].ToString();
+
+                // Burst chromatic is velocity-only (landed letters stay clean). Wind still uses offset.
+                double chromX = pose.ChromaticX;
+                double chromY = pose.ChromaticY;
+                bool drawChromatic = chromaticEnabled && ghostAlpha > 0
+                    && (windChromatic || Math.Abs(chromX) > WindSwayChromatic.IdleEpsilon
+                        || Math.Abs(chromY) > WindSwayChromatic.IdleEpsilon);
+
+                void DrawGlyphPasses()
+                {
+                    if (drawChromatic)
+                    {
+                        var (fdx, fdy) = WindSwayChromatic.ComputeFringe(chromX, chromY, spread);
+                        if (Math.Abs(fdx) > WindSwayChromatic.IdleEpsilon || Math.Abs(fdy) > WindSwayChromatic.IdleEpsilon)
+                        {
+                            DrawTintedGlyph(context, glyph, x - fdx, y - fdy,
+                                Color.FromArgb(ghostAlpha, 255, 40, 40));
+                            DrawTintedGlyph(context, glyph, x + fdx, y + fdy,
+                                Color.FromArgb(ghostAlpha, 40, 220, 255));
+                        }
+                    }
+
+                    DrawTextBlock(context, text, glyph, x, y);
+                }
+
+                if (Math.Abs(pose.RotationRadians) > WindSwayChromatic.IdleEpsilon)
+                {
+                    double cx = x + charWidth * 0.5;
+                    double cy = y + charHeight * 0.5;
+                    using (context.PushTransform(
+                               Matrix.CreateTranslation(cx, cy)
+                               * Matrix.CreateRotation(pose.RotationRadians)
+                               * Matrix.CreateTranslation(-cx, -cy)))
+                    {
+                        DrawGlyphPasses();
+                    }
+                }
+                else
+                {
+                    DrawGlyphPasses();
+                }
+
+                i++;
+            }
+        }
+
+        private void DrawTintedGlyph(DrawingContext context, string content, double x, double y, Color color)
+        {
             var formatted = new FormattedText(
-                text.Content,
-                System.Globalization.CultureInfo.InvariantCulture,
+                content,
+                CultureInfo.InvariantCulture,
+                FlowDirection.LeftToRight,
+                coordinateConverter.GetTypeface(),
+                coordinateConverter.GetFontSize(),
+                new SolidColorBrush(color)
+            )
+            {
+                MaxTextWidth = double.PositiveInfinity,
+                MaxTextHeight = double.PositiveInfinity,
+                Trimming = TextTrimming.None
+            };
+            context.DrawText(formatted, new Point(x, y));
+        }
+
+        private void DrawTextBlock(DrawingContext context, CanvasText text, string content, double x, double y)
+        {
+            var formatted = new FormattedText(
+                content,
+                CultureInfo.InvariantCulture,
                 FlowDirection.LeftToRight,
                 coordinateConverter.GetTypeface(),
                 coordinateConverter.GetFontSize(),
                 new SolidColorBrush(text.Color)
             )
             {
-                // Prevent text wrapping which can add extra spacing
                 MaxTextWidth = double.PositiveInfinity,
                 MaxTextHeight = double.PositiveInfinity,
-                // Ensure no letter-spacing is applied
                 Trimming = TextTrimming.None
             };
 
-            // Render with glow if enabled
             if (text.HasGlow)
             {
                 TextGlowRenderer.RenderTextWithGlow(
@@ -353,7 +508,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                     text.GlowColor,
                     text.GlowIntensity,
                     text.GlowRadius,
-                    text.Content,
+                    content,
                     coordinateConverter.GetTypeface(),
                     coordinateConverter.GetFontSize()
                 );
@@ -362,6 +517,204 @@ namespace RPGGame.UI.Avalonia.Canvas
             {
                 context.DrawText(formatted, new Point(x, y));
             }
+        }
+
+        private (double OffsetX, double OffsetY) SampleDistortionOffset(
+            int gridX,
+            int gridY,
+            int glyphIndex,
+            double charWidth,
+            double charHeight)
+        {
+            var pose = SampleDistortionPose(gridX, gridY, glyphIndex, charWidth, charHeight);
+            return (pose.OffsetX, pose.OffsetY);
+        }
+
+        private DistortionPose SampleDistortionPose(
+            int gridX,
+            int gridY,
+            int glyphIndex,
+            double charWidth,
+            double charHeight)
+        {
+            double ox = 0;
+            double oy = 0;
+            double rot = 0;
+            double chromX = 0;
+            double chromY = 0;
+
+            if (windSway != null && ShouldSampleWind(gridX))
+            {
+                var (wx, wy) = windSway.SampleOffset(gridX, gridY, glyphIndex, charWidth, charHeight);
+                ox += wx;
+                oy += wy;
+                // Wind chromatic still follows sway offset.
+                chromX += wx;
+                chromY += wy;
+            }
+
+            if (clickBurst != null && clickBurst.Config.Enabled)
+            {
+                var burst = clickBurst.Sample(gridX, gridY, glyphIndex, charWidth, charHeight);
+                ox += burst.OffsetX;
+                oy += burst.OffsetY;
+                rot += burst.RotationRadians;
+                // Burst chromatic is velocity-only — landed scatter stays a clean letter.
+                double velScale = Math.Max(0, clickBurst.Config.ChromaticVelocitySeconds);
+                chromX += burst.VelocityX * velScale;
+                chromY += burst.VelocityY * velScale;
+            }
+
+            return new DistortionPose(ox, oy, rot, chromX, chromY);
+        }
+
+        private readonly struct DistortionPose
+        {
+            public DistortionPose(double offsetX, double offsetY, double rotationRadians, double chromaticX, double chromaticY)
+            {
+                OffsetX = offsetX;
+                OffsetY = offsetY;
+                RotationRadians = rotationRadians;
+                ChromaticX = chromaticX;
+                ChromaticY = chromaticY;
+            }
+
+            public double OffsetX { get; }
+            public double OffsetY { get; }
+            public double RotationRadians { get; }
+            public double ChromaticX { get; }
+            public double ChromaticY { get; }
+        }
+
+        private bool MayAffectDistortedText(int gridX, int gridY, int length, double charWidth, double charHeight)
+        {
+            if (clickBurst != null && clickBurst.MayAffectText(gridX, gridY, length, charWidth, charHeight))
+                return true;
+
+            if (windSway != null && ShouldSampleWind(gridX)
+                && windSway.MayAffectText(gridX, gridY, length, charWidth, charHeight))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool ShouldSampleWind(int gridX)
+        {
+            if (windSway == null || !windSway.IsActive)
+                return false;
+            var cfg = windSway.Config;
+            if (!cfg.Enabled)
+                return false;
+            if (!cfg.SidePanelsOnly)
+                return true;
+            return IsInSidePanel(gridX);
+        }
+
+        /// <summary>
+        /// Panel section titles must sway as one string; per-glyph offset makes the prefix run into the label space.
+        /// </summary>
+        internal static bool ShouldRenderHeaderAsDistortionUnit(string content)
+        {
+            if (string.IsNullOrEmpty(content))
+                return false;
+
+            if (content.StartsWith(AsciiArtAssets.UIText.HeaderPrefix + " ", StringComparison.Ordinal))
+                return true;
+
+            // Left panel: ====  LABEL  ====
+            return content.StartsWith("====  ", StringComparison.Ordinal);
+        }
+
+        private void RenderDistortedHeaderLine(
+            DrawingContext context,
+            CanvasText text,
+            string content,
+            double charWidth,
+            double charHeight)
+        {
+            var pose = SampleDistortionPose(text.X, text.Y, 0, charWidth, charHeight);
+            double baseX = text.X * charWidth;
+            double baseY = text.Y * charHeight;
+            bool moving = Math.Abs(pose.OffsetX) > WindSwayChromatic.IdleEpsilon
+                || Math.Abs(pose.OffsetY) > WindSwayChromatic.IdleEpsilon
+                || Math.Abs(pose.RotationRadians) > WindSwayChromatic.IdleEpsilon;
+
+            if (!moving)
+            {
+                DrawTextBlock(context, text, content, baseX, baseY);
+                return;
+            }
+
+            var cfg = windSway?.Config ?? new WindSwayConfig();
+            bool chromaticEnabled = cfg.ChromaticAberrationEnabled;
+            double spread = cfg.ChromaticSpreadFraction;
+            byte ghostAlpha = WindSwayChromatic.OpacityToAlpha(cfg.ChromaticOpacity);
+
+            double x = baseX + pose.OffsetX;
+            double y = baseY + pose.OffsetY;
+
+            void DrawHeaderPasses()
+            {
+                if (chromaticEnabled && ghostAlpha > 0)
+                {
+                    var (fdx, fdy) = WindSwayChromatic.ComputeFringe(pose.ChromaticX, pose.ChromaticY, spread);
+                    if (Math.Abs(fdx) > WindSwayChromatic.IdleEpsilon || Math.Abs(fdy) > WindSwayChromatic.IdleEpsilon)
+                    {
+                        DrawTintedGlyph(context, content, x - fdx, y - fdy,
+                            Color.FromArgb(ghostAlpha, 255, 40, 40));
+                        DrawTintedGlyph(context, content, x + fdx, y + fdy,
+                            Color.FromArgb(ghostAlpha, 40, 220, 255));
+                    }
+                }
+
+                DrawTextBlock(context, text, content, x, y);
+            }
+
+            if (Math.Abs(pose.RotationRadians) > WindSwayChromatic.IdleEpsilon)
+            {
+                double cx = x + content.Length * charWidth * 0.5;
+                double cy = y + charHeight * 0.5;
+                using (context.PushTransform(
+                           Matrix.CreateTranslation(cx, cy)
+                           * Matrix.CreateRotation(pose.RotationRadians)
+                           * Matrix.CreateTranslation(-cx, -cy)))
+                {
+                    DrawHeaderPasses();
+                }
+            }
+            else
+            {
+                DrawHeaderPasses();
+            }
+        }
+
+        private bool ShouldApplyDistortion(CanvasText text)
+        {
+            if (text.IsOverlay)
+                return false;
+
+            bool burstActive = clickBurst != null
+                && clickBurst.Config.Enabled
+                && clickBurst.IsActive;
+            if (burstActive)
+                return true;
+
+            return ShouldSampleWind(text.X);
+        }
+
+        /// <summary>Left or right character-panel columns (excludes center combat log / strip).</summary>
+        internal static bool IsInSidePanel(int gridX)
+        {
+            int leftStart = LayoutConstants.LEFT_PANEL_X;
+            int leftEnd = leftStart + LayoutConstants.LEFT_PANEL_WIDTH;
+            if (gridX >= leftStart && gridX < leftEnd)
+                return true;
+
+            int rightStart = LayoutConstants.RIGHT_PANEL_X;
+            int rightEnd = rightStart + LayoutConstants.RIGHT_PANEL_WIDTH;
+            return gridX >= rightStart && gridX < rightEnd;
         }
     }
 }

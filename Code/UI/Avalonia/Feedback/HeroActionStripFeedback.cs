@@ -20,6 +20,8 @@ namespace RPGGame.UI.Avalonia.Feedback
     /// A miss pulses red. A normal hit does not pulse: the card keeps its solid white (selected) or gray border.
     /// A combo-action hit pulses gold. Durations come from
     /// <see cref="GameSettings.ActionStripMissFlashDurationMs"/> (miss) or the success flash settings (combo).
+    /// Successful combos also hold the white next-border on the firing panel until
+    /// <see cref="ReleaseSelectedHold"/> when the action block finishes.
     /// </summary>
     public static class HeroActionStripFeedback
     {
@@ -40,6 +42,12 @@ namespace RPGGame.UI.Avalonia.Feedback
 
         private static int _queuedPanelIndex = -1;
         private static HeroActionStripFlashKind _queuedKind;
+
+        /// <summary>
+        /// While set, the strip keeps this panel as the white "next" selection even if
+        /// <see cref="Character.ComboStep"/> already advanced (successful combo during an open action block).
+        /// </summary>
+        private static int _heldSelectedPanelIndex = -1;
 
         /// <summary>For unit tests: fixed clock; when null, <see cref="DateTimeOffset.UtcNow"/> is used.</summary>
         internal static Func<DateTimeOffset>? UtcNowProviderForTests;
@@ -108,6 +116,8 @@ namespace RPGGame.UI.Avalonia.Feedback
 
         /// <summary>
         /// Hold strip flash until the combat-log punchline so miss/hit color does not leak during setup.
+        /// A successful combo also holds the white "next" selection on the firing panel until
+        /// <see cref="ReleaseSelectedHold"/> (end of the action block).
         /// </summary>
         public static void QueueForPunchline(int panelIndex, HeroActionStripFlashKind kind)
         {
@@ -115,6 +125,10 @@ namespace RPGGame.UI.Avalonia.Feedback
                 return;
             _queuedPanelIndex = panelIndex;
             _queuedKind = kind;
+            // ComboStep already advanced in execution; keep the white next-border on the swing
+            // that is still playing until the action block finishes.
+            if (kind == HeroActionStripFlashKind.ComboComplete)
+                _heldSelectedPanelIndex = panelIndex;
         }
 
         /// <summary>Start a previously queued strip flash, if any.</summary>
@@ -132,6 +146,34 @@ namespace RPGGame.UI.Avalonia.Feedback
         public static void ClearQueued()
         {
             _queuedPanelIndex = -1;
+            ReleaseSelectedHold();
+        }
+
+        /// <summary>
+        /// When a successful combo is still presenting, returns the panel that should keep the white next-border.
+        /// </summary>
+        public static bool TryGetHeldSelectedIndex(out int panelIndex)
+        {
+            if (_heldSelectedPanelIndex < 0)
+            {
+                panelIndex = -1;
+                return false;
+            }
+
+            panelIndex = _heldSelectedPanelIndex;
+            return true;
+        }
+
+        /// <summary>
+        /// Clears the deferred next-border hold so the strip follows live <see cref="Character.ComboStep"/>.
+        /// Called when the combat action block finishes (or is skipped).
+        /// </summary>
+        public static void ReleaseSelectedHold()
+        {
+            if (_heldSelectedPanelIndex < 0)
+                return;
+            _heldSelectedPanelIndex = -1;
+            _requestInvalidate?.Invoke();
         }
 
         /// <summary>
@@ -197,7 +239,8 @@ namespace RPGGame.UI.Avalonia.Feedback
         internal static void ResetForTests()
         {
             ClearFlashState();
-            ClearQueued();
+            _queuedPanelIndex = -1;
+            _heldSelectedPanelIndex = -1;
             UtcNowProviderForTests = null;
             _timer?.Stop();
         }

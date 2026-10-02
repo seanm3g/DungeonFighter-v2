@@ -30,7 +30,7 @@ namespace RPGGame.Tests.Unit
             TestRollInfoDisplay();
             TestStatusEffectDisplay();
             TestCriticalMissNarrative();
-            TestHitActionDropsCriticalMissFlavor();
+            TestOverviewDropsAllFlavorNarratives();
             TestNarrativeIntegration();
             TestBlockSpacing();
             TestEntityChangeSpacing();
@@ -130,9 +130,9 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestHitActionDropsCriticalMissFlavor()
+        private static void TestOverviewDropsAllFlavorNarratives()
         {
-            Console.WriteLine("\n--- Testing hit action drops leftover crit-miss flavor ---");
+            Console.WriteLine("\n--- Testing overview drops all flavor under action blocks ---");
 
             var hitAction = new List<ColoredText> { new ColoredText("Hero Attacks Goblin... and hits for 25 damage", Colors.White) };
             var missFlavor = new List<List<ColoredText>>
@@ -143,19 +143,19 @@ namespace RPGGame.Tests.Unit
 
             TextDisplayIntegration.SplitCombatNarratives(hitAction, missFlavor, out var critMiss, out var remaining);
             TestBase.AssertTrue(critMiss == null,
-                "Hit action must not keep critical-miss flavor as attached miss text",
+                "Overview must not attach critical-miss flavor",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, remaining.Count,
-                "Hit action should keep non-miss narratives only",
+            TestBase.AssertEqual(0, remaining.Count,
+                "Overview must not keep any flavor narratives under action blocks",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var critAction = new List<ColoredText> { new ColoredText("Hero CRITICAL MISS vs Goblin", Colors.White) };
             TextDisplayIntegration.SplitCombatNarratives(critAction, missFlavor, out var attached, out var leftover);
-            TestBase.AssertTrue(attached != null && attached.Count > 0,
-                "Critical miss action should keep matching miss flavor",
+            TestBase.AssertTrue(attached == null,
+                "Critical miss overview still omits attached miss flavor",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, leftover.Count,
-                "Critical miss action should still keep unrelated narratives",
+            TestBase.AssertEqual(0, leftover.Count,
+                "Critical miss overview still omits unrelated narratives",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -175,6 +175,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             CombatActionInfoState.Clear();
             ActionStripHoverState.Clear();
+            CombatLogActionHoverState.Clear();
+            CombatLogProseHoverMap.Clear();
             LeftPanelHoverState.Clear();
             if (textManager is CanvasTextManager canvasTextManager)
             {
@@ -224,6 +226,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             EnsureDisplayManagerForPlayer(player);
             CombatActionInfoState.Clear();
             ActionStripHoverState.Clear();
+            CombatLogActionHoverState.Clear();
+            CombatLogProseHoverMap.Clear();
             LeftPanelHoverState.Clear();
             if (textManager is CanvasTextManager canvasTextManager)
             {

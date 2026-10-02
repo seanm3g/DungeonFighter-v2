@@ -1239,6 +1239,109 @@
       "\u0022The forest itself will turn against you, {player}!\u0022 {name} roars in the grove.",
       "\u0022The trees will witness your defeat, {player}!\u0022 {name} bellows through the woodland.",
       "\u0022The forest spirits will claim you, {player}!\u0022 {name} growls among the towering trees."
+    ],
+    "sequenceAttacker": [
+      "{attacker} gathers their will, eyes locked on {target}.",
+      "{attacker} shifts stance, ready to strike at {target}.",
+      "Breath steady, {attacker} commits to the clash with {target}.",
+      "{attacker} steps into the fray, intent fixed upon {target}.",
+      "The moment tightens as {attacker} chooses {target}."
+    ],
+    "sequenceOutcome": [
+      "Fate answers with {outcome}, a thread drawn taut.",
+      "The exchange unfolds as {outcome}.",
+      "{outcome} hangs in the air like a held breath.",
+      "The rhythm of battle settles on {outcome}.",
+      "Steel and spell alike yield {outcome}."
+    ],
+    "sequenceRoll": [
+      "Fortune answers with {roll}.",
+      "The moment unfolds as {roll}.",
+      "Chance settles into {roll}.",
+      "Skill and luck conspire toward {roll}.",
+      "Fate leans toward {roll}."
+    ],
+    "sequenceAction": [
+      "{attacker} answers with {action}.",
+      "{attacker} unleashes {action}.",
+      "With fierce clarity comes {action}.",
+      "The strike takes form as {action}.",
+      "A decisive {action} cuts through the din."
+    ],
+    "sequenceEnvironment": [
+      "{attacker} stirs, and {action} washes across the field.",
+      "The room itself answers as {attacker} unleashes {action}.",
+      "{attacker} breathes hazard into the clash with {action}.",
+      "From the surroundings, {attacker} looses {action}.",
+      "The battlefield shifts as {attacker} invokes {action}."
+    ],
+    "sequenceEnvironmentEffect": [
+      "{effects}",
+      "Then {effects}",
+      "Meanwhile {effects}"
+    ],
+    "sequenceActionMiss": [
+      "{attacker} lunges but its teeth snap shut with no flesh in between.",
+      "{attacker} snaps at air — jaws close on nothing.",
+      "{attacker} commits to the strike and finds only empty space.",
+      "{attacker} swings true to intent, yet flesh is nowhere to be found.",
+      "Jaws and claws find no purchase as {attacker} misses clean."
+    ],
+    "sequenceCritical": [
+      "The blow carries {critical}.",
+      "{attacker} drives the attack with {critical}.",
+      "Fortune favors the strike through {critical}.",
+      "There is no wasted motion — only {critical}.",
+      "The hit lands with {critical}."
+    ],
+    "sequenceCriticalMiss": [
+      "{attacker} pays for the miss with {criticalMiss}.",
+      "The swing collapses into {criticalMiss}.",
+      "Instead of a blow, {attacker} suffers {criticalMiss}.",
+      "The moment turns sour: {criticalMiss}.",
+      "What should have been an attack becomes {criticalMiss}."
+    ],
+    "sequenceDefense": [
+      "Steel and stance meet the blow as {defense}.",
+      "The guard answers, and the strike proves {defense}.",
+      "Armor and will shape the exchange into {defense}.",
+      "Protection yields what it must: {defense}.",
+      "The clash reads as {defense}."
+    ],
+    "sequenceDamage": [
+      "The blow leaves {damage}.",
+      "Pain blooms into {damage}.",
+      "The impact settles as {damage} against flesh and fate.",
+      "Wounds open into {damage}.",
+      "A cruel accounting remains: {damage}."
+    ],
+    "sequenceEffects": [
+      "Aftermath lingers as {effects}.",
+      "The battlefield remembers {effects}.",
+      "Something remains after the strike: {effects}.",
+      "Echoes of the blow carry {effects}.",
+      "A lasting mark remains: {effects}."
+    ],
+    "sequenceStance": [
+      "{attacker} settles into {stance}.",
+      "When the dust thins, {attacker} holds {stance}.",
+      "The exchange leaves {attacker} in {stance}.",
+      "{attacker} finishes the motion in {stance}.",
+      "Afterward, {attacker} stands in {stance}."
+    ],
+    "sequenceTempo": [
+      "Tempo rests with {tempo}, next to act.",
+      "{tempo} holds the pace and will go next.",
+      "The next beat belongs to {tempo}.",
+      "Initiative favors {tempo}.",
+      "The exchange leaves {tempo} ready to move first."
+    ],
+    "sequenceFollowUp": [
+      "Then {attacker} presses the attack again.",
+      "Without pause, {attacker} launches another strike.",
+      "A second blow follows from {attacker}.",
+      "{attacker} does not relent — another assault begins.",
+      "Again, {attacker} surges toward {target}."
     ]
   },
   "forms": {

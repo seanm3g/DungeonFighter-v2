@@ -97,7 +97,12 @@ namespace RPGGame.UI.Avalonia.Display
         /// <summary>
         /// Replaces a line counted from the end (0 = last) without changing count.
         /// </summary>
-        public bool TryReplaceAtFromEnd(int offsetFromEnd, List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
+        public bool TryReplaceAtFromEnd(
+            int offsetFromEnd,
+            List<ColoredText> segments,
+            UIMessageType messageType = UIMessageType.System,
+            List<List<ColoredText>>? hoverInfoLines = null,
+            bool setHoverInfoLines = false)
         {
             bool shouldAddMessage = filterService.ShouldDisplayMessage(
                 null,
@@ -109,7 +114,7 @@ namespace RPGGame.UI.Avalonia.Display
             if (!shouldAddMessage)
                 return false;
 
-            buffer.ReplaceAtFromEnd(offsetFromEnd, segments, messageType);
+            buffer.ReplaceAtFromEnd(offsetFromEnd, segments, messageType, hoverInfoLines, setHoverInfoLines);
             return true;
         }
 

@@ -53,6 +53,36 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
 
             TestBase.AssertTrue(
+                KeyInputConverter.IsUiZoomChord(Key.OemPlus, KeyModifiers.Control),
+                "Ctrl+=/+ is UI zoom chord",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.IsUiZoomChord(Key.Add, KeyModifiers.Control),
+                "Ctrl+NumpadPlus is UI zoom chord",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.IsUiZoomChord(Key.OemMinus, KeyModifiers.Meta),
+                "Cmd+- is UI zoom chord",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.GetUiZoomDirection(Key.OemPlus) == 1,
+                "plus zooms in",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.GetUiZoomDirection(Key.Subtract) == -1,
+                "minus zooms out",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                KeyInputConverter.ConvertKeyToInput(Key.Add, KeyModifiers.Control) == null,
+                "Ctrl+NumpadPlus is not inventory sort",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
                 KeyInputConverter.ConvertKeyToInput(Key.Subtract, KeyModifiers.None) == "-",
                 "Numpad minus maps to inventory requirement filter shortcut input",
                 ref run, ref passed, ref failed);

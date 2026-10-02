@@ -23,6 +23,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CombatConfigTests.RunAllTests();
             Console.WriteLine();
+            CharacterRevealRhythmCalculatorTests.RunAllTests();
+            Console.WriteLine();
             ItemConfigTests.RunAllTests();
             Console.WriteLine();
             VariableEditorTests.RunAllTests();

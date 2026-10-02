@@ -44,9 +44,59 @@ namespace RPGGame.UI.Avalonia.Layout
             var (gx, gy, gw, gh) = GetPaddedClearRegion(
                 boxX, boxY, boxW, boxH, innerLeft, innerTop, innerRightInclusive, maxBottomInclusive, cellPad);
 
+            // Origin-only clear misses runs that start left of the tip and extend into it; mask those glyphs too
+            // so narrative cannot show through the opaque fill / tip text.
+            canvas.MaskNonOverlayTextInArea(gx, gy, gw, gh);
             canvas.ClearTextInArea(gx, gy, gw, gh);
             canvas.ClearBoxesInArea(gx, gy, gw, gh);
             canvas.AddOverlayBox(boxX, boxY, boxW, boxH, BorderColor, FillColor, OpaqueFillBleedDevicePixels);
+        }
+
+        /// <summary>
+        /// Blanks characters of a body-text run that fall inside <paramref name="maskStartX"/>..<paramref name="maskEndXExclusive"/>.
+        /// Returns null when the whole run is covered; otherwise the (possibly split) leftover runs.
+        /// </summary>
+        public static List<(int x, string content)> MaskTextRunOutsideRange(
+            int textX,
+            string content,
+            int maskStartX,
+            int maskEndXExclusive)
+        {
+            var result = new List<(int x, string content)>();
+            if (string.IsNullOrEmpty(content))
+                return result;
+
+            int textEnd = textX + content.Length;
+            if (textEnd <= maskStartX || textX >= maskEndXExclusive)
+            {
+                result.Add((textX, content));
+                return result;
+            }
+
+            // Left remnant (before the mask).
+            if (textX < maskStartX)
+            {
+                int leftLen = maskStartX - textX;
+                string left = content.Substring(0, leftLen);
+                if (left.Length > 0)
+                    result.Add((textX, left));
+            }
+
+            // Right remnant (after the mask).
+            if (textEnd > maskEndXExclusive)
+            {
+                int rightStart = maskEndXExclusive - textX;
+                if (rightStart < 0)
+                    rightStart = 0;
+                if (rightStart < content.Length)
+                {
+                    string right = content.Substring(rightStart);
+                    if (right.Length > 0)
+                        result.Add((maskEndXExclusive, right));
+                }
+            }
+
+            return result;
         }
 
         /// <summary>

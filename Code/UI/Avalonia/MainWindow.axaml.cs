@@ -6,8 +6,12 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.Combat.Sequence;
+using RPGGame.Config;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Effects;
+using RPGGame.UI.Avalonia.Help;
 using RPGGame.UI.Avalonia.Helpers;
 using RPGGame.UI.Avalonia.Handlers;
 using RPGGame.UI.Avalonia.Settings;
@@ -26,12 +30,19 @@ namespace RPGGame.UI.Avalonia
         private SettingsPanel? settingsMenuPanel;
         private TuningMenuPanel? tuningMenuPanel;
 
+        /// <summary>Client size at 100% UI zoom; Ctrl+/- scales the window from this reference.</summary>
+        private double _uiZoomReferenceWidth;
+        private double _uiZoomReferenceHeight;
+        private bool _uiZoomReferenceReady;
+        private bool _applyingUiZoomWindowSize;
+
         public MainWindow()
         {
             InitializeComponent();
             Opened += OnMainWindowOpened;
-            // Tunnel so Ctrl/Cmd+C is handled before focused children; bubble KeyDown on the window often never runs when focus is on the canvas.
-            this.AddHandler(InputElement.KeyDownEvent, OnCombatLogCopyKeyDownTunnel, RoutingStrategies.Tunnel);
+            Resized += OnMainWindowResized;
+            // Tunnel so Ctrl/Cmd chords are handled before focused children; bubble KeyDown on the window often never runs when focus is on the canvas.
+            this.AddHandler(InputElement.KeyDownEvent, OnGlobalKeyDownTunnel, RoutingStrategies.Tunnel);
             this.KeyDown += OnKeyDown;
             this.KeyUp += OnKeyUp;
             
@@ -43,9 +54,56 @@ namespace RPGGame.UI.Avalonia
             // After Pointer.Capture(GameCanvas), released/moved are routed to the captured element, not the parent Border — subscribe on the canvas too or combo drag never completes.
             GameCanvas.PointerMoved += OnCanvasPointerMoved;
             GameCanvas.PointerReleased += OnCanvasPointerReleased;
+            GameCanvas.GridDimensionsChanged += OnGameCanvasGridDimensionsChanged;
+
+            Closed += OnMainWindowClosed;
+            NarrativeVideoOverlay?.AttachCanvas(GameCanvas);
+            NarrativeVideoOverlay?.SetInDungeonProvider(
+                () =>
+                {
+                    var sm = initializationHandler?.Game?.StateManager;
+                    return NarrativeVideoOverlayGate.CountsAsActiveDungeonRunForOverlay(
+                        sm?.HasCurrentDungeon == true,
+                        sm?.CurrentState);
+                });
+            NarrativeVideoOverlay?.ReloadConfigAndMaybeStart();
+
+            LoadPersistedGameFontPreferences();
             
             // Initialize the game and UI
             InitializeGame();
+        }
+
+        private void LoadPersistedGameFontPreferences()
+        {
+            try
+            {
+                GeneralSettingsStore.EnsureBootstrapped();
+                GameFonts.LoadFromStore();
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log("MainWindow", $"Could not load UI font preferences: {ex.Message}");
+            }
+
+            ApplyActiveGameFontToChrome();
+            GameCanvas.ApplyActiveFont();
+        }
+
+        private void OnMainWindowClosed(object? sender, EventArgs e)
+        {
+            NarrativeVideoOverlay?.Dispose();
+        }
+
+        private void OnGameCanvasGridDimensionsChanged()
+        {
+            // Measure/arrange may raise this; rebuild chrome on the next UI tick so panel widths track the new column count.
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+                    canvasUI.ForceFullLayoutRender();
+                NarrativeVideoOverlay?.NotifyContextChanged();
+            }, DispatcherPriority.Render);
         }
 
         /// <summary>
@@ -95,15 +153,85 @@ namespace RPGGame.UI.Avalonia
                 Dispatcher.UIThread.Post(() =>
                 {
                     ApplyMacStartupWindowSizing();
+                    CaptureUiZoomReferenceFromCurrentSize(atZoom: 1.0);
+                    ApplyPersistedUiZoomWindowSize();
                     _ = initializationHandler?.StartTitleScreenAfterWindowReadyAsync();
                     BuildExecutionMetrics.RecordLaunchTime("GUI");
-                    Dispatcher.UIThread.Post(ApplyMacStartupWindowSizing, DispatcherPriority.Background);
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        ApplyMacStartupWindowSizing();
+                        CaptureUiZoomReferenceFromCurrentSize(atZoom: 1.0);
+                        ApplyPersistedUiZoomWindowSize();
+                    }, DispatcherPriority.Background);
                 }, DispatcherPriority.Loaded);
                 return;
             }
 
+            CaptureUiZoomReferenceFromCurrentSize(atZoom: 1.0);
+            ApplyPersistedUiZoomWindowSize();
             _ = initializationHandler?.StartTitleScreenAfterWindowReadyAsync();
             BuildExecutionMetrics.RecordLaunchTime("GUI");
+        }
+
+        private void OnMainWindowResized(object? sender, WindowResizedEventArgs e)
+        {
+            if (_applyingUiZoomWindowSize)
+                return;
+            // Manual drag/maximize: treat current client size as zoomed size for the active zoom.
+            if (Width > 0 && Height > 0)
+                CaptureUiZoomReferenceFromCurrentSize(GameFonts.ActiveZoom);
+        }
+
+        /// <summary>
+        /// Stores the 100%-zoom client size derived from the current window and <paramref name="atZoom"/>.
+        /// </summary>
+        private void CaptureUiZoomReferenceFromCurrentSize(double atZoom)
+        {
+            var (refW, refH) = MainWindowStartupSizing.ComputeZoomReferenceSize(Width, Height, atZoom);
+            if (refW <= 0 || refH <= 0)
+                return;
+            _uiZoomReferenceWidth = refW;
+            _uiZoomReferenceHeight = refH;
+            _uiZoomReferenceReady = true;
+        }
+
+        private void EnsureUiZoomReference()
+        {
+            if (_uiZoomReferenceReady && _uiZoomReferenceWidth > 0 && _uiZoomReferenceHeight > 0)
+                return;
+            CaptureUiZoomReferenceFromCurrentSize(GameFonts.ActiveZoom);
+        }
+
+        /// <summary>
+        /// Resizes the window so Ctrl+/- zoom fills the client area (no letterbox under the panels).
+        /// </summary>
+        private void ApplyUiZoomWindowSize(double zoom)
+        {
+            EnsureUiZoomReference();
+            if (!_uiZoomReferenceReady)
+                return;
+
+            _applyingUiZoomWindowSize = true;
+            try
+            {
+                MainWindowStartupSizing.ApplyUiZoomWindowSize(
+                    this,
+                    _uiZoomReferenceWidth,
+                    _uiZoomReferenceHeight,
+                    zoom);
+            }
+            finally
+            {
+                _applyingUiZoomWindowSize = false;
+            }
+        }
+
+        private void ApplyPersistedUiZoomWindowSize()
+        {
+            double zoom = GameFonts.ActiveZoom;
+            if (Math.Abs(zoom - 1.0) < 1e-9)
+                return;
+            ApplyUiZoomWindowSize(zoom);
         }
 
         private void ApplyMacStartupWindowSizing()
@@ -136,9 +264,57 @@ namespace RPGGame.UI.Avalonia
 
         private async void OnKeyDown(object? sender, KeyEventArgs e)
         {
+            if (e.Handled)
+                return;
+
             TrySyncAltTooltipDetail(e.KeyModifiers);
 
+            if (IsHelpOverlayVisible)
+            {
+                if (e.Key == Key.H || e.Key == Key.Escape)
+                {
+                    e.Handled = true;
+                    HideHelpOverlay();
+                }
+                else
+                {
+                    e.Handled = true;
+                }
+                return;
+            }
+
+            if (e.Key == Key.H)
+            {
+                e.Handled = true;
+                ToggleHelp();
+                return;
+            }
+
             if (TryHandleCombatSpeedKey(e.Key))
+            {
+                e.Handled = true;
+                return;
+            }
+
+            if (TryHandleNarrativeCombatLogKey(e.Key))
+            {
+                e.Handled = true;
+                return;
+            }
+
+            if (TryHandleNarrativeVideoFeedKey(e.Key))
+            {
+                e.Handled = true;
+                return;
+            }
+
+            if (TryHandleDistortionEffectsKey(e.Key))
+            {
+                e.Handled = true;
+                return;
+            }
+
+            if (TryHandleGameFontKey(e.Key))
             {
                 e.Handled = true;
                 return;
@@ -163,13 +339,6 @@ namespace RPGGame.UI.Avalonia
                 }
 
                 // Combat log copy is handled in OnCombatLogCopyKeyDownTunnel (tunneling) so it runs with canvas focus.
-
-                // Handle special keys first
-                if (e.Key == Key.H)
-                {
-                    ToggleHelp();
-                    return;
-                }
 
                 if (e.Key == Key.Escape)
                 {
@@ -224,7 +393,144 @@ namespace RPGGame.UI.Avalonia
             return true;
         }
 
-        private void ShowCombatSpeedNotification(string message)
+        private bool TryHandleNarrativeCombatLogKey(Key key)
+        {
+            if (key != Key.F7)
+                return false;
+
+            bool wasNarrative = DeveloperModeState.IsNarrativeCombatLog;
+            bool enabled = DeveloperModeState.ToggleNarrativeCombatLog();
+            var state = initializationHandler?.Game?.CurrentState;
+            CombatSequenceHudState.SyncReservation(state);
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+            {
+                // Convert already-buffered swings to the other log form (uses dual-view bindings).
+                canvasUI.SwapCombatLogDualView(currentlyShowingNarrative: wasNarrative);
+                canvasUI.RefreshCenterPanelModeTint();
+            }
+
+            ShowCombatSpeedNotification(
+                enabled ? "Narrative log: ON" : "Narrative log: OFF",
+                forceAutoDismiss: true);
+            NarrativeVideoOverlay?.NotifyContextChanged();
+            return true;
+        }
+
+        /// <summary>Applies narrative-video overlay knobs live from Settings (no file reload required).</summary>
+        public void ApplyNarrativeVideoOverlayConfig(NarrativeVideoOverlayConfig? config) =>
+            NarrativeVideoOverlay?.ApplyConfig(config);
+
+        /// <summary>Re-evaluates narrative-video playback/visibility after game-state or mode changes.</summary>
+        public void NotifyNarrativeVideoContextChanged() =>
+            NarrativeVideoOverlay?.NotifyContextChanged();
+
+        /// <summary>Reloads narrative-video overlay settings from <c>UIConfiguration.json</c>.</summary>
+        public void ReloadNarrativeVideoOverlayConfig() =>
+            NarrativeVideoOverlay?.ReloadConfigAndMaybeStart();
+
+        private bool TryHandleNarrativeVideoFeedKey(Key key)
+        {
+            if (key != Key.F5)
+                return false;
+
+            bool enabled = DeveloperModeState.ToggleNarrativeVideoFeed();
+            NarrativeVideoOverlay?.NotifyContextChanged();
+            ShowCombatSpeedNotification(
+                enabled ? "Video feed: ON" : "Video feed: OFF",
+                forceAutoDismiss: true);
+            return true;
+        }
+
+        private bool TryHandleDistortionEffectsKey(Key key)
+        {
+            if (key != Key.F6)
+                return false;
+
+            bool enabled = DeveloperModeState.ToggleDistortionEffects();
+            GameCanvas.WindSway.Reset();
+            GameCanvas.ClickBurst.Reset();
+            GameCanvas.Refresh();
+
+            ShowCombatSpeedNotification(
+                enabled ? "Distortion: ON" : "Distortion: OFF",
+                forceAutoDismiss: true);
+            return true;
+        }
+
+        private bool TryHandleGameFontKey(Key key)
+        {
+            if (key != Key.F3)
+                return false;
+
+            var preset = GameFonts.Cycle();
+            PersistGameFontPreferences();
+            ApplyActiveGameFontToChrome();
+            // Each font keeps its own zoom; resize so the canvas still fills the client area.
+            ApplyUiZoomWindowSize(GameFonts.ActiveZoom);
+            GameCanvas.ApplyActiveFont();
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+                canvasUI.ForceFullLayoutRender();
+
+            int percent = (int)Math.Round(GameFonts.ActiveZoom * 100);
+            ShowCombatSpeedNotification($"Font: {preset.DisplayName} ({percent}%)", forceAutoDismiss: true);
+            return true;
+        }
+
+        private bool TryHandleUiZoomKey(Key key, KeyModifiers modifiers)
+        {
+            if (!KeyInputConverter.IsUiZoomChord(key, modifiers))
+                return false;
+
+            int direction = KeyInputConverter.GetUiZoomDirection(key);
+            double zoom = GameFonts.AdjustActiveZoom(direction);
+            PersistGameFontPreferences();
+            ApplyUiZoomWindowSize(zoom);
+            GameCanvas.ApplyActiveFont();
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+                canvasUI.ForceFullLayoutRender();
+
+            int percent = (int)Math.Round(zoom * 100);
+            ShowCombatSpeedNotification(
+                $"UI size: {percent}% ({GameFonts.ActiveInfo.DisplayName})",
+                forceAutoDismiss: true);
+            return true;
+        }
+
+        private static void PersistGameFontPreferences()
+        {
+            try
+            {
+                GameFonts.SaveToStore();
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log("MainWindow", $"Could not save UI font preferences: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Keeps MainWindow overlay TextBlocks / TextBox on the same face as the ASCII canvas.
+        /// </summary>
+        private void ApplyActiveGameFontToChrome()
+        {
+            var family = GameFonts.ActiveFamily;
+            var weight = GameFonts.ActiveWeight;
+
+            CombatSpeedNotificationText.FontFamily = family;
+            CombatSpeedNotificationText.FontWeight = weight;
+
+            HelpTitleText.FontFamily = family;
+            HelpTitleText.FontWeight = weight;
+
+            HelpFooterText.FontFamily = family;
+
+            HelpHotkeyListText.FontFamily = family;
+
+            HiddenTextBox.FontFamily = family;
+            HiddenTextBox.FontWeight = weight;
+        }
+
+        private void ShowCombatSpeedNotification(string message, bool forceAutoDismiss = false)
         {
             CombatSpeedNotificationText.Text = message;
             CombatSpeedNotificationText.IsVisible = true;
@@ -237,7 +543,8 @@ namespace RPGGame.UI.Avalonia
             combatSpeedNotificationTimer.Tick -= HideCombatSpeedNotification;
 
             // Keep the footer label visible while combat is accelerated; only 1x auto-dismisses.
-            if (DeveloperModeState.CombatSpeedMultiplier <= 1)
+            // Narrative-log toast always auto-dismisses.
+            if (forceAutoDismiss || DeveloperModeState.CombatSpeedMultiplier <= 1)
             {
                 combatSpeedNotificationTimer.Tick += HideCombatSpeedNotification;
                 combatSpeedNotificationTimer.Start();
@@ -265,8 +572,14 @@ namespace RPGGame.UI.Avalonia
             initializationHandler?.MouseHandler?.RefreshTooltipDetailModeIfHovered();
         }
 
-        private async void OnCombatLogCopyKeyDownTunnel(object? sender, KeyEventArgs e)
+        private async void OnGlobalKeyDownTunnel(object? sender, KeyEventArgs e)
         {
+            if (TryHandleUiZoomKey(e.Key, e.KeyModifiers))
+            {
+                e.Handled = true;
+                return;
+            }
+
             if (!KeyInputConverter.IsCombatLogCopyChord(e.Key, e.KeyModifiers))
                 return;
             if (initializationHandler == null || !initializationHandler.IsInitialized || initializationHandler.Game == null)
@@ -278,15 +591,31 @@ namespace RPGGame.UI.Avalonia
             if (!canvasForCopy.IsCombatLogClipboardContext())
                 return;
             e.Handled = true;
-            await ClipboardHelper.CopyDisplayBufferToClipboard(canvasForCopy, this, null, UpdateStatus);
+            await ClipboardHelper.CopyDisplayBufferToClipboard(canvasForCopy, this);
         }
+
+        private bool IsHelpOverlayVisible => HelpOverlay?.IsVisible == true;
 
         private void ToggleHelp()
         {
-            // Toggle help display on canvas
-            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI) {
-                canvasUI.ToggleHelp();
-            }
+            if (IsHelpOverlayVisible)
+                HideHelpOverlay();
+            else
+                ShowHelpOverlay();
+        }
+
+        private void ShowHelpOverlay()
+        {
+            if (HelpHotkeyListText != null)
+                HelpHotkeyListText.Text = HotkeyHelpCatalog.FormatHelpBody();
+            if (HelpOverlay != null)
+                HelpOverlay.IsVisible = true;
+        }
+
+        private void HideHelpOverlay()
+        {
+            if (HelpOverlay != null)
+                HelpOverlay.IsVisible = false;
         }
 
         private void UpdateStatus(string message)
@@ -347,7 +676,7 @@ namespace RPGGame.UI.Avalonia
             }
 
             e.Handled = true;
-            await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this, null, UpdateStatus);
+            await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this);
             return true;
         }
 
@@ -394,9 +723,7 @@ namespace RPGGame.UI.Avalonia
         private async Task CopyCenterPanelToClipboard()
         {
             if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
-                await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this, null, UpdateStatus);
-            else
-                UpdateStatus("Canvas UI not available");
+                await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this);
         }
 
         /// <summary>

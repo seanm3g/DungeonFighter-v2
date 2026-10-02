@@ -241,7 +241,8 @@ namespace RPGGame
                 // If we have entity information, check if actor changed
                 if (currentEntity != null)
                 {
-                    // If this is the same actor as last time, no blank line needed
+                    // Same actor: keep flush (F7 narrative continues the same paragraph;
+                    // a follow-up prose beat articulates the next strike).
                     if (lastActingEntity != null && lastActingEntity == currentEntity)
                     {
                         return 0;

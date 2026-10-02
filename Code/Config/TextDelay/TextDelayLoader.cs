@@ -81,6 +81,25 @@ namespace RPGGame.Config.TextDelay
                             configData.TutorialCombatDelayMultiplier = tutorialCombatDelayMultiplier.GetDouble();
                         if (combatDelays.TryGetProperty("SequenceHudDelayMultiplier", out var sequenceHudDelayMultiplier))
                             configData.SequenceHudDelayMultiplier = sequenceHudDelayMultiplier.GetDouble();
+                        if (combatDelays.TryGetProperty("NarrativeCharRevealMs", out var narrativeCharRevealMs))
+                            configData.NarrativeCharRevealMs = narrativeCharRevealMs.GetInt32();
+                        if (combatDelays.TryGetProperty("NarrativeCharRevealRampChars", out var narrativeCharRevealRampChars))
+                            configData.NarrativeCharRevealRampChars = narrativeCharRevealRampChars.GetInt32();
+                        if (combatDelays.TryGetProperty("NarrativeCharRevealMaxMs", out var narrativeCharRevealMaxMs))
+                            configData.NarrativeCharRevealMaxMs = narrativeCharRevealMaxMs.GetInt32();
+                        if (combatDelays.TryGetProperty("NarrativeSentencePauseMs", out var narrativeSentencePauseMs))
+                            configData.NarrativeSentencePauseMs = narrativeSentencePauseMs.GetInt32();
+                    }
+
+                    // Character reveal rhythm (preferred); seed from legacy narrative if missing.
+                    if (config.TryGetProperty("CharacterRevealRhythm", out var characterRevealRhythm))
+                    {
+                        var loaded = JsonSerializer.Deserialize<CharacterRevealRhythmConfig>(characterRevealRhythm.GetRawText());
+                        if (loaded != null)
+                        {
+                            configData.CharacterRevealRhythm = loaded;
+                            configData.CharacterRevealRhythmLoaded = true;
+                        }
                     }
 
                     // Load progressive menu delays
@@ -141,6 +160,47 @@ namespace RPGGame.Config.TextDelay
                 configData.SequenceHudDelayMultiplier = RPGGame.GameConstants.SequenceHudDelayMultiplier;
             }
 
+            if (configData.NarrativeCharRevealMs <= 0)
+            {
+                configData.NarrativeCharRevealMs = RPGGame.GameConstants.NarrativeCharRevealMs;
+            }
+
+            if (configData.NarrativeCharRevealRampChars <= 0)
+            {
+                configData.NarrativeCharRevealRampChars = RPGGame.GameConstants.NarrativeCharRevealRampChars;
+            }
+
+            if (configData.NarrativeCharRevealMaxMs <= 0)
+            {
+                configData.NarrativeCharRevealMaxMs = RPGGame.GameConstants.NarrativeCharRevealMaxMs;
+            }
+
+            if (configData.NarrativeSentencePauseMs <= 0)
+            {
+                configData.NarrativeSentencePauseMs = RPGGame.GameConstants.NarrativeSentencePauseMs;
+            }
+
+            if (!configData.CharacterRevealRhythmLoaded)
+            {
+                // Prefer seeding from legacy CombatDelays narrative knobs when the new block was absent.
+                configData.CharacterRevealRhythm = CharacterRevealRhythmConfig.FromLegacyNarrative(
+                    configData.NarrativeCharRevealMs,
+                    configData.NarrativeCharRevealRampChars,
+                    configData.NarrativeCharRevealMaxMs,
+                    configData.NarrativeSentencePauseMs);
+                configData.CharacterRevealRhythmLoaded = true;
+            }
+            else
+            {
+                SanitizeLoadedRhythm(configData);
+            }
+
+            // Mirror rhythm → legacy fields so older getters/saves stay coherent.
+            configData.NarrativeCharRevealMs = configData.CharacterRevealRhythm.BaseCharDelayMs;
+            configData.NarrativeCharRevealRampChars = configData.CharacterRevealRhythm.BattleRampChars;
+            configData.NarrativeCharRevealMaxMs = configData.CharacterRevealRhythm.MaxCharDelayMs;
+            configData.NarrativeSentencePauseMs = configData.CharacterRevealRhythm.SentencePauseMs;
+
             // Default message type delays
             if (configData.MessageTypeDelays.Count == 0)
             {
@@ -197,6 +257,35 @@ namespace RPGGame.Config.TextDelay
             }
         }
 
+        private static void SanitizeLoadedRhythm(TextDelayConfigData configData)
+        {
+            var rhythm = configData.CharacterRevealRhythm ?? CharacterRevealRhythmConfig.CreateDefault();
+            if (rhythm.BaseCharDelayMs <= 0)
+                rhythm.BaseCharDelayMs = configData.NarrativeCharRevealMs > 0
+                    ? configData.NarrativeCharRevealMs
+                    : RPGGame.GameConstants.NarrativeCharRevealMs;
+            if (rhythm.MinCharDelayMs < 0)
+                rhythm.MinCharDelayMs = 0;
+            if (rhythm.MaxCharDelayMs < rhythm.MinCharDelayMs)
+                rhythm.MaxCharDelayMs = Math.Max(rhythm.MinCharDelayMs, 40);
+            if (rhythm.SentencePauseMs <= 0)
+                rhythm.SentencePauseMs = configData.NarrativeSentencePauseMs > 0
+                    ? configData.NarrativeSentencePauseMs
+                    : RPGGame.GameConstants.NarrativeSentencePauseMs;
+            if (rhythm.ParagraphTargetMs < 0)
+                rhythm.ParagraphTargetMs = RPGGame.GameConstants.NarrativeParagraphTargetMs;
+            if (rhythm.SentenceReferenceChars <= 0)
+                rhythm.SentenceReferenceChars = 40;
+            if (rhythm.WordReferenceChars <= 0)
+                rhythm.WordReferenceChars = 6;
+            if (rhythm.BattleRampChars <= 0)
+                rhythm.BattleRampChars = configData.NarrativeCharRevealRampChars > 0
+                    ? configData.NarrativeCharRevealRampChars
+                    : RPGGame.GameConstants.NarrativeCharRevealRampChars;
+            rhythm.WordEmphasisPreset = CharacterRevealRhythmCalculator.NormalizePresetName(rhythm.WordEmphasisPreset);
+            configData.CharacterRevealRhythm = rhythm;
+        }
+
         /// <summary>
         /// Saves the configuration to JSON file
         /// </summary>
@@ -236,7 +325,32 @@ namespace RPGGame.Config.TextDelay
                     ActionDelayMs = configData.ActionDelayMs,
                     MessageDelayMs = configData.MessageDelayMs,
                     TutorialCombatDelayMultiplier = configData.TutorialCombatDelayMultiplier,
-                    SequenceHudDelayMultiplier = configData.SequenceHudDelayMultiplier
+                    SequenceHudDelayMultiplier = configData.SequenceHudDelayMultiplier,
+                    NarrativeCharRevealMs = configData.CharacterRevealRhythm.BaseCharDelayMs,
+                    NarrativeCharRevealRampChars = configData.CharacterRevealRhythm.BattleRampChars,
+                    NarrativeCharRevealMaxMs = configData.CharacterRevealRhythm.MaxCharDelayMs,
+                    NarrativeSentencePauseMs = configData.CharacterRevealRhythm.SentencePauseMs
+                };
+
+                saveData.CharacterRevealRhythm = new CharacterRevealRhythmConfig
+                {
+                    Enabled = configData.CharacterRevealRhythm.Enabled,
+                    ParagraphTargetMs = configData.CharacterRevealRhythm.ParagraphTargetMs,
+                    BaseCharDelayMs = configData.CharacterRevealRhythm.BaseCharDelayMs,
+                    MinCharDelayMs = configData.CharacterRevealRhythm.MinCharDelayMs,
+                    MaxCharDelayMs = configData.CharacterRevealRhythm.MaxCharDelayMs,
+                    SentencePauseMs = configData.CharacterRevealRhythm.SentencePauseMs,
+                    SentenceReferenceChars = configData.CharacterRevealRhythm.SentenceReferenceChars,
+                    SentenceScaleMin = configData.CharacterRevealRhythm.SentenceScaleMin,
+                    SentenceScaleMax = configData.CharacterRevealRhythm.SentenceScaleMax,
+                    WordReferenceChars = configData.CharacterRevealRhythm.WordReferenceChars,
+                    WordScaleMin = configData.CharacterRevealRhythm.WordScaleMin,
+                    WordScaleMax = configData.CharacterRevealRhythm.WordScaleMax,
+                    WordEmphasisPreset = configData.CharacterRevealRhythm.WordEmphasisPreset,
+                    WordBeginWeight = configData.CharacterRevealRhythm.WordBeginWeight,
+                    WordMidWeight = configData.CharacterRevealRhythm.WordMidWeight,
+                    WordEndWeight = configData.CharacterRevealRhythm.WordEndWeight,
+                    BattleRampChars = configData.CharacterRevealRhythm.BattleRampChars
                 };
                 
                 // Copy progressive menu delays
@@ -290,6 +404,13 @@ namespace RPGGame.Config.TextDelay
             public int MessageDelayMs { get; set; } = 200;
             public double TutorialCombatDelayMultiplier { get; set; } = RPGGame.GameConstants.TutorialCombatDelayMultiplier;
             public double SequenceHudDelayMultiplier { get; set; } = RPGGame.GameConstants.SequenceHudDelayMultiplier;
+            public int NarrativeCharRevealMs { get; set; } = RPGGame.GameConstants.NarrativeCharRevealMs;
+            public int NarrativeCharRevealRampChars { get; set; } = RPGGame.GameConstants.NarrativeCharRevealRampChars;
+            public int NarrativeCharRevealMaxMs { get; set; } = RPGGame.GameConstants.NarrativeCharRevealMaxMs;
+            public int NarrativeSentencePauseMs { get; set; } = RPGGame.GameConstants.NarrativeSentencePauseMs;
+            public CharacterRevealRhythmConfig CharacterRevealRhythm { get; set; } = CharacterRevealRhythmConfig.CreateDefault();
+            /// <summary>True when CharacterRevealRhythm was present in JSON (vs seeded from legacy).</summary>
+            public bool CharacterRevealRhythmLoaded { get; set; }
             public int EnvironmentalLineDelay { get; set; } = 500;
             public ProgressiveMenuDelaysConfig ProgressiveMenuDelays { get; set; } = new ProgressiveMenuDelaysConfig();
             public TravelRouteRollPacingConfig TravelRouteRollPacing { get; set; } = new TravelRouteRollPacingConfig();
@@ -305,6 +426,7 @@ namespace RPGGame.Config.TextDelay
             public Dictionary<string, int> MessageTypeDelays { get; set; } = new Dictionary<string, int>();
             public Dictionary<string, ChunkedTextRevealPreset> ChunkedTextReveal { get; set; } = new Dictionary<string, ChunkedTextRevealPreset>();
             public CombatDelaysData CombatDelays { get; set; } = new CombatDelaysData();
+            public CharacterRevealRhythmConfig CharacterRevealRhythm { get; set; } = CharacterRevealRhythmConfig.CreateDefault();
             public int EnvironmentalLineDelay { get; set; } = 500;
             public ProgressiveMenuDelaysConfig ProgressiveMenuDelays { get; set; } = new ProgressiveMenuDelaysConfig();
             public TravelRouteRollPacingConfig TravelRouteRollPacing { get; set; } = new TravelRouteRollPacingConfig();
@@ -321,6 +443,10 @@ namespace RPGGame.Config.TextDelay
             public int MessageDelayMs { get; set; }
             public double TutorialCombatDelayMultiplier { get; set; } = RPGGame.GameConstants.TutorialCombatDelayMultiplier;
             public double SequenceHudDelayMultiplier { get; set; } = RPGGame.GameConstants.SequenceHudDelayMultiplier;
+            public int NarrativeCharRevealMs { get; set; } = RPGGame.GameConstants.NarrativeCharRevealMs;
+            public int NarrativeCharRevealRampChars { get; set; } = RPGGame.GameConstants.NarrativeCharRevealRampChars;
+            public int NarrativeCharRevealMaxMs { get; set; } = RPGGame.GameConstants.NarrativeCharRevealMaxMs;
+            public int NarrativeSentencePauseMs { get; set; } = RPGGame.GameConstants.NarrativeSentencePauseMs;
         }
     }
 }

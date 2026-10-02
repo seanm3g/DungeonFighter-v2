@@ -1,3 +1,4 @@
+using RPGGame;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Utils;
@@ -15,6 +16,36 @@ namespace RPGGame.Tests.Unit.UI
 
             int logX = LayoutConstants.CENTER_PANEL_X + 1;
             int logY = LayoutConstants.CENTER_PANEL_Y + 1;
+
+            TestBase.AssertTrue(
+                CombatLogCopyInput.AllowsClipboardContext(isCombatDisplayActive: true, state: GameState.MainMenu),
+                "combat display mode alone allows clipboard copy",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                CombatLogCopyInput.AllowsClipboardContext(isCombatDisplayActive: false, state: GameState.Combat),
+                "Combat state allows clipboard copy without combat display mode",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                CombatLogCopyInput.AllowsClipboardContext(isCombatDisplayActive: false, state: GameState.ActionInteractionLab),
+                "Action Lab state allows clipboard copy",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                CombatLogCopyInput.AllowsClipboardContext(isCombatDisplayActive: false, state: GameState.Dungeon),
+                "Dungeon state (stay/leave prompt) allows clipboard copy",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                !CombatLogCopyInput.AllowsClipboardContext(isCombatDisplayActive: false, state: GameState.Inventory),
+                "Inventory state does not allow combat-log clipboard copy",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                !CombatLogCopyInput.AllowsClipboardContext(isCombatDisplayActive: false, state: null),
+                "null state without combat display does not allow clipboard copy",
+                ref run, ref passed, ref failed);
 
             TestBase.AssertTrue(
                 CombatLogCopyInput.ShouldCopyOnRightClick(

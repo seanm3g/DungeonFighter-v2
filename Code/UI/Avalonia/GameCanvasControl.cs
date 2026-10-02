@@ -5,8 +5,10 @@ using Avalonia.Threading;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Avalonia.Canvas;
+using RPGGame.UI.Avalonia.Effects;
 using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.UI.Avalonia
@@ -24,17 +26,26 @@ namespace RPGGame.UI.Avalonia
         private readonly CanvasPrimitivesRenderer renderer;
         private readonly HealthTracker healthTracker;
         private readonly CanvasElementBuilder elementBuilder;
+        private readonly WindSwayField windSwayField = new();
+        private readonly TextClickBurstField clickBurstField = new();
         private DispatcherTimer? damageDeltaAnimationTimer;
+        private DispatcherTimer? windSwaySettleTimer;
         
         // Base grid dimensions (original design size)
-        private const int BASE_GRID_WIDTH = 210;
-        private const int BASE_GRID_HEIGHT = 52;
-        /// <summary>Allows UI to shrink on smaller displays (e.g. 2560×1600 Mac at 2× scaling).</summary>
-        private const double MinCanvasScale = 0.4;
+        private const int BASE_GRID_WIDTH = CanvasGridSizer.DesignGridWidth;
+        private const int BASE_GRID_HEIGHT = CanvasGridSizer.DesignGridHeight;
         
         // Grid properties (now calculated dynamically)
         private int _gridWidth = BASE_GRID_WIDTH;
         private int _gridHeight = BASE_GRID_HEIGHT;
+        private int _lastLaidOutGridWidth = -1;
+        private int _lastLaidOutGridHeight = -1;
+
+        /// <summary>
+        /// Raised when the character-grid width or height changes after measure/arrange (window resize).
+        /// Subscribers should force a full layout re-render so panels pick up new column counts.
+        /// </summary>
+        public event System.Action? GridDimensionsChanged;
 
         /// <summary>
         /// When true, this control does not update global <see cref="LayoutConstants"/> (compact auxiliary windows, e.g. Action Lab tools).
@@ -104,9 +115,86 @@ namespace RPGGame.UI.Avalonia
             this.renderer = new CanvasPrimitivesRenderer(coordinateConverter);
             this.healthTracker = new HealthTracker();
             this.elementBuilder = new CanvasElementBuilder(elementManager, healthTracker, CenterX);
+            ReloadWindSwayConfig();
+            renderer.SetWindSwayField(windSwayField);
+            renderer.SetClickBurstField(clickBurstField);
             InitializeDamageDeltaTimer();
+            InitializeWindSwaySettleTimer();
             if (!IsAuxiliaryLayoutCanvas)
                 UpdateLayoutConstants();
+        }
+
+        /// <summary>Mouse-driven wind field used for side-panel per-glyph sway.</summary>
+        public WindSwayField WindSway => windSwayField;
+
+        /// <summary>Click-charge explode/reform field for any non-overlay text.</summary>
+        public TextClickBurstField ClickBurst => clickBurstField;
+
+        /// <summary>
+        /// Reloads wind-sway settings from <see cref="UIConfiguration"/> (call after settings save).
+        /// </summary>
+        public void ReloadWindSwayConfig()
+        {
+            try
+            {
+                var cfg = UIConfiguration.LoadFromFile().DungeonSelectionAnimation?.WindSway
+                    ?? new WindSwayConfig();
+                windSwayField.ApplyConfig(cfg);
+                clickBurstField.ApplyConfig(cfg.ClickBurst ?? new TextClickBurstConfig());
+                if (windSwaySettleTimer != null)
+                {
+                    int ms = Math.Clamp(cfg.SettleIntervalMs, 8, 100);
+                    windSwaySettleTimer.Interval = TimeSpan.FromMilliseconds(ms);
+                }
+            }
+            catch
+            {
+                windSwayField.ApplyConfig(new WindSwayConfig());
+                clickBurstField.ApplyConfig(new TextClickBurstConfig());
+            }
+        }
+
+        /// <summary>
+        /// Feeds pointer motion into the wind field and keeps the canvas settling until wind dies out.
+        /// Always tracks mouse for the wake-radius debug overlay.
+        /// </summary>
+        public void NotifyPointerWind(Point position)
+        {
+            double charWidth = coordinateConverter.GetCharWidth();
+            double charHeight = coordinateConverter.GetCharHeight();
+            if (charWidth <= 0 || charHeight <= 0)
+                return;
+
+            // Always track for debug circle, even when sway is disabled / F6 off.
+            windSwayField.TrackMousePosition(position.X, position.Y);
+
+            if (windSwayField.ShowWakeRadiusDebug)
+                Refresh();
+
+            if (!windSwayField.Config.Enabled || !DeveloperModeState.AreDistortionEffectsEnabled)
+                return;
+
+            windSwayField.PushFromMouseDelta(position.X, position.Y, charWidth, charHeight);
+            EnsureWindSwaySettleTimer();
+            Refresh();
+        }
+
+        /// <summary>
+        /// Feeds a left-click into the click-burst field (visual only; does not consume the click).
+        /// </summary>
+        public void NotifyPointerClick(Point position)
+        {
+            double charWidth = coordinateConverter.GetCharWidth();
+            double charHeight = coordinateConverter.GetCharHeight();
+            if (charWidth <= 0 || charHeight <= 0)
+                return;
+
+            if (!clickBurstField.Config.Enabled || !DeveloperModeState.AreDistortionEffectsEnabled)
+                return;
+
+            clickBurstField.NotifyClick(position.X, position.Y, charWidth, charHeight);
+            EnsureWindSwaySettleTimer();
+            Refresh();
         }
         
         /// <summary>
@@ -131,6 +219,36 @@ namespace RPGGame.UI.Avalonia
                     damageDeltaAnimationTimer.Stop();
                 }
             };
+        }
+
+        private void InitializeWindSwaySettleTimer()
+        {
+            int ms = Math.Clamp(windSwayField.Config.SettleIntervalMs, 8, 100);
+            windSwaySettleTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(ms)
+            };
+            windSwaySettleTimer.Tick += (_, _) =>
+            {
+                if (windSwayField.IsActive || clickBurstField.IsActive)
+                {
+                    Refresh();
+                }
+                else
+                {
+                    windSwaySettleTimer.Stop();
+                }
+            };
+        }
+
+        private void EnsureWindSwaySettleTimer()
+        {
+            if (windSwaySettleTimer != null
+                && !windSwaySettleTimer.IsEnabled
+                && (windSwayField.IsActive || clickBurstField.IsActive))
+            {
+                windSwaySettleTimer.Start();
+            }
         }
         
         /// <summary>
@@ -162,60 +280,77 @@ namespace RPGGame.UI.Avalonia
             double charWidth = coordinateConverter.GetCharWidth();
             if (charWidth <= 0)
                 return;
-            // Cap pixel width to the logical grid so panel columns stay aligned with the fixed 210-cell layout.
-            // When height limits scale, Bounds can be wider than GridWidth*charWidth (letterboxing); using raw Bounds
-            // inflated _effectiveVisibleWidth and shifted chrome on the next full re-render.
-            double logicalPixelWidth = GridWidth * charWidth;
+            // Use the laid-out pixel width so center/right panels track horizontal resize.
+            // GridWidth already matches floor(width/charWidth) from CalculateScaleAndGrid.
             double widthForLayout = Bounds.Width > 0
-                ? System.Math.Min(Bounds.Width, logicalPixelWidth)
-                : logicalPixelWidth;
+                ? Bounds.Width
+                : GridWidth * charWidth;
             LayoutConstants.UpdateEffectiveVisibleWidth(widthForLayout, charWidth);
         }
 
         /// <summary>
-        /// Calculates scale factor and grid dimensions based on available space
-        /// Scales font size proportionally when window is resized to make UI bigger when fullscreened
+        /// Calculates scale factor and grid dimensions based on available space.
+        /// Main canvas: font scale fills available height; column count shrinks with width.
         /// </summary>
         private void CalculateScaleAndGrid(double availableWidth, double availableHeight)
         {
-            int targetW = IsAuxiliaryLayoutCanvas ? AuxiliaryGridWidth : BASE_GRID_WIDTH;
-            int targetH = IsAuxiliaryLayoutCanvas ? AuxiliaryGridHeight : BASE_GRID_HEIGHT;
-            GridWidth = targetW;
-            GridHeight = targetH;
+            coordinateConverter.SetScaleFactor(1.0);
+            coordinateConverter.EnsureCharWidthMeasured();
+            double baseCharWidth = coordinateConverter.GetCharWidth();
+            double baseCharHeight = coordinateConverter.GetCharHeight();
 
-            // Calculate scale factor and grid dimensions based on available space
-            if (availableWidth > 0 && availableHeight > 0 && 
-                availableWidth != double.PositiveInfinity && availableHeight != double.PositiveInfinity)
+            double scaleFactor;
+            int targetW;
+            int targetH;
+            if (IsAuxiliaryLayoutCanvas)
             {
-                // Temporarily set scale to 1.0 to measure base character size
-                coordinateConverter.SetScaleFactor(1.0);
-                coordinateConverter.EnsureCharWidthMeasured();
-                double baseCharWidth = coordinateConverter.GetCharWidth();
-                double baseCharHeight = coordinateConverter.GetCharHeight();
-                
-                // Calculate required size for base grid at scale 1.0
-                double requiredWidth = targetW * baseCharWidth;
-                double requiredHeight = targetH * baseCharHeight;
-                
-                // Calculate scale factors for width and height
-                double scaleX = availableWidth / requiredWidth;
-                double scaleY = availableHeight / requiredHeight;
-                
-                // Use the smaller scale to maintain aspect ratio and ensure everything fits
-                // This will scale the font size up when window is larger
-                double scaleFactor = Math.Min(scaleX, scaleY);
-                
-                // Shrink on small windows; scale up on large/fullscreen displays.
-                scaleFactor = Math.Clamp(scaleFactor, MinCanvasScale, 20.0);
-                
-                // Update the coordinate converter with the calculated scale factor
-                // This scales the font size, making all characters bigger
-                coordinateConverter.SetScaleFactor(scaleFactor);
+                (scaleFactor, targetW, targetH) = CanvasGridSizer.CalculateFixedGrid(
+                    availableWidth,
+                    availableHeight,
+                    baseCharWidth,
+                    baseCharHeight,
+                    AuxiliaryGridWidth,
+                    AuxiliaryGridHeight);
+            }
+            else if (availableWidth > 0 && availableHeight > 0
+                     && availableWidth != double.PositiveInfinity
+                     && availableHeight != double.PositiveInfinity)
+            {
+                (scaleFactor, targetW, targetH) = CanvasGridSizer.Calculate(
+                    availableWidth,
+                    availableHeight,
+                    baseCharWidth,
+                    baseCharHeight);
             }
             else
             {
-                // Use base dimensions if no size available
-                coordinateConverter.SetScaleFactor(1.0);
+                scaleFactor = 1.0;
+                targetW = BASE_GRID_WIDTH;
+                targetH = BASE_GRID_HEIGHT;
+            }
+
+            coordinateConverter.SetScaleFactor(scaleFactor);
+            GridWidth = targetW;
+            GridHeight = targetH;
+
+            if (!IsAuxiliaryLayoutCanvas)
+            {
+                // Keep LayoutConstants in sync during measure/arrange (Bounds may still be stale).
+                coordinateConverter.EnsureCharWidthMeasured();
+                double charWidth = coordinateConverter.GetCharWidth();
+                if (charWidth > 0)
+                    LayoutConstants.UpdateEffectiveVisibleWidth(
+                        CanvasGridSizer.LayoutColumnCount(GridWidth) * charWidth,
+                        charWidth);
+
+                if (_lastLaidOutGridWidth >= 0
+                    && (_lastLaidOutGridWidth != GridWidth || _lastLaidOutGridHeight != GridHeight))
+                {
+                    GridDimensionsChanged?.Invoke();
+                }
+
+                _lastLaidOutGridWidth = GridWidth;
+                _lastLaidOutGridHeight = GridHeight;
             }
         }
 
@@ -228,9 +363,11 @@ namespace RPGGame.UI.Avalonia
             
             coordinateConverter.EnsureCharWidthMeasured();
             
-            // Calculate size based on grid dimensions and scaled character size
             double width = GridWidth * coordinateConverter.GetCharWidth();
-            double height = GridHeight * coordinateConverter.GetCharHeight();
+            // Main layout: painted panel rows + thin bottom outer pad.
+            double height = IsAuxiliaryLayoutCanvas
+                ? GridHeight * coordinateConverter.GetCharHeight()
+                : CanvasGridSizer.CanvasRowCount(GridHeight) * coordinateConverter.GetCharHeight();
             
             return new Size(width, height);
         }
@@ -240,16 +377,15 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         protected override Size ArrangeOverride(Size finalSize)
         {
-            // Calculate scale based on available space
             CalculateScaleAndGrid(finalSize.Width, finalSize.Height);
             
             coordinateConverter.EnsureCharWidthMeasured();
             
-            // Calculate actual canvas size we need
             double canvasWidth = GridWidth * coordinateConverter.GetCharWidth();
-            double canvasHeight = GridHeight * coordinateConverter.GetCharHeight();
+            double canvasHeight = IsAuxiliaryLayoutCanvas
+                ? GridHeight * coordinateConverter.GetCharHeight()
+                : CanvasGridSizer.CanvasRowCount(GridHeight) * coordinateConverter.GetCharHeight();
             
-            // Return the size we actually use (parent will center via alignment)
             return new Size(canvasWidth, canvasHeight);
         }
 
@@ -286,6 +422,34 @@ namespace RPGGame.UI.Avalonia
                 elementManager.ProgressBars.ToList(),
                 elementManager.SegmentedBars.ToList(),
                 ClearBackgroundColor);
+
+            DrawWakeRadiusDebugOverlay(context);
+        }
+
+        private void DrawWakeRadiusDebugOverlay(DrawingContext context)
+        {
+            if (!windSwayField.ShowWakeRadiusDebug)
+                return;
+
+            double charWidth = coordinateConverter.GetCharWidth();
+            double charHeight = coordinateConverter.GetCharHeight();
+            if (!windSwayField.TryGetWakeDebugEllipse(
+                    charWidth, charHeight,
+                    out double cx, out double cy, out double rx, out double ry, out double rotationRadians))
+                return;
+
+            var pen = new Pen(new SolidColorBrush(Color.FromArgb(200, 80, 220, 255)), 1.5);
+            // Draw the cell-aspect oval in local space, then rotate so the major axis follows mouse motion.
+            using (context.PushTransform(
+                       Matrix.CreateTranslation(cx, cy) * Matrix.CreateRotation(rotationRadians)))
+            {
+                context.DrawEllipse(null, pen, new Point(0, 0), rx, ry);
+            }
+
+            // Crosshair at cursor for size reference.
+            var cross = new Pen(new SolidColorBrush(Color.FromArgb(180, 255, 200, 80)), 1);
+            context.DrawLine(cross, new Point(cx - 6, cy), new Point(cx + 6, cy));
+            context.DrawLine(cross, new Point(cx, cy - 6), new Point(cx, cy + 6));
         }
 
         // Public methods for adding elements
@@ -312,6 +476,12 @@ namespace RPGGame.UI.Avalonia
         public void ClearTextInArea(int startX, int startY, int width, int height)
         {
             elementManager.ClearTextInArea(startX, startY, width, height);
+        }
+
+        /// <summary>See <see cref="CanvasElementManager.MaskNonOverlayTextInArea"/>.</summary>
+        public void MaskNonOverlayTextInArea(int startX, int startY, int width, int height)
+        {
+            elementManager.MaskNonOverlayTextInArea(startX, startY, width, height);
         }
         
         /// <summary>
@@ -358,6 +528,20 @@ namespace RPGGame.UI.Avalonia
         public string GetPlainTextSnapshotInGridRect(int startX, int startY, int width, int height, bool excludeOverlay = true)
         {
             return elementManager.BuildPlainTextSnapshotInRect(startX, startY, width, height, excludeOverlay);
+        }
+
+        /// <summary>
+        /// Samples non-overlay glyphs and colors in a character-grid rectangle (combat-log / center band).
+        /// </summary>
+        public void SampleCombatLogCellColors(
+            int startX,
+            int startY,
+            int width,
+            int height,
+            char[] glyphs,
+            Color[] colors)
+        {
+            elementManager.SampleCellColorsInRect(startX, startY, width, height, glyphs, colors);
         }
 
         /// <summary>
@@ -550,6 +734,8 @@ namespace RPGGame.UI.Avalonia
         {
             damageDeltaAnimationTimer?.Stop();
             damageDeltaAnimationTimer = null;
+            windSwaySettleTimer?.Stop();
+            windSwaySettleTimer = null;
             base.OnDetachedFromVisualTree(e);
         }
 
@@ -559,6 +745,26 @@ namespace RPGGame.UI.Avalonia
                 InvalidateVisual();
             else
                 Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
+        }
+
+        /// <summary>
+        /// Re-measures the grid after <see cref="GameFonts"/> changes (F3) so column/row counts
+        /// and glyph metrics match the new typeface.
+        /// </summary>
+        public void ApplyActiveFont()
+        {
+            void Apply()
+            {
+                coordinateConverter.InvalidateCharMetrics();
+                InvalidateMeasure();
+                InvalidateArrange();
+                InvalidateVisual();
+            }
+
+            if (Dispatcher.UIThread.CheckAccess())
+                Apply();
+            else
+                Dispatcher.UIThread.Post(Apply, DispatcherPriority.Render);
         }
     }
 }

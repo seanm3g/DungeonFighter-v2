@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Help;
 using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.UI.Avalonia.Renderers
@@ -324,9 +325,10 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             if (contentHeight > viewportHeight)
             {
-                canvas.AddText(left, Math.Min(viewportBottom, y + height - DetailReserve - FooterReserve),
-                    $"{AsciiArtAssets.UIElements.ArrowUpDown} Arrows / PgUp/PgDn / Wheel scroll",
-                    AsciiArtAssets.Colors.Gray);
+                MenuMouseScrollHint.Draw(
+                    canvas,
+                    left,
+                    Math.Min(viewportBottom, y + height - DetailReserve - FooterReserve));
             }
 
             int detailY = viewportBottom + 1;

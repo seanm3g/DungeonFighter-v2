@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
             TestCollectActionBlockMessages_ActionTextOnly();
             TestCollectActionBlockMessages_WithRollInfo();
             TestCollectActionBlockMessages_WithStatusEffects();
+            TestCollectActionBlockMessages_OmitsFlavorNarratives();
             TestCollectActionBlockMessages_EmptyInput();
             TestCollectActionBlockMessages_EnvironmentalBlockUsesEnvironmentalLineTypes();
             TestCollectActionBlockMessages_EnvironmentalStatusEffectsSkipIndent();
@@ -90,6 +91,36 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
             
             TestBase.AssertNotNull(result,
                 "CollectActionBlockMessages should return a list with status effects",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCollectActionBlockMessages_OmitsFlavorNarratives()
+        {
+            Console.WriteLine("\n--- Testing CollectActionBlockMessages - Omits flavor narratives ---");
+
+            var actionText = new List<ColoredText> { new ColoredText("Hero Attacks Wight... and CRITICAL MISS", Colors.White) };
+            var rollInfo = new List<ColoredText> { new ColoredText("(roll: 1 | speed: 17.1s)", Colors.Cyan) };
+            var critMissFlavor = new List<ColoredText>
+            {
+                new ColoredText("Hero stumbles in their assault, the critical miss leaving them off-balance!", Colors.White)
+            };
+            var otherFlavor = new List<List<ColoredText>>
+            {
+                new List<ColoredText> { new ColoredText("The battle rages on!", Colors.Cyan) }
+            };
+
+            var result = BlockMessageCollector.CollectActionBlockMessages(
+                actionText, rollInfo, null, critMissFlavor, otherFlavor);
+
+            TestBase.AssertEqual(2, result.Count,
+                "Overview action block should keep only action + roll (no flavor lines)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string joined = string.Join("\n", result.ConvertAll(g => ColoredTextRenderer.RenderAsPlainText(g.segments)));
+            TestBase.AssertFalse(
+                joined.IndexOf("stumbles", StringComparison.OrdinalIgnoreCase) >= 0
+                || joined.IndexOf("battle rages", StringComparison.OrdinalIgnoreCase) >= 0,
+                "Flavor prose must not appear in overview action blocks",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

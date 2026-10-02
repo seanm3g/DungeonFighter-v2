@@ -177,29 +177,14 @@ namespace RPGGame.Combat.Calculators
             };
         }
 
-        /// <summary>Sequence HUD DEFENSE beats: BLOCK %, rating × stance, DR %.</summary>
+        /// <summary>Sequence HUD DEFENSE: damage reduction percent only (e.g. <c>12%</c>).</summary>
         public static List<string> FormatHudLines(Character hero, bool pierce)
         {
             var mit = ApplyIncoming(hero, 100, pierce, mitigationHitIndex: 0);
-            var lines = new List<string>
-            {
-                $"BLOCK {(int)Math.Round(mit.BlockPercent * 100.0, MidpointRounding.AwayFromZero)}%"
-            };
-
-            if (pierce)
-            {
-                lines.Add("pierce");
-                lines.Add("DR 0%");
-                return lines;
-            }
-
-            int stancePts = (int)Math.Round(mit.ActionMult * 100.0, MidpointRounding.AwayFromZero);
-            int effPts = (int)Math.Round(mit.EffectiveDefense, MidpointRounding.AwayFromZero);
-            int kPts = (int)Math.Round(mit.K, MidpointRounding.AwayFromZero);
             int drPts = (int)Math.Round(mit.DrPercent * 100.0, MidpointRounding.AwayFromZero);
-            lines.Add($"def {mit.Rating} × {stancePts}% = {effPts}");
-            lines.Add($"{effPts}/({effPts}+{kPts})={drPts}%");
-            return lines;
+            if (pierce)
+                return new List<string> { "pierce", "0%" };
+            return new List<string> { $"{drPts}%" };
         }
 
         /// <summary>Combat-log footer: damage reduction percent only.</summary>

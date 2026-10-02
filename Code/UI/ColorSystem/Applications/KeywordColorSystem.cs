@@ -247,9 +247,15 @@ namespace RPGGame.UI.ColorSystem
         
         private static Color GetColorForWord(string word)
         {
-            // Exclude common articles from being colored
+            // Exclude common glue words from being colored (incl. short tokens that used to
+            // false-match via substring rules, e.g. "as" inside "slash").
             var lowerWord = word.ToLowerInvariant().TrimEnd('.', ',', '!', '?', ';', ':');
-            var commonArticles = new HashSet<string> { "the", "a", "an", "and", "or", "but", "for", "with", "to", "of", "in", "on", "at", "by" };
+            var commonArticles = new HashSet<string>
+            {
+                "the", "a", "an", "and", "or", "but", "for", "with", "to", "of", "in", "on",
+                "at", "by", "as", "is", "are", "was", "were", "be", "been", "from", "into",
+                "its", "it", "his", "her", "their", "this", "that", "than", "then"
+            };
             if (commonArticles.Contains(lowerWord))
             {
                 return Colors.White;
@@ -322,28 +328,22 @@ namespace RPGGame.UI.ColorSystem
         public HashSet<string> Keywords { get; set; } = new HashSet<string>();
         
         /// <summary>
-        /// Checks if a word matches any keyword in this group
+        /// Checks if a word matches any keyword in this group (whole word only; punctuation stripped).
         /// </summary>
         public bool ContainsKeyword(string word)
         {
             if (string.IsNullOrEmpty(word))
                 return false;
-            
-            var searchWord = CaseSensitive ? word : word.ToLowerInvariant();
-            
-            // Check exact matches
-            if (Keywords.Contains(searchWord))
-                return true;
-            
-            // Check partial matches (word contains keyword or keyword contains word)
-            foreach (var keyword in Keywords)
-            {
-                var searchKeyword = CaseSensitive ? keyword : keyword.ToLowerInvariant();
-                if (searchWord.Contains(searchKeyword) || searchKeyword.Contains(searchWord))
-                    return true;
-            }
-            
-            return false;
+
+            // Strip trailing punctuation so "wound." still matches "wound".
+            var searchWord = word.TrimEnd('.', ',', '!', '?', ';', ':', '"', '\'');
+            if (string.IsNullOrEmpty(searchWord))
+                return false;
+
+            if (!CaseSensitive)
+                searchWord = searchWord.ToLowerInvariant();
+
+            return Keywords.Contains(searchWord);
         }
     }
 }

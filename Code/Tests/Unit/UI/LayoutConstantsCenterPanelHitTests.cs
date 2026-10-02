@@ -73,6 +73,15 @@ namespace RPGGame.Tests.Unit.UI
                 "left panel column is not center panel content",
                 ref run, ref passed, ref failed);
 
+            TestBase.AssertTrue(
+                LayoutConstants.ContainsLeftPanel(LayoutConstants.LEFT_PANEL_X + 1, 1),
+                "inner left-panel cell is ContainsLeftPanel",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                !LayoutConstants.ContainsLeftPanel(LayoutConstants.CENTER_PANEL_X + 1, centerTop),
+                "center panel is not ContainsLeftPanel",
+                ref run, ref passed, ref failed);
+
             double cw = 10;
             double ch = 18;
             double insideX = (LayoutConstants.CENTER_PANEL_X + 1) * cw + 0.5 * cw;

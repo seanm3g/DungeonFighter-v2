@@ -38,6 +38,7 @@ namespace RPGGame.UI.Avalonia.Handlers
             this.gameCanvas = gameCanvas;
             this.canvasUI = canvasUI;
             this.game = game;
+            CombatLogActionHoverState.SetVisibilityChangedCallback(RedrawAfterCombatLogHoverVisibilityChange);
         }
 
         /// <summary>
@@ -84,6 +85,8 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             if (point.Properties.IsLeftButtonPressed)
             {
+                // Visual click-burst is additive; never blocks or steals UI clicks.
+                gameCanvas.NotifyPointerClick(point.Position);
                 if (TryBeginComboStripDrag(e, point.Position))
                     return;
                 HandleMouseClick(point.Position);
@@ -97,6 +100,7 @@ namespace RPGGame.UI.Avalonia.Handlers
         {
             bool altChanged = HoverTooltipDetailState.SetFromModifiers(e.KeyModifiers);
             var point = e.GetCurrentPoint(gameCanvas);
+            gameCanvas.NotifyPointerWind(point.Position);
             HandleMouseHover(point.Position, forceTooltipRefresh: altChanged);
         }
 
@@ -160,7 +164,7 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
-        /// Handles pointer wheel events over the framed combat log (center column below the action strip).
+        /// Handles pointer wheel events over the left character panel or the framed combat log.
         /// </summary>
         public void HandlePointerWheelChanged(PointerWheelEventArgs e)
         {
@@ -172,6 +176,18 @@ namespace RPGGame.UI.Avalonia.Handlers
             double delta = e.Delta.Y;
             if (Math.Abs(delta) < 0.01) return;
 
+            // Match keyboard scroll step (see <see cref="GameCoordinator"/> combat scroll); scale a bit for large DIPs-per-notch values.
+            int lines = Math.Max(2, Math.Min(18, (int)Math.Ceiling(Math.Abs(delta) / 40.0) * 3));
+
+            if (LayoutConstants.ContainsLeftPanel(grid.X, grid.Y))
+            {
+                var stats = GetActiveStatsPanelState();
+                if (stats != null && stats.TryScrollLeftPanel(delta > 0 ? lines : -lines))
+                    RefreshChromeAfterStatsToggle();
+                e.Handled = true;
+                return;
+            }
+
             var gameRef = game;
             bool skillTree = gameRef?.StateManager?.CurrentState == GameState.SkillTree;
             bool inCenter = LayoutConstants.ContainsCombatLogScrollRegion(grid.X, grid.Y)
@@ -179,8 +195,6 @@ namespace RPGGame.UI.Avalonia.Handlers
             if (!inCenter)
                 return;
 
-            // Match keyboard scroll step (see <see cref="GameCoordinator"/> combat scroll); scale a bit for large DIPs-per-notch values.
-            int lines = Math.Max(2, Math.Min(18, (int)Math.Ceiling(Math.Abs(delta) / 40.0) * 3));
             if (gameRef?.StateManager?.CurrentState == GameState.Inventory)
             {
                 _ = gameRef.HandleInput(delta > 0 ? "up" : "down");
@@ -213,6 +227,10 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             // Convert screen coordinates to character grid coordinates
             var gridPos = ScreenToGrid(position);
+
+            // Clicking a hovered narrative prose tip dismisses the mechanical action-block overlay.
+            if (CombatLogActionHoverState.TryDismissFromClick(gridPos.X, gridPos.Y))
+                RedrawAfterCombatLogHoverVisibilityChange();
 
             // Check if click is on a clickable element
             var clickedElement = canvasUI.GetElementAt(gridPos.X, gridPos.Y);
@@ -272,14 +290,16 @@ namespace RPGGame.UI.Avalonia.Handlers
             bool inventoryActive = game?.StateManager?.CurrentState == GameState.Inventory;
             bool rpHoverChanged = RightPanelActionHoverState.UpdateFromClickables(canvasUI.GetClickableElements(), inventoryActive);
             bool lpHoverChanged = LeftPanelHoverState.UpdateFromClickables(canvasUI.GetClickableElements());
+            bool logHoverChanged = CombatLogActionHoverState.UpdateFromPointer(gridPos.X, gridPos.Y);
 
             bool tooltipStripOrPanel = newStripHover >= 0
                 || RightPanelActionHoverState.HoveredSequenceIndex >= 0
                 || RightPanelActionHoverState.HoveredPoolIndex >= 0
                 || RightPanelActionHoverState.HoveredInventoryPoolIndex >= 0
-                || LeftPanelHoverState.IsActive;
+                || LeftPanelHoverState.IsActive
+                || CombatLogActionHoverState.IsActive;
 
-            if (!stripHoverChanged && !rpHoverChanged && !lpHoverChanged
+            if (!stripHoverChanged && !rpHoverChanged && !lpHoverChanged && !logHoverChanged
                 && !(forceTooltipRefresh && tooltipStripOrPanel))
                 return;
 
@@ -295,6 +315,8 @@ namespace RPGGame.UI.Avalonia.Handlers
                 if (game.StateManager?.CurrentState == GameState.GameLoop && player != null && tooltipStripOrPanel)
                     canvasUI.RefreshActionInfoStripOnly(player);
                 else if (game.StateManager?.CurrentState == GameState.ActionInteractionLab && player != null && tooltipStripOrPanel)
+                    canvasUI.RefreshActionInfoStripOnly(player);
+                else if (game.StateManager?.CurrentState == GameState.Combat && player != null && tooltipStripOrPanel)
                     canvasUI.RefreshActionInfoStripOnly(player);
                 else if (inv && player != null && tooltipStripOrPanel)
                 {
@@ -325,27 +347,50 @@ namespace RPGGame.UI.Avalonia.Handlers
                 || RightPanelActionHoverState.HoveredSequenceIndex >= 0
                 || RightPanelActionHoverState.HoveredPoolIndex >= 0
                 || RightPanelActionHoverState.HoveredInventoryPoolIndex >= 0
-                || LeftPanelHoverState.IsActive;
+                || LeftPanelHoverState.IsActive
+                || CombatLogActionHoverState.IsActive;
             if (!tooltipActive)
                 return;
+
+            RedrawHoverTooltipChrome();
+        }
+
+        /// <summary>
+        /// Combat-log prose tip became visible after its delay, or was dismissed by click / leave via timer.
+        /// </summary>
+        private void RedrawAfterCombatLogHoverVisibilityChange()
+        {
+            if (canvasUI == null) return;
+            RedrawHoverTooltipChrome();
+        }
+
+        private void RedrawHoverTooltipChrome()
+        {
+            if (canvasUI == null) return;
 
             var player = GetCharacterForActionStrip();
             bool inv = game?.StateManager?.CurrentState == GameState.Inventory;
             bool rpHovering = RightPanelActionHoverState.HoveredSequenceIndex >= 0
                 || RightPanelActionHoverState.HoveredPoolIndex >= 0
                 || RightPanelActionHoverState.HoveredInventoryPoolIndex >= 0;
+            bool tooltipStripOrPanel = ActionStripHoverState.HoveredPanelIndex >= 0
+                || rpHovering
+                || LeftPanelHoverState.IsActive
+                || CombatLogActionHoverState.IsActive;
 
             if (game != null)
             {
                 if ((game.StateManager?.CurrentState == GameState.GameLoop
-                     || game.StateManager?.CurrentState == GameState.ActionInteractionLab)
+                     || game.StateManager?.CurrentState == GameState.ActionInteractionLab
+                     || game.StateManager?.CurrentState == GameState.Combat)
                     && player != null
+                    && tooltipStripOrPanel
                     && !rpHovering
                     && !LeftPanelHoverState.IsActive)
                 {
                     canvasUI.RefreshActionInfoStripOnly(player);
                 }
-                else if (inv && player != null && !rpHovering && !LeftPanelHoverState.IsActive)
+                else if (inv && player != null && tooltipStripOrPanel && !rpHovering && !LeftPanelHoverState.IsActive)
                     canvasUI.RefreshActionInfoStripOnly(player);
                 else
                     game.RefreshPersistentChromeAfterStatsToggle();

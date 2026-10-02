@@ -222,10 +222,8 @@ namespace RPGGame
             // Add default actions (actions marked with IsDefaultAction = true)
             player.Actions.AddDefaultActions(player);
             
-            // Initialize combo sequence with weapon actions now that weapon is equipped
-            player.InitializeDefaultCombo();
-            
-            // Starting armor: Armor.json rows tagged "starter" (first per slot; shipped Shirt/shinguards; no feet), else StartingGear.json / TuningConfig
+            // Starting armor: Armor.json rows tagged "starter" (first per slot; shipped leather Helmet/Armor/Boots),
+            // else StartingGear.json / TuningConfig. Starter pieces are stamped Leather so the luck set is active.
             var catalogStarterArmor = StarterCatalogItems.LoadStarterArmorItems();
             if (catalogStarterArmor.Count > 0)
             {
@@ -271,6 +269,10 @@ namespace RPGGame
                     }
                 }
             }
+
+            // Initialize combo after all starter gear is equipped so armor equip rebuilds cannot drop
+            // the second startingweapon action from the strip (weapon-only init was overwritten).
+            player.InitializeDefaultCombo();
 
             // Safety check: Ensure character has at least one action available
             // If ActionPool is empty, add fallback actions based on weapon type

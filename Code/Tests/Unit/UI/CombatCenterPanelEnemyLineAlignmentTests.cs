@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Avalonia.Media;
+using RPGGame;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.BlockDisplay;
@@ -21,6 +22,7 @@ namespace RPGGame.Tests.Unit.UI
             TestResolveEnemyRollRightAlignedAfterPrimary(ref run, ref passed, ref failed);
             TestResolveHeroRollStaysLeft(ref run, ref passed, ref failed);
             TestResolveMultiEnemyEncounterNames(ref run, ref passed, ref failed);
+            TestEnemyRightAlignDisabledInNarrativeMode(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("CombatCenterPanelEnemyLineAlignment Tests", run, passed, failed);
         }
@@ -132,6 +134,27 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(flags[0] && flags[1] && flags[2] && flags[3],
                 "both enemy encounters right-align when multiple enemy names are supplied",
                 ref run, ref passed, ref failed);
+        }
+
+        private static void TestEnemyRightAlignDisabledInNarrativeMode(ref int run, ref int passed, ref int failed)
+        {
+            bool prev = DeveloperModeState.IsNarrativeCombatLog;
+            try
+            {
+                DeveloperModeState.SetNarrativeCombatLog(false);
+                TestBase.AssertTrue(CombatCenterPanelEnemyLineAlignment.IsEnemyRightAlignEnabled,
+                    "standard combat log keeps enemy right-align",
+                    ref run, ref passed, ref failed);
+
+                DeveloperModeState.SetNarrativeCombatLog(true);
+                TestBase.AssertFalse(CombatCenterPanelEnemyLineAlignment.IsEnemyRightAlignEnabled,
+                    "F7 narrative mode disables enemy right-align for book-style left justify",
+                    ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetNarrativeCombatLog(prev);
+            }
         }
     }
 }

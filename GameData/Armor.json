@@ -45,6 +45,29 @@
   },
   {
     "slot": "head",
+    "name": "Helmet",
+    "tags": [
+      "starter"
+    ],
+    "armor": 1,
+    "tier": 1,
+    "strength": 0,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0,
+    "requirement value": 0,
+    "attackSpeed": 0,
+    "attributeRequirements": {}
+  },
+  {
+    "slot": "head",
     "name": "Cowl",
     "armor": 0,
     "tier": 1,
@@ -1234,9 +1257,6 @@
   {
     "slot": "chest",
     "name": "Shirt",
-    "tags": [
-      "starter"
-    ],
     "armor": 2,
     "tier": 1,
     "strength": 2,
@@ -1255,6 +1275,29 @@
     "attributeRequirements": {
       "strength": 5
     }
+  },
+  {
+    "slot": "chest",
+    "name": "Armor",
+    "tags": [
+      "starter"
+    ],
+    "armor": 1,
+    "tier": 1,
+    "strength": 0,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "extraActionSlots": 1,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0,
+    "requirement value": 0,
+    "attackSpeed": 0,
+    "attributeRequirements": {}
   },
   {
     "slot": "chest",
@@ -2271,9 +2314,6 @@
   {
     "slot": "legs",
     "name": "shinguards",
-    "tags": [
-      "starter"
-    ],
     "armor": 3,
     "tier": 1,
     "strength": 0,
@@ -3330,11 +3370,14 @@
   {
     "slot": "feet",
     "name": "Boots",
-    "armor": 0,
+    "tags": [
+      "starter"
+    ],
+    "armor": 1,
     "tier": 1,
     "strength": 0,
     "agility": 0,
-    "technique": 2,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3343,11 +3386,9 @@
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 5,
+    "requirement value": 0,
     "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 5
-    }
+    "attributeRequirements": {}
   },
   {
     "slot": "feet",

@@ -29,11 +29,12 @@ namespace RPGGame
         /// Displays a combat action using ColoredText for better color management
         /// This is the primary method - uses structured ColoredText for action, roll info, and status effects
         /// Only displays if the character is currently active (for multi-character support)
+        /// Overview action blocks omit flavor prose (<paramref name="narrativeMessages"/> is ignored; F7 is the flavor path).
         /// </summary>
         /// <param name="actionText">The action text to display</param>
         /// <param name="rollInfo">Roll information</param>
         /// <param name="statusEffects">Status effects</param>
-        /// <param name="narrativeMessages">Narrative messages</param>
+        /// <param name="narrativeMessages">Ignored — kept for call-site compatibility</param>
         /// <param name="character">The character this combat action belongs to (null = always display)</param>
         public static void DisplayCombatAction(
             List<ColoredText> actionText, 
@@ -42,24 +43,20 @@ namespace RPGGame
             List<List<ColoredText>>? narrativeMessages = null,
             Character? character = null)
         {
-            List<ColoredText>? criticalMissNarrative;
-            List<List<ColoredText>> remainingNarratives;
-            SplitCombatNarratives(actionText, narrativeMessages, out criticalMissNarrative, out remainingNarratives);
-            
-            // Display the action block with ColoredText, including critical miss narrative and all other narratives
-            // All narratives are included in the turn block to ensure each character's turn is displayed as a single unit
-            BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, statusEffects, criticalMissNarrative, remainingNarratives, character);
+            _ = narrativeMessages;
+            BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, statusEffects, null, null, character);
         }
 
         /// <summary>
         /// Displays a combat action using ColoredText (async version)
         /// This version waits for the display delay to complete, allowing the combat loop to wait for each action
         /// Only displays if the character is currently active (for multi-character support)
+        /// Overview action blocks omit flavor prose (<paramref name="narrativeMessages"/> is ignored; F7 is the flavor path).
         /// </summary>
         /// <param name="actionText">The action text to display</param>
         /// <param name="rollInfo">Roll information</param>
         /// <param name="statusEffects">Status effects</param>
-        /// <param name="narrativeMessages">Narrative messages</param>
+        /// <param name="narrativeMessages">Ignored — kept for call-site compatibility</param>
         /// <param name="character">The character this combat action belongs to (null = always display)</param>
         public static async System.Threading.Tasks.Task DisplayCombatActionAsync(
             List<ColoredText> actionText, 
@@ -68,17 +65,13 @@ namespace RPGGame
             List<List<ColoredText>>? narrativeMessages = null,
             Character? character = null)
         {
-            List<ColoredText>? criticalMissNarrative;
-            List<List<ColoredText>> remainingNarratives;
-            SplitCombatNarratives(actionText, narrativeMessages, out criticalMissNarrative, out remainingNarratives);
-            // Display the action block with ColoredText, including critical miss narrative and all other narratives
-            // All narratives are included in the turn block to ensure each character's turn is displayed as a single unit
-            await BlockDisplayManager.DisplayActionBlockAsync(actionText, rollInfo, statusEffects, criticalMissNarrative, remainingNarratives, character);
+            _ = narrativeMessages;
+            await BlockDisplayManager.DisplayActionBlockAsync(actionText, rollInfo, statusEffects, null, null, character);
         }
 
         /// <summary>
-        /// Attaches critical-miss flavor only to swings whose action line is a critical miss.
-        /// Miss lines on hits (or ordinary misses) are dropped so they cannot appear as leftover flavor.
+        /// Legacy splitter kept for tests: overview combat log no longer attaches flavor under action blocks,
+        /// so both out params are always empty / null.
         /// </summary>
         public static void SplitCombatNarratives(
             List<ColoredText> actionText,
@@ -86,36 +79,10 @@ namespace RPGGame
             out List<ColoredText>? criticalMissNarrative,
             out List<List<ColoredText>> remainingNarratives)
         {
+            _ = actionText;
+            _ = narrativeMessages;
             criticalMissNarrative = null;
             remainingNarratives = new List<List<ColoredText>>();
-
-            if (narrativeMessages == null || narrativeMessages.Count == 0)
-            {
-                return;
-            }
-
-            string actionPlainText = ColoredTextRenderer.RenderAsPlainText(actionText);
-            bool isCriticalMiss = actionPlainText.Contains("CRITICAL MISS", StringComparison.OrdinalIgnoreCase);
-
-            foreach (var narrative in narrativeMessages)
-            {
-                if (narrative == null || narrative.Count == 0)
-                {
-                    continue;
-                }
-
-                string narrativeText = ColoredTextRenderer.RenderAsPlainText(narrative);
-                bool isCriticalMissNarrative = BattleEventAnalyzer.IsCriticalMissFlavorText(narrativeText);
-
-                if (isCriticalMiss && isCriticalMissNarrative && criticalMissNarrative == null)
-                {
-                    criticalMissNarrative = narrative;
-                }
-                else if (!isCriticalMissNarrative)
-                {
-                    remainingNarratives.Add(narrative);
-                }
-            }
         }
         
         

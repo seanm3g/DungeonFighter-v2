@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RPGGame.UI.Avalonia"
+        xmlns:effects="clr-namespace:RPGGame.UI.Avalonia.Effects"
         mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
         x:Class="RPGGame.UI.Avalonia.MainWindow"
         Icon="/UI/Avalonia/Assets/df_icon.ico"
@@ -32,6 +33,12 @@
                                 FocusAdorner="{x:Null}"/>
         </Border>
 
+        <!-- Per-cell narrative video (software-decoded; hit-test off so canvas keeps mouse). -->
+        <effects:NarrativeVideoOverlayControl x:Name="NarrativeVideoOverlay"
+                                            ZIndex="40"
+                                            IsHitTestVisible="False"
+                                            IsVisible="False"/>
+
         <TextBlock x:Name="CombatSpeedNotificationText"
                    Grid.Row="0"
                    ZIndex="500"
@@ -42,10 +49,54 @@
                    Padding="12,4"
                    Background="#D0000000"
                    Foreground="#FFFFD700"
-                   FontFamily="Consolas, Courier New, monospace"
+                   FontFamily="avares://DF/UI/Avalonia/Assets/Fonts/VT323-Regular.ttf#VT323, VT323, Courier New, monospace"
                    FontSize="18"
                    FontWeight="Bold"
                    TextAlignment="Center"/>
+
+        <!-- H hotkey help: lists play-time shortcuts without wiping the canvas. -->
+        <Border x:Name="HelpOverlay"
+                Grid.Row="0"
+                ZIndex="1200"
+                IsVisible="False"
+                Background="#CC000000"
+                IsHitTestVisible="True">
+            <Border Background="#FF141414"
+                    BorderBrush="#FF666666"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Padding="28,22"
+                    MaxWidth="760"
+                    MaxHeight="720">
+                <DockPanel>
+                    <TextBlock x:Name="HelpTitleText"
+                               DockPanel.Dock="Top"
+                               Text="HOTKEYS"
+                               FontFamily="avares://DF/UI/Avalonia/Assets/Fonts/VT323-Regular.ttf#VT323, VT323, Courier New, monospace"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="#FFFFD700"
+                               Margin="0,0,0,12"/>
+                    <TextBlock x:Name="HelpFooterText"
+                               DockPanel.Dock="Bottom"
+                               Text="Press H or Esc to close"
+                               FontFamily="avares://DF/UI/Avalonia/Assets/Fonts/VT323-Regular.ttf#VT323, VT323, Courier New, monospace"
+                               FontSize="14"
+                               Foreground="#FFAAAAAA"
+                               Margin="0,16,0,0"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <TextBlock x:Name="HelpHotkeyListText"
+                                   FontFamily="avares://DF/UI/Avalonia/Assets/Fonts/VT323-Regular.ttf#VT323, VT323, Courier New, monospace"
+                                   FontSize="15"
+                                   Foreground="#FFF0F0F0"
+                                   TextWrapping="NoWrap"/>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </Border>
         
         <!-- TextBox for text input in action creation form -->
         <!-- Positioned where the input prompt appears on the canvas -->
@@ -64,7 +115,7 @@
                 VerticalAlignment="Center"
                 Margin="0"
                 FontSize="20"
-                FontFamily="Consolas, Courier New, monospace"
+                FontFamily="avares://DF/UI/Avalonia/Assets/Fonts/VT323-Regular.ttf#VT323, VT323, Courier New, monospace"
                 FontWeight="Bold"
                 Padding="15,10,15,10"/>
         

@@ -197,6 +197,33 @@ namespace RPGGame.Tests.Unit
                 var tutorialMultiplier = TextDelayConfiguration.GetTutorialCombatDelayMultiplier();
                 AssertTrue(Math.Abs(tutorialMultiplier - 2.0) < 0.001,
                     $"Tutorial combat delay multiplier should be 2.0 (got {tutorialMultiplier})");
+
+                var narrativeCharMs = TextDelayConfiguration.GetNarrativeCharRevealMs();
+                AssertTrue(narrativeCharMs == 3,
+                    $"Narrative char reveal should be 3ms (got {narrativeCharMs}ms)");
+
+                var rampChars = TextDelayConfiguration.GetNarrativeCharRevealRampChars();
+                AssertTrue(rampChars == 200,
+                    $"Narrative char ramp should be 200 chars (got {rampChars})");
+
+                var narrativeMaxMs = TextDelayConfiguration.GetNarrativeCharRevealMaxMs();
+                AssertTrue(narrativeMaxMs == 40,
+                    $"Narrative char reveal max should be 40ms (got {narrativeMaxMs}ms)");
+
+                var sentencePause = TextDelayConfiguration.GetNarrativeSentencePauseMs();
+                AssertTrue(sentencePause == 250,
+                    $"Narrative sentence pause should be 250ms (got {sentencePause}ms)");
+
+                var rhythm = TextDelayConfiguration.GetCharacterRevealRhythm();
+                AssertTrue(rhythm.Enabled, "Character reveal rhythm should be enabled by default");
+                AssertTrue(rhythm.ParagraphTargetMs == 8000,
+                    $"Paragraph target should be 8000ms (got {rhythm.ParagraphTargetMs})");
+                AssertTrue(rhythm.SentenceReferenceChars == 40,
+                    $"Sentence reference should be 40 (got {rhythm.SentenceReferenceChars})");
+                AssertTrue(rhythm.WordReferenceChars == 6,
+                    $"Word reference should be 6 (got {rhythm.WordReferenceChars})");
+                AssertTrue(string.Equals(rhythm.WordEmphasisPreset, "Flat", StringComparison.OrdinalIgnoreCase),
+                    $"Default emphasis preset should be Flat (got {rhythm.WordEmphasisPreset})");
             }
             catch (Exception ex)
             {

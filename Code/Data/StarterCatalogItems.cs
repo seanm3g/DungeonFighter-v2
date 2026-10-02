@@ -83,6 +83,7 @@ namespace RPGGame
 
         /// <summary>
         /// At most one generated piece per JSON slot (<c>head</c>, <c>chest</c>, <c>legs</c>, <c>feet</c>), using the first matching row in file order.
+        /// Starter armor is stamped <c>Leather</c> so new heroes always begin with the Leather luck set (3+ pieces).
         /// </summary>
         public static List<Item> LoadStarterArmorItems()
         {
@@ -92,6 +93,7 @@ namespace RPGGame
 
             var filledSlots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var result = new List<Item>();
+            var materialApplier = new LootBonusApplier(LootDataCache.Load(), Random.Shared);
             foreach (var row in rows)
             {
                 if (!GameDataTagHelper.HasTag(row.Tags, StarterTag))
@@ -101,7 +103,11 @@ namespace RPGGame
                     continue;
                 if (!filledSlots.Add(slotKey))
                     continue;
-                result.Add(ItemGenerator.GenerateArmorItem(row));
+                var item = ItemGenerator.GenerateArmorItem(row);
+                if (string.IsNullOrWhiteSpace(item.Rarity))
+                    item.Rarity = "Common";
+                materialApplier.ApplySpecificMaterial(item, LeatherSetBonus.MaterialName, item.Rarity);
+                result.Add(item);
             }
 
             return result;

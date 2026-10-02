@@ -305,11 +305,14 @@ namespace RPGGame
             var mainResult = FormatAsColoredText(result, source, target);
             if (!string.IsNullOrEmpty(result.PackBodyFellText))
                 coloredStatusEffects.Add(PackCombat.FormatBodyFellLine(result.PackBodyFellText));
-            if (CombatSequencePresenter.ShouldPlay())
+
+            // Always queue flavor tokens so F7 can dual-view swap later; HUD only when not playing narrative.
+            var sequenceSteps = CombatSequenceBuilder.From(result, source, target);
+            var flavorTokens = CombatSequenceFlavorTokens.From(result, source, target);
+            CombatSequenceFlavorPresenter.SetPending(sequenceSteps, flavorTokens, result.HealthBarHolds);
+            if (!CombatSequenceFlavorPresenter.ShouldPlay() && CombatSequencePresenter.ShouldPlay())
             {
-                CombatSequencePresenter.SetPending(
-                    CombatSequenceBuilder.From(result, source, target),
-                    result.HealthBarHolds);
+                CombatSequencePresenter.SetPending(sequenceSteps, result.HealthBarHolds);
             }
 
             if (result.Hit

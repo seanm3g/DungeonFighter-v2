@@ -203,6 +203,8 @@ namespace RPGGame.Actions.Execution
                     }
                     RollModificationManager.CollectAdvantageFlags(scopedBonuses, ref pendingAdvantage, ref pendingDisadvantage);
                 }
+
+                LeatherSetBonus.CollectAdvantageFlags(actionBonusCharacter, ref pendingAdvantage, ref pendingDisadvantage);
             }
             else if (source is Enemy enemyAttacker)
             {

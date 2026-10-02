@@ -65,7 +65,56 @@
       "intensity": 10,
       "waveLength": 5,
       "updateIntervalMs": 100
+    },
+    "windSway": {
+      "enabled": true,
+      "sidePanelsOnly": false,
+      "maxOffsetFraction": 0.55,
+      "impulseGain": 0.35,
+      "maxWind": 3.5,
+      "decayPerSecond": 1.35,
+      "waveLength": 3.5,
+      "verticalScale": 0.75,
+      "settleIntervalMs": 16,
+      "wakeRadiusCells": 13,
+      "nearInfluence": 0.47,
+      "farInfluence": 0.02,
+      "wakeRearBias": 0.82,
+      "wakeFalloffPower": 1.35,
+      "speedReferenceCellsPerSec": 12,
+      "trailLifetimeSeconds": 0.55,
+      "trailMaxPoints": 28,
+      "trailMinSpacingCells": 1.25,
+      "chromaticAberrationEnabled": true,
+      "chromaticSpreadFraction": 0.29,
+      "chromaticOpacity": 0.58,
+      "clickBurst": {
+        "enabled": true,
+        "clicksToExplode": 5,
+        "chargeDecayPerSecond": 0.55,
+        "impulseDecayPerSecond": 2.5,
+        "impulseRadiusCells": 12,
+        "maxImpulseOffsetFraction": 0.35,
+        "explodeMaxOffsetFraction": 20,
+        "explodeOutSeconds": 0.28,
+        "explodeHoldSeconds": 0,
+        "reformSeconds": 0.22,
+        "autoRebuildIdleSeconds": 10,
+        "autoRebuildIntervalSeconds": 0.5,
+        "verticalScale": 0.85
+      }
     }
+  },
+  "narrativeVideoOverlay": {
+    "enabled": true,
+    "fileName": "Video/videoplayback.mp4",
+    "maxOpacity": 0.4216549295774648,
+    "haloCells": 0,
+    "haloOpacityScale": 0,
+    "onlyWhenNarrativeLog": true,
+    "onlyWhenInDungeon": true,
+    "muteAudio": true,
+    "loop": true
   },
   "textAnimationPresets": {
     "pathIntro": {

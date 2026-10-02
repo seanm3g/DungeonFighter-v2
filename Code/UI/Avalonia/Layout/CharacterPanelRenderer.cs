@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Avalonia.Media;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.Combat.Calculators;
@@ -31,6 +32,7 @@ namespace RPGGame.UI.Avalonia.Layout
         private readonly ColoredTextWriter textWriter;
         private readonly StatsPanelStateManager? stateManager;
         private readonly ICanvasInteractionManager? interactionManager;
+        private bool correctingLeftPanelScroll;
         
         public CharacterPanelRenderer(
             GameCanvasControl canvas, 
@@ -48,7 +50,9 @@ namespace RPGGame.UI.Avalonia.Layout
         /// Renders the character information panel (left side). The player hero is expected; dice thresholds
         /// and status lines use this character as the roll source.
         /// </summary>
-        public void RenderCharacterPanel(Character character)
+        /// <param name="gameState">Current game state; Action Lab keeps GEAR and STATUS EFFECTS.</param>
+        /// <param name="inDungeonRun">True while a dungeon is selected; hides GEAR and shows STATUS EFFECTS until leave.</param>
+        public void RenderCharacterPanel(Character character, GameState? gameState = null, bool inDungeonRun = false)
         {
             // Clear the left panel area before drawing so re-renders with clearCanvas: false (e.g. after level-up) do not leave duplicate content
             int leftX = LayoutConstants.LEFT_PANEL_X;
@@ -62,17 +66,30 @@ namespace RPGGame.UI.Avalonia.Layout
 
             // Main border for character panel - starts at X=0 with no padding
             canvas.AddBorder(LayoutConstants.LEFT_PANEL_X, LayoutConstants.LEFT_PANEL_Y, LayoutConstants.LEFT_PANEL_WIDTH, LayoutConstants.LEFT_PANEL_HEIGHT, AsciiArtAssets.Colors.Blue);
-            
-            int y = LayoutConstants.LEFT_PANEL_Y + 1;
+
+            int contentTop = LeftPanelViewport.ContentTop;
+            int contentBottomExclusive = LeftPanelViewport.ContentBottomExclusive;
+            int viewportHeight = LeftPanelViewport.ContentHeight;
+            int scroll = 0;
+            if (stateManager != null)
+            {
+                scroll = LeftPanelViewport.ClampScrollOffset(
+                    stateManager.LeftPanelScrollOffset,
+                    stateManager.LeftPanelContentHeight,
+                    viewportHeight);
+            }
+
+            int y = contentTop - scroll;
+            int contentOriginY = y;
             int x = LayoutConstants.LEFT_PANEL_X + 2; // Reduced from +4 since border now starts at 0
             int headerClickWidth = LayoutConstants.LEFT_PANEL_WIDTH - 4;
             
             // --- HERO --- (left-aligned like STATS/GEAR; body order: name, HP bar, Lvl+class, XP)
             int heroHeaderY = y;
             string heroHeaderText = FormatLeftPanelSectionHeader(UIConstants.Headers.Hero);
-            canvas.AddText(x, y, heroHeaderText, AsciiArtAssets.Colors.Gold);
+            PanelText(x, y, heroHeaderText, AsciiArtAssets.Colors.Gold);
             y += 2;
-            if (interactionManager != null && stateManager != null)
+            if (interactionManager != null && stateManager != null && LeftPanelViewport.IsRowVisible(heroHeaderY))
             {
                 interactionManager.AddClickableElement(new ClickableElement
                 {
@@ -91,7 +108,8 @@ namespace RPGGame.UI.Avalonia.Layout
             {
                 int nameY = y;
                 var heroNameSegments = HeroNamePanelColoredText.BuildLeftPanelHeroNameSegments(character);
-                textWriter.RenderSegments(heroNameSegments, x, nameY);
+                if (LeftPanelViewport.IsRowVisible(nameY))
+                    textWriter.RenderSegments(heroNameSegments, x, nameY);
                 y++;
 
                 int healthBarWidth = LayoutConstants.LEFT_PANEL_WIDTH - 4;
@@ -102,33 +120,38 @@ namespace RPGGame.UI.Avalonia.Layout
                 int thresholdHoverRowY = healthBarY + 1;
                 int hpValueY = healthBarY + barAreaHeight;
 
-                canvas.ClearProgressBarsInArea(x, healthBarY, healthBarWidth, barAreaHeight);
-                canvas.ClearSegmentedBarsInArea(x, healthBarY, healthBarWidth, barAreaHeight);
-                canvas.ClearTextInArea(x, hpValueY, healthBarWidth, 1);
-
                 int displayHp = RPGGame.Combat.UI.HealthBarDisplayHold.Resolve($"player_{character.Name}", character.CurrentHealth);
                 int maxHp = character.GetEffectiveMaxHealth();
 
-                canvas.AddHealthBar(
-                    x,
-                    healthBarY,
-                    healthBarWidth,
-                    displayHp,
-                    maxHp,
-                    entityId: $"player_{character.Name}",
-                    heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale);
+                ThresholdDisplayFormatting.D20OutcomeSegment[] thresholdSegments = System.Array.Empty<ThresholdDisplayFormatting.D20OutcomeSegment>();
+                if (LeftPanelViewport.IsRangeVisible(healthBarY, barAreaHeight))
+                {
+                    canvas.ClearProgressBarsInArea(x, healthBarY, healthBarWidth, barAreaHeight);
+                    canvas.ClearSegmentedBarsInArea(x, healthBarY, healthBarWidth, barAreaHeight);
+                    if (LeftPanelViewport.IsRowVisible(hpValueY))
+                        canvas.ClearTextInArea(x, hpValueY, healthBarWidth, 1);
 
-                var thresholdSegments = D20ThresholdBarRenderer.RenderBar(
-                    canvas,
-                    x,
-                    thresholdBarY,
-                    healthBarWidth,
-                    character,
-                    ThresholdBarPanel.Hero,
-                    D20ThresholdBarRenderer.CombatStripHeightScale,
-                    D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor);
+                    canvas.AddHealthBar(
+                        x,
+                        healthBarY,
+                        healthBarWidth,
+                        displayHp,
+                        maxHp,
+                        entityId: $"player_{character.Name}",
+                        heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale);
 
-                canvas.AddText(
+                    thresholdSegments = D20ThresholdBarRenderer.RenderBar(
+                        canvas,
+                        x,
+                        thresholdBarY,
+                        healthBarWidth,
+                        character,
+                        ThresholdBarPanel.Hero,
+                        D20ThresholdBarRenderer.CombatStripHeightScale,
+                        D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor);
+                }
+
+                PanelText(
                     x,
                     hpValueY,
                     $"Health {displayHp}/{maxHp}  Defense {displayedDefense}",
@@ -138,12 +161,12 @@ namespace RPGGame.UI.Avalonia.Layout
 
                 string currentClass = character.GetCurrentClass();
                 int levelY = y;
-                canvas.AddText(x, y, $"Lvl {character.Level} {currentClass}", AsciiArtAssets.Colors.Gold);
+                PanelText(x, y, $"Lvl {character.Level} {currentClass}", AsciiArtAssets.Colors.Gold);
                 y++;
 
                 int xpRequired = character.Progression.GetXPRequiredForNextLevel();
                 int xpY = y;
-                canvas.AddText(x, y, $"XP {character.XP}/{xpRequired}", AsciiArtAssets.Colors.Cyan);
+                PanelText(x, y, $"XP {character.XP}/{xpRequired}", AsciiArtAssets.Colors.Cyan);
                 y++;
 
                 string classPointsText = GetClassPointsDisplay(character);
@@ -151,7 +174,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (!string.IsNullOrEmpty(classPointsText))
                 {
                     classPointsY = y;
-                    canvas.AddText(x, y, classPointsText, AsciiArtAssets.Colors.Gray);
+                    PanelText(x, y, classPointsText, AsciiArtAssets.Colors.Gray);
                     y++;
                 }
 
@@ -184,9 +207,9 @@ namespace RPGGame.UI.Avalonia.Layout
             // --- STATS --- (static gold like HERO/GEAR; no glow — glow animation shifted hue vs other headers)
             int statsHeaderY = y;
             string statsHeaderText = FormatLeftPanelSectionHeader(UIConstants.Headers.Stats);
-            canvas.AddText(x, y, statsHeaderText, AsciiArtAssets.Colors.Gold);
+            PanelText(x, y, statsHeaderText, AsciiArtAssets.Colors.Gold);
             y += 2;
-            if (interactionManager != null && stateManager != null)
+            if (interactionManager != null && stateManager != null && LeftPanelViewport.IsRowVisible(statsHeaderY))
             {
                 interactionManager.AddClickableElement(new ClickableElement
                 {
@@ -210,10 +233,10 @@ namespace RPGGame.UI.Avalonia.Layout
                 double attackSpeed = character.GetTotalAttackSpeed();
 
                 int damageRowY = y;
-                canvas.AddCharacterStat(x, y, "Damage", totalDamage, 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.White);
+                PanelCharacterStat(x, y, "Damage", totalDamage, 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.White);
                 y++;
                 int speedRowY = y;
-                canvas.AddText(x, y, $"Speed:   {attackSpeed:F2}s", AsciiArtAssets.Colors.White);
+                PanelText(x, y, $"Speed:   {attackSpeed:F2}s", AsciiArtAssets.Colors.White);
                 y++;
                 int ampRowY = y;
                 double ampBasePerStep = character.GetComboAmplifier();
@@ -223,16 +246,16 @@ namespace RPGGame.UI.Avalonia.Layout
                 string ampCore = ampPrefix + new string(' ', statsValueColumnIndex - ampPrefix.Length) + $"{ampBasePerStep:F2}x";
                 if (queuedSheetAmpPct > 0.05)
                     ampCore += $"  +{queuedSheetAmpPct:0.#}% nxt";
-                canvas.AddText(x, y, ampCore, AsciiArtAssets.Colors.White);
+                PanelText(x, y, ampCore, AsciiArtAssets.Colors.White);
                 y++;
                 int armorRowY = y;
-                canvas.AddCharacterStat(x, y, "Defense", ClassDefenseCalculator.GetDisplayedDefense(character), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.DarkBlue);
+                PanelCharacterStat(x, y, "Defense", ClassDefenseCalculator.GetDisplayedDefense(character), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.DarkBlue);
                 y++;
                 int slotsRowY = -1;
                 if (ActionInteractionLabSession.Current != null)
                 {
                     slotsRowY = y;
-                    canvas.AddCharacterStat(x, y, "SLOTS", ComboSequenceMaxHelper.GetEffectiveMax(character), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Cyan);
+                    PanelCharacterStat(x, y, "SLOTS", ComboSequenceMaxHelper.GetEffectiveMax(character), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Cyan);
                     y++;
                 }
                 y++;
@@ -241,19 +264,19 @@ namespace RPGGame.UI.Avalonia.Layout
                 var primaryStatHighlight = PrimaryStatRowHighlightColors.ForCharacter(character);
 
                 int strRowY = y;
-                canvas.AddCharacterStat(x, y, "STR", character.GetEffectiveStrength(), 0,
+                PanelCharacterStat(x, y, "STR", character.GetEffectiveStrength(), 0,
                     primaryStat == "Strength" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
                 y++;
                 int agiRowY = y;
-                canvas.AddCharacterStat(x, y, "AGI", character.GetEffectiveAgility(), 0,
+                PanelCharacterStat(x, y, "AGI", character.GetEffectiveAgility(), 0,
                     primaryStat == "Agility" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
                 y++;
                 int tecRowY = y;
-                canvas.AddCharacterStat(x, y, "TECH", character.GetEffectiveTechnique(), 0,
+                PanelCharacterStat(x, y, "TECH", character.GetEffectiveTechnique(), 0,
                     primaryStat == "Technique" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
                 y++;
                 int intRowY = y;
-                canvas.AddCharacterStat(x, y, "INT", character.GetEffectiveIntelligence(), 0,
+                PanelCharacterStat(x, y, "INT", character.GetEffectiveIntelligence(), 0,
                     primaryStat == "Intelligence" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
                 y++;
 
@@ -263,7 +286,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 {
                     naivRowY = y;
                     var naivColor = AsciiArtAssets.Colors.Cyan;
-                    canvas.AddCharacterStat(x, y, "NAIV", naivete, 0, naivColor, naivColor);
+                    PanelCharacterStat(x, y, "NAIV", naivete, 0, naivColor, naivColor);
                     y++;
                 }
 
@@ -304,34 +327,70 @@ namespace RPGGame.UI.Avalonia.Layout
                 stateManager.ResetStatsAreaBounds();
             }
 
-            // --- GEAR ---
-            int gearHeaderY = y;
-            canvas.AddText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.Gear), AsciiArtAssets.Colors.Gold);
-            y += 2;
-            if (interactionManager != null && stateManager != null)
+            // --- GEAR --- (hidden for the whole dungeon run; hover hero name for loadout; Action Lab keeps the section)
+            if (LeftPanelSectionVisibility.ShowGear(gameState, inDungeonRun))
             {
-                interactionManager.AddClickableElement(new ClickableElement
+                int gearHeaderY = y;
+                PanelText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.Gear), AsciiArtAssets.Colors.Gold);
+                y += 2;
+                if (interactionManager != null && stateManager != null && LeftPanelViewport.IsRowVisible(gearHeaderY))
                 {
-                    X = x,
-                    Y = gearHeaderY,
-                    Width = headerClickWidth,
-                    Height = 1,
-                    Type = ElementType.Text,
-                    Value = ToggleSectionGear,
-                    DisplayText = "Gear"
-                });
+                    interactionManager.AddClickableElement(new ClickableElement
+                    {
+                        X = x,
+                        Y = gearHeaderY,
+                        Width = headerClickWidth,
+                        Height = 1,
+                        Type = ElementType.Text,
+                        Value = ToggleSectionGear,
+                        DisplayText = "Gear"
+                    });
+                }
+
+                if (stateManager == null || !stateManager.GearCollapsed)
+                {
+                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Weapon", character.Weapon, "gear:weapon", 1);
+                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Head", character.Head, "gear:head", 1);
+                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Body", character.Body, "gear:body", 1);
+                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Legs", character.Legs, "gear:legs", 1);
+                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Feet", character.Feet, "gear:feet", 1);
+                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Charm", character.Charm, "gear:charm", 1);
+                    RenderFormingSets(character, x, ref y, headerClickWidth);
+                    RenderAnimalSets(character, x, ref y, headerClickWidth);
+                }
             }
 
-            if (stateManager == null || !stateManager.GearCollapsed)
+            // --- STATUS EFFECTS --- (hero; above thresholds; dungeon run + Action Lab; enemy effects are on the right panel)
+            if (LeftPanelSectionVisibility.ShowStatusEffects(gameState, inDungeonRun))
             {
-                RenderEquipmentSlot(x, ref y, headerClickWidth, "Weapon", character.Weapon, "gear:weapon", 1);
-                RenderEquipmentSlot(x, ref y, headerClickWidth, "Head", character.Head, "gear:head", 1);
-                RenderEquipmentSlot(x, ref y, headerClickWidth, "Body", character.Body, "gear:body", 1);
-                RenderEquipmentSlot(x, ref y, headerClickWidth, "Legs", character.Legs, "gear:legs", 1);
-                RenderEquipmentSlot(x, ref y, headerClickWidth, "Feet", character.Feet, "gear:feet", 1);
-                RenderEquipmentSlot(x, ref y, headerClickWidth, "Charm", character.Charm, "gear:charm", 1);
-                RenderFormingSets(character, x, ref y, headerClickWidth);
-                RenderAnimalSets(character, x, ref y, headerClickWidth);
+                PanelText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.StatusEffects), AsciiArtAssets.Colors.Gold);
+                y += 2;
+                const int maxHeroEffectLines = 5;
+                const int maxHeroLineLen = 29;
+                var heroEffects = StatusEffectDisplayLines.Build(character, character);
+                if (heroEffects.Count > 0)
+                {
+                    for (int i = 0; i < Math.Min(heroEffects.Count, maxHeroEffectLines); i++)
+                    {
+                        int effectRowY = y;
+                        string line = heroEffects[i];
+                        if (line.Length > maxHeroLineLen)
+                            line = line.Substring(0, maxHeroLineLen - 3) + "...";
+                        PanelText(x, y, line, AsciiArtAssets.Colors.White);
+                        if (interactionManager != null && stateManager != null)
+                            RegisterLeftPanelHoverRow(x, effectRowY, headerClickWidth, 1, "status:" + i);
+                        y++;
+                    }
+                    if (heroEffects.Count > maxHeroEffectLines)
+                    {
+                        int overflowY = y;
+                        PanelText(x, y, $"+{heroEffects.Count - maxHeroEffectLines} more", AsciiArtAssets.Colors.Gray);
+                        if (interactionManager != null && stateManager != null)
+                            RegisterLeftPanelHoverRow(x, overflowY, headerClickWidth, 1, "status:overflow");
+                        y++;
+                    }
+                }
+                y += 1;
             }
 
             // --- THRESHOLDS / CHANCES --- (ladder numbers or exclusive d20 %; bar is under health)
@@ -339,9 +398,9 @@ namespace RPGGame.UI.Avalonia.Layout
             bool showThresholdChances = thresholdsHudMode == ThresholdsHudMode.Chances;
             int thresholdsHeaderY = y;
             string thresholdsHeaderLabel = showThresholdChances ? UIConstants.Headers.Chances : UIConstants.Headers.Thresholds;
-            canvas.AddText(x, y, FormatLeftPanelSectionHeader(thresholdsHeaderLabel), AsciiArtAssets.Colors.Gold);
+            PanelText(x, y, FormatLeftPanelSectionHeader(thresholdsHeaderLabel), AsciiArtAssets.Colors.Gold);
             y += 2;
-            if (interactionManager != null && stateManager != null)
+            if (interactionManager != null && stateManager != null && LeftPanelViewport.IsRowVisible(thresholdsHeaderY))
             {
                 interactionManager.AddClickableElement(new ClickableElement
                 {
@@ -388,32 +447,26 @@ namespace RPGGame.UI.Avalonia.Layout
             if (thresholdsOpen)
                 y += 1;
 
-            // --- STATUS EFFECTS --- (hero; enemy effects are on the right panel)
-            canvas.AddText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.StatusEffects), AsciiArtAssets.Colors.Gold);
-            y += 2;
-            const int maxHeroEffectLines = 5;
-            const int maxHeroLineLen = 29;
-            var heroEffects = StatusEffectDisplayLines.Build(character, character);
-            if (heroEffects.Count > 0)
+            int totalContentHeight = System.Math.Max(0, y - contentOriginY);
+            ScrubLeftPanelOutsideViewport(leftX, leftY, leftW, leftH, contentTop, contentBottomExclusive);
+            // Border rows may have been scrubbed; redraw the frame.
+            canvas.AddBorder(LayoutConstants.LEFT_PANEL_X, LayoutConstants.LEFT_PANEL_Y, LayoutConstants.LEFT_PANEL_WIDTH, LayoutConstants.LEFT_PANEL_HEIGHT, AsciiArtAssets.Colors.Blue);
+
+            if (stateManager != null)
             {
-                for (int i = 0; i < Math.Min(heroEffects.Count, maxHeroEffectLines); i++)
+                int scrollBeforeUpdate = scroll;
+                stateManager.UpdateLeftPanelContentHeight(totalContentHeight);
+                if (!correctingLeftPanelScroll && stateManager.LeftPanelScrollOffset != scrollBeforeUpdate)
                 {
-                    int effectRowY = y;
-                    string line = heroEffects[i];
-                    if (line.Length > maxHeroLineLen)
-                        line = line.Substring(0, maxHeroLineLen - 3) + "...";
-                    canvas.AddText(x, y, line, AsciiArtAssets.Colors.White);
-                    if (interactionManager != null && stateManager != null)
-                        RegisterLeftPanelHoverRow(x, effectRowY, headerClickWidth, 1, "status:" + i);
-                    y++;
-                }
-                if (heroEffects.Count > maxHeroEffectLines)
-                {
-                    int overflowY = y;
-                    canvas.AddText(x, y, $"+{heroEffects.Count - maxHeroEffectLines} more", AsciiArtAssets.Colors.Gray);
-                    if (interactionManager != null && stateManager != null)
-                        RegisterLeftPanelHoverRow(x, overflowY, headerClickWidth, 1, "status:overflow");
-                    y++;
+                    correctingLeftPanelScroll = true;
+                    try
+                    {
+                        RenderCharacterPanel(character, gameState, inDungeonRun);
+                    }
+                    finally
+                    {
+                        correctingLeftPanelScroll = false;
+                    }
                 }
             }
         }
@@ -433,16 +486,51 @@ namespace RPGGame.UI.Avalonia.Layout
         {
             if (interactionManager == null || stateManager == null || height < 1 || width < 1)
                 return;
+            int clippedY = System.Math.Max(rowY, LeftPanelViewport.ContentTop);
+            int clippedEnd = System.Math.Min(rowY + height, LeftPanelViewport.ContentBottomExclusive);
+            if (clippedEnd <= clippedY || width < 1)
+                return;
             interactionManager.AddClickableElement(new ClickableElement
             {
                 X = x,
-                Y = rowY,
+                Y = clippedY,
                 Width = width,
-                Height = height,
+                Height = clippedEnd - clippedY,
                 Type = ElementType.Text,
                 Value = LeftPanelHoverState.Prefix + idSuffix,
                 DisplayText = "Left panel tooltip"
             });
+        }
+
+        private void PanelText(int x, int y, string text, Color color)
+        {
+            if (LeftPanelViewport.IsRowVisible(y))
+                canvas.AddText(x, y, text, color);
+        }
+
+        private void PanelCharacterStat(int x, int y, string statName, int value, int maxValue, Color nameColor = default, Color valueColor = default)
+        {
+            if (LeftPanelViewport.IsRowVisible(y))
+                canvas.AddCharacterStat(x, y, statName, value, maxValue, nameColor, valueColor);
+        }
+
+        private void ScrubLeftPanelOutsideViewport(int leftX, int leftY, int leftW, int leftH, int contentTop, int contentBottomExclusive)
+        {
+            int topScrubHeight = contentTop - leftY;
+            if (topScrubHeight > 0)
+            {
+                canvas.ClearTextInArea(leftX, leftY, leftW, topScrubHeight);
+                canvas.ClearProgressBarsInArea(leftX, leftY, leftW, topScrubHeight);
+                canvas.ClearSegmentedBarsInArea(leftX, leftY, leftW, topScrubHeight);
+            }
+
+            int bottomScrubHeight = (leftY + leftH) - contentBottomExclusive;
+            if (bottomScrubHeight > 0)
+            {
+                canvas.ClearTextInArea(leftX, contentBottomExclusive, leftW, bottomScrubHeight);
+                canvas.ClearProgressBarsInArea(leftX, contentBottomExclusive, leftW, bottomScrubHeight);
+                canvas.ClearSegmentedBarsInArea(leftX, contentBottomExclusive, leftW, bottomScrubHeight);
+            }
         }
         
         /// <summary>
@@ -452,7 +540,7 @@ namespace RPGGame.UI.Avalonia.Layout
         private void RenderEquipmentSlot(int x, ref int y, int hoverWidth, string slotName, Item? item, string hoverGearId, int spacingAfter = 1)
         {
             int blockStartY = y;
-            canvas.AddText(x, y, $"{slotName}:", AsciiArtAssets.Colors.Gray);
+            PanelText(x, y, $"{slotName}:", AsciiArtAssets.Colors.Gray);
             y++;
             
             if (item != null)
@@ -468,17 +556,15 @@ namespace RPGGame.UI.Avalonia.Layout
                 // Render each wrapped line with proper colors
                 foreach (var lineSegments in wrappedLines)
                 {
-                    if (lineSegments.Count > 0)
-                    {
+                    if (lineSegments.Count > 0 && LeftPanelViewport.IsRowVisible(y))
                         textWriter.RenderSegments(lineSegments, x, y);
-                    }
                     y++;
                 }
             }
             else
             {
                 // Empty slot - show "None" in gray
-                canvas.AddText(x, y, "None", AsciiArtAssets.Colors.Gray);
+                PanelText(x, y, "None", AsciiArtAssets.Colors.Gray);
                 y++;
             }
 
@@ -502,7 +588,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (sets.Count == 0)
                 return;
 
-            canvas.AddText(x, y, "Sets:", AsciiArtAssets.Colors.Gray);
+            PanelText(x, y, "Sets:", AsciiArtAssets.Colors.Gray);
             y++;
 
             const int maxWidth = 29;
@@ -512,7 +598,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 string line = MaterialSetController.FormatFormingSetHudLine(material, count);
                 if (line.Length > maxWidth)
                     line = line.Substring(0, maxWidth - 3) + "...";
-                canvas.AddText(x, y, line, AsciiArtAssets.Colors.Cyan);
+                PanelText(x, y, line, AsciiArtAssets.Colors.Cyan);
                 y++;
                 RegisterLeftPanelHoverRow(x, rowY, hoverWidth, 1, "set:" + material);
             }
@@ -527,7 +613,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (sets.Count == 0)
                 return;
 
-            canvas.AddText(x, y, "Animals:", AsciiArtAssets.Colors.Gray);
+            PanelText(x, y, "Animals:", AsciiArtAssets.Colors.Gray);
             y++;
 
             const int maxWidth = 29;
@@ -537,7 +623,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 string line = label;
                 if (line.Length > maxWidth)
                     line = line.Substring(0, maxWidth - 3) + "...";
-                canvas.AddText(x, y, line, AsciiArtAssets.Colors.Green);
+                PanelText(x, y, line, AsciiArtAssets.Colors.Green);
                 y++;
                 RegisterLeftPanelHoverRow(x, rowY, hoverWidth, 1, "animal:" + label);
             }
@@ -623,7 +709,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (magicFind > 0)
             {
                 int rowY = y;
-                canvas.AddText(x, y, FormatSecondaryStatLine("MAG FIND", $"+{magicFind}"), cyan);
+                PanelText(x, y, FormatSecondaryStatLine("MAG FIND", $"+{magicFind}"), cyan);
                 y++;
                 expandedHoverTargets?.Add((rowY, "stat:magfind"));
             }
@@ -633,7 +719,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (healthRegen > 0)
             {
                 int rowY = y;
-                canvas.AddText(x, y, FormatSecondaryStatLine("HP REGEN", $"+{healthRegen} per turn"), cyan);
+                PanelText(x, y, FormatSecondaryStatLine("HP REGEN", $"+{healthRegen} per turn"), cyan);
                 y++;
                 expandedHoverTargets?.Add((rowY, "stat:hpregen"));
             }
@@ -643,7 +729,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (lifesteal > 0)
             {
                 int rowY = y;
-                canvas.AddText(x, y, FormatSecondaryStatLine("LIFESTEAL", $"{lifesteal:P0}"), cyan);
+                PanelText(x, y, FormatSecondaryStatLine("LIFESTEAL", $"{lifesteal:P0}"), cyan);
                 y++;
                 expandedHoverTargets?.Add((rowY, "stat:lifesteal"));
             }
@@ -652,7 +738,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (bleedOnHit > 0)
             {
                 int rowY = y;
-                canvas.AddText(x, y, FormatSecondaryStatLine("BLEED", $"+{bleedOnHit}"), cyan);
+                PanelText(x, y, FormatSecondaryStatLine("BLEED", $"+{bleedOnHit}"), cyan);
                 y++;
                 expandedHoverTargets?.Add((rowY, "stat:bleed"));
             }
@@ -661,7 +747,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (burnOnHit > 0)
             {
                 int rowY = y;
-                canvas.AddText(x, y, FormatSecondaryStatLine("BURN", $"+{burnOnHit}"), cyan);
+                PanelText(x, y, FormatSecondaryStatLine("BURN", $"+{burnOnHit}"), cyan);
                 y++;
                 expandedHoverTargets?.Add((rowY, "stat:burn"));
             }
@@ -670,7 +756,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (poisonOnHit > 0)
             {
                 int rowY = y;
-                canvas.AddText(x, y, FormatSecondaryStatLine("POISON", $"+{poisonOnHit:0.#}%"), cyan);
+                PanelText(x, y, FormatSecondaryStatLine("POISON", $"+{poisonOnHit:0.#}%"), cyan);
                 y++;
                 expandedHoverTargets?.Add((rowY, "stat:poison"));
             }

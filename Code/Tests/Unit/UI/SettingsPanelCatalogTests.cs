@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Avalonia.Controls;
 using RPGGame.UI.Avalonia;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Managers.Settings;
@@ -25,6 +26,8 @@ namespace RPGGame.Tests.Unit.UI
             CombatTuning_Is_Main_Content_And_Embeds_Child_Panels();
             ItemAffixes_Is_Main_Content_And_Creates_Panel();
             AudioPanel_Is_Main_Content_And_Tag_Resolves();
+            Appearance_Creates_Panel_With_NarrativeVideo_Controls();
+            TextAndAnimation_Creates_Panel_With_ClickBurst_Controls();
             BalanceTuning_DisplayName_Is_SpreadsheetImport();
             HandlerSaveTags_Match_Descriptor_Flags();
             FlavorText_Is_Developer_Panel_With_Handler_Save();
@@ -211,6 +214,50 @@ namespace RPGGame.Tests.Unit.UI
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("Audio", SettingsPanel.GetCategoryTagForPanel(panel),
                 "AudioSettingsPanel should resolve to the Audio category tag",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void Appearance_Creates_Panel_With_NarrativeVideo_Controls()
+        {
+            Console.WriteLine("--- Appearance Narrative Video controls ---");
+
+            var appearance = SettingsPanelCatalog.CreatePanel("Appearance") as AppearanceSettingsPanel;
+            TestBase.AssertTrue(appearance != null,
+                "CreatePanel(Appearance) should return AppearanceSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (appearance == null)
+                return;
+
+            TestBase.AssertTrue(appearance.FindControl<Slider>("NarrativeVideoOpacitySlider") != null,
+                "Appearance should expose Opacity slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(appearance.FindControl<Slider>("NarrativeVideoBlurryOpacitySlider") != null,
+                "Appearance should expose Blurry opacity slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(appearance.FindControl<Slider>("NarrativeVideoLevelsSlider") != null,
+                "Appearance should expose Video levels slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TextAndAnimation_Creates_Panel_With_ClickBurst_Controls()
+        {
+            Console.WriteLine("--- TextAndAnimation Click-charge explosion controls ---");
+
+            var presets = new TextAnimationPresetsSettingsPanel();
+            TestBase.AssertTrue(presets.ClickBurstEnabledCheckBoxControl != null,
+                "Presets should expose ClickBurst enabled checkbox",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(presets.ClickBurstRadiusSliderControl != null,
+                "Presets should expose ClickBurst radius slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(presets.ClickBurstExplodeStrengthSliderControl != null,
+                "Presets should expose ClickBurst explode strength slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(presets.ClickBurstExplodeOutSliderControl != null,
+                "Presets should expose ClickBurst explode-out slider",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(presets.ClickBurstClicksToExplodeSliderControl != null,
+                "Presets should expose ClickBurst clicks-to-explode slider",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

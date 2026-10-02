@@ -125,8 +125,9 @@ namespace RPGGame
                 foreach (var actionName in weaponActions)
                 {
                     // Find the action in the action pool and add it to combo
-                    var actionEntry = entity.ActionPool.FirstOrDefault(item => 
-                        item.action.Name == actionName);
+                    var actionEntry = entity.ActionPool.FirstOrDefault(item =>
+                        item.action != null &&
+                        string.Equals(item.action.Name, actionName, StringComparison.OrdinalIgnoreCase));
                     
                     if (actionEntry.action != null && actionEntry.action.IsComboAction)
                     {

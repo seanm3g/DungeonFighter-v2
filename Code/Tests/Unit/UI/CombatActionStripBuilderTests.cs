@@ -202,6 +202,34 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(tipJoined.Contains("Stats", StringComparison.Ordinal),
                 "BuildActionTooltipLines compact mode has Stats section",
                 ref run, ref passed, ref failed);
+
+            var comboForColored = charWithCombo.GetComboActions();
+            Action? firstCombo = comboForColored.Count > 0 ? comboForColored[0] : null;
+            var coloredTip = CombatActionStripBuilder.BuildColoredActionTooltipLines(charWithCombo, firstCombo, 24);
+            TestBase.AssertTrue(coloredTip != null && coloredTip.Count >= 3,
+                "BuildColoredActionTooltipLines returns structured lines",
+                ref run, ref passed, ref failed);
+            string coloredPlain = coloredTip == null
+                ? ""
+                : string.Join("\n", coloredTip.ConvertAll(line =>
+                    line == null || line.Count == 0
+                        ? ""
+                        : string.Concat(line.ConvertAll(s => s.Text ?? ""))));
+            TestBase.AssertTrue(coloredPlain.Contains("Strike", StringComparison.Ordinal),
+                "BuildColoredActionTooltipLines includes action name",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(coloredPlain.Contains("Stats", StringComparison.Ordinal),
+                "BuildColoredActionTooltipLines has Stats section",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(
+                coloredTip != null && coloredTip.Exists(line => line != null && line.Count == 0),
+                "BuildColoredActionTooltipLines inserts blank spacer lines",
+                ref run, ref passed, ref failed);
+
+            var coloredByName = CombatActionStripBuilder.BuildColoredActionTooltipLinesForName(charWithCombo, "Strike", 24);
+            TestBase.AssertTrue(coloredByName != null && coloredByName.Count >= 1,
+                "BuildColoredActionTooltipLinesForName resolves combo action",
+                ref run, ref passed, ref failed);
             TestBase.AssertTrue(tipJoined.Contains("Hold Alt for more", StringComparison.Ordinal)
                     || !tipJoined.Contains("Type ", StringComparison.Ordinal),
                 "BuildActionTooltipLines compact mode hints Alt or has no extended metadata",

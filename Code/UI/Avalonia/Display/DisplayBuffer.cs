@@ -20,7 +20,12 @@ namespace RPGGame.UI.Avalonia.Display
         private readonly BufferStorage storage;
         private readonly ScrollStateManager scrollManager;
         
-        public DisplayBuffer(int maxLines = RPGGame.Utils.GameConstants.DISPLAY_BUFFER_MAX_LINES, int maxLineWidth = 152)
+        /// <param name="maxLineWidth">
+        /// Soft ceiling for buffer pre-wrap. Production uses a large default so
+        /// <see cref="Buffer.BufferStorage"/> wraps to the live
+        /// <c>LayoutConstants.CenterPanelTextColumnWidth</c>. Pass a narrower value in tests.
+        /// </param>
+        public DisplayBuffer(int maxLines = RPGGame.Utils.GameConstants.DISPLAY_BUFFER_MAX_LINES, int maxLineWidth = 4096)
         {
             this.storage = new BufferStorage(maxLines, maxLineWidth);
             this.scrollManager = new ScrollStateManager();
@@ -73,17 +78,26 @@ namespace RPGGame.UI.Avalonia.Display
         /// <summary>
         /// Replaces an existing line counted from the end (0 = last). Does not change count.
         /// </summary>
-        public void ReplaceAtFromEnd(int offsetFromEnd, List<ColoredText> segments, UIMessageType? messageType = null)
+        public void ReplaceAtFromEnd(
+            int offsetFromEnd,
+            List<ColoredText> segments,
+            UIMessageType? messageType = null,
+            List<List<ColoredText>>? hoverInfoLines = null,
+            bool setHoverInfoLines = false)
         {
-            storage.ReplaceAtFromEnd(offsetFromEnd, segments, messageType);
+            storage.ReplaceAtFromEnd(offsetFromEnd, segments, messageType, hoverInfoLines, setHoverInfoLines);
         }
 
         /// <summary>
         /// Replaces the last buffered line without changing count (combat setup → punchline).
         /// </summary>
-        public void ReplaceLast(List<ColoredText> segments, UIMessageType? messageType = null)
+        public void ReplaceLast(
+            List<ColoredText> segments,
+            UIMessageType? messageType = null,
+            List<List<ColoredText>>? hoverInfoLines = null,
+            bool setHoverInfoLines = false)
         {
-            storage.ReplaceAtFromEnd(0, segments, messageType);
+            storage.ReplaceAtFromEnd(0, segments, messageType, hoverInfoLines, setHoverInfoLines);
         }
         
         /// <summary>
@@ -143,7 +157,7 @@ namespace RPGGame.UI.Avalonia.Display
         /// <summary>
         /// Gets the last N messages as structured ColoredText segments with the message type used when each line was stored.
         /// </summary>
-        public List<(List<ColoredText> Segments, UIMessageType MessageType)> GetLast(int count)
+        public List<(List<ColoredText> Segments, UIMessageType MessageType, List<List<ColoredText>>? HoverInfoLines)> GetLast(int count)
         {
             return storage.GetLastWithMessageTypes(count);
         }
@@ -153,7 +167,38 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public List<(List<ColoredText> Segments, UIMessageType MessageType)> GetAllWithMessageTypes()
         {
-            return storage.GetLastWithMessageTypes(storage.Count);
+            var rows = storage.GetLastWithMessageTypes(storage.Count);
+            var result = new List<(List<ColoredText>, UIMessageType)>(rows.Count);
+            foreach (var row in rows)
+                result.Add((row.Segments, row.MessageType));
+            return result;
+        }
+
+        /// <summary>
+        /// Binds mechanical combat-log tip lines to a line counted from the end (0 = last) for F7 prose hover.
+        /// </summary>
+        public void SetHoverInfoLinesAtFromEnd(int offsetFromEnd, List<List<ColoredText>>? infoLines)
+        {
+            storage.SetHoverInfoLinesAtFromEnd(offsetFromEnd, infoLines);
+        }
+
+        /// <summary>
+        /// After a mechanical action block was written, bind the silent narrative paragraph so F7 can swap.
+        /// </summary>
+        public void BindMechanicalDualViewFromEnd(int span, List<ColoredText> proseParagraph)
+        {
+            storage.BindMechanicalDualViewFromEnd(span, proseParagraph);
+        }
+
+        /// <summary>
+        /// Swaps every dual-view combat-log entry between narrative prose and mechanical lines.
+        /// </summary>
+        /// <param name="currentlyShowingNarrative">True when the buffer currently shows F7 prose.</param>
+        public void SwapDualView(bool currentlyShowingNarrative)
+        {
+            var current = storage.GetAllDualViewLines();
+            var swapped = CombatLogDualView.Swap(current, currentlyShowingNarrative);
+            storage.ReplaceAllDualViewLines(swapped, scrollManager);
         }
         
         /// <summary>

@@ -62,6 +62,10 @@ namespace RPGGame.UI.ColorSystem.Applications
             { "CLEANSE", "holy" },
             { "MARK", "corrupted" },
             { "DISRUPT", "corrupted" },
+
+            // Standing WHILE_EQUIPPED set status (Leather starter kit)
+            { "LUCKY", "lucky" },
+            { "LUCK", "lucky" },
             
             // Generic fallback
             { "EFFECT", "corrupted" }

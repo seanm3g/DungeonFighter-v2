@@ -41,14 +41,18 @@ namespace RPGGame.UI.Avalonia.Renderers.Layout
             interactionManager.ClearClickableElements();
 
             StatsPanelStateManager? stats = null;
+            GameState? gameState = null;
+            bool inDungeonRun = false;
             if (textManager is CanvasTextManager ctm)
             {
                 stats = ctm.DisplayManager?.StatsPanelStateManager;
-                RPGGame.Combat.Sequence.CombatSequenceHudState.SyncReservation(ctm.StateManager?.CurrentState);
+                gameState = ctm.StateManager?.CurrentState;
+                inDungeonRun = ctm.StateManager?.HasCurrentDungeon == true;
+                RPGGame.Combat.Sequence.CombatSequenceHudState.SyncReservation(gameState);
             }
 
             var layoutManager = new PersistentLayoutManager(canvas, interactionManager, stats);
-            layoutManager.RenderLayout(character, renderContent, title, enemy, dungeonName, roomName, clearCanvas, usePersistentChrome, inventoryComboRightPanel, registerActionLabEnemyLevelHover);
+            layoutManager.RenderLayout(character, renderContent, title, enemy, dungeonName, roomName, clearCanvas, usePersistentChrome, inventoryComboRightPanel, registerActionLabEnemyLevelHover, gameState, inDungeonRun);
         }
     }
 }

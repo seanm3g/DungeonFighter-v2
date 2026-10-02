@@ -35,14 +35,15 @@ namespace RPGGame.Combat.Sequence
         }
 
         /// <summary>
-        /// Environment hazards: Setup + Action + optional Defense + Damage (or a no-effect Action).
+        /// Environment hazards: Setup + Action + optional Defense + Damage / Effects (or a no-effect Action).
         /// </summary>
         public static List<CombatSequenceStep> FromEnvironmental(
             string actionName,
             int damage,
             int? defenseFace,
             Actor? target,
-            int? attackFace = null)
+            int? attackFace = null,
+            bool hasStatusEffects = false)
         {
             var steps = new List<CombatSequenceStep>();
             string name = string.IsNullOrWhiteSpace(actionName) ? "hazard" : actionName;
@@ -54,9 +55,6 @@ namespace RPGGame.Combat.Sequence
                 CombatSequenceStepKind.Action,
                 "ACTION",
                 Plain(name, ColorPalette.Success)));
-
-            if (damage <= 0 && !defenseFace.HasValue)
-                return steps;
 
             if (defenseFace.HasValue && target != null)
             {
@@ -74,6 +72,14 @@ namespace RPGGame.Combat.Sequence
                     "DAMAGE",
                     Plain(damage.ToString(), ColorPalette.Damage),
                     CombatSequenceCue.HealthBar));
+            }
+
+            if (hasStatusEffects)
+            {
+                steps.Add(new CombatSequenceStep(
+                    CombatSequenceStepKind.Effect,
+                    "EFFECTS",
+                    Plain("status", ColorPalette.Info)));
             }
 
             return steps;
@@ -145,9 +151,10 @@ namespace RPGGame.Combat.Sequence
         {
             if (string.IsNullOrWhiteSpace(selected.Name))
             {
-                return hit
-                    ? new CombatSequenceStep(CombatSequenceStepKind.Action, "ACTION", Plain("hit", ColorPalette.Success))
-                    : new CombatSequenceStep(CombatSequenceStepKind.Action, "ACTION", Plain("miss", ColorPalette.Miss));
+                // Plain HIT already lives in OUTCOME; leave ACTION blank so the cell is not redundant.
+                if (hit)
+                    return new CombatSequenceStep(CombatSequenceStepKind.Action, "ACTION", new List<ColoredText>());
+                return new CombatSequenceStep(CombatSequenceStepKind.Action, "ACTION", Plain("miss", ColorPalette.Miss));
             }
 
             return new CombatSequenceStep(

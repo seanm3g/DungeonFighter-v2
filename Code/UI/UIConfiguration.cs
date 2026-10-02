@@ -118,6 +118,12 @@ namespace RPGGame
         public DungeonSelectionAnimationConfig DungeonSelectionAnimation { get; set; } = new DungeonSelectionAnimationConfig();
 
         /// <summary>
+        /// Per-cell MP4 overlay on the center combat-log band (glyph luminance → opacity).
+        /// </summary>
+        public RPGGame.UI.Avalonia.Effects.NarrativeVideoOverlayConfig NarrativeVideoOverlay { get; set; } =
+            new RPGGame.UI.Avalonia.Effects.NarrativeVideoOverlayConfig();
+
+        /// <summary>
         /// Named layered text animation presets (base color + stackable overlay / HSV layers).
         /// </summary>
         public Dictionary<string, TextAnimationPresetConfig> TextAnimationPresets { get; set; } =

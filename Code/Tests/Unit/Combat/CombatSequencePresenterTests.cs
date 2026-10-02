@@ -22,13 +22,14 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestShouldPlayFalseWhenMuted();
             TestShouldPlayFalseWhenInstant();
+            TestShouldPlayFalseWhenNarrativeCombatLog();
             TestMutedPlaySkipsAndClearsPending();
             TestPlayPendingOrWaitPlaysHudWhenPending();
             TestPlayPendingOrWaitDoesNotMarkPlayedWhenEmpty();
             TestCueOrderOutcomeBeforeDamage();
             TestHealthHoldReleasedOnDamageCue();
             TestLayoutHudBetweenStripAndLog();
-            TestShouldReserveBandCombatOnly();
+            TestShouldReserveBandDungeonChrome();
             TestSyncReservationClearsHudOutsideCombat();
             TestIdleColumnsAreTheDungeonHeaders();
             TestInvalidateDoesNotInvokeSynchronouslyOnBackgroundThread();
@@ -77,6 +78,30 @@ namespace RPGGame.Tests.Unit.Combat
             }
             finally
             {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequencePresenter.ResetForTests();
+            }
+        }
+
+        private static void TestShouldPlayFalseWhenNarrativeCombatLog()
+        {
+            Console.WriteLine("--- ShouldPlay is false when F7 narrative combat log is on ---");
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            bool prevNarrative = DeveloperModeState.IsNarrativeCombatLog;
+            try
+            {
+                CombatUiMuteScope.GlobalMute = false;
+                DeveloperModeState.SetCombatLogInstant(false);
+                DeveloperModeState.SetNarrativeCombatLog(true);
+                CombatSequencePresenter.BypassCanvasCheckForTests = true;
+                TestBase.AssertTrue(!CombatSequencePresenter.ShouldPlay(),
+                    "narrative log does not play HUD", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetNarrativeCombatLog(prevNarrative);
                 DeveloperModeState.SetCombatLogInstant(prevInstant);
                 CombatUiMuteScope.GlobalMute = prevMute;
                 CombatSequencePresenter.ResetForTests();
@@ -292,27 +317,42 @@ namespace RPGGame.Tests.Unit.Combat
             });
         }
 
-        private static void TestShouldReserveBandCombatOnly()
+        private static void TestShouldReserveBandDungeonChrome()
         {
-            Console.WriteLine("--- Sequence HUD band is combat-only ---");
-            TestBase.AssertTrue(CombatSequenceHudState.ShouldReserveBand(GameState.Combat),
-                "combat reserves the HUD", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(CombatSequenceHudState.ShouldReserveBand(GameState.ActionInteractionLab),
-                "Action Lab combat canvas reserves the HUD", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.Dungeon),
-                "dungeon exploration does not show the HUD", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.SkillTree),
-                "skill tree does not show the HUD", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.GameLoop),
-                "game loop hub does not show the HUD", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.Inventory),
-                "inventory does not show the HUD", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.DungeonCompletion),
-                "dungeon completion does not show the HUD", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.MainMenu),
-                "main menu does not show the HUD", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.DungeonSelection),
-                "dungeon selection does not show the HUD", ref _run, ref _passed, ref _failed);
+            Console.WriteLine("--- Sequence HUD band is dungeon chrome ---");
+            bool prevNarrative = DeveloperModeState.IsNarrativeCombatLog;
+            try
+            {
+                DeveloperModeState.SetNarrativeCombatLog(false);
+                TestBase.AssertTrue(CombatSequenceHudState.ShouldReserveBand(GameState.Combat),
+                    "combat reserves the HUD", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(CombatSequenceHudState.ShouldReserveBand(GameState.Dungeon),
+                    "dungeon exploration reserves the HUD from select", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(CombatSequenceHudState.ShouldReserveBand(GameState.ActionInteractionLab),
+                    "Action Lab combat canvas reserves the HUD", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.SkillTree),
+                    "skill tree does not show the HUD", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.GameLoop),
+                    "game loop hub does not show the HUD", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.Inventory),
+                    "inventory does not show the HUD", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.DungeonCompletion),
+                    "dungeon completion does not show the HUD", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.MainMenu),
+                    "main menu does not show the HUD", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(!CombatSequenceHudState.ShouldReserveBand(GameState.DungeonSelection),
+                    "dungeon selection does not show the HUD", ref _run, ref _passed, ref _failed);
+
+                DeveloperModeState.SetNarrativeCombatLog(true);
+                TestBase.AssertTrue(CombatSequenceHudState.ShouldReserveBand(GameState.Combat),
+                    "F7 narrative mode still reserves the HUD band in combat", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(CombatSequenceHudState.ShouldReserveBand(GameState.Dungeon),
+                    "F7 narrative mode still reserves the HUD band in dungeon", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetNarrativeCombatLog(prevNarrative);
+            }
         }
 
         private static void TestSyncReservationClearsHudOutsideCombat()
@@ -337,6 +377,10 @@ namespace RPGGame.Tests.Unit.Combat
                 CombatSequenceHudState.SyncReservation(GameState.Combat);
                 TestBase.AssertTrue(CombatSequenceHudState.IsBandReserved,
                     "combat re-reserves the HUD band", ref _run, ref _passed, ref _failed);
+
+                CombatSequenceHudState.SyncReservation(GameState.Dungeon);
+                TestBase.AssertTrue(CombatSequenceHudState.IsBandReserved,
+                    "dungeon exploration keeps the HUD band reserved", ref _run, ref _passed, ref _failed);
 
                 CombatSequenceHudState.SyncReservation(null);
                 TestBase.AssertTrue(CombatSequenceHudState.IsBandReserved,

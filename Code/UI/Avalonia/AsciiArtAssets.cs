@@ -96,6 +96,12 @@ namespace RPGGame.UI.Avalonia
             public const string ArrowRight = "►";
             public const string ArrowUpDown = "↕";
             public const string ArrowLeftRight = "↔";
+
+            /// <summary>Animal mouse glyph used in soft scroll affordances (not the input device).</summary>
+            public const string MouseAnimal = "🐭";
+
+            /// <summary>Deemphasized mouse-wheel scroll cue: animal mouse + up/down arrow.</summary>
+            public const string MouseScrollHint = MouseAnimal + ArrowUpDown;
             
             public const string Checkmark = "✓";
             public const string X = "✗";

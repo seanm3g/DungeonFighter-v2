@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit.Data
         {
             var filledSlots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var result = new List<Item>();
+            var materialApplier = new LootBonusApplier(LootDataCache.Load(), Random.Shared);
             foreach (var row in rows)
             {
                 if (!GameDataTagHelper.HasTag(row.Tags, StarterCatalogItems.StarterTag))
@@ -41,7 +42,11 @@ namespace RPGGame.Tests.Unit.Data
                     continue;
                 if (!filledSlots.Add(slotKey))
                     continue;
-                result.Add(ItemGenerator.GenerateArmorItem(row));
+                var item = ItemGenerator.GenerateArmorItem(row);
+                if (string.IsNullOrWhiteSpace(item.Rarity))
+                    item.Rarity = "Common";
+                materialApplier.ApplySpecificMaterial(item, LeatherSetBonus.MaterialName, item.Rarity);
+                result.Add(item);
             }
 
             return result;
@@ -71,30 +76,35 @@ namespace RPGGame.Tests.Unit.Data
         }
 
         /// <summary>
-        /// Guards against Armor.json sheet/data resets that drop the starter tag and leave new heroes unequipped.
+        /// Guards against Armor.json sheet/data resets that drop the starter leather kit.
         /// </summary>
         private static void TestShippedStarterBodyArmorPresent()
         {
-            Console.WriteLine("\n--- Testing shipped Armor.json starter body pieces ---");
+            Console.WriteLine("\n--- Testing shipped Armor.json starter leather kit ---");
 
             var items = StarterCatalogItems.LoadStarterArmorItems();
-            TestBase.AssertEqual(2, items.Count,
-                "Shipped catalog must tag exactly one starter per body slot (chest/legs; no head/feet)",
+            TestBase.AssertEqual(3, items.Count,
+                "Shipped catalog must tag starter head/chest/feet (no legs)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
+            string? head = items.OfType<HeadItem>().FirstOrDefault()?.Name;
             string? chest = items.OfType<ChestItem>().FirstOrDefault()?.Name;
-            string? legs = items.OfType<LegsItem>().FirstOrDefault()?.Name;
-            TestBase.AssertEqual("Shirt", chest,
-                "Starter chest should be Shirt",
+            string? feet = items.OfType<FeetItem>().FirstOrDefault()?.Name;
+            TestBase.AssertTrue(head != null && head.Contains("Helmet", StringComparison.OrdinalIgnoreCase),
+                "Starter head should be Helmet",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("shinguards", legs,
-                "Starter legs should be shinguards",
+            TestBase.AssertTrue(chest != null && chest.Contains("Armor", StringComparison.OrdinalIgnoreCase),
+                "Starter chest should be Armor",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(items.All(i => i is not HeadItem),
-                "Starter armor should not include a head piece",
+            TestBase.AssertTrue(feet != null && feet.Contains("Boots", StringComparison.OrdinalIgnoreCase),
+                "Starter feet should be Boots",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(items.All(i => i is not FeetItem),
-                "Starter armor should not include feet (Shoes/Boots)",
+            TestBase.AssertTrue(items.All(i => i is not LegsItem),
+                "Starter armor should not include legs",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(items.All(i =>
+                    string.Equals(ItemMaterialRules.RemapLegacyMaterial(i.Material), "Leather", StringComparison.OrdinalIgnoreCase)),
+                "All starter armor pieces should be stamped Leather",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

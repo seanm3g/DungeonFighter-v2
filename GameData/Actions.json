@@ -6,8 +6,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "tags": "class, fighter",
-    "block": "180"
+    "block": "180",
+    "tags": "class, fighter"
   },
   {
     "action": "SLAM",
@@ -16,8 +16,18 @@
     "numberOfHits": "1",
     "damage": "120%",
     "speed": "1.00",
-    "tags": "startingweapon, mace, weapon_basic, required",
-    "block": "0"
+    "block": "0",
+    "tags": "startingweapon, mace, weapon_basic, required"
+  },
+  {
+    "action": "POUND",
+    "description": "starter mace action: faster defensive smash",
+    "dps": "120%",
+    "numberOfHits": "1",
+    "damage": "90%",
+    "speed": "0.75",
+    "block": "180",
+    "tags": "startingweapon, mace"
   },
   {
     "action": "STRIKE",
@@ -26,8 +36,18 @@
     "numberOfHits": "1",
     "damage": "90%",
     "speed": "0.75",
-    "tags": "startingweapon, sword, weapon_basic, required",
-    "block": "180"
+    "block": "180",
+    "tags": "startingweapon, sword, weapon_basic, required"
+  },
+  {
+    "action": "SLASH",
+    "description": "starter sword action: aggressive cleave",
+    "dps": "120%",
+    "numberOfHits": "1",
+    "damage": "120%",
+    "speed": "1.00",
+    "block": "0",
+    "tags": "startingweapon, sword"
   },
   {
     "action": "STAB",
@@ -36,18 +56,38 @@
     "numberOfHits": "3",
     "damage": "40%",
     "speed": "1.00",
-    "tags": "startingweapon, dagger, weapon_basic, required",
-    "block": "180"
+    "block": "180",
+    "tags": "startingweapon, dagger, weapon_basic, required"
+  },
+  {
+    "action": "CUT",
+    "description": "starter dagger action: quick aggressive cut",
+    "dps": "120%",
+    "numberOfHits": "1",
+    "damage": "90%",
+    "speed": "0.75",
+    "block": "0",
+    "tags": "startingweapon, dagger"
   },
   {
     "action": "MAGIC MISSLE",
-    "description": "basic wand action: + AMP",
+    "description": "basic wand action: \u002B AMP",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "tags": "startingweapon, wand, weapon_basic, required",
-    "block": "180"
+    "block": "180",
+    "tags": "startingweapon, wand, weapon_basic, required"
+  },
+  {
+    "action": "BOLT",
+    "description": "starter wand action: quick aggressive bolt",
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "75%",
+    "speed": "0.75",
+    "block": "0",
+    "tags": "startingweapon, wand"
   },
   {
     "action": "TURN BONUS",
@@ -57,11 +97,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"3\",\"mechanics\":\"hero_accuracy\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_hit_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyAccuracy": "1",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}"
   },
   {
     "action": "ACTION BONUS",
@@ -71,12 +110,11 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "ACTION",
-    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"3\",\"mechanics\":\"hero_next_action_damage\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00223\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022IsEnabled\u0022:true}]",
     "damageMod": "25",
-    "tags": "bludgeon",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:25}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "tags": "bludgeon"
   },
   {
     "action": "FIGHT BONUS",
@@ -86,11 +124,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"FIGHT\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_accuracy\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_hit_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyAccuracy": "1",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}"
   },
   {
     "action": "DUNGEON BONUS",
@@ -100,75 +137,70 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"DUNGEON\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_combo_threshold\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_crit_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyCombo": "1",
-    "block": "180"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}"
   },
   {
     "action": "LUCKY CHARM",
-    "description": "+1 ACCURACY",
+    "description": "\u002B1 ACCURACY",
     "rarity": "RARE",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_accuracy\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_hit_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyAccuracy": "1",
-    "tags": "rare",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "rare"
   },
   {
     "action": "CONCENTRATION",
-    "description": "+1 HIT",
+    "description": "\u002B1 HIT",
     "rarity": "COMMON",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_hit_threshold\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_combo_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyHit": "1",
-    "tags": "common",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022COMBO\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "common"
   },
   {
     "action": "MEASURED ADVANCE",
-    "description": "+1 COMBO",
+    "description": "\u002B1 COMBO",
     "rarity": "COMMON",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_combo_threshold\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_crit_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyCombo": "1",
-    "tags": "common",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "common"
   },
   {
     "action": "CRITICAL ATTACK",
-    "description": "+1 CRIT",
+    "description": "\u002B1 CRIT",
     "rarity": "RARE",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_crit_threshold\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_crit_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "heroCrit": "1",
-    "tags": "rare",
-    "block": "180"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "rare"
   },
   {
     "action": "EXTRA EFFORT",
@@ -179,12 +211,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "enemySTR": "5",
-    "tags": "common, class, barbarian",
-    "block": "100"
+    "tags": "common, class, barbarian"
   },
   {
     "action": "FIGHTER",
@@ -195,12 +225,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"FIGHT\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "0",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "enemySTR": "1",
-    "tags": "common, class, barbarian",
-    "block": "0"
+    "tags": "common, class, barbarian"
   },
   {
     "action": "MOMENTUM BASH",
@@ -211,12 +239,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"DUNGEON\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "0",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "enemySTR": "1",
-    "tags": "common, class, barbarian",
-    "block": "0"
+    "tags": "common, class, barbarian"
   },
   {
     "action": "REACTION TRAINING",
@@ -227,12 +253,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyAGI": "5",
-    "tags": "common, class, warrior",
-    "block": "100"
+    "tags": "common, class, warrior"
   },
   {
     "action": "DEEP BREATHING",
@@ -243,12 +267,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"FIGHT\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyAGI": "1",
-    "tags": "common, class, warrior",
-    "block": "100"
+    "tags": "common, class, warrior"
   },
   {
     "action": "DANCE",
@@ -259,12 +281,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"DUNGEON\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyAGI": "1",
-    "tags": "common, class, warrior",
-    "block": "100"
+    "tags": "common, class, warrior"
   },
   {
     "action": "TAKING AIM",
@@ -275,12 +295,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyTECH": "5",
-    "tags": "common, class, rogue",
-    "block": "100"
+    "tags": "common, class, rogue"
   },
   {
     "action": "QUIET MIND",
@@ -291,12 +309,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"FIGHT\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyTECH": "1",
-    "tags": "common, class, rogue",
-    "block": "100"
+    "tags": "common, class, rogue"
   },
   {
     "action": "FOCUS",
@@ -307,12 +323,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"DUNGEON\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyTECH": "1",
-    "tags": "common, class, rogue",
-    "block": "180"
+    "tags": "common, class, rogue"
   },
   {
     "action": "READ BOOK",
@@ -323,12 +337,11 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroINT": "5",
-    "tags": "common, class, wizard",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022INT\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "common, class, wizard"
   },
   {
     "action": "PRE-FIGHT PLANNING",
@@ -339,12 +352,11 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"FIGHT\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroINT": "1",
-    "tags": "common, class, wizard",
-    "block": "180"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022INT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
+    "tags": "common, class, wizard"
   },
   {
     "action": "DUNGEON ANALYSIS",
@@ -355,188 +367,178 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"DUNGEON\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "0",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroINT": "1",
-    "tags": "common, class, wizard",
-    "block": "0"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022INT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
+    "tags": "common, class, wizard"
   },
   {
     "action": "SPRINT",
-    "description": "+5% SPEED",
+    "description": "\u002B5% SPEED",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_speed\",\"IsEnabled\":true}]",
-    "tags": "swift",
-    "block": "100"
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
+    "tags": "swift"
   },
   {
     "action": "RUSH",
-    "description": "+5% SPEED",
+    "description": "\u002B5% SPEED",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_speed\",\"IsEnabled\":true}]",
-    "tags": "swift",
-    "block": "0"
+    "block": "0",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
+    "tags": "swift"
   },
   {
     "action": "MOMENTUM",
-    "description": "+1% SPEED",
+    "description": "\u002B1% SPEED",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"FIGHT\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_speed\",\"IsEnabled\":true}]",
-    "tags": "swift",
-    "block": "100"
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
+    "tags": "swift"
   },
   {
     "action": "MARATHON",
-    "description": "+0.5% SPEED",
+    "description": "\u002B0.5% SPEED",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"DUNGEON\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_speed\",\"IsEnabled\":true}]",
-    "tags": "swift",
-    "block": "0"
+    "block": "0",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
+    "tags": "swift"
   },
   {
     "action": "STRONGER",
-    "description": "+5% DAMAGE",
+    "description": "\u002B5% DAMAGE",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "ACTION",
-    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_damage\",\"IsEnabled\":true}]",
+    "block": "0",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022IsEnabled\u0022:true}]",
     "damageMod": "25",
-    "tags": "bludgeon",
-    "block": "0"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:25}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "tags": "bludgeon"
   },
   {
     "action": "RAPID STRIKE",
-    "description": "+1 MULTIHIT",
+    "description": "\u002B1 MULTIHIT",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "ACTION",
-    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_multihit\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_multihit\u0022,\u0022IsEnabled\u0022:true}]",
     "multiHitMod": "1",
-    "block": "180"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022MULTIHIT_MOD\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022ACTION\u0022}]}"
   },
   {
     "action": "EMPOWERED",
-    "description": "+.05 AMP",
+    "description": "\u002B.05 AMP",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "ACTION",
-    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_amp\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_amp\u0022,\u0022IsEnabled\u0022:true}]",
     "ampMod": "0.1",
-    "tags": "focus",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AMP_MOD\u0022,\u0022value\u0022:0.1}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "tags": "focus"
   },
   {
     "action": "SHARPEN",
-    "description": "+10 WEAPON DAMAGE",
+    "description": "\u002B10 WEAPON DAMAGE",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_weapon_damage\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_weapon_damage\u0022,\u0022IsEnabled\u0022:true}]",
     "weaponDamageMod": "10",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022WEAPON_DAMAGE\u0022,\u0022value\u0022:10}],\u0022durationType\u0022:\u0022TURN\u0022}]}"
   },
   {
     "action": "TWISTING STRIKE",
-    "description": "+1 WEAPON DAMAGE",
+    "description": "\u002B1 WEAPON DAMAGE",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"FIGHT\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_weapon_damage\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_weapon_damage\u0022,\u0022IsEnabled\u0022:true}]",
     "weaponDamageMod": "1",
-    "block": "180"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022WEAPON_DAMAGE\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}"
   },
   {
     "action": "WHIRLWIND",
-    "description": "+1 WEAPON DAMAGE",
+    "description": "\u002B1 WEAPON DAMAGE",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"DUNGEON\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_weapon_damage\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_weapon_damage\u0022,\u0022IsEnabled\u0022:true}]",
     "weaponDamageMod": "1",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022WEAPON_DAMAGE\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}"
   },
   {
     "action": "LOOSE GRIP",
-    "description": "+1 WEAPON SPEED",
+    "description": "\u002B1 WEAPON SPEED",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_weapon_speed\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_weapon_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyWeaponSpeedMod": "1",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022WEAPON_SPEED\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}"
   },
   {
     "action": "JUICED",
-    "description": "+1 WEAPON SPEED",
+    "description": "\u002B1 WEAPON SPEED",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"FIGHT\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_weapon_speed\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_weapon_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyWeaponSpeedMod": "1",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022WEAPON_SPEED\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}"
   },
   {
     "action": "BLUR",
-    "description": "+1 WEAPON SPEED",
+    "description": "\u002B1 WEAPON SPEED",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"DUNGEON\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_weapon_speed\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_weapon_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyWeaponSpeedMod": "1",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022WEAPON_SPEED\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}"
   },
   {
     "action": "OPENER",
@@ -546,9 +548,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "100",
     "opener": "true",
-    "tags": "opener",
-    "block": "100"
+    "tags": "opener"
   },
   {
     "action": "FINISHER",
@@ -558,23 +560,22 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "0",
     "finisher": "true",
-    "tags": "finisher",
-    "block": "0"
+    "tags": "finisher"
   },
   {
     "action": "PHANTOM FOLLOW-UP",
-    "description": "CHAIN LENGTH +1",
+    "description": "CHAIN LENGTH \u002B1",
     "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_combo_threshold\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_crit_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyCombo": "1",
-    "block": "180"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}"
   },
   {
     "action": "WEAKEN",
@@ -584,9 +585,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"weaken\",\"IsEnabled\":true}]",
-    "weaken": "1",
-    "block": "0"
+    "block": "0",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022weaken\u0022,\u0022IsEnabled\u0022:true}]",
+    "weaken": "1"
   },
   {
     "action": "SLOW",
@@ -596,9 +597,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"slow\",\"IsEnabled\":true}]",
-    "slow": "1",
-    "block": "100"
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022slow\u0022,\u0022IsEnabled\u0022:true}]",
+    "slow": "1"
   },
   {
     "action": "VULNERABILITY",
@@ -608,9 +609,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"vulnerability\",\"IsEnabled\":true}]",
-    "vulnerability": "1",
-    "block": "100"
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022vulnerability\u0022,\u0022IsEnabled\u0022:true}]",
+    "vulnerability": "1"
   },
   {
     "action": "HARDEN",
@@ -620,10 +621,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"harden\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022harden\u0022,\u0022IsEnabled\u0022:true}]",
     "harden": "1",
-    "target": "self",
-    "block": "100"
+    "target": "self"
   },
   {
     "action": "PIERCE",
@@ -633,9 +634,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"pierce\",\"IsEnabled\":true}]",
-    "pierce": "1",
-    "block": "180"
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022pierce\u0022,\u0022IsEnabled\u0022:true}]",
+    "pierce": "1"
   },
   {
     "action": "CONFUSE",
@@ -645,9 +646,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"confuse\",\"IsEnabled\":true}]",
-    "confuse": "1",
-    "block": "180"
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022confuse\u0022,\u0022IsEnabled\u0022:true}]",
+    "confuse": "1"
   },
   {
     "action": "SELF TARGET",
@@ -657,8 +658,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "self",
-    "block": "0"
+    "block": "0",
+    "target": "self"
   },
   {
     "action": "LUCK",
@@ -668,8 +669,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"advantage\",\"IsEnabled\":true}]",
-    "block": "100"
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022advantage\u0022,\u0022IsEnabled\u0022:true}]",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022ADVANTAGE\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022ACTION\u0022}]}"
   },
   {
     "action": "UNLUCK",
@@ -679,8 +681,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"disadvantage\",\"IsEnabled\":true}]",
-    "block": "100"
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022disadvantage\u0022,\u0022IsEnabled\u0022:true}]",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DISADVANTAGE\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022ACTION\u0022}]}"
   },
   {
     "action": "JAB",
@@ -690,9 +693,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"disrupt\",\"IsEnabled\":true}]",
-    "disrupt": "1",
-    "block": "180"
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022disrupt\u0022,\u0022IsEnabled\u0022:true}]",
+    "disrupt": "1"
   },
   {
     "action": "EXPOSE",
@@ -702,8 +705,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"\",\"IsEnabled\":true}]",
-    "block": "180"
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022\u0022,\u0022IsEnabled\u0022:true}]"
   },
   {
     "action": "ACID BURN",
@@ -723,8 +726,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "stun": "1",
-    "block": "180"
+    "block": "180",
+    "stun": "1"
   },
   {
     "action": "POISON",
@@ -734,8 +737,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "poison": "1",
-    "block": "0"
+    "block": "0",
+    "poison": "1"
   },
   {
     "action": "BURN",
@@ -745,8 +748,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "burn": "1",
-    "block": "0"
+    "block": "0",
+    "burn": "1"
   },
   {
     "action": "BLEED",
@@ -756,12 +759,12 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "bleed": "1",
-    "block": "100"
+    "block": "100",
+    "bleed": "1"
   },
   {
     "action": "SET BONUS",
-    "description": "+1 DAMAGE per X tag",
+    "description": "\u002B1 DAMAGE per X tag",
     "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
@@ -791,17 +794,16 @@
   },
   {
     "action": "ANGRY ENRAGE",
-    "description": "TURN(x3):+5 combo",
+    "description": "TURN(x3):\u002B5 combo",
     "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"3\",\"mechanics\":\"hero_combo_threshold\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_crit_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyCombo": "5",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}"
   },
   {
     "action": "GAMBLERS BLESSING",
@@ -815,30 +817,28 @@
   },
   {
     "action": "HAYMAKER",
-    "description": "FOR NEXT ACTION: -14 ACCURACY, +500% Damage",
+    "description": "FOR NEXT ACTION: -14 ACCURACY, \u002B500% Damage",
     "tier": 3,
     "dps": "200%",
     "numberOfHits": "1",
     "damage": "500%",
     "speed": "2.50",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_accuracy\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_hit_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyAccuracy": "-14",
-    "tags": "class",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:-14}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "class"
   },
   {
     "action": "TAUNT",
-    "description": "FOR FIGHT (ENEMY): -1 STR, +1 AGI",
+    "description": "FOR FIGHT (ENEMY): -1 STR, \u002B1 AGI",
     "tier": 3,
     "dps": "20%",
     "numberOfHits": "1",
     "damage": "10%",
     "speed": "0.50",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"3\",\"mechanics\":\"hero_stat_bonus, hero_accuracy, hero_combo_threshold, hero_hit_threshold\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00223\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyAccuracy": "1",
     "enemyHit": "2",
     "enemyCombo": "-1",
@@ -846,8 +846,8 @@
     "heroAGI": "1",
     "enemySTR": "5",
     "enemyAGI": "1",
-    "tags": "class, barbarian",
-    "block": "180"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022STR\u0022,\u0022value\u0022:-1},{\u0022type\u0022:\u0022AGI\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "class, barbarian"
   },
   {
     "action": "BASH",
@@ -857,9 +857,8 @@
     "numberOfHits": "1",
     "damage": "150%",
     "speed": "1.50",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"2\",\"mechanics\":\"hero_stat_bonus, hero_accuracy, hero_combo_threshold, hero_hit_threshold, vulnerability\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00222\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus, vulnerability\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyAccuracy": "1",
     "enemyHit": "2",
     "enemyCombo": "-1",
@@ -868,8 +867,8 @@
     "enemySTR": "5",
     "enemyAGI": "1",
     "vulnerability": "1",
-    "tags": "class, barbarian",
-    "block": "180"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:2,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022STR\u0022,\u0022value\u0022:-1},{\u0022type\u0022:\u0022AGI\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "class, barbarian"
   },
   {
     "action": "STRIP JUMP",
@@ -879,9 +878,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCONNECT\",\"count\":\"3\",\"scope\":\"\",\"mechanics\":\"strip_jump\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "100"
+    "block": "100",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00223\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_jump\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "STRIP SKIP",
@@ -891,9 +890,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCONNECT\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"strip_skip\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "100"
+    "block": "100",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_skip\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "STRIP REPEAT",
@@ -903,9 +902,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCOMBO\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"strip_repeat\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "180"
+    "block": "180",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCOMBO\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_repeat\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "STRIP LOOP",
@@ -915,9 +914,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCONNECT\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"strip_loop\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "180"
+    "block": "180",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_loop\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "STRIP STOP",
@@ -927,10 +926,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "0",
     "onMiss": "1",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONMISS\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"strip_stop\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "0"
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONMISS\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_stop\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "STRIP RANDOM",
@@ -940,9 +939,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCONNECT\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"strip_random\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "180"
+    "block": "180",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_random\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "STRIP SHUFFLE",
@@ -952,9 +951,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONFIRSTHIT\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"strip_shuffle\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "100"
+    "block": "100",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONFIRSTHIT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_shuffle\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "STRIP REPLACE",
@@ -964,9 +963,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCONNECT\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"strip_replace_next:STRIKE\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "100"
+    "block": "100",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_replace_next:STRIKE\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "RETRIGGER NEXT",
@@ -976,9 +975,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCOMBO\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"retrigger_next\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "0"
+    "block": "0",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCOMBO\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_next\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "RETRIGGER OPENER",
@@ -988,10 +987,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "180",
     "onKill": "1",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONKILL\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"retrigger_opener\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "180"
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONKILL\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_opener\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "RETRIGGER FINISHER",
@@ -1001,9 +1000,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCOMBO\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"retrigger_finisher\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "0"
+    "block": "0",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCOMBO\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_finisher\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "RETRIGGER SLOT",
@@ -1013,33 +1012,33 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCONNECT\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"retrigger_slot:2\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "180"
+    "block": "180",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_slot:2\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "SALVAGE MISS",
-    "description": "ON CONNECT: gain 1 miss→hit salvage for the fight (salvage_miss)",
+    "description": "ON CONNECT: gain 1 miss\u2192hit salvage for the fight (salvage_miss)",
     "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCONNECT\",\"count\":\"1\",\"scope\":\"FIGHT\",\"mechanics\":\"salvage_miss\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "100"
+    "block": "100",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022FIGHT\u0022,\u0022mechanics\u0022:\u0022salvage_miss\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "CRIT FACES",
-    "description": "ON CONNECT: natural faces ≥19 crit for the fight (crit_face_min)",
+    "description": "ON CONNECT: natural faces \u226519 crit for the fight (crit_face_min)",
     "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCONNECT\",\"count\":\"1\",\"scope\":\"FIGHT\",\"mechanics\":\"crit_face_min:19\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "180"
+    "block": "180",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022FIGHT\u0022,\u0022mechanics\u0022:\u0022crit_face_min:19\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "REPLACE ROLL",
@@ -1049,9 +1048,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCONNECT\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"replace_next_roll:20\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "180"
+    "block": "180",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022replace_next_roll:20\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "EXPLODING DICE",
@@ -1061,9 +1060,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"exploding_dice\",\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "100"
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022exploding_dice\u0022,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "NATURAL SEVEN",
@@ -1073,12 +1072,12 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"heal\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONNATURALROLL\",\"count\":\"7\",\"scope\":\"\",\"mechanics\":\"heal\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONNATURALROLL\u0022,\u0022count\u0022:\u00227\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
     "target": "self",
-    "tags": "action",
-    "block": "100"
+    "tags": "action"
   },
   {
     "action": "HIT HEAL",
@@ -1088,13 +1087,13 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"heal\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
     "onHit": "1",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONHIT\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"heal\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONHIT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
     "target": "self",
-    "tags": "action",
-    "block": "180"
+    "tags": "action"
   },
   {
     "action": "CRIT HEAL",
@@ -1104,13 +1103,13 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"heal\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
     "onCrit": "1",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCRITICAL\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"heal\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCRITICAL\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
     "target": "self",
-    "tags": "action",
-    "block": "100"
+    "tags": "action"
   },
   {
     "action": "COMBO END HEAL",
@@ -1120,12 +1119,12 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"heal\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCOMBOEND\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"heal\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCOMBOEND\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
     "target": "self",
-    "tags": "action",
-    "block": "100"
+    "tags": "action"
   },
   {
     "action": "CRIT MISS HEAL",
@@ -1135,12 +1134,12 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"heal\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCRITICALMISS\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"heal\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCRITICALMISS\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
     "target": "self",
-    "tags": "action",
-    "block": "100"
+    "tags": "action"
   },
   {
     "action": "AFTER MISS HEAL",
@@ -1150,12 +1149,12 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"heal\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONAFTERMISS\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"heal\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONAFTERMISS\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
     "target": "self",
-    "tags": "action",
-    "block": "180"
+    "tags": "action"
   },
   {
     "action": "ROOM CLEAR HEAL",
@@ -1165,13 +1164,14 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"heal\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
     "onRoomsCleared": "1",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONROOMSCLEARED\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"heal\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
+    "triggerConditions": "ONROOMSCLEARED:1",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONROOMSCLEARED\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
     "target": "self",
-    "tags": "action",
-    "block": "100"
+    "tags": "action"
   },
   {
     "action": "ROLL FIFTEEN",
@@ -1181,13 +1181,14 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"heal\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
     "onRollValue": "15",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONROLLVALUE\",\"count\":\"15\",\"scope\":\"\",\"mechanics\":\"heal\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
+    "triggerConditions": "ONROLLVALUE",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONROLLVALUE\u0022,\u0022count\u0022:\u002215\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
     "target": "self",
-    "tags": "action",
-    "block": "100"
+    "tags": "action"
   },
   {
     "action": "STRIP DISABLE",
@@ -1197,9 +1198,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCONNECT\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"strip_disable\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "action",
-    "block": "100"
+    "block": "100",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_disable\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "action"
   },
   {
     "action": "MIGHTY SWING",
@@ -1210,8 +1211,8 @@
     "numberOfHits": "1",
     "damage": "110.0%",
     "speed": "1.20",
-    "tags": "rare, class, barbarian, bludgeon",
-    "block": "100"
+    "block": "100",
+    "tags": "rare, class, barbarian, bludgeon"
   },
   {
     "action": "WARCRY",
@@ -1222,11 +1223,11 @@
     "numberOfHits": "1",
     "damage": "40%",
     "speed": "0.80",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"weaken\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022weaken\u0022,\u0022IsEnabled\u0022:true}]",
     "weaken": "1",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCONNECT\",\"count\":\"1\",\"scope\":\"FIGHT\",\"mechanics\":\"salvage_miss\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "common, class, barbarian",
-    "block": "180"
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022FIGHT\u0022,\u0022mechanics\u0022:\u0022salvage_miss\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "common, class, barbarian"
   },
   {
     "action": "BARBARIAN RAGE",
@@ -1237,14 +1238,13 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "ACTION",
-    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"2\",\"mechanics\":\"hero_next_action_damage, hero_next_action_speed\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00222\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022IsEnabled\u0022:true}]",
     "damageMod": "25",
     "onKill": "1",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONKILL\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"retrigger_opener\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "rare, class, barbarian, swift, bludgeon",
-    "block": "180"
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONKILL\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_opener\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:2,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:25}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "tags": "rare, class, barbarian, swift, bludgeon"
   },
   {
     "action": "CHALLENGE",
@@ -1255,10 +1255,10 @@
     "numberOfHits": "1",
     "damage": "30%",
     "speed": "0.70",
-    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"weaken\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022weaken\u0022,\u0022IsEnabled\u0022:true}]",
     "weaken": "1",
-    "tags": "common, class, warrior",
-    "block": "180"
+    "tags": "common, class, warrior"
   },
   {
     "action": "MEASURED CUT",
@@ -1269,8 +1269,8 @@
     "numberOfHits": "1",
     "damage": "90%",
     "speed": "1.00",
-    "tags": "common, class, warrior",
-    "block": "100"
+    "block": "100",
+    "tags": "common, class, warrior"
   },
   {
     "action": "MISDIRECT",
@@ -1281,9 +1281,9 @@
     "numberOfHits": "1",
     "damage": "40%",
     "speed": "0.80",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCONNECT\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"strip_replace_next:STAB\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "common, class, rogue",
-    "block": "100"
+    "block": "100",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_replace_next:STAB\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "common, class, rogue"
   },
   {
     "action": "LOADED DICE",
@@ -1294,9 +1294,9 @@
     "numberOfHits": "1",
     "damage": "50%",
     "speed": "0.90",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCONNECT\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"replace_next_roll:12\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "rare, class, rogue",
-    "block": "180"
+    "block": "180",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022replace_next_roll:12\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "rare, class, rogue"
   },
   {
     "action": "ECHO SPELL",
@@ -1307,9 +1307,9 @@
     "numberOfHits": "1",
     "damage": "70%",
     "speed": "1.00",
-    "triggerBundlesJson": "[{\"identityName\":null,\"when\":\"ONCOMBO\",\"count\":\"1\",\"scope\":\"\",\"mechanics\":\"retrigger_next\",\"value\":null,\"filters\":null,\"scaleFrom\":null,\"description\":null,\"IsEnabled\":true}]",
-    "tags": "rare, class, wizard",
-    "block": "100"
+    "block": "100",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCOMBO\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_next\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "rare, class, wizard"
   },
   {
     "action": "REWRITE FATE",
@@ -1320,24 +1320,23 @@
     "numberOfHits": "1",
     "damage": "40%",
     "speed": "0.90",
-    "tags": "rare, class, wizard",
-    "block": "100"
+    "block": "100",
+    "tags": "rare, class, wizard"
   },
   {
     "action": "CHANNEL",
-    "description": "Bank +50% AMP and -20% speed onto the next action.",
+    "description": "Bank \u002B50% AMP and -20% speed onto the next action.",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "20%",
     "numberOfHits": "1",
     "damage": "20%",
     "speed": "1.20",
-    "duration": "1",
-    "cadence": "ACTION",
-    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_amp, hero_next_action_speed\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_amp\u0022,\u0022IsEnabled\u0022:true}]",
     "ampMod": "50",
-    "tags": "common, class, wizard, swift, focus",
-    "block": "100"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AMP_MOD\u0022,\u0022value\u0022:50}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "tags": "common, class, wizard, swift, focus"
   },
   {
     "action": "MIGHT",
@@ -1348,12 +1347,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"DUNGEON\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "0",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "enemySTR": "1",
-    "tags": "common, class, barbarian",
-    "block": "0"
+    "tags": "common, class, barbarian"
   },
   {
     "action": "BLUDGEON",
@@ -1364,9 +1361,9 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "180",
     "stun": "1",
-    "tags": "common, class, barbarian, bludgeon, mace",
-    "block": "180"
+    "tags": "common, class, barbarian, bludgeon, mace"
   },
   {
     "action": "CUNNING",
@@ -1377,12 +1374,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"DUNGEON\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "180",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyAGI": "3",
-    "tags": "common, class, warrior",
-    "block": "180"
+    "tags": "common, class, warrior"
   },
   {
     "action": "AVENGE",
@@ -1391,11 +1386,11 @@
     "tier": 3,
     "dps": "110%",
     "numberOfHits": "1",
-    "damage": "110%",
+    "damage": "110.0%",
     "speed": "1.10",
+    "block": "100",
     "finisher": "true",
-    "tags": "rare, class, warrior, finisher, sword",
-    "block": "100"
+    "tags": "rare, class, warrior, finisher, sword"
   },
   {
     "action": "CONCENTRATE",
@@ -1406,12 +1401,10 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "duration": "1",
-    "cadence": "TURN",
-    "cadenceBundlesJson": "[{\"cadence\":\"DUNGEON\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_stat_bonus\",\"IsEnabled\":true}]",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "enemyTECH": "3",
-    "tags": "common, class, rogue",
-    "block": "100"
+    "tags": "common, class, rogue"
   },
   {
     "action": "CONCENTRATED CHAOS",
@@ -1420,179 +1413,179 @@
     "tier": 3,
     "dps": "110%",
     "numberOfHits": "1",
-    "damage": "110%",
+    "damage": "110.0%",
     "speed": "1.20",
+    "block": "100",
     "finisher": "true",
-    "tags": "rare, class, wizard, finisher, wand",
-    "block": "100"
+    "tags": "rare, class, wizard, finisher, wand"
   },
   {
     "action": "IRON CULL",
-    "description": "+5 damage per CRISIS",
+    "description": "\u002B5 damage per CRISIS",
     "tier": 3,
     "dps": "110%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "180",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
     "scaleFormula": "CRISIS",
-    "tags": "iron",
-    "block": "180"
+    "tags": "iron"
   },
   {
     "action": "STEEL CREST",
-    "description": "+5 damage per TRIUMPH",
+    "description": "\u002B5 damage per TRIUMPH",
     "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "0",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
     "scaleFormula": "TRIUMPH",
-    "tags": "steel",
-    "block": "0"
+    "tags": "steel"
   },
   {
     "action": "BONE WRATH",
-    "description": "+5 damage per RAGE",
+    "description": "\u002B5 damage per RAGE",
     "tier": 3,
     "dps": "110%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "100",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
     "scaleFormula": "RAGE",
-    "tags": "bone",
-    "block": "100"
+    "tags": "bone"
   },
   {
     "action": "DRUM CUT",
-    "description": "+5 damage per BEAT",
+    "description": "\u002B5 damage per BEAT",
     "tier": 3,
     "dps": "110%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "100",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
     "scaleFormula": "BEAT",
-    "tags": "bronze",
-    "block": "100"
+    "tags": "bronze"
   },
   {
     "action": "GOLD ANCHOR",
-    "description": "+5 damage per DRAG",
+    "description": "\u002B5 damage per DRAG",
     "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "180",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
     "scaleFormula": "DRAG",
-    "tags": "gold",
-    "block": "180"
+    "tags": "gold"
   },
   {
     "action": "MITHRIL FLOW",
-    "description": "+5 damage per STREAK",
+    "description": "\u002B5 damage per STREAK",
     "tier": 3,
     "dps": "110%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "180",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
     "scaleFormula": "STREAK",
-    "tags": "mithril",
-    "block": "180"
+    "tags": "mithril"
   },
   {
     "action": "GLASS NICK",
-    "description": "+5 damage per GRAZE",
+    "description": "\u002B5 damage per GRAZE",
     "tier": 3,
     "dps": "110%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "180",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
     "scaleFormula": "GRAZE",
-    "tags": "glass",
-    "block": "180"
+    "tags": "glass"
   },
   {
     "action": "UMBRA",
-    "description": "+5 damage per STREAK",
+    "description": "\u002B5 damage per STREAK",
     "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "180",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
     "scaleFormula": "STREAK",
-    "tags": "shadow",
-    "block": "180"
+    "tags": "shadow"
   },
   {
     "action": "HEADHUNT",
-    "description": "+5 damage per TROPHY",
+    "description": "\u002B5 damage per TROPHY",
     "tier": 3,
     "dps": "110%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "100",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
     "scaleFormula": "TROPHY",
-    "tags": "obsidian",
-    "block": "100"
+    "tags": "obsidian"
   },
   {
     "action": "WILLOW LASH",
-    "description": "+5 damage per CHAIN",
+    "description": "\u002B5 damage per CHAIN",
     "tier": 3,
     "dps": "110%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "100",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
     "scaleFormula": "CHAIN",
-    "tags": "willow",
-    "block": "100"
+    "tags": "willow"
   },
   {
     "action": "REFRACT",
-    "description": "+5 damage per LENS",
+    "description": "\u002B5 damage per LENS",
     "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "100",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
     "scaleFormula": "LENS",
-    "tags": "silver",
-    "block": "100"
+    "tags": "silver"
   },
   {
     "action": "RESONATE",
-    "description": "+5 damage per CONTACT",
+    "description": "\u002B5 damage per CONTACT",
     "tier": 3,
     "dps": "110%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
+    "block": "180",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
     "scaleFormula": "CONTACT",
-    "tags": "crystal",
-    "block": "180"
+    "tags": "crystal"
   },
   {
     "action": "BAT SWARM",
@@ -1602,8 +1595,8 @@
     "numberOfHits": "3",
     "damage": "40%",
     "speed": "0.80",
-    "tags": "enemy, living, air, minion, tiny",
-    "block": "100"
+    "block": "100",
+    "tags": "enemy, living, air, minion, tiny"
   },
   {
     "action": "RAT SWARM",
@@ -1613,8 +1606,8 @@
     "numberOfHits": "7",
     "damage": "15%",
     "speed": "0.90",
-    "tags": "enemy, living, minion, tiny, frail",
-    "block": "100"
+    "block": "100",
+    "tags": "enemy, living, minion, tiny, frail"
   },
   {
     "action": "ANT SWARM",
@@ -1624,7 +1617,7 @@
     "numberOfHits": "30",
     "damage": "4%",
     "speed": "1.10",
-    "tags": "enemy, living, minion, tiny, frail",
-    "block": "100"
+    "block": "100",
+    "tags": "enemy, living, minion, tiny, frail"
   }
 ]

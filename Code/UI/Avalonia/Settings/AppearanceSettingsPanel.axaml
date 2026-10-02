@@ -739,5 +739,96 @@
                 </StackPanel>
             </ScrollViewer>
         </TabItem>
+
+        <TabItem Header="Narrative Video">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="12" Margin="20">
+                    <TextBlock Text="Narrative video overlay"
+                               FontSize="17"
+                               FontWeight="SemiBold"
+                               Classes="settings-field-label"
+                               Margin="0,0,0,4"/>
+                    <TextBlock Text="Per-cell MP4 over the combat-log band (F5 toggles the feed; F7 narrative + dungeon required by default). Sliders apply live; Save persists to UIConfiguration.json."
+                               Classes="settings-muted"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,8"/>
+
+                    <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="180,*,80">
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                   Text="Opacity"
+                                   VerticalAlignment="Center"
+                                   Classes="settings-field-label"
+                                   FontSize="14"
+                                   Margin="0,0,12,10"/>
+                        <Slider x:Name="NarrativeVideoOpacitySlider"
+                                Grid.Row="0" Grid.Column="1"
+                                Minimum="0" Maximum="1"
+                                Value="0.45"
+                                TickFrequency="0.05"
+                                Margin="0,0,12,10"
+                                VerticalAlignment="Center"
+                                ToolTip.Tip="Peak cell opacity for bright glyphs (maxOpacity)."/>
+                        <TextBox x:Name="NarrativeVideoOpacityTextBox"
+                                 Grid.Row="0" Grid.Column="2"
+                                 Height="28"
+                                 BorderThickness="1"
+                                 Padding="6,4"
+                                 FontSize="14"
+                                 VerticalAlignment="Center"
+                                 Margin="0,0,0,10"
+                                 Text="0.45"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                   Text="Blurry opacity"
+                                   VerticalAlignment="Center"
+                                   Classes="settings-field-label"
+                                   FontSize="14"
+                                   Margin="0,0,12,10"/>
+                        <Slider x:Name="NarrativeVideoBlurryOpacitySlider"
+                                Grid.Row="1" Grid.Column="1"
+                                Minimum="0" Maximum="1"
+                                Value="0.35"
+                                TickFrequency="0.05"
+                                Margin="0,0,12,10"
+                                VerticalAlignment="Center"
+                                ToolTip.Tip="Halo softness as a fraction of the source cell opacity (haloOpacityScale)."/>
+                        <TextBox x:Name="NarrativeVideoBlurryOpacityTextBox"
+                                 Grid.Row="1" Grid.Column="2"
+                                 Height="28"
+                                 BorderThickness="1"
+                                 Padding="6,4"
+                                 FontSize="14"
+                                 VerticalAlignment="Center"
+                                 Margin="0,0,0,10"
+                                 Text="0.35"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0"
+                                   Text="Video levels"
+                                   VerticalAlignment="Center"
+                                   Classes="settings-field-label"
+                                   FontSize="14"
+                                   Margin="0,0,12,0"/>
+                        <Slider x:Name="NarrativeVideoLevelsSlider"
+                                Grid.Row="2" Grid.Column="1"
+                                Minimum="0" Maximum="8"
+                                Value="1"
+                                TickFrequency="1"
+                                IsSnapToTickEnabled="True"
+                                Margin="0,0,12,0"
+                                VerticalAlignment="Center"
+                                ToolTip.Tip="Halo blur extent in character cells around glyphs (haloCells). 0 = sharp cells only."/>
+                        <TextBox x:Name="NarrativeVideoLevelsTextBox"
+                                 Grid.Row="2" Grid.Column="2"
+                                 Height="28"
+                                 BorderThickness="1"
+                                 Padding="6,4"
+                                 FontSize="14"
+                                 VerticalAlignment="Center"
+                                 Text="1"/>
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
     </TabControl>
 </UserControl>

@@ -1,3 +1,5 @@
+using RPGGame.UI.Avalonia.Effects;
+
 namespace RPGGame
 {
     /// <summary>
@@ -47,6 +49,11 @@ namespace RPGGame
         /// Configuration for the brightness mask (wave effect across text)
         /// </summary>
         public DungeonBrightnessMaskConfig BrightnessMask { get; set; } = new DungeonBrightnessMaskConfig();
+
+        /// <summary>
+        /// Mouse-as-wind per-glyph sway for side-panel text (see <see cref="WindSwayField"/>).
+        /// </summary>
+        public WindSwayConfig WindSway { get; set; } = new WindSwayConfig();
     }
     
     /// <summary>

@@ -1,18 +1,16 @@
 using Avalonia.Media;
 using System;
+using RPGGame.UI.Avalonia;
 
 namespace RPGGame.UI.Avalonia.Canvas
 {
 
     /// <summary>
     /// Handles coordinate conversion and character measurement for the canvas.
+    /// Typeface follows <see cref="GameFonts"/> (F3 cycles presets).
     /// </summary>
     public class CanvasCoordinateConverter
     {
-        // Font properties - using explicit monospace font
-        // "Courier New" is a guaranteed monospace font available on all systems
-        // It's a serif, typewriter-style monospace font
-        private readonly Typeface typeface = new("Courier New");
         private const double baseFontSize = 16; // Base font size for scaling
         private double fontSize = baseFontSize; // Current font size (can be scaled)
         private double charWidth; // Actual measured width of a character
@@ -20,14 +18,23 @@ namespace RPGGame.UI.Avalonia.Canvas
         private double scaleFactor = 1.0; // Scaling factor for pixel size
         
         /// <summary>
-        /// Gets the typeface used for rendering
+        /// Gets the typeface used for rendering (tracks <see cref="GameFonts.ActiveTypeface"/>).
         /// </summary>
-        public Typeface GetTypeface() => typeface;
+        public Typeface GetTypeface() => GameFonts.ActiveTypeface;
         
         /// <summary>
         /// Gets the font size used for rendering
         /// </summary>
         public double GetFontSize() => fontSize;
+
+        /// <summary>
+        /// Clears cached glyph metrics so the next measure uses the active typeface/size.
+        /// </summary>
+        public void InvalidateCharMetrics()
+        {
+            charWidth = 0;
+            charHeight = 0;
+        }
         
         /// <summary>
         /// Sets the scaling factor for character size (pixel scaling)
@@ -39,8 +46,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                 scaleFactor = factor;
                 fontSize = baseFontSize * scaleFactor;
                 // Reset measured dimensions so they'll be recalculated with new font size
-                charWidth = 0;
-                charHeight = 0;
+                InvalidateCharMetrics();
             }
         }
         
@@ -56,6 +62,7 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             if (charWidth == 0)
             {
+                var typeface = GetTypeface();
                 // Measure actual width and height of a single character in the monospace font
                 var testText = new FormattedText(
                     "M", // Use 'M' as it's typically the widest character
@@ -105,7 +112,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                 text,
                 System.Globalization.CultureInfo.InvariantCulture,
                 FlowDirection.LeftToRight,
-                typeface,
+                GetTypeface(),
                 fontSize, // Use current scaled font size
                 Brushes.White
             )
@@ -118,4 +125,3 @@ namespace RPGGame.UI.Avalonia.Canvas
         }
     }
 }
-

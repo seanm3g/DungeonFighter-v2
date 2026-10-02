@@ -1,5 +1,6 @@
 using System;
 using RPGGame.Tests;
+using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.Tests.Unit.UI
@@ -21,6 +22,7 @@ namespace RPGGame.Tests.Unit.UI
             TestToggleThresholdsCollapsed(ref run, ref passed, ref failed);
             TestToggleThresholdsDisplayMode(ref run, ref passed, ref failed);
             TestChancesFlashClearsWhenLeavingChancesView(ref run, ref passed, ref failed);
+            TestLeftPanelScrollClampsAndMoves(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("StatsPanelStateManager Tests", run, passed, failed);
         }
@@ -106,6 +108,27 @@ namespace RPGGame.Tests.Unit.UI
                 "sanity: back to ladder",
                 ref run, ref passed, ref failed);
             TestBase.AssertFalse(m.IsThresholdsChancesFlashActive(), "leaving CHANCES view clears flash timer", ref run, ref passed, ref failed);
+        }
+
+        private static void TestLeftPanelScrollClampsAndMoves(ref int run, ref int passed, ref int failed)
+        {
+            LayoutConstants.UpdateGridDimensions(210, 52);
+            LayoutConstants.UpdateEffectiveVisibleWidth(2100, 10);
+            var m = new StatsPanelStateManager();
+            int viewport = LeftPanelViewport.ContentHeight;
+            m.UpdateLeftPanelContentHeight(viewport + 20);
+            TestBase.AssertEqual(viewport + 20, m.LeftPanelContentHeight, "content height stored", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(m.TryScrollLeftPanel(-5), "wheel down increases scroll offset", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(5, m.LeftPanelScrollOffset, "scroll offset after wheel down", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(m.TryScrollLeftPanel(3), "wheel up decreases scroll offset", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(2, m.LeftPanelScrollOffset, "scroll offset after wheel up", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(m.TryScrollLeftPanel(50), "scroll up reaches the top from mid-panel", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, m.LeftPanelScrollOffset, "clamped to top", ref run, ref passed, ref failed);
+            TestBase.AssertFalse(m.TryScrollLeftPanel(5), "cannot scroll above top", ref run, ref passed, ref failed);
+            m.TryScrollLeftPanel(-(viewport + 100));
+            TestBase.AssertEqual(20, m.LeftPanelScrollOffset, "clamped to max overflow", ref run, ref passed, ref failed);
+            m.UpdateLeftPanelContentHeight(viewport);
+            TestBase.AssertEqual(0, m.LeftPanelScrollOffset, "shrinking content resets excess scroll", ref run, ref passed, ref failed);
         }
     }
 }

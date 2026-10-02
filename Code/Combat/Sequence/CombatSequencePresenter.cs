@@ -48,7 +48,8 @@ namespace RPGGame.Combat.Sequence
             _requestInvalidate = invalidate;
 
         /// <summary>
-        /// True when the canvas HUD should play (live GUI, delays on, not muted/instant).
+        /// True when the canvas HUD should play timed column beats (live GUI, delays on, not muted/instant).
+        /// F7 narrative mode keeps the band visible and reveals columns with matching prose instead.
         /// </summary>
         public static bool ShouldPlay()
         {
@@ -56,10 +57,66 @@ namespace RPGGame.Combat.Sequence
                 return false;
             if (DeveloperModeState.IsCombatLogInstant)
                 return false;
+            if (DeveloperModeState.IsNarrativeCombatLog)
+                return false;
             if (!BypassCanvasCheckForTests && UIManager.GetCustomUIManager() == null)
                 return false;
             return true;
         }
+
+        /// <summary>
+        /// Snap the reserved sequence bar to a finished swing (all columns complete).
+        /// Prefer <see cref="BeginNarrativeSyncedReveal"/> + <see cref="RevealNarrativeColumn"/> for F7.
+        /// </summary>
+        public static void ShowFinishedSnapshot(IReadOnlyList<CombatSequenceStep>? steps)
+        {
+            if (steps == null || steps.Count == 0)
+                return;
+
+            CombatSequenceHudState.Begin(steps);
+            CombatSequenceHudState.FinishSequence();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// F7: reserve this swing's columns empty, then reveal each kind when its prose line plays.
+        /// </summary>
+        public static void BeginNarrativeSyncedReveal(IReadOnlyList<CombatSequenceStep>? steps)
+        {
+            if (steps == null || steps.Count == 0)
+                return;
+
+            CombatSequenceHudState.BeginSelective(steps);
+            Invalidate();
+        }
+
+        /// <summary>
+        /// F7: show the HUD column for <paramref name="kind"/> when that narrative sentence appears.
+        /// No-ops when the kind has no HUD column or is absent from this swing.
+        /// </summary>
+        public static void RevealNarrativeColumn(CombatSequenceStepKind kind)
+        {
+            if (!CombatSequenceHudState.RevealStepKind(kind))
+                return;
+
+            if (RecordCuesForTests)
+                NarrativeColumnsRevealedForTests.Add(kind);
+
+            Invalidate();
+        }
+
+        /// <summary>F7: leave every column complete after the prose paragraph finishes.</summary>
+        public static void FinishNarrativeSyncedReveal()
+        {
+            if (CombatSequenceHudState.Steps.Count == 0)
+                return;
+
+            CombatSequenceHudState.FinishSequence();
+            Invalidate();
+        }
+
+        /// <summary>Kinds revealed via <see cref="RevealNarrativeColumn"/> while recording tests.</summary>
+        internal static List<CombatSequenceStepKind> NarrativeColumnsRevealedForTests { get; } = new();
 
         /// <summary>True after <see cref="PlayPendingAsync"/> actually played HUD steps for this action block.</summary>
         public static bool PlayedThisBlock => _playedThisBlock;
@@ -269,6 +326,7 @@ namespace RPGGame.Combat.Sequence
             _manualAdvance = null;
             tcs?.TrySetCanceled();
             CuesFiredForTests.Clear();
+            NarrativeColumnsRevealedForTests.Clear();
             CombatSequenceHudState.ResetForTests();
             HealthBarDisplayHold.ResetForTests();
         }

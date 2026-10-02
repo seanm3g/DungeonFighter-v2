@@ -12,7 +12,15 @@ namespace RPGGame.Combat.Sequence
         Defense,
         Damage,
         Heal,
-        Effect
+        Effect,
+        /// <summary>F7 narrative-only: critical-hit consequence (precision). Not a HUD column.</summary>
+        Critical,
+        /// <summary>F7 narrative-only: critical-miss consequence (fumble/recovery). Not a HUD column.</summary>
+        CriticalMiss,
+        /// <summary>F7 narrative-only: lingering Defense stance / damage susceptibility. Not a HUD column.</summary>
+        Stance,
+        /// <summary>F7 narrative-only beat: who holds tempo / acts next. Not a HUD column.</summary>
+        Tempo
     }
 
     public enum CombatSequenceCue

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using RPGGame.UI.ColorSystem;
 using Avalonia.Media;
 using System;
@@ -43,6 +42,9 @@ namespace RPGGame.UI.BlockDisplay
 
         /// <summary>
         /// Collects all messages for an action block into a structured list.
+        /// Overview / mechanical blocks include action, roll, and status lines only (no flavor prose).
+        /// <paramref name="criticalMissNarrative"/> and <paramref name="narratives"/> are ignored;
+        /// F7 narrative mode is the flavor path.
         /// </summary>
         /// <param name="blockType">When <see cref="TextSpacingSystem.BlockType.EnvironmentalAction"/>, lines use <see cref="UIMessageType.Environmental"/> so the center combat log center-aligns the block.</param>
         public static List<(List<ColoredText> segments, UIMessageType messageType)> CollectActionBlockMessages(
@@ -57,9 +59,7 @@ namespace RPGGame.UI.BlockDisplay
             bool environmentalBlock = blockType == TextSpacingSystem.BlockType.EnvironmentalAction;
             UIMessageType actionLineType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.Combat;
             UIMessageType rollLineType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.RollInfo;
-            UIMessageType narrativeLineType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.System;
             UIMessageType effectLineType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.EffectMessage;
-            UIMessageType blankSpacerType = environmentalBlock ? UIMessageType.Environmental : UIMessageType.System;
 
             // Add action text
             if (actionText != null && actionText.Count > 0)
@@ -73,28 +73,11 @@ namespace RPGGame.UI.BlockDisplay
                 var darkenedRollInfo = DarkenColors(rollInfo);
                 messageGroups.Add((darkenedRollInfo, rollLineType));
             }
-            
-            // Add critical miss narrative
-            // Critical miss narratives get keyword coloring and blank line before (same as regular narratives)
-            // Note: Blank line after removed - TextSpacingSystem handles spacing between action blocks
-            if (criticalMissNarrative != null && criticalMissNarrative.Count > 0)
-            {
-                // Add blank line before narrative
-                messageGroups.Add((new List<ColoredText>(), blankSpacerType));
-                
-                // Apply keyword coloring to narrative text
-                // Convert ColoredText to plain text, then apply keyword coloring
-                string plainText = ColoredTextRenderer.RenderAsPlainText(criticalMissNarrative);
-                List<ColoredText> keywordColoredNarrative = KeywordColorSystem.Colorize(plainText);
-                
-                // Darken the narrative (subsequent line - darken by 20%)
-                var darkenedNarrative = DarkenColors(keywordColoredNarrative);
-                
-                // Add the keyword-colored narrative
-                messageGroups.Add((darkenedNarrative, narrativeLineType));
-                
-                // Note: Blank line after narrative removed - TextSpacingSystem handles spacing between action blocks
-            }
+
+            // Overview / mechanical action blocks are action + roll + status only.
+            // BattleNarrative / tutorial / crit-miss flavor is omitted; F7 prose is the flavor path.
+            _ = criticalMissNarrative;
+            _ = narratives;
             
             // Add status effects
             // Multiple status effects from one action should be grouped together:
@@ -135,36 +118,6 @@ namespace RPGGame.UI.BlockDisplay
                     // Note: Blank line after status effects removed - TextSpacingSystem handles spacing between action blocks
                 }
             }
-            
-            // Add all narratives (all part of the same turn block)
-            // Narratives get keyword coloring and blank line before
-            // Note: Blank line after removed - TextSpacingSystem handles spacing between action blocks
-            if (narratives != null)
-            {
-                foreach (var narrative in narratives)
-                {
-                    if (narrative != null && narrative.Count > 0)
-                    {
-                        // Add blank line before narrative
-                        messageGroups.Add((new List<ColoredText>(), blankSpacerType));
-                        
-                        // Apply keyword coloring to narrative text
-                        // Convert ColoredText to plain text, then apply keyword coloring
-                        string plainText = ColoredTextRenderer.RenderAsPlainText(narrative);
-                        List<ColoredText> keywordColoredNarrative = KeywordColorSystem.Colorize(plainText);
-                        
-                        // Darken the narrative (subsequent line - darken by 20%)
-                        var darkenedNarrative = DarkenColors(keywordColoredNarrative);
-                        
-                        // Add the keyword-colored narrative
-                        messageGroups.Add((darkenedNarrative, narrativeLineType));
-                        
-                        // Note: Blank line after narrative removed - TextSpacingSystem handles spacing between action blocks
-                    }
-                }
-            }
-            
-            // Note: Blank line after status effects removed - TextSpacingSystem handles spacing between action blocks
             
             return messageGroups;
         }

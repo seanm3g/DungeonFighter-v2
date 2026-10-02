@@ -19,6 +19,20 @@ namespace RPGGame.UI.Avalonia.Utils
         }
 
         /// <summary>
+        /// True for Ctrl+/- or Cmd+/- (main or numpad) — UI zoom for the active game font.
+        /// </summary>
+        public static bool IsUiZoomChord(Key key, KeyModifiers modifiers)
+        {
+            if (!modifiers.HasFlag(KeyModifiers.Control) && !modifiers.HasFlag(KeyModifiers.Meta))
+                return false;
+            return key is Key.OemPlus or Key.Add or Key.OemMinus or Key.Subtract;
+        }
+
+        /// <summary>+1 for zoom in, -1 for zoom out. Only meaningful when <see cref="IsUiZoomChord"/> is true.</summary>
+        public static int GetUiZoomDirection(Key key) =>
+            key is Key.OemPlus or Key.Add ? 1 : -1;
+
+        /// <summary>
         /// Converts an Avalonia Key with modifiers to a game input string.
         /// Supports Shift+Up/Down for page scrolling (pageup/pagedown).
         /// </summary>
@@ -44,6 +58,10 @@ namespace RPGGame.UI.Avalonia.Utils
                 if (letter != null)
                     return letter;
             }
+
+            // Ctrl/Cmd+/- is UI zoom — do not forward numpad +/- as inventory shortcuts.
+            if ((isCtrl || isMeta) && key is Key.Add or Key.Subtract or Key.OemPlus or Key.OemMinus)
+                return null;
             
             return key switch
             {

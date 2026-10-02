@@ -4,6 +4,189 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### UI: F7 orphan wrap left early stubs like "Skill" alone (October 2026)
+**Problem:** Narrative paragraphs showed jagged early line breaks — e.g. `Skill` alone on a line before `and luck conspire…`, and other mid-phrase stubs — even when the column still had room for a short connector.
+
+**Root cause:** `TextWrappingHelper` orphan prevention pulled any short word (≤4 chars) to the next line whenever the following word would not fit, including mid-line connectors like `and`/`the` when remaining space was still larger than an orphan-sized slot.
+
+**Solution:** Only apply short-word orphan pulls in the tight EOL zone (`remainBefore <= MaxOrphanWordLength`). EOL subjects like `Wolf` still move with their predicate; mid-line connectors stay put.
+
+**Related files:** `TextWrappingHelper.cs`, `TextWrappingHelperTests.cs`
+
+### UI: narrative video stays on dungeon victory screen (October 2026)
+**Problem:** After clearing a dungeon, the narrative video overlay kept playing over the victory summary.
+
+**Root cause:** `HasCurrentDungeon` remains true until the player leaves `DungeonCompletion` (dungeon is cleared in the completion handler), so the overlay’s dungeon-run gate stayed open.
+
+**Solution:** `NarrativeVideoOverlayGate.CountsAsActiveDungeonRunForOverlay` treats `DungeonCompletion` and `Death` as inactive for overlay purposes. `MainWindow` uses that helper for `SetInDungeonProvider`; `CanvasUICoordinator` notifies the overlay on state change so playback stops immediately.
+
+**Related files:** `NarrativeVideoOverlayGate.cs`, `MainWindow.axaml.cs`, `CanvasUICoordinator.cs`, `NarrativeVideoCellMaskTests.cs`
+
+### UI: narrative video LibVLC unknown option `--no-hw-dec` spam (October 2026)
+**Problem:** Console flooded with `vlc: unknown option or missing mandatory argument '--no-hw-dec'` in a tight loop.
+
+**Root cause:** `EnsureLibVlc` passed `--no-hw-dec`, which this LibVLC build rejects. Ctor failed, `_mediaPlayer` stayed null, and the mask timer retried every ~66ms.
+
+**Solution:** Drop `--no-hw-dec`; keep `--avcodec-hw=none` for software decode.
+
+**Related files:** `NarrativeVideoOverlayControl.cs`
+
+### UI: narrative video plays outside dungeon / before narrative log (October 2026)
+**Problem:** LibVLC could decode/play the overlay while F7 was on even outside a dungeon run (or before combat-log prose appeared).
+
+**Root cause:** Overlay gating checked config + narrative mode (+ later glyphs) but not `HasCurrentDungeon`.
+
+**Solution:** `NarrativeVideoOverlayGate` requires dungeon run when `onlyWhenInDungeon` (default true), F7 when `onlyWhenNarrativeLog`, and occupied glyphs before Play/visible. `MainWindow` supplies `HasCurrentDungeon` via `SetInDungeonProvider`.
+
+**Related files:** `NarrativeVideoOverlayControl.cs`, `NarrativeVideoOverlayGate.cs`, `NarrativeVideoOverlayConfig.cs`, `NarrativeVideoCellMaskTests.cs`
+
+### UI: narrative video plays before narrative log starts (October 2026)
+**Problem:** With F7 narrative on by default, LibVLC began decoding/playing `videoplayback.mp4` as soon as `MainWindow` loaded (title/menus), long before any combat-log prose appeared.
+
+**Root cause:** `ReloadConfigAndMaybeStart` / `UpdatePlaybackState` only checked config + `IsNarrativeCombatLog`, not whether the center band had text.
+
+**Solution:** Sample combat-log glyphs first; require `NarrativeVideoCellMask.HasOccupiedGlyphs` before Play/visible. Stop when the band is empty or narrative mode turns off. (Later also gated to dungeon runs — see entry above.)
+
+**Related files:** `NarrativeVideoOverlayControl.cs`, `NarrativeVideoCellMask.cs`, `NarrativeVideoCellMaskTests.cs`
+
+### UI: narrative video overlay LibVLC get_buffer / no frame spam (October 2026)
+**Problem:** With F7 narrative video on, the console flooded with `[h264] get_buffer() failed`, `decode_slice_header error`, `no frame!`, plus `mp4 demux: Fragment sequence discontinuity`.
+
+**Root cause:** (1) Custom `VideoFormat` allocated `pitch × height` and left `lines` unaligned — LibVLC needs pitches/lines multiples of 32 and a buffer of `pitches × lines`. (2) `GameData/Video/videoplayback.mp4` is a DASH/fMP4 (`ftypdash`); `:input-repeat` loop aggravated fragment sequence discontinuities.
+
+**Solution:** `NarrativeVideoFrameLayout` computes 32-aligned RV32 storage; allocate that full size; keep visible width/height unchanged. Loop via deferred `EndReached` Stop/Play (not `:input-repeat`). Soft-decode with `--avcodec-hw=none` / `--quiet`.
+
+**Related files:** `NarrativeVideoOverlayControl.cs`, `NarrativeVideoFrameLayout.cs`, `NarrativeVideoCellMaskTests.cs`
+
+### UI: left character panel clips overflow and scrolls (October 2026)
+**Problem:** Dense HERO/STATS/GEAR/THRESHOLDS content painted through the blue bottom border with no way to reach clipped rows.
+
+**Solution:** Clip body drawing to the inner band (`LeftPanelViewport`), scrub anything on the border rows, track content height on `StatsPanelStateManager`, and scroll with the mouse wheel when the pointer is over the left panel (`ContainsLeftPanel` → `TryScrollLeftPanel` → chrome refresh).
+
+**Related files:** `LeftPanelViewport.cs`, `CharacterPanelRenderer.cs`, `StatsPanelStateManager.cs`, `LayoutConstants.cs`, `MouseInteractionHandler.cs`, `LeftPanelViewportTests.cs`
+
+### UI: soft-gray mouse + ↕ scroll affordance in menus (October 2026)
+**Problem:** Scrollable menus (inventory bag list, skill tree) did not clearly cue that the mouse wheel works, and inventory used a shouty yellow corner arrow.
+
+**Solution:** When content overflows, draw a dark-gray animal-mouse + up/down arrow (`🐭↕`) via `MenuMouseScrollHint`. Inventory keeps directional text hints; skill tree replaces the long “Arrows / PgUp/PgDn / Wheel scroll” line with the same soft glyph.
+
+**Related files:** `MenuMouseScrollHint.cs`, `AsciiArtAssets.cs`, `InventoryScreenRenderer.cs`, `SkillTreeRenderer.cs`, `MenuMouseScrollHintTests.cs`
+
+### UI: wind wake oval rotates with mouse motion (October 2026)
+**Problem:** After forcing a screen-space circle, the wake no longer matched the familiar tall cell-aspect oval, and it did not lean with travel direction.
+
+**Solution:** Restore the cell-aspect ellipse (`cells×charWidth` × `cells×charHeight`) and rotate its major axis to follow the mouse motion vector. Debug overlay uses the same radii + rotation; sampling uses elliptical normalized distance in that oriented frame.
+
+**Related files:** `WindSwayField.cs`, `GameCanvasControl.cs`, `WindSwayFieldTests.cs`
+
+### UI: wind wake radius draws as a circle, not a tall ellipse (October 2026)
+**Problem:** The “Show wake radius on canvas” overlay (and the sway falloff zone) looked like a vertically stretched oval.
+
+**Root cause:** Radius used equal *character-cell* counts on X and Y (`cells × charWidth` vs `cells × charHeight`). Monospace cells are taller than wide, so that is an ellipse in pixels.
+
+**Solution:** Briefly forced an isotropic pixel circle. Superseded by the oriented cell-aspect oval (major axis follows mouse motion).
+
+**Related files:** `WindSwayField.cs`, `WindSwayConfig.cs`, `WindSwayFieldTests.cs`
+
+### UI: combo next-border waits until the action block finishes (October 2026)
+**Problem:** After a successful combo, the white “next” strip border jumped to the following card as soon as `ComboStep` advanced, while that swing’s combat block was still playing.
+
+**Root cause:** Strip selection always used live `ComboStep % filled`. Execution advances `ComboStep` before the action block presents; only the gold flash was deferred to punchline.
+
+**Solution:** `QueueForPunchline(ComboComplete)` holds the white selection on the firing panel; `PunchlineRevealFeedback.NotifyBlockFinished` (end of `DisplayActionBlock` / `DisplayActionBlockAsync`) releases it. Gold pulse still commits on punchline and can animate during the block.
+
+**Related files:** `HeroActionStripFeedback.cs`, `PunchlineRevealFeedback.cs`, `BlockDisplayManager.cs`, `DungeonRenderer.RoomAndCombat.cs`, `HeroActionStripFeedbackTests.cs`
+
+### UI: clipboard copy no longer flashes status text (October 2026)
+**Problem:** Right-click / Ctrl+C to copy the combat/dungeon text log briefly flashed yellow status text (e.g. `Copied N lines…`) for a frame.
+
+**Root cause:** `ClipboardHelper.CopyDisplayBufferToClipboard` called `UpdateStatus` / `Notify` on every copy attempt, which drew a canvas status message that was immediately overwritten by the next render.
+
+**Solution:** Remove all status-text feedback from the clipboard helper. Keep only `FlashCenterPanelCopyFeedback` (center-panel tint) as the success cue.
+
+**Related files:** `ClipboardHelper.cs`, `MainWindow.axaml.cs`
+
+### UI: combat log text no longer paints below the center panel border (October 2026)
+**Problem:** Soft-wrapped combat-log / F7 narrative lines (e.g. tempo closers) could appear entirely below the cyan center-panel bottom border.
+
+**Root cause:** `DisplayRenderer` only checked that a message *started* inside the content viewport, then `WriteLineColoredWrapped` painted every wrapped row with no bottom clip. The clear band also stopped at the inner content bottom, so spilled glyphs on the border/outer-pad rows stuck across frames.
+
+**Solution:** Pass an exclusive max Y into `WriteLineColoredWrapped` so wrapped rows stop at `contentY + contentHeight`. Extend the framed-log clear band through the bottom border row and outer bottom pad (help footer redraws afterward). Helpers `CountLinesFittingInViewport` / `ComputeClearEndY` lock the contract in tests.
+
+**Related files:** `DisplayRenderer.cs`, `ColoredTextWriter.cs`, `DisplayRendererClearBandRegressionTests.cs`
+
+### UI: text-log copy works on stay/leave dungeon prompt (October 2026)
+**Problem:** Right-click / Ctrl+C copied the center text log during combat, but did nothing on the between-room stay/leave prompt.
+
+**Root cause:** `IsCombatLogClipboardContext` only allowed combat display mode, `GameState.Combat`, and `ActionInteractionLab`. After a fight the game returns to `GameState.Dungeon` with `StandardDisplayMode`, so the stay/leave prompt failed the gate even though the same display buffer was still on screen.
+
+**Solution:** Centralize the gate in `CombatLogCopyInput.AllowsClipboardContext` and include `GameState.Dungeon` so dungeon exploration (including exit choice) keeps the same copy behavior as combat.
+
+**Related files:** `CombatLogCopyInput.cs`, `CanvasUICoordinator.DisplayBuffer.cs`, `CombatLogCopyInputTests.cs`, `HotkeyHelpCatalog.cs`
+
+### UI: F7 prose hover tip punched a hole through narrative (October 2026)
+**Problem:** Hovering an F7 narrative paragraph opened a centered yellow mechanical tip; full-width prose still showed through the box and left orphaned fragments on both sides.
+
+**Root cause:** Tip width was capped (~72) and centered over the log column. `ClearTextInArea` only removes text whose origin cell is inside the clear rect, so runs that start left of the tip and extend into it kept painting through.
+
+**Solution:** Size the combat-log tip to the prose hit band (full column width). Before drawing the opaque framed panel, mask intersecting non-overlay glyphs (`MaskTextRunOutsideRange` / `MaskNonOverlayTextInArea`) so leftover body text cannot bleed under the tip.
+
+**Related files:** `DungeonRenderer.RoomAndCombat.cs`, `HoverTooltipDrawing.cs`, `CanvasElementManager.cs`, `CombatLogActionHoverState.cs`, `CombatLogProseHoverMap.cs`, `HoverTooltipDrawingTests.cs`, `CombatLogProseHoverTests.cs`
+
+### UI: F7 toggle converts existing combat log (October 2026)
+**Problem:** Pressing F7 only changed how *future* swings were written; already-buffered lines stayed in the previous format.
+
+**Root cause:** Narrative and mechanical forms were not stored as a dual view on the display buffer, so there was nothing to swap.
+
+**Solution:** Each dual-capable entry keeps an alternate view (`lineHoverInfoLines` + `lineDualSpans`). Narrative prose already stored the mechanical tip for hover; mechanical writes now bind a silent narrative paragraph via `TryBuildSilentParagraphFromPending`. F7 calls `CombatLogDualView.Swap` and rebuilds the active character's buffer.
+
+**Related files:** `CombatLogDualView.cs`, `BufferStorage.cs`, `MainWindow.axaml.cs`, `BlockDisplayManager.cs`, `CombatSequenceFlavorPresenter.cs`, `CombatLogDualViewTests.cs`
+
+### UI: equip comparison Mods/Stats/Actions wrap inside column (October 2026)
+**Problem:** On the Avalonia equip comparison screen, long `Mods:` (and Stats/Actions) summary lines on CURRENT/NEW ITEM columns spilled past the center panel into the right inventory sidebar.
+
+**Root cause:** `ItemComparisonRenderer.RenderItemBonuses` received `columnWidth` as `maxWidth` but rendered with `RenderSegments` (single unwrapped line). Action-change lines had the same issue.
+
+**Solution:** Soft-wrap those colored lines with `ColoredTextWriter.WriteLineColoredWrapped` at the comparison column width, advancing Y by the wrapped row count. `BuildModsLineSegments` exposes the mods line for unit coverage.
+
+**Related files:** `ItemComparisonRenderer.cs`, `ItemComparisonRendererTests.cs`
+
+### UI: F7 typewriter no longer jumps words mid-reveal (October 2026)
+**Problem:** During character-by-character narrative reveal, a word that would not fit on the current line started typing at EOL and then jumped to the next line once more letters arrived.
+
+**Root cause:** Truncate painted a growing unwrapped prefix; buffer wrap only saw the partial word, so it stayed on the current line until the full word no longer fit.
+
+**Solution:** Soft-wrap the complete paragraph (`TextWrappingHelper.ApplySoftWraps` at `CenterPanelTextColumnWidth`) before typewriter Truncate. Overflow words begin on the next line from their first glyph. Soft newlines skip typewriter delay and pacing-ramp counters. `BufferStorage.FitToLineWidth` shares the same helper.
+
+**Related files:** `CombatSequenceFlavorPresenter.cs`, `TextWrappingHelper.cs`, `BufferStorage.cs`, `TextWrappingHelperTests.cs`
+
+### UI: sparse F7 narrative combat-log highlights (October 2026)
+**Problem:** F7 narrative paragraphs were dense with cyan atmospheric words (`fortune`, `stance`, `steel`, `heavy`, `solid`, …) and red false matches on glue words like `as` (substring overlap with `slash`).
+
+**Root cause:** `KeywordGroupManager` registered a large cyan `narrative` keyword group plus common damage verbs; `KeywordGroup.ContainsKeyword` used bidirectional substring matching.
+
+**Solution:** Keep identity spans (names + action) and only severity/status/effect keywords. Exact whole-word match after punctuation strip. Drop atmospheric cyan narrative keywords and common verbs (`hit`/`strike`/`attack`).
+
+**Related files:** `KeywordGroupManager.cs`, `KeywordColorSystem.cs`, `CombatSequenceNarrativeEmphasis.cs`, `CombatSequenceFlavorPresenterTests.cs`, `KeywordColorSystemTests.cs`
+
+### UI: F7 enemy article left uncolored (October 2026)
+**Problem:** Narrative lines colored the whole phrase `the Orc` / `The Orc` in enemy orange, including the definite article.
+
+**Root cause:** Enemy tokens include `the ` + name for prose grammar, and `CombatSequenceNarrativeEmphasis` / name-color registration used that full string as the identity span.
+
+**Solution:** `CombatSequenceFlavorTokens.StripLeadingArticle` strips the article before emphasis matching and `KeywordColorSystem` registration so only the bare name is colored.
+
+**Related files:** `CombatSequenceFlavorTokens.cs`, `CombatSequenceNarrativeEmphasis.cs`, `CombatSequenceFlavorPresenter.cs`, `CombatSequenceFlavorPresenterTests.cs`
+
+### UI: blank spaces between letters on dungeon/room names and status words (October 2026)
+**Problem:** Header values like `Dungeon: Ancient Forest` / `Room: Puzzle Chamber` and status words like `STUN` / `stunned` rendered with a space between every letter (`A n c i e n t`, `S T U N`). Solid-color lines were fine.
+
+**Root cause:** Undulation and multi-color templates emit one `ColoredText` segment per glyph. `TextWrappingHelper.WrapColoredSegments` tokenized each glyph as its own word and always re-inserted a space between words, inventing letter-spacing that was not in the source text.
+
+**Solution:** Track whether source text actually had whitespace before each word token (`NeedsLeadingSpace`). Only insert a separating space when that flag is set (or after glued punctuation). Adjacent per-character glyphs stay compacted.
+
+**Related files:** `TextWrappingHelper.cs`, `TextWrappingHelperTests.cs`
+
 ### Inventory: equipped charm missing from comparison (September 2026)
 **Problem:** Choosing a bag charm while another charm was equipped showed `(empty slot)` under CURRENT ITEM. The header also read EQUIP ITEM instead of EQUIP CHARM.
 
@@ -86,10 +269,10 @@ This document contains solutions to common problems encountered during developme
 
 **Solutions:**
 1. Store events in a FIFO `ConcurrentQueue`; generate narratives once in `AddEvent`; consume them once for display
-2. Classify all current crit-miss flavor phrases and drop them unless the action line is a critical miss
-3. Tests: `BattleNarrativeTests`, `BattleEventAnalyzerTests`, `CombatLogDisplayTests`
+2. Overview combat log no longer attaches BattleNarrative flavor under action blocks (action + roll + status only; F7 is the prose path)
+3. Tests: `BattleNarrativeTests`, `BattleEventAnalyzerTests`, `CombatLogDisplayTests`, `BlockMessageCollectorTests`
 
-**Related files:** `BattleNarrative.cs`, `BattleEventAnalyzer.cs`, `TextDisplayIntegration.cs`
+**Related files:** `BattleNarrative.cs`, `BattleEventAnalyzer.cs`, `TextDisplayIntegration.cs`, `BlockMessageCollector.cs`
 
 ### Combat: free action Block % replaces energy (September 2026)
 **Problem:** Energy was only a proxy for BLOCK (cost 1–3 → leftover → fixed % table) and cluttered the action budget metaphor.
@@ -122,10 +305,17 @@ This document contains solutions to common problems encountered during developme
 **Root cause:** The HUD was reserved as dungeon chrome (`GameState.Dungeon` plus Combat). Skill Tree is a menu that paints through `CoordinateLayout`, which always calls `CombatSequenceHudRenderer.Render`. Display-buffer rendering is suppressed for menus, so `IsBandReserved` stayed true from the last fight and the leftover swing overlaid the tree.
 
 **Solutions:**
-1. `ShouldReserveBand` is Combat + Action Lab only (not Dungeon, Skill Tree, inventory, hub, or completion)
-2. `SyncReservation` clears leftover columns when leaving combat; called from state-change, layout, and the display-buffer paint path
+1. `ShouldReserveBand` keeps dungeon chrome (Dungeon + Combat + Action Lab) but excludes Skill Tree, inventory, hub, selection, and completion
+2. `SyncReservation` clears leftover columns when leaving reserved states; called from state-change, layout, and the display-buffer paint path
 
 **Related files:** `CombatSequenceHudState.cs`, `CanvasUICoordinator.cs`, `PersistentLayoutRenderCoordinator.cs`, `RenderCoordinator.cs`
+
+### UI: sequence HUD shows from dungeon select (October 2026)
+**Problem:** The ATTACKER/ROLL/OUTCOME status bar only appeared once combat started, so ENTERING DUNGEON / ENTERING ROOM played without the empty header band.
+
+**Solution:** `ShouldReserveBand` includes `GameState.Dungeon` again so the band reserves as soon as the dungeon run begins (headers idle until the first swing). Skill Tree and other menus stay excluded via `SyncReservation`.
+
+**Related files:** `CombatSequenceHudState.cs`, `CombatSequencePresenterTests.cs`
 
 ### Action Lab sequence HUD Step lock and missing Material (August 2026)
 **Problem:** The Action Lab combat canvas did not show the sequence HUD (or Material set UI on lab-edited gear). Piece-by-piece stepping also could not work because `_labControlInFlight` held the tools lock for the whole `StepAsync`.

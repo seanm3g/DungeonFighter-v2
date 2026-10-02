@@ -16,11 +16,53 @@ namespace RPGGame.Tests.Unit.Config
             int testsRun = 0, testsPassed = 0, testsFailed = 0;
 
             TestLoadSaveRoundTrip(ref testsRun, ref testsPassed, ref testsFailed);
+            TestUiFontPreferencesRoundTrip(ref testsRun, ref testsPassed, ref testsFailed);
             TestMigrateFromLegacyGameSettingsPatch(ref testsRun, ref testsPassed, ref testsFailed);
             TestMigrateFromLegacyAudioPatchBusFields(ref testsRun, ref testsPassed, ref testsFailed);
             TestAudioConfigSplitSave(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("GeneralSettingsStore Tests", testsRun, testsPassed, testsFailed);
+        }
+
+        private static void TestUiFontPreferencesRoundTrip(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestUiFontPreferencesRoundTrip));
+            string root = CreateTempRoot();
+            try
+            {
+                PatchProfileServiceTestHooks.OverrideGameDataRoot(root);
+                GeneralSettingsStore.ResetCacheForTests();
+
+                var fonts = new UiFontPreferences
+                {
+                    ActivePreset = "Bytesized"
+                };
+                fonts.SetZoom("Bytesized", 1.4);
+                fonts.SetZoom("Vt323", 0.8);
+                GeneralSettingsStore.SaveUiFontPreferences(fonts);
+
+                GeneralSettingsStore.ResetCacheForTests();
+                var doc = GeneralSettingsStore.Load();
+                TestBase.AssertEqual("Bytesized", doc.UiFontPreferences.ActivePreset,
+                    "round-trip active font preset", ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertTrue(Math.Abs(doc.UiFontPreferences.GetZoom("Bytesized") - 1.4) < 1e-9,
+                    "round-trip Bytesized zoom", ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertTrue(Math.Abs(doc.UiFontPreferences.GetZoom("Vt323") - 0.8) < 1e-9,
+                    "round-trip VT323 zoom", ref testsRun, ref testsPassed, ref testsFailed);
+
+                // Saving game/audio settings must not wipe font preferences.
+                GeneralSettingsStore.Save(new GameSettings { CombatSpeed = 2 }, new AudioPreferences { MasterVolume = 0.5f });
+                GeneralSettingsStore.ResetCacheForTests();
+                doc = GeneralSettingsStore.Load();
+                TestBase.AssertEqual("Bytesized", doc.UiFontPreferences.ActivePreset,
+                    "game settings save preserves active font", ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertTrue(Math.Abs(doc.UiFontPreferences.GetZoom("Bytesized") - 1.4) < 1e-9,
+                    "game settings save preserves zoom", ref testsRun, ref testsPassed, ref testsFailed);
+            }
+            finally
+            {
+                try { Directory.Delete(root, true); } catch { }
+            }
         }
 
         private static void TestLoadSaveRoundTrip(ref int testsRun, ref int testsPassed, ref int testsFailed)

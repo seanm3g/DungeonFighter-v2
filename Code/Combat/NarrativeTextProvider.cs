@@ -86,6 +86,21 @@ namespace RPGGame
                 // Forest taunts
                 "playerTaunt_forest" => "\"The forest itself will aid me against you, {enemy}!\" {name} calls to the trees.",
                 "enemyTaunt_forest" => "\"Nature's wrath will consume you, {player}!\" {name} growls among the ancient oaks.",
+                "sequenceAttacker" => "{attacker} gathers their will, eyes locked on {target}.",
+                "sequenceOutcome" => "Fate answers with {outcome}, a thread drawn taut.",
+                "sequenceRoll" => "Fortune answers with {roll}.",
+                "sequenceAction" => "{attacker} answers with {action}.",
+                "sequenceEnvironment" => "{attacker} stirs, and {action} washes across the field.",
+                "sequenceEnvironmentEffect" => "{effects}",
+                "sequenceActionMiss" => "{attacker} lunges but its teeth snap shut with no flesh in between.",
+                "sequenceCritical" => "The blow carries {critical}.",
+                "sequenceCriticalMiss" => "{attacker} pays for the miss with {criticalMiss}.",
+                "sequenceDefense" => "Steel and stance meet the blow as {defense}.",
+                "sequenceDamage" => "The blow leaves {damage}.",
+                "sequenceEffects" => "Aftermath lingers as {effects}.",
+                "sequenceStance" => "{attacker} settles into {stance}.",
+                "sequenceTempo" => "Tempo rests with {tempo}, next to act.",
+                "sequenceFollowUp" => "Then {attacker} presses the attack again.",
                 _ => "A significant event occurs in the battle."
             };
         }

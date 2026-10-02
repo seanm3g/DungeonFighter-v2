@@ -1,4 +1,5 @@
 using System;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.UI.Spacing
@@ -28,6 +29,7 @@ namespace RPGGame.Tests.Unit.UI.Spacing
             TestApplySpacingBefore_BlockTransitions();
             TestApplySpacingBefore_EntityBasedSpacing();
             TestDoTSpacingRules();
+            TestNarrativeModeParagraphSpacing();
             TestRecordBlockDisplayed();
             TestReset();
             TestResetActingEntityContextPreservesEncounterToCombatSpacing();
@@ -141,6 +143,39 @@ namespace RPGGame.Tests.Unit.UI.Spacing
             TestBase.AssertEqual(1, differentVictimDot,
                 "blank before DoT block when afflicted entity differs from previous DoT block",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// F7 narrative: same attacker stays in one paragraph (no blank); attacker change gets a blank.
+        /// </summary>
+        private static void TestNarrativeModeParagraphSpacing()
+        {
+            Console.WriteLine("\n--- Testing F7 narrative paragraph spacing ---");
+
+            bool prev = DeveloperModeState.IsNarrativeCombatLog;
+            try
+            {
+                DeveloperModeState.SetNarrativeCombatLog(true);
+                TextSpacingSystem.Reset();
+                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction, "Salamander");
+                int narrativeSameActor = TextSpacingSystem.GetSpacingBefore(
+                    TextSpacingSystem.BlockType.CombatAction, "Salamander");
+                TestBase.AssertEqual(0, narrativeSameActor,
+                    "narrative mode: same attacker continues paragraph (no blank)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction, "Salamander");
+                int narrativeActorChange = TextSpacingSystem.GetSpacingBefore(
+                    TextSpacingSystem.BlockType.CombatAction, "Nathan Cinderheart");
+                TestBase.AssertEqual(1, narrativeActorChange,
+                    "narrative mode: blank paragraph on attacker change",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetNarrativeCombatLog(prev);
+                TextSpacingSystem.Reset();
+            }
         }
 
         #endregion

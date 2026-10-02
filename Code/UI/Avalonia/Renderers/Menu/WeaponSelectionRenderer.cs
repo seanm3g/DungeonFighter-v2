@@ -116,6 +116,46 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
 
             var classPresentation = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
 
+            var statRows = new List<(string damage, string speed, string actionSlots)>(weapons.Count);
+            int maxDamageLen = 0;
+            int maxSpeedLen = 0;
+            int maxActionLen = 0;
+            bool anyActionSlotColumn = false;
+            for (int pi = 0; pi < weapons.Count; pi++)
+            {
+                WeaponItem previewForStats = previews[pi];
+                string damageText = $"Damage: {previewForStats.GetTotalDamage()}";
+                string speedText = $"Speed: {previewForStats.GetTotalAttackSpeed():F2}×";
+                int actionSlots = ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(previewForStats.WeaponType);
+                string actionSlotText = actionSlots > 0 ? $"Action slots: +{actionSlots}" : "";
+                if (actionSlots > 0)
+                    anyActionSlotColumn = true;
+                statRows.Add((damageText, speedText, actionSlotText));
+                maxDamageLen = Math.Max(maxDamageLen, damageText.Length);
+                maxSpeedLen = Math.Max(maxSpeedLen, speedText.Length);
+                if (actionSlotText.Length > 0)
+                    maxActionLen = Math.Max(maxActionLen, actionSlotText.Length);
+            }
+
+            const string statSeparator = "  │  ";
+            int maxStatsLineLen = 0;
+            for (int pi = 0; pi < weapons.Count; pi++)
+            {
+                var (damageText, speedText, actionSlotText) = statRows[pi];
+                string line = damageText.PadRight(maxDamageLen) + statSeparator + speedText.PadRight(maxSpeedLen);
+                if (anyActionSlotColumn)
+                {
+                    string actionCell = actionSlotText.Length > 0
+                        ? actionSlotText
+                        : new string(' ', maxActionLen);
+                    line += statSeparator + actionCell;
+                }
+
+                maxStatsLineLen = Math.Max(maxStatsLineLen, line.Length);
+            }
+
+            int sharedStatsX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, maxStatsLineLen);
+
             // Find max weapon display text length for centering (actual item names from the starter pipeline)
             int maxLength = 0;
             for (int i = 0; i < weapons.Count; i++)
@@ -179,41 +219,24 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 canvas.AddText(classLineX + classLabel.Length, currentY, className ?? "", classNameColor, accent, 0.35, 2);
                 currentY++;
                 
-                // Weapon stats from the same pipeline as InitializeNewGame (starter-tagged menu rows + tuning)
-                string damageText = $"Damage: {preview.GetTotalDamage()}";
-                string speedText = $"Speed: {preview.GetTotalAttackSpeed():F2}×";
-                int actionSlots = ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(preview.WeaponType);
-                string actionSlotText = actionSlots > 0 ? $"Action slots: +{actionSlots}" : "";
-                string separatorChar = "│";
-                string stats = actionSlots > 0
-                    ? $"  {damageText}  {separatorChar}  {speedText}  {separatorChar}  {actionSlotText}"
-                    : $"  {damageText}  {separatorChar}  {speedText}";
-                int statsX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, stats.Length);
-                
-                // Color-code stats - render each part separately
-                int damageStart = statsX + 2; // Account for leading spaces
-                int separatorPos = statsX + stats.IndexOf(separatorChar);
-                int speedStart = separatorPos + separatorChar.Length + 2; // After separator and spaces
-                
-                canvas.AddText(damageStart, currentY, damageText, AsciiArtAssets.Colors.Green);
-                canvas.AddText(separatorPos, currentY, separatorChar, AsciiArtAssets.Colors.Gray);
-                canvas.AddText(speedStart, currentY, speedText, AsciiArtAssets.Colors.Blue);
-                if (actionSlots > 0)
-                {
-                    int secondSeparatorPos = statsX + stats.LastIndexOf(separatorChar);
-                    int actionSlotStart = secondSeparatorPos + separatorChar.Length + 2;
-                    canvas.AddText(secondSeparatorPos, currentY, separatorChar, AsciiArtAssets.Colors.Gray);
-                    canvas.AddText(actionSlotStart, currentY, actionSlotText, AsciiArtAssets.Colors.Cyan);
-                }
+                var (damageText, speedText, actionSlotText) = statRows[i];
+                RenderAlignedStatLine(
+                    sharedStatsX,
+                    currentY,
+                    damageText,
+                    speedText,
+                    actionSlotText,
+                    maxDamageLen,
+                    maxSpeedLen,
+                    statSeparator,
+                    anyActionSlotColumn);
                 currentY += 2;
             }
             
             
-            // Decorative separator before instructions
+            // Decorative separator before instructions (match title rule width/position)
             currentY++;
-            string separator = new string(AsciiArtAssets.UIElements.BorderHorizontal[0], Math.Min(40, contentWidth - 2));
-            int separatorX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, separator.Length);
-            canvas.AddText(separatorX, currentY, separator, AsciiArtAssets.Colors.DarkGray);
+            canvas.AddText(topLineX, currentY, topLine, AsciiArtAssets.Colors.DarkGray);
             currentY += 2;
             
             // Instructions at bottom with subtle styling
@@ -223,6 +246,37 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             
             return currentY - y + 2;
         }
+
+        private void RenderAlignedStatLine(
+            int statsX,
+            int y,
+            string damageText,
+            string speedText,
+            string actionSlotText,
+            int maxDamageLen,
+            int maxSpeedLen,
+            string statSeparator,
+            bool anyActionSlotColumn)
+        {
+            const string separatorChar = "│";
+            int damageStart = statsX;
+            int firstSeparatorPos = GetFirstStatSeparatorX(statsX, maxDamageLen);
+            int speedStart = firstSeparatorPos + separatorChar.Length + 2;
+
+            canvas.AddText(damageStart, y, damageText, AsciiArtAssets.Colors.Green);
+            canvas.AddText(firstSeparatorPos, y, separatorChar, AsciiArtAssets.Colors.Gray);
+            canvas.AddText(speedStart, y, speedText, AsciiArtAssets.Colors.Blue);
+
+            if (!anyActionSlotColumn || string.IsNullOrEmpty(actionSlotText))
+                return;
+
+            int secondSeparatorPos = statsX + maxDamageLen + statSeparator.Length + maxSpeedLen + 2;
+            int actionSlotStart = secondSeparatorPos + separatorChar.Length + 2;
+            canvas.AddText(secondSeparatorPos, y, separatorChar, AsciiArtAssets.Colors.Gray);
+            canvas.AddText(actionSlotStart, y, actionSlotText, AsciiArtAssets.Colors.Cyan);
+        }
+
+        internal static int GetFirstStatSeparatorX(int statsX, int maxDamageLen) => statsX + maxDamageLen + 2;
 
         internal static Color GetWeaponNameColor(WeaponItem preview, bool isHovered)
         {

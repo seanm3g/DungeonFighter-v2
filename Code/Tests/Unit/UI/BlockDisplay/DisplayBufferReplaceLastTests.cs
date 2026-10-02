@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame;
@@ -31,6 +32,9 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
             TestReservationDumpCountMatchesFollowUps();
             TestReservedFollowUpsFillInPlaceWithoutGrowingCount();
             TestMultilineStatusBlockDoesNotClipLaterLines();
+            TestLongProseWrapsWithoutEllipsis();
+            TestIndentedProseSurvivesBufferFit();
+            TestHoverInfoLinesBindingSurvivesReplace();
 
             TestBase.PrintSummary("DisplayBuffer ReplaceLast Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -68,6 +72,82 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        /// <summary>
+        /// F7 narrative paragraphs grow past the width cap; wrap at word boundaries instead of
+        /// chopping the end of the sentence with "...".
+        /// </summary>
+        private static void TestLongProseWrapsWithoutEllipsis()
+        {
+            Console.WriteLine("--- Long single-line prose wraps without ellipsis ---");
+
+            var buffer = new DisplayBuffer(maxLines: 20, maxLineWidth: 40);
+            string prose =
+                "Zephyr Crowcaller shifts stance, ready to strike at Wight. " +
+                "The exchange unfolds as a solid hit. " +
+                "Skill and luck conspire toward steady resolve.";
+            buffer.Add(new List<ColoredText> { new ColoredText(prose, Colors.White) }, UIMessageType.Combat);
+
+            string stored = buffer.MessagesAsStrings[0];
+            TestBase.AssertTrue(stored.Contains("steady resolve", System.StringComparison.Ordinal),
+                "Trailing prose survives the width cap",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!stored.Contains("...", System.StringComparison.Ordinal),
+                "Long prose is wrapped, not ellipsized",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(stored.Contains('\n') || stored.Contains("\r"),
+                "Wrapped prose inserts newlines inside one buffer entry",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Buffer FitToLineWidth must keep the F7 four-space first-line indent and wrap at the
+        /// explicit narrow budget (not a stale 152 that disagrees with render width).
+        /// </summary>
+        private static void TestIndentedProseSurvivesBufferFit()
+        {
+            Console.WriteLine("--- Indented prose survives buffer FitToLineWidth ---");
+
+            var buffer = new DisplayBuffer(maxLines: 20, maxLineWidth: 40);
+            const string indent = "    ";
+            string prose =
+                indent +
+                "Goblin shifts stance, ready to strike at Niles Starblade. " +
+                "The exchange unfolds as a solid hit. " +
+                "Skill and luck conspire toward steady resolve.";
+            buffer.Add(new List<ColoredText> { new ColoredText(prose, Colors.White) }, UIMessageType.Combat);
+
+            string stored = buffer.MessagesAsStrings[0];
+            TestBase.AssertTrue(stored.StartsWith(indent, System.StringComparison.Ordinal),
+                "Stored buffer entry keeps first-line indent",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(stored.Contains("steady resolve", System.StringComparison.Ordinal),
+                "Trailing prose survives the width cap",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!stored.Contains("...", System.StringComparison.Ordinal),
+                "Indented prose is wrapped, not ellipsized",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(stored.Contains('\n') || stored.Contains("\r"),
+                "Wrapped indented prose inserts newlines inside one buffer entry",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string[] physical = stored.Split(new[] { "\r\n", "\n", "\r" }, System.StringSplitOptions.None);
+            TestBase.AssertTrue(physical.Length >= 2,
+                "At least two physical lines after wrap",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(physical[0].StartsWith(indent, System.StringComparison.Ordinal),
+                "First physical line is indented",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!physical[1].StartsWith(" ", System.StringComparison.Ordinal),
+                "Continuation physical line is flush left",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            foreach (string line in physical)
+            {
+                TestBase.AssertTrue(line.Length <= 40,
+                    "Each physical line stays within the explicit wrap budget",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
         private static void TestReplaceLastOverwritesWithoutGrowingCount()
         {
             Console.WriteLine("--- ReplaceLast overwrites the last line ---");
@@ -88,6 +168,53 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
             string last = buffer.MessagesAsStrings[buffer.Count - 1];
             TestBase.AssertTrue(last.Contains("and hits for 12 damage", System.StringComparison.Ordinal),
                 "ReplaceLast should write the punchline onto the same line",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestHoverInfoLinesBindingSurvivesReplace()
+        {
+            Console.WriteLine("--- Hover combat-log info survives ReplaceLast and can be set in-place ---");
+
+            var slamTip = new List<List<ColoredText>>
+            {
+                new List<ColoredText> { new ColoredText("Hero Attacks Goblin and hits with SLAM", Colors.White) }
+            };
+            var poundTip = new List<List<ColoredText>>
+            {
+                new List<ColoredText> { new ColoredText("Hero Attacks Goblin and hits with POUND", Colors.White) }
+            };
+
+            var buffer = new DisplayBuffer();
+            buffer.Add(new List<ColoredText> { new ColoredText("prose growing", Colors.White) }, UIMessageType.Combat);
+            buffer.SetHoverInfoLinesAtFromEnd(0, slamTip);
+
+            var rows = buffer.GetLast(1);
+            TestBase.AssertTrue(
+                rows[0].HoverInfoLines != null
+                && ColoredTextRenderer.RenderAsPlainText(rows[0].HoverInfoLines![0]).Contains("SLAM", StringComparison.Ordinal),
+                "SetHoverInfoLinesAtFromEnd stores combat-log tip",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            buffer.ReplaceLast(
+                new List<ColoredText> { new ColoredText("prose growing more", Colors.White) },
+                UIMessageType.Combat);
+            rows = buffer.GetLast(1);
+            TestBase.AssertTrue(
+                rows[0].HoverInfoLines != null
+                && ColoredTextRenderer.RenderAsPlainText(rows[0].HoverInfoLines![0]).Contains("SLAM", StringComparison.Ordinal),
+                "ReplaceLast without setHover preserves binding",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            buffer.ReplaceLast(
+                new List<ColoredText> { new ColoredText("final prose", Colors.White) },
+                UIMessageType.Combat,
+                hoverInfoLines: poundTip,
+                setHoverInfoLines: true);
+            rows = buffer.GetLast(1);
+            TestBase.AssertTrue(
+                rows[0].HoverInfoLines != null
+                && ColoredTextRenderer.RenderAsPlainText(rows[0].HoverInfoLines![0]).Contains("POUND", StringComparison.Ordinal),
+                "ReplaceLast with setHover updates binding",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -130,7 +130,7 @@ User clicks Save
 | What was saved     | When it applies |
 |--------------------|------------------|
 | Actions            | Immediately: `SettingsApplyService` refreshes current player action pool after save. |
-| Text delays        | Immediately: handlers update `TextDelayConfiguration` during save; consumers read from it. |
+| Text delays        | Immediately: handlers update `TextDelayConfiguration` during save; consumers read from it. Includes **Character reveal rhythm** (F7 sentence/word curves) under the Delays tab. |
 | Gameplay / difficulty | On next use: combat and other systems read `GameSettings.Instance` when needed. |
 | Game variables     | On next use: read from `GameSettings` / variable store when needed. |
 

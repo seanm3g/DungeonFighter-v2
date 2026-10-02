@@ -207,15 +207,15 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
-        /// True when the center panel is showing the live battle log and copy (right-click or Ctrl+C) should use the full display buffer.
-        /// Uses both display mode and <see cref="GameState"/> so copy still works if they briefly disagree (e.g. combat state before the next combat repaint).
+        /// True when the center panel is showing the live battle/dungeon log and copy (right-click or Ctrl+C) should use the full display buffer.
+        /// Uses both display mode and <see cref="GameState"/> so copy still works if they briefly disagree (e.g. combat state before the next combat repaint),
+        /// and during dungeon exploration including the stay/leave prompt between rooms.
         /// </summary>
         public bool IsCombatLogClipboardContext()
         {
-            if (IsCombatDisplayActive())
-                return true;
-            var state = stateManager?.CurrentState;
-            return state == GameState.Combat || state == GameState.ActionInteractionLab;
+            return Utils.CombatLogCopyInput.AllowsClipboardContext(
+                IsCombatDisplayActive(),
+                stateManager?.CurrentState);
         }
 
         /// <summary>

@@ -66,7 +66,7 @@ namespace RPGGame
             }
             else
             {
-                var tutorialNarrative = ApplyTrainingGroundTutorialEvent(currentEnemy, tutorialScript);
+                var tutorialApplied = ApplyTrainingGroundTutorialEvent(currentEnemy, tutorialScript);
                 try
                 {
                     // Use the new ActionExecutor system for consistent action handling with ColoredText
@@ -88,29 +88,13 @@ namespace RPGGame
                         // Turn separator line removed for cleaner combat logs
                     }
                 
-                // Get triggered narratives and display everything together
-                // Only retrieve significant narratives (not every critical hit)
+                // Consume per-swing BattleNarrative so FIFO flavor cannot leak onto later turns.
+                // Overview combat log shows action blocks only (no flavor); F7 is the prose path.
                     var battleNarrative = stateManager.GetCurrentBattleNarrative();
-                    if (textDisplayed && actionText != null && rollInfo != null && battleNarrative != null)
+                    if (textDisplayed && actionText != null && rollInfo != null)
                     {
-                        var narratives = battleNarrative.GetTriggeredNarrativesIfSignificant();
-                        // Convert narrative strings to ColoredText
-                        var narrativeColored = new List<List<ColoredText>>();
-                        AppendTutorialNarrative(narrativeColored, tutorialNarrative);
-                        foreach (var narrative in narratives)
-                        {
-                            if (!string.IsNullOrEmpty(narrative))
-                            {
-                                var parsed = ColoredTextParser.Parse(narrative);
-                                if (parsed.Count > 0)
-                                {
-                                    narrativeColored.Add(parsed);
-                                }
-                            }
-                        }
-                        // Display using the new ColoredText method (async to wait for display delay)
-                        // Pass player character to filter display for multi-character support (enemy actions are part of player's combat)
-                        await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored, player);
+                        battleNarrative?.GetTriggeredNarrativesIfSignificant();
+                        await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, null, player);
                     }
                 
                     // Update enemy's action timing in the action speed system
@@ -134,7 +118,7 @@ namespace RPGGame
                 }
                 finally
                 {
-                    if (tutorialNarrative != null)
+                    if (tutorialApplied)
                         Dice.ClearAsyncForcedD20Rolls();
                 }
             }
@@ -251,7 +235,7 @@ namespace RPGGame
             Action? forcedAction = null,
             TrainingGroundTutorialScript? tutorialScript = null)
         {
-            var tutorialNarrative = ApplyTrainingGroundTutorialEvent(player, tutorialScript);
+            var tutorialApplied = ApplyTrainingGroundTutorialEvent(player, tutorialScript);
             try
             {
                 // Use the new ColoredText system to execute the action
@@ -273,29 +257,13 @@ namespace RPGGame
                     // Turn separator line removed for cleaner combat logs
                 }
             
-            // Get triggered narratives and display everything together
-            // Only retrieve significant narratives (not every critical hit)
+            // Consume per-swing BattleNarrative so FIFO flavor cannot leak onto later turns.
+            // Overview combat log shows action blocks only (no flavor); F7 is the prose path.
                 var battleNarrative = stateManager.GetCurrentBattleNarrative();
-                if (textDisplayed && actionText != null && rollInfo != null && battleNarrative != null)
+                if (textDisplayed && actionText != null && rollInfo != null)
                 {
-                    var narratives = battleNarrative.GetTriggeredNarrativesIfSignificant();
-                    // Convert narrative strings to ColoredText
-                    var narrativeColored = new List<List<ColoredText>>();
-                    AppendTutorialNarrative(narrativeColored, tutorialNarrative);
-                    foreach (var narrative in narratives)
-                    {
-                        if (!string.IsNullOrEmpty(narrative))
-                        {
-                            var parsed = ColoredTextParser.Parse(narrative);
-                            if (parsed.Count > 0)
-                            {
-                                narrativeColored.Add(parsed);
-                            }
-                        }
-                    }
-                    // Display using the new ColoredText method (async to wait for display delay)
-                    // Pass player character to filter display for multi-character support
-                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored, player);
+                    battleNarrative?.GetTriggeredNarrativesIfSignificant();
+                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, null, player);
                 }
                 
                 // End turn for statistics tracking
@@ -328,31 +296,27 @@ namespace RPGGame
             }
             finally
             {
-                if (tutorialNarrative != null)
+                if (tutorialApplied)
                     Dice.ClearAsyncForcedD20Rolls();
             }
         }
 
-        private static List<ColoredText>? ApplyTrainingGroundTutorialEvent(
+        /// <summary>
+        /// Queues the next Training Ground forced d20 for <paramref name="actor"/>.
+        /// Tutorial copy is not written under the mechanical action block (overview is action-blocks only).
+        /// </summary>
+        private static bool ApplyTrainingGroundTutorialEvent(
             Actor actor,
             TrainingGroundTutorialScript? tutorialScript)
         {
             if (tutorialScript == null)
-                return null;
+                return false;
 
             if (!tutorialScript.TryConsumeForActor(actor, out var tutorialEvent) || tutorialEvent == null)
-                return null;
+                return false;
 
             Dice.QueueAsyncForcedD20Rolls(tutorialEvent.Roll);
-            return new List<ColoredText> { new ColoredText(tutorialEvent.NarrativeLine) };
-        }
-
-        private static void AppendTutorialNarrative(
-            List<List<ColoredText>> narrativeColored,
-            List<ColoredText>? tutorialNarrative)
-        {
-            if (tutorialNarrative != null && tutorialNarrative.Count > 0)
-                narrativeColored.Add(tutorialNarrative);
+            return true;
         }
 
         /// <summary>

@@ -335,23 +335,37 @@ namespace RPGGame
             if (actor.BleedIntensity <= 0 && actor.PendingBleedFromHits <= 0)
                 return 0;
             int damage = actor.ProcessBleedOnAction();
+            bool stillActive = actor.BleedIntensity > 0 || actor.PendingBleedFromHits > 0;
             if (damage > 0)
             {
+                if (DeveloperModeState.IsNarrativeCombatLog)
+                {
+                    results.Add(ColoredTextRenderer.RenderAsMarkup(
+                        DamageFormatter.FormatNarrativeDoTTick(actor, "bleed", damage, stillActive)));
+                    return damage;
+                }
+
                 var builder = new ColoredTextBuilder();
                 DamageFormatter.AddActorTakesDamage(builder, actor, damage, "bleed");
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
-            if (actor.BleedIntensity > 0 || actor.PendingBleedFromHits > 0)
+            if (stillActive)
             {
-                var builder = new ColoredTextBuilder();
-                DamageFormatter.AddEffectStacksRemain(builder, "bleed", ColorPalette.Error, actor.BleedIntensity + actor.PendingBleedFromHits);
-                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
+                if (!DeveloperModeState.IsNarrativeCombatLog)
+                {
+                    var builder = new ColoredTextBuilder();
+                    DamageFormatter.AddEffectStacksRemain(builder, "bleed", ColorPalette.Error, actor.BleedIntensity + actor.PendingBleedFromHits);
+                    results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
+                }
             }
             else
             {
-                var builder = new ColoredTextBuilder();
-                DamageFormatter.AddActorNoLongerAffected(builder, actor, "bleeding", ColorPalette.Error);
-                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
+                if (!DeveloperModeState.IsNarrativeCombatLog)
+                {
+                    var builder = new ColoredTextBuilder();
+                    DamageFormatter.AddActorNoLongerAffected(builder, actor, "bleeding", ColorPalette.Error);
+                    results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
+                }
             }
             return damage > 0 ? damage : 0;
         }
@@ -364,11 +378,19 @@ namespace RPGGame
             if (damage <= 0)
                 return 0;
 
+            bool stillActive = actor.PoisonPercentOfMaxHealth > 0;
+            if (DeveloperModeState.IsNarrativeCombatLog)
+            {
+                results.Add(ColoredTextRenderer.RenderAsMarkup(
+                    DamageFormatter.FormatNarrativeDoTTick(actor, "poison", damage, stillActive)));
+                return damage;
+            }
+
             var damageBuilder = new ColoredTextBuilder();
             DamageFormatter.AddActorTakesDamage(damageBuilder, actor, damage, "poison");
             results.Add(ColoredTextRenderer.RenderAsMarkup(damageBuilder.Build()));
 
-            if (actor.PoisonPercentOfMaxHealth > 0)
+            if (stillActive)
             {
                 var builder = new ColoredTextBuilder();
                 DamageFormatter.AddPoisonPercentRemain(builder, ColorPalette.Green, actor.PoisonPercentOfMaxHealth);
@@ -391,12 +413,20 @@ namespace RPGGame
             if (damage <= 0)
                 return 0;
 
+            int displayIntensity = actor.BurnIntensity + actor.PendingBurnFromHits;
+            bool stillActive = displayIntensity > 0;
+            if (DeveloperModeState.IsNarrativeCombatLog)
+            {
+                results.Add(ColoredTextRenderer.RenderAsMarkup(
+                    DamageFormatter.FormatNarrativeDoTTick(actor, "burn", damage, stillActive)));
+                return damage;
+            }
+
             var damageBuilder = new ColoredTextBuilder();
             DamageFormatter.AddActorTakesDamage(damageBuilder, actor, damage, "burn");
             results.Add(ColoredTextRenderer.RenderAsMarkup(damageBuilder.Build()));
 
-            int displayIntensity = actor.BurnIntensity + actor.PendingBurnFromHits;
-            if (displayIntensity > 0)
+            if (stillActive)
             {
                 var builder = new ColoredTextBuilder();
                 DamageFormatter.AddEffectStacksRemain(builder, "burn", ColorPalette.Orange, displayIntensity);
@@ -419,12 +449,20 @@ namespace RPGGame
             if (damage <= 0)
                 return 0;
 
+            int displayIntensity = actor.AcidIntensity + actor.PendingAcidFromHits;
+            bool stillActive = displayIntensity > 0;
+            if (DeveloperModeState.IsNarrativeCombatLog)
+            {
+                results.Add(ColoredTextRenderer.RenderAsMarkup(
+                    DamageFormatter.FormatNarrativeDoTTick(actor, "acid", damage, stillActive)));
+                return damage;
+            }
+
             var damageBuilder = new ColoredTextBuilder();
             DamageFormatter.AddActorTakesDamage(damageBuilder, actor, damage, "acid");
             results.Add(ColoredTextRenderer.RenderAsMarkup(damageBuilder.Build()));
 
-            int displayIntensity = actor.AcidIntensity + actor.PendingAcidFromHits;
-            if (displayIntensity > 0)
+            if (stillActive)
             {
                 var builder = new ColoredTextBuilder();
                 DamageFormatter.AddEffectStacksRemain(builder, "acid", ColorPalette.Lime, displayIntensity);

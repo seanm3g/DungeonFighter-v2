@@ -150,6 +150,24 @@ namespace RPGGame
 
         /// <summary>Live sequence HUD beat gap vs combat-log <c>MessageDelayMs</c> (1.5 = 50% slower).</summary>
         public const double SequenceHudDelayMultiplier = 1.5;
+
+        /// <summary>F7 narrative combat-log typewriter delay per character at battle start (ms).</summary>
+        public const int NarrativeCharRevealMs = 3;
+
+        /// <summary>Add 1ms to narrative char delay every this many characters typed in the battle.</summary>
+        public const int NarrativeCharRevealRampChars = 200;
+
+        /// <summary>Ceiling for F7 narrative char delay after rhythm + pacing ramp (ms).</summary>
+        public const int NarrativeCharRevealMaxMs = 40;
+
+        /// <summary>Pause between F7 narrative sentences (ms).</summary>
+        public const int NarrativeSentencePauseMs = 250;
+
+        /// <summary>
+        /// Target wall time (ms) for typing the full open F7 narrative paragraph (char delays only;
+        /// sentence pauses are additive on top). Subdivided equally sentence → word → character.
+        /// </summary>
+        public const int NarrativeParagraphTargetMs = 8000;
         
         // Combat Constants
         public const double DefaultNarrativeBalance = 0.5;

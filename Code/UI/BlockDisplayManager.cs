@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using RPGGame.Combat.Formatting;
 using RPGGame.Combat.Sequence;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.BlockDisplay;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Services;
@@ -82,12 +83,16 @@ namespace RPGGame
                 if (!ShouldDisplayCombatLog(character))
                 {
                     PunchlineRevealFeedback.ClearQueued();
+                    CombatSequencePresenter.CancelPlaybackHolds();
+                    CombatSequenceFlavorPresenter.CancelPlaybackHolds();
                     return;
                 }
 
                 if (CombatManager.DisableCombatUIOutput)
                 {
                     PunchlineRevealFeedback.ClearQueued();
+                    CombatSequencePresenter.CancelPlaybackHolds();
+                    CombatSequenceFlavorPresenter.CancelPlaybackHolds();
                     return;
                 }
                 
@@ -102,7 +107,24 @@ namespace RPGGame
                 // Apply context-aware spacing based on what came before and actor changes
                 // Note: Spacing system handles all spacing - no manual blank lines needed
                 TextSpacingSystem.ApplySpacingBefore(blockType, currentEntity);
-                
+
+                if (CombatSequenceFlavorPresenter.ShouldPlay() && CombatSequenceFlavorPresenter.HasPending)
+                {
+                    CombatSequencePresenter.ClearPending();
+                    var hoverGroups = BlockMessageCollector.CollectActionBlockMessages(
+                        actionText, rollInfo, statusEffects, criticalMissNarrative, narratives, blockType);
+                    CombatSequenceFlavorPresenter.SetPendingHoverInfo(
+                        CombatLogProseHoverInfo.FromMessageGroups(hoverGroups));
+                    CombatSequenceFlavorPresenter.PlayPendingAsync(character).GetAwaiter().GetResult();
+                    if (currentEntity != null)
+                        lastActingEntity = currentEntity;
+                    TextSpacingSystem.RecordBlockDisplayed(blockType, currentEntity);
+                    var customUi = UIManager.GetCustomUIManager();
+                    if (customUi == null)
+                        BlockDelayManager.ApplyBlockDelay();
+                    return;
+                }
+
                 // Collect all messages for this combat action block
                 var messageGroups = BlockMessageCollector.CollectActionBlockMessages(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives, blockType);
                 
@@ -113,6 +135,11 @@ namespace RPGGame
                     var renderer = BlockRendererFactory.GetRenderer();
                     renderer.RenderMessageGroups(messageGroups, delayAfterBatchMs, character);
                     PunchlineRevealFeedback.CommitQueued();
+                    BindMechanicalDualViewIfPossible(messageGroups, character);
+                }
+                else
+                {
+                    CombatSequenceFlavorPresenter.ClearPending();
                 }
                 
                 // Update the last acting Actor (for backward compatibility)
@@ -137,6 +164,11 @@ namespace RPGGame
                 // Log (do not swallow silently) but continue combat — display failure must not abort the fight.
                 LogDisplayFailure(nameof(DisplayActionBlock), ex);
             }
+            finally
+            {
+                // Successful combo holds the white next-border on the firing card until the block ends.
+                PunchlineRevealFeedback.NotifyBlockFinished();
+            }
         }
         
         /// <summary>
@@ -160,6 +192,7 @@ namespace RPGGame
                 {
                     PunchlineRevealFeedback.ClearQueued();
                     CombatSequencePresenter.CancelPlaybackHolds();
+                    CombatSequenceFlavorPresenter.CancelPlaybackHolds();
                     return;
                 }
 
@@ -167,6 +200,7 @@ namespace RPGGame
                 {
                     PunchlineRevealFeedback.ClearQueued();
                     CombatSequencePresenter.CancelPlaybackHolds();
+                    CombatSequenceFlavorPresenter.CancelPlaybackHolds();
                     return;
                 }
                 
@@ -181,6 +215,28 @@ namespace RPGGame
                 // Apply context-aware spacing based on what came before and actor changes
                 // Note: Spacing system handles all spacing - no manual blank lines needed
                 TextSpacingSystem.ApplySpacingBefore(blockType, currentEntity);
+
+                // F7 narrative log: prose paragraph per attacker (same attacker continues the open
+                // paragraph with a follow-up beat); sequence bar stays up; no setup/HUD/follow-ups.
+                // Hovering a prose paragraph reveals the mechanical combat-log info for that swing.
+                if (CombatSequenceFlavorPresenter.ShouldPlay() && CombatSequenceFlavorPresenter.HasPending)
+                {
+                    CombatSequencePresenter.ClearPending();
+                    var hoverGroups = BlockMessageCollector.CollectActionBlockMessages(
+                        actionText, rollInfo, statusEffects, criticalMissNarrative, narratives, blockType);
+                    CombatSequenceFlavorPresenter.SetPendingHoverInfo(
+                        CombatLogProseHoverInfo.FromMessageGroups(hoverGroups));
+                    await CombatSequenceFlavorPresenter.PlayPendingAsync(character);
+
+                    if (currentEntity != null)
+                        lastActingEntity = currentEntity;
+                    TextSpacingSystem.RecordBlockDisplayed(blockType, currentEntity);
+
+                    var customUi = UIManager.GetCustomUIManager();
+                    if (customUi == null)
+                        await BlockDelayManager.ApplyBlockDelayAsync();
+                    return;
+                }
 
                 // Collect all messages for this combat action block
                 var messageGroups = BlockMessageCollector.CollectActionBlockMessages(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives, blockType);
@@ -219,6 +275,13 @@ namespace RPGGame
                         PunchlineRevealFeedback.CommitQueued();
                         await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs, character);
                     }
+
+                    // Bind silent narrative so F7 can convert this mechanical block to prose.
+                    BindMechanicalDualViewIfPossible(messageGroups, character);
+                }
+                else
+                {
+                    CombatSequenceFlavorPresenter.ClearPending();
                 }
                 
                 // Update the last acting Actor (for backward compatibility)
@@ -243,6 +306,11 @@ namespace RPGGame
                 // Log (do not swallow silently) but continue combat — display failure must not abort the fight.
                 LogDisplayFailure(nameof(DisplayActionBlockAsync), ex);
             }
+            finally
+            {
+                // Successful combo holds the white next-border on the firing card until the block ends.
+                PunchlineRevealFeedback.NotifyBlockFinished();
+            }
         }
 
         /// <summary>
@@ -256,6 +324,30 @@ namespace RPGGame
             DebugLogger.WriteDebugAlways($"[BlockDisplayManager] {message}");
             if (!string.IsNullOrEmpty(ex.StackTrace))
                 DebugLogger.WriteDebugAlways($"[BlockDisplayManager] Stack: {ex.StackTrace}");
+        }
+
+        /// <summary>
+        /// After writing a mechanical action block, bind a silent narrative paragraph so F7 can swap views.
+        /// </summary>
+        private static void BindMechanicalDualViewIfPossible(
+            List<(List<ColoredText> segments, UIMessageType messageType)> messageGroups,
+            Character? character)
+        {
+            if (messageGroups == null || messageGroups.Count == 0)
+            {
+                CombatSequenceFlavorPresenter.ClearPending();
+                return;
+            }
+
+            if (!CombatSequenceFlavorPresenter.TryBuildSilentParagraphFromPending(out var prose)
+                || prose == null
+                || prose.Count == 0)
+            {
+                return;
+            }
+
+            if (UIManager.GetCustomUIManager() is CanvasUICoordinator canvas)
+                canvas.BindMechanicalDualViewFromEnd(messageGroups.Count, prose, character);
         }
         
         /// <summary>
@@ -400,6 +492,8 @@ namespace RPGGame
         public static void ResetForNewBattle()
         {
             lastActingEntity = null;
+            CombatSequenceFlavorPresenter.ClearOpenParagraph();
+            CombatSequenceFlavorPresenter.ResetNarrativePacing();
             // Preserve TextSpacingSystem lastBlockType so encounter headline → first combat action spacing survives
             // CombatStateManager.StartBattleNarrative (after StartEnemyEncounter).
             TextSpacingSystem.ResetActingEntityContext();

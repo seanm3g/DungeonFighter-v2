@@ -24,8 +24,111 @@ namespace RPGGame.Tests.Unit.UI
             TestTutorialCombatSlowPacing();
             TestCenterPanelTintChangesWithCombatSpeed();
             TestSimulationPacingFastMode();
+            TestNarrativeCombatLogToggle();
+            TestNarrativeVideoFeedDefaultOff();
+            TestNarrativeVideoFeedToggle();
+            TestDistortionEffectsDefaultOn();
+            TestDistortionEffectsToggle();
 
             TestBase.PrintSummary("DeveloperModeState Tests", _testsRun, _testsPassed, _testsFailed);
+        }
+
+        private static void TestDistortionEffectsDefaultOn()
+        {
+            Console.WriteLine("--- F6 distortion effects default on ---");
+            bool prev = DeveloperModeState.AreDistortionEffectsEnabled;
+            try
+            {
+                DeveloperModeState.SetDistortionEffectsEnabled(true);
+                TestBase.AssertTrue(DeveloperModeState.AreDistortionEffectsEnabled,
+                    "distortion defaults / resets on", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetDistortionEffectsEnabled(prev);
+            }
+        }
+
+        private static void TestDistortionEffectsToggle()
+        {
+            Console.WriteLine("--- F6 distortion effects toggles runtime flag ---");
+            bool prev = DeveloperModeState.AreDistortionEffectsEnabled;
+            try
+            {
+                DeveloperModeState.SetDistortionEffectsEnabled(true);
+                TestBase.AssertTrue(DeveloperModeState.AreDistortionEffectsEnabled,
+                    "starts on", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!DeveloperModeState.ToggleDistortionEffects(),
+                    "toggle turns off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!DeveloperModeState.AreDistortionEffectsEnabled,
+                    "flag is off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(DeveloperModeState.ToggleDistortionEffects(),
+                    "toggle turns on", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetDistortionEffectsEnabled(prev);
+            }
+        }
+
+        private static void TestNarrativeVideoFeedDefaultOff()
+        {
+            Console.WriteLine("--- F5 narrative video feed default off ---");
+            bool prev = DeveloperModeState.IsNarrativeVideoFeedEnabled;
+            try
+            {
+                DeveloperModeState.SetNarrativeVideoFeedEnabled(false);
+                TestBase.AssertTrue(!DeveloperModeState.IsNarrativeVideoFeedEnabled,
+                    "video feed defaults / resets off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetNarrativeVideoFeedEnabled(prev);
+            }
+        }
+
+        private static void TestNarrativeVideoFeedToggle()
+        {
+            Console.WriteLine("--- F5 narrative video feed toggles runtime flag ---");
+            bool prev = DeveloperModeState.IsNarrativeVideoFeedEnabled;
+            try
+            {
+                DeveloperModeState.SetNarrativeVideoFeedEnabled(false);
+                TestBase.AssertTrue(!DeveloperModeState.IsNarrativeVideoFeedEnabled,
+                    "starts off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(DeveloperModeState.ToggleNarrativeVideoFeed(),
+                    "toggle turns on", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(DeveloperModeState.IsNarrativeVideoFeedEnabled,
+                    "flag is on", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!DeveloperModeState.ToggleNarrativeVideoFeed(),
+                    "toggle turns off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetNarrativeVideoFeedEnabled(prev);
+            }
+        }
+
+        private static void TestNarrativeCombatLogToggle()
+        {
+            Console.WriteLine("--- F7 narrative combat log toggles runtime flag ---");
+            bool prev = DeveloperModeState.IsNarrativeCombatLog;
+            try
+            {
+                DeveloperModeState.SetNarrativeCombatLog(true);
+                TestBase.AssertTrue(DeveloperModeState.IsNarrativeCombatLog,
+                    "starts on", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!DeveloperModeState.ToggleNarrativeCombatLog(),
+                    "toggle turns off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!DeveloperModeState.IsNarrativeCombatLog,
+                    "flag is off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(DeveloperModeState.ToggleNarrativeCombatLog(),
+                    "toggle turns on", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetNarrativeCombatLog(prev);
+            }
         }
 
         private static void TestCombatSpeedLadder()

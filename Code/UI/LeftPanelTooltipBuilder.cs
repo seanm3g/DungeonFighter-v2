@@ -6,6 +6,7 @@ using RPGGame.Items.Helpers;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
 
 namespace RPGGame
 {
@@ -254,8 +255,44 @@ namespace RPGGame
 
         private static void AppendHeroName(Character c, Action<string> addWrapped)
         {
-            addWrapped("Hero name");
             addWrapped(string.IsNullOrEmpty(c.Name) ? "(unnamed)" : c.Name);
+            addWrapped("Equipped gear");
+            AppendCompactGearSlot(c.Weapon, "Weapon", addWrapped);
+            AppendCompactGearSlot(c.Head, "Head", addWrapped);
+            AppendCompactGearSlot(c.Body, "Body", addWrapped);
+            AppendCompactGearSlot(c.Legs, "Legs", addWrapped);
+            AppendCompactGearSlot(c.Feet, "Feet", addWrapped);
+            AppendCompactGearSlot(c.Charm, "Charm", addWrapped);
+
+            var materialSets = MaterialSetController.GetFormingSets(c);
+            if (materialSets.Count > 0)
+            {
+                addWrapped("Sets");
+                foreach (var (material, count) in materialSets)
+                    addWrapped(MaterialSetController.FormatFormingSetHudLine(material, count));
+            }
+
+            var animalSets = AnimalSetController.GetFormingSets(c);
+            if (animalSets.Count > 0)
+            {
+                addWrapped("Animals");
+                foreach (var (label, _) in animalSets)
+                    addWrapped(label);
+            }
+        }
+
+        private static void AppendCompactGearSlot(Item? item, string slot, Action<string> addWrapped)
+        {
+            if (item == null)
+            {
+                addWrapped($"{slot}: (empty)");
+                return;
+            }
+
+            string name = ColoredTextRenderer.RenderAsPlainText(ItemDisplayColoredText.FormatFullItemName(item));
+            if (string.IsNullOrWhiteSpace(name))
+                name = string.IsNullOrEmpty(item.Name) ? "(unnamed)" : item.Name;
+            addWrapped($"{slot}: {name}");
         }
 
         private static void AppendHeroHp(Character c, Action<string> addWrapped)
@@ -367,18 +404,18 @@ namespace RPGGame
 
         private static void AppendDamage(Character c, List<string> result, Action<string> addWrapped, int maxLines)
         {
-            AppendColoredStatTooltip(c, "stat:damage", result, addWrapped, maxLines);
+            AppendColoredStatTooltip(c, "stat:damage", result, maxLines);
         }
 
         private static void AppendSpeed(Character c, List<string> result, Action<string> addWrapped, int maxLines) =>
-            AppendColoredStatTooltip(c, "stat:speed", result, addWrapped, maxLines);
+            AppendColoredStatTooltip(c, "stat:speed", result, maxLines);
 
         private static void AppendAmp(Character c, List<string> result, Action<string> addWrapped, int maxLines) =>
-            AppendColoredStatTooltip(c, "stat:amp", result, addWrapped, maxLines);
+            AppendColoredStatTooltip(c, "stat:amp", result, maxLines);
 
         private static void AppendArmor(Character c, List<string> result, Action<string> addWrapped, int maxLines)
         {
-            AppendColoredStatTooltip(c, "stat:armor", result, addWrapped, maxLines);
+            AppendColoredStatTooltip(c, "stat:armor", result, maxLines);
         }
 
         private static void AppendPrimaryStat(Character c, string code, string label, List<string> result, Action<string> addWrapped, int maxLines)
@@ -392,14 +429,23 @@ namespace RPGGame
                 _ => ""
             };
             if (!string.IsNullOrEmpty(key))
-                AppendColoredStatTooltip(c, key, result, addWrapped, maxLines);
+                AppendColoredStatTooltip(c, key, result, maxLines);
         }
 
-        private static void AppendColoredStatTooltip(Character c, string statKey, List<string> result, Action<string> addWrapped, int maxLines)
+        private static void AppendColoredStatTooltip(Character c, string statKey, List<string> result, int maxLines)
         {
             var colored = StatTooltipFormatter.TryBuild(c, statKey, maxLines);
             if (colored == null)
                 return;
+            AppendPlainLinesFromColored(colored, result, maxLines);
+        }
+
+        /// <summary>
+        /// Converts pre-formatted colored tooltip rows to plain lines without inserting extra
+        /// paragraph blanks (those rows already encode spacing; <c>addWrapped</c> would double them and burn maxLines).
+        /// </summary>
+        private static void AppendPlainLinesFromColored(List<List<ColoredText>> colored, List<string> result, int maxLines)
+        {
             foreach (var line in colored)
             {
                 if (result.Count >= maxLines)
@@ -409,7 +455,7 @@ namespace RPGGame
                     result.Add("");
                     continue;
                 }
-                addWrapped(ColoredTextRenderer.RenderAsPlainText(line));
+                result.Add(ColoredTextRenderer.RenderAsPlainText(line));
             }
         }
 
@@ -461,18 +507,11 @@ namespace RPGGame
                 return;
             }
 
-            foreach (var coloredLine in ItemTooltipFormatter.BuildItemTooltipLines(
-                         c, item, slot, maxLines, UI.HoverTooltipDetailState.IsAltDetailActive))
-            {
-                if (result.Count >= maxLines)
-                    return;
-                if (coloredLine == null || coloredLine.Count == 0)
-                {
-                    result.Add("");
-                    continue;
-                }
-                addWrapped(ColoredTextRenderer.RenderAsPlainText(coloredLine));
-            }
+            AppendPlainLinesFromColored(
+                ItemTooltipFormatter.BuildItemTooltipLines(
+                    c, item, slot, maxLines, UI.HoverTooltipDetailState.IsAltDetailActive),
+                result,
+                maxLines);
         }
 
     }

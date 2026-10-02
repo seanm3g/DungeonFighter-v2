@@ -1,4 +1,5 @@
 using System;
+using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.UI.Avalonia.Managers
 {
@@ -13,8 +14,8 @@ namespace RPGGame.UI.Avalonia.Managers
     }
 
     /// <summary>
-    /// Manages HUD section collapse state (left HERO/STATS/GEAR and right panel sections)
-    /// and stats area bounds for click/glow.
+    /// Manages HUD section collapse state (left HERO/STATS/GEAR and right panel sections),
+    /// left-panel vertical scroll when content exceeds the border, and stats area bounds for click/glow.
     /// </summary>
     public class StatsPanelStateManager
     {
@@ -28,6 +29,8 @@ namespace RPGGame.UI.Avalonia.Managers
         private int statsAreaY = -1;
         private int statsAreaWidth = -1;
         private int statsAreaHeight = -1;
+        private int leftPanelScrollOffset;
+        private int leftPanelContentHeight;
         
         /// <summary>HERO section body hidden when true.</summary>
         public bool HeroCollapsed
@@ -72,10 +75,44 @@ namespace RPGGame.UI.Avalonia.Managers
         /// <summary>True when the section shows exclusive d20 outcome chances instead of ladder numbers.</summary>
         public bool ThresholdsShowChances => thresholdsHudMode == ThresholdsHudMode.Chances;
 
+        /// <summary>Rows scrolled off the top of the left character panel body band.</summary>
+        public int LeftPanelScrollOffset => leftPanelScrollOffset;
+
+        /// <summary>Last measured left-panel body height in rows (used to clamp scroll).</summary>
+        public int LeftPanelContentHeight => leftPanelContentHeight;
+
         public void ToggleHeroCollapsed() => heroCollapsed = !heroCollapsed;
         public void ToggleStatsCollapsed() => statsCollapsed = !statsCollapsed;
         public void ToggleGearCollapsed() => gearCollapsed = !gearCollapsed;
         public void ToggleThresholdsCollapsed() => thresholdsCollapsed = !thresholdsCollapsed;
+
+        /// <summary>
+        /// Records the full left-panel body height from the latest render and clamps scroll so content stays reachable.
+        /// </summary>
+        public void UpdateLeftPanelContentHeight(int totalContentHeight)
+        {
+            leftPanelContentHeight = Math.Max(0, totalContentHeight);
+            leftPanelScrollOffset = LeftPanelViewport.ClampScrollOffset(
+                leftPanelScrollOffset,
+                leftPanelContentHeight,
+                LeftPanelViewport.ContentHeight);
+        }
+
+        /// <summary>
+        /// Scrolls the left panel body. Positive <paramref name="scrollUpLines"/> reveals earlier rows (wheel up).
+        /// </summary>
+        /// <returns>True when the offset changed.</returns>
+        public bool TryScrollLeftPanel(int scrollUpLines)
+        {
+            if (scrollUpLines == 0)
+                return false;
+            int before = leftPanelScrollOffset;
+            leftPanelScrollOffset = LeftPanelViewport.ClampScrollOffset(
+                leftPanelScrollOffset - scrollUpLines,
+                leftPanelContentHeight,
+                LeftPanelViewport.ContentHeight);
+            return leftPanelScrollOffset != before;
+        }
 
         public void ToggleThresholdsDisplayMode()
         {

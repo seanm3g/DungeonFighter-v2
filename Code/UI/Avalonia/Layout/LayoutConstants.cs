@@ -3,8 +3,10 @@ using System;
 namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
-    /// Layout constants for persistent panels
-    /// Left and right panels have fixed widths, center panel dynamically fills remaining horizontal space
+    /// Layout constants for persistent panels.
+    /// Left and right panels keep fixed character widths; the center panel fills remaining horizontal space.
+    /// <see cref="UpdateGridDimensions"/> / <see cref="UpdateEffectiveVisibleWidth"/> track window width so
+    /// the three columns resize when the window shrinks or grows horizontally.
     /// </summary>
     public static class LayoutConstants
     {
@@ -52,7 +54,9 @@ namespace RPGGame.UI.Avalonia.Layout
             {
                 // Floor with epsilon so float noise just under gridWidth*charWidth does not drop a column.
                 int calculatedVisibleWidth = (int)System.Math.Floor(canvasPixelWidth / charWidth + 1e-6);
-                _effectiveVisibleWidth = System.Math.Clamp(calculatedVisibleWidth, 1, _gridWidth);
+                // Leave OuterPaddingRight columns outside the right panel border.
+                int maxLayoutWidth = CanvasGridSizer.LayoutColumnCount(_gridWidth);
+                _effectiveVisibleWidth = System.Math.Clamp(calculatedVisibleWidth, 1, maxLayoutWidth);
             }
         }
         
@@ -191,6 +195,19 @@ namespace RPGGame.UI.Avalonia.Layout
             int y = CENTER_PANEL_Y;
             int w = CENTER_PANEL_WIDTH;
             int h = CENTER_PANEL_HEIGHT;
+            return gridX >= x && gridX < x + w && gridY >= y && gridY < y + h;
+        }
+
+        /// <summary>
+        /// True when the grid cell lies inside the left character panel (blue border), including border rows.
+        /// Mouse wheel over this region scrolls the left-panel body when content overflows.
+        /// </summary>
+        public static bool ContainsLeftPanel(int gridX, int gridY)
+        {
+            int x = LEFT_PANEL_X;
+            int y = LEFT_PANEL_Y;
+            int w = LEFT_PANEL_WIDTH;
+            int h = LEFT_PANEL_HEIGHT;
             return gridX >= x && gridX < x + w && gridY >= y && gridY < y + h;
         }
 

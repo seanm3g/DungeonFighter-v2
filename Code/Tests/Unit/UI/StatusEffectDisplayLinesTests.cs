@@ -4,6 +4,7 @@ using RPGGame;
 using RPGGame.Data;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Layout;
+using RPGGame.UI.ColorSystem.Applications;
 
 namespace RPGGame.Tests.Unit.UI
 {
@@ -162,6 +163,16 @@ namespace RPGGame.Tests.Unit.UI
             var cleared = StatusEffectDisplayLines.Build(keywordHero, keywordHero);
             TestBase.AssertTrue(!cleared.Any(l => l.Contains("CRISIS") || l.Contains("DRAG")),
                 "cleared keyword bank removes status-effect counters", ref run, ref passed, ref failed);
+
+            var luckyHero = TestDataBuilders.Character().WithName("LuckyStarter").WithStats(10, 10, 10, 0).Build();
+            luckyHero.Equipment.Head = new HeadItem("Helmet", 1, 1) { Material = "Leather" };
+            luckyHero.Equipment.Body = new ChestItem("Armor", 1, 1) { Material = "Leather" };
+            luckyHero.Equipment.Feet = new FeetItem("Boots", 1, 1) { Material = "Leather" };
+            var luckyLines = StatusEffectDisplayLines.Build(luckyHero, luckyHero);
+            TestBase.AssertTrue(luckyLines.Contains(LeatherSetBonus.LuckyStatusName),
+                "Leather set Lucky appears as a status effect line", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("lucky", StatusEffectColorHelper.GetTemplateName("Lucky"),
+                "Lucky status uses lucky color template", ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("StatusEffectDisplayLines Tests", run, passed, failed);
         }

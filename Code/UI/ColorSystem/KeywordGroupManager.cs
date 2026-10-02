@@ -67,51 +67,37 @@ namespace RPGGame.UI.ColorSystem
         /// </summary>
         public static void InitializeDefaultGroups()
         {
-            // Damage-related keywords
+            // Keep combat-log keyword paint sparse: only high-signal outcome / effect words.
+            // Common verbs (hit/strike/attack) and atmospheric prose (stance/fortune/steel) stay white.
+            // Identity spans (names, action) are handled by CombatSequenceNarrativeEmphasis, not here.
+
+            // Damage severity / decisive combat nouns (red)
             CreateGroup("damage", "damage", false,
-                "damage", "hit", "strike", "attack", "critical", "crit", "wound", "bleed", "bleeding",
-                "slash", "stab", "pierce", "crush", "smash", "punch", "kick", "claw", "bite");
-            
-            // Healing-related keywords
+                "critical", "crit", "wound", "wounds", "injury", "scratch", "harm",
+                "bleed", "bleeding");
+
+            // Healing outcomes
             CreateGroup("healing", "healing", false,
-                "heal", "healed", "healing", "health", "cure", "restore", "restored", "recover", "regenerate", "revive", "resurrect");
-            
-            // Enemy-related keywords
-            CreateGroup("enemy", "enemy", false,
-                "goblin", "orc", "troll", "dragon", "demon", "undead", "skeleton", "zombie", "ghost",
-                "bandit", "thief", "assassin", "cultist", "wizard", "mage", "sorcerer", "necromancer");
-            
-            // Fire-related keywords
+                "heal", "healed", "healing", "cure", "restore", "restored", "recover",
+                "regenerate", "revive", "resurrect", "mend");
+
+            // Element / status — DoT and effect prose only
             CreateGroup("fire", "fire", false,
-                "fire", "flame", "burn", "burning", "blaze", "inferno", "ember", "spark", "ignite");
-            
-            // Ice-related keywords
+                "fire", "flame", "burn", "burning", "blaze", "inferno", "ignite");
+
             CreateGroup("ice", "ice", false,
-                "ice", "frost", "freeze", "frozen", "chill", "cold", "blizzard", "snow", "crystal");
-            
-            // Poison-related keywords
+                "ice", "frost", "freeze", "frozen", "blizzard");
+
             CreateGroup("poison", "poison", false,
-                "poison", "toxic", "venom", "acid", "corroding", "corrupt", "taint", "disease", "plague");
-            
-            // Class-related keywords
-            CreateGroup("class", "class", false,
-                "warrior", "fighter", "knight", "paladin", "barbarian", "rogue", "thief", "assassin",
-                "wizard", "mage", "sorcerer", "cleric", "priest", "druid", "ranger", "archer");
-            
-            // Status effect keywords
+                "poison", "toxic", "venom", "acid", "plague");
+
             CreateGroup("status", "status", false,
                 "stun", "stunned", "paralyze", "paralyzed", "charm", "charmed", "fear", "feared",
                 "confuse", "confused", "blind", "blinded", "silence", "silenced", "slow", "slowed");
-            
-            // Experience and progression keywords
-            CreateGroup("progression", "progression", false,
-                "experience", "xp", "level", "leveled", "skill", "ability", "talent", "perk",
-                "upgrade", "enhance", "improve", "advance", "progress");
-            
-            // Currency and loot keywords
-            CreateGroup("loot", "loot", false,
-                "gold", "coin", "money", "treasure", "loot", "reward", "prize", "gem", "jewel",
-                "artifact", "relic", "magic", "enchanted", "legendary", "epic", "rare");
+
+            // Miss outcomes (keep rare; identity "miss" action name is skipped by narrative emphasis)
+            CreateGroup("miss", "damage", false,
+                "miss", "misses", "missed");
         }
         
         private static Color GetColorFromPattern(string pattern)

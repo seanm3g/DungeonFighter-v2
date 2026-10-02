@@ -41,6 +41,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             RPGGame.Tests.Unit.Combat.CombatSequencePresenterTests.RunAllTests();
             Console.WriteLine();
+            RPGGame.Tests.Unit.Combat.CombatSequenceFlavorPresenterTests.RunAllTests();
+            Console.WriteLine();
             ActionEffectTargetTests.RunAllTests();
             Console.WriteLine();
             ActionSequenceTests.RunAllTests();
@@ -95,6 +97,7 @@ namespace RPGGame.Tests.Runners
             ConditionalTriggersTests.RunAllTests();
             ActionTriggerGateTests.RunAllTests();
             RPGGame.Tests.Unit.Combat.MaterialSetControllerTests.RunAllTests();
+            RPGGame.Tests.Unit.Combat.LeatherSetBonusTests.RunAllTests();
             RPGGame.Tests.Unit.Combat.CharmAndAnimalLadderTests.RunAllTests();
             ActionTriggerBundleApplicatorTests.RunAllTests();
             StripMutationTests.RunAllTests();

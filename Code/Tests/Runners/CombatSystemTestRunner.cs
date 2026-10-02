@@ -59,6 +59,7 @@ namespace RPGGame.Tests.Runners
             CombatEffectsSimplifiedTests.RunAllTests();
             ActionTriggerGateTests.RunAllTests();
             MaterialSetControllerTests.RunAllTests();
+            LeatherSetBonusTests.RunAllTests();
             CharmAndAnimalLadderTests.RunAllTests();
             ActionTriggerBundleApplicatorTests.RunAllTests();
             StripMutationTests.RunAllTests();

@@ -126,7 +126,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             
             // Render action changes comparison
-            RenderActionChanges(character, newItem, currentItem, leftColumnX, rightColumnX, ref leftY, ref rightY, ref currentLineCount);
+            RenderActionChanges(character, newItem, currentItem, leftColumnX, rightColumnX, columnWidth, ref leftY, ref rightY, ref currentLineCount);
             RegisterComparisonTooltipTargets(slot, newItemInventoryIndex, leftColumnX, rightColumnX, columnWidth, columnContentTopY, leftY, rightY);
             
             // Options at bottom
@@ -249,9 +249,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 }
                 
                 statsBuilder.Add(string.Join(", ", bonusTexts), valueColor);
-                textWriter.RenderSegments(statsBuilder.Build(), x, currentY);
-                currentY++;
-                lineCount++;
+                RenderWrappedColoredLine(statsBuilder.Build(), x, maxWidth, ref currentY, ref lineCount);
             }
             
             // Action bonuses
@@ -263,34 +261,53 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 var actionsBuilder = new ColoredTextBuilder();
                 actionsBuilder.Add("Actions: ", labelColor);
                 actionsBuilder.Add(string.Join(", ", grantableActionBonuses.Select(b => $"{b.Name} +{b.Weight}")), valueColor);
-                textWriter.RenderSegments(actionsBuilder.Build(), x, currentY);
-                currentY++;
-                lineCount++;
+                RenderWrappedColoredLine(actionsBuilder.Build(), x, maxWidth, ref currentY, ref lineCount);
             }
             
             // Modifications
             if (item.Modifications.Count > 0)
             {
-                var modsBuilder = new ColoredTextBuilder();
-                modsBuilder.Add("Mods: ", labelColor);
-                
-                var modTexts = item.Modifications.Select(m => 
-                {
-                    string details = ItemDisplayFormatter.GetModificationDisplayText(m);
-                    return details;
-                });
-                
-                modsBuilder.Add(string.Join(", ", modTexts), valueColor);
-                textWriter.RenderSegments(modsBuilder.Build(), x, currentY);
-                currentY++;
-                lineCount++;
+                RenderWrappedColoredLine(
+                    BuildModsLineSegments(item.Modifications, labelColor, valueColor),
+                    x,
+                    maxWidth,
+                    ref currentY,
+                    ref lineCount);
             }
+        }
+
+        /// <summary>
+        /// Builds the colored "Mods: …" summary line used on the equip comparison columns.
+        /// </summary>
+        internal static List<ColoredText> BuildModsLineSegments(
+            IEnumerable<Modification> modifications,
+            Color labelColor,
+            Color valueColor)
+        {
+            var modsBuilder = new ColoredTextBuilder();
+            modsBuilder.Add("Mods: ", labelColor);
+            modsBuilder.Add(
+                string.Join(", ", modifications.Select(ItemDisplayFormatter.GetModificationDisplayText)),
+                valueColor);
+            return modsBuilder.Build();
+        }
+
+        private void RenderWrappedColoredLine(
+            List<ColoredText> segments,
+            int x,
+            int maxWidth,
+            ref int currentY,
+            ref int lineCount)
+        {
+            int linesWritten = textWriter.WriteLineColoredWrapped(segments, x, currentY, Math.Max(1, maxWidth));
+            currentY += linesWritten;
+            lineCount += linesWritten;
         }
         
         /// <summary>
         /// Renders action changes when equipping new item (added in green, removed in red)
         /// </summary>
-        private void RenderActionChanges(Character character, Item newItem, Item? currentItem, int leftColumnX, int rightColumnX, ref int leftY, ref int rightY, ref int lineCount)
+        private void RenderActionChanges(Character character, Item newItem, Item? currentItem, int leftColumnX, int rightColumnX, int columnWidth, ref int leftY, ref int rightY, ref int lineCount)
         {
             // Get actions from both items
             var currentItemActions = currentItem != null 
@@ -317,9 +334,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 var removedBuilder = new ColoredTextBuilder();
                 removedBuilder.Add("Actions: ", ColorPalette.Cyan);
                 removedBuilder.Add(string.Join(", ", removedActions), ColorPalette.Error);
-                textWriter.RenderSegments(removedBuilder.Build(), leftColumnX, leftY);
-                leftY++;
-                lineCount++;
+                int linesWritten = textWriter.WriteLineColoredWrapped(removedBuilder.Build(), leftColumnX, leftY, Math.Max(1, columnWidth));
+                leftY += linesWritten;
+                lineCount += linesWritten;
             }
             
             // Render added actions in green (right column - new item)
@@ -328,9 +345,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 var addedBuilder = new ColoredTextBuilder();
                 addedBuilder.Add("Actions: ", ColorPalette.Cyan);
                 addedBuilder.Add(string.Join(", ", addedActions), ColorPalette.Success);
-                textWriter.RenderSegments(addedBuilder.Build(), rightColumnX, rightY);
-                rightY++;
-                lineCount++;
+                int linesWritten = textWriter.WriteLineColoredWrapped(addedBuilder.Build(), rightColumnX, rightY, Math.Max(1, columnWidth));
+                rightY += linesWritten;
+                lineCount += linesWritten;
             }
         }
     }

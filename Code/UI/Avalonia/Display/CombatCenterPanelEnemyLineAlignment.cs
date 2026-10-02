@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.UI.BlockDisplay;
 using RPGGame.UI.ColorSystem;
 
@@ -8,9 +9,17 @@ namespace RPGGame.UI.Avalonia.Display
     /// <summary>
     /// Center-panel combat log horizontal alignment: enemy primary lines and their indented
     /// roll/stat follow-ups are right-justified within the content column; hero lines stay left.
+    /// Skipped entirely while <see cref="DeveloperModeState.IsNarrativeCombatLog"/> is on
+    /// (book-style left-justified paragraphs; see <see cref="DisplayRenderer"/>).
     /// </summary>
     public static class CombatCenterPanelEnemyLineAlignment
     {
+        /// <summary>
+        /// False in F7 narrative mode so combat log paragraphs stay left-justified like a book.
+        /// When true, enemy primary lines (and their indented follow-ups) right-align in the column.
+        /// </summary>
+        public static bool IsEnemyRightAlignEnabled => !DeveloperModeState.IsNarrativeCombatLog;
+
         /// <summary>
         /// Returns true when <paramref name="segments"/> is a non-indented line whose visible text
         /// begins with the enemy name (primary enemy action line only).

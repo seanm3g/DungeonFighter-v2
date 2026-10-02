@@ -47,7 +47,30 @@
     "ActionDelayMs": 3000,
     "MessageDelayMs": 250,
     "TutorialCombatDelayMultiplier": 1.5,
-    "SequenceHudDelayMultiplier": 1.5
+    "SequenceHudDelayMultiplier": 1.5,
+    "NarrativeCharRevealMs": 1,
+    "NarrativeCharRevealRampChars": 200,
+    "NarrativeCharRevealMaxMs": 40,
+    "NarrativeSentencePauseMs": 250
+  },
+  "CharacterRevealRhythm": {
+    "Enabled": true,
+    "ParagraphTargetMs": 8000,
+    "BaseCharDelayMs": 1,
+    "MinCharDelayMs": 1,
+    "MaxCharDelayMs": 40,
+    "SentencePauseMs": 250,
+    "SentenceReferenceChars": 40,
+    "SentenceScaleMin": 0.5,
+    "SentenceScaleMax": 2,
+    "WordReferenceChars": 6,
+    "WordScaleMin": 0.75,
+    "WordScaleMax": 1.5,
+    "WordEmphasisPreset": "EmphasizeStart",
+    "WordBeginWeight": 1.6,
+    "WordMidWeight": 1,
+    "WordEndWeight": 0.85,
+    "BattleRampChars": 200
   },
   "EnvironmentalLineDelay": 500,
   "ProgressiveMenuDelays": {

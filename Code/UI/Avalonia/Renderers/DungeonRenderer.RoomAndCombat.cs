@@ -88,6 +88,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// Renders the action-info strip at the top of the center column (combat, inventory, etc.), above the combat log.
         /// Shows at least <see cref="LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT"/> panels (empty placeholders when the combo is shorter or empty);
         /// selected (next combo step) panel border is white when the sequence is non-empty; other filled slots use neutral gray darkened 50%; a miss pulses red and a combo-action hit pulses gold via <see cref="RPGGame.UI.Avalonia.Feedback.HeroActionStripFeedback"/> (thicker stroke while that pulse runs). A normal hit leaves the selected card solid white.
+        /// After a successful combo, the white next-border stays on the firing card until that action block finishes (<see cref="HeroActionStripFeedback.TryGetHeldSelectedIndex"/>), while the gold pulse may run on the same card.
         /// Cards with pending ACTION-cadence buffs (slot queue / bank on current step) shimmer via <see cref="RPGGame.UI.Avalonia.Feedback.ActionBonusBorderShimmer"/> (flash still overrides). Granting actions alone do not shimmer.
         /// Panels at indices ≥ <see cref="ComboSequenceMaxHelper.GetEffectiveMax(Character?)"/> use a black border so unused strip capacity matches the character’s combo slot limit.
         /// When player is null, strip is cleared.
@@ -110,7 +111,15 @@ namespace RPGGame.UI.Avalonia.Renderers
             var comboForStrip = player.GetComboActions();
             int filled = panelData.Count;
             int displayCount = ActionInfoStripLayout.GetDisplayPanelCount(filled);
+            // Live ComboStep may already point at the next slot after a successful combo;
+            // hold the white next-border on the firing panel until that action block finishes.
             int selectedIndex = filled > 0 ? player.ComboStep % filled : -1;
+            if (HeroActionStripFeedback.TryGetHeldSelectedIndex(out int heldSelected)
+                && heldSelected >= 0
+                && heldSelected < filled)
+            {
+                selectedIndex = heldSelected;
+            }
             int effectiveMaxSlots = ComboSequenceMaxHelper.GetEffectiveMax(player);
             bool anyBonusShimmer = false;
             var shimmerNow = DateTimeOffset.UtcNow;
@@ -266,8 +275,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             List<string>? tipLines = null;
             List<List<ColoredText>>? coloredItemLines = null;
             int? anchorCenterX = null;
+            int? idealXOverride = null;
             bool leftPanelTooltipActive = false;
             int maxTooltipLines = maxActionTooltipLines;
+            int? hoverTargetY = null;
 
             if (LeftPanelHoverState.IsActive)
             {
@@ -286,7 +297,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 }
             }
 
-            if (tipLines == null || tipLines.Count == 0)
+            if (!leftPanelTooltipActive && (tipLines == null || tipLines.Count == 0))
             {
                 // Action-strip hover must win over right-panel sequence hover so panels 2+ use the correct
                 // anchor and tooltip (overlay fill/text) for the card under the pointer.
@@ -314,6 +325,28 @@ namespace RPGGame.UI.Avalonia.Renderers
                         }
                     }
                 }
+                else if (CombatLogActionHoverState.IsActive)
+                {
+                    var info = CombatLogActionHoverState.InfoLines;
+                    if (info != null && info.Count > 0)
+                    {
+                        coloredItemLines = new List<List<ColoredText>>(info);
+                        maxTooltipLines = Math.Max(maxTooltipLines, 22);
+                        if (CombatLogActionHoverState.TryGetTargetBounds(out int logX, out int logY, out int logW, out _))
+                        {
+                            hoverTargetY = logY;
+                            // Span the prose hit band (full log column) so a centered narrow tip
+                            // cannot leave orphaned narrative fragments on either side.
+                            boxW = Math.Max(8, Math.Min(innerW, logW > 0 ? logW : innerW));
+                            idealXOverride = Math.Max(innerLeft, Math.Min(logX, innerRight - boxW + 1));
+                        }
+                        else
+                        {
+                            boxW = innerW;
+                            idealXOverride = innerLeft;
+                        }
+                    }
+                }
             }
 
             bool hasColoredItemTooltip = coloredItemLines != null && coloredItemLines.Count > 0;
@@ -326,11 +359,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (!hasColoredItemTooltip && tipLines != null && tipLines.Count > maxTooltipLines)
                 tipLines = tipLines.GetRange(0, maxTooltipLines);
 
-            int boxWFinal = Math.Min(52, innerW);
-            int idealX = anchorCenterX.HasValue
+            int boxWFinal = idealXOverride.HasValue
+                ? Math.Min(boxW, innerW)
+                : Math.Min(
+                    CombatLogActionHoverState.IsActive ? innerW : 52,
+                    innerW);
+            int idealX = idealXOverride ?? (anchorCenterX.HasValue
                 ? anchorCenterX.Value - boxWFinal / 2
-                : innerLeft + Math.Max(0, (innerW - boxWFinal) / 2);
-            int? hoverTargetY = null;
+                : innerLeft + Math.Max(0, (innerW - boxWFinal) / 2));
             if (leftPanelTooltipActive &&
                 LeftPanelHoverState.TryGetTargetBounds(out int targetX, out int targetY, out int targetWidth, out _))
             {

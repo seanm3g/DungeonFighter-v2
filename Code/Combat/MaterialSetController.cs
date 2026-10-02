@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Media;
 using RPGGame.Actions.Conditional;
 using RPGGame.Combat.Events;
@@ -301,8 +302,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Equipped MATERIAL BUILDS rows at 2+ pieces (a set the hero has started forming).
-        /// Class-less materials with no build row are omitted.
+        /// Equipped MATERIAL BUILDS rows at 2+ pieces (a set the hero has started forming),
+        /// plus the class-less Leather luck set when 2+ Leather pieces are equipped.
         /// </summary>
         public static IReadOnlyList<(string Material, int Count)> GetFormingSets(Character? hero)
         {
@@ -318,12 +319,28 @@ namespace RPGGame
                     continue;
                 list.Add((build.Material, n));
             }
+
+            int leatherCount = LeatherSetBonus.CountEquipped(hero);
+            if (leatherCount >= MaterialBuildData.StackUnlockCount
+                && !list.Any(e => string.Equals(e.Material, LeatherSetBonus.MaterialName, StringComparison.OrdinalIgnoreCase)))
+            {
+                list.Add((LeatherSetBonus.MaterialName, leatherCount));
+            }
+
             return list;
         }
 
-        /// <summary>Compact HUD line, e.g. <c>Iron 2/5</c>.</summary>
+        /// <summary>Compact HUD line, e.g. <c>Iron 2/5</c> or <c>Leather 3/3</c>.</summary>
         public static string FormatFormingSetHudLine(string material, int count)
         {
+            if (string.Equals(
+                    MaterialBuildData.CanonicalMaterialName(material),
+                    LeatherSetBonus.MaterialName,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return LeatherSetBonus.FormatHudLine(count);
+            }
+
             string name = MaterialBuildData.CanonicalMaterialName(material);
             if (name.Length == 0)
                 name = (material ?? "").Trim();
@@ -347,6 +364,13 @@ namespace RPGGame
         public static IEnumerable<string> FormatSetStatusLinesForMaterial(Character? hero, string? material)
         {
             string key = ItemMaterialRules.RemapLegacyMaterial(material);
+            if (string.Equals(key, LeatherSetBonus.MaterialName, StringComparison.OrdinalIgnoreCase))
+            {
+                foreach (var line in LeatherSetBonus.FormatStatusLines(hero))
+                    yield return line;
+                yield break;
+            }
+
             var build = MaterialBuildsLoader.FindByMaterial(key);
             if (build == null)
             {

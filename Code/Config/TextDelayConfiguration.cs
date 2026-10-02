@@ -38,6 +38,58 @@ namespace RPGGame.Config
     }
 
     /// <summary>
+    /// Sentence/word-aware character reveal rhythm for F7 narrative typewriter (and future prose consumers).
+    /// </summary>
+    public class CharacterRevealRhythmConfig
+    {
+        public bool Enabled { get; set; } = true;
+        /// <summary>
+        /// Target ms for typing the full open F7 paragraph (char delays). When &gt; 0 and Enabled,
+        /// delays are subdivided equally sentence → word → character. Set 0 to use legacy
+        /// BaseCharDelayMs × scales × curve + battle ramp.
+        /// </summary>
+        public int ParagraphTargetMs { get; set; } = RPGGame.GameConstants.NarrativeParagraphTargetMs;
+        public int BaseCharDelayMs { get; set; } = RPGGame.GameConstants.NarrativeCharRevealMs;
+        public int MinCharDelayMs { get; set; } = 1;
+        public int MaxCharDelayMs { get; set; } = 40;
+        public int SentencePauseMs { get; set; } = RPGGame.GameConstants.NarrativeSentencePauseMs;
+        public int SentenceReferenceChars { get; set; } = 40;
+        public double SentenceScaleMin { get; set; } = 0.5;
+        public double SentenceScaleMax { get; set; } = 2.0;
+        public int WordReferenceChars { get; set; } = 6;
+        public double WordScaleMin { get; set; } = 0.75;
+        public double WordScaleMax { get; set; } = 1.5;
+        public string WordEmphasisPreset { get; set; } = CharacterRevealRhythmCalculator.PresetFlat;
+        public double WordBeginWeight { get; set; } = 1.0;
+        public double WordMidWeight { get; set; } = 1.0;
+        public double WordEndWeight { get; set; } = 1.0;
+        public int BattleRampChars { get; set; } = RPGGame.GameConstants.NarrativeCharRevealRampChars;
+
+        public static CharacterRevealRhythmConfig CreateDefault() => new CharacterRevealRhythmConfig();
+
+        /// <summary>
+        /// Seeds rhythm knobs from legacy CombatDelays narrative fields when the new block is absent.
+        /// </summary>
+        public static CharacterRevealRhythmConfig FromLegacyNarrative(
+            int baseMs,
+            int rampChars,
+            int maxMs,
+            int sentencePauseMs)
+        {
+            return new CharacterRevealRhythmConfig
+            {
+                Enabled = true,
+                ParagraphTargetMs = RPGGame.GameConstants.NarrativeParagraphTargetMs,
+                BaseCharDelayMs = baseMs > 0 ? baseMs : RPGGame.GameConstants.NarrativeCharRevealMs,
+                MinCharDelayMs = 1,
+                MaxCharDelayMs = maxMs > 0 ? Math.Max(maxMs, 40) : 40,
+                SentencePauseMs = sentencePauseMs > 0 ? sentencePauseMs : RPGGame.GameConstants.NarrativeSentencePauseMs,
+                BattleRampChars = rampChars > 0 ? rampChars : RPGGame.GameConstants.NarrativeCharRevealRampChars
+            };
+        }
+    }
+
+    /// <summary>
     /// Facade for unified text delay configuration system
     /// Loads all delay values from TextDelayConfig.json
     /// 
@@ -134,6 +186,123 @@ namespace RPGGame.Config
             return configData.SequenceHudDelayMultiplier > 0
                 ? configData.SequenceHudDelayMultiplier
                 : RPGGame.GameConstants.SequenceHudDelayMultiplier;
+        }
+
+        /// <summary>
+        /// Full character-reveal rhythm config (sentence/word curves + battle ramp).
+        /// </summary>
+        public static CharacterRevealRhythmConfig GetCharacterRevealRhythm()
+        {
+            var configData = GetConfigData();
+            return CloneRhythm(configData.CharacterRevealRhythm);
+        }
+
+        /// <summary>
+        /// Persists character-reveal rhythm settings to TextDelayConfig.json and mirrors legacy narrative fields.
+        /// </summary>
+        public static void SetCharacterRevealRhythm(CharacterRevealRhythmConfig config)
+        {
+            var configData = GetConfigData();
+            lock (_lockObject)
+            {
+                var next = SanitizeRhythm(config);
+                configData.CharacterRevealRhythm = next;
+                // Keep legacy CombatDelays narrative fields in sync for older readers / save shape.
+                configData.NarrativeCharRevealMs = next.BaseCharDelayMs;
+                configData.NarrativeCharRevealRampChars = next.BattleRampChars;
+                configData.NarrativeCharRevealMaxMs = next.MaxCharDelayMs;
+                configData.NarrativeSentencePauseMs = next.SentencePauseMs;
+                TextDelayLoader.SaveConfig(configData);
+            }
+        }
+
+        /// <summary>
+        /// F7 narrative combat-log typewriter delay per character at battle start (ms).
+        /// Prefer <see cref="GetCharacterRevealRhythm"/> for full rhythm knobs.
+        /// </summary>
+        public static int GetNarrativeCharRevealMs()
+        {
+            var rhythm = GetConfigData().CharacterRevealRhythm;
+            return rhythm.BaseCharDelayMs > 0
+                ? rhythm.BaseCharDelayMs
+                : RPGGame.GameConstants.NarrativeCharRevealMs;
+        }
+
+        /// <summary>
+        /// Characters typed before F7 narrative char delay increases by 1ms.
+        /// </summary>
+        public static int GetNarrativeCharRevealRampChars()
+        {
+            var rhythm = GetConfigData().CharacterRevealRhythm;
+            return rhythm.BattleRampChars > 0
+                ? rhythm.BattleRampChars
+                : RPGGame.GameConstants.NarrativeCharRevealRampChars;
+        }
+
+        /// <summary>
+        /// Ceiling for F7 narrative char delay after rhythm + pacing ramp (ms).
+        /// </summary>
+        public static int GetNarrativeCharRevealMaxMs()
+        {
+            var rhythm = GetConfigData().CharacterRevealRhythm;
+            return rhythm.MaxCharDelayMs > 0
+                ? rhythm.MaxCharDelayMs
+                : RPGGame.GameConstants.NarrativeCharRevealMaxMs;
+        }
+
+        /// <summary>
+        /// Pause between F7 narrative sentences (ms).
+        /// </summary>
+        public static int GetNarrativeSentencePauseMs()
+        {
+            var rhythm = GetConfigData().CharacterRevealRhythm;
+            return rhythm.SentencePauseMs > 0
+                ? rhythm.SentencePauseMs
+                : RPGGame.GameConstants.NarrativeSentencePauseMs;
+        }
+
+        private static CharacterRevealRhythmConfig CloneRhythm(CharacterRevealRhythmConfig source)
+        {
+            var s = source ?? CharacterRevealRhythmConfig.CreateDefault();
+            return new CharacterRevealRhythmConfig
+            {
+                Enabled = s.Enabled,
+                ParagraphTargetMs = s.ParagraphTargetMs,
+                BaseCharDelayMs = s.BaseCharDelayMs,
+                MinCharDelayMs = s.MinCharDelayMs,
+                MaxCharDelayMs = s.MaxCharDelayMs,
+                SentencePauseMs = s.SentencePauseMs,
+                SentenceReferenceChars = s.SentenceReferenceChars,
+                SentenceScaleMin = s.SentenceScaleMin,
+                SentenceScaleMax = s.SentenceScaleMax,
+                WordReferenceChars = s.WordReferenceChars,
+                WordScaleMin = s.WordScaleMin,
+                WordScaleMax = s.WordScaleMax,
+                WordEmphasisPreset = s.WordEmphasisPreset,
+                WordBeginWeight = s.WordBeginWeight,
+                WordMidWeight = s.WordMidWeight,
+                WordEndWeight = s.WordEndWeight,
+                BattleRampChars = s.BattleRampChars
+            };
+        }
+
+        private static CharacterRevealRhythmConfig SanitizeRhythm(CharacterRevealRhythmConfig? config)
+        {
+            var next = CloneRhythm(config ?? CharacterRevealRhythmConfig.CreateDefault());
+            next.ParagraphTargetMs = Math.Max(0, next.ParagraphTargetMs);
+            next.BaseCharDelayMs = Math.Max(0, next.BaseCharDelayMs);
+            next.MinCharDelayMs = Math.Max(0, next.MinCharDelayMs);
+            next.MaxCharDelayMs = Math.Max(next.MinCharDelayMs, next.MaxCharDelayMs);
+            next.SentencePauseMs = Math.Max(0, next.SentencePauseMs);
+            next.SentenceReferenceChars = Math.Max(1, next.SentenceReferenceChars);
+            next.WordReferenceChars = Math.Max(1, next.WordReferenceChars);
+            next.BattleRampChars = Math.Max(1, next.BattleRampChars);
+            next.WordEmphasisPreset = CharacterRevealRhythmCalculator.NormalizePresetName(next.WordEmphasisPreset);
+            if (next.SentenceScaleMin > next.SentenceScaleMax)
+                (next.SentenceScaleMin, next.SentenceScaleMax) = (next.SentenceScaleMax, next.SentenceScaleMin);
+            if (next.WordScaleMin > next.WordScaleMax)
+                (next.WordScaleMin, next.WordScaleMax) = (next.WordScaleMax, next.WordScaleMin);
+            return next;
         }
 
         /// <summary>

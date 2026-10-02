@@ -217,6 +217,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             }
 
             WireUpAnimatedTextBrightnessControls(appearancePanel);
+            WireUpNarrativeVideoControls(appearancePanel);
 
             // Load settings once when panel is wired. Do not subscribe to Loaded: Loaded can fire again on
             // layout/focus (e.g. when user clicks Save), which would overwrite user edits with stale values.
@@ -278,6 +279,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             }
 
             LoadAnimatedTextBrightnessControls(appearancePanel);
+            LoadNarrativeVideoControls(appearancePanel);
         }
 
         public void SaveSettings(UserControl panel)
@@ -323,6 +325,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var maxSlider = appearancePanel.FindControl<Slider>("AnimatedTextBrightnessMaxSlider");
             if (minSlider != null && maxSlider != null)
                 SaveAnimatedTextBrightness(minSlider.Value, maxSlider.Value);
+
+            SaveNarrativeVideoControls(appearancePanel, persistToFile: true);
             // Orchestrator persists GameSettings once at end of save; do not call GameSettings.Instance.SaveSettings() here.
         }
         
@@ -479,6 +483,166 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"ReloadCanvasAnimationConfiguration: {ex.Message}");
+            }
+        }
+
+        private void WireUpNarrativeVideoControls(AppearanceSettingsPanel appearancePanel)
+        {
+            var opacitySlider = appearancePanel.FindControl<Slider>("NarrativeVideoOpacitySlider");
+            var opacityText = appearancePanel.FindControl<TextBox>("NarrativeVideoOpacityTextBox");
+            var blurrySlider = appearancePanel.FindControl<Slider>("NarrativeVideoBlurryOpacitySlider");
+            var blurryText = appearancePanel.FindControl<TextBox>("NarrativeVideoBlurryOpacityTextBox");
+            var levelsSlider = appearancePanel.FindControl<Slider>("NarrativeVideoLevelsSlider");
+            var levelsText = appearancePanel.FindControl<TextBox>("NarrativeVideoLevelsTextBox");
+            if (opacitySlider == null || opacityText == null
+                || blurrySlider == null || blurryText == null
+                || levelsSlider == null || levelsText == null)
+                return;
+
+            void PushLive()
+            {
+                opacityText.Text = opacitySlider.Value.ToString("F2");
+                blurryText.Text = blurrySlider.Value.ToString("F2");
+                levelsText.Text = ((int)Math.Round(levelsSlider.Value)).ToString();
+                SaveNarrativeVideoControls(appearancePanel, persistToFile: false);
+            }
+
+            opacitySlider.ValueChanged += (_, e) =>
+            {
+                opacityText.Text = e.NewValue.ToString("F2");
+                SaveNarrativeVideoControls(appearancePanel, persistToFile: false);
+            };
+            blurrySlider.ValueChanged += (_, e) =>
+            {
+                blurryText.Text = e.NewValue.ToString("F2");
+                SaveNarrativeVideoControls(appearancePanel, persistToFile: false);
+            };
+            levelsSlider.ValueChanged += (_, e) =>
+            {
+                levelsText.Text = ((int)Math.Round(e.NewValue)).ToString();
+                SaveNarrativeVideoControls(appearancePanel, persistToFile: false);
+            };
+
+            opacityText.LostFocus += (_, _) =>
+            {
+                if (double.TryParse(opacityText.Text, out double v))
+                {
+                    v = Math.Clamp(v, 0.0, 1.0);
+                    opacitySlider.Value = v;
+                    opacityText.Text = v.ToString("F2");
+                    PushLive();
+                }
+                else
+                    opacityText.Text = opacitySlider.Value.ToString("F2");
+            };
+            blurryText.LostFocus += (_, _) =>
+            {
+                if (double.TryParse(blurryText.Text, out double v))
+                {
+                    v = Math.Clamp(v, 0.0, 1.0);
+                    blurrySlider.Value = v;
+                    blurryText.Text = v.ToString("F2");
+                    PushLive();
+                }
+                else
+                    blurryText.Text = blurrySlider.Value.ToString("F2");
+            };
+            levelsText.LostFocus += (_, _) =>
+            {
+                if (int.TryParse(levelsText.Text, out int v))
+                {
+                    v = Math.Clamp(v, 0, 8);
+                    levelsSlider.Value = v;
+                    levelsText.Text = v.ToString();
+                    PushLive();
+                }
+                else
+                    levelsText.Text = ((int)Math.Round(levelsSlider.Value)).ToString();
+            };
+        }
+
+        private void LoadNarrativeVideoControls(AppearanceSettingsPanel appearancePanel)
+        {
+            var opacitySlider = appearancePanel.FindControl<Slider>("NarrativeVideoOpacitySlider");
+            var opacityText = appearancePanel.FindControl<TextBox>("NarrativeVideoOpacityTextBox");
+            var blurrySlider = appearancePanel.FindControl<Slider>("NarrativeVideoBlurryOpacitySlider");
+            var blurryText = appearancePanel.FindControl<TextBox>("NarrativeVideoBlurryOpacityTextBox");
+            var levelsSlider = appearancePanel.FindControl<Slider>("NarrativeVideoLevelsSlider");
+            var levelsText = appearancePanel.FindControl<TextBox>("NarrativeVideoLevelsTextBox");
+            if (opacitySlider == null || opacityText == null
+                || blurrySlider == null || blurryText == null
+                || levelsSlider == null || levelsText == null)
+                return;
+
+            var cfg = UIConfiguration.LoadFromFile().NarrativeVideoOverlay
+                      ?? new RPGGame.UI.Avalonia.Effects.NarrativeVideoOverlayConfig();
+            double opacity = Math.Clamp(cfg.MaxOpacity, 0.0, 1.0);
+            double blurry = Math.Clamp(cfg.HaloOpacityScale, 0.0, 1.0);
+            int levels = Math.Clamp(cfg.HaloCells, 0, 8);
+
+            opacitySlider.Value = opacity;
+            opacityText.Text = opacity.ToString("F2");
+            blurrySlider.Value = blurry;
+            blurryText.Text = blurry.ToString("F2");
+            levelsSlider.Value = levels;
+            levelsText.Text = levels.ToString();
+        }
+
+        /// <summary>
+        /// Applies narrative-video knobs to the live overlay; optionally persists to UIConfiguration.json.
+        /// </summary>
+        private void SaveNarrativeVideoControls(AppearanceSettingsPanel appearancePanel, bool persistToFile)
+        {
+            var opacitySlider = appearancePanel.FindControl<Slider>("NarrativeVideoOpacitySlider");
+            var blurrySlider = appearancePanel.FindControl<Slider>("NarrativeVideoBlurryOpacitySlider");
+            var levelsSlider = appearancePanel.FindControl<Slider>("NarrativeVideoLevelsSlider");
+            if (opacitySlider == null || blurrySlider == null || levelsSlider == null)
+                return;
+
+            try
+            {
+                var uiConfig = UIConfiguration.LoadFromFile();
+                var cfg = uiConfig.NarrativeVideoOverlay
+                          ?? new RPGGame.UI.Avalonia.Effects.NarrativeVideoOverlayConfig();
+                cfg.MaxOpacity = Math.Clamp(opacitySlider.Value, 0.0, 1.0);
+                cfg.HaloOpacityScale = Math.Clamp(blurrySlider.Value, 0.0, 1.0);
+                cfg.HaloCells = Math.Clamp((int)Math.Round(levelsSlider.Value), 0, 8);
+                uiConfig.NarrativeVideoOverlay = cfg;
+
+                if (persistToFile)
+                {
+                    string? foundPath = JsonLoader.FindGameDataFile("UIConfiguration.json");
+                    if (foundPath != null)
+                    {
+                        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+                        {
+                            WriteIndented = true,
+                            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                        };
+                        string json = System.Text.Json.JsonSerializer.Serialize(uiConfig, jsonOptions);
+                        System.IO.File.WriteAllText(foundPath, json);
+                    }
+                }
+
+                ApplyNarrativeVideoOverlayLive(cfg);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error saving narrative video overlay: {ex.Message}");
+            }
+        }
+
+        private static void ApplyNarrativeVideoOverlayLive(RPGGame.UI.Avalonia.Effects.NarrativeVideoOverlayConfig cfg)
+        {
+            try
+            {
+                var uiManager = UIManager.GetCustomUIManager();
+                if (uiManager is CanvasUICoordinator coordinator)
+                    coordinator.GetMainWindow()?.ApplyNarrativeVideoOverlayConfig(cfg);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ApplyNarrativeVideoOverlayLive: {ex.Message}");
             }
         }
 

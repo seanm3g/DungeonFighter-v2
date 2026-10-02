@@ -26,9 +26,15 @@ namespace RPGGame.UI.Avalonia.Renderers
 
     {
 
-        /// <summary>Prompt + gap + 3 menu rows (anchored to bottom of content rect).</summary>
+        /// <summary>Blank rows below the last menu option so the footer is not flush with the panel bottom.</summary>
 
-        public const int FooterReservedRows = 5;
+        public const int FooterBottomPaddingRows = 5;
+
+
+
+        /// <summary>Prompt + gap + 4 menu rows + bottom padding (anchored to bottom of content rect).</summary>
+
+        public const int FooterReservedRows = 1 + 1 + 4 + FooterBottomPaddingRows;
 
         private const int SummaryMetricLabelWidth = 24;
 

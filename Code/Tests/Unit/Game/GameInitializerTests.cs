@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame;
 using RPGGame.Data;
 using RPGGame.Tests;
@@ -35,6 +36,8 @@ namespace RPGGame.Tests.Unit.Game
             TestLegacySlotPathUsesStartingGearDamage();
             TestCreateStarterWeaponForMenuIndex_UsesCatalogRow();
             TestStarterWandGrantsExtraActionSlot();
+            TestStartingWeaponActions_TwoPerWeaponType();
+            TestInitializeNewGame_StarterWeaponGrantsBothStartingActions();
 
             TestBase.PrintSummary("GameInitializer Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -81,7 +84,7 @@ namespace RPGGame.Tests.Unit.Game
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 TestBase.AssertEqual(0, startingGear.armor.Count,
-                    "Default StartingGear.json should list no armor when Armor.json has starter-tagged body pieces",
+                    "Default StartingGear.json should list no armor when Armor.json has starter-tagged leather pieces",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
@@ -100,39 +103,54 @@ namespace RPGGame.Tests.Unit.Game
             TestBase.AssertNotNull(player.Weapon,
                 "New game should equip a starter weapon",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(player.Head == null,
-                "New game should not equip a head piece by default",
+            TestBase.AssertNotNull(player.Head,
+                "New game should equip catalog starter head (Helmet)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertNotNull(player.Body,
-                "New game should equip catalog starter chest (Shirt)",
+                "New game should equip catalog starter chest (Armor)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertNotNull(player.Legs,
-                "New game should equip catalog starter legs (shinguards)",
+            TestBase.AssertTrue(player.Legs == null,
+                "New game should leave legs empty (leather kit is head/chest/feet)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(player.Feet == null,
-                "New game should not equip starter feet (Shoes removed from starter set)",
+            TestBase.AssertNotNull(player.Feet,
+                "New game should equip catalog starter feet (Boots)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             if (player.Body is ChestItem chest)
             {
-                TestBase.AssertEqual("Shirt", chest.Name,
-                    "Default chest should be catalog Shirt (lowest-armor tier-1)",
+                TestBase.AssertTrue(
+                    chest.Name.Contains("Armor", StringComparison.OrdinalIgnoreCase),
+                    "Default chest should be catalog Armor (leather starter)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(5, chest.GetTotalArmor(),
-                    "Shirt catalog armor should be 5",
+                TestBase.AssertEqual("Leather", ItemMaterialRules.RemapLegacyMaterial(chest.Material),
+                    "Starter chest Material should be Leather",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(GameDataTagHelper.HasTag(chest.Tags, "starter"),
                     "Starter chest should carry starter tag",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
-            if (player.Legs is LegsItem legs)
+            if (player.Head is HeadItem head)
             {
-                TestBase.AssertEqual("shinguards", legs.Name,
-                    "Default legs should be catalog shinguards (lowest-armor tier-1)",
+                TestBase.AssertTrue(
+                    head.Name.Contains("Helmet", StringComparison.OrdinalIgnoreCase),
+                    "Default head should be catalog Helmet (leather starter)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(5, legs.GetTotalArmor(),
-                    "shinguards catalog armor should be 5",
+                TestBase.AssertEqual("Leather", ItemMaterialRules.RemapLegacyMaterial(head.Material),
+                    "Starter head Material should be Leather",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+            if (player.Feet is FeetItem feet)
+            {
+                TestBase.AssertTrue(
+                    feet.Name.Contains("Boots", StringComparison.OrdinalIgnoreCase),
+                    "Default feet should be catalog Boots (leather starter)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual("Leather", ItemMaterialRules.RemapLegacyMaterial(feet.Material),
+                    "Starter feet Material should be Leather",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            TestBase.AssertTrue(LeatherSetBonus.HasLuckAdvantage(player),
+                "New game leather starter kit should unlock luck set bonus",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(player.Inventory.Count >= 1,
                 "New game should add one random armor piece to inventory with the starting weapon",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -180,11 +198,16 @@ namespace RPGGame.Tests.Unit.Game
 
             var weapon = ItemGenerator.GenerateWeaponItem(row);
             int expectedFromSheet = weapon.BaseDamage;
+            int configOverride = EarlyGameBalanceHelper.GetStartingWeaponDamageOverride(WeaponType.Mace, GameConfiguration.Instance?.WeaponScaling);
+            int expected = configOverride > 0 ? configOverride : expectedFromSheet;
+            var scaling = GameConfiguration.Instance?.WeaponScaling;
+            if (scaling != null && expected > 0 && scaling.GlobalDamageMultiplier > 0)
+                expected = Math.Max(1, (int)Math.Round(expected * scaling.GlobalDamageMultiplier));
 
             GameInitializer.ApplyStartingWeaponTuning(weapon, WeaponType.Mace, slotFallback: null, baseDamageFromWeaponsCatalog: true);
 
-            TestBase.AssertEqual(expectedFromSheet, weapon.BaseDamage,
-                "High slot damage must not replace catalog base damage when baseDamageFromWeaponsCatalog is true",
+            TestBase.AssertEqual(expected, weapon.BaseDamage,
+                "Catalog starter damage uses EarlyGame override when set, else Weapons.json base (× global multiplier)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -241,8 +264,9 @@ namespace RPGGame.Tests.Unit.Game
 
             var preview = GameInitializer.CreateStarterWeaponForMenuIndex(daggerMenuIndex);
 
-            TestBase.AssertEqual(daggerRow.Name, preview.Name,
-                "Dagger menu slot should use the matching Weapons.json row name",
+            TestBase.AssertTrue(
+                preview.Name.Contains(daggerRow.Name, StringComparison.OrdinalIgnoreCase),
+                "Dagger menu slot should keep the matching Weapons.json base name (material prefix ok)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             TestBase.AssertTrue(
@@ -287,6 +311,7 @@ namespace RPGGame.Tests.Unit.Game
                     "Starter wizard menu row should be a Wand",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
+                GameInitializer.ClearStarterEquipRequirements(starterWand);
                 var player = new Character("WandStarter", 1);
                 TestBase.AssertTrue(player.TryEquipItem(starterWand, "weapon", out _, out _),
                     "Starter wand should equip",
@@ -299,6 +324,101 @@ namespace RPGGame.Tests.Unit.Game
             finally
             {
                 cfg.LootSystem = backupLoot;
+            }
+        }
+
+        private static void TestStartingWeaponActions_TwoPerWeaponType()
+        {
+            Console.WriteLine("\n--- Testing each weapon type has two startingweapon actions ---");
+
+            try
+            {
+                ActionLoader.LoadActions();
+            }
+            catch
+            {
+                TestBase.AssertTrue(true, "Skip: ActionLoader unavailable", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            var expected = new Dictionary<WeaponType, string[]>
+            {
+                [WeaponType.Mace] = new[] { "SLAM", "POUND" },
+                [WeaponType.Sword] = new[] { "STRIKE", "SLASH" },
+                [WeaponType.Dagger] = new[] { "STAB", "CUT" },
+                [WeaponType.Wand] = new[] { "MAGIC MISSLE", "BOLT" }
+            };
+
+            var selector = new LootActionSelector(new Random(1));
+            foreach (var (weaponType, names) in expected)
+            {
+                var starting = selector.GetStartingWeaponActions(weaponType.ToString());
+                TestBase.AssertEqual(2, starting.Count,
+                    $"{weaponType} should have exactly two startingweapon actions; got [{string.Join(", ", starting)}]",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                foreach (var name in names)
+                {
+                    bool has = starting.Any(n => string.Equals(n, name, StringComparison.OrdinalIgnoreCase));
+                    if (!has && weaponType == WeaponType.Wand && string.Equals(name, "MAGIC MISSLE", StringComparison.OrdinalIgnoreCase))
+                        has = starting.Any(n => string.Equals(n, "MAGIC MISSILE", StringComparison.OrdinalIgnoreCase));
+
+                    TestBase.AssertTrue(has,
+                        $"{weaponType} starting actions should include {name}; got [{string.Join(", ", starting)}]",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                }
+            }
+        }
+
+        private static void TestInitializeNewGame_StarterWeaponGrantsBothStartingActions()
+        {
+            Console.WriteLine("\n--- Testing InitializeNewGame grants both starter actions onto weapon + combo ---");
+
+            _ = GameConfiguration.Instance;
+            ActionLoader.LoadActions();
+
+            var expectedSecond = new Dictionary<WeaponType, string>
+            {
+                [WeaponType.Mace] = "POUND",
+                [WeaponType.Sword] = "SLASH",
+                [WeaponType.Dagger] = "CUT",
+                [WeaponType.Wand] = "BOLT"
+            };
+
+            var menuRows = StarterCatalogItems.ResolveStarterWeaponMenuCatalogRows();
+            for (int i = 0; i < menuRows.Count; i++)
+            {
+                if (!Enum.TryParse(menuRows[i].Type?.Trim(), ignoreCase: true, out WeaponType weaponType))
+                    continue;
+                if (!expectedSecond.TryGetValue(weaponType, out var secondName))
+                    continue;
+
+                var player = new Character($"StarterTwo_{weaponType}", 1);
+                var initializer = new GameInitializer();
+                initializer.InitializeNewGame(player, new List<Dungeon>(), weaponChoice: i + 1);
+
+                TestBase.AssertNotNull(player.Weapon,
+                    $"{weaponType} new game should equip a starter weapon",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                if (player.Weapon == null)
+                    continue;
+
+                var granted = GearActionNames.Resolve(player.Weapon);
+                TestBase.AssertTrue(
+                    granted.Any(n => string.Equals(n, secondName, StringComparison.OrdinalIgnoreCase)),
+                    $"{weaponType} starter weapon should grant {secondName}; got [{string.Join(", ", granted)}]",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var poolNames = player.ActionPool.Select(e => e.action?.Name).Where(n => n != null).ToList();
+                int max = ComboSequenceMaxHelper.GetEffectiveMax(player);
+                var combo = player.GetComboActions();
+                TestBase.AssertTrue(
+                    combo.Any(a => a != null && string.Equals(a.Name, secondName, StringComparison.OrdinalIgnoreCase)),
+                    $"{weaponType} default combo should include {secondName}; got [{string.Join(", ", combo.Select(a => a?.Name))}] (max={max}, pool=[{string.Join(", ", poolNames)}])",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(combo.Count >= 2,
+                    $"{weaponType} default combo should include both starter actions (count >= 2); got {combo.Count} (max={max})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
 

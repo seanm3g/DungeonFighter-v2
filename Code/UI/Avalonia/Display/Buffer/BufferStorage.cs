@@ -1,19 +1,29 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Avalonia.Media;
 using RPGGame;
+using RPGGame.UI;
+using RPGGame.UI.Avalonia.Layout;
+using RPGGame.UI.Avalonia.Renderers.Text;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia.Display.Buffer
 {
 
     /// <summary>
-    /// Handles message storage, truncation, and duplicate detection for the display buffer.
+    /// Handles message storage, width fitting, and duplicate detection for the display buffer.
     /// </summary>
     public class BufferStorage
     {
         private readonly List<List<ColoredText>> messages;
         private readonly List<UIMessageType> lineMessageTypes;
+        /// <summary>Parallel to messages: alternate dual-view lines (mechanical tip or prose) for F7 swap/hover.</summary>
+        private readonly List<List<List<ColoredText>>?> lineHoverInfoLines;
+        /// <summary>
+        /// Parallel to messages: dual-view block span on the anchor line.
+        /// Narrative prose anchors use 1; mechanical block anchors use N (line count); 0 = not an anchor.
+        /// </summary>
+        private readonly List<int> lineDualSpans;
         private readonly int maxLines;
         private readonly int maxLineWidth;
         private readonly MessageValidator validator;
@@ -22,6 +32,8 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
         {
             this.messages = new List<List<ColoredText>>();
             this.lineMessageTypes = new List<UIMessageType>();
+            this.lineHoverInfoLines = new List<List<List<ColoredText>>?>();
+            this.lineDualSpans = new List<int>();
             this.maxLines = maxLines;
             this.maxLineWidth = maxLineWidth;
             this.validator = new MessageValidator();
@@ -68,12 +80,16 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             
             messages.Add(new List<ColoredText>(segments));
             lineMessageTypes.Add(messageType);
+            lineHoverInfoLines.Add(null);
+            lineDualSpans.Add(0);
             
             // Keep only the last maxLines
             if (messages.Count > maxLines)
             {
                 messages.RemoveAt(0);
                 lineMessageTypes.RemoveAt(0);
+                lineHoverInfoLines.RemoveAt(0);
+                lineDualSpans.RemoveAt(0);
             }
             
             // Update scroll state with new message count
@@ -81,9 +97,58 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
         }
 
         /// <summary>
-        /// Replaces an existing line counted from the end (0 = last). Does not change line count.
+        /// Sets mechanical combat-log tip lines for a line counted from the end (0 = last). Used by F7 prose.
+        /// Marks the line as a narrative dual-view anchor (span 1) when tip lines are present.
         /// </summary>
-        public void ReplaceAtFromEnd(int offsetFromEnd, List<ColoredText> segments, UIMessageType? messageType = null)
+        public void SetHoverInfoLinesAtFromEnd(int offsetFromEnd, List<List<ColoredText>>? infoLines)
+        {
+            int index = messages.Count - 1 - offsetFromEnd;
+            if (index < 0 || index >= lineHoverInfoLines.Count)
+                return;
+            var cloned = CombatLogProseHoverInfo.CloneLines(infoLines);
+            lineHoverInfoLines[index] = cloned;
+            lineDualSpans[index] = cloned != null && cloned.Count > 0 ? 1 : 0;
+        }
+
+        /// <summary>
+        /// Binds a mechanical action block (last <paramref name="span"/> lines) to a single prose alternate
+        /// so F7 can swap back to narrative. Marks the first line of the block as the dual anchor.
+        /// </summary>
+        public void BindMechanicalDualViewFromEnd(int span, List<ColoredText> proseParagraph)
+        {
+            if (span <= 0 || proseParagraph == null || messages.Count < span)
+                return;
+
+            int firstIndex = messages.Count - span;
+            for (int i = 0; i < span; i++)
+            {
+                int index = firstIndex + i;
+                if (i == 0)
+                {
+                    lineHoverInfoLines[index] = new List<List<ColoredText>>
+                    {
+                        new List<ColoredText>(proseParagraph)
+                    };
+                    lineDualSpans[index] = span;
+                }
+                else
+                {
+                    lineHoverInfoLines[index] = null;
+                    lineDualSpans[index] = 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Replaces an existing line counted from the end (0 = last). Does not change line count.
+        /// Preserves any existing hover-info binding unless <paramref name="setHoverInfoLines"/> is true.
+        /// </summary>
+        public void ReplaceAtFromEnd(
+            int offsetFromEnd,
+            List<ColoredText> segments,
+            UIMessageType? messageType = null,
+            List<List<ColoredText>>? hoverInfoLines = null,
+            bool setHoverInfoLines = false)
         {
             int index = messages.Count - 1 - offsetFromEnd;
             if (index < 0 || index >= messages.Count)
@@ -94,6 +159,12 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                 messages[index] = new List<ColoredText>();
                 if (messageType.HasValue)
                     lineMessageTypes[index] = messageType.Value;
+                if (setHoverInfoLines)
+                {
+                    var cloned = CombatLogProseHoverInfo.CloneLines(hoverInfoLines);
+                    lineHoverInfoLines[index] = cloned;
+                    lineDualSpans[index] = cloned != null && cloned.Count > 0 ? 1 : 0;
+                }
                 return;
             }
 
@@ -102,6 +173,12 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             messages[index] = new List<ColoredText>(processedSegments);
             if (messageType.HasValue)
                 lineMessageTypes[index] = messageType.Value;
+            if (setHoverInfoLines)
+            {
+                var cloned = CombatLogProseHoverInfo.CloneLines(hoverInfoLines);
+                lineHoverInfoLines[index] = cloned;
+                lineDualSpans[index] = cloned != null && cloned.Count > 0 ? 1 : 0;
+            }
         }
 
         /// <summary>
@@ -119,6 +196,8 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
         {
             messages.Add(new List<ColoredText>());
             lineMessageTypes.Add(messageType);
+            lineHoverInfoLines.Add(null);
+            lineDualSpans.Add(0);
             
             bool wasAtBottom = scrollState.WasAtBottom();
             bool wasAtTop = scrollState.WasAtTop();
@@ -128,6 +207,8 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             {
                 messages.RemoveAt(0);
                 lineMessageTypes.RemoveAt(0);
+                lineHoverInfoLines.RemoveAt(0);
+                lineDualSpans.RemoveAt(0);
             }
             
             // Update scroll state
@@ -158,6 +239,8 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                     // Always allow blank lines - they're used for spacing between sections
                     messages.Add(new List<ColoredText>());
                     lineMessageTypes.Add(messageType);
+                    lineHoverInfoLines.Add(null);
+                    lineDualSpans.Add(0);
                     continue;
                 }
                 
@@ -172,6 +255,8 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                 
                 messages.Add(new List<ColoredText>(processedSegments));
                 lineMessageTypes.Add(messageType);
+                lineHoverInfoLines.Add(null);
+                lineDualSpans.Add(0);
             }
             
             // Keep only the last maxLines (batch removal)
@@ -180,6 +265,8 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                 int removeCount = messages.Count - maxLines;
                 messages.RemoveRange(0, removeCount);
                 lineMessageTypes.RemoveRange(0, removeCount);
+                lineHoverInfoLines.RemoveRange(0, removeCount);
+                lineDualSpans.RemoveRange(0, removeCount);
             }
             
             // Update scroll state with new message count
@@ -193,101 +280,117 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
         {
             messages.Clear();
             lineMessageTypes.Clear();
+            lineHoverInfoLines.Clear();
+            lineDualSpans.Clear();
             scrollState.Reset();
+        }
+
+        /// <summary>
+        /// Snapshot of every line including F7 dual-view alternate / span (for swap).
+        /// </summary>
+        public List<CombatLogDualView.Line> GetAllDualViewLines()
+        {
+            var result = new List<CombatLogDualView.Line>(messages.Count);
+            for (int i = 0; i < messages.Count; i++)
+            {
+                int span = i < lineDualSpans.Count ? lineDualSpans[i] : 0;
+                // Narrative prose with hover tip but no explicit span still swaps (legacy / live F7 write).
+                var alternate = CombatLogProseHoverInfo.CloneLines(
+                    i < lineHoverInfoLines.Count ? lineHoverInfoLines[i] : null);
+                if (span <= 0 && alternate != null && alternate.Count > 0)
+                    span = 1;
+
+                result.Add(new CombatLogDualView.Line(
+                    new List<ColoredText>(messages[i]),
+                    lineMessageTypes[i],
+                    alternate,
+                    span));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Replaces the entire buffer with dual-view lines (F7 narrative ↔ mechanical swap).
+        /// </summary>
+        public void ReplaceAllDualViewLines(IReadOnlyList<CombatLogDualView.Line> lines, ScrollStateManager scrollState)
+        {
+            messages.Clear();
+            lineMessageTypes.Clear();
+            lineHoverInfoLines.Clear();
+            lineDualSpans.Clear();
+
+            if (lines != null)
+            {
+                foreach (var line in lines)
+                {
+                    var segments = line.Segments == null || line.Segments.Count == 0
+                        ? new List<ColoredText>()
+                        : FitToLineWidth(line.Segments);
+                    messages.Add(new List<ColoredText>(segments));
+                    lineMessageTypes.Add(line.MessageType);
+                    lineHoverInfoLines.Add(CombatLogProseHoverInfo.CloneLines(line.AlternateLines));
+                    lineDualSpans.Add(Math.Max(0, line.DualSpan));
+                }
+            }
+
+            // Trim to max
+            if (messages.Count > maxLines)
+            {
+                int removeCount = messages.Count - maxLines;
+                messages.RemoveRange(0, removeCount);
+                lineMessageTypes.RemoveRange(0, removeCount);
+                lineHoverInfoLines.RemoveRange(0, removeCount);
+                lineDualSpans.RemoveRange(0, removeCount);
+            }
+
+            scrollState.Reset();
+            scrollState.UpdateAfterAdd(wasAtTop: false, wasAtBottom: true, messages.Count);
         }
 
         /// <summary>
         /// Gets the last N messages with the <see cref="UIMessageType"/> stored when each line was appended.
         /// </summary>
-        public List<(List<ColoredText> Segments, UIMessageType MessageType)> GetLastWithMessageTypes(int count)
+        public List<(List<ColoredText> Segments, UIMessageType MessageType, List<List<ColoredText>>? HoverInfoLines)> GetLastWithMessageTypes(int count)
         {
             int n = System.Math.Min(count, messages.Count);
             if (n <= 0)
-                return new List<(List<ColoredText>, UIMessageType)>();
+                return new List<(List<ColoredText>, UIMessageType, List<List<ColoredText>>?)>();
 
             var sliceMessages = messages.TakeLast(n).ToList();
             var sliceTypes = lineMessageTypes.TakeLast(n).ToList();
-            var result = new List<(List<ColoredText>, UIMessageType)>(n);
+            var sliceHover = lineHoverInfoLines.TakeLast(n).ToList();
+            var result = new List<(List<ColoredText>, UIMessageType, List<List<ColoredText>>?)>(n);
             for (int i = 0; i < n; i++)
-                result.Add((new List<ColoredText>(sliceMessages[i]), sliceTypes[i]));
+                result.Add((new List<ColoredText>(sliceMessages[i]), sliceTypes[i], CombatLogProseHoverInfo.CloneLines(sliceHover[i])));
             return result;
         }
 
         /// <summary>
-        /// Caps each visual line at <see cref="maxLineWidth"/>. Newlines stay inside the same buffer
-        /// entry so punchline reservations keep their line count, but a later line is not eaten by
-        /// the characters of the lines above it.
+        /// Fits content to the live center-panel text column by wrapping at word boundaries
+        /// (newlines stay inside the same buffer entry). Uses
+        /// <see cref="LayoutConstants.CenterPanelTextColumnWidth"/> so buffer pre-wrap matches
+        /// display render width and does not leave short stub lines from a mismatched second wrap.
+        /// Explicit narrower <c>maxLineWidth</c> (unit tests) still wins. Per-line wrapping keeps
+        /// punchline reservations stable and prevents ellipsis.
         /// </summary>
         private List<ColoredText> FitToLineWidth(List<ColoredText> segments)
         {
             if (segments == null || segments.Count == 0)
                 return segments ?? new List<ColoredText>();
 
-            bool hasBreak = false;
-            foreach (var seg in segments)
-            {
-                string text = seg?.Text ?? "";
-                if (text.IndexOf('\n') >= 0 || text.IndexOf('\r') >= 0)
-                {
-                    hasBreak = true;
-                    break;
-                }
-            }
-
-            if (!hasBreak)
-                return TruncateSingleLine(segments);
-
-            var lines = SplitLogicalLines(segments);
-            var result = new List<ColoredText>();
-            for (int i = 0; i < lines.Count; i++)
-            {
-                if (i > 0)
-                    result.Add(new ColoredText(global::System.Environment.NewLine, Colors.White));
-                result.AddRange(TruncateSingleLine(lines[i]));
-            }
-            return result;
+            return TextWrappingHelper.ApplySoftWraps(segments, ResolveWrapWidth());
         }
 
-        private List<ColoredText> TruncateSingleLine(List<ColoredText> line)
+        /// <summary>
+        /// Live text-column width, honoring an explicit narrower ctor budget (tests pass 40).
+        /// </summary>
+        private int ResolveWrapWidth()
         {
-            if (line == null || line.Count == 0)
-                return line ?? new List<ColoredText>();
-            if (ColoredTextRenderer.GetDisplayLength(line) <= maxLineWidth)
-                return line;
-
-            var truncated = ColoredTextRenderer.Truncate(line, System.Math.Max(0, maxLineWidth - 3));
-            truncated.Add(new ColoredText("...", Colors.White));
-            return truncated;
-        }
-
-        private static List<List<ColoredText>> SplitLogicalLines(List<ColoredText> segments)
-        {
-            var lines = new List<List<ColoredText>>();
-            var current = new List<ColoredText>();
-            foreach (var seg in segments)
-            {
-                string text = seg?.Text ?? "";
-                if (text.IndexOf('\n') < 0 && text.IndexOf('\r') < 0)
-                {
-                    if (text.Length > 0 && seg != null)
-                        current.Add(seg);
-                    continue;
-                }
-
-                var parts = text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
-                for (int i = 0; i < parts.Length; i++)
-                {
-                    if (i > 0)
-                    {
-                        lines.Add(current);
-                        current = new List<ColoredText>();
-                    }
-                    if (parts[i].Length > 0 && seg != null)
-                        current.Add(new ColoredText(parts[i], seg.Color, seg.SourceTemplate, seg.ColorReadyForCanvas));
-                }
-            }
-            lines.Add(current);
-            return lines;
+            int live = Math.Max(1, LayoutConstants.CenterPanelTextColumnWidth);
+            if (maxLineWidth > 0 && maxLineWidth < live)
+                return maxLineWidth;
+            return live;
         }
     }
 }

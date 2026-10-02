@@ -110,7 +110,16 @@ namespace RPGGame
                 var (damageText, attackRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, action, 1.0, damageMultiplier, 0, 0, 1, false, null, default, defenseFace);
                 StandingBlock.ConsumeAfterHit(target);
 
-                TryQueueEnvironmentalSequence(action.Name, damage, defenseFace, target, envHealthHolds);
+                TryQueueEnvironmentalSequence(
+                source,
+                action,
+                action.Name,
+                damage,
+                defenseFace,
+                target,
+                envHealthHolds,
+                statusEffects: null,
+                affectedActors: target != null ? new List<Actor> { target } : null);
                 
                 // For environmental attacks, we replace the action text with the damage text
                 // and use the roll info
@@ -118,31 +127,52 @@ namespace RPGGame
             }
             
             // For non-attack actions or multi-target attacks, build status effects
+            var affectedActors = new List<Actor>();
             foreach (var (target, duration, _) in affectedTargets)
             {
                 var effectMessage = FormatEnvironmentalEffectMessageColored(source, target, action, duration);
                 if (effectMessage != null && effectMessage.Count > 0)
                 {
                     statusEffects.Add(effectMessage);
+                    affectedActors.Add(target);
                 }
             }
             
-            TryQueueEnvironmentalSequence(action.Name, 0, null, affectedTargets.Count > 0 ? affectedTargets[0].target : null, envHealthHolds);
+            TryQueueEnvironmentalSequence(
+                source,
+                action,
+                action.Name,
+                damage: 0,
+                defenseFace: null,
+                target: affectedTargets.Count > 0 ? affectedTargets[0].target : null,
+                healthHolds: envHealthHolds,
+                statusEffects: statusEffects,
+                affectedActors: affectedActors);
             return ((actionText, rollInfo), statusEffects);
         }
 
         private static void TryQueueEnvironmentalSequence(
+            Actor source,
+            Action action,
             string actionName,
             int damage,
             int? defenseFace,
             Actor? target,
-            List<(string EntityId, int Health)> healthHolds)
+            List<(string EntityId, int Health)> healthHolds,
+            List<List<ColoredText>>? statusEffects,
+            List<Actor>? affectedActors)
         {
-            if (!CombatSequencePresenter.ShouldPlay())
-                return;
-            CombatSequencePresenter.SetPending(
-                CombatSequenceBuilder.FromEnvironmental(actionName, damage, defenseFace, target),
-                healthHolds);
+            bool hasEffects = statusEffects != null && statusEffects.Count > 0;
+            var steps = CombatSequenceBuilder.FromEnvironmental(
+                actionName, damage, defenseFace, target, hasStatusEffects: hasEffects);
+
+            var tokens = CombatSequenceFlavorTokens.FromEnvironmental(
+                source, action, statusEffects, damage, target, affectedActors);
+            CombatSequenceFlavorPresenter.SetPending(steps, tokens, healthHolds);
+            if (!CombatSequenceFlavorPresenter.ShouldPlay() && CombatSequencePresenter.ShouldPlay())
+            {
+                CombatSequencePresenter.SetPending(steps, healthHolds);
+            }
         }
 
         /// <summary>

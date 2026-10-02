@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Avalonia.Media;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.UI.Avalonia.Canvas
 {
@@ -79,6 +80,57 @@ namespace RPGGame.UI.Avalonia.Canvas
             textElements.RemoveAll(text => 
                 text.X >= startX && text.X < endX && 
                 text.Y >= startY && text.Y < endY);
+        }
+
+        /// <summary>
+        /// Splits/removes non-overlay body text whose glyphs intersect the rectangle, even when the
+        /// run starts left of <paramref name="startX"/> and extends into it. Overlay tip text is left alone.
+        /// </summary>
+        public void MaskNonOverlayTextInArea(int startX, int startY, int width, int height)
+        {
+            if (width <= 0 || height <= 0)
+                return;
+
+            int endX = startX + width;
+            int endY = startY + height;
+            var replacements = new List<CanvasText>();
+            var toRemove = new List<CanvasText>();
+
+            foreach (var text in textElements)
+            {
+                if (text.IsOverlay)
+                    continue;
+                if (text.Y < startY || text.Y >= endY)
+                    continue;
+                if (string.IsNullOrEmpty(text.Content))
+                    continue;
+
+                int textEnd = text.X + text.Content.Length;
+                if (textEnd <= startX || text.X >= endX)
+                    continue;
+
+                var kept = HoverTooltipDrawing.MaskTextRunOutsideRange(
+                    text.X, text.Content, startX, endX);
+                toRemove.Add(text);
+                foreach (var (x, content) in kept)
+                {
+                    replacements.Add(new CanvasText
+                    {
+                        X = x,
+                        Y = text.Y,
+                        Content = content,
+                        Color = text.Color,
+                        HasGlow = text.HasGlow,
+                        GlowColor = text.GlowColor,
+                        GlowIntensity = text.GlowIntensity,
+                        GlowRadius = text.GlowRadius
+                    });
+                }
+            }
+
+            foreach (var text in toRemove)
+                textElements.Remove(text);
+            textElements.AddRange(replacements);
         }
         
         /// <summary>
@@ -277,6 +329,50 @@ namespace RPGGame.UI.Avalonia.Canvas
             // No merge possible, add as new element
             AddText(new CanvasText { X = x, Y = y, Content = text, Color = color });
             return false; // New element added
+        }
+
+        /// <summary>
+        /// Fills parallel glyph/color buffers for a character-grid rectangle (spaces / white when empty).
+        /// Later text elements overwrite overlapping cells. Overlay tip text is skipped.
+        /// </summary>
+        public void SampleCellColorsInRect(
+            int startX,
+            int startY,
+            int width,
+            int height,
+            char[] glyphs,
+            Color[] colors)
+        {
+            if (width <= 0 || height <= 0)
+                return;
+            if (glyphs == null || colors == null)
+                throw new ArgumentNullException(glyphs == null ? nameof(glyphs) : nameof(colors));
+            int n = width * height;
+            if (glyphs.Length < n || colors.Length < n)
+                throw new ArgumentException("glyphs/colors must cover width×height.");
+
+            for (int i = 0; i < n; i++)
+            {
+                glyphs[i] = ' ';
+                colors[i] = Colors.White;
+            }
+
+            foreach (var t in textElements)
+            {
+                if (t.IsOverlay || string.IsNullOrEmpty(t.Content))
+                    continue;
+                if (t.Y < startY || t.Y >= startY + height)
+                    continue;
+                for (int i = 0; i < t.Content.Length; i++)
+                {
+                    int gx = t.X + i;
+                    if (gx < startX || gx >= startX + width)
+                        continue;
+                    int idx = (t.Y - startY) * width + (gx - startX);
+                    glyphs[idx] = t.Content[i];
+                    colors[idx] = t.Color;
+                }
+            }
         }
 
         /// <summary>

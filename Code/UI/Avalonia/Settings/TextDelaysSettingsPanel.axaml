@@ -72,6 +72,131 @@
                                Text="Training Ground tutorial only. Multiplies normal combat log delays (2 = twice as long as default pacing)."/>
                 </StackPanel>
             </StackPanel>
+
+            <!-- Character reveal rhythm (F7 narrative typewriter) -->
+            <StackPanel Spacing="15">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Character reveal rhythm"
+                               Classes="settings-section-header"
+                               Margin="0,0,0,8"/>
+                    <TextBlock TextWrapping="Wrap" Classes="settings-field-label" FontSize="14"
+                               Text="F7 narrative combat log types each open paragraph to about Paragraph target ms (re-budgeted when the same attacker continues). Time is split equally across sentences, then words, then characters. Sentence pause is additive on top. Set Paragraph target to 0 to use the legacy base×scales×curve path below."/>
+                    <StackPanel Spacing="4">
+                        <CheckBox x:Name="CharacterRevealRhythmEnabledCheckBox"
+                                  Content="Enable sentence/word rhythm"
+                                  Classes="settings-field-label"
+                                  FontSize="15"
+                                  IsChecked="True"/>
+                        <TextBlock Classes="setting-example"
+                                   Text="Example: off = flat per-character delay + battle ramp only (legacy typewriter)."/>
+                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="280"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="100"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Paragraph target (ms):" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: 8000 = full open paragraph types in ~8s (char delays); 0 = legacy multiplicative path."/>
+                        <TextBox x:Name="CharacterRevealParagraphTargetMsTextBox" Grid.Row="0" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Base char delay (ms):" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: legacy starting delay before sentence/word scales (used when paragraph target is 0)."/>
+                        <TextBox x:Name="CharacterRevealBaseCharDelayMsTextBox" Grid.Row="1" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Min char delay (ms):" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: floor so long sentences never type faster than this (legacy path)."/>
+                        <TextBox x:Name="CharacterRevealMinCharDelayMsTextBox" Grid.Row="2" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Max char delay (ms):" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: ceiling for short sentences / emphasis peaks / battle ramp (legacy path)."/>
+                        <TextBox x:Name="CharacterRevealMaxCharDelayMsTextBox" Grid.Row="3" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Sentence pause (ms):" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: additive breath between sentences (on top of paragraph target)."/>
+                        <TextBox x:Name="CharacterRevealSentencePauseMsTextBox" Grid.Row="4" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Sentence reference (chars):" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="5" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: lengths below this slow typing; above this speed it up (legacy inverse scale)."/>
+                        <TextBox x:Name="CharacterRevealSentenceReferenceCharsTextBox" Grid.Row="5" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Sentence scale min:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="6" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: 0.5 = longest sentences at half base delay."/>
+                        <TextBox x:Name="CharacterRevealSentenceScaleMinTextBox" Grid.Row="6" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="7" Grid.Column="0" Text="Sentence scale max:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="7" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: 2.0 = shortest sentences at double base delay."/>
+                        <TextBox x:Name="CharacterRevealSentenceScaleMaxTextBox" Grid.Row="7" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="8" Grid.Column="0" Text="Word reference (chars):" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="8" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: short words linger; long words move a bit faster (legacy)."/>
+                        <TextBox x:Name="CharacterRevealWordReferenceCharsTextBox" Grid.Row="8" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="9" Grid.Column="0" Text="Word scale min:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="9" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: 0.75 = longest words 25% faster than base×sentence."/>
+                        <TextBox x:Name="CharacterRevealWordScaleMinTextBox" Grid.Row="9" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="10" Grid.Column="0" Text="Word scale max:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="10" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: 1.5 = shortest words 50% slower."/>
+                        <TextBox x:Name="CharacterRevealWordScaleMaxTextBox" Grid.Row="10" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="11" Grid.Column="0" Text="Word emphasis preset:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="11" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: EmphasizeEnd lengthens the last glyphs of each word (legacy)."/>
+                        <ComboBox x:Name="CharacterRevealWordEmphasisPresetComboBox" Grid.Row="11" Grid.Column="2" Width="140" Height="28"
+                                  FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="12" Grid.Column="0" Text="Word begin weight:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="12" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: 1.6 = longer pause on the first letter."/>
+                        <TextBox x:Name="CharacterRevealWordBeginWeightTextBox" Grid.Row="12" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="13" Grid.Column="0" Text="Word mid weight:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="13" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: 1.5 = linger through the middle of the word."/>
+                        <TextBox x:Name="CharacterRevealWordMidWeightTextBox" Grid.Row="13" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="14" Grid.Column="0" Text="Word end weight:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="14" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: 1.6 = punch the last letter before the next word."/>
+                        <TextBox x:Name="CharacterRevealWordEndWeightTextBox" Grid.Row="14" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="15" Grid.Column="0" Text="Battle ramp every N chars:" Classes="settings-field-label" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="15" Grid.Column="1" Classes="setting-example"
+                                   Text="Example: 200 = +1ms every 200 chars (legacy path only; ignored by paragraph budget)."/>
+                        <TextBox x:Name="CharacterRevealBattleRampCharsTextBox" Grid.Row="15" Grid.Column="2" Width="90" Height="28"
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
             
             <!-- Region travel: per d20 step pacing (also scales journey summary minutes) -->
             <StackPanel Spacing="15">

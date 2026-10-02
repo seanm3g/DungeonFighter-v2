@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -7,7 +8,8 @@ using RPGGame.Audio;
 namespace RPGGame.Config
 {
     /// <summary>
-    /// Player-local general settings: game preferences plus audio bus volume/mute/crossfade.
+    /// Player-local general settings: game preferences, audio bus volume/mute/crossfade,
+    /// and UI font/zoom preferences.
     /// Persisted to gitignored <c>GameData/GeneralSettings.json</c>.
     /// </summary>
     public static class GeneralSettingsStore
@@ -44,10 +46,7 @@ namespace RPGGame.Config
                         var doc = JsonSerializer.Deserialize<GeneralSettingsDocument>(json, JsonOptions);
                         if (doc != null)
                         {
-                            doc.GameSettings ??= new GameSettings();
-                            doc.AudioPreferences ??= new AudioPreferences();
-                            doc.GameSettings.ValidateAndFix();
-                            doc.AudioPreferences.ValidateAndFix();
+                            NormalizeDocument(doc);
                             _cached = doc;
                             return _cached;
                         }
@@ -68,26 +67,47 @@ namespace RPGGame.Config
             gameSettings.ValidateAndFix();
             audioPreferences.ValidateAndFix();
 
+            // Preserve UI font/zoom prefs from cache or disk (do not wipe on game/audio saves).
+            var fonts = Load().UiFontPreferences ?? new UiFontPreferences();
+            fonts.ValidateAndFix();
+
             var doc = new GeneralSettingsDocument
             {
                 GameSettings = gameSettings,
-                AudioPreferences = audioPreferences
+                AudioPreferences = audioPreferences,
+                UiFontPreferences = fonts
             };
+            SaveDocument(doc);
+        }
+
+        /// <summary>Persists UI font preset + per-font zoom without touching game/audio settings.</summary>
+        public static void SaveUiFontPreferences(UiFontPreferences fonts)
+        {
+            fonts.ValidateAndFix();
+            var doc = Load();
+            doc.UiFontPreferences = fonts;
             SaveDocument(doc);
         }
 
         public static void SaveDocument(GeneralSettingsDocument doc)
         {
-            doc.GameSettings ??= new GameSettings();
-            doc.AudioPreferences ??= new AudioPreferences();
-            doc.GameSettings.ValidateAndFix();
-            doc.AudioPreferences.ValidateAndFix();
+            NormalizeDocument(doc);
 
             lock (StoreLock)
             {
                 _cached = doc;
                 WriteAtomic(GetFilePath(), JsonSerializer.Serialize(doc, JsonOptions));
             }
+        }
+
+        private static void NormalizeDocument(GeneralSettingsDocument doc)
+        {
+            doc.GameSettings ??= new GameSettings();
+            doc.AudioPreferences ??= new AudioPreferences();
+            doc.UiFontPreferences ??= new UiFontPreferences();
+            doc.GameSettings.ValidateAndFix();
+            doc.AudioPreferences.ValidateAndFix();
+            doc.UiFontPreferences.ValidateAndFix();
         }
 
         public static void InvalidateCache()
@@ -154,7 +174,8 @@ namespace RPGGame.Config
             return new GeneralSettingsDocument
             {
                 GameSettings = gameSettings ?? new GameSettings(),
-                AudioPreferences = audioPrefs ?? new AudioPreferences()
+                AudioPreferences = audioPrefs ?? new AudioPreferences(),
+                UiFontPreferences = new UiFontPreferences()
             };
         }
 
@@ -244,10 +265,13 @@ namespace RPGGame.Config
         {
             var gameSettings = TryLoadGameSettingsTemplate() ?? new GameSettings();
             gameSettings.ValidateAndFix();
+            var fonts = new UiFontPreferences();
+            fonts.ValidateAndFix();
             return new GeneralSettingsDocument
             {
                 GameSettings = gameSettings,
-                AudioPreferences = new AudioPreferences()
+                AudioPreferences = new AudioPreferences(),
+                UiFontPreferences = fonts
             };
         }
 
@@ -303,6 +327,100 @@ namespace RPGGame.Config
 
         [JsonPropertyName("audioPreferences")]
         public AudioPreferences AudioPreferences { get; set; } = new();
+
+        [JsonPropertyName("uiFontPreferences")]
+        public UiFontPreferences UiFontPreferences { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Active ASCII canvas font and per-preset UI zoom multipliers (Ctrl+/-).
+    /// </summary>
+    public sealed class UiFontPreferences
+    {
+        public const double DefaultZoom = 1.0;
+        public const double MinZoom = 0.5;
+        public const double MaxZoom = 2.0;
+
+        [JsonPropertyName("activePreset")]
+        public string ActivePreset { get; set; } = "Vt323";
+
+        [JsonPropertyName("zoomByPreset")]
+        public Dictionary<string, double> ZoomByPreset { get; set; } =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        public void ValidateAndFix()
+        {
+            if (string.IsNullOrWhiteSpace(ActivePreset))
+                ActivePreset = "Vt323";
+
+            ZoomByPreset ??= new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+
+            // Normalize known preset keys; keep any extras clamped.
+            string[] known =
+            {
+                "Vt323",
+                "SueEllenFrancisco",
+                "Bytesized",
+                "CourierNew"
+            };
+
+            var normalized = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+            foreach (string key in known)
+            {
+                double zoom = DefaultZoom;
+                if (ZoomByPreset.TryGetValue(key, out double stored))
+                    zoom = stored;
+                normalized[key] = ClampZoom(zoom);
+            }
+
+            foreach (var pair in ZoomByPreset)
+            {
+                if (normalized.ContainsKey(pair.Key))
+                    continue;
+                normalized[pair.Key] = ClampZoom(pair.Value);
+            }
+
+            ZoomByPreset = normalized;
+
+            bool knownActive = false;
+            foreach (string key in known)
+            {
+                if (string.Equals(key, ActivePreset, StringComparison.OrdinalIgnoreCase))
+                {
+                    ActivePreset = key;
+                    knownActive = true;
+                    break;
+                }
+            }
+
+            if (!knownActive)
+                ActivePreset = "Vt323";
+        }
+
+        public double GetZoom(string presetName)
+        {
+            if (string.IsNullOrWhiteSpace(presetName))
+                return DefaultZoom;
+            return ZoomByPreset.TryGetValue(presetName, out double zoom)
+                ? ClampZoom(zoom)
+                : DefaultZoom;
+        }
+
+        public void SetZoom(string presetName, double zoom)
+        {
+            if (string.IsNullOrWhiteSpace(presetName))
+                return;
+            ZoomByPreset[presetName] = ClampZoom(zoom);
+        }
+
+        public static double ClampZoom(double zoom)
+        {
+            if (double.IsNaN(zoom) || double.IsInfinity(zoom) || zoom <= 0)
+                return DefaultZoom;
+            if (zoom < MinZoom) return MinZoom;
+            if (zoom > MaxZoom) return MaxZoom;
+            return zoom;
+        }
     }
 
     /// <summary>Bus-level audio settings stored in general settings (not in committable audio patches).</summary>

@@ -252,12 +252,44 @@ namespace RPGGame.UI.Avalonia.Display
         /// <summary>
         /// Replaces a reserved combat-log line counted from the end (0 = last) so follow-ups fill in place.
         /// </summary>
-        public void ReplaceMessageFromEnd(int offsetFromEnd, List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
+        public void ReplaceMessageFromEnd(
+            int offsetFromEnd,
+            List<ColoredText> segments,
+            UIMessageType messageType = UIMessageType.System,
+            List<List<ColoredText>>? hoverInfoLines = null,
+            bool setHoverInfoLines = false)
         {
-            if (bufferOperations.TryReplaceAtFromEnd(offsetFromEnd, segments, messageType))
+            if (bufferOperations.TryReplaceAtFromEnd(offsetFromEnd, segments, messageType, hoverInfoLines, setHoverInfoLines))
             {
                 TriggerRender();
             }
+        }
+
+        /// <summary>
+        /// Binds mechanical combat-log tip lines to the last combat-log line for F7 prose hover.
+        /// Does not by itself trigger a render — prefer passing the lines into Replace/Add when painting.
+        /// </summary>
+        public void SetLastLineHoverInfoLines(List<List<ColoredText>>? infoLines)
+        {
+            buffer.SetHoverInfoLinesAtFromEnd(0, infoLines);
+        }
+
+        /// <summary>
+        /// Binds a silent narrative paragraph to the last mechanical action-block lines for F7 dual-view swap.
+        /// </summary>
+        public void BindMechanicalDualViewFromEnd(int span, List<ColoredText> proseParagraph)
+        {
+            buffer.BindMechanicalDualViewFromEnd(span, proseParagraph);
+        }
+
+        /// <summary>
+        /// Swaps dual-view combat-log entries (narrative ↔ mechanical) and repaints.
+        /// </summary>
+        public void SwapCombatLogDualView(bool currentlyShowingNarrative)
+        {
+            buffer.SwapDualView(currentlyShowingNarrative);
+            CombatLogActionHoverState.Clear();
+            ForceRender();
         }
         
         /// <summary>

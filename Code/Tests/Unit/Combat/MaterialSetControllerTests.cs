@@ -143,14 +143,26 @@ namespace RPGGame.Tests.Unit.Combat
         private static void TestClasslessMaterialHasNoBuild()
         {
             TestBase.SetCurrentTestName(nameof(TestClasslessMaterialHasNoBuild));
-            var hero = EquipPieces(
+            var cloth = EquipPieces(
+                (new HeadItem("Hood", 1, 1), "Cloth"),
+                (new ChestItem("Robe", 1, 1), "Cloth"));
+            TestBase.AssertEqual(0, MaterialSetController.GetGrantedConvertActionNames(cloth).Count,
+                "Cloth has no convert", ref _run, ref _passed, ref _failed);
+            var clothLines = MaterialSetController.FormatSetStatusLines(cloth, cloth.Equipment.Head).ToList();
+            TestBase.AssertTrue(clothLines.Count > 0 && clothLines[0].Contains("no material build", StringComparison.OrdinalIgnoreCase),
+                "class-less Cloth tooltip", ref _run, ref _passed, ref _failed);
+
+            var leather = EquipPieces(
                 (new HeadItem("Cap", 1, 1), "Leather"),
-                (new ChestItem("Vest", 1, 1), "Leather"));
-            TestBase.AssertEqual(0, MaterialSetController.GetGrantedConvertActionNames(hero).Count,
+                (new ChestItem("Vest", 1, 1), "Leather"),
+                (new FeetItem("Boots", 1, 1), "Leather"));
+            TestBase.AssertEqual(0, MaterialSetController.GetGrantedConvertActionNames(leather).Count,
                 "Leather has no convert", ref _run, ref _passed, ref _failed);
-            var lines = MaterialSetController.FormatSetStatusLines(hero, hero.Equipment.Head).ToList();
-            TestBase.AssertTrue(lines.Count > 0 && lines[0].Contains("no material build", StringComparison.OrdinalIgnoreCase),
-                "class-less tooltip", ref _run, ref _passed, ref _failed);
+            var leatherLines = MaterialSetController.FormatSetStatusLines(leather, leather.Equipment.Head).ToList();
+            TestBase.AssertTrue(leatherLines.Any(l => l.Contains("Lucky", StringComparison.OrdinalIgnoreCase)),
+                "Leather tooltip describes Lucky status", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Leather 3/3", leatherLines[0],
+                "Leather HUD quantity is n/3", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestConvertDamageScaleFromBankAndStacks()
@@ -307,11 +319,24 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(hover.Any(l => l.Contains("IRON CULL", StringComparison.OrdinalIgnoreCase)),
                 "hover names convert action", ref _run, ref _passed, ref _failed);
 
-            var leather = EquipPieces(
+            var leatherTwo = EquipPieces(
                 (new HeadItem("Cap", 1, 1), "Leather"),
                 (new ChestItem("Vest", 1, 1), "Leather"));
-            TestBase.AssertEqual(0, MaterialSetController.GetFormingSets(leather).Count,
-                "class-less material is not a forming set", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(1, MaterialSetController.GetFormingSets(leatherTwo).Count,
+                "2 Leather pieces form the luck set HUD", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Leather 2/3", MaterialSetController.FormatFormingSetHudLine("Leather", 2),
+                "Leather HUD uses /3", ref _run, ref _passed, ref _failed);
+            TestBase.AssertFalse(LeatherSetBonus.HasLuckAdvantage(leatherTwo),
+                "2 Leather does not unlock luck yet", ref _run, ref _passed, ref _failed);
+
+            var leatherThree = EquipPieces(
+                (new HeadItem("Cap", 1, 1), "Leather"),
+                (new ChestItem("Vest", 1, 1), "Leather"),
+                (new FeetItem("Boots", 1, 1), "Leather"));
+            TestBase.AssertTrue(LeatherSetBonus.HasLuckAdvantage(leatherThree),
+                "3 Leather unlocks luck", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Leather 3/3", MaterialSetController.FormatFormingSetHudLine("Leather", 3),
+                "3 Leather HUD is Leather 3/3", ref _run, ref _passed, ref _failed);
 
             var mixed = EquipPieces(
                 (new HeadItem("G1", 1, 1), "Gold"),

@@ -13,20 +13,21 @@ namespace RPGGame.UI.Avalonia.Canvas
     {
         private readonly CanvasElementManager elementManager;
         private readonly HealthTracker healthTracker;
-        private readonly int centerX;
 
         /// <summary>
         /// Initializes a new instance of CanvasElementBuilder
         /// </summary>
         /// <param name="elementManager">The element manager to add elements to</param>
         /// <param name="healthTracker">The health tracker for health bar animations</param>
-        /// <param name="centerX">The center X coordinate for centering operations</param>
-        public CanvasElementBuilder(CanvasElementManager elementManager, HealthTracker healthTracker, int centerX)
+        /// <param name="centerX">Unused; centering reads live <see cref="LayoutConstants.SCREEN_CENTER"/>.</param>
+        public CanvasElementBuilder(CanvasElementManager elementManager, HealthTracker healthTracker, int centerX = 0)
         {
             this.elementManager = elementManager ?? throw new System.ArgumentNullException(nameof(elementManager));
             this.healthTracker = healthTracker ?? throw new System.ArgumentNullException(nameof(healthTracker));
-            this.centerX = centerX;
+            _ = centerX;
         }
+
+        private static int CenterX => LayoutConstants.SCREEN_CENTER;
 
         /// <summary>
         /// Adds text to the canvas at the specified position
@@ -87,11 +88,11 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             if (centered)
             {
-                // Use CenterX as the center point
+                // Use live SCREEN_CENTER so horizontal resize recenters chrome
                 // Use GetDisplayLength to exclude color markup characters from the length calculation
                 var segments = ColoredTextParser.Parse(text);
                 int displayLength = ColoredTextRenderer.GetDisplayLength(segments);
-                x = centerX - (displayLength / 2);
+                x = CenterX - (displayLength / 2);
             }
             AddText(x, y, text, color);
         }

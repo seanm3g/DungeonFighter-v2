@@ -48,7 +48,9 @@ namespace RPGGame.UI.Avalonia.Layout
             Character? characterForRightPanel,
             CharacterPanelRenderer characterPanelRenderer,
             RightPanelRenderer rightPanelRenderer,
-            bool registerActionLabEnemyLevelHover = false)
+            bool registerActionLabEnemyLevelHover = false,
+            GameState? gameState = null,
+            bool inDungeonRun = false)
         {
             if (usePersistentChrome)
             {
@@ -60,7 +62,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     // Render left panel (Character Info) - Always visible
                     if (character != null)
                     {
-                        characterPanelRenderer.RenderCharacterPanel(character);
+                        characterPanelRenderer.RenderCharacterPanel(character, gameState, inDungeonRun);
                     }
                     else
                     {
@@ -72,7 +74,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     // When not clearing, only update panels that need updating
                     if (character != null)
                     {
-                        characterPanelRenderer.RenderCharacterPanel(character);
+                        characterPanelRenderer.RenderCharacterPanel(character, gameState, inDungeonRun);
                     }
                     else
                     {
@@ -116,6 +118,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 RPGGame.Combat.Sequence.CombatSequenceHudRenderer.Render(canvas);
                 rightPanelRenderer.RenderRightPanel(enemy, dungeonName, roomName, title, characterForRightPanel, inventoryComboRightPanel, registerActionLabEnemyLevelHover);
             }
+
+            // Outer bottom pad: always show how to open the hotkey help overlay.
+            RPGGame.UI.Avalonia.Help.HelpFooterHintRenderer.Render(canvas);
             
             // Do not call canvas.Refresh() here: callers draw the action-info strip (and other overlays)
             // after CoordinateLayout returns. Refreshing early painted a frame without the strip and looked

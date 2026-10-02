@@ -71,6 +71,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 textDelaysPanel.TutorialCombatDelayMultiplierTextBox ?? textDelaysPanel.FindControl<TextBox>("TutorialCombatDelayMultiplierTextBox"));
 
             WireUpTravelRouteRollPacingTextBoxes(textDelaysPanel);
+            WireUpCharacterRevealRhythmControls(textDelaysPanel);
 
             // Wire up textboxes for message type delays
             WireUpTextDelayTextBox(textDelaysPanel.CombatDelayTextBox, UIMessageType.Combat);
@@ -157,6 +158,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     narrativePresetBaseDelayTextBox, narrativePresetMinDelayTextBox, narrativePresetMaxDelayTextBox,
                     defaultPresetBaseDelayTextBox, defaultPresetMinDelayTextBox, defaultPresetMaxDelayTextBox,
                     travelStepDelayBaseMsTextBox, travelStepExtraDelayMsPerPointTextBox, travelSummaryBaseMinutesTextBox, travelSummaryExtraMinutesPerPointTextBox);
+                AttachCharacterRevealRhythmControls(textDelaysPanel, controls);
                 settingsManager.LoadTextDelaySettings(controls);
             }
             catch (Exception ex)
@@ -464,6 +466,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     roomBase, roomMin, roomMax, narrativeBase, narrativeMin, narrativeMax,
                     defaultBase, defaultMin, defaultMax,
                     travelStepBase, travelStepExtra, travelSummaryBase, travelSummaryExtra);
+                AttachCharacterRevealRhythmControls(textDelaysPanel, controls);
                 settingsManager.SaveTextDelaySettings(controls);
             }
             catch (Exception ex)
@@ -527,6 +530,181 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 TravelSummaryExtraMinutesPerPointTextBox = travelSummaryExtra
             };
         }
+
+        private static void AttachCharacterRevealRhythmControls(TextDelaysSettingsPanel panel, TextDelaySettingsControls controls)
+        {
+            controls.CharacterRevealRhythmEnabledCheckBox = panel.CharacterRevealRhythmEnabledCheckBox
+                ?? panel.FindControl<CheckBox>("CharacterRevealRhythmEnabledCheckBox");
+            controls.CharacterRevealParagraphTargetMsTextBox = panel.CharacterRevealParagraphTargetMsTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealParagraphTargetMsTextBox");
+            controls.CharacterRevealBaseCharDelayMsTextBox = panel.CharacterRevealBaseCharDelayMsTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealBaseCharDelayMsTextBox");
+            controls.CharacterRevealMinCharDelayMsTextBox = panel.CharacterRevealMinCharDelayMsTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealMinCharDelayMsTextBox");
+            controls.CharacterRevealMaxCharDelayMsTextBox = panel.CharacterRevealMaxCharDelayMsTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealMaxCharDelayMsTextBox");
+            controls.CharacterRevealSentencePauseMsTextBox = panel.CharacterRevealSentencePauseMsTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealSentencePauseMsTextBox");
+            controls.CharacterRevealSentenceReferenceCharsTextBox = panel.CharacterRevealSentenceReferenceCharsTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealSentenceReferenceCharsTextBox");
+            controls.CharacterRevealSentenceScaleMinTextBox = panel.CharacterRevealSentenceScaleMinTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealSentenceScaleMinTextBox");
+            controls.CharacterRevealSentenceScaleMaxTextBox = panel.CharacterRevealSentenceScaleMaxTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealSentenceScaleMaxTextBox");
+            controls.CharacterRevealWordReferenceCharsTextBox = panel.CharacterRevealWordReferenceCharsTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealWordReferenceCharsTextBox");
+            controls.CharacterRevealWordScaleMinTextBox = panel.CharacterRevealWordScaleMinTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealWordScaleMinTextBox");
+            controls.CharacterRevealWordScaleMaxTextBox = panel.CharacterRevealWordScaleMaxTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealWordScaleMaxTextBox");
+            controls.CharacterRevealWordEmphasisPresetComboBox = panel.CharacterRevealWordEmphasisPresetComboBox
+                ?? panel.FindControl<ComboBox>("CharacterRevealWordEmphasisPresetComboBox");
+            controls.CharacterRevealWordBeginWeightTextBox = panel.CharacterRevealWordBeginWeightTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealWordBeginWeightTextBox");
+            controls.CharacterRevealWordMidWeightTextBox = panel.CharacterRevealWordMidWeightTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealWordMidWeightTextBox");
+            controls.CharacterRevealWordEndWeightTextBox = panel.CharacterRevealWordEndWeightTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealWordEndWeightTextBox");
+            controls.CharacterRevealBattleRampCharsTextBox = panel.CharacterRevealBattleRampCharsTextBox
+                ?? panel.FindControl<TextBox>("CharacterRevealBattleRampCharsTextBox");
+        }
+
+        private void WireUpCharacterRevealRhythmControls(TextDelaysSettingsPanel panel)
+        {
+            var enabled = panel.CharacterRevealRhythmEnabledCheckBox ?? panel.FindControl<CheckBox>("CharacterRevealRhythmEnabledCheckBox");
+            var paragraphTarget = panel.CharacterRevealParagraphTargetMsTextBox ?? panel.FindControl<TextBox>("CharacterRevealParagraphTargetMsTextBox");
+            var baseMs = panel.CharacterRevealBaseCharDelayMsTextBox ?? panel.FindControl<TextBox>("CharacterRevealBaseCharDelayMsTextBox");
+            var minMs = panel.CharacterRevealMinCharDelayMsTextBox ?? panel.FindControl<TextBox>("CharacterRevealMinCharDelayMsTextBox");
+            var maxMs = panel.CharacterRevealMaxCharDelayMsTextBox ?? panel.FindControl<TextBox>("CharacterRevealMaxCharDelayMsTextBox");
+            var pauseMs = panel.CharacterRevealSentencePauseMsTextBox ?? panel.FindControl<TextBox>("CharacterRevealSentencePauseMsTextBox");
+            var sentRef = panel.CharacterRevealSentenceReferenceCharsTextBox ?? panel.FindControl<TextBox>("CharacterRevealSentenceReferenceCharsTextBox");
+            var sentMin = panel.CharacterRevealSentenceScaleMinTextBox ?? panel.FindControl<TextBox>("CharacterRevealSentenceScaleMinTextBox");
+            var sentMax = panel.CharacterRevealSentenceScaleMaxTextBox ?? panel.FindControl<TextBox>("CharacterRevealSentenceScaleMaxTextBox");
+            var wordRef = panel.CharacterRevealWordReferenceCharsTextBox ?? panel.FindControl<TextBox>("CharacterRevealWordReferenceCharsTextBox");
+            var wordMin = panel.CharacterRevealWordScaleMinTextBox ?? panel.FindControl<TextBox>("CharacterRevealWordScaleMinTextBox");
+            var wordMax = panel.CharacterRevealWordScaleMaxTextBox ?? panel.FindControl<TextBox>("CharacterRevealWordScaleMaxTextBox");
+            var presetCombo = panel.CharacterRevealWordEmphasisPresetComboBox ?? panel.FindControl<ComboBox>("CharacterRevealWordEmphasisPresetComboBox");
+            var begin = panel.CharacterRevealWordBeginWeightTextBox ?? panel.FindControl<TextBox>("CharacterRevealWordBeginWeightTextBox");
+            var mid = panel.CharacterRevealWordMidWeightTextBox ?? panel.FindControl<TextBox>("CharacterRevealWordMidWeightTextBox");
+            var end = panel.CharacterRevealWordEndWeightTextBox ?? panel.FindControl<TextBox>("CharacterRevealWordEndWeightTextBox");
+            var ramp = panel.CharacterRevealBattleRampCharsTextBox ?? panel.FindControl<TextBox>("CharacterRevealBattleRampCharsTextBox");
+
+            if (presetCombo != null)
+            {
+                TextDelaySettingsManager.EnsureWordEmphasisPresetItems(presetCombo);
+                presetCombo.SelectionChanged += (_, __) =>
+                {
+                    if (presetCombo.SelectedItem is not string presetName)
+                        return;
+                    RPGGame.Config.TextDelay.CharacterRevealRhythmCalculator.ApplyPresetWeights(
+                        presetName, out double b, out double m, out double e);
+                    if (begin != null) begin.Text = b.ToString("F2");
+                    if (mid != null) mid.Text = m.ToString("F2");
+                    if (end != null) end.Text = e.ToString("F2");
+                    PersistCharacterRevealRhythm(
+                        enabled, paragraphTarget, baseMs, minMs, maxMs, pauseMs,
+                        sentRef, sentMin, sentMax, wordRef, wordMin, wordMax,
+                        presetCombo, begin, mid, end, ramp);
+                };
+            }
+
+            void hook(TextBox? box)
+            {
+                if (box == null) return;
+                box.LostFocus += (_, __) => PersistCharacterRevealRhythm(
+                    enabled, paragraphTarget, baseMs, minMs, maxMs, pauseMs,
+                    sentRef, sentMin, sentMax, wordRef, wordMin, wordMax,
+                    presetCombo, begin, mid, end, ramp);
+            }
+
+            if (enabled != null)
+            {
+                enabled.IsCheckedChanged += (_, __) => PersistCharacterRevealRhythm(
+                    enabled, paragraphTarget, baseMs, minMs, maxMs, pauseMs,
+                    sentRef, sentMin, sentMax, wordRef, wordMin, wordMax,
+                    presetCombo, begin, mid, end, ramp);
+            }
+
+            hook(paragraphTarget);
+            hook(baseMs);
+            hook(minMs);
+            hook(maxMs);
+            hook(pauseMs);
+            hook(sentRef);
+            hook(sentMin);
+            hook(sentMax);
+            hook(wordRef);
+            hook(wordMin);
+            hook(wordMax);
+            hook(begin);
+            hook(mid);
+            hook(end);
+            hook(ramp);
+        }
+
+        private static void PersistCharacterRevealRhythm(
+            CheckBox? enabled,
+            TextBox? paragraphTargetMs,
+            TextBox? baseMs,
+            TextBox? minMs,
+            TextBox? maxMs,
+            TextBox? pauseMs,
+            TextBox? sentRef,
+            TextBox? sentMin,
+            TextBox? sentMax,
+            TextBox? wordRef,
+            TextBox? wordMin,
+            TextBox? wordMax,
+            ComboBox? presetCombo,
+            TextBox? begin,
+            TextBox? mid,
+            TextBox? end,
+            TextBox? ramp)
+        {
+            try
+            {
+                var rhythm = RPGGame.Config.TextDelayConfiguration.GetCharacterRevealRhythm();
+                if (enabled != null)
+                    rhythm.Enabled = enabled.IsChecked ?? true;
+                if (paragraphTargetMs != null && int.TryParse(paragraphTargetMs.Text, out int pt))
+                    rhythm.ParagraphTargetMs = pt;
+                if (baseMs != null && int.TryParse(baseMs.Text, out int b))
+                    rhythm.BaseCharDelayMs = b;
+                if (minMs != null && int.TryParse(minMs.Text, out int mn))
+                    rhythm.MinCharDelayMs = mn;
+                if (maxMs != null && int.TryParse(maxMs.Text, out int mx))
+                    rhythm.MaxCharDelayMs = mx;
+                if (pauseMs != null && int.TryParse(pauseMs.Text, out int p))
+                    rhythm.SentencePauseMs = p;
+                if (sentRef != null && int.TryParse(sentRef.Text, out int sr))
+                    rhythm.SentenceReferenceChars = sr;
+                if (sentMin != null && double.TryParse(sentMin.Text, out double sMin))
+                    rhythm.SentenceScaleMin = sMin;
+                if (sentMax != null && double.TryParse(sentMax.Text, out double sMax))
+                    rhythm.SentenceScaleMax = sMax;
+                if (wordRef != null && int.TryParse(wordRef.Text, out int wr))
+                    rhythm.WordReferenceChars = wr;
+                if (wordMin != null && double.TryParse(wordMin.Text, out double wMin))
+                    rhythm.WordScaleMin = wMin;
+                if (wordMax != null && double.TryParse(wordMax.Text, out double wMax))
+                    rhythm.WordScaleMax = wMax;
+                if (begin != null && double.TryParse(begin.Text, out double bw))
+                    rhythm.WordBeginWeight = bw;
+                if (mid != null && double.TryParse(mid.Text, out double mw))
+                    rhythm.WordMidWeight = mw;
+                if (end != null && double.TryParse(end.Text, out double ew))
+                    rhythm.WordEndWeight = ew;
+                if (ramp != null && int.TryParse(ramp.Text, out int r))
+                    rhythm.BattleRampChars = r;
+                if (presetCombo?.SelectedItem is string presetName)
+                    rhythm.WordEmphasisPreset = presetName;
+
+                RPGGame.Config.TextDelayConfiguration.SetCharacterRevealRhythm(rhythm);
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"Error updating character reveal rhythm: {ex.Message}");
+            }
+        }
     }
 }
-

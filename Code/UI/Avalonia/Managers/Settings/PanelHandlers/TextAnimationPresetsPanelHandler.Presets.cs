@@ -5,6 +5,7 @@ using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Media;
 using RPGGame;
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Resources;
 using RPGGame.UI.Avalonia.Settings;
 using RPGGame.UI.Avalonia.Settings.Helpers;
@@ -177,6 +178,208 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             if (panel.UndulationIntervalTextBox != null)
                 panel.UndulationIntervalTextBox.LostFocus += (_, _) => RefreshAfterGlobalChange();
+
+            WireWindSwayControls(panel, RefreshAfterGlobalChange);
+            WireClickBurstControls(panel, RefreshAfterGlobalChange);
+        }
+
+        private void WireWindSwayControls(TextAnimationPresetsSettingsPanel panel, System.Action refreshAfterGlobalChange)
+        {
+            var enabled = panel.WindSwayEnabledCheckBoxControl ?? panel.WindSwayEnabledCheckBox;
+            if (enabled != null)
+                enabled.IsCheckedChanged += (_, _) => refreshAfterGlobalChange();
+
+            var chromaticEnabled = panel.WindSwayChromaticEnabledCheckBoxControl;
+            if (chromaticEnabled != null)
+                chromaticEnabled.IsCheckedChanged += (_, _) => refreshAfterGlobalChange();
+
+            void WireInfluenceSlider(Slider? slider, TextBox? textBox, string format)
+            {
+                if (slider == null || textBox == null)
+                    return;
+                WireSliderInteraction(panel, slider);
+                slider.ValueChanged += (_, e) =>
+                {
+                    if (suppressUiEvents) return;
+                    textBox.Text = e.NewValue.ToString(format);
+                    ApplyGlobalAnimationFromUi(panel);
+                    ApplyWorkingAnimConfigToRuntime();
+                };
+            }
+
+            WireInfluenceSlider(
+                panel.WindSwayRadiusSliderControl ?? panel.WindSwayRadiusSlider,
+                panel.WindSwayRadiusTextBoxControl ?? panel.WindSwayRadiusTextBox,
+                "F0");
+            WireInfluenceSlider(
+                panel.WindSwayNearInfluenceSliderControl ?? panel.WindSwayNearInfluenceSlider,
+                panel.WindSwayNearInfluenceTextBoxControl ?? panel.WindSwayNearInfluenceTextBox,
+                "F2");
+            WireInfluenceSlider(
+                panel.WindSwayFarInfluenceSliderControl ?? panel.WindSwayFarInfluenceSlider,
+                panel.WindSwayFarInfluenceTextBoxControl ?? panel.WindSwayFarInfluenceTextBox,
+                "F2");
+            WireInfluenceSlider(
+                panel.WindSwayRearBiasSliderControl ?? panel.WindSwayRearBiasSlider,
+                panel.WindSwayRearBiasTextBoxControl ?? panel.WindSwayRearBiasTextBox,
+                "F2");
+            WireInfluenceSlider(
+                panel.WindSwayChromaticSpreadSliderControl,
+                panel.WindSwayChromaticSpreadTextBoxControl,
+                "F2");
+            WireInfluenceSlider(
+                panel.WindSwayChromaticOpacitySliderControl,
+                panel.WindSwayChromaticOpacityTextBoxControl,
+                "F2");
+
+            void WireLostFocus(TextBox? box, Slider? slider, double min, double max, string format)
+            {
+                if (box == null)
+                    return;
+                box.LostFocus += (_, _) =>
+                {
+                    if (suppressUiEvents)
+                        return;
+                    if (slider != null && double.TryParse(box.Text, out double parsed))
+                    {
+                        double clamped = Math.Clamp(parsed, min, max);
+                        box.Text = clamped.ToString(format);
+                        suppressUiEvents = true;
+                        try { slider.Value = clamped; }
+                        finally { suppressUiEvents = false; }
+                    }
+                    refreshAfterGlobalChange();
+                };
+            }
+
+            WireLostFocus(
+                panel.WindSwayRadiusTextBoxControl ?? panel.WindSwayRadiusTextBox,
+                panel.WindSwayRadiusSliderControl ?? panel.WindSwayRadiusSlider,
+                8, 80, "F0");
+            WireLostFocus(
+                panel.WindSwayNearInfluenceTextBoxControl ?? panel.WindSwayNearInfluenceTextBox,
+                panel.WindSwayNearInfluenceSliderControl ?? panel.WindSwayNearInfluenceSlider,
+                0, 1.5, "F2");
+            WireLostFocus(
+                panel.WindSwayFarInfluenceTextBoxControl ?? panel.WindSwayFarInfluenceTextBox,
+                panel.WindSwayFarInfluenceSliderControl ?? panel.WindSwayFarInfluenceSlider,
+                0, 1, "F2");
+            WireLostFocus(
+                panel.WindSwayRearBiasTextBoxControl ?? panel.WindSwayRearBiasTextBox,
+                panel.WindSwayRearBiasSliderControl ?? panel.WindSwayRearBiasSlider,
+                0, 1, "F2");
+            WireLostFocus(
+                panel.WindSwayChromaticSpreadTextBoxControl,
+                panel.WindSwayChromaticSpreadSliderControl,
+                0, 0.4, "F2");
+            WireLostFocus(
+                panel.WindSwayChromaticOpacityTextBoxControl,
+                panel.WindSwayChromaticOpacitySliderControl,
+                0, 1, "F2");
+
+            var debugButton = panel.WindSwayDebugRadiusButtonControl ?? panel.WindSwayDebugRadiusButton;
+            if (debugButton != null)
+            {
+                debugButton.Click += (_, _) => ToggleWakeRadiusDebugOverlay(panel);
+                UpdateWakeDebugButtonCaption(panel);
+            }
+        }
+
+        private void WireClickBurstControls(TextAnimationPresetsSettingsPanel panel, System.Action refreshAfterGlobalChange)
+        {
+            var enabled = panel.ClickBurstEnabledCheckBoxControl;
+            if (enabled != null)
+                enabled.IsCheckedChanged += (_, _) => refreshAfterGlobalChange();
+
+            void WireBurstSlider(Slider? slider, TextBox? textBox, string format)
+            {
+                if (slider == null || textBox == null)
+                    return;
+                WireSliderInteraction(panel, slider);
+                slider.ValueChanged += (_, e) =>
+                {
+                    if (suppressUiEvents) return;
+                    textBox.Text = e.NewValue.ToString(format);
+                    ApplyGlobalAnimationFromUi(panel);
+                    ApplyWorkingAnimConfigToRuntime();
+                };
+            }
+
+            void WireBurstLostFocus(TextBox? box, Slider? slider, double min, double max, string format)
+            {
+                if (box == null)
+                    return;
+                box.LostFocus += (_, _) =>
+                {
+                    if (suppressUiEvents)
+                        return;
+                    if (slider != null && double.TryParse(box.Text, out double parsed))
+                    {
+                        double clamped = Math.Clamp(parsed, min, max);
+                        box.Text = clamped.ToString(format);
+                        suppressUiEvents = true;
+                        try { slider.Value = clamped; }
+                        finally { suppressUiEvents = false; }
+                    }
+                    refreshAfterGlobalChange();
+                };
+            }
+
+            WireBurstSlider(panel.ClickBurstRadiusSliderControl, panel.ClickBurstRadiusTextBoxControl, "F0");
+            WireBurstSlider(panel.ClickBurstExplodeStrengthSliderControl, panel.ClickBurstExplodeStrengthTextBoxControl, "F0");
+            WireBurstSlider(panel.ClickBurstExplodeOutSliderControl, panel.ClickBurstExplodeOutTextBoxControl, "F2");
+            WireBurstSlider(panel.ClickBurstClicksToExplodeSliderControl, panel.ClickBurstClicksToExplodeTextBoxControl, "F0");
+
+            WireBurstLostFocus(panel.ClickBurstRadiusTextBoxControl, panel.ClickBurstRadiusSliderControl, 2, 40, "F0");
+            WireBurstLostFocus(panel.ClickBurstExplodeStrengthTextBoxControl, panel.ClickBurstExplodeStrengthSliderControl, 1, 60, "F0");
+            WireBurstLostFocus(panel.ClickBurstExplodeOutTextBoxControl, panel.ClickBurstExplodeOutSliderControl, 0.05, 1.5, "F2");
+            WireBurstLostFocus(panel.ClickBurstClicksToExplodeTextBoxControl, panel.ClickBurstClicksToExplodeSliderControl, 1, 20, "F0");
+        }
+
+        private void ToggleWakeRadiusDebugOverlay(TextAnimationPresetsSettingsPanel panel)
+        {
+            ApplyGlobalAnimationFromUi(panel);
+            ApplyWorkingAnimConfigToRuntime();
+
+            var canvas = TryGetMainGameCanvas();
+            if (canvas == null)
+            {
+                showStatusMessage?.Invoke("Main canvas not available for wake debug.", false);
+                return;
+            }
+
+            bool next = !canvas.WindSway.ShowWakeRadiusDebug;
+            canvas.WindSway.ShowWakeRadiusDebug = next;
+            canvas.Refresh();
+            UpdateWakeDebugButtonCaption(panel);
+            showStatusMessage?.Invoke(
+                next ? "Wake radius circle ON — move mouse over the game canvas." : "Wake radius circle OFF.",
+                true);
+        }
+
+        private static void UpdateWakeDebugButtonCaption(TextAnimationPresetsSettingsPanel panel)
+        {
+            var debugButton = panel.WindSwayDebugRadiusButtonControl ?? panel.WindSwayDebugRadiusButton;
+            if (debugButton == null)
+                return;
+
+            bool on = TryGetMainGameCanvas()?.WindSway.ShowWakeRadiusDebug == true;
+            debugButton.Content = on ? "Hide wake radius on canvas" : "Show wake radius on canvas";
+        }
+
+        private static GameCanvasControl? TryGetMainGameCanvas()
+        {
+            try
+            {
+                if (UIManager.GetCustomUIManager() is CanvasUICoordinator coordinator)
+                    return coordinator.GetMainWindow()?.GameCanvas;
+            }
+            catch
+            {
+                // ignore
+            }
+
+            return null;
         }
 
         private void PopulatePresetCombo(TextAnimationPresetsSettingsPanel panel)
@@ -307,31 +510,109 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (workingAnimConfig == null)
                 return;
 
-            if (panel.BrightnessMaskEnabledCheckBox == null
-                || panel.BrightnessMaskIntensitySlider == null
-                || panel.BrightnessMaskIntensityTextBox == null
-                || panel.BrightnessMaskWaveLengthSlider == null
-                || panel.BrightnessMaskWaveLengthTextBox == null
-                || panel.BrightnessMaskUpdateIntervalTextBox == null
-                || panel.UndulationSpeedSlider == null
-                || panel.UndulationSpeedTextBox == null
-                || panel.UndulationWaveLengthSlider == null
-                || panel.UndulationWaveLengthTextBox == null
-                || panel.UndulationIntervalTextBox == null)
-                return;
-
             var anim = workingAnimConfig;
-            panel.BrightnessMaskEnabledCheckBox.IsChecked = anim.BrightnessMask.Enabled;
-            panel.BrightnessMaskIntensitySlider.Value = anim.BrightnessMask.Intensity;
-            panel.BrightnessMaskIntensityTextBox.Text = anim.BrightnessMask.Intensity.ToString("F1");
-            panel.BrightnessMaskWaveLengthSlider.Value = anim.BrightnessMask.WaveLength;
-            panel.BrightnessMaskWaveLengthTextBox.Text = anim.BrightnessMask.WaveLength.ToString("F1");
-            panel.BrightnessMaskUpdateIntervalTextBox.Text = anim.BrightnessMask.UpdateIntervalMs.ToString();
-            panel.UndulationSpeedSlider.Value = anim.UndulationSpeed;
-            panel.UndulationSpeedTextBox.Text = anim.UndulationSpeed.ToString("F3");
-            panel.UndulationWaveLengthSlider.Value = anim.UndulationWaveLength;
-            panel.UndulationWaveLengthTextBox.Text = anim.UndulationWaveLength.ToString("F1");
-            panel.UndulationIntervalTextBox.Text = anim.UndulationIntervalMs.ToString();
+
+            if (panel.BrightnessMaskEnabledCheckBox != null
+                && panel.BrightnessMaskIntensitySlider != null
+                && panel.BrightnessMaskIntensityTextBox != null
+                && panel.BrightnessMaskWaveLengthSlider != null
+                && panel.BrightnessMaskWaveLengthTextBox != null
+                && panel.BrightnessMaskUpdateIntervalTextBox != null
+                && panel.UndulationSpeedSlider != null
+                && panel.UndulationSpeedTextBox != null
+                && panel.UndulationWaveLengthSlider != null
+                && panel.UndulationWaveLengthTextBox != null
+                && panel.UndulationIntervalTextBox != null)
+            {
+                panel.BrightnessMaskEnabledCheckBox.IsChecked = anim.BrightnessMask.Enabled;
+                panel.BrightnessMaskIntensitySlider.Value = anim.BrightnessMask.Intensity;
+                panel.BrightnessMaskIntensityTextBox.Text = anim.BrightnessMask.Intensity.ToString("F1");
+                panel.BrightnessMaskWaveLengthSlider.Value = anim.BrightnessMask.WaveLength;
+                panel.BrightnessMaskWaveLengthTextBox.Text = anim.BrightnessMask.WaveLength.ToString("F1");
+                panel.BrightnessMaskUpdateIntervalTextBox.Text = anim.BrightnessMask.UpdateIntervalMs.ToString();
+                panel.UndulationSpeedSlider.Value = anim.UndulationSpeed;
+                panel.UndulationSpeedTextBox.Text = anim.UndulationSpeed.ToString("F3");
+                panel.UndulationWaveLengthSlider.Value = anim.UndulationWaveLength;
+                panel.UndulationWaveLengthTextBox.Text = anim.UndulationWaveLength.ToString("F1");
+                panel.UndulationIntervalTextBox.Text = anim.UndulationIntervalMs.ToString();
+            }
+
+            LoadWindSwayControls(panel, anim);
+            LoadClickBurstControls(panel, anim);
+            UpdateWakeDebugButtonCaption(panel);
+        }
+
+        private static void LoadWindSwayControls(TextAnimationPresetsSettingsPanel panel, DungeonSelectionAnimationConfig anim)
+        {
+            var wind = anim.WindSway ?? new RPGGame.UI.Avalonia.Effects.WindSwayConfig();
+
+            var enabled = panel.WindSwayEnabledCheckBoxControl ?? panel.WindSwayEnabledCheckBox;
+            if (enabled != null)
+                enabled.IsChecked = wind.Enabled;
+
+            var chromaticEnabled = panel.WindSwayChromaticEnabledCheckBoxControl;
+            if (chromaticEnabled != null)
+                chromaticEnabled.IsChecked = wind.ChromaticAberrationEnabled;
+
+            void SetSlider(Slider? slider, TextBox? textBox, double value, string format)
+            {
+                if (slider != null)
+                    slider.Value = value;
+                if (textBox != null)
+                    textBox.Text = value.ToString(format);
+            }
+
+            SetSlider(
+                panel.WindSwayRadiusSliderControl ?? panel.WindSwayRadiusSlider,
+                panel.WindSwayRadiusTextBoxControl ?? panel.WindSwayRadiusTextBox,
+                wind.WakeRadiusCells, "F0");
+            SetSlider(
+                panel.WindSwayNearInfluenceSliderControl ?? panel.WindSwayNearInfluenceSlider,
+                panel.WindSwayNearInfluenceTextBoxControl ?? panel.WindSwayNearInfluenceTextBox,
+                wind.NearInfluence, "F2");
+            SetSlider(
+                panel.WindSwayFarInfluenceSliderControl ?? panel.WindSwayFarInfluenceSlider,
+                panel.WindSwayFarInfluenceTextBoxControl ?? panel.WindSwayFarInfluenceTextBox,
+                wind.FarInfluence, "F2");
+            SetSlider(
+                panel.WindSwayRearBiasSliderControl ?? panel.WindSwayRearBiasSlider,
+                panel.WindSwayRearBiasTextBoxControl ?? panel.WindSwayRearBiasTextBox,
+                wind.WakeRearBias, "F2");
+            SetSlider(
+                panel.WindSwayChromaticSpreadSliderControl,
+                panel.WindSwayChromaticSpreadTextBoxControl,
+                wind.ChromaticSpreadFraction, "F2");
+            SetSlider(
+                panel.WindSwayChromaticOpacitySliderControl,
+                panel.WindSwayChromaticOpacityTextBoxControl,
+                wind.ChromaticOpacity, "F2");
+        }
+
+        private static void LoadClickBurstControls(TextAnimationPresetsSettingsPanel panel, DungeonSelectionAnimationConfig anim)
+        {
+            var burst = anim.WindSway?.ClickBurst
+                ?? new RPGGame.UI.Avalonia.Effects.TextClickBurstConfig();
+
+            var enabled = panel.ClickBurstEnabledCheckBoxControl;
+            if (enabled != null)
+                enabled.IsChecked = burst.Enabled;
+
+            void SetSlider(Slider? slider, TextBox? textBox, double value, string format)
+            {
+                if (slider != null)
+                    slider.Value = value;
+                if (textBox != null)
+                    textBox.Text = value.ToString(format);
+            }
+
+            SetSlider(panel.ClickBurstRadiusSliderControl, panel.ClickBurstRadiusTextBoxControl,
+                burst.ImpulseRadiusCells, "F0");
+            SetSlider(panel.ClickBurstExplodeStrengthSliderControl, panel.ClickBurstExplodeStrengthTextBoxControl,
+                burst.ExplodeMaxOffsetFraction, "F0");
+            SetSlider(panel.ClickBurstExplodeOutSliderControl, panel.ClickBurstExplodeOutTextBoxControl,
+                burst.ExplodeOutSeconds, "F2");
+            SetSlider(panel.ClickBurstClicksToExplodeSliderControl, panel.ClickBurstClicksToExplodeTextBoxControl,
+                burst.ClicksToExplode, "F0");
         }
 
         private void ApplyUiToWorkingState(TextAnimationPresetsSettingsPanel panel, bool includeAccentControls = true)
@@ -403,6 +684,106 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             workingAnimConfig.UndulationWaveLength = (float)(panel.UndulationWaveLengthSlider?.Value ?? 4);
             if (int.TryParse(panel.UndulationIntervalTextBox?.Text, out int undInterval))
                 workingAnimConfig.UndulationIntervalMs = Math.Max(10, undInterval);
+
+            ApplyWindSwayFromUi(panel);
+            ApplyClickBurstFromUi(panel);
+        }
+
+        private void ApplyWindSwayFromUi(TextAnimationPresetsSettingsPanel panel)
+        {
+            if (workingAnimConfig == null)
+                return;
+
+            workingAnimConfig.WindSway ??= new RPGGame.UI.Avalonia.Effects.WindSwayConfig();
+            var wind = workingAnimConfig.WindSway;
+
+            var enabled = panel.WindSwayEnabledCheckBoxControl ?? panel.WindSwayEnabledCheckBox;
+            wind.Enabled = enabled?.IsChecked ?? true;
+
+            var chromaticEnabled = panel.WindSwayChromaticEnabledCheckBoxControl;
+            wind.ChromaticAberrationEnabled = chromaticEnabled?.IsChecked ?? true;
+
+            var radiusSlider = panel.WindSwayRadiusSliderControl ?? panel.WindSwayRadiusSlider;
+            var radiusText = panel.WindSwayRadiusTextBoxControl ?? panel.WindSwayRadiusTextBox;
+            if (double.TryParse(radiusText?.Text, out double radiusFromText))
+                wind.WakeRadiusCells = Math.Clamp(radiusFromText, 8, 80);
+            else if (radiusSlider != null)
+                wind.WakeRadiusCells = Math.Clamp(radiusSlider.Value, 8, 80);
+
+            var nearSlider = panel.WindSwayNearInfluenceSliderControl ?? panel.WindSwayNearInfluenceSlider;
+            var nearText = panel.WindSwayNearInfluenceTextBoxControl ?? panel.WindSwayNearInfluenceTextBox;
+            if (double.TryParse(nearText?.Text, out double nearFromText))
+                wind.NearInfluence = Math.Clamp(nearFromText, 0, 1.5);
+            else if (nearSlider != null)
+                wind.NearInfluence = Math.Clamp(nearSlider.Value, 0, 1.5);
+
+            var farSlider = panel.WindSwayFarInfluenceSliderControl ?? panel.WindSwayFarInfluenceSlider;
+            var farText = panel.WindSwayFarInfluenceTextBoxControl ?? panel.WindSwayFarInfluenceTextBox;
+            if (double.TryParse(farText?.Text, out double farFromText))
+                wind.FarInfluence = Math.Clamp(farFromText, 0, 1);
+            else if (farSlider != null)
+                wind.FarInfluence = Math.Clamp(farSlider.Value, 0, 1);
+
+            var rearSlider = panel.WindSwayRearBiasSliderControl ?? panel.WindSwayRearBiasSlider;
+            var rearText = panel.WindSwayRearBiasTextBoxControl ?? panel.WindSwayRearBiasTextBox;
+            if (double.TryParse(rearText?.Text, out double rearFromText))
+                wind.WakeRearBias = Math.Clamp(rearFromText, 0, 1);
+            else if (rearSlider != null)
+                wind.WakeRearBias = Math.Clamp(rearSlider.Value, 0, 1);
+
+            var caSpreadSlider = panel.WindSwayChromaticSpreadSliderControl;
+            var caSpreadText = panel.WindSwayChromaticSpreadTextBoxControl;
+            if (double.TryParse(caSpreadText?.Text, out double caSpreadFromText))
+                wind.ChromaticSpreadFraction = Math.Clamp(caSpreadFromText, 0, 0.4);
+            else if (caSpreadSlider != null)
+                wind.ChromaticSpreadFraction = Math.Clamp(caSpreadSlider.Value, 0, 0.4);
+
+            var caOpacitySlider = panel.WindSwayChromaticOpacitySliderControl;
+            var caOpacityText = panel.WindSwayChromaticOpacityTextBoxControl;
+            if (double.TryParse(caOpacityText?.Text, out double caOpacityFromText))
+                wind.ChromaticOpacity = Math.Clamp(caOpacityFromText, 0, 1);
+            else if (caOpacitySlider != null)
+                wind.ChromaticOpacity = Math.Clamp(caOpacitySlider.Value, 0, 1);
+        }
+
+        private void ApplyClickBurstFromUi(TextAnimationPresetsSettingsPanel panel)
+        {
+            if (workingAnimConfig == null)
+                return;
+
+            workingAnimConfig.WindSway ??= new RPGGame.UI.Avalonia.Effects.WindSwayConfig();
+            workingAnimConfig.WindSway.ClickBurst ??= new RPGGame.UI.Avalonia.Effects.TextClickBurstConfig();
+            var burst = workingAnimConfig.WindSway.ClickBurst;
+
+            burst.Enabled = panel.ClickBurstEnabledCheckBoxControl?.IsChecked ?? true;
+
+            var radiusSlider = panel.ClickBurstRadiusSliderControl;
+            var radiusText = panel.ClickBurstRadiusTextBoxControl;
+            if (double.TryParse(radiusText?.Text, out double radiusFromText))
+                burst.ImpulseRadiusCells = Math.Clamp(radiusFromText, 2, 40);
+            else if (radiusSlider != null)
+                burst.ImpulseRadiusCells = Math.Clamp(radiusSlider.Value, 2, 40);
+
+            var strengthSlider = panel.ClickBurstExplodeStrengthSliderControl;
+            var strengthText = panel.ClickBurstExplodeStrengthTextBoxControl;
+            if (double.TryParse(strengthText?.Text, out double strengthFromText))
+                burst.ExplodeMaxOffsetFraction = Math.Clamp(strengthFromText, 1, 60);
+            else if (strengthSlider != null)
+                burst.ExplodeMaxOffsetFraction = Math.Clamp(strengthSlider.Value, 1, 60);
+
+            var outSlider = panel.ClickBurstExplodeOutSliderControl;
+            var outText = panel.ClickBurstExplodeOutTextBoxControl;
+            if (double.TryParse(outText?.Text, out double outFromText))
+                burst.ExplodeOutSeconds = Math.Clamp(outFromText, 0.05, 1.5);
+            else if (outSlider != null)
+                burst.ExplodeOutSeconds = Math.Clamp(outSlider.Value, 0.05, 1.5);
+
+            var clicksSlider = panel.ClickBurstClicksToExplodeSliderControl;
+            var clicksText = panel.ClickBurstClicksToExplodeTextBoxControl;
+            if (double.TryParse(clicksText?.Text, out double clicksFromText))
+                burst.ClicksToExplode = (int)Math.Clamp(Math.Round(clicksFromText), 1, 20);
+            else if (clicksSlider != null)
+                burst.ClicksToExplode = (int)Math.Clamp(Math.Round(clicksSlider.Value), 1, 20);
         }
 
         private void ResetSelectedPresetToDefaults(TextAnimationPresetsSettingsPanel panel)

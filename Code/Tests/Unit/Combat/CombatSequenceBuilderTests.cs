@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat.Calculators;
 using RPGGame.Combat.Sequence;
 using RPGGame.Combat.UI;
 using RPGGame.Tests;
@@ -28,7 +29,8 @@ namespace RPGGame.Tests.Unit.Combat
             TestDamageMathBeatsWalkTheFormula();
             TestDefenseStepWhenHeroFacePresent();
             TestHealStep();
-            TestUnnamedActionIsHitOrMiss();
+            TestUnnamedHitLeavesActionBlank();
+            TestUnnamedMissShowsMiss();
             TestEnvironmentalActionAndDamage();
             TestSnapshotHealthHoldBeforeDamage();
             TestEmptyWhenNoAction();
@@ -168,7 +170,7 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void TestDefenseStepWhenHeroFacePresent()
         {
-            Console.WriteLine("--- Defense step shows standing BLOCK + DEFENSE ---");
+            Console.WriteLine("--- Defense step shows % damage reduction ---");
             var hero = DummyHero();
             hero.StandingBlockPercent = 1.80;
             var result = HitResult("SLAM", damage: 5);
@@ -177,9 +179,14 @@ namespace RPGGame.Tests.Unit.Combat
                 "defense step present on hero hit", ref _run, ref _passed, ref _failed);
             var def = steps.First(s => s.Kind == CombatSequenceStepKind.Defense);
             string joined = JoinBeats(def);
-            TestBase.AssertTrue(joined.Contains("BLOCK 180%", System.StringComparison.Ordinal)
+            int expectedDr = (int)System.Math.Round(
+                ClassDefenseCalculator.ApplyIncoming(hero, 100, pierce: false).DrPercent * 100.0,
+                System.MidpointRounding.AwayFromZero);
+            TestBase.AssertTrue(joined.Contains($"{expectedDr}%", System.StringComparison.Ordinal)
+                && !joined.Contains("BLOCK", System.StringComparison.Ordinal)
+                && !joined.Contains("/(", System.StringComparison.Ordinal)
                 && !joined.Contains("leftover", System.StringComparison.OrdinalIgnoreCase),
-                $"defense math beats show standing BLOCK, got: {joined}", ref _run, ref _passed, ref _failed);
+                $"defense HUD shows DR % only, got: {joined}", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestHealStep()
@@ -202,14 +209,21 @@ namespace RPGGame.Tests.Unit.Combat
                 "heal amount 7", ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestUnnamedActionIsHitOrMiss()
+        private static void TestUnnamedHitLeavesActionBlank()
         {
-            Console.WriteLine("--- Unnamed ACTION is hit or miss, not unnamed hit ---");
+            Console.WriteLine("--- Unnamed HIT leaves ACTION blank (OUTCOME already says HIT) ---");
             var hitSteps = CombatSequenceBuilder.From(HitResult("", damage: 3), DummyHero(), DummyEnemy());
             var hitAction = hitSteps.First(s => s.Kind == CombatSequenceStepKind.Action);
-            TestBase.AssertTrue(Plain(hitAction) == "hit",
-                "unnamed hit ACTION is hit", ref _run, ref _passed, ref _failed);
+            var hitOutcome = hitSteps.First(s => s.Kind == CombatSequenceStepKind.Outcome);
+            TestBase.AssertTrue(Plain(hitOutcome).Contains("HIT", System.StringComparison.Ordinal),
+                "OUTCOME is HIT", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(string.IsNullOrEmpty(Plain(hitAction)),
+                "unnamed hit ACTION is blank", ref _run, ref _passed, ref _failed);
+        }
 
+        private static void TestUnnamedMissShowsMiss()
+        {
+            Console.WriteLine("--- Unnamed miss still shows miss in ACTION ---");
             var missResult = new ActionExecutionResult
             {
                 SelectedAction = TestDataBuilders.CreateMockAction("", ActionType.Attack),
@@ -237,6 +251,11 @@ namespace RPGGame.Tests.Unit.Combat
                 "env with defense face includes DEFENSE", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(steps.Any(s => s.Kind == CombatSequenceStepKind.Damage && Plain(s).Contains("4")),
                 "env DAMAGE 4", ref _run, ref _passed, ref _failed);
+
+            var withEffects = CombatSequenceBuilder.FromEnvironmental(
+                "Necrotic Aura", 0, null, hero, hasStatusEffects: true);
+            TestBase.AssertTrue(withEffects.Any(s => s.Kind == CombatSequenceStepKind.Effect),
+                "env with status apps includes EFFECTS", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestSnapshotHealthHoldBeforeDamage()

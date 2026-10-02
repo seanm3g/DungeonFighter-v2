@@ -66,6 +66,20 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(41, HoverTooltipDrawing.GetVerticalPositionNearTarget(48, 10, 12, 50),
                 "tooltip clamps down so the box stays in band", ref run, ref passed, ref failed);
 
+            var untouched = HoverTooltipDrawing.MaskTextRunOutsideRange(0, "ABCDEF", 10, 20);
+            TestBase.AssertEqual(1, untouched.Count, "run fully left of mask stays", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("ABCDEF", untouched[0].content, "left-of-mask content unchanged", ref run, ref passed, ref failed);
+
+            var covered = HoverTooltipDrawing.MaskTextRunOutsideRange(10, "HIJK", 10, 20);
+            TestBase.AssertEqual(0, covered.Count, "run fully inside mask is dropped", ref run, ref passed, ref failed);
+
+            var spanning = HoverTooltipDrawing.MaskTextRunOutsideRange(8, "0123456789", 10, 14);
+            TestBase.AssertEqual(2, spanning.Count, "spanning run splits into left+right", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(8, spanning[0].x, "left remnant keeps origin", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("01", spanning[0].content, "left remnant is prefix before mask", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(14, spanning[1].x, "right remnant starts at mask end", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("6789", spanning[1].content, "right remnant is suffix after mask", ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("HoverTooltipDrawing Tests", run, passed, failed);
         }
     }

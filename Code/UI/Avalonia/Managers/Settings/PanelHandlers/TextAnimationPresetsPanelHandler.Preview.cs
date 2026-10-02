@@ -2,6 +2,7 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Settings;
 using RPGGame.UI.Avalonia.Settings.Helpers;
@@ -73,6 +74,35 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             DungeonSelectionAnimationState.Instance.ApplyConfig(workingAnimConfig);
             CritAnimationState.Instance.ApplyConfig(workingAnimConfig);
+            TryReloadMainCanvasWindSway(workingAnimConfig.WindSway);
+        }
+
+        private static void TryReloadMainCanvasWindSway(RPGGame.UI.Avalonia.Effects.WindSwayConfig? windConfig)
+        {
+            try
+            {
+                var canvas = TryGetMainGameCanvas();
+                if (canvas == null)
+                    return;
+
+                // Preserve debug overlay across config swaps.
+                bool debug = canvas.WindSway.ShowWakeRadiusDebug;
+                if (windConfig != null)
+                {
+                    canvas.WindSway.ApplyConfig(windConfig);
+                    canvas.ClickBurst.ApplyConfig(windConfig.ClickBurst
+                        ?? new RPGGame.UI.Avalonia.Effects.TextClickBurstConfig());
+                }
+                else
+                    canvas.ReloadWindSwayConfig();
+                canvas.WindSway.ShowWakeRadiusDebug = debug;
+                if (debug)
+                    canvas.Refresh();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"TryReloadMainCanvasWindSway: {ex.Message}");
+            }
         }
 
         private void StartPreviewTimer(TextAnimationPresetsSettingsPanel panel)
@@ -109,6 +139,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 {
                     canvasAnimManager.ReloadAnimationConfiguration();
                 }
+
+                if (uiManager is CanvasUICoordinator coord2)
+                    coord2.GetMainWindow()?.GameCanvas?.ReloadWindSwayConfig();
             }
             catch (Exception ex)
             {

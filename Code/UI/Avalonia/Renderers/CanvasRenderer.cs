@@ -91,7 +91,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void ShowLoadingStatus(string message = "Loading data...") => messageRenderer.ShowLoadingStatus(message);
         public void ClearLoadingStatus() => messageRenderer.ClearLoadingStatus();
 
-        // Help system methods - delegated to HelpSystemRenderer
+        // Help system methods - delegated to HelpSystemRenderer (canvas fallback).
+        // Play-time H opens the Avalonia overlay in MainWindow instead.
         public void ToggleHelp()
         {
             bool showHelp = helpRenderer.ToggleHelp();
@@ -101,7 +102,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             else
             {
-                RenderMainMenu(false, null, 0);
+                helpRenderer.HideHelp();
+                // Do not force main menu — overlay path owns dismiss; canvas path just clears the flag.
+                canvas.Refresh();
             }
         }
 

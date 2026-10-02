@@ -82,6 +82,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 controls.TravelStepExtraDelayMsPerPointTextBox,
                 controls.TravelSummaryBaseMinutesTextBox,
                 controls.TravelSummaryExtraMinutesPerPointTextBox);
+            LoadCharacterRevealRhythmSettings(controls);
         }
 
         /// <summary>
@@ -230,6 +231,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 controls.TravelStepExtraDelayMsPerPointTextBox,
                 controls.TravelSummaryBaseMinutesTextBox,
                 controls.TravelSummaryExtraMinutesPerPointTextBox);
+            SaveCharacterRevealRhythmSettings(controls);
         }
 
         /// <summary>
@@ -379,6 +381,126 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 SummaryBaseMinutes = sb,
                 SummaryExtraMinutesPerPointBelow20 = se
             });
+        }
+
+        /// <summary>
+        /// Loads character-reveal rhythm controls from <see cref="TextDelayConfiguration"/>.
+        /// </summary>
+        public void LoadCharacterRevealRhythmSettings(TextDelaySettingsControls controls)
+        {
+            if (controls == null) return;
+            try
+            {
+                var rhythm = TextDelayConfiguration.GetCharacterRevealRhythm();
+                if (controls.CharacterRevealRhythmEnabledCheckBox != null)
+                    controls.CharacterRevealRhythmEnabledCheckBox.IsChecked = rhythm.Enabled;
+
+                SetTextBoxValue(controls.CharacterRevealParagraphTargetMsTextBox, rhythm.ParagraphTargetMs);
+                SetTextBoxValue(controls.CharacterRevealBaseCharDelayMsTextBox, rhythm.BaseCharDelayMs);
+                SetTextBoxValue(controls.CharacterRevealMinCharDelayMsTextBox, rhythm.MinCharDelayMs);
+                SetTextBoxValue(controls.CharacterRevealMaxCharDelayMsTextBox, rhythm.MaxCharDelayMs);
+                SetTextBoxValue(controls.CharacterRevealSentencePauseMsTextBox, rhythm.SentencePauseMs);
+                SetTextBoxValue(controls.CharacterRevealSentenceReferenceCharsTextBox, rhythm.SentenceReferenceChars);
+                SetTextBoxValue(controls.CharacterRevealSentenceScaleMinTextBox, rhythm.SentenceScaleMin, "F2");
+                SetTextBoxValue(controls.CharacterRevealSentenceScaleMaxTextBox, rhythm.SentenceScaleMax, "F2");
+                SetTextBoxValue(controls.CharacterRevealWordReferenceCharsTextBox, rhythm.WordReferenceChars);
+                SetTextBoxValue(controls.CharacterRevealWordScaleMinTextBox, rhythm.WordScaleMin, "F2");
+                SetTextBoxValue(controls.CharacterRevealWordScaleMaxTextBox, rhythm.WordScaleMax, "F2");
+                SetTextBoxValue(controls.CharacterRevealWordBeginWeightTextBox, rhythm.WordBeginWeight, "F2");
+                SetTextBoxValue(controls.CharacterRevealWordMidWeightTextBox, rhythm.WordMidWeight, "F2");
+                SetTextBoxValue(controls.CharacterRevealWordEndWeightTextBox, rhythm.WordEndWeight, "F2");
+                SetTextBoxValue(controls.CharacterRevealBattleRampCharsTextBox, rhythm.BattleRampChars);
+
+                var combo = controls.CharacterRevealWordEmphasisPresetComboBox;
+                if (combo != null)
+                {
+                    EnsureWordEmphasisPresetItems(combo);
+                    string preset = RPGGame.Config.TextDelay.CharacterRevealRhythmCalculator.NormalizePresetName(rhythm.WordEmphasisPreset);
+                    combo.SelectedItem = preset;
+                }
+            }
+            catch (Exception ex)
+            {
+                showStatusMessage?.Invoke($"Error loading character reveal rhythm: {ex.Message}", false);
+            }
+        }
+
+        /// <summary>
+        /// Saves character-reveal rhythm controls into <see cref="TextDelayConfiguration"/>.
+        /// </summary>
+        public void SaveCharacterRevealRhythmSettings(TextDelaySettingsControls controls)
+        {
+            if (controls == null) return;
+            try
+            {
+                var rhythm = TextDelayConfiguration.GetCharacterRevealRhythm();
+                if (controls.CharacterRevealRhythmEnabledCheckBox != null)
+                    rhythm.Enabled = controls.CharacterRevealRhythmEnabledCheckBox.IsChecked ?? true;
+
+                if (TryParseInt(controls.CharacterRevealParagraphTargetMsTextBox, out int paragraphTargetMs))
+                    rhythm.ParagraphTargetMs = paragraphTargetMs;
+                if (TryParseInt(controls.CharacterRevealBaseCharDelayMsTextBox, out int baseMs))
+                    rhythm.BaseCharDelayMs = baseMs;
+                if (TryParseInt(controls.CharacterRevealMinCharDelayMsTextBox, out int minMs))
+                    rhythm.MinCharDelayMs = minMs;
+                if (TryParseInt(controls.CharacterRevealMaxCharDelayMsTextBox, out int maxMs))
+                    rhythm.MaxCharDelayMs = maxMs;
+                if (TryParseInt(controls.CharacterRevealSentencePauseMsTextBox, out int pauseMs))
+                    rhythm.SentencePauseMs = pauseMs;
+                if (TryParseInt(controls.CharacterRevealSentenceReferenceCharsTextBox, out int sentRef))
+                    rhythm.SentenceReferenceChars = sentRef;
+                if (TryParseDouble(controls.CharacterRevealSentenceScaleMinTextBox, out double sentMin))
+                    rhythm.SentenceScaleMin = sentMin;
+                if (TryParseDouble(controls.CharacterRevealSentenceScaleMaxTextBox, out double sentMax))
+                    rhythm.SentenceScaleMax = sentMax;
+                if (TryParseInt(controls.CharacterRevealWordReferenceCharsTextBox, out int wordRef))
+                    rhythm.WordReferenceChars = wordRef;
+                if (TryParseDouble(controls.CharacterRevealWordScaleMinTextBox, out double wordMin))
+                    rhythm.WordScaleMin = wordMin;
+                if (TryParseDouble(controls.CharacterRevealWordScaleMaxTextBox, out double wordMax))
+                    rhythm.WordScaleMax = wordMax;
+                if (TryParseDouble(controls.CharacterRevealWordBeginWeightTextBox, out double begin))
+                    rhythm.WordBeginWeight = begin;
+                if (TryParseDouble(controls.CharacterRevealWordMidWeightTextBox, out double mid))
+                    rhythm.WordMidWeight = mid;
+                if (TryParseDouble(controls.CharacterRevealWordEndWeightTextBox, out double end))
+                    rhythm.WordEndWeight = end;
+                if (TryParseInt(controls.CharacterRevealBattleRampCharsTextBox, out int ramp))
+                    rhythm.BattleRampChars = ramp;
+
+                if (controls.CharacterRevealWordEmphasisPresetComboBox?.SelectedItem is string presetName)
+                    rhythm.WordEmphasisPreset = presetName;
+                else if (controls.CharacterRevealWordEmphasisPresetComboBox?.SelectedItem != null)
+                    rhythm.WordEmphasisPreset = controls.CharacterRevealWordEmphasisPresetComboBox.SelectedItem.ToString() ?? rhythm.WordEmphasisPreset;
+
+                TextDelayConfiguration.SetCharacterRevealRhythm(rhythm);
+            }
+            catch (Exception ex)
+            {
+                showStatusMessage?.Invoke($"Error saving character reveal rhythm: {ex.Message}", false);
+            }
+        }
+
+        public static void EnsureWordEmphasisPresetItems(ComboBox combo)
+        {
+            if (combo.Items.Count > 0)
+                return;
+            combo.Items.Add(RPGGame.Config.TextDelay.CharacterRevealRhythmCalculator.PresetFlat);
+            combo.Items.Add(RPGGame.Config.TextDelay.CharacterRevealRhythmCalculator.PresetEmphasizeStart);
+            combo.Items.Add(RPGGame.Config.TextDelay.CharacterRevealRhythmCalculator.PresetEmphasizeMid);
+            combo.Items.Add(RPGGame.Config.TextDelay.CharacterRevealRhythmCalculator.PresetEmphasizeEnd);
+        }
+
+        private static bool TryParseInt(TextBox? textBox, out int value)
+        {
+            value = 0;
+            return textBox != null && int.TryParse(textBox.Text, out value);
+        }
+
+        private static bool TryParseDouble(TextBox? textBox, out double value)
+        {
+            value = 0;
+            return textBox != null && double.TryParse(textBox.Text, out value);
         }
     }
 }

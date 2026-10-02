@@ -19,7 +19,12 @@ namespace RPGGame.UI.Avalonia.Layout
             var lines = new List<string>();
             Character? charHud = asCharacter ?? actor as Character;
             if (charHud != null)
+            {
                 lines.AddRange(BuildMaterialKeywordStatusLines(charHud));
+                // Leather starter set: standing Lucky status (WHILE_EQUIPPED advantage), not a timed buff.
+                if (LeatherSetBonus.HasLuckyStatus(charHud))
+                    lines.Add(LeatherSetBonus.LuckyStatusName);
+            }
             if (actor.IsWeakened && actor.WeakenTurns > 0)
                 lines.Add($"Weakened ({actor.WeakenTurns} turn{(actor.WeakenTurns != 1 ? "s" : "")})");
             if (actor.IsStunned && actor.StunTurnsRemaining > 0)

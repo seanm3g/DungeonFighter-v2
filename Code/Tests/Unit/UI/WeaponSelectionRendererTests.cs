@@ -14,6 +14,7 @@ namespace RPGGame.Tests.Unit.UI
 
             TestWeaponNameColor_UsesRarityCommonIsWhite(ref run, ref passed, ref failed);
             TestWeaponNameColor_UsesRarityForHigherTiers(ref run, ref passed, ref failed);
+            TestStatSeparatorColumn_AlignsAcrossShortAndLongStatRows(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary(nameof(WeaponSelectionRendererTests), run, passed, failed);
         }
@@ -56,6 +57,21 @@ namespace RPGGame.Tests.Unit.UI
             Color c2 = WeaponSelectionRenderer.GetWeaponNameColor(w2, isHovered: true);
             // ItemThemeProvider uses orange for Legendary.
             TestBase.AssertEqual(ColorPalette.Orange.GetColor(), c2, "Legendary weapon name color matches rarity theme", ref run, ref passed, ref failed);
+
+            TestBase.ClearCurrentTestName();
+        }
+
+        private static void TestStatSeparatorColumn_AlignsAcrossShortAndLongStatRows(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestStatSeparatorColumn_AlignsAcrossShortAndLongStatRows));
+
+            const int statsX = 10;
+            int maxDamageLen = "Damage: 6".Length;
+            int shortRowSep = WeaponSelectionRenderer.GetFirstStatSeparatorX(statsX, maxDamageLen);
+            int longRowSep = WeaponSelectionRenderer.GetFirstStatSeparatorX(statsX, maxDamageLen);
+
+            TestBase.AssertEqual(shortRowSep, longRowSep, "Shared max damage width keeps separator column aligned", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(statsX + maxDamageLen + 2, shortRowSep, "Separator sits after padded damage column", ref run, ref passed, ref failed);
 
             TestBase.ClearCurrentTestName();
         }

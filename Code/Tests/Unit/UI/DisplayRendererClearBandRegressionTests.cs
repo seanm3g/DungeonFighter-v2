@@ -1,12 +1,14 @@
 using RPGGame.Combat.Sequence;
 using RPGGame.Tests;
+using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.Tests.Unit.UI
 {
     /// <summary>
     /// Regression: display buffer clear band must not start inside the action-info strip rows
-    /// (must match <see cref="RPGGame.UI.Avalonia.Display.DisplayRenderer.Render"/> clear logic).
+    /// (must match <see cref="RPGGame.UI.Avalonia.Display.DisplayRenderer.Render"/> clear logic),
+    /// and combat-log paints must clip soft-wrapped rows inside the framed content height.
     /// </summary>
     public static class DisplayRendererClearBandRegressionTests
     {
@@ -50,6 +52,31 @@ namespace RPGGame.Tests.Unit.UI
                 TestBase.AssertTrue(
                     ComputeClearStartY(logContentY) > hudY,
                     "combat log clear does not erase the sequence HUD panel",
+                    ref run, ref passed, ref failed);
+
+                int contentH = LayoutConstants.CombatLogContentHeight;
+                int clearEnd = DisplayRenderer.ComputeClearEndY(logContentY, contentH);
+                int framedBottomExclusive = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT;
+                TestBase.AssertTrue(
+                    clearEnd > logContentY + contentH,
+                    "framed log clear extends past inner content into the border/pad band",
+                    ref run, ref passed, ref failed);
+                TestBase.AssertEqual(
+                    framedBottomExclusive + CanvasGridSizer.OuterPaddingBottom,
+                    clearEnd,
+                    "framed log clear reaches the outer bottom pad under the cyan border",
+                    ref run, ref passed, ref failed);
+
+                int viewportBottom = logContentY + contentH;
+                TestBase.AssertEqual(
+                    2,
+                    DisplayRenderer.CountLinesFittingInViewport(viewportBottom - 2, wrappedLineCount: 5, viewportBottom),
+                    "soft-wrapped overflow clips to remaining viewport rows (no paint below border)",
+                    ref run, ref passed, ref failed);
+                TestBase.AssertEqual(
+                    0,
+                    DisplayRenderer.CountLinesFittingInViewport(viewportBottom, wrappedLineCount: 3, viewportBottom),
+                    "rows at the exclusive viewport bottom are not painted",
                     ref run, ref passed, ref failed);
             }
             finally

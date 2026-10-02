@@ -47,5 +47,33 @@ namespace RPGGame.UI.Avalonia.Settings
         public TextBox? AccentCharacterPhaseOffsetTextBoxControl => Find<TextBox>("AccentCharacterPhaseOffsetTextBox");
 
         public TextBlock? AccentLayerStatusTextBlockControl => Find<TextBlock>("AccentLayerStatusTextBlock");
+
+        // Wind wake — resolve via Find so values load even when x:Name fields are still null.
+        public CheckBox? WindSwayEnabledCheckBoxControl => Find<CheckBox>("WindSwayEnabledCheckBox");
+        public CheckBox? WindSwayChromaticEnabledCheckBoxControl => Find<CheckBox>("WindSwayChromaticEnabledCheckBox");
+        public Slider? WindSwayRadiusSliderControl => Find<Slider>("WindSwayRadiusSlider");
+        public TextBox? WindSwayRadiusTextBoxControl => Find<TextBox>("WindSwayRadiusTextBox");
+        public Slider? WindSwayNearInfluenceSliderControl => Find<Slider>("WindSwayNearInfluenceSlider");
+        public TextBox? WindSwayNearInfluenceTextBoxControl => Find<TextBox>("WindSwayNearInfluenceTextBox");
+        public Slider? WindSwayFarInfluenceSliderControl => Find<Slider>("WindSwayFarInfluenceSlider");
+        public TextBox? WindSwayFarInfluenceTextBoxControl => Find<TextBox>("WindSwayFarInfluenceTextBox");
+        public Slider? WindSwayRearBiasSliderControl => Find<Slider>("WindSwayRearBiasSlider");
+        public TextBox? WindSwayRearBiasTextBoxControl => Find<TextBox>("WindSwayRearBiasTextBox");
+        public Slider? WindSwayChromaticSpreadSliderControl => Find<Slider>("WindSwayChromaticSpreadSlider");
+        public TextBox? WindSwayChromaticSpreadTextBoxControl => Find<TextBox>("WindSwayChromaticSpreadTextBox");
+        public Slider? WindSwayChromaticOpacitySliderControl => Find<Slider>("WindSwayChromaticOpacitySlider");
+        public TextBox? WindSwayChromaticOpacityTextBoxControl => Find<TextBox>("WindSwayChromaticOpacityTextBox");
+        public Button? WindSwayDebugRadiusButtonControl => Find<Button>("WindSwayDebugRadiusButton");
+
+        // Click-charge explosion — resolve via Find so values load even when x:Name fields are still null.
+        public CheckBox? ClickBurstEnabledCheckBoxControl => Find<CheckBox>("ClickBurstEnabledCheckBox");
+        public Slider? ClickBurstRadiusSliderControl => Find<Slider>("ClickBurstRadiusSlider");
+        public TextBox? ClickBurstRadiusTextBoxControl => Find<TextBox>("ClickBurstRadiusTextBox");
+        public Slider? ClickBurstExplodeStrengthSliderControl => Find<Slider>("ClickBurstExplodeStrengthSlider");
+        public TextBox? ClickBurstExplodeStrengthTextBoxControl => Find<TextBox>("ClickBurstExplodeStrengthTextBox");
+        public Slider? ClickBurstExplodeOutSliderControl => Find<Slider>("ClickBurstExplodeOutSlider");
+        public TextBox? ClickBurstExplodeOutTextBoxControl => Find<TextBox>("ClickBurstExplodeOutTextBox");
+        public Slider? ClickBurstClicksToExplodeSliderControl => Find<Slider>("ClickBurstClicksToExplodeSlider");
+        public TextBox? ClickBurstClicksToExplodeTextBoxControl => Find<TextBox>("ClickBurstClicksToExplodeTextBox");
     }
 }
