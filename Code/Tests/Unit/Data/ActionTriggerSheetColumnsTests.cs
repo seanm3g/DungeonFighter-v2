@@ -212,7 +212,10 @@ namespace RPGGame.Tests.Unit.Data
                 }
             }
 
-            foreach (var family in ActionTriggerSheetColumns.Families)
+            // ONHIT (normal hits only) has no demo row: HIT HEAL was removed because strip slots 2+ only run on combo rolls,
+            // so a normal-hit trigger could only ever fire from slot 1.
+            var noDemoRow = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "ONHIT" };
+            foreach (var family in ActionTriggerSheetColumns.Families.Where(f => !noDemoRow.Contains(f.WhenToken)))
             {
                 TestBase.AssertTrue(
                     covered.Contains(family.WhenToken),

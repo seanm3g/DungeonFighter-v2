@@ -38,6 +38,16 @@ namespace RPGGame.Tuning.Profiles
         public double AverageLossSeverity { get; init; }
         public double AverageTurnsBelowZero { get; init; }
         public bool ContinuePastZeroHp { get; init; }
+        public double AveragePlayerMaxHealth { get; init; }
+        public double AverageEnemyMaxHealth { get; init; }
+        /// <summary>Hero damage dealt divided by hero turns (misses count as zero-damage turns).</summary>
+        public double AveragePlayerDamagePerTurn { get; init; }
+        /// <summary>Hero damage dealt divided by damaging hero hits.</summary>
+        public double AveragePlayerDamagePerHit { get; init; }
+        public double AverageEnemyDamagePerTurn { get; init; }
+        /// <summary>Enemy damage taken as a fraction of hero max HP (how close fights come to killing the hero).</summary>
+        public double AverageHeroHpLostFraction { get; init; }
+        public int? Seed { get; set; }
         public IReadOnlyList<FundamentalsLevelSnapshot> LevelSnapshots { get; init; } = Array.Empty<FundamentalsLevelSnapshot>();
 
         public FundamentalsLevelSnapshot? GetLevelSnapshot(int level) =>
@@ -85,6 +95,11 @@ namespace RPGGame.Tuning.Profiles
 
             var combinedTurnSamples = samples.Select(e => (double)(e.PlayerTurns + e.EnemyTurns)).ToList();
 
+            int totalPlayerTurns = samples.Sum(e => e.PlayerTurns);
+            int totalEnemyTurns = samples.Sum(e => e.EnemyTurns);
+            int totalPlayerDamage = samples.Sum(e => e.PlayerDamageDealt);
+            int totalEnemyDamage = samples.Sum(e => e.EnemyDamageDealt);
+
             return new FundamentalsSimulationResult
             {
                 TimestampUtc = DateTime.UtcNow,
@@ -116,7 +131,15 @@ namespace RPGGame.Tuning.Profiles
                 AverageCritRate = critRate,
                 AverageLossSeverity = denom > 0 ? samples.Average(e => e.LossSeverityScore) : 0,
                 AverageTurnsBelowZero = denom > 0 ? samples.Average(e => e.TurnsBelowZero) : 0,
-                ContinuePastZeroHp = config.ContinuePastZeroHp
+                ContinuePastZeroHp = config.ContinuePastZeroHp,
+                AveragePlayerMaxHealth = denom > 0 ? samples.Average(e => e.PlayerMaxHealth) : 0,
+                AverageEnemyMaxHealth = denom > 0 ? samples.Average(e => e.EnemyMaxHealth) : 0,
+                AveragePlayerDamagePerTurn = totalPlayerTurns > 0 ? totalPlayerDamage / (double)totalPlayerTurns : 0,
+                AveragePlayerDamagePerHit = totalDamageEvents > 0 ? totalPlayerDamage / (double)totalDamageEvents : 0,
+                AverageEnemyDamagePerTurn = totalEnemyTurns > 0 ? totalEnemyDamage / (double)totalEnemyTurns : 0,
+                AverageHeroHpLostFraction = denom > 0
+                    ? samples.Average(e => e.PlayerMaxHealth > 0 ? e.EnemyDamageDealt / (double)e.PlayerMaxHealth : 0)
+                    : 0
             };
         }
 
@@ -139,6 +162,11 @@ namespace RPGGame.Tuning.Profiles
                 $"  Mean: {AverageActionsPerEncounter:F2}  Median: {MedianActionsPerEncounter:F2}",
                 $"  Min: {MinActions}  Max: {MaxActions}",
                 $"  (sim advance calls avg: {AverageSimAdvanceCalls:F1})",
+                "",
+                "Damage and health",
+                $"  Hero HP: {AveragePlayerMaxHealth:F1}  Enemy HP: {AverageEnemyMaxHealth:F1}  Win rate: {WinRate * 100:F1}%",
+                $"  Hero damage/turn: {AveragePlayerDamagePerTurn:F2}  per hit: {AveragePlayerDamagePerHit:F2}  miss rate: {AverageMissRate * 100:F1}%  crit rate: {AverageCritRate * 100:F1}%",
+                $"  Enemy damage/turn: {AverageEnemyDamagePerTurn:F2}  hero HP lost per fight: {AverageHeroHpLostFraction * 100:F1}%",
                 "",
                 "Combo+ outcomes (successful rolls meeting combo threshold)",
                 $"  Mean combo+ events per encounter: {AverageComboPlusEventsPerEncounter:F2}",
@@ -212,7 +240,8 @@ namespace RPGGame.Tuning.Profiles
                     NegativeHpFloor = overrides?.NegativeHpFloor,
                     WeaponType = overrides?.WeaponType,
                     EnemyType = overrides?.EnemyType,
-                    ForcedCatalogAction = overrides?.ForcedCatalogAction
+                    ForcedCatalogAction = overrides?.ForcedCatalogAction,
+                    Seed = overrides?.Seed
                 };
 
                 var levelProgress = new Progress<(int completed, int total, string status)>(inner =>
@@ -288,6 +317,13 @@ namespace RPGGame.Tuning.Profiles
                 AverageLossSeverity = Weighted(r => r.AverageLossSeverity),
                 AverageTurnsBelowZero = Weighted(r => r.AverageTurnsBelowZero),
                 ContinuePastZeroHp = sim.ContinuePastZeroHp,
+                AveragePlayerMaxHealth = Weighted(r => r.AveragePlayerMaxHealth),
+                AverageEnemyMaxHealth = Weighted(r => r.AverageEnemyMaxHealth),
+                AveragePlayerDamagePerTurn = Weighted(r => r.AveragePlayerDamagePerTurn),
+                AveragePlayerDamagePerHit = Weighted(r => r.AveragePlayerDamagePerHit),
+                AverageEnemyDamagePerTurn = Weighted(r => r.AverageEnemyDamagePerTurn),
+                AverageHeroHpLostFraction = Weighted(r => r.AverageHeroHpLostFraction),
+                Seed = first.Seed,
                 LevelSnapshots = snapshots
             };
         }
@@ -304,6 +340,10 @@ namespace RPGGame.Tuning.Profiles
 
             if (overrides?.ContinuePastZeroHp != null)
                 profile.Simulation.ContinuePastZeroHp = overrides.ContinuePastZeroHp.Value;
+            if (!string.IsNullOrWhiteSpace(overrides?.WeaponType))
+                profile.Simulation.WeaponType = overrides.WeaponType!;
+            if (!string.IsNullOrWhiteSpace(overrides?.EnemyType))
+                profile.Simulation.EnemyType = overrides.EnemyType;
 
             var snapshot = FundamentalsCombatSetup.BuildSnapshot(sim);
             string? validation = ActionLabEncounterSimulator.ValidateSnapshot(snapshot);
@@ -315,7 +355,8 @@ namespace RPGGame.Tuning.Profiles
             var encounterProgress = new Progress<(int completed, int total, string status)>(inner =>
                 progress?.Report((inner.completed, inner.total, inner.status)));
 
-            var rng = new Random();
+            int? seed = overrides?.Seed;
+            var rng = seed.HasValue ? new Random(seed.Value) : new Random();
             bool continuePastZeroHp = overrides?.ContinuePastZeroHp ?? sim.ContinuePastZeroHp;
             int? negativeHpFloor = continuePastZeroHp ? overrides?.NegativeHpFloor : null;
 
@@ -330,7 +371,9 @@ namespace RPGGame.Tuning.Profiles
             progress?.Report((encounters, encounters,
                 $"Done: {report.AverageTurns:F1} mean actions, {report.AveragePlayerMaxComboStreak:F2} mean max combo+ chain"));
 
-            return FundamentalsSimulationResult.FromReport(report, snapshot, sim);
+            var result = FundamentalsSimulationResult.FromReport(report, snapshot, sim);
+            result.Seed = seed;
+            return result;
         }
     }
 }

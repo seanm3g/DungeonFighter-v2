@@ -72,5 +72,9 @@ namespace RPGGame.Data
 
         [JsonPropertyName("heroHealMaxHealth")]
         public string HeroHealMaxHealth { get; set; } = "";
+
+        /// <summary>Comma-separated statuses this action applies to its user instead of the target (e.g. "harden").</summary>
+        [JsonPropertyName("selfTargetEffects")]
+        public string SelfTargetEffects { get; set; } = "";
     }
 }

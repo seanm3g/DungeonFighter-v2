@@ -8,7 +8,9 @@ namespace RPGGame.Tuning
     {
         Death,
         MaxActions,
-        Error
+        Error,
+        /// <summary>Reached <see cref="ClassPlaythroughRunner.StopAtLevel"/> alive.</summary>
+        ReachedLevel
     }
 
     public class PlaythroughRunResult
@@ -30,6 +32,33 @@ namespace RPGGame.Tuning
         public string? ErrorMessage { get; set; }
         /// <summary>Menu/combat actions taken while the hero was at each character level (level → action count).</summary>
         public Dictionary<int, int> ActionsByLevel { get; set; } = new();
+        /// <summary>Where and how the run died (null when it did not die).</summary>
+        public PlaythroughDeathContext? Death { get; set; }
+        public int UpgradesEquipped { get; set; }
+        public int SmartSkillsLearned { get; set; }
+        public int SmartSequenceChanges { get; set; }
+        public int SmartEvaluations { get; set; }
+        /// <summary>Every fight in the run, in order.</summary>
+        public List<PlaythroughFightRecord> Fights { get; set; } = new();
+    }
+
+    /// <summary>Snapshot of the circumstances of a playthrough death.</summary>
+    public class PlaythroughDeathContext
+    {
+        public int Level { get; set; }
+        public string DungeonName { get; set; } = "";
+        public int DungeonLevel { get; set; }
+        public int RoomNumber { get; set; }
+        public int TotalRooms { get; set; }
+        public string EnemyName { get; set; } = "";
+        public int EnemyLevel { get; set; }
+        /// <summary>Hero HP when the run entered this dungeon.</summary>
+        public int HpAtDungeonEntry { get; set; }
+        public int MaxHpAtDungeonEntry { get; set; }
+        /// <summary>Distinct enemies fought in this dungeon before (and including) the fatal one.</summary>
+        public int FightsInDungeon { get; set; }
+        /// <summary>Dungeons cleared before this one.</summary>
+        public int DungeonsCompletedBefore { get; set; }
     }
 
     public class PlaythroughLevelTurnStats

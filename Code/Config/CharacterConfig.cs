@@ -96,9 +96,9 @@ namespace RPGGame
     /// </summary>
     public class ProgressionConfig
     {
-        /// <summary>When &gt; 0, XP to go from level 1 to 2 is set to this value (whole curve scales vs one tier-1 dungeon completion). When 0, the L1→2 bar equals one tier-1 dungeon completion bonus.</summary>
+        /// <summary>When &gt; 0, XP to go from level 1 to 2 is set to this value (whole curve scales proportionally). When 0, the L1→2 bar equals one full level-1 dungeon run.</summary>
         public int BaseXPToLevel2 { get; set; }
-        /// <summary>Global multiplier on every level’s XP bar. When ≤0, treated as 1.0. (Bar shape is dungeon-paced: 1, 1.5, 2, 3, … tier-1 completions per level — see <see cref="CharacterProgression.GetXpRequiredToAdvanceFromLevel"/>.)</summary>
+        /// <summary>Global multiplier on every level’s XP bar. When ≤0, treated as 1.0. (Bar shape is dungeon-paced: 1 at-level dungeon run at L1, 2 at L5, 3 at L20, 4 at L35… — see <see cref="CharacterProgression.GetXpRequiredToAdvanceFromLevel"/>.)</summary>
         public double XPScalingFactor { get; set; }
         public int EnemyXPBase { get; set; }
         public int EnemyXPPerLevel { get; set; }

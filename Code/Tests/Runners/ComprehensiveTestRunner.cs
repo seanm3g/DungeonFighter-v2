@@ -20,10 +20,39 @@ namespace RPGGame.Tests.Runners
         /// <summary>
         /// Runs all tests in the comprehensive test suite
         /// </summary>
+        /// <summary>Suites that threw during the last <see cref="RunAllTests"/> (name: exception message).</summary>
+        public static List<string> CrashedSuites { get; } = new();
+
+        /// <summary>
+        /// Runs one suite; an exception is recorded as a crash and the run continues, so one broken suite cannot hide
+        /// every suite after it.
+        /// </summary>
+        private static void RunSuiteSafely(string suiteName, System.Action run)
+        {
+            try
+            {
+                run();
+            }
+            catch (Exception ex)
+            {
+                CrashedSuites.Add($"{suiteName}: {ex.GetType().Name}: {ex.Message}");
+                TestResultCollector.RecordTest(suiteName + " (crashed)", false, ex.Message);
+                Console.WriteLine($"  !! SUITE CRASHED: {suiteName}: {ex.GetType().Name}: {ex.Message}");
+            }
+        }
+
+        /// <summary>Process exit code for CI/tools: 0 when every recorded test passed and no suite crashed.</summary>
+        public static int ExitCode()
+        {
+            var (_, _, failed, _) = TestResultCollector.GetStatistics();
+            return failed == 0 && CrashedSuites.Count == 0 ? 0 : 1;
+        }
+
         public static void RunAllTests()
         {
             // Clear previous results and start fresh
             TestResultCollector.Clear();
+            CrashedSuites.Clear();
 
             Console.WriteLine(GameConstants.StandardSeparator);
             Console.WriteLine("  COMPREHENSIVE GAME TEST SUITE");
@@ -33,188 +62,196 @@ namespace RPGGame.Tests.Runners
             string phase1 = "PHASE 1: CORE MECHANICS";
             TestResultCollector.SetCurrentCategory(phase1);
             Console.WriteLine($"=== {phase1} ===\n");
-            ActionSystemTests.RunAllTests();
+            RunSuiteSafely("ActionSystemTests", () => ActionSystemTests.RunAllTests());
             Console.WriteLine();
-            ActionExecutionFlowTests.RunAllTests();
+            RunSuiteSafely("ActionExecutionFlowTests", () => ActionExecutionFlowTests.RunAllTests());
             Console.WriteLine();
-            RPGGame.Tests.Unit.Combat.CombatSequenceBuilderTests.RunAllTests();
+            RunSuiteSafely("RPGGame.Tests.Unit.Combat.CombatSequenceBuilderTests", () => RPGGame.Tests.Unit.Combat.CombatSequenceBuilderTests.RunAllTests());
             Console.WriteLine();
-            RPGGame.Tests.Unit.Combat.CombatSequencePresenterTests.RunAllTests();
+            RunSuiteSafely("RPGGame.Tests.Unit.Combat.CombatSequencePresenterTests", () => RPGGame.Tests.Unit.Combat.CombatSequencePresenterTests.RunAllTests());
             Console.WriteLine();
-            RPGGame.Tests.Unit.Combat.CombatSequenceFlavorPresenterTests.RunAllTests();
+            RunSuiteSafely("RPGGame.Tests.Unit.Combat.CombatSequenceFlavorPresenterTests", () => RPGGame.Tests.Unit.Combat.CombatSequenceFlavorPresenterTests.RunAllTests());
             Console.WriteLine();
-            RPGGame.Tests.Unit.Combat.ActionTextEffectCatalogTests.RunAllTests();
+            RunSuiteSafely("RPGGame.Tests.Unit.Combat.ActionTextEffectCatalogTests", () => RPGGame.Tests.Unit.Combat.ActionTextEffectCatalogTests.RunAllTests());
             Console.WriteLine();
-            RPGGame.Tests.Unit.Combat.ActionTextEmphasisTypewriterTests.RunAllTests();
+            RunSuiteSafely("RPGGame.Tests.Unit.Combat.ActionTextEmphasisTypewriterTests", () => RPGGame.Tests.Unit.Combat.ActionTextEmphasisTypewriterTests.RunAllTests());
             Console.WriteLine();
-            RPGGame.Tests.Unit.UI.TextEmphasisPulseFieldTests.RunAllTests();
+            RunSuiteSafely("RPGGame.Tests.Unit.UI.TextEmphasisPulseFieldTests", () => RPGGame.Tests.Unit.UI.TextEmphasisPulseFieldTests.RunAllTests());
             Console.WriteLine();
-            RPGGame.Tests.Unit.UI.EmphasisExplosionGifTests.RunAllTests();
+            RunSuiteSafely("RPGGame.Tests.Unit.UI.EmphasisExplosionGifTests", () => RPGGame.Tests.Unit.UI.EmphasisExplosionGifTests.RunAllTests());
             Console.WriteLine();
-            RPGGame.Tests.Unit.UI.ActionTextEmphasisWordLocatorTests.RunAllTests();
+            RunSuiteSafely("RPGGame.Tests.Unit.UI.ActionTextEmphasisWordLocatorTests", () => RPGGame.Tests.Unit.UI.ActionTextEmphasisWordLocatorTests.RunAllTests());
             Console.WriteLine();
-            RPGGame.Tests.Unit.UI.ActionTextEmphasisTriggerTests.RunAllTests();
+            RunSuiteSafely("RPGGame.Tests.Unit.UI.ActionTextEmphasisTriggerTests", () => RPGGame.Tests.Unit.UI.ActionTextEmphasisTriggerTests.RunAllTests());
             Console.WriteLine();
-            ActionEffectTargetTests.RunAllTests();
+            RunSuiteSafely("ActionEffectTargetTests", () => ActionEffectTargetTests.RunAllTests());
             Console.WriteLine();
-            ActionSequenceTests.RunAllTests();
+            RunSuiteSafely("ActionSequenceTests", () => ActionSequenceTests.RunAllTests());
             Console.WriteLine();
-            ActionInteractionLabTests.RunAllTests();
+            RunSuiteSafely("ActionInteractionLabTests", () => ActionInteractionLabTests.RunAllTests());
             Console.WriteLine();
-            ActionLabWindowPlacementTests.RunAllTests();
-            FlavorTextWindowPlacementTests.RunAllTests();
+            RunSuiteSafely("ActionLabWindowPlacementTests", () => ActionLabWindowPlacementTests.RunAllTests());
+            RunSuiteSafely("FlavorTextWindowPlacementTests", () => FlavorTextWindowPlacementTests.RunAllTests());
             Console.WriteLine();
-            MainWindowStartupSizingTests.RunAllTests();
+            RunSuiteSafely("MainWindowStartupSizingTests", () => MainWindowStartupSizingTests.RunAllTests());
             Console.WriteLine();
-            ActionLabEncounterSimulatorTests.RunAllTests();
+            RunSuiteSafely("ActionLabEncounterSimulatorTests", () => ActionLabEncounterSimulatorTests.RunAllTests());
             Console.WriteLine();
-            DiceMechanicsTests.RunAllTests();
+            RunSuiteSafely("DiceMechanicsTests", () => DiceMechanicsTests.RunAllTests());
             Console.WriteLine();
-            CombatOutcomeTests.RunAllTests();
+            RunSuiteSafely("CombatOutcomeTests", () => CombatOutcomeTests.RunAllTests());
             Console.WriteLine();
-            RPGGame.Tests.Unit.Data.ActionBonusMechanicsTests.RunAllTests();
+            RunSuiteSafely("RPGGame.Tests.Unit.Data.ActionBonusMechanicsTests", () => RPGGame.Tests.Unit.Data.ActionBonusMechanicsTests.RunAllTests());
             Console.WriteLine();
-            EnemyRollTests.RunAllTests();
+            RunSuiteSafely("EnemyRollTests", () => EnemyRollTests.RunAllTests());
             Console.WriteLine();
-            DiceRollCategorizationTests.RunAllTests();
+            RunSuiteSafely("DiceRollCategorizationTests", () => DiceRollCategorizationTests.RunAllTests());
             Console.WriteLine();
-            RollBonusTests.RunAllTests();
+            RunSuiteSafely("RollBonusTests", () => RollBonusTests.RunAllTests());
             Console.WriteLine();
             ManagerAndCalculatorTestRunner.RunCalculatorTests();
             Console.WriteLine();
-            CharacterAttributesTests.RunAllTests();
+            RunSuiteSafely("CharacterAttributesTests", () => CharacterAttributesTests.RunAllTests());
             Console.WriteLine();
-            CharacterProgressionClassReferenceTests.RunAllTests();
+            RunSuiteSafely("CharacterProgressionClassReferenceTests", () => CharacterProgressionClassReferenceTests.RunAllTests());
             Console.WriteLine();
-            SkillTreeProgressionTests.RunAllTests();
+            RunSuiteSafely("SkillTreeProgressionTests", () => SkillTreeProgressionTests.RunAllTests());
             Console.WriteLine();
-            SkillEffectRankScalingTests.RunAllTests();
+            RunSuiteSafely("SkillEffectRankScalingTests", () => SkillEffectRankScalingTests.RunAllTests());
             Console.WriteLine();
-            AttributeClassNameComposerTests.RunAllTests();
+            RunSuiteSafely("AttributeClassNameComposerTests", () => AttributeClassNameComposerTests.RunAllTests());
             Console.WriteLine();
-            ClassPresentationConfigTests.RunAllTests();
+            RunSuiteSafely("ClassPresentationConfigTests", () => ClassPresentationConfigTests.RunAllTests());
             Console.WriteLine();
 
             // Phase 2: Advanced Systems
             string phase2 = "PHASE 2: ADVANCED SYSTEMS";
             TestResultCollector.SetCurrentCategory(phase2);
             Console.WriteLine($"\n=== {phase2} ===\n");
-            ComboAmplifierCurveTests.RunAllTests();
-            ComboExecutionTests.RunAllTests();
+            RunSuiteSafely("ComboAmplifierCurveTests", () => ComboAmplifierCurveTests.RunAllTests());
+            RunSuiteSafely("ComboExecutionTests", () => ComboExecutionTests.RunAllTests());
             Console.WriteLine();
-            StatusEffectsTests.RunAllTests();
+            RunSuiteSafely("StatusEffectsTests", () => StatusEffectsTests.RunAllTests());
             Console.WriteLine();
-            EnvironmentalActionsTests.RunAllTests();
+            RunSuiteSafely("EnvironmentalActionsTests", () => EnvironmentalActionsTests.RunAllTests());
             Console.WriteLine();
-            ConditionalTriggersTests.RunAllTests();
-            ActionTriggerGateTests.RunAllTests();
-            RPGGame.Tests.Unit.Combat.MaterialSetControllerTests.RunAllTests();
-            RPGGame.Tests.Unit.Combat.LeatherSetBonusTests.RunAllTests();
-            RPGGame.Tests.Unit.Combat.CharmAndAnimalLadderTests.RunAllTests();
-            ActionTriggerBundleApplicatorTests.RunAllTests();
-            StripMutationTests.RunAllTests();
-            RetriggerTests.RunAllTests();
-            RollProbabilityContentTests.RunAllTests();
-            WeaponModTriggerBridgeTests.RunAllTests();
-            EquippedItemTriggerTests.RunAllTests();
-            StatBonusAnimalSuffixTriggerTests.RunAllTests();
-            ItemTriggerCombatIntegrationTests.RunAllTests();
-            ItemTriggerScenarioTests.RunAllTests();
+            RunSuiteSafely("ConditionalTriggersTests", () => ConditionalTriggersTests.RunAllTests());
+            RunSuiteSafely("ActionTriggerGateTests", () => ActionTriggerGateTests.RunAllTests());
+            RunSuiteSafely("RPGGame.Tests.Unit.Combat.MaterialSetControllerTests", () => RPGGame.Tests.Unit.Combat.MaterialSetControllerTests.RunAllTests());
+            RunSuiteSafely("RPGGame.Tests.Unit.Combat.LeatherSetBonusTests", () => RPGGame.Tests.Unit.Combat.LeatherSetBonusTests.RunAllTests());
+            RunSuiteSafely("RPGGame.Tests.Unit.Combat.CharmAndAnimalLadderTests", () => RPGGame.Tests.Unit.Combat.CharmAndAnimalLadderTests.RunAllTests());
+            RunSuiteSafely("ActionTriggerBundleApplicatorTests", () => ActionTriggerBundleApplicatorTests.RunAllTests());
+            RunSuiteSafely("StripMutationTests", () => StripMutationTests.RunAllTests());
+            RunSuiteSafely("RetriggerTests", () => RetriggerTests.RunAllTests());
+            RunSuiteSafely("RollProbabilityContentTests", () => RollProbabilityContentTests.RunAllTests());
+            RunSuiteSafely("WeaponModTriggerBridgeTests", () => WeaponModTriggerBridgeTests.RunAllTests());
+            RunSuiteSafely("EquippedItemTriggerTests", () => EquippedItemTriggerTests.RunAllTests());
+            RunSuiteSafely("StatBonusAnimalSuffixTriggerTests", () => StatBonusAnimalSuffixTriggerTests.RunAllTests());
+            RunSuiteSafely("ItemTriggerCombatIntegrationTests", () => ItemTriggerCombatIntegrationTests.RunAllTests());
+            RunSuiteSafely("ItemTriggerScenarioTests", () => ItemTriggerScenarioTests.RunAllTests());
             Console.WriteLine();
 
             // Phase 3: Display and UI
             string phase3 = "PHASE 3: DISPLAY AND UI";
             TestResultCollector.SetCurrentCategory(phase3);
             Console.WriteLine($"\n=== {phase3} ===\n");
-            ColorSystemCoreTests.RunAllTests();
+            RunSuiteSafely("ColorSystemCoreTests", () => ColorSystemCoreTests.RunAllTests());
             Console.WriteLine();
-            ColorSystemApplicationTests.RunAllTests();
+            RunSuiteSafely("ColorSystemApplicationTests", () => ColorSystemApplicationTests.RunAllTests());
             Console.WriteLine();
-            ColorSystemRenderingTests.RunAllTests();
+            RunSuiteSafely("ColorSystemRenderingTests", () => ColorSystemRenderingTests.RunAllTests());
             Console.WriteLine();
-            CombatLogDisplayTests.RunAllTests();
+            RunSuiteSafely("CombatLogDisplayTests", () => CombatLogDisplayTests.RunAllTests());
             Console.WriteLine();
 
             // Phase 4: Integration
             string phase4 = "PHASE 4: INTEGRATION";
             TestResultCollector.SetCurrentCategory(phase4);
             Console.WriteLine($"\n=== {phase4} ===\n");
-            CombatIntegrationTests.RunAllTests();
+            RunSuiteSafely("CombatIntegrationTests", () => CombatIntegrationTests.RunAllTests());
             Console.WriteLine();
-            SystemInteractionTests.RunAllTests();
+            RunSuiteSafely("SystemInteractionTests", () => SystemInteractionTests.RunAllTests());
             Console.WriteLine();
-            GameplayFlowTests.RunAllTests();
+            RunSuiteSafely("GameplayFlowTests", () => GameplayFlowTests.RunAllTests());
             Console.WriteLine();
 
             // Phase 5: Equipment and Rewards
             string phase5 = "PHASE 5: EQUIPMENT AND REWARDS";
             TestResultCollector.SetCurrentCategory(phase5);
             Console.WriteLine($"\n=== {phase5} ===\n");
-            EquipmentSystemTests.RunAllTests();
+            RunSuiteSafely("EquipmentSystemTests", () => EquipmentSystemTests.RunAllTests());
             Console.WriteLine();
-            GearActionNamesTests.RunAllTests();
+            RunSuiteSafely("GearActionNamesTests", () => GearActionNamesTests.RunAllTests());
             Console.WriteLine();
-            ItemActionPoolTests.RunAllTests();
+            RunSuiteSafely("ItemActionPoolTests", () => ItemActionPoolTests.RunAllTests());
             Console.WriteLine();
-            DungeonRewardsTests.RunAllTests();
+            RunSuiteSafely("DungeonRewardsTests", () => DungeonRewardsTests.RunAllTests());
             Console.WriteLine();
 
             // Phase 6: Progression Systems
             string phase6 = "PHASE 6: PROGRESSION SYSTEMS";
             TestResultCollector.SetCurrentCategory(phase6);
             Console.WriteLine($"\n=== {phase6} ===\n");
-            LevelUpSystemTests.RunAllTests();
+            RunSuiteSafely("LevelUpSystemTests", () => LevelUpSystemTests.RunAllTests());
             Console.WriteLine();
-            XPSystemTests.RunAllTests();
+            RunSuiteSafely("XPSystemTests", () => XPSystemTests.RunAllTests());
             Console.WriteLine();
-            MultiSourceXPRewardTests.RunAllTests();
+            RunSuiteSafely("MultiSourceXPRewardTests", () => MultiSourceXPRewardTests.RunAllTests());
             Console.WriteLine();
 
             // Phase 7: Persistence and State
             string phase7 = "PHASE 7: PERSISTENCE AND STATE";
             TestResultCollector.SetCurrentCategory(phase7);
             Console.WriteLine($"\n=== {phase7} ===\n");
-            SaveLoadSystemTests.RunAllTests();
+            RunSuiteSafely("SaveLoadSystemTests", () => SaveLoadSystemTests.RunAllTests());
             Console.WriteLine();
-            GameStateManagementTests.RunAllTests();
+            RunSuiteSafely("GameStateManagementTests", () => GameStateManagementTests.RunAllTests());
             Console.WriteLine();
-            LoadCharacterMenuTests.RunAllTests();
+            RunSuiteSafely("LoadCharacterMenuTests", () => LoadCharacterMenuTests.RunAllTests());
             Console.WriteLine();
 
             // Phase 8: Error Handling
             string phase8 = "PHASE 8: ERROR HANDLING";
             TestResultCollector.SetCurrentCategory(phase8);
             Console.WriteLine($"\n=== {phase8} ===\n");
-            ErrorHandlingTests.RunAllTests();
+            RunSuiteSafely("ErrorHandlingTests", () => ErrorHandlingTests.RunAllTests());
             Console.WriteLine();
 
             // Phase 9: System-Specific Tests
             string phase9 = "PHASE 9: SYSTEM-SPECIFIC TESTS";
             TestResultCollector.SetCurrentCategory(phase9);
             Console.WriteLine($"\n=== {phase9} ===\n");
-            DataSystemTestRunner.RunAllTests();
+            RunSuiteSafely("DataSystemTestRunner", () => DataSystemTestRunner.RunAllTests());
             Console.WriteLine();
-            ItemsSystemTestRunner.RunAllTests();
+            RunSuiteSafely("ItemsSystemTestRunner", () => ItemsSystemTestRunner.RunAllTests());
             Console.WriteLine();
-            ActionsSystemTestRunner.RunAllTests();
+            RunSuiteSafely("ActionsSystemTestRunner", () => ActionsSystemTestRunner.RunAllTests());
             Console.WriteLine();
-            ConfigSystemTestRunner.RunAllTests();
+            RunSuiteSafely("ConfigSystemTestRunner", () => ConfigSystemTestRunner.RunAllTests());
             Console.WriteLine();
-            EntitySystemTestRunner.RunAllTests();
+            RunSuiteSafely("EntitySystemTestRunner", () => EntitySystemTestRunner.RunAllTests());
             Console.WriteLine();
-            CombatSystemTestRunner.RunAllTests();
+            RunSuiteSafely("CombatSystemTestRunner", () => CombatSystemTestRunner.RunAllTests());
             Console.WriteLine();
-            WorldSystemTestRunner.RunAllTests();
+            RunSuiteSafely("WorldSystemTestRunner", () => WorldSystemTestRunner.RunAllTests());
             Console.WriteLine();
-            GameSystemTestRunner.RunAllTests();
+            RunSuiteSafely("GameSystemTestRunner", () => GameSystemTestRunner.RunAllTests());
             Console.WriteLine();
-            UISystemTestRunner.RunAllTests();
+            RunSuiteSafely("UISystemTestRunner", () => UISystemTestRunner.RunAllTests());
             Console.WriteLine();
-            MCPSystemTestRunner.RunAllTests();
+            RunSuiteSafely("MCPSystemTestRunner", () => MCPSystemTestRunner.RunAllTests());
             Console.WriteLine();
 
             // Display overall summary
             DisplayOverallSummary();
+
+            if (CrashedSuites.Count > 0)
+            {
+                Console.WriteLine();
+                Console.WriteLine($"SUITES THAT CRASHED ({CrashedSuites.Count}) - their remaining tests did not run:");
+                foreach (var crash in CrashedSuites)
+                    Console.WriteLine($"  - {crash}");
+            }
 
             Console.WriteLine($"\n{GameConstants.StandardSeparator}");
             Console.WriteLine("  ALL TESTS COMPLETE");

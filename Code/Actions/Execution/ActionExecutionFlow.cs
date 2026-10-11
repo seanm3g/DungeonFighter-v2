@@ -257,6 +257,8 @@ namespace RPGGame.Actions.Execution
 
             source.ConsumeRollPenaltyAfterCombatRoll(result.SelectedAction);
             source.ConsumeConfusionAfterCombatAction(result.SelectedAction);
+            if (RetriggerDepth == 0)
+                source.ConsumeOwnActionStatuses();
 
             if (sw != null)
             {

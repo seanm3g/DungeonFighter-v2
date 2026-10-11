@@ -125,7 +125,8 @@ namespace RPGGame
             int weaponDamage = (character.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
             int equipmentDamageBonus = character.Equipment.GetEquipmentDamageBonus(character);
             int modificationDamageBonus = character.Equipment.GetModificationDamageBonus();
-            return character.GetAttributeDamageBonus() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
+            int flat = character.GetAttributeDamageBonus() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
+            return (int)Math.Round(flat * character.GetStrengthDamageMultiplier());
         }
 
         /// <summary>

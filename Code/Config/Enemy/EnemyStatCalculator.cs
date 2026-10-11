@@ -67,7 +67,7 @@ namespace RPGGame
             if (runtimeHealthMult <= 0)
                 runtimeHealthMult = 1.0;
             int finalHealth = EnemyProgressionCurveEvaluator.ApplyFinalHealthMultipliers(
-                levelScaledHealth, enemySystem);
+                levelScaledHealth, enemySystem, level);
             int finalStrength = Math.Max(0, FloorToInt(levelScaledStrength * global.DamageMultiplier));
             int finalAgility = Math.Max(0, FloorToInt(levelScaledAgility * global.SpeedMultiplier));
             int finalTechnique = Math.Max(0, FloorToInt(levelScaledTechnique * global.DamageMultiplier));

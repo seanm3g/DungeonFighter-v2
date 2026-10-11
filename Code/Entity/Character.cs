@@ -388,6 +388,7 @@ namespace RPGGame
         public int GetEffectiveIntelligence() => Facade.GetEffectiveIntelligence();
         public int GetEffectivePrimaryAttributeValue() => Facade.GetEffectivePrimaryAttributeValue();
         public int GetAttributeDamageBonus() => Facade.GetAttributeDamageBonus();
+        public double GetStrengthDamageMultiplier() => Facade.GetStrengthDamageMultiplier();
         public double CalculateTurnsFromActionLength(double actionLength) => Facade.CalculateTurnsFromActionLength(actionLength);
         public void RemoveItemActions() => Facade.RemoveItemActions();
         public void ApplyRollBonusesFromGear(Item gear) => Facade.ApplyRollBonusesFromGear(gear);
@@ -406,7 +407,7 @@ namespace RPGGame
             Stats.UpdateTempEffects(actionLength);
             Effects.UpdateTempEffects(actionLength);
         }
-        public void ApplySlow(double slowMultiplier, int duration) => Facade.ApplySlow(slowMultiplier, duration);
+        public void ApplySlow(double speedReduction, int duration) => Facade.ApplySlow(speedReduction, duration);
         public override void ApplyPoison(int damage, int stacks = 1, bool isBleeding = false) => base.ApplyPoison(damage, stacks, isBleeding);
         public override void ApplyBurn(int damage, int stacks = 1) => base.ApplyBurn(damage, stacks);
         public override void ApplyAcid(int damage, int stacks = 1) => base.ApplyAcid(damage, stacks);

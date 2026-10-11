@@ -39,9 +39,14 @@ namespace RPGGame
             // Generate the weapon item
             var weapon = ItemGenerator.GenerateWeaponItem(selectedWeapon);
 
-            // Apply starting weapon damage from tuning config based on weapon type
+            // Enemy weapon damage: its own knob when set, otherwise the hero starting weapon damage (legacy coupling).
+            int enemyWeaponDamage = GameConfiguration.Instance?.EnemySystem?.BaselineStats?.WeaponDamage ?? 0;
             var weaponScaling = GameConfiguration.Instance?.WeaponScaling;
-            if (weaponScaling?.StartingWeaponDamage != null)
+            if (enemyWeaponDamage > 0)
+            {
+                weapon.BaseDamage = enemyWeaponDamage;
+            }
+            else if (weaponScaling?.StartingWeaponDamage != null)
             {
                 double configDamage = weapon.WeaponType switch
                 {

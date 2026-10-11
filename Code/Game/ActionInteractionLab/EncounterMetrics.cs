@@ -33,6 +33,13 @@ namespace RPGGame.ActionInteractionLab
         public int EnemyComboCount { get; set; }
         public int PlayerFinalHealth { get; set; }
         public int EnemyFinalHealth { get; set; }
+        public int PlayerMaxHealth { get; set; }
+        /// <summary>One line per battle event when <see cref="ActionLabEncounterSimulator.CaptureEventLog"/> is on (FIGHTLOG).</summary>
+        public List<string>? EventLog { get; set; }
+        public int EnemyMaxHealth { get; set; }
+        /// <summary>Seconds between swings (lower = faster) at fight end, from <c>GetTotalAttackSpeed</c>.</summary>
+        public double PlayerAttackTime { get; set; }
+        public double EnemyAttackTime { get; set; }
         public double CombatGameTime { get; set; }
         public double PlayerDpsVersusTime { get; set; }
         public CombatSingleTurnResult? TerminalReason { get; set; }

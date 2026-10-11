@@ -11,7 +11,9 @@ namespace RPGGame.Combat.Calculators
     public static class StandingBlock
     {
         public const double DefaultBlockPercent = 1.0;
+        /// <summary>Authored (data) value for aggressive stance; live Defense comes from the combat config knob.</summary>
         public const double AggressiveMultiplier = 0.0;
+        /// <summary>Authored (data) value for defensive stance; live Defense comes from the combat config knob.</summary>
         public const double DefensiveMultiplier = 1.80;
         public const double MaxMultiplier = 5.0;
         public const int MaxPercentPoints = 500;
@@ -64,20 +66,36 @@ namespace RPGGame.Combat.Calculators
             return pts.ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
+        /// <summary>
+        /// Live Defense multiplier for an action. Authored stance values (0 = aggressive, 180+ = defensive) map to
+        /// <see cref="CombatConfig.StanceAggressiveBlock"/> / <see cref="CombatConfig.StanceDefensiveBlock"/>;
+        /// other authored values apply as written.
+        /// </summary>
         public static double ResolveFromAction(Action? action)
         {
             if (IsUnnamedSwing(action))
                 return DefaultBlockPercent;
-            return ClampMultiplier(action!.BlockPercent);
+            return ResolveAuthoredMultiplier(action!.BlockPercent);
         }
 
-        /// <summary>0 → aggressive, 180+ → defensive, anything between → neutral.</summary>
+        public static double ResolveAuthoredMultiplier(double authored)
+        {
+            var combat = GameConfiguration.Instance.Combat;
+            return GetStanceName(authored) switch
+            {
+                "aggressive" => ClampMultiplier(combat.StanceAggressiveBlock),
+                "defensive" => ClampMultiplier(combat.StanceDefensiveBlock),
+                _ => ClampMultiplier(authored)
+            };
+        }
+
+        /// <summary>Below 100% → aggressive, above 100% → defensive, 100% → neutral.</summary>
         public static string GetStanceName(double multiplier)
         {
             int pts = (int)Math.Round(ClampMultiplier(multiplier) * 100.0, MidpointRounding.AwayFromZero);
-            if (pts <= 0)
+            if (pts < 100)
                 return "aggressive";
-            if (pts >= 180)
+            if (pts > 100)
                 return "defensive";
             return "neutral";
         }

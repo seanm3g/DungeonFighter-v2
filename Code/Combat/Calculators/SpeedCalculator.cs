@@ -18,9 +18,28 @@ namespace RPGGame.Combat.Calculators
             if (m <= 0 || double.IsNaN(m) || double.IsInfinity(m))
                 m = 1.0;
             var combat = GameConfiguration.Instance.Combat;
+            m = 1.0 + (m - 1.0) * Math.Max(0.0, combat.WeaponSpeedSpread);
             double clampMin = combat.WeaponAttackTimeClampMin > 0 ? combat.WeaponAttackTimeClampMin : 0.5;
             double clampMax = combat.WeaponAttackTimeClampMax > clampMin ? combat.WeaponAttackTimeClampMax : 1.5;
             return Math.Max(clampMin, Math.Min(clampMax, m));
+        }
+
+        /// <summary>
+        /// Agility time multiplier: <see cref="CombatConfig.AgilityMinSpeedMultiplier"/> at <see cref="CombatConfig.AgilityMin"/>
+        /// down to <see cref="CombatConfig.AgilityMaxSpeedMultiplier"/> at <see cref="CombatConfig.AgilityMax"/>, shaped by
+        /// <see cref="CombatConfig.AgilitySpeedCurveExponent"/>.
+        /// </summary>
+        public static double GetAgilitySpeedMultiplier(int agility)
+        {
+            var combat = GameConfiguration.Instance.Combat;
+            int agilityMin = combat.AgilityMin;
+            int agilityMax = combat.AgilityMax;
+            agility = Math.Max(agilityMin, Math.Min(agilityMax, agility));
+            double agilityRange = agilityMax - agilityMin;
+            double normalizedProgress = agilityRange > 0 ? (agility - agilityMin) / agilityRange : 0.0;
+            double exponent = combat.AgilitySpeedCurveExponent > 0 ? combat.AgilitySpeedCurveExponent : 0.5;
+            double curvedProgress = Math.Pow(normalizedProgress, exponent);
+            return combat.AgilityMinSpeedMultiplier + (combat.AgilityMaxSpeedMultiplier - combat.AgilityMinSpeedMultiplier) * curvedProgress;
         }
 
         /// <summary>
@@ -37,55 +56,12 @@ namespace RPGGame.Combat.Calculators
             // Diminishing returns curve: Square root function for non-linear scaling
             // Early agility points provide more benefit than later points
             double agilityAdjustedTime = baseAttackTime;
-            if (actor is Character character)
-            {
-                int agility = character.GetEffectiveAgility();
-                // Clamp agility to configured range
-                int agilityMin = tuning.Combat.AgilityMin;
-                int agilityMax = tuning.Combat.AgilityMax;
-                agility = Math.Max(agilityMin, Math.Min(agilityMax, agility));
-                
-                // Calculate normalized progress (0.0 to 1.0)
-                double minMultiplier = tuning.Combat.AgilityMinSpeedMultiplier;
-                double maxMultiplier = tuning.Combat.AgilityMaxSpeedMultiplier;
-                double agilityRange = agilityMax - agilityMin;
-                double normalizedProgress = agilityRange > 0 ? (agility - agilityMin) / (double)agilityRange : 0.0;
-                
-                // Apply diminishing returns curve using square root
-                // This ensures early agility points give more benefit than later points
-                double curvedProgress = Math.Sqrt(normalizedProgress);
-                
-                // Interpolate between min and max multipliers using the curved progress
-                double speedMultiplier = minMultiplier + (maxMultiplier - minMultiplier) * curvedProgress;
-                
-                agilityAdjustedTime = baseAttackTime * speedMultiplier;
-            }
-            else if (actor is Enemy enemy)
-            {
-                int agility = enemy.GetEffectiveAgility();
-                // Clamp agility to configured range
-                int agilityMin = tuning.Combat.AgilityMin;
-                int agilityMax = tuning.Combat.AgilityMax;
-                agility = Math.Max(agilityMin, Math.Min(agilityMax, agility));
-                
-                // Calculate normalized progress (0.0 to 1.0)
-                double minMultiplier = tuning.Combat.AgilityMinSpeedMultiplier;
-                double maxMultiplier = tuning.Combat.AgilityMaxSpeedMultiplier;
-                double agilityRange = agilityMax - agilityMin;
-                double normalizedProgress = agilityRange > 0 ? (agility - agilityMin) / (double)agilityRange : 0.0;
-                
-                // Apply diminishing returns curve using square root
-                // This ensures early agility points give more benefit than later points
-                double curvedProgress = Math.Sqrt(normalizedProgress);
-                
-                // Interpolate between min and max multipliers using the curved progress
-                double speedMultiplier = minMultiplier + (maxMultiplier - minMultiplier) * curvedProgress;
-                
-                agilityAdjustedTime = baseAttackTime * speedMultiplier;
-            }
-            
+            if (actor is Character agilityActor)
+                agilityAdjustedTime = baseAttackTime * GetAgilitySpeedMultiplier(agilityActor.GetEffectiveAgility());
+
             // Apply Actor-specific modifiers
-            if (actor is Character charEntity)
+            // Enemy : Character, so enemies must be excluded here or the archetype speed branch below never runs.
+            if (actor is Character charEntity && actor is not Enemy)
             {
                 // Weapon attackSpeed multiplier: ×1 baseline; >1 slower (longer time); <1 faster (shorter time).
                 double weaponTimeMul = 1.0;
@@ -112,7 +88,7 @@ namespace RPGGame.Combat.Calculators
                 // Apply slow debuff if active
                 if (charEntity.SlowTurns > 0)
                 {
-                    finalAttackTime *= charEntity.SlowMultiplier;
+                    finalAttackTime /= Math.Max(0.1, charEntity.SlowMultiplier);
                 }
                 
                 // Apply speed multiplier modifications (like Ethereal)
@@ -160,7 +136,7 @@ namespace RPGGame.Combat.Calculators
                 // Apply slow debuff if active
                 if (enemyEntity.SlowTurns > 0)
                 {
-                    finalAttackTime *= enemyEntity.SlowMultiplier;
+                    finalAttackTime /= Math.Max(0.1, enemyEntity.SlowMultiplier);
                 }
                 
                 // Ensure result is never negative or zero

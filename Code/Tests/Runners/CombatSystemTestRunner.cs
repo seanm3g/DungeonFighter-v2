@@ -20,6 +20,7 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine("  COMBAT SYSTEM TEST SUITE");
             Console.WriteLine($"{GameConstants.StandardSeparator}\n");
 
+            RPGGame.Tests.Unit.Combat.StatusCombatModifiersTests.RunAllTests();
             CombatManagerTests.RunAllTests();
             Console.WriteLine();
             CombatDelayManagerTests.RunAllTests();

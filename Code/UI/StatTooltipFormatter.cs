@@ -90,7 +90,8 @@ namespace RPGGame
             int strEff = c.GetEffectiveStrength();
             int primaryEff = c.GetEffectivePrimaryAttributeValue();
             int attrBonus = c.GetAttributeDamageBonus();
-            int total = attrBonus + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
+            double strMult = c.GetStrengthDamageMultiplier();
+            int total = c.Combat.GetTotalDamage();
             var (primaryCode, primaryLabel) = GetPrimaryAttributeDisplay(c);
             bool primaryIsStrength = primaryCode == DynamicAttributeCategoryResolver.CodeStrength;
 
@@ -100,19 +101,34 @@ namespace RPGGame
             AddBlank(lines);
             double attrScale = GameConfiguration.Instance.Combat.AttributeDamageScale;
             if (attrScale <= 0) attrScale = 0.05;
-            AddSection(lines, "Attributes (STR + primary) × scale");
-            AddStatRow(lines, "Strength (always)", strEff);
-            AddStatRow(lines, $"Primary ({primaryCode})", primaryEff);
-            AddDecimalStatRow(lines, "Damage scale", attrScale, "0.##");
-            AddStatRow(lines, "Attribute subtotal", attrBonus);
-            AddBlank(lines);
+            if (strMult != 1.0)
+            {
+                AddSection(lines, "Strength multiplies damage");
+                AddStatRow(lines, "Strength", strEff);
+                AddDecimalStatRow(lines, "Damage multiplier", strMult, "0.00");
+                AddBlank(lines);
+            }
+            else
+            {
+                AddSection(lines, "Attributes (STR + primary) × scale");
+                AddStatRow(lines, "Strength (always)", strEff);
+                AddStatRow(lines, $"Primary ({primaryCode})", primaryEff);
+                AddDecimalStatRow(lines, "Damage scale", attrScale, "0.##");
+                AddStatRow(lines, "Attribute subtotal", attrBonus);
+                AddBlank(lines);
+            }
             AddSection(lines, "Gear & mods");
             AddStatRow(lines, "Weapon", weaponDamage);
             AddSignedStatRow(lines, "Equipment", equipmentDamageBonus);
             AddSignedStatRow(lines, "Modifications", modificationDamageBonus);
             AddBlank(lines);
-            AddDamageEquationLine(lines, strEff, primaryCode, primaryEff, attrScale, attrBonus, weaponDamage, equipmentDamageBonus, modificationDamageBonus, total);
-            if (primaryIsStrength)
+            if (strMult != 1.0)
+                AddNoteLine(lines, $"({weaponDamage} + {equipmentDamageBonus} + {modificationDamageBonus}) × {strMult:0.00} = {total}");
+            else
+                AddDamageEquationLine(lines, strEff, primaryCode, primaryEff, attrScale, attrBonus, weaponDamage, equipmentDamageBonus, modificationDamageBonus, total);
+            if (strMult != 1.0)
+                AddNoteLine(lines, "Each point of Strength adds the same share of damage; your primary stat no longer adds damage.");
+            else if (primaryIsStrength)
                 AddNoteLine(lines, "STR is your primary — Strength and Primary both use the same value.");
             else
                 AddNoteLine(lines, $"Primary is {primaryLabel} ({primaryCode}), your highest effective stat.");
@@ -273,14 +289,14 @@ namespace RPGGame
             AddDecimalStatRow(lines, "After weapon", b.AfterWeaponSeconds, "F3", "s");
             AddDecimalStatRow(lines, "Equipment attack-speed", b.EquipmentSpeedBonus, "F3", "s (subtracted)");
             if (b.SlowTurns > 0)
-                AddDecimalStatRow(lines, $"Slow (×{b.SlowMultiplier:F3}, {b.SlowTurns}t)", b.AfterSlowSeconds, "F3", "s");
+                AddDecimalStatRow(lines, $"Slow (÷{b.SlowMultiplier:F3}, {b.SlowTurns}t)", b.AfterSlowSeconds, "F3", "s");
             if (Math.Abs(b.ModSpeedMultiplier - 1.0) > 0.0001)
                 AddDecimalStatRow(lines, "Modification speed mult.", b.ModSpeedMultiplier, "F4");
             AddDecimalStatRow(lines, "Minimum cap", b.MinimumCapSeconds, "F2", "s");
             AddBlank(lines);
             AddNoteLine(lines,
                 $"{b.BaseAttackTime:F3}s × {b.AgiMultiplier:F3} × {b.WeaponTimeMultiplier:F2} − {b.EquipmentSpeedBonus:F3}s" +
-                (b.SlowTurns > 0 ? $" × {b.SlowMultiplier:F3}" : "") +
+                (b.SlowTurns > 0 ? $" ÷ {b.SlowMultiplier:F3}" : "") +
                 (Math.Abs(b.ModSpeedMultiplier - 1.0) > 0.0001 ? $" ÷ {b.ModSpeedMultiplier:F4}" : "") +
                 $" = {b.FinalSeconds:F2}s (clamped ≥ {b.MinimumCapSeconds:F2}s).");
             AddNoteLine(lines, "Seconds per attack on the panel; action length scales time in combat rolls.");
@@ -373,7 +389,7 @@ namespace RPGGame
 
             int slowTurns = c.SlowTurns;
             double slowMultiplier = c.SlowMultiplier;
-            double afterSlow = slowTurns > 0 ? afterEquip * slowMultiplier : afterEquip;
+            double afterSlow = slowTurns > 0 ? afterEquip / Math.Max(0.1, slowMultiplier) : afterEquip;
 
             double modSpeedMul = Math.Max(0.0001, c.GetModificationSpeedMultiplier());
             double afterMod = afterSlow / modSpeedMul;

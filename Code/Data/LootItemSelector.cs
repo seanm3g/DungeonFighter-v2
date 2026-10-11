@@ -59,9 +59,20 @@ namespace RPGGame
         /// <summary>
         /// Rolls for a random weapon of the specified tier
         /// </summary>
+        /// <summary>Hero's equipped weapon type for the current roll (set by <see cref="LootGenerator"/>); null = no bias.</summary>
+        public WeaponType? PreferredWeaponType { get; set; }
+
         public Item? RollWeapon(int tier)
         {
             var weaponsInTier = _dataCache.WeaponData.Where(w => w.Tier == tier).ToList();
+
+            double bias = GameConfiguration.Instance?.LootSystem?.EquippedWeaponTypeBias ?? 0;
+            if (PreferredWeaponType is WeaponType preferred && bias > 0 && _random.NextDouble() < bias)
+            {
+                var matching = weaponsInTier.Where(w => string.Equals(w.Type, preferred.ToString(), StringComparison.OrdinalIgnoreCase)).ToList();
+                if (matching.Count > 0)
+                    weaponsInTier = matching;
+            }
 
             if (!weaponsInTier.Any())
             {

@@ -170,11 +170,23 @@ namespace RPGGame
         {
             if (_character is Enemy enemy && enemy.UsesDirectCombatStats())
                 return enemy.GetEffectiveStrength();
+            if (_character is not Enemy && GameConfiguration.Instance.Combat.StrengthDamagePerPoint > 0)
+                return 0;
             int sum = GetEffectiveStrength() + GetEffectivePrimaryAttributeValue();
             double scale = GameConfiguration.Instance.Combat.AttributeDamageScale;
             if (scale <= 0)
                 scale = 0.05;
             return Math.Max(0, (int)Math.Floor(sum * scale));
+        }
+
+        /// <summary>Hero damage multiplier from STR (1.0 for enemies and in legacy flat mode). See <see cref="CombatConfig.StrengthDamagePerPoint"/>.</summary>
+        public double GetStrengthDamageMultiplier()
+        {
+            var combat = GameConfiguration.Instance.Combat;
+            if (_character is Enemy || combat.StrengthDamagePerPoint <= 0)
+                return 1.0;
+            int cap = combat.StrengthDamageMaxStat > 0 ? combat.StrengthDamageMaxStat : int.MaxValue;
+            return 1.0 + Math.Clamp(GetEffectiveStrength(), 0, cap) * combat.StrengthDamagePerPoint;
         }
 
         // === ACTION MANAGEMENT ===
@@ -251,7 +263,7 @@ namespace RPGGame
             
             // Poison %, burn intensity, and bleed intensity do not decay from action length (see global DoT tick / bleed-on-action).
         }
-        public void ApplySlow(double slowMultiplier, int duration) => _character.Effects.ApplySlow(slowMultiplier, duration);
+        public void ApplySlow(double speedReduction, int duration) => _character.Effects.ApplySlow(speedReduction, duration);
         public void ApplyPoison(int damage, int stacks = 1, bool isBleeding = false) => _character.ApplyPoison(damage, stacks, isBleeding);
         public void ApplyBurn(int damage, int stacks = 1) => _character.ApplyBurn(damage, stacks);
         public void ApplyAcid(int damage, int stacks = 1) => _character.ApplyAcid(damage, stacks);

@@ -231,6 +231,16 @@ namespace RPGGame
                 // Use structured routing so creature-name RGB survives; markup round-trip maps colors to nearest palette.
                 displayManager.AddCombatEvent(victoryBuilder, player);
                 
+                // Optional post-fight recovery (dungeonScaling.postFightHealPercent).
+                double postFightHeal = GameConfiguration.Instance.DungeonScaling?.PostFightHealPercent ?? 0;
+                if (player != null && postFightHeal > 0 && player.CurrentHealth > 0)
+                {
+                    int maxHp = player.GetEffectiveMaxHealth();
+                    int heal = Math.Min(maxHp - player.CurrentHealth, (int)Math.Ceiling(maxHp * postFightHeal / 100.0));
+                    if (heal > 0)
+                        player.Heal(heal);
+                }
+
                 // Remaining health after defeat — victory verse is deferred to dungeon completion.
                 if (player != null)
                 {

@@ -1,8 +1,8 @@
 [
-  { "Name": "Common", "Weight": 1000000, "StatBonuses": 0, "ActionBonuses": 0, "Modifications": 0 },
-  { "Name": "Uncommon", "Weight": 100000, "StatBonuses": 2, "ActionBonuses": 1, "Modifications": 0 },
-  { "Name": "Rare", "Weight": 10000, "StatBonuses": 3, "ActionBonuses": 2, "Modifications": 0 },
-  { "Name": "Epic", "Weight": 1000, "StatBonuses": 3, "ActionBonuses": 2, "Modifications": 0 },
-  { "Name": "Legendary", "Weight": 100, "StatBonuses": 3, "ActionBonuses": 2, "Modifications": 0 },
-  { "Name": "Mythic", "Weight": 10, "StatBonuses": 4, "ActionBonuses": 3, "Modifications": 0 }
+  {"Name": "Common", "Weight": 82000, "StatBonuses": 0, "ActionBonuses": 0, "Modifications": 0},
+  {"Name": "Uncommon", "Weight": 15000, "StatBonuses": 2, "ActionBonuses": 1, "Modifications": 0},
+  {"Name": "Rare", "Weight": 2400, "StatBonuses": 3, "ActionBonuses": 2, "Modifications": 0},
+  {"Name": "Epic", "Weight": 500, "StatBonuses": 3, "ActionBonuses": 2, "Modifications": 0},
+  {"Name": "Legendary", "Weight": 90, "StatBonuses": 3, "ActionBonuses": 2, "Modifications": 0},
+  {"Name": "Mythic", "Weight": 10, "StatBonuses": 4, "ActionBonuses": 3, "Modifications": 0}
 ]

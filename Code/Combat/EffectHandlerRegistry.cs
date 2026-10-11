@@ -142,7 +142,7 @@ namespace RPGGame
             // Apply weaken if action causes it (guaranteed application when flag is set)
             if (action.CausesWeaken)
             {
-                target.ApplyWeaken(2); // 2 turns of weaken
+                target.ApplyWeaken(1); // the target's next action deals less damage
                 StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "weakened");
                 return true;
             }

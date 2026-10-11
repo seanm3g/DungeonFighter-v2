@@ -40,6 +40,9 @@ namespace RPGGame.Game
         /// </summary>
         public bool IsInitialized => _isInitialized;
 
+        /// <summary>The live hero (headless tools: playthrough gear policy).</summary>
+        public Character? Player => _gameWrapper?.Game?.CurrentPlayer;
+
         /// <summary>
         /// Initialize the session with a game wrapper and set up MCP tool state
         /// </summary>

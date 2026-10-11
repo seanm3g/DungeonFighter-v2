@@ -24,6 +24,16 @@ namespace RPGGame
             LoadActions(validate: false);
         }
 
+        /// <summary>Loads actions only if nothing is loaded yet (no re-read of Actions.json on every call).</summary>
+        public static void EnsureLoaded()
+        {
+            lock (ActionsLock)
+            {
+                if (_actions == null)
+                    LoadActions(validate: false);
+            }
+        }
+
         /// <summary>
         /// Raised after <see cref="ReloadActions"/> completes so UI that mirrors ActionLoader (e.g. Settings Actions tab) can refresh.
         /// </summary>
@@ -76,11 +86,17 @@ namespace RPGGame
                 }
 
                 ClearActionsJsonCache(_loadedActionsFilePath ?? GameConstants.GetGameDataFilePath(GameConstants.ActionsJson));
+                var previous = (_actions, _actionNameAliases, _wasSpreadsheetFormat, _originalSpreadsheetActions, _loadedActionsFilePath);
                 _actions = null;
                 _actionNameAliases = null;
                 _wasSpreadsheetFormat = false;
                 _originalSpreadsheetActions = null;
                 LoadActions();
+                if ((_actions == null || _actions.Count == 0) && previous._actions is { Count: > 0 })
+                {
+                    ErrorHandler.LogWarning("Reloading actions returned none; keeping the previously loaded actions.", "ActionLoader");
+                    (_actions, _actionNameAliases, _wasSpreadsheetFormat, _originalSpreadsheetActions, _loadedActionsFilePath) = previous;
+                }
                 ActionsReloaded?.Invoke();
             }
         }
@@ -133,6 +149,12 @@ namespace RPGGame
                 
                 // Detect format and load accordingly (use normalized path so cache key matches save path)
                 var actionList = LoadActionsFromFile(_loadedActionsFilePath);
+                // A failed re-read (file locked, out of handles under parallel tools) must not wipe a good table.
+                if (actionList.Count == 0 && _actions != null && _actions.Count > 0)
+                {
+                    ErrorHandler.LogWarning($"Re-reading {filePath} returned no actions; keeping the {_actions.Count} already loaded.", "ActionLoader");
+                    return;
+                }
                 _actions = new Dictionary<string, ActionData>(StringComparer.OrdinalIgnoreCase);
                 
                 if (actionList.Count > 0)

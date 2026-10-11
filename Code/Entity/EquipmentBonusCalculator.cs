@@ -28,6 +28,13 @@ namespace RPGGame
         /// <param name="characterContext">When set, most suffix values are percentages of reference; roll/threshold stats stay literal (see class summary).</param>
         public int GetStatBonus(string statType, Character? characterContext)
         {
+            long prof = RPGGame.Diagnostics.ToolProfiler.Start();
+            try { return GetStatBonusCore(statType, characterContext); }
+            finally { RPGGame.Diagnostics.ToolProfiler.Stop("EquipmentBonus.GetStatBonus", prof); }
+        }
+
+        private int GetStatBonusCore(string statType, Character? characterContext)
+        {
             string t = NormalizeEquipmentStatKey(statType);
             int flat = GetFlatEquipmentStatInteger(t);
             if (characterContext != null)
@@ -55,6 +62,13 @@ namespace RPGGame
 
         /// <param name="characterContext">When set, most suffix values are percentages of reference; roll/threshold stats stay literal.</param>
         public double GetStatBonusDouble(string statType, Character? characterContext)
+        {
+            long prof = RPGGame.Diagnostics.ToolProfiler.Start();
+            try { return GetStatBonusDoubleCore(statType, characterContext); }
+            finally { RPGGame.Diagnostics.ToolProfiler.Stop("EquipmentBonus.GetStatBonusDouble", prof); }
+        }
+
+        private double GetStatBonusDoubleCore(string statType, Character? characterContext)
         {
             string t = NormalizeEquipmentStatKey(statType);
             double flat = GetFlatEquipmentStatDouble(t);

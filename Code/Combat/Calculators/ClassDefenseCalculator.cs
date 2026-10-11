@@ -70,11 +70,14 @@ namespace RPGGame.Combat.Calculators
             return k;
         }
 
+        /// <summary>
+        /// DR = effective / (|effective| + K). Negative Defense (Expose) gives negative DR, i.e. extra damage, capped at +50%.
+        /// </summary>
         public static double ComputeDr(double effectiveDefense, double k, bool pierce)
         {
-            if (pierce || effectiveDefense <= 0 || k <= 0)
+            if (pierce || effectiveDefense == 0 || k <= 0)
                 return 0;
-            return effectiveDefense / (effectiveDefense + k);
+            return Math.Max(-0.5, effectiveDefense / (Math.Abs(effectiveDefense) + k));
         }
 
         public static double ResolveActionMult(Character hero, int mitigationHitIndex)
@@ -160,9 +163,11 @@ namespace RPGGame.Combat.Calculators
             int rating = GetBaseDefenseRating(hero);
             double k = GetK();
             double actionMult = pierce ? 0.0 : ResolveActionMult(hero, mitigationHitIndex);
-            double effective = pierce ? 0.0 : rating * actionMult;
-            double dr = ComputeDr(effective, k, pierce);
-            int remaining = pierce ? start : RoundMul(start, 1.0 - dr);
+            double statusDefense = StatusCombatModifiers.DefenseBonus(hero, k);
+            // Pierce ignores Defense the holder has, not the weakness Expose gives.
+            double effective = pierce ? Math.Min(0.0, statusDefense) : rating * actionMult + statusDefense;
+            double dr = ComputeDr(effective, k, pierce: false);
+            int remaining = RoundMul(start, 1.0 - dr);
 
             return new HeroMitigationResult
             {

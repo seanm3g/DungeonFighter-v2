@@ -280,8 +280,9 @@ namespace RPGGame
                 CombatTempoScale = 1.0;
             ProgressionShape = Math.Clamp(ProgressionShape, 0, 1);
             PlayerEnemyParity = Math.Clamp(PlayerEnemyParity, -1, 1);
-            if (ProgressionPivotLevel < 10)
-                ProgressionPivotLevel = 10;
+            // Floor matches EnemyProgressionCurveEvaluator's Clamp(pivot, 2, 100); 2 = linear growth from level 2.
+            if (ProgressionPivotLevel < 2)
+                ProgressionPivotLevel = 2;
             if (ProgressionPivotLevel > 100)
                 ProgressionPivotLevel = 100;
         }
@@ -435,11 +436,72 @@ namespace RPGGame
     /// <summary>
     /// Unified enemy system configuration that consolidates all enemy-related tuning
     /// </summary>
+    /// <summary>
+    /// Enemy raw damage × <see cref="BaseMultiplier"/> × (1 + <see cref="GrowthPerLevel"/> × (level − 1)^<see cref="Exponent"/>).
+    /// Disabled by default so existing patches are unchanged. (Note: <c>globalMultipliers.damageMultiplier</c> is not read by combat.)
+    /// </summary>
+    public class EnemyDamageCurveConfig
+    {
+        public bool Enabled { get; set; }
+        public double BaseMultiplier { get; set; } = 1.0;
+        public double GrowthPerLevel { get; set; }
+        public double Exponent { get; set; } = 1.0;
+
+        /// <summary>
+        /// Optional level → multiplier table. When present it replaces the growth formula: multipliers are interpolated
+        /// in log space between anchors and held flat past the ends (then × <see cref="BaseMultiplier"/>).
+        /// Solve anchors for a win-rate curve with the WRSOLVE tool.
+        /// </summary>
+        public List<EnemyDamageCurveAnchor> Anchors { get; set; } = new();
+
+        public double MultiplierAt(int level)
+        {
+            if (!Enabled)
+                return 1.0;
+            if (Anchors != null && Anchors.Count > 0)
+                return Math.Max(0.0, BaseMultiplier) * InterpolateAnchors(level);
+            double lv = Math.Max(0, level - 1);
+            double exp = Exponent > 0 ? Exponent : 1.0;
+            return Math.Max(0.0, BaseMultiplier) * (1.0 + GrowthPerLevel * Math.Pow(lv, exp));
+        }
+
+        private double InterpolateAnchors(int level)
+        {
+            var sorted = Anchors.Where(a => a.Multiplier > 0).OrderBy(a => a.Level).ToList();
+            if (sorted.Count == 0)
+                return 1.0;
+            if (level <= sorted[0].Level)
+                return sorted[0].Multiplier;
+            if (level >= sorted[^1].Level)
+                return sorted[^1].Multiplier;
+            for (int i = 1; i < sorted.Count; i++)
+            {
+                var hi = sorted[i];
+                if (level > hi.Level)
+                    continue;
+                var lo = sorted[i - 1];
+                double t = (level - lo.Level) / (double)Math.Max(1, hi.Level - lo.Level);
+                return Math.Exp(Math.Log(lo.Multiplier) + t * (Math.Log(hi.Multiplier) - Math.Log(lo.Multiplier)));
+            }
+            return sorted[^1].Multiplier;
+        }
+    }
+
+    public class EnemyDamageCurveAnchor
+    {
+        public int Level { get; set; }
+        public double Multiplier { get; set; } = 1.0;
+    }
+
     public class EnemySystemConfig
     {
         public GlobalMultipliersConfig GlobalMultipliers { get; set; } = new();
         public EnemyProgressionScalesConfig ProgressionScales { get; set; } = new();
         public BaselineStatsConfig BaselineStats { get; set; } = new();
+        /// <summary>Opt-in enemy outgoing damage curve by enemy level (shapes win rate across levels).</summary>
+        public EnemyDamageCurveConfig DamageCurve { get; set; } = new();
+        /// <summary>Enemy max HP × multiplier by level (same anchor table format as <see cref="DamageCurve"/>; off by default).</summary>
+        public EnemyDamageCurveConfig HealthCurve { get; set; } = new();
         public ScalingPerLevelConfig ScalingPerLevel { get; set; } = new();
         public Dictionary<string, ArchetypeMultipliersConfig> Archetypes { get; set; } = new();
         public double AttributeGrowthBudgetPerLevel { get; set; } = 6.0;
@@ -563,6 +625,11 @@ namespace RPGGame
         public int Technique { get; set; } = 3;
         public int Intelligence { get; set; } = 3;
         public int Armor { get; set; } = 2;
+        /// <summary>
+        /// Enemy weapon base damage. 0 = legacy behavior (enemy weapons copy the hero's
+        /// <c>weaponScaling.startingWeaponDamage</c>, which couples enemy damage to hero damage).
+        /// </summary>
+        public int WeaponDamage { get; set; }
         public string Description { get; set; } = "";
 
         public void EnsureValidNonEmptyBaseline()

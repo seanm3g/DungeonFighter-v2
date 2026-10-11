@@ -176,7 +176,7 @@ namespace RPGGame.Config
         /// </summary>
         public static string GetDefaultExportPath(string fileName = "balance_tuning_export.json")
         {
-            string directory = Path.Combine("GameData", "BalanceTuningExports");
+            string directory = GameConstants.ResolveGameDataPath("BalanceTuningExports");
             if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);

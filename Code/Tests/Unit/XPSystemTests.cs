@@ -77,7 +77,7 @@ namespace RPGGame.Tests.Unit
         }
 
         /// <summary>
-        /// Bar cost uses tier-1 dungeon completion as unit × (1, 1.5, 2, 3, …) so pacing stretches over time.
+        /// Bar cost is estimated at-level dungeon run XP × (1 at L1, 2 at L5, 3 at L20, +1 per 15 levels after) so pacing stretches over time.
         /// </summary>
         private static void TestDungeonPacedXpRequirementCurve()
         {
@@ -93,19 +93,19 @@ namespace RPGGame.Tests.Unit
                 $"XP required should increase with level: {need1}, {need2}, {need3}, {need4}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Ratios ignore global/BaseXPToLevel2 scaling (both numerator and denominator pick up the same factors).
-            double r2 = need2 / (double)need1;
-            double r3 = need3 / (double)need1;
-            double r4 = need4 / (double)need1;
-            TestBase.AssertTrue(Math.Abs(r2 - 1.5) < 0.02,
-                $"L2 bar should be ~1.5× L1 bar (got {r2:F3})",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(Math.Abs(r3 - 2.0) < 0.02,
-                $"L3 bar should be ~2× L1 bar (got {r3:F3})",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(Math.Abs(r4 - 3.0) < 0.02,
-                $"L4 bar should be ~3× L1 bar (got {r4:F3})",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // Bar / estimated at-level run XP = dungeons per level (ignores global scaling only when XPScalingFactor/BaseXPToLevel2 are unset).
+            var progression = GameConfiguration.Instance.Progression;
+            if (progression.BaseXPToLevel2 <= 0 && progression.XPScalingFactor <= 0)
+            {
+                foreach (var (level, expected) in new[] { (1, 1.0), (5, 2.0), (20, 3.0), (35, 4.0) })
+                {
+                    double runs = CharacterProgression.GetXpRequiredToAdvanceFromLevel(level)
+                        / CharacterProgression.GetEstimatedDungeonRunXpForLevel(level);
+                    TestBase.AssertTrue(Math.Abs(runs - expected) < 0.02,
+                        $"L{level} bar should take ~{expected} at-level dungeon runs (got {runs:F3})",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                }
+            }
 
             TestBase.AssertTrue(tier1Completion >= 1,
                 $"Tier-1 dungeon completion XP should be positive: {tier1Completion}",

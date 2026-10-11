@@ -69,12 +69,15 @@ namespace RPGGame.ActionInteractionLab
         public static Enemy BuildLabEnemy(
             string? sessionEnemyLoaderType,
             int effectiveLevel,
-            BattleConfiguration defaultConfig)
+            BattleConfiguration defaultConfig,
+            bool reloadEnemyData = true)
         {
-            effectiveLevel = Math.Clamp(effectiveLevel, 1, 99);
+            effectiveLevel = Math.Clamp(effectiveLevel, 1, 100);
             if (!string.IsNullOrEmpty(sessionEnemyLoaderType))
             {
-                EnemyLoader.LoadEnemies();
+                // Batch sims load once per batch; re-reading Enemies.json per fight dominated sim time.
+                if (reloadEnemyData)
+                    EnemyLoader.LoadEnemies();
                 return EnemyLoader.CreateEnemy(sessionEnemyLoaderType.Trim(), effectiveLevel)
                     ?? TestCharacterFactory.CreateTestEnemy(defaultConfig, 0, effectiveLevel);
             }

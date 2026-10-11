@@ -172,6 +172,8 @@ namespace RPGGame
 
         private static readonly string[] PossibleRoomPaths = {
 
+            GameConstants.ResolveGameDataPath("Rooms.json"),
+
             Path.Combine("GameData", "Rooms.json"),
 
             Path.Combine("..", "GameData", "Rooms.json"),

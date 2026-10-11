@@ -28,6 +28,29 @@ namespace RPGGame
         /// <summary>INT threshold for combo sequence unlocks (see <see cref="GameConstants.ComboSequenceIntelligenceThreshold"/>).</summary>
         public int ComboSequenceIntelligenceThreshold { get; set; } = 10;
 
+        /// <summary>
+        /// Legacy (true): affix lines roll their own tiers, at most one suffix per tier (repeats bump up), and the item is
+        /// raised to its highest affix rank — so affix count effectively decides rarity.
+        /// False: the rarity table decides item rarity; affix lines roll at or below it (see <see cref="AffixTierFalloff"/>);
+        /// the first stat suffix carries the item's rarity; affixes never raise item rarity.
+        /// </summary>
+        public bool RarityFromAffixes { get; set; } = true;
+
+        /// <summary>
+        /// When <see cref="RarityFromAffixes"/> is false: each tier below the item's rarity is this many times more likely
+        /// for non-signature affix lines (3 = a Rare item's extra lines are Common 9 : Uncommon 3 : Rare 1).
+        /// </summary>
+        public double AffixTierFalloff { get; set; } = 3.0;
+
+        /// <summary>Chance (0–1) that a weapon drop is the hero's equipped weapon type (0 = uniform across types, legacy).</summary>
+        public double EquippedWeaponTypeBias { get; set; }
+
+        /// <summary>Chance (0–1) a weapon's gear action comes from its class's actions; otherwise a neutral action.</summary>
+        public double WeaponGearActionClassShare { get; set; } = 0.7;
+
+        /// <summary>Chance (0–1) an armor piece's gear action comes from the hero's class (equipped weapon); otherwise neutral.</summary>
+        public double ArmorGearActionClassShare { get; set; }
+
         public RarityUpgradeConfig RarityUpgrade { get; set; } = new();
         public string Description { get; set; } = "";
 

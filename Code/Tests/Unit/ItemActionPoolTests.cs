@@ -241,7 +241,7 @@ namespace RPGGame.Tests.Unit
                 .WithName("TestBoots")
                 .Build();
             
-            armor.GearAction = "STUN";
+            armor.GearAction = "WEAKEN";
             armor.ActionBonuses = new List<ActionBonus>
             {
                 new ActionBonus { Name = "TAUNT" }
@@ -252,11 +252,11 @@ namespace RPGGame.Tests.Unit
 
             // Verify all actions are in the pool
             var actionPool = character.GetActionPool();
-            bool hasStun = actionPool.Any(a => a.Name == "STUN");
+            bool hasWeaken = actionPool.Any(a => a.Name == "WEAKEN");
             bool hasTaunt = actionPool.Any(a => a.Name == "TAUNT");
 
-            TestBase.AssertTrue(hasStun,
-                "STUN action should be in action pool",
+            TestBase.AssertTrue(hasWeaken,
+                "WEAKEN action should be in action pool",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             TestBase.AssertTrue(hasTaunt,

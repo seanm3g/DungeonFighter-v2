@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 namespace RPGGame
 {
@@ -8,7 +9,28 @@ namespace RPGGame
     /// </summary>
     public static class RandomUtility
     {
-        private static readonly Random _random = new Random();
+        private static readonly AsyncLocal<Random?> _scoped = new();
+
+        /// <summary>
+        /// Generator for the current async flow: a seeded scope (simulation) when active, otherwise the thread-safe shared generator.
+        /// Combat code should draw from this so seeded sims replay identically.
+        /// </summary>
+        public static Random Current => _scoped.Value ?? Random.Shared;
+
+        /// <summary>Routes <see cref="Current"/> to <paramref name="rng"/> for this async flow until disposed.</summary>
+        public static IDisposable BeginSeededScope(Random rng)
+        {
+            var previous = _scoped.Value;
+            _scoped.Value = rng;
+            return new ScopeRestore(previous);
+        }
+
+        private sealed class ScopeRestore : IDisposable
+        {
+            private readonly Random? _previous;
+            public ScopeRestore(Random? previous) => _previous = previous;
+            public void Dispose() => _scoped.Value = _previous;
+        }
 
         /// <summary>
         /// Gets a random integer between min (inclusive) and max (exclusive)
@@ -18,7 +40,7 @@ namespace RPGGame
         /// <returns>A random integer</returns>
         public static int Next(int min, int max)
         {
-            return _random.Next(min, max);
+            return Current.Next(min, max);
         }
 
         /// <summary>
@@ -28,7 +50,7 @@ namespace RPGGame
         /// <returns>A random integer</returns>
         public static int Next(int max)
         {
-            return _random.Next(max);
+            return Current.Next(max);
         }
 
         /// <summary>
@@ -37,7 +59,7 @@ namespace RPGGame
         /// <returns>A random double</returns>
         public static double NextDouble()
         {
-            return _random.NextDouble();
+            return Current.NextDouble();
         }
 
         /// <summary>
@@ -48,7 +70,7 @@ namespace RPGGame
         /// <returns>A random double</returns>
         public static double NextDouble(double min, double max)
         {
-            return min + (_random.NextDouble() * (max - min));
+            return min + (Current.NextDouble() * (max - min));
         }
 
         /// <summary>
@@ -62,7 +84,7 @@ namespace RPGGame
             if (array == null || array.Length == 0)
                 throw new ArgumentException("Array cannot be null or empty");
             
-            return array[_random.Next(array.Length)];
+            return array[Current.Next(array.Length)];
         }
 
         /// <summary>
@@ -76,7 +98,7 @@ namespace RPGGame
             if (list == null || list.Count == 0)
                 throw new ArgumentException("List cannot be null or empty");
             
-            return list[_random.Next(list.Count)];
+            return list[Current.Next(list.Count)];
         }
 
         /// <summary>
@@ -94,7 +116,7 @@ namespace RPGGame
             if (list.Count == 0)
                 throw new ArgumentException("Collection cannot be empty");
             
-            return list[_random.Next(list.Count)];
+            return list[Current.Next(list.Count)];
         }
 
         /// <summary>
@@ -103,7 +125,7 @@ namespace RPGGame
         /// <returns>A random boolean</returns>
         public static bool NextBool()
         {
-            return _random.Next(2) == 1;
+            return Current.Next(2) == 1;
         }
 
         /// <summary>
@@ -113,7 +135,7 @@ namespace RPGGame
         /// <returns>A random boolean</returns>
         public static bool NextBool(double probability)
         {
-            return _random.NextDouble() < probability;
+            return Current.NextDouble() < probability;
         }
 
         /// <summary>
@@ -128,7 +150,7 @@ namespace RPGGame
             
             for (int i = array.Length - 1; i > 0; i--)
             {
-                int j = _random.Next(i + 1);
+                int j = Current.Next(i + 1);
                 (array[i], array[j]) = (array[j], array[i]);
             }
         }
@@ -145,7 +167,7 @@ namespace RPGGame
             
             for (int i = list.Count - 1; i > 0; i--)
             {
-                int j = _random.Next(i + 1);
+                int j = Current.Next(i + 1);
                 (list[i], list[j]) = (list[j], list[i]);
             }
         }
@@ -156,7 +178,7 @@ namespace RPGGame
         /// <returns>The shared Random instance</returns>
         public static Random GetSharedRandom()
         {
-            return _random;
+            return Current;
         }
     }
 }

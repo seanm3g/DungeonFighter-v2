@@ -451,6 +451,8 @@ GameData/PatchProfile.json
 GameData/GeneralSettings.json
 # Right-click combat scene JSON dumps
 GameData/CombatLogs/
+# Headless tuning tool run records (FUNDMATRIX, ACTIONVALUE, ITEMSTATS, STATVALUE)
+GameData/TuningRuns/
 # Misplaced root copies of general settings (canonical path is GameData/)
 /GeneralSettings.json
 /GeneralSettings.json.bak

@@ -530,7 +530,7 @@ namespace RPGGame.Tests.Unit.Data
             }
 
             // Test multiple actions for compatibility
-            var testActionNames = new[] { "JAB", "PUNCH HARD", "STUN", "FLURRY" };
+            var testActionNames = new[] { "JAB", "PUNCH", "WEAKEN", "BASH" };
             int compatibleActions = 0;
 
             foreach (var actionName in testActionNames)

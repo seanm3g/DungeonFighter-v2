@@ -97,7 +97,7 @@ namespace RPGGame
             get => _state.MaterialConsecutiveConnects;
             set => _state.MaterialConsecutiveConnects = value;
         }
-        public void ApplySlow(double slowMultiplier, int duration) => _state.ApplySlow(slowMultiplier, duration);
+        public void ApplySlow(double speedReduction, int duration) => _state.ApplySlow(speedReduction, duration);
         public void ApplyShield() => _state.ApplyShield();
         public bool ConsumeShield() => _state.ConsumeShield();
 

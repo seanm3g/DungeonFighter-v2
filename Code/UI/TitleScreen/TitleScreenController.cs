@@ -415,7 +415,7 @@ namespace RPGGame.UI.TitleScreen
 
                 if (configPath == null)
                 {
-                    configPath = System.IO.Path.Combine("GameData", ConfigFileName);
+                    configPath = GameConstants.ResolveGameDataPath(ConfigFileName);
                 }
 
                 var options = new System.Text.Json.JsonSerializerOptions

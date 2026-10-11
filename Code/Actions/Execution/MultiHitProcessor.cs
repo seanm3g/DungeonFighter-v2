@@ -1,5 +1,6 @@
 using RPGGame;
 using RPGGame.Combat;
+using RPGGame.Combat.Calculators;
 using RPGGame.Utils;
 
 namespace RPGGame.Actions.Execution
@@ -43,6 +44,7 @@ namespace RPGGame.Actions.Execution
             if (source is Character character && character.Effects.ConsumedMultiHitMod != 0)
                 multiHitCount = Math.Max(1, multiHitCount + (int)Math.Max(0, character.Effects.ConsumedMultiHitMod));
             multiHitCount = Math.Max(1, multiHitCount + ChainPositionBonusApplier.GetMultiHitDelta(source, action, ActionUtilities.GetComboActions(source), ActionUtilities.GetComboStep(source)));
+            damageMultiplier *= PackCombat.GetPerBodyDamageScale(source, multiHitCount);
             multiHitCount = PackCombat.ResolveOutgoingHitCount(source, multiHitCount);
             int totalDamage = 0;
 
@@ -54,6 +56,7 @@ namespace RPGGame.Actions.Execution
 
             // Always resolve every planned tick so combat-log totals match (attack − armor) × hits
             // (and the `(N hits)` label). TakeDamage already clamps HP at 0; remaining ticks overkill.
+            using var swing = DamageCalculator.BeginMultiHitSwing();
             for (int hit = 0; hit < multiHitCount; hit++)
             {
                 // Roll-based damage: apply RollPenalty per hit (hit 0 uses the same total as the hit roll; later hits stack the debuff again)
@@ -100,6 +103,22 @@ namespace RPGGame.Actions.Execution
                 }
                 
                 totalDamage += hitDamage;
+            }
+
+            // Minimum damage applies to the whole swing, not to each tick (a fully mitigated swing still deals 0).
+            if (action.DamageMultiplier > 0 && totalDamage > 0 && totalDamage < DamageCalculator.SwingMinimumDamage)
+            {
+                int topUp = DamageCalculator.SwingMinimumDamage - totalDamage;
+                if (action.Target == TargetType.SelfAndTarget)
+                {
+                    ActionUtilities.ApplyDamage(target, topUp);
+                    ActionUtilities.ApplyDamage(source, topUp);
+                }
+                else if (action.Target == TargetType.Self)
+                    ActionUtilities.ApplyDamage(source, topUp);
+                else
+                    ActionUtilities.ApplyDamage(target, topUp);
+                totalDamage += topUp;
             }
 
             // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
@@ -149,6 +168,7 @@ namespace RPGGame.Actions.Execution
         {
             int rawTarget = 0;
             int rawSelf = 0;
+            using (DamageCalculator.BeginMultiHitSwing())
             for (int hit = 0; hit < multiHitCount; hit++)
             {
                 int perHitTotalRoll = GetMultihitDamageTotalRoll(totalRoll, source, hit);
@@ -166,6 +186,16 @@ namespace RPGGame.Actions.Execution
                 }
                 else
                     rawTarget += hitDamage;
+            }
+
+            // Minimum damage applies to the whole swing, not to each tick.
+            if (action.DamageMultiplier > 0)
+            {
+                int floor = DamageCalculator.SwingMinimumDamage;
+                if (action.Target != TargetType.Self && rawTarget > 0 && rawTarget < floor)
+                    rawTarget = floor;
+                if ((action.Target == TargetType.Self || action.Target == TargetType.SelfAndTarget) && rawSelf > 0 && rawSelf < floor)
+                    rawSelf = floor;
             }
 
             int appliedTarget = ApplyRawOnce(target, rawTarget);

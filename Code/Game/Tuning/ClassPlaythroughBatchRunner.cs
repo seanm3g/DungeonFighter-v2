@@ -100,9 +100,71 @@ namespace RPGGame.Tuning
                 sb.AppendLine("No cross-class parity warnings.");
             }
 
+            var allRuns = batch.ClassAggregates.SelectMany(a => a.Runs).ToList();
+            if (ClassPlaythroughRunner.StopAtLevel > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine($"Survival to L{ClassPlaythroughRunner.StopAtLevel}: " + string.Join("  ", batch.ClassAggregates.Select(a =>
+                    $"{a.ClassDisplayName} {a.Runs.Count(r => r.StopReason == PlaythroughStopReason.ReachedLevel) * 100.0 / Math.Max(1, a.Runs.Count):F0}%"))
+                    + $"  | all {allRuns.Count(r => r.StopReason == PlaythroughStopReason.ReachedLevel) * 100.0 / Math.Max(1, allRuns.Count):F0}%"
+                    + $" | ran out of actions {allRuns.Count(r => r.StopReason == PlaythroughStopReason.MaxActions)}");
+                sb.AppendLine($"Policy: {(ClassPlaythroughRunner.SmartPolicy ? "smart (skills, gear, sequence by simulation)" : "basic (equip by item score)")}");
+                sb.AppendLine($"Mean upgrades equipped per run: {allRuns.Average(r => r.UpgradesEquipped):F1}"
+                    + (ClassPlaythroughRunner.SmartPolicy
+                        ? $" | skills learned {allRuns.Average(r => r.SmartSkillsLearned):F1} | sequence changes {allRuns.Average(r => r.SmartSequenceChanges):F1} | evaluations {allRuns.Average(r => r.SmartEvaluations):F0}"
+                        : ""));
+                // A run reached level N if it got there alive (dying at N still counts as having reached it).
+                for (int lvl = Math.Max(1, ClassPlaythroughRunner.StopAtLevel - 1); lvl <= ClassPlaythroughRunner.StopAtLevel; lvl++)
+                {
+                    int target = lvl;
+                    sb.AppendLine($"Reached L{target}: " + string.Join("  ", batch.ClassAggregates.Select(a =>
+                        $"{a.ClassDisplayName} {a.Runs.Count(r => r.FinalLevel >= target) * 100.0 / Math.Max(1, a.Runs.Count):F0}%"))
+                        + $"  | all {allRuns.Count(r => r.FinalLevel >= target) * 100.0 / Math.Max(1, allRuns.Count):F0}%");
+                }
+            }
+            AppendDeathSection(sb, batch);
+            AppendPerLevelFightSection(sb, allRuns);
             AppendPerLevelTurnSection(sb, batch);
 
             return sb.ToString();
+        }
+
+        /// <summary>Real per-fight outcomes by hero level: fights, losses, win rate, HP lost from the fight's starting HP.</summary>
+        private static void AppendPerLevelFightSection(StringBuilder sb, List<PlaythroughRunResult> runs)
+        {
+            var fights = runs.SelectMany(r => r.Fights).ToList();
+            if (fights.Count == 0)
+                return;
+            sb.AppendLine();
+            sb.AppendLine("Per-level fights (playthrough reality):");
+            sb.AppendLine("  Lvl  Fights  Losses   WinRate  HPlost/fight  HeroAct  EnemyAct  Dungeons  DungeonClear");
+            foreach (var g in fights.GroupBy(f => f.HeroLevel).OrderBy(g => g.Key))
+            {
+                int losses = g.Count(f => f.HeroDied);
+                double hpLost = g.Average(f => f.HeroMaxHp > 0 ? Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp : 0);
+                // A dungeon starts at its first fight; every death ends one, so clear rate = 1 - deaths / dungeon starts.
+                int dungeonStarts = Math.Max(1, g.Count(f => f.FightInDungeon == 1));
+                sb.AppendLine($"  {g.Key,3}  {g.Count(),6}  {losses,6}  {(1 - losses / (double)g.Count()) * 100,7:F2}%  {hpLost * 100,11:F0}%  {g.Average(f => f.HeroActions),7:F1}  {g.Average(f => f.EnemyActions),8:F1}  {dungeonStarts,8}  {(1 - losses / (double)dungeonStarts) * 100,11:F1}%");
+            }
+        }
+
+        /// <summary>Where runs die: level, dungeon room, fight number since entering, HP at entry.</summary>
+        private static void AppendDeathSection(StringBuilder sb, ClassPlaythroughBatchResult batch)
+        {
+            var deaths = batch.ClassAggregates
+                .SelectMany(a => a.Runs.Where(r => r.Death != null).Select(r => (a.ClassDisplayName, Death: r.Death!)))
+                .ToList();
+            if (deaths.Count == 0)
+                return;
+
+            sb.AppendLine();
+            sb.AppendLine($"Deaths ({deaths.Count}):");
+            sb.AppendLine("  By hero level: " + string.Join("  ", deaths.GroupBy(d => d.Death.Level).OrderBy(g => g.Key).Select(g => $"L{g.Key}={g.Count()}")));
+            sb.AppendLine("  By fight # within the dungeon: " + string.Join("  ", deaths.GroupBy(d => d.Death.FightsInDungeon).OrderBy(g => g.Key).Select(g => $"#{g.Key}={g.Count()}")));
+            sb.AppendLine("  By room (room/total): " + string.Join("  ", deaths.GroupBy(d => $"{d.Death.RoomNumber}/{d.Death.TotalRooms}").OrderBy(g => g.Key).Select(g => $"{g.Key}={g.Count()}")));
+            double entryPct = deaths.Average(d => d.Death.MaxHpAtDungeonEntry > 0 ? d.Death.HpAtDungeonEntry / (double)d.Death.MaxHpAtDungeonEntry : 0);
+            sb.AppendLine($"  Mean HP at dungeon entry: {entryPct * 100:F0}% of max");
+            sb.AppendLine("  Killers: " + string.Join("  ", deaths.GroupBy(d => d.Death.EnemyName).OrderByDescending(g => g.Count()).Take(8).Select(g => $"{g.Key}={g.Count()}")));
         }
 
         private static void AppendPerLevelTurnSection(StringBuilder sb, ClassPlaythroughBatchResult batch)

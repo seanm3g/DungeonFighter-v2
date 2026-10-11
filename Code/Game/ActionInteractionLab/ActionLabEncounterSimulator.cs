@@ -79,6 +79,7 @@ namespace RPGGame.ActionInteractionLab
             var validation = ValidateSnapshot(snapshot);
             if (validation != null)
                 throw new InvalidOperationException(validation);
+            EnemyLoader.LoadEnemies();
 
             int dop = ResolveMaxDegreeOfParallelism(maxDegreeOfParallelism);
 
@@ -257,8 +258,26 @@ namespace RPGGame.ActionInteractionLab
             return Math.Sqrt(variance);
         }
 
+        /// <summary>When true, each encounter records a readable per-event log in <see cref="EncounterMetrics.EventLog"/>.</summary>
+        public static bool CaptureEventLog { get; set; }
+
+        /// <summary>
+        /// When true, combo rolls run the hero's real strip routing (slot by slot, AMP by position) instead of forcing
+        /// <see cref="LabCombatSnapshot.SelectedCatalogActionName"/> on every combo roll. Used by sequence testing.
+        /// </summary>
+        public static bool UseNaturalComboRouting { get; set; }
+
         public static async Task<EncounterMetrics> RunSingleEncounterAsync(LabCombatSnapshot snapshot, Random rng)
         {
+            long profEncounter = RPGGame.Diagnostics.ToolProfiler.Start();
+            try { return await RunSingleEncounterCoreAsync(snapshot, rng).ConfigureAwait(false); }
+            finally { RPGGame.Diagnostics.ToolProfiler.Stop("Sim.Encounter(total)", profEncounter); }
+        }
+
+        private static async Task<EncounterMetrics> RunSingleEncounterCoreAsync(LabCombatSnapshot snapshot, Random rng)
+        {
+            // All combat randomness (damage dice, enemy action picks, rerolls) draws from rng so a batch seed replays exactly.
+            using var seededScope = RandomUtility.BeginSeededScope(rng);
             var metrics = new EncounterMetrics { PlayerWon = false };
             Character? player = null;
             Enemy? enemy = null;
@@ -271,8 +290,12 @@ namespace RPGGame.ActionInteractionLab
                 try
                 {
                     Environment? room;
+                    long profBuild = RPGGame.Diagnostics.ToolProfiler.Start();
                     (player, enemy, room) = BuildFightEntities(snapshot);
+                    RPGGame.Diagnostics.ToolProfiler.Stop("Sim.BuildFightEntities", profBuild);
+                    long profCm = RPGGame.Diagnostics.ToolProfiler.Start();
                     combatManager = new CombatManager();
+                    RPGGame.Diagnostics.ToolProfiler.Stop("Sim.NewCombatManager", profCm);
 
                     GameTicker.Instance.Reset();
                     player.ComboStep = 0;
@@ -311,11 +334,13 @@ namespace RPGGame.ActionInteractionLab
                         ActionSelector.SetStoredActionRoll(player, d20);
                         ActionSelector.SetStoredActionRoll(enemy, d20);
 
-                        Action? forcedForPlayer = ActionSelector.WouldNaturalRollSelectComboAction(player, d20) ? forced : null;
+                        Action? forcedForPlayer = !UseNaturalComboRouting && ActionSelector.WouldNaturalRollSelectComboAction(player, d20) ? forced : null;
                         CombatSingleTurnResult step;
                         try
                         {
+                            long profTurn = RPGGame.Diagnostics.ToolProfiler.Start();
                             step = await combatManager.AdvanceSingleTurnAsync(player, enemy, room, forcedForPlayer).ConfigureAwait(false);
+                            RPGGame.Diagnostics.ToolProfiler.Stop("Sim.AdvanceSingleTurn", profTurn);
                         }
                         finally
                         {
@@ -429,6 +454,16 @@ namespace RPGGame.ActionInteractionLab
             if (narrative != null)
             {
                 var events = narrative.GetAllEvents();
+                if (CaptureEventLog)
+                {
+                    metrics.EventLog = events.Select(e =>
+                        $"{e.Actor,-18} {e.Action,-16} -> {e.Target,-18} roll {e.NaturalRoll,2}/{e.Roll,2}"
+                        + (e.IsSuccess ? "" : " MISS")
+                        + (e.IsCritical ? " CRIT" : "")
+                        + (e.IsCombo ? $" combo(step {e.ComboStep})" : "")
+                        + $"  dmg {e.Damage,3}  target HP {e.TargetHealthBefore}->{e.TargetHealthAfter}").ToList();
+                    metrics.EventLog.Insert(0, "strip: " + string.Join(" > ", player.GetComboActions().Select(a => a.Name)));
+                }
                 var stats = BattleNarrativeGenerator.CalculateStatistics(events, player.Name, enemy.Name);
                 metrics.PlayerDamageDealt = stats.TotalPlayerDamage;
                 metrics.PlayerComboCount = stats.PlayerComboCount;
@@ -455,7 +490,8 @@ namespace RPGGame.ActionInteractionLab
                 if (currentTurn > 0)
                 {
                     metrics.PlayerTurns = currentTurn;
-                    metrics.EnemyTurns = Math.Max(0, currentTurn - (metrics.PlayerWon ? 1 : 0));
+                    // Count the enemy's actual actions; deriving them from the hero turn counter hid speed differences.
+                    metrics.EnemyTurns = events.Count(e => e.Actor == enemy.Name && !e.IsHeal);
                     turnCount = metrics.PlayerTurns + metrics.EnemyTurns;
                 }
                 else if (playerActions + enemyActions > 0)
@@ -484,6 +520,10 @@ namespace RPGGame.ActionInteractionLab
             metrics.Turns = turnCount;
             metrics.PlayerFinalHealth = player.CurrentHealth;
             metrics.EnemyFinalHealth = enemy.CurrentHealth;
+            metrics.PlayerMaxHealth = player.MaxHealth;
+            metrics.EnemyMaxHealth = enemy.MaxHealth;
+            metrics.PlayerAttackTime = player.GetTotalAttackSpeed();
+            metrics.EnemyAttackTime = enemy.GetTotalAttackSpeed();
 
             var speed = combatManager.GetCurrentActionSpeedSystem();
             double t = speed?.GetCurrentTime() ?? 0.0;
@@ -502,7 +542,8 @@ namespace RPGGame.ActionInteractionLab
             var enemy = LabCombatEntityFactory.BuildLabEnemy(
                 snapshot.SessionEnemyLoaderType,
                 snapshot.EnemyLevel,
-                snapshot.LabEnemyBattleConfig ?? LabCombatSnapshot.DefaultTestEnemyBattleConfig);
+                snapshot.LabEnemyBattleConfig ?? LabCombatSnapshot.DefaultTestEnemyBattleConfig,
+                reloadEnemyData: false);
             var room = TestCharacterFactory.CreateTestEnvironment();
             return (player, enemy, room);
         }

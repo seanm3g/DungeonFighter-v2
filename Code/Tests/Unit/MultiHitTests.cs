@@ -412,8 +412,15 @@ namespace RPGGame.Tests.Unit
             int rollBonus = 0;
             int totalRoll = 14;
 
-            int hit0Damage = CombatCalculator.CalculateDamage(character, enemy, action, damageMultiplier, 1.0, rollBonus, totalRoll);
-            int hit1Damage = CombatCalculator.CalculateDamage(character, enemy, action, damageMultiplier, 1.0, rollBonus, totalRoll - 1);
+            // Ticks resolve inside one swing: fractional damage carries and the minimum applies to the swing total.
+            int hit0Damage, hit1Damage;
+            using (RPGGame.Combat.Calculators.DamageCalculator.BeginMultiHitSwing())
+            {
+                hit0Damage = CombatCalculator.CalculateDamage(character, enemy, action, damageMultiplier, 1.0, rollBonus, totalRoll, true, null, null, 0);
+                hit1Damage = CombatCalculator.CalculateDamage(character, enemy, action, damageMultiplier, 1.0, rollBonus, totalRoll - 1, true, null, null, 1);
+            }
+            if (hit0Damage + hit1Damage > 0 && hit0Damage + hit1Damage < RPGGame.Combat.Calculators.DamageCalculator.SwingMinimumDamage)
+                hit1Damage = RPGGame.Combat.Calculators.DamageCalculator.SwingMinimumDamage - hit0Damage;
 
             int totalDamage = MultiHitProcessor.ProcessMultiHit(
                 character, enemy, action, damageMultiplier, totalRoll,
@@ -510,8 +517,15 @@ namespace RPGGame.Tests.Unit
                 double dmgMult = ActionUtilities.CalculateDamageMultiplier(hero, follow);
                 int rollBonus = 0;
                 int totalRoll = 18 + rollBonus; // modified base roll is the test roll in this harness
-                int oneHit = CombatCalculator.CalculateDamage(hero, enemy, follow, dmgMult, 1.0, rollBonus, totalRoll);
-                int expected = oneHit * 3;
+                // Three ticks inside one swing: fractional damage carries and the minimum applies to the swing total.
+                int expected = 0;
+                using (RPGGame.Combat.Calculators.DamageCalculator.BeginMultiHitSwing())
+                {
+                    for (int tick = 0; tick < 3; tick++)
+                        expected += CombatCalculator.CalculateDamage(hero, enemy, follow, dmgMult, 1.0, rollBonus, totalRoll, true, null, null, tick);
+                }
+                if (expected > 0)
+                    expected = Math.Max(expected, RPGGame.Combat.Calculators.DamageCalculator.SwingMinimumDamage);
                 int actual = enemyHealthBefore - enemy.CurrentHealth;
 
                 TestBase.AssertEqual(expected, actual,
@@ -637,9 +651,17 @@ namespace RPGGame.Tests.Unit
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 double dmgMult = ActionUtilities.CalculateDamageMultiplier(hero, slam);
-                int oneHit = CombatCalculator.CalculateDamage(hero, enemy, slam, dmgMult, 1.0, 0, Math.Max(comboMin + 1, 15));
+                // Two ticks resolve inside one swing: fractional damage carries and the minimum applies to the total.
+                int twoHits;
+                using (RPGGame.Combat.Calculators.DamageCalculator.BeginMultiHitSwing())
+                {
+                    twoHits = CombatCalculator.CalculateDamage(hero, enemy, slam, dmgMult, 1.0, 0, Math.Max(comboMin + 1, 15), true, null, null, 0)
+                        + CombatCalculator.CalculateDamage(hero, enemy, slam, dmgMult, 1.0, 0, Math.Max(comboMin + 1, 15), true, null, null, 1);
+                }
+                if (twoHits > 0)
+                    twoHits = Math.Max(twoHits, RPGGame.Combat.Calculators.DamageCalculator.SwingMinimumDamage);
                 int actual = enemyHealthBefore - enemy.CurrentHealth;
-                TestBase.AssertEqual(oneHit * 2, actual,
+                TestBase.AssertEqual(twoHits, actual,
                     "Redeemed MULTIHIT deals 2-hit damage",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(hero.Effects.GetPendingActionBonusesForSlot(1).Count == 0,
@@ -766,9 +788,17 @@ namespace RPGGame.Tests.Unit
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 double dmgMult = ActionUtilities.CalculateDamageMultiplier(hero, slam);
-                int oneHit = CombatCalculator.CalculateDamage(hero, enemy, slam, dmgMult, 1.0, 0, Math.Max(comboMin + 1, 15));
+                // Two ticks resolve inside one swing: fractional damage carries and the minimum applies to the total.
+                int twoHits;
+                using (RPGGame.Combat.Calculators.DamageCalculator.BeginMultiHitSwing())
+                {
+                    twoHits = CombatCalculator.CalculateDamage(hero, enemy, slam, dmgMult, 1.0, 0, Math.Max(comboMin + 1, 15), true, null, null, 0)
+                        + CombatCalculator.CalculateDamage(hero, enemy, slam, dmgMult, 1.0, 0, Math.Max(comboMin + 1, 15), true, null, null, 1);
+                }
+                if (twoHits > 0)
+                    twoHits = Math.Max(twoHits, RPGGame.Combat.Calculators.DamageCalculator.SwingMinimumDamage);
                 int actual = enemyHealthBefore - enemy.CurrentHealth;
-                TestBase.AssertEqual(oneHit * 2, actual,
+                TestBase.AssertEqual(twoHits, actual,
                     "Slam deals 2-hit damage (not 3 from double MULTIHIT grant)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 

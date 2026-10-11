@@ -55,7 +55,7 @@
       "intelligence": 0.5
     },
     "healthPercent": 100,
-    "healthGrowthPercent": 2.36,
+    "healthGrowthPercent": 2.8,
     "actions": [
       "WEB STRIKE",
       "POISON BITE"
@@ -156,13 +156,13 @@
       "intelligence": 3
     },
     "growthPerLevel": {
-      "strength": 3.5,
+      "strength": 2.6,
       "agility": 0.7,
-      "technique": 1.1,
+      "technique": 2.0,
       "intelligence": 0.7
     },
     "healthPercent": 100,
-    "healthGrowthPercent": 6.14,
+    "healthGrowthPercent": 4.6,
     "actions": [
       "MAGMA FIST",
       "ERUPTION"
@@ -196,7 +196,7 @@
       "intelligence": 0.5
     },
     "healthPercent": 100,
-    "healthGrowthPercent": 1.93,
+    "healthGrowthPercent": 2.8,
     "actions": [
       "BAT SWARM"
     ],
@@ -233,7 +233,7 @@
       "intelligence": 0.8
     },
     "healthPercent": 100,
-    "healthGrowthPercent": 2.1,
+    "healthGrowthPercent": 2.8,
     "actions": [
       "RAT SWARM"
     ],
@@ -270,13 +270,13 @@
       "intelligence": 0.7
     },
     "healthPercent": 60,
-    "healthGrowthPercent": 1.5,
+    "healthGrowthPercent": 2.0,
     "actions": [
       "ANT SWARM"
     ],
     "isLiving": true,
-    "packSize": 30,
-    "description": "Thirty biting ants - tiny bites each, but the swarm hits once per living ant",
+    "packSize": 5,
+    "description": "Five giant ants - the swarm bites once per living ant",
     "tags": [
       "living",
       "minion",
@@ -337,13 +337,13 @@
       "intelligence": 4
     },
     "growthPerLevel": {
-      "strength": 3.5,
+      "strength": 2.6,
       "agility": 0.7,
-      "technique": 1.1,
+      "technique": 2.0,
       "intelligence": 0.7
     },
     "healthPercent": 100,
-    "healthGrowthPercent": 4.5,
+    "healthGrowthPercent": 4.3,
     "actions": [
       "CLAW",
       "GROAN"
@@ -409,7 +409,7 @@
       "intelligence": 0.5
     },
     "healthPercent": 100,
-    "healthGrowthPercent": 4.93,
+    "healthGrowthPercent": 4.3,
     "actions": [
       "SLAM",
       "GRUNT"
@@ -438,13 +438,13 @@
       "intelligence": 5
     },
     "growthPerLevel": {
-      "strength": 3.5,
+      "strength": 2.6,
       "agility": 0.7,
-      "technique": 1.1,
+      "technique": 2.0,
       "intelligence": 0.7
     },
     "healthPercent": 100,
-    "healthGrowthPercent": 5.86,
+    "healthGrowthPercent": 4.6,
     "actions": [
       "SLAM",
       "PUNCH HARD"
@@ -573,13 +573,13 @@
       "intelligence": 3
     },
     "growthPerLevel": {
-      "strength": 3.5,
+      "strength": 2.6,
       "agility": 0.7,
-      "technique": 1.1,
+      "technique": 2.0,
       "intelligence": 0.7
     },
     "healthPercent": 100,
-    "healthGrowthPercent": 5.71,
+    "healthGrowthPercent": 4.6,
     "actions": [
       "SLAM"
     ],
@@ -645,7 +645,7 @@
     "healthGrowthPercent": 4.07,
     "actions": [
       "CRITICAL ATTACK",
-      "STUN"
+      "WEAKEN"
     ],
     "isLiving": false,
     "description": "An undead spellcaster with potent magical strikes",

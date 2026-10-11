@@ -151,6 +151,7 @@ namespace RPGGame
         private static readonly object EnemiesLock = new object();
         private static Dictionary<string, EnemyData>? _enemies;
         private static readonly string[] PossibleEnemyPaths = {
+            GameConstants.ResolveGameDataPath("Enemies.json"),
             Path.Combine("GameData", "Enemies.json"),
             Path.Combine("..", "GameData", "Enemies.json"),
             Path.Combine("..", "..", "GameData", "Enemies.json")

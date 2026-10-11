@@ -192,9 +192,9 @@ namespace RPGGame.Tests.Unit.Combat
                 "Bats are a 3-body pack", ref run, ref passed, ref failed);
             TestBase.AssertTrue(rats != null && rats.IsPack && rats.PackSize == 7 && rats.LivingBodyCount == 7,
                 "Rats are a 7-body pack", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(ants != null && ants.IsPack && ants.PackSize == 30 && ants.LivingBodyCount == 30,
-                "Giant Ants are a 30-body pack", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(ants!.MaxHealth >= 30,
+            TestBase.AssertTrue(ants != null && ants.IsPack && ants.PackSize == 5 && ants.LivingBodyCount == 5,
+                "Giant Ants are a 5-body pack", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ants!.MaxHealth >= 5,
                 "Giant Ants have at least 1 HP per body", ref run, ref passed, ref failed);
 
             TestBase.AssertTrue(bats!.ActionPool.Any(a => a.action.Name.Equals("BAT SWARM", StringComparison.OrdinalIgnoreCase)
@@ -204,11 +204,11 @@ namespace RPGGame.Tests.Unit.Combat
                     && a.action.Advanced.MultiHitCount == 7),
                 "Rats use RAT SWARM (7 hits)", ref run, ref passed, ref failed);
             TestBase.AssertTrue(ants!.ActionPool.Any(a => a.action.Name.Equals("ANT SWARM", StringComparison.OrdinalIgnoreCase)
-                    && a.action.Advanced.MultiHitCount == 30),
-                "Giant Ants use ANT SWARM (30 hits)", ref run, ref passed, ref failed);
+                    && a.action.Advanced.MultiHitCount == 5),
+                "Giant Ants use ANT SWARM (5 hits)", ref run, ref passed, ref failed);
             var antAction = ActionLoader.GetAction("ANT SWARM");
-            TestBase.AssertTrue(antAction != null && antAction.DamageMultiplier <= 0.05,
-                "ANT SWARM keeps per-ant damage tiny", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(antAction != null && antAction.DamageMultiplier <= 0.25,
+                "ANT SWARM keeps per-ant damage small", ref run, ref passed, ref failed);
         }
     }
 }

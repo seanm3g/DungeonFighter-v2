@@ -20,7 +20,6 @@ namespace RPGGame
         private readonly LootDataCache _dataCache;
         private readonly Random _random;
         private readonly LootModificationSelector? _modificationSelector;
-        private readonly LootActionSelector? _actionSelector;
 
         /// <summary>Clamped 0–100 for the current <see cref="ApplyBonuses"/> call (prefix/suffix tier + optional affix extras).</summary>
         private int _affixMagicFind;
@@ -30,7 +29,6 @@ namespace RPGGame
             _dataCache = dataCache;
             _random = random;
             _modificationSelector = new LootModificationSelector(random);
-            _actionSelector = new LootActionSelector(random);
         }
 
         /// <summary>
@@ -45,6 +43,8 @@ namespace RPGGame
             try
             {
                 string rarityName = rarity.Name?.Trim() ?? "Common";
+                bool legacyRarity = GameConfiguration.Instance?.LootSystem?.RarityFromAffixes ?? true;
+                _itemRarityCapIndex = legacyRarity ? -1 : Math.Max(0, AffixTierOrderIndex(rarityName));
 
                 item.StatBonuses.Clear();
                 item.ActionBonuses.Clear();
@@ -79,15 +79,18 @@ namespace RPGGame
                 SyncMaterialPrefixTags(item);
 
                 item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
-                AdjustRarityBasedOnBonuses(item, rarity);
+                if (legacyRarity)
+                    AdjustRarityBasedOnBonuses(item, rarity);
                 ResolveRerollAdjectiveIfPresent(item, context);
                 SyncMaterialPrefixTags(item);
-                AdjustRarityBasedOnBonuses(item, rarity);
+                if (legacyRarity)
+                    AdjustRarityBasedOnBonuses(item, rarity);
                 item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
             }
             finally
             {
                 _affixMagicFind = 0;
+                _itemRarityCapIndex = -1;
             }
         }
 
@@ -416,9 +419,21 @@ namespace RPGGame
                 tierSet.Add(string.IsNullOrWhiteSpace(s.Rarity) ? "Common" : s.Rarity.Trim());
 
             var usedAffixRarities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var usedStats = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             for (int i = 0; i < count; i++)
             {
+                if (_itemRarityCapIndex >= 0)
+                {
+                    // Rarity-capped model: first line carries the item's rarity, later lines lean lower; no repeated stat.
+                    var capped = PickStatBonusCapped(signature: i == 0, usedStats);
+                    if (capped == null)
+                        continue;
+                    usedStats.Add(StatKey(capped));
+                    item.StatBonuses.Add(capped.CloneForItemInstance());
+                    continue;
+                }
+
                 var pick = PickStatBonusWithUniqueAffixRarity(tierSet, usedAffixRarities);
                 if (pick == null)
                     continue;
@@ -431,6 +446,51 @@ namespace RPGGame
             // Suffix Requirements (when authored on rolled rows) merge into the equip gate.
             item.RecomputeAttributeRequirementsIncludingModifications();
             AnimalTagHelper.SyncSuffixTags(item);
+        }
+
+        /// <summary>Item rarity index when the rarity-capped affix model is active; -1 = legacy model.</summary>
+        private int _itemRarityCapIndex = -1;
+
+        private static string StatKey(StatBonus s) => string.IsNullOrWhiteSpace(s.StatType) ? s.Name : s.StatType;
+
+        /// <summary>
+        /// Tier for a non-signature affix line under the rarity-capped model: 0..cap, each lower tier
+        /// <see cref="LootSystemConfig.AffixTierFalloff"/>× more likely.
+        /// </summary>
+        private int RollCappedTierIndex(int cap)
+        {
+            double falloff = Math.Max(1.0, GameConfiguration.Instance?.LootSystem?.AffixTierFalloff ?? 3.0);
+            double total = 0;
+            var weights = new double[cap + 1];
+            for (int t = 0; t <= cap; t++)
+            {
+                weights[t] = Math.Pow(falloff, cap - t);
+                total += weights[t];
+            }
+            double roll = _random.NextDouble() * total;
+            for (int t = 0; t <= cap; t++)
+            {
+                roll -= weights[t];
+                if (roll < 0)
+                    return t;
+            }
+            return 0;
+        }
+
+        private StatBonus? PickStatBonusCapped(bool signature, HashSet<string> usedStats)
+        {
+            int cap = Math.Min(_itemRarityCapIndex, AffixTierOrder.Length - 1);
+            int start = signature ? cap : RollCappedTierIndex(cap);
+            // Walk down from the chosen tier until a tier has an unused stat; never above the item's rarity.
+            for (int t = start; t >= 0; t--)
+            {
+                var pool = FilterStatBonusesByAffixTier(_dataCache.StatBonuses!, AffixTierOrder[t])
+                    .Where(s => !usedStats.Contains(StatKey(s)))
+                    .ToList();
+                if (pool.Count > 0)
+                    return pool[_random.Next(pool.Count)];
+            }
+            return null;
         }
 
         /// <summary>At most one stat suffix per affix-line rarity; duplicate rolls promote up <see cref="AffixTierOrder"/>.</summary>
@@ -481,39 +541,12 @@ namespace RPGGame
             if (heroGearPool.Count == 0)
                 return;
 
+            WeaponType? heroWeaponType = GearActionPools.WeaponTypeForClass(context?.PlayerClass);
             for (int i = 0; i < count; i++)
             {
-                if (_actionSelector != null && context != null)
-                {
-                    var contextualAction = _actionSelector.SelectAction(context, item);
-                    if (!string.IsNullOrEmpty(contextualAction) &&
-                        GameDataTagHelper.IsGrantableOnHeroGearByName(contextualAction))
-                    {
-                        var actionBonus = heroGearPool.FirstOrDefault(
-                            a => a.Name.Equals(contextualAction, StringComparison.OrdinalIgnoreCase));
-                        if (actionBonus != null)
-                        {
-                            item.ActionBonuses.Add(actionBonus);
-                            continue;
-                        }
-                    }
-                }
-
-                var actionBonuses = heroGearPool;
-                if (actionBonuses.Count == 0) continue;
-                int totalWeight = actionBonuses.Sum(a => Math.Max(1, a.Weight));
-                int roll = _random.Next(totalWeight);
-                int accumulated = 0;
-                ActionBonus? chosen = null;
-                foreach (var ab in actionBonuses)
-                {
-                    accumulated += Math.Max(1, ab.Weight);
-                    if (roll < accumulated) { chosen = ab; break; }
-                }
+                var chosen = GearActionPools.Pick(item, heroGearPool, _random, heroWeaponType);
                 if (chosen != null)
                     item.ActionBonuses.Add(chosen);
-                else
-                    item.ActionBonuses.Add(actionBonuses[actionBonuses.Count - 1]);
             }
         }
 
@@ -543,8 +576,13 @@ namespace RPGGame
             foreach (var m in basePool)
                 tierSet.Add(string.IsNullOrWhiteSpace(m.ItemRank) ? "Common" : m.ItemRank.Trim());
 
-            string tier = RollAffixLineRarityForPools(tierSet);
+            string tier = _itemRarityCapIndex >= 0
+                ? AffixTierOrder[RollCappedTierIndex(Math.Min(_itemRarityCapIndex, AffixTierOrder.Length - 1))]
+                : RollAffixLineRarityForPools(tierSet);
             var pool = FilterModificationsByAffixTier(basePool, tier);
+            // Capped model: if the rolled tier has no rows, step down (never up past the item's rarity).
+            for (int t = AffixTierOrderIndex(tier) - 1; _itemRarityCapIndex >= 0 && pool.Count == 0 && t >= 0; t--)
+                pool = FilterModificationsByAffixTier(basePool, AffixTierOrder[t]);
             for (int attempt = 0; attempt < 8 && pool.Count == 0; attempt++)
             {
                 string pick = tierSet.ElementAt(_random.Next(tierSet.Count));

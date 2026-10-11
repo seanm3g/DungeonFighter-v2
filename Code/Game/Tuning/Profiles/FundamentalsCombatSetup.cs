@@ -4,6 +4,7 @@ using System.Linq;
 using RPGGame.ActionInteractionLab;
 using RPGGame.BattleStatistics;
 using RPGGame.Config;
+using RPGGame.Data;
 using RPGGame.Entity.Services;
 
 namespace RPGGame.Tuning.Profiles
@@ -19,12 +20,33 @@ namespace RPGGame.Tuning.Profiles
         /// <summary>Hero stat multiplier for fundamentals sims (1.0 = normal level stats).</summary>
         public const double FundamentalsHeroPowerScale = 1.0;
 
+        /// <summary>Same as <see cref="BuildSnapshot(SimulationProfileConfig)"/> with an explicit combo strip (action names in slot order).</summary>
+        public static LabCombatSnapshot BuildSnapshot(SimulationProfileConfig config, IReadOnlyList<string> comboStrip)
+        {
+            var baseSnap = BuildSnapshot(config);
+            return new LabCombatSnapshot(
+                // Open enough strip slots for the tested sequence (level 1 heroes start with one slot).
+                baseSnap.InitialPlayerJson, 0, 0, 0, 0, 0, 0, Math.Max(0, comboStrip.Count - 1),
+                sessionEnemyLoaderType: baseSnap.SessionEnemyLoaderType,
+                enemyLevel: baseSnap.EnemyLevel,
+                comboStripActionNames: comboStrip,
+                selectedCatalogActionName: comboStrip.Count > 0 ? comboStrip[0] : baseSnap.SelectedCatalogActionName,
+                labEnemyBattleConfig: null);
+        }
+
         public static LabCombatSnapshot BuildSnapshot(SimulationProfileConfig config)
+        {
+            long prof = RPGGame.Diagnostics.ToolProfiler.Start();
+            try { return BuildSnapshotCore(config); }
+            finally { RPGGame.Diagnostics.ToolProfiler.Stop("Setup.BuildSnapshot", prof); }
+        }
+
+        private static LabCombatSnapshot BuildSnapshotCore(SimulationProfileConfig config)
         {
             ActionLoader.ReloadActions();
             EnemyLoader.LoadEnemies();
 
-            int level = Math.Clamp(config.PlayerLevel, 1, 99);
+            int level = Math.Clamp(config.PlayerLevel, 1, 100);
             var character = new Character("FundamentalsHero", level);
             StripNonWeaponGear(character);
             ApplyFundamentalsHeroPowerScale(character);
@@ -32,6 +54,20 @@ namespace RPGGame.Tuning.Profiles
             var weaponType = ParseWeaponType(config.WeaponType);
             var weapon = CreateBaselineWeapon(weaponType);
             character.EquipItem(weapon, "weapon");
+            if (string.Equals(config.Gear, "typical", StringComparison.OrdinalIgnoreCase))
+                EquipTypicalGear(character, weaponType, level);
+            // STATVALUE: synthetic stat lines on the weapon to price one stat in isolation. The typical-gear weapon is a
+            // shared cached item, so the lines are removed again once the hero is serialized (else every later row inherits them).
+            var syntheticStatLines = new List<StatBonus>();
+            if (ExtraWeaponStatBonuses.Count > 0 && character.Weapon is WeaponItem statWeapon)
+            {
+                foreach (var extra in ExtraWeaponStatBonuses)
+                {
+                    var line = extra.CloneForItemInstance();
+                    statWeapon.StatBonuses.Add(line);
+                    syntheticStatLines.Add(line);
+                }
+            }
             character.InitializeDefaultCombo();
 
             var strip = character.GetComboActions().Select(a => a.Name).ToList();
@@ -44,6 +80,9 @@ namespace RPGGame.Tuning.Profiles
 
             var serializer = new CharacterSerializer();
             string json = serializer.Serialize(character);
+            if (character.Weapon is WeaponItem syntheticWeapon)
+                foreach (var line in syntheticStatLines)
+                    syntheticWeapon.StatBonuses.Remove(line);
 
             string enemyType = ResolveEnemyType(config);
 
@@ -57,7 +96,7 @@ namespace RPGGame.Tuning.Profiles
                 labPanelArmorDelta: 0,
                 labPanelActionSlotDelta: 0,
                 sessionEnemyLoaderType: enemyType,
-                enemyLevel: Math.Clamp(config.EnemyLevel, 1, 99),
+                enemyLevel: Math.Clamp(config.EnemyLevel, 1, 100),
                 comboStripActionNames: strip,
                 selectedCatalogActionName: forced,
                 labEnemyBattleConfig: null);
@@ -85,6 +124,109 @@ namespace RPGGame.Tuning.Profiles
 
             throw new InvalidOperationException("No enemies loaded for fundamentals simulation.");
         }
+
+        /// <summary>Stat lines added to the fundamentals hero's weapon (STATVALUE).</summary>
+        public static List<StatBonus> ExtraWeaponStatBonuses { get; } = new();
+
+        private static readonly Dictionary<(WeaponType, int), List<Item>> TypicalGearCache = new();
+
+        /// <summary>
+        /// Equips the median real loot item for <paramref name="level"/> in every slot (weapon of the hero's type by damage/speed,
+        /// armor by armor value). Level 1 keeps the starter weapon, as a new hero would.
+        /// </summary>
+        public static void EquipTypicalGear(Character character, WeaponType weaponType, int level)
+        {
+            if (!TypicalGearCache.TryGetValue((weaponType, level), out var picks))
+            {
+                var pool = GetTypicalGearPool(level);
+                picks = new List<Item>();
+                if (level > 1 && pool.Weapons.TryGetValue(weaponType, out var weapons) && weapons.Count > 0)
+                    picks.Add(weapons.OrderBy(w => w.GetTotalDamage() / Math.Max(0.1, w.GetTotalAttackSpeed())).ElementAt(weapons.Count / 2));
+                foreach (var list in pool.Armor.Values.Where(l => l.Count > 0))
+                    picks.Add(list.OrderBy(ArmorValue).ElementAt(list.Count / 2));
+                TypicalGearCache[(weaponType, level)] = picks;
+            }
+
+            foreach (var item in picks)
+            {
+                item.AttributeRequirements = new AttributeRequirements();
+                string slot = item switch
+                {
+                    WeaponItem => "weapon",
+                    HeadItem => "head",
+                    ChestItem => "body",
+                    LegsItem => "legs",
+                    FeetItem => "feet",
+                    _ => ""
+                };
+                if (slot.Length > 0)
+                {
+                    try { character.EquipItem(item, slot); }
+                    catch { /* incompatible slot: skip */ }
+                }
+            }
+        }
+
+        private sealed class TypicalGearPool
+        {
+            public Dictionary<WeaponType, List<WeaponItem>> Weapons { get; } = new();
+            public Dictionary<ItemType, List<Item>> Armor { get; } = new();
+        }
+
+        private static readonly Dictionary<int, TypicalGearPool> TypicalGearPools = new();
+
+        /// <summary>
+        /// One seeded loot sample per level, shared by every weapon type: rolls until each weapon type and each armor slot
+        /// has <see cref="TypicalGearSamples"/> items (or a roll cap), so the medians are stable and cheap to compute.
+        /// </summary>
+        private static TypicalGearPool GetTypicalGearPool(int level)
+        {
+            if (TypicalGearPools.TryGetValue(level, out var cached))
+                return cached;
+
+            long profPool = RPGGame.Diagnostics.ToolProfiler.Start();
+            var pool = new TypicalGearPool();
+            LootGenerator.ReseedForTools(1000 * level);
+            using var gearScope = RandomUtility.BeginSeededScope(new Random(7919 * level));
+            var armorSlots = new[] { ItemType.Head, ItemType.Chest, ItemType.Legs, ItemType.Feet };
+            bool Full() =>
+                Enum.GetValues<WeaponType>().All(t => pool.Weapons.TryGetValue(t, out var l) && l.Count >= TypicalGearSamples)
+                && armorSlots.All(t => pool.Armor.TryGetValue(t, out var l) && l.Count >= TypicalGearSamples);
+
+            for (int i = 0; i < 4000 && !Full(); i++)
+            {
+                var item = LootGenerator.GenerateLoot(level, level, null, guaranteedLoot: true);
+                if (item is WeaponItem w)
+                {
+                    if (!pool.Weapons.TryGetValue(w.WeaponType, out var wl))
+                        pool.Weapons[w.WeaponType] = wl = new List<WeaponItem>();
+                    if (wl.Count < TypicalGearSamples)
+                        wl.Add(w);
+                }
+                else if (item != null && ArmorValue(item) >= 0)
+                {
+                    if (!pool.Armor.TryGetValue(item.Type, out var al))
+                        pool.Armor[item.Type] = al = new List<Item>();
+                    if (al.Count < TypicalGearSamples)
+                        al.Add(item);
+                }
+            }
+
+            TypicalGearPools[level] = pool;
+            RPGGame.Diagnostics.ToolProfiler.Stop("Setup.TypicalGearPool", profPool);
+            return pool;
+        }
+
+        private const int TypicalGearSamples = 101;
+
+        private static int ArmorValue(Item item) => item switch
+        {
+            HeadItem h => h.GetTotalArmor(),
+            ChestItem c => c.GetTotalArmor(),
+            LegsItem l => l.GetTotalArmor(),
+            FeetItem f => f.GetTotalArmor(),
+            _ => -1
+        };
 
         private static void ApplyFundamentalsHeroPowerScale(Character character)
         {
@@ -130,11 +272,16 @@ namespace RPGGame.Tuning.Profiles
                 };
             }
 
+            // Use the starter weapon's real attack speed so weapon speed differences show up in fundamentals sims.
+            var starterRow = StarterCatalogItems.LoadStarterTaggedWeaponRows()
+                .FirstOrDefault(r => string.Equals(r.Type?.Trim(), weaponType.ToString(), StringComparison.OrdinalIgnoreCase));
+            double attackSpeed = starterRow != null && starterRow.AttackSpeed > 0 ? starterRow.AttackSpeed : 1.0;
+
             return new WeaponItem(
-                name: $"Fundamentals {weaponType}",
+                name: starterRow?.Name ?? $"Fundamentals {weaponType}",
                 tier: 1,
                 baseDamage: Math.Max(1, baseDamage),
-                baseAttackSpeed: 1.0,
+                baseAttackSpeed: attackSpeed,
                 weaponType: weaponType);
         }
     }

@@ -13,7 +13,7 @@ namespace RPGGame.Config.BalancePatches
     /// </summary>
     public static class BalancePatchIO
     {
-        private static readonly string PatchesDirectory = Path.Combine("GameData", "BalancePatches");
+        private static readonly string PatchesDirectory = GameConstants.ResolveGameDataPath("BalancePatches");
 
         /// <summary>
         /// Ensure patches directory exists

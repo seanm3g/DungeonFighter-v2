@@ -78,6 +78,7 @@ namespace RPGGame
         public int TempRollBonusTurns { get; set; }
         public int EnemyRollPenalty { get; set; }
         public int EnemyRollPenaltyTurns { get; set; }
+        /// <summary>Speed factor while slowed (0.5 = half speed, attack time doubled); 1.0 = not slowed.</summary>
         public double SlowMultiplier { get; set; } = 1.0;
         public int SlowTurns { get; set; }
         public bool HasShield { get; set; }
@@ -96,7 +97,8 @@ namespace RPGGame
             if (TempRollBonusTurns > 0) { TempRollBonusTurns--; if (TempRollBonusTurns == 0) TempRollBonus = 0; }
             return bonus;
         }
-        public void ApplySlow(double slowMultiplier, int duration) { SlowMultiplier = slowMultiplier; SlowTurns = duration; }
+        /// <summary>Callers pass a speed <i>reduction</i> (0.5 = 50% slower), as in StatusEffects.Freeze.SpeedReduction.</summary>
+        public void ApplySlow(double speedReduction, int duration) { SlowMultiplier = Math.Clamp(1.0 - speedReduction, 0.1, 1.0); SlowTurns = duration; }
         public void ApplyShield() => HasShield = true;
         public bool ConsumeShield() { if (!HasShield) return false; HasShield = false; return true; }
         public void TickRollAndShield(double turnsPassed)

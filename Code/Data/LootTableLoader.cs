@@ -114,19 +114,7 @@ namespace RPGGame
         /// </summary>
         private static string GetGameDataPath()
         {
-            // Try relative to current directory first
-            var relativePath = Path.Combine(Directory.GetCurrentDirectory(), "GameData");
-            if (Directory.Exists(relativePath))
-                return relativePath;
-
-            // Try relative to executing assembly
-            var assemblyPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? "";
-            var pathFromAssembly = Path.Combine(assemblyPath, "..", "..", "..", "GameData");
-            if (Directory.Exists(pathFromAssembly))
-                return Path.GetFullPath(pathFromAssembly);
-
-            // Fallback to current directory + GameData
-            return Path.Combine(Directory.GetCurrentDirectory(), "GameData");
+            return GameConstants.ResolveGameDataPath();
         }
 
         /// <summary>

@@ -12,7 +12,7 @@ namespace RPGGame.Config
     /// </summary>
     public class TuningProfileManager
     {
-        private static readonly string ProfilesDirectory = Path.Combine("GameData", "TuningProfiles");
+        private static readonly string ProfilesDirectory = GameConstants.ResolveGameDataPath("TuningProfiles");
 
         /// <summary>
         /// Profile metadata

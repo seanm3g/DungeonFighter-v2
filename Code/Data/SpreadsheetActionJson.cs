@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace RPGGame.Data
@@ -93,6 +95,7 @@ namespace RPGGame.Data
                 SelfDamage = data.SelfDamage,
                 HeroHeal = data.HeroHeal,
                 HeroHealMaxHealth = data.HeroHealMaxHealth,
+                SelfTargetEffects = string.Join(", ", data.SelfTargetEffects ?? new List<string>()),
                 ReplaceNextRoll = data.ReplaceNextRoll,
                 HighestLowestRoll = data.HighestLowestRoll,
                 DiceRolls = data.DiceRolls,
@@ -220,6 +223,11 @@ namespace RPGGame.Data
                 SelfDamage = this.SelfDamage,
                 HeroHeal = this.HeroHeal,
                 HeroHealMaxHealth = this.HeroHealMaxHealth,
+                SelfTargetEffects = (this.SelfTargetEffects ?? "")
+                    .Split(new[] { ',', ';', '|' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => s.Trim())
+                    .Where(s => s.Length > 0)
+                    .ToList(),
                 ReplaceNextRoll = this.ReplaceNextRoll,
                 HighestLowestRoll = this.HighestLowestRoll,
                 DiceRolls = this.DiceRolls,

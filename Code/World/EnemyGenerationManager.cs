@@ -71,6 +71,9 @@ namespace RPGGame
 
             enemies.Clear();
             int enemyCount = Math.Max(1, (int)Math.Ceiling(roomLevel / 2.0));
+            int maxPerRoom = GameConfiguration.Instance.DungeonScaling?.EnemyCountPerRoom ?? 0;
+            if (maxPerRoom > 0)
+                enemyCount = Math.Min(enemyCount, maxPerRoom);
 
             // Try to load enemy data from JSON first
             var jsonEnemies = LoadEnemyDataFromJson();

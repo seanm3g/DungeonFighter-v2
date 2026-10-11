@@ -40,6 +40,9 @@ namespace RPGGame.Tuning.Profiles
         /// <summary>fundamentals_encounter: hero weapon type (Sword, Dagger, Mace, Wand).</summary>
         public string WeaponType { get; set; } = "Sword";
 
+        /// <summary>Fundamentals hero gear: <c>none</c> (starter weapon only) or <c>typical</c> (median real loot for the level in every slot).</summary>
+        public string Gear { get; set; } = "none";
+
         /// <summary>fundamentals_encounter: catalog action forced on combo-eligible rolls; null = first strip action.</summary>
         public string? ForcedCatalogAction { get; set; }
 

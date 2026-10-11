@@ -75,6 +75,8 @@ namespace RPGGame
                 
                 // Calculate room count with fallback to ensure at least 1 room
                 int roomCount = Math.Max(1, Math.Max(dungeonScaling.RoomCountBase, (int)Math.Ceiling(MinLevel * dungeonScaling.RoomCountPerLevel)));
+                if (dungeonScaling.MaxRoomCount > 0)
+                    roomCount = Math.Min(roomCount, dungeonScaling.MaxRoomCount);
 
                 bool hasHostileRoom = false; // Track if we've generated at least one hostile room
 

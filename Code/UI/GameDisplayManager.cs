@@ -100,7 +100,7 @@ namespace RPGGame
             int weaponDamage = (player.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
             int equipmentDamageBonus = player.GetEquipmentDamageBonus();
             int modificationDamageBonus = player.GetModificationDamageBonus();
-            int damage = player.GetAttributeDamageBonus() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
+            int damage = player.Combat.GetTotalDamage();
             double attackSpeed = player.GetTotalAttackSpeed();
             int armor = player.GetTotalArmor();
             
@@ -118,7 +118,11 @@ namespace RPGGame
             double attrScale = GameConfiguration.Instance.Combat.AttributeDamageScale;
             if (attrScale <= 0) attrScale = 0.05;
             int attrDmg = player.GetAttributeDamageBonus();
-            UIManager.WriteMenuLine($"Damage: {damage} (Attr: floor((STR {player.GetEffectiveStrength()} + Primary {player.GetEffectivePrimaryAttributeValue()}) × {attrScale:0.##}) = {attrDmg} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Defense: {armor}");
+            double strMult = player.GetStrengthDamageMultiplier();
+            string damageParts = strMult != 1.0
+                ? $"(Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus}) × STR {player.GetEffectiveStrength()} ({strMult:0.00}x)"
+                : $"Attr: floor((STR {player.GetEffectiveStrength()} + Primary {player.GetEffectivePrimaryAttributeValue()}) × {attrScale:0.##}) = {attrDmg} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus}";
+            UIManager.WriteMenuLine($"Damage: {damage} ({damageParts})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Defense: {armor}");
             if (magicFind > 0)
             {
                 UIManager.WriteMenuLine($"Magic Find: +{magicFind} (affix rolls; not base item rarity)");

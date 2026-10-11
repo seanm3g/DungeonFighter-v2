@@ -237,7 +237,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 int weaponDamage = (character.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
                 int equipmentDamageBonus = character.GetEquipmentDamageBonus();
                 int modificationDamageBonus = character.GetModificationDamageBonus();
-                int totalDamage = character.GetAttributeDamageBonus() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
+                int totalDamage = character.Combat.GetTotalDamage();
                 double attackSpeed = character.GetTotalAttackSpeed();
 
                 int damageRowY = y;

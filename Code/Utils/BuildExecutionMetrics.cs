@@ -12,7 +12,7 @@ namespace RPGGame.Utils
     /// </summary>
     public static class BuildExecutionMetrics
     {
-        private static readonly string MetricsFilePath = Path.Combine("GameData", "build_execution_metrics.json");
+        private static readonly string MetricsFilePath = RPGGame.GameConstants.ResolveGameDataPath("build_execution_metrics.json");
         private static readonly object _lockObject = new object();
         private static Stopwatch? _executionStopwatch;
         private static DateTime? _executionStartTime;

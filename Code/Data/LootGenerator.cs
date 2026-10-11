@@ -19,6 +19,19 @@ namespace RPGGame
     public class LootGenerator
     {
         private static Random _random = new Random();
+
+        /// <summary>
+        /// Tools only: replaces the loot RNG with a seeded one and rebuilds the roll helpers so loot sampling is reproducible
+        /// (e.g. fundamentals "typical gear").
+        /// </summary>
+        public static void ReseedForTools(int seed)
+        {
+            _random = new Random(seed);
+            _tierCalculator = null;
+            _itemSelector = null;
+            _rarityProcessor = null;
+            _bonusApplier = null;
+        }
         
         // Shared data cache
         private static LootDataCache? _dataCache;
@@ -158,7 +171,9 @@ namespace RPGGame
 
             // ROLL 4: Specific item selection
             // For guaranteed loot, retry with different tiers/types if needed
+            ItemSelector.PreferredWeaponType = (player?.Weapon as WeaponItem)?.WeaponType;
             Item? item = ItemSelector.SelectItem(tier, isWeapon, armorJsonSlot);
+            ItemSelector.PreferredWeaponType = null;
 
             if (item == null && guaranteedLoot)
             {

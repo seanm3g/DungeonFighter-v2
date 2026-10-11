@@ -86,7 +86,10 @@ namespace RPGGame.Tuning.Profiles
                 NegativeHpFloor = GetIntFlag(args, "--negative-hp-floor"),
                 RunsPerClass = GetIntFlag(args, "--runs-per-class", "-r"),
                 MaxActionsPerRun = GetIntFlag(args, "--max-actions-per-run"),
-                Classes = GetFlagValue(args, "--classes")
+                Classes = GetFlagValue(args, "--classes"),
+                WeaponType = GetFlagValue(args, "--weapon", "-w"),
+                EnemyType = GetFlagValue(args, "--enemy"),
+                Seed = GetIntFlag(args, "--seed")
             };
         }
     }

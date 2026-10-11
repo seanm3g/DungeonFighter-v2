@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Diagnostics;
 using RPGGame;
 using RPGGame.Actions.RollModification;
@@ -59,6 +60,38 @@ namespace RPGGame.Combat.Calculators
         /// <summary>
         /// Calculates raw damage before armor reduction
         /// </summary>
+        private sealed class MultiHitSwing
+        {
+            public double Fraction;
+        }
+
+        private static readonly AsyncLocal<MultiHitSwing?> _multiHitSwing = new();
+
+        /// <summary>True while a multi-hit swing is resolving its ticks (see <see cref="BeginMultiHitSwing"/>).</summary>
+        public static bool InMultiHitSwing => _multiHitSwing.Value != null;
+
+        /// <summary>
+        /// Starts a multi-hit swing: each tick keeps its fractional damage for the next tick and skips the per-hit
+        /// minimum/raw floors, so N hits of X% sum to about N×X% of one hit. The caller floors the swing total once
+        /// (<see cref="SwingMinimumDamage"/>).
+        /// </summary>
+        public static IDisposable BeginMultiHitSwing()
+        {
+            var previous = _multiHitSwing.Value;
+            _multiHitSwing.Value = new MultiHitSwing();
+            return new SwingScope(previous);
+        }
+
+        /// <summary>Floor applied once to a whole multi-hit swing's damage.</summary>
+        public static int SwingMinimumDamage => Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
+
+        private sealed class SwingScope : IDisposable
+        {
+            private readonly MultiHitSwing? _previous;
+            public SwingScope(MultiHitSwing? previous) => _previous = previous;
+            public void Dispose() => _multiHitSwing.Value = _previous;
+        }
+
         /// <summary>
         /// Swing + combo-slot multiplier as shown in combat roll info: matches the AMP_MOD leg inside
         /// <see cref="CalculateRawDamage"/> (queued sheet amp on the attacker) without mutating other effect state.
@@ -166,6 +199,12 @@ namespace RPGGame.Combat.Calculators
 
             // Calculate total damage before armor
             double totalDamage = (baseDamage * actionMultiplier * comboAmplifier * damageMultiplier * nextAttackMultiplier);
+            if (attacker is Character strengthHero)
+                totalDamage *= strengthHero.GetStrengthDamageMultiplier();
+
+            // Opt-in enemy damage curve by level (enemySystem.damageCurve).
+            if (attacker is Enemy curvedEnemy)
+                totalDamage *= GameConfiguration.Instance.EnemySystem?.DamageCurve?.MultiplierAt(curvedEnemy.Level) ?? 1.0;
 
             // Get combat configuration
             var combatConfig = GameConfiguration.Instance.Combat;
@@ -248,19 +287,32 @@ namespace RPGGame.Combat.Calculators
                     totalDamage *= classTagMult;
             }
 
-            int result = (int)totalDamage;
+            var swing = _multiHitSwing.Value;
+            int wholeDamage;
+            if (swing != null)
+            {
+                double exact = totalDamage + swing.Fraction;
+                wholeDamage = (int)Math.Floor(exact);
+                swing.Fraction = exact - wholeDamage;
+            }
+            else
+            {
+                wholeDamage = (int)totalDamage;
+            }
+
+            int result = wholeDamage;
 
             if (attacker is Character convertHero && convertHero is not Enemy)
                 result += MaterialSetController.GetConvertDamageBonus(convertHero, action);
 
-            int convertFlat = result - (int)totalDamage;
+            int convertFlat = result - wholeDamage;
 
             int maxCap = Math.Max(1, combatConfig.MaximumDamageCap);
             if (result > maxCap)
                 result = maxCap;
 
-            // Ensure raw damage is never 0 (safeguard against calculation errors)
-            if (result <= 0)
+            // Ensure raw damage is never 0 (safeguard against calculation errors); multi-hit ticks may be 0 and are floored per swing.
+            if (result <= 0 && swing == null)
             {
                 result = 1;
             }
@@ -287,6 +339,9 @@ namespace RPGGame.Combat.Calculators
 
             // Calculate raw damage before armor
             int totalDamage = CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll, rollBonus);
+            double outgoing = StatusCombatModifiers.OutgoingDamageMultiplier(attacker);
+            if (outgoing != 1.0)
+                totalDamage = (int)Math.Round(totalDamage * outgoing);
 
             // Apply tag-based damage modification
             if (action != null)
@@ -296,7 +351,8 @@ namespace RPGGame.Combat.Calculators
             }
 
             bool pierce = IgnoresArmor(target, action);
-            int minimumDamage = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
+            bool inSwing = InMultiHitSwing;
+            int minimumDamage = inSwing ? 0 : Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
             int finalDamage;
             int reducedAmount;
 
@@ -305,8 +361,7 @@ namespace RPGGame.Combat.Calculators
                 var mit = ClassDefenseCalculator.ApplyIncoming(defender, totalDamage, pierce, mitigationHitIndex);
                 finalDamage = mit.Remaining;
                 reducedAmount = mit.ReducedAmount;
-                if (defender.IsWeakened && showWeakenedMessage)
-                    finalDamage = (int)(finalDamage * 1.5);
+                finalDamage = ApplyIncomingStatus(target, finalDamage);
                 if (finalDamage > 0 && finalDamage < minimumDamage)
                     finalDamage = minimumDamage;
             }
@@ -315,9 +370,8 @@ namespace RPGGame.Combat.Calculators
                 int targetArmor = DamageCalculator.ResolveTargetArmor(target, action);
                 finalDamage = Math.Max(minimumDamage, totalDamage - targetArmor);
                 reducedAmount = Math.Max(0, totalDamage - finalDamage);
-                if (target.IsWeakened && showWeakenedMessage)
-                    finalDamage = (int)(finalDamage * 1.5);
-                if (finalDamage <= 0)
+                finalDamage = ApplyIncomingStatus(target, finalDamage);
+                if (finalDamage <= 0 && !inSwing)
                     finalDamage = 1;
             }
 
@@ -363,6 +417,12 @@ namespace RPGGame.Combat.Calculators
             if (target is Character remainingHero && remaining <= 0)
                 return 0;
             return finalDamage;
+        }
+
+        private static int ApplyIncomingStatus(Actor target, int damage)
+        {
+            double incoming = StatusCombatModifiers.IncomingDamageMultiplier(target);
+            return incoming == 1.0 ? damage : (int)Math.Round(damage * incoming);
         }
 
         /// <summary>

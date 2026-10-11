@@ -65,7 +65,7 @@ namespace RPGGame.Tuning
             double growthHealth = baselineHp * (growthPercent / 100.0);
 
             int levelScaled = ComputeLevelScaledHealth(baseHealth, growthHealth, level, prog);
-            int finalHp = ApplyFinalHealthMultipliers(levelScaled, enemySystem);
+            int finalHp = ApplyFinalHealthMultipliers(levelScaled, enemySystem, level);
 
             var global = enemySystem.GlobalMultipliers;
             double runtime = GameSettings.Instance?.EnemyHealthMultiplier ?? 1.0;
@@ -112,7 +112,7 @@ namespace RPGGame.Tuning
             return FloorToInt(scaled);
         }
 
-        public static int ApplyFinalHealthMultipliers(int levelScaledHealth, EnemySystemConfig enemySystem)
+        public static int ApplyFinalHealthMultipliers(int levelScaledHealth, EnemySystemConfig enemySystem, int? level = null)
         {
             var global = enemySystem.GlobalMultipliers;
             var prog = enemySystem.ProgressionScales ?? new EnemyProgressionScalesConfig();
@@ -123,6 +123,8 @@ namespace RPGGame.Tuning
                 runtime = 1.0;
 
             double scaled = levelScaledHealth * global.HealthMultiplier * runtime * prog.CombatTempoScale;
+            if (level.HasValue && enemySystem.HealthCurve != null)
+                scaled *= enemySystem.HealthCurve.MultiplierAt(level.Value);
             return Math.Max(1, FloorToInt(scaled));
         }
 
@@ -163,7 +165,7 @@ namespace RPGGame.Tuning
             double growthHealth = baselineHp * (growthPercent / 100.0);
 
             int levelScaled = ComputeLevelScaledHealth(baseHealth, growthHealth, level, prog);
-            int finalHp = ApplyFinalHealthMultipliers(levelScaled, enemySystem);
+            int finalHp = ApplyFinalHealthMultipliers(levelScaled, enemySystem, level);
 
             return new ProgressionSample
             {

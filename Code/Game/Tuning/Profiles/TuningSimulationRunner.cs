@@ -233,5 +233,7 @@ namespace RPGGame.Tuning.Profiles
         public int? RunsPerClass { get; init; }
         public int? MaxActionsPerRun { get; init; }
         public string? Classes { get; init; }
+        /// <summary>Fixed RNG seed so before/after comparisons replay the same dice.</summary>
+        public int? Seed { get; init; }
     }
 }

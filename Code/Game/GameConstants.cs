@@ -242,6 +242,18 @@ namespace RPGGame
         /// <returns>Full path to project root GameData if it exists; otherwise null.</returns>
         public static string? GetSettingsDirectory()
         {
+            // Explicit override (tools, CI, alternate data sets).
+            string? envDir = System.Environment.GetEnvironmentVariable("DF_GAMEDATA_DIR");
+            if (!string.IsNullOrWhiteSpace(envDir) && Directory.Exists(envDir))
+                return Path.GetFullPath(envDir);
+
+            // Repo root = first ancestor holding both GameData/ and Code/Code.csproj. Fixed "four levels up" broke for any
+            // build output not at Code/bin/Debug/net8.0 (e.g. Code/bin/_agent_build picked up a stale ../GameData).
+            string? repoGameData = FindRepoRootGameData(AppDomain.CurrentDomain.BaseDirectory)
+                ?? FindRepoRootGameData(Directory.GetCurrentDirectory());
+            if (repoGameData != null)
+                return repoGameData;
+
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             // From Code\bin\Debug\net8.0, four levels up then GameData = project root GameData
             string projectRootGameData = Path.Combine(baseDir, "..", "..", "..", "..", GameDataDirectory);
@@ -250,6 +262,33 @@ namespace RPGGame
                 string fullPath = Path.GetFullPath(projectRootGameData);
                 if (Directory.Exists(fullPath))
                     return fullPath;
+            }
+            catch { }
+            return null;
+        }
+
+        /// <summary>
+        /// Path under the game's GameData folder (DF_GAMEDATA_DIR, else the repo root's GameData). Use instead of
+        /// cwd-relative "GameData/..." so tools launched from Code/ or a build folder never read or write a stray copy.
+        /// </summary>
+        public static string ResolveGameDataPath(params string[] parts)
+        {
+            string root = GetSettingsDirectory() ?? GameDataDirectory;
+            return parts.Length == 0 ? root : Path.Combine(root, Path.Combine(parts));
+        }
+
+        private static string? FindRepoRootGameData(string startDir)
+        {
+            try
+            {
+                var dir = new DirectoryInfo(Path.GetFullPath(startDir));
+                while (dir != null)
+                {
+                    string gameData = Path.Combine(dir.FullName, GameDataDirectory);
+                    if (Directory.Exists(gameData) && File.Exists(Path.Combine(dir.FullName, "Code", "Code.csproj")))
+                        return gameData;
+                    dir = dir.Parent;
+                }
             }
             catch { }
             return null;
@@ -416,16 +455,11 @@ namespace RPGGame
         /// <returns>Array of possible file paths</returns>
         public static string[] GetPossibleGameDataFilePaths(string fileName)
         {
-            // Prefer project-root GameData first so JsonLoader and others use the same folder
+            // Repo (or DF_GAMEDATA_DIR) GameData only: falling back to other folders silently read stale copies
+            // (e.g. a 2025 GameData one level above the repo) for any file missing here.
             string? projectRoot = GetSettingsDirectory();
             if (projectRoot != null)
-            {
-                var paths = new string[PossibleGameDataPaths.Length + 1];
-                paths[0] = Path.Combine(projectRoot, fileName);
-                for (int i = 0; i < PossibleGameDataPaths.Length; i++)
-                    paths[i + 1] = Path.Combine(PossibleGameDataPaths[i], fileName);
-                return paths;
-            }
+                return new[] { Path.Combine(projectRoot, fileName) };
             var pathsOnly = new string[PossibleGameDataPaths.Length];
             for (int i = 0; i < PossibleGameDataPaths.Length; i++)
                 pathsOnly[i] = Path.Combine(PossibleGameDataPaths[i], fileName);

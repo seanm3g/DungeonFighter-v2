@@ -34,6 +34,10 @@ namespace RPGGame
             if (args.Length > 0 && ShouldEnableSimulationFastPacing(args))
                 SimulationPacing.EnableFastMode();
 
+            // Any headless mode: --patch <name|path> loads that balance patch for this run only.
+            if (args.Length > 0 && ShouldEnableSimulationFastPacing(args))
+                RPGGame.Tuning.Profiles.FundamentalsMatrixRunner.ApplyPatchFlag(args);
+
             try
             {
                 // Check if MCP mode is requested
@@ -63,6 +67,21 @@ namespace RPGGame
                     return;
                 }
 
+                if (args.Length > 0 && args[0].Equals("RUNLOG", StringComparison.OrdinalIgnoreCase))
+                {
+                    // One headless playthrough traced step by step: RUNLOG [--class Warrior] [--max-actions-per-run N]
+                    executionMode = "RUNLOG";
+                    BuildExecutionMetrics.RecordLaunchTime("RUNLOG");
+                    string? cls = RPGGame.Tuning.Profiles.TuningCliArgs.GetFlagValue(args, "--class");
+                    var (weaponType, slot, name) = RPGGame.Tuning.ClassPlaythroughClassResolver.ResolveClasses(cls).First();
+                    int maxActions = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--max-actions-per-run") ?? 2000;
+                    RPGGame.Tuning.PlaythroughFightRecorder.Verbose = args.Any(x => x.Equals("--verbose", StringComparison.OrdinalIgnoreCase));
+                    RPGGame.Tuning.ClassPlaythroughRunner.SmartPolicy = args.Any(x => x.Equals("--smart", StringComparison.OrdinalIgnoreCase));
+                    var run = await RPGGame.Tuning.ClassPlaythroughRunner.RunAsync(weaponType, slot, name, maxActions, line => Console.WriteLine(line));
+                    Console.WriteLine($"=> {name}: level {run.FinalLevel}, dungeons {run.DungeonsCompleted}/{run.DungeonsAttempted}, {run.StopReason}");
+                    return;
+                }
+
                 if (args.Length > 0 && args[0].Equals("PLAYTODEATHBATCH", StringComparison.OrdinalIgnoreCase))
                 {
                     executionMode = "PLAYTODEATHBATCH";
@@ -70,7 +89,11 @@ namespace RPGGame
                     int runsPerClass = 3;
                     if (args.Length > 1 && int.TryParse(args[1], out int parsedRuns))
                         runsPerClass = Math.Max(1, parsedRuns);
-                    await RPGGame.Game.PlayUntilDeathBatch.RunAsync(runsPerClass);
+                    // --stop-at-level N: a run succeeds when the hero reaches level N (survival target).
+                    RPGGame.Tuning.ClassPlaythroughRunner.StopAtLevel = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--stop-at-level") ?? 0;
+                    RPGGame.Tuning.ClassPlaythroughRunner.SmartPolicy = args.Any(x => x.Equals("--smart", StringComparison.OrdinalIgnoreCase));
+                    int maxActions = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--max-actions-per-run") ?? 500;
+                    await RPGGame.Game.PlayUntilDeathBatch.RunAsync(runsPerClass, maxActions, RPGGame.Tuning.Profiles.TuningCliArgs.GetFlagValue(args, "--classes"));
                     return;
                 }
 
@@ -122,6 +145,57 @@ namespace RPGGame
                     executionMode = "TUNEPROFILES";
                     BuildExecutionMetrics.RecordLaunchTime("TUNEPROFILES");
                     RPGGame.Tuning.BalanceTuningWorkflow.ListProfiles();
+                    return;
+                }
+
+                if (args.Length > 0 && args[0].Equals("STATVALUE", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "STATVALUE";
+                    System.Environment.ExitCode = await RPGGame.Tuning.Profiles.StatValueRunner.RunAsync(args);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0].Equals("WRSOLVE", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "WRSOLVE";
+                    System.Environment.ExitCode = await RPGGame.Tuning.Profiles.WinRateSolver.RunAsync(args);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0].Equals("ITEMSTATS", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "ITEMSTATS";
+                    System.Environment.ExitCode = RPGGame.Tuning.Profiles.LootStatsRunner.Run(args);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0].Equals("SEQLAB", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "SEQLAB";
+                    System.Environment.ExitCode = await RPGGame.Tuning.Profiles.SequenceLabRunner.RunSeqLabAsync(args);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0].Equals("ACTIONVALUE", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "ACTIONVALUE";
+                    System.Environment.ExitCode = await RPGGame.Tuning.Profiles.SequenceLabRunner.RunActionValueAsync(args);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0].Equals("FIGHTLOG", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "FIGHTLOG";
+                    BuildExecutionMetrics.RecordLaunchTime("FIGHTLOG");
+                    System.Environment.ExitCode = await RPGGame.Tuning.Profiles.FundamentalsMatrixRunner.RunFightLogAsync(args);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0].Equals("FUNDMATRIX", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "FUNDMATRIX";
+                    BuildExecutionMetrics.RecordLaunchTime("FUNDMATRIX");
+                    System.Environment.ExitCode = await RPGGame.Tuning.Profiles.FundamentalsMatrixRunner.RunAsync(args);
                     return;
                 }
 
@@ -209,6 +283,7 @@ namespace RPGGame
                     executionMode = "TEST";
                     BuildExecutionMetrics.RecordLaunchTime("TEST");
                     RPGGame.Tests.Runners.ComprehensiveTestRunner.RunAllTests();
+                    System.Environment.ExitCode = RPGGame.Tests.Runners.ComprehensiveTestRunner.ExitCode();
                     return;
                 }
 
@@ -487,8 +562,8 @@ namespace RPGGame
 
             return cmd.ToUpperInvariant() switch
             {
-                "MCP" or "MCPSMOKE" or "PLAYTODEATH" or "PLAYTODEATHBATCH" or "PLAYTHROUGHTUNING"
-                    or "TUNESIM" or "TUNEANALYZE" or "TUNEAPPLY" or "TUNETUNING" or "TUNEPROFILES"
+                "MCP" or "MCPSMOKE" or "PLAYTODEATH" or "PLAYTODEATHBATCH" or "RUNLOG" or "PLAYTHROUGHTUNING"
+                    or "TUNESIM" or "FUNDMATRIX" or "FIGHTLOG" or "SEQLAB" or "ITEMSTATS" or "WRSOLVE" or "STATVALUE" or "ACTIONVALUE" or "TUNEANALYZE" or "TUNEAPPLY" or "TUNETUNING" or "TUNEPROFILES"
                     or "LEVELSIM" or "LEVELANALYZE" or "LEVELAPPLY" or "LEVELTUNING" or "TEST" => true,
                 _ => false
             };

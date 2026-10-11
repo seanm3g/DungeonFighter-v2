@@ -183,24 +183,55 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// How many tier-1 dungeon completion rewards (see <see cref="GetStandardDungeonCompletionXpForLevel"/>(1))
-        /// the bar is tuned for when leaving <paramref name="currentCharacterLevel"/>.
-        /// Pattern: 1, 1.5, 2, 3, 4, 5, … — one dungeon for the first tier-up, then progressively more runs per level.
+        /// How many at-level dungeon runs the bar is tuned for when leaving <paramref name="currentCharacterLevel"/>.
+        /// Ramps linearly 1 → 2 over levels 1–5, then keeps climbing one extra run per 15 levels (3 at L20, 4 at L35, …).
         /// </summary>
         public static double GetExpectedDungeonsToLevelFromLevel(int currentCharacterLevel)
         {
             if (currentCharacterLevel < 1)
                 currentCharacterLevel = 1;
-            if (currentCharacterLevel == 1)
-                return 1.0;
-            if (currentCharacterLevel == 2)
-                return 1.5;
-            return currentCharacterLevel - 1;
+            if (currentCharacterLevel <= 5)
+                return 1.0 + (currentCharacterLevel - 1) / 4.0;
+            return 2.0 + (currentCharacterLevel - 5) / 15.0;
         }
 
         /// <summary>
-        /// XP required to advance from <paramref name="currentCharacterLevel"/> to the next level.
-        /// Uses one tier-1 dungeon completion as the unit, scaled by <see cref="GetExpectedDungeonsToLevelFromLevel"/>.
+        /// Expected XP from one full run of a dungeon at <paramref name="dungeonLevel"/>: room entries, kills,
+        /// the completion bonus and the completion loot item. Mirrors room/enemy counts in <c>Dungeon.Generate</c>
+        /// and <c>Environment.GenerateEnemies</c> (rarity reward bonuses and search loot are not counted).
+        /// </summary>
+        public static double GetEstimatedDungeonRunXpForLevel(int dungeonLevel)
+        {
+            if (dungeonLevel < 1)
+                dungeonLevel = 1;
+
+            var config = GameConfiguration.Instance;
+            var scaling = config.DungeonScaling;
+            int baseXp = GetBaseXpForContentLevel(dungeonLevel);
+
+            int roomCount = Math.Max(1, Math.Max(scaling.RoomCountBase, (int)Math.Ceiling(dungeonLevel * scaling.RoomCountPerLevel)));
+            if (scaling.MaxRoomCount > 0)
+                roomCount = Math.Min(roomCount, scaling.MaxRoomCount);
+
+            // At least one room is forced hostile, so E[hostile] = p·n + (1−p)^n.
+            double hostileChance = Math.Clamp(config.DungeonGeneration?.hostileRoomChance ?? 0.8, 0.0, 1.0);
+            double hostileRooms = hostileChance * roomCount + Math.Pow(1.0 - hostileChance, roomCount);
+
+            int enemiesPerRoom = Math.Max(1, (int)Math.Ceiling(dungeonLevel / 2.0));
+            if (scaling.EnemyCountPerRoom > 0)
+                enemiesPerRoom = Math.Min(enemiesPerRoom, scaling.EnemyCountPerRoom);
+
+            double roomEntryXp = roomCount * (int)(baseXp * 0.5);
+            double killXp = hostileRooms * enemiesPerRoom * baseXp;
+            double completionXp = GetStandardDungeonCompletionXpForLevel(dungeonLevel);
+            double lootXp = (int)(baseXp * 0.3);
+
+            return roomEntryXp + killXp + completionXp + lootXp;
+        }
+
+        /// <summary>
+        /// XP required to advance from <paramref name="currentCharacterLevel"/> to the next level:
+        /// <see cref="GetEstimatedDungeonRunXpForLevel"/> at that level × <see cref="GetExpectedDungeonsToLevelFromLevel"/>.
         /// When <see cref="ProgressionConfig.BaseXPToLevel2"/> is set, the whole curve scales so the L1→2 bar equals that value;
         /// <see cref="ProgressionConfig.XPScalingFactor"/> (when &gt; 0) multiplies the final requirement as a global pace knob.
         /// </summary>
@@ -212,18 +243,15 @@ namespace RPGGame
             var tuning = GameConfiguration.Instance.Progression;
             tuning.EnsureValidEnemyXpAndGoldDefaults();
 
-            int tierOneDungeonCompletion = GetStandardDungeonCompletionXpForLevel(1);
-            if (tierOneDungeonCompletion < 1)
-                tierOneDungeonCompletion = 1;
-
+            double levelOneBar = Math.Max(1.0, GetEstimatedDungeonRunXpForLevel(1) * GetExpectedDungeonsToLevelFromLevel(1));
             double anchorRatio = tuning.BaseXPToLevel2 > 0
-                ? (double)tuning.BaseXPToLevel2 / tierOneDungeonCompletion
+                ? tuning.BaseXPToLevel2 / levelOneBar
                 : 1.0;
 
-            double dungeonUnits = GetExpectedDungeonsToLevelFromLevel(currentCharacterLevel);
+            double unscaledBar = GetEstimatedDungeonRunXpForLevel(currentCharacterLevel) * GetExpectedDungeonsToLevelFromLevel(currentCharacterLevel);
             double globalMult = tuning.XPScalingFactor > 0 ? tuning.XPScalingFactor : 1.0;
 
-            double raw = tierOneDungeonCompletion * dungeonUnits * anchorRatio * globalMult;
+            double raw = unscaledBar * anchorRatio * globalMult;
             if (double.IsNaN(raw) || double.IsInfinity(raw) || raw > int.MaxValue)
                 return Math.Max(1, int.MaxValue / 4);
 

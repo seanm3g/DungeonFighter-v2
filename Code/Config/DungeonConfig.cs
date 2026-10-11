@@ -10,6 +10,15 @@ namespace RPGGame
     {
         public int RoomCountBase { get; set; } = 2;
         public double RoomCountPerLevel { get; set; } = 0.5;
+        /// <summary>Upper bound on rooms per dungeon (0 = no cap). Keeps fights-per-dungeon inside the health budget.</summary>
+        public int MaxRoomCount { get; set; }
+        /// <summary>
+        /// Upper bound on enemies per hostile room (0 = legacy ceil(roomLevel / 2), which grows without limit — about
+        /// 25 fights per dungeon at level 10 and 2500 at level 100 once multiplied by room count).
+        /// </summary>
+        public int MaxEnemiesPerRoom { get; set; }
+        /// <summary>Percent of effective max HP restored after each won fight inside a dungeon (0 = none, legacy).</summary>
+        public double PostFightHealPercent { get; set; }
         public int EnemyCountPerRoom { get; set; } = 2;
         public double BossRoomChance { get; set; } = 0.1;
         public double TrapRoomChance { get; set; } = 0.2;

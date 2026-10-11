@@ -181,6 +181,28 @@ namespace RPGGame
         /// <summary>
         /// Confusion lasts for a number of resolved actions; each non-self combat action decrements duration.
         /// </summary>
+        /// <summary>Weaken and Focus last for this actor's next resolved actions; each action uses one turn.</summary>
+        public void ConsumeOwnActionStatuses()
+        {
+            if (WeakenTurns > 0)
+            {
+                WeakenTurns--;
+                if (WeakenTurns == 0)
+                    IsWeakened = false;
+            }
+            FocusTurns = TickStackStatus(FocusTurns, 1, () => FocusStacks = null);
+        }
+
+        private static int TickStackStatus(int turns, int ticks, System.Action clear)
+        {
+            if (turns <= 0)
+                return 0;
+            int left = Math.Max(0, turns - ticks);
+            if (left == 0)
+                clear();
+            return left;
+        }
+
         public void ConsumeConfusionAfterCombatAction(Action? resolvedAction)
         {
             if (!IsConfused || ConfusionTurns <= 0 || resolvedAction == null)
@@ -216,7 +238,7 @@ namespace RPGGame
             if (totalProbability <= 0)
                 return rollable.Last().action;
 
-            double randomValue = new Random().NextDouble() * totalProbability;
+            double randomValue = RandomUtility.Current.NextDouble() * totalProbability;
             double cumulativeProbability = 0;
 
             foreach ((Action action, double probability) in rollable)
@@ -249,25 +271,14 @@ namespace RPGGame
             
             // Roll penalty uses attack-based consumption (ConsumeRollPenaltyAfterCombatRoll), not time decay here.
 
-            // Update weaken debuff
-            if (WeakenTurns > 0)
-            {
-                WeakenTurns = Math.Max(0, WeakenTurns - (int)Math.Ceiling(turnsPassed));
-                if (WeakenTurns == 0)
-                {
-                    IsWeakened = false;
-                }
-            }
+            // Weaken, Confusion and Focus change this actor's own swings: consumed after its action
+            // (ConsumeOwnActionStatuses), not here, or they expire before the swing they should affect.
 
-            if (ConfusionTurns > 0)
-            {
-                ConfusionTurns = Math.Max(0, ConfusionTurns - (int)Math.Ceiling(turnsPassed));
-                if (ConfusionTurns == 0)
-                {
-                    IsConfused = false;
-                    ConfusionChance = 0.0;
-                }
-            }
+            // Incoming-damage statuses cover the opponent's swings until this actor acts again.
+            int ticks = (int)Math.Ceiling(turnsPassed);
+            HardenTurns = TickStackStatus(HardenTurns, ticks, () => HardenStacks = null);
+            VulnerabilityTurns = TickStackStatus(VulnerabilityTurns, ticks, () => VulnerabilityStacks = null);
+            ExposeTurns = TickStackStatus(ExposeTurns, ticks, () => ExposeStacks = null);
             
             // Update damage reduction decay (per turn, not per action)
             if (DamageReduction > 0)

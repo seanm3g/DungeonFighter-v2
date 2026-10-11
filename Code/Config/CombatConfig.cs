@@ -24,6 +24,14 @@ namespace RPGGame
         /// Scales attribute damage: floor((STR + Primary) × scale). Default 0.05 so base-10 stats contribute 1.
         /// </summary>
         public double AttributeDamageScale { get; set; } = 0.05;
+        /// <summary>
+        /// Hero damage × (1 + STR × this), STR capped at <see cref="StrengthDamageMaxStat"/> (0.0167 ≈ +1% per point at STR 40,
+        /// matching AGI's speed per point). When &gt; 0 heroes get no flat attribute damage (<see cref="AttributeDamageScale"/>).
+        /// 0 = legacy: floor((STR + primary) × AttributeDamageScale) flat.
+        /// </summary>
+        public double StrengthDamagePerPoint { get; set; }
+        /// <summary>STR above this adds no more damage (mirrors AgilityMax).</summary>
+        public int StrengthDamageMaxStat { get; set; } = 100;
         public double ArmorReductionFactor { get; set; } = 100.0;
         public double WeaponAttackTimeClampMin { get; set; } = 0.5;
         public double WeaponAttackTimeClampMax { get; set; } = 1.5;
@@ -93,6 +101,35 @@ namespace RPGGame
         public int AgilityMax { get; set; } = 100;
         public double AgilityMinSpeedMultiplier { get; set; } = 0.99; // Speed multiplier at minimum agility (1% faster)
         public double AgilityMaxSpeedMultiplier { get; set; } = 0.01; // Speed multiplier at maximum agility (99% faster)
+        /// <summary>Shape of the agility→speed curve: 0.5 = square root (early points worth most, legacy), 1 = linear, &gt;1 = late-loaded.</summary>
+        public double AgilitySpeedCurveExponent { get; set; } = 0.5;
+        /// <summary>
+        /// Scales how far weapon <c>attackSpeed</c> sits from 1.0 before clamping: 1 = data as authored, 0.5 = half the spread, 0 = all weapons equal.
+        /// </summary>
+        public double WeaponSpeedSpread { get; set; } = 1.0;
+        /// <summary>
+        /// Cap on the elegant (+) / dilapidated (−) room roll shift. Legacy (0) shifts every hero roll by the hero's level,
+        /// which makes dilapidated rooms an automatic loss and elegant rooms an automatic win from about level 10.
+        /// </summary>
+        public int RoomStructureRollShiftCap { get; set; }
+
+        /// <summary>Defense multiplier for actions authored as aggressive stance (block "0"). Neutral is always 1.0.</summary>
+        public double StanceAggressiveBlock { get; set; } = 0.5;
+        /// <summary>Defense multiplier for actions authored as defensive stance (block "180" or more).</summary>
+        public double StanceDefensiveBlock { get; set; } = 1.5;
+
+        /// <summary>Outgoing damage multiplier while Weakened (applies to the holder's next action).</summary>
+        public double StatusWeakenDamageMultiplier { get; set; } = 0.5;
+        /// <summary>Outgoing damage added per Focus stack (0.15 = +15%).</summary>
+        public double StatusFocusDamagePerStack { get; set; } = 0.15;
+        /// <summary>Incoming damage added per Vulnerability stack (0.15 = +15%).</summary>
+        public double StatusVulnerabilityDamagePerStack { get; set; } = 0.15;
+        /// <summary>Defense added per Harden stack, as a fraction of the DR constant K (0.15 × K ≈ +13% reduction from 0).</summary>
+        public double StatusHardenDefensePerStack { get; set; } = 0.15;
+        /// <summary>Defense removed per Expose stack, as a fraction of K; may go below zero (then the holder takes extra damage).</summary>
+        public double StatusExposeDefensePerStack { get; set; } = 0.15;
+        /// <summary>Most stacks of one Focus/Vulnerability/Harden/Expose status that count (0 = no cap).</summary>
+        public int StatusMaxStacks { get; set; } = 3;
     }
 
     /// <summary>
@@ -235,6 +272,12 @@ namespace RPGGame
     /// </summary>
     public class ComboSystemConfig
     {
+        /// <summary>
+        /// True (legacy): any completed normal (non-combo) hit restarts the combo sequence, so slot k fires only on k
+        /// consecutive combo rolls (~30%^(k-1)). False: only a miss restarts it, so later strip slots matter.
+        /// </summary>
+        public bool ResetChainOnNormalHit { get; set; } = true;
+
         /// <summary>Legacy tuning field retained for old configs.</summary>
         public double ComboAmplifierAtTech5 { get; set; }
 

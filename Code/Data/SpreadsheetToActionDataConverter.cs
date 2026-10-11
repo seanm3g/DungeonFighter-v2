@@ -336,10 +336,13 @@ namespace RPGGame.Data
         
         private static string DetermineActionType(SpreadsheetActionData spreadsheet, double damageMultiplier)
         {
-            if (!string.IsNullOrWhiteSpace(spreadsheet.HeroHeal) && spreadsheet.HeroHeal != "0")
+            // A heal owned by a trigger (ON CRIT: heal 10) fires from the trigger only; the action itself still attacks.
+            bool healGated = IsHealTriggerGated(spreadsheet);
+
+            if (!healGated && !string.IsNullOrWhiteSpace(spreadsheet.HeroHeal) && spreadsheet.HeroHeal != "0")
                 return "Heal";
 
-            if (!string.IsNullOrWhiteSpace(spreadsheet.HeroHealMaxHealth) && spreadsheet.HeroHealMaxHealth != "0")
+            if (!healGated && !string.IsNullOrWhiteSpace(spreadsheet.HeroHealMaxHealth) && spreadsheet.HeroHealMaxHealth != "0")
                 return "Heal";
 
             if (IsSelfTarget(spreadsheet) && HasDefensiveStatus(spreadsheet) && !HasOffensiveStatus(spreadsheet))
@@ -356,6 +359,10 @@ namespace RPGGame.Data
 
             return "Attack";
         }
+
+        private static bool IsHealTriggerGated(SpreadsheetActionData spreadsheet) =>
+            ActionTriggerSheetColumns.LoadBundles(spreadsheet).Any(b => b.IsEnabled && b.ParseMechanicIds().Any(id =>
+                ActionMechanicsRegistry.NormalizeMechanicId(id) is "heal" or "max_health"));
 
         private static bool IsSelfTarget(SpreadsheetActionData spreadsheet)
         {
@@ -414,7 +421,7 @@ namespace RPGGame.Data
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(spreadsheet.HeroHeal) && spreadsheet.HeroHeal != "0")
+            if (!string.IsNullOrWhiteSpace(spreadsheet.HeroHeal) && spreadsheet.HeroHeal != "0" && !IsHealTriggerGated(spreadsheet))
                 return "Self";
 
             return "SingleTarget";

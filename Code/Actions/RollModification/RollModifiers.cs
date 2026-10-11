@@ -96,8 +96,7 @@ namespace RPGGame.Actions.RollModification
                 return baseRoll;
 
             // Roll for reroll chance
-            var random = new Random();
-            if (random.NextDouble() < _chance)
+            if (RandomUtility.Current.NextDouble() < _chance)
             {
                 // Reroll - return new roll
                 return Dice.Roll(20);

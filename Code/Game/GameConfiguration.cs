@@ -105,24 +105,14 @@ namespace RPGGame
 
         public static bool IsDebugEnabled => Instance.Debug.EnableDebugOutput;
 
-        private static IEnumerable<string> TuningConfigPathCandidates()
-        {
-            string executableDir = AppDomain.CurrentDomain.BaseDirectory;
-            string currentDir = Directory.GetCurrentDirectory();
-            yield return Path.Combine(executableDir, "GameData", "TuningConfig.json");
-            yield return Path.Combine(executableDir, "..", "GameData", "TuningConfig.json");
-            yield return Path.Combine(executableDir, "..", "..", "GameData", "TuningConfig.json");
-            yield return Path.Combine(currentDir, "GameData", "TuningConfig.json");
-            yield return Path.Combine(currentDir, "..", "GameData", "TuningConfig.json");
-            yield return Path.Combine(currentDir, "..", "..", "GameData", "TuningConfig.json");
-            yield return Path.Combine("GameData", "TuningConfig.json");
-            yield return Path.Combine("..", "GameData", "TuningConfig.json");
-            yield return Path.Combine("..", "..", "GameData", "TuningConfig.json");
-        }
-
         /// <summary>Resolves the active balance patch file (absolute path). Caches so Save writes the same file Load reads.</summary>
+        /// <summary>Process-wide balance patch override from <see cref="UseBalancePatchFile"/>; survives <see cref="ResetInstance"/>.</summary>
+        private static string? _balancePatchOverridePath;
+
         private static string ResolveTuningConfigPathForRead()
         {
+            if (_balancePatchOverridePath != null)
+                return _balancePatchOverridePath;
             if (_cachedTuningConfigPath != null && File.Exists(_cachedTuningConfigPath))
                 return _cachedTuningConfigPath;
 
@@ -135,6 +125,8 @@ namespace RPGGame
         /// <summary>Path to write the active balance patch (creates patch folder if needed).</summary>
         private static string ResolveTuningConfigPathForCreate()
         {
+            if (_balancePatchOverridePath != null)
+                return _balancePatchOverridePath;
             PatchProfileService.EnsureBootstrapped();
             string patchPath = PatchProfileService.GetActivePatchFilePath(PatchCategory.Balance);
             _cachedTuningConfigPath = Path.GetFullPath(patchPath);
@@ -288,6 +280,23 @@ namespace RPGGame
         {
             LoadFromFile();
         }
+
+        /// <summary>
+        /// Loads <paramref name="patchFilePath"/> as the balance config for this process only (tools: <c>--patch</c>).
+        /// Does not change the active patch in PatchProfile.json.
+        /// </summary>
+        public static void UseBalancePatchFile(string patchFilePath)
+        {
+            string full = Path.GetFullPath(patchFilePath);
+            if (!File.Exists(full))
+                throw new FileNotFoundException($"Balance patch not found: {full}", full);
+            _balancePatchOverridePath = full;
+            _cachedTuningConfigPath = full;
+            Instance.Reload();
+        }
+
+        /// <summary>Balance patch file the live config was read from.</summary>
+        public static string LoadedBalancePatchPath => ResolveTuningConfigPathForRead();
 
         /// <summary>
         /// Migrates status effects from old property-based format to new dictionary format

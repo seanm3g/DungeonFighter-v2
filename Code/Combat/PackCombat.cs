@@ -20,6 +20,18 @@ namespace RPGGame.Combat
             return Math.Max(1, authoredCount);
         }
 
+        /// <summary>
+        /// Per-body damage scale for a pack attacker. The bodies share one enemy's swing: an action authored as one hit
+        /// is split across the full pack (each body deals 1/PackSize), so pack damage falls as bodies die. Actions that
+        /// author their own hit count (e.g. 30 × 4% ANT SWARM) keep their per-hit damage.
+        /// </summary>
+        public static double GetPerBodyDamageScale(Actor source, int authoredCount)
+        {
+            if (source is Enemy enemy && enemy.IsPack && enemy.PackSize > 1)
+                return Math.Min(1.0, Math.Max(1, authoredCount) / (double)enemy.PackSize);
+            return 1.0;
+        }
+
         internal static void SnapshotHeadlines(ActionExecutionResult result, Actor source, Actor target)
         {
             if (source is Enemy sourceEnemy && sourceEnemy.IsPack)

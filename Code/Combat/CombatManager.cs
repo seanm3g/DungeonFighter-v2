@@ -79,6 +79,21 @@ namespace RPGGame
         public void Cleanup()
         {
             Actions.Execution.ActionExecutionFlow.OneShotKillOccurred -= OnOneShotKill;
+            ForgetCombatants();
+        }
+
+        // Actors this manager put into combat; dropped from static per-actor caches when the fight ends
+        // (otherwise every simulated hero clone and enemy stays referenced for the life of the process).
+        private readonly System.Collections.Generic.List<Actor> combatants = new();
+
+        private void ForgetCombatants()
+        {
+            foreach (var actor in combatants)
+            {
+                ActionExecutor.ForgetActor(actor);
+                ActionSelector.RemoveStoredRoll(actor);
+            }
+            combatants.Clear();
         }
 
         /// <summary>
@@ -103,6 +118,7 @@ namespace RPGGame
         public void EndBattleNarrative(Character player, Enemy enemy)
         {
             stateManager.EndBattleNarrative(player, enemy);
+            ForgetCombatants();
         }
 
         /// <summary>
@@ -127,6 +143,8 @@ namespace RPGGame
         public void InitializeCombatEntities(Character player, Enemy enemy, Environment? environment = null, bool playerGetsFirstAttack = false, bool enemyGetsFirstAttack = false)
         {
             stateManager.InitializeCombatEntities(player, enemy, environment, playerGetsFirstAttack, enemyGetsFirstAttack);
+            combatants.Add(player);
+            combatants.Add(enemy);
         }
 
         /// <summary>

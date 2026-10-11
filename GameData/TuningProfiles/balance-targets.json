@@ -1,0 +1,40 @@
+{
+  "description": "Designer balance targets checked by Scripts/balance-check.ps1. Anchors are interpolated linearly between levels. winRateMeaning 'dungeonClear': anchors are dungeon clear rates; single-fight matrix targets = clear^(1/fightsPerDungeon).",
+  "winRateAnchors": [
+    {
+      "level": 1,
+      "winRate": 100
+    },
+    {
+      "level": 10,
+      "winRate": 95
+    },
+    {
+      "level": 100,
+      "winRate": 0
+    }
+  ],
+  "winRateTolerance": 4,
+  "heroTurnsTarget": 11,
+  "heroTurnsTolerance": 1.5,
+  "heroTurnsCheckMaxLevel": 50,
+  "survivalToLevel": 10,
+  "minSurvivalPercent": 97,
+  "rarePercentMin": 1.5,
+  "rarePercentMax": 3.5,
+  "matrixLevels": [
+    1,
+    5,
+    10,
+    20,
+    35,
+    50,
+    75,
+    100
+  ],
+  "matrixEnemies": "Wolf,Bear,Goblin,Rats,Lich,Wraith",
+  "winRateMeaning": "dungeonClear",
+  "fightsPerDungeon": 5.7,
+  "realClearCheckLevel": 10,
+  "realClearTolerance": 4
+}

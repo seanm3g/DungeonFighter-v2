@@ -13,6 +13,9 @@ namespace RPGGame.Combat
                 return baseRoll;
 
             int dungeonLevel = Math.Max(1, hero.Progression?.Level ?? 1);
+            int cap = GameConfiguration.Instance.Combat.RoomStructureRollShiftCap;
+            if (cap > 0)
+                dungeonLevel = Math.Min(dungeonLevel, cap);
             var tags = room.Tags;
             int shift = 0;
             if (tags.Any(t => string.Equals(t, "elegant", StringComparison.OrdinalIgnoreCase)))

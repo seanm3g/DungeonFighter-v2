@@ -25,12 +25,8 @@
           "weight": 10
         },
         {
-          "name": "SHIELD BASH",
-          "weight": 8
-        },
-        {
-          "name": "COUNTER ATTACK",
-          "weight": 6
+          "name": "SLASH",
+          "weight": 10
         }
       ]
     },
@@ -38,16 +34,12 @@
       "weaponType": "Dagger",
       "actions": [
         {
-          "name": "DEADLY THRUST",
+          "name": "STAB",
           "weight": 10
         },
         {
-          "name": "SHADOW STRIKE",
-          "weight": 8
-        },
-        {
-          "name": "BACKSTAB",
-          "weight": 6
+          "name": "CUT",
+          "weight": 10
         }
       ]
     },
@@ -55,33 +47,16 @@
       "weaponType": "Wand",
       "actions": [
         {
-          "name": "ARCANE BLAST",
+          "name": "MAGIC MISSLE",
           "weight": 10
         },
         {
-          "name": "MAGIC BOLT",
-          "weight": 8
-        },
-        {
-          "name": "ARCANE CASCADE",
-          "weight": 6
+          "name": "BOLT",
+          "weight": 10
         }
       ]
     }
   },
-  "armorActions": [
-    {
-      "name": "DEFENSIVE STANCE",
-      "weight": 10
-    },
-    {
-      "name": "COUNTER STRIKE",
-      "weight": 8
-    },
-    {
-      "name": "SHIELD REFLECTION",
-      "weight": 6
-    }
-  ],
-  "crossContaminationChance": 0.20
+  "armorActions": [],
+  "crossContaminationChance": 0.2
 }

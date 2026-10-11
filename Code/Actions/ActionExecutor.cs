@@ -394,6 +394,15 @@ namespace RPGGame
         }
 
 
+        /// <summary>Drops an actor's last-action entries once its fight is over.</summary>
+        public static void ForgetActor(Actor? source)
+        {
+            if (source == null)
+                return;
+            _lastUsedActions.TryRemove(source, out _);
+            _lastCriticalMissStatus.TryRemove(source, out _);
+        }
+
         /// <summary>
         /// Gets the last action used by an Actor
         /// </summary>

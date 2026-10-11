@@ -36,7 +36,8 @@ namespace RPGGame.Entity.Managers
                     "Attempting to load action '{0}' from JSON for entity '{1}'", actionName, entity.Name);
                 
                 // Ensure actions are loaded (GetAction will load if needed, but we ensure it here)
-                ActionLoader.LoadActions();
+                // Re-reading Actions.json for every gear action made each character rebuild ~100 ms with gear.
+                ActionLoader.EnsureLoaded();
 
                 var resolvedName = ActionLoader.ResolveActionName(actionName) ?? actionName;
                 var action = ActionLoader.GetAction(resolvedName);

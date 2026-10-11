@@ -170,7 +170,7 @@ namespace RPGGame
             int total = 0;
             for (int i = 0; i < numberOfDice; i++)
             {
-                total += Random.Shared.Next(1, sides + 1);
+                total += RandomUtility.Current.Next(1, sides + 1);
             }
             return total;
         }
@@ -207,7 +207,7 @@ namespace RPGGame
                 }
             }
 
-            return Random.Shared.Next(1, sides + 1);
+            return RandomUtility.Current.Next(1, sides + 1);
         }
 
         /// <summary>
@@ -276,7 +276,7 @@ namespace RPGGame
             }
             
             // Define weighted ranges for different modification tiers from config
-            double roll = Random.Shared.NextDouble() * 100.0;
+            double roll = RandomUtility.Current.NextDouble() * 100.0;
             
             // Apply tier bonus - higher tier items get better chances
             double tierBonus = Math.Max(0, (itemTier - 1) * config.TierBonusPerLevel);
@@ -300,7 +300,7 @@ namespace RPGGame
             if (roll < commonThreshold) // Common modifications (1-4, 29)
             {
                 // 90% chance for regular common mods, 10% for magic find
-                if (Random.Shared.NextDouble() < 0.9)
+                if (RandomUtility.Current.NextDouble() < 0.9)
                     return Roll(4); // DiceResult 1-4
                 else
                     return 29; // Magic Fingers
@@ -308,7 +308,7 @@ namespace RPGGame
             else if (roll < uncommonThreshold) // Uncommon modifications (5-8, 30)
             {
                 // 90% chance for regular uncommon mods, 10% for magic find
-                if (Random.Shared.NextDouble() < 0.9)
+                if (RandomUtility.Current.NextDouble() < 0.9)
                     return Roll(4) + 4; // DiceResult 5-8
                 else
                     return 30; // Lucky Magic Find
@@ -320,7 +320,7 @@ namespace RPGGame
             else if (roll < epicThreshold) // Epic modifications (13-16, 31)
             {
                 // 90% chance for regular epic mods, 10% for magic find
-                if (Random.Shared.NextDouble() < 0.9)
+                if (RandomUtility.Current.NextDouble() < 0.9)
                     return Roll(4) + 12; // DiceResult 13-16
                 else
                     return 31; // Magical Lamp
@@ -345,7 +345,7 @@ namespace RPGGame
         private static int RollModificationFallback(int itemTier = 1, int bonus = 0)
         {
             // Hardcoded fallback values
-            double roll = Random.Shared.NextDouble() * 100.0;
+            double roll = RandomUtility.Current.NextDouble() * 100.0;
             double tierBonus = Math.Max(0, (itemTier - 1) * 1.5);
             roll -= tierBonus;
             roll -= bonus * 1.0;
@@ -423,7 +423,7 @@ namespace RPGGame
             
             double finalChance = baseChance + levelBonus;
             
-            return Random.Shared.NextDouble() < finalChance;
+            return RandomUtility.Current.NextDouble() < finalChance;
         }
     }
 

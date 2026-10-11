@@ -74,7 +74,7 @@ namespace RPGGame
         {
             if (names.Count == 0)
                 return names;
-            ActionLoader.LoadActions();
+            ActionLoader.EnsureLoaded();
             var kept = new List<string>();
             foreach (var n in names)
             {
@@ -95,7 +95,7 @@ namespace RPGGame
             if (names.Count == 0)
                 return names;
 
-            ActionLoader.LoadActions();
+            ActionLoader.EnsureLoaded();
             var canonical = new List<string>(names.Count);
             foreach (var n in names)
             {

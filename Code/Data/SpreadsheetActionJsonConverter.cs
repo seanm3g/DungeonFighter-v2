@@ -107,6 +107,7 @@ namespace RPGGame.Data
             action.SelfDamage = GetStringValue(root, "selfDamage");
             action.HeroHeal = GetStringValue(root, "heroHeal");
             action.HeroHealMaxHealth = GetStringValue(root, "heroHealMaxHealth");
+            action.SelfTargetEffects = GetStringValue(root, "selfTargetEffects");
             action.ReplaceNextRoll = GetStringValue(root, "replaceNextRoll");
             action.HighestLowestRoll = GetStringValue(root, "highestLowestRoll");
             action.DiceRolls = GetStringValue(root, "diceRolls");
@@ -254,6 +255,7 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "selfDamage", value.SelfDamage);
             WriteIfNotEmpty(writer, "heroHeal", value.HeroHeal);
             WriteIfNotEmpty(writer, "heroHealMaxHealth", value.HeroHealMaxHealth);
+            WriteIfNotEmpty(writer, "selfTargetEffects", value.SelfTargetEffects);
             WriteIfNotEmpty(writer, "replaceNextRoll", value.ReplaceNextRoll);
             WriteIfNotEmpty(writer, "highestLowestRoll", value.HighestLowestRoll);
             WriteIfNotEmpty(writer, "diceRolls", value.DiceRolls);
