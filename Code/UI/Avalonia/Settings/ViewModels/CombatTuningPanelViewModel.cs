@@ -7,7 +7,7 @@ using RPGGame.Tuning;
 
 namespace RPGGame.UI.Avalonia.Settings.ViewModels
 {
-    /// <summary>View model for the Combat Tuning parameters tab (tabbed registry sections).</summary>
+    /// <summary>View model for Combat Tuning: Starting / Scaling / Outfit (+ Simulation tool).</summary>
     public sealed class CombatTuningPanelViewModel
     {
         private readonly Dictionary<string, CombatTuningParameterViewModel> byId;
@@ -23,32 +23,16 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
             ArchetypeTuning = archetypeTuning;
             StatusEffectTuning = statusEffectTuning;
 
-            // Legacy layer collections for Core tab backward compatibility
-            DurationParameters = CollectCoreLayer(CombatTuningLayer.Duration);
-            WinRateParameters = CollectCoreLayer(CombatTuningLayer.WinRate);
-            RollFeelParameters = CollectCoreLayer(CombatTuningLayer.RollFeel);
-            ComboAffordanceParameters = CollectCoreLayer(CombatTuningLayer.ComboAffordance);
-            GoalsParameters = CollectCoreLayer(CombatTuningLayer.Goals);
-
-            CoreSubGroups = GetSubGroups(CombatTuningTab.Core) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
-            HeroSubGroups = GetSubGroups(CombatTuningTab.HeroClasses) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
-            SpeedSubGroups = GetSubGroups(CombatTuningTab.SpeedDefense) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
-            EquipmentSubGroups = GetSubGroups(CombatTuningTab.Equipment) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
-            EnemySubGroups = GetSubGroups(CombatTuningTab.EnemyStats) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
-            ProgressionCurveSubGroups = GetSubGroups(CombatTuningTab.ProgressionCurve) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
-            RewardsSubGroups = GetSubGroups(CombatTuningTab.RewardsLoot) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
-            GoalsAnalysisSubGroups = GetSubGroups(CombatTuningTab.GoalsAnalysis) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
+            StartingSubGroups = GetSubGroups(CombatTuningTab.Starting) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
+            ScalingSubGroups = GetSubGroups(CombatTuningTab.Scaling) ?? new ObservableCollection<CombatTuningSubGroupViewModel>();
+            OutfitSubGroups = FilterOutfitStandardSubGroups(
+                GetSubGroups(CombatTuningTab.Outfit) ?? new ObservableCollection<CombatTuningSubGroupViewModel>());
         }
 
-        public ObservableCollection<CombatTuningSubGroupViewModel> CoreSubGroups { get; }
-        public ObservableCollection<CombatTuningSubGroupViewModel> HeroSubGroups { get; }
-        public ObservableCollection<CombatTuningSubGroupViewModel> SpeedSubGroups { get; }
-        public ObservableCollection<CombatTuningSubGroupViewModel> EquipmentSubGroups { get; }
-        public ObservableCollection<CombatTuningSubGroupViewModel> EnemySubGroups { get; }
-        public ObservableCollection<CombatTuningSubGroupViewModel> ProgressionCurveSubGroups { get; }
+        public ObservableCollection<CombatTuningSubGroupViewModel> StartingSubGroups { get; }
+        public ObservableCollection<CombatTuningSubGroupViewModel> ScalingSubGroups { get; }
+        public ObservableCollection<CombatTuningSubGroupViewModel> OutfitSubGroups { get; }
         public ProgressionCurvePreviewViewModel ProgressionPreview { get; } = new();
-        public ObservableCollection<CombatTuningSubGroupViewModel> RewardsSubGroups { get; }
-        public ObservableCollection<CombatTuningSubGroupViewModel> GoalsAnalysisSubGroups { get; }
 
         /// <summary>Shown at top of Combat Tuning so saves target the active balance patch file.</summary>
         public string ActiveBalancePatchLabel { get; private set; } = BuildActiveBalancePatchLabel();
@@ -69,12 +53,6 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
         public IReadOnlyDictionary<CombatTuningTab, ObservableCollection<CombatTuningSubGroupViewModel>> SubGroupsByTab { get; }
         public ArchetypeTuningViewModel ArchetypeTuning { get; }
         public StatusEffectTuningViewModel StatusEffectTuning { get; }
-
-        public ObservableCollection<CombatTuningParameterViewModel> DurationParameters { get; }
-        public ObservableCollection<CombatTuningParameterViewModel> WinRateParameters { get; }
-        public ObservableCollection<CombatTuningParameterViewModel> RollFeelParameters { get; }
-        public ObservableCollection<CombatTuningParameterViewModel> ComboAffordanceParameters { get; }
-        public ObservableCollection<CombatTuningParameterViewModel> GoalsParameters { get; }
 
         public static CombatTuningPanelViewModel FromRegistry()
         {
@@ -109,8 +87,11 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
                 subGroupsByTab[tab] = new ObservableCollection<CombatTuningSubGroupViewModel>(groups);
             }
 
-            var archetypeRows = rowsByTab[CombatTuningTab.Archetypes];
-            var statusRows = rowsByTab[CombatTuningTab.StatusEffects];
+            var outfitRows = rowsByTab[CombatTuningTab.Outfit];
+            var archetypeRows = outfitRows.Where(r => r.Id.StartsWith("arch_", StringComparison.OrdinalIgnoreCase)).ToList();
+            var statusRows = outfitRows.Where(r =>
+                r.Id.StartsWith("status", StringComparison.OrdinalIgnoreCase)
+                || r.Id.StartsWith("fx_", StringComparison.OrdinalIgnoreCase)).ToList();
             var globalStatus = statusRows.Where(r => string.IsNullOrEmpty(r.FilterKey)).ToList();
             var perEffectStatus = statusRows.Where(r => !string.IsNullOrEmpty(r.FilterKey)).ToList();
 
@@ -126,6 +107,19 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
             vm.WireProgressionCurveRefresh();
             vm.ProgressionPreview.Refresh();
             return vm;
+        }
+
+        /// <summary>Outfit list view excludes archetype/status rows (shown via selectors).</summary>
+        private static ObservableCollection<CombatTuningSubGroupViewModel> FilterOutfitStandardSubGroups(
+            ObservableCollection<CombatTuningSubGroupViewModel> groups)
+        {
+            var filtered = groups
+                .Where(g =>
+                    !string.Equals(g.Name, "Archetypes", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(g.Name, "Status — per effect", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(g.Name, "Status — global", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            return new ObservableCollection<CombatTuningSubGroupViewModel>(filtered);
         }
 
         internal void WireProgressionCurveRefresh()
@@ -153,7 +147,6 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
             ProgressionPreview.Refresh();
         }
 
-        /// <summary>Writes progression-curve knob UI values to config so the preview chart matches sliders.</summary>
         private void ApplyProgressionCurveKnobsForPreview()
         {
             foreach (var row in byId.Values)
@@ -163,9 +156,6 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
             }
         }
 
-        /// <summary>
-        /// When the variance compression master slider moves, refresh driven sub-parameter rows in the UI.
-        /// </summary>
         internal void WireRollFeelVarianceCompressionMasterSlider()
         {
             if (!byId.TryGetValue(RollFeelVarianceCompression.MasterParameterId, out var masterRow))
@@ -179,7 +169,6 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
             });
         }
 
-        /// <summary>Reload UI rows driven by the variance compression master slider.</summary>
         public void ReloadRollFeelLinkedParameters()
         {
             foreach (string id in RollFeelVarianceCompression.DrivenParameterIds)
@@ -187,24 +176,6 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
                 if (byId.TryGetValue(id, out var row))
                     row.ReloadFromConfig();
             }
-        }
-
-        private ObservableCollection<CombatTuningParameterViewModel> CollectCoreLayer(CombatTuningLayer layer)
-        {
-            var result = new ObservableCollection<CombatTuningParameterViewModel>();
-            if (!SubGroupsByTab.TryGetValue(CombatTuningTab.Core, out var groups))
-                return result;
-
-            foreach (var group in groups)
-            {
-                foreach (var row in group.Parameters)
-                {
-                    var param = CombatTuningParameterRegistry.GetById(row.Id);
-                    if (param?.Layer == layer)
-                        result.Add(row);
-                }
-            }
-            return result;
         }
 
         public ObservableCollection<CombatTuningSubGroupViewModel>? GetSubGroups(CombatTuningTab tab) =>
@@ -219,7 +190,6 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
             RefreshProgressionPreview();
         }
 
-        /// <summary>Commits any in-progress text box edits into row values (call before save).</summary>
         public void FlushPendingEdits()
         {
             foreach (var row in byId.Values)
@@ -242,16 +212,5 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
             SubGroupsByTab.TryGetValue(tab, out var groups)
                 ? groups.Sum(g => g.Parameters.Count)
                 : 0;
-
-        public int CountForLayer(CombatTuningLayer layer) =>
-            layer switch
-            {
-                CombatTuningLayer.Duration => DurationParameters.Count,
-                CombatTuningLayer.WinRate => WinRateParameters.Count,
-                CombatTuningLayer.RollFeel => RollFeelParameters.Count,
-                CombatTuningLayer.ComboAffordance => ComboAffordanceParameters.Count,
-                CombatTuningLayer.Goals => GoalsParameters.Count,
-                _ => 0
-            };
     }
 }

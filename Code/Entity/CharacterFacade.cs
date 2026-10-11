@@ -163,14 +163,18 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Attribute contribution to base damage: effective STR plus effective primary attribute.
-        /// Direct-stat lab enemies use their Damage field only (no double-count).
+        /// Attribute contribution to base damage: floor((effective STR + effective primary) × AttributeDamageScale).
+        /// Direct-stat lab enemies use their Damage field only (no double-count / no scale).
         /// </summary>
         public int GetAttributeDamageBonus()
         {
             if (_character is Enemy enemy && enemy.UsesDirectCombatStats())
                 return enemy.GetEffectiveStrength();
-            return GetEffectiveStrength() + GetEffectivePrimaryAttributeValue();
+            int sum = GetEffectiveStrength() + GetEffectivePrimaryAttributeValue();
+            double scale = GameConfiguration.Instance.Combat.AttributeDamageScale;
+            if (scale <= 0)
+                scale = 0.05;
+            return Math.Max(0, (int)Math.Floor(sum * scale));
         }
 
         // === ACTION MANAGEMENT ===

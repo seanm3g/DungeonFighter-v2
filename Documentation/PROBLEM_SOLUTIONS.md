@@ -4,6 +4,16 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Balance / Tuning: attribute damage scale + Starting/Scaling/Outfit IA (October 2026)
+**Problem:** Attribute damage was 1:1 with STR+Primary, so base stats of 3 made every early +1 feel huge; Combat Tuning knobs were scattered across many tabs (Core, Hero, Speed, Equipment, Enemy, Progression, Archetypes, Status, Rewards, Goals).
+
+**Solution:**
+1. `attrDmg = floor((STR + Primary) × Combat.AttributeDamageScale)` (default **0.05** → **1** at base 10+10); shipped player bases **10/10/10/10**
+2. Combat Tuning UI replaced with **Starting | Scaling | Outfit** (+ Simulation tool); registry retagged; unimplemented difficulty presets removed from the panel
+3. Damage HUD/tooltips show the scaled equation
+
+**Related files:** `CombatConfig.cs`, `CharacterFacade.cs`, `CharacterConfig.cs`, `CombatTuningParameterRegistry*.cs`, `CombatTuningSettingsPanel.*`, `CombatTuningPanelViewModel.cs`, `GameData/Patches/Balance/7-30-26.json`, `default.json`
+
 ### Perf / UI: text distortion frame-rate drop (October 2026)
 **Problem:** With F6 mouse-wind distortion on, moving the pointer over dense combat-log / panel text caused noticeable frame-rate dips.
 
@@ -30,6 +40,15 @@ This document contains solutions to common problems encountered during developme
 **Solution:** `ActionTextEmphasisWordLocator` pads the rigid exclude rect by one cell on each side (origin stays on the word center) so separator spaces do not flee. Tests: `ActionTextEmphasisWordLocatorTests`.
 
 **Related files:** `ActionTextEmphasisWordLocator.cs`, `ActionTextEmphasisWordLocatorTests.cs`, `ARCHITECTURE.md`, `OVERVIEW.md`, `TASKLIST.md`
+
+### UI: new menu jitters under mouse (screen-open damper) (October 2026)
+**Problem:** When a new menu/screen opened with the pointer already over text, fresh glyphs jittered under F6 wind distortion.
+
+**Root cause:** Residual wake energy from the previous screen (or a layout rebuild that rebased mouse deltas) applied full amp on the first paint of the new text.
+
+**Solution:** `ScreenTransitionProtocol` calls `CanvasUICoordinator.NotifyScreenOpened` → `WindSwayField.BeginOpenDamper` at the start of each menu transition. That clears residual wind/trail, reseeds the mouse baseline (next push establishes position only), and eases amp 0→1 over ~1.5s via smoothstep. Impulse and sample strength both honor the damper.
+
+**Related files:** `WindSwayField.cs`, `GameCanvasControl.cs`, `CanvasUICoordinator.cs`, `ScreenTransitionProtocol.cs`, `WindSwayFieldTests.cs`
 
 ### UI: micro mouse moves jitter glyphs under distortion (October 2026)
 **Problem:** With F6 mouse-wind distortion on, tiny pointer movements that should leave text alone were still shoving pixel-font characters around one device pixel at a time.

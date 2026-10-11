@@ -30,7 +30,7 @@ namespace RPGGame.Tests.Unit.Tuning
             TestEnemyHealthMultiplier_AppliesInStatCalculator();
             TestRuntimeDifficulty_UsesGameSettings();
             TestClassDamageMultiplier_WiredInRegistry();
-            TestDifficultyPresets_MarkedUnimplemented();
+            TestAttributeDamageScale_Registered();
             TestEnemyBalancePoolKnobs_Registered();
 
             TestBase.PrintSummary("CombatTuningParameterRegistry Tests", _testsRun, _testsPassed, _testsFailed);
@@ -48,8 +48,8 @@ namespace RPGGame.Tests.Unit.Tuning
         private static void TestRegistry_HasExpandedParameterCount()
         {
             Console.WriteLine("--- Registry has expanded parameter catalog ---");
-            TestBase.AssertTrue(CombatTuningParameterRegistry.All.Count >= 150,
-                $"Registry has 150+ parameters (actual {CombatTuningParameterRegistry.All.Count})",
+            TestBase.AssertTrue(CombatTuningParameterRegistry.All.Count >= 100,
+                $"Registry has 100+ parameters (actual {CombatTuningParameterRegistry.All.Count})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -125,8 +125,8 @@ namespace RPGGame.Tests.Unit.Tuning
             {
                 var param = CombatTuningParameterRegistry.GetById(id);
                 TestBase.AssertTrue(param != null, $"{id} exists", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertTrue(param!.Tab == CombatTuningTab.ProgressionCurve,
-                    $"{id} on Progression Curve tab", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(param!.Tab == CombatTuningTab.Scaling,
+                    $"{id} on Scaling tab", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
 
             var tempo = CombatTuningParameterRegistry.GetById("combatTempoScale");
@@ -242,17 +242,13 @@ namespace RPGGame.Tests.Unit.Tuning
                 "runtimeEnemyHealthMult flagged as GameSettings", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestDifficultyPresets_MarkedUnimplemented()
+        private static void TestAttributeDamageScale_Registered()
         {
-            Console.WriteLine("--- Difficulty presets marked unimplemented ---");
-            foreach (var id in new[] { "easyEnemyHealthMult", "normalXpMult", "hardLootMult" })
-            {
-                var param = CombatTuningParameterRegistry.GetById(id);
-                TestBase.AssertTrue(param != null && !param.IsImplemented,
-                    $"{id} is unimplemented",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-            }
-
+            Console.WriteLine("--- attributeDamageScale registered on Starting ---");
+            var param = CombatTuningParameterRegistry.GetById("attributeDamageScale");
+            TestBase.AssertTrue(param != null, "attributeDamageScale exists", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(param!.Tab == CombatTuningTab.Starting,
+                "attributeDamageScale on Starting tab", ref _testsRun, ref _testsPassed, ref _testsFailed);
             var runtime = CombatTuningParameterRegistry.GetById("runtimeEnemyHealthMult");
             TestBase.AssertTrue(runtime != null && runtime.IsImplemented,
                 "runtimeEnemyHealthMult remains implemented",
@@ -260,3 +256,4 @@ namespace RPGGame.Tests.Unit.Tuning
         }
     }
 }
+

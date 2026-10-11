@@ -98,9 +98,12 @@ namespace RPGGame
             AddBlank(lines);
             AddHighlight(lines, "Base attack total", total.ToString(CultureInfo.InvariantCulture));
             AddBlank(lines);
-            AddSection(lines, "Attributes (STR + primary)");
+            double attrScale = GameConfiguration.Instance.Combat.AttributeDamageScale;
+            if (attrScale <= 0) attrScale = 0.05;
+            AddSection(lines, "Attributes (STR + primary) × scale");
             AddStatRow(lines, "Strength (always)", strEff);
             AddStatRow(lines, $"Primary ({primaryCode})", primaryEff);
+            AddDecimalStatRow(lines, "Damage scale", attrScale, "0.##");
             AddStatRow(lines, "Attribute subtotal", attrBonus);
             AddBlank(lines);
             AddSection(lines, "Gear & mods");
@@ -108,7 +111,7 @@ namespace RPGGame
             AddSignedStatRow(lines, "Equipment", equipmentDamageBonus);
             AddSignedStatRow(lines, "Modifications", modificationDamageBonus);
             AddBlank(lines);
-            AddDamageEquationLine(lines, strEff, primaryCode, primaryEff, weaponDamage, equipmentDamageBonus, modificationDamageBonus, total);
+            AddDamageEquationLine(lines, strEff, primaryCode, primaryEff, attrScale, attrBonus, weaponDamage, equipmentDamageBonus, modificationDamageBonus, total);
             if (primaryIsStrength)
                 AddNoteLine(lines, "STR is your primary — Strength and Primary both use the same value.");
             else
@@ -170,16 +173,22 @@ namespace RPGGame
             int strEff,
             string primaryCode,
             int primaryEff,
+            double attrScale,
+            int attrBonus,
             int weaponDamage,
             int equipmentDamageBonus,
             int modificationDamageBonus,
             int total)
         {
             var seg = new ColoredTextBuilder();
-            seg.Add("Equation: ", ColorPalette.Info.GetColor());
+            seg.Add("Equation: floor((", ColorPalette.Info.GetColor());
             seg.Add(strEff.ToString(CultureInfo.InvariantCulture), Colors.White);
             seg.Add(" + ", Colors.Gray);
             seg.Add($"{primaryCode} {primaryEff}", Colors.White);
+            seg.Add(") × ", Colors.Gray);
+            seg.Add(attrScale.ToString("0.##", CultureInfo.InvariantCulture), Colors.White);
+            seg.Add(") = ", Colors.Gray);
+            seg.Add(attrBonus.ToString(CultureInfo.InvariantCulture), Colors.White);
             seg.Add(" + ", Colors.Gray);
             seg.Add(weaponDamage.ToString(CultureInfo.InvariantCulture), Colors.White);
             seg.Add(" + ", Colors.Gray);

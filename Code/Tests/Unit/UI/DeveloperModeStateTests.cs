@@ -24,6 +24,7 @@ namespace RPGGame.Tests.Unit.UI
             TestTutorialCombatSlowPacing();
             TestCenterPanelTintChangesWithCombatSpeed();
             TestSimulationPacingFastMode();
+            TestNarrativeCombatLogDefaultOff();
             TestNarrativeCombatLogToggle();
             TestNarrativeVideoFeedDefaultOff();
             TestNarrativeVideoFeedToggle();
@@ -109,21 +110,37 @@ namespace RPGGame.Tests.Unit.UI
             }
         }
 
+        private static void TestNarrativeCombatLogDefaultOff()
+        {
+            Console.WriteLine("--- F7 narrative combat log default off ---");
+            bool prev = DeveloperModeState.IsNarrativeCombatLog;
+            try
+            {
+                DeveloperModeState.SetNarrativeCombatLog(false);
+                TestBase.AssertTrue(!DeveloperModeState.IsNarrativeCombatLog,
+                    "narrative combat log defaults / resets off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetNarrativeCombatLog(prev);
+            }
+        }
+
         private static void TestNarrativeCombatLogToggle()
         {
             Console.WriteLine("--- F7 narrative combat log toggles runtime flag ---");
             bool prev = DeveloperModeState.IsNarrativeCombatLog;
             try
             {
-                DeveloperModeState.SetNarrativeCombatLog(true);
-                TestBase.AssertTrue(DeveloperModeState.IsNarrativeCombatLog,
-                    "starts on", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertTrue(!DeveloperModeState.ToggleNarrativeCombatLog(),
-                    "toggle turns off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                DeveloperModeState.SetNarrativeCombatLog(false);
                 TestBase.AssertTrue(!DeveloperModeState.IsNarrativeCombatLog,
-                    "flag is off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                    "starts off", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(DeveloperModeState.ToggleNarrativeCombatLog(),
                     "toggle turns on", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(DeveloperModeState.IsNarrativeCombatLog,
+                    "flag is on", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!DeveloperModeState.ToggleNarrativeCombatLog(),
+                    "toggle turns off", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {

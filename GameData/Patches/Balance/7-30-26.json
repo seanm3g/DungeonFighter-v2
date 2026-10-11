@@ -6,10 +6,10 @@
   },
   "attributes": {
     "playerBaseAttributes": {
-      "strength": 3,
-      "agility": 3,
-      "technique": 3,
-      "intelligence": 3
+      "strength": 10,
+      "agility": 10,
+      "technique": 10,
+      "intelligence": 10
     },
     "playerAttributesPerLevel": 2,
     "playerPrimaryStatPerLevel": 3,
@@ -133,6 +133,7 @@
     "minimumDamage": 3,
     "playerBaseArmor": 8,
     "maximumDamageCap": 730,
+    "attributeDamageScale": 0.05,
     "armorReductionFactor": 185,
     "weaponAttackTimeClampMin": 0.5,
     "weaponAttackTimeClampMax": 1.5,

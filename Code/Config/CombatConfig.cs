@@ -20,6 +20,10 @@ namespace RPGGame
         public int MinimumDamage { get; set; }
         public int PlayerBaseArmor { get; set; }
         public int MaximumDamageCap { get; set; } = 999;
+        /// <summary>
+        /// Scales attribute damage: floor((STR + Primary) × scale). Default 0.05 so base-10 stats contribute 1.
+        /// </summary>
+        public double AttributeDamageScale { get; set; } = 0.05;
         public double ArmorReductionFactor { get; set; } = 100.0;
         public double WeaponAttackTimeClampMin { get; set; } = 0.5;
         public double WeaponAttackTimeClampMax { get; set; } = 1.5;
@@ -62,6 +66,8 @@ namespace RPGGame
                 CriticalHitMultiplier = 2.0;
             if (MaximumDamageCap <= 0)
                 MaximumDamageCap = 999;
+            if (AttributeDamageScale <= 0)
+                AttributeDamageScale = 0.05;
             if (ArmorReductionFactor <= 0)
                 ArmorReductionFactor = 100.0;
             if (WeaponAttackTimeClampMin <= 0)

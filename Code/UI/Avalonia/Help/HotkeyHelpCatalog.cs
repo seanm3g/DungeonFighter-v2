@@ -53,7 +53,7 @@ namespace RPGGame.UI.Avalonia.Help
 
             new("Page Up / Page Down", "Combat speed ladder (1x → 2x → 5x → 20x)", "Combat"),
             new("F5", "Toggle narrative combat-log video overlay (default off)", "Combat"),
-            new("F7", "Toggle narrative combat log (prose paragraphs)", "Combat"),
+            new("F7", "Toggle narrative combat log (default off; mechanical combat log)", "Combat"),
             new("Ctrl+C / Cmd+C", "Copy the full combat/dungeon text log as plain text", "Combat"),
             new("Right-click combat log", "Save combat scene JSON (GameData/CombatLogs) and copy it; live feed at http://127.0.0.1:7877/", "Combat"),
             new("Mouse wheel (over combat log)", "Scroll the combat log", "Combat"),

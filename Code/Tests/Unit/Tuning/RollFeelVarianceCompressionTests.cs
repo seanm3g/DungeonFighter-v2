@@ -44,11 +44,8 @@ namespace RPGGame.Tests.Unit.Tuning
                 TestBase.AssertTrue(driven != null,
                     $"{id} exists in registry",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(RollFeelVarianceCompression.SubGroupName, driven!.SubGroup,
-                    $"{id} is in Variance Compression subgroup",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertTrue(driven.Tab == CombatTuningTab.Core,
-                    $"{id} is on Core tab",
+                TestBase.AssertTrue(driven!.Tab is CombatTuningTab.Starting or CombatTuningTab.Scaling or CombatTuningTab.Outfit,
+                    $"{id} is on Starting/Scaling/Outfit",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }

@@ -85,6 +85,12 @@ namespace RPGGame.UI.Avalonia.Effects
         /// </summary>
         internal const int MinSettleIntervalMs = 20;
 
+        /// <summary>
+        /// After a screen/menu opens, glyph distortion ramps from muted → full over this many seconds
+        /// so text that appears under a still cursor does not instantly jitter.
+        /// </summary>
+        internal const double OpenDamperSeconds = 1.5;
+
         private readonly struct FrameTrailStamp
         {
             public FrameTrailStamp(TrailPoint point, double dirX, double dirY)
@@ -122,8 +128,16 @@ namespace RPGGame.UI.Avalonia.Effects
         private double _motionDirX;
         private double _motionDirY = 1.0;
 
+        // Screen-open damper: amp multiplier ramps 0→1 after BeginOpenDamper (see OpenDamperSeconds).
+        // Use a bool (not a negative-start sentinel) so "elapsed into the past" test helpers stay valid
+        // when the field Stopwatch is still under one second old.
+        private bool _openDamperActive;
+        private double _openDamperStartSeconds;
+        private double _openDamperDurationSeconds = OpenDamperSeconds;
+
         // Per-paint snapshot (filled by BeginFrame; SampleOffset reads without locking).
         private bool _frameActive;
+        private double _frameOpenDamper;
         private WindSwayConfig _frameConfig = new();
         private double _frameNow;
         private double _frameWindX;
@@ -191,6 +205,68 @@ namespace RPGGame.UI.Avalonia.Effects
             {
                 _config = config ?? new WindSwayConfig();
             }
+        }
+
+        /// <summary>
+        /// Call when a new screen/menu has just opened. Clears residual wake energy, reseeds the
+        /// mouse delta baseline (so layout rebuilds cannot invent a flick), and starts a short
+        /// amp ramp so distortion fades in over <see cref="OpenDamperSeconds"/>.
+        /// </summary>
+        public void BeginOpenDamper(double? durationSeconds = null)
+        {
+            lock (_lock)
+            {
+                double now = _clock.Elapsed.TotalSeconds;
+                _windX = 0;
+                _windY = 0;
+                _speedCellsPerSec = 0;
+                _trail.Clear();
+                _lastDepositX = null;
+                _lastDepositY = null;
+                // Next PushFromMouseDelta establishes position without inventing an impulse.
+                _lastMouseX = null;
+                _lastMouseY = null;
+                _lastSampleSeconds = now;
+                _lastPushSeconds = now;
+                _lastMeaningfulMotionSeconds = now;
+                _openDamperDurationSeconds = Math.Max(0.01, durationSeconds ?? OpenDamperSeconds);
+                _openDamperStartSeconds = now;
+                _openDamperActive = true;
+            }
+            EndFrame();
+        }
+
+        /// <summary>0 = fully muted (just opened), 1 = full distortion strength.</summary>
+        public double GetOpenDamperFactorForTests()
+        {
+            lock (_lock)
+                return OpenDamperFactorUnlocked(_clock.Elapsed.TotalSeconds);
+        }
+
+        /// <summary>
+        /// Test helper: pretends the open damper has already aged by <paramref name="elapsedSeconds"/>.
+        /// Optionally resets the duration (defaults to the active damper duration / <see cref="OpenDamperSeconds"/>).
+        /// </summary>
+        public void SetOpenDamperElapsedForTests(double elapsedSeconds, double? durationSeconds = null)
+        {
+            lock (_lock)
+            {
+                double now = _clock.Elapsed.TotalSeconds;
+                if (durationSeconds.HasValue)
+                    _openDamperDurationSeconds = Math.Max(0.01, durationSeconds.Value);
+                else if (!_openDamperActive)
+                    _openDamperDurationSeconds = OpenDamperSeconds;
+
+                _openDamperStartSeconds = now - Math.Max(0, elapsedSeconds);
+                _openDamperActive = true;
+            }
+        }
+
+        /// <summary>Test helper: active open-damper duration in seconds.</summary>
+        public double GetOpenDamperDurationForTests()
+        {
+            lock (_lock)
+                return _openDamperDurationSeconds;
         }
 
         /// <summary>
@@ -293,6 +369,11 @@ namespace RPGGame.UI.Avalonia.Effects
                 DecayUnlocked(now);
                 PruneTrailUnlocked(now);
 
+                double openDamper = OpenDamperFactorUnlocked(now);
+                // Fully muted open window: skip paint work (no residual wake after BeginOpenDamper).
+                if (openDamper <= 1e-6)
+                    return false;
+
                 bool alive = MagnitudeUnlocked() > ActivityEpsilon
                     || _speedCellsPerSec > ActivityEpsilon
                     || _trail.Count > 0;
@@ -301,6 +382,7 @@ namespace RPGGame.UI.Avalonia.Effects
 
                 _frameConfig = _config;
                 _frameNow = now;
+                _frameOpenDamper = openDamper;
                 _frameIdleFor = now - _lastMeaningfulMotionSeconds;
                 _frameWindX = _windX;
                 _frameWindY = _windY;
@@ -313,6 +395,7 @@ namespace RPGGame.UI.Avalonia.Effects
                 double speedRef = Math.Max(0.01, _config.SpeedReferenceCellsPerSec);
                 double speedFactor = Math.Clamp(_speedCellsPerSec / speedRef, 0.0, 1.0);
                 double windFactor = Math.Clamp(mag / Math.Max(0.01, _config.MaxWind), 0.0, 1.0);
+                // Open damper is applied once on final sample strength (not here) so pointAmp cannot bypass it.
                 _frameAmpFactor = Math.Max(speedFactor, windFactor * 0.9);
 
                 _frameRadiusCells = Math.Max(0.01, _config.WakeRadiusCells);
@@ -424,9 +507,18 @@ namespace RPGGame.UI.Avalonia.Effects
                     // Only the excess past the deadzone becomes impulse — just-crossing must not full-amp.
                     if (distPx > MotionDeadzonePixels)
                     {
+                        double openDamper = OpenDamperFactorUnlocked(now);
+                        // Fresh screens stay crisp until the damper fades in.
+                        if (openDamper <= 1e-6)
+                        {
+                            _lastMouseX = mouseX;
+                            _lastMouseY = mouseY;
+                            return;
+                        }
+
                         double excessPx = distPx - MotionDeadzonePixels;
                         double excessScale = excessPx / distPx;
-                        double ampRamp = Math.Clamp(excessPx / MotionAmpRampPixels, 0.0, 1.0);
+                        double ampRamp = Math.Clamp(excessPx / MotionAmpRampPixels, 0.0, 1.0) * openDamper;
                         double excessDxPx = dxPx * excessScale;
                         double excessDyPx = dyPx * excessScale;
 
@@ -445,7 +537,7 @@ namespace RPGGame.UI.Avalonia.Effects
                         // Ramp speed with excess travel — tiny overshoots must not full-amp.
                         _speedCellsPerSec = (distCells / pushDt) * ampRamp;
 
-                        double gain = Math.Max(0, _config.ImpulseGain);
+                        double gain = Math.Max(0, _config.ImpulseGain) * openDamper;
                         _windX += dxCells * gain;
                         _windY += dyCells * gain;
                         ClampWindUnlocked();
@@ -656,7 +748,7 @@ namespace RPGGame.UI.Avalonia.Effects
 
             double dirX = bestWindX / pointWindMag;
             double dirY = bestWindY / pointWindMag;
-            double strength = _frameMaxOffsetFraction * bestLayer * combinedAmp;
+            double strength = _frameMaxOffsetFraction * bestLayer * combinedAmp * _frameOpenDamper;
 
             // Direction-only offset (no per-glyph sine ripple — was already subdued and costly).
             double ox = dirX * strength * charWidth;
@@ -687,8 +779,35 @@ namespace RPGGame.UI.Avalonia.Effects
                 _lastSampleSeconds = now;
                 _lastPushSeconds = now;
                 _lastMeaningfulMotionSeconds = now;
+                _openDamperActive = false;
+                _openDamperStartSeconds = 0;
+                _openDamperDurationSeconds = OpenDamperSeconds;
             }
             EndFrame();
+        }
+
+        /// <summary>
+        /// Screen-open amp multiplier: 0 just after <see cref="BeginOpenDamper"/>, 1 after the duration.
+        /// Uses smoothstep so distortion eases in rather than popping on.
+        /// </summary>
+        private double OpenDamperFactorUnlocked(double now)
+        {
+            if (!_openDamperActive)
+                return 1.0;
+
+            double duration = Math.Max(0.01, _openDamperDurationSeconds);
+            double t = (now - _openDamperStartSeconds) / duration;
+            if (t >= 1.0)
+            {
+                _openDamperActive = false;
+                return 1.0;
+            }
+
+            if (t <= 0)
+                return 0;
+
+            // Smoothstep: slow start (menus stay crisp), then full wake.
+            return t * t * (3.0 - 2.0 * t);
         }
 
         public (double X, double Y) GetWindForTests()

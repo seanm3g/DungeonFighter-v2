@@ -148,8 +148,8 @@ namespace RPGGame.Tests.Unit.Config
                 PlayerAttributesPerLevel = 0
             };
             zeroed.EnsureValidPlayerBaseStatDefaults();
-            TestBase.AssertEqual(3, zeroed.PlayerBaseAttributes.Strength,
-                "All-zero base stats should default Strength to 3",
+            TestBase.AssertEqual(10, zeroed.PlayerBaseAttributes.Strength,
+                "All-zero base stats should default Strength to 10",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(2, zeroed.PlayerAttributesPerLevel,
                 "Non-positive PlayerAttributesPerLevel should default to 2",

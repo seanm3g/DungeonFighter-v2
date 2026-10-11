@@ -19,8 +19,8 @@ namespace RPGGame
         private static readonly object SpeedLock = new object();
         private static int _combatSpeedStepIndex;
         private static int _combatLogInstant;
-        /// <summary>1 = on (default). F7 narrative combat log (prose paragraphs).</summary>
-        private static int _narrativeCombatLog = 1;
+        /// <summary>0 = off (default). F7 narrative combat log (prose paragraphs); mechanical combat log is default.</summary>
+        private static int _narrativeCombatLog = 0;
         /// <summary>0 = off (default). F5 narrative video overlay over the combat log.</summary>
         private static int _narrativeVideoFeed = 0;
         /// <summary>1 = on (default). Mouse-wind glyph sway / distortion. F6 toggles.</summary>
@@ -30,9 +30,9 @@ namespace RPGGame
         public static bool IsCombatLogInstant => Volatile.Read(ref _combatLogInstant) != 0;
 
         /// <summary>
-        /// When true (default), combat plays sequence beats as timed poetic flavor lines in the log.
-        /// The two-row sequence HUD band stays reserved; animated HUD playback is skipped.
-        /// Toggled with F7; not persisted.
+        /// When true, combat plays sequence beats as timed poetic flavor lines in the log.
+        /// Off by default (mechanical combat log). The two-row sequence HUD band stays reserved;
+        /// animated HUD playback is skipped while narrative is on. Toggled with F7; not persisted.
         /// </summary>
         public static bool IsNarrativeCombatLog => Volatile.Read(ref _narrativeCombatLog) != 0;
 

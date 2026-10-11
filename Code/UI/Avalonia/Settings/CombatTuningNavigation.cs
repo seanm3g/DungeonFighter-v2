@@ -10,20 +10,21 @@ namespace RPGGame.UI.Avalonia.Settings
     {
         public enum CombatTuningSubTab
         {
-            ParametersCore,
-            ProgressionCurve
+            Starting,
+            Scaling,
+            Outfit
         }
 
         public static CombatTuningSubTab? PendingSubTab { get; private set; }
 
         public static void RequestOpen(CombatTuningSubTab subTab) => PendingSubTab = subTab;
 
-        /// <summary>Set by MainWindow — opens settings overlay and navigates to Combat Tuning → Progression Curve.</summary>
+        /// <summary>Set by MainWindow — opens settings overlay and navigates to Combat Tuning → Scaling.</summary>
         public static System.Action? OpenSettingsAndNavigateToProgressionCurve { get; set; }
 
         public static void RequestOpenProgressionCurveInSettings()
         {
-            PendingSubTab = CombatTuningSubTab.ProgressionCurve;
+            PendingSubTab = CombatTuningSubTab.Scaling;
             OpenSettingsAndNavigateToProgressionCurve?.Invoke();
         }
 

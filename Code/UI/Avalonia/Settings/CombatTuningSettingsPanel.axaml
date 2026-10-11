@@ -31,155 +31,126 @@
                 <ItemsControl ItemsSource="{Binding Parameters}" ItemTemplate="{StaticResource CombatTuningRowTemplate}"/>
             </Expander>
         </DataTemplate>
-
-        <DataTemplate x:Key="StandardTuningTabTemplate">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl ItemsSource="{Binding}" ItemTemplate="{StaticResource CombatTuningSubGroupTemplate}" Margin="20"/>
-            </ScrollViewer>
-        </DataTemplate>
     </UserControl.Resources>
 
     <StackPanel>
         <TextBlock Text="{Binding ActiveBalancePatchLabel}" Classes="settings-muted" TextWrapping="Wrap"
                    Margin="20,8,20,4" FontSize="13"/>
-    <TabControl x:Name="CombatTuningTabControl">
-        <TabItem Header="Parameters">
-            <TabControl x:Name="ParametersInnerTabControl">
-                <TabItem Header="Core">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding CoreSubGroups}" ItemTemplate="{StaticResource CombatTuningSubGroupTemplate}" Margin="20"/>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Hero &amp; Classes">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding HeroSubGroups}" ItemTemplate="{StaticResource CombatTuningSubGroupTemplate}" Margin="20"/>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Speed &amp; Defense">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding SpeedSubGroups}" ItemTemplate="{StaticResource CombatTuningSubGroupTemplate}" Margin="20"/>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Equipment">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding EquipmentSubGroups}" ItemTemplate="{StaticResource CombatTuningSubGroupTemplate}" Margin="20"/>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Enemy Stats">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="20" Spacing="8">
-                            <TextBlock Text="Enemy spawn variance and difficulty presets. Progression curve knobs (tempo, shape, parity) and HP curve preview live on the Progression Curve tab."
-                                       Classes="settings-muted" TextWrapping="Wrap" Margin="0,0,0,12"/>
-                            <ItemsControl ItemsSource="{Binding EnemySubGroups}" ItemTemplate="{StaticResource CombatTuningSubGroupTemplate}"/>
-                        </StackPanel>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Progression Curve" x:Name="ProgressionCurveTabItem">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="20" Spacing="16">
-                            <TextBlock Classes="settings-section-header" Text="Progression curve knobs"/>
-                            <TextBlock Classes="settings-muted" TextWrapping="Wrap"
-                                       Text="Tempo stretches enemy HP at all levels (fight length). Shape controls where HP accumulates — early (base) vs late (growth). Parity shifts hero vs enemy survivability without changing curve shape. Base/growth scales are the intercept and slope inputs. Decade rows show derived HP; after a fundamentals sim run, last session combined actions and win rate appear."/>
-                            <settings:ProgressionCurvePreviewControl x:Name="ProgressionPreviewControl"
-                                                                       PreviewModel="{Binding ProgressionPreview}"/>
-                            <Border Background="#FF252525" CornerRadius="4" Padding="8" BorderBrush="#FF444444" BorderThickness="1">
-                                <Grid ColumnDefinitions="50,80,80,80,100,80" RowDefinitions="Auto,*">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Lvl" Classes="settings-field-label" FontSize="12"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Growth Wt" Classes="settings-field-label" FontSize="12"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Goblin HP" Classes="settings-field-label" FontSize="12"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="3" Text="Player HP" Classes="settings-field-label" FontSize="12"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="4" Text="Sim combined" Classes="settings-field-label" FontSize="12"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="5" Text="Sim WR" Classes="settings-field-label" FontSize="12"/>
-                                    <ItemsControl Grid.Row="1" Grid.ColumnSpan="6" ItemsSource="{Binding ProgressionPreview.DecadeRows}" Margin="0,6,0,0">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:ProgressionCurveAnchorRowViewModel">
-                                                <Grid ColumnDefinitions="50,80,80,80,100,80" Margin="0,2">
-                                                    <TextBlock Grid.Column="0" Text="{Binding Level}"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding GrowthWeightText}"/>
-                                                    <TextBlock Grid.Column="2" Text="{Binding EnemyHpText}"/>
-                                                    <TextBlock Grid.Column="3" Text="{Binding PlayerHpText}"/>
-                                                    <TextBlock Grid.Column="4" Text="{Binding SimCombinedText}"/>
-                                                    <TextBlock Grid.Column="5" Text="{Binding SimWinRateText}"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </Grid>
-                            </Border>
-                            <ItemsControl ItemsSource="{Binding ProgressionCurveSubGroups}" ItemTemplate="{StaticResource CombatTuningSubGroupTemplate}"/>
-                        </StackPanel>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Archetypes">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="20" Spacing="16">
-                            <StackPanel Orientation="Horizontal" Spacing="12">
-                                <TextBlock Text="Archetype" VerticalAlignment="Center" Classes="settings-field-label"/>
-                                <ComboBox MinWidth="180" ItemsSource="{Binding ArchetypeTuning.ArchetypeNames}"
-                                          SelectedItem="{Binding ArchetypeTuning.SelectedArchetype, Mode=TwoWay}"/>
-                            </StackPanel>
-                            <ItemsControl ItemsSource="{Binding ArchetypeTuning.SelectedParameters}"
-                                          ItemTemplate="{StaticResource CombatTuningRowTemplate}"/>
-                        </StackPanel>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Status Effects">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="20" Spacing="16">
-                            <Expander Header="Global Scaling" IsExpanded="True">
-                                <ItemsControl ItemsSource="{Binding StatusEffectTuning.GlobalParameters}"
-                                              ItemTemplate="{StaticResource CombatTuningRowTemplate}"/>
-                            </Expander>
-                            <StackPanel Orientation="Horizontal" Spacing="12">
-                                <TextBlock Text="Effect" VerticalAlignment="Center" Classes="settings-field-label"/>
-                                <ComboBox MinWidth="140" ItemsSource="{Binding StatusEffectTuning.EffectNames}"
-                                          SelectedItem="{Binding StatusEffectTuning.SelectedEffect, Mode=TwoWay}"/>
-                            </StackPanel>
-                            <ItemsControl ItemsSource="{Binding StatusEffectTuning.SelectedEffectParameters}"
-                                          ItemTemplate="{StaticResource CombatTuningRowTemplate}"/>
-                        </StackPanel>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Rewards &amp; Loot">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding RewardsSubGroups}" ItemTemplate="{StaticResource CombatTuningSubGroupTemplate}" Margin="20"/>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Goals &amp; Analysis">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding GoalsAnalysisSubGroups}" ItemTemplate="{StaticResource CombatTuningSubGroupTemplate}" Margin="20"/>
-                    </ScrollViewer>
-                </TabItem>
-            </TabControl>
-        </TabItem>
-
-        <TabItem Header="Simulation">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Spacing="24" Margin="20">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Quick balance simulation" Classes="settings-section-header"/>
-                        <TextBlock Text="Runs all weapon vs enemy matchups using current in-memory tuning. Results include win rate, turn length, coefficient of variation, and quality score."
-                                   Classes="settings-muted"/>
-                        <Grid ColumnDefinitions="Auto,*,Auto,*,Auto,*" RowDefinitions="Auto" Margin="0,4,0,0">
-                            <TextBlock Grid.Column="0" Text="Battles/matchup" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,0,8,0"/>
-                            <TextBox x:Name="SimBattlesPerComboTextBox" Grid.Column="1" Width="72" Text="50" Margin="0,0,16,0" Classes="SimParamBox"/>
-                            <TextBlock Grid.Column="2" Text="Player level" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,0,8,0"/>
-                            <TextBox x:Name="SimPlayerLevelTextBox" Grid.Column="3" Width="48" Text="1" Margin="0,0,16,0" Classes="SimParamBox"/>
-                            <TextBlock Grid.Column="4" Text="Enemy level" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,0,8,0"/>
-                            <TextBox x:Name="SimEnemyLevelTextBox" Grid.Column="5" Width="48" Text="1" Classes="SimParamBox"/>
-                        </Grid>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <Button x:Name="RunSimulationButton" Content="Run simulation" MinWidth="140" Classes="settings-primary-button"/>
-                            <TextBlock x:Name="SimStatusTextBlock" VerticalAlignment="Center" Classes="settings-muted"/>
-                        </StackPanel>
-                        <ProgressBar x:Name="SimProgressBar" IsVisible="False" Minimum="0" Maximum="100" Height="8"/>
-                        <TextBox x:Name="SimOutputTextBox" IsReadOnly="True" MinHeight="200" MaxHeight="360"
-                                 Classes="settings-console-output" Watermark="Simulation results appear here…"/>
+        <TabControl x:Name="CombatTuningTabControl">
+            <TabItem Header="Starting" x:Name="StartingTabItem">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="20" Spacing="8">
+                        <TextBlock Classes="settings-section-header" Text="Starting"/>
+                        <TextBlock Classes="settings-muted" TextWrapping="Wrap"
+                                   Text="Level-1 intercepts: hero/enemy bases, damage equation attrDmg = floor((STR + Primary) × scale) (default scale 0.05 → 1 at base 10+10), tempo, roll ladder, starting weapons."/>
+                        <ItemsControl ItemsSource="{Binding StartingSubGroups}" ItemTemplate="{StaticResource CombatTuningSubGroupTemplate}"/>
                     </StackPanel>
-                    <TextBlock Text="Use Save at the bottom of Settings to write TuningConfig.json." Classes="settings-muted"/>
-                </StackPanel>
-            </ScrollViewer>
-        </TabItem>
-    </TabControl>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Scaling" x:Name="ScalingTabItem">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="20" Spacing="16">
+                        <TextBlock Classes="settings-section-header" Text="Scaling"/>
+                        <TextBlock Classes="settings-muted" TextWrapping="Wrap"
+                                   Text="What grows with level and dungeon difficulty: per-level growth, progression curve, class multipliers, global mults, and balance goals."/>
+                        <settings:ProgressionCurvePreviewControl x:Name="ProgressionPreviewControl"
+                                                                   PreviewModel="{Binding ProgressionPreview}"/>
+                        <Border Background="#FF252525" CornerRadius="4" Padding="8" BorderBrush="#FF444444" BorderThickness="1">
+                            <Grid ColumnDefinitions="50,80,80,80,100,80" RowDefinitions="Auto,*">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Lvl" Classes="settings-field-label" FontSize="12"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="Growth Wt" Classes="settings-field-label" FontSize="12"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="Goblin HP" Classes="settings-field-label" FontSize="12"/>
+                                <TextBlock Grid.Row="0" Grid.Column="3" Text="Player HP" Classes="settings-field-label" FontSize="12"/>
+                                <TextBlock Grid.Row="0" Grid.Column="4" Text="Sim combined" Classes="settings-field-label" FontSize="12"/>
+                                <TextBlock Grid.Row="0" Grid.Column="5" Text="Sim WR" Classes="settings-field-label" FontSize="12"/>
+                                <ItemsControl Grid.Row="1" Grid.ColumnSpan="6" ItemsSource="{Binding ProgressionPreview.DecadeRows}" Margin="0,6,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ProgressionCurveAnchorRowViewModel">
+                                            <Grid ColumnDefinitions="50,80,80,80,100,80" Margin="0,2">
+                                                <TextBlock Grid.Column="0" Text="{Binding Level}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding GrowthWeightText}"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding EnemyHpText}"/>
+                                                <TextBlock Grid.Column="3" Text="{Binding PlayerHpText}"/>
+                                                <TextBlock Grid.Column="4" Text="{Binding SimCombinedText}"/>
+                                                <TextBlock Grid.Column="5" Text="{Binding SimWinRateText}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                        </Border>
+                        <ItemsControl ItemsSource="{Binding ScalingSubGroups}" ItemTemplate="{StaticResource CombatTuningSubGroupTemplate}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Outfit" x:Name="OutfitTabItem">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="20" Spacing="16">
+                        <TextBlock Classes="settings-section-header" Text="Outfit"/>
+                        <TextBlock Classes="settings-muted" TextWrapping="Wrap"
+                                   Text="Items, actions, combat feel, archetypes, status effects, and loot — fine-tuned elements beyond base and growth."/>
+                        <ItemsControl ItemsSource="{Binding OutfitSubGroups}" ItemTemplate="{StaticResource CombatTuningSubGroupTemplate}"/>
+
+                        <Expander Header="Archetypes" IsExpanded="False" Margin="0,8,0,0">
+                            <StackPanel Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <TextBlock Text="Archetype" VerticalAlignment="Center" Classes="settings-field-label"/>
+                                    <ComboBox MinWidth="180" ItemsSource="{Binding ArchetypeTuning.ArchetypeNames}"
+                                              SelectedItem="{Binding ArchetypeTuning.SelectedArchetype, Mode=TwoWay}"/>
+                                </StackPanel>
+                                <ItemsControl ItemsSource="{Binding ArchetypeTuning.SelectedParameters}"
+                                              ItemTemplate="{StaticResource CombatTuningRowTemplate}"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <Expander Header="Status effects" IsExpanded="False" Margin="0,8,0,0">
+                            <StackPanel Spacing="12">
+                                <Expander Header="Global scaling" IsExpanded="True">
+                                    <ItemsControl ItemsSource="{Binding StatusEffectTuning.GlobalParameters}"
+                                                  ItemTemplate="{StaticResource CombatTuningRowTemplate}"/>
+                                </Expander>
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <TextBlock Text="Effect" VerticalAlignment="Center" Classes="settings-field-label"/>
+                                    <ComboBox MinWidth="140" ItemsSource="{Binding StatusEffectTuning.EffectNames}"
+                                              SelectedItem="{Binding StatusEffectTuning.SelectedEffect, Mode=TwoWay}"/>
+                                </StackPanel>
+                                <ItemsControl ItemsSource="{Binding StatusEffectTuning.SelectedEffectParameters}"
+                                              ItemTemplate="{StaticResource CombatTuningRowTemplate}"/>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Simulation">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="24" Margin="20">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Quick balance simulation" Classes="settings-section-header"/>
+                            <TextBlock Text="Runs all weapon vs enemy matchups using current in-memory tuning. Results include win rate, turn length, coefficient of variation, and quality score."
+                                       Classes="settings-muted"/>
+                            <Grid ColumnDefinitions="Auto,*,Auto,*,Auto,*" RowDefinitions="Auto" Margin="0,4,0,0">
+                                <TextBlock Grid.Column="0" Text="Battles/matchup" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,0,8,0"/>
+                                <TextBox x:Name="SimBattlesPerComboTextBox" Grid.Column="1" Width="72" Text="50" Margin="0,0,16,0" Classes="SimParamBox"/>
+                                <TextBlock Grid.Column="2" Text="Player level" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,0,8,0"/>
+                                <TextBox x:Name="SimPlayerLevelTextBox" Grid.Column="3" Width="48" Text="1" Margin="0,0,16,0" Classes="SimParamBox"/>
+                                <TextBlock Grid.Column="4" Text="Enemy level" VerticalAlignment="Center" Classes="settings-field-label" Margin="0,0,8,0"/>
+                                <TextBox x:Name="SimEnemyLevelTextBox" Grid.Column="5" Width="48" Text="1" Classes="SimParamBox"/>
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Button x:Name="RunSimulationButton" Content="Run simulation" MinWidth="140" Classes="settings-primary-button"/>
+                                <TextBlock x:Name="SimStatusTextBlock" VerticalAlignment="Center" Classes="settings-muted"/>
+                            </StackPanel>
+                            <ProgressBar x:Name="SimProgressBar" IsVisible="False" Minimum="0" Maximum="100" Height="8"/>
+                            <TextBox x:Name="SimOutputTextBox" IsReadOnly="True" MinHeight="200" MaxHeight="360"
+                                     Classes="settings-console-output" Watermark="Simulation results appear here…"/>
+                        </StackPanel>
+                        <TextBlock Text="Use Save at the bottom of Settings to write the active balance patch." Classes="settings-muted"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
     </StackPanel>
 </UserControl>

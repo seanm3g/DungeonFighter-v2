@@ -11,6 +11,7 @@ namespace RPGGame.UI.Avalonia.Transitions
     /// 
     /// Protocol Sequence:
     /// 1. Transition state FIRST (prevents reactive systems from interfering)
+    /// 1.5. Begin mouse-wind open damper (mute distortion ~1.5s so new text under cursor does not jitter)
     /// 2. Suppress display buffer rendering
     /// 3. Clear interactive elements
     /// 4. Clear context (enemy, dungeon, room) if needed
@@ -47,6 +48,10 @@ namespace RPGGame.UI.Avalonia.Transitions
             // STEP 1: Transition state FIRST
             // This prevents reactive systems (display buffer, animations) from interfering
             stateManager.TransitionToState(context.TargetState);
+
+            // STEP 1.5: Mute mouse-wind distortion briefly so text under the cursor does not jitter
+            // when the new menu paints (damper eases back in over ~1.5s).
+            canvasUI.NotifyScreenOpened();
 
             // STEP 2: Suppress display buffer rendering
             // Prevents combat log from auto-rendering and clearing menu

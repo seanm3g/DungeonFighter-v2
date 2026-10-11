@@ -6,7 +6,7 @@ namespace RPGGame.UI.Avalonia.Settings
 {
     public partial class CombatTuningSettingsPanel : UserControl
     {
-        private TabControl? innerTabControl;
+        private TabControl? tabControl;
         private ProgressionCurvePreviewControl? progressionPreviewControl;
 
         public CombatTuningSettingsPanel()
@@ -26,19 +26,17 @@ namespace RPGGame.UI.Avalonia.Settings
 
         public void SelectSubTab(CombatTuningNavigation.CombatTuningSubTab subTab)
         {
-            innerTabControl ??= this.FindControl<TabControl>("CombatTuningTabControl");
-            var parametersInner = this.FindControl<TabControl>("ParametersInnerTabControl");
-            if (innerTabControl == null)
+            tabControl ??= this.FindControl<TabControl>("CombatTuningTabControl");
+            if (tabControl == null)
                 return;
 
-            innerTabControl.SelectedIndex = 0;
-
-            if (subTab == CombatTuningNavigation.CombatTuningSubTab.ProgressionCurve && parametersInner != null)
+            tabControl.SelectedIndex = subTab switch
             {
-                var progressionTab = this.FindControl<TabItem>("ProgressionCurveTabItem");
-                if (progressionTab != null)
-                    parametersInner.SelectedItem = progressionTab;
-            }
+                CombatTuningNavigation.CombatTuningSubTab.Starting => 0,
+                CombatTuningNavigation.CombatTuningSubTab.Scaling => 1,
+                CombatTuningNavigation.CombatTuningSubTab.Outfit => 2,
+                _ => 0
+            };
 
             if (ViewModel != null)
             {
@@ -50,7 +48,7 @@ namespace RPGGame.UI.Avalonia.Settings
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
-            innerTabControl = this.FindControl<TabControl>("CombatTuningTabControl");
+            tabControl = this.FindControl<TabControl>("CombatTuningTabControl");
             progressionPreviewControl = this.FindControl<ProgressionCurvePreviewControl>("ProgressionPreviewControl");
         }
     }

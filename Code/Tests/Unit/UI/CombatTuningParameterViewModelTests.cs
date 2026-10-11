@@ -26,7 +26,7 @@ namespace RPGGame.Tests.Unit.UI
             TestValueChange_DoesNotInvokeCommitUntilCommitToConfig();
             TestReloadFromConfig_DoesNotPushToBackingParameter();
             TestUnimplementedParameter_ShowsDisplayAffectsPrefix();
-            TestDifficultyPresetSubgroup_ShowsUnimplementedHeader();
+            TestAllUnimplementedSubgroup_ShowsUnimplementedHeader();
 
             TestBase.PrintSummary("CombatTuningParameterViewModel Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -140,28 +140,33 @@ namespace RPGGame.Tests.Unit.UI
         private static void TestUnimplementedParameter_ShowsDisplayAffectsPrefix()
         {
             Console.WriteLine("--- Unimplemented parameter prefixes DisplayAffects ---");
-            var param = CombatTuningParameterRegistry.GetById("easyEnemyHealthMult");
-            var row = new CombatTuningParameterViewModel(param!);
+            var param = new CombatTuningParameter(
+                "testUnimplementedKnob", CombatTuningTab.Outfit, CombatTuningLayer.WinRate, "Test",
+                "Test unimplemented", "not wired yet", 0, 10, () => 1, _ => { },
+                isImplemented: false);
+            var row = new CombatTuningParameterViewModel(param);
             TestBase.AssertTrue(!row.IsImplemented,
-                "easyEnemyHealthMult flagged unimplemented",
+                "test knob flagged unimplemented",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(row.DisplayAffects.StartsWith("[Unimplemented]", StringComparison.Ordinal),
                 "DisplayAffects shows [Unimplemented] prefix",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestDifficultyPresetSubgroup_ShowsUnimplementedHeader()
+        private static void TestAllUnimplementedSubgroup_ShowsUnimplementedHeader()
         {
-            Console.WriteLine("--- Difficulty subgroup header notes unimplemented ---");
-            var easyParams = CombatTuningParameterRegistry.GetByTab(CombatTuningTab.EnemyStats)
-                .Where(p => p.SubGroup == "Difficulty — Easy")
-                .Select(p => new CombatTuningParameterViewModel(p))
-                .ToList();
-            var subgroup = new CombatTuningSubGroupViewModel("Difficulty — Easy",
-                new System.Collections.ObjectModel.ObservableCollection<CombatTuningParameterViewModel>(easyParams));
-            TestBase.AssertEqual("Difficulty — Easy (unimplemented)", subgroup.DisplayName,
+            Console.WriteLine("--- All-unimplemented subgroup header notes unimplemented ---");
+            var param = new CombatTuningParameter(
+                "testUnimplementedKnob2", CombatTuningTab.Outfit, CombatTuningLayer.WinRate, "Legacy",
+                "Legacy knob", "unused", 0, 10, () => 1, _ => { },
+                isImplemented: false);
+            var subgroup = new CombatTuningSubGroupViewModel("Legacy",
+                new System.Collections.ObjectModel.ObservableCollection<CombatTuningParameterViewModel>(
+                    new[] { new CombatTuningParameterViewModel(param) }));
+            TestBase.AssertEqual("Legacy (unimplemented)", subgroup.DisplayName,
                 "All-unimplemented subgroup shows suffix",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }
+

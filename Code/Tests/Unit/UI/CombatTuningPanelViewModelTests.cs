@@ -21,7 +21,7 @@ namespace RPGGame.Tests.Unit.UI
             _testsFailed = 0;
 
             TestFromRegistry_ProducesAllParameters();
-            TestHeroSubGroups_FollowRegistryOrder();
+            TestStartingSubGroups_FollowRegistryOrder();
             TestReloadFromConfig_RoundTripsPlayerBaseHealth();
             TestGetById_FindsKnownParameter();
 
@@ -35,11 +35,14 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(CombatTuningParameterRegistry.All.Count, vm.TotalParameterCount,
                 "Panel view model exposes every registry parameter",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(vm.CoreSubGroups.Count >= 5,
-                "Core tab has multiple subgroups",
+            TestBase.AssertTrue(vm.StartingSubGroups.Count >= 4,
+                "Starting tab has multiple subgroups",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(vm.CountForTab(CombatTuningTab.HeroClasses) >= 15,
-                "Hero tab has class multipliers",
+            TestBase.AssertTrue(vm.CountForTab(CombatTuningTab.Scaling) >= 15,
+                "Scaling tab has growth and class multipliers",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(vm.CountForTab(CombatTuningTab.Outfit) >= 20,
+                "Outfit tab has gear/feel/status/archetype knobs",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(vm.ArchetypeTuning.ArchetypeNames.Count >= 6,
                 "Archetype selector lists all archetypes",
@@ -47,32 +50,24 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(vm.StatusEffectTuning.EffectNames.Count >= 5,
                 "Status effect selector lists all effects",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            int coreLayerTotal = vm.DurationParameters.Count
-                                 + vm.WinRateParameters.Count
-                                 + vm.RollFeelParameters.Count
-                                 + vm.ComboAffordanceParameters.Count
-                                 + vm.GoalsParameters.Count;
-            TestBase.AssertTrue(coreLayerTotal > 0 && coreLayerTotal < vm.TotalParameterCount,
-                "Core layer collections are a subset of all parameters",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestHeroSubGroups_FollowRegistryOrder()
+        private static void TestStartingSubGroups_FollowRegistryOrder()
         {
-            Console.WriteLine("--- Hero subgroups follow registry order ---");
+            Console.WriteLine("--- Starting subgroups follow registry order ---");
             var vm = CombatTuningPanelViewModel.FromRegistry();
-            var expected = CombatTuningParameterRegistry.GetSubGroupsForTab(CombatTuningTab.HeroClasses);
-            var actual = vm.HeroSubGroups.Select(g => g.Name).ToList();
+            var expected = CombatTuningParameterRegistry.GetSubGroupsForTab(CombatTuningTab.Starting);
+            var actual = vm.StartingSubGroups.Select(g => g.Name).ToList();
             TestBase.AssertEqual(expected.Count, actual.Count,
-                "Hero tab subgroup count matches registry",
+                "Starting tab subgroup count matches registry",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("Level-Up Growth", actual[0],
-                "Level-Up Growth is the first hero subgroup",
+            TestBase.AssertEqual("Hero bases", actual[0],
+                "Hero bases is the first Starting subgroup",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             for (int i = 0; i < expected.Count; i++)
             {
                 TestBase.AssertEqual(expected[i], actual[i],
-                    $"Hero subgroup {i} matches registry order",
+                    $"Starting subgroup {i} matches registry order",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
@@ -104,11 +99,10 @@ namespace RPGGame.Tests.Unit.UI
 
         private static void TestGetById_FindsKnownParameter()
         {
-            Console.WriteLine("--- GetById resolves registry id ---");
+            Console.WriteLine("--- GetById finds attributeDamageScale ---");
             var vm = CombatTuningPanelViewModel.FromRegistry();
-            TestBase.AssertTrue(vm.GetById("enemyBaselineHealth") != null,
-                "GetById finds enemyBaselineHealth",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var row = vm.GetById("attributeDamageScale");
+            TestBase.AssertTrue(row != null, "attributeDamageScale row exists", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

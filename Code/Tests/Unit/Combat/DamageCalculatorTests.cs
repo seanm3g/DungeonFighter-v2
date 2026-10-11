@@ -35,6 +35,7 @@ namespace RPGGame.Tests.Unit.Combat
                 TestCalculateRawDamage();
                 TestDirectStatEnemyRawDamageUsesDamageField();
                 TestAttributeDamageIncludesStrengthAndPrimary();
+                TestAttributeDamageAppliesScale();
                 TestCalculateDamage();
                 TestDamageReflectsStatChangesWithoutStaleCache();
                 TestCacheInvalidation();
@@ -123,38 +124,74 @@ namespace RPGGame.Tests.Unit.Combat
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        /// <summary>Base damage includes effective STR plus the highest effective attribute (primary).</summary>
+        /// <summary>Base damage includes floor((STR + primary) × AttributeDamageScale) plus weapon.</summary>
         private static void TestAttributeDamageIncludesStrengthAndPrimary()
         {
             Console.WriteLine("\n--- Testing STR + primary attribute damage ---");
 
-            var agilityPrimary = TestDataBuilders.Character()
-                .WithName("AgiPrimary")
-                .WithStats(5, 20, 5, 5)
-                .Build();
-            var weapon = new WeaponItem("TestSword", 1, 0);
-            agilityPrimary.EquipItem(weapon, "weapon");
+            double scaleSnap = GameConfiguration.Instance.Combat.AttributeDamageScale;
+            GameConfiguration.Instance.Combat.AttributeDamageScale = 1.0;
+            try
+            {
+                var agilityPrimary = TestDataBuilders.Character()
+                    .WithName("AgiPrimary")
+                    .WithStats(5, 20, 5, 5)
+                    .Build();
+                var weapon = new WeaponItem("TestSword", 1, 0);
+                agilityPrimary.EquipItem(weapon, "weapon");
 
-            var equalStats = TestDataBuilders.Character()
-                .WithName("EqualStats")
-                .WithStats(10, 10, 10, 10)
-                .Build();
-            equalStats.EquipItem(new WeaponItem("TestSword2", 1, 0), "weapon");
+                var equalStats = TestDataBuilders.Character()
+                    .WithName("EqualStats")
+                    .WithStats(10, 10, 10, 10)
+                    .Build();
+                equalStats.EquipItem(new WeaponItem("TestSword2", 1, 0), "weapon");
 
-            var action = TestDataBuilders.CreateMockAction("JAB");
-            action.DamageMultiplier = 1.0;
+                var action = TestDataBuilders.CreateMockAction("JAB");
+                action.DamageMultiplier = 1.0;
 
-            int agiPrimaryRaw = DamageCalculator.CalculateRawDamage(agilityPrimary, action, 1.0, 1.0, roll: 0);
-            TestBase.AssertTrue(
-                agiPrimaryRaw >= 25,
-                $"AGI-primary attacker should get STR (5) + primary AGI (20) = 25 base, got {agiPrimaryRaw}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int agiPrimaryRaw = DamageCalculator.CalculateRawDamage(agilityPrimary, action, 1.0, 1.0, roll: 0);
+                TestBase.AssertTrue(
+                    agiPrimaryRaw >= 25,
+                    $"AGI-primary attacker should get STR (5) + primary AGI (20) = 25 base at scale 1.0, got {agiPrimaryRaw}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            int equalRaw = DamageCalculator.CalculateRawDamage(equalStats, action, 1.0, 1.0, roll: 0);
-            TestBase.AssertTrue(
-                equalRaw >= 20,
-                $"Equal stats tie-break to STR: STR (10) + primary STR (10) = 20 base, got {equalRaw}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int equalRaw = DamageCalculator.CalculateRawDamage(equalStats, action, 1.0, 1.0, roll: 0);
+                TestBase.AssertTrue(
+                    equalRaw >= 20,
+                    $"Equal stats tie-break to STR: STR (10) + primary STR (10) = 20 base at scale 1.0, got {equalRaw}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                GameConfiguration.Instance.Combat.AttributeDamageScale = scaleSnap;
+            }
+        }
+
+        private static void TestAttributeDamageAppliesScale()
+        {
+            Console.WriteLine("\n--- Testing AttributeDamageScale ---");
+
+            double scaleSnap = GameConfiguration.Instance.Combat.AttributeDamageScale;
+            GameConfiguration.Instance.Combat.AttributeDamageScale = 0.05;
+            try
+            {
+                var hero = TestDataBuilders.Character()
+                    .WithName("ScaleHero")
+                    .WithStats(10, 10, 10, 10)
+                    .Build();
+                TestBase.AssertEqual(1, hero.GetAttributeDamageBonus(),
+                    "floor((10+10)×0.05) = 1 attribute damage",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                GameConfiguration.Instance.Combat.AttributeDamageScale = 1.0;
+                TestBase.AssertEqual(20, hero.GetAttributeDamageBonus(),
+                    "scale 1.0 restores 1:1 STR+Primary",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                GameConfiguration.Instance.Combat.AttributeDamageScale = scaleSnap;
+            }
         }
 
         #endregion
@@ -275,6 +312,10 @@ namespace RPGGame.Tests.Unit.Combat
         {
             Console.WriteLine("\n--- Testing standing Defense % WoW DR ---");
 
+            double scaleSnap = GameConfiguration.Instance.Combat.AttributeDamageScale;
+            GameConfiguration.Instance.Combat.AttributeDamageScale = 1.0;
+            try
+            {
             var attacker = TestDataBuilders.Enemy().WithName("DefAtk").WithHealth(100).Build();
             var hero = TestDataBuilders.Character().WithName("DefTgt").WithLevel(1).Build();
             hero.EquipItem(new ChestItem("Plate", 1, 8), "body");
@@ -298,6 +339,11 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertEqual(1.0, hero.StandingBlockPercent,
                 "hit resets standing BLOCK to 100%",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                GameConfiguration.Instance.Combat.AttributeDamageScale = scaleSnap;
+            }
         }
 
         private static int ExpectedWowRemaining(int incoming, Character hero, double actionMult)

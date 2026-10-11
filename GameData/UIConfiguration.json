@@ -82,7 +82,7 @@
       "wakeRearBias": 0.82,
       "wakeFalloffPower": 1.35,
       "speedReferenceCellsPerSec": 12,
-      "trailLifetimeSeconds": 0.40,
+      "trailLifetimeSeconds": 0.4,
       "trailMaxPoints": 12,
       "trailMinSpacingCells": 1.25,
       "chromaticAberrationEnabled": true,

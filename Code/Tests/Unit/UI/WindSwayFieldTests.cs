@@ -66,6 +66,9 @@ namespace RPGGame.Tests.Unit.UI
                 TestTrailHardCapAndSettleFloor();
                 TestEllipticalRadiusSquaredMatchesSqrt();
                 TestPerGlyphWakeBoundsEarlyOut();
+                TestOpenDamperMutesThenRestores();
+                TestOpenDamperClearsResidualWind();
+                TestOpenDamperBlocksImpulseAtStart();
             }
             finally
             {
@@ -1060,6 +1063,92 @@ namespace RPGGame.Tests.Unit.UI
             {
                 field.EndFrame();
             }
+        }
+
+        private static void TestOpenDamperMutesThenRestores()
+        {
+            Console.WriteLine("\n--- Open damper mutes then restores ---");
+            const double duration = 2.0;
+            var field = new WindSwayField();
+            field.ApplyConfig(BaseCfg());
+
+            TestBase.AssertTrue(field.GetOpenDamperFactorForTests() >= 0.999,
+                "no damper → full strength",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            field.BeginOpenDamper(duration);
+            TestBase.AssertTrue(field.GetOpenDamperFactorForTests() < 0.05,
+                "just-opened damper ≈ 0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Math.Abs(field.GetOpenDamperDurationForTests() - duration) < 1e-9,
+                $"duration should stick at {duration} (got {field.GetOpenDamperDurationForTests()})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Half elapsed → smoothstep(0.5) = 0.5
+            field.SetOpenDamperElapsedForTests(duration * 0.5, duration);
+            double mid = field.GetOpenDamperFactorForTests();
+            TestBase.AssertTrue(mid > 0.45 && mid < 0.55,
+                $"mid-damper should be ~0.5 (got {mid:F3}, duration={field.GetOpenDamperDurationForTests():F3})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            field.SetOpenDamperElapsedForTests(duration + 0.05, duration);
+            TestBase.AssertTrue(field.GetOpenDamperFactorForTests() >= 0.999,
+                "after duration → full strength again",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestOpenDamperClearsResidualWind()
+        {
+            Console.WriteLine("\n--- Open damper clears residual wind ---");
+            const double charW = 10;
+            const double charH = 16;
+            var field = new WindSwayField();
+            field.ApplyConfig(BaseCfg());
+            field.PushFromMouseDelta(50, 80, charW, charH);
+            field.PushFromMouseDelta(90, 80, charW, charH, dtOverrideSeconds: 0.05);
+            var (wxBefore, _) = field.GetWindForTests();
+            TestBase.AssertTrue(Math.Abs(wxBefore) > 0.05,
+                "setup should have residual wind",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            field.BeginOpenDamper();
+            var (wx, wy) = field.GetWindForTests();
+            TestBase.AssertTrue(Math.Abs(wx) < 1e-9 && Math.Abs(wy) < 1e-9,
+                "open damper clears residual wind",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(field.GetTrailCountForTests() == 0,
+                "open damper clears trail",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!field.BeginFrame(charW, charH),
+                "fully muted open window skips BeginFrame",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestOpenDamperBlocksImpulseAtStart()
+        {
+            Console.WriteLine("\n--- Open damper blocks impulse at start ---");
+            const double charW = 10;
+            const double charH = 16;
+            var field = new WindSwayField();
+            field.ApplyConfig(BaseCfg());
+            field.BeginOpenDamper();
+
+            // First sample establishes position; second would normally inject wind.
+            field.PushFromMouseDelta(50, 80, charW, charH);
+            field.PushFromMouseDelta(100, 80, charW, charH, dtOverrideSeconds: 0.05);
+            var (wx, wy) = field.GetWindForTests();
+            TestBase.AssertTrue(Math.Abs(wx) < 1e-9 && Math.Abs(wy) < 1e-9,
+                "motion during mute window must not inject wind",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // After damper expires, the same stroke should wake.
+            field.SetOpenDamperElapsedForTests(WindSwayField.OpenDamperSeconds + 0.05);
+            field.PushFromMouseDelta(100, 80, charW, charH);
+            field.PushFromMouseDelta(150, 80, charW, charH, dtOverrideSeconds: 0.05);
+            var (wx2, _) = field.GetWindForTests();
+            TestBase.AssertTrue(Math.Abs(wx2) > 0.05,
+                "motion after damper should inject wind",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

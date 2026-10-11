@@ -66,10 +66,10 @@ namespace RPGGame
             var a = PlayerBaseAttributes;
             if (a.Strength == 0 && a.Agility == 0 && a.Technique == 0 && a.Intelligence == 0)
             {
-                a.Strength = 3;
-                a.Agility = 3;
-                a.Technique = 3;
-                a.Intelligence = 3;
+                a.Strength = 10;
+                a.Agility = 10;
+                a.Technique = 10;
+                a.Intelligence = 10;
             }
             if (PlayerAttributesPerLevel <= 0)
                 PlayerAttributesPerLevel = 2;

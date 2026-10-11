@@ -135,6 +135,16 @@ namespace RPGGame.UI.Avalonia
         /// <summary>Mouse-driven wind field used for side-panel per-glyph sway.</summary>
         public WindSwayField WindSway => windSwayField;
 
+        /// <summary>
+        /// Clears residual wake and starts a short distortion amp ramp after a new screen/menu opens
+        /// so text under a still cursor does not jitter. See <see cref="WindSwayField.BeginOpenDamper"/>.
+        /// State-only (caller refreshes / paints).
+        /// </summary>
+        public void NotifyScreenOpened()
+        {
+            windSwayField.BeginOpenDamper();
+        }
+
         /// <summary>Click-charge explode/reform field for any non-overlay text.</summary>
         public TextClickBurstField ClickBurst => clickBurstField;
 

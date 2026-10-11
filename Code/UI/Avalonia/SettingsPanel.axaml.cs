@@ -283,7 +283,7 @@ namespace RPGGame.UI.Avalonia
 
         public void OpenCombatTuningProgressionCurve()
         {
-            CombatTuningNavigation.RequestOpen(CombatTuningNavigation.CombatTuningSubTab.ProgressionCurve);
+            CombatTuningNavigation.RequestOpen(CombatTuningNavigation.CombatTuningSubTab.Scaling);
             NavigateToCategory("CombatTuning");
         }
 

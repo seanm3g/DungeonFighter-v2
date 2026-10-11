@@ -115,7 +115,10 @@ namespace RPGGame
             double secondsPerAttack = attackSpeed;
             double ampBasePerStep = player.GetComboAmplifier();
             int magicFind = player.GetMagicFind();
-            UIManager.WriteMenuLine($"Damage: {damage} (Strength: {player.GetEffectiveStrength()} + Primary: {player.GetEffectivePrimaryAttributeValue()} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Defense: {armor}");
+            double attrScale = GameConfiguration.Instance.Combat.AttributeDamageScale;
+            if (attrScale <= 0) attrScale = 0.05;
+            int attrDmg = player.GetAttributeDamageBonus();
+            UIManager.WriteMenuLine($"Damage: {damage} (Attr: floor((STR {player.GetEffectiveStrength()} + Primary {player.GetEffectivePrimaryAttributeValue()}) × {attrScale:0.##}) = {attrDmg} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Defense: {armor}");
             if (magicFind > 0)
             {
                 UIManager.WriteMenuLine($"Magic Find: +{magicFind} (affix rolls; not base item rarity)");

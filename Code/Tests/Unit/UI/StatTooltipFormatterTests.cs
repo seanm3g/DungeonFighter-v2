@@ -24,7 +24,9 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(strFlat.Contains("Strength (STR)", StringComparison.Ordinal),
                 "STR title",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(strFlat.Contains("Effective:", StringComparison.Ordinal) && strFlat.Contains("6", StringComparison.Ordinal),
+            int expectedStr = c.GetEffectiveStrength();
+            TestBase.AssertTrue(strFlat.Contains("Effective:", StringComparison.Ordinal)
+                    && strFlat.Contains(expectedStr.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal),
                 "STR effective highlight",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(strFlat.Contains("Character", StringComparison.Ordinal) && strFlat.Contains("Base", StringComparison.Ordinal),
@@ -34,21 +36,26 @@ namespace RPGGame.Tests.Unit.UI
                 "STR sum line",
                 ref run, ref passed, ref failed);
 
-            var dmg = StatTooltipFormatter.TryBuild(c, "stat:damage", 24)!;
+            var dmg = StatTooltipFormatter.TryBuild(c, "stat:damage", 32)!;
             string dmgFlat = string.Join("\n", dmg.Select(ColoredTextRenderer.RenderAsPlainText));
             TestBase.AssertTrue(dmgFlat.Contains("Base attack total", StringComparison.Ordinal),
                 "damage base attack total label",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(dmgFlat.Contains("Attributes (STR + primary)", StringComparison.Ordinal),
-                "damage attributes section",
+            TestBase.AssertTrue(dmgFlat.Contains("Attributes (STR + primary)", StringComparison.Ordinal)
+                    && dmgFlat.Contains("Damage scale", StringComparison.Ordinal),
+                "damage attributes section includes scale",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(dmgFlat.Contains("Equation:", StringComparison.Ordinal),
                 "damage equation line",
                 ref run, ref passed, ref failed);
 
-            c.Stats.Strength = 9;
+            // Keep STR as primary (tie-break prefers STR when equal; raise STR above others).
+            c.Stats.Strength = 12;
+            c.Stats.Agility = 8;
+            c.Stats.Technique = 8;
+            c.Stats.Intelligence = 8;
             c.EquipItem(new WeaponItem("Log", 1, 6), "weapon");
-            var dmgBarb = StatTooltipFormatter.TryBuild(c, "stat:damage", 24)!;
+            var dmgBarb = StatTooltipFormatter.TryBuild(c, "stat:damage", 32)!;
             string dmgBarbFlat = string.Join("\n", dmgBarb.Select(ColoredTextRenderer.RenderAsPlainText));
             TestBase.AssertTrue(dmgBarbFlat.Contains("Strength (always)", StringComparison.Ordinal)
                     && dmgBarbFlat.Contains("Primary (STR)", StringComparison.Ordinal)
@@ -58,8 +65,10 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(dmgBarbFlat.Contains("STR is your primary", StringComparison.Ordinal),
                 "damage notes when STR is primary",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(dmgBarbFlat.Contains("9 + STR 9 + 6", StringComparison.Ordinal),
-                "damage equation reflects STR counted twice when primary",
+            TestBase.AssertTrue(dmgBarbFlat.Contains("floor((", StringComparison.Ordinal)
+                    && dmgBarbFlat.Contains("STR 12", StringComparison.Ordinal)
+                    && dmgBarbFlat.Contains(" + 6", StringComparison.Ordinal),
+                "damage equation shows scaled STR+primary plus weapon",
                 ref run, ref passed, ref failed);
 
             var armor = StatTooltipFormatter.TryBuild(c, "stat:armor", 20)!;

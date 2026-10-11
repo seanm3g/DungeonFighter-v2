@@ -14,18 +14,14 @@ namespace RPGGame.Tuning
         Goals
     }
 
+    /// <summary>
+    /// Player-facing Combat Tuning areas. Replaces the old multi-tab dump (Core / Hero / Speed / …).
+    /// </summary>
     public enum CombatTuningTab
     {
-        Core,
-        HeroClasses,
-        SpeedDefense,
-        Equipment,
-        EnemyStats,
-        ProgressionCurve,
-        Archetypes,
-        StatusEffects,
-        RewardsLoot,
-        GoalsAnalysis
+        Starting,
+        Scaling,
+        Outfit
     }
 
     public enum CombatTuningValueKind
@@ -160,16 +156,9 @@ namespace RPGGame.Tuning
         private static IReadOnlyList<CombatTuningParameter> BuildParameters()
         {
             var list = new List<CombatTuningParameter>();
-            BuildCoreParameters(list);
-            BuildHeroClassParameters(list);
-            BuildSpeedDefenseParameters(list);
-            BuildEquipmentParameters(list);
-            BuildEnemyStatsParameters(list);
-            BuildProgressionCurveParameters(list);
-            BuildArchetypeParameters(list);
-            BuildStatusEffectParameters(list);
-            BuildRewardsLootParameters(list);
-            BuildGoalsAnalysisParameters(list);
+            BuildStartingParameters(list);
+            BuildScalingParameters(list);
+            BuildOutfitParameters(list);
             return list;
         }
 

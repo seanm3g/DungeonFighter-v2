@@ -92,6 +92,22 @@ namespace RPGGame.UI.Avalonia
             lastRenderedScreenState = state;
         }
 
+        /// <summary>
+        /// Softens mouse-wind distortion for ~1.5s after a new screen/menu opens.
+        /// Prefer calling at the start of a transition (before paint) so the first frame is crisp.
+        /// </summary>
+        public void NotifyScreenOpened()
+        {
+            try
+            {
+                canvas.NotifyScreenOpened();
+            }
+            catch (Exception)
+            {
+                // Best-effort visual polish; never block a transition.
+            }
+        }
+
         public CanvasUICoordinator(GameCanvasControl canvas)
         {
             this.canvas = canvas;
