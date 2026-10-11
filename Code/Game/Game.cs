@@ -307,8 +307,10 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Re-draws the active screen after left-panel section toggles. <see cref="RenderCoordinator.PerformRender"/> is suppressed in menu states,
-        /// so <c>ForceFullLayoutRender</c> does nothing there; this re-invokes the appropriate <see cref="CanvasUICoordinator"/> renderer.
+        /// Re-draws the active screen after layout changes (left-panel toggles, Ctrl+/- UI zoom, window resize).
+        /// <see cref="RenderCoordinator.PerformRender"/> is suppressed in menu states, so <c>ForceFullLayoutRender</c>
+        /// does nothing there; this re-invokes the appropriate <see cref="CanvasUICoordinator"/> renderer so menus
+        /// and chrome stay centered when column counts shrink with larger glyphs.
         /// </summary>
         public void RefreshPersistentChromeAfterStatsToggle()
         {
@@ -325,6 +327,9 @@ namespace RPGGame
             // Without a fresh Clear(), a second pass after resize/hover stacks duplicate primitives (fullscreen ghosting).
             switch (stateManager.CurrentState)
             {
+                case GameState.MainMenu:
+                    mainMenuHandler?.RefreshMainMenuInPlace();
+                    break;
                 case GameState.Inventory:
                     canvasUI.Clear();
                     inventoryMenuHandler?.RefreshInventoryScreen();

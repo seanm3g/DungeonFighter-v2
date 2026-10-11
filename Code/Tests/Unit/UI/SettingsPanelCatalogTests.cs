@@ -32,8 +32,49 @@ namespace RPGGame.Tests.Unit.UI
             HandlerSaveTags_Match_Descriptor_Flags();
             FlavorText_Is_Developer_Panel_With_Handler_Save();
             MaterialBuilds_Is_Developer_Panel_With_Handler_Save();
+            OpenAi_Is_Player_Panel_With_Handler_Save();
 
             TestBase.PrintSummary("SettingsPanelCatalog Tests", _testsRun, _testsPassed, _testsFailed);
+        }
+
+        private static void OpenAi_Is_Player_Panel_With_Handler_Save()
+        {
+            Console.WriteLine("--- OpenAI panel registration ---");
+
+            var descriptor = SettingsPanelCatalog.GetDescriptor("OpenAI");
+            TestBase.AssertTrue(descriptor != null, "OpenAI descriptor should exist",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("OpenAI", descriptor!.DisplayName,
+                "OpenAI display name",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(SettingsSidebarGroups.Player, descriptor.SidebarGroup,
+                "OpenAI should be under Player",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(descriptor.UsesHandler && descriptor.SavesViaHandler,
+                "OpenAI should use handler save",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(descriptor.PanelType == typeof(OpenAiSettingsPanel),
+                "OpenAI panel type should be OpenAiSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(SettingsPanelCatalog.HandlerSaveCategoryTags.Contains("OpenAI"),
+                "Handler save list includes OpenAI",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var panel = SettingsPanelCatalog.CreatePanel("OpenAI") as OpenAiSettingsPanel;
+            TestBase.AssertTrue(panel != null,
+                "CreatePanel(OpenAI) returns OpenAiSettingsPanel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (panel == null)
+                return;
+
+            var enabledBox = panel.FindControl<CheckBox>("VictoryLimerickEnabledCheckBox");
+            var apiKeyBox = panel.FindControl<TextBox>("ApiKeyTextBox");
+            TestBase.AssertTrue(enabledBox != null,
+                "OpenAI panel has victory limerick checkbox",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(apiKeyBox != null,
+                "OpenAI panel has API key field",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void FlavorText_Is_Developer_Panel_With_Handler_Save()

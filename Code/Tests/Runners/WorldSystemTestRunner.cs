@@ -20,6 +20,10 @@ namespace RPGGame.Tests.Runners
 
             DungeonTests.RunAllTests();
             Console.WriteLine();
+            DungeonMapGeneratorTests.RunAllTests();
+            Console.WriteLine();
+            DungeonTraversalStrategyTests.RunAllTests();
+            Console.WriteLine();
             DungeonManagerTests.RunAllTests();
             Console.WriteLine();
             TravelSystemTests.RunAllTests();

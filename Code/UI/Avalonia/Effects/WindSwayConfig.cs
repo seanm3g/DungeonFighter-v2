@@ -53,6 +53,7 @@ namespace RPGGame.UI.Avalonia.Effects
         /// <summary>
         /// How often the settle timer repaints while wind is active (ms).
         /// Default: 24 (~40fps settle; cheaper than 60fps while still smooth).
+        /// Runtime floor is <see cref="WindSwayField.MinSettleIntervalMs"/>.
         /// </summary>
         public int SettleIntervalMs { get; set; } = 24;
 
@@ -104,6 +105,7 @@ namespace RPGGame.UI.Avalonia.Effects
         /// <summary>
         /// Cap on stored trail samples.
         /// Default: 10 (keeps wake feel without per-glyph O(n) blowups).
+        /// Runtime hard-caps at <see cref="WindSwayField.TrailPointsHardCap"/> regardless of this value.
         /// </summary>
         public int TrailMaxPoints { get; set; } = 10;
 
@@ -153,5 +155,10 @@ namespace RPGGame.UI.Avalonia.Effects
         /// Click-charge explode/reform burst nested under wind sway settings.
         /// </summary>
         public TextClickBurstConfig ClickBurst { get; set; } = new TextClickBurstConfig();
+
+        /// <summary>
+        /// F7 DistortionPulse neighbor-push nested under wind sway settings.
+        /// </summary>
+        public TextEmphasisPulseConfig EmphasisPulse { get; set; } = new TextEmphasisPulseConfig();
     }
 }

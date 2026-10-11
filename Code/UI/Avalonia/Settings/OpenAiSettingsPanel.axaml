@@ -1,0 +1,81 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="RPGGame.UI.Avalonia.Settings.OpenAiSettingsPanel" Classes="settings-ui" Background="Transparent">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="20" Margin="20">
+            <StackPanel Spacing="12">
+                <TextBlock Text="OpenAI"
+                           Classes="settings-section-header"
+                           Margin="0,0,0,4"/>
+                <TextBlock Text="Optional cloud text generation for a post-dungeon victory limerick. Your API key stays on this machine in gitignored GameData/GeneralSettings.json (or set the OPENAI_API_KEY environment variable). Leave disabled to use offline FlavorText templates only."
+                           Classes="settings-muted"
+                           FontSize="14"
+                           TextWrapping="Wrap"/>
+
+                <CheckBox x:Name="VictoryLimerickEnabledCheckBox"
+                          Content="Generate victory limerick after completing a dungeon"
+                          Classes="settings-field-label"
+                          FontSize="15"
+                          IsChecked="False"/>
+
+                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,8,0,0">
+                    <TextBlock Grid.Row="0" Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Classes="settings-field-label"
+                               FontSize="14"
+                               Text="API key"
+                               Margin="0,0,12,8"/>
+                    <TextBox x:Name="ApiKeyTextBox"
+                             Grid.Row="0" Grid.Column="1"
+                             PasswordChar="*"
+                             Watermark="sk-… (local only)"
+                             Margin="0,0,0,8"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Classes="settings-field-label"
+                               FontSize="14"
+                               Text="Model"
+                               Margin="0,0,12,8"/>
+                    <TextBox x:Name="ModelTextBox"
+                             Grid.Row="1" Grid.Column="1"
+                             Watermark="gpt-4o-mini"
+                             Margin="0,0,0,8"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Classes="settings-field-label"
+                               FontSize="14"
+                               Text="Base URL"
+                               Margin="0,0,12,8"/>
+                    <TextBox x:Name="BaseUrlTextBox"
+                             Grid.Row="2" Grid.Column="1"
+                             Watermark="https://api.openai.com/v1"
+                             Margin="0,0,0,8"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Classes="settings-field-label"
+                               FontSize="14"
+                               Text="Timeout (seconds)"
+                               Margin="0,0,12,0"/>
+                    <TextBox x:Name="TimeoutSecondsTextBox"
+                             Grid.Row="3" Grid.Column="1"
+                             Width="120"
+                             HorizontalAlignment="Left"
+                             Watermark="15"/>
+                </Grid>
+
+                <TextBlock Text="Compatible with OpenAI Chat Completions and OpenAI-compatible proxies (change Base URL). Prefetch starts on the final room's kill; the verse appears on dungeon completion and never blocks combat or loot. On failure, a FlavorText victoryLimerick template is used when available."
+                           Classes="settings-muted"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

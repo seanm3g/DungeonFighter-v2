@@ -4,6 +4,7 @@ using System.Linq;
 using Avalonia.Media;
 using RPGGame.Data;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.Avalonia.Renderers.Text;
@@ -58,7 +59,11 @@ namespace RPGGame.UI.Avalonia.Display
             var messageTypes = rows.ConvertAll(r => r.MessageType);
             var hoverInfoLines = rows.ConvertAll(r => r.HoverInfoLines);
             
-            int availableWidth = contentWidth - 2;
+            // Center-column UI zoom: wrap sooner and reserve ceil(zoom) grid rows per visual line
+            // so larger glyphs do not overlap. Side panels stay at window-fit 100%.
+            int availableWidth = CenterColumnTextZoom.ScaleWrapWidth(contentWidth - 2);
+            int lineStride = CenterColumnTextZoom.LineStride;
+            int visibleLogicalRows = CenterColumnTextZoom.ScaleVisibleRows(contentHeight);
 
             // F7 narrative book mode: every combat-log paragraph stays left-justified.
             // Enemy right-align per wrapped row creates a jagged staircase on long prose.
@@ -81,8 +86,15 @@ namespace RPGGame.UI.Avalonia.Display
                 totalHeight += linesNeeded;
             }
             
-            // Calculate scroll offset
-            int scrollOffset = CalculateScrollOffset(buffer, totalHeight, contentHeight);
+            // Calculate scroll offset in logical (visual) lines against the zoom-scaled viewport budget.
+            int scrollOffset = CalculateScrollOffset(buffer, totalHeight, visibleLogicalRows);
+
+            // Keep click-burst messes glued to the log lines they exploded from (manual + auto scroll).
+            textWriter.Canvas.SyncClickBurstViewportScroll(
+                GameCanvasControl.ClickBurstCenterViewportId,
+                scrollOffset,
+                contentY,
+                contentHeight);
             
             // Clear the content area BEFORE calculating render positions.
             // Do not extend the clear band into the action-info strip or the sequence HUD panel.
@@ -158,7 +170,8 @@ namespace RPGGame.UI.Avalonia.Display
                         renderY,
                         availableWidth,
                         lineAlignment,
-                        maxYExclusive: viewportBottomExclusive);
+                        maxYExclusive: viewportBottomExclusive,
+                        lineStride: lineStride);
 
                     var hoverInfo = hoverInfoLines[i];
                     if (hoverInfo != null && hoverInfo.Count > 0 && linesRendered > 0)
@@ -167,14 +180,14 @@ namespace RPGGame.UI.Avalonia.Display
                             renderX,
                             renderY,
                             availableWidth,
-                            linesRendered,
+                            linesRendered * lineStride,
                             hoverInfo);
                     }
                     
                     // Only advance y if we actually rendered something
                     if (linesRendered > 0)
                     {
-                        y += linesRendered;
+                        y += linesRendered * lineStride;
                     }
                     currentHeight += linesNeeded;
                 }
@@ -280,7 +293,8 @@ namespace RPGGame.UI.Avalonia.Display
             if (rows.Count == 0)
                 return 0;
             
-            int availableWidth = contentWidth - 2;
+            int availableWidth = CenterColumnTextZoom.ScaleWrapWidth(contentWidth - 2);
+            int visibleLogicalRows = CenterColumnTextZoom.ScaleVisibleRows(contentHeight);
             
             // Calculate total height needed for all lines (accounting for text wrapping)
             int totalHeight = 0;
@@ -292,9 +306,9 @@ namespace RPGGame.UI.Avalonia.Display
             
             // Calculate the threshold at which scrolling should start (2 lines from bottom)
             const int BOTTOM_PADDING_LINES = 2;
-            int scrollThreshold = contentHeight - BOTTOM_PADDING_LINES;
+            int scrollThreshold = visibleLogicalRows - BOTTOM_PADDING_LINES;
             // Calculate the visible area we want to show (all but bottom 2 lines)
-            int visibleArea = contentHeight - BOTTOM_PADDING_LINES;
+            int visibleArea = visibleLogicalRows - BOTTOM_PADDING_LINES;
             
             // If content exceeds the threshold, calculate scroll offset
             // Scroll to maintain a gap at the bottom (only show visibleArea lines)

@@ -29,6 +29,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
             this.segmentRenderer = new SegmentRenderer(canvas);
         }
+
+        /// <summary>Underlying canvas (used for click-burst scroll sync, etc.).</summary>
+        public GameCanvasControl Canvas => canvas;
         
         /// <summary>
         /// Adds colored text to canvas using the new color system
@@ -153,18 +156,22 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         /// <param name="lineAlignment">Horizontal placement of each wrapped row within the column of width <paramref name="maxWidth"/> starting at <paramref name="x"/>.</param>
         /// <param name="maxYExclusive">When set, stops before writing any row at or below this Y (clips soft-wrapped overflow to the viewport).</param>
-        /// <returns>Number of lines actually written (may be less than the wrap count when clipped)</returns>
+        /// <param name="lineStride">Grid rows reserved per wrapped visual line (center-column UI zoom uses ceil(zoom)).</param>
+        /// <returns>Number of visual lines actually written (may be less than the wrap count when clipped)</returns>
         public int WriteLineColoredWrapped(
             List<ColoredText> segments,
             int x,
             int y,
             int maxWidth,
             ColoredLineAlignment lineAlignment = ColoredLineAlignment.Left,
-            int? maxYExclusive = null)
+            int? maxYExclusive = null,
+            int lineStride = 1)
         {
+            int stride = Math.Max(1, lineStride);
+
             if (segments == null || segments.Count == 0)
             {
-                // For blank lines, return 1 so the caller knows to advance Y by 1
+                // For blank lines, return 1 so the caller knows to advance Y by stride
                 // This creates visible spacing between sections
                 if (maxYExclusive.HasValue && y >= maxYExclusive.Value)
                     return 0;
@@ -214,7 +221,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     }
                 }
                 // Always advance Y, even for empty line segments (blank lines within wrapped text)
-                currentY++;
+                currentY += stride;
                 linesWritten++;
             }
             

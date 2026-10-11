@@ -35,12 +35,16 @@ namespace RPGGame.Tests.Unit.UI
                 TestRotationRandomDuringExplode();
                 TestDistanceVarianceAcrossGlyphs();
                 TestClickRebuildsOneLetterAtATime();
+                TestRebuildReturnsLettersInReadingOrder();
                 TestIdleAutoRebuildAfterTenSeconds();
                 TestIdleAutoRebuildIntervalFiveHundredMs();
                 TestHoleClickResetsAutoRebuildIdle();
                 TestClickOutsideDoesNotRebuildCreatesSecondZone();
                 TestExplodedOriginStaysPinnedWhenClickingElsewhere();
                 TestClickInsideMessRebuildsThatZoneOnly();
+                TestViewportScrollMovesExplosionWithText();
+                TestViewportScrollSeedsBaselineWithoutJump();
+                TestViewportScrollIgnoresZonesOutsideViewport();
                 TestDisabledIgnoresClicks();
                 TestRuntimeDistortionOffIgnoresClicks();
                 TestMayAffectTextUsesRadius();
@@ -291,6 +295,52 @@ namespace RPGGame.Tests.Unit.UI
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        private static void TestRebuildReturnsLettersInReadingOrder()
+        {
+            Console.WriteLine("\n--- Rebuild returns letters in reading order ---");
+            var field = new TextClickBurstField();
+            var cfg = BaseCfg();
+            cfg.LettersToRebuild = 10;
+            field.ApplyConfig(cfg);
+            Explode(field, originX: 55, originY: 40);
+            field.TickForTests(0.50);
+
+            // Register two glyphs on the same row (left then right) before rebuild freezes order.
+            _ = field.SampleOffset(4, 2, 0, 10, 16); // center ~45,40
+            _ = field.SampleOffset(6, 2, 0, 10, 16); // center ~65,40
+
+            var (leftPeakOx, leftPeakOy) = field.SampleOffset(4, 2, 0, 10, 16);
+            var (rightPeakOx, rightPeakOy) = field.SampleOffset(6, 2, 0, 10, 16);
+            double leftPeak = Math.Abs(leftPeakOx) + Math.Abs(leftPeakOy);
+            double rightPeak = Math.Abs(rightPeakOx) + Math.Abs(rightPeakOy);
+            TestBase.AssertTrue(leftPeak > 10.0 && rightPeak > 10.0,
+                $"both letters should be scattered before rebuild (L={leftPeak}, R={rightPeak})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // One rebuild step homes the earliest reading-order glyph (left).
+            field.NotifyClick(55, 40, 10, 16, nowOverrideSeconds: 0.60);
+            field.TickForTests(0.90); // past ReformSeconds
+
+            var (leftOx, leftOy) = field.SampleOffset(4, 2, 0, 10, 16);
+            var (rightOx, rightOy) = field.SampleOffset(6, 2, 0, 10, 16);
+            double leftMag = Math.Abs(leftOx) + Math.Abs(leftOy);
+            double rightMag = Math.Abs(rightOx) + Math.Abs(rightOy);
+            TestBase.AssertTrue(leftMag < 0.5,
+                $"left letter should return first (mag={leftMag})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(rightMag > 10.0,
+                $"right letter should still be scattered (mag={rightMag})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            field.NotifyClick(55, 40, 10, 16, nowOverrideSeconds: 1.00);
+            field.TickForTests(1.30);
+            var (rightOx2, rightOy2) = field.SampleOffset(6, 2, 0, 10, 16);
+            double rightMag2 = Math.Abs(rightOx2) + Math.Abs(rightOy2);
+            TestBase.AssertTrue(rightMag2 < 0.5,
+                $"right letter should return second (mag={rightMag2})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         private static void TestIdleAutoRebuildAfterTenSeconds()
         {
             Console.WriteLine("\n--- Idle auto-rebuild after 10 seconds ---");
@@ -461,6 +511,68 @@ namespace RPGGame.Tests.Unit.UI
             double farMag = Math.Abs(oxFar) + Math.Abs(oyFar);
             TestBase.AssertTrue(farMag > 5.0,
                 $"second mess should still be scattered (mag={farMag})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestViewportScrollMovesExplosionWithText()
+        {
+            Console.WriteLine("\n--- Viewport scroll moves explosion with text ---");
+            var field = new TextClickBurstField();
+            field.ApplyConfig(BaseCfg());
+            Explode(field, originX: 55, originY: 160); // grid row ~10 at charH=16
+            field.TickForTests(0.50);
+
+            // Seed baseline at current scroll, then advance scroll by 3 rows.
+            field.SyncViewportScroll("center-log", scrollRows: 10, viewportMinYPx: 0, viewportMaxYPx: 800, charHeight: 16);
+            var (oxBefore, oyBefore) = field.SampleOffset(5, 10, 0, 10, 16);
+            double magBefore = Math.Abs(oxBefore) + Math.Abs(oyBefore);
+            TestBase.AssertTrue(magBefore > 5.0,
+                $"expected scatter before scroll (mag={magBefore})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            field.SyncViewportScroll("center-log", scrollRows: 13, viewportMinYPx: 0, viewportMaxYPx: 800, charHeight: 16);
+            double originY = field.GetFirstOriginYForTests();
+            TestBase.AssertTrue(Math.Abs(originY - (160 - 3 * 16)) < 0.01,
+                $"origin should move up 3 rows (got {originY})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Same relative glyph (now at grid Y 7) should keep comparable scatter.
+            var (oxAfter, oyAfter) = field.SampleOffset(5, 7, 0, 10, 16);
+            double magAfter = Math.Abs(oxAfter) + Math.Abs(oyAfter);
+            TestBase.AssertTrue(Math.Abs(magAfter - magBefore) < 0.5,
+                $"scatter should ride with text ({magBefore} → {magAfter})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestViewportScrollSeedsBaselineWithoutJump()
+        {
+            Console.WriteLine("\n--- Viewport scroll seeds baseline without jump ---");
+            var field = new TextClickBurstField();
+            field.ApplyConfig(BaseCfg());
+            Explode(field, originX: 55, originY: 160);
+            field.TickForTests(0.50);
+
+            field.SyncViewportScroll("center-log", scrollRows: 40, viewportMinYPx: 0, viewportMaxYPx: 800, charHeight: 16);
+            double originY = field.GetFirstOriginYForTests();
+            TestBase.AssertTrue(Math.Abs(originY - 160) < 0.01,
+                $"first sync must not shift origin (got {originY})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestViewportScrollIgnoresZonesOutsideViewport()
+        {
+            Console.WriteLine("\n--- Viewport scroll ignores zones outside viewport ---");
+            var field = new TextClickBurstField();
+            field.ApplyConfig(BaseCfg());
+            // Left-panel-ish origin (y=40) vs center viewport starting at y=200px
+            Explode(field, originX: 20, originY: 40);
+            field.TickForTests(0.50);
+
+            field.SyncViewportScroll("center-log", scrollRows: 0, viewportMinYPx: 200, viewportMaxYPx: 800, charHeight: 16);
+            field.SyncViewportScroll("center-log", scrollRows: 5, viewportMinYPx: 200, viewportMaxYPx: 800, charHeight: 16);
+            double originY = field.GetFirstOriginYForTests();
+            TestBase.AssertTrue(Math.Abs(originY - 40) < 0.01,
+                $"left-panel zone must not move with center scroll (got {originY})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

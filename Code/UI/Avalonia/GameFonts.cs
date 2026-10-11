@@ -98,7 +98,10 @@ namespace RPGGame.UI.Avalonia
         public static Typeface ActiveTypeface =>
             new(ActiveFamily, FontStyle.Normal, ActiveWeight);
 
-        /// <summary>UI zoom multiplier for the active font (1.0 = fill-height baseline inside the current window).</summary>
+        /// <summary>
+        /// Center-column UI zoom for the active font (1.0 = same size as side panels).
+        /// Applied by <see cref="Layout.CenterColumnTextZoom"/>; does not change the character grid.
+        /// </summary>
         public static double ActiveZoom => GetZoom(ActivePreset);
 
         /// <summary>Per-font default zoom for the active preset (Ctrl+0 reset target).</summary>
@@ -106,6 +109,16 @@ namespace RPGGame.UI.Avalonia
 
         /// <summary>Legacy alias for the currently selected family (defaults to VT323).</summary>
         public static FontFamily Primary => ActiveFamily;
+
+        /// <summary>
+        /// True for bitmap-style faces (VT323 / Noplato / Pixelzone / Bytesized).
+        /// Those need integer cell metrics and whole-pixel distortion offsets so glyphs
+        /// do not shimmer or "jump" when <see cref="Math.Round"/> flips around half-pixels.
+        /// </summary>
+        public static bool UsesPixelGrid => ActivePreset != Preset.CourierNew;
+
+        /// <summary>Whether <paramref name="preset"/> is a pixel/bitmap monospace face.</summary>
+        public static bool PresetUsesPixelGrid(Preset preset) => preset != Preset.CourierNew;
 
         public static double GetZoom(Preset preset)
         {

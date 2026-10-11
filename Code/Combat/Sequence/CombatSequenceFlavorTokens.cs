@@ -604,6 +604,16 @@ namespace RPGGame.Combat.Sequence
         }
 
         /// <summary>
+        /// F7 narrative stun skip: one numeral-free sentence when an actor loses their turn to stun
+        /// (replaces mechanical "is stunned and cannot act!" + "(N turns remaining)" action info).
+        /// </summary>
+        public static string InterpretStunSkip(string actorName)
+        {
+            string name = string.IsNullOrWhiteSpace(actorName) ? "Someone" : actorName.Trim();
+            return $"{name} reels, stunned, unable to act";
+        }
+
+        /// <summary>
         /// F7 narrative DoT tick: one numeral-free sentence for poison/burn/bleed/acid damage
         /// (replaces "takes N poison damage" + "(poison: N% of max HP)" / stacks-remain lines).
         /// </summary>
@@ -667,7 +677,9 @@ namespace RPGGame.Combat.Sequence
                     "burning" => $"fire clinging to {name}",
                     "acid-burned" => $"acid biting into {name}",
                     "weakened" => $"{name} faltering under a weaken",
-                    "stunned" => $"{name} reeling, stunned",
+                    "stunned" => plain.Contains("cannot act", StringComparison.OrdinalIgnoreCase)
+                        ? $"{name} reeling, stunned, unable to act"
+                        : $"{name} reeling, stunned",
                     "silenced" => $"{name} stricken mute",
                     "confused" => $"{name} lost in confusion",
                     "vulnerable" => $"{name} left vulnerable",
@@ -718,13 +730,14 @@ namespace RPGGame.Combat.Sequence
                 };
             }
 
-            // Detail-only remain lines ("(poison: 1% of max HP)", stacks remain) — omit; tick prose covers it.
+            // Detail-only remain lines ("(poison: 1% of max HP)", stacks remain, stun turns) — omit.
             if (Regex.IsMatch(
                     plain,
                     @"^\(?\s*(poison|burn|bleed|acid)\s*:",
                     RegexOptions.IgnoreCase)
                 || Regex.IsMatch(plain, @"stacks remain\)?\s*$", RegexOptions.IgnoreCase)
-                || Regex.IsMatch(plain, @"of max HP\)?\s*$", RegexOptions.IgnoreCase))
+                || Regex.IsMatch(plain, @"of max HP\)?\s*$", RegexOptions.IgnoreCase)
+                || Regex.IsMatch(plain, @"^\(?\s*\d+\s+turns?\s+remaining\)?\s*$", RegexOptions.IgnoreCase))
             {
                 return string.Empty;
             }

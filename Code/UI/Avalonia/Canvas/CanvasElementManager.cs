@@ -159,15 +159,17 @@ namespace RPGGame.UI.Avalonia.Canvas
         }
 
         /// <summary>
-        /// Clears box elements (borders) within a specific rectangular area.
+        /// Clears non-overlay box elements (borders) within a specific rectangular area.
         /// Removes boxes whose top-left corner falls inside the given rectangle.
-        /// Used to clear panel borders when re-rendering without full canvas clear.
+        /// Overlay boxes (hover tips) are left alone — use
+        /// <see cref="ClearOverlayBoxesInArea"/> so panel chrome clears cannot wipe them mid-frame.
         /// </summary>
         public void ClearBoxesInArea(int startX, int startY, int width, int height)
         {
             int endX = startX + width;
             int endY = startY + height;
             boxElements.RemoveAll(box =>
+                !box.IsOverlay &&
                 box.X >= startX && box.X < endX &&
                 box.Y >= startY && box.Y < endY);
         }
@@ -300,6 +302,16 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             // Remove any existing text at the exact same position to prevent overlap
             RemoveText(t => t.X == x && t.Y == y);
+
+            // Per-glyph layout (dungeon undulation, templates, hover recolor): never merge
+            // length-1 cells. Collapsing them into one run switches paint to center-zoom
+            // glyphAdvance (Round(charWidth×zoom)) while neighbors stay on charWidth — letter
+            // spacing jumps on hover when the whole row becomes one color.
+            if (ShouldKeepAsOwnCell(text))
+            {
+                AddText(new CanvasText { X = x, Y = y, Content = text, Color = color });
+                return false;
+            }
             
             // Check for adjacent text elements on the same line that can be merged (same color)
             // This prevents gaps between adjacent segments
@@ -330,6 +342,13 @@ namespace RPGGame.UI.Avalonia.Canvas
             AddText(new CanvasText { X = x, Y = y, Content = text, Color = color });
             return false; // New element added
         }
+
+        /// <summary>
+        /// Single-character (and empty) runs stay on their own grid cell so paint advance
+        /// matches <c>text.X * charWidth</c> neighbors.
+        /// </summary>
+        internal static bool ShouldKeepAsOwnCell(string? text) =>
+            string.IsNullOrEmpty(text) || text.Length == 1;
 
         /// <summary>
         /// Fills parallel glyph/color buffers for a character-grid rectangle (spaces / white when empty).

@@ -1,3 +1,5 @@
+using RPGGame.World.DungeonMap;
+
 namespace RPGGame
 {
     public class Dungeon
@@ -13,6 +15,8 @@ namespace RPGGame
         public string? SpawnRegionId { get; private set; }
         /// <summary>Seed used for <see cref="Generate"/> when provided; null means non-deterministic.</summary>
         public int? GenerationSeed { get; private set; }
+        /// <summary>Automated traversal grid state built at the end of <see cref="Generate"/>.</summary>
+        public DungeonTraversalState? TraversalState { get; private set; }
         private Random random;
 
         public Dungeon(string name, int minLevel, int maxLevel, string theme, List<string>? possibleEnemies = null, ColorOverride? colorOverride = null, string? spawnRegionId = null, int? generationSeed = null)
@@ -27,11 +31,13 @@ namespace RPGGame
             Rooms = new List<Environment>();
             ColorOverride = colorOverride;
             SpawnRegionId = spawnRegionId;
+            TraversalState = null;
         }
 
         public void Generate()
         {
             Rooms.Clear();
+            TraversalState = null;
 
             if (string.Equals(Name, GameConstants.TrainingGroundDungeonName, StringComparison.OrdinalIgnoreCase))
             {
@@ -53,6 +59,7 @@ namespace RPGGame
                     useDirectStats: true);
                 room.GetEnemies().Add(dummy);
                 Rooms.Add(room);
+                TraversalState = DungeonMapGenerator.Generate(Rooms, random, trainingGround: true);
                 return;
             }
 
@@ -211,6 +218,23 @@ namespace RPGGame
                     Rooms.Add(minimalRoom);
                 }
             }
+
+            if (Rooms.Count > 0)
+                TraversalState = DungeonMapGenerator.Generate(Rooms, random, trainingGround: false);
+        }
+
+        /// <summary>
+        /// Builds or rebuilds <see cref="TraversalState"/> from the current <see cref="Rooms"/> list.
+        /// </summary>
+        public void EnsureTraversalState(bool trainingGround = false)
+        {
+            if (Rooms == null || Rooms.Count == 0)
+            {
+                TraversalState = null;
+                return;
+            }
+
+            TraversalState = DungeonMapGenerator.Generate(Rooms, random, trainingGround);
         }
 
         private string GetRoomTheme(int roomIndex, int totalRooms)

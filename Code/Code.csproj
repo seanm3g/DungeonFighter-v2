@@ -5,6 +5,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>DF</AssemblyName>
     <ApplicationIcon>UI\Avalonia\Assets\df_icon.ico</ApplicationIcon>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -52,6 +53,8 @@
     <!-- Cross-platform audio engine (MiniAudio backend bundled, MIT license) -->
     <PackageReference Include="SoundFlow" Version="1.4.0" />
     <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
+    <!-- Explicit for DistortionPulse explosion GIF decode (also transitive via Avalonia.Skia). -->
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
   </ItemGroup>
 
   <!-- Kill a leftover GUI process before build copies overwrite DF.exe (MSB3026). -->

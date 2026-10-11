@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame.Combat.Calculators;
+using RPGGame.Combat.Narrative;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
@@ -28,7 +29,10 @@ namespace RPGGame
         {
             // Clear previous battle's narrative before starting a new one
             currentBattleNarrative = null;
-            
+
+            // Drop any leftover victory-limerick prefetch from a prior fight
+            RPGGame.Combat.Narrative.VictoryLimerickService.Instance.ClearPrefetch();
+
             // Reset one-shot kill tracking for new battle
             hadOneShotKill = false;
 
@@ -75,6 +79,7 @@ namespace RPGGame
                 // It needs to remain available for post-battle metrics calculation
             }
             turnManager.EndBattle();
+            CombatSceneLiveFeed.NotifyChanged();
         }
 
         /// <summary>
@@ -114,6 +119,7 @@ namespace RPGGame
                 // It needs to remain available for post-battle metrics calculation
             }
             turnManager.EndBattle();
+            CombatSceneLiveFeed.NotifyChanged();
         }
 
         /// <summary>
@@ -205,6 +211,15 @@ namespace RPGGame
                 participants.Add(environment);
             }
             turnManager.InitializeHealthTracker(participants);
+
+            // Live ComfyUI feed: bind this fight and publish the establishing shot / snapshot.
+            CombatSceneLiveFeed.BindFight(
+                player,
+                enemy,
+                environment,
+                dungeon: null,
+                narrativeProvider: () => currentBattleNarrative,
+                lastPlayerActionProvider: () => GetLastPlayerAction());
         }
 
         /// <summary>

@@ -1088,6 +1088,11 @@
       "{name} stumbles in their assault, the critical miss leaving them off-balance!",
       "A devastating miss! {name}\u0027s attack finds only empty space where their foe once stood!"
     ],
+    "victoryLimerick": [
+      "There once was {hero} | who faced down a dreaded {enemy} | In the halls of {place} | they finished the chase | and carved out a legend, you see.",
+      "Said {hero} with grit and with cheer | \"Come closer, foul {enemy}, draw near!\" | Through {place} they fought | till the last blow was caught | and the dungeon grew quiet and clear.",
+      "In {place} where the shadows hang low | fought {hero} and terrible {enemy} | Steel sang and then ceased | when the battle released | a victor still standing to go."
+    ],
     "environmentalAction": [
       "The environment itself joins the fray! {effect}",
       "Nature\u0027s power manifests as {effect}",

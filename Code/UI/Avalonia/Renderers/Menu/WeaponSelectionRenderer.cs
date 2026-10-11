@@ -5,6 +5,7 @@ using Avalonia.Media;
 using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem.Themes;
 
@@ -34,18 +35,18 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         public int RenderWeaponSelectionContent(int x, int y, int width, int height, List<StartingWeapon> weapons)
         {
             
-            // Calculate content box dimensions
+            // Calculate content box dimensions (vertical packing follows center-column zoom stride)
+            int stride = CenterColumnTextZoom.LineStride;
             int boxPadding = 4;
             int boxWidth = Math.Min(60, width - boxPadding * 2);
-            // Calculate height to include title (3 lines) + spacing (2) + all weapons (5 lines each) + separator (1) + instructions (2)
-            // Each weapon takes: 1 line for name/number + 1 line for class + 1 line for stats + 2 lines spacing = 5 lines total
-            int titleHeight = 3; // top line + title + bottom line
-            int titleSpacing = 2; // spacing after title
-            int weaponsHeight = weapons != null ? weapons.Count * 5 : 0; // 5 lines per weapon
-            int separatorHeight = 1; // separator line
-            int instructionsHeight = 2; // instructions + spacing
-            int contentHeight = titleHeight + titleSpacing + weaponsHeight + separatorHeight + instructionsHeight;
-            int boxHeight = contentHeight + 4; // Add padding: 2 lines top + 2 lines bottom to avoid border overlap
+            // Title (3) + spacing (2) + weapons (5 each) + separator (1) + instructions (2)
+            int titleLines = 3;
+            int titleSpacingLines = 2;
+            int weaponLines = weapons != null ? weapons.Count * 5 : 0;
+            int separatorLines = 1;
+            int instructionsLines = 2;
+            int contentLines = titleLines + titleSpacingLines + weaponLines + separatorLines + instructionsLines;
+            int boxHeight = contentLines * stride + 4; // 2-row padding top + bottom so rules clear the stroke
             
             // Center the box, but ensure it doesn't go above the viewport
             int boxX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, boxWidth);
@@ -85,24 +86,24 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             
             // Title with decorative styling
             string title = "Choose your starting weapon";
-            int titleX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, title.Length);
+            int titleX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(contentX, contentWidth, title.Length);
             
-            // Decorative line above title
-            string topLine = new string(AsciiArtAssets.UIElements.BorderHorizontal[0], Math.Min(title.Length + 4, contentWidth - 2));
-            int topLineX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, topLine.Length);
+            // Decorative rules: ASCII + zoom-clamped so they cannot paint past the gold box
+            string topLine = MenuLayoutCalculator.BuildDecorativeRule(title.Length + 4, Math.Max(1, contentWidth - 2));
+            int topLineX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(contentX, contentWidth, topLine.Length);
             canvas.AddText(topLineX, currentY, topLine, AsciiArtAssets.Colors.Gold);
-            currentY++;
+            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
             
             // Title in gold
             canvas.AddText(titleX, currentY, title, AsciiArtAssets.Colors.Gold);
-            currentY++;
+            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
             
             // Decorative line below title
             canvas.AddText(topLineX, currentY, topLine, AsciiArtAssets.Colors.Gold);
-            currentY++;
+            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
             
             // Add spacing after title (as calculated in box height)
-            currentY += titleSpacing;
+            currentY += titleSpacingLines * stride;
 
             if (weapons == null || weapons.Count == 0)
             {
@@ -154,7 +155,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 maxStatsLineLen = Math.Max(maxStatsLineLen, line.Length);
             }
 
-            int sharedStatsX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, maxStatsLineLen);
+            int sharedStatsX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(contentX, contentWidth, maxStatsLineLen);
 
             // Find max weapon display text length for centering (actual item names from the starter pipeline)
             int maxLength = 0;
@@ -179,7 +180,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 string displayText = MenuOptionFormatter.Format(weaponNum, weaponName);
                 
                 // Center each weapon option
-                int optionX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, maxLength);
+                int optionX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(contentX, contentWidth, maxLength);
                 
                 // Weapon icon/indicator
                 string weaponIcon = "◆"; // Decorative bullet
@@ -191,7 +192,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     X = optionX - 2,
                     Y = currentY,
                     Width = maxLength + 2,
-                    Height = 4, // Name + class + stats rows
+                    Height = 4 * stride, // Name + class + stats rows (zoomed stride)
                     Type = ElementType.MenuOption,
                     Value = weaponNum.ToString(),
                     DisplayText = displayText
@@ -207,17 +208,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 canvas.AddText(optionX, currentY, numberText, weaponColor);
                 int nameX = optionX + numberText.Length + 1;
                 canvas.AddText(nameX, currentY, weaponName ?? "", GetWeaponNameColor(preview, option.IsHovered));
-                currentY++;
+                currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
 
                 string className = classPresentation.GetDisplayName(preview.WeaponType);
                 const string classLabel = "Class: ";
                 int classBlockWidth = classLabel.Length + (className ?? "").Length;
-                int classLineX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, classBlockWidth);
+                int classLineX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(contentX, contentWidth, classBlockWidth);
                 Color classLabelColor = option.IsHovered ? AsciiArtAssets.Colors.Gold : AsciiArtAssets.Colors.Silver;
                 Color classNameColor = option.IsHovered ? AsciiArtAssets.Colors.White : accent;
                 canvas.AddText(classLineX, currentY, classLabel, classLabelColor);
                 canvas.AddText(classLineX + classLabel.Length, currentY, className ?? "", classNameColor, accent, 0.35, 2);
-                currentY++;
+                currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
                 
                 var (damageText, speedText, actionSlotText) = statRows[i];
                 RenderAlignedStatLine(
@@ -230,18 +231,18 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     maxSpeedLen,
                     statSeparator,
                     anyActionSlotColumn);
-                currentY += 2;
+                currentY += 2 * stride;
             }
             
             
             // Decorative separator before instructions (match title rule width/position)
-            currentY++;
+            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
             canvas.AddText(topLineX, currentY, topLine, AsciiArtAssets.Colors.DarkGray);
-            currentY += 2;
+            currentY += 2 * stride;
             
             // Instructions at bottom with subtle styling
             string bottomInstructions = UIConstants.Messages.PressNumberOrClick;
-            int bottomX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, bottomInstructions.Length);
+            int bottomX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(contentX, contentWidth, bottomInstructions.Length);
             canvas.AddText(bottomX, currentY, bottomInstructions, AsciiArtAssets.Colors.Cyan);
             
             return currentY - y + 2;

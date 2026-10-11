@@ -1,13 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using RPGGame.UI.Avalonia;
+using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
+using RPGGame.GameCore.Helpers;
+using RPGGame.Entity.Services;
+using RPGGame.World.DungeonMap;
+
 namespace RPGGame
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using RPGGame.UI.Avalonia;
-    using RPGGame.UI.ColorSystem;
-    using RPGGame.UI.ColorSystem.Applications;
-    using RPGGame.GameCore.Helpers;
-    using RPGGame.Entity.Services;
 
     /// <summary>
     /// Orchestrates the main dungeon flow and room iteration
@@ -81,6 +83,13 @@ namespace RPGGame
                     return;
                 }
             }
+
+            // Ensure traversal map exists (tests / partial Generate paths)
+            if (stateManager.CurrentDungeon.TraversalState == null && stateManager.CurrentDungeon.Rooms.Count > 0)
+            {
+                bool training = PreWeaponTrainingFlow.IsTrainingGroundDungeonName(stateManager.CurrentDungeon.Name);
+                stateManager.CurrentDungeon.EnsureTraversalState(trainingGround: training);
+            }
             
             // Set game state to Dungeon
             stateManager.TransitionToState(GameState.Dungeon);
@@ -120,33 +129,53 @@ namespace RPGGame
             }
             displayManager.StartDungeon(stateManager.CurrentDungeon, stateManager.CurrentPlayer);
 
+            RPGGame.Combat.Narrative.VictoryLimerickService.Instance.ClearPrefetch();
+            RPGGame.Combat.Narrative.VictoryLimerickService.Instance.SetFinaleRoomPrefetchAllowed(false);
+
             bool tutorialCombatSlowPacing = PreWeaponTrainingFlow.IsPreWeaponTrainingDungeon(
                 stateManager,
                 stateManager.CurrentDungeon.Name);
             if (tutorialCombatSlowPacing)
                 PreWeaponTrainingFlow.SetTutorialCombatSlowPacing(true);
             
-            // Process all rooms
+            // Process all rooms via automated map traversal
             try
             {
-                int roomNumber = 0;
                 int totalRooms = stateManager.CurrentDungeon.Rooms.Count;
                 bool isFirstRoom = true;
-                foreach (Environment room in stateManager.CurrentDungeon.Rooms)
+                var traversal = stateManager.CurrentDungeon.TraversalState;
+
+                while (traversal != null && traversal.HasMoreContent)
                 {
-                    roomNumber++;
+                    int roomNumber = traversal.NextContentIndex + 1;
+                    var room = stateManager.CurrentDungeon.Rooms[traversal.NextContentIndex];
+
+                    // INT d20 picks Smart vs Random for this approach
+                    if (stateManager.CurrentPlayer != null)
+                    {
+                        var resolution = TraversalStrategyResolver.Resolve(stateManager.CurrentPlayer);
+                        traversal.CurrentStrategy = resolution.Strategy;
+                        // Pathing roll readout (Smart/Random + INT math) intentionally omitted from the combat log for now.
+                    }
+
+                    // Auto-walk toward the next content room (pathing / approach outcomes only).
+                    // Do not paint per step: the minimap overlay is gone, and full RenderRoomEntry
+                    // each step cleared/redrew the side panels (visible right-panel flicker on entry).
+                    // RoomProcessor.ProcessRoom paints once on arrival.
+                    await DungeonTraversalNavigator.WalkToNextContentAsync(traversal);
+
                     if (!await roomProcessor.ProcessRoom(room, roomNumber, totalRooms, isFirstRoom))
                     {
                         // Player death: EnemyEncounterHandler already transitions to Death and raises onPlayerDeath.
                         return;
                     }
+
+                    traversal.NextContentIndex++;
                     isFirstRoom = false;
                     
                     // Offer exit choice after every room (except the last room)
-                    // Only check if there are more rooms to process
-                    if (roomNumber < totalRooms)
+                    if (traversal.HasMoreContent)
                     {
-                        // Offer exit choice after room completion
                         if (exitChoiceHandler != null)
                         {
                             bool shouldExit = await exitChoiceHandler.ShowExitChoiceMenu(roomNumber, totalRooms);
@@ -196,6 +225,9 @@ namespace RPGGame
                                     stateManager.CurrentPlayer.PendingPreWeaponTrainingGround &&
                                     PreWeaponTrainingFlow.IsTrainingGroundDungeonName(exitingDungeonName);
 
+                                RPGGame.Combat.Narrative.VictoryLimerickService.Instance.ClearPrefetch();
+                                RPGGame.Combat.Narrative.VictoryLimerickService.Instance.SetFinaleRoomPrefetchAllowed(false);
+
                                 stateManager.SetCurrentDungeon(null!);
                                 stateManager.SetCurrentRoom(null!);
 
@@ -228,6 +260,8 @@ namespace RPGGame
 
                 if (skipDungeonCompletionScreen)
                 {
+                    RPGGame.Combat.Narrative.VictoryLimerickService.Instance.ClearPrefetch();
+                    RPGGame.Combat.Narrative.VictoryLimerickService.Instance.SetFinaleRoomPrefetchAllowed(false);
                     stateManager.SetCurrentDungeon(null!);
                     stateManager.SetCurrentRoom(null!);
                     stateManager.TransitionToState(GameState.WeaponSelection);

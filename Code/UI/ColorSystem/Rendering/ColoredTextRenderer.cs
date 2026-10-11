@@ -334,7 +334,8 @@ namespace RPGGame.UI.ColorSystem
                 
                 if (segmentLength <= remainingLength)
                 {
-                    result.Add(segment);
+                    // Clone so later wrap/glue cannot mutate the pre-colored typewriter source.
+                    result.Add(new ColoredText(segment.Text, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas));
                     currentLength += segmentLength;
                 }
                 else

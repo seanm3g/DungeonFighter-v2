@@ -26,7 +26,9 @@ namespace RPGGame.Tests.Unit.UI
             TestPixelzoneFamilyUri();
             TestBytesizedFamilyUri();
             TestFontCycleOrderAndWeights();
+            TestPixelGridPresets();
             TestCanvasTypefaceFollowsActivePreset();
+            TestCharMetricsSnapToWholePixels();
             TestPerFontZoomIsIndependentAndClamped();
             TestCaptureAndApplyPreferencesRoundTrip();
             TestResetAndSetDefaultZoomPerFont();
@@ -146,6 +148,53 @@ namespace RPGGame.Tests.Unit.UI
             {
                 GameFonts.SetPreset(previous);
             }
+        }
+
+        private static void TestPixelGridPresets()
+        {
+            Console.WriteLine("\n--- Pixel-grid flags for bitmap fonts ---");
+
+            TestBase.AssertTrue(GameFonts.PresetUsesPixelGrid(GameFonts.Preset.Vt323),
+                "VT323 uses pixel grid", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(GameFonts.PresetUsesPixelGrid(GameFonts.Preset.NoplatoMono),
+                "Noplato Mono uses pixel grid", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(GameFonts.PresetUsesPixelGrid(GameFonts.Preset.Pixelzone),
+                "Pixelzone uses pixel grid", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(GameFonts.PresetUsesPixelGrid(GameFonts.Preset.Bytesized),
+                "Bytesized uses pixel grid", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!GameFonts.PresetUsesPixelGrid(GameFonts.Preset.CourierNew),
+                "Courier New is not a pixel-grid face", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var previous = GameFonts.ActivePreset;
+            try
+            {
+                GameFonts.SetPreset(GameFonts.Preset.Vt323);
+                TestBase.AssertTrue(GameFonts.UsesPixelGrid,
+                    "active VT323 reports UsesPixelGrid", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                GameFonts.SetPreset(GameFonts.Preset.CourierNew);
+                TestBase.AssertTrue(!GameFonts.UsesPixelGrid,
+                    "active Courier New does not use pixel grid", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                GameFonts.SetPreset(previous);
+            }
+        }
+
+        private static void TestCharMetricsSnapToWholePixels()
+        {
+            Console.WriteLine("\n--- Char metrics snap to whole pixels ---");
+
+            // Pure helper (FormattedText.Width needs a live Avalonia font manager).
+            TestBase.AssertTrue(
+                Math.Abs(CanvasCoordinateConverter.SnapCellMetric(9.4) - 9.0) < 1e-9,
+                "9.4 snaps to 9", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                Math.Abs(CanvasCoordinateConverter.SnapCellMetric(9.6) - 10.0) < 1e-9,
+                "9.6 snaps to 10", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                Math.Abs(CanvasCoordinateConverter.SnapCellMetric(0.2) - 1.0) < 1e-9,
+                "sub-1 measure clamps to 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestCanvasTypefaceFollowsActivePreset()

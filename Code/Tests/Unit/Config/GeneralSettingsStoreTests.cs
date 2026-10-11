@@ -17,11 +17,88 @@ namespace RPGGame.Tests.Unit.Config
 
             TestLoadSaveRoundTrip(ref testsRun, ref testsPassed, ref testsFailed);
             TestUiFontPreferencesRoundTrip(ref testsRun, ref testsPassed, ref testsFailed);
+            TestOpenAiPreferencesRoundTrip(ref testsRun, ref testsPassed, ref testsFailed);
+            TestOpenAiResolveApiKeyFieldVsEnv(ref testsRun, ref testsPassed, ref testsFailed);
             TestMigrateFromLegacyGameSettingsPatch(ref testsRun, ref testsPassed, ref testsFailed);
             TestMigrateFromLegacyAudioPatchBusFields(ref testsRun, ref testsPassed, ref testsFailed);
             TestAudioConfigSplitSave(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("GeneralSettingsStore Tests", testsRun, testsPassed, testsFailed);
+        }
+
+        private static void TestOpenAiPreferencesRoundTrip(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestOpenAiPreferencesRoundTrip));
+            string root = CreateTempRoot();
+            try
+            {
+                PatchProfileServiceTestHooks.OverrideGameDataRoot(root);
+                GeneralSettingsStore.ResetCacheForTests();
+
+                var prefs = new OpenAiPreferences
+                {
+                    VictoryLimerickEnabled = true,
+                    ApiKey = "sk-test-local-key",
+                    Model = "gpt-4o-mini",
+                    BaseUrl = "https://api.openai.com/v1",
+                    TimeoutSeconds = 20
+                };
+                GeneralSettingsStore.SaveOpenAiPreferences(prefs);
+
+                GeneralSettingsStore.ResetCacheForTests();
+                var loaded = GeneralSettingsStore.Load().OpenAiPreferences;
+                TestBase.AssertTrue(loaded.VictoryLimerickEnabled, "round-trip enabled flag",
+                    ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertEqual("sk-test-local-key", loaded.ApiKey, "round-trip api key",
+                    ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertEqual("gpt-4o-mini", loaded.Model, "round-trip model",
+                    ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertEqual(20, loaded.TimeoutSeconds, "round-trip timeout",
+                    ref testsRun, ref testsPassed, ref testsFailed);
+
+                // Saving game/audio must not wipe OpenAI prefs.
+                GeneralSettingsStore.Save(new GameSettings { CombatSpeed = 2 }, new AudioPreferences { MasterVolume = 0.5f });
+                GeneralSettingsStore.ResetCacheForTests();
+                loaded = GeneralSettingsStore.Load().OpenAiPreferences;
+                TestBase.AssertEqual("sk-test-local-key", loaded.ApiKey, "game settings save preserves OpenAI key",
+                    ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertTrue(loaded.VictoryLimerickEnabled, "game settings save preserves enabled",
+                    ref testsRun, ref testsPassed, ref testsFailed);
+            }
+            finally
+            {
+                try { Directory.Delete(root, true); } catch { }
+            }
+        }
+
+        private static void TestOpenAiResolveApiKeyFieldVsEnv(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestOpenAiResolveApiKeyFieldVsEnv));
+            string? previous = System.Environment.GetEnvironmentVariable(OpenAiPreferences.ApiKeyEnvironmentVariable);
+            try
+            {
+                var fieldWins = new OpenAiPreferences { ApiKey = "sk-from-field" };
+                System.Environment.SetEnvironmentVariable(OpenAiPreferences.ApiKeyEnvironmentVariable, "sk-from-env");
+                TestBase.AssertEqual("sk-from-field", fieldWins.ResolveApiKey(),
+                    "settings field preferred over env",
+                    ref testsRun, ref testsPassed, ref testsFailed);
+
+                var envFallback = new OpenAiPreferences { ApiKey = "" };
+                TestBase.AssertEqual("sk-from-env", envFallback.ResolveApiKey(),
+                    "env used when field empty",
+                    ref testsRun, ref testsPassed, ref testsFailed);
+                TestBase.AssertTrue(envFallback.HasApiKey(), "HasApiKey true with env",
+                    ref testsRun, ref testsPassed, ref testsFailed);
+
+                System.Environment.SetEnvironmentVariable(OpenAiPreferences.ApiKeyEnvironmentVariable, null);
+                var none = new OpenAiPreferences { ApiKey = "  " };
+                TestBase.AssertEqual("", none.ResolveApiKey(), "no key when field blank and env unset",
+                    ref testsRun, ref testsPassed, ref testsFailed);
+            }
+            finally
+            {
+                System.Environment.SetEnvironmentVariable(OpenAiPreferences.ApiKeyEnvironmentVariable, previous);
+            }
         }
 
         private static void TestUiFontPreferencesRoundTrip(ref int testsRun, ref int testsPassed, ref int testsFailed)

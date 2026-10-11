@@ -449,6 +449,8 @@ GameData/TuningConfig.json
 GameData/PatchProfile.json
 # Player-local general settings (game prefs + audio bus volume/mute)
 GameData/GeneralSettings.json
+# Right-click combat scene JSON dumps
+GameData/CombatLogs/
 # Misplaced root copies of general settings (canonical path is GameData/)
 /GeneralSettings.json
 /GeneralSettings.json.bak

@@ -6,6 +6,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.Combat.Narrative;
 using RPGGame.Combat.Sequence;
 using RPGGame.Config;
 using RPGGame.UI;
@@ -90,11 +91,11 @@ namespace RPGGame.UI.Avalonia
 
         private void OnGameCanvasGridDimensionsChanged()
         {
-            // Measure/arrange may raise this; rebuild chrome on the next UI tick so panel widths track the new column count.
+            // Measure/arrange may raise this; rebuild the active screen on the next UI tick so panel widths
+            // and centered menus track the new column count (menu states suppress ForceFullLayoutRender).
             Dispatcher.UIThread.Post(() =>
             {
-                if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
-                    canvasUI.ForceFullLayoutRender();
+                RefreshActiveScreenAfterLayoutChange();
                 NarrativeVideoOverlay?.NotifyContextChanged();
             }, DispatcherPriority.Render);
         }
@@ -169,10 +170,26 @@ namespace RPGGame.UI.Avalonia
             GameCanvas.ApplyActiveFont();
             Dispatcher.UIThread.Post(() =>
             {
-                if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
-                    canvasUI.ForceFullLayoutRender();
+                // Ctrl+/- / F3: rebuild menus in place. ForceFullLayoutRender is a no-op on MainMenu etc.,
+                // which left options at pre-zoom grid coords and looked like panels grew / drift right.
+                RefreshActiveScreenAfterLayoutChange();
                 NarrativeVideoOverlay?.NotifyContextChanged();
             }, DispatcherPriority.Loaded);
+        }
+
+        /// <summary>
+        /// Rebuilds combat chrome via display-buffer render, or the active menu screen when that path is suppressed.
+        /// </summary>
+        private void RefreshActiveScreenAfterLayoutChange()
+        {
+            if (initializationHandler?.Game != null)
+            {
+                initializationHandler.Game.RefreshPersistentChromeAfterStatsToggle();
+                return;
+            }
+
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+                canvasUI.ForceFullLayoutRender();
         }
 
         private void ApplyMacStartupWindowSizing()
@@ -390,6 +407,8 @@ namespace RPGGame.UI.Avalonia
             bool enabled = DeveloperModeState.ToggleDistortionEffects();
             GameCanvas.WindSway.Reset();
             GameCanvas.ClickBurst.Reset();
+            GameCanvas.EmphasisPulse.Reset();
+            GameCanvas.EmphasisExplosion.Reset();
             GameCanvas.Refresh();
 
             ShowCombatSpeedNotification(
@@ -636,8 +655,40 @@ namespace RPGGame.UI.Avalonia
             }
 
             e.Handled = true;
+            if (await TrySaveCombatSceneLog(canvasUI))
+                return true;
             await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this);
             return true;
+        }
+
+        /// <summary>
+        /// Writes the current fight as scene JSON under GameData/CombatLogs and copies that JSON to the clipboard.
+        /// </summary>
+        private async Task<bool> TrySaveCombatSceneLog(CanvasUICoordinator canvasUI)
+        {
+            try
+            {
+                var game = initializationHandler?.Game;
+                var combat = game?.Combat;
+                if (!CombatSceneLogExport.TryBuild(
+                    game?.CurrentPlayer,
+                    canvasUI.GetCurrentEnemy(),
+                    game?.CurrentRoom,
+                    game?.CurrentDungeon,
+                    combat?.GetCurrentBattleNarrative(),
+                    combat?.GetLastPlayerAction(),
+                    out var scenes,
+                    out string json))
+                    return false;
+
+                CombatSceneLogWriter.Write(scenes);
+                CombatSceneLiveFeed.PublishScenes(scenes, status: "active");
+                return await ClipboardHelper.CopyTextToClipboard(canvasUI, this, json);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>

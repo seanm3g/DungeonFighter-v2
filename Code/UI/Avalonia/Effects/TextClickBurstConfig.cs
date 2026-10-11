@@ -4,8 +4,9 @@ namespace RPGGame.UI.Avalonia.Effects
     /// Click-charge glyph burst: spam-click builds charge near the cursor, then glyphs
     /// explode outward with per-letter distance/rotation variance and stay scattered on that
     /// screen region. Clicks outside start another independent mess; clicks inside a mess
-    /// rebuild one letter per click. After <see cref="AutoRebuildIdleSeconds"/> idle, letters
-    /// auto-fill every <see cref="AutoRebuildIntervalSeconds"/>. Nested under
+    /// rebuild letters in reading order (top→bottom, left→right) one step per click.
+    /// After <see cref="AutoRebuildIdleSeconds"/> idle, letters auto-fill every
+    /// <see cref="AutoRebuildIntervalSeconds"/>. Nested under
     /// <c>UIConfiguration.json</c> → <c>dungeonSelectionAnimation.windSway.clickBurst</c>.
     /// Gated by <see cref="Enabled"/> and F6 distortion like wind sway.
     /// </summary>

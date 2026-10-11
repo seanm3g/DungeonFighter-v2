@@ -4,10 +4,10 @@ namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
     /// Layout constants for persistent panels.
-    /// Left / right / action-info chrome keep design pixel footprints across Ctrl+/- zoom by shrinking
-    /// their character sizes inversely with UI zoom; the center column absorbs the leftover cells.
-    /// <see cref="UpdateGridDimensions"/> / <see cref="UpdateEffectiveVisibleWidth"/> / <see cref="UpdateUiZoom"/>
-    /// track window size and zoom so columns resize correctly.
+    /// Left / right / action-info chrome stay at design character sizes (window-fit 100%).
+    /// Ctrl+/- zooms center-column glyphs only via <see cref="CenterColumnTextZoom"/>.
+    /// <see cref="UpdateGridDimensions"/> / <see cref="UpdateEffectiveVisibleWidth"/> track window size
+    /// so columns resize correctly.
     /// </summary>
     public static class LayoutConstants
     {
@@ -43,7 +43,6 @@ namespace RPGGame.UI.Avalonia.Layout
         // This accounts for the difference between grid width and actual visible area
         private static int _effectiveVisibleWidth = BASE_SCREEN_WIDTH;
 
-        private static double _uiZoom = 1.0;
         private static int _leftPanelWidth = BASE_LEFT_PANEL_WIDTH;
         private static int _rightPanelWidth = BASE_RIGHT_PANEL_WIDTH;
         private static int _actionInfoStripHeight = BASE_ACTION_INFO_STRIP_HEIGHT;
@@ -56,19 +55,17 @@ namespace RPGGame.UI.Avalonia.Layout
         {
             _gridWidth = gridWidth;
             _gridHeight = gridHeight;
-            RecalculateZoomChrome();
+            RecalculateChrome();
         }
 
         /// <summary>
-        /// Updates UI zoom used to keep left/top/right chrome near their design pixel sizes.
-        /// Call whenever <c>GameFonts.ActiveZoom</c> changes or before layout measure.
+        /// Retained for call-site compatibility. UI zoom no longer changes chrome column counts;
+        /// center-column glyph zoom is handled by <see cref="CenterColumnTextZoom"/>.
         /// </summary>
         public static void UpdateUiZoom(double uiZoom)
         {
-            _uiZoom = uiZoom > 0 && !double.IsNaN(uiZoom) && !double.IsInfinity(uiZoom)
-                ? uiZoom
-                : 1.0;
-            RecalculateZoomChrome();
+            _ = uiZoom;
+            RecalculateChrome();
         }
         
         /// <summary>
@@ -86,20 +83,19 @@ namespace RPGGame.UI.Avalonia.Layout
                 // Leave OuterPaddingRight columns outside the right panel border.
                 int maxLayoutWidth = CanvasGridSizer.LayoutColumnCount(_gridWidth);
                 _effectiveVisibleWidth = System.Math.Clamp(calculatedVisibleWidth, 1, maxLayoutWidth);
-                RecalculateZoomChrome();
+                RecalculateChrome();
             }
         }
 
         /// <summary>
-        /// Shrinks left/right/top chrome character sizes as UI zoom grows so their pixel footprints
-        /// stay near the 100% design size; grows them when zooming out. Center keeps the remainder.
+        /// Keeps left/right/top chrome at design character sizes, clamping only when the window
+        /// is too narrow/short. Ctrl+/- does not change these footprints.
         /// </summary>
-        private static void RecalculateZoomChrome()
+        private static void RecalculateChrome()
         {
-            double z = Math.Max(_uiZoom, 0.01);
-            int left = Math.Max(MinLeftPanelWidth, (int)Math.Round(BASE_LEFT_PANEL_WIDTH / z));
-            int right = Math.Max(MinRightPanelWidth, (int)Math.Round(BASE_RIGHT_PANEL_WIDTH / z));
-            int strip = Math.Max(MinActionInfoStripHeight, (int)Math.Round(BASE_ACTION_INFO_STRIP_HEIGHT / z));
+            int left = BASE_LEFT_PANEL_WIDTH;
+            int right = BASE_RIGHT_PANEL_WIDTH;
+            int strip = BASE_ACTION_INFO_STRIP_HEIGHT;
 
             // Gaps: left inset/gap/gap between columns accounted for by CENTER_PANEL_WIDTH's -3.
             // Always leave at least one center column.

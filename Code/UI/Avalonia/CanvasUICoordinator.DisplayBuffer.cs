@@ -317,6 +317,42 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
+        /// Appends a center-justified victory limerick (and random artist credit) under the
+        /// dungeon completion summary, then refreshes the screen.
+        /// </summary>
+        public void AppendVictoryVerseToCompletionBuffer(Character player, IReadOnlyList<string> verseLines)
+        {
+            if (player == null || verseLines == null || verseLines.Count == 0)
+                return;
+            if (textManager is not CanvasTextManager ctm)
+                return;
+            if (stateManager?.CurrentState != GameState.DungeonCompletion)
+                return;
+
+            ctm.SwitchToCharacterDisplayManager(player);
+            var dm = ctm.GetDisplayManagerForCharacter(player);
+
+            // OutcomeSummary center-justifies non-empty rows in the completion log column.
+            dm.Buffer.Add(new List<ColoredText>(), UIMessageType.OutcomeSummary);
+            foreach (var line in verseLines)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+                dm.Buffer.Add(
+                    new List<ColoredText> { new ColoredText(line.Trim(), ColorPalette.Info.GetColor()) },
+                    UIMessageType.OutcomeSummary);
+            }
+
+            string artist = RPGGame.Combat.Narrative.VictoryVerseAttribution.CreateRandom();
+            dm.Buffer.Add(new List<ColoredText>(), UIMessageType.OutcomeSummary);
+            dm.Buffer.Add(
+                new List<ColoredText> { new ColoredText(artist, ColorPalette.Info.GetColor()) },
+                UIMessageType.OutcomeSummary);
+
+            RerenderCompletionOrDeathScreenAfterScroll();
+        }
+
+        /// <summary>
         /// Appends death summary after existing center-panel log lines (combat log preserved).
         /// </summary>
         public void AppendDeathSummaryToBuffer(Character player, string defeatSummary)

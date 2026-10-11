@@ -169,10 +169,19 @@ namespace RPGGame.Tests.Unit.UI
             luckyHero.Equipment.Body = new ChestItem("Armor", 1, 1) { Material = "Leather" };
             luckyHero.Equipment.Feet = new FeetItem("Boots", 1, 1) { Material = "Leather" };
             var luckyLines = StatusEffectDisplayLines.Build(luckyHero, luckyHero);
-            TestBase.AssertTrue(luckyLines.Contains(LeatherSetBonus.LuckyStatusName),
+            string luckyLine = LeatherSetBonus.FormatLuckyStatusLine(luckyHero);
+            TestBase.AssertTrue(luckyLines.Contains(luckyLine),
                 "Leather set Lucky appears as a status effect line", ref run, ref passed, ref failed);
+            int luckyPoints = NaiveteBalanceHelper.GetDisplayNaivete(luckyHero);
+            if (luckyPoints > 0)
+            {
+                TestBase.AssertEqual($"Lucky: {luckyPoints}", luckyLine,
+                    "Lucky status shows miss→advantage charge count", ref run, ref passed, ref failed);
+            }
             TestBase.AssertEqual("lucky", StatusEffectColorHelper.GetTemplateName("Lucky"),
                 "Lucky status uses lucky color template", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("lucky", StatusEffectColorHelper.GetTemplateName(luckyLine),
+                "Lucky: N still uses lucky color template", ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("StatusEffectDisplayLines Tests", run, passed, failed);
         }

@@ -96,7 +96,11 @@ namespace RPGGame
             
             if (explorationManager != null && stateManager.CurrentPlayer != null)
             {
-                var explorationResult = explorationManager.ExploreRoom(room, stateManager.CurrentPlayer);
+                var explorationResult = explorationManager.ExploreRoom(
+                    room,
+                    stateManager.CurrentPlayer,
+                    stateManager.CurrentDungeon?.TraversalState?.CurrentStrategy
+                        ?? RPGGame.World.DungeonMap.TraversalStrategy.Random);
                 
                 // Apply keyword coloring to exploration message
                 // Skip for environmental hazards (displayed with proper formatting below) and SpotEnemyEarly (advantage message shown later)
@@ -248,7 +252,8 @@ namespace RPGGame
                         Enemy? currentEnemy = room.GetNextLivingEnemy();
                         if (currentEnemy == null) break;
                         
-                        if (!await enemyEncounterHandler.ProcessEnemyEncounter(currentEnemy, playerGetsFirstAttack, enemyGetsFirstAttack))
+                        if (!await enemyEncounterHandler.ProcessEnemyEncounter(
+                                currentEnemy, playerGetsFirstAttack, enemyGetsFirstAttack, isLastRoom))
                         {
                             return false; // Player died
                         }
@@ -257,6 +262,8 @@ namespace RPGGame
                         playerGetsFirstAttack = false;
                         enemyGetsFirstAttack = false;
                     }
+
+                    stateManager.CurrentDungeon?.TraversalState?.ClearInteraction();
                 }
             }
             

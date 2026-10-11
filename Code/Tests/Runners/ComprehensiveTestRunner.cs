@@ -43,6 +43,18 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             RPGGame.Tests.Unit.Combat.CombatSequenceFlavorPresenterTests.RunAllTests();
             Console.WriteLine();
+            RPGGame.Tests.Unit.Combat.ActionTextEffectCatalogTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.Combat.ActionTextEmphasisTypewriterTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.UI.TextEmphasisPulseFieldTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.UI.EmphasisExplosionGifTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.UI.ActionTextEmphasisWordLocatorTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.UI.ActionTextEmphasisTriggerTests.RunAllTests();
+            Console.WriteLine();
             ActionEffectTargetTests.RunAllTests();
             Console.WriteLine();
             ActionSequenceTests.RunAllTests();

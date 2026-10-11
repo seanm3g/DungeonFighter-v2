@@ -40,6 +40,7 @@ namespace RPGGame.Tests.Unit.UI
                 TestIdleSitStillClearsOffsetNearMouse();
                 TestIdleVisualRestClearsOffsetBeforeHardZero();
                 TestMotionDeadzoneIgnoresJitter();
+                TestBarelyOverDeadzoneDoesNotFullAmpAfterJitter();
                 TestWakeFalloffFarIsZero();
                 TestFasterMouseLargerNearOffset();
                 TestTrailLingersAfterMouseLeaves();
@@ -62,6 +63,9 @@ namespace RPGGame.Tests.Unit.UI
                 TestMayAffectTextUsesWakeBounds();
                 TestFrameActiveExposesBeginFrameSnapshot();
                 TestPerfDefaultsAreLeaner();
+                TestTrailHardCapAndSettleFloor();
+                TestEllipticalRadiusSquaredMatchesSqrt();
+                TestPerGlyphWakeBoundsEarlyOut();
             }
             finally
             {
@@ -356,6 +360,61 @@ namespace RPGGame.Tests.Unit.UI
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        private static void TestBarelyOverDeadzoneDoesNotFullAmpAfterJitter()
+        {
+            Console.WriteLine("\n--- Barely-over-deadzone nudge after jitter is mild ---");
+            const double charW = 10;
+            const double charH = 16;
+            var field = new WindSwayField();
+            field.ApplyConfig(new WindSwayConfig
+            {
+                Enabled = true,
+                ImpulseGain = 0.35,
+                MaxWind = 3.5,
+                DecayPerSecond = 0,
+                MaxOffsetFraction = 0.55,
+                VerticalScale = 1.0,
+                WakeRadiusCells = 13,
+                NearInfluence = 1.0,
+                FarInfluence = 0.02,
+                WakeRearBias = 0,
+                WakeFalloffPower = 1,
+                SpeedReferenceCellsPerSec = 12,
+                TrailMaxPoints = 0
+            });
+
+            // Establish cursor, then spam sub-deadzone jitter (used to keep lastPush hot).
+            double x = 50;
+            field.PushFromMouseDelta(x, 80, charW, charH);
+            for (int i = 0; i < 8; i++)
+            {
+                x += WindSwayField.MotionDeadzonePixels * 0.4 * ((i % 2 == 0) ? 1 : -1);
+                field.PushFromMouseDelta(x, 80, charW, charH, dtOverrideSeconds: 0.016);
+            }
+
+            var (preWx, _) = field.GetWindForTests();
+            TestBase.AssertTrue(Math.Abs(preWx) < 1e-6,
+                $"jitter spam must leave wind at rest (got {preWx})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Just barely clear the deadzone — excess impulse should be tiny.
+            x += WindSwayField.MotionDeadzonePixels + 0.5;
+            field.PushFromMouseDelta(x, 80, charW, charH, dtOverrideSeconds: 0.016);
+            var (nudgeWx, _) = field.GetWindForTests();
+            TestBase.AssertTrue(Math.Abs(nudgeWx) < 0.08,
+                $"barely-over-deadzone should be mild excess impulse (got {nudgeWx})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Glyph under cursor must not jump a full cell from a micro-nudge.
+            int gridX = (int)(x / charW);
+            int gridY = (int)(80 / charH);
+            var (ox, oy) = field.SampleOffset(gridX, gridY, 0, charW, charH);
+            double mag = Math.Sqrt(ox * ox + oy * oy);
+            TestBase.AssertTrue(mag < WindSwayField.PixelRestEpsilon,
+                $"micro-nudge must rest-snap glyph offset (mag={mag})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         private static void TestWakeFalloffFarIsZero()
         {
             Console.WriteLine("\n--- Wake falloff far is zero ---");
@@ -364,10 +423,11 @@ namespace RPGGame.Tests.Unit.UI
             cfg.WakeRadiusCells = 6;
             cfg.FarInfluence = 0.2;
             field.ApplyConfig(cfg);
-            field.PushFromMouseDelta(50, 80, 10, 16);
-            field.PushFromMouseDelta(60, 80, 10, 16, dtOverrideSeconds: 0.05);
+            // Travel well past deadzone + amp ramp so near-field clears PixelRestEpsilon.
+            field.PushFromMouseDelta(40, 80, 10, 16);
+            field.PushFromMouseDelta(70, 80, 10, 16, dtOverrideSeconds: 0.05);
 
-            var (nearOx, nearOy) = field.SampleOffset(5, 5, 0, 10, 16);
+            var (nearOx, nearOy) = field.SampleOffset(6, 5, 0, 10, 16);
             var (farOx, farOy) = field.SampleOffset(40, 30, 0, 10, 16);
 
             TestBase.AssertTrue(Math.Abs(nearOx) + Math.Abs(nearOy) > 0.02,
@@ -488,8 +548,8 @@ namespace RPGGame.Tests.Unit.UI
             cfg.WakeRearBias = 0;
             field.ApplyConfig(cfg);
 
-            // Mouse at cell (~10, 10)
-            field.PushFromMouseDelta(95, 155, charW, charH);
+            // Mouse at cell (~10, 10) — travel well past deadzone so excess impulse is measurable.
+            field.PushFromMouseDelta(70, 160, charW, charH);
             field.PushFromMouseDelta(100, 160, charW, charH, dtOverrideSeconds: 0.05);
 
             var (nearOx, nearOy) = field.SampleOffset(10, 10, 0, charW, charH);
@@ -651,13 +711,15 @@ namespace RPGGame.Tests.Unit.UI
                 $"horizontal motion should rotate major onto X (got {rotation})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Mouse at (205,168). Along major (~140px east) inside; across minor (~112px south) outside.
-            var (alongOx, alongOy) = field.SampleOffset(34, 10, 0, charW, charH);
+            // Mouse at (205,168). Along major (~80px east) inside with enough influence to
+            // clear PixelRestEpsilon (1.0); far-edge (~140px) can rest-snap with FarInfluence=0.
+            // Across minor (~112px south) stays outside.
+            var (alongOx, alongOy) = field.SampleOffset(28, 10, 0, charW, charH);
             var (acrossOx, acrossOy) = field.SampleOffset(20, 17, 0, charW, charH);
             double alongMag = Math.Abs(alongOx) + Math.Abs(alongOy);
             double acrossMag = Math.Abs(acrossOx) + Math.Abs(acrossOy);
-            TestBase.AssertTrue(alongMag > 0.02,
-                $"along major (~140px) should sway when ellipse is horizontal (mag={alongMag})",
+            TestBase.AssertTrue(alongMag > WindSwayField.PixelRestEpsilon,
+                $"along major (~80px) should sway when ellipse is horizontal (mag={alongMag})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(acrossMag < 1e-6,
                 $"across minor (~112px) should be outside when ellipse is horizontal (mag={acrossMag})",
@@ -749,6 +811,12 @@ namespace RPGGame.Tests.Unit.UI
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(WindSwayChromatic.IdleEpsilon >= 0.4,
                 $"IdleEpsilon should ignore subpixel smear (got {WindSwayChromatic.IdleEpsilon})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(WindSwayField.PixelRestEpsilon >= 1.0,
+                $"PixelRestEpsilon should be >= 1px so integer-snap Round cannot flicker (got {WindSwayField.PixelRestEpsilon})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(WindSwayField.MotionDeadzonePixels >= 6.0,
+                $"MotionDeadzonePixels should ignore high-DPI micro-moves (got {WindSwayField.MotionDeadzonePixels})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -890,6 +958,108 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(cfg.TrailLifetimeSeconds <= 0.45,
                 $"trail lifetime should be shorter (got {cfg.TrailLifetimeSeconds})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestTrailHardCapAndSettleFloor()
+        {
+            Console.WriteLine("\n--- Trail hard-cap + settle floor ---");
+            TestBase.AssertTrue(
+                WindSwayField.EffectiveTrailMaxPoints(28) == WindSwayField.TrailPointsHardCap,
+                "configured trail > hard cap clamps",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                WindSwayField.EffectiveTrailMaxPoints(4) == 4,
+                "configured trail under hard cap passes through",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                WindSwayField.EffectiveSettleIntervalMs(16) == WindSwayField.MinSettleIntervalMs,
+                "sub-20ms settle floors to MinSettleIntervalMs",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                WindSwayField.EffectiveSettleIntervalMs(24) == 24,
+                "24ms settle passes through",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            const double charW = 10;
+            const double charH = 16;
+            var field = new WindSwayField();
+            field.ApplyConfig(new WindSwayConfig
+            {
+                Enabled = true,
+                TrailMaxPoints = 40,
+                TrailMinSpacingCells = 0.01,
+                TrailLifetimeSeconds = 5.0,
+                ImpulseGain = 1.0,
+                MaxWind = 10,
+                WakeRadiusCells = 8,
+                NearInfluence = 1,
+                FarInfluence = 0.2
+            });
+
+            double x = 50;
+            double y = 80;
+            field.PushFromMouseDelta(x, y, charW, charH);
+            // Steps must exceed MotionDeadzonePixels or no trail deposits land.
+            for (int i = 0; i < 30; i++)
+            {
+                x += WindSwayField.MotionDeadzonePixels + charW;
+                field.PushFromMouseDelta(x, y, charW, charH, dtOverrideSeconds: 0.02);
+            }
+
+            int trailCount = field.GetTrailCountForTests();
+            TestBase.AssertTrue(trailCount > 0,
+                "trail should deposit under rapid motion",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                trailCount <= WindSwayField.TrailPointsHardCap,
+                $"trail count must respect hard cap (got {trailCount})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                trailCount == WindSwayField.TrailPointsHardCap,
+                $"trail should fill to hard cap under spam (got {trailCount})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEllipticalRadiusSquaredMatchesSqrt()
+        {
+            Console.WriteLine("\n--- Elliptical radius squared matches Sqrt form ---");
+            double t = WindSwayField.EllipticalNormalizedRadius(30, 40, 0, 1, 100, 160);
+            double tSq = WindSwayField.EllipticalNormalizedRadiusSquared(30, 40, 0, 1, 100, 160);
+            TestBase.AssertTrue(Math.Abs(t * t - tSq) < 1e-9,
+                "squared form matches t²",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(
+                WindSwayField.EllipticalNormalizedRadiusSquared(200, 0, 1, 0, 50, 80) >= 1.0,
+                "outside ellipse rejects via t² ≥ 1",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestPerGlyphWakeBoundsEarlyOut()
+        {
+            Console.WriteLine("\n--- Per-glyph wake AABB early-out ---");
+            const double charW = 10;
+            const double charH = 16;
+            var field = new WindSwayField();
+            var cfg = BaseCfg();
+            cfg.WakeRadiusCells = 4;
+            field.ApplyConfig(cfg);
+            field.PushFromMouseDelta(50, 80, charW, charH);
+            field.PushFromMouseDelta(60, 80, charW, charH, dtOverrideSeconds: 0.05);
+
+            TestBase.AssertTrue(field.BeginFrame(charW, charH), "frame active",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            try
+            {
+                // Same row as mouse (~gridY 5) but far along X — should rest despite MayAffectText on a long run.
+                var (ox, oy) = field.SampleOffset(80, 5, 0, charW, charH);
+                TestBase.AssertTrue(Math.Abs(ox) < 1e-9 && Math.Abs(oy) < 1e-9,
+                    "glyph outside wake AABB samples zero",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                field.EndFrame();
+            }
         }
     }
 }

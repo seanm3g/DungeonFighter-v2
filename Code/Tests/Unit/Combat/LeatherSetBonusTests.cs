@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using RPGGame;
 using RPGGame.Actions;
 using RPGGame.Tests;
@@ -94,12 +95,21 @@ namespace RPGGame.Tests.Unit.Combat
             hero.Equipment.Feet = new FeetItem("Boots", 1, 1) { Material = "Leather" };
 
             var lines = RPGGame.UI.Avalonia.Layout.StatusEffectDisplayLines.Build(hero, hero);
-            TestBase.AssertTrue(lines.Contains(LeatherSetBonus.LuckyStatusName),
+            string expected = LeatherSetBonus.FormatLuckyStatusLine(hero);
+            TestBase.AssertTrue(lines.Contains(expected),
                 "Lucky appears in STATUS EFFECTS when leather set is active", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(LeatherSetBonus.IsLuckyStatusLine(expected),
+                "FormatLuckyStatusLine is recognized as Lucky", ref _run, ref _passed, ref _failed);
+            int naivete = NaiveteBalanceHelper.GetDisplayNaivete(hero);
+            if (naivete > 0)
+            {
+                TestBase.AssertEqual($"Lucky: {naivete}", expected,
+                    "Lucky status shows remaining miss→advantage charges", ref _run, ref _passed, ref _failed);
+            }
 
             hero.Equipment.Body = new ChestItem("Iron Plate", 2, 5) { Material = "Iron" };
             var after = RPGGame.UI.Avalonia.Layout.StatusEffectDisplayLines.Build(hero, hero);
-            TestBase.AssertFalse(after.Contains(LeatherSetBonus.LuckyStatusName),
+            TestBase.AssertFalse(after.Any(LeatherSetBonus.IsLuckyStatusLine),
                 "Lucky leaves STATUS EFFECTS when set breaks", ref _run, ref _passed, ref _failed);
         }
     }

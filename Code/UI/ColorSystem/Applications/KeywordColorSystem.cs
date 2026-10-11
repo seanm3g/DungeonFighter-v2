@@ -56,17 +56,15 @@ namespace RPGGame.UI.ColorSystem
                 {
                     characterColor = singleWordColor;
                 }
-                // Check two-word character name (e.g., "Joren Blackthorn")
-                else if (i + 1 < words.Length)
+                // Check two-word character name (e.g., "Joren Blackthorn") including typewriter prefixes
+                else if (TryMatchCharacterName(wordWithoutPunctuation,
+                             i + 1 < words.Length ? words[i + 1].Trim().TrimEnd('.', ',', '!', '?', ';', ':') : null,
+                             isLastWord: i == words.Length - 1 || i + 1 == words.Length - 1,
+                             out var nameColor,
+                             out bool consumeNext))
                 {
-                    var nextWord = words[i + 1].Trim();
-                    var nextWordWithoutPunctuation = nextWord.TrimEnd('.', ',', '!', '?', ';', ':');
-                    var twoWordName = $"{wordWithoutPunctuation} {nextWordWithoutPunctuation}";
-                    if (_characterNames.TryGetValue(twoWordName, out var twoWordColor))
-                    {
-                        characterColor = twoWordColor;
-                        wordsToConsume = 2;
-                    }
+                    characterColor = nameColor;
+                    wordsToConsume = consumeNext ? 2 : 1;
                 }
                 
                 if (characterColor.HasValue)
@@ -92,6 +90,8 @@ namespace RPGGame.UI.ColorSystem
                 {
                     // Not a character name - check if this word matches any keyword groups
                     var color = GetColorForWord(cleanWord);
+                    if (color == Colors.White && i == words.Length - 1)
+                        color = GetPrefixKeywordColor(wordWithoutPunctuation);
                     result.Add(new ColoredText(cleanWord, color));
                     result.Add(new ColoredText(" ", Colors.White));
                     i++;
@@ -269,6 +269,87 @@ namespace RPGGame.UI.ColorSystem
                 }
             }
             
+            return Colors.White;
+        }
+
+        /// <summary>
+        /// Matches a registered character name, including typewriter prefixes
+        /// ("Mar", "Marcus", "Marcus Ser") of "Marcus Serpentfang".
+        /// </summary>
+        private static bool TryMatchCharacterName(
+            string word,
+            string? nextWord,
+            bool isLastWord,
+            out Color color,
+            out bool consumeNext)
+        {
+            color = default;
+            consumeNext = false;
+            if (string.IsNullOrEmpty(word))
+                return false;
+
+            foreach (var kvp in _characterNames)
+            {
+                string name = kvp.Key;
+                if (string.IsNullOrEmpty(name))
+                    continue;
+
+                if (name.Equals(word, StringComparison.OrdinalIgnoreCase))
+                {
+                    color = kvp.Value;
+                    return true;
+                }
+
+                int space = name.IndexOf(' ');
+                string first = space > 0 ? name.Substring(0, space) : name;
+
+                if (!string.IsNullOrEmpty(nextWord))
+                {
+                    string visiblePair = $"{word} {nextWord}";
+                    if (name.Equals(visiblePair, StringComparison.OrdinalIgnoreCase)
+                        || (name.StartsWith(visiblePair, StringComparison.OrdinalIgnoreCase)
+                            && visiblePair.Length < name.Length))
+                    {
+                        color = kvp.Value;
+                        consumeNext = true;
+                        return true;
+                    }
+                }
+
+                if (first.Equals(word, StringComparison.OrdinalIgnoreCase)
+                    || (isLastWord
+                        && first.StartsWith(word, StringComparison.OrdinalIgnoreCase)
+                        && word.Length < first.Length))
+                {
+                    color = kvp.Value;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Last typewriter token: color a prefix of a severity/status keyword (min 3 chars).
+        /// </summary>
+        private static Color GetPrefixKeywordColor(string token)
+        {
+            if (string.IsNullOrEmpty(token) || token.Length < 3)
+                return Colors.White;
+
+            foreach (var group in KeywordGroupManager.GetAllGroups())
+            {
+                foreach (var keyword in group.Keywords)
+                {
+                    if (keyword.Length >= 4
+                        && keyword.StartsWith(token, StringComparison.OrdinalIgnoreCase)
+                        && token.Length < keyword.Length)
+                    {
+                        return group.Color;
+                    }
+                }
+            }
+
             return Colors.White;
         }
         

@@ -186,6 +186,44 @@ namespace RPGGame.UI.Avalonia
                 }
             }, DispatcherPriority.Normal);
         }
+
+        /// <summary>
+        /// Fires an F7 DistortionPulse at the named word in center-panel text when present.
+        /// Prefer <see cref="QueueActionTextEmphasisAfterPaint"/> after typewriter ReplaceLast —
+        /// a synchronous locate races the Background combat paint and misses the word.
+        /// </summary>
+        public bool TryTriggerActionTextEmphasis(string word)
+        {
+            try
+            {
+                return canvas.TryTriggerEmphasisPulseForWord(word);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// After F7 dumps a DistortionPulse word, force a buffer paint then locate+fire on the
+        /// UI Background queue (with retries) so TextElements include the just-revealed glyphs.
+        /// </summary>
+        public void QueueActionTextEmphasisAfterPaint(string word)
+        {
+            if (string.IsNullOrWhiteSpace(word))
+                return;
+
+            Effects.ActionTextEmphasisTrigger.QueueAfterPaint(
+                forceRender: () =>
+                {
+                    try { ForceRender(); }
+                    catch (Exception) { /* paint best-effort */ }
+                },
+                tryTrigger: TryTriggerActionTextEmphasis,
+                word: word,
+                postBackground: action =>
+                    Dispatcher.UIThread.Post(action, DispatcherPriority.Background));
+        }
         
         /// <summary>
         /// Sets the game instance reference for accessing handlers

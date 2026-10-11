@@ -51,6 +51,7 @@ namespace RPGGame
         private string? enemyName;
         private int playerMaxHealth;
         private int enemyMaxHealth;
+        private bool combatFinalized;
 
         public FunMomentTracker()
         {
@@ -63,6 +64,7 @@ namespace RPGGame
             playerWasBehind = false;
             consecutiveSuccesses = 0;
             consecutiveCriticals = 0;
+            combatFinalized = false;
         }
 
         /// <summary>
@@ -89,6 +91,7 @@ namespace RPGGame
             lastAction = null;
             totalDamage = 0;
             damageEvents = 0;
+            combatFinalized = false;
 
             // Set initial leader
             UpdateHealthLeader(playerMaxHealth, enemyMaxHealth);
@@ -207,10 +210,15 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Finalize combat and check for final fun moments (comebacks, etc.)
+        /// Finalize combat and check for final fun moments (comebacks, etc.).
+        /// Idempotent so victory-limerick prefetch can finalize before the killing-blow display finishes.
         /// </summary>
         public void FinalizeCombat(bool playerWon, int playerHealth, int playerMaxHealth)
         {
+            if (combatFinalized)
+                return;
+            combatFinalized = true;
+
             // Check for comeback
             if (playerWon && lowestPlayerHealthPercent.HasValue && lowestPlayerHealthPercent.Value < 0.25)
             {

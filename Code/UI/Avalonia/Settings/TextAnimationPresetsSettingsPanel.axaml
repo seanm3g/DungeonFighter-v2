@@ -384,7 +384,7 @@
 
                     <TextBlock Text="Click-charge explosion" FontWeight="SemiBold"/>
                     <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
-                               Text="Spam left-click to charge, then glyphs explode outward and stay scattered until you click them back. Radius is the disturbance/explode reach in character cells. Variance and spin often matter more than strength for how chaotic it feels. F6 still toggles with wind. Save to persist; sliders apply live."/>
+                               Text="Spam left-click to charge, then glyphs explode outward and stay scattered until you click them back (reading order: start of the text → end). Radius is the disturbance/explode reach in character cells. Variance and spin often matter more than strength for how chaotic it feels. F6 still toggles with wind. Save to persist; sliders apply live."/>
                     <CheckBox x:Name="ClickBurstEnabledCheckBox" Content="Click-charge explosion enabled" Margin="0,4,0,0"/>
                     <Grid ColumnDefinitions="180,*,80"
                           RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"

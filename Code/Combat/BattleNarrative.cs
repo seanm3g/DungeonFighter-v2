@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections.Concurrent;
 using RPGGame.Combat;
+using RPGGame.Combat.Narrative;
 
 namespace RPGGame
 {
@@ -137,6 +138,9 @@ namespace RPGGame
                 lastAddedNarratives = triggeredNarratives;
                 lastAddedNarrativesConsumed = false;
             }
+
+            // Push the updated scene array to the ComfyUI live feed (no-op when muted / unbound).
+            CombatSceneLiveFeed.NotifyChanged();
         }
 
         /// <summary>
@@ -318,6 +322,9 @@ namespace RPGGame
         {
             return events.ToList();
         }
+
+        /// <summary>Room / location name captured when the battle narrative started.</summary>
+        public string Location => currentLocation ?? "";
 
         /// <summary>
         /// Sets the fun moment tracker for this battle

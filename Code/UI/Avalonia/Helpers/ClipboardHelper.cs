@@ -30,11 +30,32 @@ namespace RPGGame.UI.Avalonia.Helpers
                 if (string.IsNullOrWhiteSpace(bufferText))
                     return false;
 
+                return await CopyTextToClipboard(canvasUI, window, bufferText);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Copies arbitrary text to the clipboard and flashes the center panel.
+        /// </summary>
+        public static async Task<bool> CopyTextToClipboard(
+            CanvasUICoordinator canvasUI,
+            Window window,
+            string text)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(text))
+                    return false;
+
                 var topLevel = TopLevel.GetTopLevel(window);
                 if (topLevel?.Clipboard == null)
                     return false;
 
-                await topLevel.Clipboard.SetTextAsync(bufferText);
+                await topLevel.Clipboard.SetTextAsync(text);
                 Dispatcher.UIThread.Post(() => canvasUI.FlashCenterPanelCopyFeedback());
                 return true;
             }

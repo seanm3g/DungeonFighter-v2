@@ -211,10 +211,10 @@ namespace RPGGame.UI.Avalonia.Display.Render
 
                     // Draw strip after left/center/right chrome so the right panel cannot paint over it when columns overlap.
                     if (layoutCharacter != null)
-                    {
                         dungeonRenderer.RenderActionInfoStrip(layoutCharacter, damageLineMode: ActionStripDamageLineMode.EffectiveWithComboAmp);
+
+                    if (layoutCharacter != null)
                         canvas.Refresh();
-                    }
 
                     renderStateManager.RecordRender(buffer, contextManager);
                 }

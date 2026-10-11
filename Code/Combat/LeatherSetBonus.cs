@@ -4,7 +4,8 @@ namespace RPGGame
 {
     /// <summary>
     /// Class-less Leather armor set: 3+ equipped Leather pieces grant the standing <c>Lucky</c> status effect
-    /// (attack-roll advantage: 2d20 keep highest). Shown under STATUS EFFECTS; lost when the set drops below 3.
+    /// (attack-roll advantage: 2d20 keep highest). STATUS EFFECTS shows <c>Lucky: N</c> with remaining
+    /// miss→advantage (naiveté) charges when N &gt; 0. Lost when the set drops below 3.
     /// New heroes always start wearing Helmet + Armor + Boots stamped Leather so Lucky is active at creation.
     /// </summary>
     public static class LeatherSetBonus
@@ -38,6 +39,29 @@ namespace RPGGame
                 advantage = true;
         }
 
+        /// <summary>
+        /// STATUS EFFECTS line: <c>Lucky: N</c> when miss→advantage (naiveté) charges remain, else <c>Lucky</c>.
+        /// </summary>
+        public static string FormatLuckyStatusLine(Character? hero)
+        {
+            if (hero == null || !HasLuckyStatus(hero))
+                return LuckyStatusName;
+
+            int points = NaiveteBalanceHelper.GetDisplayNaivete(hero);
+            return points > 0 ? $"{LuckyStatusName}: {points}" : LuckyStatusName;
+        }
+
+        /// <summary>True when <paramref name="line"/> is the Lucky status HUD row (with or without a point count).</summary>
+        public static bool IsLuckyStatusLine(string? line)
+        {
+            if (string.IsNullOrEmpty(line))
+                return false;
+            if (string.Equals(line, LuckyStatusName, StringComparison.Ordinal))
+                return true;
+            return line.StartsWith(LuckyStatusName + ":", StringComparison.Ordinal)
+                || line.StartsWith(LuckyStatusName + " ", StringComparison.Ordinal);
+        }
+
         /// <summary>Compact HUD line, e.g. <c>Leather 3/3</c>.</summary>
         public static string FormatHudLine(int count) =>
             $"{MaterialName} {Math.Max(0, count)}/{LuckUnlockCount}";
@@ -52,7 +76,13 @@ namespace RPGGame
             yield return FormatHudLine(n);
             yield return $"WHILE_EQUIPPED {LuckUnlockCount}+ : {LuckyStatusName} status (2d20 keep highest)";
             if (n >= LuckUnlockCount)
-                yield return $"{LuckyStatusName}: active";
+            {
+                int points = hero != null ? NaiveteBalanceHelper.GetDisplayNaivete(hero) : 0;
+                if (points > 0)
+                    yield return $"{LuckyStatusName}: {points} miss→advantage charge{(points != 1 ? "s" : "")}";
+                else
+                    yield return $"{LuckyStatusName}: active";
+            }
             else
                 yield return $"{LuckyStatusName}: needs {LuckUnlockCount} Leather pieces ({n} equipped)";
         }

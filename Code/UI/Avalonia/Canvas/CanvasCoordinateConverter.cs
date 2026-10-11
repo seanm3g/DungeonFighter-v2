@@ -79,10 +79,17 @@ namespace RPGGame.UI.Avalonia.Canvas
                     MaxTextHeight = double.PositiveInfinity,
                     Trimming = TextTrimming.None
                 };
-                charWidth = testText.Width;
-                charHeight = testText.Height;
+                // Whole-pixel cell size keeps VT323 / other pixel fonts on the device grid.
+                // Fractional advances + Round(draw origin) make letters jump a full pixel
+                // when wind/burst offsets hover near half-pixel boundaries.
+                charWidth = SnapCellMetric(testText.Width);
+                charHeight = SnapCellMetric(testText.Height);
             }
         }
+
+        /// <summary>Whole-pixel cell metric (min 1). Pure helper for tests / measure path.</summary>
+        internal static double SnapCellMetric(double measured) =>
+            Math.Max(1.0, Math.Round(measured));
         
         /// <summary>
         /// Exposes character width for coordinate conversion

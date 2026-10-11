@@ -24,6 +24,7 @@ namespace RPGGame.Combat.Sequence
                 return KeywordColorSystem.Colorize(sentence);
 
             var matches = FindNonOverlappingMatches(sentence, phrases);
+            AddTrailingPhrasePrefixes(sentence, phrases, matches);
             if (matches.Count == 0)
                 return KeywordColorSystem.Colorize(sentence);
 
@@ -119,8 +120,13 @@ namespace RPGGame.Combat.Sequence
                     int found = sentence.IndexOf(phrase, index, StringComparison.OrdinalIgnoreCase);
                     if (found < 0)
                         break;
-                    candidates.Add((found, phrase.Length, color));
-                    index = found + phrase.Length;
+                    int end = found + phrase.Length;
+                    if ((found == 0 || !IsWordChar(sentence[found - 1]))
+                        && (end >= sentence.Length || !IsWordChar(sentence[end])))
+                    {
+                        candidates.Add((found, phrase.Length, color));
+                    }
+                    index = found + 1;
                 }
             }
 
@@ -144,6 +150,77 @@ namespace RPGGame.Combat.Sequence
 
             return chosen;
         }
+
+        /// <summary>
+        /// Typewriter slices often end mid-name / mid-action. Color that trailing prefix so
+        /// "Mar" / "SLA" already use the finished-sentence identity color.
+        /// </summary>
+        private static void AddTrailingPhrasePrefixes(
+            string sentence,
+            List<(string Phrase, Color Color)> phrases,
+            List<(int Start, int Length, Color Color)> chosen)
+        {
+            if (string.IsNullOrEmpty(sentence) || phrases == null || phrases.Count == 0)
+                return;
+
+            int occupiedThrough = -1;
+            foreach (var c in chosen)
+            {
+                int end = c.Start + c.Length - 1;
+                if (end > occupiedThrough)
+                    occupiedThrough = end;
+            }
+
+            int searchFrom = occupiedThrough + 1;
+            if (searchFrom >= sentence.Length)
+                return;
+
+            int trailingPunct = 0;
+            int endExclusive = sentence.Length;
+            while (endExclusive > searchFrom && IsTrailingPhrasePunctuation(sentence[endExclusive - 1]))
+            {
+                trailingPunct++;
+                endExclusive--;
+            }
+
+            if (endExclusive <= searchFrom)
+                return;
+
+            (int Start, int Length, Color Color)? best = null;
+            foreach (var (phrase, color) in phrases)
+            {
+                if (string.IsNullOrEmpty(phrase))
+                    continue;
+
+                for (int i = searchFrom; i < endExclusive; i++)
+                {
+                    if (i > searchFrom && IsWordChar(sentence[i - 1]))
+                        continue;
+
+                    int visibleLen = endExclusive - i;
+                    if (visibleLen <= 0 || visibleLen > phrase.Length)
+                        continue;
+                    if (!phrase.StartsWith(sentence.Substring(i, visibleLen), StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    if (visibleLen < phrase.Length
+                        && i + visibleLen < sentence.Length - trailingPunct
+                        && IsWordChar(sentence[i + visibleLen]))
+                        continue;
+
+                    if (best == null || visibleLen > best.Value.Length)
+                        best = (i, visibleLen, color);
+                }
+            }
+
+            if (best.HasValue)
+                chosen.Add(best.Value);
+        }
+
+        private static bool IsTrailingPhrasePunctuation(char c) =>
+            c is '.' or ',' or '!' or '?' or ';' or ':' or '"' or '\'';
+
+        private static bool IsWordChar(char c) =>
+            char.IsLetterOrDigit(c) || c == '_' || c == '\'';
 
         private static List<ColoredText> MergeAdjacentSameColor(List<ColoredText> segments)
         {

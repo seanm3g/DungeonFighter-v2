@@ -80,6 +80,8 @@ namespace RPGGame.Tests.Runners
             ItemRendererHelperWeaponNameColorTests.RunAllTests();
             Console.WriteLine();
             EffectiveVisibleWidthRegressionTests.RunAllTests();
+            CenterColumnTextZoomTests.RunAllTests();
+            DungeonSelectionHoverLayoutTests.RunAllTests();
             MainWindowStartupSizingTests.RunAllTests();
             HotkeyHelpCatalogTests.RunAllTests();
             Console.WriteLine();
@@ -119,6 +121,14 @@ namespace RPGGame.Tests.Runners
             InteractiveTextHighlightTests.RunAllTests();
             Console.WriteLine();
             TextClickBurstFieldTests.RunAllTests();
+            Console.WriteLine();
+            TextEmphasisPulseFieldTests.RunAllTests();
+            Console.WriteLine();
+            EmphasisExplosionGifTests.RunAllTests();
+            Console.WriteLine();
+            ActionTextEmphasisWordLocatorTests.RunAllTests();
+            Console.WriteLine();
+            ActionTextEmphasisTriggerTests.RunAllTests();
             Console.WriteLine();
             GameFontsTests.RunAllTests();
             Console.WriteLine();

@@ -28,6 +28,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         // Validators and helpers
         private readonly CombatRenderingValidator combatValidator;
         private readonly MenuScreenRenderingHelper menuScreenHelper;
+        private GameStateManager? gameStateManager;
         
         // Core specialized renderers
         private readonly MenuRenderer menuRenderer;
@@ -133,6 +134,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void SetGameStateManager(GameStateManager? stateManager)
         {
+            gameStateManager = stateManager;
             combatValidator.SetGameStateManager(stateManager);
         }
 

@@ -29,7 +29,7 @@ namespace RPGGame.Tests.Unit.Entity
             TestHealthPercentBaselineScaling();
             TestGoblinHealthCurvePreservedAfterMigration();
             TestProgressionScalesApplyToCurves();
-            TestAaaStarterL1ParityHealth();
+            TestGoblinL1ParityHealth();
             TestHealthBreakdownReportsFactors();
 
             TestBase.PrintSummary("Enemy Attribute Growth Tests", _testsRun, _testsPassed, _testsFailed);
@@ -385,9 +385,9 @@ namespace RPGGame.Tests.Unit.Entity
             TestBase.AssertEqual(14, stats.Strength, "STR respects attribute growth scale", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestAaaStarterL1ParityHealth()
+        private static void TestGoblinL1ParityHealth()
         {
-            Console.WriteLine("\n--- aaaSTARTER L1 parity: baseline 100 + sheet 100% = 100 HP ---");
+            Console.WriteLine("\n--- Goblin L1 parity: baseline 100 + sheet 100% = 100 HP ---");
 
             var gs = GameSettings.Instance;
             double savedRuntime = gs.EnemyHealthMultiplier;
@@ -408,13 +408,13 @@ namespace RPGGame.Tests.Unit.Entity
                 };
 
                 EnemyLoader.LoadEnemies();
-                var data = EnemyLoader.GetEnemyData("aaaSTARTER");
-                TestBase.AssertNotNull(data, "aaaSTARTER exists in Enemies.json", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                var data = EnemyLoader.GetEnemyData("Goblin");
+                TestBase.AssertNotNull(data, "Goblin exists in Enemies.json", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 if (data == null)
                     return;
 
                 var stats = EnemyStatCalculator.CalculateStats(data, 1, enemySystem);
-                TestBase.AssertEqual(100, stats.Health, "aaaSTARTER L1 max HP at parity tuning", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(100, stats.Health, "Goblin L1 max HP at parity tuning", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {
@@ -443,7 +443,7 @@ namespace RPGGame.Tests.Unit.Entity
 
                 var data = new EnemyData
                 {
-                    Name = "aaaSTARTER",
+                    Name = "ParitySubject",
                     Archetype = "Assassin",
                     HealthPercent = 100
                 };

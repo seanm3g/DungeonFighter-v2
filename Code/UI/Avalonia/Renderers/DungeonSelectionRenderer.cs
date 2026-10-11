@@ -6,7 +6,6 @@ using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.TextAnimation;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
@@ -115,57 +114,21 @@ namespace RPGGame.UI.Avalonia.Renderers
                     dungeonTemplateCache[cacheKey] = templateSegments;
                 }
                 
-                // Render the dungeon option
+                // Same segment layout idle and hovered — only color changes on hover.
+                // A single yellow FormattedText string used a different glyph advance under
+                // center-column zoom, so letter spacing jumped when the pointer entered the row.
+                var segments = BuildDungeonOptionSegments(
+                    optionNumber: i + 1,
+                    dungeon: dungeon,
+                    templateSegments: templateSegments,
+                    lineY: y,
+                    animationState: animationState,
+                    customDungeonLevelEntryBuffer: customDungeonLevelEntryBuffer);
+
                 if (option.IsHovered)
-                {
-                    // When hovered, use yellow color
-                    string hoverText = displayText;
-                    if (dungeon.Name == RPGGame.GameConstants.DungeonCustomLevelMenuName && customDungeonLevelEntryBuffer != null)
-                        hoverText += FormatCustomLevelEntrySuffix(customDungeonLevelEntryBuffer);
-                    var hoveredText = new ColoredText(hoverText, ColorPalette.Yellow.GetColor());
-                    textWriter.WriteLineColored(hoveredText, x + 4, y);
-                }
-                else
-                {
-                    // Build segments with animation effects applied during rendering
-                    var segments = new List<ColoredText>();
-                    
-                    // Add bracket and number (no animation)
-                    segments.Add(new ColoredText($"[{i + 1}] ", ColorPalette.Gray.GetColor()));
-                    
-                    // Generate a small random offset for this animated element based on line position
-                    // This makes each animated element look different from others
-                    int elementOffset = GetElementRandomOffset(y);
+                    RecolorSegments(segments, ColorPalette.Yellow.GetColor());
 
-                    int charPosition = $"[{i + 1}] ".Length;
-                    var animatedName = TextAnimationCompositor.Compose(
-                        "dungeonSelection",
-                        baseSegments: templateSegments,
-                        charStartIndex: charPosition,
-                        lineOffset: y,
-                        animationState: animationState,
-                        elementOffset: elementOffset);
-                    segments.AddRange(animatedName);
-                    charPosition += animatedName.Count;
-                    
-                    // Add level info (no animation)
-                    string levelSuffix = dungeon.Name == RPGGame.GameConstants.DungeonCustomLevelMenuName
-                        ? $" (levels {RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL}-{RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL})"
-                        : $" (lvl {dungeon.MinLevel})";
-                    segments.Add(new ColoredText(levelSuffix, ColorPalette.Gray.GetColor()));
-
-                    if (dungeon.Name == RPGGame.GameConstants.DungeonCustomLevelMenuName && customDungeonLevelEntryBuffer != null)
-                    {
-                        segments.Add(new ColoredText("  Level: ", ColorPalette.Gray.GetColor()));
-                        string lev = string.IsNullOrEmpty(customDungeonLevelEntryBuffer)
-                            ? "_"
-                            : customDungeonLevelEntryBuffer + "_";
-                        segments.Add(new ColoredText(lev, ColorPalette.Yellow.GetColor()));
-                    }
-                    
-                    // Render all segments
-                    textWriter.RenderSegments(segments, x + 4, y);
-                }
+                textWriter.RenderSegments(segments, x + 4, y);
                 
                 y++;
                 currentLineCount++;
@@ -196,15 +159,89 @@ namespace RPGGame.UI.Avalonia.Renderers
             return currentLineCount;
         }
         
-        private static string FormatCustomLevelEntrySuffix(string buffer) =>
-            "  Level: " + (string.IsNullOrEmpty(buffer) ? "_" : buffer + "_");
+        /// <summary>
+        /// Builds the dungeon-row segments (prefix + undulating name + level suffix).
+        /// Prefix/suffix are one glyph per segment so paint stays on the character grid —
+        /// matching the animated name and avoiding hover/idle advance mismatches.
+        /// </summary>
+        internal static List<ColoredText> BuildDungeonOptionSegments(
+            int optionNumber,
+            Dungeon dungeon,
+            List<ColoredText> templateSegments,
+            int lineY,
+            DungeonSelectionAnimationState animationState,
+            string? customDungeonLevelEntryBuffer = null)
+        {
+            var segments = new List<ColoredText>();
+
+            string prefix = $"[{optionNumber}] ";
+            segments.AddRange(PerCharSegments(prefix, ColorPalette.Gray.GetColor()));
+
+            int elementOffset = GetElementRandomOffset(lineY);
+            var animatedName = TextAnimationCompositor.Compose(
+                "dungeonSelection",
+                baseSegments: templateSegments,
+                charStartIndex: prefix.Length,
+                lineOffset: lineY,
+                animationState: animationState,
+                elementOffset: elementOffset);
+            segments.AddRange(animatedName);
+
+            string levelSuffix = dungeon.Name == RPGGame.GameConstants.DungeonCustomLevelMenuName
+                ? $" (levels {RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL}-{RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL})"
+                : $" (lvl {dungeon.MinLevel})";
+            segments.AddRange(PerCharSegments(levelSuffix, ColorPalette.Gray.GetColor()));
+
+            if (dungeon.Name == RPGGame.GameConstants.DungeonCustomLevelMenuName && customDungeonLevelEntryBuffer != null)
+            {
+                segments.AddRange(PerCharSegments("  Level: ", ColorPalette.Gray.GetColor()));
+                string lev = string.IsNullOrEmpty(customDungeonLevelEntryBuffer)
+                    ? "_"
+                    : customDungeonLevelEntryBuffer + "_";
+                segments.AddRange(PerCharSegments(lev, ColorPalette.Yellow.GetColor()));
+            }
+
+            return segments;
+        }
+
+        /// <summary>One <see cref="ColoredText"/> per character so layout matches the undulating name.</summary>
+        internal static List<ColoredText> PerCharSegments(string text, Color color)
+        {
+            var list = new List<ColoredText>(text.Length);
+            foreach (char ch in text)
+                list.Add(new ColoredText(ch.ToString(), color));
+            return list;
+        }
+
+        /// <summary>Hover highlight: same glyphs/positions, yellow only.</summary>
+        internal static void RecolorSegments(List<ColoredText> segments, Color color)
+        {
+            for (int i = 0; i < segments.Count; i++)
+            {
+                var s = segments[i];
+                segments[i] = new ColoredText(s.Text, color, s.SourceTemplate, colorReadyForCanvas: true);
+            }
+        }
+
+        /// <summary>
+        /// Concatenated display text for a segment list (idle and hover must match).
+        /// </summary>
+        internal static string JoinSegmentText(IReadOnlyList<ColoredText> segments)
+        {
+            if (segments == null || segments.Count == 0)
+                return string.Empty;
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < segments.Count; i++)
+                sb.Append(segments[i].Text);
+            return sb.ToString();
+        }
 
         /// <summary>
         /// Generates a small random offset for an animated element based on its line position
         /// Uses a simple hash to ensure the same line always gets the same offset
         /// Returns a value between -50 and +50 to create visual variation
         /// </summary>
-        private int GetElementRandomOffset(int lineOffset)
+        private static int GetElementRandomOffset(int lineOffset)
         {
             // Use a simple hash function to generate a consistent but varied offset
             // Multiply by a prime number and use modulo to get a pseudo-random value

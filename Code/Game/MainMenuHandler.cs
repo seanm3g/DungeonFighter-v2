@@ -60,26 +60,48 @@ namespace RPGGame
         /// </summary>
         public void ShowMainMenu()
         {
-            // Load Game line must match what LoadGame() can actually load: only show name/level
-            // when at least one save exists on disk (ignore in-memory CurrentPlayer — e.g. new unsaved character).
+            var (hasSavedGame, characterName, characterLevel) = ResolveSavedGameMenuLine();
+
+            // Use GameScreenCoordinator for standardized screen transition
+            var screenCoordinator = new GameScreenCoordinator(stateManager);
+            screenCoordinator.ShowMainMenu(hasSavedGame, characterName, characterLevel);
+        }
+
+        /// <summary>
+        /// Re-paints the main menu without a state transition (Ctrl+/- zoom, window resize, panel toggles).
+        /// Menu screens suppress <c>ForceFullLayoutRender</c>, so stale character-grid coords would otherwise
+        /// drift as column count shrinks when glyphs grow.
+        /// </summary>
+        public void RefreshMainMenuInPlace()
+        {
+            if (stateManager.CurrentState != GameState.MainMenu)
+                return;
+            if (customUIManager is not CanvasUICoordinator canvasUI)
+                return;
+
+            var (hasSavedGame, characterName, characterLevel) = ResolveSavedGameMenuLine();
+            canvasUI.Clear();
+            canvasUI.ClearClickableElements();
+            canvasUI.RenderMainMenu(hasSavedGame, characterName, characterLevel);
+            canvasUI.Refresh();
+        }
+
+        /// <summary>
+        /// Load Game line must match what LoadGame() can actually load: only show name/level
+        /// when at least one save exists on disk (ignore in-memory CurrentPlayer — e.g. new unsaved character).
+        /// </summary>
+        private static (bool hasSavedGame, string? characterName, int characterLevel) ResolveSavedGameMenuLine()
+        {
             // Skip a "Loading data..." flash here — listing save metadata is fast, and the title→menu
             // path already warms GameCoordinator so a status message only adds a hitch.
-            bool hasSavedGame = false;
-            string? characterName = null;
-            int characterLevel = 0;
-
             var savedCharacters = CharacterSaveManager.ListAllSavedCharacters();
             if (savedCharacters != null && savedCharacters.Count > 0 &&
                 !string.IsNullOrWhiteSpace(savedCharacters[0].characterName))
             {
-                hasSavedGame = true;
-                characterName = savedCharacters[0].characterName;
-                characterLevel = savedCharacters[0].level;
+                return (true, savedCharacters[0].characterName, savedCharacters[0].level);
             }
-            
-            // Use GameScreenCoordinator for standardized screen transition
-            var screenCoordinator = new GameScreenCoordinator(stateManager);
-            screenCoordinator.ShowMainMenu(hasSavedGame, characterName, characterLevel);
+
+            return (false, null, 0);
         }
 
         /// <summary>

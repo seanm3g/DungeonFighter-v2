@@ -120,7 +120,7 @@ namespace RPGGame.UI.ColorSystem
                 
                 if (segmentLength <= remainingLength)
                 {
-                    result.Add(segment);
+                    result.Add(new ColoredText(segment.Text, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas));
                     currentLength += segmentLength;
                 }
                 else

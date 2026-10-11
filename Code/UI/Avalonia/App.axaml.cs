@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using RPGGame;
+using RPGGame.Combat.Narrative;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.TitleScreen;
 using RPGGame.Utils;
@@ -37,6 +38,16 @@ namespace RPGGame.UI.Avalonia
                 }
 
                 desktop.MainWindow = new MainWindow();
+
+                // Localhost combat-scene JSON for ComfyUI (http://127.0.0.1:7877/).
+                try
+                {
+                    CombatSceneLiveFeedServer.TryStart();
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log("App", $"CombatSceneLiveFeedServer.TryStart failed: {ex.Message}");
+                }
 
                 // Title-bar X (and any other main-window close) must fully exit the process.
                 // Avalonia shutdown alone can leave SoundFlow/native threads alive, which

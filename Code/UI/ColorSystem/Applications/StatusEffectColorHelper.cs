@@ -83,9 +83,35 @@ namespace RPGGame.UI.ColorSystem.Applications
             
             if (StatusEffectTemplates.TryGetValue(effectName, out var template))
                 return template;
+
+            // HUD lines often append counts ("Lucky: 5", "Bleed 3", "Focus x2") — match the leading token.
+            string key = ExtractStatusKey(effectName);
+            if (!string.IsNullOrEmpty(key) && StatusEffectTemplates.TryGetValue(key, out template))
+                return template;
             
             // Fallback to corrupted for unknown effects
             return "corrupted";
+        }
+
+        private static string ExtractStatusKey(string effectName)
+        {
+            ReadOnlySpan<char> span = effectName.AsSpan().Trim();
+            if (span.IsEmpty)
+                return string.Empty;
+
+            int cut = span.Length;
+            for (int i = 0; i < span.Length; i++)
+            {
+                char c = span[i];
+                // Split on count/duration suffixes only ("Lucky: 5", "Bleed 3", "Focus x2", "Stunned (1 turn)").
+                if (c == ':' || c == ' ' || c == '(')
+                {
+                    cut = i;
+                    break;
+                }
+            }
+
+            return cut <= 0 ? string.Empty : span.Slice(0, cut).ToString();
         }
         
         /// <summary>

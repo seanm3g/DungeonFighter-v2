@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit.UI
             TestApplyKeywordColorsWithEmptyInput();
             TestKeywordMatching();
             TestSparseKeywordPaintAndExactMatch();
+            TestTypewriterNameAndKeywordPrefixes();
 
             TestBase.PrintSummary("KeywordColorSystem Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -174,6 +175,50 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(!woundedFalse,
                 "partial token 'wounded' does not match keyword 'wound'",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestTypewriterNameAndKeywordPrefixes()
+        {
+            Console.WriteLine("\n--- Typewriter prefixes color names and keywords ---");
+            KeywordColorSystem.RegisterCharacterName("Marcus Serpentfang", ColorPalette.Gold.GetColor());
+            try
+            {
+                var gold = ColorPalette.Gold.GetColor();
+                var mar = KeywordColorSystem.Colorize("Mar");
+                TestBase.AssertTrue(mar.Exists(s =>
+                        s.Text.Contains("Mar", StringComparison.Ordinal)
+                        && s.Color == gold),
+                    "Mar prefix of Marcus Serpentfang is gold",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var first = KeywordColorSystem.Colorize("Marcus gathers");
+                TestBase.AssertTrue(first.Exists(s =>
+                        string.Equals(s.Text, "Marcus", StringComparison.Ordinal)
+                        && s.Color == gold),
+                    "first name is gold before surname",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var pair = KeywordColorSystem.Colorize("Marcus Ser");
+                TestBase.AssertTrue(pair.Exists(s =>
+                        s.Color == gold
+                        && (s.Text.Contains("Marcus", StringComparison.Ordinal)
+                            || s.Text.Contains("Ser", StringComparison.Ordinal))),
+                    "Marcus Ser prefix pair is gold",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var damageColor = KeywordGroupManager.GetKeywordGroup("damage")?.Color
+                    ?? ColorPalette.Damage.GetColor();
+                var wou = KeywordColorSystem.Colorize("a wou");
+                TestBase.AssertTrue(wou.Exists(s =>
+                        s.Text.Contains("wou", StringComparison.OrdinalIgnoreCase)
+                        && s.Color == damageColor),
+                    "wou prefix of wound is damage-colored",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                KeywordColorSystem.UnregisterCharacterName("Marcus Serpentfang");
+            }
         }
 
         #endregion

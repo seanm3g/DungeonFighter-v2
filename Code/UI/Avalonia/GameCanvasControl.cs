@@ -28,6 +28,8 @@ namespace RPGGame.UI.Avalonia
         private readonly CanvasElementBuilder elementBuilder;
         private readonly WindSwayField windSwayField = new();
         private readonly TextClickBurstField clickBurstField = new();
+        private readonly TextEmphasisPulseField emphasisPulseField = new();
+        private readonly TextEmphasisExplosionPlayer emphasisExplosionPlayer = new();
         private DispatcherTimer? damageDeltaAnimationTimer;
         private DispatcherTimer? windSwaySettleTimer;
         /// <summary>TickCount64 of last pointer-driven Refresh; used to throttle highlight/wind moves.</summary>
@@ -122,6 +124,8 @@ namespace RPGGame.UI.Avalonia
             ReloadWindSwayConfig();
             renderer.SetWindSwayField(windSwayField);
             renderer.SetClickBurstField(clickBurstField);
+            renderer.SetEmphasisPulseField(emphasisPulseField);
+            renderer.SetEmphasisExplosionPlayer(emphasisExplosionPlayer);
             InitializeDamageDeltaTimer();
             InitializeWindSwaySettleTimer();
             if (!IsAuxiliaryLayoutCanvas)
@@ -133,6 +137,12 @@ namespace RPGGame.UI.Avalonia
 
         /// <summary>Click-charge explode/reform field for any non-overlay text.</summary>
         public TextClickBurstField ClickBurst => clickBurstField;
+
+        /// <summary>F7 DistortionPulse neighbor-push field.</summary>
+        public TextEmphasisPulseField EmphasisPulse => emphasisPulseField;
+
+        /// <summary>F7 DistortionPulse explosion GIF under the action word.</summary>
+        public TextEmphasisExplosionPlayer EmphasisExplosion => emphasisExplosionPlayer;
 
         /// <summary>
         /// Supplies clickable hit regions so interactive text can brighten when the mouse wake is near.
@@ -151,9 +161,12 @@ namespace RPGGame.UI.Avalonia
                     ?? new WindSwayConfig();
                 windSwayField.ApplyConfig(cfg);
                 clickBurstField.ApplyConfig(cfg.ClickBurst ?? new TextClickBurstConfig());
+                var pulseCfg = cfg.EmphasisPulse ?? new TextEmphasisPulseConfig();
+                emphasisPulseField.ApplyConfig(pulseCfg);
+                emphasisExplosionPlayer.ApplyConfig(pulseCfg);
                 if (windSwaySettleTimer != null)
                 {
-                    int ms = Math.Clamp(cfg.SettleIntervalMs, 8, 100);
+                    int ms = WindSwayField.EffectiveSettleIntervalMs(cfg.SettleIntervalMs);
                     windSwaySettleTimer.Interval = TimeSpan.FromMilliseconds(ms);
                 }
             }
@@ -161,7 +174,57 @@ namespace RPGGame.UI.Avalonia
             {
                 windSwayField.ApplyConfig(new WindSwayConfig());
                 clickBurstField.ApplyConfig(new TextClickBurstConfig());
+                var pulseCfg = new TextEmphasisPulseConfig();
+                emphasisPulseField.ApplyConfig(pulseCfg);
+                emphasisExplosionPlayer.ApplyConfig(pulseCfg);
             }
+        }
+
+        /// <summary>
+        /// Locates <paramref name="word"/> in center-panel text and fires a DistortionPulse.
+        /// Returns false when the word is not found or the effect is disabled.
+        /// </summary>
+        public bool TryTriggerEmphasisPulseForWord(string word)
+        {
+            if (string.IsNullOrWhiteSpace(word))
+                return false;
+
+            double charWidth = coordinateConverter.GetCharWidth();
+            double charHeight = coordinateConverter.GetCharHeight();
+            if (charWidth <= 0 || charHeight <= 0)
+                return false;
+
+            if (!emphasisPulseField.Config.Enabled || !DeveloperModeState.AreDistortionEffectsEnabled)
+                return false;
+
+            if (!ActionTextEmphasisWordLocator.TryLocate(
+                    elementManager.TextElements,
+                    word,
+                    charWidth,
+                    charHeight,
+                    out double originX,
+                    out double originY,
+                    out double excludeMinX,
+                    out double excludeMaxX,
+                    out double excludeMinY,
+                    out double excludeMaxY))
+            {
+                return false;
+            }
+
+            emphasisPulseField.Trigger(
+                originX,
+                originY,
+                excludeMinX,
+                excludeMaxX,
+                excludeMinY,
+                excludeMaxY,
+                charWidth,
+                charHeight);
+            emphasisExplosionPlayer.Trigger(originX, originY, charWidth, charHeight);
+            EnsureWindSwaySettleTimer();
+            Refresh();
+            return true;
         }
 
         /// <summary>
@@ -202,7 +265,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private void RefreshPointerThrottled()
         {
-            int settleMs = Math.Clamp(windSwayField.Config.SettleIntervalMs, 8, 100);
+            int settleMs = WindSwayField.EffectiveSettleIntervalMs(windSwayField.Config.SettleIntervalMs);
             long now = System.Environment.TickCount64;
             if (_lastPointerRefreshTickMs >= 0 && (now - _lastPointerRefreshTickMs) < settleMs)
             {
@@ -234,6 +297,31 @@ namespace RPGGame.UI.Avalonia
             EnsureWindSwaySettleTimer();
             Refresh();
         }
+
+        /// <summary>
+        /// Keeps click-burst explosions attached to scrolled text in a viewport.
+        /// <paramref name="scrollRows"/> is content rows skipped from the top (center log / left panel).
+        /// </summary>
+        public void SyncClickBurstViewportScroll(
+            string viewportId,
+            int scrollRows,
+            int contentY,
+            int contentHeight)
+        {
+            double charHeight = coordinateConverter.GetCharHeight();
+            if (charHeight <= 0 || contentHeight <= 0)
+                return;
+
+            double minY = contentY * charHeight;
+            double maxY = (contentY + contentHeight) * charHeight;
+            clickBurstField.SyncViewportScroll(viewportId, scrollRows, minY, maxY, charHeight);
+        }
+
+        /// <summary>Viewport id for the framed center combat-log / display buffer.</summary>
+        public const string ClickBurstCenterViewportId = "center-log";
+
+        /// <summary>Viewport id for the left character panel body.</summary>
+        public const string ClickBurstLeftViewportId = "left-panel";
         
         /// <summary>
         /// Initializes the timer for damage delta fade animations
@@ -261,7 +349,7 @@ namespace RPGGame.UI.Avalonia
 
         private void InitializeWindSwaySettleTimer()
         {
-            int ms = Math.Clamp(windSwayField.Config.SettleIntervalMs, 8, 100);
+            int ms = WindSwayField.EffectiveSettleIntervalMs(windSwayField.Config.SettleIntervalMs);
             windSwaySettleTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromMilliseconds(ms)
@@ -270,7 +358,11 @@ namespace RPGGame.UI.Avalonia
             {
                 bool catchup = _pointerRefreshCatchupPending;
                 _pointerRefreshCatchupPending = false;
-                if (windSwayField.IsActive || clickBurstField.IsActive || catchup)
+                if (windSwayField.IsActive
+                    || clickBurstField.IsActive
+                    || emphasisPulseField.IsActive
+                    || emphasisExplosionPlayer.IsActive
+                    || catchup)
                 {
                     _lastPointerRefreshTickMs = System.Environment.TickCount64;
                     Refresh();
@@ -288,7 +380,11 @@ namespace RPGGame.UI.Avalonia
         {
             if (windSwaySettleTimer != null
                 && !windSwaySettleTimer.IsEnabled
-                && (windSwayField.IsActive || clickBurstField.IsActive || _pointerRefreshCatchupPending))
+                && (windSwayField.IsActive
+                    || clickBurstField.IsActive
+                    || emphasisPulseField.IsActive
+                    || emphasisExplosionPlayer.IsActive
+                    || _pointerRefreshCatchupPending))
             {
                 windSwaySettleTimer.Start();
             }
@@ -360,12 +456,12 @@ namespace RPGGame.UI.Avalonia
                      && availableWidth != double.PositiveInfinity
                      && availableHeight != double.PositiveInfinity)
             {
+                // UI zoom scales center-column glyphs only; grid stays window-fit 100%.
                 (scaleFactor, targetW, targetH) = CanvasGridSizer.Calculate(
                     availableWidth,
                     availableHeight,
                     baseCharWidth,
-                    baseCharHeight,
-                    GameFonts.ActiveZoom);
+                    baseCharHeight);
             }
             else
             {

@@ -4,42 +4,6 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
-    "name": "aaaSTARTER",
-    "archetype": "Assassin",
-    "baseAttributes": {
-      "strength": 5,
-      "agility": 3,
-      "technique": 1,
-      "intelligence": 3
-    },
-    "growthPerLevel": {
-      "strength": 0.8,
-      "agility": 2.3,
-      "technique": 2.3,
-      "intelligence": 0.5
-    },
-    "healthPercent": 100,
-    "healthGrowthPercent": 3.36,
-    "actions": [
-      "JAB",
-      "TAUNT"
-    ],
-    "isLiving": true,
-    "description": "A quick and cunning creature that strikes from the shadows",
-    "tags": [
-      "living",
-      "minion",
-      "has_hands",
-      "has_feet",
-      "has_legs",
-      "has_head"
-    ]
-  },
-  {
-    "region": "n/a",
-    "biome": "n/a",
-    "location": "General",
-    "rarity": "common",
     "name": "Goblin",
     "archetype": "Assassin",
     "baseAttributes": {

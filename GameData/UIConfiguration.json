@@ -75,15 +75,15 @@
       "decayPerSecond": 1.35,
       "waveLength": 3.5,
       "verticalScale": 0.75,
-      "settleIntervalMs": 16,
+      "settleIntervalMs": 24,
       "wakeRadiusCells": 13,
       "nearInfluence": 0.47,
       "farInfluence": 0.02,
       "wakeRearBias": 0.82,
       "wakeFalloffPower": 1.35,
       "speedReferenceCellsPerSec": 12,
-      "trailLifetimeSeconds": 0.55,
-      "trailMaxPoints": 28,
+      "trailLifetimeSeconds": 0.40,
+      "trailMaxPoints": 12,
       "trailMinSpacingCells": 1.25,
       "chromaticAberrationEnabled": true,
       "chromaticSpreadFraction": 0.29,
@@ -110,6 +110,19 @@
         "autoRebuildIntervalSeconds": 0.2,
         "chromaticVelocitySeconds": 0.06,
         "verticalScale": 0.35
+      },
+      "emphasisPulse": {
+        "enabled": true,
+        "impulseRadiusCells": 8,
+        "maxOffsetFraction": 0.85,
+        "outSeconds": 0.18,
+        "reformSeconds": 0.35,
+        "verticalScale": 0.85,
+        "chromaticVelocitySeconds": 0.08,
+        "explosionGifEnabled": true,
+        "explosionGifFileName": "Video/explosion.gif",
+        "explosionDiameterCells": 60,
+        "explosionFadeOutSeconds": 0.5
       }
     }
   },

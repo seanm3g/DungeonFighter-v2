@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
@@ -65,13 +66,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             
             // Render [1] New Game - Cyan
             int currentY = menuStartY;
+            int optionHitHeight = CenterColumnTextZoom.LineStride;
             string newGameText = MenuOptionFormatter.Format(1, UIConstants.MenuOptions.NewGame);
             var newGameOption = new ClickableElement
             {
                 X = menuStartX,
                 Y = currentY,
                 Width = maxOptionLength,
-                Height = 1,
+                Height = optionHitHeight,
                 Type = ElementType.MenuOption,
                 Value = "1",
                 DisplayText = newGameText
@@ -79,7 +81,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             clickableElements.Add(newGameOption);
             menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 1, UIConstants.MenuOptions.NewGame, cyanColor, newGameOption.IsHovered);
             currentLineCount++;
-            currentY++;
+            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
             
             // Render [2] Load Game - with special coloring for character name
             string loadGameText = loadGameTextForWidth;
@@ -90,7 +92,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 X = menuStartX,
                 Y = currentY,
                 Width = maxOptionLength,
-                Height = 1,
+                Height = optionHitHeight,
                 Type = ElementType.MenuOption,
                 Value = "2",
                 DisplayText = loadGameDisplayText
@@ -108,7 +110,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 2, UIConstants.MenuOptions.LoadGame, goldColor, loadGameOption.IsHovered);
             }
             currentLineCount++;
-            currentY++;
+            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
             
             // Render [3] Settings - Orange
             string settingsText = MenuOptionFormatter.Format(3, UIConstants.MenuOptions.Settings);
@@ -117,7 +119,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 X = menuStartX,
                 Y = currentY,
                 Width = maxOptionLength,
-                Height = 1,
+                Height = optionHitHeight,
                 Type = ElementType.MenuOption,
                 Value = "3",
                 DisplayText = settingsText
@@ -125,7 +127,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             clickableElements.Add(settingsOption);
             menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 3, UIConstants.MenuOptions.Settings, orangeColor, settingsOption.IsHovered);
             currentLineCount++;
-            currentY++;
+            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
             
             // Note: Characters option (4 or C) is hidden from UI but still accessible via keyboard
             
@@ -136,7 +138,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 X = menuStartX,
                 Y = currentY,
                 Width = maxOptionLength,
-                Height = 1,
+                Height = optionHitHeight,
                 Type = ElementType.MenuOption,
                 Value = "0",
                 DisplayText = quitText
@@ -191,7 +193,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 )
             );
             
-            // Center the menu options around screen center
+            // Center the menu options around the live grid center (tracks Ctrl+/- column count)
             int menuStartX = MenuLayoutCalculator.SCREEN_CENTER - (maxOptionLength / 2);
             int menuStartY = 20;
             int currentY = menuStartY;
@@ -277,7 +279,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             
             // Instructions
             string instructions = UIConstants.Messages.ClickOrPressNumber;
-            int instructionsX = MenuLayoutCalculator.CalculateCenteredTextX(0, MenuLayoutCalculator.SCREEN_WIDTH, instructions.Length);
+            int instructionsX = MenuLayoutCalculator.CalculateCenteredTextX(0, LayoutConstants.SCREEN_WIDTH, instructions.Length);
             canvas.AddText(instructionsX, currentY + 2, instructions, AsciiArtAssets.Colors.White);
             currentLineCount += 3; // +2 for spacing, +1 for instruction line
             

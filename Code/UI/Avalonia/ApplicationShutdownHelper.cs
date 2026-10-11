@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using RPGGame;
 using RPGGame.Audio;
+using RPGGame.Combat.Narrative;
 using RPGGame.UI.Avalonia.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Tuning;
@@ -67,6 +68,15 @@ namespace RPGGame.UI.Avalonia
                 ActionLabControlsWindow.CloseIfOpen();
                 BalanceTuningWorkbenchWindow.CloseForShutdown();
                 CloseVisibleWindows<SettingsWindow>();
+
+                try
+                {
+                    CombatSceneLiveFeedServer.Stop();
+                }
+                catch
+                {
+                    // Feed stop must never block shutdown.
+                }
 
                 // Do not Wait on the ticker — blocking Closing can prevent Environment.Exit.
                 if (GameTicker.Instance.IsRunning)

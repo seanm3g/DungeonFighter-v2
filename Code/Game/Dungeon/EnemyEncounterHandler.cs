@@ -7,6 +7,8 @@ namespace RPGGame
     using Avalonia.Media;
     using Avalonia.Threading;
     using RPGGame.Audio;
+    using RPGGame.Combat;
+    using RPGGame.Combat.Narrative;
     using RPGGame.GameCore.Helpers;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.ColorSystem;
@@ -42,9 +44,16 @@ namespace RPGGame
         /// <summary>
         /// Process a single enemy encounter
         /// </summary>
-        public async Task<bool> ProcessEnemyEncounter(Enemy enemy, bool playerGetsFirstAttack = false, bool enemyGetsFirstAttack = false)
+        /// <param name="isDungeonFinaleRoom">When true, the final room's kill may prefetch a victory limerick for dungeon completion.</param>
+        public async Task<bool> ProcessEnemyEncounter(
+            Enemy enemy,
+            bool playerGetsFirstAttack = false,
+            bool enemyGetsFirstAttack = false,
+            bool isDungeonFinaleRoom = false)
         {
             if (stateManager.CurrentPlayer == null || combatManager == null) return false;
+
+            VictoryLimerickService.Instance.SetFinaleRoomPrefetchAllowed(isDungeonFinaleRoom);
 
             stateManager.PushComboStripEncounterLock();
             try
@@ -147,7 +156,9 @@ namespace RPGGame
                     debouncer.Dispose();
                 }
             }
-            
+
+            WriteCombatSceneLog(player, enemy, room);
+
             if (!playerWon)
             {
                 // Player died - tombstone the active per-character save immediately so a force-quit
@@ -220,7 +231,7 @@ namespace RPGGame
                 // Use structured routing so creature-name RGB survives; markup round-trip maps colors to nearest palette.
                 displayManager.AddCombatEvent(victoryBuilder, player);
                 
-                // Add remaining health right after defeat message
+                // Remaining health after defeat — victory verse is deferred to dungeon completion.
                 if (player != null)
                 {
                     string healthMsg = string.Format(AsciiArtAssets.UIText.RemainingHealth, 
@@ -303,7 +314,36 @@ namespace RPGGame
             displayManager.AddCombatEvent(surpriseBuilder, player, UIMessageType.Environmental);
             displayManager.AddCombatEvent("", player);
         }
-        
+
+        /// <summary>
+        /// Auto-exports the finished fight as scene JSON under GameData/CombatLogs (same format as the
+        /// right-click export) so external tools can pick it up. Skipped for muted/headless fights.
+        /// </summary>
+        private void WriteCombatSceneLog(Character? player, Enemy? enemy, Environment? room)
+        {
+            if (CombatManager.DisableCombatUIOutput || combatManager == null)
+                return;
+            try
+            {
+                if (CombatSceneLogExport.TryBuild(
+                        player,
+                        enemy,
+                        room,
+                        stateManager.CurrentDungeon,
+                        combatManager.GetCurrentBattleNarrative(),
+                        combatManager.GetLastPlayerAction(),
+                        out var scenes,
+                        out _))
+                {
+                    CombatSceneLogWriter.Write(scenes);
+                }
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.LogAlways($"EnemyEncounterHandler: combat scene log export failed: {ex.Message}");
+            }
+        }
+
         /// <summary>
         /// Checks if the given character is currently active and should display combat.
         /// Returns true if the character is the active character and we're not in a menu state.

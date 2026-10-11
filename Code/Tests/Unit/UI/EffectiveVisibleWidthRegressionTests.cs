@@ -5,7 +5,7 @@ namespace RPGGame.Tests.Unit.UI
 {
     /// <summary>
     /// Regression tests: font scale fills height (panel rows + bottom pad); column count shrinks with width (right pad).
-    /// UI zoom keeps left/top/right chrome near design pixel size; center absorbs leftover cells.
+    /// Ctrl+/- UI zoom scales center-column glyphs only; left/right chrome stay at design character sizes.
     /// </summary>
     public static class EffectiveVisibleWidthRegressionTests
     {
@@ -34,8 +34,10 @@ namespace RPGGame.Tests.Unit.UI
             TestOuterPaddingRightAndBottom(ref run, ref passed, ref failed);
             TestContentOriginCentersZoomedContent(ref run, ref passed, ref failed);
             TestFontScaleSnapsToWholePixels(ref run, ref passed, ref failed);
-            TestUiZoomKeepsSideChromePixelFootprint(ref run, ref passed, ref failed);
-            TestUiZoomShrinksActionInfoStrip(ref run, ref passed, ref failed);
+            TestUiZoomLeavesSideChromeAtBaseSizes(ref run, ref passed, ref failed);
+            TestUiZoomLeavesActionInfoStripAtBaseSize(ref run, ref passed, ref failed);
+            TestChromelessMenuStaysCenteredWhenColumnsChange(ref run, ref passed, ref failed);
+            TestCanvasGridSizerIgnoresUiZoom(ref run, ref passed, ref failed);
 
             LayoutConstants.UpdateUiZoom(1.0);
             LayoutConstants.UpdateGridDimensions(210, 52);
@@ -69,7 +71,7 @@ namespace RPGGame.Tests.Unit.UI
             LayoutConstants.UpdateEffectiveVisibleWidth(2100, 10);
         }
 
-        private static void TestUiZoomKeepsSideChromePixelFootprint(ref int run, ref int passed, ref int failed)
+        private static void TestUiZoomLeavesSideChromeAtBaseSizes(ref int run, ref int passed, ref int failed)
         {
             const double charW = 10;
             LayoutConstants.UpdateGridDimensions(210, 52);
@@ -79,36 +81,24 @@ namespace RPGGame.Tests.Unit.UI
             int baseRight = LayoutConstants.RIGHT_PANEL_WIDTH;
             int baseCenter = LayoutConstants.CENTER_PANEL_WIDTH;
 
-            // Zoom in: fewer total columns, but chrome character widths shrink so pixel footprint ~matches 100%.
-            LayoutConstants.UpdateGridDimensions(187, 52); // ~210 / 1.12
-            LayoutConstants.UpdateUiZoom(1.12);
-            LayoutConstants.UpdateEffectiveVisibleWidth(1870, charW);
+            // Ctrl+/- no longer changes chrome column counts — grid stays window-fit 100%.
+            LayoutConstants.UpdateUiZoom(1.5);
+            LayoutConstants.UpdateEffectiveVisibleWidth(2090, charW);
 
-            TestBase.AssertTrue(LayoutConstants.LEFT_PANEL_WIDTH < baseLeft,
-                $"left chrome columns shrink when zoomed in (base={baseLeft}, zoomed={LayoutConstants.LEFT_PANEL_WIDTH})",
+            TestBase.AssertEqual(baseLeft, LayoutConstants.LEFT_PANEL_WIDTH,
+                "left chrome columns stay at design size when UI zoom changes",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(LayoutConstants.RIGHT_PANEL_WIDTH < baseRight,
-                $"right chrome columns shrink when zoomed in (base={baseRight}, zoomed={LayoutConstants.RIGHT_PANEL_WIDTH})",
+            TestBase.AssertEqual(baseRight, LayoutConstants.RIGHT_PANEL_WIDTH,
+                "right chrome columns stay at design size when UI zoom changes",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(
-                System.Math.Abs(LayoutConstants.LEFT_PANEL_WIDTH * 1.12 - baseLeft) < 1.5,
-                $"left chrome pixel footprint stays near design (cols*zoom≈{LayoutConstants.LEFT_PANEL_WIDTH * 1.12}, base={baseLeft})",
-                ref run, ref passed, ref failed);
-            TestBase.AssertTrue(
-                System.Math.Abs(LayoutConstants.RIGHT_PANEL_WIDTH * 1.12 - baseRight) < 1.5,
-                $"right chrome pixel footprint stays near design (cols*zoom≈{LayoutConstants.RIGHT_PANEL_WIDTH * 1.12}, base={baseRight})",
+            TestBase.AssertEqual(baseCenter, LayoutConstants.CENTER_PANEL_WIDTH,
+                "center column width stays unchanged when only UI zoom changes",
                 ref run, ref passed, ref failed);
 
-            // Zoom out: chrome columns grow; center shrinks to accommodate.
-            LayoutConstants.UpdateGridDimensions(262, 52); // ~210 / 0.8
             LayoutConstants.UpdateUiZoom(0.8);
-            LayoutConstants.UpdateEffectiveVisibleWidth(2620, charW);
-            TestBase.AssertTrue(LayoutConstants.LEFT_PANEL_WIDTH > baseLeft,
-                "left chrome columns grow when zoomed out",
-                ref run, ref passed, ref failed);
-            TestBase.AssertTrue(LayoutConstants.CENTER_PANEL_WIDTH < baseCenter
-                || LayoutConstants.LEFT_PANEL_WIDTH + LayoutConstants.RIGHT_PANEL_WIDTH > baseLeft + baseRight,
-                "zoomed-out chrome takes more character columns (center yields)",
+            LayoutConstants.UpdateEffectiveVisibleWidth(2090, charW);
+            TestBase.AssertEqual(baseLeft, LayoutConstants.LEFT_PANEL_WIDTH,
+                "left chrome columns stay at design size when zoomed out",
                 ref run, ref passed, ref failed);
 
             LayoutConstants.UpdateUiZoom(1.0);
@@ -116,7 +106,7 @@ namespace RPGGame.Tests.Unit.UI
             LayoutConstants.UpdateEffectiveVisibleWidth(2100, charW);
         }
 
-        private static void TestUiZoomShrinksActionInfoStrip(ref int run, ref int passed, ref int failed)
+        private static void TestUiZoomLeavesActionInfoStripAtBaseSize(ref int run, ref int passed, ref int failed)
         {
             LayoutConstants.UpdateUiZoom(1.0);
             LayoutConstants.UpdateGridDimensions(210, 52);
@@ -125,14 +115,78 @@ namespace RPGGame.Tests.Unit.UI
             int baseCenterH = LayoutConstants.CENTER_PANEL_HEIGHT;
 
             LayoutConstants.UpdateUiZoom(1.5);
-            TestBase.AssertTrue(LayoutConstants.ACTION_INFO_STRIP_HEIGHT < baseStrip,
-                $"action-info strip rows shrink when zoomed in (base={baseStrip}, zoomed={LayoutConstants.ACTION_INFO_STRIP_HEIGHT})",
+            TestBase.AssertEqual(baseStrip, LayoutConstants.ACTION_INFO_STRIP_HEIGHT,
+                "action-info strip rows stay at design size when UI zoom changes",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(LayoutConstants.CENTER_PANEL_HEIGHT > baseCenterH,
-                "center panel height grows when the top strip shrinks for zoom",
+            TestBase.AssertEqual(baseCenterH, LayoutConstants.CENTER_PANEL_HEIGHT,
+                "center panel height stays unchanged when only UI zoom changes",
                 ref run, ref passed, ref failed);
 
             LayoutConstants.UpdateUiZoom(1.0);
+        }
+
+        /// <summary>
+        /// Main-menu options stay centered in the chromeless content rect when the window
+        /// (and thus column count) changes. UI zoom itself no longer shrinks columns.
+        /// </summary>
+        private static void TestChromelessMenuStaysCenteredWhenColumnsChange(ref int run, ref int passed, ref int failed)
+        {
+            const double charW = 10;
+            const int menuWidth = 48;
+            const int menuLines = 4;
+
+            LayoutConstants.UpdateUiZoom(1.0);
+            LayoutConstants.UpdateGridDimensions(210, 52);
+            LayoutConstants.UpdateEffectiveVisibleWidth(2090, charW);
+            var (x100, y100, w100, h100) = LayoutConstants.GetChromelessContentRect();
+            var (menuX100, _) = RPGGame.UI.Avalonia.Renderers.Menu.MenuLayoutCalculator.CalculateCenteredMenu(
+                x100, y100, w100, h100, menuLines, menuWidth);
+            double mid100 = menuX100 + menuWidth / 2.0;
+            double gridMid100 = LayoutConstants.SCREEN_WIDTH / 2.0;
+            TestBase.AssertTrue(System.Math.Abs(mid100 - gridMid100) <= 1.5,
+                $"100% chromeless menu mid stays near grid mid (menuMid={mid100}, gridMid={gridMid100})",
+                ref run, ref passed, ref failed);
+
+            // Narrower window: fewer columns; menu must re-center on the new grid mid.
+            LayoutConstants.UpdateGridDimensions(140, 52);
+            LayoutConstants.UpdateEffectiveVisibleWidth(1390, charW);
+            var (xNarrow, yNarrow, wNarrow, hNarrow) = LayoutConstants.GetChromelessContentRect();
+            var (menuXNarrow, _) = RPGGame.UI.Avalonia.Renderers.Menu.MenuLayoutCalculator.CalculateCenteredMenu(
+                xNarrow, yNarrow, wNarrow, hNarrow, menuLines, menuWidth);
+            double midNarrow = menuXNarrow + menuWidth / 2.0;
+            double gridMidNarrow = LayoutConstants.SCREEN_WIDTH / 2.0;
+            TestBase.AssertTrue(System.Math.Abs(midNarrow - gridMidNarrow) <= 1.5,
+                $"narrow chromeless menu mid stays near grid mid (menuMid={midNarrow}, gridMid={gridMidNarrow})",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(menuXNarrow < menuX100,
+                $"menu start X moves left when columns shrink (wide={menuX100}, narrow={menuXNarrow})",
+                ref run, ref passed, ref failed);
+
+            LayoutConstants.UpdateUiZoom(1.0);
+            LayoutConstants.UpdateGridDimensions(210, 52);
+            LayoutConstants.UpdateEffectiveVisibleWidth(2100, charW);
+        }
+
+        private static void TestCanvasGridSizerIgnoresUiZoom(ref int run, ref int passed, ref int failed)
+        {
+            const double baseCharW = 10;
+            const double baseCharH = 18;
+            double height = CanvasGridSizer.DesignCanvasRowCount * baseCharH;
+            double wideWidth = 300 * baseCharW;
+
+            var at100 = CanvasGridSizer.Calculate(wideWidth, height, baseCharW, baseCharH, uiZoom: 1.0);
+            var at120 = CanvasGridSizer.Calculate(wideWidth, height, baseCharW, baseCharH, uiZoom: 1.2);
+            var at80 = CanvasGridSizer.Calculate(wideWidth, height, baseCharW, baseCharH, uiZoom: 0.8);
+
+            TestBase.AssertTrue(System.Math.Abs(at100.ScaleFactor - at120.ScaleFactor) < 1e-9,
+                "grid scale ignores UI zoom (120%)",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(System.Math.Abs(at100.ScaleFactor - at80.ScaleFactor) < 1e-9,
+                "grid scale ignores UI zoom (80%)",
+                ref run, ref passed, ref failed);
+            TestBase.AssertEqual(at100.GridWidth, at120.GridWidth,
+                "column count ignores UI zoom",
+                ref run, ref passed, ref failed);
         }
 
         private static void TestCanvasGridSizerFillsHeightShrinksWidth(ref int run, ref int passed, ref int failed)
@@ -154,21 +208,13 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(180, mid.GridWidth, "narrower width reduces column count", ref run, ref passed, ref failed);
             TestBase.AssertTrue(mid.GridWidth < wide.GridWidth, "horizontal shrink reduces grid width", ref run, ref passed, ref failed);
 
-            // UI zoom multiplies fill-height scale inside a fixed window (does not resize the window).
+            // UI zoom is ignored by the grid sizer (center-column glyphs scale separately).
             var zoomed = CanvasGridSizer.Calculate(wideWidth, height, baseCharW, baseCharH, uiZoom: 1.2);
-            TestBase.AssertTrue(System.Math.Abs(zoomed.ScaleFactor - 1.2) < 1e-9,
-                "120% UI zoom scales glyphs inside the same window height",
+            TestBase.AssertTrue(System.Math.Abs(zoomed.ScaleFactor - wide.ScaleFactor) < 1e-9,
+                "120% UI zoom does not change fill-height grid scale",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(zoomed.GridWidth < wide.GridWidth,
-                "larger UI zoom fits fewer columns in the same pixel width",
-                ref run, ref passed, ref failed);
-
-            var zoomedOut = CanvasGridSizer.Calculate(wideWidth, height, baseCharW, baseCharH, uiZoom: 0.8);
-            TestBase.AssertTrue(System.Math.Abs(zoomedOut.ScaleFactor - 0.8) < 1e-9,
-                "80% UI zoom shrinks glyphs inside the same window height",
-                ref run, ref passed, ref failed);
-            TestBase.AssertTrue(zoomedOut.GridWidth > wide.GridWidth,
-                "smaller UI zoom fits more columns in the same pixel width",
+            TestBase.AssertEqual(wide.GridWidth, zoomed.GridWidth,
+                "120% UI zoom does not change column count",
                 ref run, ref passed, ref failed);
         }
 

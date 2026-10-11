@@ -94,6 +94,8 @@ namespace RPGGame.Tests.Unit.UI
                 "lists Page Up combat speed", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("Ctrl+C"),
                 "lists combat log copy", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("Right-click combat log"),
+                "lists combat scene JSON save", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("F8"),
                 "lists F8 Action Lab", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("Numpad +"),

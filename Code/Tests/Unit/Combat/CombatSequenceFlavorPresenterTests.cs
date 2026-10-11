@@ -32,7 +32,10 @@ namespace RPGGame.Tests.Unit.Combat
             TestInterpretEffectsSoftensPoisonAndBleed();
             TestInterpretEffectsSoftensAffectedByWeaken();
             TestInterpretDoTTickProseHasNoDigits();
+            TestInterpretStunSkipProse();
+            TestInterpretEffectsSoftensStunCannotAct();
             TestInterpretEffectsSoftensMechanicalDoTLines();
+            TestPlayStandaloneStunProse();
             TestInterpretTempoFromActionLength();
             TestInterpretStanceSusceptibility();
             TestInterpretCriticalConsequences();
@@ -50,6 +53,9 @@ namespace RPGGame.Tests.Unit.Combat
             TestNarrativeRevealsHudColumnsInBeatOrder();
             TestReserveBandHiddenWhenNarrativeOn();
             TestNarrativeTypewriterTruncatePreservesColors();
+            TestColorizeSentenceColorsTypewriterPrefixes();
+            TestDistortionPulseDumpsSlamWordAndFiresPulse();
+            TestNonCatalogActionStaysPerGlyphWithoutPulse();
 
             CombatSequenceFlavorPresenter.ResetForTests();
             CombatSequencePresenter.ResetForTests();
@@ -232,6 +238,91 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(fade.Contains("fades", StringComparison.OrdinalIgnoreCase)
                     || fade.Contains("last", StringComparison.OrdinalIgnoreCase),
                 $"cleared poison reads as fading, got: {fade}", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestInterpretStunSkipProse()
+        {
+            Console.WriteLine("--- InterpretStunSkip is numeral-free unable-to-act prose ---");
+            string prose = CombatSequenceFlavorTokens.InterpretStunSkip("Gavin Everflame");
+            TestBase.AssertTrue(prose.Contains("Gavin Everflame", StringComparison.Ordinal),
+                $"names stunned actor, got: {prose}", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(prose.Contains("stunned", StringComparison.OrdinalIgnoreCase),
+                $"mentions stun, got: {prose}", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(prose.Contains("unable to act", StringComparison.OrdinalIgnoreCase),
+                $"says unable to act, got: {prose}", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!prose.Contains("cannot act", StringComparison.OrdinalIgnoreCase),
+                $"not mechanical cannot-act phrasing, got: {prose}", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!CombatSequenceFlavorTokens.ContainsDigit(prose),
+                $"no turn numerals, got: {prose}", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestInterpretEffectsSoftensStunCannotAct()
+        {
+            Console.WriteLine("--- InterpretEffects softens stun skip; drops turn remaining ---");
+            string soften = CombatSequenceFlavorTokens.InterpretEffects(
+                new List<string>
+                {
+                    "Gavin Everflame is stunned and cannot act!",
+                    "(1 turn remaining)"
+                });
+            TestBase.AssertTrue(soften.Contains("Gavin Everflame", StringComparison.Ordinal),
+                $"names victim, got: {soften}", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(soften.Contains("stunned", StringComparison.OrdinalIgnoreCase),
+                $"mentions stun, got: {soften}", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(soften.Contains("unable to act", StringComparison.OrdinalIgnoreCase),
+                $"unable-to-act prose, got: {soften}", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!soften.Contains("cannot act", StringComparison.OrdinalIgnoreCase),
+                $"not mechanical cannot-act, got: {soften}", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!soften.Contains("remaining", StringComparison.OrdinalIgnoreCase),
+                $"drops turn remaining, got: {soften}", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!CombatSequenceFlavorTokens.ContainsDigit(soften),
+                $"no numerals, got: {soften}", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestPlayStandaloneStunProse()
+        {
+            Console.WriteLine("--- PlayStandaloneProse writes indented stun prose ---");
+            bool prevNarrative = DeveloperModeState.IsNarrativeCombatLog;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            try
+            {
+                CombatUiMuteScope.GlobalMute = false;
+                DeveloperModeState.SetCombatLogInstant(false);
+                DeveloperModeState.SetNarrativeCombatLog(true);
+                CombatSequenceFlavorPresenter.ResetForTests();
+                CombatSequenceFlavorPresenter.BypassCanvasCheckForTests = true;
+                CombatSequenceFlavorPresenter.SkipDelaysForTests = true;
+                CombatSequenceFlavorPresenter.RecordForTests = true;
+
+                string sentence = CombatSequenceFlavorTokens.InterpretStunSkip("Gavin Everflame");
+                CombatSequenceFlavorPresenter.PlayStandaloneProseAsync(
+                    sentence,
+                    hoverInfo: null,
+                    character: null,
+                    emphasisActorName: "Gavin Everflame").GetAwaiter().GetResult();
+
+                TestBase.AssertTrue(CombatSequenceFlavorPresenter.LinesWrittenForTests.Count >= 1,
+                    "wrote at least one prose line", ref _run, ref _passed, ref _failed);
+                string line = CombatSequenceFlavorPresenter.LinesWrittenForTests[0];
+                TestBase.AssertTrue(line.StartsWith(CombatSequenceFlavorPresenter.NarrativeParagraphIndent, StringComparison.Ordinal),
+                    $"indented paragraph, got: {line}", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(line.Contains("Gavin Everflame", StringComparison.Ordinal),
+                    $"names actor, got: {line}", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(line.Contains("unable to act", StringComparison.OrdinalIgnoreCase),
+                    $"prose unable to act, got: {line}", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(!line.Contains("cannot act", StringComparison.OrdinalIgnoreCase),
+                    $"not action-info cannot-act, got: {line}", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(!line.Contains("turn remaining", StringComparison.OrdinalIgnoreCase),
+                    $"no turn remaining in prose, got: {line}", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetNarrativeCombatLog(prevNarrative);
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequenceFlavorPresenter.ResetForTests();
+            }
         }
 
         private static void TestInterpretEffectsSoftensMechanicalDoTLines()
@@ -1122,6 +1213,191 @@ namespace RPGGame.Tests.Unit.Combat
                     s.Text.Contains("SLAM", StringComparison.OrdinalIgnoreCase)
                     && s.Color == ColorPalette.Success.GetColor()),
                 "action name keeps success color in full paragraph", ref _run, ref _passed, ref _failed);
+
+            int slamAt = full.IndexOf("SLAM", StringComparison.Ordinal);
+            TestBase.AssertTrue(slamAt >= 0, "full text contains SLAM", ref _run, ref _passed, ref _failed);
+            var midSlam = ColoredTextRenderer.Truncate(paragraph, slamAt + 2);
+            TestBase.AssertTrue(midSlam.Exists(s =>
+                    s.Text.Contains("SL", StringComparison.OrdinalIgnoreCase)
+                    && s.Color == ColorPalette.Success.GetColor()),
+                "truncated SL of SLAM keeps action color", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestColorizeSentenceColorsTypewriterPrefixes()
+        {
+            Console.WriteLine("--- ColorizeSentence paints trailing name/action prefixes ---");
+            var tokens = new CombatSequenceFlavorTokens
+            {
+                Attacker = "Marcus Serpentfang",
+                Target = "the Spider",
+                Action = "SLAM"
+            };
+
+            var gold = ColorPalette.Gold.GetColor();
+            var enemy = ColorPalette.Enemy.GetColor();
+            var success = ColorPalette.Success.GetColor();
+
+            var namePrefix = CombatSequenceNarrativeEmphasis.ColorizeSentence("Marcus Ser", tokens);
+            TestBase.AssertTrue(namePrefix.Exists(s =>
+                    s.Text.Contains("Marcus Ser", StringComparison.OrdinalIgnoreCase)
+                    && s.Color == gold),
+                "two-word name prefix is gold while typing", ref _run, ref _passed, ref _failed);
+
+            var firstName = CombatSequenceNarrativeEmphasis.ColorizeSentence("Marcus", tokens);
+            TestBase.AssertTrue(firstName.Exists(s =>
+                    string.Equals(s.Text, "Marcus", StringComparison.Ordinal)
+                    && s.Color == gold),
+                "first name token is gold before the surname arrives", ref _run, ref _passed, ref _failed);
+
+            var slamPrefix = CombatSequenceNarrativeEmphasis.ColorizeSentence("Fate answers with SLA", tokens);
+            TestBase.AssertTrue(slamPrefix.Exists(s =>
+                    s.Text.Contains("SLA", StringComparison.OrdinalIgnoreCase)
+                    && s.Color == success),
+                "SLAM prefix is action-colored while typing", ref _run, ref _passed, ref _failed);
+
+            var spiderPrefix = CombatSequenceNarrativeEmphasis.ColorizeSentence("eyes locked on the Spi", tokens);
+            TestBase.AssertTrue(spiderPrefix.Exists(s =>
+                    s.Text.Contains("Spi", StringComparison.OrdinalIgnoreCase)
+                    && s.Color == enemy),
+                "enemy name prefix is enemy-colored while typing", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestDistortionPulseDumpsSlamWordAndFiresPulse()
+        {
+            Console.WriteLine("--- DistortionPulse dumps SLAM in one beat and records pulse ---");
+            bool prevNarrative = DeveloperModeState.IsNarrativeCombatLog;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            try
+            {
+                DeveloperModeState.SetNarrativeCombatLog(true);
+                DeveloperModeState.SetCombatLogInstant(false);
+                CombatUiMuteScope.GlobalMute = false;
+                CombatSequenceFlavorPresenter.ResetForTests();
+                CombatSequencePresenter.ResetForTests();
+                CombatSequenceHudState.ResetForTests();
+                CombatSequenceHudState.IsBandReserved = true;
+                CombatSequenceFlavorPresenter.BypassCanvasCheckForTests = true;
+                CombatSequenceFlavorPresenter.SkipDelaysForTests = true;
+                CombatSequenceFlavorPresenter.RecordForTests = true;
+
+                var result = HitResult("SLAM", damage: 40);
+                var hero = DummyHero();
+                var foe = DummyEnemy();
+                CombatSequenceFlavorPresenter.SetPending(
+                    CombatSequenceBuilder.From(result, hero, foe),
+                    CombatSequenceFlavorTokens.From(result, hero, foe));
+                CombatSequenceFlavorPresenter.PlayPendingAsync(hero).GetAwaiter().GetResult();
+
+                string final = CombatSequenceFlavorPresenter.LinesWrittenForTests.Count > 0
+                    ? CombatSequenceFlavorPresenter.LinesWrittenForTests[^1]
+                    : string.Empty;
+                TestBase.AssertTrue(final.Contains("SLAM", StringComparison.Ordinal),
+                    $"final prose contains SLAM: {final}", ref _run, ref _passed, ref _failed);
+
+                bool foundDump = false;
+                var paints = CombatSequenceFlavorPresenter.TypewriterPaintLengthsForTests;
+                for (int i = 1; i < paints.Count; i++)
+                {
+                    int prev = paints[i - 1];
+                    int cur = paints[i];
+                    if (cur - prev == 4 && prev >= 0 && cur <= final.Length)
+                    {
+                        string chunk = final.Substring(prev, 4);
+                        if (string.Equals(chunk, "SLAM", StringComparison.OrdinalIgnoreCase))
+                        {
+                            foundDump = true;
+                            break;
+                        }
+                    }
+                }
+
+                TestBase.AssertTrue(foundDump,
+                    "typewriter jumps SLAM as one 4-glyph dump on the Action beat",
+                    ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(
+                    CombatSequenceFlavorPresenter.EmphasisPulsesForTests.Exists(a =>
+                        string.Equals(a, "SLAM", StringComparison.OrdinalIgnoreCase)),
+                    "pulse fire recorded for SLAM",
+                    ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetNarrativeCombatLog(prevNarrative);
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequenceFlavorPresenter.ResetForTests();
+                CombatSequencePresenter.ResetForTests();
+                CombatSequenceHudState.ResetForTests();
+            }
+        }
+
+        private static void TestNonCatalogActionStaysPerGlyphWithoutPulse()
+        {
+            Console.WriteLine("--- Non-catalog action stays per-glyph without pulse ---");
+            bool prevNarrative = DeveloperModeState.IsNarrativeCombatLog;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            try
+            {
+                DeveloperModeState.SetNarrativeCombatLog(true);
+                DeveloperModeState.SetCombatLogInstant(false);
+                CombatUiMuteScope.GlobalMute = false;
+                CombatSequenceFlavorPresenter.ResetForTests();
+                CombatSequencePresenter.ResetForTests();
+                CombatSequenceHudState.ResetForTests();
+                CombatSequenceHudState.IsBandReserved = true;
+                CombatSequenceFlavorPresenter.BypassCanvasCheckForTests = true;
+                CombatSequenceFlavorPresenter.SkipDelaysForTests = true;
+                CombatSequenceFlavorPresenter.RecordForTests = true;
+
+                var result = HitResult("STRIKE", damage: 40);
+                var hero = DummyHero();
+                var foe = DummyEnemy();
+                CombatSequenceFlavorPresenter.SetPending(
+                    CombatSequenceBuilder.From(result, hero, foe),
+                    CombatSequenceFlavorTokens.From(result, hero, foe));
+                CombatSequenceFlavorPresenter.PlayPendingAsync(hero).GetAwaiter().GetResult();
+
+                string final = CombatSequenceFlavorPresenter.LinesWrittenForTests.Count > 0
+                    ? CombatSequenceFlavorPresenter.LinesWrittenForTests[^1]
+                    : string.Empty;
+                TestBase.AssertTrue(final.Contains("STRIKE", StringComparison.Ordinal),
+                    $"final prose contains STRIKE: {final}", ref _run, ref _passed, ref _failed);
+
+                bool jumpedWholeWord = false;
+                var paints = CombatSequenceFlavorPresenter.TypewriterPaintLengthsForTests;
+                for (int i = 1; i < paints.Count; i++)
+                {
+                    int prev = paints[i - 1];
+                    int cur = paints[i];
+                    if (cur - prev == 6 && prev >= 0 && cur <= final.Length)
+                    {
+                        string chunk = final.Substring(prev, 6);
+                        if (string.Equals(chunk, "STRIKE", StringComparison.OrdinalIgnoreCase))
+                        {
+                            jumpedWholeWord = true;
+                            break;
+                        }
+                    }
+                }
+
+                TestBase.AssertTrue(!jumpedWholeWord,
+                    "STRIKE does not dump as one word",
+                    ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(0, CombatSequenceFlavorPresenter.EmphasisPulsesForTests.Count,
+                    "no DistortionPulse for STRIKE",
+                    ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                DeveloperModeState.SetNarrativeCombatLog(prevNarrative);
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+                CombatSequenceFlavorPresenter.ResetForTests();
+                CombatSequencePresenter.ResetForTests();
+                CombatSequenceHudState.ResetForTests();
+            }
         }
 
         private static ActionExecutionResult HitResult(string name, int damage)

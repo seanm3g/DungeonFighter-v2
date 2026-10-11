@@ -80,6 +80,13 @@ namespace RPGGame.UI.Avalonia.Layout
                     viewportHeight);
             }
 
+            // Keep click-burst messes glued to left-panel rows when the body scrolls.
+            canvas.SyncClickBurstViewportScroll(
+                GameCanvasControl.ClickBurstLeftViewportId,
+                scroll,
+                contentTop,
+                viewportHeight);
+
             int y = contentTop - scroll;
             int contentOriginY = y;
             int x = LayoutConstants.LEFT_PANEL_X + 2; // Reduced from +4 since border now starts at 0

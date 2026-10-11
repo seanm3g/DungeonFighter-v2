@@ -51,6 +51,10 @@ namespace RPGGame.Combat.Sequence
 
         internal static List<CombatSequenceCue> CuesFiredForTests { get; } = new();
         internal static List<string> LinesWrittenForTests { get; } = new();
+        /// <summary>Visible lengths painted during typewriter growth (test hook).</summary>
+        internal static List<int> TypewriterPaintLengthsForTests { get; } = new();
+        /// <summary>Action names that completed a DistortionPulse dump (test hook).</summary>
+        internal static List<string> EmphasisPulsesForTests { get; } = new();
         internal static bool RecordForTests { get; set; }
         internal static bool BypassCanvasCheckForTests { get; set; }
         internal static bool SkipDelaysForTests { get; set; }
@@ -117,6 +121,74 @@ namespace RPGGame.Combat.Sequence
         public static void ResetNarrativePacing()
         {
             _narrativeCharsTyped = 0;
+        }
+
+        /// <summary>
+        /// Plays a single indented prose sentence outside a swing (stun skip, etc.).
+        /// Mechanical tip lines stay on hover; clears open-paragraph continuation like an intervening DoT.
+        /// When the live typewriter path is unavailable, writes the prose in one shot.
+        /// </summary>
+        public static async Task PlayStandaloneProseAsync(
+            string sentence,
+            List<List<ColoredText>>? hoverInfo,
+            Character? character,
+            string? emphasisActorName = null)
+        {
+            string normalized = NormalizeProseSentence(sentence);
+            if (string.IsNullOrWhiteSpace(normalized))
+                return;
+
+            // Intervening stun/status prose must not continue a prior attacker's paragraph.
+            ClearOpenParagraph();
+
+            var tokens = new CombatSequenceFlavorTokens
+            {
+                Attacker = emphasisActorName ?? string.Empty
+            };
+            RegisterNameColors(tokens);
+
+            var paragraph = new List<ColoredText>
+            {
+                new ColoredText(NarrativeParagraphIndent, Colors.White)
+            };
+            CombatSequenceNarrativeEmphasis.AppendSentence(paragraph, normalized, tokens);
+
+            var boundHover = CombatLogProseHoverInfo.CloneLines(hoverInfo);
+
+            if (RecordForTests)
+                LinesWrittenForTests.Add(ColoredTextRenderer.RenderAsPlainText(paragraph));
+
+            if (ShouldPlay())
+            {
+                await WriteOrGrowParagraphAsync(
+                    paragraph,
+                    character,
+                    alreadyStarted: false,
+                    boundHover,
+                    previousLength: 0);
+            }
+            else
+            {
+                // Instant / mute / console: still prose (not mechanical action info), no typewriter.
+                int wrapWidth = Math.Max(1, LayoutConstants.CenterPanelTextColumnWidth);
+                var wrapped = TextWrappingHelper.ApplySoftWraps(paragraph, wrapWidth);
+                var renderer = BlockRendererFactory.GetRenderer();
+                await renderer.RenderMessageGroupsAsync(
+                    new List<(List<ColoredText> segments, UIMessageType messageType)>
+                    {
+                        (wrapped, UIMessageType.Combat)
+                    },
+                    delayMs: 0,
+                    character);
+
+                if (boundHover != null && boundHover.Count > 0
+                    && UIManager.GetCustomUIManager() is CanvasUICoordinator coord)
+                {
+                    coord.SetLastLineHoverInfoLines(boundHover, character);
+                }
+            }
+
+            ClearOpenParagraph();
         }
 
         /// <summary>
@@ -372,6 +444,10 @@ namespace RPGGame.Combat.Sequence
                 int targetLen = CharacterRevealRhythmCalculator.WrappedLengthForContentCount(
                     plainWrapped, contentSoFar);
 
+                // DistortionPulse whole-word dump only on the Action beat (not earlier "chaining SLAM" outcome prose).
+                string? emphasisName = beat.Kind == CombatSequenceStepKind.Action
+                    ? tokens.Action
+                    : null;
                 await WriteOrGrowParagraphRangeAsync(
                     finalWrapped,
                     plainWrapped,
@@ -381,7 +457,8 @@ namespace RPGGame.Combat.Sequence
                     startedParagraph,
                     boundHover,
                     visibleLen,
-                    targetLen);
+                    targetLen,
+                    emphasisName);
                 visibleLen = targetLen;
                 startedParagraph = true;
                 wroteAny = true;
@@ -522,20 +599,16 @@ namespace RPGGame.Combat.Sequence
             bool alreadyStarted,
             List<List<ColoredText>>? hoverInfoLines,
             int previousWrappedLength,
-            int targetWrappedLength)
+            int targetWrappedLength,
+            string? emphasisActionName = null)
         {
             int fullLength = PlainLength(finalWrapped);
             int from = Math.Max(0, previousWrappedLength);
             int to = Math.Clamp(targetWrappedLength, from, fullLength);
             bool bindHover = hoverInfoLines != null && hoverInfoLines.Count > 0;
 
-            // Tests / no new glyphs: paint the target slice once (still count chars for ramp continuity).
-            if (SkipDelaysForTests || from >= to)
+            if (from >= to)
             {
-                int added = CountContentChars(finalWrapped, from, to);
-                if (added > 0)
-                    _narrativeCharsTyped += added;
-
                 if (to > 0)
                 {
                     await PaintParagraphSliceAsync(
@@ -545,43 +618,82 @@ namespace RPGGame.Combat.Sequence
                         alreadyStarted,
                         hoverInfoLines,
                         bindHover);
+                    if (RecordForTests)
+                        TypewriterPaintLengthsForTests.Add(to);
                 }
                 return;
             }
 
+            // SkipDelays still walks with DistortionPulse whole-word jumps so tests can assert dump size.
+            bool skipDelays = SkipDelaysForTests;
             bool lineStarted = alreadyStarted;
-            for (int len = from + 1; len <= to; len++)
+            int len = from;
+            while (len < to)
             {
+                int nextLen = ActionTextEmphasisTypewriter.NextVisibleLength(
+                    plainWrapped, len, to, emphasisActionName);
+
                 await PaintParagraphSliceAsync(
                     finalWrapped,
-                    len,
+                    nextLen,
                     character,
                     lineStarted,
                     hoverInfoLines,
-                    bindHover && (!lineStarted || len == to));
+                    bindHover && (!lineStarted || nextLen == to));
                 lineStarted = true;
 
-                char justTyped = CharAtPlainIndex(finalWrapped, len - 1);
-                bool isBreak = justTyped == '\n' || justTyped == '\r';
-                if (!isBreak)
-                {
-                    int charsBeforeThis = _narrativeCharsTyped;
-                    _narrativeCharsTyped++;
+                if (RecordForTests)
+                    TypewriterPaintLengthsForTests.Add(nextLen);
 
-                    if (len < to)
+                int added = CountContentChars(finalWrapped, len, nextLen);
+                if (added > 0)
+                    _narrativeCharsTyped += added;
+
+                if (ActionTextEmphasisTypewriter.CompletesDistortionPulseWord(
+                        plainWrapped, len, nextLen, emphasisActionName))
+                {
+                    FireEmphasisPulse(emphasisActionName!);
+                }
+
+                if (!skipDelays && nextLen < to)
+                {
+                    // Delay once per dump step using the last revealed content char.
+                    int delayIndex = nextLen - 1;
+                    while (delayIndex >= len)
                     {
-                        if (useBudget && schedule.Length > len - 1)
+                        char c = CharAtPlainIndex(finalWrapped, delayIndex);
+                        if (c != '\n' && c != '\r')
+                            break;
+                        delayIndex--;
+                    }
+
+                    if (delayIndex >= len)
+                    {
+                        int charsBefore = Math.Max(0, _narrativeCharsTyped - 1);
+                        if (useBudget && schedule.Length > delayIndex)
                         {
-                            await CombatDelayManager.DelayAfterNarrativeScheduledMsAsync(schedule[len - 1]);
+                            await CombatDelayManager.DelayAfterNarrativeScheduledMsAsync(schedule[delayIndex]);
                         }
                         else
                         {
-                            var ctx = CharacterRevealRhythmCalculator.ResolveContext(plainWrapped, len - 1);
-                            await CombatDelayManager.DelayAfterNarrativeCharAsync(charsBeforeThis, ctx);
+                            var ctx = CharacterRevealRhythmCalculator.ResolveContext(plainWrapped, delayIndex);
+                            await CombatDelayManager.DelayAfterNarrativeCharAsync(charsBefore, ctx);
                         }
                     }
                 }
+
+                len = nextLen;
             }
+        }
+
+        private static void FireEmphasisPulse(string actionName)
+        {
+            if (RecordForTests)
+                EmphasisPulsesForTests.Add(actionName);
+
+            var canvas = UIManager.GetCustomUIManager() as CanvasUICoordinator;
+            // ReplaceLast only schedules a Background paint; locate after it lands.
+            canvas?.QueueActionTextEmphasisAfterPaint(actionName);
         }
 
         /// <summary>
@@ -619,7 +731,8 @@ namespace RPGGame.Combat.Sequence
                 alreadyStarted,
                 hoverInfoLines,
                 previousWrappedLength,
-                PlainLength(wrapped));
+                PlainLength(wrapped),
+                emphasisActionName: null);
         }
 
         /// <summary>Counts non-linebreak characters in the plain span [start, end).</summary>
@@ -726,6 +839,8 @@ namespace RPGGame.Combat.Sequence
             SkipDelaysForTests = false;
             CuesFiredForTests.Clear();
             LinesWrittenForTests.Clear();
+            TypewriterPaintLengthsForTests.Clear();
+            EmphasisPulsesForTests.Clear();
             HealthBarDisplayHold.ResetForTests();
         }
     }

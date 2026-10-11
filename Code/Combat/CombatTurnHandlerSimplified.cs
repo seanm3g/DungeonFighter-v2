@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Combat;
+using RPGGame.Combat.Narrative;
 using RPGGame.Combat.Turn;
 using RPGGame.UI.ColorSystem;
 
@@ -44,6 +46,9 @@ namespace RPGGame
             
             // Process health regeneration for player after they act
             ProcessPlayerHealthRegeneration(player);
+
+            // Bleed/DoT may finish the foe after the swing display — still prefetch before combat teardown delays.
+            TryPrefetchVictoryLimerick(player, currentEnemy, room);
             
             // Return false if enemy is dead (combat should end)
             return currentEnemy.IsAlive;
@@ -243,6 +248,9 @@ namespace RPGGame
                     player, currentEnemy, forcedAction, room,
                     stateManager.GetLastPlayerAction(),
                     stateManager.GetCurrentBattleNarrative());
+
+                // Outcome is known before setup/HUD/punchline display — overlap OpenAI with remaining reveal.
+                TryPrefetchVictoryLimerick(player, currentEnemy, room);
             
                 bool textDisplayed = actionText != null && actionText.Count > 0;
             
@@ -317,6 +325,47 @@ namespace RPGGame
 
             Dice.QueueAsyncForcedD20Rolls(tutorialEvent.Roll);
             return true;
+        }
+
+        /// <summary>
+        /// When the foe is already dead and the hero still stands on the dungeon's final room,
+        /// start the victory limerick (OpenAI) so it overlaps remaining action display / room teardown.
+        /// Delivery happens later on the dungeon completion screen. Safe to call twice.
+        /// </summary>
+        private void TryPrefetchVictoryLimerick(Character player, Enemy currentEnemy, Environment room)
+        {
+            if (player == null || currentEnemy == null)
+                return;
+            if (!player.IsAlive || currentEnemy.IsAlive)
+                return;
+            if (CombatUiMuteScope.IsMuted || CombatManager.DisableCombatUIOutput)
+                return;
+            if (!VictoryLimerickService.Instance.IsFinaleRoomPrefetchAllowed)
+                return;
+            if (VictoryLimerickService.Instance.HasPrefetch)
+                return;
+
+            try
+            {
+                var funTracker = stateManager.GetFunMomentTracker();
+                funTracker?.FinalizeCombat(playerWon: true, player.CurrentHealth, player.GetEffectiveMaxHealth());
+
+                string location = room?.Name ?? "the dungeon";
+                var packet = BattleLimerickPacketBuilder.Build(
+                    player,
+                    currentEnemy,
+                    location,
+                    heroWon: true,
+                    funTracker,
+                    stateManager.GetCurrentBattleNarrative());
+
+                VictoryLimerickService.Instance.BeginPrefetch(packet);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.WriteCombatDebug("CombatTurnHandlerSimplified",
+                    $"Victory limerick prefetch failed: {ex.Message}");
+            }
         }
 
         /// <summary>

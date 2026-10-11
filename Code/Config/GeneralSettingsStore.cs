@@ -9,7 +9,7 @@ namespace RPGGame.Config
 {
     /// <summary>
     /// Player-local general settings: game preferences, audio bus volume/mute/crossfade,
-    /// and UI font/zoom preferences.
+    /// UI font/zoom preferences, and optional OpenAI integration settings.
     /// Persisted to gitignored <c>GameData/GeneralSettings.json</c>.
     /// </summary>
     public static class GeneralSettingsStore
@@ -67,15 +67,19 @@ namespace RPGGame.Config
             gameSettings.ValidateAndFix();
             audioPreferences.ValidateAndFix();
 
-            // Preserve UI font/zoom prefs from cache or disk (do not wipe on game/audio saves).
-            var fonts = Load().UiFontPreferences ?? new UiFontPreferences();
+            // Preserve UI font/zoom + OpenAI prefs from cache or disk (do not wipe on game/audio saves).
+            var existing = Load();
+            var fonts = existing.UiFontPreferences ?? new UiFontPreferences();
             fonts.ValidateAndFix();
+            var openAi = existing.OpenAiPreferences ?? new OpenAiPreferences();
+            openAi.ValidateAndFix();
 
             var doc = new GeneralSettingsDocument
             {
                 GameSettings = gameSettings,
                 AudioPreferences = audioPreferences,
-                UiFontPreferences = fonts
+                UiFontPreferences = fonts,
+                OpenAiPreferences = openAi
             };
             SaveDocument(doc);
         }
@@ -86,6 +90,15 @@ namespace RPGGame.Config
             fonts.ValidateAndFix();
             var doc = Load();
             doc.UiFontPreferences = fonts;
+            SaveDocument(doc);
+        }
+
+        /// <summary>Persists OpenAI / victory-limerick prefs without touching game/audio/font settings.</summary>
+        public static void SaveOpenAiPreferences(OpenAiPreferences prefs)
+        {
+            prefs.ValidateAndFix();
+            var doc = Load();
+            doc.OpenAiPreferences = prefs;
             SaveDocument(doc);
         }
 
@@ -105,9 +118,11 @@ namespace RPGGame.Config
             doc.GameSettings ??= new GameSettings();
             doc.AudioPreferences ??= new AudioPreferences();
             doc.UiFontPreferences ??= new UiFontPreferences();
+            doc.OpenAiPreferences ??= new OpenAiPreferences();
             doc.GameSettings.ValidateAndFix();
             doc.AudioPreferences.ValidateAndFix();
             doc.UiFontPreferences.ValidateAndFix();
+            doc.OpenAiPreferences.ValidateAndFix();
         }
 
         public static void InvalidateCache()
@@ -175,7 +190,8 @@ namespace RPGGame.Config
             {
                 GameSettings = gameSettings ?? new GameSettings(),
                 AudioPreferences = audioPrefs ?? new AudioPreferences(),
-                UiFontPreferences = new UiFontPreferences()
+                UiFontPreferences = new UiFontPreferences(),
+                OpenAiPreferences = new OpenAiPreferences()
             };
         }
 
@@ -271,7 +287,8 @@ namespace RPGGame.Config
             {
                 GameSettings = gameSettings,
                 AudioPreferences = new AudioPreferences(),
-                UiFontPreferences = fonts
+                UiFontPreferences = fonts,
+                OpenAiPreferences = new OpenAiPreferences()
             };
         }
 
@@ -330,6 +347,72 @@ namespace RPGGame.Config
 
         [JsonPropertyName("uiFontPreferences")]
         public UiFontPreferences UiFontPreferences { get; set; } = new();
+
+        [JsonPropertyName("openAiPreferences")]
+        public OpenAiPreferences OpenAiPreferences { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Optional OpenAI integration (victory limerick). Stored only in local gitignored GeneralSettings.
+    /// API key may also be supplied via the <c>OPENAI_API_KEY</c> environment variable.
+    /// </summary>
+    public sealed class OpenAiPreferences
+    {
+        public const string DefaultModel = "gpt-4o-mini";
+        public const string DefaultBaseUrl = "https://api.openai.com/v1";
+        public const string ApiKeyEnvironmentVariable = "OPENAI_API_KEY";
+        public const int DefaultTimeoutSeconds = 15;
+
+        [JsonPropertyName("victoryLimerickEnabled")]
+        public bool VictoryLimerickEnabled { get; set; }
+
+        [JsonPropertyName("apiKey")]
+        public string ApiKey { get; set; } = string.Empty;
+
+        [JsonPropertyName("model")]
+        public string Model { get; set; } = DefaultModel;
+
+        [JsonPropertyName("baseUrl")]
+        public string BaseUrl { get; set; } = DefaultBaseUrl;
+
+        [JsonPropertyName("timeoutSeconds")]
+        public int TimeoutSeconds { get; set; } = DefaultTimeoutSeconds;
+
+        public void ValidateAndFix()
+        {
+            ApiKey ??= string.Empty;
+            ApiKey = ApiKey.Trim();
+            if (string.IsNullOrWhiteSpace(Model))
+                Model = DefaultModel;
+            else
+                Model = Model.Trim();
+
+            if (string.IsNullOrWhiteSpace(BaseUrl))
+                BaseUrl = DefaultBaseUrl;
+            else
+                BaseUrl = BaseUrl.Trim().TrimEnd('/');
+
+            if (TimeoutSeconds < 3) TimeoutSeconds = 3;
+            if (TimeoutSeconds > 120) TimeoutSeconds = 120;
+        }
+
+        public string ResolveApiKey()
+        {
+            if (!string.IsNullOrWhiteSpace(ApiKey))
+                return ApiKey.Trim();
+
+            try
+            {
+                string? env = System.Environment.GetEnvironmentVariable(ApiKeyEnvironmentVariable);
+                return string.IsNullOrWhiteSpace(env) ? string.Empty : env.Trim();
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public bool HasApiKey() => !string.IsNullOrWhiteSpace(ResolveApiKey());
     }
 
     /// <summary>

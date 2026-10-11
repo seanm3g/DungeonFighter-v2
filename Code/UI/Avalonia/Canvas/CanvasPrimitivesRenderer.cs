@@ -20,6 +20,8 @@ namespace RPGGame.UI.Avalonia.Canvas
         private readonly CanvasCoordinateConverter coordinateConverter;
         private WindSwayField? windSway;
         private TextClickBurstField? clickBurst;
+        private TextEmphasisPulseField? emphasisPulse;
+        private TextEmphasisExplosionPlayer? explosionPlayer;
         private HashSet<long>? interactiveCells;
         private int _interactiveCellsFingerprint = int.MinValue;
         private double interactiveHighlightBrighten = 0.55;
@@ -29,14 +31,22 @@ namespace RPGGame.UI.Avalonia.Canvas
         private bool windFrameActive;
         /// <summary>True for the current paint while <see cref="TextClickBurstField.BeginFrame"/> succeeded.</summary>
         private bool burstFrameActive;
+        /// <summary>True for the current paint while <see cref="TextEmphasisPulseField.BeginFrame"/> succeeded.</summary>
+        private bool pulseFrameActive;
         private WindSwayConfig? windFrameConfig;
         private TextClickBurstConfig? burstFrameConfig;
+        private TextEmphasisPulseConfig? pulseFrameConfig;
 
         // Per-paint FormattedText / brush reuse (cleared at Render start).
         private readonly Dictionary<(string Text, uint ColorArgb, double FontSize), FormattedText> _formattedTextCache = new();
         private readonly Dictionary<uint, SolidColorBrush> _brushCache = new();
         private double _cachedFontSize = -1;
+        private double _cachedCenterFontScale = -1;
         private Typeface? _cachedTypeface;
+
+        /// <summary>Avoid per-glyph <c>char.ToString()</c> allocations on the distortion paint path.</summary>
+        private static readonly string[] AsciiGlyphStrings = CreateAsciiGlyphStrings();
+        private static readonly WindSwayConfig FallbackWindConfig = new();
 
         public CanvasPrimitivesRenderer(CanvasCoordinateConverter coordinateConverter)
         {
@@ -48,6 +58,12 @@ namespace RPGGame.UI.Avalonia.Canvas
 
         /// <summary>Optional click-charge explode/reform field (any non-overlay text).</summary>
         public void SetClickBurstField(TextClickBurstField? field) => clickBurst = field;
+
+        /// <summary>Optional F7 DistortionPulse neighbor-push field.</summary>
+        public void SetEmphasisPulseField(TextEmphasisPulseField? field) => emphasisPulse = field;
+
+        /// <summary>Optional DistortionPulse explosion GIF (letter-masked overlay on body text).</summary>
+        public void SetEmphasisExplosionPlayer(TextEmphasisExplosionPlayer? player) => explosionPlayer = player;
 
         /// <summary>
         /// Clickable hit regions used to brighten interactive text when the mouse wake is near.
@@ -104,6 +120,8 @@ namespace RPGGame.UI.Avalonia.Canvas
             windFrameConfig = windFrameActive ? windSway!.FrameConfig : null;
             burstFrameActive = clickBurst != null && clickBurst.BeginFrame(charWidth, charHeight);
             burstFrameConfig = burstFrameActive ? clickBurst!.FrameConfig : null;
+            pulseFrameActive = emphasisPulse != null && emphasisPulse.BeginFrame(charWidth, charHeight);
+            pulseFrameConfig = pulseFrameActive ? emphasisPulse!.FrameConfig : null;
 
             // Refresh highlight knobs from frame snapshot once BeginFrame has run.
             if (windFrameConfig != null)
@@ -119,31 +137,41 @@ namespace RPGGame.UI.Avalonia.Canvas
                 RenderProgressBars(context, progressBars);
                 RenderSegmentedBars(context, segmentedBars);
                 RenderText(context, textElements, overlayPass: false);
+                // DistortionPulse GIF overlays body letters only (opacity mask like narrative video).
+                explosionPlayer?.Draw(context, textElements, charWidth, charHeight);
                 RenderBoxes(context, boxElements, overlayPass: true);
                 RenderText(context, textElements, overlayPass: true);
             }
             finally
             {
+                if (pulseFrameActive)
+                    emphasisPulse!.EndFrame();
                 if (burstFrameActive)
                     clickBurst!.EndFrame();
                 if (windFrameActive)
                     windSway!.EndFrame();
                 windFrameActive = false;
                 burstFrameActive = false;
+                pulseFrameActive = false;
                 windFrameConfig = null;
                 burstFrameConfig = null;
+                pulseFrameConfig = null;
             }
         }
 
         private void ClearDrawCachesIfFontChanged()
         {
             double fontSize = coordinateConverter.GetFontSize();
+            double centerScale = CenterColumnTextZoom.FontScale;
             Typeface typeface = coordinateConverter.GetTypeface();
-            if (_cachedFontSize != fontSize || !Equals(_cachedTypeface, typeface))
+            if (_cachedFontSize != fontSize
+                || Math.Abs(_cachedCenterFontScale - centerScale) > 1e-9
+                || !Equals(_cachedTypeface, typeface))
             {
                 _formattedTextCache.Clear();
                 _brushCache.Clear();
                 _cachedFontSize = fontSize;
+                _cachedCenterFontScale = centerScale;
                 _cachedTypeface = typeface;
             }
         }
@@ -158,9 +186,64 @@ namespace RPGGame.UI.Avalonia.Canvas
             return brush;
         }
 
-        private FormattedText GetCachedFormattedText(string content, Color color)
+        private double ResolveFontSize(CanvasText text) =>
+            CenterColumnTextZoom.IsCenterColumnX(text.X)
+                ? CenterColumnTextZoom.ScaledFontSize(coordinateConverter.GetFontSize())
+                : coordinateConverter.GetFontSize();
+
+        /// <summary>
+        /// Monospace advance for the font size actually drawn. Rounded so center-column zoom
+        /// does not place per-glyph draws on fractional X (pixel fonts jump when Round flips).
+        /// </summary>
+        private double ResolveGlyphAdvance(double charWidth, double fontSize)
         {
-            double fontSize = coordinateConverter.GetFontSize();
+            double baseSize = coordinateConverter.GetFontSize();
+            if (baseSize <= 0 || Math.Abs(fontSize - baseSize) < 1e-9)
+                return Math.Max(1.0, charWidth);
+            return Math.Max(1.0, Math.Round(charWidth * (fontSize / baseSize)));
+        }
+
+        /// <summary>
+        /// Pixel fonts must always paint on the snapped cell grid. A multi-character
+        /// <see cref="FormattedText"/> draw uses the face's natural advances (often a
+        /// fraction tighter than <see cref="CanvasCoordinateConverter.SnapCellMetric"/>),
+        /// so switching to per-glyph wake placement looked like a sudden kerning jump.
+        /// </summary>
+        internal static bool ShouldForceMonospaceGlyphPlacement(bool usesPixelGrid) => usesPixelGrid;
+
+        /// <summary>Grid X for glyph <paramref name="glyphIndex"/> in a monospace run.</summary>
+        internal static double MonospaceGlyphOriginX(double baseX, int glyphIndex, double glyphAdvance) =>
+            baseX + glyphIndex * glyphAdvance;
+
+        /// <summary>Stable single-character string for FormattedText cache keys (ASCII interned).</summary>
+        internal static string GlyphString(char ch)
+        {
+            if (ch < AsciiGlyphStrings.Length)
+                return AsciiGlyphStrings[ch];
+            return ch.ToString();
+        }
+
+        private static string[] CreateAsciiGlyphStrings()
+        {
+            var table = new string[128];
+            for (int i = 0; i < table.Length; i++)
+                table[i] = ((char)i).ToString();
+            return table;
+        }
+
+        /// <summary>
+        /// Snaps sway/burst offsets to whole pixels for bitmap fonts so draw-origin Round
+        /// cannot flicker letters between adjacent device pixels.
+        /// </summary>
+        internal static (double X, double Y) SnapPixelFontOffset(double x, double y, bool usesPixelGrid)
+        {
+            if (!usesPixelGrid)
+                return (x, y);
+            return (Math.Round(x), Math.Round(y));
+        }
+
+        private FormattedText GetCachedFormattedText(string content, Color color, double fontSize)
+        {
             var key = (content, color.ToUInt32(), fontSize);
             if (_formattedTextCache.TryGetValue(key, out var formatted))
                 return formatted;
@@ -182,6 +265,19 @@ namespace RPGGame.UI.Avalonia.Canvas
             if (_formattedTextCache.Count < 512)
                 _formattedTextCache[key] = formatted;
             return formatted;
+        }
+
+        private IDisposable? PushCenterColumnClip(DrawingContext context, CanvasText text, double charWidth, double charHeight)
+        {
+            if (!CenterColumnTextZoom.IsCenterColumnX(text.X))
+                return null;
+
+            int leftCol = LayoutConstants.LEFT_PANEL_X + LayoutConstants.LEFT_PANEL_WIDTH;
+            int rightCol = LayoutConstants.RIGHT_PANEL_X;
+            double left = leftCol * charWidth;
+            double width = Math.Max(0, (rightCol - leftCol) * charWidth);
+            double height = LayoutConstants.CENTER_COLUMN_FULL_HEIGHT * charHeight;
+            return context.PushClip(new Rect(left, 0, width, height));
         }
         
         private void RenderBoxes(DrawingContext context, List<CanvasBox> boxElements, bool overlayPass)
@@ -457,118 +553,130 @@ namespace RPGGame.UI.Avalonia.Canvas
 
             double charWidth = coordinateConverter.GetCharWidth();
             double charHeight = coordinateConverter.GetCharHeight();
+            double fontSize = ResolveFontSize(text);
+            double glyphAdvance = ResolveGlyphAdvance(charWidth, fontSize);
             bool distort = ShouldApplyDistortion(text);
             string content = text.Content;
             var drawText = ResolveInteractiveHighlight(text, content.Length, charWidth, charHeight);
 
-            // Outside the wake/burst AABB: one string draw (avoids per-glyph FormattedText).
-            if (!distort || !MayAffectDistortedText(text.X, text.Y, content.Length, charWidth, charHeight))
-            {
-                DrawTextBlock(context, drawText, content, text.X * charWidth, text.Y * charHeight);
-                return;
-            }
+            bool forceMonospace = ShouldForceMonospaceGlyphPlacement(GameFonts.UsesPixelGrid);
+            double baseX = text.X * charWidth;
+            double baseY = text.Y * charHeight;
 
-            // Section headers (═══ LABEL ═══ / ====  LABEL  ====): draw as one block so sway/chromatic
-            // does not shift prefix glyphs into the following space.
-            if (ShouldRenderHeaderAsDistortionUnit(content))
+            using (PushCenterColumnClip(context, text, charWidth, charHeight))
             {
-                RenderDistortedHeaderLine(context, drawText, content, charWidth, charHeight);
-                return;
-            }
-
-            // Near the disturbance: sample per glyph, but coalesce unbroken zero-offset runs into one draw.
-            var cfg = windFrameConfig ?? windSway?.FrameConfig ?? new WindSwayConfig();
-            bool chromaticEnabled = cfg.ChromaticAberrationEnabled;
-            double spread = cfg.ChromaticSpreadFraction;
-            byte ghostAlpha = WindSwayChromatic.OpacityToAlpha(cfg.ChromaticOpacity);
-            bool windChromatic = chromaticEnabled && windFrameActive;
-
-            int i = 0;
-            while (i < content.Length)
-            {
-                if (content[i] == '\0')
+                // Outside the wake/burst AABB: idle paint. Pixel fonts still use grid advances so
+                // spacing matches the per-glyph wake path (avoids tight→spaced kerning jump).
+                if (!distort || !MayAffectDistortedText(text.X, text.Y, content.Length, charWidth, charHeight))
                 {
-                    i++;
-                    continue;
+                    DrawTextRun(context, drawText, content, baseX, baseY, fontSize, glyphAdvance, forceMonospace);
+                    return;
                 }
 
-                var pose = SampleDistortionPose(text.X, text.Y, i, charWidth, charHeight);
-                bool moving = Math.Abs(pose.OffsetX) > WindSwayChromatic.IdleEpsilon
-                    || Math.Abs(pose.OffsetY) > WindSwayChromatic.IdleEpsilon
-                    || Math.Abs(pose.RotationRadians) > WindSwayChromatic.IdleEpsilon;
-
-                if (!moving)
+                // Section headers (═══ LABEL ═══ / ====  LABEL  ====): draw as one block so sway/chromatic
+                // does not shift prefix glyphs into the following space.
+                if (ShouldRenderHeaderAsDistortionUnit(content))
                 {
-                    int runStart = i;
-                    i++;
-                    while (i < content.Length)
-                    {
-                        if (content[i] == '\0')
-                        {
-                            i++;
-                            break;
-                        }
+                    RenderDistortedHeaderLine(context, drawText, content, charWidth, charHeight, fontSize);
+                    return;
+                }
 
-                        var next = SampleDistortionPose(text.X, text.Y, i, charWidth, charHeight);
-                        if (Math.Abs(next.OffsetX) > WindSwayChromatic.IdleEpsilon
-                            || Math.Abs(next.OffsetY) > WindSwayChromatic.IdleEpsilon
-                            || Math.Abs(next.RotationRadians) > WindSwayChromatic.IdleEpsilon)
-                            break;
+                // Near the disturbance: sample per glyph, but coalesce unbroken zero-offset runs into one draw.
+                var cfg = windFrameConfig ?? windSway?.FrameConfig ?? FallbackWindConfig;
+                bool chromaticEnabled = cfg.ChromaticAberrationEnabled;
+                double spread = cfg.ChromaticSpreadFraction;
+                byte ghostAlpha = WindSwayChromatic.OpacityToAlpha(cfg.ChromaticOpacity);
+                bool windChromatic = chromaticEnabled && windFrameActive;
+
+                int i = 0;
+                while (i < content.Length)
+                {
+                    if (content[i] == '\0')
+                    {
                         i++;
+                        continue;
                     }
 
-                    int runLen = i - runStart;
-                    if (runLen <= 0)
-                        continue;
-                    string run = content.Substring(runStart, runLen);
-                    DrawTextBlock(context, drawText, run, (text.X + runStart) * charWidth, text.Y * charHeight);
-                    continue;
-                }
+                    var pose = SampleDistortionPose(text.X, text.Y, i, charWidth, charHeight);
+                    bool moving = Math.Abs(pose.OffsetX) > WindSwayChromatic.IdleEpsilon
+                        || Math.Abs(pose.OffsetY) > WindSwayChromatic.IdleEpsilon
+                        || Math.Abs(pose.RotationRadians) > WindSwayChromatic.IdleEpsilon;
 
-                double x = (text.X + i) * charWidth + pose.OffsetX;
-                double y = text.Y * charHeight + pose.OffsetY;
-                string glyph = content[i].ToString();
-
-                // Burst chromatic is velocity-only (landed letters stay clean). Wind still uses offset.
-                double chromX = pose.ChromaticX;
-                double chromY = pose.ChromaticY;
-                bool drawChromatic = chromaticEnabled && ghostAlpha > 0
-                    && (windChromatic || Math.Abs(chromX) > WindSwayChromatic.IdleEpsilon
-                        || Math.Abs(chromY) > WindSwayChromatic.IdleEpsilon);
-
-                void DrawGlyphPasses()
-                {
-                    if (drawChromatic)
+                    if (!moving)
                     {
-                        var (fdx, fdy) = WindSwayChromatic.ComputeFringe(chromX, chromY, spread);
-                        if (Math.Abs(fdx) > WindSwayChromatic.IdleEpsilon || Math.Abs(fdy) > WindSwayChromatic.IdleEpsilon)
+                        int runStart = i;
+                        i++;
+                        while (i < content.Length)
                         {
-                            DrawTintedGlyph(context, glyph, x - fdx, y - fdy,
-                                Color.FromArgb(ghostAlpha, 255, 40, 40));
-                            DrawTintedGlyph(context, glyph, x + fdx, y + fdy,
-                                Color.FromArgb(ghostAlpha, 40, 220, 255));
+                            if (content[i] == '\0')
+                            {
+                                i++;
+                                break;
+                            }
+
+                            var next = SampleDistortionPose(text.X, text.Y, i, charWidth, charHeight);
+                            if (Math.Abs(next.OffsetX) > WindSwayChromatic.IdleEpsilon
+                                || Math.Abs(next.OffsetY) > WindSwayChromatic.IdleEpsilon
+                                || Math.Abs(next.RotationRadians) > WindSwayChromatic.IdleEpsilon)
+                                break;
+                            i++;
+                        }
+
+                        int runLen = i - runStart;
+                        if (runLen <= 0)
+                            continue;
+                        string run = content.Substring(runStart, runLen);
+                        double runX = MonospaceGlyphOriginX(baseX, runStart, glyphAdvance);
+                        DrawTextRun(context, drawText, run, runX, baseY, fontSize, glyphAdvance, forceMonospace);
+                        continue;
+                    }
+
+                    double x = MonospaceGlyphOriginX(baseX, i, glyphAdvance) + pose.OffsetX;
+                    double y = baseY + pose.OffsetY;
+                    string glyph = GlyphString(content[i]);
+
+                    // Burst chromatic is velocity-only (landed letters stay clean). Wind still uses offset.
+                    double chromX = pose.ChromaticX;
+                    double chromY = pose.ChromaticY;
+                    bool drawChromatic = chromaticEnabled && ghostAlpha > 0
+                        && (windChromatic || Math.Abs(chromX) > WindSwayChromatic.IdleEpsilon
+                            || Math.Abs(chromY) > WindSwayChromatic.IdleEpsilon);
+
+                    void DrawGlyphPasses()
+                    {
+                        if (drawChromatic)
+                        {
+                            var (fdx, fdy) = WindSwayChromatic.ComputeFringe(chromX, chromY, spread);
+                            (fdx, fdy) = SnapPixelFontOffset(fdx, fdy, GameFonts.UsesPixelGrid);
+                            if (Math.Abs(fdx) > WindSwayChromatic.IdleEpsilon || Math.Abs(fdy) > WindSwayChromatic.IdleEpsilon)
+                            {
+                                DrawTintedGlyph(context, glyph, x - fdx, y - fdy,
+                                    Color.FromArgb(ghostAlpha, 255, 40, 40), fontSize);
+                                DrawTintedGlyph(context, glyph, x + fdx, y + fdy,
+                                    Color.FromArgb(ghostAlpha, 40, 220, 255), fontSize);
+                            }
+                        }
+
+                        DrawTextBlock(context, drawText, glyph, x, y, fontSize);
+                    }
+
+                    if (Math.Abs(pose.RotationRadians) > WindSwayChromatic.IdleEpsilon)
+                    {
+                        double cx = x + glyphAdvance * 0.5;
+                        double cy = y + charHeight * 0.5;
+                        using (context.PushTransform(
+                                   CreateRotateAboutPointTransform(cx, cy, pose.RotationRadians)))
+                        {
+                            DrawGlyphPasses();
                         }
                     }
-
-                    DrawTextBlock(context, drawText, glyph, x, y);
-                }
-
-                if (Math.Abs(pose.RotationRadians) > WindSwayChromatic.IdleEpsilon)
-                {
-                    double cx = x + charWidth * 0.5;
-                    double cy = y + charHeight * 0.5;
-                    using (context.PushTransform(
-                               CreateRotateAboutPointTransform(cx, cy, pose.RotationRadians)))
+                    else
                     {
                         DrawGlyphPasses();
                     }
-                }
-                else
-                {
-                    DrawGlyphPasses();
-                }
 
-                i++;
+                    i++;
+                }
             }
         }
 
@@ -626,15 +734,27 @@ namespace RPGGame.UI.Avalonia.Canvas
             };
         }
 
-        private void DrawTintedGlyph(DrawingContext context, string content, double x, double y, Color color)
+        private void DrawTintedGlyph(
+            DrawingContext context,
+            string content,
+            double x,
+            double y,
+            Color color,
+            double fontSize)
         {
-            var formatted = GetCachedFormattedText(content, color);
+            var formatted = GetCachedFormattedText(content, color, fontSize);
             context.DrawText(formatted, SnapDrawPoint(x, y));
         }
 
-        private void DrawTextBlock(DrawingContext context, CanvasText text, string content, double x, double y)
+        private void DrawTextBlock(
+            DrawingContext context,
+            CanvasText text,
+            string content,
+            double x,
+            double y,
+            double fontSize)
         {
-            var formatted = GetCachedFormattedText(content, text.Color);
+            var formatted = GetCachedFormattedText(content, text.Color, fontSize);
             Point origin = SnapDrawPoint(x, y);
 
             if (text.HasGlow)
@@ -648,12 +768,47 @@ namespace RPGGame.UI.Avalonia.Canvas
                     text.GlowRadius,
                     content,
                     coordinateConverter.GetTypeface(),
-                    coordinateConverter.GetFontSize()
+                    fontSize
                 );
             }
             else
             {
                 context.DrawText(formatted, origin);
+            }
+        }
+
+        /// <summary>
+        /// Draws a text run either as one FormattedText string (proportional/system mono)
+        /// or glyph-by-glyph on the snapped cell grid (pixel fonts).
+        /// </summary>
+        private void DrawTextRun(
+            DrawingContext context,
+            CanvasText text,
+            string content,
+            double x,
+            double y,
+            double fontSize,
+            double glyphAdvance,
+            bool forceMonospace)
+        {
+            if (!forceMonospace || content.Length <= 1)
+            {
+                DrawTextBlock(context, text, content, x, y, fontSize);
+                return;
+            }
+
+            for (int i = 0; i < content.Length; i++)
+            {
+                char ch = content[i];
+                if (ch == '\0')
+                    continue;
+                DrawTextBlock(
+                    context,
+                    text,
+                    GlyphString(ch),
+                    MonospaceGlyphOriginX(x, i, glyphAdvance),
+                    y,
+                    fontSize);
             }
         }
 
@@ -707,6 +862,20 @@ namespace RPGGame.UI.Avalonia.Canvas
                 chromY += burst.VelocityY * velScale;
             }
 
+            if (emphasisPulse != null && pulseFrameActive && (pulseFrameConfig?.Enabled ?? true))
+            {
+                var pulse = emphasisPulse.Sample(gridX, gridY, glyphIndex, charWidth, charHeight);
+                ox += pulse.OffsetX;
+                oy += pulse.OffsetY;
+                double pulseScale = Math.Max(0, pulseFrameConfig?.ChromaticVelocitySeconds ?? 0);
+                chromX += pulse.VelocityX * pulseScale;
+                chromY += pulse.VelocityY * pulseScale;
+            }
+
+            bool pixelGrid = GameFonts.UsesPixelGrid;
+            (ox, oy) = SnapPixelFontOffset(ox, oy, pixelGrid);
+            (chromX, chromY) = SnapPixelFontOffset(chromX, chromY, pixelGrid);
+
             return new DistortionPose(ox, oy, rot, chromX, chromY);
         }
 
@@ -731,6 +900,9 @@ namespace RPGGame.UI.Avalonia.Canvas
         private bool MayAffectDistortedText(int gridX, int gridY, int length, double charWidth, double charHeight)
         {
             if (clickBurst != null && clickBurst.MayAffectText(gridX, gridY, length, charWidth, charHeight))
+                return true;
+
+            if (emphasisPulse != null && emphasisPulse.MayAffectText(gridX, gridY, length, charWidth, charHeight))
                 return true;
 
             if (windSway != null && ShouldSampleWind(gridX)
@@ -775,7 +947,8 @@ namespace RPGGame.UI.Avalonia.Canvas
             CanvasText text,
             string content,
             double charWidth,
-            double charHeight)
+            double charHeight,
+            double fontSize)
         {
             var pose = SampleDistortionPose(text.X, text.Y, 0, charWidth, charHeight);
             double baseX = text.X * charWidth;
@@ -784,13 +957,18 @@ namespace RPGGame.UI.Avalonia.Canvas
                 || Math.Abs(pose.OffsetY) > WindSwayChromatic.IdleEpsilon
                 || Math.Abs(pose.RotationRadians) > WindSwayChromatic.IdleEpsilon;
 
+            bool forceMonospace = ShouldForceMonospaceGlyphPlacement(GameFonts.UsesPixelGrid);
+            double glyphAdvance = ResolveGlyphAdvance(charWidth, fontSize);
+
+            // Stay on the same idle advances when the wake AABB is entered but offset is still 0;
+            // DrawTextBlock(FormattedText) would tighten kerning vs DrawTextRun(forceMonospace).
             if (!moving)
             {
-                DrawTextBlock(context, text, content, baseX, baseY);
+                DrawTextRun(context, text, content, baseX, baseY, fontSize, glyphAdvance, forceMonospace);
                 return;
             }
 
-            var cfg = windFrameConfig ?? windSway?.FrameConfig ?? new WindSwayConfig();
+            var cfg = windFrameConfig ?? windSway?.FrameConfig ?? FallbackWindConfig;
             bool chromaticEnabled = cfg.ChromaticAberrationEnabled;
             double spread = cfg.ChromaticSpreadFraction;
             byte ghostAlpha = WindSwayChromatic.OpacityToAlpha(cfg.ChromaticOpacity);
@@ -803,21 +981,22 @@ namespace RPGGame.UI.Avalonia.Canvas
                 if (chromaticEnabled && ghostAlpha > 0)
                 {
                     var (fdx, fdy) = WindSwayChromatic.ComputeFringe(pose.ChromaticX, pose.ChromaticY, spread);
+                    (fdx, fdy) = SnapPixelFontOffset(fdx, fdy, GameFonts.UsesPixelGrid);
                     if (Math.Abs(fdx) > WindSwayChromatic.IdleEpsilon || Math.Abs(fdy) > WindSwayChromatic.IdleEpsilon)
                     {
                         DrawTintedGlyph(context, content, x - fdx, y - fdy,
-                            Color.FromArgb(ghostAlpha, 255, 40, 40));
+                            Color.FromArgb(ghostAlpha, 255, 40, 40), fontSize);
                         DrawTintedGlyph(context, content, x + fdx, y + fdy,
-                            Color.FromArgb(ghostAlpha, 40, 220, 255));
+                            Color.FromArgb(ghostAlpha, 40, 220, 255), fontSize);
                     }
                 }
 
-                DrawTextBlock(context, text, content, x, y);
+                DrawTextBlock(context, text, content, x, y, fontSize);
             }
 
             if (Math.Abs(pose.RotationRadians) > WindSwayChromatic.IdleEpsilon)
             {
-                double cx = x + content.Length * charWidth * 0.5;
+                double cx = x + content.Length * glyphAdvance * 0.5;
                 double cy = y + charHeight * 0.5;
                 using (context.PushTransform(
                            CreateRotateAboutPointTransform(cx, cy, pose.RotationRadians)))
@@ -833,14 +1012,29 @@ namespace RPGGame.UI.Avalonia.Canvas
 
         private bool ShouldApplyDistortion(CanvasText text)
         {
-            if (text.IsOverlay)
+            bool burst = burstFrameActive && (burstFrameConfig?.Enabled ?? true);
+            bool pulse = pulseFrameActive && (pulseFrameConfig?.Enabled ?? true);
+            return DistortionAppliesToBodyText(
+                text.IsOverlay,
+                burst,
+                pulse,
+                ShouldSampleWind(text.X));
+        }
+
+        /// <summary>
+        /// Body text (not overlay) uses per-glyph distortion when click-burst, emphasis pulse,
+        /// or wind applies. Pulse is independent of wind so F7 SLAM still shoves neighbors
+        /// while the rest of the sentence is typing.
+        /// </summary>
+        internal static bool DistortionAppliesToBodyText(
+            bool isOverlay,
+            bool burstActive,
+            bool pulseActive,
+            bool windApplies)
+        {
+            if (isOverlay)
                 return false;
-
-            // Use BeginFrame snapshot — avoids locked IsActive/Config during paint.
-            if (burstFrameActive && (burstFrameConfig?.Enabled ?? true))
-                return true;
-
-            return ShouldSampleWind(text.X);
+            return burstActive || pulseActive || windApplies;
         }
 
         /// <summary>

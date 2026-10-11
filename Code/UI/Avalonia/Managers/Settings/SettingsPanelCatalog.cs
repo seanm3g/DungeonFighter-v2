@@ -19,6 +19,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             new("Audio", "Audio", () => new AudioSettingsPanel(), SettingsContentArea.MainScroll, typeof(AudioSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Player, Order: 3),
             new("TextAndAnimation", "Text & Animation", () => new TextAndAnimationSettingsPanel(), SettingsContentArea.MainScroll, typeof(TextAndAnimationSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Player, Order: 4),
             new("Appearance", "Appearance", () => new AppearanceSettingsPanel(), SettingsContentArea.MainScroll, typeof(AppearanceSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Player, Order: 5),
+            new("OpenAI", "OpenAI", () => new OpenAiSettingsPanel(), SettingsContentArea.MainScroll, typeof(OpenAiSettingsPanel), UsesHandler: true, SavesViaHandler: true, SidebarGroup: SettingsSidebarGroups.Player, Order: 6),
 
             // Developer Settings
             new("Cheats", "Cheats", () => new CheatsSettingsPanel(), SettingsContentArea.MainScroll, typeof(CheatsSettingsPanel), UsesHandler: true, SidebarGroup: SettingsSidebarGroups.Developer, Order: 0),
@@ -48,7 +49,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         /// <summary>Handler save order — ItemGeneration before Classes for balance patch consistency.</summary>
         public static readonly IReadOnlyList<string> HandlerSaveCategoryTags = new[]
         {
-            "Travel", "TextAndAnimation", "Appearance", "FlavorText",
+            "Travel", "TextAndAnimation", "Appearance", "OpenAI", "FlavorText",
             "BalanceTuning", "MaterialBuilds", "ItemGeneration", "CombatTuning", "Classes", "Audio"
         };
 

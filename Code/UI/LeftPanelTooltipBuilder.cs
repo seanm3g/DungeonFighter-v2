@@ -399,7 +399,15 @@ namespace RPGGame
                 return;
             addWrapped("Status effect");
             addWrapped(lines[lineIdx]);
-            addWrapped("Duration is in turns unless the effect says otherwise.");
+            if (LeatherSetBonus.IsLuckyStatusLine(lines[lineIdx]))
+            {
+                addWrapped("Standing attack-roll advantage (2d20 keep highest) while Leather set is equipped.");
+                int points = NaiveteBalanceHelper.GetDisplayNaivete(c);
+                if (points > 0)
+                    addWrapped($"Miss→advantage charges: {points} (spend 1 on a normal miss for a second d20).");
+            }
+            else
+                addWrapped("Duration is in turns unless the effect says otherwise.");
         }
 
         private static void AppendDamage(Character c, List<string> result, Action<string> addWrapped, int maxLines)

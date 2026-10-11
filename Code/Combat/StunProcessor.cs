@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using RPGGame.Combat.Sequence;
 using RPGGame.UI;
+using RPGGame.UI.BlockDisplay;
 using RPGGame.UI.ColorSystem;
 using static RPGGame.UI.Avalonia.AsciiArtAssets;
 
@@ -44,6 +46,12 @@ namespace RPGGame
             if (CombatManager.DisableCombatUIOutput) return;
 
             var (actionText, statusEffects, character) = BuildStunBlockContent(entity);
+            if (DeveloperModeState.IsNarrativeCombatLog)
+            {
+                DisplayStunNarrative(entity, actionText, statusEffects, character);
+                return;
+            }
+
             BlockDisplayManager.DisplayActionBlock(actionText, new List<ColoredText>(), statusEffects, null, null, character);
         }
 
@@ -52,7 +60,52 @@ namespace RPGGame
             if (CombatManager.DisableCombatUIOutput) return;
 
             var (actionText, statusEffects, character) = BuildStunBlockContent(entity);
+            if (DeveloperModeState.IsNarrativeCombatLog)
+            {
+                await DisplayStunNarrativeAsync(entity, actionText, statusEffects, character);
+                return;
+            }
+
             await BlockDisplayManager.DisplayActionBlockAsync(actionText, new List<ColoredText>(), statusEffects, null, null, character);
+        }
+
+        private static void DisplayStunNarrative<T>(
+            T entity,
+            List<ColoredText> actionText,
+            List<List<ColoredText>> statusEffects,
+            Character? character) where T : Actor
+        {
+            DisplayStunNarrativeAsync(entity, actionText, statusEffects, character).GetAwaiter().GetResult();
+        }
+
+        private static async Task DisplayStunNarrativeAsync<T>(
+            T entity,
+            List<ColoredText> actionText,
+            List<List<ColoredText>> statusEffects,
+            Character? character) where T : Actor
+        {
+            string? spacingEntity = EntityNameExtractor.ExtractEntityNameFromMessage(
+                ColoredTextRenderer.RenderAsPlainText(actionText));
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.CombatAction, spacingEntity);
+
+            var hoverGroups = BlockMessageCollector.CollectActionBlockMessages(
+                actionText,
+                new List<ColoredText>(),
+                statusEffects,
+                criticalMissNarrative: null,
+                narratives: null);
+            var hoverInfo = CombatLogProseHoverInfo.FromMessageGroups(hoverGroups);
+
+            string actorName = CombatSequenceFlavorTokens.FormatNarrativeActorName(entity);
+            string sentence = CombatSequenceFlavorTokens.InterpretStunSkip(actorName);
+
+            await CombatSequenceFlavorPresenter.PlayStandaloneProseAsync(
+                sentence,
+                hoverInfo,
+                character,
+                actorName);
+
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction, spacingEntity);
         }
 
         private static (List<ColoredText> actionText, List<List<ColoredText>> statusEffects, Character? character) BuildStunBlockContent<T>(T entity) where T : Actor

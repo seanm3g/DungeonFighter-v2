@@ -37,9 +37,21 @@ namespace RPGGame.UI.Avalonia.Effects
 
         /// <summary>
         /// Ignore OS/micro jitter below this pixel travel so idle cannot sustain residual wind.
-        /// Sized above typical still-hover noise while reading item tooltips (~1–2px).
+        /// Sized above typical still-hover / high-DPI pointer noise (~3–5px) while reading tips.
         /// </summary>
-        internal const double MotionDeadzonePixels = 3.0;
+        internal const double MotionDeadzonePixels = 6.0;
+
+        /// <summary>
+        /// Cap on dt used for speed so a first stroke after a long idle still wakes responsively
+        /// (without treating a single tiny event as an instant full-amp flick).
+        /// </summary>
+        internal const double MaxPushDtSeconds = 0.05;
+
+        /// <summary>
+        /// Excess travel past the deadzone ramps wake speed over this many pixels so a just-over
+        /// nudge cannot full-amp via speedFactor (wind already uses excess-only impulse).
+        /// </summary>
+        internal const double MotionAmpRampPixels = 10.0;
 
         /// <summary>
         /// After this much stillness, residual wake is forced to exact rest.
@@ -56,10 +68,36 @@ namespace RPGGame.UI.Avalonia.Effects
 
         /// <summary>
         /// Sampled glyph offsets below this pixel magnitude paint as rest (avoids subpixel AA smear on pixel fonts).
-        /// Kept under typical near-wake test magnitudes (~0.3px) so real sway still registers.
+        /// Full pixel: paint integer-snaps offsets, so anything smaller than 1px would Round-flicker glyphs.
         /// Paint still ignores sub-<see cref="WindSwayChromatic.IdleEpsilon"/> poses for CA.
         /// </summary>
-        internal const double PixelRestEpsilon = 0.25;
+        internal const double PixelRestEpsilon = 1.0;
+
+        /// <summary>
+        /// Hard cap on stored trail samples regardless of config (keeps per-glyph sampling O(1)-ish).
+        /// Config defaults stay at 10; live JSON can request more but paint cost must stay bounded.
+        /// </summary>
+        internal const int TrailPointsHardCap = 14;
+
+        /// <summary>
+        /// Floor for settle / pointer-refresh interval (ms). Sub-20ms full-canvas paints rarely look smoother
+        /// than ~40–50fps while costing a lot of UI-thread time under chromatic glyph draws.
+        /// </summary>
+        internal const int MinSettleIntervalMs = 20;
+
+        private readonly struct FrameTrailStamp
+        {
+            public FrameTrailStamp(TrailPoint point, double dirX, double dirY)
+            {
+                Point = point;
+                DirX = dirX;
+                DirY = dirY;
+            }
+
+            public TrailPoint Point { get; }
+            public double DirX { get; }
+            public double DirY { get; }
+        }
 
         private readonly object _lock = new();
         private readonly Stopwatch _clock = Stopwatch.StartNew();
@@ -95,7 +133,7 @@ namespace RPGGame.UI.Avalonia.Effects
         private bool _frameHasMouse;
         private double _frameMouseX;
         private double _frameMouseY;
-        private TrailPoint[] _frameTrail = Array.Empty<TrailPoint>();
+        private FrameTrailStamp[] _frameTrail = Array.Empty<FrameTrailStamp>();
         private int _frameTrailCount;
         private double _frameRadiusCells;
         private double _frameRadiusMinorPx;
@@ -108,6 +146,16 @@ namespace RPGGame.UI.Avalonia.Effects
         private double _frameWakeMaxY;
         private bool _frameHasBounds;
         private double _frameIdleFor;
+        private bool _frameUseQuadratic;
+        private double _frameNearInfluence;
+        private double _frameFarInfluence;
+        private double _frameRearBias;
+        private double _frameLifetime;
+        private double _frameMaxOffsetFraction;
+        private double _frameVerticalScale;
+        private double _frameSpeedReference;
+        private double _frameMaxWind;
+        private double _framePixelRestEpsilonSq;
 
         /// <summary>Current configuration (replaced atomically via <see cref="ApplyConfig"/>).</summary>
         public WindSwayConfig Config
@@ -272,13 +320,28 @@ namespace RPGGame.UI.Avalonia.Effects
                 _frameRadiusMajorPx = _frameRadiusCells * charHeight;
                 _frameMotionDirX = _motionDirX;
                 _frameMotionDirY = _motionDirY;
+                _frameUseQuadratic = _config.WakeFalloffPower > 1.05;
+                _frameNearInfluence = Math.Max(0, _config.NearInfluence);
+                _frameFarInfluence = Math.Max(0, _config.FarInfluence);
+                _frameRearBias = Math.Clamp(_config.WakeRearBias, 0.0, 1.0);
+                _frameLifetime = Math.Max(0.01, _config.TrailLifetimeSeconds);
+                _frameMaxOffsetFraction = Math.Max(0, _config.MaxOffsetFraction);
+                _frameVerticalScale = Math.Clamp(_config.VerticalScale, 0, 1);
+                _frameSpeedReference = speedRef;
+                _frameMaxWind = Math.Max(0.01, _config.MaxWind);
+                _framePixelRestEpsilonSq = PixelRestEpsilon * PixelRestEpsilon;
 
                 EnsureFrameTrailCapacity(_trail.Count);
                 for (int i = 0; i < _trail.Count; i++)
-                    _frameTrail[i] = _trail[i];
+                {
+                    var p = _trail[i];
+                    ResolveFacingFromWind(p.WindX, p.WindY, charWidth, charHeight,
+                        _motionDirX, _motionDirY, out double stampDirX, out double stampDirY);
+                    _frameTrail[i] = new FrameTrailStamp(p, stampDirX, stampDirY);
+                }
                 _frameTrailCount = _trail.Count;
 
-                BuildWakeBoundsUnlocked(charWidth, charHeight);
+                BuildWakeBoundsUnlocked();
 
                 _frameActive = true;
                 return true;
@@ -357,18 +420,30 @@ namespace RPGGame.UI.Avalonia.Effects
                     double dyPx = mouseY - _lastMouseY.Value;
                     double distPx = Math.Sqrt(dxPx * dxPx + dyPx * dyPx);
 
-                    // Deadzone: track position but do not inject wind/speed from micro-jitter.
+                    // Deadzone: keep wake-center tracking, but do not inject wind/speed from micro-jitter.
+                    // Only the excess past the deadzone becomes impulse — just-crossing must not full-amp.
                     if (distPx > MotionDeadzonePixels)
                     {
-                        double dxCells = dxPx / charWidth;
-                        double dyCells = dyPx / charHeight;
+                        double excessPx = distPx - MotionDeadzonePixels;
+                        double excessScale = excessPx / distPx;
+                        double ampRamp = Math.Clamp(excessPx / MotionAmpRampPixels, 0.0, 1.0);
+                        double excessDxPx = dxPx * excessScale;
+                        double excessDyPx = dyPx * excessScale;
 
+                        double dxCells = excessDxPx / charWidth;
+                        double dyCells = excessDyPx / charHeight;
+
+                        // Do not let sub-deadzone samples keep lastPush "hot" — that made a 6px nudge
+                        // look like a 60fps flick and fully displace pixel fonts.
                         double pushDt = dtOverrideSeconds ?? (now - _lastPushSeconds);
                         if (pushDt <= 0)
                             pushDt = 1e-3;
+                        if (dtOverrideSeconds == null && pushDt > MaxPushDtSeconds)
+                            pushDt = MaxPushDtSeconds;
 
                         double distCells = Math.Sqrt(dxCells * dxCells + dyCells * dyCells);
-                        _speedCellsPerSec = distCells / pushDt;
+                        // Ramp speed with excess travel — tiny overshoots must not full-amp.
+                        _speedCellsPerSec = (distCells / pushDt) * ampRamp;
 
                         double gain = Math.Max(0, _config.ImpulseGain);
                         _windX += dxCells * gain;
@@ -379,6 +454,7 @@ namespace RPGGame.UI.Avalonia.Effects
                         _motionDirX = dxPx / distPx;
                         _motionDirY = dyPx / distPx;
                         _lastMeaningfulMotionSeconds = now;
+                        _lastPushSeconds = now;
 
                         TryDepositTrailUnlocked(mouseX, mouseY, charWidth, charHeight, now);
                     }
@@ -387,11 +463,11 @@ namespace RPGGame.UI.Avalonia.Effects
                 {
                     // First sample: establish position without inventing an impulse.
                     _lastMeaningfulMotionSeconds = now;
+                    _lastPushSeconds = now;
                 }
 
                 _lastMouseX = mouseX;
                 _lastMouseY = mouseY;
-                _lastPushSeconds = now;
             }
         }
 
@@ -434,6 +510,16 @@ namespace RPGGame.UI.Avalonia.Effects
             if (charWidth <= 0 || charHeight <= 0)
                 return 0;
 
+            // Paint path: reuse BeginFrame ellipse snapshot (no lock) when the wake is live.
+            if (_frameActive && _frameHasMouse && _frameConfig.InteractiveHighlightEnabled)
+            {
+                return SampleProximityFromFrame(
+                    gridX, gridY, glyphIndex, charWidth, charHeight,
+                    _frameMouseX, _frameMouseY, _frameMotionDirX, _frameMotionDirY,
+                    _frameRadiusMinorPx, _frameRadiusMajorPx,
+                    _frameNearInfluence, _frameFarInfluence, _frameUseQuadratic);
+            }
+
             lock (_lock)
             {
                 if (!_config.InteractiveHighlightEnabled || !_hasMouse)
@@ -446,23 +532,45 @@ namespace RPGGame.UI.Avalonia.Effects
                 double farInf = Math.Max(0, _config.FarInfluence);
                 bool useQuadratic = _config.WakeFalloffPower > 1.05;
 
-                double glyphCenterX = ((gridX + glyphIndex) + 0.5) * charWidth;
-                double glyphCenterY = (gridY + 0.5) * charHeight;
-                double dx = glyphCenterX - _mouseX;
-                double dy = glyphCenterY - _mouseY;
-                double t = EllipticalNormalizedRadius(
-                    dx, dy, _motionDirX, _motionDirY, radiusMinorPx, radiusMajorPx);
-                if (t >= 1.0)
-                    return 0;
-
-                double curved = useQuadratic ? t * t : t;
-                // Normalize so peak (near) maps toward 1 for highlight strength.
-                double radial = Lerp(nearInf, farInf, curved);
-                double peak = Math.Max(nearInf, farInf);
-                if (peak <= 1e-6)
-                    return 0;
-                return Math.Clamp(radial / peak, 0.0, 1.0);
+                return SampleProximityFromFrame(
+                    gridX, gridY, glyphIndex, charWidth, charHeight,
+                    _mouseX, _mouseY, _motionDirX, _motionDirY,
+                    radiusMinorPx, radiusMajorPx, nearInf, farInf, useQuadratic);
             }
+        }
+
+        private static double SampleProximityFromFrame(
+            int gridX,
+            int gridY,
+            int glyphIndex,
+            double charWidth,
+            double charHeight,
+            double mouseX,
+            double mouseY,
+            double motionDirX,
+            double motionDirY,
+            double radiusMinorPx,
+            double radiusMajorPx,
+            double nearInf,
+            double farInf,
+            bool useQuadratic)
+        {
+            double glyphCenterX = ((gridX + glyphIndex) + 0.5) * charWidth;
+            double glyphCenterY = (gridY + 0.5) * charHeight;
+            double dx = glyphCenterX - mouseX;
+            double dy = glyphCenterY - mouseY;
+            double tSq = EllipticalNormalizedRadiusSquared(
+                dx, dy, motionDirX, motionDirY, radiusMinorPx, radiusMajorPx);
+            if (tSq >= 1.0)
+                return 0;
+
+            double curved = useQuadratic ? tSq : Math.Sqrt(tSq);
+            // Normalize so peak (near) maps toward 1 for highlight strength.
+            double radial = Lerp(nearInf, farInf, curved);
+            double peak = Math.Max(nearInf, farInf);
+            if (peak <= 1e-6)
+                return 0;
+            return Math.Clamp(radial / peak, 0.0, 1.0);
         }
 
         private (double OffsetX, double OffsetY) SampleOffsetFromFrame(
@@ -488,13 +596,15 @@ namespace RPGGame.UI.Avalonia.Effects
             double glyphCenterX = ((gridX + glyphIndex) + 0.5) * charWidth;
             double glyphCenterY = (gridY + 0.5) * charHeight;
 
-            var cfg = _frameConfig;
-            double nearInf = Math.Max(0, cfg.NearInfluence);
-            double farInf = Math.Max(0, cfg.FarInfluence);
-            double rearBias = Math.Clamp(cfg.WakeRearBias, 0.0, 1.0);
-            double lifetime = Math.Max(0.01, cfg.TrailLifetimeSeconds);
-            // Quadratic falloff (cheap stand-in for the old t^power curve).
-            bool useQuadratic = cfg.WakeFalloffPower > 1.05;
+            // Long combat-log lines often only clip the wake AABB at one end — skip glyphs outside.
+            if (_frameHasBounds
+                && (glyphCenterX < _frameWakeMinX
+                    || glyphCenterX > _frameWakeMaxX
+                    || glyphCenterY < _frameWakeMinY
+                    || glyphCenterY > _frameWakeMaxY))
+            {
+                return (0, 0);
+            }
 
             double bestLayer = 0;
             double bestWindX = _frameWindX;
@@ -509,53 +619,49 @@ namespace RPGGame.UI.Avalonia.Effects
                     _frameWindX, _frameWindY, _frameSpeed,
                     _frameRadiusMinorPx, _frameRadiusMajorPx,
                     _frameMotionDirX, _frameMotionDirY,
-                    nearInf, farInf, useQuadratic, rearBias,
+                    _frameNearInfluence, _frameFarInfluence, _frameUseQuadratic, _frameRearBias,
                     ref bestLayer, ref bestWindX, ref bestWindY, ref bestPointSpeed);
             }
 
             for (int i = 0; i < _frameTrailCount; i++)
             {
-                var p = _frameTrail[i];
-                double ageFade = 1.0 - (_frameNow - p.Time) / lifetime;
+                var stamp = _frameTrail[i];
+                var p = stamp.Point;
+                double ageFade = 1.0 - (_frameNow - p.Time) / _frameLifetime;
                 if (ageFade <= 0)
                     continue;
-                ResolveFacingFromWind(p.WindX, p.WindY, charWidth, charHeight,
-                    _frameMotionDirX, _frameMotionDirY, out double stampDirX, out double stampDirY);
                 ConsiderPoint(
                     glyphCenterX, glyphCenterY,
                     p.X, p.Y, ageFade,
                     p.WindX, p.WindY, p.Speed,
                     _frameRadiusMinorPx, _frameRadiusMajorPx,
-                    stampDirX, stampDirY,
-                    nearInf, farInf, useQuadratic, rearBias,
+                    stamp.DirX, stamp.DirY,
+                    _frameNearInfluence, _frameFarInfluence, _frameUseQuadratic, _frameRearBias,
                     ref bestLayer, ref bestWindX, ref bestWindY, ref bestPointSpeed);
             }
 
             if (bestLayer < 1e-6)
                 return (0, 0);
 
-            double speedRef = Math.Max(0.01, cfg.SpeedReferenceCellsPerSec);
-            double pointSpeedFactor = Math.Clamp(bestPointSpeed / speedRef, 0.0, 1.0);
-            double pointWindMag = Math.Sqrt(bestWindX * bestWindX + bestWindY * bestWindY);
-            double pointWindFactor = Math.Clamp(pointWindMag / Math.Max(0.01, cfg.MaxWind), 0.0, 1.0);
+            double pointSpeedFactor = Math.Clamp(bestPointSpeed / _frameSpeedReference, 0.0, 1.0);
+            double pointWindMagSq = bestWindX * bestWindX + bestWindY * bestWindY;
+            if (pointWindMagSq <= 1e-12)
+                return (0, 0);
+            double pointWindMag = Math.Sqrt(pointWindMagSq);
+            double pointWindFactor = Math.Clamp(pointWindMag / _frameMaxWind, 0.0, 1.0);
             double pointAmp = Math.Max(pointSpeedFactor, pointWindFactor * 0.9);
             double combinedAmp = Math.Max(_frameAmpFactor, pointAmp);
             if (combinedAmp < 1e-6)
                 return (0, 0);
 
-            double dirMag = pointWindMag;
-            if (dirMag <= 1e-6)
-                return (0, 0);
-
-            double dirX = bestWindX / dirMag;
-            double dirY = bestWindY / dirMag;
-            double vert = Math.Clamp(cfg.VerticalScale, 0, 1);
-            double strength = Math.Max(0, cfg.MaxOffsetFraction) * bestLayer * combinedAmp;
+            double dirX = bestWindX / pointWindMag;
+            double dirY = bestWindY / pointWindMag;
+            double strength = _frameMaxOffsetFraction * bestLayer * combinedAmp;
 
             // Direction-only offset (no per-glyph sine ripple — was already subdued and costly).
             double ox = dirX * strength * charWidth;
-            double oy = dirY * strength * charHeight * vert;
-            if (Math.Sqrt(ox * ox + oy * oy) < PixelRestEpsilon)
+            double oy = dirY * strength * charHeight * _frameVerticalScale;
+            if (ox * ox + oy * oy < _framePixelRestEpsilonSq)
                 return (0, 0);
             return (ox, oy);
         }
@@ -653,10 +759,10 @@ namespace RPGGame.UI.Avalonia.Effects
             if (_frameTrail.Length >= count)
                 return;
             int next = Math.Max(count, Math.Max(8, _frameTrail.Length * 2));
-            _frameTrail = new TrailPoint[next];
+            _frameTrail = new FrameTrailStamp[next];
         }
 
-        private void BuildWakeBoundsUnlocked(double charWidth, double charHeight)
+        private void BuildWakeBoundsUnlocked()
         {
             bool any = false;
             double minX = 0, maxX = 0, minY = 0, maxY = 0;
@@ -689,10 +795,8 @@ namespace RPGGame.UI.Avalonia.Effects
                 Expand(_frameMouseX, _frameMouseY, _frameMotionDirX, _frameMotionDirY);
             for (int i = 0; i < _frameTrailCount; i++)
             {
-                var p = _frameTrail[i];
-                ResolveFacingFromWind(p.WindX, p.WindY, charWidth, charHeight,
-                    _frameMotionDirX, _frameMotionDirY, out double stampDirX, out double stampDirY);
-                Expand(p.X, p.Y, stampDirX, stampDirY);
+                var stamp = _frameTrail[i];
+                Expand(stamp.Point.X, stamp.Point.Y, stamp.DirX, stamp.DirY);
             }
 
             _frameHasBounds = any;
@@ -724,30 +828,33 @@ namespace RPGGame.UI.Avalonia.Effects
             ref double bestWindY,
             ref double bestPointSpeed)
         {
-            double dx = glyphCenterX - pointX;
-            double dy = glyphCenterY - pointY;
-            double t = EllipticalNormalizedRadius(dx, dy, motionDirX, motionDirY, radiusMinorPx, radiusMajorPx);
-            if (t >= 1.0)
-                return;
-
-            double curved = useQuadratic ? t * t : t;
-            double radial = Lerp(nearInfluence, farInfluence, curved);
-
             // Wake stamps need a wind vector; zero-wind points would otherwise paint
             // full isotropic radial and wash out rear bias / trail directionality.
             double velMagSq = windX * windX + windY * windY;
             if (velMagSq <= 1e-8)
                 return;
 
+            double dx = glyphCenterX - pointX;
+            double dy = glyphCenterY - pointY;
+            double tSq = EllipticalNormalizedRadiusSquared(
+                dx, dy, motionDirX, motionDirY, radiusMinorPx, radiusMajorPx);
+            if (tSq >= 1.0)
+                return;
+
+            // Quadratic falloff works in t²; linear needs one Sqrt for in-wake glyphs only.
+            double curved = useQuadratic ? tSq : Math.Sqrt(tSq);
+            double radial = Lerp(nearInfluence, farInfluence, curved);
+
             double dirFactor = 1.0;
-            if (rearBias > 1e-6 && t > 1e-6)
+            if (rearBias > 1e-6 && tSq > 1e-12)
             {
                 // Compare behind/front in pixel space along the ellipse orientation.
-                double distPx = Math.Sqrt(dx * dx + dy * dy);
-                if (distPx > 1e-6)
+                double distPxSq = dx * dx + dy * dy;
+                if (distPxSq > 1e-12)
                 {
-                    double toGlyphX = dx / distPx;
-                    double toGlyphY = dy / distPx;
+                    double invDist = 1.0 / Math.Sqrt(distPxSq);
+                    double toGlyphX = dx * invDist;
+                    double toGlyphY = dy * invDist;
                     // behind = 1 when glyph is opposite motion (in the wake), 0 in front
                     double behind = 0.5 * (1.0 + (-motionDirX * toGlyphX + -motionDirY * toGlyphY));
                     behind = Math.Clamp(behind, 0.0, 1.0);
@@ -776,6 +883,18 @@ namespace RPGGame.UI.Avalonia.Effects
             double dirY,
             double radiusMinorPx,
             double radiusMajorPx)
+            => Math.Sqrt(EllipticalNormalizedRadiusSquared(dx, dy, dirX, dirY, radiusMinorPx, radiusMajorPx));
+
+        /// <summary>
+        /// Squared form of <see cref="EllipticalNormalizedRadius"/> for reject tests without <c>Sqrt</c>.
+        /// </summary>
+        internal static double EllipticalNormalizedRadiusSquared(
+            double dx,
+            double dy,
+            double dirX,
+            double dirY,
+            double radiusMinorPx,
+            double radiusMajorPx)
         {
             double minor = Math.Max(1e-6, radiusMinorPx);
             double major = Math.Max(1e-6, radiusMajorPx);
@@ -783,7 +902,7 @@ namespace RPGGame.UI.Avalonia.Effects
             double perp = -dx * dirY + dy * dirX;
             double nx = perp / minor;
             double ny = along / major;
-            return Math.Sqrt(nx * nx + ny * ny);
+            return nx * nx + ny * ny;
         }
 
         internal static void OrientedEllipsePad(
@@ -853,16 +972,30 @@ namespace RPGGame.UI.Avalonia.Effects
             _lastDepositX = mouseX;
             _lastDepositY = mouseY;
 
-            int maxPoints = Math.Max(1, _config.TrailMaxPoints);
-            while (_trail.Count > maxPoints)
-                _trail.RemoveAt(0);
+            int maxPoints = EffectiveTrailMaxPoints(_config.TrailMaxPoints);
+            int excess = _trail.Count - maxPoints;
+            if (excess > 0)
+                _trail.RemoveRange(0, excess);
         }
 
         private void PruneTrailUnlocked(double nowSeconds)
         {
             double lifetime = Math.Max(0.01, _config.TrailLifetimeSeconds);
-            _trail.RemoveAll(p => nowSeconds - p.Time > lifetime);
+            // Trail is time-ordered; drop a prefix of expired stamps (no RemoveAll predicate alloc).
+            int firstAlive = 0;
+            while (firstAlive < _trail.Count && nowSeconds - _trail[firstAlive].Time > lifetime)
+                firstAlive++;
+            if (firstAlive > 0)
+                _trail.RemoveRange(0, firstAlive);
         }
+
+        /// <summary>Config trail cap clamped to <see cref="TrailPointsHardCap"/> (always ≥ 1).</summary>
+        internal static int EffectiveTrailMaxPoints(int configured) =>
+            Math.Min(Math.Max(1, configured), TrailPointsHardCap);
+
+        /// <summary>Settle / pointer-refresh interval clamped for FPS (floor <see cref="MinSettleIntervalMs"/>).</summary>
+        internal static int EffectiveSettleIntervalMs(int configured) =>
+            Math.Clamp(configured, MinSettleIntervalMs, 100);
 
         private bool IsEffectivelyEnabledUnlocked() =>
             _config.Enabled && DeveloperModeState.AreDistortionEffectsEnabled;

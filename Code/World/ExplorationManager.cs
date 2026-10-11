@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.World.DungeonMap;
 
 namespace RPGGame
 {
@@ -19,81 +20,108 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Automatically explores room before combat (dice-based)
-        /// Returns exploration outcome based on 1d20 roll
+        /// Automatically explores room before combat (dice-based).
+        /// Legacy callers use Random-weighted approach tables.
         /// </summary>
-        public ExplorationResult ExploreRoom(Environment room, Character player)
+        public ExplorationResult ExploreRoom(Environment room, Character player) =>
+            ExploreRoom(room, player, TraversalStrategy.Random);
+
+        /// <summary>
+        /// Strategy-weighted approach: Smart skews first swing / intel; Random skews surprise / traps.
+        /// </summary>
+        public ExplorationResult ExploreRoom(Environment room, Character player, TraversalStrategy strategy)
         {
             int roll = Dice.Roll(20);
-            
-            // Thresholds:
-            // 1-5 (25%): Find Nothing → may trigger surprise if enemies present
-            // 6-12 (35%): Discover Environment Info
-            // 13-15 (15%): Environmental Hazard (trap/collapse)
-            // 16-20 (25%): Spot Enemy Early → player gets first attack
-            
-            if (roll <= 5)
+            var outcome = ResolveOutcomeForStrategy(roll, strategy);
+            return BuildResult(room, roll, outcome, strategy);
+        }
+
+        /// <summary>
+        /// Maps a natural d20 into an outcome using strategy-weighted bands.
+        /// Smart: 1-2 FindNothing, 3-8 Discover, 9-10 Hazard, 11-20 SpotEnemyEarly
+        /// Random: 1-8 FindNothing (surprise), 9-12 Discover, 13-18 Hazard, 19-20 SpotEnemyEarly
+        /// </summary>
+        public static ExplorationOutcome ResolveOutcomeForStrategy(int roll, TraversalStrategy strategy)
+        {
+            int r = Math.Clamp(roll, 1, 20);
+            if (strategy == TraversalStrategy.Smart)
             {
-                // Find Nothing - check for surprise
-                bool isSurprised = room.HasLivingEnemies();
-                var nothingMessages = new[]
-                {
-                    "You carefully examine the room, but find nothing unusual.",
-                    "The room appears empty and quiet.",
-                    "You scan the area but detect nothing out of the ordinary.",
-                    "Everything seems calm and undisturbed.",
-                    "You take a moment to observe, but notice nothing significant."
-                };
-                return new ExplorationResult
-                {
-                    Outcome = ExplorationOutcome.FindNothing,
-                    Roll = roll,
-                    Message = nothingMessages[random.Next(nothingMessages.Length)],
-                    IsSurprised = isSurprised
-                };
+                if (r <= 2) return ExplorationOutcome.FindNothing;
+                if (r <= 8) return ExplorationOutcome.DiscoverEnvironment;
+                if (r <= 10) return ExplorationOutcome.EnvironmentalHazard;
+                return ExplorationOutcome.SpotEnemyEarly;
             }
-            else if (roll <= 12)
+
+            if (r <= 8) return ExplorationOutcome.FindNothing;
+            if (r <= 12) return ExplorationOutcome.DiscoverEnvironment;
+            if (r <= 18) return ExplorationOutcome.EnvironmentalHazard;
+            return ExplorationOutcome.SpotEnemyEarly;
+        }
+
+        private ExplorationResult BuildResult(Environment room, int roll, ExplorationOutcome outcome, TraversalStrategy strategy)
+        {
+            switch (outcome)
             {
-                // Discover Environment Info
-                string discovery = discoveryGenerator.GenerateDiscovery(room);
-                return new ExplorationResult
+                case ExplorationOutcome.FindNothing:
                 {
-                    Outcome = ExplorationOutcome.DiscoverEnvironment,
-                    Roll = roll,
-                    Message = discovery,
-                    EnvironmentInfo = discovery
-                };
-            }
-            else if (roll <= 15)
-            {
-                // Environmental Hazard
-                var hazard = GenerateEnvironmentalHazard(room);
-                return new ExplorationResult
+                    // Smart approach: no surprise; Random: surprise when enemies present
+                    bool isSurprised = strategy == TraversalStrategy.Random && room.HasLivingEnemies();
+                    var nothingMessages = new[]
+                    {
+                        "You carefully examine the room, but find nothing unusual.",
+                        "The room appears empty and quiet.",
+                        "You scan the area but detect nothing out of the ordinary.",
+                        "Everything seems calm and undisturbed.",
+                        "You take a moment to observe, but notice nothing significant."
+                    };
+                    return new ExplorationResult
+                    {
+                        Outcome = ExplorationOutcome.FindNothing,
+                        Roll = roll,
+                        Message = nothingMessages[random.Next(nothingMessages.Length)],
+                        IsSurprised = isSurprised
+                    };
+                }
+                case ExplorationOutcome.DiscoverEnvironment:
                 {
-                    Outcome = ExplorationOutcome.EnvironmentalHazard,
-                    Roll = roll,
-                    Message = hazard.Message,
-                    Hazard = hazard
-                };
-            }
-            else
-            {
-                // Spot Enemy Early - player gets first attack
-                var spotMessages = new[]
+                    string discovery = discoveryGenerator.GenerateDiscovery(room);
+                    return new ExplorationResult
+                    {
+                        Outcome = ExplorationOutcome.DiscoverEnvironment,
+                        Roll = roll,
+                        Message = discovery,
+                        EnvironmentInfo = discovery
+                    };
+                }
+                case ExplorationOutcome.EnvironmentalHazard:
                 {
-                    "A shadow moves in the corner! You spot the enemy before they notice you!",
-                    "You catch a glimpse of movement ahead - the enemy hasn't seen you yet!",
-                    "Your keen eyes spot the enemy first, giving you the advantage!",
-                    "You notice the enemy before they're aware of your presence!",
-                    "The enemy is distracted - you've spotted them first!"
-                };
-                return new ExplorationResult
+                    var hazard = GenerateEnvironmentalHazard(room);
+                    return new ExplorationResult
+                    {
+                        Outcome = ExplorationOutcome.EnvironmentalHazard,
+                        Roll = roll,
+                        Message = hazard.Message,
+                        Hazard = hazard
+                    };
+                }
+                default:
                 {
-                    Outcome = ExplorationOutcome.SpotEnemyEarly,
-                    Roll = roll,
-                    Message = spotMessages[random.Next(spotMessages.Length)],
-                    PlayerGetsFirstAttack = true
-                };
+                    var spotMessages = new[]
+                    {
+                        "A shadow moves in the corner! You spot the enemy before they notice you!",
+                        "You catch a glimpse of movement ahead - the enemy hasn't seen you yet!",
+                        "Your keen eyes spot the enemy first, giving you the advantage!",
+                        "You notice the enemy before they're aware of your presence!",
+                        "The enemy is distracted - you've spotted them first!"
+                    };
+                    return new ExplorationResult
+                    {
+                        Outcome = ExplorationOutcome.SpotEnemyEarly,
+                        Roll = roll,
+                        Message = spotMessages[random.Next(spotMessages.Length)],
+                        PlayerGetsFirstAttack = true
+                    };
+                }
             }
         }
 
@@ -103,9 +131,8 @@ namespace RPGGame
         /// </summary>
         public SearchResult SearchRoom(Environment room, Character player, int dungeonLevel)
         {
-            // 90% nothing, 10% loot (roll 19-20)
             int roll = Dice.Roll(20);
-            
+
             if (roll <= 18)
             {
                 var nothingMessages = new[]
@@ -126,48 +153,38 @@ namespace RPGGame
                     Message = nothingMessages[random.Next(nothingMessages.Length)]
                 };
             }
-            else
+
+            Item? loot = RoomSearchConsumableGenerator.Generate(random, player, dungeonLevel);
+            var foundMessages = new[]
             {
-                Item? loot = RoomSearchConsumableGenerator.Generate(random, player, dungeonLevel);
-                var foundMessages = new[]
-                {
-                    $"You search the area and find: {loot?.Name ?? "nothing"}",
-                    $"Hidden among the remains, you discover: {loot?.Name ?? "nothing"}",
-                    $"Your search uncovers: {loot?.Name ?? "nothing"}",
-                    $"After rummaging through the area, you find: {loot?.Name ?? "nothing"}",
-                    $"You spot something valuable: {loot?.Name ?? "nothing"}"
-                };
-                string message = loot != null 
-                    ? foundMessages[random.Next(foundMessages.Length)]
-                    : "You search thoroughly but find nothing of value.";
-                
-                return new SearchResult
-                {
-                    FoundLoot = loot != null,
-                    LootItem = loot,
-                    Roll = roll,
-                    Message = message
-                };
-            }
+                $"You search the area and find: {loot?.Name ?? "nothing"}",
+                $"Hidden among the remains, you discover: {loot?.Name ?? "nothing"}",
+                $"Your search uncovers: {loot?.Name ?? "nothing"}",
+                $"After rummaging through the area, you find: {loot?.Name ?? "nothing"}",
+                $"You spot something valuable: {loot?.Name ?? "nothing"}"
+            };
+            string message = loot != null
+                ? foundMessages[random.Next(foundMessages.Length)]
+                : "You search thoroughly but find nothing of value.";
+
+            return new SearchResult
+            {
+                FoundLoot = loot != null,
+                LootItem = loot,
+                Roll = roll,
+                Message = message
+            };
         }
 
-        /// <summary>
-        /// Generates environmental hazard (trap, collapse, etc.)
-        /// </summary>
         private EnvironmentalHazard GenerateEnvironmentalHazard(Environment room)
         {
             int hazardRoll = Dice.Roll(20);
-            
-            // 50% chance: Skip to combat (hazard damages but combat proceeds)
-            // 50% chance: Skip to search (hazard blocks path, no combat)
             bool skipToSearch = hazardRoll > 10;
-            
             string message;
             int damage = 0;
-            
+
             if (skipToSearch)
             {
-                // Skip to search - block path
                 var skipMessages = new[]
                 {
                     "The ceiling suddenly collapses, blocking the path forward!",
@@ -182,8 +199,7 @@ namespace RPGGame
             }
             else
             {
-                // Skip to combat - apply damage
-                damage = Dice.Roll(1, 5); // 1-5 damage
+                damage = Dice.Roll(1, 5);
                 var damageMessages = new[]
                 {
                     $"A hidden trap springs from the floor! You take {damage} damage!",
@@ -196,7 +212,7 @@ namespace RPGGame
                 };
                 message = damageMessages[random.Next(damageMessages.Length)];
             }
-            
+
             return new EnvironmentalHazard
             {
                 Message = message,
@@ -207,4 +223,3 @@ namespace RPGGame
         }
     }
 }
-

@@ -4,14 +4,147 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Perf / UI: text distortion frame-rate drop (October 2026)
+**Problem:** With F6 mouse-wind distortion on, moving the pointer over dense combat-log / panel text caused noticeable frame-rate dips.
+
+**Root cause:** Live config had drifted to expensive trail/settle knobs (28 trail points, 16ms full-canvas refresh). Per-glyph sampling re-resolved trail facing and used `Sqrt` rejects; long lines that only clipped the wake still sampled every glyph; `char.ToString()` allocated on every distorted glyph draw.
+
+**Solution:** Precompute trail facing in `BeginFrame`; elliptical reject via `t²`; per-glyph wake AABB early-out; intern ASCII glyph strings; hard-cap trail at 14; floor settle/pointer refresh at 20ms; restore lean trail/settle defaults in `UIConfiguration.json`.
+
+**Related files:** `WindSwayField.cs`, `CanvasPrimitivesRenderer.cs`, `GameCanvasControl.cs`, `UIConfiguration.json`, `WindSwayFieldTests.cs`, `CanvasPrimitiveStackingTests.cs`, `PERFORMANCE_NOTES.md`, `OVERVIEW.md`, `ARCHITECTURE.md`, `TASKLIST.md`
+
+### Bug fix / UI: dungeon select hover changed letter spacing (October 2026)
+**Problem:** On the AVAILABLE DUNGEONS menu, moving the pointer onto a row made letter spacing jump wider even though F6 distortion was not being “used” intentionally.
+
+**Root cause:** (1) Idle rows used per-glyph undulation; hover used a single yellow string (different advance under center-column zoom). (2) After recoloring the row yellow, `AddTextWithMerging` collapsed adjacent length-1 cells into one run — paint then used `Round(charWidth × zoom)` while idle neighbors stayed on `charWidth`.
+
+**Solution:** Keep one-glyph-per-cell segments and only recolor on hover (`DungeonSelectionRenderer`). Do not adjacent-merge length-1 adds (`CanvasElementManager.ShouldKeepAsOwnCell`). Header wake path uses `DrawTextRun` when offset is zero so FormattedText cannot tighten kerning on mouse enter.
+
+**Related files:** `DungeonSelectionRenderer.cs`, `CanvasElementManager.cs`, `CanvasPrimitivesRenderer.cs`, `DungeonSelectionHoverLayoutTests.cs`, `CanvasPrimitiveStackingTests.cs`, `OVERVIEW.md`, `ARCHITECTURE.md`, `TASKLIST.md`
+
+### Bug fix / UI: DistortionPulse left a hole before SLAM (October 2026)
+**Problem:** On the F7 Action-beat DistortionPulse (e.g. `A decisive  SLAM`), there looked like an extra space before the green action word. Earlier outcome prose (`a chaining SLAM`) stayed correctly spaced.
+
+**Root cause:** Prose only has one separator space. The pulse exclude AABB covered only the letters of SLAM, so the flanking space glyph was pushed outward and vacated its cell while SLAM stayed rigid — reading as a double space.
+
+**Solution:** `ActionTextEmphasisWordLocator` pads the rigid exclude rect by one cell on each side (origin stays on the word center) so separator spaces do not flee. Tests: `ActionTextEmphasisWordLocatorTests`.
+
+**Related files:** `ActionTextEmphasisWordLocator.cs`, `ActionTextEmphasisWordLocatorTests.cs`, `ARCHITECTURE.md`, `OVERVIEW.md`, `TASKLIST.md`
+
+### UI: micro mouse moves jitter glyphs under distortion (October 2026)
+**Problem:** With F6 mouse-wind distortion on, tiny pointer movements that should leave text alone were still shoving pixel-font characters around one device pixel at a time.
+
+**Root cause:** (1) Sub-deadzone pointer samples still refreshed the push clock, so a barely-over-deadzone nudge used ~16ms dt and looked like a full-speed flick. (2) The whole travel past deadzone became impulse (no excess-only). (3) Rest-snap at 0.5px still allowed sub-pixel offsets that integer-snapped to a 1px jump.
+
+**Solution:** Raise motion deadzone to 6px; apply impulse only for travel past the deadzone; advance push-dt only on meaningful motion (cap resume-from-idle dt); ramp wake speed over the next 10px of excess so just-over nudges cannot full-amp; rest-snap sampled offsets below 1px.
+
+**Related files:** `WindSwayField.cs`, `WindSwayFieldTests.cs`, `OVERVIEW.md`, `ARCHITECTURE.md`, `TASKLIST.md`
+
+### UI: VT323 kerning tightens then jumps wider near the mouse (October 2026)
+**Problem:** On VT323 (and other pixel fonts), menu/body text looked tightly spaced until the mouse wake was near, then letter spacing suddenly widened — distinct from intentional sway/distort motion.
+
+**Root cause:** Idle paint drew whole strings with `FormattedText` (face-native advances, often a fraction tighter than the snapped cell width). The wake path places glyphs at `i × Round(charWidth)`. Entering the wake AABB switched layouts, so spacing jumped even when offsets were near rest.
+
+**Solution:** Pixel-grid fonts (`GameFonts.UsesPixelGrid`) always paint body text glyph-by-glyph on the snapped monospace grid (`DrawTextRun` / `MonospaceGlyphOriginX`), idle and wake alike. Courier New keeps the whole-string path. Headers that move as one unit are unchanged.
+
+**Related files:** `CanvasPrimitivesRenderer.cs`, `CanvasPrimitiveStackingTests.cs`, `OVERVIEW.md`, `ARCHITECTURE.md`, `TASKLIST.md`
+
+### UI: VT323 letters jump / look garbled near the mouse (October 2026)
+**Problem:** On the default VT323 face (and other pixel fonts), menu/options text sometimes looked like letters were jumping or overlapping with pink/cyan ghosts — especially when the mouse was near dungeon-selection options.
+
+**Root cause:** Mouse wind sway (F6, default on) applies subpixel glyph offsets + chromatic fringe. Draw origins already `Math.Round` to whole pixels, so offsets near half-pixel boundaries flip letters by a full device pixel each frame. Fractional measured `charWidth` compounded uneven advances when the paint path switched to per-glyph draws.
+
+**Solution:** Snap measured cell width/height to whole pixels; raise wind `PixelRestEpsilon` to 1px; for pixel-grid fonts (`GameFonts.UsesPixelGrid`) snap sway/burst/CA offsets (and fringe deltas) to integers before paint; round center-column glyph advance to a whole pixel at the drawn EM size. Mouse wake still moves letters intentionally — press **F6** to disable distortion entirely.
+
+**Related files:** `CanvasCoordinateConverter.cs`, `CanvasPrimitivesRenderer.cs`, `WindSwayField.cs`, `GameFonts.cs`, `GameFontsTests.cs`, `CanvasPrimitiveStackingTests.cs`, `WindSwayFieldTests.cs`
+
+### UI: click-burst rebuild returned letters in random order (October 2026)
+**Problem:** After a click-charge explosion, hole-click / autofill cleanup restored glyphs in a scrambled order instead of starting from the beginning of the text.
+
+**Root cause:** `SampleExploding` chose which letter came home from a per-glyph hash `roll` in `[0,1]`, so rebuild steps hit letters randomly.
+
+**Solution:** Paint registers affected glyph keys per zone; the first rebuild step freezes that list sorted by reading order (row, then column). Each rebuild step homes the next batch from the start of that list. Tests: `TextClickBurstFieldTests.TestRebuildReturnsLettersInReadingOrder`.
+
+**Related files:** `TextClickBurstField.cs`, `TextClickBurstConfig.cs`, `TextClickBurstFieldTests.cs`
+
+### AI: Victory verse showed at room-clear instead of dungeon end (October 2026)
+**Problem:** With Victory Limerick enabled, the "Victory verse" appeared under the post-fight defeat line while the stay/leave dungeon prompt was still up, so every cleared room felt like a full run ending.
+
+**Root cause:** `EnemyEncounterHandler` delivered the prefetched limerick immediately after each won fight.
+
+**Solution:** Prefetch only on the **final content room** (`SetFinaleRoomPrefetchAllowed` from `RoomProcessor` → `ProcessEnemyEncounter`). Delivery moved to `GameScreenCoordinator.ShowDungeonCompletion` via `AppendVictoryVerseToCompletionBuffer`. Mid-run fights and early exits clear/ignore prefetch.
+
+**Related files:** `VictoryLimerickService.cs`, `CombatTurnHandlerSimplified.cs`, `EnemyEncounterHandler.cs`, `RoomProcessor.cs`, `DungeonOrchestrator.cs`, `GameScreenCoordinator.cs`, `CanvasUICoordinator.DisplayBuffer.cs`, `VictoryLimerickServiceTests.cs`
+
+### UI: Lucky status hid miss→advantage charge count (October 2026)
+**Problem:** STATUS EFFECTS showed plain **Lucky** with no number, so players could not see remaining miss→advantage (Naiveté) charges used to reroll on a miss.
+
+**Root cause:** `StatusEffectDisplayLines` only emitted the static `LeatherSetBonus.LuckyStatusName` label when the Leather set was active.
+
+**Solution:** `LeatherSetBonus.FormatLuckyStatusLine` appends remaining `NaiveteBalanceHelper.GetDisplayNaivete` as **`Lucky: N`** (plain **Lucky** when N is 0). Left-panel hover explains standing advantage + charge spend; color helper strips the `: N` suffix for the `lucky` template.
+
+**Related files:** `LeatherSetBonus.cs`, `StatusEffectDisplayLines.cs`, `StatusEffectColorHelper.cs`, `LeftPanelTooltipBuilder.cs`, `LeatherSetBonusTests.cs`, `StatusEffectDisplayLinesTests.cs`
+
+### AI: OpenAI insufficient_quota dumps into combat log (October 2026)
+**Problem:** With Victory Limerick enabled, an empty OpenAI billing quota produced a wall of `Error in OpenAiChatClient.CompleteAsync: OpenAI HTTP 429` JSON in the player-facing combat/system log before (or alongside) the FlavorText "Victory verse".
+
+**Root cause:** `OpenAiChatClient.CompleteAsync` called `ErrorHandler.LogError`, which always writes via `UIManager.WriteSystemLine`. Quota/auth failures are expected optional-feature conditions, not gameplay errors.
+
+**Solution:** HTTP and orchestration failures on the limerick path log with `ScrollDebugLogger.LogAlways` only; `CompleteAsync` still returns null so FlavorText fallback delivers the verse quietly. `SummarizeApiError` keeps debug lines short (`type: message`).
+
+**Related files:** `OpenAiChatClient.cs`, `VictoryLimerickService.cs`, `OpenAiChatClientTests.cs`
+
+### Combat: scene JSON wrong enemy action / gear + ComfyUI corner framing (October 2026)
+**Problem:** Right-click combat-log export described Rats as `lunging mace slam` with `weapon_main: Bludgeon`. Establishing framing also read as a medium action shot instead of a room-dominant corner fight.
+
+**Root cause:** `ResolveAction` fell back to `lastPlayerAction` when the enemy action failed to resolve from the pool/catalog, so hero SLAM leaked onto enemy beats. `FormatActionPhrase` / `BuildGear` also treated the enemy’s random combat-math weapon (tier-1 Bludgeon) as visible kit.
+
+**Solution:** Only reuse `lastPlayerAction` for the hero actor; omit enemy gear from packets; never add weapon-type flavor for enemies. Camera strings + new `composition` field lock an ultra-wide empty establishing shot, then the same wide room with fighters small in the far corner (ComfyUI: generate row 0, img2img / regional later rows).
+
+**Related files:** `CombatScenePacket.cs`, `CombatScenePacketBuilder.cs`, `CombatScenePacketBuilderTests.cs`
+
+### UI: right panel flickers after dungeon select (October 2026)
+**Problem:** After picking a dungeon, the right LOCATION / ENEMY panel visibly cleared and redrew several times before settling.
+
+**Root cause:** `DungeonOrchestrator` still called full `RenderRoomEntry` on every auto-walk step (and waited `DefaultStepDelayMs`). That path existed for the removed bottom-right minimap. With no map to update, each step only cleared/redrew side panels via `RightPanelRenderer.RenderRightPanel`.
+
+**Solution:** Walk with `onStep: null`. `RoomProcessor.ProcessRoom` still paints once on arrival. Documented on `DungeonTraversalNavigator` that callers must not full-repaint the HUD per step.
+
+**Related files:** `DungeonOrchestrator.cs`, `DungeonTraversalNavigator.cs`, `DungeonTraversalStrategyTests.cs`
+
+### UI: dungeon minimap removed (October 2026)
+**Problem:** The bottom-right dungeon traversal minimap was no longer wanted in the player-facing UI.
+
+**Solution:** Removed `DungeonMinimapRenderer` and all paint call sites (`CanvasRenderer`, `RenderCoordinator`). Dropped `IsMinimapFrozen` from traversal state. Automated dungeon traversal (grid pathing, Smart/Random walk, approach outcomes) is unchanged. Overlay-box clear semantics remain for hover tips. Do not reintroduce per-step `RenderRoomEntry` for walk pacing — that caused right-panel flicker after the overlay was gone.
+
+**Related files:** `CanvasRenderer.cs`, `RenderCoordinator.cs`, `DungeonOrchestrator.cs`, `RoomProcessor.cs`, `DungeonTraversalState.cs`
+
+### UI: weapon selection decorative rules overrun the gold box (October 2026)
+**Problem:** On **Choose your starting weapon**, the gold title rules and grey footer separator looked broken and extended past the right edge of the gold frame.
+
+**Root cause:** Rules were built from Unicode `─` and centered by character count. Center-column Ctrl+/- paint scales glyphs (`CenterColumnTextZoom`) while the frame `AddBox` stays in cell space, so long runs grew past the right border. Pixel fonts that fall back for box-drawing glyphs can also advance wider than one cell when drawn as one `FormattedText` block.
+
+**Solution:** `MenuLayoutCalculator.BuildDecorativeRule` uses ASCII `-` and clamps length with `ScaleWrapWidth`. Title/options/rules/instructions center via `CalculateCenteredZoomedTextX` / `VisualCenterColumnColumns`. Weapon selection vertical packing uses `LineStride` so rules clear the box stroke. Tests in `WeaponSelectionRendererTests`.
+
+**Related files:** `WeaponSelectionRenderer.cs`, `MenuLayoutCalculator.cs`, `WeaponSelectionRendererTests.cs`
+
+### UI: Ctrl+/- zoom drifts main menu to the right (October 2026)
+**Problem:** Raising UI size (e.g. Bytesized at 150%) left main-menu options shifted toward the right; side panels also looked like they grew with the font.
+
+**Root cause:** Menu states suppress `ForceFullLayoutRender` / `PerformRender`. Ctrl+/- and grid-width changes only called that path, so character-grid text stayed at pre-zoom column coordinates while fewer columns fit and glyphs grew — chrome boxes kept old widths in cell space (appearing larger in pixels) and centered menus sat too far right on the narrower grid.
+
+**Solution:** `MainWindow` zoom/font/resize rebuild calls `Game.RefreshPersistentChromeAfterStatsToggle`, which re-paints menu screens in place. `MainMenuHandler.RefreshMainMenuInPlace` clears and re-renders without a state transition. Chromeless centering math is covered by `EffectiveVisibleWidthRegressionTests.TestChromelessMenuStaysCenteredWhenColumnsChange`.
+
+**Related files:** `MainWindow.axaml.cs`, `Game.cs`, `MainMenuHandler.cs`, `MenuLayoutCalculator.cs`, `EffectiveVisibleWidthRegressionTests.cs`
+
 ### UI: Ctrl+/- zoom grows side panels and crushes the center (October 2026)
-**Problem:** Raising UI size (e.g. Courier New at 112%) made the left/right chrome dominate the window and squeezed the center narrative panel; top action cards also grew with zoom.
+**Problem:** Raising UI size (e.g. Courier New at 112%) made the left/right chrome dominate the window and squeezed the center narrative panel; top action cards also grew with zoom. Inverse chrome-column shrink still left side-panel **glyphs** larger than 100%.
 
-**Root cause:** Zoom multiplied glyph/cell size while left/right stayed at fixed character widths (32/30) and the action-info strip stayed at 11 rows, so chrome took a larger share of the fewer columns that still fit.
+**Root cause:** Zoom multiplied the whole character-grid glyph/cell size. Shrinking left/right column counts kept pixel footprints near design size, but side text still painted at the zoomed EM size.
 
-**Solution:** `LayoutConstants.UpdateUiZoom` shrinks left/right column counts and action-info strip rows inversely with zoom so their pixel footprints stay near the 100% design size; `CENTER_PANEL_WIDTH` / height absorb the leftover. `GameCanvasControl` passes `GameFonts.ActiveZoom` on measure/layout.
+**Solution:** Decouple the grid from `GameFonts.ActiveZoom` (`CanvasGridSizer` stays window-fit 100%). Left/right/strip chrome stay at design character sizes. **`CenterColumnTextZoom`** + `CanvasPrimitivesRenderer` scale only center-column glyphs; combat-log wrap/stride follow zoom; paint clips to the center column.
 
-**Related files:** `LayoutConstants.cs`, `GameCanvasControl.cs`, `CharacterPanelRenderer.cs`, `EffectiveVisibleWidthRegressionTests.cs`
+**Related files:** `CenterColumnTextZoom.cs`, `CanvasGridSizer.cs`, `LayoutConstants.cs`, `CanvasPrimitivesRenderer.cs`, `DisplayRenderer.cs`, `GameCanvasControl.cs`, `EffectiveVisibleWidthRegressionTests.cs`, `CenterColumnTextZoomTests.cs`
 
 ### UI: Ctrl+/- zoom pushes centered menus off-screen (October 2026)
 **Problem:** Sizing the UI up (e.g. 174%) left main-menu options near the bottom of a mostly black window, looking mis-oriented; pixel fonts also looked mushy/jagged.
@@ -99,6 +232,29 @@ This document contains solutions to common problems encountered during developme
 
 **Related files:** `MenuMouseScrollHint.cs`, `AsciiArtAssets.cs`, `InventoryScreenRenderer.cs`, `SkillTreeRenderer.cs`, `MenuMouseScrollHintTests.cs`
 
+### UI / Combat: F7 DistortionPulse for SLAM (October 2026)
+**Problem:** Wanted a reusable way for specific actions to trigger different text animation effects when they appear in the F7 narrative log — starting with SLAM displaying as a full word while adjacent letters get a short “pushed away” distortion.
+
+**Solution:** `ActionTextEffectCatalog` maps action names → effect kinds (`SLAM` → `DistortionPulse`). On the Action beat only, `ActionTextEmphasisTypewriter` dumps the whole word in one typewriter step; `TextEmphasisPulseField` then pushes nearby center-panel glyphs outward and auto-reforms (exclude rect keeps the action word rigid). `TextEmphasisExplosionPlayer` plays `GameData/Video/explosion.gif` once centered on the word as a letter-masked overlay (`EmphasisExplosionLetterMask` + `PushOpacityMask`, same technique as narrative video — GIF only through occupied combat-log glyphs; SkiaSharp decode, near-black → transparent). Sibling of click-burst (does not stay scattered). Config: `windSway.emphasisPulse`. Same F6 gate.
+
+**Related files:** `ActionTextEffectCatalog.cs`, `ActionTextEmphasisTypewriter.cs`, `TextEmphasisPulseField.cs`, `TextEmphasisExplosionPlayer.cs`, `EmphasisExplosionLetterMask.cs`, `EmphasisExplosionGifDecoder.cs`, `ActionTextEmphasisWordLocator.cs`, `CombatSequenceFlavorPresenter.cs`, `GameCanvasControl.cs`, `CanvasPrimitivesRenderer.cs`, `GameData/Video/explosion.gif`, `UIConfiguration.json`
+
+### UI / Combat: SLAM explosion letter-masked like narrative video (October 2026)
+**Problem:** The SLAM DistortionPulse GIF drew as a free rectangle under/around the word, instead of only showing through letters the way the F5 narrative video feed does.
+
+**Solution:** After body text paints, `TextEmphasisExplosionPlayer` builds a per-cell opacity mask from occupied center-panel glyphs in the explosion footprint (`EmphasisExplosionLetterMask`) and draws the GIF with `PushOpacityMask` so it only appears on those letters. Hover/overlay text still paints above.
+
+**Related files:** `TextEmphasisExplosionPlayer.cs`, `EmphasisExplosionLetterMask.cs`, `CanvasPrimitivesRenderer.cs`
+
+### Bug fix / UI: SLAM DistortionPulse raced the combat paint (October 2026)
+**Problem:** F7 dumped the word SLAM, but surrounding glyphs never distorted and `explosion.gif` never played behind it.
+
+**Root cause:** `FireEmphasisPulse` called `TryTriggerActionTextEmphasis` immediately after typewriter `ReplaceLast`. That path only *schedules* a Background combat paint (`TriggerRender` → external callback / `PerformRender` posted to the UI thread), so `ActionTextEmphasisWordLocator` scanned stale `TextElements` and returned false — pulse + GIF never started.
+
+**Solution:** `ActionTextEmphasisTrigger.QueueAfterPaint` forces a buffer render, then retries locate+fire on the UI Background queue until the word is present (or attempts exhaust). `CombatSequenceFlavorPresenter.FireEmphasisPulse` → `CanvasUICoordinator.QueueActionTextEmphasisAfterPaint`.
+
+**Related files:** `ActionTextEmphasisTrigger.cs`, `CanvasUICoordinator.cs`, `CombatSequenceFlavorPresenter.cs`, `ActionTextEmphasisTriggerTests.cs`
+
 ### UI: click-burst glyph spin flings letters off-screen (October 2026)
 **Problem:** Exploded glyphs looked like they were thrown up/out of frame even with a small explode strength (e.g. 3 cells). Equipment lines showed huge holes mid-word.
 
@@ -107,6 +263,15 @@ This document contains solutions to common problems encountered during developme
 **Solution:** Rotate with `T(-C) * R * T(C)` via `CanvasPrimitivesRenderer.CreateRotateAboutPointTransform`. Letters now spin in place around their small scatter offset.
 
 **Related files:** `CanvasPrimitivesRenderer.cs`, `CanvasPrimitiveStackingTests.cs`
+
+### UI: click-burst explosion stuck to the screen while text scrolls (October 2026)
+**Problem:** After a click-charge explosion in the combat log (or left panel), scrolling moved the text away while the scattered letters stayed fixed on the viewport.
+
+**Root cause:** Burst zone origins and glyph keys were stored in screen/content-pixel grid space with no link to the display buffer scroll offset. Manual and auto scroll repainted lines at new grid Y values without moving the mess.
+
+**Solution:** `TextClickBurstField.SyncViewportScroll` tracks per-viewport scroll rows; on delta it shifts in-bounds origins and remaps glyph keys. `DisplayRenderer` syncs the center log each paint; `CharacterPanelRenderer` syncs the left panel. Scatter hash is relative to the zone origin so the look does not pop when both glyph and origin move together.
+
+**Related files:** `TextClickBurstField.cs`, `GameCanvasControl.cs`, `DisplayRenderer.cs`, `CharacterPanelRenderer.cs`, `TextClickBurstFieldTests.cs`
 
 ### UI: wake debug oval orbits world origin when oriented (October 2026)
 **Problem:** Turning on **Show wake radius on canvas** made the motion-oriented “vector radius” oval jump/spin away from the cursor instead of staying centered while leaning with travel.
@@ -129,7 +294,7 @@ This document contains solutions to common problems encountered during developme
 
 **Root cause:** Residual wind amp kept sampling under the cursor; trail stamps preserved full wind after stop; OS micro-jitter could re-feed tiny impulses; settle timer stopped without a final rest paint.
 
-**Solution:** Ignore sub-deadzone motion; after a short idle grace, **hard-zero** wind/speed and clear the trail; snap sampled offsets below 0.5px to rest; raise chromatic idle epsilon so faint ghosts cannot smear pixel fonts; paint one final clean frame when the settle timer goes inactive.
+**Solution:** Ignore sub-deadzone motion; after a short idle grace, **hard-zero** wind/speed and clear the trail; snap sampled offsets below 1px to rest; raise chromatic idle epsilon so faint ghosts cannot smear pixel fonts; paint one final clean frame when the settle timer goes inactive.
 
 **Related files:** `WindSwayField.cs`, `WindSwayChromatic.cs`, `GameCanvasControl.cs`, `WindSwayFieldTests.cs`
 
@@ -213,6 +378,15 @@ This document contains solutions to common problems encountered during developme
 **Solution:** Soft-wrap those colored lines with `ColoredTextWriter.WriteLineColoredWrapped` at the comparison column width, advancing Y by the wrapped row count. `BuildModsLineSegments` exposes the mods line for unit coverage.
 
 **Related files:** `ItemComparisonRenderer.cs`, `ItemComparisonRendererTests.cs`
+
+### UI: F7 typewriter kept identity colors while typing (October 2026)
+**Problem:** Growing F7 narrative sentences looked fully white until a name/action word finished (and DistortionPulse neighbors did not shove if the mouse was still).
+
+**Root cause:** Keyword/name coloring required a complete token (`Marcus Serpentfang`, `SLAM`, `wound`). Typewriter prefixes such as `Mar` / `SLA` / `wou` missed those matches. `CanvasPrimitivesRenderer.ShouldApplyDistortion` also ignored an active emphasis pulse unless wind or click-burst was already distorting.
+
+**Solution:** `CombatSequenceNarrativeEmphasis` paints trailing identity prefixes; `KeywordColorSystem` colors registered-name prefixes (including the first token of a two-word name) and short last-token keyword prefixes. Typewriter `Truncate` clones colored spans. Distortion gates treat emphasis pulse like click-burst (global for non-overlay body text).
+
+**Related files:** `CombatSequenceNarrativeEmphasis.cs`, `KeywordColorSystem.cs`, `ColoredTextRenderer.cs`, `CanvasPrimitivesRenderer.cs`, `CombatSequenceFlavorPresenterTests.cs`, `KeywordColorSystemTests.cs`, `CanvasPrimitiveStackingTests.cs`
 
 ### UI: F7 typewriter no longer jumps words mid-reveal (October 2026)
 **Problem:** During character-by-character narrative reveal, a word that would not fit on the current line started typing at EOL and then jumped to the next line once more letters arrived.

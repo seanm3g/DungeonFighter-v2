@@ -4,11 +4,10 @@ namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
     /// Computes character-grid size and font scale from available pixel space.
-    /// Font scale fills the window height (panel rows + a thin outer bottom pad), then
-    /// multiplies by per-font UI zoom (<c>Ctrl+/-</c>) so glyphs grow/shrink inside a
-    /// fixed window. Column count shrinks/grows with width, leaving a thin outer right pad.
-    /// Side/top chrome character sizes are adjusted separately in <see cref="LayoutConstants"/>
-    /// so left/top/right panels keep near their design pixel footprints while the center flexes.
+    /// Font scale fills the window height (panel rows + a thin outer bottom pad).
+    /// Column count shrinks/grows with width, leaving a thin outer right pad.
+    /// Per-font UI zoom (<c>Ctrl+/-</c>) does not change the grid — it scales center-column
+    /// glyphs only via <see cref="CenterColumnTextZoom"/>.
     /// </summary>
     public static class CanvasGridSizer
     {
@@ -56,8 +55,9 @@ namespace RPGGame.UI.Avalonia.Layout
 
         /// <summary>
         /// Calculates scale and grid dimensions for the main game canvas.
-        /// Base scale fills <paramref name="availableHeight"/> across <see cref="DesignCanvasRowCount"/> rows,
-        /// then multiplies by <paramref name="uiZoom"/> (window size stays fixed).
+        /// Scale fills <paramref name="availableHeight"/> across <see cref="DesignCanvasRowCount"/> rows.
+        /// <paramref name="uiZoom"/> is ignored (kept for call-site compatibility); Ctrl+/- zooms
+        /// center-column text only via <see cref="CenterColumnTextZoom"/>.
         /// Grid width follows <paramref name="availableWidth"/> (includes right pad column).
         /// </summary>
         public static (double ScaleFactor, int GridWidth, int GridHeight) Calculate(
@@ -67,6 +67,8 @@ namespace RPGGame.UI.Avalonia.Layout
             double baseCharHeight,
             double uiZoom = 1.0)
         {
+            _ = uiZoom;
+
             if (availableWidth <= 0
                 || availableHeight <= 0
                 || double.IsInfinity(availableWidth)
@@ -77,13 +79,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 return (1.0, DesignGridWidth, DesignGridHeight);
             }
 
-            double safeZoom = uiZoom > 0 && !double.IsNaN(uiZoom) && !double.IsInfinity(uiZoom)
-                ? uiZoom
-                : 1.0;
-
-            // Fill vertically for painted panels + thin bottom outer pad, then apply UI zoom.
+            // Fill vertically for painted panels + thin bottom outer pad (window-fit 100%).
             double scaleFactor = Math.Clamp(
-                availableHeight / (DesignCanvasRowCount * baseCharHeight) * safeZoom,
+                availableHeight / (DesignCanvasRowCount * baseCharHeight),
                 MinCanvasScale,
                 MaxCanvasScale);
 

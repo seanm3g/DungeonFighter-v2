@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Combat;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Transitions;
@@ -84,17 +85,21 @@ namespace RPGGame
 
             if (canvasUI == null || player == null || dungeon == null)
             {
+                RPGGame.Combat.Narrative.VictoryLimerickService.Instance.ClearPrefetch();
                 stateManager.TransitionToState(GameState.DungeonCompletion);
                 return;
             }
+
+            var safeLevelUps = levelUpInfos ?? new List<LevelUpInfo>();
+            var safeItemsFound = itemsFoundDuringRun ?? new List<Item>();
 
             canvasUI.AppendDungeonCompletionSummaryToBuffer(
                 dungeon,
                 player,
                 xpGained,
                 lootReceived,
-                levelUpInfos ?? new List<LevelUpInfo>(),
-                itemsFoundDuringRun ?? new List<Item>());
+                safeLevelUps,
+                safeItemsFound);
 
             ScreenTransitionProtocol.TransitionToMenuScreen(
                 stateManager,
@@ -105,14 +110,58 @@ namespace RPGGame
                     player,
                     xpGained,
                     lootReceived,
-                    levelUpInfos ?? new List<LevelUpInfo>(),
-                    itemsFoundDuringRun ?? new List<Item>()
+                    safeLevelUps,
+                    safeItemsFound
                 ),
                 character: player,
                 clearEnemyContext: true,
                 clearDungeonContext: false,
                 preserveDisplayBuffer: true
             );
+
+            // Victory verse: prefetched on the final room's kill; append when ready (does not block completion UI).
+            TryDeliverVictoryLimerickAtDungeonCompletion(canvasUI, player);
+        }
+
+        /// <summary>
+        /// Appends a prefetched (or freshly generated) victory limerick after the dungeon summary.
+        /// </summary>
+        private void TryDeliverVictoryLimerickAtDungeonCompletion(CanvasUICoordinator canvasUI, Character player)
+        {
+            try
+            {
+                if (CombatUiMuteScope.IsMuted)
+                {
+                    RPGGame.Combat.Narrative.VictoryLimerickService.Instance.ClearPrefetch();
+                    return;
+                }
+
+                var limerickService = RPGGame.Combat.Narrative.VictoryLimerickService.Instance;
+                if (!limerickService.HasPrefetch && !limerickService.HasPendingPacket)
+                    return;
+
+                var playerRef = player;
+                limerickService.DeliverPrefetchOrRequest(null, limerick =>
+                {
+                    var lines = RPGGame.Combat.Narrative.VictoryLimerickValidator.SplitToDisplayLines(limerick);
+                    if (lines.Count == 0)
+                        return;
+
+                    Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                    {
+                        if (stateManager.CurrentState != GameState.DungeonCompletion)
+                            return;
+                        if (stateManager.CurrentPlayer != playerRef && stateManager.GetActiveCharacter() != playerRef)
+                            return;
+
+                        canvasUI.AppendVictoryVerseToCompletionBuffer(playerRef, lines);
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.LogAlways($"GameScreenCoordinator: victory limerick deliver failed: {ex.Message}");
+            }
         }
 
         /// <summary>
