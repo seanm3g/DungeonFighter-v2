@@ -53,7 +53,7 @@
       "speedMultiplier": 1
     },
     "warrior": {
-      "healthMultiplier": 1.3,
+      "healthMultiplier": 1.45,
       "damageMultiplier": 1,
       "speedMultiplier": 1
     },
@@ -545,41 +545,70 @@
       "anchors": [
         {
           "level": 1,
-          "multiplier": 0.45
+          "multiplier": 0.4
         },
         {
           "level": 5,
-          "multiplier": 0.45
+          "multiplier": 0.4
         },
         {
           "level": 9,
-          "multiplier": 0.55
+          "multiplier": 0.45
         },
         {
           "level": 10,
-          "multiplier": 1.0
+          "multiplier": 0.85
         },
         {
           "level": 20,
-          "multiplier": 1.197
+          "multiplier": 1.215
         },
         {
           "level": 35,
-          "multiplier": 1.314
+          "multiplier": 1.829
         },
         {
           "level": 50,
-          "multiplier": 1.534
+          "multiplier": 2.045
         },
         {
           "level": 75,
-          "multiplier": 1.781
+          "multiplier": 2.033
         },
         {
           "level": 100,
           "multiplier": 4.538
         }
       ]
+    },
+    "archetypeCombat": {
+      "Knight": {
+        "damage": 1.16
+      },
+      "Assassin": {
+        "damage": 1.03
+      },
+      "Berserker": {
+        "damage": 0.72
+      },
+      "Acrobat": {
+        "damage": 0.73
+      },
+      "Brute": {
+        "damage": 1.13
+      },
+      "Warlord": {
+        "damage": 1.57
+      },
+      "Sage": {
+        "damage": 1.63
+      },
+      "Duelist": {
+        "damage": 0.89
+      },
+      "Trickster": {
+        "damage": 0.96
+      }
     }
   },
   "itemScaling": {

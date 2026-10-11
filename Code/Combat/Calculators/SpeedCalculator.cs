@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using RPGGame.Items;
 
 namespace RPGGame.Combat.Calculators
@@ -131,7 +131,7 @@ namespace RPGGame.Combat.Calculators
                 double weaponAdjustedTime = agilityAdjustedTime * weaponTimeMul;
                 
                 // Apply archetype speed multiplier
-                double finalAttackTime = weaponAdjustedTime * enemyEntity.AttackProfile.SpeedMultiplier;
+                double finalAttackTime = weaponAdjustedTime * ArchetypeManager.GetArchetypeAttackTimeMultiplier(enemyEntity.AttackProfile);
                 
                 // Apply slow debuff if active
                 if (enemyEntity.SlowTurns > 0)

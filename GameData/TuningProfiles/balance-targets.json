@@ -32,7 +32,7 @@
     75,
     100
   ],
-  "matrixEnemies": "Wolf,Bear,Goblin,Rats,Lich,Wraith",
+  "matrixEnemies": "Goblin,Rats,Wraith,Wolf,Bear,Lich,Fire Elemental,Zombie,Wight,Glass Shard Golem,Guardian Scarab,Vigil Alpha",
   "winRateMeaning": "dungeonClear",
   "fightsPerDungeon": 5.7,
   "realClearCheckLevel": 10,

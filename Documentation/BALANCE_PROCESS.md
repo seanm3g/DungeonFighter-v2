@@ -90,11 +90,13 @@ rate (clear^(1/fightsPerDungeon)) and the playthrough batch checks the real clea
 | `combat.statusHardenDefensePerStack` / `statusExposeDefensePerStack` | 0.15 | Defense added / removed per stack, in units of the DR constant K (Expose can push Defense below 0 = extra damage taken). |
 | `combat.statusFocusDamagePerStack` / `statusMaxStacks` | 0.15 / 3 | Focus damage per stack; most stacks of one status that count. |
 | `lootSystem.weaponGearActionClassShare` / `armorGearActionClassShare` | 0.7 / 0 | Chance a gear action is a class action (weapon: its own class; armor: hero's class), else neutral. Starter attacks never roll. See `GearActionPools`. |
+| `enemySystem.archetypeCombat.<Archetype>.damage` / `.attackTime` | profile default | Per-archetype outgoing damage and swing-time multipliers (attack time below 1 = faster). Defaults live in `ArchetypeManager.GetArchetypeProfile`. Solve damage so each archetype costs the same HP per fight (see notes). |
 
 ## Tests
 
 `dotnet DF.dll --run-tests` runs every suite; a suite that throws is reported under **SUITES THAT CRASHED** and the run
-continues. Exit code 0 = every test passed and nothing crashed. Baseline on 2026-10-11 (active patch 10-10-2026):
+continues. Exit code 0 = every test passed and nothing crashed. Baseline on 2026-10-11 (active patch overnight-v1): 8870 tests, 8789 passed, 81 failed, same 5 suites crashed.
+Earlier baseline (active patch 10-10-2026):
 8875 tests, 8784 passed, 91 failed, 5 suites crashed (EquippedItemTriggerTests, DataSystemTestRunner,
 ActionsSystemTestRunner, CombatSystemTestRunner, UISystemTestRunner — the last needs the Avalonia platform).
 Treat new failures against that baseline as regressions.
@@ -120,3 +122,11 @@ Treat new failures against that baseline as regressions.
 - Smart shards use ~70 MB each; 24–48 parallel processes are fine on 32 GB.
 - Per-fight win rate and dungeon clear rate are different targets: a 95% fight win rate over ~8 fights per dungeon is
   roughly a 66% dungeon clear rate. The batch report prints both per level.
+- Enemy archetypes: the matrix covers all nine archetypes (12 enemies, `matrixEnemies`). Solve
+  `archetypeCombat.<A>.damage` by scaling each archetype by (mean HP lost / its HP lost) over L10–L50, one damped
+  repeat, then re-run WRSOLVE for the damage curve. Win rate is useless for this: easy archetypes sit at 100%.
+  Per-enemy STR growth still drifts by level (Lich / Warlord heavy at L10, Glass Shard Golem / Guardian Scarab heavy
+  at L75); a constant archetype multiplier cannot fix that.
+- Early survival vs L10 clear: the matrix L10 target (99.1% per fight) and 97% survival to L10 (~86 fights) conflict
+  if L1–L9 enemies are as dangerous as L10. Keep L1–L9 anchors low (0.40–0.45) and let the curve rise at L10.
+  Measure survival with `-RunsPerClass 60`; 25 runs per class moves the result by ±3 points.

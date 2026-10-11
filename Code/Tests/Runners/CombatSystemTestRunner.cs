@@ -21,6 +21,7 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine($"{GameConstants.StandardSeparator}\n");
 
             RPGGame.Tests.Unit.Combat.StatusCombatModifiersTests.RunAllTests();
+            RPGGame.Tests.Unit.Combat.ArchetypeCombatTests.RunAllTests();
             CombatManagerTests.RunAllTests();
             Console.WriteLine();
             CombatDelayManagerTests.RunAllTests();

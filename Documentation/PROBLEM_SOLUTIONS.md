@@ -4,6 +4,15 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Balance / Combat: two archetypes did all the killing (October 2026)
+**Problem:** In the balance matrix, Wolf and Bear (Berserker) caused nearly every hero loss; Goblin, Rats, Wraith (Assassin) and Lich (Sage) won 100% through L50.
+
+**Root cause:** (1) `ArchetypeManager` profiles stored `speed: 1.2` for "fast" archetypes, but `SpeedCalculator` multiplies **attack time** by it, so Assassin/Acrobat/Trickster/Duelist swung 10–20% slower. (2) Archetype `DamageMultiplier` (Berserker 1.2, Sage 1.1, …) was never applied anywhere in damage. (3) The matrix only tested 3 of 9 archetypes, so the gap was invisible in the averages.
+
+**Solution:** Profiles store attack time (`1/1.2` etc.); `DamageCalculator` applies the archetype damage multiplier; patch overrides via `enemySystem.archetypeCombat`. Solved per-archetype damage so each costs the same HP per fight, re-solved `damageCurve`, expanded `matrixEnemies` to all archetypes.
+
+**Related files:** `ArchetypeManager.cs`, `EnemyConfig.cs`, `SpeedCalculator.cs`, `DamageCalculator.cs`, `GameData/Patches/Balance/overnight-v1.json`, `GameData/TuningProfiles/balance-targets.json`, `ArchetypeCombatTests.cs`, `BALANCE_PROCESS.md`
+
 ### Balance / Tuning: attribute damage scale + Starting/Scaling/Outfit IA (October 2026)
 **Problem:** Attribute damage was 1:1 with STR+Primary, so base stats of 3 made every early +1 feel huge; Combat Tuning knobs were scattered across many tabs (Core, Hero, Speed, Equipment, Enemy, Progression, Archetypes, Status, Rewards, Goals).
 

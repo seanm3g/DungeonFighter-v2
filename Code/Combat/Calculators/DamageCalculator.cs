@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Diagnostics;
 using RPGGame;
@@ -204,7 +204,10 @@ namespace RPGGame.Combat.Calculators
 
             // Opt-in enemy damage curve by level (enemySystem.damageCurve).
             if (attacker is Enemy curvedEnemy)
+            {
                 totalDamage *= GameConfiguration.Instance.EnemySystem?.DamageCurve?.MultiplierAt(curvedEnemy.Level) ?? 1.0;
+                totalDamage *= curvedEnemy.GetArchetypeDamageMultiplier();
+            }
 
             // Get combat configuration
             var combatConfig = GameConfiguration.Instance.Combat;

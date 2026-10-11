@@ -504,6 +504,9 @@ namespace RPGGame
         public EnemyDamageCurveConfig HealthCurve { get; set; } = new();
         public ScalingPerLevelConfig ScalingPerLevel { get; set; } = new();
         public Dictionary<string, ArchetypeMultipliersConfig> Archetypes { get; set; } = new();
+        /// <summary>Per-archetype combat overrides (attack time / outgoing damage), keyed by <see cref="EnemyArchetype"/> name.
+        /// Missing archetypes use <see cref="ArchetypeManager.GetArchetypeProfile"/> defaults.</summary>
+        public Dictionary<string, ArchetypeCombatConfig> ArchetypeCombat { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         public double AttributeGrowthBudgetPerLevel { get; set; } = 6.0;
         public int LevelVariance { get; set; } = 1;
         public string Description { get; set; } = "";
@@ -545,6 +548,8 @@ namespace RPGGame
             BaselineStats.EnsureValidNonEmptyBaseline();
             ScalingPerLevel ??= new ScalingPerLevelConfig();
             Archetypes ??= new Dictionary<string, ArchetypeMultipliersConfig>();
+            ArchetypeCombat = new Dictionary<string, ArchetypeCombatConfig>(
+                ArchetypeCombat ?? new Dictionary<string, ArchetypeCombatConfig>(), StringComparer.OrdinalIgnoreCase);
             if (LevelVariance <= 0)
                 LevelVariance = 1;
             if (AttributeGrowthBudgetPerLevel <= 0)
@@ -670,5 +675,14 @@ namespace RPGGame
         public string Description { get; set; } = "";
     }
 
+    /// <summary>
+    /// Archetype combat tuning: <see cref="AttackTime"/> multiplies swing time (below 1 = faster),
+    /// <see cref="Damage"/> multiplies outgoing damage. Null keeps the archetype default.
+    /// </summary>
+    public class ArchetypeCombatConfig
+    {
+        public double? AttackTime { get; set; }
+        public double? Damage { get; set; }
+    }
 
 }
