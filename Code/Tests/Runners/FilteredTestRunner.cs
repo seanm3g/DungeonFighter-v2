@@ -170,6 +170,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "ActionTextEmphasisTrigger", () => RPGGame.Tests.Unit.UI.ActionTextEmphasisTriggerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StatusCombatModifiers", () => RPGGame.Tests.Unit.Combat.StatusCombatModifiersTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ArchetypeCombat", () => RPGGame.Tests.Unit.Combat.ArchetypeCombatTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "EnemyIdentity", () => RPGGame.Tests.Unit.Combat.EnemyIdentityTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTextEffectCatalog", () => RPGGame.Tests.Unit.Combat.ActionTextEffectCatalogTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTextEmphasisTypewriter", () => RPGGame.Tests.Unit.Combat.ActionTextEmphasisTypewriterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "GameFonts", () => RPGGame.Tests.Unit.UI.GameFontsTests.RunAllTests()));

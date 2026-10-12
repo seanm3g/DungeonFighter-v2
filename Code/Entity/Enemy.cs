@@ -15,6 +15,8 @@ namespace RPGGame
         public bool IsLiving { get; private set; }
         public EnemyArchetype Archetype { get; private set; }
         public EnemyAttackProfile AttackProfile { get; private set; }
+        /// <summary>Identity-mode combat shape (<see cref="EnemyIdentityConfig"/>); null = legacy stat-driven damage and speed.</summary>
+        public EnemyIdentityProfile? Identity { get; set; }
         public ColorOverride? ColorOverride { get; private set; }
         public string Rarity { get; private set; } = "Common";
 

@@ -56,7 +56,9 @@ namespace RPGGame.Combat.Calculators
             // Diminishing returns curve: Square root function for non-linear scaling
             // Early agility points provide more benefit than later points
             double agilityAdjustedTime = baseAttackTime;
-            if (actor is Character agilityActor)
+            if (actor is Enemy { Identity: { } identity })
+                agilityAdjustedTime = baseAttackTime * GetAgilitySpeedMultiplier(identity.ReferenceAgility);
+            else if (actor is Character agilityActor)
                 agilityAdjustedTime = baseAttackTime * GetAgilitySpeedMultiplier(agilityActor.GetEffectiveAgility());
 
             // Apply Actor-specific modifiers
@@ -131,7 +133,8 @@ namespace RPGGame.Combat.Calculators
                 double weaponAdjustedTime = agilityAdjustedTime * weaponTimeMul;
                 
                 // Apply archetype speed multiplier
-                double finalAttackTime = weaponAdjustedTime * ArchetypeManager.GetArchetypeAttackTimeMultiplier(enemyEntity.AttackProfile);
+                double finalAttackTime = weaponAdjustedTime * (enemyEntity.Identity?.AttackTime
+                    ?? ArchetypeManager.GetArchetypeAttackTimeMultiplier(enemyEntity.AttackProfile));
                 
                 // Apply slow debuff if active
                 if (enemyEntity.SlowTurns > 0)

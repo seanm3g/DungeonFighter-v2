@@ -43,6 +43,7 @@ namespace RPGGame
                 data.IsLiving,
                 enemyArchetype);
 
+            enemy.Identity = stats.Identity;
             enemy.SetTags(BuildRuntimeTags(data));
             enemy.InitializePack(data.ResolvedPackSize);
 

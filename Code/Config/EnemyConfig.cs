@@ -507,6 +507,8 @@ namespace RPGGame
         /// <summary>Per-archetype combat overrides (attack time / outgoing damage), keyed by <see cref="EnemyArchetype"/> name.
         /// Missing archetypes use <see cref="ArchetypeManager.GetArchetypeProfile"/> defaults.</summary>
         public Dictionary<string, ArchetypeCombatConfig> ArchetypeCombat { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Opt-in: level sets enemy power, growth shape sets identity (see <see cref="EnemyIdentity"/>).</summary>
+        public EnemyIdentityConfig Identity { get; set; } = new();
         public double AttributeGrowthBudgetPerLevel { get; set; } = 6.0;
         public int LevelVariance { get; set; } = 1;
         public string Description { get; set; } = "";
@@ -550,6 +552,9 @@ namespace RPGGame
             Archetypes ??= new Dictionary<string, ArchetypeMultipliersConfig>();
             ArchetypeCombat = new Dictionary<string, ArchetypeCombatConfig>(
                 ArchetypeCombat ?? new Dictionary<string, ArchetypeCombatConfig>(), StringComparer.OrdinalIgnoreCase);
+            Identity ??= new EnemyIdentityConfig();
+            Identity.Calibration = new Dictionary<string, List<EnemyDamageCurveAnchor>>(
+                Identity.Calibration ?? new Dictionary<string, List<EnemyDamageCurveAnchor>>(), StringComparer.OrdinalIgnoreCase);
             if (LevelVariance <= 0)
                 LevelVariance = 1;
             if (AttributeGrowthBudgetPerLevel <= 0)
@@ -683,6 +688,27 @@ namespace RPGGame
     {
         public double? AttackTime { get; set; }
         public double? Damage { get; set; }
+    }
+
+    /// <summary>
+    /// Enemy identity mode. When enabled, an enemy's damage base, swing time and HP come from level references
+    /// (every enemy is equally dangerous at its level) and its growth row only sets its shape: AGI-leaning enemies
+    /// swing faster and hit lighter, STR-leaning ones swing slower and hit harder, tanky ones have more HP and hit
+    /// lighter. Shape strength rises from <see cref="IntensityAtLevel1"/> to 1 at <see cref="FullIntensityLevel"/>.
+    /// <see cref="Calibration"/> (enemy name → level anchors, solved by ENEMYCAL) evens out what each enemy's actions add.
+    /// </summary>
+    public class EnemyIdentityConfig
+    {
+        public bool Enabled { get; set; }
+        public double IntensityAtLevel1 { get; set; } = 0.5;
+        public int FullIntensityLevel { get; set; } = 50;
+        /// <summary>Swing time = (AGI/STR growth ratio ÷ reference)^(−exponent × intensity).</summary>
+        public double SpeedExponent { get; set; } = 0.3;
+        public double ReferenceAgilityStrengthRatio { get; set; } = 2.15;
+        public double ReferenceHealthGrowthPercent { get; set; } = 4.29;
+        /// <summary>Reference L1 attribute value; references grow by the attribute growth budget ÷ 4 per level.</summary>
+        public double ReferenceBaseAttribute { get; set; } = 3.0;
+        public Dictionary<string, List<EnemyDamageCurveAnchor>> Calibration { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     }
 
 }

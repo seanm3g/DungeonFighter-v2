@@ -55,8 +55,17 @@ namespace RPGGame
             double growthHealth = baselineHp * (growthPercent / 100.0);
 
             int lv = Math.Max(0, level - 1);
+            var identity = EnemyIdentity.Resolve(enemyData, level, enemySystem);
+            if (identity != null)
+            {
+                // Identity mode: every enemy starts from the reference HP curve; shape comes from identity.Health.
+                baseHealth = baselineHp;
+                growthHealth = baselineHp * (enemySystem.Identity.ReferenceHealthGrowthPercent / 100.0);
+            }
             int levelScaledHealth = EnemyProgressionCurveEvaluator.ComputeLevelScaledHealth(
                 baseHealth, growthHealth, level, prog);
+            if (identity != null)
+                levelScaledHealth = Math.Max(1, (int)Math.Round(levelScaledHealth * identity.Health));
             int levelScaledStrength = FloorToInt(baseStrength + lv * growthStrengthS);
             int levelScaledAgility = FloorToInt(baseAgility + lv * growthAgilityS);
             int levelScaledTechnique = FloorToInt(baseTechnique + lv * growthTechniqueS);
@@ -85,7 +94,8 @@ namespace RPGGame
                 Intelligence = finalIntelligence,
                 Armor = finalArmor,
                 PrimaryAttribute = primaryAttribute,
-                Archetype = ConvertStringToEnemyArchetype(enemyData.Archetype)
+                Archetype = ConvertStringToEnemyArchetype(enemyData.Archetype),
+                Identity = identity
             };
         }
 
@@ -180,5 +190,7 @@ namespace RPGGame
         public int Armor { get; set; }
         public PrimaryAttribute PrimaryAttribute { get; set; }
         public EnemyArchetype Archetype { get; set; }
+        /// <summary>Set when <see cref="EnemyIdentityConfig.Enabled"/>; null otherwise.</summary>
+        public EnemyIdentityProfile? Identity { get; set; }
     }
 }

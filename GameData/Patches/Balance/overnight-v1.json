@@ -557,27 +557,27 @@
         },
         {
           "level": 10,
-          "multiplier": 0.85
+          "multiplier": 1.1
         },
         {
           "level": 20,
-          "multiplier": 1.215
+          "multiplier": 1.531
         },
         {
           "level": 35,
-          "multiplier": 1.829
+          "multiplier": 2.32
         },
         {
           "level": 50,
-          "multiplier": 2.045
+          "multiplier": 1.832
         },
         {
           "level": 75,
-          "multiplier": 2.033
+          "multiplier": 1.782
         },
         {
           "level": 100,
-          "multiplier": 4.538
+          "multiplier": 2.348
         }
       ]
     },
@@ -608,6 +608,3857 @@
       },
       "Trickster": {
         "damage": 0.96
+      }
+    },
+    "identity": {
+      "enabled": true,
+      "intensityAtLevel1": 0.5,
+      "fullIntensityLevel": 50,
+      "speedExponent": 0.3,
+      "referenceAgilityStrengthRatio": 2.15,
+      "referenceHealthGrowthPercent": 4.29,
+      "referenceBaseAttribute": 3.0,
+      "calibration": {
+        "Goblin": [
+          {
+            "level": 1,
+            "multiplier": 1.011
+          },
+          {
+            "level": 5,
+            "multiplier": 1.044
+          },
+          {
+            "level": 10,
+            "multiplier": 1.065
+          },
+          {
+            "level": 20,
+            "multiplier": 1.086
+          },
+          {
+            "level": 35,
+            "multiplier": 1.31
+          },
+          {
+            "level": 50,
+            "multiplier": 1.403
+          },
+          {
+            "level": 75,
+            "multiplier": 1.502
+          }
+        ],
+        "Spider": [
+          {
+            "level": 1,
+            "multiplier": 1.09
+          },
+          {
+            "level": 5,
+            "multiplier": 1.012
+          },
+          {
+            "level": 10,
+            "multiplier": 0.981
+          },
+          {
+            "level": 20,
+            "multiplier": 0.935
+          },
+          {
+            "level": 35,
+            "multiplier": 0.896
+          },
+          {
+            "level": 50,
+            "multiplier": 0.912
+          },
+          {
+            "level": 75,
+            "multiplier": 1.013
+          }
+        ],
+        "Wolf": [
+          {
+            "level": 1,
+            "multiplier": 1.092
+          },
+          {
+            "level": 5,
+            "multiplier": 0.969
+          },
+          {
+            "level": 10,
+            "multiplier": 1.047
+          },
+          {
+            "level": 20,
+            "multiplier": 1.121
+          },
+          {
+            "level": 35,
+            "multiplier": 1.118
+          },
+          {
+            "level": 50,
+            "multiplier": 1.108
+          },
+          {
+            "level": 75,
+            "multiplier": 1.109
+          }
+        ],
+        "Fire Elemental": [
+          {
+            "level": 1,
+            "multiplier": 1.019
+          },
+          {
+            "level": 5,
+            "multiplier": 1.046
+          },
+          {
+            "level": 10,
+            "multiplier": 0.993
+          },
+          {
+            "level": 20,
+            "multiplier": 1.051
+          },
+          {
+            "level": 35,
+            "multiplier": 1.062
+          },
+          {
+            "level": 50,
+            "multiplier": 1.077
+          },
+          {
+            "level": 75,
+            "multiplier": 0.999
+          }
+        ],
+        "Lava Golem": [
+          {
+            "level": 1,
+            "multiplier": 0.97
+          },
+          {
+            "level": 5,
+            "multiplier": 0.966
+          },
+          {
+            "level": 10,
+            "multiplier": 0.905
+          },
+          {
+            "level": 20,
+            "multiplier": 0.923
+          },
+          {
+            "level": 35,
+            "multiplier": 0.9
+          },
+          {
+            "level": 50,
+            "multiplier": 0.858
+          },
+          {
+            "level": 75,
+            "multiplier": 0.908
+          }
+        ],
+        "Bats": [
+          {
+            "level": 1,
+            "multiplier": 0.946
+          },
+          {
+            "level": 5,
+            "multiplier": 0.912
+          },
+          {
+            "level": 10,
+            "multiplier": 0.898
+          },
+          {
+            "level": 20,
+            "multiplier": 0.997
+          },
+          {
+            "level": 35,
+            "multiplier": 0.999
+          },
+          {
+            "level": 50,
+            "multiplier": 1.138
+          },
+          {
+            "level": 75,
+            "multiplier": 1.241
+          }
+        ],
+        "Rats": [
+          {
+            "level": 1,
+            "multiplier": 1.061
+          },
+          {
+            "level": 5,
+            "multiplier": 0.905
+          },
+          {
+            "level": 10,
+            "multiplier": 1.007
+          },
+          {
+            "level": 20,
+            "multiplier": 0.969
+          },
+          {
+            "level": 35,
+            "multiplier": 1.18
+          },
+          {
+            "level": 50,
+            "multiplier": 1.256
+          },
+          {
+            "level": 75,
+            "multiplier": 1.558
+          }
+        ],
+        "Giant Ants": [
+          {
+            "level": 1,
+            "multiplier": 1.076
+          },
+          {
+            "level": 5,
+            "multiplier": 0.956
+          },
+          {
+            "level": 10,
+            "multiplier": 0.973
+          },
+          {
+            "level": 20,
+            "multiplier": 1.08
+          },
+          {
+            "level": 35,
+            "multiplier": 1.16
+          },
+          {
+            "level": 50,
+            "multiplier": 1.52
+          },
+          {
+            "level": 75,
+            "multiplier": 1.449
+          }
+        ],
+        "Skeleton": [
+          {
+            "level": 1,
+            "multiplier": 1.088
+          },
+          {
+            "level": 5,
+            "multiplier": 0.975
+          },
+          {
+            "level": 10,
+            "multiplier": 1.054
+          },
+          {
+            "level": 20,
+            "multiplier": 1.127
+          },
+          {
+            "level": 35,
+            "multiplier": 1.106
+          },
+          {
+            "level": 50,
+            "multiplier": 1.085
+          },
+          {
+            "level": 75,
+            "multiplier": 1.097
+          }
+        ],
+        "Zombie": [
+          {
+            "level": 1,
+            "multiplier": 1.049
+          },
+          {
+            "level": 5,
+            "multiplier": 0.977
+          },
+          {
+            "level": 10,
+            "multiplier": 0.919
+          },
+          {
+            "level": 20,
+            "multiplier": 0.921
+          },
+          {
+            "level": 35,
+            "multiplier": 0.89
+          },
+          {
+            "level": 50,
+            "multiplier": 0.854
+          },
+          {
+            "level": 75,
+            "multiplier": 0.909
+          }
+        ],
+        "Wraith": [
+          {
+            "level": 1,
+            "multiplier": 1.065
+          },
+          {
+            "level": 5,
+            "multiplier": 0.97
+          },
+          {
+            "level": 10,
+            "multiplier": 0.908
+          },
+          {
+            "level": 20,
+            "multiplier": 0.933
+          },
+          {
+            "level": 35,
+            "multiplier": 0.895
+          },
+          {
+            "level": 50,
+            "multiplier": 0.921
+          },
+          {
+            "level": 75,
+            "multiplier": 0.991
+          }
+        ],
+        "Bear": [
+          {
+            "level": 1,
+            "multiplier": 0.998
+          },
+          {
+            "level": 5,
+            "multiplier": 0.942
+          },
+          {
+            "level": 10,
+            "multiplier": 0.936
+          },
+          {
+            "level": 20,
+            "multiplier": 1.033
+          },
+          {
+            "level": 35,
+            "multiplier": 1.068
+          },
+          {
+            "level": 50,
+            "multiplier": 1.058
+          },
+          {
+            "level": 75,
+            "multiplier": 1.009
+          }
+        ],
+        "Treant": [
+          {
+            "level": 1,
+            "multiplier": 0.889
+          },
+          {
+            "level": 5,
+            "multiplier": 0.891
+          },
+          {
+            "level": 10,
+            "multiplier": 0.826
+          },
+          {
+            "level": 20,
+            "multiplier": 0.86
+          },
+          {
+            "level": 35,
+            "multiplier": 0.833
+          },
+          {
+            "level": 50,
+            "multiplier": 0.808
+          },
+          {
+            "level": 75,
+            "multiplier": 0.861
+          }
+        ],
+        "Boar": [
+          {
+            "level": 1,
+            "multiplier": 1.045
+          },
+          {
+            "level": 5,
+            "multiplier": 1.001
+          },
+          {
+            "level": 10,
+            "multiplier": 1.078
+          },
+          {
+            "level": 20,
+            "multiplier": 1.114
+          },
+          {
+            "level": 35,
+            "multiplier": 1.114
+          },
+          {
+            "level": 50,
+            "multiplier": 1.124
+          },
+          {
+            "level": 75,
+            "multiplier": 1.101
+          }
+        ],
+        "Salamander": [
+          {
+            "level": 1,
+            "multiplier": 1.032
+          },
+          {
+            "level": 5,
+            "multiplier": 0.995
+          },
+          {
+            "level": 10,
+            "multiplier": 0.908
+          },
+          {
+            "level": 20,
+            "multiplier": 0.923
+          },
+          {
+            "level": 35,
+            "multiplier": 0.904
+          },
+          {
+            "level": 50,
+            "multiplier": 0.946
+          },
+          {
+            "level": 75,
+            "multiplier": 0.992
+          }
+        ],
+        "Ember Spirit": [
+          {
+            "level": 1,
+            "multiplier": 1.017
+          },
+          {
+            "level": 5,
+            "multiplier": 0.984
+          },
+          {
+            "level": 10,
+            "multiplier": 1.032
+          },
+          {
+            "level": 20,
+            "multiplier": 1.087
+          },
+          {
+            "level": 35,
+            "multiplier": 1.036
+          },
+          {
+            "level": 50,
+            "multiplier": 1.032
+          },
+          {
+            "level": 75,
+            "multiplier": 0.961
+          }
+        ],
+        "Magma Beast": [
+          {
+            "level": 1,
+            "multiplier": 0.874
+          },
+          {
+            "level": 5,
+            "multiplier": 0.883
+          },
+          {
+            "level": 10,
+            "multiplier": 0.829
+          },
+          {
+            "level": 20,
+            "multiplier": 0.884
+          },
+          {
+            "level": 35,
+            "multiplier": 0.927
+          },
+          {
+            "level": 50,
+            "multiplier": 0.972
+          },
+          {
+            "level": 75,
+            "multiplier": 1.024
+          }
+        ],
+        "Ghoul": [
+          {
+            "level": 1,
+            "multiplier": 1.049
+          },
+          {
+            "level": 5,
+            "multiplier": 0.938
+          },
+          {
+            "level": 10,
+            "multiplier": 0.973
+          },
+          {
+            "level": 20,
+            "multiplier": 0.938
+          },
+          {
+            "level": 35,
+            "multiplier": 0.86
+          },
+          {
+            "level": 50,
+            "multiplier": 0.899
+          },
+          {
+            "level": 75,
+            "multiplier": 0.984
+          }
+        ],
+        "Lich": [
+          {
+            "level": 1,
+            "multiplier": 0.978
+          },
+          {
+            "level": 5,
+            "multiplier": 0.915
+          },
+          {
+            "level": 10,
+            "multiplier": 0.904
+          },
+          {
+            "level": 20,
+            "multiplier": 0.913
+          },
+          {
+            "level": 35,
+            "multiplier": 0.812
+          },
+          {
+            "level": 50,
+            "multiplier": 0.809
+          },
+          {
+            "level": 75,
+            "multiplier": 0.838
+          }
+        ],
+        "Wight": [
+          {
+            "level": 1,
+            "multiplier": 0.846
+          },
+          {
+            "level": 5,
+            "multiplier": 0.916
+          },
+          {
+            "level": 10,
+            "multiplier": 1.071
+          },
+          {
+            "level": 20,
+            "multiplier": 1.13
+          },
+          {
+            "level": 35,
+            "multiplier": 1.185
+          },
+          {
+            "level": 50,
+            "multiplier": 1.22
+          },
+          {
+            "level": 75,
+            "multiplier": 1.327
+          }
+        ],
+        "Sandstorm Flanker": [
+          {
+            "level": 1,
+            "multiplier": 1.103
+          },
+          {
+            "level": 5,
+            "multiplier": 1.028
+          },
+          {
+            "level": 10,
+            "multiplier": 1.039
+          },
+          {
+            "level": 20,
+            "multiplier": 1.106
+          },
+          {
+            "level": 35,
+            "multiplier": 1.144
+          },
+          {
+            "level": 50,
+            "multiplier": 1.112
+          },
+          {
+            "level": 75,
+            "multiplier": 1.1
+          }
+        ],
+        "Sand Serpent": [
+          {
+            "level": 1,
+            "multiplier": 0.938
+          },
+          {
+            "level": 5,
+            "multiplier": 1.013
+          },
+          {
+            "level": 10,
+            "multiplier": 0.964
+          },
+          {
+            "level": 20,
+            "multiplier": 0.92
+          },
+          {
+            "level": 35,
+            "multiplier": 0.903
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Dune Roller": [
+          {
+            "level": 1,
+            "multiplier": 0.913
+          },
+          {
+            "level": 5,
+            "multiplier": 1.027
+          },
+          {
+            "level": 10,
+            "multiplier": 1.026
+          },
+          {
+            "level": 20,
+            "multiplier": 1.011
+          },
+          {
+            "level": 35,
+            "multiplier": 1.05
+          },
+          {
+            "level": 50,
+            "multiplier": 1.087
+          },
+          {
+            "level": 75,
+            "multiplier": 0.995
+          }
+        ],
+        "Sun Lance Scorpion": [
+          {
+            "level": 1,
+            "multiplier": 0.938
+          },
+          {
+            "level": 5,
+            "multiplier": 1.008
+          },
+          {
+            "level": 10,
+            "multiplier": 0.962
+          },
+          {
+            "level": 20,
+            "multiplier": 0.915
+          },
+          {
+            "level": 35,
+            "multiplier": 0.901
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Glare Stalker": [
+          {
+            "level": 1,
+            "multiplier": 0.962
+          },
+          {
+            "level": 5,
+            "multiplier": 1.051
+          },
+          {
+            "level": 10,
+            "multiplier": 1.112
+          },
+          {
+            "level": 20,
+            "multiplier": 1.115
+          },
+          {
+            "level": 35,
+            "multiplier": 1.171
+          },
+          {
+            "level": 50,
+            "multiplier": 1.129
+          },
+          {
+            "level": 75,
+            "multiplier": 1.091
+          }
+        ],
+        "Glass Shard Golem": [
+          {
+            "level": 1,
+            "multiplier": 1.039
+          },
+          {
+            "level": 5,
+            "multiplier": 0.98
+          },
+          {
+            "level": 10,
+            "multiplier": 0.899
+          },
+          {
+            "level": 20,
+            "multiplier": 0.878
+          },
+          {
+            "level": 35,
+            "multiplier": 0.811
+          },
+          {
+            "level": 50,
+            "multiplier": 0.866
+          },
+          {
+            "level": 75,
+            "multiplier": 0.922
+          }
+        ],
+        "Mirage Hunter": [
+          {
+            "level": 1,
+            "multiplier": 0.962
+          },
+          {
+            "level": 5,
+            "multiplier": 1.051
+          },
+          {
+            "level": 10,
+            "multiplier": 1.112
+          },
+          {
+            "level": 20,
+            "multiplier": 1.115
+          },
+          {
+            "level": 35,
+            "multiplier": 1.171
+          },
+          {
+            "level": 50,
+            "multiplier": 1.129
+          },
+          {
+            "level": 75,
+            "multiplier": 1.091
+          }
+        ],
+        "Shadow Wraith": [
+          {
+            "level": 1,
+            "multiplier": 0.962
+          },
+          {
+            "level": 5,
+            "multiplier": 1.051
+          },
+          {
+            "level": 10,
+            "multiplier": 1.112
+          },
+          {
+            "level": 20,
+            "multiplier": 1.115
+          },
+          {
+            "level": 35,
+            "multiplier": 1.171
+          },
+          {
+            "level": 50,
+            "multiplier": 1.129
+          },
+          {
+            "level": 75,
+            "multiplier": 1.091
+          }
+        ],
+        "Restorative Leech": [
+          {
+            "level": 1,
+            "multiplier": 1.086
+          },
+          {
+            "level": 5,
+            "multiplier": 0.981
+          },
+          {
+            "level": 10,
+            "multiplier": 1.088
+          },
+          {
+            "level": 20,
+            "multiplier": 1.057
+          },
+          {
+            "level": 35,
+            "multiplier": 1.047
+          },
+          {
+            "level": 50,
+            "multiplier": 1.033
+          },
+          {
+            "level": 75,
+            "multiplier": 0.931
+          }
+        ],
+        "Stone Colossus": [
+          {
+            "level": 1,
+            "multiplier": 1.049
+          },
+          {
+            "level": 5,
+            "multiplier": 1.015
+          },
+          {
+            "level": 10,
+            "multiplier": 1.014
+          },
+          {
+            "level": 20,
+            "multiplier": 1.04
+          },
+          {
+            "level": 35,
+            "multiplier": 1.032
+          },
+          {
+            "level": 50,
+            "multiplier": 1.04
+          },
+          {
+            "level": 75,
+            "multiplier": 0.997
+          }
+        ],
+        "Poison Dart Sentinel": [
+          {
+            "level": 1,
+            "multiplier": 0.94
+          },
+          {
+            "level": 5,
+            "multiplier": 1.018
+          },
+          {
+            "level": 10,
+            "multiplier": 0.959
+          },
+          {
+            "level": 20,
+            "multiplier": 0.923
+          },
+          {
+            "level": 35,
+            "multiplier": 0.905
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Sun Priest": [
+          {
+            "level": 1,
+            "multiplier": 1.083
+          },
+          {
+            "level": 5,
+            "multiplier": 0.981
+          },
+          {
+            "level": 10,
+            "multiplier": 1.087
+          },
+          {
+            "level": 20,
+            "multiplier": 1.053
+          },
+          {
+            "level": 35,
+            "multiplier": 1.043
+          },
+          {
+            "level": 50,
+            "multiplier": 1.002
+          },
+          {
+            "level": 75,
+            "multiplier": 0.922
+          }
+        ],
+        "Guardian Scarab": [
+          {
+            "level": 1,
+            "multiplier": 1.06
+          },
+          {
+            "level": 5,
+            "multiplier": 0.951
+          },
+          {
+            "level": 10,
+            "multiplier": 0.931
+          },
+          {
+            "level": 20,
+            "multiplier": 0.897
+          },
+          {
+            "level": 35,
+            "multiplier": 0.867
+          },
+          {
+            "level": 50,
+            "multiplier": 0.862
+          },
+          {
+            "level": 75,
+            "multiplier": 0.901
+          }
+        ],
+        "Tomb Creeper": [
+          {
+            "level": 1,
+            "multiplier": 0.94
+          },
+          {
+            "level": 5,
+            "multiplier": 1.018
+          },
+          {
+            "level": 10,
+            "multiplier": 0.959
+          },
+          {
+            "level": 20,
+            "multiplier": 0.923
+          },
+          {
+            "level": 35,
+            "multiplier": 0.905
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Sarcopha Gus": [
+          {
+            "level": 1,
+            "multiplier": 1.049
+          },
+          {
+            "level": 5,
+            "multiplier": 1.01
+          },
+          {
+            "level": 10,
+            "multiplier": 1.011
+          },
+          {
+            "level": 20,
+            "multiplier": 1.038
+          },
+          {
+            "level": 35,
+            "multiplier": 1.027
+          },
+          {
+            "level": 50,
+            "multiplier": 1.04
+          },
+          {
+            "level": 75,
+            "multiplier": 0.993
+          }
+        ],
+        "Burial Lich": [
+          {
+            "level": 1,
+            "multiplier": 1.086
+          },
+          {
+            "level": 5,
+            "multiplier": 0.981
+          },
+          {
+            "level": 10,
+            "multiplier": 1.088
+          },
+          {
+            "level": 20,
+            "multiplier": 1.057
+          },
+          {
+            "level": 35,
+            "multiplier": 1.047
+          },
+          {
+            "level": 50,
+            "multiplier": 1.033
+          },
+          {
+            "level": 75,
+            "multiplier": 0.931
+          }
+        ],
+        "Mummy": [
+          {
+            "level": 1,
+            "multiplier": 1.045
+          },
+          {
+            "level": 5,
+            "multiplier": 1.019
+          },
+          {
+            "level": 10,
+            "multiplier": 1.071
+          },
+          {
+            "level": 20,
+            "multiplier": 1.042
+          },
+          {
+            "level": 35,
+            "multiplier": 1.036
+          },
+          {
+            "level": 50,
+            "multiplier": 1.042
+          },
+          {
+            "level": 75,
+            "multiplier": 1.005
+          }
+        ],
+        "Ancestor's Shade": [
+          {
+            "level": 1,
+            "multiplier": 1.086
+          },
+          {
+            "level": 5,
+            "multiplier": 0.981
+          },
+          {
+            "level": 10,
+            "multiplier": 1.088
+          },
+          {
+            "level": 20,
+            "multiplier": 1.057
+          },
+          {
+            "level": 35,
+            "multiplier": 1.047
+          },
+          {
+            "level": 50,
+            "multiplier": 1.033
+          },
+          {
+            "level": 75,
+            "multiplier": 0.931
+          }
+        ],
+        "Hawk": [
+          {
+            "level": 1,
+            "multiplier": 0.911
+          },
+          {
+            "level": 5,
+            "multiplier": 1.024
+          },
+          {
+            "level": 10,
+            "multiplier": 1.024
+          },
+          {
+            "level": 20,
+            "multiplier": 1.011
+          },
+          {
+            "level": 35,
+            "multiplier": 1.049
+          },
+          {
+            "level": 50,
+            "multiplier": 1.057
+          },
+          {
+            "level": 75,
+            "multiplier": 0.989
+          }
+        ],
+        "Rock Lobber": [
+          {
+            "level": 1,
+            "multiplier": 1.049
+          },
+          {
+            "level": 5,
+            "multiplier": 1.015
+          },
+          {
+            "level": 10,
+            "multiplier": 1.014
+          },
+          {
+            "level": 20,
+            "multiplier": 1.04
+          },
+          {
+            "level": 35,
+            "multiplier": 1.032
+          },
+          {
+            "level": 50,
+            "multiplier": 1.04
+          },
+          {
+            "level": 75,
+            "multiplier": 0.997
+          }
+        ],
+        "Edge Stalker": [
+          {
+            "level": 1,
+            "multiplier": 0.94
+          },
+          {
+            "level": 5,
+            "multiplier": 1.08
+          },
+          {
+            "level": 10,
+            "multiplier": 0.962
+          },
+          {
+            "level": 20,
+            "multiplier": 0.935
+          },
+          {
+            "level": 35,
+            "multiplier": 0.905
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Scavenger Rat": [
+          {
+            "level": 1,
+            "multiplier": 0.911
+          },
+          {
+            "level": 5,
+            "multiplier": 1.017
+          },
+          {
+            "level": 10,
+            "multiplier": 0.981
+          },
+          {
+            "level": 20,
+            "multiplier": 1.008
+          },
+          {
+            "level": 35,
+            "multiplier": 1.044
+          },
+          {
+            "level": 50,
+            "multiplier": 1.039
+          },
+          {
+            "level": 75,
+            "multiplier": 0.988
+          }
+        ],
+        "Toxic Drinker": [
+          {
+            "level": 1,
+            "multiplier": 1.069
+          },
+          {
+            "level": 5,
+            "multiplier": 0.96
+          },
+          {
+            "level": 10,
+            "multiplier": 0.948
+          },
+          {
+            "level": 20,
+            "multiplier": 0.924
+          },
+          {
+            "level": 35,
+            "multiplier": 0.897
+          },
+          {
+            "level": 50,
+            "multiplier": 0.852
+          },
+          {
+            "level": 75,
+            "multiplier": 0.908
+          }
+        ],
+        "Deserter Shade": [
+          {
+            "level": 1,
+            "multiplier": 0.962
+          },
+          {
+            "level": 5,
+            "multiplier": 1.051
+          },
+          {
+            "level": 10,
+            "multiplier": 1.112
+          },
+          {
+            "level": 20,
+            "multiplier": 1.115
+          },
+          {
+            "level": 35,
+            "multiplier": 1.171
+          },
+          {
+            "level": 50,
+            "multiplier": 1.129
+          },
+          {
+            "level": 75,
+            "multiplier": 1.091
+          }
+        ],
+        "Storm Caller": [
+          {
+            "level": 1,
+            "multiplier": 1.085
+          },
+          {
+            "level": 5,
+            "multiplier": 0.981
+          },
+          {
+            "level": 10,
+            "multiplier": 1.088
+          },
+          {
+            "level": 20,
+            "multiplier": 1.056
+          },
+          {
+            "level": 35,
+            "multiplier": 1.044
+          },
+          {
+            "level": 50,
+            "multiplier": 0.999
+          },
+          {
+            "level": 75,
+            "multiplier": 0.926
+          }
+        ],
+        "Altitude Wraith": [
+          {
+            "level": 1,
+            "multiplier": 0.961
+          },
+          {
+            "level": 5,
+            "multiplier": 1.044
+          },
+          {
+            "level": 10,
+            "multiplier": 1.063
+          },
+          {
+            "level": 20,
+            "multiplier": 1.077
+          },
+          {
+            "level": 35,
+            "multiplier": 1.086
+          },
+          {
+            "level": 50,
+            "multiplier": 1.131
+          },
+          {
+            "level": 75,
+            "multiplier": 1.079
+          }
+        ],
+        "Summit Titan": [
+          {
+            "level": 1,
+            "multiplier": 1.044
+          },
+          {
+            "level": 5,
+            "multiplier": 1.015
+          },
+          {
+            "level": 10,
+            "multiplier": 1.016
+          },
+          {
+            "level": 20,
+            "multiplier": 1.039
+          },
+          {
+            "level": 35,
+            "multiplier": 1.034
+          },
+          {
+            "level": 50,
+            "multiplier": 1.042
+          },
+          {
+            "level": 75,
+            "multiplier": 0.997
+          }
+        ],
+        "Cinder Hound": [
+          {
+            "level": 1,
+            "multiplier": 1.102
+          },
+          {
+            "level": 5,
+            "multiplier": 1.035
+          },
+          {
+            "level": 10,
+            "multiplier": 1.039
+          },
+          {
+            "level": 20,
+            "multiplier": 1.103
+          },
+          {
+            "level": 35,
+            "multiplier": 1.143
+          },
+          {
+            "level": 50,
+            "multiplier": 1.105
+          },
+          {
+            "level": 75,
+            "multiplier": 1.096
+          }
+        ],
+        "Magma Creeper": [
+          {
+            "level": 1,
+            "multiplier": 0.938
+          },
+          {
+            "level": 5,
+            "multiplier": 1.008
+          },
+          {
+            "level": 10,
+            "multiplier": 0.962
+          },
+          {
+            "level": 20,
+            "multiplier": 0.916
+          },
+          {
+            "level": 35,
+            "multiplier": 0.901
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Ashwing Harpy": [
+          {
+            "level": 1,
+            "multiplier": 0.911
+          },
+          {
+            "level": 5,
+            "multiplier": 1.024
+          },
+          {
+            "level": 10,
+            "multiplier": 1.024
+          },
+          {
+            "level": 20,
+            "multiplier": 1.011
+          },
+          {
+            "level": 35,
+            "multiplier": 1.049
+          },
+          {
+            "level": 50,
+            "multiplier": 1.057
+          },
+          {
+            "level": 75,
+            "multiplier": 0.989
+          }
+        ],
+        "Soot Golem": [
+          {
+            "level": 1,
+            "multiplier": 1.06
+          },
+          {
+            "level": 5,
+            "multiplier": 0.951
+          },
+          {
+            "level": 10,
+            "multiplier": 0.931
+          },
+          {
+            "level": 20,
+            "multiplier": 0.897
+          },
+          {
+            "level": 35,
+            "multiplier": 0.867
+          },
+          {
+            "level": 50,
+            "multiplier": 0.862
+          },
+          {
+            "level": 75,
+            "multiplier": 0.901
+          }
+        ],
+        "Cave Ember Toad": [
+          {
+            "level": 1,
+            "multiplier": 1.045
+          },
+          {
+            "level": 5,
+            "multiplier": 1.019
+          },
+          {
+            "level": 10,
+            "multiplier": 1.018
+          },
+          {
+            "level": 20,
+            "multiplier": 1.041
+          },
+          {
+            "level": 35,
+            "multiplier": 1.035
+          },
+          {
+            "level": 50,
+            "multiplier": 1.057
+          },
+          {
+            "level": 75,
+            "multiplier": 1.003
+          }
+        ],
+        "Smog Lurker": [
+          {
+            "level": 1,
+            "multiplier": 0.938
+          },
+          {
+            "level": 5,
+            "multiplier": 1.013
+          },
+          {
+            "level": 10,
+            "multiplier": 0.964
+          },
+          {
+            "level": 20,
+            "multiplier": 0.92
+          },
+          {
+            "level": 35,
+            "multiplier": 0.903
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Charwood Stalker": [
+          {
+            "level": 1,
+            "multiplier": 0.94
+          },
+          {
+            "level": 5,
+            "multiplier": 1.018
+          },
+          {
+            "level": 10,
+            "multiplier": 0.959
+          },
+          {
+            "level": 20,
+            "multiplier": 0.923
+          },
+          {
+            "level": 35,
+            "multiplier": 0.905
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Scorched Treant": [
+          {
+            "level": 1,
+            "multiplier": 1.049
+          },
+          {
+            "level": 5,
+            "multiplier": 1.015
+          },
+          {
+            "level": 10,
+            "multiplier": 1.014
+          },
+          {
+            "level": 20,
+            "multiplier": 1.04
+          },
+          {
+            "level": 35,
+            "multiplier": 1.032
+          },
+          {
+            "level": 50,
+            "multiplier": 1.04
+          },
+          {
+            "level": 75,
+            "multiplier": 0.997
+          }
+        ],
+        "Reignited Wisp": [
+          {
+            "level": 1,
+            "multiplier": 1.089
+          },
+          {
+            "level": 5,
+            "multiplier": 0.985
+          },
+          {
+            "level": 10,
+            "multiplier": 1.093
+          },
+          {
+            "level": 20,
+            "multiplier": 1.097
+          },
+          {
+            "level": 35,
+            "multiplier": 1.059
+          },
+          {
+            "level": 50,
+            "multiplier": 1.039
+          },
+          {
+            "level": 75,
+            "multiplier": 0.931
+          }
+        ],
+        "Bridge Warden": [
+          {
+            "level": 1,
+            "multiplier": 1.044
+          },
+          {
+            "level": 5,
+            "multiplier": 0.946
+          },
+          {
+            "level": 10,
+            "multiplier": 0.904
+          },
+          {
+            "level": 20,
+            "multiplier": 0.892
+          },
+          {
+            "level": 35,
+            "multiplier": 0.857
+          },
+          {
+            "level": 50,
+            "multiplier": 0.862
+          },
+          {
+            "level": 75,
+            "multiplier": 0.901
+          }
+        ],
+        "Lava Spitter": [
+          {
+            "level": 1,
+            "multiplier": 1.085
+          },
+          {
+            "level": 5,
+            "multiplier": 0.981
+          },
+          {
+            "level": 10,
+            "multiplier": 1.088
+          },
+          {
+            "level": 20,
+            "multiplier": 1.056
+          },
+          {
+            "level": 35,
+            "multiplier": 1.044
+          },
+          {
+            "level": 50,
+            "multiplier": 0.999
+          },
+          {
+            "level": 75,
+            "multiplier": 0.926
+          }
+        ],
+        "Flame Drifter": [
+          {
+            "level": 1,
+            "multiplier": 0.911
+          },
+          {
+            "level": 5,
+            "multiplier": 1.017
+          },
+          {
+            "level": 10,
+            "multiplier": 0.981
+          },
+          {
+            "level": 20,
+            "multiplier": 1.008
+          },
+          {
+            "level": 35,
+            "multiplier": 1.044
+          },
+          {
+            "level": 50,
+            "multiplier": 1.039
+          },
+          {
+            "level": 75,
+            "multiplier": 0.988
+          }
+        ],
+        "Temple Knight": [
+          {
+            "level": 1,
+            "multiplier": 1.06
+          },
+          {
+            "level": 5,
+            "multiplier": 0.951
+          },
+          {
+            "level": 10,
+            "multiplier": 0.931
+          },
+          {
+            "level": 20,
+            "multiplier": 0.897
+          },
+          {
+            "level": 35,
+            "multiplier": 0.867
+          },
+          {
+            "level": 50,
+            "multiplier": 0.862
+          },
+          {
+            "level": 75,
+            "multiplier": 0.901
+          }
+        ],
+        "Pilar Watcher": [
+          {
+            "level": 1,
+            "multiplier": 1.059
+          },
+          {
+            "level": 5,
+            "multiplier": 0.95
+          },
+          {
+            "level": 10,
+            "multiplier": 0.928
+          },
+          {
+            "level": 20,
+            "multiplier": 0.895
+          },
+          {
+            "level": 35,
+            "multiplier": 0.864
+          },
+          {
+            "level": 50,
+            "multiplier": 0.862
+          },
+          {
+            "level": 75,
+            "multiplier": 0.901
+          }
+        ],
+        "Torch Wraith": [
+          {
+            "level": 1,
+            "multiplier": 0.961
+          },
+          {
+            "level": 5,
+            "multiplier": 1.044
+          },
+          {
+            "level": 10,
+            "multiplier": 1.063
+          },
+          {
+            "level": 20,
+            "multiplier": 1.077
+          },
+          {
+            "level": 35,
+            "multiplier": 1.086
+          },
+          {
+            "level": 50,
+            "multiplier": 1.131
+          },
+          {
+            "level": 75,
+            "multiplier": 1.079
+          }
+        ],
+        "Royal Flame Guard": [
+          {
+            "level": 1,
+            "multiplier": 1.061
+          },
+          {
+            "level": 5,
+            "multiplier": 0.989
+          },
+          {
+            "level": 10,
+            "multiplier": 0.933
+          },
+          {
+            "level": 20,
+            "multiplier": 0.907
+          },
+          {
+            "level": 35,
+            "multiplier": 0.867
+          },
+          {
+            "level": 50,
+            "multiplier": 0.862
+          },
+          {
+            "level": 75,
+            "multiplier": 0.901
+          }
+        ],
+        "Seal Caster": [
+          {
+            "level": 1,
+            "multiplier": 1.079
+          },
+          {
+            "level": 5,
+            "multiplier": 0.967
+          },
+          {
+            "level": 10,
+            "multiplier": 0.954
+          },
+          {
+            "level": 20,
+            "multiplier": 0.929
+          },
+          {
+            "level": 35,
+            "multiplier": 0.901
+          },
+          {
+            "level": 50,
+            "multiplier": 0.852
+          },
+          {
+            "level": 75,
+            "multiplier": 0.908
+          }
+        ],
+        "Throne Effigy": [
+          {
+            "level": 1,
+            "multiplier": 1.06
+          },
+          {
+            "level": 5,
+            "multiplier": 0.951
+          },
+          {
+            "level": 10,
+            "multiplier": 0.931
+          },
+          {
+            "level": 20,
+            "multiplier": 0.897
+          },
+          {
+            "level": 35,
+            "multiplier": 0.867
+          },
+          {
+            "level": 50,
+            "multiplier": 0.862
+          },
+          {
+            "level": 75,
+            "multiplier": 0.901
+          }
+        ],
+        "Blood Feeder": [
+          {
+            "level": 1,
+            "multiplier": 0.938
+          },
+          {
+            "level": 5,
+            "multiplier": 1.013
+          },
+          {
+            "level": 10,
+            "multiplier": 0.964
+          },
+          {
+            "level": 20,
+            "multiplier": 0.92
+          },
+          {
+            "level": 35,
+            "multiplier": 0.903
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Vent Spore": [
+          {
+            "level": 1,
+            "multiplier": 1.071
+          },
+          {
+            "level": 5,
+            "multiplier": 0.963
+          },
+          {
+            "level": 10,
+            "multiplier": 0.952
+          },
+          {
+            "level": 20,
+            "multiplier": 0.926
+          },
+          {
+            "level": 35,
+            "multiplier": 0.899
+          },
+          {
+            "level": 50,
+            "multiplier": 0.852
+          },
+          {
+            "level": 75,
+            "multiplier": 0.908
+          }
+        ],
+        "Crystal Leech": [
+          {
+            "level": 1,
+            "multiplier": 1.069
+          },
+          {
+            "level": 5,
+            "multiplier": 0.96
+          },
+          {
+            "level": 10,
+            "multiplier": 0.948
+          },
+          {
+            "level": 20,
+            "multiplier": 0.924
+          },
+          {
+            "level": 35,
+            "multiplier": 0.895
+          },
+          {
+            "level": 50,
+            "multiplier": 0.852
+          },
+          {
+            "level": 75,
+            "multiplier": 0.908
+          }
+        ],
+        "Slag Tortoise": [
+          {
+            "level": 1,
+            "multiplier": 1.049
+          },
+          {
+            "level": 5,
+            "multiplier": 1.015
+          },
+          {
+            "level": 10,
+            "multiplier": 1.014
+          },
+          {
+            "level": 20,
+            "multiplier": 1.04
+          },
+          {
+            "level": 35,
+            "multiplier": 1.032
+          },
+          {
+            "level": 50,
+            "multiplier": 1.04
+          },
+          {
+            "level": 75,
+            "multiplier": 0.997
+          }
+        ],
+        "Island Drifter": [
+          {
+            "level": 1,
+            "multiplier": 0.914
+          },
+          {
+            "level": 5,
+            "multiplier": 1.038
+          },
+          {
+            "level": 10,
+            "multiplier": 1.028
+          },
+          {
+            "level": 20,
+            "multiplier": 1.047
+          },
+          {
+            "level": 35,
+            "multiplier": 1.064
+          },
+          {
+            "level": 50,
+            "multiplier": 1.087
+          },
+          {
+            "level": 75,
+            "multiplier": 0.996
+          }
+        ],
+        "Molten Crab": [
+          {
+            "level": 1,
+            "multiplier": 1.051
+          },
+          {
+            "level": 5,
+            "multiplier": 0.948
+          },
+          {
+            "level": 10,
+            "multiplier": 0.926
+          },
+          {
+            "level": 20,
+            "multiplier": 0.894
+          },
+          {
+            "level": 35,
+            "multiplier": 0.861
+          },
+          {
+            "level": 50,
+            "multiplier": 0.862
+          },
+          {
+            "level": 75,
+            "multiplier": 0.901
+          }
+        ],
+        "Amber Sentinel": [
+          {
+            "level": 1,
+            "multiplier": 1.059
+          },
+          {
+            "level": 5,
+            "multiplier": 0.95
+          },
+          {
+            "level": 10,
+            "multiplier": 0.928
+          },
+          {
+            "level": 20,
+            "multiplier": 0.895
+          },
+          {
+            "level": 35,
+            "multiplier": 0.864
+          },
+          {
+            "level": 50,
+            "multiplier": 0.862
+          },
+          {
+            "level": 75,
+            "multiplier": 0.901
+          }
+        ],
+        "Overflow Imp": [
+          {
+            "level": 1,
+            "multiplier": 0.961
+          },
+          {
+            "level": 5,
+            "multiplier": 1.044
+          },
+          {
+            "level": 10,
+            "multiplier": 1.063
+          },
+          {
+            "level": 20,
+            "multiplier": 1.077
+          },
+          {
+            "level": 35,
+            "multiplier": 1.086
+          },
+          {
+            "level": 50,
+            "multiplier": 1.131
+          },
+          {
+            "level": 75,
+            "multiplier": 1.079
+          }
+        ],
+        "Amber Trapper": [
+          {
+            "level": 1,
+            "multiplier": 1.071
+          },
+          {
+            "level": 5,
+            "multiplier": 0.963
+          },
+          {
+            "level": 10,
+            "multiplier": 0.952
+          },
+          {
+            "level": 20,
+            "multiplier": 0.926
+          },
+          {
+            "level": 35,
+            "multiplier": 0.899
+          },
+          {
+            "level": 50,
+            "multiplier": 0.852
+          },
+          {
+            "level": 75,
+            "multiplier": 0.908
+          }
+        ],
+        "Territorial Hound": [
+          {
+            "level": 1,
+            "multiplier": 1.103
+          },
+          {
+            "level": 5,
+            "multiplier": 1.028
+          },
+          {
+            "level": 10,
+            "multiplier": 1.039
+          },
+          {
+            "level": 20,
+            "multiplier": 1.106
+          },
+          {
+            "level": 35,
+            "multiplier": 1.144
+          },
+          {
+            "level": 50,
+            "multiplier": 1.112
+          },
+          {
+            "level": 75,
+            "multiplier": 1.1
+          }
+        ],
+        "Alpha Wolf": [
+          {
+            "level": 1,
+            "multiplier": 1.099
+          },
+          {
+            "level": 5,
+            "multiplier": 1.034
+          },
+          {
+            "level": 10,
+            "multiplier": 1.035
+          },
+          {
+            "level": 20,
+            "multiplier": 1.102
+          },
+          {
+            "level": 35,
+            "multiplier": 1.143
+          },
+          {
+            "level": 50,
+            "multiplier": 1.102
+          },
+          {
+            "level": 75,
+            "multiplier": 1.094
+          }
+        ],
+        "Bone Spreader": [
+          {
+            "level": 1,
+            "multiplier": 1.083
+          },
+          {
+            "level": 5,
+            "multiplier": 0.981
+          },
+          {
+            "level": 10,
+            "multiplier": 1.087
+          },
+          {
+            "level": 20,
+            "multiplier": 1.053
+          },
+          {
+            "level": 35,
+            "multiplier": 1.043
+          },
+          {
+            "level": 50,
+            "multiplier": 1.002
+          },
+          {
+            "level": 75,
+            "multiplier": 0.922
+          }
+        ],
+        "Tribute Beast": [
+          {
+            "level": 1,
+            "multiplier": 1.049
+          },
+          {
+            "level": 5,
+            "multiplier": 1.015
+          },
+          {
+            "level": 10,
+            "multiplier": 1.014
+          },
+          {
+            "level": 20,
+            "multiplier": 1.04
+          },
+          {
+            "level": 35,
+            "multiplier": 1.032
+          },
+          {
+            "level": 50,
+            "multiplier": 1.04
+          },
+          {
+            "level": 75,
+            "multiplier": 0.997
+          }
+        ],
+        "Cursed Bear": [
+          {
+            "level": 1,
+            "multiplier": 1.049
+          },
+          {
+            "level": 5,
+            "multiplier": 1.013
+          },
+          {
+            "level": 10,
+            "multiplier": 1.014
+          },
+          {
+            "level": 20,
+            "multiplier": 1.038
+          },
+          {
+            "level": 35,
+            "multiplier": 1.027
+          },
+          {
+            "level": 50,
+            "multiplier": 1.04
+          },
+          {
+            "level": 75,
+            "multiplier": 0.993
+          }
+        ],
+        "Mound Warden": [
+          {
+            "level": 1,
+            "multiplier": 1.051
+          },
+          {
+            "level": 5,
+            "multiplier": 0.948
+          },
+          {
+            "level": 10,
+            "multiplier": 0.926
+          },
+          {
+            "level": 20,
+            "multiplier": 0.894
+          },
+          {
+            "level": 35,
+            "multiplier": 0.861
+          },
+          {
+            "level": 50,
+            "multiplier": 0.862
+          },
+          {
+            "level": 75,
+            "multiplier": 0.901
+          }
+        ],
+        "Moon Blessed": [
+          {
+            "level": 1,
+            "multiplier": 1.089
+          },
+          {
+            "level": 5,
+            "multiplier": 0.983
+          },
+          {
+            "level": 10,
+            "multiplier": 1.088
+          },
+          {
+            "level": 20,
+            "multiplier": 1.097
+          },
+          {
+            "level": 35,
+            "multiplier": 1.059
+          },
+          {
+            "level": 50,
+            "multiplier": 1.033
+          },
+          {
+            "level": 75,
+            "multiplier": 0.931
+          }
+        ],
+        "Echo Stalker": [
+          {
+            "level": 1,
+            "multiplier": 0.962
+          },
+          {
+            "level": 5,
+            "multiplier": 1.046
+          },
+          {
+            "level": 10,
+            "multiplier": 1.065
+          },
+          {
+            "level": 20,
+            "multiplier": 1.079
+          },
+          {
+            "level": 35,
+            "multiplier": 1.087
+          },
+          {
+            "level": 50,
+            "multiplier": 1.121
+          },
+          {
+            "level": 75,
+            "multiplier": 1.075
+          }
+        ],
+        "Vigil Alpha": [
+          {
+            "level": 1,
+            "multiplier": 1.061
+          },
+          {
+            "level": 5,
+            "multiplier": 0.993
+          },
+          {
+            "level": 10,
+            "multiplier": 1.085
+          },
+          {
+            "level": 20,
+            "multiplier": 1.062
+          },
+          {
+            "level": 35,
+            "multiplier": 1.154
+          },
+          {
+            "level": 50,
+            "multiplier": 1.093
+          },
+          {
+            "level": 75,
+            "multiplier": 1.082
+          }
+        ],
+        "Guile Sprite": [
+          {
+            "level": 1,
+            "multiplier": 0.931
+          },
+          {
+            "level": 5,
+            "multiplier": 1.072
+          },
+          {
+            "level": 10,
+            "multiplier": 1.117
+          },
+          {
+            "level": 20,
+            "multiplier": 1.16
+          },
+          {
+            "level": 35,
+            "multiplier": 1.188
+          },
+          {
+            "level": 50,
+            "multiplier": 1.277
+          },
+          {
+            "level": 75,
+            "multiplier": 1.363
+          }
+        ],
+        "Hedge Hound": [
+          {
+            "level": 1,
+            "multiplier": 1.099
+          },
+          {
+            "level": 5,
+            "multiplier": 1.027
+          },
+          {
+            "level": 10,
+            "multiplier": 0.999
+          },
+          {
+            "level": 20,
+            "multiplier": 1.104
+          },
+          {
+            "level": 35,
+            "multiplier": 1.136
+          },
+          {
+            "level": 50,
+            "multiplier": 1.102
+          },
+          {
+            "level": 75,
+            "multiplier": 1.09
+          }
+        ],
+        "Dead End Mimic": [
+          {
+            "level": 1,
+            "multiplier": 0.962
+          },
+          {
+            "level": 5,
+            "multiplier": 1.051
+          },
+          {
+            "level": 10,
+            "multiplier": 1.112
+          },
+          {
+            "level": 20,
+            "multiplier": 1.115
+          },
+          {
+            "level": 35,
+            "multiplier": 1.171
+          },
+          {
+            "level": 50,
+            "multiplier": 1.129
+          },
+          {
+            "level": 75,
+            "multiplier": 1.091
+          }
+        ],
+        "Maze Runner": [
+          {
+            "level": 1,
+            "multiplier": 0.914
+          },
+          {
+            "level": 5,
+            "multiplier": 1.032
+          },
+          {
+            "level": 10,
+            "multiplier": 1.026
+          },
+          {
+            "level": 20,
+            "multiplier": 1.047
+          },
+          {
+            "level": 35,
+            "multiplier": 1.064
+          },
+          {
+            "level": 50,
+            "multiplier": 1.087
+          },
+          {
+            "level": 75,
+            "multiplier": 0.996
+          }
+        ],
+        "Loop Shade": [
+          {
+            "level": 1,
+            "multiplier": 0.961
+          },
+          {
+            "level": 5,
+            "multiplier": 1.04
+          },
+          {
+            "level": 10,
+            "multiplier": 1.061
+          },
+          {
+            "level": 20,
+            "multiplier": 1.078
+          },
+          {
+            "level": 35,
+            "multiplier": 1.084
+          },
+          {
+            "level": 50,
+            "multiplier": 1.133
+          },
+          {
+            "level": 75,
+            "multiplier": 1.078
+          }
+        ],
+        "Instinct Eater": [
+          {
+            "level": 1,
+            "multiplier": 0.961
+          },
+          {
+            "level": 5,
+            "multiplier": 1.042
+          },
+          {
+            "level": 10,
+            "multiplier": 1.063
+          },
+          {
+            "level": 20,
+            "multiplier": 1.073
+          },
+          {
+            "level": 35,
+            "multiplier": 1.086
+          },
+          {
+            "level": 50,
+            "multiplier": 1.133
+          },
+          {
+            "level": 75,
+            "multiplier": 1.078
+          }
+        ],
+        "Duplicate": [
+          {
+            "level": 1,
+            "multiplier": 0.961
+          },
+          {
+            "level": 5,
+            "multiplier": 1.044
+          },
+          {
+            "level": 10,
+            "multiplier": 1.063
+          },
+          {
+            "level": 20,
+            "multiplier": 1.077
+          },
+          {
+            "level": 35,
+            "multiplier": 1.086
+          },
+          {
+            "level": 50,
+            "multiplier": 1.131
+          },
+          {
+            "level": 75,
+            "multiplier": 1.079
+          }
+        ],
+        "Shattered Reflection": [
+          {
+            "level": 1,
+            "multiplier": 0.961
+          },
+          {
+            "level": 5,
+            "multiplier": 1.044
+          },
+          {
+            "level": 10,
+            "multiplier": 1.063
+          },
+          {
+            "level": 20,
+            "multiplier": 1.077
+          },
+          {
+            "level": 35,
+            "multiplier": 1.086
+          },
+          {
+            "level": 50,
+            "multiplier": 1.131
+          },
+          {
+            "level": 75,
+            "multiplier": 1.079
+          }
+        ],
+        "The Other": [
+          {
+            "level": 1,
+            "multiplier": 0.961
+          },
+          {
+            "level": 5,
+            "multiplier": 1.042
+          },
+          {
+            "level": 10,
+            "multiplier": 1.063
+          },
+          {
+            "level": 20,
+            "multiplier": 1.073
+          },
+          {
+            "level": 35,
+            "multiplier": 1.086
+          },
+          {
+            "level": 50,
+            "multiplier": 1.133
+          },
+          {
+            "level": 75,
+            "multiplier": 1.078
+          }
+        ],
+        "Thorn Boar": [
+          {
+            "level": 1,
+            "multiplier": 1.045
+          },
+          {
+            "level": 5,
+            "multiplier": 1.019
+          },
+          {
+            "level": 10,
+            "multiplier": 1.018
+          },
+          {
+            "level": 20,
+            "multiplier": 1.041
+          },
+          {
+            "level": 35,
+            "multiplier": 1.035
+          },
+          {
+            "level": 50,
+            "multiplier": 1.057
+          },
+          {
+            "level": 75,
+            "multiplier": 1.003
+          }
+        ],
+        "Root Sprite": [
+          {
+            "level": 1,
+            "multiplier": 0.914
+          },
+          {
+            "level": 5,
+            "multiplier": 1.038
+          },
+          {
+            "level": 10,
+            "multiplier": 1.028
+          },
+          {
+            "level": 20,
+            "multiplier": 1.047
+          },
+          {
+            "level": 35,
+            "multiplier": 1.064
+          },
+          {
+            "level": 50,
+            "multiplier": 1.087
+          },
+          {
+            "level": 75,
+            "multiplier": 0.996
+          }
+        ],
+        "Rattlesnake": [
+          {
+            "level": 1,
+            "multiplier": 0.938
+          },
+          {
+            "level": 5,
+            "multiplier": 1.013
+          },
+          {
+            "level": 10,
+            "multiplier": 0.964
+          },
+          {
+            "level": 20,
+            "multiplier": 0.92
+          },
+          {
+            "level": 35,
+            "multiplier": 0.903
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Nectar Drone": [
+          {
+            "level": 1,
+            "multiplier": 0.911
+          },
+          {
+            "level": 5,
+            "multiplier": 1.017
+          },
+          {
+            "level": 10,
+            "multiplier": 0.981
+          },
+          {
+            "level": 20,
+            "multiplier": 1.008
+          },
+          {
+            "level": 35,
+            "multiplier": 1.044
+          },
+          {
+            "level": 50,
+            "multiplier": 1.039
+          },
+          {
+            "level": 75,
+            "multiplier": 0.988
+          }
+        ],
+        "Pollen Wraith": [
+          {
+            "level": 1,
+            "multiplier": 0.962
+          },
+          {
+            "level": 5,
+            "multiplier": 1.051
+          },
+          {
+            "level": 10,
+            "multiplier": 1.069
+          },
+          {
+            "level": 20,
+            "multiplier": 1.079
+          },
+          {
+            "level": 35,
+            "multiplier": 1.172
+          },
+          {
+            "level": 50,
+            "multiplier": 1.128
+          },
+          {
+            "level": 75,
+            "multiplier": 1.076
+          }
+        ],
+        "Valley Prowler": [
+          {
+            "level": 1,
+            "multiplier": 1.094
+          },
+          {
+            "level": 5,
+            "multiplier": 1.029
+          },
+          {
+            "level": 10,
+            "multiplier": 0.995
+          },
+          {
+            "level": 20,
+            "multiplier": 1.055
+          },
+          {
+            "level": 35,
+            "multiplier": 1.134
+          },
+          {
+            "level": 50,
+            "multiplier": 1.098
+          },
+          {
+            "level": 75,
+            "multiplier": 1.073
+          }
+        ],
+        "Living Wall Crawler": [
+          {
+            "level": 1,
+            "multiplier": 0.938
+          },
+          {
+            "level": 5,
+            "multiplier": 1.013
+          },
+          {
+            "level": 10,
+            "multiplier": 0.964
+          },
+          {
+            "level": 20,
+            "multiplier": 0.92
+          },
+          {
+            "level": 35,
+            "multiplier": 0.903
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Animated Vine": [
+          {
+            "level": 1,
+            "multiplier": 1.039
+          },
+          {
+            "level": 5,
+            "multiplier": 0.98
+          },
+          {
+            "level": 10,
+            "multiplier": 0.899
+          },
+          {
+            "level": 20,
+            "multiplier": 0.878
+          },
+          {
+            "level": 35,
+            "multiplier": 0.811
+          },
+          {
+            "level": 50,
+            "multiplier": 0.866
+          },
+          {
+            "level": 75,
+            "multiplier": 0.922
+          }
+        ],
+        "Ruin Wraith": [
+          {
+            "level": 1,
+            "multiplier": 0.962
+          },
+          {
+            "level": 5,
+            "multiplier": 1.051
+          },
+          {
+            "level": 10,
+            "multiplier": 1.069
+          },
+          {
+            "level": 20,
+            "multiplier": 1.079
+          },
+          {
+            "level": 35,
+            "multiplier": 1.172
+          },
+          {
+            "level": 50,
+            "multiplier": 1.128
+          },
+          {
+            "level": 75,
+            "multiplier": 1.076
+          }
+        ],
+        "Reed Stalker": [
+          {
+            "level": 1,
+            "multiplier": 0.938
+          },
+          {
+            "level": 5,
+            "multiplier": 1.013
+          },
+          {
+            "level": 10,
+            "multiplier": 0.964
+          },
+          {
+            "level": 20,
+            "multiplier": 0.92
+          },
+          {
+            "level": 35,
+            "multiplier": 0.903
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Mosquito Swarm": [
+          {
+            "level": 1,
+            "multiplier": 0.914
+          },
+          {
+            "level": 5,
+            "multiplier": 1.038
+          },
+          {
+            "level": 10,
+            "multiplier": 1.028
+          },
+          {
+            "level": 20,
+            "multiplier": 1.047
+          },
+          {
+            "level": 35,
+            "multiplier": 1.064
+          },
+          {
+            "level": 50,
+            "multiplier": 1.087
+          },
+          {
+            "level": 75,
+            "multiplier": 0.996
+          }
+        ],
+        "Mud Lurker": [
+          {
+            "level": 1,
+            "multiplier": 0.938
+          },
+          {
+            "level": 5,
+            "multiplier": 1.008
+          },
+          {
+            "level": 10,
+            "multiplier": 0.962
+          },
+          {
+            "level": 20,
+            "multiplier": 0.916
+          },
+          {
+            "level": 35,
+            "multiplier": 0.901
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Current Rider": [
+          {
+            "level": 1,
+            "multiplier": 0.911
+          },
+          {
+            "level": 5,
+            "multiplier": 1.023
+          },
+          {
+            "level": 10,
+            "multiplier": 0.984
+          },
+          {
+            "level": 20,
+            "multiplier": 1.008
+          },
+          {
+            "level": 35,
+            "multiplier": 1.044
+          },
+          {
+            "level": 50,
+            "multiplier": 1.047
+          },
+          {
+            "level": 75,
+            "multiplier": 0.988
+          }
+        ],
+        "Slick Eel": [
+          {
+            "level": 1,
+            "multiplier": 0.911
+          },
+          {
+            "level": 5,
+            "multiplier": 1.024
+          },
+          {
+            "level": 10,
+            "multiplier": 1.024
+          },
+          {
+            "level": 20,
+            "multiplier": 1.011
+          },
+          {
+            "level": 35,
+            "multiplier": 1.049
+          },
+          {
+            "level": 50,
+            "multiplier": 1.057
+          },
+          {
+            "level": 75,
+            "multiplier": 0.989
+          }
+        ],
+        "Hollow Drifter": [
+          {
+            "level": 1,
+            "multiplier": 0.962
+          },
+          {
+            "level": 5,
+            "multiplier": 1.051
+          },
+          {
+            "level": 10,
+            "multiplier": 1.069
+          },
+          {
+            "level": 20,
+            "multiplier": 1.079
+          },
+          {
+            "level": 35,
+            "multiplier": 1.172
+          },
+          {
+            "level": 50,
+            "multiplier": 1.128
+          },
+          {
+            "level": 75,
+            "multiplier": 1.076
+          }
+        ],
+        "Fog Mimic": [
+          {
+            "level": 1,
+            "multiplier": 0.961
+          },
+          {
+            "level": 5,
+            "multiplier": 1.042
+          },
+          {
+            "level": 10,
+            "multiplier": 1.063
+          },
+          {
+            "level": 20,
+            "multiplier": 1.073
+          },
+          {
+            "level": 35,
+            "multiplier": 1.086
+          },
+          {
+            "level": 50,
+            "multiplier": 1.133
+          },
+          {
+            "level": 75,
+            "multiplier": 1.078
+          }
+        ],
+        "Cold Creeper": [
+          {
+            "level": 1,
+            "multiplier": 0.938
+          },
+          {
+            "level": 5,
+            "multiplier": 1.008
+          },
+          {
+            "level": 10,
+            "multiplier": 0.962
+          },
+          {
+            "level": 20,
+            "multiplier": 0.916
+          },
+          {
+            "level": 35,
+            "multiplier": 0.901
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Shelf Specter": [
+          {
+            "level": 1,
+            "multiplier": 0.962
+          },
+          {
+            "level": 5,
+            "multiplier": 1.051
+          },
+          {
+            "level": 10,
+            "multiplier": 1.069
+          },
+          {
+            "level": 20,
+            "multiplier": 1.079
+          },
+          {
+            "level": 35,
+            "multiplier": 1.172
+          },
+          {
+            "level": 50,
+            "multiplier": 1.128
+          },
+          {
+            "level": 75,
+            "multiplier": 1.076
+          }
+        ],
+        "Glow Mite": [
+          {
+            "level": 1,
+            "multiplier": 0.914
+          },
+          {
+            "level": 5,
+            "multiplier": 1.032
+          },
+          {
+            "level": 10,
+            "multiplier": 1.026
+          },
+          {
+            "level": 20,
+            "multiplier": 1.047
+          },
+          {
+            "level": 35,
+            "multiplier": 1.064
+          },
+          {
+            "level": 50,
+            "multiplier": 1.087
+          },
+          {
+            "level": 75,
+            "multiplier": 0.996
+          }
+        ],
+        "Frost Creeper": [
+          {
+            "level": 1,
+            "multiplier": 0.94
+          },
+          {
+            "level": 5,
+            "multiplier": 1.08
+          },
+          {
+            "level": 10,
+            "multiplier": 0.962
+          },
+          {
+            "level": 20,
+            "multiplier": 0.935
+          },
+          {
+            "level": 35,
+            "multiplier": 0.905
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Cave Lurcher": [
+          {
+            "level": 1,
+            "multiplier": 1.049
+          },
+          {
+            "level": 5,
+            "multiplier": 1.013
+          },
+          {
+            "level": 10,
+            "multiplier": 1.014
+          },
+          {
+            "level": 20,
+            "multiplier": 1.038
+          },
+          {
+            "level": 35,
+            "multiplier": 1.027
+          },
+          {
+            "level": 50,
+            "multiplier": 1.04
+          },
+          {
+            "level": 75,
+            "multiplier": 0.993
+          }
+        ],
+        "Chronicle Watcher": [
+          {
+            "level": 1,
+            "multiplier": 1.083
+          },
+          {
+            "level": 5,
+            "multiplier": 0.981
+          },
+          {
+            "level": 10,
+            "multiplier": 1.087
+          },
+          {
+            "level": 20,
+            "multiplier": 1.053
+          },
+          {
+            "level": 35,
+            "multiplier": 1.043
+          },
+          {
+            "level": 50,
+            "multiplier": 1.002
+          },
+          {
+            "level": 75,
+            "multiplier": 0.922
+          }
+        ],
+        "Sinkhole Lurker": [
+          {
+            "level": 1,
+            "multiplier": 0.94
+          },
+          {
+            "level": 5,
+            "multiplier": 1.018
+          },
+          {
+            "level": 10,
+            "multiplier": 0.959
+          },
+          {
+            "level": 20,
+            "multiplier": 0.923
+          },
+          {
+            "level": 35,
+            "multiplier": 0.905
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Ink Stalker": [
+          {
+            "level": 1,
+            "multiplier": 0.938
+          },
+          {
+            "level": 5,
+            "multiplier": 1.008
+          },
+          {
+            "level": 10,
+            "multiplier": 0.962
+          },
+          {
+            "level": 20,
+            "multiplier": 0.916
+          },
+          {
+            "level": 35,
+            "multiplier": 0.901
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Vent Sprite": [
+          {
+            "level": 1,
+            "multiplier": 0.962
+          },
+          {
+            "level": 5,
+            "multiplier": 1.051
+          },
+          {
+            "level": 10,
+            "multiplier": 1.069
+          },
+          {
+            "level": 20,
+            "multiplier": 1.079
+          },
+          {
+            "level": 35,
+            "multiplier": 1.172
+          },
+          {
+            "level": 50,
+            "multiplier": 1.128
+          },
+          {
+            "level": 75,
+            "multiplier": 1.076
+          }
+        ],
+        "Lion Fish": [
+          {
+            "level": 1,
+            "multiplier": 0.938
+          },
+          {
+            "level": 5,
+            "multiplier": 1.008
+          },
+          {
+            "level": 10,
+            "multiplier": 0.962
+          },
+          {
+            "level": 20,
+            "multiplier": 0.915
+          },
+          {
+            "level": 35,
+            "multiplier": 0.901
+          },
+          {
+            "level": 50,
+            "multiplier": 0.89
+          },
+          {
+            "level": 75,
+            "multiplier": 0.967
+          }
+        ],
+        "Mist Phantom": [
+          {
+            "level": 1,
+            "multiplier": 0.962
+          },
+          {
+            "level": 5,
+            "multiplier": 1.051
+          },
+          {
+            "level": 10,
+            "multiplier": 1.069
+          },
+          {
+            "level": 20,
+            "multiplier": 1.079
+          },
+          {
+            "level": 35,
+            "multiplier": 1.172
+          },
+          {
+            "level": 50,
+            "multiplier": 1.128
+          },
+          {
+            "level": 75,
+            "multiplier": 1.076
+          }
+        ],
+        "Fourecourt Guard": [
+          {
+            "level": 1,
+            "multiplier": 1.051
+          },
+          {
+            "level": 5,
+            "multiplier": 0.948
+          },
+          {
+            "level": 10,
+            "multiplier": 0.926
+          },
+          {
+            "level": 20,
+            "multiplier": 0.894
+          },
+          {
+            "level": 35,
+            "multiplier": 0.861
+          },
+          {
+            "level": 50,
+            "multiplier": 0.862
+          },
+          {
+            "level": 75,
+            "multiplier": 0.901
+          }
+        ],
+        "Depth Drainer": [
+          {
+            "level": 1,
+            "multiplier": 1.084
+          },
+          {
+            "level": 5,
+            "multiplier": 0.981
+          },
+          {
+            "level": 10,
+            "multiplier": 1.036
+          },
+          {
+            "level": 20,
+            "multiplier": 1.052
+          },
+          {
+            "level": 35,
+            "multiplier": 1.042
+          },
+          {
+            "level": 50,
+            "multiplier": 0.994
+          },
+          {
+            "level": 75,
+            "multiplier": 0.918
+          }
+        ],
+        "Tide Sentinel": [
+          {
+            "level": 1,
+            "multiplier": 1.051
+          },
+          {
+            "level": 5,
+            "multiplier": 0.948
+          },
+          {
+            "level": 10,
+            "multiplier": 0.926
+          },
+          {
+            "level": 20,
+            "multiplier": 0.894
+          },
+          {
+            "level": 35,
+            "multiplier": 0.861
+          },
+          {
+            "level": 50,
+            "multiplier": 0.862
+          },
+          {
+            "level": 75,
+            "multiplier": 0.901
+          }
+        ],
+        "Pressure Monk": [
+          {
+            "level": 1,
+            "multiplier": 1.05
+          },
+          {
+            "level": 5,
+            "multiplier": 0.917
+          },
+          {
+            "level": 10,
+            "multiplier": 0.894
+          },
+          {
+            "level": 20,
+            "multiplier": 0.871
+          },
+          {
+            "level": 35,
+            "multiplier": 0.807
+          },
+          {
+            "level": 50,
+            "multiplier": 0.866
+          },
+          {
+            "level": 75,
+            "multiplier": 0.922
+          }
+        ],
+        "Cascade Rider": [
+          {
+            "level": 1,
+            "multiplier": 0.911
+          },
+          {
+            "level": 5,
+            "multiplier": 1.017
+          },
+          {
+            "level": 10,
+            "multiplier": 0.981
+          },
+          {
+            "level": 20,
+            "multiplier": 1.008
+          },
+          {
+            "level": 35,
+            "multiplier": 1.044
+          },
+          {
+            "level": 50,
+            "multiplier": 1.039
+          },
+          {
+            "level": 75,
+            "multiplier": 0.988
+          }
+        ],
+        "Aqueduct Warden": [
+          {
+            "level": 1,
+            "multiplier": 1.051
+          },
+          {
+            "level": 5,
+            "multiplier": 0.948
+          },
+          {
+            "level": 10,
+            "multiplier": 0.926
+          },
+          {
+            "level": 20,
+            "multiplier": 0.894
+          },
+          {
+            "level": 35,
+            "multiplier": 0.861
+          },
+          {
+            "level": 50,
+            "multiplier": 0.862
+          },
+          {
+            "level": 75,
+            "multiplier": 0.901
+          }
+        ],
+        "Still Gazer": [
+          {
+            "level": 1,
+            "multiplier": 1.084
+          },
+          {
+            "level": 5,
+            "multiplier": 0.981
+          },
+          {
+            "level": 10,
+            "multiplier": 1.036
+          },
+          {
+            "level": 20,
+            "multiplier": 1.052
+          },
+          {
+            "level": 35,
+            "multiplier": 1.042
+          },
+          {
+            "level": 50,
+            "multiplier": 0.994
+          },
+          {
+            "level": 75,
+            "multiplier": 0.918
+          }
+        ],
+        "Undertow Shade": [
+          {
+            "level": 1,
+            "multiplier": 0.961
+          },
+          {
+            "level": 5,
+            "multiplier": 1.042
+          },
+          {
+            "level": 10,
+            "multiplier": 1.063
+          },
+          {
+            "level": 20,
+            "multiplier": 1.073
+          },
+          {
+            "level": 35,
+            "multiplier": 1.086
+          },
+          {
+            "level": 50,
+            "multiplier": 1.133
+          },
+          {
+            "level": 75,
+            "multiplier": 1.078
+          }
+        ],
+        "Throne Revenant": [
+          {
+            "level": 1,
+            "multiplier": 1.059
+          },
+          {
+            "level": 5,
+            "multiplier": 0.991
+          },
+          {
+            "level": 10,
+            "multiplier": 1.084
+          },
+          {
+            "level": 20,
+            "multiplier": 1.063
+          },
+          {
+            "level": 35,
+            "multiplier": 1.156
+          },
+          {
+            "level": 50,
+            "multiplier": 1.09
+          },
+          {
+            "level": 75,
+            "multiplier": 1.079
+          }
+        ]
       }
     }
   },

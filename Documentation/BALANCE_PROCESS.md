@@ -64,7 +64,9 @@ rate (clear^(1/fightsPerDungeon)) and the playthrough batch checks the real clea
 4. **Win-rate curve:** WRSOLVE at each anchor level → `enemySystem.damageCurve.anchors`. Re-run step 3 to confirm.
 5. **Items:** ITEMSTATS for rarity; ItemValueModel scores for gear power per level.
 6. **Survival:** PLAYTODEATHBATCH `--stop-at-level 10` on a scratch GameData copy. Read the death breakdown.
-7. Save the patch, note what changed and why.
+7. **Enemy parity (identity mode):** `python Scripts/enemy-calibrate.py --patch <patch> --iterations 3` (whole roster,
+   ~3 min per pass), then WRSOLVE again for the damage curve. Check a different seed with FUNDMATRIX `--seed 7`.
+8. Save the patch, note what changed and why.
 
 ## Knobs added for this process
 
@@ -91,11 +93,14 @@ rate (clear^(1/fightsPerDungeon)) and the playthrough batch checks the real clea
 | `combat.statusFocusDamagePerStack` / `statusMaxStacks` | 0.15 / 3 | Focus damage per stack; most stacks of one status that count. |
 | `lootSystem.weaponGearActionClassShare` / `armorGearActionClassShare` | 0.7 / 0 | Chance a gear action is a class action (weapon: its own class; armor: hero's class), else neutral. Starter attacks never roll. See `GearActionPools`. |
 | `enemySystem.archetypeCombat.<Archetype>.damage` / `.attackTime` | profile default | Per-archetype outgoing damage and swing-time multipliers (attack time below 1 = faster). Defaults live in `ArchetypeManager.GetArchetypeProfile`. Solve damage so each archetype costs the same HP per fight (see notes). |
+| `enemySystem.identity` | off | Identity mode: every enemy's damage base, swing time and HP come from level references, and its growth row only sets its shape (AGI-leaning = faster + lighter hits, STR-leaning = slower + heavier, tanky = more HP + lighter hits; threat stays the same). Shape strength `intensityAtLevel1` (0.5) → 1 at `fullIntensityLevel` (50). Archetype attack time folds into the shape; archetype `damage` overrides are ignored. |
+| `enemySystem.identity.calibration` | {} | Enemy name → level anchors × damage, solved by `Scripts/enemy-calibrate.py` so every enemy costs the same HP at every level. Re-run after editing `Enemies.json` or enemy actions. |
 
 ## Tests
 
 `dotnet DF.dll --run-tests` runs every suite; a suite that throws is reported under **SUITES THAT CRASHED** and the run
-continues. Exit code 0 = every test passed and nothing crashed. Baseline on 2026-10-11 (active patch overnight-v1): 8870 tests, 8789 passed, 81 failed, same 5 suites crashed.
+continues. Exit code 0 = every test passed and nothing crashed. Baseline on 2026-10-11 (active patch overnight-v1, identity mode): 8884 tests, 8801 passed, 83 failed, same 5 suites
+crashed. Flaky: "Test enemy has combo strip" and "Enemy selected action should be from enemy's action pool" pass or fail run to run.
 Earlier baseline (active patch 10-10-2026):
 8875 tests, 8784 passed, 91 failed, 5 suites crashed (EquippedItemTriggerTests, DataSystemTestRunner,
 ActionsSystemTestRunner, CombatSystemTestRunner, UISystemTestRunner — the last needs the Avalonia platform).
@@ -125,8 +130,12 @@ Treat new failures against that baseline as regressions.
 - Enemy archetypes: the matrix covers all nine archetypes (12 enemies, `matrixEnemies`). Solve
   `archetypeCombat.<A>.damage` by scaling each archetype by (mean HP lost / its HP lost) over L10–L50, one damped
   repeat, then re-run WRSOLVE for the damage curve. Win rate is useless for this: easy archetypes sit at 100%.
-  Per-enemy STR growth still drifts by level (Lich / Warlord heavy at L10, Glass Shard Golem / Guardian Scarab heavy
-  at L75); a constant archetype multiplier cannot fix that.
+  Superseded by identity mode (below) for overnight-v1: a constant archetype multiplier cannot fix per-enemy drift.
+- Identity mode + calibration (2026-10-11): whole roster (128) within ±1–3 points of the level mean HP lost from L1 to
+  L75 on an unseen seed; worst enemy win rate 84% at L50 and 69% at L75 (was 9% / 17%). Calibration multipliers stay
+  0.81–1.56 (pack enemies need the most). TEC (hit/crit thresholds) and INT still scale from raw stats, which is
+  what the calibration mostly absorbs. The damage curve dips after L35 because reference enemy agility keeps
+  speeding enemies up until ~L64.
 - Early survival vs L10 clear: the matrix L10 target (99.1% per fight) and 97% survival to L10 (~86 fights) conflict
   if L1–L9 enemies are as dangerous as L10. Keep L1–L9 anchors low (0.40–0.45) and let the curve rise at L10.
   Measure survival with `-RunsPerClass 60`; 25 runs per class moves the result by ±3 points.

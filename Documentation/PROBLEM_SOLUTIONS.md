@@ -4,6 +4,15 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Balance / Combat: some enemies unwinnable at mid levels, all identical at L1 (October 2026)
+**Problem:** Across the full roster, the worst enemy won 7% of fights at L35 (Mud Lurker) while others never threatened; at L1 every enemy swung at the same speed with the same damage.
+
+**Root cause:** Enemy power came from raw stat totals: damage = floor((STR + primary) × scale), swing time from AGI on the shared curve. Growth rows differ per enemy, so threat diverged with level (AGI-heavy enemies swung 3.3× faster by L50), while L1 base stats all sit below the agility floor.
+
+**Solution:** `enemySystem.identity` mode: level references set power; the growth row sets a threat-neutral shape (speed vs hit size vs HP) that strengthens with level; `Scripts/enemy-calibrate.py` solves per-enemy damage anchors for what actions add. Then WRSOLVE for the damage curve.
+
+**Related files:** `EnemyIdentity.cs`, `EnemyConfig.cs`, `EnemyStatCalculator.cs`, `EnemyFactory.cs`, `DamageCalculator.cs`, `SpeedCalculator.cs`, `Scripts/enemy-calibrate.py`, `GameData/Patches/Balance/overnight-v1.json`, `EnemyIdentityTests.cs`, `BALANCE_PROCESS.md`
+
 ### Balance / Combat: two archetypes did all the killing (October 2026)
 **Problem:** In the balance matrix, Wolf and Bear (Berserker) caused nearly every hero loss; Goblin, Rats, Wraith (Assassin) and Lich (Sage) won 100% through L50.
 

@@ -122,7 +122,7 @@ namespace RPGGame.Combat.Calculators
             // and attribute-based enemy damage paths are skipped.
             if (attacker is Enemy enemy)
             {
-                baseDamage = enemy.GetAttributeDamageBonus();
+                baseDamage = enemy.Identity?.ReferenceAttributeDamage ?? enemy.GetAttributeDamageBonus();
 
                 if (enemy.Weapon is WeaponItem weapon)
                     baseDamage += weapon.GetTotalDamage();
@@ -206,7 +206,9 @@ namespace RPGGame.Combat.Calculators
             if (attacker is Enemy curvedEnemy)
             {
                 totalDamage *= GameConfiguration.Instance.EnemySystem?.DamageCurve?.MultiplierAt(curvedEnemy.Level) ?? 1.0;
-                totalDamage *= curvedEnemy.GetArchetypeDamageMultiplier();
+                totalDamage *= curvedEnemy.Identity is { } identity
+                    ? identity.HitDamage * identity.Calibration
+                    : curvedEnemy.GetArchetypeDamageMultiplier();
             }
 
             // Get combat configuration
