@@ -631,7 +631,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     AsciiArtAssets.Colors.Magenta);
             }
 
-            foreach (var line in TextWrapper.WrapText(selected.Effect ?? "", width).Take(2))
+            foreach (var line in TextWrapper.WrapText(selected.DisplayEffect, width).Take(2))
             {
                 if (y >= maxY) return y;
                 canvas.AddText(left, y++, line, AsciiArtAssets.Colors.White);

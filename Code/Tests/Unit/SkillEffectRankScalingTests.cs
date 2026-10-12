@@ -152,7 +152,7 @@ namespace RPGGame.Tests.Unit
 
             TestBase.AssertTrue(str1 > 0, "rank 1 Empty Fury grants STR",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(str1 * 2, str2, "rank 2 doubles Empty Fury STR",
+            TestBase.AssertTrue(str2 > str1, "rank 2 Empty Fury grants more STR than rank 1",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

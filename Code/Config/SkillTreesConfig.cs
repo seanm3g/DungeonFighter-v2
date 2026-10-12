@@ -60,6 +60,21 @@ namespace RPGGame
         [JsonPropertyName("power")]
         public double Power { get; set; } = 1.0;
 
+        /// <summary>
+        /// <see cref="Effect"/> for display: each <c>{n}</c> token is the base amount, shown as n × <see cref="Power"/>
+        /// (e.g. "+{8}% damage" at power 0.0625 → "+0.5% damage"), so text stays correct when power is tuned.
+        /// </summary>
+        [JsonIgnore]
+        public string DisplayEffect => FormatEffect(Effect, Power);
+
+        public static string FormatEffect(string? effect, double power) =>
+            System.Text.RegularExpressions.Regex.Replace(effect ?? "", @"\{(-?\d+(?:\.\d+)?)\}", m =>
+            {
+                double value = double.Parse(m.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture) * power;
+                return Math.Round(value, Math.Abs(value) >= 10 ? 0 : Math.Abs(value) >= 1 ? 1 : 2)
+                    .ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+            });
+
         /// <summary>Flat DAMAGE_MOD applied per learned rank on hit (pack/sink nodes).</summary>
         [JsonPropertyName("damageModPerRank")]
         public int DamageModPerRank { get; set; }
@@ -125,7 +140,13 @@ namespace RPGGame
         };
 
         /// <summary>Tier index 0..4 → default Skill Point cost when a node omits/zeros cost (roots stay 0).</summary>
-        public static readonly int[] TierCosts = { 0, 1, 1, 1, 1 };
+        public static readonly int[] TierCosts = { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+
+        /// <summary>Class points earned (in the owning class) needed before a tier opens. Index = tier; deeper tiers use the last value.</summary>
+        public static readonly int[] TierPointGates = { 0, 0, 2, 5, 10, 18, 28, 40, 55, 70 };
+
+        public static int TierPointGate(int tier) =>
+            tier <= 0 ? 0 : TierPointGates[Math.Min(tier, TierPointGates.Length - 1)];
 
         [JsonPropertyName("trees")]
         public List<SkillTreeDefinition> Trees { get; set; } = new();

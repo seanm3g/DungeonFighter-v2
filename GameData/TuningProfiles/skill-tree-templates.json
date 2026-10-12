@@ -1,0 +1,446 @@
+{
+  "description": "Skill node effect text with base amounts in {braces} (shown as amount x power) and the design power before the per-class scale. 'scale': false nodes are never rescaled (roots, rules, chances, actions). Applied by Scripts/skill-tree-tune.py.",
+  "classScale": {
+    "Barbarian": 0.4286,
+    "Warrior": 0.5677,
+    "Rogue": 0.6445,
+    "Wizard": 0.828
+  },
+  "nodes": {
+    "b-age1": [
+      0.0625,
+      "+{8}% damage per equipped Barbarian item, per skill rank.",
+      true
+    ],
+    "b-lvl2": [
+      0.5,
+      "Gain armor equal to your natural dice roll x {1} until you next act.",
+      true
+    ],
+    "b-temper": [
+      1.0,
+      "While Harden is active, gain +{1} Armor per rank.",
+      true
+    ],
+    "b-blood": [
+      1.0,
+      "On dealing Mace damage, heal {1} HP per rank.",
+      true
+    ],
+    "b-memory": [
+      1.0,
+      "Store {25}% of post-armor damage taken per rank. Your next Finisher adds it, capped at {20}% max HP per rank.",
+      true
+    ],
+    "b-wrath": [
+      1.0,
+      "BONE WRATH also heals {1}% max HP per RAGE, per rank.",
+      true
+    ],
+    "b-stun": [
+      1.0,
+      "Crit with a Mace: 35% chance to Stun for 1 turn.",
+      false
+    ],
+    "b-mastery": [
+      1.0,
+      "Bludgeon hits on Armor-Broken enemies bank +{25}% damage per rank onto the next strike.",
+      true
+    ],
+    "b-empty": [
+      0.04,
+      "+{25} STR for each empty action slot, per skill rank.",
+      true
+    ],
+    "b-cull": [
+      1.0,
+      "IRON CULL: +{4}% damage per CRISIS, per rank, against enemies under 25% HP.",
+      true
+    ],
+    "b-puberty": [
+      0.1,
+      "Rite of passage: +{1} Strength per level.",
+      true
+    ],
+    "b-kin": [
+      0.2,
+      "Each equipped Bone / Steel / Iron piece adds +{1} STR per rank.",
+      true
+    ],
+    "b-gut": [
+      1.0,
+      "Every 5 effective INT adds +{1} STR to Mace actions, per rank.",
+      true
+    ],
+    "b-synth": [
+      0.2,
+      "Every 20 STR adds +{1} to each RAGE / CRISIS / TRIUMPH mint, per rank.",
+      true
+    ],
+    "b-titan": [
+      0.4,
+      "STR damage cap rises by {50}.",
+      true
+    ],
+    "b-combo": [
+      0.2,
+      "+{0.5} Combo (lower combo threshold) per Barbarian tag on gear and strip, whole steps.",
+      true
+    ],
+    "b-age2": [
+      0.1,
+      "Combo slot 2 gains +{0.5} extra hits per Barbarian material piece, per rank (whole hits).",
+      true
+    ],
+    "b-scar": [
+      0.05,
+      "Battle Scarred / New / Masterwork pieces: +{10}% Barbarian damage per matching piece, per skill rank.",
+      true
+    ],
+    "b-age3": [
+      1.0,
+      "Combo slot 3 is {6}% faster per Barbarian material piece, per rank. Speed beyond 30% becomes Focus.",
+      true
+    ],
+    "b-knuckle": [
+      1.0,
+      "While Harden is active, Mace hits gain +{3}% damage per rank.",
+      true
+    ],
+    "b-crest": [
+      1.0,
+      "STEEL CREST grants {0.5} Fortify per TRIUMPH, per rank.",
+      true
+    ],
+    "w-age1": [
+      0.0625,
+      "+{8}% speed per equipped Warrior item, per skill rank.",
+      true
+    ],
+    "w-lvl2": [
+      1.0,
+      "Your natural dice roll x {1} becomes +% speed on your next action.",
+      true
+    ],
+    "w-combo": [
+      0.2,
+      "+{0.5} Combo (lower combo threshold) per Warrior tag on gear and strip, whole steps.",
+      true
+    ],
+    "w-metronome": [
+      1.0,
+      "Combo slot 2 Sword hits gain +{4}% action speed per rank.",
+      true
+    ],
+    "w-cadence": [
+      1.0,
+      "Alternating actions above and below base speed grants +{1} Focus per rank.",
+      true
+    ],
+    "w-drum": [
+      1.0,
+      "DRUM CUT: +{2}% speed per BEAT, per rank.",
+      true
+    ],
+    "w-riposte": [
+      1.0,
+      "After taking a hit, your next Sword action gains Pierce for {1} turn per rank; if armor absorbed the hit it also gains {1} extra hit per rank.",
+      true
+    ],
+    "w-duty": [
+      1.0,
+      "After armor absorbs any damage, your next hit gains +{5}% damage per rank.",
+      true
+    ],
+    "w-phalanx": [
+      1.0,
+      "While Fortify is active, Sword hits gain +{2}% damage per rank.",
+      true
+    ],
+    "w-bulwark": [
+      1.0,
+      "Every two Sword connects grant +{1} Fortify per rank.",
+      true
+    ],
+    "w-wind": [
+      0.25,
+      "Ending a combo without missing heals {8}% max HP per rank and converts leftover Focus into Fortify.",
+      true
+    ],
+    "w-anchor": [
+      1.0,
+      "GOLD ANCHOR slows the enemy {3}% per DRAG, per rank (max 50%).",
+      true
+    ],
+    "w-puberty": [
+      0.4,
+      "Rite of passage: +{15} Agility.",
+      true
+    ],
+    "w-kin": [
+      0.2,
+      "Each equipped Bronze / Gold / Mithril piece adds +{1} AGI per rank.",
+      true
+    ],
+    "w-march": [
+      1.0,
+      "Sword actions gain +{1} effective AGI per rank.",
+      true
+    ],
+    "w-synth": [
+      0.2,
+      "Every 20 AGI adds +{1} to each BEAT / DRAG / STREAK mint, per rank.",
+      true
+    ],
+    "w-hitagi": [
+      0.2,
+      "Hit with a Sword: +{5} Agility for the turn, per skill rank.",
+      true
+    ],
+    "w-streak": [
+      0.2,
+      "+{5} Agility for each consecutive attack (resets OnTakeHit), per skill rank.",
+      true
+    ],
+    "w-brief": [
+      1.0,
+      "Critical hits grant +{1} Fortify per rank (2 turns).",
+      true
+    ],
+    "w-polish": [
+      0.05,
+      "Worn / Like New / Heirloom pieces: +{10}% Warrior damage per matching piece, per skill rank.",
+      true
+    ],
+    "w-flowcrest": [
+      1.0,
+      "MITHRIL FLOW grants {0.34} Focus per STREAK, per rank.",
+      true
+    ],
+    "w-line": [
+      1.0,
+      "Once per fight, hold a slot when the strip would reset (+{2} roll per rank).",
+      true
+    ],
+    "r-age1": [
+      0.0625,
+      "+{8}% damage per equipped Rogue item, per skill rank.",
+      true
+    ],
+    "r-lvl2": [
+      1.0,
+      "Your natural dice roll x {1} becomes +% damage on your next action.",
+      true
+    ],
+    "r-precision": [
+      1.0,
+      "Rogue-tagged actions gain +{1} Multihit.",
+      false
+    ],
+    "r-fingers": [
+      1.0,
+      "When your AGI exceeds the target's, gain +{1}% damage per rank.",
+      true
+    ],
+    "r-channel": [
+      1.0,
+      "Hits against Marked enemies gain +{3}% damage per rank.",
+      true
+    ],
+    "r-glass": [
+      0.05,
+      "Broken / Preowned / Perfect pieces: +{10}% Rogue damage per matching piece, per skill rank.",
+      true
+    ],
+    "r-shatter": [
+      1.0,
+      "GLASS NICK applies {0.34} Vulnerability per GRAZE, per rank.",
+      true
+    ],
+    "r-grease": [
+      1.0,
+      "Connecting on a natural roll of 7 or lower grants +{1} temporary Technique per rank.",
+      true
+    ],
+    "r-streak": [
+      0.2,
+      "+{5} Technique for each consecutive non-miss (resets OnTakeHit/miss), per skill rank.",
+      true
+    ],
+    "r-ghost": [
+      1.0,
+      "After a miss, gain +{1} miss-salvage charge per rank.",
+      true
+    ],
+    "r-witness": [
+      1.0,
+      "Killing a Marked enemy retriggers the opener and banks +{1} miss-salvage charge per rank.",
+      true
+    ],
+    "r-umbra": [
+      1.0,
+      "UMBRA applies {0.34} Expose per SWING, per rank.",
+      true
+    ],
+    "r-puberty": [
+      1.0,
+      "Rite of passage: +{15} Technique.",
+      true
+    ],
+    "r-kin": [
+      0.2,
+      "Each equipped Glass / Obsidian / Shadow piece adds +{1} TEC per rank.",
+      true
+    ],
+    "r-synth": [
+      0.2,
+      "Every 20 TEC adds +{1} to each GRAZE / SWING / TROPHY mint, per rank.",
+      true
+    ],
+    "r-aim": [
+      0.25,
+      "Every 25 TEC also lowers your crit threshold by {1}.",
+      true
+    ],
+    "r-combo": [
+      0.2,
+      "+{0.5} Combo (lower combo threshold) per Rogue tag on gear and strip, whole steps.",
+      true
+    ],
+    "r-cut": [
+      1.0,
+      "Hits apply +{1} Bleed per rank (doubled on crit).",
+      true
+    ],
+    "r-toxin": [
+      1.0,
+      "Hits against Poisoned enemies apply +{1} Bleed per rank.",
+      true
+    ],
+    "r-ledger": [
+      1.0,
+      "Each different DoT on the target adds +{10}% of the hit as bonus damage, per rank.",
+      true
+    ],
+    "r-mastery": [
+      1.0,
+      "Multihit Dagger actions add +{1} Bleed per extra hit.",
+      true
+    ],
+    "r-trophy": [
+      1.0,
+      "HEADHUNT: +{3}% damage per TROPHY, per rank.",
+      true
+    ],
+    "z-age1": [
+      0.0625,
+      "+{8}% AMP per equipped Wizard item, per skill rank.",
+      true
+    ],
+    "z-comboInt": [
+      0.2,
+      "Combo with a Wand: +{5} Intelligence for the turn, per skill rank.",
+      true
+    ],
+    "z-soft": [
+      1.0,
+      "Spell hits bank +{2}% damage onto your next hero roll per rank.",
+      true
+    ],
+    "z-memory": [
+      0.25,
+      "Repeating a tag adds +{12}% AMP per rank; changing tags cashes the stack (+{12}% per stack per rank).",
+      true
+    ],
+    "z-chaos": [
+      0.4,
+      "Combo actions gain +{7}% AMP per empty strip slot.",
+      true
+    ],
+    "z-pure": [
+      0.05,
+      "Second Hand / Cosmic pieces: +{10}% Wizard AMP per matching piece, per skill rank.",
+      true
+    ],
+    "z-lash": [
+      1.0,
+      "WILLOW LASH: +{3}% AMP per CHAIN, per rank.",
+      true
+    ],
+    "z-lvl2": [
+      1.0,
+      "Your natural dice roll x {1} becomes +% AMP on your next hit.",
+      true
+    ],
+    "z-lens": [
+      1.0,
+      "Spell/Wand actions gain +{1} effective TEC per rank.",
+      true
+    ],
+    "z-odds": [
+      1.0,
+      "Natural rolls of 15+ grant +{1} temporary Intelligence per rank.",
+      true
+    ],
+    "z-refract": [
+      1.0,
+      "REFRACT grants {0.5} Focus per LENS, per rank.",
+      true
+    ],
+    "z-puberty": [
+      1.0,
+      "Rite of passage: +{15} Intelligence.",
+      true
+    ],
+    "z-kin": [
+      0.2,
+      "Each equipped Willow / Silver / Crystal piece adds +{1} INT per rank.",
+      true
+    ],
+    "z-weave": [
+      0.12,
+      "Wand actions gain +{2}% AMP per 10 INT, per rank.",
+      true
+    ],
+    "z-synth": [
+      0.2,
+      "Every 20 INT adds +{1} to each CHAIN / LENS / CONTACT mint, per rank.",
+      true
+    ],
+    "z-archmage": [
+      1.0,
+      "INT's bonus to your status durations gains +{100}%.",
+      true
+    ],
+    "z-combo": [
+      0.2,
+      "+{0.5} Combo (lower combo threshold) per Wizard tag on gear and strip, whole steps.",
+      true
+    ],
+    "z-bleed": [
+      1.0,
+      "Spell/Wand hits restore {1} HP per rank.",
+      true
+    ],
+    "z-sigil": [
+      1.0,
+      "Hits against Burning enemies gain +{3}% damage per rank.",
+      true
+    ],
+    "z-slotInt": [
+      0.2,
+      "+{5} INT per current action slot (resets OnTakeHit), per skill rank.",
+      true
+    ],
+    "z-catalyst": [
+      1.0,
+      "Hits on enemies with Acid armor loss also add {1} Burn.",
+      true
+    ],
+    "z-resonate": [
+      1.0,
+      "RESONATE: +{2}% damage per CONTACT, per rank.",
+      true
+    ]
+  }
+}

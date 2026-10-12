@@ -103,7 +103,7 @@ namespace RPGGame.Tests.Unit.UI
             var hero = MakeBareHero("AgeHero");
             hero.Progression.BarbarianPoints = 50;
             hero.Progression.EnsureSkillTreeRootsGranted();
-            hero.Progression.LearnedSkillRanks["b-age1"] = 1;
+            hero.Progression.LearnedSkillRanks["b-age1"] = 5;
 
             var weapon = TestDataBuilders.Weapon()
                 .WithName("BoneMace")
@@ -119,10 +119,11 @@ namespace RPGGame.Tests.Unit.UI
             AddCombo(hero, slam);
 
             // 8% per item per rank x the node's power (SkillTrees.json).
-            double agePct = 8.0 * (GameConfiguration.Instance.SkillTrees.GetNode("b-age1")?.Power ?? 1.0);
+            string ageName = GameConfiguration.Instance.SkillTrees.GetNode("b-age1")?.Name ?? "First Bronze Age";
+            double agePct = 8.0 * 5 * (GameConfiguration.Instance.SkillTrees.GetNode("b-age1")?.Power ?? 1.0);
             var lines = ActionCardExternalBonusCollector.BuildLines(hero, slam, 0);
             TestBase.AssertTrue(lines.Any(l =>
-                    l.Text.IndexOf("First Bronze Age", StringComparison.OrdinalIgnoreCase) >= 0
+                    l.Text.IndexOf(ageName, StringComparison.OrdinalIgnoreCase) >= 0
                     && l.Text.IndexOf("dmg", StringComparison.OrdinalIgnoreCase) >= 0),
                 "First Bronze Age dmg line on affected action card",
                 ref run, ref passed, ref failed);
@@ -134,7 +135,7 @@ namespace RPGGame.Tests.Unit.UI
 
             var tooltip = CombatActionStripBuilder.BuildActionTooltipLines(hero, 0, 80, 20);
             TestBase.AssertTrue(tooltip.Any(l =>
-                    l.IndexOf("First Bronze Age", StringComparison.OrdinalIgnoreCase) >= 0),
+                    l.IndexOf(ageName, StringComparison.OrdinalIgnoreCase) >= 0),
                 "action tooltip Stats include First Bronze Age",
                 ref run, ref passed, ref failed);
         }

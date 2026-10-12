@@ -57,6 +57,7 @@ namespace RPGGame
         {
             int effectiveTechnique = attacker.GetEffectiveTechnique();
             var (hitSteps, comboSteps, critSteps) = GetSteps(effectiveTechnique);
+            critSteps += SkillEffectRouter.PerfectAimCritSteps(attacker);
 
             for (int i = 0; i < critSteps; i++)
                 tm.AdjustCriticalHitThreshold(attacker, adjustment: 1);

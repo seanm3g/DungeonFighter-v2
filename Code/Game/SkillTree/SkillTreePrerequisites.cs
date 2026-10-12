@@ -75,6 +75,16 @@ namespace RPGGame
             return null;
         }
 
+        /// <summary>Depth gate: the node's tier needs enough class points earned in the owning class.</summary>
+        public static bool IsTierOpen(CharacterProgression progression, SkillTreeDefinition tree, SkillTreeNodeDefinition node)
+        {
+            int gate = SkillTreesConfig.TierPointGate(node.Tier);
+            if (gate <= 0)
+                return true;
+            var path = tree.ResolveWeaponType();
+            return path != null && progression.GetClassPoints(path.Value) >= gate;
+        }
+
         public static bool AreMet(CharacterProgression progression, SkillTreeNodeDefinition node)
         {
             if (progression == null || node == null)
@@ -84,6 +94,9 @@ namespace RPGGame
 
             var tree = FindOwnerTree(node);
             if (tree?.Nodes == null || tree.Nodes.Count == 0)
+                return false;
+
+            if (!IsTierOpen(progression, tree, node))
                 return false;
 
             if (UsesExplicitRequires(node))

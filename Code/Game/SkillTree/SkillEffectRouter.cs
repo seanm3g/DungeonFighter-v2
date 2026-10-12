@@ -49,6 +49,7 @@ namespace RPGGame
         private int _slotIntApplied;
         private int _ironHideArmor;
         private double _pendingRollAmp;
+        private int _steadyMarchApplied;
 
         private const int RiteOfPassageAttributeBonus = 15;
 
@@ -107,6 +108,7 @@ namespace RPGGame
             _slotIntApplied = 0;
             _ironHideArmor = 0;
             _pendingRollAmp = 0;
+            _steadyMarchApplied = 0;
         }
 
         public void OnRoomCleared(Character hero)
@@ -130,7 +132,8 @@ namespace RPGGame
             _subscribed = true;
         }
 
-        private int GetRank(Character? c, string customEffectId) => SkillRanks.GetRank(c, customEffectId);
+        /// <summary>Rank scaled by node power (rounded, at least 1 once learned): what rank-based magnitudes use.</summary>
+        private int GetRank(Character? c, string customEffectId) => SkillRanks.GetScaledRank(c, customEffectId);
 
         private bool Has(Character? c, string customEffectId) => GetRank(c, customEffectId) > 0;
 
@@ -162,10 +165,10 @@ namespace RPGGame
             if (c == null || string.IsNullOrWhiteSpace(statCode)) return 0;
             return statCode.Trim().ToUpperInvariant() switch
             {
-                "STR" => PubertyStrengthBonus(c),
-                "AGI" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "commission")),
-                "TEC" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "initiation")),
-                "INT" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "apprenticeship")),
+                "STR" => PubertyStrengthBonus(c) + KinshipBonus(c, "STR"),
+                "AGI" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "commission")) + KinshipBonus(c, "AGI"),
+                "TEC" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "initiation")) + KinshipBonus(c, "TEC"),
+                "INT" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "apprenticeship")) + KinshipBonus(c, "INT"),
                 _ => 0
             };
         }
@@ -242,6 +245,7 @@ namespace RPGGame
             ApplyDiceRollPassives(hero, evt);
             ApplyConcussiveCrit(hero, evt);
             ApplyPrecisionMultihit(hero, evt);
+            ApplyClassTreeOnHit(hero, evt);
             ApplyShadowcraft(hero, evt);
             ApplyVenomMace(hero, evt);
             ApplyEnvenomedEdge(hero, evt);
@@ -330,7 +334,7 @@ namespace RPGGame
             if (Has(hero, "second_wind"))
             {
                 int rank = GetRank(hero, "second_wind");
-                int heal = Math.Max(1, (int)(hero.MaxHealth * 0.08 * rank));
+                int heal = Math.Max(1, (int)(hero.MaxHealth * 0.08 * GetPower(hero, "second_wind")));
                 hero.Heal(heal);
                 int focus = hero.FocusStacks ?? 0;
                 if (focus > 0)
@@ -478,15 +482,10 @@ namespace RPGGame
                 evt.Target.QueueBleedFromHit(2);
         }
 
+        /// <summary>Second / Third Age item count: equipped Barbarian material pieces (Living Alloy adds Harden/Fortify).</summary>
         private int CountBronzeItems(Character hero)
         {
-            int count = 0;
-            foreach (var item in EnumerateEquipped(hero))
-            {
-                if (item?.Tags == null) continue;
-                if (item.Tags.Any(t => string.Equals(t, "bronze", StringComparison.OrdinalIgnoreCase)))
-                    count++;
-            }
+            int count = CountClassMaterialPieces(hero, ClassTags.Barbarian);
             if (Has(hero, "living_alloy"))
             {
                 count += hero.HardenStacks ?? 0;
@@ -586,7 +585,7 @@ namespace RPGGame
             if (Has(hero, "second_bronze_age") && slot == 1 && bronze >= 2)
             {
                 // Flat stack: +1 full-power multihit per two Bronze items, times skill rank.
-                hero.Effects.ConsumedMultiHitMod += (bronze / 2.0) * GetRank(hero, "second_bronze_age");
+                hero.Effects.ConsumedMultiHitMod += Math.Floor(bronze / 2.0 * GetPower(hero, "second_bronze_age"));
             }
             if (Has(hero, "third_bronze_age") && slot == 2)
             {
@@ -795,11 +794,14 @@ namespace RPGGame
             _pendingRollAmp = 0;
         }
 
-        /// <summary>Concussive Crit: a Mace critical stuns the target for 1 turn.</summary>
+        public const double ConcussiveStunChance = 0.35;
+
+        /// <summary>Concussive Crit: a Mace critical has a 35% (x power) chance to stun the target for 1 turn.</summary>
         private void ApplyConcussiveCrit(Character hero, CombatEvent evt)
         {
             if (!evt.IsCritical || evt.Target == null || !Has(hero, "concussive_crit")) return;
             if (hero.Equipment.Weapon is not WeaponItem w || w.WeaponType != WeaponType.Mace) return;
+            if (RandomUtility.NextDouble() >= Math.Min(1.0, ConcussiveStunChance * GetPower(hero, "concussive_crit"))) return;
             evt.Target.IsStunned = true;
             evt.Target.StunTurnsRemaining = Math.Max(evt.Target.StunTurnsRemaining, 1);
         }
@@ -933,12 +935,12 @@ namespace RPGGame
             if (string.Equals(tag, _spellMemoryTag, StringComparison.OrdinalIgnoreCase))
             {
                 _spellMemoryStacks++;
-                hero.Effects.ConsumedAmpModPercent += 12 * GetRank(hero, "spell_memory");
+                AddAmpMod(hero, 12 * GetPower(hero, "spell_memory"));
             }
             else
             {
                 if (_spellMemoryStacks > 0)
-                    hero.Effects.ConsumedAmpModPercent += 12 * _spellMemoryStacks * GetRank(hero, "spell_memory");
+                    AddAmpMod(hero, 12 * _spellMemoryStacks * GetPower(hero, "spell_memory"));
                 _spellMemoryStacks = 0;
                 _spellMemoryTag = tag;
             }
@@ -1095,11 +1097,13 @@ namespace RPGGame
 
         private void ApplySteadyMarch(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "steady_march");
-            if (rank <= 0) return;
+            int bonus = GetRank(hero, "steady_march");
             bool sword = hero.Equipment.Weapon is WeaponItem w && w.WeaponType == WeaponType.Sword;
-            if (!sword) return;
-            hero.Stats.TempAgilityBonus += rank;
+            if (!sword) bonus = 0;
+            if (bonus == _steadyMarchApplied) return;
+            hero.Stats.TempAgilityBonus = Math.Max(0, hero.Stats.TempAgilityBonus - _steadyMarchApplied + bonus);
+            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
+            _steadyMarchApplied = bonus;
         }
 
         private void ApplyDeepCut(Character hero, CombatEvent evt)

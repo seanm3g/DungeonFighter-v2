@@ -569,6 +569,7 @@ namespace RPGGame
             if (attacker is Character attackerCharacter)
             {
                 intelligenceBonus = attackerCharacter.GetEffectiveIntelligence() / 10; // +1 turn per 10 intelligence
+                intelligenceBonus = (int)Math.Floor(intelligenceBonus * SkillEffectRouter.ArchmageDurationMultiplier(attackerCharacter));
             }
             
             // Target's intelligence provides resistance

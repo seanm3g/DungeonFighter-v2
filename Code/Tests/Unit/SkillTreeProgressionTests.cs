@@ -100,7 +100,7 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Spent the only available point on age1 rank 1 — another T1 is unaffordable.
-            var unaffordable = p.TryLearnSkillNode("b-loot", requirePrimaryPath: false);
+            var unaffordable = p.TryLearnSkillNode("b-lvl2", requirePrimaryPath: false);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.InsufficientPoints, unaffordable,
                 "not enough remaining points for another skill",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -155,8 +155,8 @@ namespace RPGGame.Tests.Unit
                 "cannot spend into non-shared non-primary sword node",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // w-cunning is sharedWith Mace and first on Tempo — secondary Sword rail should allow spend.
-            var sharedOk = p.TryLearnSkillNode("w-cunning", requirePrimaryPath: true);
+            // w-age1 is sharedWith Mace and first on Bronze — secondary Sword rail should allow spend.
+            var sharedOk = p.TryLearnSkillNode("w-age1", requirePrimaryPath: true);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, sharedOk,
                 "shared secondary node spends into Warrior path from Mace primary",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -190,8 +190,8 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             int wandAvailBefore = p.GetAvailableSkillPoints(WeaponType.Wand);
-            // Read Book is first on Echo (root prereq only) — avoids same-branch sibling layout gates.
-            var learn = p.TryLearnSkillNode("z-readbook", requirePrimaryPath: true);
+            // First Glyph is first on Willow (root prereq only) — avoids same-branch sibling layout gates.
+            var learn = p.TryLearnSkillNode("z-age1", requirePrimaryPath: true);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, learn,
                 "learn shared Wand node from Sword-primary view",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -240,6 +240,9 @@ namespace RPGGame.Tests.Unit
             character.Progression.BarbarianPoints = 30;
             character.Progression.EnsureSkillTreeRootsGranted();
 
+            // Might sits on Rite tier 2, after the tier-1 Rite nodes.
+            SkillTreeService.TryLearn(character, "b-puberty", rebuildActions: false);
+            SkillTreeService.TryLearn(character, "b-loot", rebuildActions: false);
             var result = SkillTreeService.TryLearn(character, "b-might", rebuildActions: true);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, result,
                 "learn Might action node",

@@ -83,8 +83,10 @@ namespace RPGGame
             int count = 0;
             foreach (var item in new Item?[] { hero.Weapon, hero.Head, hero.Body, hero.Legs, hero.Feet })
                 count += CountOnItem(hero, item, classTag);
+            bool wandMastery = string.Equals(classTag, Wizard, StringComparison.OrdinalIgnoreCase)
+                && SkillEffectRouter.WandMasteryTagsStrip(hero);
             foreach (var action in hero.GetComboActions())
-                if (ActionHas(action, classTag))
+                if (wandMastery || ActionHas(action, classTag))
                     count++;
             return count;
         }
@@ -107,6 +109,13 @@ namespace RPGGame
                     best = Math.Max(best, kv.Value);
             }
             return best;
+        }
+
+        /// <summary>round(rank × power), at least 1 once the node is learned (integer magnitudes).</summary>
+        public static int GetScaledRank(Character? c, string customEffectId)
+        {
+            double power = GetPower(c, customEffectId);
+            return power <= 0 ? 0 : Math.Max(1, (int)Math.Round(power));
         }
 
         /// <summary>Rank × the node's <see cref="SkillTreeNodeDefinition.Power"/>.</summary>

@@ -39,6 +39,8 @@ namespace RPGGame.Tests.Unit
                 var progression = character.Progression;
                 progression.BarbarianPoints = 20;
                 progression.EnsureSkillTreeRootsGranted();
+                progression.TryLearnSkillNode("b-puberty", requirePrimaryPath: false);
+                progression.TryLearnSkillNode("b-loot", requirePrimaryPath: false);
                 progression.TryLearnSkillNode("b-might", requirePrimaryPath: false);
 
                 manager.AddClassActions(character, progression, WeaponType.Mace);

@@ -185,7 +185,7 @@ namespace RPGGame
             var combat = GameConfiguration.Instance.Combat;
             if (_character is Enemy || combat.StrengthDamagePerPoint <= 0)
                 return 1.0;
-            int cap = combat.StrengthDamageMaxStat > 0 ? combat.StrengthDamageMaxStat : int.MaxValue;
+            int cap = combat.StrengthDamageMaxStat > 0 ? combat.StrengthDamageMaxStat + SkillEffectRouter.StrengthCapBonus(_character) : int.MaxValue;
             return 1.0 + Math.Clamp(GetEffectiveStrength(), 0, cap) * combat.StrengthDamagePerPoint;
         }
 

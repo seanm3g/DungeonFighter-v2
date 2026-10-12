@@ -91,14 +91,16 @@ namespace RPGGame.Tests.Unit
         private static void TestCadenceStepsPerTenTags()
         {
             var hero = MakeHero("Cadence", WeaponType.Mace, 50);
-            for (int i = 0; i < 10; i++)
+            double cadencePower = GameConfiguration.Instance.SkillTrees.GetNode("b-combo")?.Power ?? 1.0;
+            int tagsForOneStep = (int)Math.Ceiling(2.0 / cadencePower);
+            for (int i = 0; i < tagsForOneStep; i++)
                 AddStrip(hero, "BARB_" + i, "barbarian");
             TestBase.AssertEqual(0, ClassCadence.ComboSteps(hero), "no cadence without Heavy Cadence",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             hero.Progression.LearnedSkillRanks["b-combo"] = 1;
             double power = GameConfiguration.Instance.SkillTrees.GetNode("b-combo")?.Power ?? 1.0;
             int expected = (int)Math.Floor(ClassTags.Count(hero, ClassTags.Barbarian) / 2.0 * power);
-            TestBase.AssertTrue(expected >= 1, "10 Barbarian tags reach at least one cadence step",
+            TestBase.AssertTrue(expected >= 1, "enough Barbarian tags reach one cadence step",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(expected, ClassCadence.ComboSteps(hero), "Heavy Cadence steps = tags / 2 x power",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -151,8 +153,9 @@ namespace RPGGame.Tests.Unit
             var hero = MakeHero("Concuss", WeaponType.Mace, 50);
             hero.Progression.LearnedSkillRanks["b-stun"] = 1;
             var foe = TestDataBuilders.Enemy().WithName("Dummy").Build();
-            Publish(hero, CombatEventType.ActionCritical, foe, 20, true);
-            TestBase.AssertTrue(foe.IsStunned && foe.StunTurnsRemaining >= 1, "Mace crit with Concussive Crit stuns",
+            for (int i = 0; i < 60 && !foe.IsStunned; i++)
+                Publish(hero, CombatEventType.ActionCritical, foe, 20, true);
+            TestBase.AssertTrue(foe.IsStunned && foe.StunTurnsRemaining >= 1, "Mace crits with Concussive Crit stun (35% chance each)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

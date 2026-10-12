@@ -191,6 +191,7 @@ namespace RPGGame
                 if (amount <= 0)
                     continue;
                 amount = Math.Max(1, (int)Math.Round(amount * CharmBonusController.GetMintMultiplier(hero)));
+                amount += SkillEffectRouter.SynthesisFeedBonus(hero, build.Material);
                 hero.Effects.AddMaterialKeyword(build.Keyword, amount);
                 int total = hero.Effects.GetMaterialKeyword(build.Keyword);
                 messages?.Add(FormatFeedCombatLine(build.Synthesis, build.Keyword, amount, total));

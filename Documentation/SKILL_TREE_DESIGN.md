@@ -111,6 +111,9 @@ Every hybrid has the same four rows. The rarity on the board sets the order: com
 | Spellblade | Warrior + Wizard | **Wits** = AGI + INT | +25% combo |
 | Hexblade | Rogue + Wizard | **Mind** = TEC + INT | +25% status potency |
 
+**Gear requirements:** some items require a hybrid secondary attribute (Body, Prowess, Will, Finesse, Wits, Mind)
+instead of, or alongside, a base attribute. They are the gear that only a hybrid build can equip at that level.
+
 "Hybrid tags you have" = class tags on equipped gear (materials count) plus class tags on the actions in your strip.
 Numbers (+25% per 10) are the board's; they go through `power` like every other node so tuning stays a data edit.
 
