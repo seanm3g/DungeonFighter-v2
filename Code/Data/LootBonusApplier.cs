@@ -73,7 +73,7 @@ namespace RPGGame
                 ApplyStatBonuses(item, statSuffixes);
                 ApplyActionBonuses(item, actionBonuses, context);
                 ApplyPrefixSlots(item, prefixSlots, context);
-                EnsureMaterial(item, rarityName);
+                EnsureMaterial(item, rarityName, context);
                 MaterialTriggerMerge.ClearCatalogTriggerStamp(item);
                 MaterialTriggerMerge.RemapLegacyMaterialOnItem(item);
                 SyncMaterialPrefixTags(item);
@@ -121,7 +121,22 @@ namespace RPGGame
         /// <summary>
         /// Ensures exactly one Material prefix. Weapons use the class ladder; non-weapons pick any material.
         /// </summary>
-        public void EnsureMaterial(Item item, string? itemRarity = null)
+        /// <summary>Market skill rules: a non-weapon drop may take the hero's class material for its rarity.</summary>
+        private string ApplyClassMaterialBias(string materialName, string rarityName, LootContext? context)
+        {
+            if (context?.ClassMaterialChance == null || context.ClassMaterialChance.Count == 0)
+                return materialName;
+            foreach (var kv in context.ClassMaterialChance)
+            {
+                if (kv.Value <= 0 || _random.NextDouble() >= kv.Value)
+                    continue;
+                if (ClassTags.WeaponOf(kv.Key) is WeaponType wt)
+                    return ItemMaterialRules.ResolveWeaponMaterial(wt, rarityName);
+            }
+            return materialName;
+        }
+
+        public void EnsureMaterial(Item item, string? itemRarity = null, LootContext? context = null)
         {
             if (item == null)
                 return;
@@ -143,6 +158,7 @@ namespace RPGGame
                 var materialMods = (_dataCache.Modifications ?? new List<Modification>())
                     .Where(m => m.GetPrefixCategory() == ModificationPrefixCategory.Material);
                 materialName = ItemMaterialRules.PickNonWeaponMaterial(materialMods, rarityName, _random);
+                materialName = ApplyClassMaterialBias(materialName, rarityName, context);
             }
 
             var template = (_dataCache.Modifications ?? new List<Modification>())

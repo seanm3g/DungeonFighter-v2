@@ -50,9 +50,10 @@
           "requires": [
             "b-tribe"
           ],
-          "effect": "Increase Barbarian-tag item generation by 50%.",
+          "effect": "Armor drops have a 50% chance to be a Barbarian material (Bone / Steel / Iron).",
           "payoff": "Loot bias toward your material/class tags.",
-          "customEffectId": "blood_market"
+          "customEffectId": "blood_market",
+          "power": 1.0
         },
         {
           "id": "b-might",
@@ -84,9 +85,10 @@
           "requires": [
             "b-might"
           ],
-          "effect": "Add the natural dice roll to your armor for next turn.",
+          "effect": "Gain armor equal to half your natural dice roll until you next act.",
           "payoff": "Aggressive rolls still buy defense.",
-          "customEffectId": "iron_hide_roll"
+          "customEffectId": "iron_hide_roll",
+          "power": 0.5
         },
         {
           "id": "b-puberty",
@@ -131,9 +133,10 @@
           "requires": [
             "b-age1"
           ],
-          "effect": "+1 Combo per 2 Barbarian tags.",
+          "effect": "+1 Combo (lower combo threshold) per 10 Barbarian tags on gear and strip.",
           "payoff": "Tag-dense kits enter combo more often.",
-          "customEffectId": "heavy_cadence"
+          "customEffectId": "heavy_cadence",
+          "power": 0.2
         },
         {
           "id": "b-stun",
@@ -236,9 +239,10 @@
           "requires": [
             "w-lineage"
           ],
-          "effect": "Increase Warrior-tag item generation by 50%.",
+          "effect": "Armor drops have a 50% chance to be a Warrior material (Bronze / Gold / Mithril).",
           "payoff": "Loot bias toward Bronze/Gold/Mithril.",
-          "customEffectId": "muster_hall"
+          "customEffectId": "muster_hall",
+          "power": 1.0
         },
         {
           "id": "w-cunning",
@@ -272,9 +276,10 @@
           "requires": [
             "w-cunning"
           ],
-          "effect": "Add the natural dice roll to your speed for next turn.",
+          "effect": "Your natural dice roll becomes +% speed on your next action.",
           "payoff": "Clean rolls bank cadence.",
-          "customEffectId": "roll_speed"
+          "customEffectId": "roll_speed",
+          "power": 1.0
         },
         {
           "id": "w-puberty",
@@ -319,9 +324,10 @@
           "requires": [
             "w-age1"
           ],
-          "effect": "+1 Combo per 2 Warrior tags.",
+          "effect": "+1 Combo (lower combo threshold) per 10 Warrior tags on gear and strip.",
           "payoff": "Tag-dense kits enter combo more often.",
-          "customEffectId": "drill_cadence"
+          "customEffectId": "drill_cadence",
+          "power": 0.2
         },
         {
           "id": "w-hitagi",
@@ -424,9 +430,10 @@
           "requires": [
             "r-veil"
           ],
-          "effect": "Increase Rogue-tag item generation by 50%.",
+          "effect": "Armor drops have a 50% chance to be a Rogue material (Glass / Obsidian / Shadow).",
           "payoff": "Loot bias toward Glass/Obsidian/Shadow.",
-          "customEffectId": "black_market"
+          "customEffectId": "black_market",
+          "power": 1.0
         },
         {
           "id": "r-concentrate",
@@ -459,9 +466,10 @@
           "requires": [
             "r-concentrate"
           ],
-          "effect": "Add the natural dice roll to your damage for next turn.",
+          "effect": "Your natural dice roll becomes +% damage on your next action.",
           "payoff": "Rolls feed next-swing lethality.",
-          "customEffectId": "roll_damage"
+          "customEffectId": "roll_damage",
+          "power": 1.0
         },
         {
           "id": "r-puberty",
@@ -504,9 +512,10 @@
           "requires": [
             "r-age1"
           ],
-          "effect": "+1 Combo per 2 Rogue tags.",
+          "effect": "+1 Combo (lower combo threshold) per 10 Rogue tags on gear and strip.",
           "payoff": "Tag-dense kits enter combo more often.",
-          "customEffectId": "soft_cadence"
+          "customEffectId": "soft_cadence",
+          "power": 0.2
         },
         {
           "id": "r-critmiss",
@@ -519,9 +528,10 @@
           "requires": [
             "r-precision"
           ],
-          "effect": "Crit miss with a Dagger: roll again.",
+          "effect": "Crit miss with a Dagger: bank one miss salvage.",
           "payoff": "Worst faces get one salvage.",
-          "customEffectId": "dagger_critmiss_reroll"
+          "customEffectId": "dagger_critmiss_reroll",
+          "power": 1.0
         },
         {
           "id": "r-streak",
@@ -607,9 +617,10 @@
           "requires": [
             "z-circle"
           ],
-          "effect": "Increase Wizard-tag item generation by 50%.",
+          "effect": "Armor drops have a 50% chance to be a Wizard material (Willow / Silver / Crystal).",
           "payoff": "Loot bias toward Willow/Silver/Crystal.",
-          "customEffectId": "reagent_market"
+          "customEffectId": "reagent_market",
+          "power": 1.0
         },
         {
           "id": "z-readbook",
@@ -641,9 +652,10 @@
           "requires": [
             "z-readbook"
           ],
-          "effect": "Add the natural dice roll to your AMP for next turn.",
+          "effect": "Your natural dice roll becomes +% AMP on your next hit.",
           "payoff": "Rolls feed next-spell power.",
-          "customEffectId": "roll_amp"
+          "customEffectId": "roll_amp",
+          "power": 1.0
         },
         {
           "id": "z-puberty",
@@ -687,9 +699,10 @@
           "requires": [
             "z-age1"
           ],
-          "effect": "+1 Combo per 2 Wizard tags.",
+          "effect": "+1 Combo (lower combo threshold) per 10 Wizard tags on gear and strip.",
           "payoff": "Tag-dense spells enter combo more often.",
-          "customEffectId": "soft_cadence_wiz"
+          "customEffectId": "soft_cadence_wiz",
+          "power": 0.2
         },
         {
           "id": "z-comboInt",

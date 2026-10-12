@@ -47,6 +47,8 @@ namespace RPGGame
         private int _attackStreak;
         private int _nonMissStreak;
         private int _slotIntApplied;
+        private int _ironHideArmor;
+        private double _pendingRollAmp;
 
         private const int RiteOfPassageAttributeBonus = 15;
 
@@ -103,6 +105,8 @@ namespace RPGGame
             _attackStreak = 0;
             _nonMissStreak = 0;
             _slotIntApplied = 0;
+            _ironHideArmor = 0;
+            _pendingRollAmp = 0;
         }
 
         public void OnRoomCleared(Character hero)
@@ -126,40 +130,12 @@ namespace RPGGame
             _subscribed = true;
         }
 
-        private int GetRank(Character? c, string customEffectId)
-        {
-            if (c?.Progression == null || string.IsNullOrWhiteSpace(customEffectId)) return 0;
-            c.Progression.EnsureSkillTreeRootsGranted();
-            int best = 0;
-            foreach (var kv in c.Progression.LearnedSkillRanks)
-            {
-                if (kv.Value <= 0) continue;
-                var node = SkillTreeService.Trees.GetNode(kv.Key);
-                if (node != null &&
-                    string.Equals(node.CustomEffectId, customEffectId, StringComparison.OrdinalIgnoreCase))
-                    best = Math.Max(best, kv.Value);
-            }
-            return best;
-        }
+        private int GetRank(Character? c, string customEffectId) => SkillRanks.GetRank(c, customEffectId);
 
         private bool Has(Character? c, string customEffectId) => GetRank(c, customEffectId) > 0;
 
         /// <summary>Rank x the node's <see cref="SkillTreeNodeDefinition.Power"/>: what per-rank magnitudes multiply by.</summary>
-        private double GetPower(Character? c, string customEffectId)
-        {
-            if (c?.Progression == null || string.IsNullOrWhiteSpace(customEffectId)) return 0;
-            c.Progression.EnsureSkillTreeRootsGranted();
-            double best = 0;
-            foreach (var kv in c.Progression.LearnedSkillRanks)
-            {
-                if (kv.Value <= 0) continue;
-                var node = SkillTreeService.Trees.GetNode(kv.Key);
-                if (node != null &&
-                    string.Equals(node.CustomEffectId, customEffectId, StringComparison.OrdinalIgnoreCase))
-                    best = Math.Max(best, kv.Value * Math.Max(0, node.Power));
-            }
-            return best;
-        }
+        private double GetPower(Character? c, string customEffectId) => SkillRanks.GetPower(c, customEffectId);
 
         /// <summary>Stat added per streak step for consecutive_agi / consecutive_tec (5 x power, rounded).</summary>
         private int StreakStep(Character hero, string customEffectId) => (int)Math.Round(5 * GetPower(hero, customEffectId));
@@ -167,9 +143,12 @@ namespace RPGGame
         /// <summary>Flat armor from Bone Temper while Harden is active.</summary>
         public int GetSkillArmorBonus(Character? c)
         {
+            if (c == null) return 0;
+            int armor = ReferenceEquals(c, _boundCharacter) ? _ironHideArmor : 0;
             int rank = GetRank(c, "bone_temper");
-            if (rank <= 0 || c == null) return 0;
-            return (c.HardenStacks ?? 0) > 0 ? rank : 0;
+            if (rank > 0 && (c.HardenStacks ?? 0) > 0)
+                armor += rank;
+            return armor;
         }
 
         /// <summary>
@@ -231,6 +210,8 @@ namespace RPGGame
             if (hero == null) return;
 
             ResetNonMissStreak(hero);
+            ApplyDiceRollPassives(hero, evt);
+            ApplyDaggerCritMissSalvage(hero, evt);
 
             if (Has(hero, "iron_discipline") && !_ironDisciplineUsed)
             {
@@ -257,6 +238,10 @@ namespace RPGGame
             if (hero == null) return;
 
             TrackConnectStreak(hero, evt);
+            ApplyPendingRollAmp(hero);
+            ApplyDiceRollPassives(hero, evt);
+            ApplyConcussiveCrit(hero, evt);
+            ApplyPrecisionMultihit(hero, evt);
             ApplyShadowcraft(hero, evt);
             ApplyVenomMace(hero, evt);
             ApplyEnvenomedEdge(hero, evt);
@@ -771,6 +756,68 @@ namespace RPGGame
             int bonus = (hero.GetEffectiveIntelligence() / 5) * rank;
             if (bonus > 0)
                 hero.Stats.TempStrengthBonus += bonus;
+        }
+
+        /// <summary>
+        /// Natural-roll passives (one per class, "add the natural dice roll to … for next turn"): Barbarian armor
+        /// (held until the hero next acts), Warrior speed, Rogue damage, Wizard AMP (% each, × power).
+        /// </summary>
+        private void ApplyDiceRollPassives(Character hero, CombatEvent evt)
+        {
+            int roll = evt.NaturalRollValue;
+            _ironHideArmor = 0;
+            if (roll <= 0) return;
+
+            double armor = GetPower(hero, "iron_hide_roll");
+            if (armor > 0)
+                _ironHideArmor = (int)Math.Round(roll * armor);
+
+            var next = new List<ActionAttackBonusItem>();
+            double speed = GetPower(hero, "roll_speed");
+            if (speed > 0)
+                next.Add(new ActionAttackBonusItem { Type = "SPEED_MOD", Value = roll * speed });
+            double damage = GetPower(hero, "roll_damage");
+            if (damage > 0)
+                next.Add(new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = roll * damage });
+            if (next.Count > 0)
+                hero.Effects.AddPendingActionBonusesNextHeroRoll(next);
+
+            double amp = GetPower(hero, "roll_amp");
+            if (amp > 0)
+                _pendingRollAmp = roll * amp;
+        }
+
+        /// <summary>Roll AMP banked by the previous action lands on this hit (skill AMP: no opener lift).</summary>
+        private void ApplyPendingRollAmp(Character hero)
+        {
+            if (_pendingRollAmp <= 0) return;
+            AddAmpMod(hero, _pendingRollAmp);
+            _pendingRollAmp = 0;
+        }
+
+        /// <summary>Concussive Crit: a Mace critical stuns the target for 1 turn.</summary>
+        private void ApplyConcussiveCrit(Character hero, CombatEvent evt)
+        {
+            if (!evt.IsCritical || evt.Target == null || !Has(hero, "concussive_crit")) return;
+            if (hero.Equipment.Weapon is not WeaponItem w || w.WeaponType != WeaponType.Mace) return;
+            evt.Target.IsStunned = true;
+            evt.Target.StunTurnsRemaining = Math.Max(evt.Target.StunTurnsRemaining, 1);
+        }
+
+        /// <summary>Precision: Rogue-tagged actions gain Multihit +1 (× power).</summary>
+        private void ApplyPrecisionMultihit(Character hero, CombatEvent evt)
+        {
+            double power = GetPower(hero, "precision_multihit");
+            if (power <= 0 || !ClassTags.ActionHas(evt.Action, ClassTags.Rogue)) return;
+            hero.Effects.ConsumedMultiHitMod += power;
+        }
+
+        /// <summary>Dagger crit miss: bank a miss-salvage charge ("worst faces get one salvage").</summary>
+        private void ApplyDaggerCritMissSalvage(Character hero, CombatEvent evt)
+        {
+            if (!evt.IsCriticalMiss || !Has(hero, "dagger_critmiss_reroll")) return;
+            if (hero.Equipment.Weapon is not WeaponItem w || w.WeaponType != WeaponType.Dagger) return;
+            CombatTriggerContext.AddMissSalvageCharges(hero, 1);
         }
 
         private void ApplyMaceMastery(Character hero, CombatEvent evt)

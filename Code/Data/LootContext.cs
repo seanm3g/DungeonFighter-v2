@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace RPGGame
 {
@@ -34,6 +35,23 @@ namespace RPGGame
         public string? WeaponType { get; set; }
 
         /// <summary>
+        /// Class-material bias from the skill-tree market rules (Blood Market, Muster Hall, …): class tag → chance that
+        /// a non-weapon drop takes that class's material for its rarity.
+        /// </summary>
+        public Dictionary<string, double> ClassMaterialChance { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+        private static readonly (string Effect, string ClassTag)[] MarketRules =
+        {
+            ("blood_market", ClassTags.Barbarian),
+            ("muster_hall", ClassTags.Warrior),
+            ("black_market", ClassTags.Rogue),
+            ("reagent_market", ClassTags.Wizard)
+        };
+
+        /// <summary>Base chance per unit of market power ("+50% class-tag item generation").</summary>
+        public const double MarketChancePerPower = 0.5;
+
+        /// <summary>
         /// Factory method to create a context from a character and optional dungeon info
         /// </summary>
         public static LootContext Create(
@@ -47,6 +65,15 @@ namespace RPGGame
                 DungeonTheme = dungeonTheme,
                 EnemyArchetype = enemyArchetype
             };
+            if (player != null)
+            {
+                foreach (var (effect, classTag) in MarketRules)
+                {
+                    double power = SkillRanks.GetPower(player, effect);
+                    if (power > 0)
+                        context.ClassMaterialChance[classTag] = Math.Min(1.0, MarketChancePerPower * power);
+                }
+            }
             return context;
         }
     }

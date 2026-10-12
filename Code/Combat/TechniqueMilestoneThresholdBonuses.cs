@@ -64,6 +64,12 @@ namespace RPGGame
                 tm.AdjustComboThreshold(attacker, adjustment: 1);
             for (int i = 0; i < hitSteps; i++)
                 tm.AdjustHitThreshold(attacker, adjustment: 1);
+
+            // Class cadence rules (skill tree): class tags lower the combo threshold. Applied here so they reset
+            // and re-apply with the TECH milestones every attack.
+            int cadenceSteps = ClassCadence.ComboSteps(attacker);
+            for (int i = 0; i < cadenceSteps; i++)
+                tm.AdjustComboThreshold(attacker, adjustment: 1);
         }
     }
 }
