@@ -51,6 +51,7 @@ rate (clear^(1/fightsPerDungeon)) and the playthrough batch checks the real clea
 | `WRSOLVE --level L --target P` | Finds the enemy damage multiplier that gives win rate P at level L. Feed results into `enemySystem.damageCurve.anchors`. |
 | `ITEMSTATS --levels 1,10,50,100` | Real loot drops: rarity mix, affix counts, what sets each item's rarity, top prefixes/suffixes. |
 | `STATVALUE --level 10 --gear typical [--attr-amount 60]` | Exchange rates: what +1 of each item stat is worth in weapon-damage points. Feeds `ItemValueModel`. Use `--attr-amount 60` for STR/AGI/TEC/INT and one weapon at a time: the default step sits inside fight-to-fight noise. |
+| `SKILLVALUE --level L [--classes C] [--slots 2]` | Prices every skill-tree node at rank 1 and max rank on a typical-gear hero (value 100 = no change, plus value per skill point), and the whole tree at max rank (`ALL`). Gear-dependent passives are priced with typical gear only, so they read low next to a hero who collects matching pieces. |
 | `ITEMSTATS --detail` | Also prints gear actions by slot: class / neutral / other-class / basic share and the top actions. |
 | `PLAYTODEATHBATCH N [--stop-at-level 10]` | N full playthroughs per class (bot equips upgrades). Survival %, deaths by level / fight # in dungeon / killer. |
 | `RUNLOG --class C [--verbose]` | One playthrough traced fight by fight, with gear at each hub visit; `--verbose` prints every action with swing times and thresholds. |
@@ -94,6 +95,7 @@ rate (clear^(1/fightsPerDungeon)) and the playthrough batch checks the real clea
 | `lootSystem.weaponGearActionClassShare` / `armorGearActionClassShare` | 0.7 / 0 | Chance a gear action is a class action (weapon: its own class; armor: hero's class), else neutral. Starter attacks never roll. See `GearActionPools`. |
 | `enemySystem.archetypeCombat.<Archetype>.damage` / `.attackTime` | profile default | Per-archetype outgoing damage and swing-time multipliers (attack time below 1 = faster). Defaults live in `ArchetypeManager.GetArchetypeProfile`. Solve damage so each archetype costs the same HP per fight (see notes). |
 | `enemySystem.identity` | off | Identity mode: every enemy's damage base, swing time and HP come from level references, and its growth row only sets its shape (AGI-leaning = faster + lighter hits, STR-leaning = slower + heavier, tanky = more HP + lighter hits; threat stays the same). Shape strength `intensityAtLevel1` (0.5) → 1 at `fullIntensityLevel` (50). Archetype attack time folds into the shape; archetype `damage` overrides are ignored. |
+| `SkillTrees.json` node `power` | 1.0 | Scales a skill's per-rank magnitude (custom effect amount × rank × power). Keep the node's `effect` text in step with the scaled number. |
 | `enemySystem.identity.calibration` | {} | Enemy name → level anchors × damage, solved by `Scripts/enemy-calibrate.py` so every enemy costs the same HP at every level. Re-run after editing `Enemies.json` or enemy actions. |
 
 ## Tests
@@ -139,3 +141,14 @@ Treat new failures against that baseline as regressions.
 - Early survival vs L10 clear: the matrix L10 target (99.1% per fight) and 97% survival to L10 (~86 fights) conflict
   if L1–L9 enemies are as dangerous as L10. Keep L1–L9 anchors low (0.40–0.45) and let the curve rise at L10.
   Measure survival with `-RunsPerClass 60`; 25 runs per class moves the result by ±3 points.
+- Skill tree (2026-10-12): the basic bot never spends skill points, so skills were never tuned. The smart bot killed
+  in 2–4 hero actions from L6 (Barbarian / Wizard). Cause: magnitudes written for the old stat scale (+25 STR per
+  empty slot, +8–10% per matching item per rank, level as STR) plus a bug where any skill AMP lifted openers to the
+  full TEC combo amp. Fixes: per-node `power` (gear passives 0.5% per item per rank, Empty Fury +1 STR per empty slot
+  per rank, Puberty +1 STR per 10 levels, Commission +6 AGI, AGI-per-hit skills +1 per rank); skill AMP is its own
+  multiplier (`ConsumedSkillAmpPercent`). Whole tree at max rank (SKILLVALUE ALL): Barbarian 125–133, Warrior 122–149,
+  Rogue 108–114, Wizard 99–112. Smart bot L16–21: Barbarian 4.5, Warrior 8.3, Rogue 6.5, Wizard 7.8 hero actions per
+  fight, about 1.3–1.6× the basic bot on the same weapon (target 30–40% faster kills).
+- Dead skills: Wizard INT skills (Apprenticeship, Combo-INT, Slot Mind), Rogue Steady Hand (TEC streak) and
+  Initiation price at ~100 because INT and TEC barely change combat outcomes; Concentrated Chaos (`concentrated_chaos`)
+  has no handler. These need a design decision on what INT / TEC do, not a power change.

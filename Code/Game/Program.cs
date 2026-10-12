@@ -183,6 +183,13 @@ namespace RPGGame
                     return;
                 }
 
+                if (args.Length > 0 && args[0].Equals("SKILLVALUE", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "SKILLVALUE";
+                    System.Environment.ExitCode = await RPGGame.Tuning.Profiles.SkillValueRunner.RunAsync(args);
+                    return;
+                }
+
                 if (args.Length > 0 && args[0].Equals("FIGHTLOG", StringComparison.OrdinalIgnoreCase))
                 {
                     executionMode = "FIGHTLOG";
@@ -563,7 +570,7 @@ namespace RPGGame
             return cmd.ToUpperInvariant() switch
             {
                 "MCP" or "MCPSMOKE" or "PLAYTODEATH" or "PLAYTODEATHBATCH" or "RUNLOG" or "PLAYTHROUGHTUNING"
-                    or "TUNESIM" or "FUNDMATRIX" or "FIGHTLOG" or "SEQLAB" or "ITEMSTATS" or "WRSOLVE" or "STATVALUE" or "ACTIONVALUE" or "TUNEANALYZE" or "TUNEAPPLY" or "TUNETUNING" or "TUNEPROFILES"
+                    or "TUNESIM" or "FUNDMATRIX" or "FIGHTLOG" or "SEQLAB" or "ITEMSTATS" or "WRSOLVE" or "STATVALUE" or "ACTIONVALUE" or "SKILLVALUE" or "TUNEANALYZE" or "TUNEAPPLY" or "TUNETUNING" or "TUNEPROFILES"
                     or "LEVELSIM" or "LEVELANALYZE" or "LEVELAPPLY" or "LEVELTUNING" or "TEST" => true,
                 _ => false
             };

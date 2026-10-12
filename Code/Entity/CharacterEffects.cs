@@ -56,6 +56,7 @@ namespace RPGGame
         public double ConsumedSpeedModPercent { get => _state.ConsumedSpeedModPercent; set => _state.ConsumedSpeedModPercent = value; }
         public double ConsumedMultiHitMod { get => _state.ConsumedMultiHitMod; set => _state.ConsumedMultiHitMod = value; }
         public double ConsumedAmpModPercent { get => _state.ConsumedAmpModPercent; set => _state.ConsumedAmpModPercent = value; }
+        public double ConsumedSkillAmpPercent { get => _state.ConsumedSkillAmpPercent; set => _state.ConsumedSkillAmpPercent = value; }
         public double ConsumedWeaponDamageFlat { get => _state.ConsumedWeaponDamageFlat; set => _state.ConsumedWeaponDamageFlat = value; }
         public double ConsumedWeaponSpeedFlat { get => _state.ConsumedWeaponSpeedFlat; set => _state.ConsumedWeaponSpeedFlat = value; }
 

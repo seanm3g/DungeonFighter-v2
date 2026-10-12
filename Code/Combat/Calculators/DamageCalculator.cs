@@ -108,6 +108,8 @@ namespace RPGGame.Combat.Calculators
                     baseline = Math.Max(baseline, character.GetComboAmplifier());
                 m = baseline * (1.0 + character.Effects.ConsumedAmpModPercent / 100.0);
             }
+            if (attacker is Character skillAmpCharacter && skillAmpCharacter.Effects.ConsumedSkillAmpPercent != 0)
+                m *= 1.0 + skillAmpCharacter.Effects.ConsumedSkillAmpPercent / 100.0;
             return m;
         }
 
@@ -188,6 +190,10 @@ namespace RPGGame.Combat.Calculators
                     baseline = Math.Max(baseline, ampModCharacter.GetComboAmplifier());
                 comboAmplifier = baseline * (1.0 + ampModCharacter.Effects.ConsumedAmpModPercent / 100.0);
             }
+
+            // Skill-tree AMP (First Glyph, Pure Prefer): a plain % on the current multiplier.
+            if (attacker is Character skillAmpHero && skillAmpHero.Effects.ConsumedSkillAmpPercent != 0)
+                comboAmplifier *= 1.0 + skillAmpHero.Effects.ConsumedSkillAmpPercent / 100.0;
 
             // Apply next attack damage multiplier (for Follow Through and similar effects)
             // Consume it so it only applies once

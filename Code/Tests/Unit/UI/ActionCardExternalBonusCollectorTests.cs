@@ -118,16 +118,17 @@ namespace RPGGame.Tests.Unit.UI
             slam.DamageMultiplier = 1.0;
             AddCombo(hero, slam);
 
+            // 8% per item per rank x the node's power (SkillTrees.json).
+            double agePct = 8.0 * (GameConfiguration.Instance.SkillTrees.GetNode("b-age1")?.Power ?? 1.0);
             var lines = ActionCardExternalBonusCollector.BuildLines(hero, slam, 0);
             TestBase.AssertTrue(lines.Any(l =>
                     l.Text.IndexOf("First Bronze Age", StringComparison.OrdinalIgnoreCase) >= 0
-                    && l.Text.Contains("+8%", StringComparison.Ordinal)
                     && l.Text.IndexOf("dmg", StringComparison.OrdinalIgnoreCase) >= 0),
-                "First Bronze Age +8% dmg on affected action card",
+                "First Bronze Age dmg line on affected action card",
                 ref run, ref passed, ref failed);
 
             var panels = CombatActionStripBuilder.BuildPanelData(hero);
-            TestBase.AssertTrue(panels.Count >= 1 && Math.Abs(panels[0].DamageModified - 108.0) < 0.01,
+            TestBase.AssertTrue(panels.Count >= 1 && Math.Abs(panels[0].DamageModified - (100.0 + agePct)) < 0.01,
                 "panel damage % includes First Bronze Age",
                 ref run, ref passed, ref failed);
 

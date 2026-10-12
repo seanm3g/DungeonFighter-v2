@@ -56,6 +56,10 @@ namespace RPGGame
         [JsonPropertyName("customEffectId")]
         public string? CustomEffectId { get; set; }
 
+        /// <summary>Magnitude scale for the custom effect: its per-rank amount x this (1 = as written in <see cref="Effect"/>).</summary>
+        [JsonPropertyName("power")]
+        public double Power { get; set; } = 1.0;
+
         /// <summary>Flat DAMAGE_MOD applied per learned rank on hit (pack/sink nodes).</summary>
         [JsonPropertyName("damageModPerRank")]
         public int DamageModPerRank { get; set; }

@@ -192,6 +192,8 @@ namespace RPGGame
         public double ConsumedSpeedModPercent { get; set; }
         public double ConsumedMultiHitMod { get; set; }
         public double ConsumedAmpModPercent { get; set; }
+        /// <summary>Skill-tree AMP % this swing: multiplies the combo multiplier as-is (does not lift openers to the TEC amp).</summary>
+        public double ConsumedSkillAmpPercent { get; set; }
         /// <summary>Flat weapon damage from consumed WEAPON_DAMAGE cadence bonuses this swing.</summary>
         public double ConsumedWeaponDamageFlat { get; set; }
         /// <summary>Flat weapon speed points from consumed WEAPON_SPEED (each point ≈ −0.1 weapon time mult).</summary>
@@ -244,6 +246,7 @@ namespace RPGGame
             ConsumedSpeedModPercent = 0;
             ConsumedMultiHitMod = 0;
             ConsumedAmpModPercent = 0;
+            ConsumedSkillAmpPercent = 0;
             ConsumedWeaponDamageFlat = 0;
             ConsumedWeaponSpeedFlat = 0;
         }
@@ -386,6 +389,7 @@ namespace RPGGame
             ConsumedSpeedModPercent = 0;
             ConsumedMultiHitMod = 0;
             ConsumedAmpModPercent = 0;
+            ConsumedSkillAmpPercent = 0;
             ConsumedWeaponDamageFlat = 0;
             ConsumedWeaponSpeedFlat = 0;
         }

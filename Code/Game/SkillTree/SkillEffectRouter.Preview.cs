@@ -86,10 +86,10 @@ namespace RPGGame
 
         private void TryAddPercent(List<SkillActionCardBonus> list, Character hero, string customEffectId, string statKey, double perRankValue)
         {
-            int rank = GetRank(hero, customEffectId);
-            if (rank <= 0 || perRankValue <= 0)
+            double power = GetPower(hero, customEffectId);
+            if (power <= 0 || perRankValue <= 0)
                 return;
-            list.Add(new SkillActionCardBonus(ResolveSkillName(hero, customEffectId), statKey, perRankValue * rank));
+            list.Add(new SkillActionCardBonus(ResolveSkillName(hero, customEffectId), statKey, perRankValue * power));
         }
 
         private void AddDataDrivenRankDamage(List<SkillActionCardBonus> list, Character hero)

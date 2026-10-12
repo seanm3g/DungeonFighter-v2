@@ -5,8 +5,8 @@ using RPGGame.Tests;
 namespace RPGGame.Tests.Unit
 {
     /// <summary>
-    /// maxRank-5 skill nodes scale their combat bonuses by learned rank.
-    /// Puberty adds the hero's level to Strength. Commission / Initiation / Apprenticeship add +15 to AGI / TEC / INT.
+    /// maxRank-5 skill nodes scale their combat bonuses by learned rank x the node's <c>power</c> from SkillTrees.json.
+    /// Puberty adds level x power to Strength. Commission / Initiation / Apprenticeship add 15 x power to AGI / TEC / INT.
     /// </summary>
     public static class SkillEffectRankScalingTests
     {
@@ -67,6 +67,8 @@ namespace RPGGame.Tests.Unit
             return character;
         }
 
+        private static double Power(string nodeId) => GameConfiguration.Instance.SkillTrees.GetNode(nodeId)?.Power ?? 1.0;
+
         private static void SetRank(Character character, string nodeId, int rank)
         {
             character.Progression.LearnedSkillRanks[nodeId] = rank;
@@ -78,6 +80,7 @@ namespace RPGGame.Tests.Unit
             SkillEffectRouter.Instance.ResetFightState();
             hero.Effects.ConsumedDamageModPercent = 0;
             hero.Effects.ConsumedAmpModPercent = 0;
+            hero.Effects.ConsumedSkillAmpPercent = 0;
             hero.Stats.TempStrengthBonus = 0;
             hero.Stats.TempAgilityBonus = 0;
             hero.Stats.TempTechniqueBonus = 0;
@@ -121,9 +124,12 @@ namespace RPGGame.Tests.Unit
             PublishHit(r2);
             int agi2 = r2.Stats.TempAgilityBonus;
 
-            TestBase.AssertEqual(5, agi1, "rank 1 grants +5 AGI",
+            int step = (int)Math.Round(5 * Power("w-hitagi"));
+            TestBase.AssertTrue(step > 0, "w-hitagi power grants at least 1 AGI per rank",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(10, agi2, "rank 2 grants +10 AGI",
+            TestBase.AssertEqual(step, agi1, "rank 1 grants 5 x power AGI",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual((int)Math.Round(10 * Power("w-hitagi")), agi2, "rank 2 grants 10 x power AGI",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -173,42 +179,46 @@ namespace RPGGame.Tests.Unit
             PublishHit(r2);
             double dmg2 = r2.Effects.ConsumedDamageModPercent;
 
-            TestBase.AssertEqual(10.0, dmg1, "rank 1 Scrap Prefer +10% damage",
+            TestBase.AssertEqual(10.0 * Power("b-scar"), dmg1, "rank 1 Scrap Prefer: 10% x power per piece",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(20.0, dmg2, "rank 2 Scrap Prefer +20% damage",
+            TestBase.AssertEqual(20.0 * Power("b-scar"), dmg2, "rank 2 Scrap Prefer doubles it",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestPubertyGrantsStandingStrength()
         {
-            Console.WriteLine("--- Puberty grants level as standing STR ---");
+            Console.WriteLine("--- Puberty grants level x power as standing STR ---");
             var hero = MakeHero("PubertyStr", WeaponType.Mace);
-            hero.Level = 5;
+            hero.Level = 20;
             int before = hero.GetEffectiveStrength();
             TestBase.AssertEqual(0, SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR"),
                 "no Puberty rank -> no skill STR",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             SetRank(hero, "b-puberty", 1);
+            int at20 = (int)Math.Round(20 * Power("b-puberty"));
             int after = hero.GetEffectiveStrength();
-            TestBase.AssertEqual(5, SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR"),
-                "Puberty at level 5 is +5 STR",
+            TestBase.AssertTrue(at20 > 0, "Puberty grants STR at level 20",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(at20, SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR"),
+                "Puberty at level 20 is level x power STR",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0, SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "AGI"),
                 "Puberty does not add Agility",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(before + 5, after,
+            TestBase.AssertEqual(before + at20, after,
                 "GetEffectiveStrength includes Puberty",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(hero.MeetsStatThreshold("STR", before + 5),
+            TestBase.AssertTrue(hero.MeetsStatThreshold("STR", before + at20),
                 "STR threshold uses Puberty",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            hero.Level = 8;
-            TestBase.AssertEqual(8, SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR"),
+            hero.Level = 40;
+            int at40 = (int)Math.Round(40 * Power("b-puberty"));
+            TestBase.AssertEqual(at40, SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR"),
                 "Puberty tracks the new level",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(before + 8, hero.GetEffectiveStrength(),
+            TestBase.AssertEqual(before + at40, hero.GetEffectiveStrength(),
                 "GetEffectiveStrength follows the new Puberty level",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
@@ -219,22 +229,22 @@ namespace RPGGame.Tests.Unit
             var warrior = MakeHero("CommissionAgi", WeaponType.Sword);
             int agiBefore = warrior.GetEffectiveAgility();
             SetRank(warrior, "w-puberty", 1);
-            TestBase.AssertEqual(agiBefore + 15, warrior.GetEffectiveAgility(),
-                "Commission +15 AGI",
+            TestBase.AssertEqual(agiBefore + (int)Math.Round(15 * Power("w-puberty")), warrior.GetEffectiveAgility(),
+                "Commission 15 x power AGI",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var rogue = MakeHero("InitiationTec", WeaponType.Dagger);
             int tecBefore = rogue.GetEffectiveTechnique();
             SetRank(rogue, "r-puberty", 1);
-            TestBase.AssertEqual(tecBefore + 15, rogue.GetEffectiveTechnique(),
-                "Initiation +15 TEC",
+            TestBase.AssertEqual(tecBefore + (int)Math.Round(15 * Power("r-puberty")), rogue.GetEffectiveTechnique(),
+                "Initiation 15 x power TEC",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var wizard = MakeHero("ApprenticeInt", WeaponType.Wand);
             int intBefore = wizard.GetEffectiveIntelligence();
             SetRank(wizard, "z-puberty", 1);
-            TestBase.AssertEqual(intBefore + 15, wizard.GetEffectiveIntelligence(),
-                "Apprenticeship +15 INT",
+            TestBase.AssertEqual(intBefore + (int)Math.Round(15 * Power("z-puberty")), wizard.GetEffectiveIntelligence(),
+                "Apprenticeship 15 x power INT",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

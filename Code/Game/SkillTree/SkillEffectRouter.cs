@@ -144,6 +144,26 @@ namespace RPGGame
 
         private bool Has(Character? c, string customEffectId) => GetRank(c, customEffectId) > 0;
 
+        /// <summary>Rank x the node's <see cref="SkillTreeNodeDefinition.Power"/>: what per-rank magnitudes multiply by.</summary>
+        private double GetPower(Character? c, string customEffectId)
+        {
+            if (c?.Progression == null || string.IsNullOrWhiteSpace(customEffectId)) return 0;
+            c.Progression.EnsureSkillTreeRootsGranted();
+            double best = 0;
+            foreach (var kv in c.Progression.LearnedSkillRanks)
+            {
+                if (kv.Value <= 0) continue;
+                var node = SkillTreeService.Trees.GetNode(kv.Key);
+                if (node != null &&
+                    string.Equals(node.CustomEffectId, customEffectId, StringComparison.OrdinalIgnoreCase))
+                    best = Math.Max(best, kv.Value * Math.Max(0, node.Power));
+            }
+            return best;
+        }
+
+        /// <summary>Stat added per streak step for consecutive_agi / consecutive_tec (5 x power, rounded).</summary>
+        private int StreakStep(Character hero, string customEffectId) => (int)Math.Round(5 * GetPower(hero, customEffectId));
+
         /// <summary>Flat armor from Bone Temper while Harden is active.</summary>
         public int GetSkillArmorBonus(Character? c)
         {
@@ -164,9 +184,9 @@ namespace RPGGame
             return statCode.Trim().ToUpperInvariant() switch
             {
                 "STR" => PubertyStrengthBonus(c),
-                "AGI" => RiteOfPassageAttributeBonus * GetRank(c, "commission"),
-                "TEC" => RiteOfPassageAttributeBonus * GetRank(c, "initiation"),
-                "INT" => RiteOfPassageAttributeBonus * GetRank(c, "apprenticeship"),
+                "AGI" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "commission")),
+                "TEC" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "initiation")),
+                "INT" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "apprenticeship")),
                 _ => 0
             };
         }
@@ -174,9 +194,9 @@ namespace RPGGame
         /// <summary>Learned Puberty: +1 Strength per hero level, once per rank.</summary>
         private int PubertyStrengthBonus(Character c)
         {
-            int rank = GetRank(c, "puberty");
-            if (rank <= 0) return 0;
-            return Math.Max(0, c.Level) * rank;
+            double power = GetPower(c, "puberty");
+            if (power <= 0) return 0;
+            return (int)Math.Round(Math.Max(0, c.Level) * power);
         }
 
         private Character? AsBoundHero(Actor? source)
@@ -560,7 +580,7 @@ namespace RPGGame
         private void AddAmpMod(Character hero, double value)
         {
             if (value <= 0) return;
-            hero.Effects.ConsumedAmpModPercent += value;
+            hero.Effects.ConsumedSkillAmpPercent += value;
         }
 
         private void ApplyBronzeAges(Character hero, CombatEvent evt)
@@ -572,8 +592,7 @@ namespace RPGGame
             int barbItems = CountEquippedMatchingTags(hero, BarbarianMaterialTags);
             if (barbItems > 0 && Has(hero, "first_bronze_age"))
             {
-                int rank = GetRank(hero, "first_bronze_age");
-                AddDamageMod(hero, 8.0 * barbItems * rank);
+                AddDamageMod(hero, 8.0 * barbItems * GetPower(hero, "first_bronze_age"));
             }
 
             int bronze = CountBronzeItems(hero);
@@ -601,85 +620,85 @@ namespace RPGGame
 
         private void ApplyFirstFormation(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "first_formation");
-            if (rank <= 0 || evt.Action == null) return;
+            double power = GetPower(hero, "first_formation");
+            if (power <= 0 || evt.Action == null) return;
             int items = CountEquippedMatchingTags(hero, WarriorMaterialTags);
             if (items <= 0) return;
-            AddSpeedMod(hero, 8.0 * items * rank);
+            AddSpeedMod(hero, 8.0 * items * power);
         }
 
         private void ApplyFirstCut(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "first_cut");
-            if (rank <= 0 || evt.Action == null) return;
+            double power = GetPower(hero, "first_cut");
+            if (power <= 0 || evt.Action == null) return;
             int items = CountEquippedMatchingTags(hero, RogueMaterialTags);
             if (items <= 0) return;
-            AddDamageMod(hero, 8.0 * items * rank);
+            AddDamageMod(hero, 8.0 * items * power);
         }
 
         private void ApplyFirstGlyph(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "first_glyph");
-            if (rank <= 0 || evt.Action == null) return;
+            double power = GetPower(hero, "first_glyph");
+            if (power <= 0 || evt.Action == null) return;
             int items = CountEquippedMatchingTags(hero, WizardMaterialTags);
             if (items <= 0) return;
-            AddAmpMod(hero, 8.0 * items * rank);
+            AddAmpMod(hero, 8.0 * items * power);
         }
 
         private void ApplyEmptyFury(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "empty_fury");
-            if (rank <= 0) return;
+            double power = GetPower(hero, "empty_fury");
+            if (power <= 0) return;
             int empty = CountEmptyActionSlots(hero);
             if (empty <= 0) return;
-            int bonus = 25 * empty * rank;
+            int bonus = (int)Math.Round(25 * empty * power);
             hero.Stats.TempStrengthBonus = Math.Max(hero.Stats.TempStrengthBonus, bonus);
             hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
         }
 
         private void ApplyConsecutiveAgi(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "consecutive_agi");
-            if (rank <= 0) return;
+            int step = StreakStep(hero, "consecutive_agi");
+            if (step <= 0) return;
             _attackStreak++;
-            hero.Stats.TempAgilityBonus += 5 * rank;
+            hero.Stats.TempAgilityBonus += step;
             hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
         }
 
         private void ApplyConsecutiveTec(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "consecutive_tec");
-            if (rank <= 0) return;
+            int step = StreakStep(hero, "consecutive_tec");
+            if (step <= 0) return;
             _nonMissStreak++;
-            hero.Stats.TempTechniqueBonus += 5 * rank;
+            hero.Stats.TempTechniqueBonus += step;
             hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
         }
 
         private void ResetAttackStreak(Character hero)
         {
             if (_attackStreak <= 0) return;
-            int rank = GetRank(hero, "consecutive_agi");
-            if (rank > 0)
-                hero.Stats.TempAgilityBonus = Math.Max(0, hero.Stats.TempAgilityBonus - 5 * rank * _attackStreak);
+            int step = StreakStep(hero, "consecutive_agi");
+            if (step > 0)
+                hero.Stats.TempAgilityBonus = Math.Max(0, hero.Stats.TempAgilityBonus - step * _attackStreak);
             _attackStreak = 0;
         }
 
         private void ResetNonMissStreak(Character hero)
         {
             if (_nonMissStreak <= 0) return;
-            int rank = GetRank(hero, "consecutive_tec");
-            if (rank > 0)
-                hero.Stats.TempTechniqueBonus = Math.Max(0, hero.Stats.TempTechniqueBonus - 5 * rank * _nonMissStreak);
+            int step = StreakStep(hero, "consecutive_tec");
+            if (step > 0)
+                hero.Stats.TempTechniqueBonus = Math.Max(0, hero.Stats.TempTechniqueBonus - step * _nonMissStreak);
             _nonMissStreak = 0;
         }
 
         private void ApplySlotInt(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "slot_int");
-            if (rank <= 0) return;
+            double power = GetPower(hero, "slot_int");
+            if (power <= 0) return;
             ClearSlotIntBonus(hero);
             int slot = Math.Max(1, hero.Effects.ComboStep + 1);
-            _slotIntApplied = 5 * slot * rank;
+            _slotIntApplied = (int)Math.Round(5 * slot * power);
             hero.Stats.TempIntelligenceBonus += _slotIntApplied;
             hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
         }
@@ -693,56 +712,56 @@ namespace RPGGame
 
         private void ApplySwordHitAgi(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "sword_hit_agi");
-            if (rank <= 0) return;
+            double power = GetPower(hero, "sword_hit_agi");
+            if (power <= 0) return;
             if (hero.Equipment.Weapon is not WeaponItem w || w.WeaponType != WeaponType.Sword) return;
-            hero.Stats.TempAgilityBonus += 5 * rank;
+            hero.Stats.TempAgilityBonus += (int)Math.Round(5 * power);
             hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
         }
 
         private void ApplyWandComboInt(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "wand_combo_int");
-            if (rank <= 0 || !evt.IsCombo) return;
+            double power = GetPower(hero, "wand_combo_int");
+            if (power <= 0 || !evt.IsCombo) return;
             if (hero.Equipment.Weapon is not WeaponItem w || w.WeaponType != WeaponType.Wand) return;
-            hero.Stats.TempIntelligenceBonus += 5 * rank;
+            hero.Stats.TempIntelligenceBonus += (int)Math.Round(5 * power);
             hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
         }
 
         private void ApplyScrapPrefer(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "scrap_prefer");
-            if (rank <= 0 || evt.Action == null) return;
+            double power = GetPower(hero, "scrap_prefer");
+            if (power <= 0 || evt.Action == null) return;
             int n = CountEquippedMatchingQualities(hero, ScrapPreferQualities);
             if (n <= 0) return;
-            AddDamageMod(hero, 10.0 * n * rank);
+            AddDamageMod(hero, 10.0 * n * power);
         }
 
         private void ApplyParadeDress(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "parade_dress");
-            if (rank <= 0 || evt.Action == null) return;
+            double power = GetPower(hero, "parade_dress");
+            if (power <= 0 || evt.Action == null) return;
             int n = CountEquippedMatchingQualities(hero, ParadeDressQualities);
             if (n <= 0) return;
-            AddDamageMod(hero, 10.0 * n * rank);
+            AddDamageMod(hero, 10.0 * n * power);
         }
 
         private void ApplyFragilePrefer(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "fragile_prefer");
-            if (rank <= 0 || evt.Action == null) return;
+            double power = GetPower(hero, "fragile_prefer");
+            if (power <= 0 || evt.Action == null) return;
             int n = CountEquippedMatchingQualities(hero, FragilePreferQualities);
             if (n <= 0) return;
-            AddDamageMod(hero, 10.0 * n * rank);
+            AddDamageMod(hero, 10.0 * n * power);
         }
 
         private void ApplyPurePrefer(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "pure_prefer");
-            if (rank <= 0 || evt.Action == null) return;
+            double power = GetPower(hero, "pure_prefer");
+            if (power <= 0 || evt.Action == null) return;
             int n = CountEquippedMatchingQualities(hero, PurePreferQualities);
             if (n <= 0) return;
-            AddAmpMod(hero, 10.0 * n * rank);
+            AddAmpMod(hero, 10.0 * n * power);
         }
 
         private void ApplyGutInstinct(Character hero, CombatEvent evt)

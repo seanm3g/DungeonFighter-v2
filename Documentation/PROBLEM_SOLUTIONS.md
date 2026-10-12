@@ -4,6 +4,15 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Balance / Skills: optimized heroes killed in 2–4 actions (October 2026)
+**Problem:** A hero that spent skill points (smart bot) killed in 2–4 hero actions from L6 (Barbarian, Wizard) against an ~11-action target; the whole Barbarian tree was worth 5.5× at L10.
+
+**Root cause:** (1) Skill magnitudes were written for the old stat scale: +25 STR per empty slot per rank, +8–10% per matching item per rank, hero level as STR, while +1 STR is now +2.5% damage. (2) Any skill AMP_MOD lifted an opener's combo multiplier from 1.0 to the full TEC combo amp before applying the %, so a +0.5% AMP passive was worth ~+48%. (3) The basic bot never learns skills, so balance checks never saw them.
+
+**Solution:** Per-node `power` in `SkillTrees.json` (multiplies the per-rank amount; effect text updated); skill AMP goes to `ConsumedSkillAmpPercent`, a plain multiplier with no lift; new `SKILLVALUE` tool prices every node and the whole tree.
+
+**Related files:** `SkillEffectRouter.cs`, `SkillEffectRouter.Preview.cs`, `SkillTreesConfig.cs`, `GameData/SkillTrees.json`, `DamageCalculator.cs`, `CharacterEffectsState.cs`, `SkillValueRunner.cs`, `BALANCE_PROCESS.md`
+
 ### Balance / Combat: some enemies unwinnable at mid levels, all identical at L1 (October 2026)
 **Problem:** Across the full roster, the worst enemy won 7% of fights at L35 (Mud Lurker) while others never threatened; at L1 every enemy swung at the same speed with the same damage.
 
