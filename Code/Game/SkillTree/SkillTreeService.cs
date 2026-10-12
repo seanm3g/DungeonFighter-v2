@@ -119,10 +119,8 @@ namespace RPGGame
             if (ownerPath == primary.Value)
                 return true;
 
-            var secondary = progression.GetSecondaryClassWeaponType();
-            return secondary != null
-                && ownerPath == secondary.Value
-                && node.IsSharedWith(primary.Value);
+            // Secondary-class nodes are not spendable from the primary view: the rail shows the pair's hybrid tree.
+            return false;
         }
 
         /// <summary>
@@ -135,6 +133,15 @@ namespace RPGGame
             var secondaryTree = GetSecondaryTree(progression);
             if (primary == null || secondaryTree == null)
                 return Array.Empty<SkillTreeNodeDefinition>();
+
+            // Hybrid tree for the primary/secondary pair replaces the shared-node rail.
+            var secondaryPath = progression.GetSecondaryClassWeaponType();
+            if (secondaryPath != null && HybridTrees.ForPair(primary.Value, secondaryPath.Value) is HybridInfo hybrid)
+            {
+                var hybridTree = Trees.Trees.FirstOrDefault(t => string.Equals(t.ClassKey, hybrid.Key, StringComparison.OrdinalIgnoreCase));
+                if (hybridTree != null)
+                    return OrderNodes(hybridTree.Nodes.Where(n => n.Tier > 0 || n.Cost > 0));
+            }
 
             return secondaryTree.Nodes
                 .Where(n => n.IsSharedWith(primary.Value)
@@ -164,12 +171,12 @@ namespace RPGGame
             }
 
             string? railTitle = null;
-            if (railNodes.Count > 0 && secondary != null)
+            if (railNodes.Count > 0 && secondary != null && primary != null)
             {
-                string pathLabel = secondary.Value.ToString();
-                railTitle = string.IsNullOrWhiteSpace(duoName)
-                    ? $"SHARED · {pathLabel}"
-                    : $"SHARED / {duoName}";
+                var hybrid = HybridTrees.ForPair(primary.Value, secondary.Value);
+                railTitle = hybrid != null
+                    ? $"{hybrid.Key.ToUpperInvariant()} ({hybrid.Attribute})" + (HybridTrees.IsUnlocked(progression, hybrid) ? "" : " - needs 10 + 10")
+                    : $"SHARED · {secondary.Value}";
             }
 
             var all = new List<SkillTreeNodeDefinition>(primaryNodes.Count + railNodes.Count);
@@ -211,6 +218,15 @@ namespace RPGGame
             int maxRank = Math.Max(1, node.MaxRank);
             if (rank >= maxRank)
                 return NodeViewState.Maxed;
+
+            var ownerTree = SkillTreePrerequisites.FindOwnerTree(node);
+            if (HybridTrees.ForTree(ownerTree) is HybridInfo hybrid)
+            {
+                if (!HybridTrees.IsUnlocked(progression, hybrid) || !SkillTreePrerequisites.AreMet(progression, node))
+                    return NodeViewState.Locked;
+                bool affordable = progression.GetAvailableSkillPoints(hybrid.ParentA) + progression.GetAvailableSkillPoints(hybrid.ParentB) >= node.Cost;
+                return affordable ? NodeViewState.Available : NodeViewState.Unaffordable;
+            }
 
             WeaponType? ownerPath = FindOwnerPath(node);
             if (ownerPath == null || !CanSpendIntoNode(progression, node, ownerPath.Value))

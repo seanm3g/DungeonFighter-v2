@@ -65,6 +65,34 @@ namespace RPGGame
                 if (GetSkillRank(rootId!) < 1)
                     LearnedSkillRanks[rootId!] = 1;
             }
+
+            // Hybrid trees: the free root opens once both parents have enough points.
+            foreach (var tree in trees.Trees)
+            {
+                var h = HybridTrees.ForTree(tree);
+                if (h == null || !HybridTrees.IsUnlocked(this, h))
+                    continue;
+                var root = tree.Nodes.FirstOrDefault(n => n.Tier <= 0);
+                if (root != null && GetSkillRank(root.Id) < 1)
+                    LearnedSkillRanks[root.Id] = 1;
+            }
+        }
+
+        /// <summary>Hybrid node: both parents unlocked, tier gate on the lower parent, each parent covers half the cost.</summary>
+        private LearnSkillResult TryLearnHybridNode(SkillTreeNodeDefinition node, HybridInfo hybrid, int currentRank)
+        {
+            if (!HybridTrees.IsUnlocked(this, hybrid) || !SkillTreePrerequisites.AreMet(this, node))
+                return LearnSkillResult.PrerequisitesMissing;
+
+            var after = new Dictionary<string, int>(LearnedSkillRanks, StringComparer.OrdinalIgnoreCase) { [node.Id] = currentRank + 1 };
+            var trees = GameConfiguration.Instance.SkillTrees;
+            foreach (var parent in new[] { hybrid.ParentA, hybrid.ParentB })
+            {
+                if (trees.GetSpentSkillPoints(after, parent) > GetClassPoints(parent))
+                    return LearnSkillResult.InsufficientPoints;
+            }
+            LearnedSkillRanks[node.Id] = currentRank + 1;
+            return LearnSkillResult.Success;
         }
 
         public enum LearnSkillResult
@@ -112,6 +140,9 @@ namespace RPGGame
                     break;
                 }
             }
+
+            if (ownerTree != null && HybridTrees.ForTree(ownerTree) is HybridInfo hybrid)
+                return TryLearnHybridNode(node, hybrid, currentRank);
 
             if (ownerTree == null || ownerPath == null)
                 return LearnSkillResult.WrongTree;

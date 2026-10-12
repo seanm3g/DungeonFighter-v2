@@ -25,6 +25,7 @@ namespace RPGGame.Tests.Runners
             RPGGame.Tests.Unit.Combat.EnemyIdentityTests.RunAllTests();
             RPGGame.Tests.Unit.ClassTagsTests.RunAllTests();
             RPGGame.Tests.Unit.ClassTreeEffectsTests.RunAllTests();
+            RPGGame.Tests.Unit.HybridTreesTests.RunAllTests();
             CombatManagerTests.RunAllTests();
             Console.WriteLine();
             CombatDelayManagerTests.RunAllTests();

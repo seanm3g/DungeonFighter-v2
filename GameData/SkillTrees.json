@@ -278,9 +278,7 @@
           "payoff": "Early dungeon power spike from the strip.",
           "unlockActionName": "MIGHT",
           "customEffectId": "might",
-          "sharedWith": [
-            "Sword"
-          ],
+          "sharedWith": [],
           "power": 1.0
         },
         {
@@ -355,9 +353,7 @@
           "effect": "+{8}% damage per equipped Barbarian item, per skill rank.",
           "payoff": "Material count becomes a build choice.",
           "customEffectId": "first_bronze_age",
-          "sharedWith": [
-            "Sword"
-          ],
+          "sharedWith": [],
           "power": 0.02679
         },
         {
@@ -521,10 +517,7 @@
           "effect": "+{8}% speed per equipped Warrior item, per skill rank.",
           "payoff": "Material count becomes tempo.",
           "customEffectId": "first_formation",
-          "sharedWith": [
-            "Mace",
-            "Wand"
-          ],
+          "sharedWith": [],
           "power": 0.03548
         },
         {
@@ -797,11 +790,7 @@
           "payoff": "Early dungeon tempo from the strip.",
           "unlockActionName": "CUNNING",
           "customEffectId": "cunning",
-          "sharedWith": [
-            "Mace",
-            "Wand",
-            "Dagger"
-          ],
+          "sharedWith": [],
           "power": 1.0
         },
         {
@@ -1056,9 +1045,7 @@
           "effect": "+{8}% damage per equipped Rogue item, per skill rank.",
           "payoff": "Material count becomes a build choice.",
           "customEffectId": "first_cut",
-          "sharedWith": [
-            "Sword"
-          ],
+          "sharedWith": [],
           "power": 0.04028
         },
         {
@@ -1346,10 +1333,7 @@
           "payoff": "Early dungeon precision from the strip.",
           "unlockActionName": "CONCENTRATE",
           "customEffectId": "concentrate",
-          "sharedWith": [
-            "Sword",
-            "Wand"
-          ],
+          "sharedWith": [],
           "power": 1.0
         },
         {
@@ -1588,9 +1572,7 @@
           "effect": "+{8}% AMP per equipped Wizard item, per skill rank.",
           "payoff": "Material count becomes spell power.",
           "customEffectId": "first_glyph",
-          "sharedWith": [
-            "Sword"
-          ],
+          "sharedWith": [],
           "power": 0.05175
         },
         {
@@ -1864,9 +1846,7 @@
           "payoff": "Early dungeon mind from the strip.",
           "unlockActionName": "READ BOOK",
           "customEffectId": "read_book",
-          "sharedWith": [
-            "Sword"
-          ],
+          "sharedWith": [],
           "power": 1.0
         },
         {
@@ -2068,6 +2048,726 @@
             "z-resonate"
           ],
           "sharedWith": []
+        }
+      ]
+    },
+    {
+      "classKey": "Warbrute",
+      "title": "Warbrute",
+      "weapon": "",
+      "stat": "Body",
+      "parents": [
+        "Barbarian",
+        "Warrior"
+      ],
+      "identity": "Barbarian + Warrior: Body (STR + AGI) and Warbrute tags.",
+      "nodes": [
+        {
+          "id": "wb-root",
+          "name": "Warbrute",
+          "branch": "Core",
+          "tier": 0,
+          "type": "Passive",
+          "maxRank": 1,
+          "cost": 0,
+          "customEffectId": null,
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Opens with 10 Barbarian and 10 Warrior points. Each hybrid rank costs half a point from each class.",
+          "payoff": "Barbarian and Warrior become one path."
+        },
+        {
+          "id": "wb-attr",
+          "name": "Body",
+          "branch": "Attribute",
+          "tier": 1,
+          "type": "Passive",
+          "maxRank": 1,
+          "cost": 1,
+          "customEffectId": "warbrute_attribute",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Body = STR + AGI. Body becomes your primary attribute.",
+          "payoff": "Body is the Warbrute stat."
+        },
+        {
+          "id": "wb-material",
+          "name": "Warbrute Material",
+          "branch": "Material",
+          "tier": 2,
+          "type": "Rule",
+          "maxRank": 1,
+          "cost": 1,
+          "customEffectId": "warbrute_material",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Barbarian and Warrior tags (materials included) count as Warbrute tags, and each tree's Barbarian / Warrior bonuses count the other class's tags and materials.",
+          "payoff": "Both kits feed one engine."
+        },
+        {
+          "id": "wb-act-attr",
+          "name": "Body Blow",
+          "branch": "Attribute",
+          "tier": 3,
+          "type": "Action",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "warbrute_action_attribute",
+          "power": 0.04,
+          "requires": [],
+          "sharedWith": [],
+          "unlockActionName": "BODY BLOW",
+          "effect": "ACTION: BODY BLOW - +{25}% damage on this hit for every 10 Body, per rank.",
+          "payoff": "Body becomes damage."
+        },
+        {
+          "id": "wb-act-tag",
+          "name": "Warbrute Smash",
+          "branch": "Material",
+          "tier": 3,
+          "type": "Action",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "warbrute_action_tag",
+          "power": 0.4,
+          "requires": [],
+          "sharedWith": [],
+          "unlockActionName": "WARBRUTE SMASH",
+          "effect": "ACTION: WARBRUTE SMASH - +{25}% damage on this hit for every 10 Warbrute tags, per rank.",
+          "payoff": "Warbrute tags become damage."
+        },
+        {
+          "id": "wb-acc-attr",
+          "name": "Body Surge",
+          "branch": "Attribute",
+          "tier": 4,
+          "type": "Mastery",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "warbrute_accumulate_attribute",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "+{1} Body for every connect (dice roll) this fight, per rank.",
+          "payoff": "Body builds as the fight goes on."
+        },
+        {
+          "id": "wb-acc-tag",
+          "name": "Warbrute Momentum",
+          "branch": "Material",
+          "tier": 4,
+          "type": "Mastery",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "warbrute_accumulate_tag",
+          "power": 0.34,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "+{1} Warbrute tag for every connect (dice roll) this fight, per rank.",
+          "payoff": "Warbrute tags build as the fight goes on."
+        }
+      ]
+    },
+    {
+      "classKey": "Ravager",
+      "title": "Ravager",
+      "weapon": "",
+      "stat": "Prowess",
+      "parents": [
+        "Barbarian",
+        "Rogue"
+      ],
+      "identity": "Barbarian + Rogue: Prowess (STR + TEC) and Ravager tags.",
+      "nodes": [
+        {
+          "id": "rv-root",
+          "name": "Ravager",
+          "branch": "Core",
+          "tier": 0,
+          "type": "Passive",
+          "maxRank": 1,
+          "cost": 0,
+          "customEffectId": null,
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Opens with 10 Barbarian and 10 Rogue points. Each hybrid rank costs half a point from each class.",
+          "payoff": "Barbarian and Rogue become one path."
+        },
+        {
+          "id": "rv-attr",
+          "name": "Prowess",
+          "branch": "Attribute",
+          "tier": 1,
+          "type": "Passive",
+          "maxRank": 1,
+          "cost": 1,
+          "customEffectId": "ravager_attribute",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Prowess = STR + TEC. Prowess becomes your primary attribute.",
+          "payoff": "Prowess is the Ravager stat."
+        },
+        {
+          "id": "rv-material",
+          "name": "Ravager Material",
+          "branch": "Material",
+          "tier": 2,
+          "type": "Rule",
+          "maxRank": 1,
+          "cost": 1,
+          "customEffectId": "ravager_material",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Barbarian and Rogue tags (materials included) count as Ravager tags, and each tree's Barbarian / Rogue bonuses count the other class's tags and materials.",
+          "payoff": "Both kits feed one engine."
+        },
+        {
+          "id": "rv-act-attr",
+          "name": "Prowess Rush",
+          "branch": "Attribute",
+          "tier": 3,
+          "type": "Action",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "ravager_action_attribute",
+          "power": 0.04,
+          "requires": [],
+          "sharedWith": [],
+          "unlockActionName": "PROWESS RUSH",
+          "effect": "ACTION: PROWESS RUSH - +{25}% speed on this action for every 10 Prowess, per rank.",
+          "payoff": "Prowess becomes speed."
+        },
+        {
+          "id": "rv-act-tag",
+          "name": "Ravager Flurry",
+          "branch": "Material",
+          "tier": 3,
+          "type": "Action",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "ravager_action_tag",
+          "power": 0.4,
+          "requires": [],
+          "sharedWith": [],
+          "unlockActionName": "RAVAGER FLURRY",
+          "effect": "ACTION: RAVAGER FLURRY - +{25}% speed on this action for every 10 Ravager tags, per rank.",
+          "payoff": "Ravager tags become speed."
+        },
+        {
+          "id": "rv-acc-attr",
+          "name": "Prowess Surge",
+          "branch": "Attribute",
+          "tier": 4,
+          "type": "Mastery",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "ravager_accumulate_attribute",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "+{1} Prowess for every connect (dice roll) this fight, per rank.",
+          "payoff": "Prowess builds as the fight goes on."
+        },
+        {
+          "id": "rv-acc-tag",
+          "name": "Ravager Momentum",
+          "branch": "Material",
+          "tier": 4,
+          "type": "Mastery",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "ravager_accumulate_tag",
+          "power": 0.34,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "+{1} Ravager tag for every connect (dice roll) this fight, per rank.",
+          "payoff": "Ravager tags build as the fight goes on."
+        }
+      ]
+    },
+    {
+      "classKey": "Ragecaller",
+      "title": "Ragecaller",
+      "weapon": "",
+      "stat": "Will",
+      "parents": [
+        "Barbarian",
+        "Wizard"
+      ],
+      "identity": "Barbarian + Wizard: Will (STR + INT) and Ragecaller tags.",
+      "nodes": [
+        {
+          "id": "rc-root",
+          "name": "Ragecaller",
+          "branch": "Core",
+          "tier": 0,
+          "type": "Passive",
+          "maxRank": 1,
+          "cost": 0,
+          "customEffectId": null,
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Opens with 10 Barbarian and 10 Wizard points. Each hybrid rank costs half a point from each class.",
+          "payoff": "Barbarian and Wizard become one path."
+        },
+        {
+          "id": "rc-attr",
+          "name": "Will",
+          "branch": "Attribute",
+          "tier": 1,
+          "type": "Passive",
+          "maxRank": 1,
+          "cost": 1,
+          "customEffectId": "ragecaller_attribute",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Will = STR + INT. Will becomes your primary attribute.",
+          "payoff": "Will is the Ragecaller stat."
+        },
+        {
+          "id": "rc-material",
+          "name": "Ragecaller Material",
+          "branch": "Material",
+          "tier": 2,
+          "type": "Rule",
+          "maxRank": 1,
+          "cost": 1,
+          "customEffectId": "ragecaller_material",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Barbarian and Wizard tags (materials included) count as Ragecaller tags, and each tree's Barbarian / Wizard bonuses count the other class's tags and materials.",
+          "payoff": "Both kits feed one engine."
+        },
+        {
+          "id": "rc-act-attr",
+          "name": "Willfire",
+          "branch": "Attribute",
+          "tier": 3,
+          "type": "Action",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "ragecaller_action_attribute",
+          "power": 0.04,
+          "requires": [],
+          "sharedWith": [],
+          "unlockActionName": "WILLFIRE",
+          "effect": "ACTION: WILLFIRE - +{25}% AMP on this hit for every 10 Will, per rank.",
+          "payoff": "Will becomes AMP."
+        },
+        {
+          "id": "rc-act-tag",
+          "name": "Ragecaller Howl",
+          "branch": "Material",
+          "tier": 3,
+          "type": "Action",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "ragecaller_action_tag",
+          "power": 0.4,
+          "requires": [],
+          "sharedWith": [],
+          "unlockActionName": "RAGECALLER HOWL",
+          "effect": "ACTION: RAGECALLER HOWL - +{25}% AMP on this hit for every 10 Ragecaller tags, per rank.",
+          "payoff": "Ragecaller tags become AMP."
+        },
+        {
+          "id": "rc-acc-attr",
+          "name": "Will Surge",
+          "branch": "Attribute",
+          "tier": 4,
+          "type": "Mastery",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "ragecaller_accumulate_attribute",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "+{1} Will for every connect (dice roll) this fight, per rank.",
+          "payoff": "Will builds as the fight goes on."
+        },
+        {
+          "id": "rc-acc-tag",
+          "name": "Ragecaller Momentum",
+          "branch": "Material",
+          "tier": 4,
+          "type": "Mastery",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "ragecaller_accumulate_tag",
+          "power": 0.34,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "+{1} Ragecaller tag for every connect (dice roll) this fight, per rank.",
+          "payoff": "Ragecaller tags build as the fight goes on."
+        }
+      ]
+    },
+    {
+      "classKey": "Duelist",
+      "title": "Duelist",
+      "weapon": "",
+      "stat": "Finesse",
+      "parents": [
+        "Warrior",
+        "Rogue"
+      ],
+      "identity": "Warrior + Rogue: Finesse (AGI + TEC) and Duelist tags.",
+      "nodes": [
+        {
+          "id": "du-root",
+          "name": "Duelist",
+          "branch": "Core",
+          "tier": 0,
+          "type": "Passive",
+          "maxRank": 1,
+          "cost": 0,
+          "customEffectId": null,
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Opens with 10 Warrior and 10 Rogue points. Each hybrid rank costs half a point from each class.",
+          "payoff": "Warrior and Rogue become one path."
+        },
+        {
+          "id": "du-attr",
+          "name": "Finesse",
+          "branch": "Attribute",
+          "tier": 1,
+          "type": "Passive",
+          "maxRank": 1,
+          "cost": 1,
+          "customEffectId": "duelist_attribute",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Finesse = AGI + TEC. Finesse becomes your primary attribute.",
+          "payoff": "Finesse is the Duelist stat."
+        },
+        {
+          "id": "du-material",
+          "name": "Duelist Material",
+          "branch": "Material",
+          "tier": 2,
+          "type": "Rule",
+          "maxRank": 1,
+          "cost": 1,
+          "customEffectId": "duelist_material",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Warrior and Rogue tags (materials included) count as Duelist tags, and each tree's Warrior / Rogue bonuses count the other class's tags and materials.",
+          "payoff": "Both kits feed one engine."
+        },
+        {
+          "id": "du-act-attr",
+          "name": "Finesse Thrust",
+          "branch": "Attribute",
+          "tier": 3,
+          "type": "Action",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "duelist_action_attribute",
+          "power": 0.04,
+          "requires": [],
+          "sharedWith": [],
+          "unlockActionName": "FINESSE THRUST",
+          "effect": "ACTION: FINESSE THRUST - +{25}% accuracy for every 10 Finesse, per rank.",
+          "payoff": "Finesse becomes accuracy."
+        },
+        {
+          "id": "du-act-tag",
+          "name": "Duelist Feint",
+          "branch": "Material",
+          "tier": 3,
+          "type": "Action",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "duelist_action_tag",
+          "power": 0.4,
+          "requires": [],
+          "sharedWith": [],
+          "unlockActionName": "DUELIST FEINT",
+          "effect": "ACTION: DUELIST FEINT - +{25}% accuracy for every 10 Duelist tags, per rank.",
+          "payoff": "Duelist tags become accuracy."
+        },
+        {
+          "id": "du-acc-attr",
+          "name": "Finesse Surge",
+          "branch": "Attribute",
+          "tier": 4,
+          "type": "Mastery",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "duelist_accumulate_attribute",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "+{1} Finesse for every connect (dice roll) this fight, per rank.",
+          "payoff": "Finesse builds as the fight goes on."
+        },
+        {
+          "id": "du-acc-tag",
+          "name": "Duelist Momentum",
+          "branch": "Material",
+          "tier": 4,
+          "type": "Mastery",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "duelist_accumulate_tag",
+          "power": 0.34,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "+{1} Duelist tag for every connect (dice roll) this fight, per rank.",
+          "payoff": "Duelist tags build as the fight goes on."
+        }
+      ]
+    },
+    {
+      "classKey": "Spellblade",
+      "title": "Spellblade",
+      "weapon": "",
+      "stat": "Wits",
+      "parents": [
+        "Warrior",
+        "Wizard"
+      ],
+      "identity": "Warrior + Wizard: Wits (AGI + INT) and Spellblade tags.",
+      "nodes": [
+        {
+          "id": "sb-root",
+          "name": "Spellblade",
+          "branch": "Core",
+          "tier": 0,
+          "type": "Passive",
+          "maxRank": 1,
+          "cost": 0,
+          "customEffectId": null,
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Opens with 10 Warrior and 10 Wizard points. Each hybrid rank costs half a point from each class.",
+          "payoff": "Warrior and Wizard become one path."
+        },
+        {
+          "id": "sb-attr",
+          "name": "Wits",
+          "branch": "Attribute",
+          "tier": 1,
+          "type": "Passive",
+          "maxRank": 1,
+          "cost": 1,
+          "customEffectId": "spellblade_attribute",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Wits = AGI + INT. Wits becomes your primary attribute.",
+          "payoff": "Wits is the Spellblade stat."
+        },
+        {
+          "id": "sb-material",
+          "name": "Spellblade Material",
+          "branch": "Material",
+          "tier": 2,
+          "type": "Rule",
+          "maxRank": 1,
+          "cost": 1,
+          "customEffectId": "spellblade_material",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Warrior and Wizard tags (materials included) count as Spellblade tags, and each tree's Warrior / Wizard bonuses count the other class's tags and materials.",
+          "payoff": "Both kits feed one engine."
+        },
+        {
+          "id": "sb-act-attr",
+          "name": "Wits Arc",
+          "branch": "Attribute",
+          "tier": 3,
+          "type": "Action",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "spellblade_action_attribute",
+          "power": 0.04,
+          "requires": [],
+          "sharedWith": [],
+          "unlockActionName": "WITS ARC",
+          "effect": "ACTION: WITS ARC - +{25}% combo for every 10 Wits, per rank.",
+          "payoff": "Wits becomes combo."
+        },
+        {
+          "id": "sb-act-tag",
+          "name": "Spellblade Weave",
+          "branch": "Material",
+          "tier": 3,
+          "type": "Action",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "spellblade_action_tag",
+          "power": 0.4,
+          "requires": [],
+          "sharedWith": [],
+          "unlockActionName": "SPELLBLADE WEAVE",
+          "effect": "ACTION: SPELLBLADE WEAVE - +{25}% combo for every 10 Spellblade tags, per rank.",
+          "payoff": "Spellblade tags become combo."
+        },
+        {
+          "id": "sb-acc-attr",
+          "name": "Wits Surge",
+          "branch": "Attribute",
+          "tier": 4,
+          "type": "Mastery",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "spellblade_accumulate_attribute",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "+{1} Wits for every connect (dice roll) this fight, per rank.",
+          "payoff": "Wits builds as the fight goes on."
+        },
+        {
+          "id": "sb-acc-tag",
+          "name": "Spellblade Momentum",
+          "branch": "Material",
+          "tier": 4,
+          "type": "Mastery",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "spellblade_accumulate_tag",
+          "power": 0.34,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "+{1} Spellblade tag for every connect (dice roll) this fight, per rank.",
+          "payoff": "Spellblade tags build as the fight goes on."
+        }
+      ]
+    },
+    {
+      "classKey": "Hexblade",
+      "title": "Hexblade",
+      "weapon": "",
+      "stat": "Mind",
+      "parents": [
+        "Rogue",
+        "Wizard"
+      ],
+      "identity": "Rogue + Wizard: Mind (TEC + INT) and Hexblade tags.",
+      "nodes": [
+        {
+          "id": "hx-root",
+          "name": "Hexblade",
+          "branch": "Core",
+          "tier": 0,
+          "type": "Passive",
+          "maxRank": 1,
+          "cost": 0,
+          "customEffectId": null,
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Opens with 10 Rogue and 10 Wizard points. Each hybrid rank costs half a point from each class.",
+          "payoff": "Rogue and Wizard become one path."
+        },
+        {
+          "id": "hx-attr",
+          "name": "Mind",
+          "branch": "Attribute",
+          "tier": 1,
+          "type": "Passive",
+          "maxRank": 1,
+          "cost": 1,
+          "customEffectId": "hexblade_attribute",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Mind = TEC + INT. Mind becomes your primary attribute.",
+          "payoff": "Mind is the Hexblade stat."
+        },
+        {
+          "id": "hx-material",
+          "name": "Hexblade Material",
+          "branch": "Material",
+          "tier": 2,
+          "type": "Rule",
+          "maxRank": 1,
+          "cost": 1,
+          "customEffectId": "hexblade_material",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "Rogue and Wizard tags (materials included) count as Hexblade tags, and each tree's Rogue / Wizard bonuses count the other class's tags and materials.",
+          "payoff": "Both kits feed one engine."
+        },
+        {
+          "id": "hx-act-attr",
+          "name": "Mind Hex",
+          "branch": "Attribute",
+          "tier": 3,
+          "type": "Action",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "hexblade_action_attribute",
+          "power": 0.04,
+          "requires": [],
+          "sharedWith": [],
+          "unlockActionName": "MIND HEX",
+          "effect": "ACTION: MIND HEX - +{25}% status potency for every 10 Mind, per rank.",
+          "payoff": "Mind becomes status potency."
+        },
+        {
+          "id": "hx-act-tag",
+          "name": "Hexblade Curse",
+          "branch": "Material",
+          "tier": 3,
+          "type": "Action",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "hexblade_action_tag",
+          "power": 0.4,
+          "requires": [],
+          "sharedWith": [],
+          "unlockActionName": "HEXBLADE CURSE",
+          "effect": "ACTION: HEXBLADE CURSE - +{25}% status potency for every 10 Hexblade tags, per rank.",
+          "payoff": "Hexblade tags become status potency."
+        },
+        {
+          "id": "hx-acc-attr",
+          "name": "Mind Surge",
+          "branch": "Attribute",
+          "tier": 4,
+          "type": "Mastery",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "hexblade_accumulate_attribute",
+          "power": 1.0,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "+{1} Mind for every connect (dice roll) this fight, per rank.",
+          "payoff": "Mind builds as the fight goes on."
+        },
+        {
+          "id": "hx-acc-tag",
+          "name": "Hexblade Momentum",
+          "branch": "Material",
+          "tier": 4,
+          "type": "Mastery",
+          "maxRank": 3,
+          "cost": 1,
+          "customEffectId": "hexblade_accumulate_tag",
+          "power": 0.34,
+          "requires": [],
+          "sharedWith": [],
+          "effect": "+{1} Hexblade tag for every connect (dice roll) this fight, per rank.",
+          "payoff": "Hexblade tags build as the fight goes on."
         }
       ]
     }

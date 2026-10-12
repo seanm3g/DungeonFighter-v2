@@ -261,7 +261,7 @@
     "requirement value": 29,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "intelligence": 29
+      "will": 46
     }
   },
   {
@@ -349,7 +349,7 @@
     "requirement value": 10,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "intelligence": 10
+      "wits": 16
     }
   },
   {
@@ -437,7 +437,7 @@
     "requirement value": 18,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "intelligence": 18
+      "mind": 29
     }
   },
   {
@@ -525,7 +525,7 @@
     "requirement value": 52,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "intelligence": 52
+      "will": 83
     }
   },
   {
@@ -613,7 +613,7 @@
     "requirement value": 35,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "intelligence": 35
+      "wits": 56
     }
   },
   {
@@ -701,7 +701,7 @@
     "requirement value": 89,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "intelligence": 89
+      "mind": 142
     }
   },
   {
@@ -789,7 +789,7 @@
     "requirement value": 90,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "intelligence": 90
+      "will": 144
     }
   },
   {
@@ -877,7 +877,7 @@
     "requirement value": 76,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "intelligence": 76
+      "wits": 122
     }
   },
   {
@@ -965,7 +965,7 @@
     "requirement value": 95,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "intelligence": 95
+      "mind": 152
     }
   },
   {
@@ -1053,7 +1053,7 @@
     "requirement value": 70,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "intelligence": 70
+      "will": 112
     }
   },
   {
@@ -1384,7 +1384,7 @@
     "requirement value": 27,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "strength": 27
+      "prowess": 43
     }
   },
   {
@@ -1472,7 +1472,7 @@
     "requirement value": 24,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "strength": 24
+      "will": 38
     }
   },
   {
@@ -1560,7 +1560,7 @@
     "requirement value": 25,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "strength": 25
+      "body": 40
     }
   },
   {
@@ -1648,7 +1648,7 @@
     "requirement value": 51,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "strength": 51
+      "prowess": 82
     }
   },
   {
@@ -1736,7 +1736,7 @@
     "requirement value": 44,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "strength": 44
+      "will": 70
     }
   },
   {
@@ -1824,7 +1824,7 @@
     "requirement value": 77,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "strength": 77
+      "body": 123
     }
   },
   {
@@ -1912,7 +1912,7 @@
     "requirement value": 80,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "strength": 80
+      "prowess": 128
     }
   },
   {
@@ -2000,7 +2000,7 @@
     "requirement value": 69,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "strength": 69
+      "will": 110
     }
   },
   {
@@ -2088,7 +2088,7 @@
     "requirement value": 72,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "strength": 72
+      "body": 115
     }
   },
   {
@@ -2176,7 +2176,7 @@
     "requirement value": 66,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "strength": 66
+      "prowess": 106
     }
   },
   {
@@ -2484,7 +2484,7 @@
     "requirement value": 21,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "agility": 21
+      "wits": 34
     }
   },
   {
@@ -2572,7 +2572,7 @@
     "requirement value": 27,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "agility": 27
+      "body": 43
     }
   },
   {
@@ -2660,7 +2660,7 @@
     "requirement value": 11,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "agility": 11
+      "finesse": 18
     }
   },
   {
@@ -2748,7 +2748,7 @@
     "requirement value": 38,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "agility": 38
+      "wits": 61
     }
   },
   {
@@ -2836,7 +2836,7 @@
     "requirement value": 65,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "agility": 65
+      "body": 104
     }
   },
   {
@@ -2924,7 +2924,7 @@
     "requirement value": 66,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "agility": 66
+      "finesse": 106
     }
   },
   {
@@ -3012,7 +3012,7 @@
     "requirement value": 93,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "agility": 93
+      "wits": 149
     }
   },
   {
@@ -3100,7 +3100,7 @@
     "requirement value": 57,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "agility": 57
+      "body": 91
     }
   },
   {
@@ -3188,7 +3188,7 @@
     "requirement value": 71,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "agility": 71
+      "finesse": 114
     }
   },
   {
@@ -3276,7 +3276,7 @@
     "requirement value": 79,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "agility": 79
+      "wits": 126
     }
   },
   {
@@ -3585,7 +3585,7 @@
     "requirement value": 20,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "technique": 20
+      "prowess": 32
     }
   },
   {
@@ -3673,7 +3673,7 @@
     "requirement value": 21,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "technique": 21
+      "finesse": 34
     }
   },
   {
@@ -3761,7 +3761,7 @@
     "requirement value": 8,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "technique": 8
+      "mind": 13
     }
   },
   {
@@ -3849,7 +3849,7 @@
     "requirement value": 57,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "technique": 57
+      "prowess": 91
     }
   },
   {
@@ -3937,7 +3937,7 @@
     "requirement value": 12,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "technique": 12
+      "finesse": 19
     }
   },
   {
@@ -4025,7 +4025,7 @@
     "requirement value": 58,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "technique": 58
+      "mind": 93
     }
   },
   {
@@ -4113,7 +4113,7 @@
     "requirement value": 91,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "technique": 91
+      "prowess": 146
     }
   },
   {
@@ -4201,7 +4201,7 @@
     "requirement value": 73,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "technique": 73
+      "finesse": 117
     }
   },
   {
@@ -4289,7 +4289,7 @@
     "requirement value": 77,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "technique": 77
+      "mind": 123
     }
   },
   {
@@ -4377,7 +4377,7 @@
     "requirement value": 67,
     "attackSpeed": 0,
     "attributeRequirements": {
-      "technique": 67
+      "prowess": 107
     }
   },
   {

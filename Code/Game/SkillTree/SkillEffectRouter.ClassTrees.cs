@@ -69,7 +69,9 @@ namespace RPGGame
         /// <summary>Equipped pieces made of one of the class's materials.</summary>
         public static int CountClassMaterialPieces(Character c, string classTag)
         {
-            var materials = ClassTags.MaterialsOf(classTag);
+            var materials = ClassTags.MaterialsOf(classTag)
+                .Concat(HybridTrees.MergedPartners(c, classTag).SelectMany(ClassTags.MaterialsOf))
+                .ToList();
             return new Item?[] { c.Weapon, c.Head, c.Body, c.Legs, c.Feet }
                 .Count(i => i != null && !string.IsNullOrWhiteSpace(i.Material)
                             && materials.Any(m => string.Equals(m, i.Material, StringComparison.OrdinalIgnoreCase)));

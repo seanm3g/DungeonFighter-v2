@@ -109,6 +109,7 @@ namespace RPGGame
             _ironHideArmor = 0;
             _pendingRollAmp = 0;
             _steadyMarchApplied = 0;
+            ResetHybridFightState();
         }
 
         public void OnRoomCleared(Character hero)
@@ -246,6 +247,7 @@ namespace RPGGame
             ApplyConcussiveCrit(hero, evt);
             ApplyPrecisionMultihit(hero, evt);
             ApplyClassTreeOnHit(hero, evt);
+            ApplyHybridOnHit(hero, evt);
             ApplyShadowcraft(hero, evt);
             ApplyVenomMace(hero, evt);
             ApplyEnvenomedEdge(hero, evt);
@@ -505,6 +507,18 @@ namespace RPGGame
 
         private static int CountEquippedMatchingTags(Character hero, string[] tags)
         {
+            // Hybrid material nodes: a parent class's item counts also count the partner class's materials.
+            string? classTag = tags.FirstOrDefault(t => ClassTags.All.Contains(t, StringComparer.OrdinalIgnoreCase));
+            if (classTag != null)
+            {
+                var merged = new List<string>(tags);
+                foreach (string partner in HybridTrees.MergedPartners(hero, classTag))
+                {
+                    merged.Add(partner);
+                    merged.AddRange(ClassTags.MaterialsOf(partner).Select(m => m.ToLowerInvariant()));
+                }
+                tags = merged.ToArray();
+            }
             int count = 0;
             foreach (var item in EnumerateEquipped(hero))
             {

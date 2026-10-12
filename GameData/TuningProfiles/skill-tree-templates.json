@@ -441,6 +441,126 @@
       1.0,
       "RESONATE: +{2}% damage per CONTACT, per rank.",
       true
+    ],
+    "wb-act-attr": [
+      0.04,
+      "ACTION: BODY BLOW - +{25}% damage on this hit for every 10 Body, per rank.",
+      false
+    ],
+    "wb-act-tag": [
+      0.4,
+      "ACTION: WARBRUTE SMASH - +{25}% damage on this hit for every 10 Warbrute tags, per rank.",
+      false
+    ],
+    "wb-acc-attr": [
+      1.0,
+      "+{1} Body for every connect (dice roll) this fight, per rank.",
+      false
+    ],
+    "wb-acc-tag": [
+      0.34,
+      "+{1} Warbrute tag for every connect (dice roll) this fight, per rank.",
+      false
+    ],
+    "rv-act-attr": [
+      0.04,
+      "ACTION: PROWESS RUSH - +{25}% speed on this action for every 10 Prowess, per rank.",
+      false
+    ],
+    "rv-act-tag": [
+      0.4,
+      "ACTION: RAVAGER FLURRY - +{25}% speed on this action for every 10 Ravager tags, per rank.",
+      false
+    ],
+    "rv-acc-attr": [
+      1.0,
+      "+{1} Prowess for every connect (dice roll) this fight, per rank.",
+      false
+    ],
+    "rv-acc-tag": [
+      0.34,
+      "+{1} Ravager tag for every connect (dice roll) this fight, per rank.",
+      false
+    ],
+    "rc-act-attr": [
+      0.04,
+      "ACTION: WILLFIRE - +{25}% AMP on this hit for every 10 Will, per rank.",
+      false
+    ],
+    "rc-act-tag": [
+      0.4,
+      "ACTION: RAGECALLER HOWL - +{25}% AMP on this hit for every 10 Ragecaller tags, per rank.",
+      false
+    ],
+    "rc-acc-attr": [
+      1.0,
+      "+{1} Will for every connect (dice roll) this fight, per rank.",
+      false
+    ],
+    "rc-acc-tag": [
+      0.34,
+      "+{1} Ragecaller tag for every connect (dice roll) this fight, per rank.",
+      false
+    ],
+    "du-act-attr": [
+      0.04,
+      "ACTION: FINESSE THRUST - +{25}% accuracy for every 10 Finesse, per rank.",
+      false
+    ],
+    "du-act-tag": [
+      0.4,
+      "ACTION: DUELIST FEINT - +{25}% accuracy for every 10 Duelist tags, per rank.",
+      false
+    ],
+    "du-acc-attr": [
+      1.0,
+      "+{1} Finesse for every connect (dice roll) this fight, per rank.",
+      false
+    ],
+    "du-acc-tag": [
+      0.34,
+      "+{1} Duelist tag for every connect (dice roll) this fight, per rank.",
+      false
+    ],
+    "sb-act-attr": [
+      0.04,
+      "ACTION: WITS ARC - +{25}% combo for every 10 Wits, per rank.",
+      false
+    ],
+    "sb-act-tag": [
+      0.4,
+      "ACTION: SPELLBLADE WEAVE - +{25}% combo for every 10 Spellblade tags, per rank.",
+      false
+    ],
+    "sb-acc-attr": [
+      1.0,
+      "+{1} Wits for every connect (dice roll) this fight, per rank.",
+      false
+    ],
+    "sb-acc-tag": [
+      0.34,
+      "+{1} Spellblade tag for every connect (dice roll) this fight, per rank.",
+      false
+    ],
+    "hx-act-attr": [
+      0.04,
+      "ACTION: MIND HEX - +{25}% status potency for every 10 Mind, per rank.",
+      false
+    ],
+    "hx-act-tag": [
+      0.4,
+      "ACTION: HEXBLADE CURSE - +{25}% status potency for every 10 Hexblade tags, per rank.",
+      false
+    ],
+    "hx-acc-attr": [
+      1.0,
+      "+{1} Mind for every connect (dice roll) this fight, per rank.",
+      false
+    ],
+    "hx-acc-tag": [
+      0.34,
+      "+{1} Hexblade tag for every connect (dice roll) this fight, per rank.",
+      false
     ]
   }
 }

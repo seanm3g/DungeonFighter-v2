@@ -170,7 +170,7 @@ namespace RPGGame
                 "AGI" => character.GetEffectiveAgility(),
                 "TEC" => character.GetEffectiveTechnique(),
                 "INT" => character.GetEffectiveIntelligence(),
-                _ => 0
+                _ => HybridTrees.ByAttributeName(statType) is HybridInfo hybrid ? HybridTrees.SecondaryAttribute(character, hybrid) : 0
             };
             return value >= threshold;
         }

@@ -173,6 +173,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "EnemyIdentity", () => RPGGame.Tests.Unit.Combat.EnemyIdentityTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ClassTags", () => RPGGame.Tests.Unit.ClassTagsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ClassTreeEffects", () => RPGGame.Tests.Unit.ClassTreeEffectsTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "HybridTrees", () => RPGGame.Tests.Unit.HybridTreesTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTextEffectCatalog", () => RPGGame.Tests.Unit.Combat.ActionTextEffectCatalogTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTextEmphasisTypewriter", () => RPGGame.Tests.Unit.Combat.ActionTextEmphasisTypewriterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "GameFonts", () => RPGGame.Tests.Unit.UI.GameFontsTests.RunAllTests()));

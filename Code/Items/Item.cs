@@ -392,6 +392,9 @@ namespace RPGGame
                 };
             }
 
+            if (HybridTrees.ByAttributeName(concrete) is HybridInfo hybrid)
+                return HybridTrees.SecondaryAttribute(character, hybrid);
+
             return GetEffectiveValueForRequirementKey(concrete, strength, agility, technique, intelligence);
         }
 

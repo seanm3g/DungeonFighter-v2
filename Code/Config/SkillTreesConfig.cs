@@ -121,6 +121,10 @@ namespace RPGGame
         [JsonPropertyName("nodes")]
         public List<SkillTreeNodeDefinition> Nodes { get; set; } = new();
 
+        /// <summary>Hybrid trees only: the two parent class keys (see <see cref="HybridTrees"/>).</summary>
+        [JsonPropertyName("parents")]
+        public List<string> Parents { get; set; } = new();
+
         public WeaponType? ResolveWeaponType(ClassPresentationConfig? presentation = null)
         {
             presentation ??= GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
@@ -399,14 +403,24 @@ namespace RPGGame
         /// <summary>Spent Skill Points for ranks on <paramref name="path"/> (cost × rank per node).</summary>
         public int GetSpentSkillPoints(IReadOnlyDictionary<string, int>? learnedRanks, WeaponType path)
         {
-            var tree = GetTreeForWeapon(path);
-            if (tree == null || learnedRanks == null || learnedRanks.Count == 0) return 0;
+            if (learnedRanks == null || learnedRanks.Count == 0) return 0;
             int spent = 0;
-            foreach (var node in tree.Nodes)
+            var tree = GetTreeForWeapon(path);
+            if (tree != null)
             {
-                if (!learnedRanks.TryGetValue(node.Id, out int rank) || rank <= 0)
-                    continue;
-                spent += Math.Max(0, node.Cost) * rank;
+                foreach (var node in tree.Nodes)
+                {
+                    if (!learnedRanks.TryGetValue(node.Id, out int rank) || rank <= 0)
+                        continue;
+                    spent += Math.Max(0, node.Cost) * rank;
+                }
+            }
+            // Hybrid trees: each parent pays half of the hybrid tree's spend.
+            foreach (var hybridTree in Trees)
+            {
+                var h = HybridTrees.ForTree(hybridTree);
+                if (h != null && h.Has(path))
+                    spent += HybridTrees.SpentFromParent(learnedRanks, hybridTree, path);
             }
             return spent;
         }

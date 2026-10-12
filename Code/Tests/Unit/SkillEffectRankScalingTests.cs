@@ -33,7 +33,7 @@ namespace RPGGame.Tests.Unit
         private static void EnsureTreesLoaded()
         {
             var trees = SkillTreesConfig.TryLoadFromGameDataFile();
-            TestBase.AssertTrue(trees != null && trees.Trees.Count == 4,
+            TestBase.AssertTrue(trees != null && trees.Trees.Count(t => t.Parents.Count == 0) == 4,
                 "SkillTrees.json loads",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             if (trees != null)

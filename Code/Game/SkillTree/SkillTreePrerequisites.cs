@@ -78,6 +78,9 @@ namespace RPGGame
         /// <summary>Depth gate: the node's tier needs enough class points earned in the owning class.</summary>
         public static bool IsTierOpen(CharacterProgression progression, SkillTreeDefinition tree, SkillTreeNodeDefinition node)
         {
+            if (HybridTrees.ForTree(tree) is HybridInfo hybrid)
+                return HybridTrees.LowerParentPoints(progression, hybrid) >= HybridTrees.TierGate(node.Tier);
+
             int gate = SkillTreesConfig.TierPointGate(node.Tier);
             if (gate <= 0)
                 return true;

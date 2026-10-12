@@ -35,8 +35,9 @@ namespace RPGGame.Tests.Unit
         private static void EnsureTreesLoaded()
         {
             var trees = SkillTreesConfig.TryLoadFromGameDataFile();
-            TestBase.AssertTrue(trees != null && trees.Trees.Count == 4,
-                "SkillTrees.json should load four class trees",
+            TestBase.AssertTrue(trees != null && trees.Trees.Count(t => t.Parents.Count == 0) == 4
+                    && trees.Trees.Count(t => t.Parents.Count == 2) == 6,
+                "SkillTrees.json should load four class trees and six hybrid trees",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             if (trees != null)
                 GameConfiguration.Instance.SkillTrees = trees;
@@ -155,10 +156,10 @@ namespace RPGGame.Tests.Unit
                 "cannot spend into non-shared non-primary sword node",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // w-age1 is sharedWith Mace and first on Bronze — secondary Sword rail should allow spend.
-            var sharedOk = p.TryLearnSkillNode("w-age1", requirePrimaryPath: true);
-            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, sharedOk,
-                "shared secondary node spends into Warrior path from Mace primary",
+            // Secondary-class nodes are not spendable from the primary view (hybrid trees replace the shared rail).
+            var secondaryNode = p.TryLearnSkillNode("w-age1", requirePrimaryPath: true);
+            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.NotPrimaryPath, secondaryNode,
+                "secondary-class node is not spendable from the Mace primary",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var ok = p.TryLearnSkillNode("b-age1", requirePrimaryPath: true);
@@ -169,61 +170,47 @@ namespace RPGGame.Tests.Unit
 
         private static void TestSharedRailSpend()
         {
-            Console.WriteLine("--- Shared rail spend (Concept A) ---");
-            // Sword primary, Wand secondary → Spellblade rail from Arcane Weave
-            var p = new CharacterProgression { WarriorPoints = 8, WizardPoints = 4 };
+            Console.WriteLine("--- Hybrid rail: Spellblade tree for Sword primary + Wand secondary ---");
+            var p = new CharacterProgression { WarriorPoints = 14, WizardPoints = 12 };
             p.EnsureSkillTreeRootsGranted();
             TestBase.AssertEqualEnum(WeaponType.Sword, p.GetPrimaryClassWeaponType()!.Value,
                 "primary is Sword", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqualEnum(WeaponType.Wand, p.GetSecondaryClassWeaponType()!.Value,
-                "secondary is Wand", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var rail = SkillTreeService.GetSharedRailNodes(p);
-            TestBase.AssertTrue(rail.Any(n => n.Id == "z-age1"),
-                "rail includes First Glyph (sharedWith Sword)",
+            TestBase.AssertTrue(rail.Count > 0 && rail.All(n => n.Id.StartsWith("sb-", StringComparison.OrdinalIgnoreCase)),
+                "rail shows the Spellblade hybrid tree",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(rail.Any(n => n.Id == "z-readbook"),
-                "rail includes Read Book",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(rail.All(n => n.IsSharedWith(WeaponType.Sword)),
-                "every rail node is tagged for Sword",
+            TestBase.AssertTrue(p.GetSkillRank("sb-root") >= 1, "hybrid root granted at 10 + 10 points",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            int wandAvailBefore = p.GetAvailableSkillPoints(WeaponType.Wand);
-            // First Glyph is first on Willow (root prereq only) — avoids same-branch sibling layout gates.
-            var learn = p.TryLearnSkillNode("z-age1", requirePrimaryPath: true);
+            int swordBefore = p.GetAvailableSkillPoints(WeaponType.Sword);
+            int wandBefore = p.GetAvailableSkillPoints(WeaponType.Wand);
+            var learn = p.TryLearnSkillNode("sb-attr", requirePrimaryPath: true);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, learn,
-                "learn shared Wand node from Sword-primary view",
+                "learn the Wits attribute node", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(swordBefore + wandBefore - 1,
+                p.GetAvailableSkillPoints(WeaponType.Sword) + p.GetAvailableSkillPoints(WeaponType.Wand),
+                "a hybrid rank costs one point split across the parents",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(wandAvailBefore - 1, p.GetAvailableSkillPoints(WeaponType.Wand),
-                "Wand SP reduced; Sword SP unchanged for this purchase",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(8, p.GetAvailableSkillPoints(WeaponType.Sword),
-                "Sword available unchanged after Wand rail spend",
+
+            var gated = p.TryLearnSkillNode("sb-acc-attr", requirePrimaryPath: true);
+            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.PrerequisitesMissing, gated,
+                "deep hybrid tier gated on the lower parent's points",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var model = SkillTreeService.BuildDisplayModel(p);
-            TestBase.AssertTrue(model.HasRail, "display model exposes rail",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(model.AllNodes.Count > model.PrimaryCount,
-                "all nodes = primary + rail",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(
-                (model.RailTitle ?? "").Contains("Spellblade", StringComparison.OrdinalIgnoreCase)
-                || (model.RailTitle ?? "").Contains("SHARED", StringComparison.OrdinalIgnoreCase),
-                "rail title names duo or SHARED",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(model.HasRail && (model.RailTitle ?? "").Contains("Spellblade", StringComparison.OrdinalIgnoreCase),
+                "rail title names the hybrid", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestSharedRailRequiresSecondaryAndTag()
         {
-            Console.WriteLine("--- Shared rail gate: non-shared secondary denied ---");
-            var p = new CharacterProgression { BarbarianPoints = 10, WarriorPoints = 3 };
+            Console.WriteLine("--- Hybrid tree locked below 10 points in a parent ---");
+            var p = new CharacterProgression { BarbarianPoints = 20, WarriorPoints = 6 };
             p.EnsureSkillTreeRootsGranted();
-            // w-loot is not marked sharedWith Mace
-            var denied = p.TryLearnSkillNode("w-loot", requirePrimaryPath: true);
-            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.NotPrimaryPath, denied,
-                "non-shared secondary node still blocked",
+            var locked = p.TryLearnSkillNode("wb-attr", requirePrimaryPath: true);
+            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.PrerequisitesMissing, locked,
+                "Warbrute stays locked with 6 Warrior points",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var solo = new CharacterProgression { WarriorPoints = 5 };

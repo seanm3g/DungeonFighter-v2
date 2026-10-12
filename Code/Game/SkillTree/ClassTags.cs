@@ -75,8 +75,24 @@ namespace RPGGame
         public static bool ActionHas(Action? action, string classTag) =>
             action?.Tags != null && action.Tags.Any(t => string.Equals(t, classTag, StringComparison.OrdinalIgnoreCase));
 
-        /// <summary>Class tags on equipped gear (materials count after the Core root) plus tags on strip actions.</summary>
+        /// <summary>
+        /// Class tags the hero has for <paramref name="classTag"/>: its own tags plus any hybrid partner's (learned hybrid
+        /// material node). A hybrid tag name (e.g. "warbrute") returns the hybrid tag count.
+        /// </summary>
         public static int Count(Character? hero, string classTag)
+        {
+            if (hero == null || string.IsNullOrWhiteSpace(classTag))
+                return 0;
+            if (HybridTrees.All.FirstOrDefault(h => string.Equals(h.Tag, classTag, StringComparison.OrdinalIgnoreCase)) is HybridInfo hybrid)
+                return HybridTrees.TagCount(hero, hybrid);
+            int count = CountOwn(hero, classTag);
+            foreach (string partner in HybridTrees.MergedPartners(hero, classTag))
+                count += CountOwn(hero, partner);
+            return count;
+        }
+
+        /// <summary>Class tags on equipped gear (materials count after the Core root) plus tags on strip actions.</summary>
+        public static int CountOwn(Character? hero, string classTag)
         {
             if (hero == null || string.IsNullOrWhiteSpace(classTag))
                 return 0;
@@ -164,7 +180,7 @@ namespace RPGGame
                 if (power > 0)
                     steps += (int)Math.Floor(ClassTags.Count(hero, classTag) / 2.0 * power);
             }
-            return steps;
+            return steps + SkillEffectRouter.Instance.ConsumePendingComboSteps(hero);
         }
     }
 }

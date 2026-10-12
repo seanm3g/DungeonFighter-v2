@@ -151,6 +151,8 @@ namespace RPGGame
         /// </summary>
         public int GetEffectivePrimaryAttributeValue()
         {
+            if (HybridTrees.PrimaryAttributeHybrid(_character) is HybridInfo hybrid)
+                return HybridTrees.SecondaryAttribute(_character, hybrid);
             string primaryCode = DynamicAttributeCategoryResolver.GetRankedAttributeCodes(_character)[0];
             return primaryCode switch
             {
