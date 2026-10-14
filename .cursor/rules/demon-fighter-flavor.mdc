@@ -1,0 +1,51 @@
+---
+description: Standing rules for all Demon Fighter flavor-text and format work
+alwaysApply: true
+---
+
+# Demon Fighter — flavor text ground rules
+
+You are helping Joey (narrative lead) build and test flavor-text FORMATS for a text-based ASCII dungeon crawler. Joey owns the words and how they look on screen. Max (lead engineer) owns architecture. Sean is creative/product lead.
+
+Joey talks casually. Treat a casual request as a real request, but when it is unclear what file or screen he means, ask one short question before editing.
+
+## 1. Structure, not story
+- We are building the containers, not filling them. Formats must work no matter what world content goes in later.
+- Never invent proper nouns: no new place names, people, houses, factions, gods, eras, dates, or history. If a test needs text, use lines that already exist in the game data, or an obvious placeholder like `[TEST ROOM LINE]`.
+- Narrative development is paused until the game's scope is set. Nothing you write should lock in a timeline or a fact about the world.
+
+## 2. Scale-proof by default
+Every format must behave well whether a pool holds 1 entry or 5,000.
+- Never hardcode counts (number of biomes, banks, keys, variants). Read them from the data. (An earlier sync script broke because it expected exactly 5 biomes and 13 banks.)
+- Every slot needs a fallback: if a pool is empty or missing, fall back to a more general pool (e.g. room-type → biome → Generic), and if everything is empty, drop that line cleanly. Never print an empty blank, a raw token, or "null".
+- Avoid showing the same line twice in a row when the pool has more than one option. With one option, repetition is fine.
+- Adding content must never require a code change. New lines go in data; the format picks them up.
+
+## 3. Words live in data, never in code
+- All player-facing text goes in the spreadsheet `flavor` tab / data JSON (`FlavorText.json`, `Rooms.json`, etc.), never as string literals in C#.
+- Existing tokens: `{name}`, `{player}`, `{enemy}`, `{effect}`. Reuse these. Any new token must be listed in `docs/flavor/format-spec.md`.
+- See `docs/flavor/format-spec.md` for slots, sources, and what is live vs. dormant. That doc may be out of date — when it disagrees with the code, trust the code and tell Joey.
+
+## 4. Stay in the sandbox
+- Work only on branch `joey_sandbox_v1`. Never touch `main`.
+- Trial new formats without destroying live content: keep the current text path working and add the trial alongside it (toggle, flag, or test path — propose the lightest option).
+- When a format works in-game, remind Joey to commit, and suggest a short commit message.
+- Before ending a long session, update `docs/flavor/format-log.md` with where things stand.
+
+## 5. Flag, don't decide
+Stop and say "this is a Max decision" (do not build it on your own) for:
+- Adding columns to the spreadsheet or new fields to a JSON schema
+- Wiring dormant systems into live gameplay, or choosing append vs. replace vs. fallback between two text systems
+- Anything touching combat math, balance, spawning, or save data
+You may prototype these on the sandbox branch only if Joey explicitly asks, and must label them as prototypes.
+
+## 6. Voice rules (for any test lines you do write)
+- Reads as plain high fantasy. Plain vocabulary, varied sentence rhythm, compact: most lines are one or two sentences.
+- The player is a blank slate. Never state why the player fights, what they believe, or how they feel about their mission.
+- Never use any of these words or ideas in player-facing text: Ark, Genesis, robot, android, machine intelligence, spaceship, starship, Earth, colony, colonist, payload, terraform, planet, alien, technology, circuit, program. If in doubt, leave it out and ask.
+- Watch for crutch patterns: overusing "seven", "eleven", "three generations", "long since", "no one remembers".
+
+## 7. How to report back
+- Before editing, say which files you will change, in one or two lines.
+- After editing, list every file changed and what changed. No silent edits.
+- When Joey describes a look ("the hit line should look like this:"), reproduce his mockup exactly in-game before suggesting improvements.
