@@ -13,6 +13,7 @@ Joey talks casually. Treat a casual request as a real request, but when it is un
 - We are building the containers, not filling them. Formats must work no matter what world content goes in later.
 - Never invent proper nouns: no new place names, people, houses, factions, gods, eras, dates, or history. If a test needs text, use lines that already exist in the game data, or an obvious placeholder like `[TEST ROOM LINE]`.
 - Narrative development is paused until the game's scope is set. Nothing you write should lock in a timeline or a fact about the world.
+- Content packages Joey provides are approved text. Insert them exactly as written; don't rewrite, trim, or add to them. If a line doesn't fit the format, flag it instead of editing it.
 
 ## 2. Scale-proof by default
 Every format must behave well whether a pool holds 1 entry or 5,000.
