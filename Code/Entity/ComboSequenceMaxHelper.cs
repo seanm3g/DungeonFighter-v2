@@ -21,7 +21,12 @@ namespace RPGGame
             int gearSlots = character?.Equipment?.GetEquipmentStatBonus("ExtraActionSlots", character) ?? 0;
             int classSlots = character?.Progression?.GetClassUpgradeActionSlotBonus() ?? 0;
             int labSlots = character?.ActionLabActionSlotBonus ?? 0;
-            return Math.Min(absMax, baseMax + Math.Max(0, gearSlots) + Math.Max(0, classSlots) + Math.Max(0, labSlots));
+            int earned = baseMax + Math.Max(0, gearSlots) + Math.Max(0, classSlots);
+            // lootSystem.comboSlotCapByLevel: gear / class slots only count up to what the hero's level allows.
+            int levelCap = character != null && character is not Enemy ? loot?.GetComboSlotCapForLevel(character.Level) ?? 0 : 0;
+            if (levelCap > 0)
+                earned = Math.Min(earned, Math.Max(1, levelCap));
+            return Math.Min(absMax, earned + Math.Max(0, labSlots));
         }
 
         /// <summary>

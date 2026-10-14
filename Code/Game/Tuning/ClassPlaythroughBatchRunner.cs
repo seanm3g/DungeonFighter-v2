@@ -9,6 +9,9 @@ namespace RPGGame.Tuning
 {
     public static class ClassPlaythroughBatchRunner
     {
+        /// <summary>PLAYTODEATHBATCH --fights-json: every recorded fight with the run's class (balance-check per-enemy gate).</summary>
+        public static string? FightsJsonPath { get; set; }
+
         public static async Task<ClassPlaythroughBatchResult> RunAsync(
             int runsPerClass = 5,
             string? classesCsv = null,
@@ -59,7 +62,21 @@ namespace RPGGame.Tuning
             stopwatch.Stop();
             batch.Elapsed = stopwatch.Elapsed;
             batch.ParityWarnings = ClassPlaythroughAggregator.BuildParityWarnings(batch.ClassAggregates);
+            if (!string.IsNullOrEmpty(FightsJsonPath))
+                WriteFightsJson(batch, FightsJsonPath);
             return batch;
+        }
+
+        private static void WriteFightsJson(ClassPlaythroughBatchResult batch, string path)
+        {
+            var rows = batch.ClassAggregates.SelectMany(a => a.Runs).SelectMany(r => r.Fights.Select(f => new
+            {
+                Class = r.ClassDisplayName, f.HeroLevel, Enemy = f.EnemyName, f.EnemyLevel, f.HeroActions, f.EnemyActions,
+                f.FightInDungeon, f.HeroDied,
+                HpLost = f.HeroMaxHp > 0 ? Math.Round(Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp, 3) : 0
+            }));
+            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(path))!);
+            System.IO.File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(rows));
         }
 
         public static string FormatReport(ClassPlaythroughBatchResult batch)
@@ -109,10 +126,18 @@ namespace RPGGame.Tuning
                     + $"  | all {allRuns.Count(r => r.StopReason == PlaythroughStopReason.ReachedLevel) * 100.0 / Math.Max(1, allRuns.Count):F0}%"
                     + $" | ran out of actions {allRuns.Count(r => r.StopReason == PlaythroughStopReason.MaxActions)}");
                 sb.AppendLine($"Policy: {(ClassPlaythroughRunner.SmartPolicy ? "smart (skills, gear, sequence by simulation)" : "basic (equip by item score)")}");
+                if (ClassPlaythroughRunner.RetreatBelowHpPercent > 0)
+                    sb.AppendLine($"Retreat: leaves a dungeon below {ClassPlaythroughRunner.RetreatBelowHpPercent}% HP | mean retreats per run {allRuns.Average(r => r.DungeonsRetreated):F1}");
                 sb.AppendLine($"Mean upgrades equipped per run: {allRuns.Average(r => r.UpgradesEquipped):F1}"
                     + (ClassPlaythroughRunner.SmartPolicy
                         ? $" | skills learned {allRuns.Average(r => r.SmartSkillsLearned):F1} | sequence changes {allRuns.Average(r => r.SmartSequenceChanges):F1} | evaluations {allRuns.Average(r => r.SmartEvaluations):F0}"
                         : ""));
+                if (RPGGame.Diagnostics.ToolProfiler.Enabled)
+                    sb.AppendLine("PROFILE:" + System.Environment.NewLine + RPGGame.Diagnostics.ToolProfiler.Report());
+                if (ClassPlaythroughRunner.SmartPolicy && System.Environment.GetEnvironmentVariable("DF_SMARTPROF") == "1")
+                    sb.AppendLine($"Smart profile: decisions {PlaythroughSmartPolicy.ProfOptimize.Elapsed.TotalSeconds:F0}s"
+                        + $" (fight sims {PlaythroughSmartPolicy.ProfSim.Elapsed.TotalSeconds:F0}s, serialize {PlaythroughSmartPolicy.ProfSerialize.Elapsed.TotalSeconds:F0}s,"
+                        + $" clone {PlaythroughSmartPolicy.ProfClone.Elapsed.TotalSeconds:F0}s), evaluations {PlaythroughSmartPolicy.ProfEvaluations}");
                 // A run reached level N if it got there alive (dying at N still counts as having reached it).
                 for (int lvl = Math.Max(1, ClassPlaythroughRunner.StopAtLevel - 1); lvl <= ClassPlaythroughRunner.StopAtLevel; lvl++)
                 {
@@ -137,14 +162,16 @@ namespace RPGGame.Tuning
                 return;
             sb.AppendLine();
             sb.AppendLine("Per-level fights (playthrough reality):");
-            sb.AppendLine("  Lvl  Fights  Losses   WinRate  HPlost/fight  HeroAct  EnemyAct  Dungeons  DungeonClear");
+            sb.AppendLine("  Lvl  Fights  Losses   WinRate  HPlost/fight  HeroAct  EnemyAct  Dungeons  DungeonClear  Retreats");
             foreach (var g in fights.GroupBy(f => f.HeroLevel).OrderBy(g => g.Key))
             {
                 int losses = g.Count(f => f.HeroDied);
                 double hpLost = g.Average(f => f.HeroMaxHp > 0 ? Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp : 0);
-                // A dungeon starts at its first fight; every death ends one, so clear rate = 1 - deaths / dungeon starts.
+                // A dungeon starts at its first fight; every death or retreat ends one uncleared,
+                // so clear rate = 1 - (deaths + retreats) / dungeon starts.
                 int dungeonStarts = Math.Max(1, g.Count(f => f.FightInDungeon == 1));
-                sb.AppendLine($"  {g.Key,3}  {g.Count(),6}  {losses,6}  {(1 - losses / (double)g.Count()) * 100,7:F2}%  {hpLost * 100,11:F0}%  {g.Average(f => f.HeroActions),7:F1}  {g.Average(f => f.EnemyActions),8:F1}  {dungeonStarts,8}  {(1 - losses / (double)dungeonStarts) * 100,11:F1}%");
+                int retreats = g.Count(f => f.RetreatedAfter);
+                sb.AppendLine($"  {g.Key,3}  {g.Count(),6}  {losses,6}  {(1 - losses / (double)g.Count()) * 100,7:F2}%  {hpLost * 100,11:F0}%  {g.Average(f => f.HeroActions),7:F1}  {g.Average(f => f.EnemyActions),8:F1}  {dungeonStarts,8}  {(1 - (losses + retreats) / (double)dungeonStarts) * 100,11:F1}%  {retreats,8}");
             }
         }
 

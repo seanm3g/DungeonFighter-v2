@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Unit
             _testsPassed = 0;
             _testsFailed = 0;
 
+            TestBase.ClearBalancePacingForTests(); // strips built on fresh L1 heroes; a config Reload brings back the slot cap
             var cfg = GameConfiguration.Instance;
             ArgumentNullException.ThrowIfNull(cfg);
             LootSystemConfig savedLoot = cfg.LootSystem ?? new LootSystemConfig();

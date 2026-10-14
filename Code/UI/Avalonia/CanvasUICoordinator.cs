@@ -52,6 +52,13 @@ namespace RPGGame.UI.Avalonia
 
         private int inventoryItemScrollOffset;
         private Character? lastInventoryScrollCharacter;
+
+        /// <summary>F1 inventory detail view: one-line item list on the left, selected item's full description on the right.</summary>
+        private bool inventoryDetailViewEnabled;
+        private int inventoryDetailSelectedIndex = -1;
+
+        /// <summary>New inventory (item icon grid + description). The header button switches back to the old list.</summary>
+        private bool inventoryGridViewEnabled = true;
         
         // Screen state tracking to prevent unnecessary re-renders
         private GameState? lastRenderedScreenState = null;

@@ -65,7 +65,8 @@ namespace RPGGame.Handlers.Inventory
                     "equip",
                     stateTracker.ItemSortMode,
                     stateTracker.HideRequirementBlockedItems,
-                    stateTracker.InventoryEquipSlotFilter);
+                    stateTracker.InventoryEquipSlotFilter,
+                    stateTracker.InventoryMaterialFilter);
             }
             
             stateTracker.WaitingForItemSelection = true;
@@ -110,7 +111,8 @@ namespace RPGGame.Handlers.Inventory
                     "discard",
                     stateTracker.ItemSortMode,
                     stateTracker.HideRequirementBlockedItems,
-                    stateTracker.InventoryEquipSlotFilter);
+                    stateTracker.InventoryEquipSlotFilter,
+                    stateTracker.InventoryMaterialFilter);
             }
             
             stateTracker.WaitingForItemSelection = true;
@@ -287,7 +289,16 @@ namespace RPGGame.Handlers.Inventory
                 ShowInventoryEvent?.Invoke();
                 return;
             }
-            
+
+            UnequipSlot(slot);
+        }
+
+        /// <summary>Unequips <paramref name="slot"/> (<c>weapon</c>, <c>head</c>, …) into the bag. Returns the item moved, or null if the slot was empty.</summary>
+        /// <param name="refreshInventoryScreen">When false, the caller refreshes the inventory UI (e.g. after changing the selection).</param>
+        public Item? UnequipSlot(string slot, bool refreshInventoryScreen = true)
+        {
+            if (stateManager.CurrentPlayer == null) return null;
+
             var player = stateManager.CurrentPlayer;
             var comboBefore = player.GetComboActions().ToList();
             var unequippedItem = player.UnequipItem(slot);
@@ -301,8 +312,10 @@ namespace RPGGame.Handlers.Inventory
             {
                 ShowMessageEvent?.Invoke($"No item was equipped in the {slot} slot.");
             }
-            
-            ShowInventoryEvent?.Invoke();
+
+            if (refreshInventoryScreen)
+                ShowInventoryEvent?.Invoke();
+            return unequippedItem;
         }
         
         /// <summary>

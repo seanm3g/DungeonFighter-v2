@@ -121,7 +121,7 @@ namespace RPGGame.Tests.Unit.Combat
             var hero = TestDataBuilders.Character()
                 .WithName("Hero")
                 .WithLevel(1)
-                .WithStats(20, 10, 10, 10)
+                .WithStats(120, 10, 10, 10) // enough per hit to overkill whatever armor the active patch gives a L1 foe
                 .Build();
             var enemy = TestDataBuilders.Enemy()
                 .WithName("Weak")

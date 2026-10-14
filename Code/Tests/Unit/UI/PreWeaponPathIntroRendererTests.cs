@@ -48,10 +48,11 @@ namespace RPGGame.Tests.Unit.UI
                 ref failed);
 
             Color cool = PreWeaponPathIntroRenderer.GetShimmerColorForCharacter(0, Math.PI / 2.0);
-            TestBase.AssertEqual(
-                PreWeaponPathIntroRenderer.CoolWhite,
-                cool,
-                "High shimmer phase should be cool white",
+            // The pathIntro preset adds an HSV accent layer on the high phase, so it is a tinted near-white,
+            // not exactly CoolWhite: check it moved off the warm phase and stayed bright.
+            TestBase.AssertTrue(
+                cool != warm && cool.R >= 0xD0 && cool.G >= 0xD0 && cool.B >= 0xD0,
+                $"High shimmer phase should be a different near-white (got {cool})",
                 ref run,
                 ref passed,
                 ref failed);

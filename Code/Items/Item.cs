@@ -272,6 +272,10 @@ namespace RPGGame
         public int BonusAttackSpeed { get; set; } = 0;
         public List<string> Tags { get; set; } = new List<string>();
 
+        /// <summary>Player-set protection: when true, trade-up never consumes this item.</summary>
+        [JsonPropertyName("excludeFromTradeUp")]
+        public bool ExcludeFromTradeUp { get; set; }
+
         /// <summary>
         /// Catalog combat procs (WHEN × SCOPE × mechanics), same grammar as action trigger bundles.
         /// Fired from equipped gear via <c>EquippedItemTriggerApplicator</c>.
@@ -522,6 +526,10 @@ namespace RPGGame
         }
 
         /// <summary>Armor from suffix lines and prefix modifications; null-safe for lab / partial JSON rows.</summary>
+        /// <summary>Catalog armor scaled by the active patch's equipmentScaling armor knobs (item level, tier and slot).</summary>
+        protected int ScaledBaseArmor(int catalogArmor) =>
+            GameConfiguration.Instance?.EquipmentScaling?.ScalePieceArmor(catalogArmor, Type, Level, Tier) ?? catalogArmor;
+
         protected static int AddArmorFromAffixes(Item item, int totalArmor)
         {
             if (item.StatBonuses != null)
@@ -572,9 +580,12 @@ namespace RPGGame
             Armor = armor;
         }
 
+        /// <summary>Catalog armor after the patch's equipmentScaling armor knobs (before affixes and quality).</summary>
+        public int GetBaseArmor() => ScaledBaseArmor(Armor);
+
         public int GetTotalArmor()
         {
-            int totalArmor = AddArmorFromAffixes(this, Armor);
+            int totalArmor = AddArmorFromAffixes(this, GetBaseArmor());
             double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
             totalArmor = (int)Math.Round(totalArmor * q);
 
@@ -592,9 +603,12 @@ namespace RPGGame
             Armor = armor;
         }
 
+        /// <summary>Catalog armor after the patch's equipmentScaling armor knobs (before affixes and quality).</summary>
+        public int GetBaseArmor() => ScaledBaseArmor(Armor);
+
         public int GetTotalArmor()
         {
-            int totalArmor = AddArmorFromAffixes(this, Armor);
+            int totalArmor = AddArmorFromAffixes(this, GetBaseArmor());
             double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
             totalArmor = (int)Math.Round(totalArmor * q);
             
@@ -612,9 +626,12 @@ namespace RPGGame
             Armor = armor;
         }
 
+        /// <summary>Catalog armor after the patch's equipmentScaling armor knobs (before affixes and quality).</summary>
+        public int GetBaseArmor() => ScaledBaseArmor(Armor);
+
         public int GetTotalArmor()
         {
-            int totalArmor = AddArmorFromAffixes(this, Armor);
+            int totalArmor = AddArmorFromAffixes(this, GetBaseArmor());
             double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
             totalArmor = (int)Math.Round(totalArmor * q);
             
@@ -632,9 +649,12 @@ namespace RPGGame
             Armor = armor;
         }
 
+        /// <summary>Catalog armor after the patch's equipmentScaling armor knobs (before affixes and quality).</summary>
+        public int GetBaseArmor() => ScaledBaseArmor(Armor);
+
         public int GetTotalArmor()
         {
-            int totalArmor = AddArmorFromAffixes(this, Armor);
+            int totalArmor = AddArmorFromAffixes(this, GetBaseArmor());
             double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
             totalArmor = (int)Math.Round(totalArmor * q);
 
@@ -678,18 +698,11 @@ namespace RPGGame
             return $"{total} ({string.Join(" + ", parts)})";
         }
 
-        public double GetTotalAttackSpeed()
-        {
-            // attackSpeed from data: time multiplier vs 1 (higher = slower cadence). BonusAttackSpeed lowers the multiplier (faster).
-            // Quality (gearPrimaryStatMultiplier) should affect weapon speed as well as damage:
-            // higher quality => faster => LOWER time multiplier; lower quality => slower => HIGHER time multiplier.
-            double q = ItemPrefixHelper.GetGearPrimaryStatMultiplier(this);
-            if (q <= 0) q = 1.0;
-
-            double speed = (BaseAttackSpeed / q) - (BonusAttackSpeed * 0.1);
-            // Keep speed within reasonable bounds (time multiplier).
-            return Math.Max(0.1, Math.Min(10.0, speed));
-        }
+        /// <summary>
+        /// Weapon time multiplier on its own (higher = slower): catalog <c>attackSpeed</c> after spread/clamp ÷ its weapon speed points.
+        /// Same factor combat uses (<see cref="RPGGame.Combat.Calculators.SpeedCalculator.GetWeaponItemTimeFactor"/>).
+        /// </summary>
+        public double GetTotalAttackSpeed() => RPGGame.Combat.Calculators.SpeedCalculator.GetWeaponItemTimeFactor(this);
         
         /// <summary>
         /// Gets the attack speed multiplier for the weapon

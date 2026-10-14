@@ -188,7 +188,27 @@ namespace RPGGame
             if (_character is Enemy || combat.StrengthDamagePerPoint <= 0)
                 return 1.0;
             int cap = combat.StrengthDamageMaxStat > 0 ? combat.StrengthDamageMaxStat + SkillEffectRouter.StrengthCapBonus(_character) : int.MaxValue;
-            return 1.0 + Math.Clamp(GetEffectiveStrength(), 0, cap) * combat.StrengthDamagePerPoint;
+            int str = Math.Max(0, GetEffectiveStrength());
+            double counted = Math.Min(str, cap);
+            // Overflow: STR past the cap still counts at a reduced share, so STR stays worth collecting late.
+            if (str > cap && combat.StrengthOverflowEfficiency > 0)
+                counted += (str - cap) * combat.StrengthOverflowEfficiency;
+            return 1.0 + counted * combat.StrengthDamagePerPoint;
+        }
+
+        /// <summary>Hero AMP multiplier from INT (1.0 for enemies or when off). See <see cref="CombatConfig.IntelligenceAmpPerPoint"/>.</summary>
+        public double GetIntelligenceAmpMultiplier()
+        {
+            var combat = GameConfiguration.Instance.Combat;
+            if (_character is Enemy || combat.IntelligenceAmpPerPoint <= 0)
+                return 1.0;
+            int cap = combat.StrengthDamageMaxStat > 0 ? combat.StrengthDamageMaxStat : int.MaxValue;
+            int intel = Math.Max(0, GetEffectiveIntelligence());
+            double counted = Math.Min(intel, cap);
+            if (intel > cap && combat.StrengthOverflowEfficiency > 0)
+                counted += (intel - cap) * combat.StrengthOverflowEfficiency;
+            // Archmage (wizard Rite) raises INT's AMP potency for wizards only.
+            return 1.0 + counted * combat.IntelligenceAmpPerPoint * SkillEffectRouter.ArchmageDurationMultiplier(_character);
         }
 
         // === ACTION MANAGEMENT ===

@@ -31,13 +31,33 @@ namespace RPGGame
         /// <summary>
         /// Default WHEN for a weapon mod Effect when <see cref="Modification.TriggerWhen"/> is blank.
         /// </summary>
+        private const double DefaultPoisonModPercent = 0.5;
+
+        /// <summary>
+        /// Modifications.json names the DoT mods' effects BURN / POISON / BLEED / ACID (Flaming, Poisonous, serrated);
+        /// the weapon DoT path reads weaponBurn / weaponPoison / weaponBleed / weaponAcid. Map the short names so those
+        /// mods apply (they were silently ignored).
+        /// </summary>
+        public static string NormalizeWeaponDotEffect(string? effect)
+        {
+            string e = (effect ?? "").Trim();
+            return e.ToUpperInvariant() switch
+            {
+                "POISON" => "weaponPoison",
+                "BURN" => "weaponBurn",
+                "BLEED" => "weaponBleed",
+                "ACID" => "weaponAcid",
+                _ => e
+            };
+        }
+
         public static string ResolveWeaponModTriggerWhen(Modification? mod)
         {
             if (mod == null)
                 return "ONCRITICAL";
             if (!string.IsNullOrWhiteSpace(mod.TriggerWhen))
                 return mod.TriggerWhen.Trim();
-            string effect = (mod.Effect ?? "").Trim();
+            string effect = NormalizeWeaponDotEffect(mod.Effect);
             if (effect.Equals("weaponPoison", StringComparison.OrdinalIgnoreCase)
                 || effect.Equals("weaponBurn", StringComparison.OrdinalIgnoreCase)
                 || effect.Equals("weaponBleed", StringComparison.OrdinalIgnoreCase)
@@ -86,6 +106,11 @@ namespace RPGGame
         public static bool ApplyStatusEffects(Action action, Actor attacker, Actor target, List<string> results, CombatEvent? combatEvent = null)
         {
             bool effectsApplied = false;
+            // Snapshots for material WHENs that read "gained Focus / applied Slow from any source this resolution".
+            int focusBefore = attacker.FocusStacks ?? 0;
+            var slowTarget = target as Character;
+            int slowTurnsBefore = slowTarget?.Effects.SlowTurns ?? 0;
+            double slowMultBefore = slowTarget?.Effects.SlowMultiplier ?? 1.0;
             
             // First, apply guaranteed status effects from modifications (for characters only, Attack actions only)
             // Then, check for weapon modification status effect chances (for characters only)
@@ -136,7 +161,13 @@ namespace RPGGame
                     heroSynth.Effects.MaterialConsecutiveConnects++;
                 else if (combatEvent.Type == CombatEventType.ActionMiss || combatEvent.IsMiss)
                     heroSynth.Effects.MaterialConsecutiveConnects = 0;
-                MaterialSetController.TryMintFromEvent(heroSynth, combatEvent, action, results);
+                // Cash out before minting so a convert that also matches its own WHEN starts a fresh bank.
+                if (combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsMiss)
+                    MaterialSetController.SpendConvertBank(heroSynth, action);
+                bool gainedFocus = (heroSynth.FocusStacks ?? 0) > focusBefore;
+                bool appliedSlow = slowTarget != null && !ReferenceEquals(slowTarget, heroSynth)
+                    && (slowTarget.Effects.SlowTurns > slowTurnsBefore || slowTarget.Effects.SlowMultiplier < slowMultBefore);
+                MaterialSetController.TryMintFromEvent(heroSynth, combatEvent, action, results, gainedFocus, appliedSlow);
             }
             
             return effectsApplied;
@@ -195,8 +226,11 @@ namespace RPGGame
                     string when = ResolveWeaponModTriggerWhen(mod);
                     if (!ShouldApplyEquipmentDoTFromHit(combatEvent, when))
                         continue;
-                    string effect = (mod.Effect ?? "").Trim();
+                    string effect = NormalizeWeaponDotEffect(mod.Effect);
                     double v = mod.RolledValue;
+                    // Poisonous rolls 0 in the mod table. Poison stacks % of max HP per tick and never decays in a fight, so keep it small.
+                    if (v <= 0 && effect.Equals("weaponPoison", StringComparison.OrdinalIgnoreCase))
+                        v = DefaultPoisonModPercent;
                     if (effect.Equals("weaponPoison", StringComparison.OrdinalIgnoreCase))
                         poisonPct += v;
                     else if (effect.Equals("weaponBurn", StringComparison.OrdinalIgnoreCase))
@@ -213,7 +247,7 @@ namespace RPGGame
                 && weapon.Modifications.Any(m =>
                 {
                     if (m == null) return false;
-                    string e = (m.Effect ?? "").Trim();
+                    string e = NormalizeWeaponDotEffect(m.Effect);
                     return e.Equals("weaponPoison", StringComparison.OrdinalIgnoreCase)
                            || e.Equals("weaponBurn", StringComparison.OrdinalIgnoreCase)
                            || e.Equals("weaponAcid", StringComparison.OrdinalIgnoreCase)

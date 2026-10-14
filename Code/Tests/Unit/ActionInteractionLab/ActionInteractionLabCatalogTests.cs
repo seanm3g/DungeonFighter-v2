@@ -55,6 +55,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "LabCatalogSelectionAddsActionToCombo: session null", ref run, ref passed, ref failed);
@@ -85,6 +86,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "LabRemoveFromComboShrinksSequence: session null", ref run, ref passed, ref failed);
@@ -133,6 +135,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "LabEnemyUsesPlayerComboStripForAmplification: session null", ref run, ref passed, ref failed);
@@ -184,6 +187,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
 
             names.Sort(StringComparer.OrdinalIgnoreCase);
             var hero = TestDataBuilders.Character().WithName("LabSyncPure").Build();
+            hero.ActionLabActionSlotBonus = 4; // base strip is 1 slot; these tests build 2+
             var enemy = TestCharacterFactory.CreateTestEnemy(
                 new BattleConfiguration
                 {
@@ -196,6 +200,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
                     EnemyArmor = 5,
                     EnemyHealth = 150
                 }, 0);
+            enemy.ActionLabActionSlotBonus = 4;
 
             var a = ActionLoader.GetAction(names[0]);
             var b = ActionLoader.GetAction(names[1]);
@@ -239,6 +244,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
 
             names.Sort(StringComparer.OrdinalIgnoreCase);
             var hero = TestDataBuilders.Character().WithName("LabSyncEnemyCombo").Build();
+            hero.ActionLabActionSlotBonus = 4; // base strip is 1 slot; these tests build 2+
             var enemy = TestCharacterFactory.CreateTestEnemy(
                 new BattleConfiguration
                 {
@@ -251,6 +257,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
                     EnemyArmor = 5,
                     EnemyHealth = 150
                 }, 0);
+            enemy.ActionLabActionSlotBonus = 4;
 
             var a = ActionLoader.GetAction(names[0]);
             var b = ActionLoader.GetAction(names[1]);
@@ -297,6 +304,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "LabSessionSyncCatalog: session null", ref run, ref passed, ref failed);
@@ -343,9 +351,11 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             }
 
             var hero = TestDataBuilders.Character().WithName("LabCatalogStep").Build();
+
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "LabCatalogSyncSecondSlot: session null", ref run, ref passed, ref failed);
@@ -386,9 +396,11 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             }
 
             var hero = TestDataBuilders.Character().WithName("LabNudge").Build();
+
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "LabNudgeComboStep: session null", ref run, ref passed, ref failed);
@@ -431,6 +443,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "LabSequenceEdit_ResetsStripPosition: session null", ref run, ref passed, ref failed);
@@ -499,6 +512,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "AddSelectedCatalogToStrip: session null", ref run, ref passed, ref failed);
@@ -538,6 +552,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "AddSelectedCatalogToStrip_AppendsToEnd: session null", ref run, ref passed, ref failed);
@@ -596,6 +611,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "ApplyCatalogScrollOffsetDelta_Clamps: session null", ref run, ref passed, ref failed);
@@ -645,6 +661,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "ApplyEnemyCatalogScrollOffsetDelta_Clamps: session null", ref run, ref passed, ref failed);

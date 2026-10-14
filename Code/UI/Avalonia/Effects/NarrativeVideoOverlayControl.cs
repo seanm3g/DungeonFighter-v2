@@ -31,7 +31,7 @@ namespace RPGGame.UI.Avalonia.Effects
         private LibVLC? _libVlc;
         private MediaPlayer? _mediaPlayer;
         private Media? _media;
-        private WriteableBitmap? _frameBitmap;
+        private WriteableBitmap? _cellLockedBitmap;
         private WriteableBitmap? _maskBitmap;
         private ImageBrush? _maskBrush;
         private IntPtr _frameBuffer = IntPtr.Zero;
@@ -41,7 +41,7 @@ namespace RPGGame.UI.Avalonia.Effects
         private int _frameBufferBytes;
         private bool _frameDirty;
         private int _invalidatePending;
-        private byte[]? _rowCopyScratch;
+        private byte[]? _cellLockedScratch;
         private byte[]? _maskPackedScratch;
         private int _lastOpacityFingerprint;
         private bool _disposed;
@@ -159,7 +159,7 @@ namespace RPGGame.UI.Avalonia.Effects
             }
             StopPlayback();
             FreeFrameBuffer();
-            _frameBitmap = null;
+            _cellLockedBitmap = null;
             _maskBitmap = null;
             _maskBrush = null;
             _media?.Dispose();
@@ -180,10 +180,13 @@ namespace RPGGame.UI.Avalonia.Effects
             WriteableBitmap? frame;
             lock (_frameLock)
             {
-                if (_frameDirty && _frameBitmap != null && _frameBuffer != IntPtr.Zero && _frameWidth > 0)
-                    CopyFrameBufferToBitmap(_frameBitmap);
+                if (_frameDirty && _frameBuffer != IntPtr.Zero && _frameWidth > 0
+                    && _maskCols > 0 && _maskRows > 0)
+                {
+                    CopyFrameBufferToCellLockedBitmap();
+                }
                 _frameDirty = false;
-                frame = _frameBitmap;
+                frame = _cellLockedBitmap;
             }
 
             if (frame == null || _maskBitmap == null)
@@ -191,6 +194,11 @@ namespace RPGGame.UI.Avalonia.Effects
 
             var maskBrush = EnsureMaskBrush();
             var dest = new Rect(0, 0, Bounds.Width, Bounds.Height);
+            // Nearest-neighbor keeps cell-locked blocks on the character grid (no bilinear bleed).
+            using (context.PushRenderOptions(new RenderOptions
+            {
+                BitmapInterpolationMode = BitmapInterpolationMode.None
+            }))
             using (context.PushOpacityMask(maskBrush, dest))
             {
                 context.DrawImage(frame, new Rect(0, 0, frame.PixelSize.Width, frame.PixelSize.Height), dest);
@@ -299,6 +307,8 @@ namespace RPGGame.UI.Avalonia.Effects
                 _maskCols = w;
                 _maskRows = h;
                 _forceMaskRebuild = true;
+                lock (_frameLock)
+                    _frameDirty = true; // rebuild cell-locked frame at the new grid size
                 EnsureScratchBuffers(w, h);
             }
         }
@@ -615,20 +625,8 @@ namespace RPGGame.UI.Avalonia.Effects
                 _frameBuffer = Marshal.AllocHGlobal(bufferBytes);
             }
 
-            Dispatcher.UIThread.Post(() =>
-            {
-                lock (_frameLock)
-                {
-                    if (_disposed || _frameWidth != w || _frameHeight != h)
-                        return;
-                    _frameBitmap = new WriteableBitmap(
-                        new PixelSize(w, h),
-                        new Vector(96, 96),
-                        PixelFormat.Bgra8888,
-                        AlphaFormat.Opaque);
-                }
-            }, DispatcherPriority.Render);
-
+            // Display path builds a cell-locked bitmap on the UI thread from _frameBuffer;
+            // no native-resolution WriteableBitmap is required.
             return 1;
         }
 
@@ -672,21 +670,61 @@ namespace RPGGame.UI.Avalonia.Effects
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
         }
 
-        private void CopyFrameBufferToBitmap(WriteableBitmap bitmap)
+        /// <summary>
+        /// Resamples the decode buffer onto the character-cell grid (one solid sample per cell)
+        /// so video bands stay locked to combat-log line spacing.
+        /// Caller must hold <see cref="_frameLock"/>.
+        /// </summary>
+        private void CopyFrameBufferToCellLockedBitmap()
         {
             if (_frameBuffer == IntPtr.Zero || _frameWidth <= 0 || _frameHeight <= 0)
                 return;
-            using var fb = bitmap.Lock();
-            int rows = Math.Min(fb.Size.Height, _frameHeight);
-            // Copy visible RGB32 row only — pitch may be 32-aligned larger than width*4.
-            int rowBytes = Math.Min(fb.RowBytes, _frameWidth * NarrativeVideoFrameLayout.BytesPerPixel);
-            if (_rowCopyScratch == null || _rowCopyScratch.Length < rowBytes)
-                _rowCopyScratch = new byte[rowBytes];
-            var row = _rowCopyScratch;
-            for (int y = 0; y < rows; y++)
+            if (_maskCols <= 0 || _maskRows <= 0 || _maskCellPxW <= 0 || _maskCellPxH <= 0)
+                return;
+
+            int bmpW = _maskCols * _maskCellPxW;
+            int bmpH = _maskRows * _maskCellPxH;
+            int packedLen = bmpW * bmpH * 4;
+            if (_cellLockedScratch == null || _cellLockedScratch.Length < packedLen)
+                _cellLockedScratch = new byte[packedLen];
+
+            NarrativeVideoCellLock.BlitCenterSampledCells(
+                _frameBuffer,
+                _frameWidth,
+                _frameHeight,
+                _framePitch,
+                _cellLockedScratch.AsSpan(0, packedLen),
+                _maskCols,
+                _maskRows,
+                _maskCellPxW,
+                _maskCellPxH);
+
+            if (_cellLockedBitmap == null
+                || _cellLockedBitmap.PixelSize.Width != bmpW
+                || _cellLockedBitmap.PixelSize.Height != bmpH)
             {
-                Marshal.Copy(_frameBuffer + y * _framePitch, row, 0, rowBytes);
-                Marshal.Copy(row, 0, IntPtr.Add(fb.Address, y * fb.RowBytes), rowBytes);
+                _cellLockedBitmap = new WriteableBitmap(
+                    new PixelSize(bmpW, bmpH),
+                    new Vector(96, 96),
+                    PixelFormat.Bgra8888,
+                    AlphaFormat.Opaque);
+            }
+
+            using var fb = _cellLockedBitmap.Lock();
+            if (fb.RowBytes == bmpW * 4)
+            {
+                Marshal.Copy(_cellLockedScratch, 0, fb.Address, packedLen);
+            }
+            else
+            {
+                for (int y = 0; y < bmpH; y++)
+                {
+                    Marshal.Copy(
+                        _cellLockedScratch,
+                        y * bmpW * 4,
+                        IntPtr.Add(fb.Address, y * fb.RowBytes),
+                        bmpW * 4);
+                }
             }
         }
 

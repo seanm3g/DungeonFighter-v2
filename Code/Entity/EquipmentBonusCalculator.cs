@@ -71,6 +71,16 @@ namespace RPGGame
         private double GetStatBonusDoubleCore(string statType, Character? characterContext)
         {
             string t = NormalizeEquipmentStatKey(statType);
+            if (string.Equals(t, "AttackSpeed", StringComparison.OrdinalIgnoreCase))
+            {
+                double points = 0;
+                foreach (var item in slots.GetEquippedItems())
+                {
+                    if (item != null)
+                        points += GetItemWeaponSpeedPoints(item);
+                }
+                return points;
+            }
             double flat = GetFlatEquipmentStatDouble(t);
             if (characterContext == null)
                 return flat + SumSuffixStatBonusFlatDouble(t);
@@ -84,6 +94,30 @@ namespace RPGGame
 
             double reference = ResolveSuffixPercentReference(characterContext, t);
             return flat + reference * (pct / 100.0);
+        }
+
+        /// <summary>
+        /// Weapon speed points one item carries: tier bonus + catalog + <c>AttackSpeed</c> suffixes.
+        /// "ALL" suffixes keep their % meaning (ALL +5 = +5% speed = 0.5 points at 10% per point).
+        /// </summary>
+        public static double GetItemWeaponSpeedPoints(Item item)
+        {
+            if (item == null)
+                return 0;
+            double pctPerPoint = GameConfiguration.Instance.Combat.GetWeaponSpeedPercentPerPoint();
+            double points = item.BonusAttackSpeed + item.CatalogAttackSpeed;
+            foreach (var statBonus in item.StatBonuses)
+            {
+                foreach (var (contribType, contribValue) in statBonus.EnumerateContributions())
+                {
+                    string ct = NormalizeAffixContributionType(contribType);
+                    if (string.Equals(ct, "AttackSpeed", StringComparison.OrdinalIgnoreCase))
+                        points += contribValue;
+                    else if (string.Equals(ct, "ALL", StringComparison.OrdinalIgnoreCase))
+                        points += contribValue / pctPerPoint;
+                }
+            }
+            return points;
         }
 
         /// <summary>Catalog armor on equipped head/chest/legs/feet (excludes suffix-only armor bonuses).</summary>
@@ -392,14 +426,6 @@ namespace RPGGame
                 int piece = eq.GetFlatEquipmentStatExcludingSuffixes("HealthRegen");
                 int baseline = Math.Max(1, character.Health.MaxHealth / 20);
                 return Math.Max(baseline, piece);
-            }
-
-            if (string.Equals(norm, "AttackSpeed", StringComparison.OrdinalIgnoreCase))
-            {
-                double bt = GameConfiguration.Instance?.Combat?.BaseAttackTime ?? 0;
-                if (bt <= 0 || double.IsNaN(bt) || double.IsInfinity(bt))
-                    bt = 2.0;
-                return bt;
             }
 
             if (string.Equals(norm, "ExtraActionSlots", StringComparison.OrdinalIgnoreCase))

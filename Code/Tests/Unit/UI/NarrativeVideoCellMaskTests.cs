@@ -28,6 +28,9 @@ namespace RPGGame.Tests.Unit.UI
             WriteOpacityMaskBgra_WritesAlphaBlocks();
             FrameLayout_AlignsPitchAndLinesTo32();
             FrameLayout_BufferCoversAlignedStorage();
+            CellLock_SampleCoord_CentersInBand();
+            CellLock_Blit_FillsSolidCellBlocks();
+            CellLock_Blit_DifferentRowsSampleDifferentSourceY();
             Gate_RequiresDungeonWhenConfigured();
             Gate_RequiresNarrativeLogWhenConfigured();
             Gate_BlocksVictoryAndDeathScreens();
@@ -129,6 +132,58 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(lines >= 50 && lines % 32 == 0, "lines padded", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual((int)(pitches * lines), bytes, "bytes=pitches*lines", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(bytes > 100 * 4 * 50, "larger than naive width*height", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void CellLock_SampleCoord_CentersInBand()
+        {
+            Console.WriteLine("--- Cell-lock sample coords ---");
+            // 4 cells over 8 source pixels → centers at 1, 3, 5, 7
+            TestBase.AssertEqual(1, NarrativeVideoCellLock.SampleCoord(0, 4, 8), "cell0 center",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, NarrativeVideoCellLock.SampleCoord(1, 4, 8), "cell1 center",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(7, NarrativeVideoCellLock.SampleCoord(3, 4, 8), "cell3 center",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, NarrativeVideoCellLock.SampleCoord(0, 1, 1), "single cell",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void CellLock_Blit_FillsSolidCellBlocks()
+        {
+            Console.WriteLine("--- Cell-lock solid cell fill ---");
+            // 2×1 source: left red, right blue. 2 cols × 1 row, 2×2 px cells.
+            var src = new byte[2 * 1 * 4];
+            src[0] = 0; src[1] = 0; src[2] = 255; src[3] = 255; // BGRA red
+            src[4] = 255; src[5] = 0; src[6] = 0; src[7] = 255; // BGRA blue
+            var dest = new byte[2 * 1 * 2 * 2 * 4];
+            NarrativeVideoCellLock.BlitCenterSampledCells(src, 2, 1, 8, dest, 2, 1, 2, 2);
+
+            // Left cell (2×2) all red
+            TestBase.AssertEqual(255, (int)dest[2], "left cell R", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(255, (int)dest[(0 * 4 + 1) * 4 + 2], "left cell row0 col1 R",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(255, (int)dest[(1 * 4 + 0) * 4 + 2], "left cell row1 R",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // Right cell blue
+            TestBase.AssertEqual(255, (int)dest[(0 * 4 + 2) * 4 + 0], "right cell B",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, (int)dest[(0 * 4 + 2) * 4 + 2], "right cell not R",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void CellLock_Blit_DifferentRowsSampleDifferentSourceY()
+        {
+            Console.WriteLine("--- Cell-lock rows lock to source bands ---");
+            // 1×2 source: top green, bottom white. 1 col × 2 rows, 1×1 cells.
+            var src = new byte[1 * 2 * 4];
+            src[0] = 0; src[1] = 255; src[2] = 0; src[3] = 255; // green
+            src[4] = 255; src[5] = 255; src[6] = 255; src[7] = 255; // white
+            var dest = new byte[1 * 2 * 1 * 1 * 4];
+            NarrativeVideoCellLock.BlitCenterSampledCells(src, 1, 2, 4, dest, 1, 2, 1, 1);
+            TestBase.AssertEqual(255, (int)dest[1], "row0 green G", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, (int)dest[2], "row0 not R", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(255, (int)dest[4 + 2], "row1 white R", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(255, (int)dest[4 + 1], "row1 white G", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void Gate_RequiresDungeonWhenConfigured()

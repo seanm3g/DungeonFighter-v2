@@ -18,6 +18,7 @@ namespace RPGGame.UI.Avalonia.Canvas
         private readonly List<CanvasBox> boxElements;
         private readonly List<CanvasProgressBar> progressBars;
         private readonly List<CanvasSegmentedBar> segmentedBars;
+        private readonly List<CanvasImage> images = new List<CanvasImage>();
         
         public CanvasElementManager()
         {
@@ -46,6 +47,14 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// Gets all segmented bar elements (mutable list for rendering)
         /// </summary>
         public List<CanvasSegmentedBar> SegmentedBars => segmentedBars;
+
+        /// <summary>Bitmap regions (inventory item icons); cleared with the text in the same area.</summary>
+        public List<CanvasImage> Images => images;
+
+        public void AddImage(CanvasImage image)
+        {
+            images.Add(image);
+        }
         
         /// <summary>
         /// Clears all elements
@@ -56,6 +65,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             boxElements.Clear();
             progressBars.Clear();
             segmentedBars.Clear();
+            images.Clear();
         }
         
         /// <summary>
@@ -66,6 +76,7 @@ namespace RPGGame.UI.Avalonia.Canvas
         public void ClearTextInRange(int startY, int endY)
         {
             textElements.RemoveAll(text => text.Y >= startY && text.Y <= endY);
+            images.RemoveAll(image => image.Y >= startY && image.Y <= endY);
         }
         
         /// <summary>
@@ -80,6 +91,9 @@ namespace RPGGame.UI.Avalonia.Canvas
             textElements.RemoveAll(text => 
                 text.X >= startX && text.X < endX && 
                 text.Y >= startY && text.Y < endY);
+            images.RemoveAll(image =>
+                image.X >= startX && image.X < endX &&
+                image.Y >= startY && image.Y < endY);
         }
 
         /// <summary>

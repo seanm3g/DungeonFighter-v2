@@ -348,7 +348,8 @@ namespace RPGGame.Tests.Unit.Tuning
             TestBase.AssertTrue(suggestions.Count == 1, "One L1-only suggestion", ref _run, ref _pass, ref _fail);
             TestBase.AssertTrue(suggestions[0].Parameter == "BaseHealth",
                 "Low WR at L1 tunes hero base health before tempo knobs", ref _run, ref _pass, ref _fail);
-            TestBase.AssertTrue(suggestions[0].SuggestedValue > 200,
+            // The suggestion scales the live PlayerBaseHealth (patch-dependent), so compare against it.
+            TestBase.AssertTrue(suggestions[0].SuggestedValue > GameConfiguration.Instance.Character.PlayerBaseHealth,
                 "Low WR at L1 increases hero base HP", ref _run, ref _pass, ref _fail);
 
             var goodL1 = new FundamentalsSimulationResult

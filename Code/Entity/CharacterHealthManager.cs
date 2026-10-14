@@ -300,9 +300,10 @@ namespace RPGGame
         {
             if (newMaxHealth > oldMaxHealth)
             {
-                // If max health increased, heal to full health
+                // If max health increased, grant only the added max HP (no full heal —
+                // full heals happen on level up, dungeon clear, or leaving a dungeon early).
                 // Set directly to avoid clamping issues during equipment change
-                _currentHealth = newMaxHealth;
+                _currentHealth = Math.Min(newMaxHealth, _currentHealth + (newMaxHealth - oldMaxHealth));
             }
             else if (newMaxHealth < oldMaxHealth)
             {

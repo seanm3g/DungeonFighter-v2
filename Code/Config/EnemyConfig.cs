@@ -509,6 +509,11 @@ namespace RPGGame
         public Dictionary<string, ArchetypeCombatConfig> ArchetypeCombat { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         /// <summary>Opt-in: level sets enemy power, growth shape sets identity (see <see cref="EnemyIdentity"/>).</summary>
         public EnemyIdentityConfig Identity { get; set; } = new();
+        /// <summary>
+        /// Enemy mechanic kits: flavor action names in Enemies.json resolve through <c>GameData/EnemyActions.json</c>
+        /// (Venom, Scorch, Crush, Shell, Disrupt …) instead of becoming plain attacks. false = legacy plain attacks.
+        /// </summary>
+        public bool ActionKits { get; set; }
         public double AttributeGrowthBudgetPerLevel { get; set; } = 6.0;
         public int LevelVariance { get; set; } = 1;
         public string Description { get; set; } = "";

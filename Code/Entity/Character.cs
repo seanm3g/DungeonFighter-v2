@@ -85,6 +85,13 @@ namespace RPGGame
         /// <summary>Action Interaction Lab only: added to <see cref="ComboSequenceMaxHelper.GetEffectiveMax"/> for sandbox tuning (default 0).</summary>
         public int ActionLabActionSlotBonus { get; set; }
 
+        /// <summary>
+        /// Strip slot a <c>strip_replace_next</c> swing stood in for; <see cref="IncrementComboStep"/> advances from it
+        /// (the replacement action may also sit earlier in the strip). Cleared once used. Not saved.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        public int? ReplacedStripSlot { get; set; }
+
         // Health properties (delegated to Health manager)
         public int CurrentHealth 
         { 
@@ -274,9 +281,18 @@ namespace RPGGame
             // Apply combo routing if action has routing properties
             if (lastAction != null && this is Character character)
             {
-                // Find the index of the lastAction in the combo sequence
-                // This is more accurate than using ComboStep % comboActions.Count
-                int currentSlotIndex = comboActions.FindIndex(a => a.Name == lastAction.Name);
+                // Which strip slot just ran: a strip replacement advances from the slot it replaced; otherwise prefer the
+                // current step's slot when it holds this action, so repeated actions (STAB > X > STAB > STAB) do not
+                // jump back to their first copy; else the first slot with this action.
+                int stepSlot = ComboStep % comboActions.Count;
+                int currentSlotIndex;
+                if (ReplacedStripSlot is int replaced && replaced >= 0 && replaced < comboActions.Count)
+                    currentSlotIndex = replaced;
+                else if (stepSlot >= 0 && comboActions[stepSlot].Name == lastAction.Name)
+                    currentSlotIndex = stepSlot;
+                else
+                    currentSlotIndex = comboActions.FindIndex(a => a.Name == lastAction.Name);
+                ReplacedStripSlot = null;
                 if (currentSlotIndex < 0)
                 {
                     // If action not found in combo, use ComboStep as fallback
@@ -389,6 +405,7 @@ namespace RPGGame
         public int GetEffectivePrimaryAttributeValue() => Facade.GetEffectivePrimaryAttributeValue();
         public int GetAttributeDamageBonus() => Facade.GetAttributeDamageBonus();
         public double GetStrengthDamageMultiplier() => Facade.GetStrengthDamageMultiplier();
+        public double GetIntelligenceAmpMultiplier() => Facade.GetIntelligenceAmpMultiplier();
         public double CalculateTurnsFromActionLength(double actionLength) => Facade.CalculateTurnsFromActionLength(actionLength);
         public void RemoveItemActions() => Facade.RemoveItemActions();
         public void ApplyRollBonusesFromGear(Item gear) => Facade.ApplyRollBonusesFromGear(gear);

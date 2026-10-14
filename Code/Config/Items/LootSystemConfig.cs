@@ -1,3 +1,4 @@
+using System;
 namespace RPGGame
 {
     /// <summary>
@@ -44,6 +45,35 @@ namespace RPGGame
 
         /// <summary>Chance (0–1) that a weapon drop is the hero's equipped weapon type (0 = uniform across types, legacy).</summary>
         public double EquippedWeaponTypeBias { get; set; }
+
+        /// <summary>
+        /// Each material piece rolls one item trigger from its material's pool (<see cref="RPGGame.Data.MaterialTriggerCatalog"/>),
+        /// so set pieces carry the procs their set feeds on (e.g. Silver Prism: connect → Focus, which mints LENS).
+        /// false = legacy: material sets own all procs and pieces carry none.
+        /// </summary>
+        public bool MaterialPieceTriggers { get; set; }
+
+        /// <summary>
+        /// Level cap on combo strip slots as [level, slots] anchors (e.g. [[1,1],[10,3]]): the highest anchor at or below the
+        /// hero's level caps base + gear + class slots. Empty = no level cap (legacy). Action Lab sandbox slots bypass it.
+        /// </summary>
+        public System.Collections.Generic.List<int[]> ComboSlotCapByLevel { get; set; } = new();
+
+        /// <summary>Slot cap for <paramref name="level"/> from <see cref="ComboSlotCapByLevel"/>; 0 = uncapped.</summary>
+        public int GetComboSlotCapForLevel(int level)
+        {
+            int cap = 0, bestLevel = int.MinValue;
+            if (ComboSlotCapByLevel == null)
+                return 0;
+            foreach (var a in ComboSlotCapByLevel)
+            {
+                if (a == null || a.Length < 2 || a[0] > level || a[0] < bestLevel)
+                    continue;
+                bestLevel = a[0];
+                cap = a[1];
+            }
+            return Math.Max(0, cap);
+        }
 
         /// <summary>Chance (0–1) a weapon's gear action comes from its class's actions; otherwise a neutral action.</summary>
         public double WeaponGearActionClassShare { get; set; } = 0.7;

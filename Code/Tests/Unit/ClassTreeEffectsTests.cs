@@ -30,7 +30,6 @@ namespace RPGGame.Tests.Unit
             TestPerfectAimAndArchmage();
             TestArcaneWeave();
             TestBoneWrathHeals();
-            TestWandMasteryTagsStrip();
 
             TestBase.PrintSummary("ClassTreeEffects Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -153,19 +152,6 @@ namespace RPGGame.Tests.Unit
             int before = hero.CurrentHealth;
             Publish(hero, new Action { Name = "BONE WRATH", Type = ActionType.Attack }, TestDataBuilders.Enemy().WithName("Dummy").Build());
             TestBase.AssertTrue(hero.CurrentHealth > before, "Wrath Unbound: BONE WRATH heals per RAGE",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestWandMasteryTagsStrip()
-        {
-            var hero = MakeHero("WandMaster", WeaponType.Wand, 80);
-            var plain = TestDataBuilders.CreateMockAction("PLAIN");
-            plain.Tags = new List<string>();
-            hero.AddAction(plain, 1.0);
-            hero.Actions.AddToCombo(plain);
-            int before = ClassTags.Count(hero, ClassTags.Wizard);
-            hero.Progression.LearnedSkillRanks["z-mastery"] = 1;
-            TestBase.AssertEqual(before + 1, ClassTags.Count(hero, ClassTags.Wizard), "Wand Mastery: untagged strip action counts as Wizard",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

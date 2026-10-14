@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using RPGGame.Entity.Services;
+using RPGGame.Data;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit
@@ -317,16 +318,27 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("\n--- TestArmorExplicitGearAction_NotDuplicatedWhenSpecialMods ---");
 
+            // Any hero-grantable action from live data (the sheet renames actions; "Tight Combo" was retired).
+            ActionLoader.EnsureLoaded();
+            string? authored = ActionLoader.GetAllActionNames()
+                .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault(n => GameDataTagHelper.IsGrantableOnHeroGearByName(n));
+            if (authored == null)
+            {
+                TestBase.AssertTrue(true, "Skip: no hero-grantable actions in data", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
             var chest = new ChestItem("BronzeDoubletTest")
             {
-                GearAction = "Tight Combo",
+                GearAction = authored,
                 StatBonuses = { new StatBonus { StatType = "Armor", Value = 1 } }
             };
 
             var names = GearActionNames.Resolve(chest);
-            int tight = names.Count(n => string.Equals(n, "Tight Combo", StringComparison.OrdinalIgnoreCase));
-            TestBase.AssertTrue(tight == 1,
-                $"Armor GearAction + affixes: one 'Tight Combo' in Resolve (found {tight}; names: [{string.Join(", ", names)}])",
+            int count = names.Count(n => string.Equals(n, authored, StringComparison.OrdinalIgnoreCase));
+            TestBase.AssertTrue(count == 1,
+                $"Armor GearAction + affixes: one '{authored}' in Resolve (found {count}; names: [{string.Join(", ", names)}])",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

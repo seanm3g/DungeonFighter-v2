@@ -304,9 +304,9 @@ namespace RPGGame
                 new Identity(64, "MirrorSwingDamage", "ONCONNECT", "", "hero_action_damage", 100,
                     Filters: new[] { "IFSAMESACTION" },
                     Description: "On connect with the same action as last swing, this swing +100% damage."),
-                new Identity(65, "UnarmedPunchGrant", "WHILE_EQUIPPED", "", "grant_action:PUNCH HARD",
+                new Identity(65, "UnarmedPunchGrant", "WHILE_EQUIPPED", "", "grant_action:PUNCH",
                     Filters: new[] { "IFUNARMED" }, IsEquipEffect: true,
-                    Description: "While equipped and unarmed, grant Punch Hard."),
+                    Description: "While equipped and unarmed, grant Punch."),
 
                 new Identity(66, "SwiftSchool", "WHILE_EQUIPPED", "", "hero_action_speed", 8,
                     Filters: new[] { "IFACTIONHASTAG:swift" }, IsEquipEffect: true,

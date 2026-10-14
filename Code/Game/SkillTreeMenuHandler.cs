@@ -103,6 +103,24 @@ namespace RPGGame
                 return;
             }
 
+            if (string.Equals(trimmed, "t", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(trimmed, "tab", StringComparison.OrdinalIgnoreCase))
+            {
+                if (SkillTreeService.CycleViewedPath(player.Progression))
+                {
+                    selectedIndex = 0;
+                    scrollOffset = int.MaxValue;
+                    statusMessage = $"Viewing {SkillTreeService.GetViewedPath(player.Progression)} tree.";
+                    Render(ensureSelectionVisible: true);
+                }
+                else
+                {
+                    statusMessage = "Earn points on another weapon path to open its tree.";
+                    Render(ensureSelectionVisible: false);
+                }
+                return;
+            }
+
             int beforeSelection = selectedIndex;
 
             if (TryScroll(trimmed, model))
@@ -135,7 +153,7 @@ namespace RPGGame
                 return;
             }
 
-            statusMessage = "Click a node or use arrows. L to learn, PgUp/PgDn to scroll, 0 to return.";
+            statusMessage = "Click a node or use arrows. L to learn, T to switch tree, PgUp/PgDn to scroll, 0 to return.";
             Render(ensureSelectionVisible: false);
         }
 
@@ -282,7 +300,7 @@ namespace RPGGame
             {
                 statusMessage = model.IsRailIndex(selectedIndex)
                     ? "This shared skill is not spendable for your current paths."
-                    : "Only your primary path tree (or shared secondary rail) can be spent into.";
+                    : "Earn points on this weapon path to spend into its tree.";
                 Render(ensureSelectionVisible: false);
                 return;
             }

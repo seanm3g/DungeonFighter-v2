@@ -266,9 +266,9 @@ namespace RPGGame.UI.Avalonia.Canvas
             
             // Determine spacing based on stat name
             int spacesNeeded;
-            if (statName == "TECH" || statName == "NAIV")
+            if (statName == "TECH")
             {
-                spacesNeeded = 1; // TECH: # / NAIV: # (1 space)
+                spacesNeeded = 1; // TECH: # (1 space)
             }
             else if (statName == "Armor" || statName == "Defense")
             {

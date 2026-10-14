@@ -5,8 +5,8 @@ using RPGGame.Tests;
 namespace RPGGame.Tests.Unit.Items
 {
     /// <summary>
-    /// Regression tests: weapon Quality (gearPrimaryStatMultiplier) affects both damage and speed.
-    /// Speed is a time multiplier (lower = faster), so quality is applied inversely for speed.
+    /// Regression tests: weapon Quality (gearPrimaryStatMultiplier) scales damage. Speed comes only from the weapon's
+    /// catalog speed and weapon speed points (the same factor combat uses), so quality leaves it unchanged.
     /// </summary>
     public static class WeaponItemQualityMultiplierTests
     {
@@ -14,7 +14,7 @@ namespace RPGGame.Tests.Unit.Items
         {
             int run = 0, passed = 0, failed = 0;
 
-            TestQualityAffectsWeaponSpeed_Inversely(ref run, ref passed, ref failed);
+            TestQualityDoesNotChangeWeaponSpeed(ref run, ref passed, ref failed);
             TestQualityAffectsWeaponDamage_Directly(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary(nameof(WeaponItemQualityMultiplierTests), run, passed, failed);
@@ -39,18 +39,16 @@ namespace RPGGame.Tests.Unit.Items
             return w;
         }
 
-        private static void TestQualityAffectsWeaponSpeed_Inversely(ref int run, ref int passed, ref int failed)
+        private static void TestQualityDoesNotChangeWeaponSpeed(ref int run, ref int passed, ref int failed)
         {
-            TestBase.SetCurrentTestName(nameof(TestQualityAffectsWeaponSpeed_Inversely));
+            TestBase.SetCurrentTestName(nameof(TestQualityDoesNotChangeWeaponSpeed));
 
-            // Base speed is a time multiplier: 1.0 = baseline.
-            // Quality 2.0 should make weapon faster => 1.0 / 2.0 = 0.5.
-            var w = CreateWeaponWithQuality("Fast", baseDamage: 10, baseSpeed: 1.0, qualityMultiplier: 2.0);
-            TestBase.AssertEqual(0.5, Math.Round(w.GetTotalAttackSpeed(), 3), "quality speeds up weapon (inverse)", ref run, ref passed, ref failed);
+            // Base speed is a time multiplier: 1.0 = baseline, and quality does not move it.
+            var w = CreateWeaponWithQuality("Fine", baseDamage: 10, baseSpeed: 1.0, qualityMultiplier: 2.0);
+            TestBase.AssertEqual(1.0, Math.Round(w.GetTotalAttackSpeed(), 3), "high quality keeps weapon speed", ref run, ref passed, ref failed);
 
-            // Quality 0.5 should make weapon slower => 1.0 / 0.5 = 2.0.
-            var w2 = CreateWeaponWithQuality("Slow", baseDamage: 10, baseSpeed: 1.0, qualityMultiplier: 0.5);
-            TestBase.AssertEqual(2.0, Math.Round(w2.GetTotalAttackSpeed(), 3), "low quality slows weapon (inverse)", ref run, ref passed, ref failed);
+            var w2 = CreateWeaponWithQuality("Crude", baseDamage: 10, baseSpeed: 1.0, qualityMultiplier: 0.5);
+            TestBase.AssertEqual(1.0, Math.Round(w2.GetTotalAttackSpeed(), 3), "low quality keeps weapon speed", ref run, ref passed, ref failed);
 
             TestBase.ClearCurrentTestName();
         }

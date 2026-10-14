@@ -18,6 +18,7 @@
   "heroTurnsTarget": 11,
   "heroTurnsTolerance": 1.5,
   "heroTurnsCheckMaxLevel": 50,
+  "perEnemyTurnsTolerance": 4,
   "survivalToLevel": 10,
   "minSurvivalPercent": 97,
   "rarePercentMin": 1.5,
@@ -36,5 +37,14 @@
   "winRateMeaning": "dungeonClear",
   "fightsPerDungeon": 5.7,
   "realClearCheckLevel": 10,
-  "realClearTolerance": 4
+  "realClearTarget": 75,
+  "realClearAnchors": [
+    { "level": 10, "clear": 75 },
+    { "level": 15, "clear": 65 },
+    { "level": 50, "clear": 65 },
+    { "level": 75, "clear": 30 },
+    { "level": 100, "clear": 0 }
+  ],
+  "realClearTolerance": 4,
+  "retreatBelowHpPercent": 50
 }

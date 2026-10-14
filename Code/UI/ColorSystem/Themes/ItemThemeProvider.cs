@@ -286,7 +286,7 @@ namespace RPGGame.UI.ColorSystem.Themes
             if (TryGetMaterialPaletteColor(word, out Color mat))
                 return ColoredText.FromColor(word, mat);
 
-            var mt = GetModificationTheme(lower, rank);
+            var mt = GetModificationTheme(word, rank); // matches case-insensitively; keep the original casing for display
             if (mt != null && mt.Count > 0)
                 return mt;
 

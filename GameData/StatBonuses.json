@@ -30,7 +30,7 @@
     "Requirements": null
   },
   {
-    "Name": "of ferosity",
+    "Name": "of ferocity",
     "Description": "1 to crit",
     "Value": 1,
     "Rarity": "Common",
@@ -47,14 +47,14 @@
   {
     "Name": "of fleeting",
     "Description": "attack speed",
-    "Value": 5,
+    "Value": 1,
     "Rarity": "Common",
     "StatType": "AttackSpeed",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "AttackSpeed",
-        "Value": 5
+        "Value": 1
       }
     ],
     "Requirements": null
@@ -2187,14 +2187,14 @@
   {
     "Name": "held in breath",
     "Description": "The moment before release — coiled potential, never quite still",
-    "Value": 10,
+    "Value": 1,
     "Rarity": "Rare",
     "StatType": "AttackSpeed",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "AttackSpeed",
-        "Value": 10
+        "Value": 1
       },
       {
         "StatType": "ACCURACY",

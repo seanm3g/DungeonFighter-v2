@@ -1,5 +1,6 @@
 using System;
 using RPGGame;
+using RPGGame.Config;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Layout;
 
@@ -234,8 +235,9 @@ namespace RPGGame.Tests.Unit.UI
 
                 PreWeaponTrainingFlow.SetTutorialCombatSlowPacing(true);
 
-                TestBase.AssertEqual(6000, DeveloperModeState.ScaleDelayMs(3000),
-                    "tutorial combat pacing doubles the default action delay",
+                int expectedTutorial = (int)Math.Ceiling(3000 * TextDelayConfiguration.GetTutorialCombatDelayMultiplier());
+                TestBase.AssertEqual(expectedTutorial, DeveloperModeState.ScaleDelayMs(3000),
+                    "tutorial combat pacing applies the configured delay multiplier",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
@@ -282,11 +284,19 @@ namespace RPGGame.Tests.Unit.UI
             bool prevUiDelays = UIManager.EnableDelays;
             bool prevInstant = DeveloperModeState.IsCombatLogInstant;
             bool prevFastCombat = GameSettings.Instance.FastCombat;
+            bool prevFastLatch = SimulationPacing.IsFastModeEnabled;
+            bool prevMute = CombatManager.DisableCombatUIOutput;
+            bool prevMcp = RPGGame.MCP.MCPMode.IsActive;
+            bool prevTextDelays = GameSettings.Instance.EnableTextDisplayDelays;
+            double prevCombatSpeed = GameSettings.Instance.CombatSpeed;
             try
             {
                 UIManager.EnableDelays = true;
                 DeveloperModeState.SetCombatLogInstant(false);
                 GameSettings.Instance.FastCombat = false;
+                SimulationPacing.ResetFastModeLatchForTests();
+                CombatManager.DisableCombatUIOutput = false;
+                RPGGame.MCP.MCPMode.IsActive = false;
 
                 TestBase.AssertTrue(!SimulationPacing.ShouldSkipDelays,
                     "delays active before fast mode", ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -303,6 +313,12 @@ namespace RPGGame.Tests.Unit.UI
                 UIManager.EnableDelays = prevUiDelays;
                 DeveloperModeState.SetCombatLogInstant(prevInstant);
                 GameSettings.Instance.FastCombat = prevFastCombat;
+                GameSettings.Instance.EnableTextDisplayDelays = prevTextDelays;
+                GameSettings.Instance.CombatSpeed = prevCombatSpeed;
+                CombatManager.DisableCombatUIOutput = prevMute;
+                RPGGame.MCP.MCPMode.IsActive = prevMcp;
+                if (!prevFastLatch)
+                    SimulationPacing.ResetFastModeLatchForTests();
             }
         }
     }

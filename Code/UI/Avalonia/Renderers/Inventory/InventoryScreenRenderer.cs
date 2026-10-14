@@ -41,10 +41,25 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     /// </summary>
     public class InventoryScreenRenderer
     {
-        public const string NumpadShortcutHint = "Numpad +: sort | Numpad -: filter unmet reqs | Numpad *: equip empty slots | Numpad /: cycle slot filter";
+        public const string NumpadShortcutHint = "Numpad +: sort | Numpad -: filter unmet reqs | Numpad *: equip empty slots | Numpad /: slot filter | M: material filter";
 
         private readonly GameCanvasControl canvas;
         private readonly ColoredTextWriter textWriter;
+
+        /// <summary>Columns the bottom Actions buttons occupy from the panel's left edge (two 28-wide columns at +2 and +32).</summary>
+        private const int ActionsBlockWidth = 61;
+
+        /// <summary>Separator column of a description pane that extended below the Actions header this frame; the shortcut hint stops short of it.</summary>
+        private int? detailSeparatorXBesideActions;
+
+        /// <summary>Bottom row for the description column: the extended bound when it starts right of the Actions buttons, else the bag's bound.</summary>
+        private int ResolveDetailBottomY(int x, int separatorX, int bottomY, int extendedBottomY)
+        {
+            if (extendedBottomY <= bottomY || separatorX < x + ActionsBlockWidth)
+                return bottomY;
+            detailSeparatorXBesideActions = separatorX;
+            return extendedBottomY;
+        }
         private readonly List<ClickableElement> clickableElements;
         
         public InventoryScreenRenderer(
@@ -111,7 +126,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int itemScrollOffset = 0,
             InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
             bool hideRequirementBlockedItems = false,
-            string? inventoryEquipSlotFilter = null)
+            string? inventoryEquipSlotFilter = null,
+            InventoryDetailViewState? detailView = null,
+            string? inventoryMaterialFilter = null)
         {
             // Do not Clear() the shared clickables list: PersistentLayoutManager already cleared it this frame,
             // and CharacterPanelRenderer registered left-panel lphover targets before this callback. Clearing here
@@ -123,7 +140,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             canvas.ClearProgressBarsInArea(x, y, width, height);
             
             int startY = y;
-            
+            LastPaperDollBounds = default;
+            LastBagGridBounds = default;
+
             // Null check for inventory
             if (inventory == null)
             {
@@ -133,13 +152,19 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             
             // Inventory items section
             int actionsStartY = InventoryItemScrollLayout.GetBottomMenuStartY(startY, height, pendingMutatingInventoryMenuAction != null);
+            // The description column may run past the Actions header down to the panel bottom when it sits right of the buttons;
+            // the confirmation block's long warning lines span the full width, so it keeps the short bound then.
+            int detailExtendedBottomY = pendingMutatingInventoryMenuAction != null ? actionsStartY - 1 : startY + height;
+            detailSeparatorXBesideActions = null;
             int itemsHeaderY = y;
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.InventoryItems), AsciiArtAssets.Colors.Gold);
+            bool gridView = detailView?.Grid == true;
+            int viewToggleWidth = RenderViewToggleButton(x, itemsHeaderY, width, gridView, blockClick: pendingMutatingInventoryMenuAction != null);
             y += 2;
             currentLineCount += 2;
-            var displayEntries = BuildDisplayEntries(inventory, character, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter);
+            var displayEntries = BuildDisplayEntries(inventory, character, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter, inventoryMaterialFilter);
             var viewSummarySegments = BuildViewSummaryColoredSegments(
-                inventory, character, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter);
+                inventory, character, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter, inventoryMaterialFilter);
             if (viewSummarySegments.Count > 0)
             {
                 textWriter.RenderSegments(viewSummarySegments, x + 2, y);
@@ -150,7 +175,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             {
                 X = x + 2,
                 Y = itemsHeaderY,
-                Width = Math.Max(1, width - 4),
+                Width = Math.Max(1, width - 4 - viewToggleWidth),
                 Height = 1,
                 Type = ElementType.Text,
                 Value = Prefix + "center:itemsHeader",
@@ -164,11 +189,23 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             else if (displayEntries.Count == 0)
             {
-                string emptyMsg = !string.IsNullOrEmpty(inventoryEquipSlotFilter)
+                string emptyMsg = !string.IsNullOrEmpty(inventoryMaterialFilter)
+                    ? "No items match the current material filter."
+                    : !string.IsNullOrEmpty(inventoryEquipSlotFilter)
                     ? "No items in inventory for this equipment slot."
                     : "No items match the current requirements filter";
                 canvas.AddText(x + 2, y, emptyMsg, AsciiArtAssets.Colors.White);
                 currentLineCount++;
+            }
+            else if (gridView)
+            {
+                RenderGridView(x, y, width, actionsStartY, detailExtendedBottomY, character, displayEntries, itemScrollOffset,
+                    detailView!.SelectedInventoryIndex, blockRowClicks: pendingMutatingInventoryMenuAction != null, ref currentLineCount);
+            }
+            else if (detailView != null)
+            {
+                RenderDetailView(x, y, width, actionsStartY, detailExtendedBottomY, character, displayEntries, itemScrollOffset,
+                    detailView.SelectedInventoryIndex, blockRowClicks: pendingMutatingInventoryMenuAction != null, ref currentLineCount);
             }
             else
             {
@@ -346,7 +383,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             canvas.AddMenuOption(x + 2, y + 3, 0, UIConstants.MenuOptions.ReturnToGameMenu, AsciiArtAssets.Colors.White, exitButton.IsHovered);
             currentLineCount++;
 
-            string shortcutHint = GetNumpadShortcutHint(width - 4);
+            int hintWidth = detailSeparatorXBesideActions is int sepX ? Math.Min(width - 4, sepX - 1 - (x + 2)) : width - 4;
+            string shortcutHint = GetNumpadShortcutHint(hintWidth);
             if (!string.IsNullOrEmpty(shortcutHint))
             {
                 canvas.AddText(x + 2, y + 5, shortcutHint, AsciiArtAssets.Colors.DarkGray);
@@ -356,6 +394,576 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             return currentLineCount;
         }
 
+        /// <summary>Width of the detail view's left list: selection marker + "[NN] " + truncated name.</summary>
+        private const int DetailViewListWidth = 2 + 5 + InventoryDetailViewState.ListNameMaxChars + 3;
+
+        /// <summary>
+        /// F1 detail view: one line per item on the left (names cut at <see cref="InventoryDetailViewState.ListNameMaxChars"/>),
+        /// full description of the selected item on the right. Rows click as <c>invsel:{inventoryIndex}</c>.
+        /// </summary>
+        private void RenderDetailView(
+            int x,
+            int y,
+            int width,
+            int actionsStartY,
+            int detailExtendedBottomY,
+            Character character,
+            List<InventoryDisplayEntry> displayEntries,
+            int itemScrollOffset,
+            int selectedInventoryIndex,
+            bool blockRowClicks,
+            ref int currentLineCount)
+        {
+            int listX = x + 2;
+            int listWidth = Math.Min(DetailViewListWidth, Math.Max(1, (width - 4) / 2));
+            int separatorX = listX + listWidth + 1;
+            int detailX = separatorX + 2;
+            int detailWidth = Math.Max(1, x + width - 2 - detailX);
+            int topY = y;
+            int bottomY = actionsStartY - 1;
+            int availableRows = Math.Max(0, bottomY - topY);
+
+            var lineCounts = Enumerable.Repeat(1, displayEntries.Count).ToList();
+            int firstIndex = InventoryItemScrollLayout.ClampFirstVisibleIndex(itemScrollOffset, displayEntries.Count);
+            bool showScrollStatus = InventoryItemScrollLayout.RequiresScrollStatus(lineCounts, availableRows, firstIndex);
+            if (!showScrollStatus)
+                firstIndex = 0;
+            int indicatorRows = InventoryItemScrollLayout.GetReservedIndicatorRows(firstIndex, showScrollStatus);
+            var visibleRange = InventoryItemScrollLayout.CalculateVisibleRange(lineCounts, firstIndex, Math.Max(0, availableRows - indicatorRows));
+
+            var selected = ResolveDetailViewSelection(displayEntries, selectedInventoryIndex, visibleRange.FirstIndex);
+
+            int rowY = topY;
+            if (showScrollStatus && visibleRange.HasItemsAbove)
+            {
+                canvas.AddText(listX, rowY, $"{AsciiArtAssets.UIElements.ArrowUp} {visibleRange.FirstIndex} more above", AsciiArtAssets.Colors.Gray);
+                rowY++;
+                currentLineCount++;
+            }
+
+            for (int displayIndex = visibleRange.FirstIndex; displayIndex < visibleRange.LastExclusiveIndex; displayIndex++)
+            {
+                var entry = displayEntries[displayIndex];
+                bool isSelected = entry.InventoryIndex == selected.InventoryIndex;
+                textWriter.RenderSegments(BuildDetailViewListRowSegments(entry, character, isSelected), listX, rowY);
+                if (!blockRowClicks)
+                {
+                    clickableElements.Add(InventoryButtonFactory.CreateButton(
+                        listX,
+                        rowY,
+                        listWidth,
+                        1,
+                        InventoryDetailViewState.SelectInputPrefix + entry.InventoryIndex,
+                        $"[{entry.DisplayNumber}] {entry.Item.Name}",
+                        tooltipHoverValue: null));
+                }
+                rowY++;
+                currentLineCount++;
+            }
+
+            if (showScrollStatus)
+            {
+                int hiddenBelow = visibleRange.ItemCount - visibleRange.LastExclusiveIndex;
+                string status = hiddenBelow > 0
+                    ? $"{AsciiArtAssets.UIElements.ArrowDown} {hiddenBelow} more below"
+                    : $"{visibleRange.ItemCount} items";
+                canvas.AddText(listX, bottomY - 1, status, hiddenBelow > 0 ? AsciiArtAssets.Colors.Gray : AsciiArtAssets.Colors.DarkGray);
+                currentLineCount++;
+            }
+
+            int detailBottomY = ResolveDetailBottomY(x, separatorX, bottomY, detailExtendedBottomY);
+            for (int sepY = topY; sepY < detailBottomY; sepY++)
+                canvas.AddText(separatorX, sepY, "│", AsciiArtAssets.Colors.DarkGray);
+
+            if (selected.Item != null)
+                RenderDetailPane(detailX, topY, detailWidth, detailBottomY, selected.Item, character, ref currentLineCount);
+        }
+
+        /// <summary>Label of the header button that switches inventories (shows where it goes).</summary>
+        internal static string ViewToggleLabel(bool gridView) => gridView ? "[ Old inventory ]" : "[ New inventory ]";
+
+        /// <summary>Right-aligned header button (<see cref="InventoryDetailViewState.ToggleGridInput"/>). Returns the columns it takes.</summary>
+        private int RenderViewToggleButton(int x, int y, int width, bool gridView, bool blockClick)
+        {
+            string label = ViewToggleLabel(gridView);
+            int bx = x + width - 2 - label.Length;
+            if (bx < x + 2 + UIConstants.Headers.InventoryItems.Length + 4)
+                return 0;
+            canvas.AddText(bx, y, label, blockClick ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Cyan);
+            if (!blockClick)
+            {
+                clickableElements.Add(InventoryButtonFactory.CreateButton(
+                    bx, y, label.Length, 1, InventoryDetailViewState.ToggleGridInput,
+                    gridView ? "Switch to the old inventory" : "Switch to the new inventory", tooltipHoverValue: null));
+            }
+            return label.Length + 1;
+        }
+
+        /// <summary>Grid tile height in rows; the width is chosen per frame so tiles come out square in pixels.</summary>
+        internal const int GridTileRows = 4;
+
+        /// <summary>Narrowest description pane beside the grid.</summary>
+        private const int GridDetailMinWidth = 34;
+
+        /// <summary>Last scroll row that still fills the grid (set every grid render; the coordinator caps scrolling at it).</summary>
+        public static int LastGridMaxFirstRow { get; private set; }
+
+        /// <summary>Square-in-pixels tile width (columns) for <paramref name="tileRows"/> rows of the current font.</summary>
+        internal static int GridTileColumns(double charWidth, double charHeight, int tileRows)
+        {
+            if (charWidth <= 0 || charHeight <= 0)
+                return tileRows * 2;
+            return Math.Max(3, (int)Math.Round(tileRows * charHeight / charWidth));
+        }
+
+        /// <summary>
+        /// New inventory: item icons (GameData/ItemArt sheets) in a grid on the left, rarity-coloured frames, the selected
+        /// item framed gold; the selected item's large icon and full description on the right. Tiles click as
+        /// <c>invsel:{inventoryIndex}</c> and hover the same item tooltip as list rows. Scroll offset counts tile rows.
+        /// </summary>
+        private void RenderGridView(
+            int x,
+            int y,
+            int width,
+            int actionsStartY,
+            int detailExtendedBottomY,
+            Character character,
+            List<InventoryDisplayEntry> displayEntries,
+            int itemScrollOffset,
+            int selectedInventoryIndex,
+            bool blockRowClicks,
+            ref int currentLineCount)
+        {
+            int tileRows = GridTileRows;
+            int tileCols = GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), tileRows);
+            int stepX = tileCols + 1;
+            int stepY = tileRows + 1;
+
+            int topY = y;
+            int bottomY = actionsStartY - 1;
+
+            // Paper doll on the left when the bag still keeps at least one tile column beside the description.
+            int gridX = x + 2;
+            int dollRows = PaperDollTileRows(bottomY - topY);
+            int dollCols = dollRows > 0 ? GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), dollRows) : 0;
+            int dollWidth = dollRows > 0 ? 3 * dollCols + 2 * PaperDollArmGap : 0;
+            if (dollRows > 0 && width - 4 - (dollWidth + 3) - GridDetailMinWidth - 3 >= tileCols)
+            {
+                RenderPaperDoll(gridX, topY, dollRows, dollCols, dollWidth, character, blockRowClicks);
+                LastPaperDollBounds = (gridX, topY, dollWidth, bottomY - topY);
+                for (int sepY = topY; sepY < bottomY; sepY++)
+                    canvas.AddText(gridX + dollWidth + 1, sepY, "│", AsciiArtAssets.Colors.DarkGray);
+                gridX += dollWidth + 3;
+            }
+
+            int innerWidth = Math.Max(1, x + width - 2 - gridX);
+            int perRow = Math.Max(1, (innerWidth - GridDetailMinWidth - 3 + 1) / stepX);
+            int gridWidth = perRow * stepX - 1;
+            int separatorX = gridX + gridWidth + 1;
+            int detailX = separatorX + 2;
+            int detailWidth = Math.Max(1, x + width - 2 - detailX);
+            LastBagGridBounds = (gridX, topY, gridWidth, bottomY - topY);
+
+            int statusRows = 1;
+            int visibleRows = Math.Max(1, (bottomY - topY - statusRows + 1) / stepY);
+            int totalRows = (displayEntries.Count + perRow - 1) / perRow;
+            int maxFirstRow = Math.Max(0, totalRows - visibleRows);
+            LastGridMaxFirstRow = maxFirstRow;
+            int firstRow = Math.Clamp(itemScrollOffset, 0, maxFirstRow);
+
+            int firstIndex = firstRow * perRow;
+            var selected = ResolveDetailViewSelection(displayEntries, selectedInventoryIndex, firstIndex);
+            bool haveArt = ItemArtAtlas.IsAvailable;
+
+            int lastExclusive = Math.Min(displayEntries.Count, (firstRow + visibleRows) * perRow);
+            for (int displayIndex = firstIndex; displayIndex < lastExclusive; displayIndex++)
+            {
+                int slot = displayIndex - firstIndex;
+                int tx = gridX + (slot % perRow) * stepX;
+                int ty = topY + (slot / perRow) * stepY;
+                var entry = displayEntries[displayIndex];
+                var item = entry.Item;
+                bool isSelected = entry.InventoryIndex == selected.InventoryIndex;
+                bool blocked = ItemRendererHelper.IsEquipBlockedForCharacter(item, character);
+                bool beingDragged = InventoryDragState.IsActive && InventoryDragState.SourceInventoryIndex == entry.InventoryIndex;
+                Color frame = beingDragged
+                    ? AsciiArtAssets.Colors.DarkGray
+                    : isSelected
+                    ? AsciiArtAssets.Colors.Gold
+                    : blocked ? AsciiArtAssets.Colors.Red : ItemThemeProvider.GetRarityColor(item.Rarity?.Trim() ?? "Common");
+
+                canvas.AddBox(tx, ty, tileCols, tileRows, frame, borderThicknessPixels: isSelected && !beingDragged ? 2 : 1);
+                if (beingDragged)
+                {
+                    // Left empty: the ghost under the pointer carries the icon.
+                }
+                else if (haveArt && ItemArtAtlas.TryGetIcon(item, out var bitmap, out var sourceRect))
+                    canvas.AddImage(tx, ty, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3);
+                else
+                    canvas.AddText(tx + 1, ty + tileRows / 2, TruncateTo(item.Name, tileCols - 2), frame);
+
+                canvas.AddText(tx, ty + tileRows, TruncateTo(entry.DisplayNumber.ToString(), tileCols),
+                    isSelected ? AsciiArtAssets.Colors.Gold : AsciiArtAssets.Colors.DarkGray);
+
+                if (!blockRowClicks)
+                {
+                    clickableElements.Add(InventoryButtonFactory.CreateButton(
+                        tx, ty, tileCols, tileRows,
+                        InventoryDetailViewState.SelectInputPrefix + entry.InventoryIndex,
+                        $"[{entry.DisplayNumber}] {item.Name}",
+                        Prefix + "inv:" + entry.InventoryIndex));
+                }
+            }
+            currentLineCount += visibleRows * stepY;
+
+            string status = totalRows > visibleRows
+                ? $"rows {firstRow + 1}-{Math.Min(totalRows, firstRow + visibleRows)} of {totalRows} ({displayEntries.Count} items)"
+                : $"{displayEntries.Count} items";
+            Color statusColor = totalRows > visibleRows ? AsciiArtAssets.Colors.Gray : AsciiArtAssets.Colors.DarkGray;
+            if (InventoryDragState.IsActive && InventoryDragState.FromSlot)
+            {
+                status = "Drop in the bag to unequip";
+                statusColor = AsciiArtAssets.Colors.Green;
+            }
+            canvas.AddText(gridX, bottomY - 1, TruncateTo(status, gridWidth), statusColor);
+            if (totalRows > visibleRows)
+                MenuMouseScrollHint.DrawRightAligned(canvas, gridX - 2, gridWidth + 4, bottomY - 1);
+            currentLineCount++;
+
+            int detailBottomY = ResolveDetailBottomY(x, separatorX, bottomY, detailExtendedBottomY);
+            for (int sepY = topY; sepY < detailBottomY; sepY++)
+                canvas.AddText(separatorX, sepY, "│", AsciiArtAssets.Colors.DarkGray);
+
+            if (selected.Item == null)
+                return;
+
+            int detailY = topY;
+            int bigRows = Math.Min(10, Math.Max(0, (bottomY - topY) / 3));
+            if (haveArt && bigRows >= 4 && ItemArtAtlas.TryGetIcon(selected.Item, out var bigBitmap, out var bigRect))
+            {
+                int bigCols = Math.Min(detailWidth, GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), bigRows));
+                canvas.AddImage(detailX, detailY, bigCols, bigRows, bigBitmap, bigRect, paddingPixels: 0);
+                detailY += bigRows + 1;
+            }
+            RenderDetailPane(detailX, detailY, detailWidth, detailBottomY, selected.Item, character, ref currentLineCount);
+            RenderDragGhost(x, width, topY, bottomY, tileCols, tileRows, haveArt);
+        }
+
+        /// <summary>Columns between the paper doll's arm slots and the body (drawn as <c>──</c>).</summary>
+        private const int PaperDollArmGap = 2;
+
+        /// <summary>Paper-doll slots: (equip slot key, empty label, column, row) on a 3-wide, 4-tall body.</summary>
+        private static readonly (string Slot, string Label, int Col, int Row)[] PaperDollSlots =
+        {
+            ("head", "Head", 1, 0),
+            ("weapon", "Weapon", 0, 1),
+            ("body", "Body", 1, 1),
+            ("charm", "Charm", 2, 1),
+            ("legs", "Legs", 1, 2),
+            ("feet", "Feet", 1, 3),
+        };
+
+        /// <summary>Last frame's paper doll and bag grid areas (grid cells) for drop hit-testing; empty when not drawn.</summary>
+        public static (int X, int Y, int Width, int Height) LastPaperDollBounds { get; private set; }
+        public static (int X, int Y, int Width, int Height) LastBagGridBounds { get; private set; }
+
+        public static bool BoundsContain((int X, int Y, int Width, int Height) bounds, int gridX, int gridY) =>
+            bounds.Width > 0 && gridX >= bounds.X && gridX < bounds.X + bounds.Width && gridY >= bounds.Y && gridY < bounds.Y + bounds.Height;
+
+        /// <summary>Slot tile height that fits a name row plus four stacked slots in <paramref name="availableRows"/>; 0 when none fits.</summary>
+        internal static int PaperDollTileRows(int availableRows)
+        {
+            for (int rows = GridTileRows; rows >= 3; rows--)
+            {
+                if (1 + 4 * rows + 3 <= availableRows)
+                    return rows;
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// Character figure of gear slots (head over body, weapon and charm as arms, legs, feet) joined by thin lines.
+        /// Filled slots show the item icon in its rarity frame and hover the left-panel gear tooltip; while a bag item is
+        /// dragged its slot lights green (red when requirements block it).
+        /// </summary>
+        private void RenderPaperDoll(int dollX, int topY, int tileRows, int tileCols, int dollWidth, Character character, bool blockClicks)
+        {
+            canvas.AddText(dollX, topY, TruncateTo(character.Name, dollWidth), AsciiArtAssets.Colors.Gold);
+            int dollTop = topY + 1;
+            int stepX = tileCols + PaperDollArmGap;
+            int stepY = tileRows + 1;
+            var line = AsciiArtAssets.Colors.DarkGray;
+
+            int spineX = dollX + stepX + tileCols / 2;
+            for (int row = 0; row < 3; row++)
+                canvas.AddText(spineX, dollTop + row * stepY + tileRows, "│", line);
+            int armY = dollTop + stepY + tileRows / 2;
+            canvas.AddText(dollX + tileCols, armY, new string('─', PaperDollArmGap), line);
+            canvas.AddText(dollX + stepX + tileCols, armY, new string('─', PaperDollArmGap), line);
+
+            string? dropSlot = InventoryDragState.IsActive && InventoryDragState.FromBag && InventoryDragState.Item != null
+                ? InventoryActionPoolEntries.GetEquipSlotForItem(InventoryDragState.Item)
+                : null;
+            bool haveArt = ItemArtAtlas.IsAvailable;
+
+            foreach (var (slot, label, col, row) in PaperDollSlots)
+            {
+                int tx = dollX + col * stepX;
+                int ty = dollTop + row * stepY;
+                var item = character.Equipment.GetSlotItem(slot);
+                bool beingDragged = InventoryDragState.IsActive && InventoryDragState.SourceSlot == slot;
+                bool isDropTarget = string.Equals(dropSlot, slot, StringComparison.Ordinal);
+                bool shown = item != null && !beingDragged;
+
+                Color frame;
+                if (isDropTarget)
+                    frame = ItemRendererHelper.IsEquipBlockedForCharacter(InventoryDragState.Item!, character)
+                        ? AsciiArtAssets.Colors.Red
+                        : AsciiArtAssets.Colors.Green;
+                else if (!shown)
+                    frame = AsciiArtAssets.Colors.DarkGray;
+                else
+                    frame = ItemRendererHelper.IsEquipBlockedForCharacter(item!, character)
+                        ? AsciiArtAssets.Colors.Red
+                        : ItemThemeProvider.GetRarityColor(item!.Rarity?.Trim() ?? "Common");
+
+                canvas.AddBox(tx, ty, tileCols, tileRows, frame, borderThicknessPixels: isDropTarget ? 2 : 1);
+                if (shown && haveArt && ItemArtAtlas.TryGetIcon(item!, out var bitmap, out var sourceRect))
+                    canvas.AddImage(tx, ty, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3);
+                else
+                {
+                    string text = TruncateTo(shown ? item!.Name : label, tileCols - 2);
+                    canvas.AddText(tx + Math.Max(1, (tileCols - text.Length) / 2), ty + tileRows / 2, text, shown ? frame : AsciiArtAssets.Colors.DarkGray);
+                }
+
+                if (!blockClicks)
+                {
+                    clickableElements.Add(InventoryButtonFactory.CreateButton(
+                        tx, ty, tileCols, tileRows,
+                        InventoryDetailViewState.SlotInputPrefix + slot,
+                        item != null ? $"{label}: {item.Name}" : $"{label}: empty",
+                        item != null ? Prefix + "gear:" + slot : null));
+                }
+            }
+        }
+
+        /// <summary>
+        /// The dragged item's icon just below-right of the pointer (so the green/red drop slot under the pointer stays visible),
+        /// kept inside the center panel.
+        /// </summary>
+        private void RenderDragGhost(int x, int width, int topY, int bottomY, int tileCols, int tileRows, bool haveArt)
+        {
+            var item = InventoryDragState.Item;
+            if (!InventoryDragState.IsActive || item == null)
+                return;
+
+            int gx = Math.Clamp(InventoryDragState.PointerX + 1, x + 1, Math.Max(x + 1, x + width - 1 - tileCols));
+            int gy = Math.Clamp(InventoryDragState.PointerY + 1, topY, Math.Max(topY, bottomY - tileRows));
+            canvas.AddBox(gx, gy, tileCols, tileRows, AsciiArtAssets.Colors.Gold, AsciiArtAssets.Colors.Black, borderThicknessPixels: 2);
+            if (haveArt && ItemArtAtlas.TryGetIcon(item, out var bitmap, out var sourceRect))
+                canvas.AddImage(gx, gy, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3);
+            else
+                canvas.AddText(gx + 1, gy + tileRows / 2, TruncateTo(item.Name, tileCols - 2), AsciiArtAssets.Colors.Gold);
+        }
+
+        private static string TruncateTo(string? text, int max)
+        {
+            string s = text ?? "";
+            if (max <= 0)
+                return "";
+            return s.Length <= max ? s : s.Substring(0, max);
+        }
+
+        /// <summary>Selected entry when it is still listed; otherwise the first visible row.</summary>
+        internal static InventoryDisplayEntry ResolveDetailViewSelection(List<InventoryDisplayEntry> displayEntries, int selectedInventoryIndex, int firstVisibleIndex)
+        {
+            foreach (var entry in displayEntries)
+            {
+                if (entry.InventoryIndex == selectedInventoryIndex)
+                    return entry;
+            }
+
+            if (displayEntries.Count == 0)
+                return default;
+            return displayEntries[Math.Clamp(firstVisibleIndex, 0, displayEntries.Count - 1)];
+        }
+
+        /// <summary>Cuts names longer than <see cref="InventoryDetailViewState.ListNameMaxChars"/> and appends "...".</summary>
+        internal static string TruncateDetailViewListName(string? name)
+        {
+            string full = name ?? "";
+            int max = InventoryDetailViewState.ListNameMaxChars;
+            return full.Length <= max ? full : full.Substring(0, max).TrimEnd() + "...";
+        }
+
+        internal static List<ColoredText> BuildDetailViewListRowSegments(InventoryDisplayEntry entry, Character character, bool isSelected)
+        {
+            var item = entry.Item;
+            bool blocked = ItemRendererHelper.IsEquipBlockedForCharacter(item, character);
+            Color nameColor = blocked ? AsciiArtAssets.Colors.Red : ItemThemeProvider.GetRarityColor(item.Rarity?.Trim() ?? "Common");
+
+            var builder = new ColoredTextBuilder();
+            builder.Add(isSelected ? "> " : "  ", AsciiArtAssets.Colors.Gold);
+            builder.Add($"[{entry.DisplayNumber}] ", isSelected ? AsciiArtAssets.Colors.White : AsciiArtAssets.Colors.Gray);
+            builder.Add(TruncateDetailViewListName(item.Name), nameColor);
+            return builder.Build();
+        }
+
+        /// <summary>Right-hand description: full name, actions, stats, mods, requirement and trade-up lock notes.</summary>
+        private void RenderDetailPane(int x, int y, int width, int bottomY, Item item, Character character, ref int currentLineCount)
+        {
+            int written = textWriter.WriteLineColoredWrapped(ItemRendererHelper.BuildItemNameSegments(-1, item, character), x, y, width);
+            y += written + 1;
+            currentLineCount += written + 1;
+
+            var itemActions = character.Equipment.GetGearActions(item);
+            if (itemActions != null && itemActions.Count > 0 && y < bottomY)
+            {
+                var actionsBuilder = new ColoredTextBuilder();
+                actionsBuilder.Add("Actions: ", ColorPalette.Cyan.GetColor());
+                actionsBuilder.Add(string.Join(", ", itemActions), AsciiArtAssets.Colors.White);
+                written = textWriter.WriteLineColoredWrapped(actionsBuilder.Build(), x, y, width);
+                y += written;
+                currentLineCount += written;
+            }
+
+            var itemStats = ItemStatFormatter.GetItemStats(item, character);
+            int statsBudget = Math.Max(0, bottomY - y);
+            if (statsBudget > 0 && itemStats.Count > 0)
+            {
+                var cappedStats = itemStats.Count > statsBudget ? itemStats.GetRange(0, statsBudget) : itemStats;
+                ItemRendererHelper.RenderItemStats(textWriter, canvas, x, y, cappedStats, ref y, ref currentLineCount, useColoredText: true,
+                    displayedItem: item, weaponSpeedBaseline: character.Weapon as WeaponItem,
+                    armorComparisonBaseline: ItemRendererHelper.GetArmorComparisonBaseline(character, item),
+                    characterForEquipRequirements: character);
+            }
+
+            if (item.Modifications.Count > 0 && y < bottomY)
+            {
+                written = textWriter.WriteLineColoredWrapped(
+                    ItemComparisonRenderer.BuildModsLineSegments(item.Modifications, ColorPalette.Cyan.GetColor(), AsciiArtAssets.Colors.White),
+                    x, y, width);
+                y += written;
+                currentLineCount += written;
+            }
+
+            if (!item.MeetsRequirements(character) && y + 1 < bottomY)
+            {
+                y++;
+                string reason = item.GetEquipBlockedReason(character) ?? "Attribute requirements not met.";
+                written = textWriter.WriteLineColoredWrapped(new List<ColoredText> { new ColoredText(reason, AsciiArtAssets.Colors.Red) }, x, y, width);
+                y += written;
+                currentLineCount += written;
+            }
+
+            if (item.ExcludeFromTradeUp && y + 1 < bottomY)
+            {
+                y++;
+                canvas.AddText(x, y, "Locked: not used in trade-ups", AsciiArtAssets.Colors.Gray);
+                y++;
+                currentLineCount++;
+            }
+
+            RenderEquippedComparison(x, y + 1, width, bottomY, item, character, ref currentLineCount);
+        }
+
+        /// <summary>
+        /// Below the selected item: one table of stat totals (this item, the piece worn in its slot, and the change from
+        /// swapping), then the actions the swap would gain and lose.
+        /// </summary>
+        private void RenderEquippedComparison(int x, int y, int width, int bottomY, Item selectedItem, Character character, ref int currentLineCount)
+        {
+            string? slot = InventoryActionPoolEntries.GetEquipSlotForItem(selectedItem);
+            if (slot == null || y + 1 >= bottomY)
+                return;
+
+            var equipped = character.Equipment.GetSlotItem(slot);
+            if (ReferenceEquals(equipped, selectedItem))
+                return;
+
+            string rule = "── vs Equipped ";
+            canvas.AddText(x, y, TruncateTo(rule + new string('─', Math.Max(0, width - rule.Length)), width), AsciiArtAssets.Colors.DarkGray);
+            y++;
+            currentLineCount++;
+
+            if (equipped == null)
+            {
+                canvas.AddText(x, y, "(empty slot - everything here is a gain)", AsciiArtAssets.Colors.DarkGray);
+                currentLineCount++;
+                return;
+            }
+
+            int written = textWriter.WriteLineColoredWrapped(ItemRendererHelper.BuildItemNameSegments(-1, equipped, character), x, y, width);
+            y += written + 1;
+            currentLineCount += written + 1;
+
+            const int valueCol = 7;
+            int labelCol = Math.Max(8, width - valueCol * 3);
+            Color headerColor = AsciiArtAssets.Colors.Gray;
+            if (y < bottomY)
+            {
+                canvas.AddText(x + labelCol, y, "New".PadLeft(valueCol), headerColor);
+                canvas.AddText(x + labelCol + valueCol, y, "Worn".PadLeft(valueCol), headerColor);
+                canvas.AddText(x + labelCol + valueCol * 2, y, "Change".PadLeft(valueCol), headerColor);
+                y++;
+                currentLineCount++;
+            }
+
+            var rows = ItemComparisonTable.Build(
+                ItemStatFormatter.GetStatContributions(selectedItem, character),
+                ItemStatFormatter.GetStatContributions(equipped, character));
+            foreach (var row in rows)
+            {
+                if (y >= bottomY)
+                    return;
+                Color changeColor = row.Verdict switch
+                {
+                    ItemComparisonVerdict.Better => ColorPalette.Success.GetColor(),
+                    ItemComparisonVerdict.Worse => ColorPalette.Error.GetColor(),
+                    _ => AsciiArtAssets.Colors.DarkGray
+                };
+                canvas.AddText(x, y, TruncateTo(row.Label, labelCol - 1), ColorPalette.Info.GetColor());
+                canvas.AddText(x + labelCol, y, TruncateTo(row.NewText, valueCol).PadLeft(valueCol), AsciiArtAssets.Colors.White);
+                canvas.AddText(x + labelCol + valueCol, y, TruncateTo(row.WornText, valueCol).PadLeft(valueCol), AsciiArtAssets.Colors.Gray);
+                canvas.AddText(x + labelCol + valueCol * 2, y, TruncateTo(row.ChangeText, valueCol).PadLeft(valueCol), changeColor);
+                y++;
+                currentLineCount++;
+            }
+
+            var (gained, lost) = ItemComparisonTable.DiffActions(
+                character.Equipment.GetGearActions(selectedItem),
+                character.Equipment.GetGearActions(equipped));
+            y++;
+            if (gained.Count == 0 && lost.Count == 0)
+            {
+                if (y < bottomY)
+                {
+                    canvas.AddText(x, y, "Actions: same", AsciiArtAssets.Colors.DarkGray);
+                    currentLineCount += 2;
+                }
+                return;
+            }
+
+            if (gained.Count > 0 && y < bottomY)
+            {
+                var b = new ColoredTextBuilder();
+                b.Add("+ Gain: ", ColorPalette.Success.GetColor());
+                b.Add(string.Join(", ", gained), AsciiArtAssets.Colors.White);
+                written = textWriter.WriteLineColoredWrapped(b.Build(), x, y, width);
+                y += written;
+                currentLineCount += written + 1;
+            }
+
+            if (lost.Count > 0 && y < bottomY)
+            {
+                var b = new ColoredTextBuilder();
+                b.Add("- Lose: ", ColorPalette.Error.GetColor());
+                b.Add(string.Join(", ", lost), AsciiArtAssets.Colors.White);
+                written = textWriter.WriteLineColoredWrapped(b.Build(), x, y, width);
+                currentLineCount += written;
+            }
+        }
+
         public static string GetNumpadShortcutHint(int maxWidth)
         {
             if (maxWidth <= 0)
@@ -363,6 +971,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
             if (NumpadShortcutHint.Length <= maxWidth)
                 return NumpadShortcutHint;
+
+            const string compactMaterialHint = "+ sort | - reqs | * equip | / slot | M material";
+            if (compactMaterialHint.Length <= maxWidth)
+                return compactMaterialHint;
 
             const string compactHint = "+ sort | - reqs | * equip | / slot";
             if (compactHint.Length <= maxWidth)
@@ -379,7 +991,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             Character character,
             InventoryItemSortMode sortMode,
             bool hideRequirementBlockedItems,
-            string? inventoryEquipSlotFilter = null)
+            string? inventoryEquipSlotFilter = null,
+            string? inventoryMaterialFilter = null)
         {
             if (inventory == null)
                 return new List<InventoryDisplayEntry>();
@@ -394,6 +1007,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             {
                 entries = entries.Where(entry =>
                     string.Equals(InventoryActionPoolEntries.GetEquipSlotForItem(entry.Item), inventoryEquipSlotFilter, StringComparison.Ordinal));
+            }
+
+            if (!string.IsNullOrEmpty(inventoryMaterialFilter))
+            {
+                entries = entries.Where(entry =>
+                    string.Equals(entry.Item.Material?.Trim(), inventoryMaterialFilter, StringComparison.OrdinalIgnoreCase));
             }
 
             var orderedEntries = sortMode switch
@@ -428,7 +1047,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             Character character,
             InventoryItemSortMode sortMode,
             bool hideRequirementBlockedItems,
-            string? inventoryEquipSlotFilter)
+            string? inventoryEquipSlotFilter,
+            string? inventoryMaterialFilter = null)
         {
             Color dim = AsciiArtAssets.Colors.DarkGray;
             Color appliedHighlight = ColorPalette.Lime.GetColor();
@@ -471,6 +1091,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 new ColoredText($"Filter: {filterLabel}{hiddenText} (-)", filterApplied ? appliedHighlight : dim),
                 new ColoredText(" | ", dim),
                 new ColoredText($"Bag slot: {slotSummary} (/)", bagClauseColor),
+                new ColoredText(" | ", dim),
+                new ColoredText(
+                    $"Material: {(string.IsNullOrEmpty(inventoryMaterialFilter) ? "all" : inventoryMaterialFilter + " only")} (M)",
+                    string.IsNullOrEmpty(inventoryMaterialFilter) ? dim : appliedHighlight),
             };
         }
 

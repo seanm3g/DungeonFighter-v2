@@ -351,7 +351,20 @@ namespace RPGGame
                 BurnIntensity = Math.Max(0, BurnIntensity - 1) + pending;
             else
                 BurnIntensity = Math.Max(0, damage - 1);
-            return damage;
+            return ScaleDotTickDamage(damage);
+        }
+
+        /// <summary>
+        /// Burn / bleed tick damage × (1 + level × <see cref="CombatConfig.DotDamagePerLevel"/>), level = this actor's
+        /// (the target's). Stacks are flat integers, so without it a 1-stack bleed did 1 damage at L60. 0 = legacy.
+        /// </summary>
+        protected int ScaleDotTickDamage(int damage)
+        {
+            double k = GameConfiguration.Instance.Combat?.DotDamagePerLevel ?? 0;
+            if (k <= 0 || damage <= 0)
+                return damage;
+            int level = this is Character c ? Math.Max(1, c.Level) : 1;
+            return (int)Math.Round(damage * (1.0 + level * k));
         }
 
         /// <summary>
@@ -394,7 +407,7 @@ namespace RPGGame
                 BleedIntensity = Math.Max(0, BleedIntensity - 1) + pending;
             else
                 BleedIntensity = Math.Max(0, damage - 1);
-            return damage;
+            return ScaleDotTickDamage(damage);
         }
 
         /// <summary>Label for poison DoT messaging (bleed uses a separate pipeline).</summary>

@@ -50,6 +50,40 @@ namespace RPGGame.UI.Avalonia.Canvas
     }
 
     /// <summary>
+    /// A bitmap region (e.g. one item icon on an atlas sheet) drawn square and centered inside a grid-cell rectangle.
+    /// Drawn after non-overlay boxes and before text, so hover tips (overlay boxes) still cover it.
+    /// </summary>
+    public class CanvasImage
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public global::Avalonia.Media.IImage Source { get; set; } = null!;
+        /// <summary>Pixel rectangle on <see cref="Source"/>.</summary>
+        public global::Avalonia.Rect SourceRect { get; set; }
+        /// <summary>Device pixels kept clear inside the cell rectangle on every side.</summary>
+        public double PaddingPixels { get; set; } = 2;
+    }
+
+    /// <summary>
+    /// A full picture (the combat room's environment plate) scaled to cover a grid-cell rectangle, cropped to it and
+    /// darkened by <see cref="Dim"/>. Drawn over non-overlay box fills, under everything else.
+    /// </summary>
+    public class CanvasBackdrop
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public global::Avalonia.Media.Imaging.Bitmap Source { get; set; } = null!;
+        /// <summary>0 = picture as rendered, 1 = black.</summary>
+        public double Dim { get; set; }
+        /// <summary>Device pixels kept clear inside the rectangle so the panel border stays visible.</summary>
+        public double InsetPixels { get; set; } = 2;
+    }
+
+    /// <summary>
     /// One colored strip inside the health bar damage-delta overlay (DoT chunk or fallback single color).
     /// </summary>
     public class HealthBarDamageDeltaSegment

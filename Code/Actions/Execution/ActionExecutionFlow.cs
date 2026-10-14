@@ -27,6 +27,9 @@ namespace RPGGame.Actions.Execution
         [ThreadStatic]
         private static int RetriggerDepth;
 
+        /// <summary>True while a retrigger (encore) swing resolves on this thread.</summary>
+        internal static bool IsResolvingRetrigger => RetriggerDepth > 0;
+
         internal static void NotifyOneShotKillOccurred() => OneShotKillOccurred?.Invoke();
 
         private static List<ActionAttackBonusItem> CloneActionAttackBonusItems(List<ActionAttackBonusItem>? src)
@@ -155,11 +158,11 @@ namespace RPGGame.Actions.Execution
 
             var result = new ActionExecutionResult();
             if (source is Character heroTurn && heroTurn is not Enemy && RetriggerDepth == 0)
-                MaterialSetController.NotifyHeroTurnStart(heroTurn, result.StatusEffectMessages);
+                { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); MaterialSetController.NotifyHeroTurnStart(heroTurn, result.StatusEffectMessages); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.TurnStart", pf); }
             if (source is Character tempDecayCharacter)
-                tempDecayCharacter.UpdateTempEffects(Character.DEFAULT_ACTION_LENGTH);
-            ApplyPreRollBonuses(source);
-            SelectActionAndResolveRoll(source, target, result, lastUsedActions, lastCriticalMissStatus, forcedAction);
+                { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); tempDecayCharacter.UpdateTempEffects(Character.DEFAULT_ACTION_LENGTH); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.UpdateTempEffects", pf); }
+            { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); ApplyPreRollBonuses(source); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.PreRoll", pf); }
+            { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); SelectActionAndResolveRoll(source, target, result, lastUsedActions, lastCriticalMissStatus, forcedAction); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.SelectAndRoll", pf); }
             if (result.SelectedAction == null)
             {
                 if (sw != null)
@@ -178,7 +181,7 @@ namespace RPGGame.Actions.Execution
                 result.EffectiveTarget = combatTarget;
             }
 
-            TriggerThresholdBarFeedback(source, result);
+            { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); TriggerThresholdBarFeedback(source, result); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.ThresholdFeedback", pf); }
 
             Character? heroForStripFeedback = null;
             int? stripIndexForFeedback = null;
@@ -191,9 +194,9 @@ namespace RPGGame.Actions.Execution
             }
 
             if (result.Hit)
-                ApplyHitOutcome(source, combatTarget, result, battleNarrative);
+                { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); ApplyHitOutcome(source, combatTarget, result, battleNarrative); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.HitOutcome", pf); }
             else
-                ApplyMissOutcome(source, combatTarget, result, battleNarrative);
+                { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); ApplyMissOutcome(source, combatTarget, result, battleNarrative); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.MissOutcome", pf); }
 
             // Nested strip retrigger (max depth 1) — distinct from Multihit damage ticks.
             // Nested HP damage is applied inside the nested Execute; keep outer Damage as this swing only
@@ -239,7 +242,16 @@ namespace RPGGame.Actions.Execution
             // Redeemed DAMAGE/SPEED/MULTIHIT/AMP mods are applied during this swing only.
             // Clear them before the next strip paint so cards do not keep showing spent ACTION bonuses.
             if (source is Character clearConsumedAfterSwing)
+            {
+                // The swing's duration is set after this flow returns (ActionSpeedSystem), so keep its SPEED_MOD.
+                if (RetriggerDepth == 0)
+                {
+                    clearConsumedAfterSwing.Effects.LastSwingSpeedModPercent = clearConsumedAfterSwing.Effects.ConsumedSpeedModPercent;
+                    // A replaced swing that missed (no strip advance) must not carry its slot into the next swing.
+                    clearConsumedAfterSwing.ReplacedStripSlot = null;
+                }
                 clearConsumedAfterSwing.Effects.ClearConsumedModifierBonuses();
+            }
 
             if (stripIndexForFeedback.HasValue && heroForStripFeedback != null)
             {

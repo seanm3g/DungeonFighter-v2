@@ -76,6 +76,8 @@ namespace RPGGame
                 EnsureMaterial(item, rarityName, context);
                 MaterialTriggerMerge.ClearCatalogTriggerStamp(item);
                 MaterialTriggerMerge.RemapLegacyMaterialOnItem(item);
+                if (GameConfiguration.Instance?.LootSystem?.MaterialPieceTriggers == true)
+                    MaterialTriggerMerge.ApplyMaterialTrigger(item, _random);
                 SyncMaterialPrefixTags(item);
 
                 item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);

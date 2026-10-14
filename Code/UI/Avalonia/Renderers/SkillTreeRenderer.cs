@@ -262,7 +262,29 @@ namespace RPGGame.UI.Avalonia.Renderers
             int spent = player.Progression.GetSpentSkillPoints(primary.Value);
             int available = player.Progression.GetAvailableSkillPoints(primary.Value);
 
-            canvas.AddText(left, currentY++, tree.Title, AsciiArtAssets.Colors.White);
+            canvas.AddText(left, currentY, tree.Title, AsciiArtAssets.Colors.White);
+            var viewable = SkillTreeService.GetViewablePaths(player.Progression);
+            if (viewable.Count > 1)
+            {
+                string others = string.Join("/", viewable.Where(p => p != primary.Value));
+                string switchText = $"[T] Switch tree → {others}";
+                int switchX = left + tree.Title.Length + 3;
+                if (switchX + switchText.Length <= left + contentWidth)
+                {
+                    clickableElements.Add(new ClickableElement
+                    {
+                        X = switchX,
+                        Y = currentY,
+                        Width = switchText.Length,
+                        Height = 1,
+                        Type = ElementType.Button,
+                        Value = "t",
+                        DisplayText = switchText
+                    });
+                    canvas.AddText(switchX, currentY, switchText, AsciiArtAssets.Colors.Gold);
+                }
+            }
+            currentY++;
             if (model.HasRail && model.SecondaryPath != null)
             {
                 int secLife = player.Progression.GetClassPoints(model.SecondaryPath.Value);
@@ -336,7 +358,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             detailY = DrawDetail(player, model, selectedIndex, left, detailY, contentWidth, statusMessage, detailMax);
             if (detailY < detailMax)
             {
-                canvas.AddText(left, detailY, "Arrows=move  L=Learn  Click=select  0=Back", AsciiArtAssets.Colors.Gray);
+                canvas.AddText(left, detailY, "Arrows=move  L=Learn  T=Switch tree  Click=select  0=Back", AsciiArtAssets.Colors.Gray);
                 detailY++;
             }
             if (detailY < y + height)

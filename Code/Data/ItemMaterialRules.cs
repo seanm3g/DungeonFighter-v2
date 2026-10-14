@@ -93,15 +93,10 @@ namespace RPGGame
             return pool[random.Next(pool.Count)].Name.Trim();
         }
 
-        /// <summary>Legacy saves/sheets used Damascus as the rare Mace material; MATERIAL BUILDS uses Iron.</summary>
+        /// <summary>
+        /// Normalizes material names for combat/display: title case, Damascus→Iron, MITHIRL→Mithril.
+        /// </summary>
         public static string RemapLegacyMaterial(string? material)
-        {
-            string t = (material ?? "").Trim();
-            if (t.Equals("Damascus", StringComparison.OrdinalIgnoreCase))
-                return "Iron";
-            if (t.Equals("MITHIRL", StringComparison.OrdinalIgnoreCase))
-                return "Mithril";
-            return t;
-        }
+            => Data.MaterialBuildData.CanonicalMaterialName(material);
     }
 }

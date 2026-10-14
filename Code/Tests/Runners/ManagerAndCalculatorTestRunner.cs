@@ -60,9 +60,6 @@ namespace RPGGame.Tests.Runners
                 TechniqueMilestoneThresholdBonusesTests.RunAllTests();
                 Console.WriteLine();
 
-                NaiveteThresholdBonusesTests.RunAllTests();
-                Console.WriteLine();
-
                 // Run UI builder tests
                 Console.WriteLine("\n[UI BUILDER TESTS]");
                 Console.WriteLine($"{GameConstants.StandardSeparator}\n");

@@ -262,7 +262,7 @@ namespace RPGGame.Tests.Unit.Config
 
             var rule = ItemAffixByRaritySettings.BuildRuleFromTuningEntry(entry!, null);
             TestBase.AssertEqual(1, rule.PrefixMin, "prefix min", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(3, rule.PrefixMax, "prefix max", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, rule.PrefixMax, "prefix max (prefixSlotsMax 3 clamps to the 2-prefix cap)", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0.25, rule.PrefixExtraChance, "prefix chance", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(4, rule.StatMax, "stat max", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(2, rule.ActionMax, "action max", ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -317,7 +317,7 @@ namespace RPGGame.Tests.Unit.Config
                 PrefixSlotsMax = 4
             };
             var rule = ItemAffixByRaritySettings.BuildRuleFromTuningEntry(entry, null);
-            TestBase.AssertEqual(3, rule.PrefixMax, "prefix max clamped to 3", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, rule.PrefixMax, "prefix max clamped to 2 (runtime prefix cap)", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         /// <summary>
@@ -424,7 +424,7 @@ namespace RPGGame.Tests.Unit.Config
             TestBase.AssertTrue(scratch.ContainsKey("Head") && scratch.ContainsKey("Chest"),
                 "scratch has Head and Chest", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            TestBase.AssertEqual(1, scratch["Head"]["Uncommon"].PrefixSlots,
+            TestBase.AssertEqual(2, scratch["Head"]["Uncommon"].PrefixSlots,
                 "Head Uncommon prefix from tuning", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1, scratch["Chest"]["Uncommon"].PrefixSlots,
                 "Chest Uncommon prefix differs from Head", ref _testsRun, ref _testsPassed, ref _testsFailed);

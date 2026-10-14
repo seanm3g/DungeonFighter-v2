@@ -20,7 +20,8 @@ namespace RPGGame.Tuning.Profiles
             ["STR"] = 0.36, ["AGI"] = 0.62, ["TEC"] = 1.15, ["INT"] = 1.15, ["ALL"] = 3.28,
             ["HIT"] = 6.8, ["COMBO"] = 7.4, ["CRIT"] = 7.5,
             ["Damage"] = 1.00, ["Armor"] = 3.0, ["Health"] = 0.5, ["HealthRegen"] = 8.6,
-            ["AttackSpeed"] = 2.7, ["MagicFind"] = 0.0,
+            // AttackSpeed is weapon speed points now (1 point = 10% speed); 2.7 was measured per 1% of base time, so ×10 until re-measured.
+            ["AttackSpeed"] = 27.0, ["MagicFind"] = 0.0,
         };
 
         /// <summary>Power points per armor point on armor pieces (same scale as the Armor suffix).</summary>

@@ -213,7 +213,7 @@
     "speed": "1.00",
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
-    "enemySTR": "5",
+    "heroSTR": "5",
     "tags": "common, class, barbarian"
   },
   {
@@ -227,7 +227,7 @@
     "speed": "1.00",
     "block": "0",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
-    "enemySTR": "1",
+    "heroSTR": "1",
     "tags": "common, class, barbarian"
   },
   {
@@ -241,7 +241,7 @@
     "speed": "1.00",
     "block": "0",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
-    "enemySTR": "1",
+    "heroSTR": "1",
     "tags": "common, class, barbarian"
   },
   {
@@ -255,7 +255,7 @@
     "speed": "1.00",
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
-    "enemyAGI": "5",
+    "heroAGI": "5",
     "tags": "common, class, warrior"
   },
   {
@@ -269,7 +269,7 @@
     "speed": "1.00",
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
-    "enemyAGI": "1",
+    "heroAGI": "1",
     "tags": "common, class, warrior"
   },
   {
@@ -283,7 +283,7 @@
     "speed": "1.00",
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
-    "enemyAGI": "1",
+    "heroAGI": "1",
     "tags": "common, class, warrior"
   },
   {
@@ -297,7 +297,7 @@
     "speed": "1.00",
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
-    "enemyTECH": "5",
+    "heroTECH": "5",
     "tags": "common, class, rogue"
   },
   {
@@ -311,7 +311,7 @@
     "speed": "1.00",
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
-    "enemyTECH": "1",
+    "heroTECH": "1",
     "tags": "common, class, rogue"
   },
   {
@@ -325,7 +325,7 @@
     "speed": "1.00",
     "block": "180",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
-    "enemyTECH": "1",
+    "heroTECH": "1",
     "tags": "common, class, rogue"
   },
   {
@@ -383,6 +383,7 @@
     "speed": "1.00",
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
+    "speedMod": "5",
     "tags": "swift"
   },
   {
@@ -395,6 +396,7 @@
     "speed": "1.00",
     "block": "0",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
+    "speedMod": "5",
     "tags": "swift"
   },
   {
@@ -407,6 +409,7 @@
     "speed": "1.00",
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
+    "speedMod": "1",
     "tags": "swift"
   },
   {
@@ -419,6 +422,7 @@
     "speed": "1.00",
     "block": "0",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
+    "speedMod": "0.5",
     "tags": "swift"
   },
   {
@@ -1273,7 +1277,7 @@
     "speed": "1.00",
     "block": "0",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
-    "enemySTR": "1",
+    "heroSTR": "1",
     "tags": "common, class, barbarian"
   },
   {
@@ -1300,7 +1304,7 @@
     "speed": "1.00",
     "block": "180",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
-    "enemyAGI": "3",
+    "heroAGI": "3",
     "tags": "common, class, warrior"
   },
   {
@@ -1327,7 +1331,7 @@
     "speed": "1.00",
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
-    "enemyTECH": "3",
+    "heroTECH": "3",
     "tags": "common, class, rogue"
   },
   {
@@ -1365,7 +1369,7 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "block": "0",
+    "block": "180",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
     "scaleFormula": "TRIUMPH",
@@ -1443,7 +1447,7 @@
   },
   {
     "action": "UMBRA",
-    "description": "\u002B5 damage per STREAK",
+    "description": "\u002B5 damage per SWING",
     "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
@@ -1452,7 +1456,7 @@
     "block": "180",
     "materialScale": "5",
     "keywordScale": "DAMAGE",
-    "scaleFormula": "STREAK",
+    "scaleFormula": "SWING",
     "tags": "shadow"
   },
   {

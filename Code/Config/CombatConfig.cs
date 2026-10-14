@@ -32,6 +32,46 @@ namespace RPGGame
         public double StrengthDamagePerPoint { get; set; }
         /// <summary>STR above this adds no more damage (mirrors AgilityMax).</summary>
         public int StrengthDamageMaxStat { get; set; } = 100;
+        /// <summary>
+        /// Material converts pay a percent of the hit instead of flat damage: each banked currency adds the action's
+        /// <c>materialScale</c> × this percent of the hit (e.g. materialScale 5 × 1.0 = +5% per currency). 0 = legacy flat
+        /// +materialScale damage per currency, which falls behind as hit damage grows with level.
+        /// </summary>
+        public double MaterialConvertPercentPerUnit { get; set; }
+        /// <summary>
+        /// Percent mode only: % of the hit per banked unit, by currency (RAGE, CRISIS, CONTACT …). Overrides the action's
+        /// materialScale × <see cref="MaterialConvertPercentPerUnit"/>, because mint rates differ by orders of magnitude
+        /// (CONTACT mints every connect, TROPHY once per kill).
+        /// </summary>
+        public Dictionary<string, double> MaterialConvertPercentByKeyword { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Most banked currency a convert counts (0 = no cap). The convert still spends the whole bank.</summary>
+        public int MaterialConvertMaxUnits { get; set; }
+        /// <summary>
+        /// Mint per trigger at 5 pieces = feed count × this (0 = legacy feed × feed, i.e. 25 at 5 pieces).
+        /// </summary>
+        public int MaterialFiveStackMintMultiplier { get; set; }
+
+        /// <summary>
+        /// Overflow: a hero whose swing would be faster than <see cref="MinimumAttackTime"/> turns the excess into damage,
+        /// damage × (1 + this × (minimum / raw time − 1)). 0 = off (speed past the floor is wasted).
+        /// </summary>
+        public double SpeedOverflowDamageEfficiency { get; set; }
+        /// <summary>
+        /// Hero damage on retrigger (encore) swings, which re-resolve late strip slots at their full AMP. 0 or less = 1.0 (legacy).
+        /// </summary>
+        public double RetriggerDamageMultiplier { get; set; }
+        public double GetRetriggerDamageMultiplier() => RetriggerDamageMultiplier > 0 ? RetriggerDamageMultiplier : 1.0;
+        /// <summary>Overflow: each hero AGI above <see cref="AgilityMax"/> makes the raw swing this much faster (0.01 = 1%). 0 = AGI stops at the max.</summary>
+        public double AgilityOverflowSpeedPerPoint { get; set; }
+        /// <summary>Overflow: hero STR above the STR damage cap still counts at this share (0.5 = half value). 0 = off.</summary>
+        public double StrengthOverflowEfficiency { get; set; }
+
+        /// <summary>
+        /// INT potency: hero AMP × (1 + INT × this), INT counted up to <see cref="StrengthDamageMaxStat"/> (overflow at
+        /// <see cref="StrengthOverflowEfficiency"/>). 0 = off (legacy: INT only gates strip slots, so points between
+        /// thresholds did nothing).
+        /// </summary>
+        public double IntelligenceAmpPerPoint { get; set; }
         public double ArmorReductionFactor { get; set; } = 100.0;
         public double WeaponAttackTimeClampMin { get; set; } = 0.5;
         public double WeaponAttackTimeClampMax { get; set; } = 1.5;
@@ -108,6 +148,12 @@ namespace RPGGame
         /// </summary>
         public double WeaponSpeedSpread { get; set; } = 1.0;
         /// <summary>
+        /// Each weapon speed point (weapon tier bonus, gear <c>AttackSpeed</c>, WEAPON_SPEED actions) is this many % speed:
+        /// weapon time ÷ (1 + points × this / 100). 0 or less = 10.
+        /// </summary>
+        public double WeaponSpeedPercentPerPoint { get; set; } = 10.0;
+        public double GetWeaponSpeedPercentPerPoint() => WeaponSpeedPercentPerPoint > 0 ? WeaponSpeedPercentPerPoint : 10.0;
+        /// <summary>
         /// Cap on the elegant (+) / dilapidated (−) room roll shift. Legacy (0) shifts every hero roll by the hero's level,
         /// which makes dilapidated rooms an automatic loss and elegant rooms an automatic win from about level 10.
         /// </summary>
@@ -128,6 +174,15 @@ namespace RPGGame
         public double StatusHardenDefensePerStack { get; set; } = 0.15;
         /// <summary>Defense removed per Expose stack, as a fraction of K; may go below zero (then the holder takes extra damage).</summary>
         public double StatusExposeDefensePerStack { get; set; } = 0.15;
+        /// <summary>
+        /// Defense per active Fortify stack, in units of the DR constant K (same scale as Harden). 0 = legacy: Fortify only
+        /// adds its flat FortifyArmorPerStack (1 armor against K 275), and skill-granted Fortify (Crest of Triumph, Second Wind,
+        /// Mobile Bulwark, Field Brief) added no defense at all.
+        /// </summary>
+        public double StatusFortifyDefensePerStack { get; set; }
+
+        /// <summary>Burn / bleed tick damage × (1 + target level × this). 0 = legacy flat stacks (1 stack = 1 damage at any level).</summary>
+        public double DotDamagePerLevel { get; set; }
         /// <summary>Most stacks of one Focus/Vulnerability/Harden/Expose status that count (0 = no cap).</summary>
         public int StatusMaxStacks { get; set; } = 3;
     }

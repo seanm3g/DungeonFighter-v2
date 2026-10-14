@@ -98,8 +98,8 @@ namespace RPGGame
                     var battleNarrative = stateManager.GetCurrentBattleNarrative();
                     if (textDisplayed && actionText != null && rollInfo != null)
                     {
-                        battleNarrative?.GetTriggeredNarrativesIfSignificant();
-                        await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, null, player);
+                        { long profN = RPGGame.Diagnostics.ToolProfiler.Start(); battleNarrative?.GetTriggeredNarrativesIfSignificant(); RPGGame.Diagnostics.ToolProfiler.Stop("Turn.Narrative", profN); }
+                        { long profD = RPGGame.Diagnostics.ToolProfiler.Start(); await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, null, player); RPGGame.Diagnostics.ToolProfiler.Stop("Turn.Display", profD); }
                     }
                 
                     // Update enemy's action timing in the action speed system
@@ -137,7 +137,7 @@ namespace RPGGame
             }
             
             // Process poison and burn damage after enemy's turn (bleed is per-actor on their own turn)
-            stateManager.ProcessDamageOverTimeEffects(player, currentEnemy);
+            { long profT = RPGGame.Diagnostics.ToolProfiler.Start(); stateManager.ProcessDamageOverTimeEffects(player, currentEnemy); RPGGame.Diagnostics.ToolProfiler.Stop("Turn.DoT", profT); }
             
             return true;
         }
@@ -270,8 +270,8 @@ namespace RPGGame
                 var battleNarrative = stateManager.GetCurrentBattleNarrative();
                 if (textDisplayed && actionText != null && rollInfo != null)
                 {
-                    battleNarrative?.GetTriggeredNarrativesIfSignificant();
-                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, null, player);
+                    { long profN = RPGGame.Diagnostics.ToolProfiler.Start(); battleNarrative?.GetTriggeredNarrativesIfSignificant(); RPGGame.Diagnostics.ToolProfiler.Stop("Turn.Narrative", profN); }
+                    { long profD = RPGGame.Diagnostics.ToolProfiler.Start(); await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, null, player); RPGGame.Diagnostics.ToolProfiler.Stop("Turn.Display", profD); }
                 }
                 
                 // End turn for statistics tracking

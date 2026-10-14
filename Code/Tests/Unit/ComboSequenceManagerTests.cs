@@ -416,13 +416,13 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character().WithName("MultipleDuplicateTest").Build();
             
             // Create three instances of the same action (simulating item with 3x same action)
-            var action1 = ActionLoader.GetAction("ARCANE ECHO");
-            var action2 = ActionLoader.GetAction("ARCANE ECHO");
-            var action3 = ActionLoader.GetAction("ARCANE ECHO");
+            var action1 = ActionLoader.GetAction("ECHO SPELL");
+            var action2 = ActionLoader.GetAction("ECHO SPELL");
+            var action3 = ActionLoader.GetAction("ECHO SPELL");
             
             if (action1 == null || action2 == null || action3 == null)
             {
-                TestBase.AssertTrue(false, "ARCANE ECHO action not found in ActionLoader", 
+                TestBase.AssertTrue(false, "ECHO SPELL action not found in ActionLoader", 
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 return;
             }
@@ -444,7 +444,7 @@ namespace RPGGame.Tests.Unit
             manager.AddToCombo(action3);
             
             var comboActions = manager.GetComboActions();
-            int arcaneEchoCount = comboActions.Count(a => a.Name == "ARCANE ECHO");
+            int arcaneEchoCount = comboActions.Count(a => a.Name == "ECHO SPELL");
             
             TestBase.AssertTrue(arcaneEchoCount >= 3,
                 $"Should allow 3 instances of same action in combo, got {arcaneEchoCount}",

@@ -124,6 +124,12 @@ namespace RPGGame.Entity.Services
                 foreach (string id in saveData.LearnedSkillNodeIds.Where(id => !string.IsNullOrWhiteSpace(id)))
                     character.Progression.LearnedSkillRanks[id.Trim()] = 1;
             }
+            // Nodes removed from SkillTrees.json: drop them (their points are already free, spend is summed per tree).
+            var skillTrees = GameConfiguration.Instance.SkillTrees;
+            if (skillTrees != null && skillTrees.Trees.Count > 0)
+                foreach (string id in character.Progression.LearnedSkillRanks.Keys.ToList())
+                    if (skillTrees.GetNode(id) == null)
+                        character.Progression.LearnedSkillRanks.Remove(id);
             character.Progression.EnsureSkillTreeRootsGranted();
             character.Effects.ComboStep = saveData.ComboStep;
             character.Effects.ComboBonus = saveData.ComboBonus;

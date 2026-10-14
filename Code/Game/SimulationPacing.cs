@@ -40,6 +40,9 @@ namespace RPGGame
             settings.CombatSpeed = 2.0;
         }
 
+        /// <summary>Tests only: clears the fast-mode latch (the other flags EnableFastMode sets are restored by the caller).</summary>
+        internal static void ResetFastModeLatchForTests() => Volatile.Write(ref _fastModeEnabled, 0);
+
         public static async Task DelayForCombatSpeedAsync(int delayMs)
         {
             if (ShouldSkipDelays)

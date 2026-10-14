@@ -32,31 +32,49 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Remaps legacy Damascus→Iron on the item and its Material prefix. Does not re-roll procs.
+        /// Remaps legacy material names (Damascus→Iron, MITHIRL→Mithril, IRON→Iron title case)
+        /// on the item and its Material prefix, then refreshes the composed display name when anything changed.
+        /// Does not re-roll procs.
         /// </summary>
         public static void RemapLegacyMaterialOnItem(Item item)
         {
             if (item == null)
                 return;
 
+            bool changed = false;
             string remapped = ItemMaterialRules.RemapLegacyMaterial(item.Material);
-            if (!string.IsNullOrWhiteSpace(remapped))
-                item.Material = remapped;
-
-            if (item.Modifications == null)
-                return;
-            foreach (var mod in item.Modifications)
+            if (!string.IsNullOrWhiteSpace(remapped)
+                && !string.Equals(remapped, item.Material, StringComparison.Ordinal))
             {
-                if (mod == null)
-                    continue;
-                if (mod.GetPrefixCategory() == ModificationPrefixCategory.Material
-                    && !string.IsNullOrWhiteSpace(mod.Name))
+                item.Material = remapped;
+                changed = true;
+            }
+            else if (!string.IsNullOrWhiteSpace(remapped))
+            {
+                item.Material = remapped;
+            }
+
+            if (item.Modifications != null)
+            {
+                foreach (var mod in item.Modifications)
                 {
-                    string next = ItemMaterialRules.RemapLegacyMaterial(mod.Name);
-                    if (!string.Equals(next, mod.Name, StringComparison.Ordinal))
-                        mod.Name = next;
+                    if (mod == null)
+                        continue;
+                    if (mod.GetPrefixCategory() == ModificationPrefixCategory.Material
+                        && !string.IsNullOrWhiteSpace(mod.Name))
+                    {
+                        string next = ItemMaterialRules.RemapLegacyMaterial(mod.Name);
+                        if (!string.Equals(next, mod.Name, StringComparison.Ordinal))
+                        {
+                            mod.Name = next;
+                            changed = true;
+                        }
+                    }
                 }
             }
+
+            if (changed)
+                item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
         }
 
         /// <summary>
@@ -75,6 +93,17 @@ namespace RPGGame
 
             if (string.IsNullOrWhiteSpace(item.Material))
                 item.Material = ItemMaterialRules.RemapLegacyMaterial(material);
+
+            // lootSystem.materialPieceTriggers: keep the piece's own material-pool proc, drop anything else.
+            if (GameConfiguration.Instance?.LootSystem?.MaterialPieceTriggers == true
+                && MaterialTriggerCatalog.TryGetPool(material, out var pool))
+            {
+                bool FromPool(ActionTriggerBundle? b) => b != null && !string.IsNullOrWhiteSpace(b.IdentityName)
+                    && pool.Any(d => string.Equals(d.TriggerName, b.IdentityName, StringComparison.OrdinalIgnoreCase));
+                item.TriggerBundles = (item.TriggerBundles ?? new List<ActionTriggerBundle>()).Where(FromPool).ToList();
+                item.EquipEffects = (item.EquipEffects ?? new List<ActionTriggerBundle>()).Where(FromPool).ToList();
+                return;
+            }
 
             // MATERIAL BUILDS owns combat triggers; drop catalog/pool stamps so they cannot fire.
             ClearCatalogTriggerStamp(item);

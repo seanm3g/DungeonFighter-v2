@@ -204,7 +204,7 @@ namespace RPGGame
                 for (int i = 0; i < player.ComboSequence.Count; i++)
                 {
                     var action = player.ComboSequence[i];
-                    UIManager.WriteMenuLine($"{i + 1}. {action.Name} (Length: {action.Length:F1})");
+                    UIManager.WriteMenuLine($"{i + 1}. {action.Name} ({player.GetTotalAttackSpeed() * action.Length:F1}s)");
                 }
             }
         }

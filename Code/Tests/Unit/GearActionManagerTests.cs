@@ -361,11 +361,11 @@ namespace RPGGame.Tests.Unit
             var weapon = new WeaponItem
             {
                 Name = "TestWeapon",
-                GearAction = "ARCANE ECHO",
+                GearAction = "ECHO SPELL",
                 WeaponType = WeaponType.Wand,
                 ActionBonuses = new List<ActionBonus>
                 {
-                    new ActionBonus { Name = "ARCANE ECHO" }
+                    new ActionBonus { Name = "ECHO SPELL" }
                 }
             };
 
@@ -373,20 +373,20 @@ namespace RPGGame.Tests.Unit
             manager.AddWeaponActions(character, weapon);
             var afterCount = character.ActionPool.Count;
 
-            // Should add 2 actions (both ARCANE ECHO instances)
+            // Should add 2 actions (both ECHO SPELL instances)
             TestBase.AssertTrue(afterCount >= beforeCount + 2,
-                $"Should add at least 2 actions for duplicate ARCANE ECHO (before: {beforeCount}, after: {afterCount})",
+                $"Should add at least 2 actions for duplicate ECHO SPELL (before: {beforeCount}, after: {afterCount})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Verify both instances are in the pool
-            var arcaneEchoCount = character.ActionPool.Count(a => a.action.Name == "ARCANE ECHO");
+            var arcaneEchoCount = character.ActionPool.Count(a => a.action.Name == "ECHO SPELL");
             TestBase.AssertTrue(arcaneEchoCount >= 2,
-                $"Should have at least 2 instances of ARCANE ECHO in action pool, got {arcaneEchoCount}",
+                $"Should have at least 2 instances of ECHO SPELL in action pool, got {arcaneEchoCount}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Verify they have different ComboOrder values
             var arcaneEchoActions = character.ActionPool
-                .Where(a => a.action.Name == "ARCANE ECHO")
+                .Where(a => a.action.Name == "ECHO SPELL")
                 .Select(a => a.action.ComboOrder)
                 .Distinct()
                 .ToList();

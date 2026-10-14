@@ -21,10 +21,28 @@ namespace RPGGame.Tests.Unit.UI
             EnsureTreesLoaded();
             MaterialBuildsLoader.Reload();
 
-            TestUnaffectedActionHasNoLines(ref run, ref passed, ref failed);
-            TestConvertScaleLineAndDamagePreview(ref run, ref passed, ref failed);
-            TestFirstBronzeAgeLineOnAffectedAction(ref run, ref passed, ref failed);
-            TestWhileEquippedTagAmpOnlyOnMatchingAction(ref run, ref passed, ref failed);
+            // Card math below is written for flat converts; pin the legacy material knobs whatever patch is active.
+            var combat = GameConfiguration.Instance.Combat;
+            double oldPct = combat.MaterialConvertPercentPerUnit;
+            int oldFive = combat.MaterialFiveStackMintMultiplier;
+            int oldMaxUnits = combat.MaterialConvertMaxUnits;
+            combat.MaterialConvertPercentPerUnit = 0;
+            combat.MaterialFiveStackMintMultiplier = 0;
+            combat.MaterialConvertMaxUnits = 0;
+            try
+            {
+                TestUnaffectedActionHasNoLines(ref run, ref passed, ref failed);
+                TestConvertScaleLineAndDamagePreview(ref run, ref passed, ref failed);
+                TestLoadedIronCullStripTracksCrisis(ref run, ref passed, ref failed);
+                TestFirstBronzeAgeLineOnAffectedAction(ref run, ref passed, ref failed);
+                TestWhileEquippedTagAmpOnlyOnMatchingAction(ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                combat.MaterialConvertPercentPerUnit = oldPct;
+                combat.MaterialFiveStackMintMultiplier = oldFive;
+                combat.MaterialConvertMaxUnits = oldMaxUnits;
+            }
 
             TestBase.PrintSummary("ActionCardExternalBonusCollector Tests", run, passed, failed);
         }
@@ -95,6 +113,66 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(dmgWithoutConvert + 20, dmgWithConvert,
                 "strip flat damage includes +20 convert add, not a 4× multiplier",
                 ref run, ref passed, ref failed);
+        }
+
+        /// <summary>
+        /// The shipped IRON CULL row (materialScale 5, keywordScale DAMAGE, scaleFormula CRISIS) must
+        /// raise the strip's flat damage as the CRISIS bank grows, including percent-of-hit converts.
+        /// </summary>
+        private static void TestLoadedIronCullStripTracksCrisis(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestLoadedIronCullStripTracksCrisis));
+            var combat = GameConfiguration.Instance.Combat;
+            double oldPct = combat.MaterialConvertPercentPerUnit;
+            var oldTable = combat.MaterialConvertPercentByKeyword;
+            combat.MaterialConvertPercentPerUnit = 1.0;
+            combat.MaterialConvertPercentByKeyword = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["CRISIS"] = 4.0
+            };
+            try
+            {
+                var hero = MakeBareHero("CullTrack");
+                var weapon = TestDataBuilders.Weapon().WithName("IronMace").WithWeaponType(WeaponType.Mace).WithBaseDamage(40).Build();
+                weapon.Material = "Iron";
+                hero.Equipment.Weapon = weapon;
+                hero.Equipment.Head = new HeadItem("Helm", 1, 1) { Material = "Iron" };
+
+                var cull = ActionLoader.GetAction("IRON CULL");
+                TestBase.AssertTrue(cull != null, "IRON CULL loads from Actions.json", ref run, ref passed, ref failed);
+                if (cull == null)
+                    return;
+                cull.IsComboAction = true;
+                AddCombo(hero, cull);
+
+                var panels = CombatActionStripBuilder.BuildPanelData(hero);
+                TestBase.AssertTrue(panels.Count >= 1, "strip panel for IRON CULL", ref run, ref passed, ref failed);
+                CombatActionStripBuilder.GetStripSwingDisplayValues(
+                    panels[0], hero, cull, ActionStripDamageLineMode.EffectiveWithComboAmp,
+                    out int atZero, out _, 0);
+                hero.Effects.AddMaterialKeyword("CRISIS", 5);
+                CombatActionStripBuilder.GetStripSwingDisplayValues(
+                    panels[0], hero, cull, ActionStripDamageLineMode.EffectiveWithComboAmp,
+                    out int atFive, out _, 0);
+                int bonusFive = (int)Math.Round(atZero * 5 * 4.0 / 100.0);
+                TestBase.AssertTrue(bonusFive > 0, "5 CRISIS at 4% of the swing is a visible add", ref run, ref passed, ref failed);
+                TestBase.AssertEqual(atZero + bonusFive, atFive,
+                    "IRON CULL card damage includes 4% of the swing per CRISIS", ref run, ref passed, ref failed);
+
+                hero.Effects.AddMaterialKeyword("CRISIS", 3);
+                CombatActionStripBuilder.GetStripSwingDisplayValues(
+                    panels[0], hero, cull, ActionStripDamageLineMode.EffectiveWithComboAmp,
+                    out int atEight, out _, 0);
+                int bonusEight = (int)Math.Round(atZero * 8 * 4.0 / 100.0);
+                TestBase.AssertEqual(atZero + bonusEight, atEight,
+                    "card damage keeps rising as CRISIS increases", ref run, ref passed, ref failed);
+                TestBase.AssertTrue(atEight > atFive, "8 CRISIS pays more than 5", ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                combat.MaterialConvertPercentPerUnit = oldPct;
+                combat.MaterialConvertPercentByKeyword = oldTable;
+            }
         }
 
         private static void TestFirstBronzeAgeLineOnAffectedAction(ref int run, ref int passed, ref int failed)
@@ -172,7 +250,7 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(matched.Any(l =>
                     l.Text.IndexOf("BludgeonChorus", StringComparison.OrdinalIgnoreCase) >= 0
                     && l.Text.Contains("+12%", StringComparison.Ordinal)),
-                "WHILE_EQUIPPED tag amp listed on matching action",
+                $"WHILE_EQUIPPED tag amp listed on matching action (lines: {string.Join(" | ", matched.Select(l => l.Text))})",
                 ref run, ref passed, ref failed);
             TestBase.AssertEqual(0, unmatched.Count,
                 "WHILE_EQUIPPED tag amp omitted on untagged action",

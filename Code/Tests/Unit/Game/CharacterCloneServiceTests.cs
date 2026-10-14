@@ -1,3 +1,4 @@
+using System.Linq;
 using System;
 using RPGGame.Entity.Services;
 using RPGGame.Tests;
@@ -60,9 +61,12 @@ namespace RPGGame.Tests.Unit.Game
             character.Equipment.Feet = new Item(ItemType.Feet, "Lost Boots", 1, 0);
             character.Progression.BarbarianPoints = 20;
             CharacterSerializer.RebuildCharacterActions(character);
-            bool restoredPreDeathSlot = character.RestoreComboFromActionNames(new[] { "PUNCH HARDER" });
+            // Any action the rebuilt pool actually has (class unlocks follow the sheet, so no hard-coded name).
+            string preDeathAction = character.ActionPool.Select(p => p.action.Name).FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)
+                && !string.Equals(n, GameConstants.TrainingGroundTutorialActionName, StringComparison.OrdinalIgnoreCase)) ?? "WARCRY";
+            bool restoredPreDeathSlot = character.RestoreComboFromActionNames(new[] { preDeathAction });
             TestBase.AssertTrue(restoredPreDeathSlot && character.GetComboActions().Exists(a =>
-                    string.Equals(a.Name, "PUNCH HARDER", StringComparison.OrdinalIgnoreCase)),
+                    string.Equals(a.Name, preDeathAction, StringComparison.OrdinalIgnoreCase)),
                 "Test setup should put a pre-death action in the combo",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
@@ -93,7 +97,7 @@ namespace RPGGame.Tests.Unit.Game
                 "Clone should reset action slots to the unarmed opener",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!character.GetComboActions().Exists(a =>
-                    string.Equals(a.Name, "PUNCH HARDER", StringComparison.OrdinalIgnoreCase)),
+                    string.Equals(a.Name, preDeathAction, StringComparison.OrdinalIgnoreCase)),
                 "Clone should not preserve pre-death action slots",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }

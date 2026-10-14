@@ -72,6 +72,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.dungeonExplorationRenderer = new DungeonExplorationRenderer(canvas, interactionManager);
             this.regionTravelRenderer = new RegionTravelRenderer(canvas, new Renderers.ColoredTextWriter(canvas), interactionManager.ClickableElements);
             this.skillTreeRenderer = new SkillTreeRenderer(canvas, interactionManager.ClickableElements);
+            canvas.BackdropProvider = ResolveDungeonBackdrop;
         }
 
         public void RenderDisplayBuffer(CanvasContext context)
@@ -160,6 +161,39 @@ namespace RPGGame.UI.Avalonia.Renderers
         private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false)
         {
             layoutCoordinator.RenderWithLayout(character, title, renderContent, context, enemy, dungeonName, roomName, clearCanvas, usePersistentChrome, inventoryComboRightPanel, registerActionLabEnemyLevelHover);
+        }
+
+        /// <summary>
+        /// From the moment a dungeon is chosen until the run ends, the center panel shows the current room's 50 ft
+        /// environment plate (the next room's before the first one is entered), switching as each room is entered.
+        /// </summary>
+        private Canvas.CanvasBackdrop? ResolveDungeonBackdrop()
+        {
+            var sm = gameStateManager;
+            var dungeon = sm?.CurrentDungeon;
+            if (sm == null || dungeon == null)
+                return null;
+            if (sm.CurrentState is not (RPGGame.GameState.Dungeon or RPGGame.GameState.Combat or RPGGame.GameState.DungeonCompletion or RPGGame.GameState.Death))
+                return null;
+
+            string? roomName = sm.CurrentRoom?.Name;
+            if (roomName == null && dungeon.Rooms.Count > 0)
+            {
+                int next = dungeon.TraversalState?.NextContentIndex ?? 0;
+                roomName = dungeon.Rooms[Math.Clamp(next, 0, dungeon.Rooms.Count - 1)].Name;
+            }
+            if (!RoomBackdropArt.TryGetBackdrop(roomName, out var bitmap))
+                return null;
+
+            return new Canvas.CanvasBackdrop
+            {
+                X = Avalonia.Layout.LayoutConstants.CENTER_PANEL_X,
+                Y = Avalonia.Layout.LayoutConstants.CENTER_PANEL_Y,
+                Width = Avalonia.Layout.LayoutConstants.CENTER_PANEL_WIDTH,
+                Height = Avalonia.Layout.LayoutConstants.CENTER_PANEL_HEIGHT,
+                Source = bitmap,
+                Dim = RoomBackdropArt.Dim
+            };
         }
 
         #endregion

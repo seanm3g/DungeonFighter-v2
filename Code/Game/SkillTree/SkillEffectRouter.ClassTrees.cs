@@ -47,7 +47,7 @@ namespace RPGGame
             ("UMBRA", "umbral_step", "SWING", ConvertRider.Expose, 0.34),
             ("HEADHUNT", "trophy_hunter", "TROPHY", ConvertRider.Damage, 3.0),
             ("WILLOW LASH", "willow_lash", "CHAIN", ConvertRider.Amp, 3.0),
-            ("REFRACT", "refraction", "LENS", ConvertRider.Focus, 0.5),
+            ("REFRACT", "refraction", "LENS", ConvertRider.Damage, 3.0),
             ("RESONATE", "resonance", "CONTACT", ConvertRider.Damage, 2.0)
         };
 
@@ -114,7 +114,7 @@ namespace RPGGame
             return power > 0 ? (int)Math.Floor(c.GetEffectiveTechnique() / 25.0 * power) : 0;
         }
 
-        /// <summary>Archmage: multiplier on INT's status-duration bonus (1 = unchanged).</summary>
+        /// <summary>Archmage: multiplier on INT's AMP potency and status-duration bonus (1 = unchanged).</summary>
         public static double ArchmageDurationMultiplier(Character? c) => 1.0 + SkillRanks.GetPower(c, "archmage");
 
         private void ApplyClassTreeOnHit(Character hero, CombatEvent evt)

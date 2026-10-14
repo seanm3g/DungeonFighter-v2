@@ -85,7 +85,7 @@ namespace RPGGame.ActionInteractionLab
 
             var report = new ActionLabEncounterSimulationReport();
             var wall = Stopwatch.StartNew();
-            ActionLoader.ReloadActions();
+            ActionLoader.ReloadActionsIfChanged();
             // Default dummy path still calls GetAllEnemyTypes from parallel workers; preload + lock in EnemyLoader avoids races.
             EnemyLoader.LoadEnemies();
 
@@ -267,6 +267,15 @@ namespace RPGGame.ActionInteractionLab
         /// </summary>
         public static bool UseNaturalComboRouting { get; set; }
 
+        /// <summary>Tools only (BUILDLAB long fights): enemy max HP × this at fight start. 1 = unchanged.</summary>
+        public static double EnemyHealthScale { get; set; } = 1.0;
+
+        /// <summary>Tools only (BUILDLAB long fights): hero base max HP × this at fight start. 1 = unchanged.</summary>
+        public static double PlayerHealthScale { get; set; } = 1.0;
+
+        /// <summary>Tools only (BUILDLAB --bank): material currency the hero starts each fight with (mid-dungeon banks such as TROPHY).</summary>
+        public static Dictionary<string, int> PlayerMaterialBankSeed { get; } = new(StringComparer.OrdinalIgnoreCase);
+
         public static async Task<EncounterMetrics> RunSingleEncounterAsync(LabCombatSnapshot snapshot, Random rng)
         {
             long profEncounter = RPGGame.Diagnostics.ToolProfiler.Start();
@@ -292,6 +301,18 @@ namespace RPGGame.ActionInteractionLab
                     Environment? room;
                     long profBuild = RPGGame.Diagnostics.ToolProfiler.Start();
                     (player, enemy, room) = BuildFightEntities(snapshot);
+                    if (Math.Abs(EnemyHealthScale - 1.0) > 0.0001 && enemy.MaxHealth > 0)
+                    {
+                        enemy.MaxHealth = Math.Max(1, (int)Math.Round(enemy.MaxHealth * EnemyHealthScale));
+                        enemy.CurrentHealth = enemy.MaxHealth;
+                    }
+                    foreach (var seed in PlayerMaterialBankSeed)
+                        player.Effects.AddMaterialKeyword(seed.Key, seed.Value);
+                    if (Math.Abs(PlayerHealthScale - 1.0) > 0.0001 && player.MaxHealth > 0)
+                    {
+                        player.MaxHealth = Math.Max(1, (int)Math.Round(player.MaxHealth * PlayerHealthScale));
+                        player.CurrentHealth = player.GetEffectiveMaxHealth();
+                    }
                     RPGGame.Diagnostics.ToolProfiler.Stop("Sim.BuildFightEntities", profBuild);
                     long profCm = RPGGame.Diagnostics.ToolProfiler.Start();
                     combatManager = new CombatManager();

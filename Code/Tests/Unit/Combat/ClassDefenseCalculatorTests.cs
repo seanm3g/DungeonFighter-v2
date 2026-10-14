@@ -60,8 +60,8 @@ namespace RPGGame.Tests.Unit.Combat
             swing.BlockPercent = 1.80;
             StandingBlock.ApplyFromAction(hero, swing);
             StandingBlock.ApplyFromAction(enemy, swing);
-            TestBase.AssertEqual(1.80, hero.StandingBlockPercent, "hero standing 180%", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(1.80, enemy.StandingBlockPercent, "enemy standing 180%", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(StandingBlock.ResolveAuthoredMultiplier(1.80), hero.StandingBlockPercent, "hero standing = defensive stance block", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(StandingBlock.ResolveAuthoredMultiplier(1.80), enemy.StandingBlockPercent, "enemy standing = defensive stance block", ref _run, ref _pass, ref _fail);
         }
 
         private static void TestUnnamedSwingSetsBaseDefense()
@@ -72,7 +72,7 @@ namespace RPGGame.Tests.Unit.Combat
             named.IsComboAction = true;
             named.BlockPercent = 1.80;
             StandingBlock.ApplyFromAction(hero, named);
-            TestBase.AssertEqual(1.80, hero.StandingBlockPercent, "named slam sets 180%", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(StandingBlock.ResolveAuthoredMultiplier(1.80), hero.StandingBlockPercent, "named slam sets defensive stance block", ref _run, ref _pass, ref _fail);
 
             var unnamed = TestDataBuilders.CreateMockAction("");
             unnamed.IsComboAction = false;
@@ -91,7 +91,7 @@ namespace RPGGame.Tests.Unit.Combat
             named.IsComboAction = true;
             named.BlockPercent = 1.80;
             StandingBlock.ApplyFromResolvedSwing(hero, named, hit: true);
-            TestBase.AssertEqual(1.80, hero.StandingBlockPercent, "named hit sets defensive", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(StandingBlock.ResolveAuthoredMultiplier(1.80), hero.StandingBlockPercent, "named hit sets defensive", ref _run, ref _pass, ref _fail);
             TestBase.AssertEqual("defensive", StandingBlock.GetStanceName(hero.StandingBlockPercent), "180% is defensive", ref _run, ref _pass, ref _fail);
 
             StandingBlock.ApplyFromResolvedSwing(hero, named, hit: false);
@@ -101,7 +101,7 @@ namespace RPGGame.Tests.Unit.Combat
             aggressive.IsComboAction = true;
             aggressive.BlockPercent = 0;
             StandingBlock.ApplyFromResolvedSwing(hero, aggressive, hit: true);
-            TestBase.AssertEqual(0.0, hero.StandingBlockPercent, "named hit sets aggressive", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(StandingBlock.ResolveAuthoredMultiplier(0), hero.StandingBlockPercent, "named hit sets aggressive", ref _run, ref _pass, ref _fail);
             TestBase.AssertEqual("result: aggressive stance", StandingBlock.FormatCardLine(aggressive.BlockPercent), "card line", ref _run, ref _pass, ref _fail);
             TestBase.AssertEqual("", StandingBlock.FormatCardLine(1.0), "neutral card line is blank", ref _run, ref _pass, ref _fail);
 
@@ -126,7 +126,7 @@ namespace RPGGame.Tests.Unit.Combat
             second.BlockPercent = 1.80;
             StandingBlock.ApplyFromAction(hero, first);
             StandingBlock.ApplyFromAction(hero, second);
-            TestBase.AssertEqual(1.80, hero.StandingBlockPercent, "second named overwrites first", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(StandingBlock.ResolveAuthoredMultiplier(1.80), hero.StandingBlockPercent, "second named overwrites first", ref _run, ref _pass, ref _fail);
         }
 
         private static void TestResetOpensAtOneHundred()

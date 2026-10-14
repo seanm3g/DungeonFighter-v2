@@ -151,7 +151,7 @@
   {
     "ItemRank": "Common",
     "prefixCategory": "MATERIAL",
-    "Name": "IRON",
+    "Name": "Iron",
     "Description": "Barbarian",
     "Effect": "STRENGTH",
     "attributeRequirements": {

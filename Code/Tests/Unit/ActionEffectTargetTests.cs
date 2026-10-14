@@ -293,6 +293,7 @@ namespace RPGGame.Tests.Unit
             var hero = TestDataBuilders.Character().WithName("Hero").Build();
 
             hero.CurrentHealth = 100;
+            int heroHpStart = hero.CurrentHealth; // clamped to the patch's level-1 max HP
 
             var enemy = TestDataBuilders.Enemy().WithName("Enemy").Build();
 
@@ -324,7 +325,7 @@ namespace RPGGame.Tests.Unit
 
             TestBase.AssertTrue(result.Hit, "Buff should hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            TestBase.AssertEqual(100, hero.CurrentHealth,
+            TestBase.AssertEqual(heroHpStart, hero.CurrentHealth,
 
                 "Buff with zero damage should not reduce attacker HP",
 
@@ -415,6 +416,7 @@ namespace RPGGame.Tests.Unit
 
             var hero = TestDataBuilders.Character().WithName("Hero").Build();
             hero.CurrentHealth = 100;
+            int heroHpStart = hero.CurrentHealth; // clamped to the patch's level-1 max HP
             var enemy = TestDataBuilders.Enemy().WithName("Enemy").WithHealth(200).Build();
             enemy.IsConfused = true;
             enemy.ConfusionTurns = 2;
@@ -441,7 +443,7 @@ namespace RPGGame.Tests.Unit
                 TestBase.AssertTrue(enemy.CurrentHealth < enemyHealthBefore,
                     "Confused enemy redirected to self should take damage",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(hero.CurrentHealth, 100,
+                TestBase.AssertEqual(heroHpStart, hero.CurrentHealth,
                     "Hero should be untouched when confused enemy hits self",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }

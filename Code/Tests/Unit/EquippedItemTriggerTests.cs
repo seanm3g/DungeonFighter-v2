@@ -51,10 +51,12 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(ItemTriggerIdentityCatalog.Count >= 106, "catalog at least wave-2 size", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(ItemTriggerIdentityCatalog.Identities.Count >= 106, "identity list length", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(TriggersLoader.TryGetByName("WoundMomentum", out _), "WoundMomentum present", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(TriggersLoader.TryGetByName("TortoiseSuffix", out var tortoise), "TortoiseSuffix present", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("ONMISS", tortoise.When, "Tortoise when", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(TriggersLoader.TryGetByName("ShellSetFrom", out var shellSet), "ShellSetFrom present", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(shellSet.IsEquipEffect, "ShellSetFrom equip", ref _run, ref _passed, ref _failed);
+            // Wave-2 suffix identities (TortoiseSuffix, ShellSetFrom) were replaced by the material-pool stamp
+            // (MaterialTriggerCatalog): the Tortoise proc lives on Stone as StoneTortoise.
+            bool hasTortoise = TriggersLoader.TryGetByName("StoneTortoise", out var tortoise);
+            TestBase.AssertTrue(hasTortoise, "StoneTortoise present", ref _run, ref _passed, ref _failed);
+            if (hasTortoise)
+                TestBase.AssertEqual("ONMISS", tortoise.When, "Tortoise when", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(TriggersLoader.TryGetByName("STR", out _) || TriggersLoader.TryGetByName("StrCleave", out var str),
                 "scaleFrom demo present", ref _run, ref _passed, ref _failed);
             if (TriggersLoader.TryGetByName("StrCleave", out var strCleave))
@@ -323,13 +325,11 @@ namespace RPGGame.Tests.Unit
                     ItemTriggerIdentityCatalog.ToBundle(ItemTriggerIdentityCatalog.Get(3))
                 }
             };
+            // Catalog trigger stamps are unused: combat procs come from MATERIAL BUILDS (ItemGenerator.ApplyCatalogTrigger(null…)).
             var item = ItemGenerator.GenerateWeaponItem(data);
-            TestBase.AssertEqual(1, item.TriggerBundles.Count, "copied bundle count", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("hero_next_action_amp", item.TriggerBundles[0].Mechanics,
-                "copied mechanics", ref _run, ref _passed, ref _failed);
-            item.TriggerBundles[0].Mechanics = "changed";
+            TestBase.AssertEqual(0, item.TriggerBundles.Count, "catalog bundles are not copied", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("hero_next_action_amp", data.TriggerBundles![0].Mechanics,
-                "deep clone", ref _run, ref _passed, ref _failed);
+                "catalog data left untouched", ref _run, ref _passed, ref _failed);
 
             var named = new WeaponData
             {
@@ -341,9 +341,7 @@ namespace RPGGame.Tests.Unit
                 TriggerName = ItemTriggerIdentityCatalog.Get(0).Name
             };
             var namedItem = ItemGenerator.GenerateWeaponItem(named);
-            TestBase.AssertEqual(1, namedItem.TriggerBundles.Count, "triggerName resolve count", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("hero_next_action_damage", namedItem.TriggerBundles[0].Mechanics,
-                "triggerName resolve mechanics", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, namedItem.TriggerBundles.Count, "catalog triggerName is not stamped", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestSwingSubjectTagFilterOnItemProc()

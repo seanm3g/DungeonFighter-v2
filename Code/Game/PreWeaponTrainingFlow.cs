@@ -51,7 +51,7 @@ namespace RPGGame
                 new TrainingGroundTutorialEvent(
                     TrainingGroundTutorialActor.Hero,
                     10,
-                    "You breathe, plant your feet, and drive PUNCH HARD into the target. A 10 is a clean hit: reliable, plain, and enough to move the fight forward."),
+                    "You breathe, plant your feet, and drive PUNCH into the target. A 10 is a clean hit: reliable, plain, and enough to move the fight forward."),
                 new TrainingGroundTutorialEvent(
                     TrainingGroundTutorialActor.Hero,
                     4,
@@ -67,7 +67,7 @@ namespace RPGGame
                 new TrainingGroundTutorialEvent(
                     TrainingGroundTutorialActor.Hero,
                     20,
-                    "You settle, see the final opening, and drive PUNCH HARD straight through it. The natural 20 is both combo and crit, breaking the dummy apart.")
+                    "You settle, see the final opening, and drive PUNCH straight through it. The natural 20 is both combo and crit, breaking the dummy apart.")
             });
     }
 }

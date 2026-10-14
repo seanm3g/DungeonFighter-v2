@@ -476,7 +476,6 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 var tm = RollModificationManager.GetThresholdManager();
                 tm.ResetThresholds(character);
                 TechniqueMilestoneThresholdBonuses.Apply(tm, character);
-                NaiveteThresholdBonuses.Apply(tm, character);
                 int hitMin = tm.GetHitThreshold(character);
                 int comboTh = tm.GetComboThreshold(character);
                 character.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>

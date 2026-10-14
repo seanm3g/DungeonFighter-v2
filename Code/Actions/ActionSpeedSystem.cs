@@ -146,6 +146,7 @@ namespace RPGGame
                 if (character is not Enemy)
                 {
                     speedModPct += character.Effects.ConsumedSpeedModPercent;
+                    speedModPct += character.Effects.TakeLastSwingSpeedModPercent();
                     speedModPct += character.Effects.ConsumePendingDefenseTempoSpeedPct();
                 }
                 if (speedModPct != 0)

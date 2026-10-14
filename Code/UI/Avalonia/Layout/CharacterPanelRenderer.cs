@@ -288,16 +288,6 @@ namespace RPGGame.UI.Avalonia.Layout
                     primaryStat == "Intelligence" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
                 y++;
 
-                int naivete = NaiveteBalanceHelper.GetDisplayNaivete(character);
-                int naivRowY = -1;
-                if (naivete > 0)
-                {
-                    naivRowY = y;
-                    var naivColor = AsciiArtAssets.Colors.Cyan;
-                    PanelCharacterStat(x, y, "NAIV", naivete, 0, naivColor, naivColor);
-                    y++;
-                }
-
                 List<(int rowY, string idSuffix)>? expandedHoverTargets = interactionManager != null && stateManager != null
                     ? new List<(int rowY, string idSuffix)>()
                     : null;
@@ -321,8 +311,6 @@ namespace RPGGame.UI.Avalonia.Layout
                     RegisterLeftPanelHoverRow(x, agiRowY, headerClickWidth, 1, "stat:agi");
                     RegisterLeftPanelHoverRow(x, tecRowY, headerClickWidth, 1, "stat:tec");
                     RegisterLeftPanelHoverRow(x, intRowY, headerClickWidth, 1, "stat:int");
-                    if (naivRowY >= 0)
-                        RegisterLeftPanelHoverRow(x, naivRowY, headerClickWidth, 1, "stat:naivete");
                     if (expandedHoverTargets != null)
                     {
                         foreach (var (rowY, id) in expandedHoverTargets)

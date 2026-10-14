@@ -28,7 +28,6 @@ namespace RPGGame
                 "stat:agi" => BuildPrimaryStat(character, "AGI", "Agility", maxLines),
                 "stat:tec" => BuildPrimaryStat(character, "TEC", "Technique", maxLines),
                 "stat:int" => BuildPrimaryStat(character, "INT", "Intelligence", maxLines),
-                "stat:naivete" => BuildNaivete(character, maxLines),
                 _ => null
             };
         }
@@ -137,39 +136,6 @@ namespace RPGGame
             return Trim(lines, maxLines);
         }
 
-        private static List<List<ColoredText>> BuildNaivete(Character c, int maxLines)
-        {
-            var lines = new List<List<ColoredText>>();
-            int naivete = NaiveteBalanceHelper.GetDisplayNaivete(c);
-            int maxNaivete = NaiveteBalanceHelper.ComputeNaivete(c);
-            if (naivete <= 0 && maxNaivete <= 0)
-                return Trim(lines, maxLines);
-
-            var config = NaiveteBalanceHelper.GetConfig();
-
-            AddTitle(lines, "Naiveté");
-            AddBlank(lines);
-            AddHighlight(lines, "Remaining", naivete.ToString(CultureInfo.InvariantCulture));
-            if (maxNaivete > 0)
-                AddStatRow(lines, "Fight max", maxNaivete);
-            AddBlank(lines);
-            AddSection(lines, "Effect");
-            AddNoteLine(lines, "On miss: spend 1 for advantage (2d20, keep highest).");
-            AddNoteLine(lines, "Chains on repeated misses until you hit or run out.");
-            AddBlank(lines);
-            AddSection(lines, "Progress");
-            AddStatRow(lines, "Hero level", c.Level);
-            if (config != null)
-            {
-                AddStatRow(lines, "Starts at", config.StartingNaivete);
-                AddStatRow(lines, "Fades by", 1);
-            }
-            AddNoteLine(lines, "Starts as a single digit and drops by 1 each level.");
-            AddNoteLine(lines, "Refills to max at the start of each fight.");
-
-            return Trim(lines, maxLines);
-        }
-
         private static (string Code, string Label) GetPrimaryAttributeDisplay(Character c)
         {
             string code = DynamicAttributeCategoryResolver.GetRankedAttributeCodes(c)[0];
@@ -271,8 +237,9 @@ namespace RPGGame
         private static List<List<ColoredText>> BuildSpeed(Character c, int maxLines)
         {
             var lines = new List<List<ColoredText>>();
-            var b = ComputeSpeedBreakdown(c);
+            var b = SpeedCalculator.GetBreakdown(c);
             var agiBreakdown = BuildAttributeBreakdown(c, "AGI");
+            double pctPerPoint = GameConfiguration.Instance.Combat.GetWeaponSpeedPercentPerPoint();
 
             AddTitle(lines, "Attack time");
             AddBlank(lines);
@@ -282,24 +249,24 @@ namespace RPGGame
             AppendAttributeSummaryRows(lines, agiBreakdown, effectiveLabel: "Effective AGI");
             AddBlank(lines);
             AddSection(lines, "Calculation");
-            AddDecimalStatRow(lines, "Base time", b.BaseAttackTime, "F3", "s");
-            AddDecimalStatRow(lines, "AGI curve multiplier", b.AgiMultiplier, "F3");
-            AddDecimalStatRow(lines, "After AGI curve", b.AfterAgiSeconds, "F3", "s");
-            AddDecimalStatRow(lines, "Weapon time multiplier", b.WeaponTimeMultiplier, "F2");
-            AddDecimalStatRow(lines, "After weapon", b.AfterWeaponSeconds, "F3", "s");
-            AddDecimalStatRow(lines, "Equipment attack-speed", b.EquipmentSpeedBonus, "F3", "s (subtracted)");
-            if (b.SlowTurns > 0)
-                AddDecimalStatRow(lines, $"Slow (÷{b.SlowMultiplier:F3}, {b.SlowTurns}t)", b.AfterSlowSeconds, "F3", "s");
-            if (Math.Abs(b.ModSpeedMultiplier - 1.0) > 0.0001)
-                AddDecimalStatRow(lines, "Modification speed mult.", b.ModSpeedMultiplier, "F4");
-            AddDecimalStatRow(lines, "Minimum cap", b.MinimumCapSeconds, "F2", "s");
+            AddDecimalStatRow(lines, "Base time", b.BaseSeconds, "F2", "s");
+            AddDecimalStatRow(lines, $"Agility ({b.Agility})", b.AgilityFactor, "F3", "×");
+            AddDecimalStatRow(lines, "Weapon base", b.WeaponBaseFactor, "F3", "×");
+            if (Math.Abs(b.WeaponSpeedPoints) > 0.0001)
+                AddTextStatRow(lines, "Weapon speed points",
+                    $"{b.WeaponSpeedPoints:+0.##;-0.##} (+{b.WeaponSpeedPoints * pctPerPoint:0.#}% speed)");
+            AddDecimalStatRow(lines, "Weapon total", b.WeaponFactor, "F3", "×");
+            if (b.SlowFactor > 1.0001)
+                AddDecimalStatRow(lines, $"Slow ({c.SlowTurns}t)", b.SlowFactor, "F3", "×");
+            if (b.SetSpeedPercent > 0)
+                AddTextStatRow(lines, "Set bonus", $"+{b.SetSpeedPercent:0.#}% speed");
+            AddDecimalStatRow(lines, "Minimum", b.FloorSeconds, "F2", "s");
             AddBlank(lines);
             AddNoteLine(lines,
-                $"{b.BaseAttackTime:F3}s × {b.AgiMultiplier:F3} × {b.WeaponTimeMultiplier:F2} − {b.EquipmentSpeedBonus:F3}s" +
-                (b.SlowTurns > 0 ? $" ÷ {b.SlowMultiplier:F3}" : "") +
-                (Math.Abs(b.ModSpeedMultiplier - 1.0) > 0.0001 ? $" ÷ {b.ModSpeedMultiplier:F4}" : "") +
-                $" = {b.FinalSeconds:F2}s (clamped ≥ {b.MinimumCapSeconds:F2}s).");
-            AddNoteLine(lines, "Seconds per attack on the panel; action length scales time in combat rolls.");
+                $"{b.BaseSeconds:F2}s × {b.AgilityFactor:F3} (AGI) × {b.WeaponFactor:F3} (weapon)" +
+                (Math.Abs(b.TempoFactor - 1.0) > 0.0001 ? $" × {b.TempoFactor:F3} (tempo)" : "") +
+                $" = {b.RawSeconds:F2}s, minimum {b.FloorSeconds:F2}s → {b.FinalSeconds:F2}s.");
+            AddNoteLine(lines, $"Each weapon speed point is +{pctPerPoint:0.#}% speed. Action length and next-action speed % scale this per swing.");
 
             return Trim(lines, maxLines);
         }
@@ -344,75 +311,6 @@ namespace RPGGame
             AddNoteLine(lines, "Non-combo strip actions stay at 1.00×; combat rolls may apply further swing multipliers.");
 
             return Trim(lines, maxLines);
-        }
-
-        private readonly struct SpeedBreakdown
-        {
-            public double FinalSeconds { get; init; }
-            public double BaseAttackTime { get; init; }
-            public int ClampedAgility { get; init; }
-            public double AgiMultiplier { get; init; }
-            public double AfterAgiSeconds { get; init; }
-            public double WeaponTimeMultiplier { get; init; }
-            public double AfterWeaponSeconds { get; init; }
-            public double EquipmentSpeedBonus { get; init; }
-            public int SlowTurns { get; init; }
-            public double SlowMultiplier { get; init; }
-            public double AfterSlowSeconds { get; init; }
-            public double ModSpeedMultiplier { get; init; }
-            public double MinimumCapSeconds { get; init; }
-        }
-
-        private static SpeedBreakdown ComputeSpeedBreakdown(Character c)
-        {
-            var tuning = GameConfiguration.Instance;
-            double baseAttackTime = tuning.Combat.BaseAttackTime;
-            int agility = GetEffectiveAttribute(c, "AGI");
-            int agilityMin = tuning.Combat.AgilityMin;
-            int agilityMax = tuning.Combat.AgilityMax;
-            int clampedAgility = Math.Max(agilityMin, Math.Min(agilityMax, agility));
-            double minMul = tuning.Combat.AgilityMinSpeedMultiplier;
-            double maxMul = tuning.Combat.AgilityMaxSpeedMultiplier;
-            double agilityRange = agilityMax - agilityMin;
-            double normalizedProgress = agilityRange > 0 ? (clampedAgility - agilityMin) / agilityRange : 0.0;
-            double curvedProgress = Math.Sqrt(normalizedProgress);
-            double agiMultiplier = minMul + (maxMul - minMul) * curvedProgress;
-            double afterAgi = baseAttackTime * agiMultiplier;
-
-            double weaponTimeMul = 1.0;
-            if (c.Weapon is WeaponItem w)
-                weaponTimeMul = SpeedCalculator.GetWeaponAttackTimeMultiplier(w);
-            double afterWeapon = afterAgi * weaponTimeMul;
-
-            double equipmentSpeedBonus = c.GetEquipmentAttackSpeedBonus();
-            double afterEquip = Math.Max(0.001, afterWeapon - equipmentSpeedBonus);
-
-            int slowTurns = c.SlowTurns;
-            double slowMultiplier = c.SlowMultiplier;
-            double afterSlow = slowTurns > 0 ? afterEquip / Math.Max(0.1, slowMultiplier) : afterEquip;
-
-            double modSpeedMul = Math.Max(0.0001, c.GetModificationSpeedMultiplier());
-            double afterMod = afterSlow / modSpeedMul;
-
-            double minCap = Math.Max(0.01, tuning.Combat.MinimumAttackTime);
-            double final = Math.Max(minCap, afterMod);
-
-            return new SpeedBreakdown
-            {
-                FinalSeconds = c.GetTotalAttackSpeed(),
-                BaseAttackTime = baseAttackTime,
-                ClampedAgility = clampedAgility,
-                AgiMultiplier = agiMultiplier,
-                AfterAgiSeconds = afterAgi,
-                WeaponTimeMultiplier = weaponTimeMul,
-                AfterWeaponSeconds = afterWeapon,
-                EquipmentSpeedBonus = equipmentSpeedBonus,
-                SlowTurns = slowTurns,
-                SlowMultiplier = slowMultiplier,
-                AfterSlowSeconds = afterSlow,
-                ModSpeedMultiplier = modSpeedMul,
-                MinimumCapSeconds = minCap
-            };
         }
 
         private static void AppendAttributeSummaryRows(List<List<ColoredText>> lines, AttributeBreakdown b, string effectiveLabel = "Effective STR")

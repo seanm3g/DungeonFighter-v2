@@ -1,0 +1,1807 @@
+{
+  "builds": [
+    {
+      "id": "B1",
+      "name": "Pain Engine",
+      "weapon": "Mace",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "SLAM",
+            "TAUNT",
+            "HARDEN",
+            "SLAM",
+            "POUND"
+          ]
+        },
+        {
+          "label": "2 Bone + convert",
+          "materials": {
+            "Bone": 2
+          },
+          "strip": [
+            "SLAM",
+            "TAUNT",
+            "HARDEN",
+            "BONE WRATH",
+            "POUND"
+          ]
+        },
+        {
+          "label": "full set Bone5",
+          "materials": {
+            "Bone": 5
+          },
+          "triggers": [
+            "CaveBear",
+            "CapeBuffalo",
+            "Crab"
+          ]
+        },
+        {
+          "label": "+weapon mods Reinforced/Hardened/Sturdy",
+          "weaponMods": [
+            "Reinforced",
+            "Hardened",
+            "Sturdy"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "b-skin": 1,
+            "b-blood": 5,
+            "b-wrath": 3,
+            "b-sink-bone": 5,
+            "b-kin": 5,
+            "b-synth": 5,
+            "b-alloy": 1
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "b-tribe": 1,
+            "b-puberty": 1,
+            "b-kin": 5,
+            "b-gut": 3,
+            "b-synth": 5,
+            "b-titan": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "B2",
+      "name": "Grudge Bearer",
+      "weapon": "Mace",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "SLAM",
+            "WARCRY",
+            "BASH",
+            "RETRIGGER FINISHER",
+            "MIGHTY SWING"
+          ]
+        },
+        {
+          "label": "2 Bone + convert",
+          "materials": {
+            "Bone": 2
+          },
+          "strip": [
+            "SLAM",
+            "WARCRY",
+            "BASH",
+            "RETRIGGER FINISHER",
+            "MIGHTY SWING"
+          ]
+        },
+        {
+          "label": "full set Bone3+Steel2",
+          "materials": {
+            "Bone": 3,
+            "Steel": 2
+          },
+          "triggers": [
+            "WaterBuffalo",
+            "Gorilla",
+            "Lion",
+            "Wolf",
+            "Velociraptor"
+          ]
+        },
+        {
+          "label": "+weapon mods Reinforced/Sturdy",
+          "weaponMods": [
+            "Reinforced",
+            "Sturdy"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "b-skin": 1,
+            "b-knuckle": 5,
+            "b-might": 1
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "b-tribe": 1,
+            "b-puberty": 1,
+            "b-kin": 5,
+            "b-gut": 3,
+            "b-synth": 5,
+            "b-titan": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "B3",
+      "name": "Executioner",
+      "weapon": "Mace",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "SLAM",
+            "BLUDGEON",
+            "HAYMAKER",
+            "SLAM",
+            "SLAM"
+          ]
+        },
+        {
+          "label": "2 Iron + convert",
+          "materials": {
+            "Iron": 2
+          },
+          "strip": [
+            "SLAM",
+            "BLUDGEON",
+            "HAYMAKER",
+            "IRON CULL",
+            "IRON CULL"
+          ]
+        },
+        {
+          "label": "full set Iron5",
+          "materials": {
+            "Iron": 5
+          },
+          "triggers": [
+            "Bison",
+            "Panther",
+            "Weasel",
+            "Boar"
+          ]
+        },
+        {
+          "label": "+weapon mods Heavy/Brutal/Long",
+          "weaponMods": [
+            "Heavy",
+            "Brutal",
+            "Long"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "b-bludgeon": 1,
+            "b-stun": 1,
+            "b-sink-iron": 5,
+            "b-titan": 1,
+            "b-might": 1
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "b-tribe": 1,
+            "b-puberty": 1,
+            "b-kin": 5,
+            "b-gut": 3,
+            "b-synth": 5,
+            "b-titan": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "B4",
+      "name": "Empty Fury",
+      "weapon": "Mace",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "SLAM",
+            "SLAM",
+            "MIGHTY SWING",
+            "STRIP SKIP"
+          ]
+        },
+        {
+          "label": "2 Iron + convert",
+          "materials": {
+            "Iron": 2
+          },
+          "strip": [
+            "SLAM",
+            "IRON CULL",
+            "MIGHTY SWING",
+            "STRIP SKIP"
+          ]
+        },
+        {
+          "label": "full set Iron3+Bone2",
+          "materials": {
+            "Iron": 3,
+            "Bone": 2
+          },
+          "triggers": [
+            "Mule",
+            "Monkey"
+          ]
+        },
+        {
+          "label": "+weapon mods Heavy/Brutal",
+          "weaponMods": [
+            "Heavy",
+            "Brutal"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "b-empty": 5,
+            "b-gut": 3,
+            "b-titan": 1
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "b-tribe": 1,
+            "b-puberty": 1,
+            "b-kin": 5,
+            "b-gut": 3,
+            "b-synth": 5,
+            "b-titan": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "B5",
+      "name": "Triumph Cadence",
+      "weapon": "Mace",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "BARBARIAN RAGE",
+            "SLAM",
+            "RAPID STRIKE",
+            "SLAM",
+            "STRIP LOOP"
+          ]
+        },
+        {
+          "label": "2 Steel + convert",
+          "materials": {
+            "Steel": 2
+          },
+          "strip": [
+            "BARBARIAN RAGE",
+            "SLAM",
+            "RAPID STRIKE",
+            "STEEL CREST",
+            "STRIP LOOP"
+          ]
+        },
+        {
+          "label": "full set Steel5",
+          "materials": {
+            "Steel": 5
+          },
+          "triggers": [
+            "DireWolf",
+            "Gorilla",
+            "Lion",
+            "Orangutan"
+          ]
+        },
+        {
+          "label": "+weapon mods Balanced/Precise",
+          "weaponMods": [
+            "Balanced",
+            "Precise"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "b-age1": 5,
+            "b-scar": 5,
+            "b-knuckle": 5
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "b-tribe": 1,
+            "b-puberty": 1,
+            "b-kin": 5,
+            "b-gut": 3,
+            "b-synth": 5,
+            "b-titan": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "B6",
+      "name": "Toxic Bludgeon",
+      "weapon": "Mace",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "BLUDGEON",
+            "VULNERABILITY",
+            "SLAM",
+            "SLAM"
+          ]
+        },
+        {
+          "label": "2 Iron + convert",
+          "materials": {
+            "Iron": 2
+          },
+          "strip": [
+            "BLUDGEON",
+            "VULNERABILITY",
+            "IRON CULL",
+            "SLAM"
+          ]
+        },
+        {
+          "label": "full set Iron3+Steel2",
+          "materials": {
+            "Iron": 3,
+            "Steel": 2
+          },
+          "triggers": [
+            "Hippopotamus",
+            "Mongoose",
+            "GrizzlyBear"
+          ]
+        },
+        {
+          "label": "+weapon mods Poisonous/serrated",
+          "weaponMods": [
+            "Poisonous",
+            "serrated"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "b-venom": 1,
+            "b-stun": 1,
+            "b-blood": 5
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "b-tribe": 1,
+            "b-puberty": 1,
+            "b-kin": 5,
+            "b-gut": 3,
+            "b-synth": 5,
+            "b-titan": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "W1",
+      "name": "War Drum",
+      "weapon": "Sword",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "STRIKE",
+            "SPRINT",
+            "STRIKE",
+            "RETRIGGER SLOT",
+            "REACTION TRAINING"
+          ]
+        },
+        {
+          "label": "2 Bronze + convert",
+          "materials": {
+            "Bronze": 2
+          },
+          "strip": [
+            "STRIKE",
+            "SPRINT",
+            "DRUM CUT",
+            "RETRIGGER SLOT",
+            "REACTION TRAINING"
+          ]
+        },
+        {
+          "label": "full set Bronze5",
+          "materials": {
+            "Bronze": 5
+          },
+          "triggers": [
+            "PeregrineFalcon",
+            "GoldenEagle",
+            "Ibis"
+          ]
+        },
+        {
+          "label": "+weapon mods Featherweight/Nimble/Swift",
+          "weaponMods": [
+            "Featherweight",
+            "Nimble",
+            "Swift"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "w-age1": 5,
+            "w-lvl2": 1,
+            "w-metronome": 5,
+            "w-cadence": 5,
+            "w-drum": 3,
+            "w-kin": 5,
+            "w-synth": 5
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "w-lineage": 1,
+            "w-puberty": 1,
+            "w-kin": 5,
+            "w-march": 5,
+            "w-synth": 5
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "W2",
+      "name": "Drill Sergeant",
+      "weapon": "Sword",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "SLASH",
+            "STRIKE",
+            "STRIP REPLACE",
+            "AVENGE",
+            "CUNNING"
+          ]
+        },
+        {
+          "label": "2 Bronze + convert",
+          "materials": {
+            "Bronze": 2
+          },
+          "strip": [
+            "SLASH",
+            "STRIKE",
+            "STRIP REPLACE",
+            "AVENGE",
+            "CUNNING"
+          ]
+        },
+        {
+          "label": "full set Bronze3+Mithril2",
+          "materials": {
+            "Bronze": 3,
+            "Mithril": 2
+          },
+          "triggers": [
+            "Swift",
+            "Nighthawk"
+          ]
+        },
+        {
+          "label": "+weapon mods Swift/Balanced/Precise",
+          "weaponMods": [
+            "Swift",
+            "Balanced",
+            "Precise"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "w-cadence": 5,
+            "w-flow": 1,
+            "w-metronome": 5,
+            "w-avenge": 1,
+            "w-cunning": 1
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "w-lineage": 1,
+            "w-puberty": 1,
+            "w-kin": 5,
+            "w-march": 5,
+            "w-synth": 5
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "W3",
+      "name": "Anchor Line",
+      "weapon": "Sword",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "STRIKE",
+            "SLOW",
+            "CHALLENGE",
+            "MEASURED CUT",
+            "STRIKE"
+          ]
+        },
+        {
+          "label": "2 Gold + convert",
+          "materials": {
+            "Gold": 2
+          },
+          "strip": [
+            "STRIKE",
+            "SLOW",
+            "CHALLENGE",
+            "MEASURED CUT",
+            "GOLD ANCHOR"
+          ]
+        },
+        {
+          "label": "full set Gold3+Mithril2",
+          "materials": {
+            "Gold": 3,
+            "Mithril": 2
+          },
+          "triggers": [
+            "Ingot",
+            "Crown",
+            "Hummingbird"
+          ]
+        },
+        {
+          "label": "+weapon mods Reinforced/Hardened",
+          "weaponMods": [
+            "Reinforced",
+            "Hardened"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "w-phalanx": 5,
+            "w-wind": 5,
+            "w-march": 5
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "w-lineage": 1,
+            "w-puberty": 1,
+            "w-kin": 5,
+            "w-march": 5,
+            "w-synth": 5
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "W4",
+      "name": "Guardian",
+      "weapon": "Sword",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "STRIKE",
+            "TAUNT",
+            "HARDEN",
+            "JAB",
+            "MEASURED CUT"
+          ]
+        },
+        {
+          "label": "2 Leather + convert",
+          "materials": {
+            "Leather": 2
+          },
+          "strip": [
+            "STRIKE",
+            "TAUNT",
+            "HARDEN",
+            "JAB",
+            "MEASURED CUT"
+          ]
+        },
+        {
+          "label": "full set Gold2+Leather3",
+          "materials": {
+            "Gold": 2,
+            "Leather": 3
+          },
+          "triggers": [
+            "Mammoth",
+            "Badger",
+            "Moose"
+          ]
+        },
+        {
+          "label": "+weapon mods Reinforced/Hardened/Sturdy",
+          "weaponMods": [
+            "Reinforced",
+            "Hardened",
+            "Sturdy"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "w-phalanx": 5
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "w-lineage": 1,
+            "w-puberty": 1,
+            "w-kin": 5,
+            "w-march": 5,
+            "w-synth": 5
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "W5",
+      "name": "Unbroken Streak",
+      "weapon": "Sword",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "STRIKE",
+            "CONCENTRATION",
+            "STRIKE",
+            "AVENGE",
+            "AFTER MISS HEAL"
+          ]
+        },
+        {
+          "label": "2 Mithril + convert",
+          "materials": {
+            "Mithril": 2
+          },
+          "strip": [
+            "STRIKE",
+            "CONCENTRATION",
+            "MITHRIL FLOW",
+            "AVENGE",
+            "AFTER MISS HEAL"
+          ]
+        },
+        {
+          "label": "full set Mithril3+Gold2",
+          "materials": {
+            "Mithril": 3,
+            "Gold": 2
+          },
+          "triggers": [
+            "Heron",
+            "Jackdaw",
+            "Swift"
+          ]
+        },
+        {
+          "label": "+weapon mods Swift/Short",
+          "weaponMods": [
+            "Swift",
+            "Short"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "w-hitagi": 5,
+            "w-streak": 5,
+            "w-polish": 5,
+            "w-flowcrest": 3
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "w-lineage": 1,
+            "w-puberty": 1,
+            "w-kin": 5,
+            "w-march": 5,
+            "w-synth": 5
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "R1",
+      "name": "Glass Cannon",
+      "weapon": "Dagger",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "STAB",
+            "CUT",
+            "RAPID STRIKE",
+            "STAB",
+            "TAKING AIM"
+          ]
+        },
+        {
+          "label": "2 Glass + convert",
+          "materials": {
+            "Glass": 2
+          },
+          "strip": [
+            "STAB",
+            "CUT",
+            "RAPID STRIKE",
+            "GLASS NICK",
+            "TAKING AIM"
+          ]
+        },
+        {
+          "label": "full set Glass5",
+          "materials": {
+            "Glass": 5
+          },
+          "triggers": [
+            "Cobra",
+            "PistolShrimp",
+            "Firefly"
+          ]
+        },
+        {
+          "label": "+weapon mods Light/Acrobatic/Featherweight",
+          "weaponMods": [
+            "Light",
+            "Acrobatic",
+            "Featherweight"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "r-age1": 5,
+            "r-lvl2": 1,
+            "r-shatter": 3
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "r-veil": 1,
+            "r-puberty": 1,
+            "r-kin": 5,
+            "r-synth": 5,
+            "r-aim": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "R2",
+      "name": "Marked Hunter",
+      "weapon": "Dagger",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "STAB",
+            "EXPOSE",
+            "STAB",
+            "STAB",
+            "MISDIRECT"
+          ]
+        },
+        {
+          "label": "2 Glass + convert",
+          "materials": {
+            "Glass": 2
+          },
+          "strip": [
+            "STAB",
+            "EXPOSE",
+            "GLASS NICK",
+            "STAB",
+            "MISDIRECT"
+          ]
+        },
+        {
+          "label": "full set Glass3+Obsidian2",
+          "materials": {
+            "Glass": 3,
+            "Obsidian": 2
+          },
+          "triggers": [
+            "Firefly",
+            "SaltwaterCrocodile",
+            "Basilisk"
+          ]
+        },
+        {
+          "label": "+weapon mods Long/Charged",
+          "weaponMods": [
+            "Long",
+            "Charged"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "r-snake": 1
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "r-veil": 1,
+            "r-puberty": 1,
+            "r-kin": 5,
+            "r-synth": 5,
+            "r-aim": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "R3",
+      "name": "Headhunter",
+      "weapon": "Dagger",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "STAB",
+            "VULNERABILITY",
+            "STAB",
+            "RETRIGGER OPENER"
+          ]
+        },
+        {
+          "label": "2 Obsidian + convert",
+          "materials": {
+            "Obsidian": 2
+          },
+          "strip": [
+            "STAB",
+            "VULNERABILITY",
+            "HEADHUNT",
+            "RETRIGGER OPENER"
+          ]
+        },
+        {
+          "label": "full set Obsidian5",
+          "materials": {
+            "Obsidian": 5
+          },
+          "triggers": [
+            "Viper",
+            "Python"
+          ]
+        },
+        {
+          "label": "+weapon mods serrated",
+          "weaponMods": [
+            "serrated"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "r-cut": 5,
+            "r-mastery": 1
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "r-veil": 1,
+            "r-puberty": 1,
+            "r-kin": 5,
+            "r-synth": 5,
+            "r-aim": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "R4",
+      "name": "Toxic Ledger",
+      "weapon": "Dagger",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "CUT",
+            "STAB",
+            "STAB",
+            "STAB"
+          ]
+        },
+        {
+          "label": "2 Obsidian + convert",
+          "materials": {
+            "Obsidian": 2
+          },
+          "strip": [
+            "CUT",
+            "STAB",
+            "HEADHUNT",
+            "UMBRA"
+          ]
+        },
+        {
+          "label": "full set Obsidian3+Shadow2",
+          "materials": {
+            "Obsidian": 3,
+            "Shadow": 2
+          },
+          "triggers": [
+            "FerdeLance",
+            "Toad"
+          ]
+        },
+        {
+          "label": "+weapon mods Poisonous/serrated/Flaming",
+          "weaponMods": [
+            "Poisonous",
+            "serrated",
+            "Flaming"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "r-edge": 1,
+            "r-toxin": 5,
+            "r-hemo": 1,
+            "r-mastery": 1
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "r-veil": 1,
+            "r-puberty": 1,
+            "r-kin": 5,
+            "r-synth": 5,
+            "r-aim": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "R5",
+      "name": "Shadow Gambler",
+      "weapon": "Dagger",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "STAB",
+            "GAMBLERS BLESSING",
+            "STRIP RANDOM",
+            "CONFUSE",
+            "STAB"
+          ]
+        },
+        {
+          "label": "2 Shadow + convert",
+          "materials": {
+            "Shadow": 2
+          },
+          "strip": [
+            "STAB",
+            "GAMBLERS BLESSING",
+            "STRIP RANDOM",
+            "CONFUSE",
+            "UMBRA"
+          ]
+        },
+        {
+          "label": "full set Shadow5",
+          "materials": {
+            "Shadow": 5
+          },
+          "triggers": [
+            "Crocodile",
+            "Gecko",
+            "Damselfly",
+            "ClockworkBeetle"
+          ]
+        },
+        {
+          "label": "+weapon mods ",
+          "weaponMods": []
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "r-debt": 1
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "r-veil": 1,
+            "r-puberty": 1,
+            "r-kin": 5,
+            "r-synth": 5,
+            "r-aim": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "R6",
+      "name": "Dice Thief",
+      "weapon": "Dagger",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "STAB",
+            "LOADED DICE",
+            "REPLACE ROLL",
+            "CRIT FACES",
+            "UNLUCK"
+          ]
+        },
+        {
+          "label": "2 Leather + convert",
+          "materials": {
+            "Leather": 2
+          },
+          "strip": [
+            "STAB",
+            "LOADED DICE",
+            "REPLACE ROLL",
+            "CRIT FACES",
+            "UNLUCK"
+          ]
+        },
+        {
+          "label": "full set Shadow2+Leather3",
+          "materials": {
+            "Shadow": 2,
+            "Leather": 3
+          },
+          "triggers": [
+            "Jaguar",
+            "KodiakBear"
+          ]
+        },
+        {
+          "label": "+weapon mods Long/Charged/Swift",
+          "weaponMods": [
+            "Long",
+            "Charged",
+            "Swift"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "r-grease": 5,
+            "r-snake": 1,
+            "r-aim": 1,
+            "r-debt": 1,
+            "r-concentrate": 1
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "r-veil": 1,
+            "r-puberty": 1,
+            "r-kin": 5,
+            "r-synth": 5,
+            "r-aim": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "Z1",
+      "name": "Chain Weaver",
+      "weapon": "Wand",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "MAGIC MISSILE",
+            "ECHO SPELL",
+            "PHANTOM FOLLOW-UP",
+            "RETRIGGER NEXT",
+            "MAGIC MISSILE"
+          ]
+        },
+        {
+          "label": "2 Willow + convert",
+          "materials": {
+            "Willow": 2
+          },
+          "strip": [
+            "MAGIC MISSILE",
+            "ECHO SPELL",
+            "PHANTOM FOLLOW-UP",
+            "RETRIGGER NEXT",
+            "WILLOW LASH"
+          ]
+        },
+        {
+          "label": "full set Willow5",
+          "materials": {
+            "Willow": 5
+          },
+          "triggers": [
+            "Sparrowhawk",
+            "Owl",
+            "Rook"
+          ]
+        },
+        {
+          "label": "+weapon mods Balanced/Precise/Keen",
+          "weaponMods": [
+            "Balanced",
+            "Precise",
+            "Keen"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "z-age1": 5,
+            "z-comboInt": 5,
+            "z-soft": 5,
+            "z-memory": 5,
+            "z-lash": 3,
+            "z-weave": 5
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "z-circle": 1,
+            "z-puberty": 1,
+            "z-kin": 5,
+            "z-weave": 5,
+            "z-synth": 5,
+            "z-archmage": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "Z2",
+      "name": "Empty Glyph",
+      "weapon": "Wand",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "MAGIC MISSILE",
+            "CHANNEL",
+            "STRIP SKIP",
+            "CONCENTRATED CHAOS",
+            "MEASURED ADVANCE"
+          ]
+        },
+        {
+          "label": "2 Willow + convert",
+          "materials": {
+            "Willow": 2
+          },
+          "strip": [
+            "MAGIC MISSILE",
+            "WILLOW LASH",
+            "CHANNEL",
+            "STRIP SKIP",
+            "MEASURED ADVANCE",
+            "CONCENTRATED CHAOS"
+          ]
+        },
+        {
+          "label": "full set Willow3+Crystal2",
+          "materials": {
+            "Willow": 3,
+            "Crystal": 2
+          },
+          "triggers": [
+            "Dragon",
+            "Golem"
+          ]
+        },
+        {
+          "label": "+weapon mods Keen/refined",
+          "weaponMods": [
+            "Keen",
+            "refined"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "z-chaos": 1,
+            "z-memory": 5,
+            "z-slotInt": 5,
+            "z-weave": 5
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "z-circle": 1,
+            "z-puberty": 1,
+            "z-kin": 5,
+            "z-weave": 5,
+            "z-synth": 5,
+            "z-archmage": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "Z3",
+      "name": "Lens Sage",
+      "weapon": "Wand",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "MAGIC MISSILE",
+            "CHANNEL",
+            "EMPOWERED",
+            "MAGIC MISSILE",
+            "DUNGEON ANALYSIS"
+          ]
+        },
+        {
+          "label": "2 Silver + convert",
+          "materials": {
+            "Silver": 2
+          },
+          "strip": [
+            "MAGIC MISSILE",
+            "CHANNEL",
+            "EMPOWERED",
+            "REFRACT",
+            "DUNGEON ANALYSIS"
+          ]
+        },
+        {
+          "label": "full set Silver5",
+          "materials": {
+            "Silver": 5
+          },
+          "triggers": [
+            "Prism",
+            "Mirror",
+            "Moonglass",
+            "Halo",
+            "Kirin",
+            "Kitsune"
+          ]
+        },
+        {
+          "label": "+weapon mods ",
+          "weaponMods": []
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "z-lens": 5,
+            "z-refract": 3,
+            "z-archmage": 1
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "z-circle": 1,
+            "z-puberty": 1,
+            "z-kin": 5,
+            "z-weave": 5,
+            "z-synth": 5,
+            "z-archmage": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "Z4",
+      "name": "Probability Engine",
+      "weapon": "Wand",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "MAGIC MISSILE",
+            "REWRITE FATE",
+            "EXPLODING DICE",
+            "REPLACE ROLL",
+            "ROLL FIFTEEN"
+          ]
+        },
+        {
+          "label": "2 Silver + convert",
+          "materials": {
+            "Silver": 2
+          },
+          "strip": [
+            "MAGIC MISSILE",
+            "REWRITE FATE",
+            "EXPLODING DICE",
+            "REPLACE ROLL",
+            "REFRACT"
+          ]
+        },
+        {
+          "label": "full set Silver3+Willow2",
+          "materials": {
+            "Silver": 3,
+            "Willow": 2
+          },
+          "triggers": [
+            "Kitsune",
+            "Owl"
+          ]
+        },
+        {
+          "label": "+weapon mods Swift/Short",
+          "weaponMods": [
+            "Swift",
+            "Short"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "z-lvl2": 1,
+            "z-odds": 5,
+            "z-readbook": 1,
+            "z-refract": 3
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "z-circle": 1,
+            "z-puberty": 1,
+            "z-kin": 5,
+            "z-weave": 5,
+            "z-synth": 5,
+            "z-archmage": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "Z5",
+      "name": "Elementalist",
+      "weapon": "Wand",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "BOLT",
+            "SLOW",
+            "MAGIC MISSILE",
+            "MAGIC MISSILE"
+          ]
+        },
+        {
+          "label": "2 Crystal + convert",
+          "materials": {
+            "Crystal": 2
+          },
+          "strip": [
+            "BOLT",
+            "SLOW",
+            "RESONATE",
+            "MAGIC MISSILE"
+          ]
+        },
+        {
+          "label": "full set Crystal5",
+          "materials": {
+            "Crystal": 5
+          },
+          "triggers": [
+            "Thunderbird"
+          ]
+        },
+        {
+          "label": "+weapon mods Flaming/Keen",
+          "weaponMods": [
+            "Flaming",
+            "Keen"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "z-sigil": 5,
+            "z-shock": 1,
+            "z-resonate": 3,
+            "z-archmage": 1,
+            "z-equation": 1
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "z-circle": 1,
+            "z-puberty": 1,
+            "z-kin": 5,
+            "z-weave": 5,
+            "z-synth": 5,
+            "z-archmage": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    },
+    {
+      "id": "Z6",
+      "name": "Golem Mind",
+      "weapon": "Wand",
+      "levels": [
+        30,
+        60
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip",
+          "strip": [
+            "MAGIC MISSILE",
+            "CHANNEL",
+            "MAGIC MISSILE",
+            "DUNGEON ANALYSIS"
+          ]
+        },
+        {
+          "label": "2 Crystal + convert",
+          "materials": {
+            "Crystal": 2
+          },
+          "strip": [
+            "MAGIC MISSILE",
+            "CHANNEL",
+            "RESONATE",
+            "DUNGEON ANALYSIS"
+          ]
+        },
+        {
+          "label": "full set Crystal3+Silver2",
+          "materials": {
+            "Crystal": 3,
+            "Silver": 2
+          },
+          "triggers": [
+            "Golem",
+            "Kirin"
+          ]
+        },
+        {
+          "label": "+weapon mods Ancient/Sturdy",
+          "weaponMods": [
+            "Ancient",
+            "Sturdy"
+          ]
+        },
+        {
+          "label": "+catalog skills",
+          "skills": {
+            "z-bleed": 5,
+            "z-slotInt": 5,
+            "z-lens": 5,
+            "z-kin": 5,
+            "z-synth": 5
+          }
+        },
+        {
+          "label": "+core & rite",
+          "skills": {
+            "z-circle": 1,
+            "z-puberty": 1,
+            "z-kin": 5,
+            "z-weave": 5,
+            "z-synth": 5,
+            "z-archmage": 1
+          }
+        },
+        {
+          "label": "+gear 10 levels up",
+          "gearLevelOffset": 10
+        }
+      ]
+    }
+  ]
+}

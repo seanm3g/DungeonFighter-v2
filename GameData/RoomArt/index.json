@@ -1,0 +1,377 @@
+{
+ "camera_ft": 50.0,
+ "rooms": {
+  "Entrance": [
+   "entrance-1.jpg"
+  ],
+  "Treasure Room": [
+   "treasure_room-1.jpg"
+  ],
+  "Guard Post": [
+   "guard_post-1.jpg",
+   "guard_post-2.jpg"
+  ],
+  "Trap Room": [
+   "trap_room-1.jpg",
+   "trap_room-2.jpg",
+   "trap_room-3.jpg",
+   "trap_room-4.jpg",
+   "trap_room-5.jpg"
+  ],
+  "Puzzle Chamber": [
+   "puzzle_chamber-1.jpg",
+   "puzzle_chamber-2.jpg"
+  ],
+  "Rest Area": [
+   "rest_area-1.jpg",
+   "rest_area-2.jpg",
+   "rest_area-3.jpg"
+  ],
+  "Storage Room": [
+   "storage_room-1.jpg",
+   "storage_room-2.jpg",
+   "storage_room-3.jpg"
+  ],
+  "Library": [
+   "library-1.jpg",
+   "library-2.jpg",
+   "library-3.jpg"
+  ],
+  "Armory": [
+   "armory-1.jpg",
+   "armory-2.jpg",
+   "armory-3.jpg",
+   "armory-4.jpg"
+  ],
+  "Kitchen": [
+   "kitchen-1.jpg",
+   "kitchen-2.jpg",
+   "kitchen-3.jpg"
+  ],
+  "Dining Hall": [
+   "dining_hall-1.jpg",
+   "dining_hall-2.jpg",
+   "dining_hall-3.jpg",
+   "dining_hall-4.jpg"
+  ],
+  "Boss Chamber": [
+   "boss_chamber-1.jpg"
+  ],
+  "Forest Clearing": [
+   "forest_clearing-1.jpg",
+   "forest_clearing-2.jpg",
+   "forest_clearing-3.jpg"
+  ],
+  "Lava Chamber": [
+   "lava_chamber-1.jpg",
+   "lava_chamber-2.jpg"
+  ],
+  "Crypt Passage": [
+   "crypt_passage-1.jpg",
+   "crypt_passage-2.jpg",
+   "crypt_passage-3.jpg"
+  ],
+  "Wolf Den": [
+   "wolf_den-1.jpg",
+   "wolf_den-2.jpg",
+   "wolf_den-3.jpg"
+  ],
+  "Ancient Grove": [
+   "ancient_grove-1.jpg",
+   "ancient_grove-2.jpg"
+  ],
+  "Bear Cave": [
+   "bear_cave-1.jpg",
+   "bear_cave-2.jpg",
+   "bear_cave-3.jpg"
+  ],
+  "Magma Pool": [
+   "magma_pool-1.jpg",
+   "magma_pool-2.jpg"
+  ],
+  "Volcanic Vent": [
+   "volcanic_vent-1.jpg",
+   "volcanic_vent-2.jpg",
+   "volcanic_vent-3.jpg"
+  ],
+  "Burial Chamber": [
+   "burial_chamber-1.jpg",
+   "burial_chamber-2.jpg"
+  ],
+  "Tomb of the Forgotten": [
+   "tomb_of_the_forgotten-1.jpg",
+   "tomb_of_the_forgotten-2.jpg",
+   "tomb_of_the_forgotten-3.jpg",
+   "tomb_of_the_forgotten-4.jpg"
+  ],
+  "Crystal Garden": [
+   "crystal_garden-1.jpg"
+  ],
+  "Geode Chamber": [
+   "geode_chamber-1.jpg",
+   "geode_chamber-2.jpg"
+  ],
+  "Sacred Altar": [
+   "sacred_altar-1.jpg",
+   "sacred_altar-2.jpg",
+   "sacred_altar-3.jpg",
+   "sacred_altar-4.jpg",
+   "sacred_altar-5.jpg"
+  ],
+  "Frozen Cavern": [
+   "frozen_cavern-1.jpg",
+   "frozen_cavern-2.jpg",
+   "frozen_cavern-3.jpg",
+   "frozen_cavern-4.jpg"
+  ],
+  "Glacial Chamber": [
+   "glacial_chamber-1.jpg",
+   "glacial_chamber-2.jpg"
+  ],
+  "Frozen Lake": [
+   "frozen_lake-1.jpg",
+   "frozen_lake-2.jpg",
+   "frozen_lake-3.jpg",
+   "frozen_lake-4.jpg"
+  ],
+  "Shadow Realm": [
+   "shadow_realm-1.jpg",
+   "shadow_realm-2.jpg",
+   "shadow_realm-3.jpg"
+  ],
+  "Umbra Sanctum": [
+   "umbra_sanctum-1.jpg",
+   "umbra_sanctum-2.jpg"
+  ],
+  "Void Chamber": [
+   "void_chamber-1.jpg",
+   "void_chamber-2.jpg"
+  ],
+  "Steam Engine Room": [
+   "steam_engine_room-1.jpg",
+   "steam_engine_room-2.jpg",
+   "steam_engine_room-3.jpg",
+   "steam_engine_room-4.jpg",
+   "steam_engine_room-5.jpg"
+  ],
+  "Clockwork Laboratory": [
+   "clockwork_laboratory-1.jpg",
+   "clockwork_laboratory-2.jpg"
+  ],
+  "Cog Chamber": [
+   "cog_chamber-1.jpg",
+   "cog_chamber-2.jpg",
+   "cog_chamber-3.jpg"
+  ],
+  "Bog Clearing": [
+   "bog_clearing-1.jpg",
+   "bog_clearing-2.jpg",
+   "bog_clearing-3.jpg",
+   "bog_clearing-4.jpg",
+   "bog_clearing-5.jpg"
+  ],
+  "Marsh Sanctuary": [
+   "marsh_sanctuary-1.jpg",
+   "marsh_sanctuary-2.jpg"
+  ],
+  "Toxic Pool": [
+   "toxic_pool-1.jpg"
+  ],
+  "Star Chamber": [
+   "star_chamber-1.jpg",
+   "star_chamber-2.jpg"
+  ],
+  "Nebula Observatory": [
+   "nebula_observatory-1.jpg"
+  ],
+  "Galaxy Vault": [
+   "galaxy_vault-1.jpg",
+   "galaxy_vault-2.jpg",
+   "galaxy_vault-3.jpg",
+   "galaxy_vault-4.jpg",
+   "galaxy_vault-5.jpg"
+  ],
+  "Deep Tunnel": [
+   "deep_tunnel-1.jpg",
+   "deep_tunnel-2.jpg"
+  ],
+  "Subterranean Hall": [
+   "subterranean_hall-1.jpg"
+  ],
+  "Mining Shaft": [
+   "mining_shaft-1.jpg"
+  ],
+  "Thunder Hall": [
+   "thunder_hall-1.jpg",
+   "thunder_hall-2.jpg",
+   "thunder_hall-3.jpg"
+  ],
+  "Tempest Chamber": [
+   "tempest_chamber-1.jpg",
+   "tempest_chamber-2.jpg"
+  ],
+  "Hurricane Vault": [
+   "hurricane_vault-1.jpg",
+   "hurricane_vault-2.jpg",
+   "hurricane_vault-3.jpg"
+  ],
+  "Sacred Grove": [
+   "sacred_grove-1.jpg",
+   "sacred_grove-2.jpg",
+   "sacred_grove-3.jpg"
+  ],
+  "Wildflower Meadow": [
+   "wildflower_meadow-1.jpg"
+  ],
+  "Natural Spring": [
+   "natural_spring-1.jpg",
+   "natural_spring-2.jpg"
+  ],
+  "Spell Chamber": [
+   "spell_chamber-1.jpg",
+   "spell_chamber-2.jpg"
+  ],
+  "Wizard's Study": [
+   "wizard_s_study-1.jpg"
+  ],
+  "Magic Vault": [
+   "magic_vault-1.jpg",
+   "magic_vault-2.jpg",
+   "magic_vault-3.jpg"
+  ],
+  "Sand Dune": [
+   "sand_dune-1.jpg",
+   "sand_dune-2.jpg"
+  ],
+  "Oasis": [
+   "oasis-1.jpg"
+  ],
+  "Mirage Chamber": [
+   "mirage_chamber-1.jpg",
+   "mirage_chamber-2.jpg",
+   "mirage_chamber-3.jpg",
+   "mirage_chamber-4.jpg"
+  ],
+  "Magma Chamber": [
+   "magma_chamber-1.jpg"
+  ],
+  "Fire Chamber": [
+   "fire_chamber-1.jpg",
+   "fire_chamber-2.jpg"
+  ],
+  "Crumbling Hall": [
+   "crumbling_hall-1.jpg",
+   "crumbling_hall-2.jpg"
+  ],
+  "Lost Shrine": [
+   "lost_shrine-1.jpg",
+   "lost_shrine-2.jpg"
+  ],
+  "Decayed Chamber": [
+   "decayed_chamber-1.jpg"
+  ],
+  "Underwater Cavern": [
+   "underwater_cavern-1.jpg",
+   "underwater_cavern-2.jpg"
+  ],
+  "Coral Garden": [
+   "coral_garden-1.jpg",
+   "coral_garden-2.jpg",
+   "coral_garden-3.jpg"
+  ],
+  "Abyssal Depths": [
+   "abyssal_depths-1.jpg",
+   "abyssal_depths-2.jpg",
+   "abyssal_depths-3.jpg",
+   "abyssal_depths-4.jpg",
+   "abyssal_depths-5.jpg"
+  ],
+  "Peak Summit": [
+   "peak_summit-1.jpg",
+   "peak_summit-2.jpg"
+  ],
+  "Alpine Meadow": [
+   "alpine_meadow-1.jpg",
+   "alpine_meadow-2.jpg",
+   "alpine_meadow-3.jpg"
+  ],
+  "Rocky Outcrop": [
+   "rocky_outcrop-1.jpg",
+   "rocky_outcrop-2.jpg"
+  ],
+  "Time Chamber": [
+   "time_chamber-1.jpg",
+   "time_chamber-2.jpg",
+   "time_chamber-3.jpg"
+  ],
+  "Chronos Sanctum": [
+   "chronos_sanctum-1.jpg",
+   "chronos_sanctum-2.jpg"
+  ],
+  "Echo Chamber": [
+   "echo_chamber-1.jpg",
+   "echo_chamber-2.jpg",
+   "echo_chamber-3.jpg",
+   "echo_chamber-4.jpg"
+  ],
+  "Dreamscape": [
+   "dreamscape-1.jpg",
+   "dreamscape-2.jpg",
+   "dreamscape-3.jpg"
+  ],
+  "Lucid Chamber": [
+   "lucid_chamber-1.jpg",
+   "lucid_chamber-2.jpg",
+   "lucid_chamber-3.jpg",
+   "lucid_chamber-4.jpg",
+   "lucid_chamber-5.jpg",
+   "lucid_chamber-6.jpg"
+  ],
+  "Subconscious Hall": [
+   "subconscious_hall-1.jpg",
+   "subconscious_hall-2.jpg",
+   "subconscious_hall-3.jpg"
+  ],
+  "Emptiness Hall": [
+   "emptiness_hall-1.jpg",
+   "emptiness_hall-2.jpg",
+   "emptiness_hall-3.jpg",
+   "emptiness_hall-4.jpg"
+  ],
+  "Nothingness Room": [
+   "nothingness_room-1.jpg",
+   "nothingness_room-2.jpg",
+   "nothingness_room-3.jpg"
+  ],
+  "Dimension Rift": [
+   "dimension_rift-1.jpg"
+  ],
+  "Multiverse Hall": [
+   "multiverse_hall-1.jpg",
+   "multiverse_hall-2.jpg",
+   "multiverse_hall-3.jpg",
+   "multiverse_hall-4.jpg"
+  ],
+  "Quantum Chamber": [
+   "quantum_chamber-1.jpg",
+   "quantum_chamber-2.jpg",
+   "quantum_chamber-3.jpg",
+   "quantum_chamber-4.jpg",
+   "quantum_chamber-5.jpg"
+  ],
+  "Heavenly Chamber": [
+   "heavenly_chamber-1.jpg",
+   "heavenly_chamber-2.jpg",
+   "heavenly_chamber-3.jpg"
+  ],
+  "Celestial Sanctum": [
+   "celestial_sanctum-1.jpg",
+   "celestial_sanctum-2.jpg",
+   "celestial_sanctum-3.jpg",
+   "celestial_sanctum-4.jpg"
+  ],
+  "Eternal Hall": [
+   "eternal_hall-1.jpg"
+  ]
+ }
+}

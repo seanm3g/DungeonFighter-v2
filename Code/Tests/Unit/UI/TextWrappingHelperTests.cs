@@ -4,6 +4,7 @@ using System.Text;
 using Avalonia.Media;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia.Renderers.Text;
+using RPGGame.UI.BlockDisplay;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Tests.Unit.UI
@@ -32,6 +33,7 @@ namespace RPGGame.Tests.Unit.UI
             TestPerCharacterGlyphsDoNotGainInterLetterSpaces();
             TestPerCharacterStatusWordStaysCompact();
             TestFirstLineIndentSurvivesOnFirstLineOnly();
+            TestHardBreakLineIndentSurvivesOnFollowUpLine();
             TestApplySoftWrapsStartsOverflowWordOnNextLine();
             TestTypewriterPrefixKeepsOverflowWordOnNextLine();
 
@@ -271,6 +273,37 @@ namespace RPGGame.Tests.Unit.UI
                 "first line including indent stays within maxWidth", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(first.Contains("Fate", StringComparison.Ordinal),
                 "first line still carries prose after indent", ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>
+        /// DoT ticks join damage + status-end with an explicit newline. Soft-wrap must keep the
+        /// action-block indent on the second logical line (not treat it as a book-style hang).
+        /// </summary>
+        private static void TestHardBreakLineIndentSurvivesOnFollowUpLine()
+        {
+            Console.WriteLine("--- Hard-break follow-up keeps action-block indent ---");
+
+            string indent = BlockMessageCollector.ActionBlockSubsequentIndent;
+            var segments = new List<ColoredText>
+            {
+                new ColoredText("Basil Blackfang takes 1 burn damage", Colors.White),
+                new ColoredText("\n", Colors.White),
+                new ColoredText(indent + "(Basil Blackfang is no longer burning!)", Colors.White)
+            };
+
+            var soft = TextWrappingHelper.ApplySoftWraps(segments, maxWidth: 120);
+            string plain = ColoredTextRenderer.RenderAsPlainText(soft);
+            string[] physical = plain.Split('\n');
+
+            TestBase.AssertTrue(physical.Length >= 2,
+                "DoT block soft-wrap yields two physical lines", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(
+                physical[0].StartsWith("Basil Blackfang takes", StringComparison.Ordinal),
+                "first line is the damage headline", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(
+                physical[1].StartsWith(indent + "(", StringComparison.Ordinal),
+                "second line keeps 5-space action-block indent before status end",
+                ref _run, ref _passed, ref _failed);
         }
 
         /// <summary>

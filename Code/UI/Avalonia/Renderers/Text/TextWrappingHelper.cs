@@ -132,7 +132,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
         /// "Skill" alone before "and luck…".
         /// <para>
         /// Book-style first-line indent: a run of leading spaces on the input is kept only on the
-        /// first wrapped line (and counts toward width). Continuation lines never lead with a space.
+        /// first wrapped line (and counts toward width). Soft-wrap continuation lines never lead
+        /// with a space. Explicit hard breaks (<c>\n</c>) may start a new logical line with its
+        /// own leading indent (action-block follow-ups such as <c>     (no longer burning!)</c>).
         /// </para>
         /// <para>
         /// Leading spaces between tokens are restored only when the original text had whitespace
@@ -258,6 +260,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
                 if (token.IsHardBreak)
                 {
                     FlushLine();
+                    continue;
+                }
+
+                if (token.IsLineIndent)
+                {
+                    // Intentional indent on a new logical line after \n (not soft-wrap hang).
+                    if (currentLine.Count > 0)
+                        FlushLine();
+                    currentLine.Add(CloneSegment(token.Text, token.Source));
+                    currentLineWidth = token.Text.Length;
+                    spaceAfterPunctuation = false;
                     continue;
                 }
 
@@ -421,6 +434,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
             // Critical: per-character template/animation segments have no inter-glyph spaces,
             // so this stays false across those boundaries and wrap must not invent spaces.
             bool pendingLeadingSpace = false;
+            // True at the start of the input and immediately after an explicit hard break.
+            // Leading spaces in that position are a deliberate line indent, not inter-word spacing.
+            bool atLogicalLineStart = true;
 
             foreach (var segment in segments)
             {
@@ -436,13 +452,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
                         {
                             tokens.Add(WrapToken.HardBreak());
                             pendingLeadingSpace = false;
+                            atLogicalLineStart = true;
                         }
-                        AppendPartTokens(tokens, parts[p], segment, ref pendingLeadingSpace);
+                        AppendPartTokens(tokens, parts[p], segment, ref pendingLeadingSpace, ref atLogicalLineStart);
                     }
                     continue;
                 }
 
-                AppendPartTokens(tokens, segment.Text, segment, ref pendingLeadingSpace);
+                AppendPartTokens(tokens, segment.Text, segment, ref pendingLeadingSpace, ref atLogicalLineStart);
             }
 
             return tokens;
@@ -452,12 +469,28 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
             List<WrapToken> tokens,
             string part,
             ColoredText source,
-            ref bool pendingLeadingSpace)
+            ref bool pendingLeadingSpace,
+            ref bool atLogicalLineStart)
         {
             if (string.IsNullOrEmpty(part))
                 return;
 
             int i = 0;
+            if (atLogicalLineStart)
+            {
+                while (i < part.Length && part[i] == ' ')
+                    i++;
+
+                if (i > 0)
+                    tokens.Add(WrapToken.LineIndent(part.Substring(0, i), source));
+
+                // Consumed leading spaces (or there were none). Further spaces are inter-word.
+                atLogicalLineStart = false;
+                pendingLeadingSpace = false;
+                if (i >= part.Length)
+                    return;
+            }
+
             while (i < part.Length)
             {
                 if (part[i] == ' ')
@@ -512,26 +545,37 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
             public ColoredText Source { get; }
             public bool IsPunctuation { get; }
             public bool IsHardBreak { get; }
+            public bool IsLineIndent { get; }
             /// <summary>True when the source text had whitespace immediately before this word.</summary>
             public bool NeedsLeadingSpace { get; }
 
-            private WrapToken(string text, ColoredText source, bool isPunctuation, bool isHardBreak, bool needsLeadingSpace)
+            private WrapToken(
+                string text,
+                ColoredText source,
+                bool isPunctuation,
+                bool isHardBreak,
+                bool isLineIndent,
+                bool needsLeadingSpace)
             {
                 Text = text;
                 Source = source;
                 IsPunctuation = isPunctuation;
                 IsHardBreak = isHardBreak;
+                IsLineIndent = isLineIndent;
                 NeedsLeadingSpace = needsLeadingSpace;
             }
 
             public static WrapToken Word(string text, ColoredText source, bool needsLeadingSpace) =>
-                new WrapToken(text, source, isPunctuation: false, isHardBreak: false, needsLeadingSpace);
+                new WrapToken(text, source, isPunctuation: false, isHardBreak: false, isLineIndent: false, needsLeadingSpace);
 
             public static WrapToken Punctuation(string text, ColoredText source) =>
-                new WrapToken(text, source, isPunctuation: true, isHardBreak: false, needsLeadingSpace: false);
+                new WrapToken(text, source, isPunctuation: true, isHardBreak: false, isLineIndent: false, needsLeadingSpace: false);
 
             public static WrapToken HardBreak() =>
-                new WrapToken(string.Empty, new ColoredText(string.Empty), isPunctuation: false, isHardBreak: true, needsLeadingSpace: false);
+                new WrapToken(string.Empty, new ColoredText(string.Empty), isPunctuation: false, isHardBreak: true, isLineIndent: false, needsLeadingSpace: false);
+
+            public static WrapToken LineIndent(string spaces, ColoredText source) =>
+                new WrapToken(spaces, source, isPunctuation: false, isHardBreak: false, isLineIndent: true, needsLeadingSpace: false);
         }
     }
 }

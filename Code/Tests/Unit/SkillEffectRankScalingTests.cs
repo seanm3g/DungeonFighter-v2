@@ -18,6 +18,7 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("=== SkillEffectRankScaling Tests ===\n");
             _testsRun = _testsPassed = _testsFailed = 0;
+            TestBase.ClearBalancePacingForTests(); // strips built on fresh L1 heroes; a config Reload brings back the slot cap
 
             EnsureTreesLoaded();
             TestFirstBronzeAgeScalesWithRank();

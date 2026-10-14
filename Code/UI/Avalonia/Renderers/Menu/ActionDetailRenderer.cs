@@ -57,7 +57,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Cooldown: {action.Cooldown}", AsciiArtAssets.Colors.White);
             menuStartY++;
-            canvas.AddText(menuStartX, menuStartY, $"  Speed: {action.Length}", AsciiArtAssets.Colors.White);
+            double baseSeconds = GameConfiguration.Instance.Combat.BaseAttackTime * action.Length;
+            canvas.AddText(menuStartX, menuStartY, $"  Time: {action.Length:0.##}× ({baseSeconds:0.#}s at base)", AsciiArtAssets.Colors.White);
             menuStartY++;
             bool hasEnemyMods = !string.IsNullOrWhiteSpace(action.EnemySpeedMod) || !string.IsNullOrWhiteSpace(action.EnemyDamageMod)
                 || !string.IsNullOrWhiteSpace(action.EnemyMultiHitMod) || !string.IsNullOrWhiteSpace(action.EnemyAmpMod);

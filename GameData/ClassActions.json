@@ -15,19 +15,19 @@
     {
       "tier": 2,
       "classKey": "Barbarian",
-      "actionName": "PUNCH HARDER",
+      "actionName": "WARCRY",
       "minClassPoints": null
     },
     {
       "tier": 3,
       "classKey": "Barbarian",
-      "actionName": "PUNCH HARDEST",
+      "actionName": "BARBARIAN RAGE",
       "minClassPoints": null
     },
     {
       "tier": 4,
       "classKey": "Barbarian",
-      "actionName": "OL\u0027 FAITHFUL",
+      "actionName": "MIGHTY SWING",
       "minClassPoints": null
     },
     {
@@ -39,7 +39,7 @@
     {
       "tier": 2,
       "classKey": "Warrior",
-      "actionName": "JAB",
+      "actionName": "CHALLENGE",
       "minClassPoints": null
     },
     {
@@ -51,7 +51,7 @@
     {
       "tier": 3,
       "classKey": "Warrior",
-      "actionName": "JAB",
+      "actionName": "MEASURED CUT",
       "minClassPoints": null
     },
     {
@@ -87,7 +87,7 @@
     {
       "tier": 2,
       "classKey": "Rogue",
-      "actionName": "JAB",
+      "actionName": "MISDIRECT",
       "minClassPoints": null
     },
     {
@@ -99,7 +99,7 @@
     {
       "tier": 3,
       "classKey": "Rogue",
-      "actionName": "JAB",
+      "actionName": "LOADED DICE",
       "minClassPoints": null
     },
     {
@@ -123,13 +123,13 @@
     {
       "tier": 1,
       "classKey": "Wizard",
-      "actionName": "CAST",
+      "actionName": "CHANNEL",
       "minClassPoints": null
     },
     {
       "tier": 2,
       "classKey": "Wizard",
-      "actionName": "JAB",
+      "actionName": "ECHO SPELL",
       "minClassPoints": null
     },
     {
@@ -141,7 +141,7 @@
     {
       "tier": 3,
       "classKey": "Wizard",
-      "actionName": "JAB",
+      "actionName": "REWRITE FATE",
       "minClassPoints": null
     },
     {

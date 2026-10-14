@@ -181,21 +181,8 @@ namespace RPGGame
                             bool shouldExit = await exitChoiceHandler.ShowExitChoiceMenu(roomNumber, totalRooms);
                             if (shouldExit)
                             {
-                                // Player chose to leave - exit dungeon without rewards
-                                // Fully heal the player before leaving
-                                int healthRestored = 0;
-                                if (stateManager.CurrentPlayer != null)
-                                {
-                                    int effectiveMaxHealth = stateManager.CurrentPlayer.GetEffectiveMaxHealth();
-                                    healthRestored = effectiveMaxHealth - stateManager.CurrentPlayer.CurrentHealth;
-                                    if (healthRestored > 0)
-                                    {
-                                        stateManager.CurrentPlayer.Heal(healthRestored);
-                                    }
-                                    stateManager.CurrentPlayer.ClearAllTempEffects();
-                                    stateManager.CurrentPlayer.RefreshRoomArmor();
-                                    stateManager.CurrentPlayer.ClearDungeonSearchBuffs();
-                                }
+                                // Player chose to leave - exit dungeon without rewards; full heal at hub.
+                                int healthRestored = DungeonRunRecovery.RestoreAfterLeavingDungeon(stateManager.CurrentPlayer);
                                 
                                 if (customUIManager is CanvasUICoordinator canvasUIExit && stateManager.CurrentPlayer != null)
                                 {
@@ -252,11 +239,9 @@ namespace RPGGame
                 // Dungeon completed successfully
                 var (xpGained, lootReceived, levelUpInfos, itemsFoundDuringRun, skipDungeonCompletionScreen) = await rewardManager.CompleteDungeon();
 
-                if (stateManager.CurrentPlayer != null)
-                {
-                    stateManager.CurrentPlayer.ClearAllTempEffects();
-                    stateManager.CurrentPlayer.ClearDungeonSearchBuffs();
-                }
+                // RewardManager already full-heals on a normal clear; ensure cleanup + heal after
+                // ClearAllTempEffects / search-buff teardown (and Training Ground skip path).
+                DungeonRunRecovery.RestoreAfterLeavingDungeon(stateManager.CurrentPlayer);
 
                 if (skipDungeonCompletionScreen)
                 {

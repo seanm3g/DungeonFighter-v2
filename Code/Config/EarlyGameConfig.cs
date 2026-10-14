@@ -12,7 +12,6 @@ namespace RPGGame
 
         public StartingClassPointsBonusConfig StartingClassPointsBonus { get; set; } = new();
         public StartingActionDamageMultiplierConfig StartingActionDamageMultiplier { get; set; } = new();
-        public NaiveteConfig Naivete { get; set; } = new();
 
         public void EnsureValidDefaults()
         {
@@ -24,9 +23,6 @@ namespace RPGGame
 
             StartingActionDamageMultiplier ??= new StartingActionDamageMultiplierConfig();
             StartingActionDamageMultiplier.EnsureValidDefaults();
-
-            Naivete ??= new NaiveteConfig();
-            Naivete.EnsureValidDefaults();
         }
     }
 

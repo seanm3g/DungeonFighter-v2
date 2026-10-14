@@ -64,7 +64,17 @@ namespace RPGGame.Audio
                 CombatEventBus.Instance.Subscribe(CombatEventType.EnemyLowHealth, enemyLowHealthHandler);
                 CombatEventBus.Instance.Subscribe(CombatEventType.StatusEffectApplied, statusHandler);
                 subscribed = true;
+                // New games clear the bus; re-subscribe so death / low-health / status cues keep playing.
+                CombatEventBus.Instance.Cleared -= OnBusCleared;
+                CombatEventBus.Instance.Cleared += OnBusCleared;
             }
+        }
+
+        private void OnBusCleared()
+        {
+            lock (subscribeLock)
+                subscribed = false;
+            SubscribeToCombatEvents();
         }
 
         /// <summary>Unsubscribes from the combat event bus (used by tests and on shutdown).</summary>
@@ -77,6 +87,7 @@ namespace RPGGame.Audio
                 if (heroLowHealthHandler  != null) CombatEventBus.Instance.Unsubscribe(CombatEventType.HeroLowHealth, heroLowHealthHandler);
                 if (enemyLowHealthHandler != null) CombatEventBus.Instance.Unsubscribe(CombatEventType.EnemyLowHealth, enemyLowHealthHandler);
                 if (statusHandler     != null) CombatEventBus.Instance.Unsubscribe(CombatEventType.StatusEffectApplied, statusHandler);
+                CombatEventBus.Instance.Cleared -= OnBusCleared;
                 subscribed = false;
             }
         }

@@ -114,17 +114,7 @@ namespace RPGGame
         public static int GetRank(Character? c, string customEffectId)
         {
             if (c?.Progression == null || string.IsNullOrWhiteSpace(customEffectId)) return 0;
-            c.Progression.EnsureSkillTreeRootsGranted();
-            int best = 0;
-            foreach (var kv in c.Progression.LearnedSkillRanks)
-            {
-                if (kv.Value <= 0) continue;
-                var node = SkillTreeService.Trees.GetNode(kv.Key);
-                if (node != null &&
-                    string.Equals(node.CustomEffectId, customEffectId, StringComparison.OrdinalIgnoreCase))
-                    best = Math.Max(best, kv.Value);
-            }
-            return best;
+            return Lookup(c.Progression).TryGetValue(customEffectId, out var e) ? e.Rank : 0;
         }
 
         /// <summary>round(rank × power), at least 1 once the node is learned (integer magnitudes).</summary>
@@ -138,17 +128,96 @@ namespace RPGGame
         public static double GetPower(Character? c, string customEffectId)
         {
             if (c?.Progression == null || string.IsNullOrWhiteSpace(customEffectId)) return 0;
-            c.Progression.EnsureSkillTreeRootsGranted();
-            double best = 0;
-            foreach (var kv in c.Progression.LearnedSkillRanks)
+            return Lookup(c.Progression).TryGetValue(customEffectId, out var e) ? e.Power : 0;
+        }
+
+        // Per-hero table: custom effect id -> (best rank, best rank x node power). The skill router asks ~60 effects per
+        // hit; each used to re-run EnsureSkillTreeRootsGranted (LINQ over the trees) and walk every learned node, which was
+        // ~45% of simulation time. The table is rebuilt (roots granted first, as before) whenever learned ranks, node
+        // powers, class points or the tree config change, so results are identical.
+        private sealed class EffectTable
+        {
+            public long Signature = long.MinValue;
+            public object? Trees;
+            public Dictionary<string, (int Rank, double Power)> Map = new(StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<CharacterProgression, EffectTable> Tables = new();
+
+        private static long Signature(CharacterProgression p, SkillTreesConfig trees)
+        {
+            unchecked
             {
-                if (kv.Value <= 0) continue;
-                var node = SkillTreeService.Trees.GetNode(kv.Key);
-                if (node != null &&
-                    string.Equals(node.CustomEffectId, customEffectId, StringComparison.OrdinalIgnoreCase))
-                    best = Math.Max(best, kv.Value * Math.Max(0, node.Power));
+                long h = 17;
+                foreach (WeaponType path in ClassPresentationConfig.ClassWeaponOrder)
+                    h = h * 31 + p.GetClassPoints(path);
+                h = h * 31 + p.LearnedSkillRanks.Count;
+                foreach (var kv in p.LearnedSkillRanks)
+                {
+                    long entry = StringComparer.OrdinalIgnoreCase.GetHashCode(kv.Key) * 397L + kv.Value;
+                    var node = trees.GetNode(kv.Key);
+                    if (node != null)
+                        entry = entry * 31 + node.Power.GetHashCode();
+                    h += entry * 1000003L; // order-independent sum
+                }
+                return h;
             }
-            return best;
+        }
+
+        [ThreadStatic] private static CharacterProgression? _pinned;
+        [ThreadStatic] private static Dictionary<string, (int Rank, double Power)>? _pinnedMap;
+
+        /// <summary>
+        /// Within the returned scope, lookups for <paramref name="p"/> skip the change check (one hit asks ~60 effects and
+        /// ranks / class points cannot change mid-hit). Dispose to restore.
+        /// </summary>
+        public static IDisposable Pin(CharacterProgression? p)
+        {
+            var prev = (_pinned, _pinnedMap);
+            if (p != null)
+            {
+                _pinnedMap = Lookup(p);
+                _pinned = p;
+            }
+            return new PinScope(prev);
+        }
+
+        private sealed class PinScope : IDisposable
+        {
+            private readonly (CharacterProgression?, Dictionary<string, (int Rank, double Power)>?) _prev;
+            public PinScope((CharacterProgression?, Dictionary<string, (int Rank, double Power)>?) prev) => _prev = prev;
+            public void Dispose() => (_pinned, _pinnedMap) = _prev;
+        }
+
+        private static Dictionary<string, (int Rank, double Power)> Lookup(CharacterProgression p)
+        {
+            if (_pinnedMap != null && ReferenceEquals(p, _pinned))
+                return _pinnedMap;
+            var trees = SkillTreeService.Trees;
+            var table = Tables.GetValue(p, _ => new EffectTable());
+            lock (table)
+            {
+                long sig = Signature(p, trees);
+                if (sig == table.Signature && ReferenceEquals(table.Trees, trees))
+                    return table.Map;
+
+                p.EnsureSkillTreeRootsGranted();
+                var map = new Dictionary<string, (int Rank, double Power)>(StringComparer.OrdinalIgnoreCase);
+                foreach (var kv in p.LearnedSkillRanks)
+                {
+                    if (kv.Value <= 0) continue;
+                    var node = trees.GetNode(kv.Key);
+                    if (node == null || string.IsNullOrWhiteSpace(node.CustomEffectId)) continue;
+                    double power = kv.Value * Math.Max(0, node.Power);
+                    map[node.CustomEffectId] = map.TryGetValue(node.CustomEffectId, out var cur)
+                        ? (Math.Max(cur.Rank, kv.Value), Math.Max(cur.Power, power))
+                        : (kv.Value, power);
+                }
+                table.Map = map;
+                table.Trees = trees;
+                table.Signature = Signature(p, trees); // after roots were granted
+                return map;
+            }
         }
     }
 }

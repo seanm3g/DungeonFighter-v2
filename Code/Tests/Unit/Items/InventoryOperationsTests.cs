@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Handlers.Inventory;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Items
@@ -27,6 +28,7 @@ namespace RPGGame.Tests.Unit.Items
             _testsFailed = 0;
 
             TestConstructor();
+            TestTradeUpLockExcludesItems();
 
             // Note: EquipItem, UnequipItem, DiscardItem, and TradeUpItems
             // require user input (Console.ReadLine), so we can't easily test them
@@ -84,6 +86,36 @@ namespace RPGGame.Tests.Unit.Items
                     "Constructor should throw ArgumentNullException for null inventory",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        #endregion
+
+        #region Trade-Up Lock Tests
+
+        private static void TestTradeUpLockExcludesItems()
+        {
+            Console.WriteLine("--- Testing Trade-Up Lock ---");
+
+            var gear = new Item(ItemType.Head, "Helm");
+            TestBase.AssertTrue(InventoryTradeUpHandler.IsTradeUpCandidate(gear),
+                "Unlocked gear is a trade-up candidate",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            gear.ExcludeFromTradeUp = true;
+            TestBase.AssertFalse(InventoryTradeUpHandler.IsTradeUpCandidate(gear),
+                "Locked gear is not a trade-up candidate",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var consumable = new Item(ItemType.Consumable, "Bread");
+            TestBase.AssertFalse(InventoryTradeUpHandler.IsTradeUpCandidate(consumable),
+                "Consumables are never trade-up candidates",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var roundTripped = System.Text.Json.JsonSerializer.Deserialize<Item>(
+                System.Text.Json.JsonSerializer.Serialize(gear));
+            TestBase.AssertTrue(roundTripped != null && roundTripped.ExcludeFromTradeUp,
+                "Trade-up lock survives JSON save round-trip",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

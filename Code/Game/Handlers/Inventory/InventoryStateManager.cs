@@ -1,6 +1,8 @@
 namespace RPGGame.Handlers.Inventory
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// Manages state tracking for multi-step inventory actions.
@@ -48,7 +50,7 @@ namespace RPGGame.Handlers.Inventory
         };
 
         /// <summary>
-        /// Advances <see cref="InventoryEquipSlotFilter"/> in order: weapon → head → body → legs → feet → off → weapon…
+        /// Advances <see cref="InventoryEquipSlotFilter"/> in order: weapon → head → body → legs → feet → charm → off → weapon…
         /// </summary>
         public string? CycleInventoryEquipSlotFilter()
         {
@@ -62,6 +64,44 @@ namespace RPGGame.Handlers.Inventory
                 ? null
                 : InventoryEquipSlotFilterCycleOrder[next];
             return InventoryEquipSlotFilter;
+        }
+
+        /// <summary>
+        /// When set, the main inventory list (and equip/discard item prompts) only show bag items of this material (<see cref="Item.Material"/>). M cycles this filter.
+        /// </summary>
+        public string? InventoryMaterialFilter { get; set; }
+
+        /// <summary>
+        /// Advances <see cref="InventoryMaterialFilter"/> through the materials present in the bag
+        /// (canonical <see cref="ItemMaterialRules.AllMaterials"/> order, then others alphabetically) → off → first…
+        /// </summary>
+        public string? CycleInventoryMaterialFilter(IEnumerable<Item>? inventory)
+        {
+            var materials = GetInventoryMaterials(inventory);
+            int idx = InventoryMaterialFilter == null
+                ? -1
+                : materials.FindIndex(m => string.Equals(m, InventoryMaterialFilter, StringComparison.OrdinalIgnoreCase));
+            int next = idx + 1;
+            InventoryMaterialFilter = next >= materials.Count ? null : materials[next];
+            return InventoryMaterialFilter;
+        }
+
+        /// <summary>Distinct non-empty materials in the bag, in canonical material order.</summary>
+        public static List<string> GetInventoryMaterials(IEnumerable<Item>? inventory)
+        {
+            if (inventory == null)
+                return new List<string>();
+            return inventory
+                .Select(item => item?.Material?.Trim() ?? "")
+                .Where(m => m.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(m =>
+                {
+                    int i = Array.FindIndex(ItemMaterialRules.AllMaterials, a => string.Equals(a, m, StringComparison.OrdinalIgnoreCase));
+                    return i < 0 ? int.MaxValue : i;
+                })
+                .ThenBy(m => m, StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
 
         public InventoryItemSortMode CycleItemSortMode()
@@ -139,7 +179,7 @@ namespace RPGGame.Handlers.Inventory
             {
                 if (WaitingForComparisonChoice)
                 {
-                    errorMessage = "Please enter 1 (keep current), 2 (equip new), or 0 (cancel).";
+                    errorMessage = "Please enter 1 (keep current), 2 (equip new), 3 (lock/unlock trade-up), or 0 (cancel).";
                 }
                 else
                 {

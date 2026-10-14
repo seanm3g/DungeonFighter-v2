@@ -152,7 +152,9 @@ namespace RPGGame
         public static ((List<ColoredText> actionText, List<ColoredText> rollInfo) mainResult, List<List<ColoredText>> statusEffects) ExecuteActionWithUIAndStatusEffectsColored(Actor source, Actor target, Action? action, Environment? environment = null, Action? lastPlayerAction = null, BattleNarrative? battleNarrative = null)
         {
             // Execute the action using the ColoredText version
-            return ActionExecutor.ExecuteActionWithStatusEffectsColored(source, target, environment, lastPlayerAction, action, battleNarrative);
+            long prof = RPGGame.Diagnostics.ToolProfiler.Start();
+            try { return ActionExecutor.ExecuteActionWithStatusEffectsColored(source, target, environment, lastPlayerAction, action, battleNarrative); }
+            finally { RPGGame.Diagnostics.ToolProfiler.Stop("Turn.ExecuteAction(+text)", prof); }
         }
         
         /// <summary>

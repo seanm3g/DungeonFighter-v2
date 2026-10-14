@@ -46,8 +46,11 @@ namespace RPGGame.UI.ColorSystem.Helpers
                 
                 if (isSpaceOnly)
                 {
-                    // Normalize whitespace-only segments to a single space
-                    processedText = CombatLogSpacingManager.SingleSpace;
+                    // Normalize whitespace-only segments to a single space, except deliberate line breaks
+                    // (e.g. "\n     " before an indented travel roll line).
+                    processedText = segment.Text.Contains('\n')
+                        ? segment.Text
+                        : CombatLogSpacingManager.SingleSpace;
                 }
                 else
                 {

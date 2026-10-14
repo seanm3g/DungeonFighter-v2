@@ -87,8 +87,7 @@ namespace RPGGame
         /// </summary>
         private static string MapImportedActionNameToGameDefinition(string actionName)
         {
-            if (string.Equals(actionName, "PUNCH", StringComparison.OrdinalIgnoreCase))
-                return "PUNCH HARD";
+            // Actions.json names the unarmed action PUNCH (the old PUNCH HARD key no longer exists).
             return actionName;
         }
 

@@ -126,7 +126,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             {
                 WeaponItem previewForStats = previews[pi];
                 string damageText = $"Damage: {previewForStats.GetTotalDamage()}";
-                string speedText = $"Speed: {previewForStats.GetTotalAttackSpeed():F2}×";
+                // No hero yet: show the swing at base agility (8s × weapon), in seconds.
+                double baseSwing = GameConfiguration.Instance.Combat.BaseAttackTime * previewForStats.GetTotalAttackSpeed();
+                string speedText = $"Attack time: {baseSwing:F1}s";
                 int actionSlots = ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(previewForStats.WeaponType);
                 string actionSlotText = actionSlots > 0 ? $"Action slots: +{actionSlots}" : "";
                 if (actionSlots > 0)

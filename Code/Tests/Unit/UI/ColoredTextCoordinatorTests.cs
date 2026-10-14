@@ -72,13 +72,17 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual("", textManager.DisplayBuffer[0],
                 "Leading blank before top divider must not be swallowed (consumable path has no room-cleared spacer)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, textManager.DisplayBuffer[1],
+            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, StripColorTags(textManager.DisplayBuffer[1]),
                 "Top divider should follow the leading blank",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, textManager.DisplayBuffer[4],
+            TestBase.AssertEqual(AsciiArtAssets.UIText.Divider, StripColorTags(textManager.DisplayBuffer[4]),
                 "Bottom divider should sit flush under option 2 (no blank between)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
+
+        /// <summary>Dividers are written with [color:…] markup; compare their plain text.</summary>
+        private static string StripColorTags(string line) =>
+            System.Text.RegularExpressions.Regex.Replace(line ?? "", @"\[/?color(:[^\]]*)?\]", "");
 
         private sealed class RecordingCanvasTextManager : ICanvasTextManager
         {

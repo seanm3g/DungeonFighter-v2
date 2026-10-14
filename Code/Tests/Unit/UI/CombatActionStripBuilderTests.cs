@@ -561,7 +561,9 @@ namespace RPGGame.Tests.Unit.UI
         /// </summary>
         private static void TestStripSwingShowsSlotAmpCalculation(ref int run, ref int passed, ref int failed)
         {
+            // A bare L1 hero hits for ~1, so a 1.25x slot amp would round away in integer damage: give it a real weapon.
             var hero = TestDataBuilders.Character().WithName("AmpStripHero").WithStats(10, 10, 20, 10).Build();
+            hero.Equipment.Weapon = TestDataBuilders.Weapon().WithName("AmpStripMace").WithWeaponType(WeaponType.Mace).WithBaseDamage(40).Build();
             var a = TestDataBuilders.CreateMockAction("OPENER", ActionType.Attack);
             a.IsComboAction = true;
             a.ComboOrder = 1;
@@ -598,7 +600,7 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(
                 !swing1.Contains("amp:", StringComparison.Ordinal)
                 && effDmg > baseDmg,
-                "Second-slot strip swing omits amp label but Effective damage includes slot amp",
+                $"Second-slot strip swing omits amp label but Effective damage includes slot amp (eff {effDmg}, base {baseDmg}, line '{swing1}')",
                 ref run, ref passed, ref failed);
 
             string calc1 = CombatActionStripBuilder.FormatSwingAmpCalculationLine(hero, b, 1);
@@ -621,7 +623,7 @@ namespace RPGGame.Tests.Unit.UI
                 withSheet > slot1 + 0.05
                 && withSheetDmg > effDmg
                 && calcSheet.Contains("sheet", StringComparison.Ordinal),
-                "Pending AMP_MOD folds into strip damage and calc line",
+                $"Pending AMP_MOD folds into strip damage and calc line (amp {slot1:F2}->{withSheet:F2}, dmg {effDmg}->{withSheetDmg}, calc '{calcSheet}')",
                 ref run, ref passed, ref failed);
         }
 

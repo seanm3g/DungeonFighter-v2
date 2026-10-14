@@ -100,7 +100,9 @@ namespace RPGGame.UI.Avalonia.Canvas
             List<CanvasProgressBar> progressBars,
             List<CanvasSegmentedBar> segmentedBars,
             Color clearBackground = default,
-            bool fillBackground = true)
+            bool fillBackground = true,
+            List<CanvasImage>? images = null,
+            CanvasBackdrop? backdrop = null)
         {
             // default(Color) / transparent → solid black (normal game backdrop)
             if (fillBackground)
@@ -134,6 +136,10 @@ namespace RPGGame.UI.Avalonia.Canvas
             try
             {
                 RenderBoxes(context, boxElements, overlayPass: false);
+                if (backdrop != null)
+                    RenderBackdrop(context, backdrop, charWidth, charHeight);
+                if (images != null)
+                    RenderImages(context, images, charWidth, charHeight);
                 RenderProgressBars(context, progressBars);
                 RenderSegmentedBars(context, segmentedBars);
                 RenderText(context, textElements, overlayPass: false);
@@ -290,6 +296,46 @@ namespace RPGGame.UI.Avalonia.Canvas
             }
         }
         
+        private static void RenderImages(DrawingContext context, List<CanvasImage> images, double charWidth, double charHeight)
+        {
+            foreach (var image in images)
+            {
+                double pad = Math.Max(0, image.PaddingPixels);
+                double w = image.Width * charWidth - 2 * pad;
+                double h = image.Height * charHeight - 2 * pad;
+                double side = Math.Min(w, h);
+                if (side <= 0 || image.Source == null)
+                    continue;
+                double x = image.X * charWidth + pad + (w - side) / 2;
+                double y = image.Y * charHeight + pad + (h - side) / 2;
+                context.DrawImage(image.Source, image.SourceRect, new Rect(x, y, side, side));
+            }
+        }
+
+        private void RenderBackdrop(DrawingContext context, CanvasBackdrop backdrop, double charWidth, double charHeight)
+        {
+            double inset = Math.Max(0, backdrop.InsetPixels);
+            var dest = new Rect(
+                backdrop.X * charWidth + inset,
+                backdrop.Y * charHeight + inset,
+                backdrop.Width * charWidth - 2 * inset,
+                backdrop.Height * charHeight - 2 * inset);
+            var size = backdrop.Source?.Size ?? default;
+            if (dest.Width <= 0 || dest.Height <= 0 || size.Width <= 0 || size.Height <= 0)
+                return;
+
+            // Cover: crop the source to the destination's aspect, centred.
+            double scale = Math.Max(dest.Width / size.Width, dest.Height / size.Height);
+            double srcW = dest.Width / scale;
+            double srcH = dest.Height / scale;
+            var src = new Rect((size.Width - srcW) / 2, (size.Height - srcH) / 2, srcW, srcH);
+            context.DrawImage(backdrop.Source!, src, dest);
+
+            byte alpha = (byte)Math.Round(Math.Clamp(backdrop.Dim, 0, 1) * 255);
+            if (alpha > 0)
+                context.FillRectangle(GetCachedBrush(Color.FromArgb(alpha, 0, 0, 0)), dest);
+        }
+
         private void RenderBox(DrawingContext context, CanvasBox box)
         {
             double charWidth = coordinateConverter.GetCharWidth();

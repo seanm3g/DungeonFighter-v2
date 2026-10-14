@@ -415,14 +415,14 @@ namespace RPGGame.Tests.Unit
             int newEffectiveMaxHealth = character.GetEffectiveMaxHealth();
             int finalHealth = character.CurrentHealth;
 
-            // When max health increases, current health should be set to the new effective max health
+            // When max health increases, current health gains only the added max HP (no full heal)
             TestBase.AssertTrue(newEffectiveMaxHealth > baseEffectiveMaxHealth,
                 $"Effective max health should increase: {baseEffectiveMaxHealth} -> {newEffectiveMaxHealth}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Health should be adjusted to new effective max when max health increases
-            TestBase.AssertEqual(newEffectiveMaxHealth, finalHealth,
-                $"Health should be adjusted to new effective max when max health increases. Expected: {newEffectiveMaxHealth}, Actual: {finalHealth}, Base Max: {baseMaxHealth}, Initial Health: {initialHealth}",
+            int expectedHealth = initialHealth + (newEffectiveMaxHealth - baseEffectiveMaxHealth);
+            TestBase.AssertEqual(expectedHealth, finalHealth,
+                $"Health should rise by the max-HP gain, not full heal. Expected: {expectedHealth}, Actual: {finalHealth}, Base Max: {baseMaxHealth}, Initial Health: {initialHealth}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

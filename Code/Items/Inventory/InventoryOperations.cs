@@ -144,6 +144,7 @@ namespace RPGGame
             
             // Group items by rarity and find rarities with at least 5 items
             var rarityGroups = inventory
+                .Where(RPGGame.Handlers.Inventory.InventoryTradeUpHandler.IsTradeUpCandidate)
                 .GroupBy(item => item.Rarity ?? "Common")
                 .Where(group => group.Count() >= 5)
                 .OrderBy(group => GetRarityOrder(group.Key))
@@ -206,6 +207,7 @@ namespace RPGGame
             
             // Get 5 items of the specified rarity
             var itemsToTrade = inventory
+                .Where(RPGGame.Handlers.Inventory.InventoryTradeUpHandler.IsTradeUpCandidate)
                 .Where(item => (item.Rarity ?? "Common").Equals(rarity, StringComparison.OrdinalIgnoreCase))
                 .Take(5)
                 .ToList();

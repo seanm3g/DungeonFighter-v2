@@ -65,8 +65,53 @@ namespace RPGGame
         public double EnchantmentChance { get; set; }
         public string Description { get; set; } = "";
 
+        /// <summary>
+        /// Armor pieces: catalog armor × this before affixes (0 or less = 1.0, legacy).
+        /// </summary>
+        public double ArmorMultiplier { get; set; }
+
+        /// <summary>Flat armor added to every armor piece before affixes, times its slot weight (0 = legacy).</summary>
+        public double ArmorFlatPerPiece { get; set; }
+
+        /// <summary>Armor per item level on every armor piece before affixes, times its slot weight (0 = legacy).</summary>
+        public double ArmorPerItemLevel { get; set; }
+
+        /// <summary>Armor per item tier above 1 on every armor piece before affixes, times its slot weight (0 = legacy).</summary>
+        public double ArmorPerItemTier { get; set; }
+
+        /// <summary>Slot weights for the flat and per-level armor (head / chest / legs / feet; missing = 1.0).</summary>
+        public Dictionary<string, double> ArmorSlotWeights { get; set; } = new();
+
+        /// <summary>
+        /// Base armor for a piece: catalog × <see cref="ArmorMultiplier"/> + slot weight × (flat + per level × item level + per tier × (tier − 1)).
+        /// Read at armor-total time, so saved items follow the active patch.
+        /// </summary>
+        public int ScalePieceArmor(int catalogArmor, ItemType slot, int itemLevel, int itemTier = 1)
+        {
+            double mult = ArmorMultiplier > 0 ? ArmorMultiplier : 1.0;
+            double extra = ArmorFlatPerPiece + ArmorPerItemLevel * System.Math.Max(1, itemLevel)
+                + ArmorPerItemTier * System.Math.Max(0, itemTier - 1);
+            if (extra == 0 && mult == 1.0)
+                return catalogArmor;
+            string key = slot switch
+            {
+                ItemType.Head => "head",
+                ItemType.Chest => "chest",
+                ItemType.Legs => "legs",
+                ItemType.Feet => "feet",
+                _ => ""
+            };
+            double weight = 1.0;
+            if (ArmorSlotWeights != null)
+                foreach (var kv in ArmorSlotWeights)
+                    if (string.Equals(kv.Key, key, System.StringComparison.OrdinalIgnoreCase))
+                        weight = kv.Value;
+            return (int)System.Math.Round(catalogArmor * mult + weight * extra);
+        }
+
         public void EnsureSensibleDefaults()
         {
+            ArmorSlotWeights ??= new Dictionary<string, double>();
             if (WeaponDamagePerTier <= 0)
                 WeaponDamagePerTier = 3;
             if (ArmorValuePerTier <= 0)

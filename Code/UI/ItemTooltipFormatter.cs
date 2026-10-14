@@ -50,7 +50,7 @@ namespace RPGGame
             }
             if (maxLines <= lines.Count) return Trim(lines, maxLines);
 
-            var contributions = ItemStatFormatter.GetStatContributions(item);
+            var contributions = ItemStatFormatter.GetStatContributions(item, character);
             if (contributions.Count > 0)
             {
                 AddBlank(lines);
@@ -314,10 +314,10 @@ namespace RPGGame
         {
             int? baseArmor = item switch
             {
-                HeadItem h => h.Armor,
-                ChestItem c => c.Armor,
-                LegsItem l => l.Armor,
-                FeetItem f => f.Armor,
+                HeadItem h => h.GetBaseArmor(),
+                ChestItem c => c.GetBaseArmor(),
+                LegsItem l => l.GetBaseArmor(),
+                FeetItem f => f.GetBaseArmor(),
                 _ => null
             };
             if (!baseArmor.HasValue)

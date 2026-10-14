@@ -130,28 +130,28 @@ namespace RPGGame.UI.ColorSystem.Applications
                 else if (item is HeadItem headItem)
                 {
                     builder.Add(" (", Colors.Gray);
-                    builder.Add(headItem.Armor.ToString(), ColorPalette.Success);
+                    builder.Add(headItem.GetBaseArmor().ToString(), ColorPalette.Success);
                     builder.Add(" armor", Colors.Gray);
                     builder.Add(")", Colors.Gray);
                 }
                 else if (item is ChestItem bodyItem)
                 {
                     builder.Add(" (", Colors.Gray);
-                    builder.Add(bodyItem.Armor.ToString(), ColorPalette.Success);
+                    builder.Add(bodyItem.GetBaseArmor().ToString(), ColorPalette.Success);
                     builder.Add(" armor", Colors.Gray);
                     builder.Add(")", Colors.Gray);
                 }
                 else if (item is LegsItem legsItem)
                 {
                     builder.Add(" (", Colors.Gray);
-                    builder.Add(legsItem.Armor.ToString(), ColorPalette.Success);
+                    builder.Add(legsItem.GetBaseArmor().ToString(), ColorPalette.Success);
                     builder.Add(" armor", Colors.Gray);
                     builder.Add(")", Colors.Gray);
                 }
                 else if (item is FeetItem feetItem)
                 {
                     builder.Add(" (", Colors.Gray);
-                    builder.Add(feetItem.Armor.ToString(), ColorPalette.Success);
+                    builder.Add(feetItem.GetBaseArmor().ToString(), ColorPalette.Success);
                     builder.Add(" armor", Colors.Gray);
                     builder.Add(")", Colors.Gray);
                 }

@@ -161,6 +161,25 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual("Iron", fromLegacy.Modifications.First(m => m.GetPrefixCategory() == ModificationPrefixCategory.Material).Name,
                 "prefix remapped", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, fromLegacy.TriggerBundles?.Count ?? 0, "legacy stamps cleared", ref _run, ref _passed, ref _failed);
+
+            var allCaps = new Item(ItemType.Weapon, "Worn IRON Bindings", 1)
+            {
+                Material = "IRON",
+                WeaponType = WeaponType.Mace,
+                Rarity = "Common",
+                Modifications = new List<Modification>
+                {
+                    new Modification { Name = "IRON", PrefixCategory = "MATERIAL", ItemRank = "Common" }
+                }
+            };
+            var fromAllCaps = ItemTypeConverter.ConvertItemToProperType(allCaps) as WeaponItem;
+            TestBase.AssertTrue(fromAllCaps != null, "IRON→weapon", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Iron", fromAllCaps!.Material, "IRON remapped to Iron", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Iron", fromAllCaps.Modifications.First(m => m.GetPrefixCategory() == ModificationPrefixCategory.Material).Name,
+                "IRON prefix title-cased", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(fromAllCaps.Name.Contains("Iron", StringComparison.Ordinal)
+                    && !fromAllCaps.Name.Contains("IRON", StringComparison.Ordinal),
+                "display name uses Iron not IRON", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestRepairMissingMaterialDoesNotReroll()

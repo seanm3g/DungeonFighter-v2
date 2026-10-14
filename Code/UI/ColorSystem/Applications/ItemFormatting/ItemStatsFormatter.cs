@@ -47,28 +47,28 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
             {
                 var armorLine = new ColoredTextBuilder();
                 armorLine.Add("  Defense: ", ColorPalette.Info);
-                armorLine.Add(headArmor.Armor.ToString(), ColorPalette.Success);
+                armorLine.Add(headArmor.GetBaseArmor().ToString(), ColorPalette.Success);
                 lines.Add(armorLine.Build());
             }
             else if (item is ChestItem bodyArmor)
             {
                 var armorLine = new ColoredTextBuilder();
                 armorLine.Add("  Defense: ", ColorPalette.Info);
-                armorLine.Add(bodyArmor.Armor.ToString(), ColorPalette.Success);
+                armorLine.Add(bodyArmor.GetBaseArmor().ToString(), ColorPalette.Success);
                 lines.Add(armorLine.Build());
             }
             else if (item is LegsItem legsArmor)
             {
                 var armorLine = new ColoredTextBuilder();
                 armorLine.Add("  Defense: ", ColorPalette.Info);
-                armorLine.Add(legsArmor.Armor.ToString(), ColorPalette.Success);
+                armorLine.Add(legsArmor.GetBaseArmor().ToString(), ColorPalette.Success);
                 lines.Add(armorLine.Build());
             }
             else if (item is FeetItem feetArmor)
             {
                 var armorLine = new ColoredTextBuilder();
                 armorLine.Add("  Defense: ", ColorPalette.Info);
-                armorLine.Add(feetArmor.Armor.ToString(), ColorPalette.Success);
+                armorLine.Add(feetArmor.GetBaseArmor().ToString(), ColorPalette.Success);
                 lines.Add(armorLine.Build());
             }
             

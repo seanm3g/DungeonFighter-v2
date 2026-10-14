@@ -57,7 +57,7 @@ Lesser,Barbarian,PUNCH
             var cfg = ClassActionsSheetConverter.ParseCsvToConfig(csv);
             TestBase.AssertTrue(cfg.Rules.Count == 1, "one rule", ref run, ref pass, ref fail);
             if (cfg.Rules.Count > 0)
-                TestBase.AssertEqual("PUNCH HARD", cfg.Rules[0].ActionName, "sheet PUNCH → Actions.json name", ref run, ref pass, ref fail);
+                TestBase.AssertEqual("PUNCH", cfg.Rules[0].ActionName, "sheet PUNCH → Actions.json name", ref run, ref pass, ref fail);
         }
 
         private static void ClassActionsTierLadderLesserThroughAbyssal(ref int run, ref int pass, ref int fail)

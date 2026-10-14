@@ -54,8 +54,8 @@ namespace RPGGame.Tests.Unit
 
             AssertNear(ComboAmplifierCurve.Compute(110, c), 2.00, 0.001, "TECH 110");
             AssertNear(ComboAmplifierCurve.Compute(99, c), 1.98, 0.001, "TECH 99");
-            AssertNear(ComboAmplifierCurve.Compute(20, c), 1.20, 0.02, "TECH 20");
-            AssertNear(ComboAmplifierCurve.Compute(50, c), 1.44, 0.02, "TECH 50");
+            AssertNear(ComboAmplifierCurve.Compute(20, c), 1.17, 0.02, "TECH 20"); // 1 + 0.98·(20/99)^1.1
+            AssertNear(ComboAmplifierCurve.Compute(50, c), 1.46, 0.02, "TECH 50"); // 1 + 0.98·(50/99)^1.1
         }
 
         private static void AssertNear(double actual, double expected, double tolerance, string label)

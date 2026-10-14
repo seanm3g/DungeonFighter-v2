@@ -120,11 +120,11 @@ namespace RPGGame.Tests.Unit
             }
 
             // Test specific action with known properties (use action that exists in spreadsheet format)
-            var punchHardAction = ActionLoader.GetAction("PUNCH HARD");
+            var punchHardAction = ActionLoader.GetAction("PUNCH");
             if (punchHardAction != null)
             {
                 TestBase.AssertEqual(1.0, punchHardAction.DamageMultiplier,
-                    "PUNCH HARD should have 1.0x damage multiplier",
+                    "PUNCH should have 1.0x damage multiplier",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
@@ -228,7 +228,9 @@ namespace RPGGame.Tests.Unit
 
             // Test enemy action selection
             var enemyAction = ActionSelector.SelectActionByEntityType(enemy);
-            TestBase.AssertTrue(enemyAction == null || enemy.ActionPool.Any(item => item.action == enemyAction), 
+            // Below the combo bar, combo-only enemy pools swing an unnamed synthetic normal attack (not a pool entry).
+            bool syntheticNormal = enemyAction != null && string.IsNullOrEmpty(enemyAction.Name) && !enemyAction.IsComboAction;
+            TestBase.AssertTrue(enemyAction == null || syntheticNormal || enemy.ActionPool.Any(item => item.action == enemyAction), 
                 "Enemy selected action should be from enemy's action pool", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }

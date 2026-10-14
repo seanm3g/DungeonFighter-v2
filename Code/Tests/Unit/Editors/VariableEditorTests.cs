@@ -32,13 +32,14 @@ namespace RPGGame.Tests.Unit.Editors
         {
             Console.WriteLine("--- VariableEditor getters use live GameConfiguration.Instance ---");
             var cfg = GameConfiguration.Instance;
-            int saved = cfg.Combat.CriticalHitThreshold;
+            // Combat knobs moved to Settings → Combat Tuning; progression knobs still bind through VariableEditor.
+            int saved = cfg.ExperienceSystem.LevelCap;
             try
             {
-                cfg.Combat.CriticalHitThreshold = saved + 91;
+                cfg.ExperienceSystem.LevelCap = saved + 91;
                 var editor = new VariableEditor();
-                var v = editor.GetVariable("Combat.CriticalHitThreshold");
-                TestBase.AssertNotNull(v, "Combat.CriticalHitThreshold variable", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                var v = editor.GetVariable("ExperienceSystem.LevelCap");
+                TestBase.AssertNotNull(v, "ExperienceSystem.LevelCap variable", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 if (v == null)
                     return;
                 object val = v.GetValue();
@@ -46,7 +47,7 @@ namespace RPGGame.Tests.Unit.Editors
             }
             finally
             {
-                cfg.Combat.CriticalHitThreshold = saved;
+                cfg.ExperienceSystem.LevelCap = saved;
             }
         }
 

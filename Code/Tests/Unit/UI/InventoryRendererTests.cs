@@ -41,8 +41,12 @@ namespace RPGGame.Tests.Unit.UI
             TestInventoryViewSummaryHighlightColors();
             TestInventoryDisplaySortAndFilterUsesVisibleNumbers();
             TestInventoryEquipSlotFilterBuildDisplayEntriesAndCycle();
+            TestInventoryMaterialFilterBuildDisplayEntriesAndCycle();
             TestInventorySortedViewsGroupWeaponsByType();
             TestInventoryArmorComparisonBaselineColorsLowerSameSlotRed();
+            TestTradeUpPreviewLayoutKeepsConfirmInView();
+            TestInventoryDetailViewListAndSelection();
+            TestInventoryGridViewArtAndToggle();
 
             TestBase.PrintSummary("InventoryRenderer Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -165,7 +169,7 @@ namespace RPGGame.Tests.Unit.UI
 
             var allDefault = InventoryScreenRenderer.BuildViewSummaryColoredSegments(
                 emptyInventory, character, InventoryItemSortMode.InventoryOrder, hideRequirementBlockedItems: false, inventoryEquipSlotFilter: null);
-            TestBase.AssertEqual(5, allDefault.Count, "view summary splits into five colored segments", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(7, allDefault.Count, "view summary splits into seven colored segments", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(
                 ColorValidator.AreColorsEqual(allDefault[0].Color, dim)
                     && ColorValidator.AreColorsEqual(allDefault[2].Color, dim)
@@ -237,7 +241,9 @@ namespace RPGGame.Tests.Unit.UI
             state.CycleInventoryEquipSlotFilter();
             TestBase.AssertEqual("feet", state.InventoryEquipSlotFilter, "fifth cycle step is feet", ref _testsRun, ref _testsPassed, ref _testsFailed);
             state.CycleInventoryEquipSlotFilter();
-            TestBase.AssertTrue(state.InventoryEquipSlotFilter == null, "after feet the filter turns off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("charm", state.InventoryEquipSlotFilter, "sixth cycle step is charm", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            state.CycleInventoryEquipSlotFilter();
+            TestBase.AssertTrue(state.InventoryEquipSlotFilter == null, "after charm the filter turns off", ref _testsRun, ref _testsPassed, ref _testsFailed);
             state.CycleInventoryEquipSlotFilter();
             TestBase.AssertEqual("weapon", state.InventoryEquipSlotFilter, "cycle wraps from off back to weapon", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
@@ -260,6 +266,59 @@ namespace RPGGame.Tests.Unit.UI
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("1", string.Join(",", headOnly.Select(e => e.DisplayNumber.ToString())),
                 "head slot filter renumbers the single visible row",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestInventoryMaterialFilterBuildDisplayEntriesAndCycle()
+        {
+            Console.WriteLine("\n--- Testing Inventory material filter ---");
+
+            var character = TestDataBuilders.Character().WithStats(10, 10, 10, 10).Build();
+            var leatherBoots = TestDataBuilders.Armor().WithType(ItemType.Feet).WithName("Boots").Build();
+            leatherBoots.Material = "Leather";
+            var boneMace = TestDataBuilders.Weapon().WithName("Mace").Build();
+            boneMace.Material = "Bone";
+            var leatherHelm = TestDataBuilders.Armor().WithType(ItemType.Head).WithName("Helm").Build();
+            leatherHelm.Material = "Leather";
+            var noMaterial = TestDataBuilders.Armor().WithType(ItemType.Chest).WithName("Shirt").Build();
+            noMaterial.Material = "";
+            var inventory = new System.Collections.Generic.List<Item> { leatherBoots, boneMace, leatherHelm, noMaterial };
+
+            TestBase.AssertEqual("Bone,Leather", string.Join(",", InventoryStateManager.GetInventoryMaterials(inventory)),
+                "bag materials are distinct, skip blanks, and follow canonical material order",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var state = new InventoryStateManager();
+            TestBase.AssertTrue(state.InventoryMaterialFilter == null, "material filter starts cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            state.CycleInventoryMaterialFilter(inventory);
+            TestBase.AssertEqual("Bone", state.InventoryMaterialFilter, "first material cycle step is Bone", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            state.CycleInventoryMaterialFilter(inventory);
+            TestBase.AssertEqual("Leather", state.InventoryMaterialFilter, "second material cycle step is Leather", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            state.CycleInventoryMaterialFilter(inventory);
+            TestBase.AssertTrue(state.InventoryMaterialFilter == null, "material filter turns off after the last material", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            state.CycleInventoryMaterialFilter(new System.Collections.Generic.List<Item>());
+            TestBase.AssertTrue(state.InventoryMaterialFilter == null, "material filter stays off with no materials in bag", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var leatherOnly = InventoryScreenRenderer.BuildDisplayEntries(
+                inventory, character, InventoryItemSortMode.InventoryOrder, hideRequirementBlockedItems: false,
+                inventoryEquipSlotFilter: null, inventoryMaterialFilter: "leather");
+            TestBase.AssertEqual("0,2", string.Join(",", leatherOnly.Select(e => e.InventoryIndex.ToString())),
+                "material filter (case-insensitive) leaves only leather rows",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var leatherHeadOnly = InventoryScreenRenderer.BuildDisplayEntries(
+                inventory, character, InventoryItemSortMode.InventoryOrder, hideRequirementBlockedItems: false,
+                inventoryEquipSlotFilter: "head", inventoryMaterialFilter: "Leather");
+            TestBase.AssertEqual("2", string.Join(",", leatherHeadOnly.Select(e => e.InventoryIndex.ToString())),
+                "material filter combines with the slot filter",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var summary = InventoryScreenRenderer.BuildViewSummaryColoredSegments(
+                inventory, character, InventoryItemSortMode.InventoryOrder, hideRequirementBlockedItems: false,
+                inventoryEquipSlotFilter: null, inventoryMaterialFilter: "Leather");
+            TestBase.AssertTrue(
+                summary[6].Text.Contains("Leather only") && ColorValidator.AreColorsEqual(summary[6].Color, ColorPalette.Lime.GetColor()),
+                "view summary shows the active material filter highlighted",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -386,6 +445,96 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(valueSegment != null && valueSegment.Color == ColorPalette.Error.GetColor(),
                 "lower same-slot inventory armor value renders red",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestTradeUpPreviewLayoutKeepsConfirmInView()
+        {
+            Console.WriteLine("\n--- Testing Trade-Up Preview Layout ---");
+
+            const int startY = 10;
+            const int height = 28;
+            int confirmY = TradeUpPreviewLayout.GetConfirmY(startY, height);
+            int maxBodyY = TradeUpPreviewLayout.GetMaxBodyY(startY, height);
+
+            TestBase.AssertEqual(startY + height - 1, confirmY,
+                "Confirm sits on the last content row",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(confirmY - 1, maxBodyY,
+                "body content stops above Confirm",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Compact layout (name-only trades + modest result stats) must fit a typical center panel.
+            TestBase.AssertTrue(
+                TradeUpPreviewLayout.CompactPreviewFits(height, tradedItemCount: 5, resultStatLineCount: 4),
+                "compact trade-up preview fits typical center-panel height",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Old full-stat dump for 5 trades (~25+ stat lines) would not fit; compact estimate must stay under budget.
+            int compactLines = TradeUpPreviewLayout.EstimateCompactBodyLines(5, 4);
+            TestBase.AssertTrue(compactLines <= height - TradeUpPreviewLayout.ConfirmFooterLines,
+                $"compact body ({compactLines}) stays above footer budget",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            int bloatedLegacyEstimate = 6 + (5 * 5) + 2 + 2 + 2 + 1 + 4; // ~5 lines per traded item
+            TestBase.AssertTrue(bloatedLegacyEstimate > height - TradeUpPreviewLayout.ConfirmFooterLines,
+                "legacy full-stat trade rows would overflow the same panel",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestInventoryDetailViewListAndSelection()
+        {
+            Console.WriteLine("\n--- Testing Inventory Detail View ---");
+
+            TestBase.AssertEqual("Short Sword", InventoryScreenRenderer.TruncateDetailViewListName("Short Sword"),
+                "names within 15 chars are not cut",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Gleaming Steel...", InventoryScreenRenderer.TruncateDetailViewListName("Gleaming Steel Longsword of the Bear"),
+                "long names cut at 15 chars with ellipsis",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var entries = new System.Collections.Generic.List<InventoryDisplayEntry>
+            {
+                new InventoryDisplayEntry(4, new Item(ItemType.Head, "Helm"), 1),
+                new InventoryDisplayEntry(1, new Item(ItemType.Feet, "Boots"), 2),
+                new InventoryDisplayEntry(7, new Item(ItemType.Legs, "Greaves"), 3),
+            };
+            TestBase.AssertEqual(1, InventoryScreenRenderer.ResolveDetailViewSelection(entries, 1, 0).InventoryIndex,
+                "clicked item stays selected",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(7, InventoryScreenRenderer.ResolveDetailViewSelection(entries, -1, 2).InventoryIndex,
+                "no selection falls back to first visible row",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(4, InventoryScreenRenderer.ResolveDetailViewSelection(entries, 99, 0).InventoryIndex,
+                "selection hidden by filters falls back to first visible row",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestInventoryGridViewArtAndToggle()
+        {
+            Console.WriteLine("\n--- Testing Inventory Grid View (new inventory) ---");
+
+            TestBase.AssertEqual("[ Old inventory ]", InventoryScreenRenderer.ViewToggleLabel(gridView: true),
+                "grid view button offers the old inventory", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("[ New inventory ]", InventoryScreenRenderer.ViewToggleLabel(gridView: false),
+                "list view button offers the new inventory", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(8, InventoryScreenRenderer.GridTileColumns(9, 18, 4),
+                "tiles are square in pixels (4 rows of 18px = 8 columns of 9px)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            if (!ItemArtAtlas.IsAvailable)
+            {
+                Console.WriteLine("  (GameData/ItemArt missing - art lookups skipped)");
+                return;
+            }
+            TestBase.AssertEqual("(Steel, Kukri)", ItemArtAtlas.ResolveName("Keen Steel Kukri of the Owl", "Steel")?.ToString(),
+                "material + base found inside a full affix name", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("(IRON, Absolute Greaves)", ItemArtAtlas.ResolveName("Iron Absolute Greaves", "Iron")?.ToString(),
+                "longest base wins and material case is ignored", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("(Plain, Kukri)", ItemArtAtlas.ResolveName("Leather Kukri", "Leather")?.ToString(),
+                "material without art falls back to the plain base", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("(Bronze, Kukri)", ItemArtAtlas.ResolveName("Bronze Kukri", "")?.ToString(),
+                "old saves without a material read it from the name", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ItemArtAtlas.ResolveName("Mystery Thing", "Steel") == null,
+                "unknown base has no icon", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

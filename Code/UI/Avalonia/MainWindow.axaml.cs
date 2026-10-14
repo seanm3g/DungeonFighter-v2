@@ -315,6 +315,15 @@ namespace RPGGame.UI.Avalonia
                     return;
                 }
 
+                // F1 toggles the inventory detail view (list left, description right); unused elsewhere.
+                if (e.Key == Key.F1)
+                {
+                    e.Handled = true;
+                    if (initializationHandler.Game.CurrentState == GameState.Inventory)
+                        await initializationHandler.Game.HandleInput("f1");
+                    return;
+                }
+
                 // Convert Avalonia keys to game input using utility
                 string? input = inputHandler.ConvertKeyToInput(e.Key, e.KeyModifiers);
                 if (input != null)

@@ -23,7 +23,7 @@ namespace RPGGame.Tests.Unit.Data
         {
             var row = new SpreadsheetActionData { Cadence = "TURN", Duration = "3", HeroCombo = "1" };
             var data = SpreadsheetToActionDataConverter.Convert(row);
-            TestHarnessBase.AssertEqual("TURN", data.Cadence, "Separate CADENCE=ATTACK");
+            TestHarnessBase.AssertEqual("TURN", data.Cadence?.ToUpperInvariant(), "Separate CADENCE=ATTACK");
             TestHarnessBase.AssertEqual(3, data.ComboBonusDuration, "Separate DURATION=3");
         }
 
@@ -83,9 +83,9 @@ namespace RPGGame.Tests.Unit.Data
             var row = new SpreadsheetActionData { HeroCombo = "5" };
             var data = SpreadsheetToActionDataConverter.Convert(row);
             TestHarnessBase.AssertEqual(1, data.ComboBonusDuration, "Inferred ATTACK x1 duration");
-            TestHarnessBase.AssertEqual("TURN", data.Cadence, "Inferred ATTACK cadence for hero dice");
+            TestHarnessBase.AssertEqual("TURN", data.Cadence?.ToUpperInvariant(), "Inferred ATTACK cadence for hero dice");
             TestHarnessBase.AssertTrue(data.ActionAttackBonuses?.BonusGroups?.Count == 1, "Bonus group created");
-            TestHarnessBase.AssertEqual("TURN", data.ActionAttackBonuses!.BonusGroups[0].CadenceType, "COMBO bonus uses ATTACK cadence");
+            TestHarnessBase.AssertEqual("TURN", data.ActionAttackBonuses!.BonusGroups[0].CadenceType?.ToUpperInvariant(), "COMBO bonus uses ATTACK cadence");
         }
     }
 }

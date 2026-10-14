@@ -1,3 +1,4 @@
+using System.Linq;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +28,9 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             _testsPassed = 0;
             _testsFailed = 0;
 
+            // MCP mode skips the menu (no nested input channel); SimulationPacing.EnableFastMode in earlier suites leaves it on.
+            bool prevMcp = RPGGame.MCP.MCPMode.IsActive;
+            RPGGame.MCP.MCPMode.IsActive = false;
             try
             {
                 TestConstructor();
@@ -46,6 +50,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             }
             finally
             {
+                RPGGame.MCP.MCPMode.IsActive = prevMcp;
                 TestBase.PrintSummary("DungeonExitChoiceHandler Tests", _testsRun, _testsPassed, _testsFailed);
             }
         }
@@ -111,8 +116,13 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                 // Start the exit choice menu
                 var menuTask = Task.Run(async () => await handler.ShowExitChoiceMenu(1, 5));
                 
-                // Give it a moment to start
-                System.Threading.Thread.Sleep(100);
+                // Wait until the menu is actually waiting for input (a fixed sleep races under full-suite load)
+                
+                var readyDeadline = DateTime.UtcNow.AddSeconds(5);
+                
+                while (!handler.IsWaitingForChoice && DateTime.UtcNow < readyDeadline)
+                
+                    System.Threading.Thread.Sleep(10);
                 
                 // Provide input to complete the menu (choose to continue)
                 handler.HandleMenuInput("1");
@@ -172,8 +182,13 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                 // Start the exit choice menu
                 var menuTask = Task.Run(async () => await handler.ShowExitChoiceMenu(1, 5));
                 
-                // Give it a moment to start
-                System.Threading.Thread.Sleep(100);
+                // Wait until the menu is actually waiting for input (a fixed sleep races under full-suite load)
+                
+                var readyDeadline = DateTime.UtcNow.AddSeconds(5);
+                
+                while (!handler.IsWaitingForChoice && DateTime.UtcNow < readyDeadline)
+                
+                    System.Threading.Thread.Sleep(10);
                 
                 // Test continue option
                 handler.HandleMenuInput("1");
@@ -210,8 +225,13 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                 // Start the exit choice menu
                 var menuTask = Task.Run(async () => await handler.ShowExitChoiceMenu(1, 5));
                 
-                // Give it a moment to start
-                System.Threading.Thread.Sleep(100);
+                // Wait until the menu is actually waiting for input (a fixed sleep races under full-suite load)
+                
+                var readyDeadline = DateTime.UtcNow.AddSeconds(5);
+                
+                while (!handler.IsWaitingForChoice && DateTime.UtcNow < readyDeadline)
+                
+                    System.Threading.Thread.Sleep(10);
                 
                 // Test leave option
                 handler.HandleMenuInput("2");
@@ -243,15 +263,17 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                 var stateManager = new GameStateManager();
                 var narrativeManager = new GameNarrativeManager();
                 var displayManager = new DungeonDisplayManager(narrativeManager, null, stateManager);
-                string? messageReceived = null;
+                var messagesReceived = new System.Collections.Generic.List<string>();
                 var handler = new DungeonExitChoiceHandler(stateManager, null, displayManager);
-                handler.ShowMessageEvent += (msg) => { messageReceived = msg; };
+                handler.ShowMessageEvent += (msg) => { lock (messagesReceived) messagesReceived.Add(msg); }; // the follow-up "1" may also post a message
                 
                 // Start the exit choice menu
                 var menuTask = Task.Run(async () => await handler.ShowExitChoiceMenu(1, 5));
                 
-                // Give it a moment to start
-                System.Threading.Thread.Sleep(100);
+                // Wait until the menu is actually waiting for input (a fixed sleep races under full-suite load)
+                var readyDeadline = DateTime.UtcNow.AddSeconds(5);
+                while (!handler.IsWaitingForChoice && DateTime.UtcNow < readyDeadline)
+                    System.Threading.Thread.Sleep(10);
                 
                 // Test invalid choice
                 handler.HandleMenuInput("99");
@@ -265,7 +287,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                     throw new TimeoutException("HandleMenuInput for invalid choice did not complete within timeout");
                 }
                 
-                TestBase.AssertTrue(messageReceived != null && messageReceived.Contains("Invalid"),
+                TestBase.AssertTrue(messagesReceived.Any(m => m != null && m.Contains("Invalid")),
                     "HandleMenuInput should show error for invalid choice",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }

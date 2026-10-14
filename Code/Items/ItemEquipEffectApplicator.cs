@@ -72,7 +72,7 @@ namespace RPGGame
             }
         }
 
-        /// <summary>Action names granted by WHILE_EQUIPPED grant_action (e.g. unarmed PUNCH HARD).</summary>
+        /// <summary>Action names granted by WHILE_EQUIPPED grant_action (e.g. unarmed PUNCH).</summary>
         public static IReadOnlyList<string> GetGrantedActionNames(Character character)
         {
             var names = new List<string>();

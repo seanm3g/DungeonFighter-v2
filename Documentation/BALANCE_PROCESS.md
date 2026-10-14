@@ -16,24 +16,81 @@ dotnet <build>/DF.dll <MODE> [--patch <name|path>] [--set path=value ...] [--see
 - `DF_GAMEDATA_DIR=<folder>` points the game at another GameData folder. Use a scratch copy for playthroughs —
   the death screen writes character saves.
 
+## Scan → focus → gate
+
+Don't run the full check after every change. Run the three tiers in order:
+
+1. **Scan** (`python Scripts/balance-scan.py`, ~7–8 min on 24 cores): the median catalog build grid at every matrix
+   level plus 2 heroes × 4 dungeons per class at L10/20/35/50, in one pool. It prints a level summary and a ranked list
+   of problem areas, each with the **focus command** to run next. Each scan writes
+   `GameData/TuningRuns/balance-scan-<patch>-<time>.json`. Pass it to the next scan with `--compare` to see every metric
+   before/after, plus which findings were resolved and which are new. `--from <json>` re-analyzes a saved scan with no
+   sims (use it after changing thresholds). Narrow it to one area with `--median-levels 20 --dungeon-levels 20`.
+2. **Focus**: run only the commands the scan printed. Examples: `dungeon-sim.py --solve L --target P` for a clear
+   rate, `median-curve-solve.py --only health --levels L` for one health anchor, BUILDLAB / FIGHTLOG for one enemy.
+   Re-scan with `--compare` to confirm the fix and catch side effects.
+3. **Gate**: `balance-check.ps1` once, before saving the patch.
+
+What the scan rows mean:
+- **median turns / per enemy**: the median catalog build (the hero the HP curve is solved for). These rows are nearly
+  deterministic: a FAIL here is real.
+- **dungeon clear**: real dungeons. A hero's dungeons share its build, so the scan's sample is the number of heroes (8 per
+  level), not the number of dungeons. The interval is a t-interval over per-hero clear rates, never narrower than the
+  Wilson interval, and comes out about ±30 points. The scan only catches gross misses here: fit to ±4 with
+  `dungeon-sim.py`. The first scan read one hero per class: class clear swung 20–36 points between two runs of the same
+  patch.
+- **bot vs median build**: the bot's hero actions per real fight vs the median build's hero turns. Outside 1/1.33–1.33×,
+  the stepping stone `STEP[L]` in `median-curve-solve.py` is not what real play has at that level. The HP curve is then
+  solved for the wrong hero: fix `STEP` (or the build ladders) before re-solving health.
+- **real fights per enemy / real HP cost per enemy**: enemies judged against the level's real mean (±36%, the same share as
+  `perEnemyTurnsTolerance`), not against 11 turns. A level-wide gap belongs to the bot-vs-median row. FAIL needs ≥ 3 ×
+  `--min-fights` fights from ≥ 4 heroes; anything less reads LIKELY.
+- **class spread**: per-class clear over all scanned levels vs the all-class mean (per-hero interval).
+
+First scan (overnight-v2, 2026-10-13): median turns L35 9.1 (FAIL), Goblin at L50 16.4 turns for the median build. The bot
+kills ×1.67 faster than the median build at L10 and ×0.72 slower at L35: `STEP[10]` (two-piece + convert) undershoots
+real play, `STEP[35]` (full set) overshoots it.
+
 ## One command
 
 ```powershell
-.\Scripts\balance-check.ps1 -Patch overnight-v1
+.\Scripts\balance-check.ps1
 ```
 
-Builds the tools into `Code/bin/BalanceTools`, runs the level matrix in parallel, survival playthroughs on a scratch
-copy of GameData, and loot stats, then prints a PASS/FAIL scorecard against
-`GameData/TuningProfiles/balance-targets.json` (exit code 0 = all pass). Edit that file to change the targets.
-About 2 minutes (4 with `-RunsPerClass 60`). `-SkipSurvival` skips playthroughs; `-SkipBuild` reuses the last build.
+Uses the active patch (`GameData/PatchProfile.json`; `-Patch <name>` to override). Builds the tools into
+`Code/bin/BalanceTools`, then runs in parallel: the **median catalog build** at each target level
+(`Scripts/median-curve-solve.py --check`: fight win rate + hero turns, the hero enemies are calibrated to), smart-bot
+playthroughs to L10 on a scratch copy of GameData (survival + real L10 clear, 6 shards × 4 runs per class), and loot
+stats. Prints a PASS/FAIL scorecard against `GameData/TuningProfiles/balance-targets.json` (exit code 0 = all pass).
+About 10–16 minutes on 24 cores (it was ~25–28 before 2026-10-12; see measurement notes). `-SkipSurvival` skips
+playthroughs (~5 min); `-SkipBuild` reuses the last build; `-ToolsDir <folder>` runs from another folder (use it when
+sims still hold `Code/bin/BalanceTools/DF.dll`); `-BasicBot` adds the non-optimizing bot as a reported floor;
+`-BareHero` adds the old typical-gear one-action matrix as reference rows (not counted).
+**Since 2026-10-13 (no post-fight heal):** the check also runs `Scripts/dungeon-sim.py` at every `realClearAnchors` /
+matrix level above `realClearCheckLevel` (below 100) and gates on real dungeon clear (HP carried between fights,
+bot retreats below `retreatBelowHpPercent`), interpolated from `realClearAnchors` (L10 75, L15–L50 65, L75 30, L100 0).
+The per-fight win-rate rows then print as `INFO` (full-HP reference only); hero turns stay gated. Adds ~8 min per level;
+`-SkipDungeonSim` skips it. Fit a level's damage anchor with `dungeon-sim.py --solve L --target P`, not WRSOLVE.
 Win-rate anchors are **dungeon clear rates** (`winRateMeaning: dungeonClear`); the matrix checks the matching single-fight
 rate (clear^(1/fightsPerDungeon)) and the playthrough batch checks the real clear rate at `realClearCheckLevel`.
+
+**Per-enemy checks (2026-10-13).** A playtest's first L1 fight (rat pack) took 21 hero turns while every averaged row
+passed: pack turns jump between levels (bodies × swings per body, overkill wasted), and one slow enemy hides in a mean.
+Two gates now look per enemy, both against `heroTurnsTarget` ± `perEnemyTurnsTolerance` (balance-targets.json):
+- `L<level> per-enemy turns`: median catalog build per enemy (BUILDLAB rows carry `PerEnemy` mean / p90 turns / win rate).
+  Its L1 hero has typical L1 armor and so hits harder than a fresh character: it read the old rats as 11.8, not 16.
+- `L1-3 / L4-6 / L7-10 real fights per enemy`: every fight the smart bot actually played to the survival level
+  (`PLAYTODEATHBATCH --fights-json F`), enemies with at least `perEnemyMinFights` fights (default 20). This is the
+  one that sees what a player sees.
+`median-curve-solve.py --check --levels 1` runs a single level (~30 s) for quick per-enemy reads.
 
 ## Targets (designer, 2026-10-10)
 
 | Target | Measure | Tool |
 |---|---|---|
-| ~11 hero turns per even-level fight, every level | mean hero turns | FUNDMATRIX `--gear typical` per level |
+| ~11 hero turns per even-level fight, every level, for the **median catalog build** at the level's expected stepping stone (2026-10-12) | median hero turns over the 23 builds | `Scripts/median-curve-solve.py` (BUILDLAB `--level-slots`) |
+| Win-rate curve for the median build; the late game may punish builds that fall behind | median win rate | `Scripts/median-curve-solve.py` |
+| Action slots grow with level: 1 at L1 (`lootSystem.comboSlotCapByLevel`) | slot max | BUILDLAB `Slt` column |
 | Dungeon clear 100% at L1, 95% at L10, 0% at L100 (linear) | real clear rate + matrix fight win rate | PLAYTODEATHBATCH / FUNDMATRIX / WRSOLVE |
 | Hero survives 100% of runs to L10 | % of playthroughs reaching L10 | PLAYTODEATHBATCH `--stop-at-level 10` |
 | All four weapons ~11 turns, differentiated by speed and variety | per-weapon turns, swing time | FUNDMATRIX, FIGHTLOG |
@@ -53,10 +110,32 @@ rate (clear^(1/fightsPerDungeon)) and the playthrough batch checks the real clea
 | `STATVALUE --level 10 --gear typical [--attr-amount 60]` | Exchange rates: what +1 of each item stat is worth in weapon-damage points. Feeds `ItemValueModel`. Use `--attr-amount 60` for STR/AGI/TEC/INT and one weapon at a time: the default step sits inside fight-to-fight noise. |
 | `SKILLVALUE --level L [--classes C] [--slots 2]` | Prices every skill-tree node at rank 1 and max rank on a typical-gear hero (value 100 = no change, plus value per skill point), and the whole tree at max rank (`ALL`). Gear-dependent passives are priced with typical gear only, so they read low next to a hero who collects matching pieces. |
 | `ITEMSTATS --detail` | Also prints gear actions by slot: class / neutral / other-class / basic share and the top actions. |
-| `PLAYTODEATHBATCH N [--stop-at-level 10]` | N full playthroughs per class (bot equips upgrades). Survival %, deaths by level / fight # in dungeon / killer. |
+| `PLAYTODEATHBATCH N [--stop-at-level 10] [--retreat-below 35]` | N full playthroughs per class (bot equips upgrades). Survival %, deaths by level / fight # in dungeon / killer. `--retreat-below N` makes the bot leave a dungeon between rooms when HP is under N% of max (leaving fully heals, no rewards; counts as an uncleared dungeon in DungeonClear). `balance-check.ps1` passes `retreatBelowHpPercent` from `balance-targets.json`. |
+| `BUILDLAB [--builds B1,W3] [--level L] [--file F] [--long 4] [--loo-step N] [--aoo-base N --aoo-upto M] [--max-step N] [--power-all X] [--power id=X]` | Walks each build in `GameData/TuningProfiles/build-ladders.json` (or `hybrid-ladders.json`) up its stepping stones (strip, material pieces, named piece triggers, weapon mods, skills, gear upgrade) and prints each step's speed-up (kill time in enemy swings) and HP-lost change. `--long 4` = enemy HP ×4 and hero HP ×40 so damage per turn is measured without whole-turn rounding (offense only: % max HP heals and poison are inflated there, take defense from a normal run). `--loo-step` prices each learned skill by removing it; `--aoo-base` prices each skill added alone on top of a step. `--power*` multiply node power for the run (×10 finds nodes that never respond). |
 | `RUNLOG --class C [--verbose]` | One playthrough traced fight by fight, with gear at each hub visit; `--verbose` prints every action with swing times and thresholds. |
+| `PLAYTODEATHBATCH ... --start-level N [--start-loot-per-level K]` | Starts each run at level N: normal level-up rules plus a bag of K real drops per level (default max(4, level/2): matches heroes who played up from L1 at L10 and L15; unverified above L15) for the 8 levels below N, then the bot picks gear / skills / sequence. Mid-game probes without playing from L1. |
+| `DUNGEONSIM --level L [--runs N] [--dungeons D] [--retreat-below P] [--classes C] [--basic] [--json F]` | Real dungeons at a fixed hero level with HP carried between fights: start-level hero, XP held at 0, D dungeons per hero through the real game loop (rooms, room search, exit prompt, retreat rule). Clear / retreat / death per dungeon with 95% intervals. Use `Scripts/dungeon-sim.py` to shard it. |
+
+**`Scripts/dungeon-sim.py`** shards DUNGEONSIM across cores on a scratch GameData copy:
+`--levels 10,20` measures the active patch; `--anchor 20=1.2` tries a damage-curve variant; `--solve 20 --target 70`
+bisects the L20 damage anchor to a target clear rate. This is the multi-fight counterpart of WRSOLVE: WRSOLVE assumes
+every fight starts at full HP (clear^(1/fightsPerDungeon)), which stopped being true when the post-fight heal went to 0.
+
+**Provenance.** Every headless tool prints `Provenance: build=<DF.dll hash> git=<commit>[+dirty] data=<GameData hash>
+patch=<name>@<hash>` first. Two results are comparable only when build, data and patch match; `balance-check.ps1` adds
+the line to its JSON and marks it `MIXED` when its runs disagree. **Error bars.** Survival and real clear rows show a 95%
+interval and `n`; a row whose value misses the target but whose interval still reaches it reads `UNSURE` (rerun with
+more runs) instead of FAIL.
 
 ## Loop
+
+**Since 2026-10-12, enemy curves are calibrated to the median build.** `python Scripts/median-curve-solve.py --patch
+<patch> --tools <dir> --passes 2` runs all 23 catalog ladders in BUILDLAB at the stepping stone a player should have by
+each anchor level (L1 default strip, L5 class actions, L10–20 two-piece set + convert, L35 full set, L50 weapon mods,
+L75 catalog skills, L100 core & rite), with strips trimmed to the level's slot cap (`--level-slots`). Health anchors
+target ~11 hero turns for the median build (against near-harmless enemies), damage anchors the win-rate targets. A
+bare typical hero (FUNDMATRIX, the basic bot) now sits below the curve by design: builds are expected, and the late
+game punishes heroes who skip them. The steps below still apply for fundamentals and items.
 
 1. **Fundamentals first (L1, no gear):** FUNDMATRIX `--level 1`. Hero turns ≈ 11, every weapon within ±1 turn.
 2. **Action sequence:** SEQLAB / ACTIONVALUE. Outliers (value far from 100 at their tier) get data changes in `Actions.json`.
@@ -96,7 +175,21 @@ rate (clear^(1/fightsPerDungeon)) and the playthrough batch checks the real clea
 | `enemySystem.archetypeCombat.<Archetype>.damage` / `.attackTime` | profile default | Per-archetype outgoing damage and swing-time multipliers (attack time below 1 = faster). Defaults live in `ArchetypeManager.GetArchetypeProfile`. Solve damage so each archetype costs the same HP per fight (see notes). |
 | `enemySystem.identity` | off | Identity mode: every enemy's damage base, swing time and HP come from level references, and its growth row only sets its shape (AGI-leaning = faster + lighter hits, STR-leaning = slower + heavier, tanky = more HP + lighter hits; threat stays the same). Shape strength `intensityAtLevel1` (0.5) → 1 at `fullIntensityLevel` (50). Archetype attack time folds into the shape; archetype `damage` overrides are ignored. |
 | `SkillTrees.json` node `power` | 1.0 | Scales a skill's per-rank magnitude (custom effect amount × rank × power). Keep the node's `effect` text in step with the scaled number. |
+| `combat.materialConvertPercentPerUnit` | 0 | > 0: converts pay a % of the hit per banked unit instead of flat damage (flat stops mattering as hits grow). |
+| `combat.materialConvertPercentByKeyword` | {} | Percent mode: % per unit by currency (RAGE, CRISIS, CONTACT …). Mint rates differ by 10–100×, so each currency has its own rate. |
+| `combat.materialFiveStackMintMultiplier` | 0 | Mint at 5 pieces = feed × this (0 = legacy feed × feed = 25 per trigger). |
+| `combat.speedOverflowDamageEfficiency` | 0 | Hero swing faster than `minimumAttackTime` turns the excess into damage: × (1 + this × (min / raw − 1)). |
+| `combat.agilityOverflowSpeedPerPoint` | 0 | Hero AGI above `agilityMax` keeps speeding the raw swing (feeds overflow). |
+| `combat.strengthOverflowEfficiency` | 0 | STR (and INT potency) above the 100 cap counts at this share. |
+| `combat.intelligenceAmpPerPoint` | 0 | INT potency: hero AMP × (1 + INT × this). Without it INT only gates strip slots. |
+| `lootSystem.materialPieceTriggers` | false | Each material piece rolls one trigger from its material's pool (`MaterialTriggerCatalog`) and keeps it on load. |
+| `combat.statusFortifyDefensePerStack` | 0 | Defense per active Fortify stack in units of K (as Harden). 0 = legacy: 1 flat armor per stack, and skill-granted Fortify gave no defense at all. |
+| `combat.dotDamagePerLevel` | 0 | Burn / bleed tick damage × (1 + target level × this). Stacks are flat integers, so a 1-stack bleed did 1 damage at L60. |
+| `enemySystem.actionKits` | false | Enemy flavor actions resolve through `GameData/EnemyActions.json` (15 mechanic templates: Venom, Scorch, Rend, Crush, Sunder, Hex, Ensnare, Disrupt, Shell, Drain, Frenzy, Mend, Curse, Concuss, Pierce). 229 of 238 flavor names had no action and fought as plain attacks. |
 | `enemySystem.identity.calibration` | {} | Enemy name → level anchors × damage, solved by `Scripts/enemy-calibrate.py` so every enemy costs the same HP at every level. Re-run after editing `Enemies.json` or enemy actions. |
+| `equipmentScaling.armorMultiplier` / `armorFlatPerPiece` / `armorPerItemLevel` / `armorSlotWeights` | 1 / 0 / 0 / {} | Armor piece base = catalog × multiplier + slot weight × (flat + per level × item level), read at armor-total time (saved items follow the patch). Catalog head/feet armor is 0–3, so defense barely mattered. |
+| `combat.retriggerDamageMultiplier` | 1 | Hero damage on retrigger (encore) swings, which re-resolve late, high-AMP strip slots. |
+| `lootSystem.comboSlotCapByLevel` | [] | `[level, slots]` anchors capping base + gear + class strip slots (1 slot at L1). Action Lab sandbox slots bypass it; test runners clear it (`TestBase.ClearBalancePacingForTests`). |
 
 ## Tests
 
@@ -109,6 +202,14 @@ ActionsSystemTestRunner, CombatSystemTestRunner, UISystemTestRunner — the last
 Treat new failures against that baseline as regressions.
 
 ## Measurement notes
+
+- **Simulation speed (2026-10-12).** A smart-bot playthrough to L10 cost ~2.5 CPU-min (≈7 under a full parallel check):
+  98% was candidate fights. Profiling (`DF_PROFILE=1` prints `ToolProfiler` timings for PLAYTODEATHBATCH and
+  FUNDMATRIX; `DF_SMARTPROF=1` splits smart decisions) found ~45% in `SkillEffectRouter.OnHit` (60 skill lookups per
+  hit, each re-running `EnsureSkillTreeRootsGranted`) and ~30% building combat-log text nobody sees. `SkillRanks` now
+  caches each hero's effect table (rebuilt when ranks, node powers, class points or trees change) and pins it per hit;
+  scoped-muted simulations (`CombatUiMuteScope.IsScopedMuted`) skip log text. A simulated turn went 1.40 → 0.33 ms;
+  seeded BUILDLAB output is identical before and after.
 
 - FUNDMATRIX `--gear typical` is deterministic (typical gear is sampled from seeded loot). Same patch + seed = same numbers.
 - The matrix is an even fight in a plain room with no consumables. Real play (PLAYTODEATHBATCH) adds room tags,
@@ -152,3 +253,12 @@ Treat new failures against that baseline as regressions.
 - Dead skills: Wizard INT skills (Apprenticeship, Combo-INT, Slot Mind), Rogue Steady Hand (TEC streak) and
   Initiation price at ~100 because INT and TEC barely change combat outcomes; Concentrated Chaos (`concentrated_chaos`)
   has no handler. These need a design decision on what INT / TEC do, not a power change.
+- Overnight build pass (2026-10-12, overnight-v2): BUILDLAB prices every BUILD_CATALOG build step by step; see
+  `Documentation/BUILD_LADDER_REPORT.md`. Health-curve solving must measure against near-harmless enemies
+  (`Scripts/curve-solve.py`): at lethal levels the hero dies in ~3 turns and FUNDMATRIX's "HP needed for 11 turns" reads
+  that as "kills too fast" (the L100 anchor ran 2.8 → 60). Re-solve after any hero-side change: the matrix hero wears
+  typical gear, so piece triggers, DoT mods and knobs all move it (piece triggers alone were ×2.9 before the trigger pool
+  was re-priced).
+- BUILDLAB noise: paired seeds, but any change shifts the dice, so 20–30 fights × 3 enemies is about ±3–5% per value.
+  Skill nodes worth +4% sit inside that; read the solver's "no response" list as "below noise", not "proven dead".
+

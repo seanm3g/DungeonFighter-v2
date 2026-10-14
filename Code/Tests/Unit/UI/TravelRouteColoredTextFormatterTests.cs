@@ -44,7 +44,7 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(
                 text.Contains("2. Clear Animal Trail - A game trail cuts cleanly.") &&
                 text.Contains("\n     d20 19 Combo (4 min)"),
-                "Travel step: title line then indented roll line",
+                "Travel step: title line then indented roll line (got: " + text.Replace("\n", "\\n") + ")",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -218,6 +218,7 @@ namespace RPGGame
             destination.WeaponType = source.WeaponType;
             destination.Level = source.Level;
             destination.Tags = source.Tags;
+            destination.ExcludeFromTradeUp = source.ExcludeFromTradeUp;
             destination.TriggerBundles = source.TriggerBundles ?? new List<ActionTriggerBundle>();
             destination.EquipEffects = source.EquipEffects ?? new List<ActionTriggerBundle>();
             destination.RoomSearchConsumableKind = source.RoomSearchConsumableKind;

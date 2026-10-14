@@ -25,6 +25,10 @@ namespace RPGGame.Tuning
         private readonly Action<string>? _trace;
 
         public int Evaluations { get; private set; }
+
+        /// <summary>DF_SMARTPROF=1: time split of smart decisions (whole process), printed by the batch runner.</summary>
+        public static readonly System.Diagnostics.Stopwatch ProfSerialize = new(), ProfSim = new(), ProfClone = new(), ProfOptimize = new();
+        public static long ProfEvaluations;
         public int SkillsLearned { get; private set; }
         public int GearChanges { get; private set; }
         public int SequenceChanges { get; private set; }
@@ -40,6 +44,7 @@ namespace RPGGame.Tuning
                 return;
 
             PlaythroughFightRecorder.Suspended = true;
+            ProfOptimize.Start();
             try
             {
                 await SpendSkillPointsAsync(hero, weaponType).ConfigureAwait(false);
@@ -48,6 +53,7 @@ namespace RPGGame.Tuning
             }
             finally
             {
+                ProfOptimize.Stop();
                 PlaythroughFightRecorder.Suspended = false;
             }
 
@@ -273,7 +279,10 @@ namespace RPGGame.Tuning
         private async Task<double> ScoreAsync(Character candidate, IReadOnlyList<string> strip)
         {
             Evaluations++;
+            ProfEvaluations++;
+            ProfSerialize.Start();
             string json = new CharacterSerializer().Serialize(candidate);
+            ProfSerialize.Stop();
             double wins = 0, turns = 0, hpLost = 0;
             int fights = 0;
             ActionLabEncounterSimulator.UseNaturalComboRouting = true;
@@ -290,8 +299,10 @@ namespace RPGGame.Tuning
                         labEnemyBattleConfig: null);
                     if (ActionLabEncounterSimulator.ValidateSnapshot(snapshot) != null)
                         continue;
+                    ProfSim.Start();
                     var report = await ActionLabEncounterSimulator.RunBatchAsync(snapshot, FightsPerEnemy, new Random(17), maxDegreeOfParallelism: 1)
                         .ConfigureAwait(false);
+                    ProfSim.Stop();
                     foreach (var e in report.Encounters.Where(e => string.IsNullOrEmpty(e.ErrorMessage)))
                     {
                         fights++;
@@ -312,8 +323,12 @@ namespace RPGGame.Tuning
             return winRate / ((turns / fights) * (hpLost / fights + 0.05));
         }
 
-        private static Character Clone(Character hero) =>
-            LabCombatEntityFactory.ClonePlayerFromJson(new CharacterSerializer().Serialize(hero), "Smart policy: clone failed.");
+        private static Character Clone(Character hero)
+        {
+            ProfClone.Start();
+            try { return LabCombatEntityFactory.ClonePlayerFromJson(new CharacterSerializer().Serialize(hero), "Smart policy: clone failed."); }
+            finally { ProfClone.Stop(); }
+        }
 
         private static List<string> StripOf(Character hero) => hero.GetComboActions().Select(a => a.Name).ToList();
 

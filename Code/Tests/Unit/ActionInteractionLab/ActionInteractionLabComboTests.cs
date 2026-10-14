@@ -49,6 +49,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
                 archetype: EnemyArchetype.Berserker,
                 useDirectStats: true);
             enemy.Intelligence = GameConstants.ComboSequenceIntelligenceThreshold;
+            enemy.ActionLabActionSlotBonus = 4; // base strip is 1 slot; this test builds 2
 
             var a1 = new Action("EC_ONE", comboOrder: 0, damageMultiplier: 1.0, length: 1.0, isComboAction: true);
             var a2 = new Action("EC_TWO", comboOrder: 1, damageMultiplier: 1.0, length: 1.0, isComboAction: true);
@@ -102,6 +103,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "LabEnemyTurnUsesEnemyPool: session null", ref run, ref passed, ref failed);
@@ -152,9 +154,11 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             }
 
             var hero = TestDataBuilders.Character().WithName("LabActionTicks").Build();
+
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "LabTotalActionTicks: session null", ref run, ref passed, ref failed);
@@ -220,6 +224,8 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             }
 
             var hero = TestDataBuilders.Character().WithName("LabComboPred").Build();
+
+            hero.ActionLabActionSlotBonus = 4; // base strip is 1 slot; these tests build 2+
             if (!jab.IsComboAction)
                 jab.IsComboAction = true;
             hero.AddAction(jab, 1.0);
@@ -250,6 +256,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "StepBlockedAfterCombatantDeath: session null", ref run, ref passed, ref failed);

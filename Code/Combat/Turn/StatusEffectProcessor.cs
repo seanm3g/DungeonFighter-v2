@@ -79,10 +79,10 @@ namespace RPGGame.Combat.Turn
                     HealthBarDeltaDamageHint.RecordAfterMitigation(barId, 0, 0, 0, damage, damage, actual);
                 ActionEventPublisher.PublishLowHealthThresholdIfCrossed(entity, lowHealthBefore);
             }
-            if (results.Count > 0)
+            // Simulations mute combat UI (CombatUiMuteScope); without this check bleed ticks print to stdout headless.
+            if (results.Count > 0 && !RPGGame.TurnManager.DisableCombatUIOutput)
             {
-                if (!RPGGame.TurnManager.DisableCombatUIOutput)
-                    TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.PoisonDamage, entity.Name);
+                TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.PoisonDamage, entity.Name);
                 var combinedSegments = new List<ColoredText>();
                 for (int i = 0; i < results.Count; i++)
                 {
@@ -130,16 +130,13 @@ namespace RPGGame.Combat.Turn
                 ActionEventPublisher.PublishLowHealthThresholdIfCrossed(entity, lowHealthBefore);
             }
             
-            if (results.Count > 0)
+            // Simulations mute combat UI (CombatUiMuteScope); without this check DoT ticks print to stdout headless.
+            if (results.Count > 0 && !RPGGame.TurnManager.DisableCombatUIOutput)
             {
                 // Apply spacing for poison damage (context-aware)
-                // Always call ApplySpacingBefore to let the spacing system handle rules
                 // The spacing system will add blank lines between consecutive poison damage blocks
-                if (!RPGGame.TurnManager.DisableCombatUIOutput)
-                {
-                    TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.PoisonDamage, entity.Name);
-                    blankLineAdded = true;
-                }
+                TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.PoisonDamage, entity.Name);
+                blankLineAdded = true;
                 
                 // Combine ALL status effect messages into a single block
                 // Parse each message separately and combine with explicit newlines to ensure proper line breaks

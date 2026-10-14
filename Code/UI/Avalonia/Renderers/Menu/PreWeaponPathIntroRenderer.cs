@@ -19,7 +19,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         internal static readonly Color WarmWhite = Color.FromRgb(255, 244, 220);
         internal static readonly Color CoolWhite = Color.FromRgb(226, 241, 255);
 
-        private const double PhaseMillisecondsDivisor = 320.0;
 
         private readonly GameCanvasControl canvas;
         private readonly ICanvasTextManager textManager;
@@ -35,7 +34,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             int lineY = y + Math.Max(0, height / 2);
             int lineX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, QuestLine.Length);
 
-            textManager.WriteLineColoredSegments(BuildQuestLineSegments(GetCurrentPhase()), lineX, lineY);
+            // Live render: no pinned phase, so each preset layer runs on its own phaseDivisorMs clock.
+            textManager.WriteLineColoredSegments(BuildQuestLineSegments(null), lineX, lineY);
 
             string continuePrompt = UIConstants.Messages.PressAnyKey;
             int promptY = lineY + 2;
@@ -45,7 +45,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             return 3;
         }
 
-        internal static List<ColoredText> BuildQuestLineSegments(double phase)
+        internal static List<ColoredText> BuildQuestLineSegments(double? phase)
         {
             return TextAnimationCompositor.Compose(
                 "pathIntro",
@@ -70,8 +70,5 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         {
             return ColorValidator.LerpRgb(start, end, t);
         }
-
-        private static double GetCurrentPhase()
-            => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / PhaseMillisecondsDivisor;
     }
 }

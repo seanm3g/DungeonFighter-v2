@@ -70,12 +70,11 @@ namespace RPGGame.Handlers.Inventory
             var player = stateManager.CurrentPlayer;
             if (!newItem.MeetsRequirements(player))
             {
+                // Still open the comparison so the item can be locked from trade-up; equipping it is refused by TryEquipItem.
                 string? reason = newItem.GetEquipBlockedReason(player);
                 ShowMessageEvent?.Invoke(string.IsNullOrEmpty(reason)
-                    ? $"Cannot equip {newItem.Name}: attribute requirements not met."
-                    : $"Cannot equip {newItem.Name}. {reason}");
-                ShowInventoryEvent?.Invoke();
-                return;
+                    ? $"Cannot equip {newItem.Name} yet: attribute requirements not met."
+                    : $"Cannot equip {newItem.Name} yet. {reason}");
             }
 
             Item? currentItem = player.Equipment.GetSlotItem(slot);
@@ -93,7 +92,7 @@ namespace RPGGame.Handlers.Inventory
         }
         
         /// <summary>
-        /// Handles comparison choice input (1=old item, 2=new item, 0=cancel)
+        /// Handles comparison choice input (1=old item, 2=new item, 3=toggle trade-up lock, 0=cancel)
         /// </summary>
         public bool HandleComparisonChoice(int comparisonChoice, InventoryItemActionHandler actionHandler)
         {
@@ -118,9 +117,15 @@ namespace RPGGame.Handlers.Inventory
                 // Equip new item
                 actionHandler.ConfirmEquipItem(stateTracker.SelectedItemIndex, stateTracker.SelectedSlot, equipNew: true);
             }
+            else if (comparisonChoice == 3)
+            {
+                ToggleTradeUpLock();
+                stateTracker.WaitingForComparisonChoice = true;
+                return true;
+            }
             else
             {
-                ShowMessageEvent?.Invoke("Invalid choice. Please select 1 (keep current), 2 (equip new), or 0 (cancel).");
+                ShowMessageEvent?.Invoke("Invalid choice. Please select 1 (keep current), 2 (equip new), 3 (lock/unlock trade-up), or 0 (cancel).");
                 stateTracker.WaitingForComparisonChoice = true;
                 return false;
             }
@@ -128,6 +133,29 @@ namespace RPGGame.Handlers.Inventory
             stateTracker.SelectedItemIndex = -1;
             stateTracker.SelectedSlot = "";
             return true;
+        }
+
+        /// <summary>
+        /// Flips <see cref="Item.ExcludeFromTradeUp"/> on the item under comparison and redraws the comparison screen.
+        /// </summary>
+        private void ToggleTradeUpLock()
+        {
+            var player = stateManager.CurrentPlayer;
+            int itemIndex = stateTracker.SelectedItemIndex;
+            if (player == null || itemIndex < 0 || itemIndex >= stateManager.CurrentInventory.Count)
+                return;
+
+            var item = stateManager.CurrentInventory[itemIndex];
+            item.ExcludeFromTradeUp = !item.ExcludeFromTradeUp;
+            ShowMessageEvent?.Invoke(item.ExcludeFromTradeUp
+                ? $"{item.Name} is locked and will not be used in trade-ups."
+                : $"{item.Name} is unlocked and can be used in trade-ups.");
+
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                Item? currentItem = player.Equipment.GetSlotItem(stateTracker.SelectedSlot);
+                canvasUI.RenderItemComparison(player, item, currentItem, stateTracker.SelectedSlot, itemIndex);
+            }
         }
     }
 }

@@ -75,6 +75,38 @@ namespace RPGGame
         /// Call when actions may have been modified (e.g., between dungeon runs or after a spreadsheet pull).
         /// </summary>
         /// <param name="explicitFilePath">When set (e.g. after an external pull wrote Actions.json), load from this path instead of the previously cached path.</param>
+        private static (string Path, DateTime WriteUtc, long Length)? _reloadIfChangedStamp;
+
+        /// <summary>
+        /// Reloads only when the actions file changed on disk since the last call (path, write time or size). The Action Lab
+        /// simulator calls this before every batch so lab edits are picked up; headless tools (smart bot, BUILDLAB) run
+        /// thousands of batches and re-parsing an unchanged file was most of their cost.
+        /// </summary>
+        public static void ReloadActionsIfChanged()
+        {
+            string path = _loadedActionsFilePath ?? GameConstants.GetGameDataFilePath(GameConstants.ActionsJson);
+            (string, DateTime, long)? stamp = null;
+            try
+            {
+                var fi = new FileInfo(path);
+                if (fi.Exists)
+                    stamp = (fi.FullName, fi.LastWriteTimeUtc, fi.Length);
+            }
+            catch
+            {
+                stamp = null;
+            }
+
+            lock (ActionsLock)
+            {
+                if (stamp != null && _actions != null && _reloadIfChangedStamp == stamp)
+                    return;
+            }
+            ReloadActions();
+            lock (ActionsLock)
+                _reloadIfChangedStamp = stamp;
+        }
+
         public static void ReloadActions(string? explicitFilePath = null)
         {
             lock (ActionsLock)
@@ -183,6 +215,7 @@ namespace RPGGame
                     }
 
                     RegisterActionNameAliases();
+                    CanonicalizeLegacyKeys();
                     DebugLogger.LogFormat("ActionLoader", "Loaded {0} actions from JSON", _actions.Count);
                 }
                 else
@@ -405,6 +438,24 @@ namespace RPGGame
                     return data;
 
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// A data key that is a legacy alias (e.g. the sheet's "MAGIC MISSLE") is stored under its canonical name
+        /// ("MAGIC MISSILE") so players and code see the correct spelling; the alias keeps old names (saves, strips) resolving.
+        /// </summary>
+        private static void CanonicalizeLegacyKeys()
+        {
+            if (_actions == null || _actionNameAliases == null)
+                return;
+            foreach (var kv in _actionNameAliases.ToList())
+            {
+                if (!_actions.TryGetValue(kv.Key, out var data) || _actions.ContainsKey(kv.Value))
+                    continue;
+                _actions.Remove(kv.Key);
+                data.Name = kv.Value;
+                _actions[kv.Value] = data;
             }
         }
 

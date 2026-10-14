@@ -136,21 +136,27 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             currentLineCount += 2;
             
             // Buttons must align with column labels above: [1] CURRENT (left), [2] NEW (right).
-            // Input routing: 1 = keep current, 2 = equip new (see InventoryMenuHandler / InventoryItemComparisonHandler).
+            // Input routing: 1 = keep current, 2 = equip new, 3 = toggle trade-up lock (see InventoryMenuHandler / InventoryItemComparisonHandler).
+            string lockLabel = GetTradeUpLockOptionLabel(newItem);
             var keepCurrentButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, "1", MenuOptionFormatter.Format(1, "Keep current item"));
             var equipNewButton = InventoryButtonFactory.CreateButton(x + 32, y, 28, "2", MenuOptionFormatter.Format(2, "Equip new item"));
             var cancelButton = InventoryButtonFactory.CreateButton(x + 2, y + 1, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Cancel));
+            var lockButton = InventoryButtonFactory.CreateButton(x + 32, y + 1, 28, "3", MenuOptionFormatter.Format(3, lockLabel));
             
-            clickableElements.AddRange(new[] { keepCurrentButton, equipNewButton, cancelButton });
+            clickableElements.AddRange(new[] { keepCurrentButton, equipNewButton, cancelButton, lockButton });
             
             canvas.AddMenuOption(x + 2, y, 1, "Keep current item", AsciiArtAssets.Colors.White, keepCurrentButton.IsHovered);
             canvas.AddMenuOption(x + 32, y, 2, "Equip new item", AsciiArtAssets.Colors.White, equipNewButton.IsHovered);
             currentLineCount++;
             canvas.AddMenuOption(x + 2, y + 1, 0, UIConstants.MenuOptions.Cancel, AsciiArtAssets.Colors.White, cancelButton.IsHovered);
+            canvas.AddMenuOption(x + 32, y + 1, 3, lockLabel, AsciiArtAssets.Colors.White, lockButton.IsHovered);
             currentLineCount++;
             
             return currentLineCount;
         }
+
+        internal static string GetTradeUpLockOptionLabel(Item item) =>
+            item.ExcludeFromTradeUp ? "Unlock for trade-up" : "Lock from trade-up";
 
         internal static string? GetComparisonTooltipHoverValue(bool currentColumn, string slot, int newItemInventoryIndex)
         {

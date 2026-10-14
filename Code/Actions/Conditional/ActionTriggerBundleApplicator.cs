@@ -351,7 +351,7 @@ namespace RPGGame.Actions.Conditional
 
                 if (InstantStatusIds.Contains(id))
                 {
-                    any |= ApplyStatus(id, action, source, target, messages);
+                    any |= ApplyStatus(id, action, source, target, messages, mag);
                     continue;
                 }
 
@@ -500,12 +500,25 @@ namespace RPGGame.Actions.Conditional
             Action action,
             Actor source,
             Actor target,
-            List<string> messages)
+            List<string> messages,
+            double? magnitude = null)
         {
             string effectType = NormalizeStatusEffectType(mechanicId);
             var effectRecipient = ActionEffectTargetResolver.ResolveStatusEffectRecipient(
                 action, effectType, source, target);
             var effectAction = StatusEffectActionResolver.ResolveActionForEffectApplication(action, effectType);
+            // DoT triggers use their value: poison = % of max HP per tick, burn / bleed = stacks (they defaulted to 1%
+            // and 1 stack whatever the value was).
+            if (magnitude is > 0 && effectAction != null && effectType is "poison" or "burn" or "bleed")
+            {
+                effectAction = StatusEffectActionResolver.CreateActionWithStatusEffect(effectType) ?? effectAction;
+                if (effectType == "poison")
+                    effectAction.PoisonPercentToAdd = magnitude.Value;
+                else if (effectType == "burn")
+                    effectAction.BurnAmountToAdd = Math.Max(1, (int)Math.Round(magnitude.Value));
+                else
+                    effectAction.BleedAmountToAdd = Math.Max(1, (int)Math.Round(magnitude.Value));
+            }
             return EffectRegistry.ApplyEffect(effectType, effectRecipient, effectAction, messages);
         }
 

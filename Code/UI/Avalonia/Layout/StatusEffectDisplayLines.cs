@@ -21,7 +21,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (charHud != null)
             {
                 lines.AddRange(BuildMaterialKeywordStatusLines(charHud));
-                // Leather starter set: standing Lucky + remaining miss→advantage (naiveté) charge count.
+                // Leather starter set: standing Lucky (WHILE_EQUIPPED attack-roll advantage).
                 if (LeatherSetBonus.HasLuckyStatus(charHud))
                     lines.Add(LeatherSetBonus.FormatLuckyStatusLine(charHud));
             }

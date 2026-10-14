@@ -601,6 +601,9 @@ namespace RPGGame.Items.ItemTriggerScenario
                 "fortify" => a.FortifyTurns > 0 || (a.FortifyStacks ?? 0) > 0,
                 "pierce" => a.HasPierce || a.PierceTurns > 0,
                 "vulnerability" => a.VulnerabilityTurns > 0 || (a.VulnerabilityStacks ?? 0) > 0,
+                "bleed" => a.BleedIntensity > 0 || a.PendingBleedFromHits > 0,
+                "burn" => a.BurnIntensity > 0 || a.PendingBurnFromHits > 0,
+                "poison" => a.PoisonPercentOfMaxHealth > 0,
                 "slow" => a is Character c
                     && (c.Effects.SlowTurns > 0 || Math.Abs(c.Effects.SlowMultiplier - 1.0) > 0.001),
                 _ => false

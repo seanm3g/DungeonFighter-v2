@@ -232,7 +232,7 @@
       "technique": 2.0,
       "intelligence": 0.8
     },
-    "healthPercent": 100,
+    "healthPercent": 55,
     "healthGrowthPercent": 2.8,
     "actions": [
       "RAT SWARM"

@@ -389,7 +389,6 @@ namespace RPGGame.Tests.Unit
             var missTm = RollModificationManager.GetThresholdManager();
             missTm.ResetThresholds(hero);
             TechniqueMilestoneThresholdBonuses.Apply(missTm, hero);
-            NaiveteThresholdBonuses.Apply(missTm, hero);
             int missRollBonus = ActionUtilities.CalculateRollBonus(hero, drunkenStyle, consumeTempBonus: false);
             int missHitTh = missTm.GetHitThreshold(hero);
             int missBaseRoll = missHitTh - missRollBonus - 1;

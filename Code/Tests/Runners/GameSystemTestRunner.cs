@@ -45,6 +45,7 @@ namespace RPGGame.Tests.Runners
             ("ClassActionManager", () => ClassActionManagerTests.RunAllTests()),
             ("TravelRouteColoredTextFormatter", () => TravelRouteColoredTextFormatterTests.RunAllTests()),
             ("DungeonCompletionHandler", () => DungeonCompletionHandlerTests.RunAllTests()),
+            ("DungeonRunRecovery", () => RPGGame.Tests.Unit.Game.DungeonRunRecoveryTests.RunAllTests()),
             ("GameLoopInputHandler", () => GameLoopInputHandlerTests.RunAllTests()),
             ("DeathScreenHandler", () => DeathScreenHandlerTests.RunAllTests()),
             ("LoadCharacterSelectionHandler", () => LoadCharacterSelectionHandlerTests.RunAllTests()),
@@ -81,7 +82,6 @@ namespace RPGGame.Tests.Runners
             ("GameScreenCoordinator", () => GameScreenCoordinatorTests.RunAllTests()),
             ("CombatRenderingValidator", () => CombatRenderingValidatorTests.RunAllTests()),
             ("ClaudeAIGamePlayer", () => ClaudeAIGamePlayerTests.RunAllTests()),
-            ("NaiveteThresholdBonuses", () => NaiveteThresholdBonusesTests.RunAllTests()),
             ("ActionEffectTarget", () => ActionEffectTargetTests.RunAllTests()),
         };
 

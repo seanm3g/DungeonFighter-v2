@@ -251,6 +251,8 @@ namespace RPGGame.Tests.Runners
             CombatRendererTests.RunAllTests();
             Console.WriteLine();
             InventoryRendererTests.RunAllTests();
+            Console.WriteLine();
+            InventoryDragDropTests.RunAllTests();
         }
     }
 }

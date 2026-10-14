@@ -41,8 +41,10 @@ namespace RPGGame.Actions.Execution
                     result.IsCritical,
                     result.StatusEffectMessages);
             }
+            long pfHit = RPGGame.Diagnostics.ToolProfiler.Start();
             var hitEvent = ActionEventPublisher.PublishActionHit(
                 source, target, selected, result.AttackRoll, result.IsCombo, result.IsCritical, result.NaturalRollValue);
+            RPGGame.Diagnostics.ToolProfiler.Stop("Hit.PublishActionHit", pfHit);
 
             if (selected.Type == ActionType.Attack || selected.Type == ActionType.Spell)
             {
@@ -84,9 +86,11 @@ namespace RPGGame.Actions.Execution
                 else
                 {
                     DamageCalculator.BeginSequenceTrace();
+                    long pfDmg = RPGGame.Diagnostics.ToolProfiler.Start();
                     result.Damage = selected.DamageMultiplier > 0
                         ? CombatCalculator.CalculateDamage(source, target, selected, damageMultiplier, 1.0, result.RollBonus, totalRoll, true, null, result.ModifiedBaseRoll)
                         : 0;
+                    RPGGame.Diagnostics.ToolProfiler.Stop("Hit.CalculateDamage", pfDmg);
                     result.DamageTrace = DamageCalculator.TakeSequenceTrace();
                     if (result.Damage > 0)
                     {
@@ -116,7 +120,8 @@ namespace RPGGame.Actions.Execution
                         {
                             EquippedItemTriggerApplicator.ApplyFromDefender(
                                 hurtHero, source, hitEvent, result.StatusEffectMessages);
-                            MaterialSetController.TryMintFromEvent(hurtHero, hitEvent, selected, result.StatusEffectMessages);
+                            MaterialSetController.TryMintFromEvent(hurtHero, hitEvent, selected, result.StatusEffectMessages,
+                                takeHitOnly: true);
                         }
                         if (result.Damage > 0
                             && selected.Target == TargetType.SelfAndTarget

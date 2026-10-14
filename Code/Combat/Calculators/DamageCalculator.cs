@@ -195,6 +195,10 @@ namespace RPGGame.Combat.Calculators
             if (attacker is Character skillAmpHero && skillAmpHero.Effects.ConsumedSkillAmpPercent != 0)
                 comboAmplifier *= 1.0 + skillAmpHero.Effects.ConsumedSkillAmpPercent / 100.0;
 
+            // INT potency (combat.intelligenceAmpPerPoint): INT scales the hero's AMP.
+            if (attacker is Character intHero && intHero is not Enemy)
+                comboAmplifier *= intHero.GetIntelligenceAmpMultiplier();
+
             // Apply next attack damage multiplier (for Follow Through and similar effects)
             // Consume it so it only applies once
             double nextAttackMultiplier = 1.0;
@@ -206,7 +210,13 @@ namespace RPGGame.Combat.Calculators
             // Calculate total damage before armor
             double totalDamage = (baseDamage * actionMultiplier * comboAmplifier * damageMultiplier * nextAttackMultiplier);
             if (attacker is Character strengthHero)
+            {
                 totalDamage *= strengthHero.GetStrengthDamageMultiplier();
+                totalDamage *= SpeedCalculator.GetSpeedOverflowDamageMultiplier(strengthHero);
+                // Retrigger swings re-resolve late, high-AMP strip slots; combat.retriggerDamageMultiplier trims them.
+                if (strengthHero is not Enemy && RPGGame.Actions.Execution.ActionExecutionFlow.IsResolvingRetrigger)
+                    totalDamage *= GameConfiguration.Instance.Combat.GetRetriggerDamageMultiplier();
+            }
 
             // Opt-in enemy damage curve by level (enemySystem.damageCurve).
             if (attacker is Enemy curvedEnemy)
@@ -314,7 +324,7 @@ namespace RPGGame.Combat.Calculators
             int result = wholeDamage;
 
             if (attacker is Character convertHero && convertHero is not Enemy)
-                result += MaterialSetController.GetConvertDamageBonus(convertHero, action);
+                result += MaterialSetController.GetConvertDamageBonus(convertHero, action, wholeDamage);
 
             int convertFlat = result - wholeDamage;
 

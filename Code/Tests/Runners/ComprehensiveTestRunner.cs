@@ -38,6 +38,9 @@ namespace RPGGame.Tests.Runners
                 CrashedSuites.Add($"{suiteName}: {ex.GetType().Name}: {ex.Message}");
                 TestResultCollector.RecordTest(suiteName + " (crashed)", false, ex.Message);
                 Console.WriteLine($"  !! SUITE CRASHED: {suiteName}: {ex.GetType().Name}: {ex.Message}");
+                // Where it crashed (top frames), so the suite can be fixed without a debugger.
+                foreach (string frame in (ex.StackTrace ?? "").Split('\n').Take(6))
+                    Console.WriteLine("       " + frame.Trim());
             }
         }
 
@@ -53,6 +56,7 @@ namespace RPGGame.Tests.Runners
             // Clear previous results and start fresh
             TestResultCollector.Clear();
             CrashedSuites.Clear();
+            TestBase.ClearBalancePacingForTests();
 
             Console.WriteLine(GameConstants.StandardSeparator);
             Console.WriteLine("  COMPREHENSIVE GAME TEST SUITE");

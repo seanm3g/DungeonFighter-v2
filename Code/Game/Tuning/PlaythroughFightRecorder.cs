@@ -20,6 +20,8 @@ namespace RPGGame.Tuning
         public int FightInDungeon { get; set; }
         public int RoomsClearedInDungeon { get; set; }
         public bool HeroDied { get; set; }
+        /// <summary>The hero left the dungeon early after this fight (retreat; the dungeon is not cleared).</summary>
+        public bool RetreatedAfter { get; set; }
     }
 
     /// <summary>
@@ -65,6 +67,15 @@ namespace RPGGame.Tuning
         {
             _fightInDungeon = 0;
             _roomsCleared = 0;
+        }
+
+        /// <summary>Marks the last finished fight as the one the hero retreated after.</summary>
+        public void MarkRetreat()
+        {
+            if (_current != null)
+                Finish();
+            if (Fights.Count > 0)
+                Fights[^1].RetreatedAfter = true;
         }
 
         /// <summary>Closes an open fight as a hero death (the session reached Death).</summary>

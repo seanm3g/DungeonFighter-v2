@@ -79,12 +79,12 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                     "After Rage executes: slot 2 bonuses consumed",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-                // ConsumedSpeedModPercent should be set when slot 2 rolled (consumed before roll)
-                TestBase.AssertTrue(character.Effects.ConsumedSpeedModPercent == 20,
-                    "After Rage executes: ConsumedSpeedModPercent = 20 (speed modifier applied)",
+                // Consumed mods clear after the swing; the SPEED_MOD carries to swing timing via LastSwingSpeedModPercent.
+                TestBase.AssertTrue(Math.Abs(character.Effects.LastSwingSpeedModPercent - 20) < 0.01,
+                    "After Rage executes: swing keeps SPEED_MOD 20 for its duration",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-                Console.WriteLine($"  Verified: Adrenal Surge hit -> slot 2 got SPEED_MOD; Rage consumed it; ConsumedSpeedModPercent={character.Effects.ConsumedSpeedModPercent}.\n");
+                Console.WriteLine($"  Verified: Adrenal Surge hit -> slot 2 got SPEED_MOD; Rage consumed it; LastSwingSpeedModPercent={character.Effects.LastSwingSpeedModPercent}.\n");
                 ActionSelector.RemoveStoredRoll(character);
                 ActionSelector.RemoveStoredRoll(enemy);
                 break;

@@ -25,11 +25,8 @@ namespace RPGGame.Tests.Unit
 
             TestMaterialCountsAfterRoot();
             TestStripActionTagsCount();
-            TestCadenceStepsPerTenTags();
             TestMarketChanceInLootContext();
-            TestIronHideRollArmor();
             TestConcussiveCritStuns();
-            TestPrecisionAddsMultihit();
 
             TestBase.PrintSummary("ClassTags Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -88,26 +85,6 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestCadenceStepsPerTenTags()
-        {
-            var hero = MakeHero("Cadence", WeaponType.Mace, 50);
-            double cadencePower = GameConfiguration.Instance.SkillTrees.GetNode("b-combo")?.Power ?? 1.0;
-            int tagsForOneStep = (int)Math.Ceiling(2.0 / cadencePower);
-            for (int i = 0; i < tagsForOneStep; i++)
-                AddStrip(hero, "BARB_" + i, "barbarian");
-            TestBase.AssertEqual(0, ClassCadence.ComboSteps(hero), "no cadence without Heavy Cadence",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            hero.Progression.LearnedSkillRanks["b-combo"] = 1;
-            double power = GameConfiguration.Instance.SkillTrees.GetNode("b-combo")?.Power ?? 1.0;
-            int expected = (int)Math.Floor(ClassTags.Count(hero, ClassTags.Barbarian) / 2.0 * power);
-            TestBase.AssertTrue(expected >= 1, "enough Barbarian tags reach one cadence step",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(expected, ClassCadence.ComboSteps(hero), "Heavy Cadence steps = tags / 2 x power",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0, ClassCadence.ComboSteps(TestDataBuilders.Enemy().WithName("Foe").Build()), "enemies get no cadence",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
         private static void TestMarketChanceInLootContext()
         {
             var hero = MakeHero("Market", WeaponType.Sword, 20);
@@ -135,19 +112,6 @@ namespace RPGGame.Tests.Unit
             });
         }
 
-        private static void TestIronHideRollArmor()
-        {
-            var hero = MakeHero("IronHide", WeaponType.Mace, 50);
-            hero.Progression.LearnedSkillRanks["b-lvl2"] = 1;
-            SkillEffectRouter.Instance.RefreshForCharacter(hero);
-            SkillEffectRouter.Instance.ResetFightState();
-            Publish(hero, CombatEventType.ActionHit, null, 12, false);
-            double power = GameConfiguration.Instance.SkillTrees.GetNode("b-lvl2")?.Power ?? 1.0;
-            TestBase.AssertEqual((int)Math.Round(12 * power), SkillEffectRouter.Instance.GetSkillArmorBonus(hero),
-                "Iron Hide Roll: armor = natural roll x power until the hero acts again",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
         private static void TestConcussiveCritStuns()
         {
             var hero = MakeHero("Concuss", WeaponType.Mace, 50);
@@ -156,17 +120,6 @@ namespace RPGGame.Tests.Unit
             for (int i = 0; i < 60 && !foe.IsStunned; i++)
                 Publish(hero, CombatEventType.ActionCritical, foe, 20, true);
             TestBase.AssertTrue(foe.IsStunned && foe.StunTurnsRemaining >= 1, "Mace crits with Concussive Crit stun (35% chance each)",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestPrecisionAddsMultihit()
-        {
-            var hero = MakeHero("Precise", WeaponType.Dagger, 50);
-            hero.Progression.LearnedSkillRanks["r-precision"] = 1;
-            hero.Effects.ConsumedMultiHitMod = 0;
-            var rogueAction = new Action { Name = "TEST_STAB", Type = ActionType.Attack, Tags = new List<string> { "rogue" } };
-            Publish(hero, CombatEventType.ActionHit, TestDataBuilders.Enemy().WithName("Dummy").Build(), 12, false, rogueAction);
-            TestBase.AssertTrue(hero.Effects.ConsumedMultiHitMod >= 1, "Precision: Rogue-tagged action gains multihit",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

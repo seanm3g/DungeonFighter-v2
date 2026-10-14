@@ -442,8 +442,11 @@ namespace RPGGame.Tests.Unit
                 "Leather Greaves armor persists as 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(loaded.Equipment.Feet is FeetItem ft && ft.Armor == 1,
                 "Leather Boots armor persists as 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(4, loaded.GetTotalArmor(),
-                "Total armor from four leather pieces is 4", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // Each catalog-1 piece is scaled by the patch's equipmentScaling armor knobs (legacy: 1 each, total 4).
+            int expectedArmor = ((HeadItem)loaded.Equipment.Head!).GetBaseArmor() + ((ChestItem)loaded.Equipment.Body!).GetBaseArmor()
+                + ((LegsItem)loaded.Equipment.Legs!).GetBaseArmor() + ((FeetItem)loaded.Equipment.Feet!).GetBaseArmor();
+            TestBase.AssertEqual(expectedArmor, loaded.GetTotalArmor(),
+                "Total armor equals the four loaded pieces' armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestWeaponTypeRoundTripInCharacterSerializer()

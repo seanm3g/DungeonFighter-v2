@@ -31,6 +31,14 @@ namespace RPGGame
                     if (actionData != null && GameDataTagHelper.HasEnvironmentTag(actionData.Tags))
                         continue;
 
+                    // Mechanic kit: the flavor name keeps its template's mechanics (EnemyActions.json).
+                    if (GameConfiguration.Instance.EnemySystem?.ActionKits == true
+                        && EnemyActionCatalog.TryCreate(actionName) is { } kitAction)
+                    {
+                        enemy.AddAction(kitAction, 1.0);
+                        continue;
+                    }
+
                     // If JSON action fails to load, add a fallback basic attack
                     var fallbackAction = new Action(
                         actionName,

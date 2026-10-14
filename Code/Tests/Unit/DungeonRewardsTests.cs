@@ -276,9 +276,12 @@ namespace RPGGame.Tests.Unit
             );
             task.Wait();
 
-            // Character should be healed to full health
+            // Character should be healed to full effective max (hub starts fresh after a clear).
             TestBase.AssertTrue(character.CurrentHealth >= healthBefore,
                 $"Health should be restored: {healthBefore} -> {character.CurrentHealth}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(character.GetEffectiveMaxHealth(), character.CurrentHealth,
+                "Character should be at full health after dungeon rewards",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -23,6 +23,9 @@ namespace RPGGame
         /// <summary>Learned skill-tree ranks by node id. Spending does not reduce lifetime class points.</summary>
         public Dictionary<string, int> LearnedSkillRanks { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
+        /// <summary>Skill-tree screen's currently viewed class path (UI only, not saved). Null = primary path.</summary>
+        public WeaponType? SkillTreeViewPath { get; set; }
+
         public CharacterProgression(int level = 1)
         {
             Level = level;

@@ -43,6 +43,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             TestBase.AssertTrue(lab != null, "Lab session exists for default d20", ref run, ref passed, ref failed);
             if (lab == null)
             {
@@ -72,6 +73,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
                 var combatManager = new CombatManager();
                 ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
                 var lab = ActionInteractionLabSession.Current;
+                LabTestSlots.Give(lab);
                 TestBase.AssertTrue(lab != null, "LabSessionBegin_UsesCurrentTuningBaseHealth: session exists", ref run, ref passed, ref failed);
                 if (lab == null)
                 {
@@ -110,9 +112,11 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             }
 
             var hero = TestDataBuilders.Character().WithName("LabDefaultFoe").Build();
+
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "LabSessionBegin_PicksDefaultCatalogEnemy: session null", ref run, ref passed, ref failed);
@@ -157,6 +161,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, ctx);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             TestBase.AssertTrue(lab != null, "Lab session exists", ref run, ref passed, ref failed);
             if (lab == null)
             {
@@ -176,6 +181,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             EnemyLoader.LoadEnemies();
             var stateManager = new GameStateManager();
             var hero = TestDataBuilders.Character().WithName("LabCtxRestore").Build();
+            hero.ActionLabActionSlotBonus = 4; // base strip is 1 slot; these tests build 2+
             stateManager.AddCharacter(hero);
             stateManager.TransitionToState(GameState.ActionInteractionLab);
             var ctx = new CanvasContextManager();
@@ -203,7 +209,12 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var hero = TestDataBuilders.Character().WithName("LabTicker").Build();
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
-            TestBase.AssertTrue(Math.Abs(GameTicker.Instance.GameTime - before) < 0.0001,
+            // The lab runs on an isolated encounter clock (AsyncLocal) for this context; read the global clock
+            // from a context that does not inherit the isolation.
+            double globalDuringLab;
+            using (System.Threading.ExecutionContext.SuppressFlow())
+                globalDuringLab = System.Threading.Tasks.Task.Run(() => GameTicker.Instance.GameTime).GetAwaiter().GetResult();
+            TestBase.AssertTrue(Math.Abs(globalDuringLab - before) < 0.0001,
                 "Global GameTime unchanged after lab bootstrap", ref run, ref passed, ref failed);
             ActionInteractionLabSession.EndSession();
             TestBase.AssertTrue(Math.Abs(GameTicker.Instance.GameTime - before) < 0.0001,
@@ -226,9 +237,11 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             }
 
             var hero = TestDataBuilders.Character().WithName("LabRefreshData").Build();
+
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "RefreshGameDataAsync_Reloads: session null", ref run, ref passed, ref failed);
@@ -271,6 +284,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "SequenceStepMode session exists", ref run, ref passed, ref failed);
@@ -298,9 +312,11 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
                 CombatSequencePresenter.SkipDelaysForTests = true;
 
                 var hero = TestDataBuilders.Character().WithName("LabPieceStep").Build();
+
                 var combatManager = new CombatManager();
                 ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
                 var lab = ActionInteractionLabSession.Current;
+                LabTestSlots.Give(lab);
                 if (lab == null)
                 {
                     TestBase.AssertTrue(false, "PieceStep session exists", ref run, ref passed, ref failed);

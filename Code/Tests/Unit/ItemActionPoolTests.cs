@@ -463,8 +463,8 @@ namespace RPGGame.Tests.Unit
             // Add the same action multiple times via ActionBonuses (simulating item with duplicate actions)
             armor.ActionBonuses = new List<ActionBonus>
             {
-                new ActionBonus { Name = "ARCANE ECHO" },
-                new ActionBonus { Name = "ARCANE ECHO" }
+                new ActionBonus { Name = "ECHO SPELL" },
+                new ActionBonus { Name = "ECHO SPELL" }
             };
 
             // Equip the armor
@@ -472,14 +472,14 @@ namespace RPGGame.Tests.Unit
 
             // Verify both instances are in the pool
             var actionPool = character.GetActionPool();
-            int arcaneEchoCount = actionPool.Count(a => a.Name == "ARCANE ECHO");
+            int arcaneEchoCount = actionPool.Count(a => a.Name == "ECHO SPELL");
 
             TestBase.AssertTrue(arcaneEchoCount >= 2,
-                $"Should have at least 2 instances of ARCANE ECHO in action pool, got {arcaneEchoCount}",
+                $"Should have at least 2 instances of ECHO SPELL in action pool, got {arcaneEchoCount}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Verify they have different ComboOrder values to distinguish them
-            var arcaneEchoActions = actionPool.Where(a => a.Name == "ARCANE ECHO").ToList();
+            var arcaneEchoActions = actionPool.Where(a => a.Name == "ECHO SPELL").ToList();
             var comboOrders = arcaneEchoActions.Select(a => a.ComboOrder).Distinct().ToList();
             
             TestBase.AssertTrue(comboOrders.Count >= 2,

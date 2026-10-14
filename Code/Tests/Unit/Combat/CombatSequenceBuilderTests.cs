@@ -40,13 +40,15 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void TestHitIncludesActionRollOutcomeDamage()
         {
-            Console.WriteLine("--- Hit: ATTACKER, ROLL, OUTCOME, ACTION, DAMAGE ---");
+            Console.WriteLine("--- Hit: ATTACKER, ROLL, OUTCOME, ACTION, DEFENSE, DAMAGE ---");
             var result = HitResult("STRIKE", damage: 12);
             var hero = DummyHero();
             var enemy = DummyEnemy();
             var steps = CombatSequenceBuilder.From(result, hero, enemy);
+            // Enemies block too (Defense DR applies to both sides), so a hit on an enemy shows DEFENSE before DAMAGE.
             AssertKinds(steps, CombatSequenceStepKind.Attacker, CombatSequenceStepKind.Roll,
-                CombatSequenceStepKind.Outcome, CombatSequenceStepKind.Action, CombatSequenceStepKind.Damage);
+                CombatSequenceStepKind.Outcome, CombatSequenceStepKind.Action, CombatSequenceStepKind.Defense,
+                CombatSequenceStepKind.Damage);
             TestBase.AssertTrue(Plain(steps[0]).Contains("SeqHero", System.StringComparison.Ordinal),
                 "ATTACKER is the actor name", ref _run, ref _passed, ref _failed);
             var action = steps.First(s => s.Kind == CombatSequenceStepKind.Action);
@@ -54,9 +56,9 @@ namespace RPGGame.Tests.Unit.Combat
                 "ACTION result is the attack name", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(Plain(steps[2]).Contains("HIT", System.StringComparison.Ordinal),
                 "OUTCOME is HIT", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(Plain(steps[4]).Contains("12", System.StringComparison.Ordinal),
+            TestBase.AssertTrue(Plain(steps[5]).Contains("12", System.StringComparison.Ordinal),
                 "DAMAGE shows 12", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(steps[4].Cue == CombatSequenceCue.HealthBar,
+            TestBase.AssertTrue(steps[5].Cue == CombatSequenceCue.HealthBar,
                 "DAMAGE cue is HealthBar", ref _run, ref _passed, ref _failed);
         }
 

@@ -59,7 +59,10 @@ namespace RPGGame.Data
             FeedMaterial = ParseFeedMaterial(Feed, Material);
         }
 
-        /// <summary>Mint amount when the synthesis WHEN fires. Zero below 2 stacks.</summary>
+        /// <summary>
+        /// Mint amount when the synthesis WHEN fires. Zero below 2 stacks; never below 1 once the set is formed,
+        /// so a cross-fed set (Gold ↔ Mithril) worn without its partner still mints.
+        /// </summary>
         public static int ComputeMintAmount(int unlockMaterialCount, int feedMaterialCount)
         {
             if (unlockMaterialCount < StackUnlockCount)
@@ -67,9 +70,12 @@ namespace RPGGame.Data
 
             int amount = 1;
             if (unlockMaterialCount >= StackAdditiveCount)
-                amount = Math.Max(0, feedMaterialCount);
+                amount = Math.Max(1, feedMaterialCount);
             if (unlockMaterialCount >= StackMultiplyCount)
-                amount *= Math.Max(1, feedMaterialCount);
+            {
+                int five = GameConfiguration.Instance.Combat?.MaterialFiveStackMintMultiplier ?? 0;
+                amount = five > 0 ? Math.Max(1, feedMaterialCount) * five : amount * Math.Max(1, feedMaterialCount);
+            }
             return amount;
         }
 

@@ -53,7 +53,8 @@ namespace RPGGame.Tests.Unit.UI
             foreach (var line in lines)
             {
                 string t = ColoredTextRenderer.RenderAsPlainText(line);
-                if (t.Contains("Total Damage Dealt: 123", StringComparison.Ordinal))
+                // Labels are padded so metric values line up (see the alignment test below).
+                if (t.Contains("Total Damage Dealt:", StringComparison.Ordinal) && t.TrimEnd().EndsWith("123", StringComparison.Ordinal))
                 {
                     foundStat = true;
                     break;

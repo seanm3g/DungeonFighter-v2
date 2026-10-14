@@ -106,21 +106,40 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Primary tree always; secondary-tree nodes only when marked <c>sharedWith</c> the primary path.
+        /// Any class tree the character has earned points on; each tree spends only its own path's SP.
         /// </summary>
         public static bool CanSpendIntoNode(
             CharacterProgression progression,
             SkillTreeNodeDefinition node,
-            WeaponType ownerPath)
-        {
-            var primary = progression.GetPrimaryClassWeaponType();
-            if (primary == null)
-                return false;
-            if (ownerPath == primary.Value)
-                return true;
+            WeaponType ownerPath) =>
+            progression.GetClassPoints(ownerPath) > 0;
 
-            // Secondary-class nodes are not spendable from the primary view: the rail shows the pair's hybrid tree.
-            return false;
+        /// <summary>Class paths with earned points, highest first (the trees the skill screen can switch between).</summary>
+        public static IReadOnlyList<WeaponType> GetViewablePaths(CharacterProgression progression) =>
+            progression.GetClassPathsSortedByPoints()
+                .Where(p => p.Points > 0)
+                .Select(p => p.Path)
+                .ToList();
+
+        /// <summary>Tree currently shown: <see cref="CharacterProgression.SkillTreeViewPath"/> when it has points, else the primary path.</summary>
+        public static WeaponType? GetViewedPath(CharacterProgression progression)
+        {
+            var view = progression.SkillTreeViewPath;
+            if (view != null && progression.GetClassPoints(view.Value) > 0)
+                return view;
+            return progression.GetPrimaryClassWeaponType();
+        }
+
+        /// <summary>Advance the viewed tree to the next path with points. Returns false when only one tree exists.</summary>
+        public static bool CycleViewedPath(CharacterProgression progression)
+        {
+            var paths = GetViewablePaths(progression);
+            if (paths.Count < 2)
+                return false;
+            var current = GetViewedPath(progression);
+            int idx = current == null ? -1 : paths.ToList().IndexOf(current.Value);
+            progression.SkillTreeViewPath = paths[(idx + 1) % paths.Count];
+            return true;
         }
 
         /// <summary>
@@ -155,9 +174,12 @@ namespace RPGGame
         public static SkillTreeDisplayModel BuildDisplayModel(CharacterProgression progression)
         {
             progression.EnsureSkillTreeRootsGranted();
-            var primaryTree = GetPrimaryTree(progression);
             var primary = progression.GetPrimaryClassWeaponType();
             var secondary = progression.GetSecondaryClassWeaponType();
+            var viewed = GetViewedPath(progression);
+            var primaryTree = viewed != null ? Trees.GetTreeForWeapon(viewed.Value) : null;
+            // Header pairs the viewed tree with the other half of the top-two duo.
+            var otherPath = viewed == primary ? secondary : primary;
             var primaryNodes = primaryTree != null
                 ? OrderNodes(primaryTree.Nodes)
                 : (IReadOnlyList<SkillTreeNodeDefinition>)Array.Empty<SkillTreeNodeDefinition>();
@@ -185,8 +207,8 @@ namespace RPGGame
 
             return new SkillTreeDisplayModel(
                 primaryTree,
-                primary,
-                secondary,
+                viewed,
+                otherPath,
                 primaryNodes,
                 railNodes,
                 all,

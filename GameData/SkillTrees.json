@@ -23,21 +23,6 @@
           "sharedWith": []
         },
         {
-          "id": "b-lvl2",
-          "name": "Level 2 - Barbarian",
-          "branch": "Bone",
-          "tier": 1,
-          "type": "Passive",
-          "cost": 1,
-          "maxRank": 1,
-          "requires": [],
-          "effect": "Gain armor equal to your natural dice roll x {1} until you next act.",
-          "payoff": "Aggressive rolls still buy defense.",
-          "customEffectId": "iron_hide_roll",
-          "power": 0.2143,
-          "sharedWith": []
-        },
-        {
           "name": "Bone Skin",
           "type": "Passive",
           "effect": "The first time you take damage each fight, gain 2 Harden.",
@@ -53,24 +38,9 @@
           "sharedWith": []
         },
         {
-          "name": "Bone Temper",
-          "type": "Passive",
-          "effect": "While Harden is active, gain +{1} Armor per rank.",
-          "payoff": "Harden becomes real armor.",
-          "customEffectId": "bone_temper",
-          "id": "b-temper",
-          "branch": "Bone",
-          "tier": 3,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.4286,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
           "name": "Blood Price",
           "type": "Passive",
-          "effect": "On dealing Mace damage, heal {1} HP per rank.",
+          "effect": "Mace connects heal {0.5}% of max HP per rank.",
           "payoff": "Every Mace hit pays back.",
           "customEffectId": "blood_price",
           "id": "b-blood",
@@ -78,22 +48,7 @@
           "tier": 4,
           "maxRank": 5,
           "cost": 1,
-          "power": 0.4286,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "name": "Pain Memory",
-          "type": "Rule",
-          "effect": "Store {25}% of post-armor damage taken per rank. Your next Finisher adds it, capped at {20}% max HP per rank.",
-          "payoff": "Damage taken becomes the finisher.",
-          "customEffectId": "pain_memory",
-          "id": "b-memory",
-          "branch": "Bone",
-          "tier": 6,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.4286,
+          "power": 0.2143,
           "requires": [],
           "sharedWith": []
         },
@@ -106,7 +61,7 @@
           "maxRank": 3,
           "cost": 1,
           "customEffectId": "wrath_unbound",
-          "power": 0.4286,
+          "power": 0.10715,
           "effect": "BONE WRATH also heals {1}% max HP per RAGE, per rank.",
           "payoff": "RAGE pays twice.",
           "requires": [],
@@ -156,7 +111,7 @@
           "effect": "Crit with a Mace: 35% chance to Stun for 1 turn.",
           "payoff": "Crits buy control, not only damage.",
           "customEffectId": "concussive_crit",
-          "power": 1.0,
+          "power": 0.5,
           "sharedWith": []
         },
         {
@@ -186,37 +141,7 @@
           "effect": "+{25} STR for each empty action slot, per skill rank.",
           "payoff": "Short strips hit harder; rewards strip discipline.",
           "customEffectId": "empty_fury",
-          "power": 0.01714,
-          "sharedWith": []
-        },
-        {
-          "name": "Mace Mastery",
-          "type": "Mastery",
-          "effect": "Bludgeon hits on Armor-Broken enemies bank +{25}% damage per rank onto the next strike.",
-          "payoff": "Break, then crush.",
-          "customEffectId": "mace_mastery",
-          "id": "b-mastery",
-          "branch": "Iron",
-          "tier": 5,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.4286,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "id": "b-cull",
-          "name": "Cull the Weak",
-          "branch": "Iron",
-          "tier": 7,
-          "type": "Mastery",
-          "maxRank": 3,
-          "cost": 1,
-          "customEffectId": "iron_cull",
-          "power": 0.4286,
-          "effect": "IRON CULL: +{4}% damage per CRISIS, per rank, against enemies under 25% HP.",
-          "payoff": "CRISIS ends fights.",
-          "requires": [],
+          "power": 0.00857,
           "sharedWith": []
         },
         {
@@ -274,7 +199,7 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "ACTION: MIGHT \u2014 +1 STR for the dungeon.",
+          "effect": "ACTION: MIGHT — +1 STR for the dungeon.",
           "payoff": "Early dungeon power spike from the strip.",
           "unlockActionName": "MIGHT",
           "customEffectId": "might",
@@ -357,36 +282,6 @@
           "power": 0.02679
         },
         {
-          "id": "b-combo",
-          "name": "Heavy Cadence",
-          "branch": "Steel",
-          "tier": 2,
-          "type": "Rule",
-          "cost": 1,
-          "maxRank": 1,
-          "requires": [],
-          "effect": "+{0.5} Combo (lower combo threshold) per Barbarian tag on gear and strip, whole steps.",
-          "payoff": "Tag-dense kits enter combo more often.",
-          "customEffectId": "heavy_cadence",
-          "power": 0.08572,
-          "sharedWith": []
-        },
-        {
-          "name": "Second Steel Age",
-          "type": "Passive",
-          "effect": "Combo slot 2 gains +{0.5} extra hits per Barbarian material piece, per rank (whole hits).",
-          "payoff": "Material count becomes volume.",
-          "customEffectId": "second_bronze_age",
-          "id": "b-age2",
-          "branch": "Steel",
-          "tier": 3,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.04286,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
           "id": "b-scar",
           "name": "Scrap Prefer",
           "branch": "Steel",
@@ -398,22 +293,7 @@
           "effect": "Battle Scarred / New / Masterwork pieces: +{10}% Barbarian damage per matching piece, per skill rank.",
           "payoff": "Quality fantasy becomes desirable loot.",
           "customEffectId": "scrap_prefer",
-          "power": 0.02143,
-          "sharedWith": []
-        },
-        {
-          "name": "Third Steel Age",
-          "type": "Passive",
-          "effect": "Combo slot 3 is {6}% faster per Barbarian material piece, per rank. Speed beyond 30% becomes Focus.",
-          "payoff": "Material count becomes tempo.",
-          "customEffectId": "third_bronze_age",
-          "id": "b-age3",
-          "branch": "Steel",
-          "tier": 5,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.4286,
-          "requires": [],
+          "power": 0.02974,
           "sharedWith": []
         },
         {
@@ -428,21 +308,6 @@
           "maxRank": 5,
           "cost": 1,
           "power": 0.4286,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "id": "b-crest",
-          "name": "Crest of Triumph",
-          "branch": "Steel",
-          "tier": 7,
-          "type": "Mastery",
-          "maxRank": 3,
-          "cost": 1,
-          "customEffectId": "steel_crest",
-          "power": 0.4286,
-          "effect": "STEEL CREST grants {0.5} Fortify per TRIUMPH, per rank.",
-          "payoff": "TRIUMPH becomes a wall.",
           "requires": [],
           "sharedWith": []
         },
@@ -475,9 +340,7 @@
           "cost": 1,
           "power": 1.0,
           "requires": [
-            "b-wrath",
-            "b-cull",
-            "b-crest"
+            "b-wrath"
           ],
           "sharedWith": []
         }
@@ -518,7 +381,7 @@
           "payoff": "Material count becomes tempo.",
           "customEffectId": "first_formation",
           "sharedWith": [],
-          "power": 0.03548
+          "power": 0.01774
         },
         {
           "id": "w-lvl2",
@@ -533,21 +396,6 @@
           "payoff": "Clean rolls bank cadence.",
           "customEffectId": "roll_speed",
           "power": 0.5677,
-          "sharedWith": []
-        },
-        {
-          "id": "w-combo",
-          "name": "Drill Cadence",
-          "branch": "Bronze",
-          "tier": 3,
-          "type": "Rule",
-          "cost": 1,
-          "maxRank": 1,
-          "requires": [],
-          "effect": "+{0.5} Combo (lower combo threshold) per Warrior tag on gear and strip, whole steps.",
-          "payoff": "Tag-dense kits enter combo more often.",
-          "customEffectId": "drill_cadence",
-          "power": 0.11354,
           "sharedWith": []
         },
         {
@@ -576,7 +424,7 @@
           "tier": 5,
           "maxRank": 5,
           "cost": 1,
-          "power": 0.5677,
+          "power": 0.2,
           "requires": [],
           "sharedWith": []
         },
@@ -591,7 +439,7 @@
           "tier": 6,
           "maxRank": 1,
           "cost": 1,
-          "power": 1.0,
+          "power": 1.44504,
           "requires": [],
           "sharedWith": []
         },
@@ -604,7 +452,7 @@
           "maxRank": 3,
           "cost": 1,
           "customEffectId": "war_drum",
-          "power": 0.5677,
+          "power": 0.14192,
           "effect": "DRUM CUT: +{2}% speed per BEAT, per rank.",
           "payoff": "BEAT becomes tempo.",
           "requires": [],
@@ -627,51 +475,6 @@
           "sharedWith": []
         },
         {
-          "name": "Riposte",
-          "type": "Passive",
-          "effect": "After taking a hit, your next Sword action gains Pierce for {1} turn per rank; if armor absorbed the hit it also gains {1} extra hit per rank.",
-          "payoff": "Every hit taken sets up the answer.",
-          "customEffectId": "riposte",
-          "id": "w-riposte",
-          "branch": "Gold",
-          "tier": 1,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.5677,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "name": "Guard Duty",
-          "type": "Passive",
-          "effect": "After armor absorbs any damage, your next hit gains +{5}% damage per rank.",
-          "payoff": "Armor turns into damage.",
-          "customEffectId": "guard_duty",
-          "id": "w-duty",
-          "branch": "Gold",
-          "tier": 2,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.5677,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "name": "Shield Geometry",
-          "type": "Passive",
-          "effect": "When armor reduces a hit to zero, Expose the attacker and jump to your first Sword action.",
-          "payoff": "Perfect blocks reset the line.",
-          "customEffectId": "shield_geometry",
-          "id": "w-geometry",
-          "branch": "Gold",
-          "tier": 3,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 1.0,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
           "name": "Phalanx",
           "type": "Passive",
           "effect": "While Fortify is active, Sword hits gain +{2}% damage per rank.",
@@ -680,21 +483,6 @@
           "id": "w-phalanx",
           "branch": "Gold",
           "tier": 4,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.5677,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "name": "Mobile Bulwark",
-          "type": "Mastery",
-          "effect": "Every two Sword connects grant +{1} Fortify per rank.",
-          "payoff": "Attacking builds the wall.",
-          "customEffectId": "mobile_bulwark",
-          "id": "w-bulwark",
-          "branch": "Gold",
-          "tier": 5,
           "maxRank": 5,
           "cost": 1,
           "power": 0.5677,
@@ -712,22 +500,7 @@
           "tier": 6,
           "maxRank": 5,
           "cost": 1,
-          "power": 0.14192,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "id": "w-anchor",
-          "name": "Anchor",
-          "branch": "Gold",
-          "tier": 7,
-          "type": "Mastery",
-          "maxRank": 3,
-          "cost": 1,
-          "customEffectId": "gold_anchor",
-          "power": 0.5677,
-          "effect": "GOLD ANCHOR slows the enemy {3}% per DRAG, per rank (max 50%).",
-          "payoff": "DRAG becomes control.",
+          "power": 0.07096,
           "requires": [],
           "sharedWith": []
         },
@@ -759,7 +532,7 @@
           "effect": "Rite of passage: +{15} Agility.",
           "payoff": "Marks the Sword path; baseline tempo before tag engines.",
           "customEffectId": "commission",
-          "power": 0.22708,
+          "power": 0.05677,
           "sharedWith": []
         },
         {
@@ -786,7 +559,7 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "ACTION: CUNNING \u2014 +3 Agility for the dungeon.",
+          "effect": "ACTION: CUNNING — +3 Agility for the dungeon.",
           "payoff": "Early dungeon tempo from the strip.",
           "unlockActionName": "CUNNING",
           "customEffectId": "cunning",
@@ -802,7 +575,7 @@
           "maxRank": 5,
           "cost": 1,
           "customEffectId": "martial_kinship",
-          "power": 0.11354,
+          "power": 0.05677,
           "effect": "Each equipped Bronze / Gold / Mithril piece adds +{1} AGI per rank.",
           "payoff": "Your materials are your speed.",
           "requires": [],
@@ -819,7 +592,7 @@
           "tier": 4,
           "maxRank": 5,
           "cost": 1,
-          "power": 0.5677,
+          "power": 0.83382,
           "requires": [],
           "sharedWith": []
         },
@@ -832,24 +605,9 @@
           "maxRank": 5,
           "cost": 1,
           "customEffectId": "drill_synthesis",
-          "power": 0.11354,
+          "power": 0.05677,
           "effect": "Every 20 AGI adds +{1} to each BEAT / DRAG / STREAK mint, per rank.",
           "payoff": "Speed feeds the materials.",
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "name": "Iron Discipline",
-          "type": "Mastery",
-          "effect": "Once per fight, a miss does not reset the strip; lose all Focus instead.",
-          "payoff": "One miss per fight keeps the line.",
-          "customEffectId": "iron_discipline",
-          "id": "w-discipline",
-          "branch": "Rite",
-          "tier": 8,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 1.0,
           "requires": [],
           "sharedWith": []
         },
@@ -877,26 +635,11 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "ACTION: AVENGE (Finisher) \u2014 add Warrior tag to all actions.",
-          "payoff": "Finisher refreshes the whole strip\u2019s tag value.",
+          "effect": "ACTION: AVENGE (Finisher) — add Warrior tag to all actions.",
+          "payoff": "Finisher refreshes the whole strip’s tag value.",
           "unlockActionName": "AVENGE",
           "customEffectId": "avenge",
           "power": 1.0,
-          "sharedWith": []
-        },
-        {
-          "name": "Commander's Opening",
-          "type": "Passive",
-          "effect": "First normal hit lowers Combo threshold; a first-hit critical lowers Crit threshold instead.",
-          "payoff": "The first hit sets the terms.",
-          "customEffectId": "commanders_opening",
-          "id": "w-opening",
-          "branch": "Mithril",
-          "tier": 3,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 1.0,
-          "requires": [],
           "sharedWith": []
         },
         {
@@ -915,21 +658,6 @@
           "sharedWith": []
         },
         {
-          "name": "Field Brief",
-          "type": "Passive",
-          "effect": "Critical hits grant +{1} Fortify per rank (2 turns).",
-          "payoff": "Crits fortify the line.",
-          "customEffectId": "field_brief",
-          "id": "w-brief",
-          "branch": "Mithril",
-          "tier": 5,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.5677,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
           "id": "w-polish",
           "name": "Parade Dress",
           "branch": "Mithril",
@@ -942,21 +670,6 @@
           "payoff": "Quality fantasy becomes desirable loot.",
           "customEffectId": "parade_dress",
           "power": 0.02839,
-          "sharedWith": []
-        },
-        {
-          "name": "Sword Mastery",
-          "type": "Mastery",
-          "effect": "Sword hits against Exposed enemies advance two slots; against Marked enemies, advance zero.",
-          "payoff": "Debuffs move the strip.",
-          "customEffectId": "sword_mastery",
-          "id": "w-mastery",
-          "branch": "Mithril",
-          "tier": 6,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 1.0,
-          "requires": [],
           "sharedWith": []
         },
         {
@@ -988,25 +701,6 @@
           "payoff": "Late points still count.",
           "requires": [],
           "damageModPerRank": 1,
-          "sharedWith": []
-        },
-        {
-          "name": "Unbroken Line",
-          "type": "Rule",
-          "effect": "Once per fight, hold a slot when the strip would reset (+{2} roll per rank).",
-          "payoff": "The strip never truly breaks.",
-          "customEffectId": "unbroken_line",
-          "id": "w-line",
-          "branch": "Confluence",
-          "tier": 9,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.5677,
-          "requires": [
-            "w-drum",
-            "w-anchor",
-            "w-flowcrest"
-          ],
           "sharedWith": []
         }
       ]
@@ -1046,7 +740,7 @@
           "payoff": "Material count becomes a build choice.",
           "customEffectId": "first_cut",
           "sharedWith": [],
-          "power": 0.04028
+          "power": 0.02014
         },
         {
           "id": "r-lvl2",
@@ -1064,51 +758,6 @@
           "sharedWith": []
         },
         {
-          "id": "r-precision",
-          "name": "Precision",
-          "branch": "Glass",
-          "tier": 3,
-          "type": "Mastery",
-          "cost": 1,
-          "maxRank": 1,
-          "requires": [],
-          "effect": "Rogue-tagged actions gain +{1} Multihit.",
-          "payoff": "Tag density becomes burst volume.",
-          "customEffectId": "precision_multihit",
-          "power": 1.0,
-          "sharedWith": []
-        },
-        {
-          "name": "Quick Fingers",
-          "type": "Passive",
-          "effect": "When your AGI exceeds the target's, gain +{1}% damage per rank.",
-          "payoff": "Speed becomes damage.",
-          "customEffectId": "quick_fingers",
-          "id": "r-fingers",
-          "branch": "Glass",
-          "tier": 4,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.6445,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "name": "Back Channel",
-          "type": "Passive",
-          "effect": "Hits against Marked enemies gain +{3}% damage per rank.",
-          "payoff": "Marks pay out.",
-          "customEffectId": "back_channel",
-          "id": "r-channel",
-          "branch": "Glass",
-          "tier": 5,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.6445,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
           "name": "Snake Eyes",
           "type": "Rule",
           "effect": "Natural 2 and 12 grant Loaded. At 2 Loaded, replace the next roll with 20.",
@@ -1121,21 +770,6 @@
           "cost": 1,
           "power": 1.0,
           "requires": [],
-          "sharedWith": []
-        },
-        {
-          "id": "r-glass",
-          "name": "Fragile Prefer",
-          "branch": "Glass",
-          "tier": 6,
-          "type": "Passive",
-          "cost": 1,
-          "maxRank": 5,
-          "requires": [],
-          "effect": "Broken / Preowned / Perfect pieces: +{10}% Rogue damage per matching piece, per skill rank.",
-          "payoff": "Quality fantasy becomes desirable loot.",
-          "customEffectId": "fragile_prefer",
-          "power": 0.03222,
           "sharedWith": []
         },
         {
@@ -1170,21 +804,6 @@
           "sharedWith": []
         },
         {
-          "id": "r-critmiss",
-          "name": "Second Chance",
-          "branch": "Shadow",
-          "tier": 1,
-          "type": "Passive",
-          "cost": 1,
-          "maxRank": 1,
-          "requires": [],
-          "effect": "Crit miss with a Dagger: bank one miss salvage.",
-          "payoff": "Worst faces get one salvage.",
-          "customEffectId": "dagger_critmiss_reroll",
-          "power": 1.0,
-          "sharedWith": []
-        },
-        {
           "name": "Grease Palm",
           "type": "Passive",
           "effect": "Connecting on a natural roll of 7 or lower grants +{1} temporary Technique per rank.",
@@ -1193,36 +812,6 @@
           "id": "r-grease",
           "branch": "Shadow",
           "tier": 2,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.6445,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "id": "r-streak",
-          "name": "Steady Hand",
-          "branch": "Shadow",
-          "tier": 3,
-          "type": "Mastery",
-          "cost": 1,
-          "maxRank": 5,
-          "requires": [],
-          "effect": "+{5} Technique for each consecutive non-miss (resets OnTakeHit/miss), per skill rank.",
-          "payoff": "Rewards clean connect streaks.",
-          "customEffectId": "consecutive_tec",
-          "power": 0.1289,
-          "sharedWith": []
-        },
-        {
-          "name": "Ghost Step",
-          "type": "Passive",
-          "effect": "After a miss, gain +{1} miss-salvage charge per rank.",
-          "payoff": "Misses become salvage.",
-          "customEffectId": "ghost_step",
-          "id": "r-ghost",
-          "branch": "Shadow",
-          "tier": 4,
           "maxRank": 5,
           "cost": 1,
           "power": 0.6445,
@@ -1240,37 +829,7 @@
           "tier": 5,
           "maxRank": 1,
           "cost": 1,
-          "power": 1.0,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "name": "No Witnesses",
-          "type": "Passive",
-          "effect": "Killing a Marked enemy retriggers the opener and banks +{1} miss-salvage charge per rank.",
-          "payoff": "Marked kills reset the strip.",
-          "customEffectId": "no_witnesses",
-          "id": "r-witness",
-          "branch": "Shadow",
-          "tier": 6,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.6445,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "id": "r-umbra",
-          "name": "Umbral Step",
-          "branch": "Shadow",
-          "tier": 7,
-          "type": "Mastery",
-          "maxRank": 3,
-          "cost": 1,
-          "customEffectId": "umbral_step",
-          "power": 0.6445,
-          "effect": "UMBRA applies {0.34} Expose per SWING, per rank.",
-          "payoff": "SWING opens the guard.",
+          "power": 0.25,
           "requires": [],
           "sharedWith": []
         },
@@ -1302,7 +861,7 @@
           "effect": "Rite of passage: +{15} Technique.",
           "payoff": "Marks the Dagger path; baseline precision before tag engines.",
           "customEffectId": "initiation",
-          "power": 0.6445,
+          "power": 0.16112,
           "sharedWith": []
         },
         {
@@ -1329,7 +888,7 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "ACTION: CONCENTRATE \u2014 +3 Technique for the dungeon.",
+          "effect": "ACTION: CONCENTRATE — +3 Technique for the dungeon.",
           "payoff": "Early dungeon precision from the strip.",
           "unlockActionName": "CONCENTRATE",
           "customEffectId": "concentrate",
@@ -1348,21 +907,6 @@
           "power": 0.1289,
           "effect": "Each equipped Glass / Obsidian / Shadow piece adds +{1} TEC per rank.",
           "payoff": "Your materials are your precision.",
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "name": "Shadowcraft",
-          "type": "Passive",
-          "effect": "Your first connected Dagger action Marks the enemy. Hitting another target moves the Mark.",
-          "payoff": "The first cut Marks.",
-          "customEffectId": "shadowcraft",
-          "id": "r-shadowcraft",
-          "branch": "Rite",
-          "tier": 4,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 1.0,
           "requires": [],
           "sharedWith": []
         },
@@ -1390,7 +934,7 @@
           "maxRank": 1,
           "cost": 1,
           "customEffectId": "perfect_aim",
-          "power": 0.16112,
+          "power": 0.08056,
           "effect": "Every 25 TEC also lowers your crit threshold by {1}.",
           "payoff": "Technique without a ceiling.",
           "requires": [],
@@ -1457,21 +1001,6 @@
           "sharedWith": []
         },
         {
-          "name": "Toxic Ledger",
-          "type": "Rule",
-          "effect": "Each different DoT on the target adds +{10}% of the hit as bonus damage, per rank.",
-          "payoff": "DoTs become the finisher.",
-          "customEffectId": "toxic_ledger",
-          "id": "r-ledger",
-          "branch": "Obsidian",
-          "tier": 5,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.6445,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
           "name": "Dagger Mastery",
           "type": "Mastery",
           "effect": "Multihit Dagger actions add +{1} Bleed per extra hit.",
@@ -1482,22 +1011,7 @@
           "tier": 6,
           "maxRank": 1,
           "cost": 1,
-          "power": 0.6445,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "id": "r-trophy",
-          "name": "Trophy Hunter",
-          "branch": "Obsidian",
-          "tier": 7,
-          "type": "Mastery",
-          "maxRank": 3,
-          "cost": 1,
-          "customEffectId": "trophy_hunter",
-          "power": 0.6445,
-          "effect": "HEADHUNT: +{3}% damage per TROPHY, per rank.",
-          "payoff": "TROPHY becomes lethality.",
+          "power": 0.85,
           "requires": [],
           "sharedWith": []
         },
@@ -1515,25 +1029,6 @@
           "payoff": "Late points still count.",
           "requires": [],
           "damageModPerRank": 1,
-          "sharedWith": []
-        },
-        {
-          "name": "Perfect Crime",
-          "type": "Rule",
-          "effect": "On Marked death, copy the shortest DoT and highest debuff to the next enemy; resume after the Finisher.",
-          "payoff": "The next target inherits the wounds.",
-          "customEffectId": "perfect_crime",
-          "id": "r-crime",
-          "branch": "Confluence",
-          "tier": 9,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 1.0,
-          "requires": [
-            "r-shatter",
-            "r-umbra",
-            "r-trophy"
-          ],
           "sharedWith": []
         }
       ]
@@ -1573,7 +1068,7 @@
           "payoff": "Material count becomes spell power.",
           "customEffectId": "first_glyph",
           "sharedWith": [],
-          "power": 0.05175
+          "power": 0.02587
         },
         {
           "id": "z-comboInt",
@@ -1633,37 +1128,7 @@
           "payoff": "Routing mutations become a deliberate wind-up.",
           "unlockActionName": "CONCENTRATED CHAOS",
           "customEffectId": "concentrated_chaos",
-          "power": 0.3312,
-          "sharedWith": []
-        },
-        {
-          "id": "z-pure",
-          "name": "Pure Prefer",
-          "branch": "Willow",
-          "tier": 6,
-          "type": "Passive",
-          "cost": 1,
-          "maxRank": 5,
-          "requires": [],
-          "effect": "Second Hand / Cosmic pieces: +{10}% Wizard AMP per matching piece, per skill rank.",
-          "payoff": "Quality fantasy becomes desirable loot.",
-          "customEffectId": "pure_prefer",
-          "power": 0.0414,
-          "sharedWith": []
-        },
-        {
-          "name": "Wand Mastery",
-          "type": "Mastery",
-          "effect": "With a Wand, every action in your strip counts as a Wizard tag.",
-          "payoff": "The whole strip is spellwork.",
-          "customEffectId": "wand_mastery",
-          "id": "z-mastery",
-          "branch": "Willow",
-          "tier": 6,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 1.0,
-          "requires": [],
+          "power": 0.47277,
           "sharedWith": []
         },
         {
@@ -1709,22 +1174,7 @@
           "effect": "Your natural dice roll x {1} becomes +% AMP on your next hit.",
           "payoff": "Rolls feed next-spell power.",
           "customEffectId": "roll_amp",
-          "power": 0.828,
-          "sharedWith": []
-        },
-        {
-          "name": "Prime Theory",
-          "type": "Passive",
-          "effect": "Natural prime faces grant Theorem. At 3 Theorems, the next non-prime roll explodes.",
-          "payoff": "Primes build Theorems.",
-          "customEffectId": "prime_theory",
-          "id": "z-prime",
-          "branch": "Silver",
-          "tier": 2,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 1.0,
-          "requires": [],
+          "power": 0.414,
           "sharedWith": []
         },
         {
@@ -1758,21 +1208,6 @@
           "sharedWith": []
         },
         {
-          "name": "Dungeon Analysis",
-          "type": "Passive",
-          "effect": "Record the prior room's common roll band. The first roll in another band next room gains advantage.",
-          "payoff": "The last room teaches the next.",
-          "customEffectId": "dungeon_analysis",
-          "id": "z-analysis",
-          "branch": "Silver",
-          "tier": 5,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 1.0,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
           "id": "z-refract",
           "name": "Refraction",
           "branch": "Silver",
@@ -1781,8 +1216,8 @@
           "maxRank": 3,
           "cost": 1,
           "customEffectId": "refraction",
-          "power": 0.828,
-          "effect": "REFRACT grants {0.5} Focus per LENS, per rank.",
+          "power": 1.57853,
+          "effect": "REFRACT gains +{3}% damage per LENS, per rank.",
           "payoff": "LENS becomes Focus.",
           "requires": [],
           "sharedWith": []
@@ -1842,7 +1277,7 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "ACTION: READ BOOK \u2014 +3 Intelligence for the dungeon.",
+          "effect": "ACTION: READ BOOK — +3 Intelligence for the dungeon.",
           "payoff": "Early dungeon mind from the strip.",
           "unlockActionName": "READ BOOK",
           "customEffectId": "read_book",
@@ -1875,7 +1310,7 @@
           "tier": 4,
           "maxRank": 5,
           "cost": 1,
-          "power": 0.09936,
+          "power": 0.02484,
           "requires": [],
           "sharedWith": []
         },
@@ -1888,7 +1323,7 @@
           "maxRank": 5,
           "cost": 1,
           "customEffectId": "weave_synthesis",
-          "power": 0.1656,
+          "power": 0.18784,
           "effect": "Every 20 INT adds +{1} to each CHAIN / LENS / CONTACT mint, per rank.",
           "payoff": "Intelligence feeds the materials.",
           "requires": [],
@@ -1903,16 +1338,16 @@
           "maxRank": 1,
           "cost": 1,
           "customEffectId": "archmage",
-          "power": 0.828,
-          "effect": "INT's bonus to your status durations gains +{100}%.",
-          "payoff": "Your spells linger.",
+          "power": 1.6,
+          "effect": "INT's bonus to AMP and to your status durations gains +{100}%.",
+          "payoff": "Your intellect hits harder and your spells linger.",
           "requires": [],
           "sharedWith": []
         },
         {
           "name": "Mana Bleed",
           "type": "Passive",
-          "effect": "Spell/Wand hits restore {1} HP per rank.",
+          "effect": "Spell/Wand connects restore {0.5}% of max HP per rank.",
           "payoff": "Spells restore you.",
           "customEffectId": "mana_bleed",
           "id": "z-bleed",
@@ -1920,22 +1355,7 @@
           "tier": 1,
           "maxRank": 5,
           "cost": 1,
-          "power": 0.828,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
-          "name": "Kindle",
-          "type": "Passive",
-          "effect": "Burn on a Poisoned enemy consumes one Poison to add Acid and +1 Burn.",
-          "payoff": "Poison feeds fire.",
-          "customEffectId": "kindle",
-          "id": "z-kindle",
-          "branch": "Crystal",
-          "tier": 2,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 1.0,
+          "power": 0.207,
           "requires": [],
           "sharedWith": []
         },
@@ -1950,14 +1370,14 @@
           "tier": 3,
           "maxRank": 5,
           "cost": 1,
-          "power": 0.828,
+          "power": 0.207,
           "requires": [],
           "sharedWith": []
         },
         {
           "name": "Thermal Shock",
           "type": "Passive",
-          "effect": "Slow on Burning consumes both to Stun; Burn on Slowed instead adds Vulnerability.",
+          "effect": "Slow on Burning: {100}% chance to consume both and Stun; Burn on Slowed instead adds Vulnerability.",
           "payoff": "Fire and frost collide.",
           "customEffectId": "thermal_shock",
           "id": "z-shock",
@@ -1965,7 +1385,7 @@
           "tier": 4,
           "maxRank": 1,
           "cost": 1,
-          "power": 1.0,
+          "power": 0.4,
           "requires": [],
           "sharedWith": []
         },
@@ -1985,21 +1405,6 @@
           "sharedWith": []
         },
         {
-          "name": "Catalyst",
-          "type": "Mastery",
-          "effect": "Hits on enemies with Acid armor loss also add {1} Burn.",
-          "payoff": "Acid feeds the fire.",
-          "customEffectId": "catalyst",
-          "id": "z-catalyst",
-          "branch": "Crystal",
-          "tier": 6,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 0.828,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
           "id": "z-resonate",
           "name": "Resonance",
           "branch": "Crystal",
@@ -2008,7 +1413,7 @@
           "maxRank": 3,
           "cost": 1,
           "customEffectId": "resonance",
-          "power": 0.828,
+          "power": 0.207,
           "effect": "RESONATE: +{2}% damage per CONTACT, per rank.",
           "payoff": "CONTACT becomes force.",
           "requires": [],

@@ -739,11 +739,9 @@ namespace RPGGame.Tests.Unit.Data
                     {
                         isValid = false;
                     }
-                    if (group.Bonuses == null || group.Bonuses.Count == 0)
-                    {
-                        isValid = false;
-                    }
-                    else
+                    // Status-only cadence groups (WEAKEN, SLOW, HARDEN…) carry timing with no stat bonuses
+                    // (ActionCadenceEditorSync keeps them on purpose), so an empty list is valid.
+                    if (group.Bonuses != null)
                     {
                         foreach (var bonus in group.Bonuses)
                         {
@@ -765,6 +763,12 @@ namespace RPGGame.Tests.Unit.Data
                         ));
                         Console.WriteLine($"  ✓ {action.Name}: {bonusDesc}");
                     }
+                }
+                else
+                {
+                    var badDesc = string.Join("; ", action.ActionAttackBonuses!.BonusGroups.Select(g =>
+                        $"kw='{g.Keyword}' count={g.Count} bonuses=[{string.Join(", ", (g.Bonuses ?? new()).Select(b => $"'{b.Type}'+{b.Value}"))}]"));
+                    Console.WriteLine($"  ✗ INVALID BONUS {action.Name}: {badDesc}");
                 }
             }
 

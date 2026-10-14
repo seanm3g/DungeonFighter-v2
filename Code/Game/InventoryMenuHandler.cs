@@ -1,4 +1,4 @@
-namespace RPGGame
+﻿namespace RPGGame
 {
     using System;
     using System.Collections.Generic;
@@ -141,7 +141,8 @@ namespace RPGGame
                         stateTracker.ItemSelectionAction,
                         stateTracker.ItemSortMode,
                         stateTracker.HideRequirementBlockedItems,
-                        stateTracker.InventoryEquipSlotFilter);
+                        stateTracker.InventoryEquipSlotFilter,
+                        stateTracker.InventoryMaterialFilter);
                 }
                 else if (stateTracker.WaitingForSlotSelection)
                     canvasUI.RenderSlotSelectionPrompt(player);
@@ -152,7 +153,8 @@ namespace RPGGame
                         stateTracker.WaitingForMenuMutatingActionConfirmation ? stateTracker.PendingMutatingMenuChoice : null,
                         stateTracker.ItemSortMode,
                         stateTracker.HideRequirementBlockedItems,
-                        stateTracker.InventoryEquipSlotFilter);
+                        stateTracker.InventoryEquipSlotFilter,
+                        stateTracker.InventoryMaterialFilter);
             }
         }
 
@@ -172,7 +174,10 @@ namespace RPGGame
 
             if (TryHandleInventoryItemScrollInput(input))
                 return;
-            
+
+            if (TryHandleDetailViewInput(input))
+                return;
+
             // Combo management screen: mouse tokens before keyboard handler
             if (stateTracker.InComboManagement)
             {
@@ -254,7 +259,7 @@ namespace RPGGame
                 
                 // Get available rarities
                 var rarityGroups = stateManager.CurrentInventory
-                    .Where(item => item != null && item.Type != ItemType.Consumable)
+                    .Where(InventoryTradeUpHandler.IsTradeUpCandidate)
                     .GroupBy(item => item.Rarity ?? "Common")
                     .Where(group => group.Count() >= 5)
                     .OrderBy(group => GetRarityOrder(group.Key))
@@ -399,7 +404,7 @@ namespace RPGGame
                     ShowGameLoopEvent?.Invoke();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-5, * (auto-equip), + (sort), - (requirements filter), / (cycle slot filter), 0 (Return to game menu), or ESC to go back.");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-5, * (auto-equip), + (sort), - (requirements filter), / (cycle slot filter), M (cycle material filter), F1 (detail view), 0 (Return to game menu), or ESC to go back.");
                     break;
             }
         }
@@ -407,13 +412,15 @@ namespace RPGGame
         private bool TryHandleInventoryViewShortcut(string input)
         {
             string normalized = input.Trim();
-            if (normalized != "+" && normalized != "-" && normalized != "/")
+            if (string.Equals(normalized, "m", StringComparison.OrdinalIgnoreCase))
+                normalized = "m";
+            if (normalized != "+" && normalized != "-" && normalized != "/" && normalized != "m")
                 return false;
 
             bool allowSlotCycle = CanCycleInventorySlotFilterShortcut();
             bool allowSortAndReqFilter = IsMainInventoryListVisible();
 
-            if (normalized == "/")
+            if (normalized == "/" || normalized == "m")
             {
                 if (!allowSlotCycle)
                     return true;
@@ -439,6 +446,17 @@ namespace RPGGame
                     ? "Inventory filter: hiding items with unmet requirements."
                     : "Inventory filter: showing all items.");
             }
+            else if (normalized == "m")
+            {
+                var player = stateManager.CurrentPlayer;
+                var inv = stateManager.CurrentInventory ?? player?.Inventory;
+                string? material = stateTracker.CycleInventoryMaterialFilter(inv);
+                ShowMessageEvent?.Invoke(material == null
+                    ? (InventoryStateManager.GetInventoryMaterials(inv).Count == 0
+                        ? "Inventory material filter: no materials in bag."
+                        : "Inventory material filter: off (all materials visible).")
+                    : $"Inventory material filter: {material} only.");
+            }
             else
             {
                 stateTracker.CycleInventoryEquipSlotFilter();
@@ -450,6 +468,94 @@ namespace RPGGame
 
             RefreshInventoryScreen();
             return true;
+        }
+
+        /// <summary>
+        /// F1 toggles the detail view; <c>invgrid</c> (header button) switches between the new icon grid and the old list;
+        /// <c>invsel:N</c> (detail-view row or grid tile click) picks the item described on the right.
+        /// New inventory drag and drop: <c>invequip:N</c> equips a bag item into its own slot, <c>invunequip:slot</c> moves gear to the bag;
+        /// <c>invslot:slot</c> (paper-doll click) only shows its tooltip.
+        /// All only act on the main inventory list and are swallowed otherwise.
+        /// </summary>
+        private bool TryHandleDetailViewInput(string input)
+        {
+            bool isToggle = string.Equals(input, "f1", StringComparison.OrdinalIgnoreCase);
+            bool isGridToggle = string.Equals(input, InventoryDetailViewState.ToggleGridInput, StringComparison.Ordinal);
+            bool isSelect = input.StartsWith(InventoryDetailViewState.SelectInputPrefix, StringComparison.Ordinal);
+            bool isSlotClick = input.StartsWith(InventoryDetailViewState.SlotInputPrefix, StringComparison.Ordinal);
+            bool isDropEquip = input.StartsWith(InventoryDetailViewState.DropEquipPrefix, StringComparison.Ordinal);
+            bool isDropUnequip = input.StartsWith(InventoryDetailViewState.DropUnequipPrefix, StringComparison.Ordinal);
+            if (!isToggle && !isGridToggle && !isSelect && !isSlotClick && !isDropEquip && !isDropUnequip)
+                return false;
+
+            if (!IsMainInventoryListVisible() || customUIManager is not CanvasUICoordinator canvasUI)
+                return true;
+
+            if (isSlotClick)
+                return true;
+
+            if (isDropEquip || isDropUnequip)
+            {
+                if (!canvasUI.IsInventoryGridViewEnabled)
+                    return true;
+                if (isDropEquip)
+                    DropEquip(canvasUI, input.Substring(InventoryDetailViewState.DropEquipPrefix.Length));
+                else
+                    DropUnequip(canvasUI, input.Substring(InventoryDetailViewState.DropUnequipPrefix.Length));
+            }
+            else if (isGridToggle)
+            {
+                bool grid = canvasUI.ToggleInventoryGridView();
+                ShowMessageEvent?.Invoke(grid
+                    ? "New inventory: click an item to see its full description."
+                    : "Old inventory.");
+            }
+            else if (isToggle)
+            {
+                if (canvasUI.IsInventoryGridViewEnabled)
+                    return true;
+                bool enabled = canvasUI.ToggleInventoryDetailView();
+                ShowMessageEvent?.Invoke(enabled
+                    ? "Detail view: click an item to see its full description. F1 to return."
+                    : "List view.");
+            }
+            else
+            {
+                if (!(canvasUI.IsInventoryDetailViewEnabled || canvasUI.IsInventoryGridViewEnabled)
+                    || !int.TryParse(input.Substring(InventoryDetailViewState.SelectInputPrefix.Length), out int inventoryIndex))
+                    return true;
+                canvasUI.SelectInventoryDetailItem(inventoryIndex);
+            }
+
+            RefreshInventoryScreen();
+            return true;
+        }
+
+        /// <summary>Equips the dragged bag item into its own slot; a swapped-out piece lands at the end of the bag and becomes the selection.</summary>
+        private void DropEquip(CanvasUICoordinator canvasUI, string indexText)
+        {
+            var inventory = stateManager.CurrentInventory;
+            if (!int.TryParse(indexText, out int inventoryIndex) || inventoryIndex < 0 || inventoryIndex >= inventory.Count)
+                return;
+            string? slot = UI.Avalonia.Layout.InventoryActionPoolEntries.GetEquipSlotForItem(inventory[inventoryIndex]);
+            if (slot == null)
+            {
+                ShowMessageEvent?.Invoke($"{inventory[inventoryIndex].Name} cannot be equipped.");
+                return;
+            }
+
+            int countBefore = inventory.Count;
+            if (!itemActionHandler.ConfirmEquipItem(inventoryIndex, slot, equipNew: true, refreshInventoryScreen: false, announce: true))
+                return;
+            // Equip removes the item; a swap appends the old piece, keeping the count.
+            canvasUI.SelectInventoryDetailItem(inventory.Count == countBefore ? inventory.Count - 1 : -1);
+        }
+
+        /// <summary>Moves the dragged gear slot's item to the end of the bag and selects it.</summary>
+        private void DropUnequip(CanvasUICoordinator canvasUI, string slot)
+        {
+            if (itemActionHandler.UnequipSlot(slot, refreshInventoryScreen: false) != null)
+                canvasUI.SelectInventoryDetailItem(stateManager.CurrentInventory.Count - 1);
         }
 
         private bool IsMainInventoryListVisible()
@@ -464,7 +570,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Numpad / may cycle the bag slot filter on the main inventory list and during equip/discard item pick (same filtered rows).
+        /// Numpad / (slot) and M (material) may cycle the bag filters on the main inventory list and during equip/discard item pick (same filtered rows).
         /// </summary>
         private bool CanCycleInventorySlotFilterShortcut()
         {
@@ -493,7 +599,8 @@ namespace RPGGame
                 player,
                 stateTracker.ItemSortMode,
                 stateTracker.HideRequirementBlockedItems,
-                stateTracker.InventoryEquipSlotFilter);
+                stateTracker.InventoryEquipSlotFilter,
+                stateTracker.InventoryMaterialFilter);
 
             int selectableCount = Math.Min(visibleSelectionEntries.Count, ItemSelectionRenderer.MaxSelectableItems);
             if (visibleChoice > selectableCount)

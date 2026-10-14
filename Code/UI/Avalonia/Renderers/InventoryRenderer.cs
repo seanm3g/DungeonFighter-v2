@@ -91,9 +91,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the inventory screen with items and actions
         /// </summary>
-        public void RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0, InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder, bool hideRequirementBlockedItems = false, string? inventoryEquipSlotFilter = null)
+        public void RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0, InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder, bool hideRequirementBlockedItems = false, string? inventoryEquipSlotFilter = null, InventoryDetailViewState? detailView = null, string? inventoryMaterialFilter = null)
         {
-            currentLineCount = screenRenderer.RenderInventory(x, y, width, height, character, inventory, pendingMutatingInventoryMenuAction, itemScrollOffset, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter);
+            currentLineCount = screenRenderer.RenderInventory(x, y, width, height, character, inventory, pendingMutatingInventoryMenuAction, itemScrollOffset, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter, detailView, inventoryMaterialFilter);
         }
         
         /// <summary>
@@ -110,7 +110,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             string actionType,
             InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
             bool hideRequirementBlockedItems = false,
-            string? inventoryEquipSlotFilter = null)
+            string? inventoryEquipSlotFilter = null,
+            string? inventoryMaterialFilter = null)
         {
             currentLineCount = selectionRenderer.RenderItemSelectionPrompt(
                 x,
@@ -123,7 +124,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 actionType,
                 sortMode,
                 hideRequirementBlockedItems,
-                inventoryEquipSlotFilter);
+                inventoryEquipSlotFilter,
+                inventoryMaterialFilter);
         }
         
         /// <summary>

@@ -39,11 +39,17 @@ namespace RPGGame
         /// Display the exit choice menu and wait for player input
         /// </summary>
         /// <returns>True if player chose to exit, false if they chose to continue</returns>
+        /// <summary>
+        /// Headless (MCP-mode) answer to the exit prompt: true = leave the dungeon. Null always stays.
+        /// Set by headless playthroughs (PLAYTODEATHBATCH --retreat-below).
+        /// </summary>
+        public static Func<Character?, bool>? HeadlessExitPolicy { get; set; }
+
         public async Task<bool> ShowExitChoiceMenu(int currentRoom, int totalRooms)
         {
             // MCP/agent mode: no nested input channel while RunDungeon blocks HandleInput
             if (RPGGame.MCP.MCPMode.IsActive)
-                return false;
+                return HeadlessExitPolicy?.Invoke(stateManager.CurrentPlayer) ?? false;
 
             // Create task completion source to wait for player choice
             exitChoiceTaskSource = new TaskCompletionSource<bool>();

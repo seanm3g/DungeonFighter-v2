@@ -190,6 +190,11 @@ namespace RPGGame
         public int PendingActionCadencePreviewSlot { get; set; } = -1;
         public double ConsumedDamageModPercent { get; set; }
         public double ConsumedSpeedModPercent { get; set; }
+        /// <summary>
+        /// SPEED_MOD the last swing used, kept past <see cref="ClearConsumedModifierBonuses"/>: the action flow clears
+        /// consumed mods when the swing resolves, and the swing's duration is computed after that.
+        /// </summary>
+        public double LastSwingSpeedModPercent { get; set; }
         public double ConsumedMultiHitMod { get; set; }
         public double ConsumedAmpModPercent { get; set; }
         /// <summary>Skill-tree AMP % this swing: multiplies the combo multiplier as-is (does not lift openers to the TEC amp).</summary>

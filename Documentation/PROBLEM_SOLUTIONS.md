@@ -4,6 +4,183 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Combat strip: Iron Cull damage stayed flat while CRISIS climbed (October 2026)
+**Problem:** With CRISIS x5 on the status panel, Iron Cull's card still showed the amp-only swing (18) and no live convert line.
+
+**Root cause:** Convert payout reads the action's scale columns. A pool copy whose columns name the wrong material or an empty keyword bank returned 0, so the strip added nothing even though the Iron set's CRISIS bank was stocked. The card line also omitted the stack count, so a rising bank was invisible.
+
+**Solution:** `GetConvertDamageBonus` falls back to the material build's own material and keyword when the set is formed and that bank is stocked. The strip already adds that bonus to the flat damage number (percent of the swing when percent converts are on). The card line includes the live count (`CRISIS x5 +N`), and the swing number turns green while the convert is paying.
+
+**Related files:** `MaterialSetController.cs`, `CombatActionStripBuilder.cs`, `DungeonRenderer.RoomAndCombat.cs`, `MaterialSetControllerTests.cs`, `ActionCardExternalBonusCollectorTests.cs`
+
+### UI: F5 narrative video bands drift against text line spacing (October 2026)
+**Problem:** With the F5 combat-log video feed on, the backdrop’s horizontal bands (brick courses / scanlines)
+started aligned with text near the top of the log but drifted out of phase further down.
+
+**Root cause:** `NarrativeVideoOverlayControl` stretch-filled the native MP4 frame across the whole band.
+Periodic features in the footage have a vertical period that is not an integer multiple of character-row
+height, so phase accumulates line by line (classic moiré against the monospace grid).
+
+**Solution:** Resample each decode frame onto the character-cell grid (`NarrativeVideoCellLock`): one
+center sample per cell, filled as a solid block, drawn with `BitmapInterpolationMode.None`. Each text
+row maps to one discrete video strip locked to line spacing.
+
+**Related files:** `NarrativeVideoCellLock.cs`, `NarrativeVideoOverlayControl.cs`, `NarrativeVideoCellMaskTests.cs`
+
+### UI: DoT "no longer burning" line lost its indent (October 2026)
+**Problem:** Combat log showed `Basil takes 1 burn damage` and `(Basil is no longer burning!)` flush-left on both lines;
+the status-end line should sit under the damage line with the standard 5-space action-block indent.
+
+**Root cause:** `StatusEffectProcessor` joins damage + follow-up with an explicit `\n` in one buffer entry.
+`TextWrappingHelper.WrapColoredSegments` treats soft-wrap continuations as book-style (no leading spaces) and also
+collapsed post-hard-break spaces into a single inter-word flag, so the follow-up indent never reached the second line.
+
+**Solution:** After an explicit hard break, leading spaces become a `LineIndent` token and seed that logical line.
+Soft-wrap width continuations still stay flush left.
+
+**Related files:** `TextWrappingHelper.cs`, `TextWrappingHelperTests.cs`
+
+### Combat strip: repeated actions and strip replacements looped back to the first copy (October 2026)
+**Problem:** Strips with a repeated action (STAB > MISDIRECT > EXPOSE > STAB > STAB) never reached their last slots, and
+MISDIRECT (replace next swing with STAB) made Marked Hunter ping-pong STAB / MISDIRECT so EXPOSE and its converts never fired.
+
+**Root cause:** `Character.IncrementComboStep` found the slot that just ran with `FindIndex` by name, i.e. the first copy.
+A `strip_replace_next` swing resolves the replacement's own strip slot, so the strip resumed from there.
+
+**Solution:** Advance from the current step's slot when it holds that action; a strip-replaced swing records the slot it
+replaced (`Character.ReplacedStripSlot`, set in `ActionExecutionFlow.Selection`) and the strip advances from it.
+
+**Related files:** `Character.cs`, `ActionExecutionFlow.Selection.cs`, `ActionExecutionFlow.cs`, `BuildGlueTests.cs`
+
+### Skills and audio cues went dead after starting a new game (October 2026)
+**Problem:** Skill-tree effects and combat audio cues worked in the first game of a session but not after New Game.
+
+**Root cause:** `CombatEventBus.Clear()` runs on new game; `SkillEffectRouter` and `AudioCueDispatcher` subscribe once and
+kept a "subscribed" flag, so they never re-subscribed.
+
+**Solution:** The bus raises `Cleared`; the audio dispatcher re-subscribes on it, and the skill router checks
+`HasSubscriber` before trusting its flag.
+
+**Related files:** `CombatEventBus.cs`, `SkillEffectRouter.cs`, `AudioCueDispatcher.cs`
+
+### UI: item names lowercased affix words; travel roll line glued to its title; card labels lost trigger names (October 2026)
+**Problem:** "Worn Thick Wrap" showed as "Worn thick Wrap"; the travel step's indented roll line joined the title line;
+WHILE_EQUIPPED card lines read "Bludgeon +12%" instead of the trigger's name.
+
+**Root cause:** `ItemThemeProvider.GetBaseLeadingWordTheme` passed the lowercased lookup key as display text;
+`SpacingHelper` collapsed every whitespace-only segment (including "
+     ") to one space;
+`EquippedItemTriggerApplicator.CloneBundle` dropped `IdentityName`.
+
+**Solution:** Theme the original word; keep whitespace segments that contain a newline; copy `IdentityName` /
+`Description` in the clone.
+
+**Related files:** `ItemThemeProvider.cs`, `SpacingHelper.cs`, `EquippedItemTriggerApplicator.cs`
+
+### Data: tutorial granted a missing action; "MAGIC MISSLE" shown to players (October 2026)
+**Problem:** The Training Ground unarmed action PUNCH HARD did not exist in the action data, and the wand basic was
+spelled MAGIC MISSLE in menus and the combat log.
+
+**Root cause:** The sheet renamed PUNCH HARD to PUNCH; the wand basic kept the sheet's typo as its data key.
+
+**Solution:** The tutorial, `Triggers.json` (`grant_action:PUNCH`) and the class-actions mapper use PUNCH;
+`ActionLoader.CanonicalizeLegacyKeys` re-keys MAGIC MISSLE as MAGIC MISSILE after loading (old saves still resolve).
+
+**Related files:** `GameConstants.cs`, `ClassActionsUnlockConfig.cs`, `ActionLoader.cs`, `GameData/Triggers.json`
+
+### Tests: suites depended on run order and the active balance patch (October 2026)
+**Problem:** About 60 tests failed and five suites crashed in the full run but many passed alone.
+
+**Root cause:** Tests mutated singletons without restoring them (`SimulationPacing.EnableFastMode` left MCP mode,
+combat UI mute and fast mode on for every later suite), hard-coded values that are now patch data (base HP, material
+converts, combo strip length 1, rarity colors), or counted data that grew (tags, mechanics, trigger identities).
+
+**Solution:** Pin or restore global config inside each suite (`MaterialSetControllerTests`, `EnemyAttributeGrowthTests`,
+`ActionCardExternalBonusCollectorTests`, `DungeonExitChoiceHandlerTests`, `DeveloperModeStateTests`); compare against
+the live patch or palette instead of literals; lab tests add strip slots through the recorded panel delta
+(`LabTestSlots.Give`). Full suite: 13163 run, 0 failed.
+
+### Skills: Fortify from skills gave no defense; temp stats stacked all fight (October 2026)
+**Problem:** Crest of Triumph, Second Wind, Mobile Bulwark and Field Brief priced at 100 in their own builds; Gut Instinct,
+Focus Lens, Thermal Shock and Cadence Keeper priced ×1.7–2.3.
+
+**Root cause:** (1) Skills raise `FortifyStacks` directly, but defense only reads `FortifyArmorBonus`, which only the
+status handler sets (and only +1 armor per stack against K 275). (2) Gut Instinct / Focus Lens added temp STR / TEC on
+every hit and `TempStatBonusTurns` was never set, so the bonus never decayed; Grease Palm / Loaded Odds likewise.
+(3) Thermal Shock stunned whenever Burn and Slow were up and never consumed them. (4) Cadence Keeper granted at least
+1 Focus per alternation whatever its power.
+
+**Solution:** `combat.statusFortifyDefensePerStack` (Fortify stacks add defense in K units, like Harden); Gut Instinct /
+Focus Lens set their bonus once (the Steady March pattern); Grease Palm / Loaded Odds last 2 turns; Thermal Shock
+consumes Burn and Slow; Cadence Keeper uses rank × power with the fraction as a chance.
+
+**Related files:** `StatusCombatModifiers.cs`, `SkillEffectRouter.cs`, `CombatConfig.cs`
+
+### Combat: burn / bleed did 1 damage per stack at every level (October 2026)
+**Problem:** Enemy Rend made the hero bleed for 1 damage at L40; Deep Cut and the bleed / burn procs faded to nothing
+past L30.
+
+**Root cause:** Burn and bleed intensity are flat integers and tick for their intensity.
+
+**Solution:** `combat.dotDamagePerLevel` (overnight-v2: 0.1): tick damage × (1 + target level × k). Trigger bundles now
+pass their value to burn / bleed stacks as well as poison.
+
+**Related files:** `Actor.cs`, `ActionTriggerBundleApplicator.cs`, `CombatConfig.cs`
+
+### Combat: speed bonuses never changed swing time (October 2026)
+**Problem:** SPRINT / RUSH / MOMENTUM / MARATHON, First Formation, Metronome, War Drum and the "+10% speed" item triggers did nothing: BUILDLAB priced every Warrior speed node at exactly 100.
+
+**Root cause:** SPEED_MOD lands in `ConsumedSpeedModPercent`, which `ActionExecutionFlow` clears when the swing resolves. The swing's duration is computed afterwards (`ActionSpeedSystem.ExecuteAction` in the turn handler), so it always read 0.
+
+**Solution:** The flow keeps the swing's SPEED_MOD in `LastSwingSpeedModPercent` before clearing; `ActionSpeedSystem` takes it (once) when it sets the duration.
+
+**Related files:** `ActionExecutionFlow.cs`, `ActionSpeedSystem.cs`, `CharacterEffects.cs`, `CharacterEffectsState.cs`
+
+### Materials: a foe's hits minted the hero's ON CONNECT currencies (October 2026)
+**Problem:** Crystal CONTACT, Glass GRAZE, Shadow SWING and Mithril STREAK banks grew when the *enemy* connected (Goblin JAB / TAUNT minted CONTACT).
+
+**Root cause:** The take-hit mint call (`ActionExecutionFlow.Outcomes`) ran every material build's WHEN against the foe's hit event, so ON CONNECT / ON HIT / ON ATTACK matched it too.
+
+**Solution:** `TryMintFromEvent(..., takeHitOnly: true)` on that path: only take-hit WHENs (Bone RAGE) mint from a foe's hit, and take-hit WHENs never mint from the hero's own swings.
+
+**Related files:** `MaterialSetController.cs`, `ActionExecutionFlow.Outcomes.cs`
+
+### Skills: "on dealing damage" skills never fired (October 2026)
+**Problem:** Blood Price, Mana Bleed and Toxic Ledger did nothing even at 10× power.
+
+**Root cause:** The hit event is published before damage is rolled, so `evt.Damage` is always 0 in the router's on-hit handlers. Blood Price / Mana Bleed also healed a flat 1 HP per rank, which stops mattering past the first levels.
+
+**Solution:** Blood Price / Mana Bleed heal 0.5% of max HP per rank (× power) on a connect; Toxic Ledger adds its bonus as a damage mod on the finisher hit itself.
+
+**Related files:** `SkillEffectRouter.cs`, `GameData/SkillTrees.json`, `skill-tree-templates.json`
+
+### Items: Flaming / Poisonous / serrated mods did nothing (October 2026)
+**Problem:** BUILD_CATALOG gap G6: the DoT mods never applied, so status-reaction skills (Kindle, Sigil Burn, Toxin Pressure, Envenomed Edge, Catalyst) had no source.
+
+**Root cause:** `Modifications.json` names the effects BURN / POISON / BLEED; the weapon DoT path only read weaponBurn / weaponPoison / weaponBleed. Poisonous also rolls 0.
+
+**Solution:** `CombatEffectsSimplified.NormalizeWeaponDotEffect` maps the short names; Poisonous defaults to 0.5% poison per application (poison is % of max HP per tick and never decays in a fight).
+
+**Related files:** `CombatEffectsSimplified.cs`
+
+### Items: trigger poison ignored its value (October 2026)
+**Problem:** Every poison trigger added 1% of max HP per tick whatever its value.
+
+**Root cause:** `ActionTriggerBundleApplicator.ApplyStatus` never received the bundle magnitude; `PoisonEffectHandler` defaults to 1%.
+
+**Solution:** `ApplyStatus` takes the magnitude and sets `PoisonPercentToAdd` for poison. Material poison triggers are 0.25 (on connect) / 0.5 (on crit, take hit).
+
+**Related files:** `ActionTriggerBundleApplicator.cs`, `MaterialTriggerCatalog.cs`
+
+### Balance: one-hit damage cap flattened late-game scaling (October 2026)
+**Problem:** Builds were worth ×1.3–2.4 at L30 but ×1.0–1.7 at L60, and stacked bonuses (convert banks, crits, AMP) stopped mattering.
+
+**Root cause:** `combat.maximumDamageCap` 950 clipped every hit; by L30–60 burst hits sit on it.
+
+**Solution:** overnight-v2 sets the cap to 100000 and re-solves the enemy health / damage curves. (overnight-v1 keeps 950.)
+
+**Related files:** `GameData/Patches/Balance/overnight-v2.json`
+
 ### Balance / Skills: optimized heroes killed in 2–4 actions (October 2026)
 **Problem:** A hero that spent skill points (smart bot) killed in 2–4 hero actions from L6 (Barbarian, Wizard) against an ~11-action target; the whole Barbarian tree was worth 5.5× at L10.
 
@@ -12,6 +189,15 @@ This document contains solutions to common problems encountered during developme
 **Solution:** Per-node `power` in `SkillTrees.json` (multiplies the per-rank amount; effect text updated); skill AMP goes to `ConsumedSkillAmpPercent`, a plain multiplier with no lift; new `SKILLVALUE` tool prices every node and the whole tree.
 
 **Related files:** `SkillEffectRouter.cs`, `SkillEffectRouter.Preview.cs`, `SkillTreesConfig.cs`, `GameData/SkillTrees.json`, `DamageCalculator.cs`, `CharacterEffectsState.cs`, `SkillValueRunner.cs`, `BALANCE_PROCESS.md`
+
+### UI / Inventory: trade-up preview Confirm clipped off-screen (October 2026)
+**Problem:** Opening Trade Up Preview with five gear pieces showed full stat blocks for every input, so Confirm Trade Up was pushed below the center panel (no scroll, cancel disabled).
+
+**Root cause:** `ItemSelectionRenderer.RenderTradeUpPreview` painted unlimited lines and ignored `height`; it never pinned a footer the way inventory / equip-comparison screens do.
+
+**Solution:** Compact traded inputs to name-only rows, clear the content area, pin Confirm on the last row via `TradeUpPreviewLayout`, and clamp result stats above the footer. Also corrected StatBonuses suffix typo `of ferosity` → `of ferocity`.
+
+**Related files:** `ItemSelectionRenderer.cs`, `TradeUpPreviewLayout`, `GameData/StatBonuses.json`, `InventoryRendererTests.cs`
 
 ### Balance / Combat: some enemies unwinnable at mid levels, all identical at L1 (October 2026)
 **Problem:** Across the full roster, the worst enemy won 7% of fights at L35 (Mud Lurker) while others never threatened; at L1 every enemy swung at the same speed with the same damage.
@@ -122,14 +308,14 @@ This document contains solutions to common problems encountered during developme
 
 **Related files:** `VictoryLimerickService.cs`, `CombatTurnHandlerSimplified.cs`, `EnemyEncounterHandler.cs`, `RoomProcessor.cs`, `DungeonOrchestrator.cs`, `GameScreenCoordinator.cs`, `CanvasUICoordinator.DisplayBuffer.cs`, `VictoryLimerickServiceTests.cs`
 
-### UI: Lucky status hid miss→advantage charge count (October 2026)
-**Problem:** STATUS EFFECTS showed plain **Lucky** with no number, so players could not see remaining miss→advantage (Naiveté) charges used to reroll on a miss.
+### Combat: Naiveté removed — Leather Lucky is the only starter luck (October 2026)
+**Problem:** Early-game **Naiveté** miss→advantage charges overlapped the Leather set **Lucky** standing advantage, so new heroes had two luck systems.
 
-**Root cause:** `StatusEffectDisplayLines` only emitted the static `LeatherSetBonus.LuckyStatusName` label when the Leather set was active.
+**Root cause:** Naiveté was the prior early-game cushion; Leather Lucky later became the intended starter set bonus.
 
-**Solution:** `LeatherSetBonus.FormatLuckyStatusLine` appends remaining `NaiveteBalanceHelper.GetDisplayNaivete` as **`Lucky: N`** (plain **Lucky** when N is 0). Left-panel hover explains standing advantage + charge spend; color helper strips the `: N` suffix for the `lucky` template.
+**Solution:** Removed Naiveté config, fight charges, miss→advantage resolution, and the left-panel **NAIV** row. Leather **Lucky** remains WHILE_EQUIPPED 2d20 keep highest; STATUS EFFECTS shows plain **Lucky**.
 
-**Related files:** `LeatherSetBonus.cs`, `StatusEffectDisplayLines.cs`, `StatusEffectColorHelper.cs`, `LeftPanelTooltipBuilder.cs`, `LeatherSetBonusTests.cs`, `StatusEffectDisplayLinesTests.cs`
+**Related files:** `LeatherSetBonus.cs`, `ActionExecutionFlow.Selection.cs`, `CombatTriggerContext.cs`, `EarlyGameConfig.cs`, `CharacterPanelRenderer.cs`, `StatusEffectDisplayLines.cs`, `LeatherSetBonusTests.cs`, `StatusEffectDisplayLinesTests.cs`
 
 ### AI: OpenAI insufficient_quota dumps into combat log (October 2026)
 **Problem:** With Victory Limerick enabled, an empty OpenAI billing quota produced a wall of `Error in OpenAiChatClient.CompleteAsync: OpenAI HTTP 429` JSON in the player-facing combat/system log before (or alongside) the FlavorText "Victory verse".
@@ -631,15 +817,22 @@ This document contains solutions to common problems encountered during developme
 
 **Related files:** `CombatSequencePresenter.cs`, `GameInitializationHandler.cs`
 
+### Combat log: room structure shift hidden inside the luck arrow (October 2026)
+**Problem:** A dilapidated room turned a luck keep of 18 into 17, and the footer showed `2d20 luck 18/2 → 17` with no sign that the third number was a room penalty.
+
+**Root cause:** `EnvironmentRollModifier` applies elegant (+) / dilapidated (−) hero-level shift after the two faces are recorded. The arrow prints that shifted face.
+
+**Solution:** When the shift actually changes the die, the action block adds a follow-up line under the roll footer: `(dilapidated: -1)` or `(elegant: +N)`. Cancelled tags and clamped no-ops stay silent. Tests: `EnvironmentRollModifierTests`.
+
 ### Bug fix: luck 18 showed a normal hit instead of the named action (August 2026)
 **Problem:** Combat log could show `2d20 luck 18/5 → 18` with `and hits for N damage` (unnamed) instead of `and hits with {ACTION}`.
 
-**Root cause:** Combo-strip vs unnamed normal was chosen from the first d20, then luck/naiveté rolled a second die for display only (and luck was sometimes rolled twice). A 5 that luck-kept 18 still executed the synthetic normal.
+**Root cause:** Combo-strip vs unnamed normal was chosen from the first d20, then luck rolled a second die for display only (and luck was sometimes rolled twice). A 5 that luck-kept 18 still executed the synthetic normal.
 
 **Solutions:**
 1. Action selection no longer rolls luck; the unforced second d20 is consumed once during resolution
-2. After luck (and after naiveté miss→advantage), reconcile the selected action to that kept face vs the combo threshold
-3. Tests: `ActionExecutionFlowTests`, `NaiveteThresholdBonusesTests`, `ActionSelectorRollBasedTests`
+2. After luck, reconcile the selected action to that kept face vs the combo threshold
+3. Tests: `ActionExecutionFlowTests`, `ActionSelectorRollBasedTests`
 
 **Related files:** `ActionSelector.cs`, `ActionExecutionFlow.Selection.cs`
 

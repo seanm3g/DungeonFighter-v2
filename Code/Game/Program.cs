@@ -38,6 +38,11 @@ namespace RPGGame
             if (args.Length > 0 && ShouldEnableSimulationFastPacing(args))
                 RPGGame.Tuning.Profiles.FundamentalsMatrixRunner.ApplyPatchFlag(args);
 
+            // Tool runs: one line saying which code, data and patch produced the numbers below.
+            if (args.Length > 0 && ShouldEnableSimulationFastPacing(args) && !args[0].StartsWith("--", StringComparison.Ordinal)
+                && args[0] != "MCP")
+                Console.WriteLine("Provenance: " + RPGGame.Tuning.RunProvenance.Describe());
+
             try
             {
                 // Check if MCP mode is requested
@@ -92,7 +97,14 @@ namespace RPGGame
                     // --stop-at-level N: a run succeeds when the hero reaches level N (survival target).
                     RPGGame.Tuning.ClassPlaythroughRunner.StopAtLevel = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--stop-at-level") ?? 0;
                     RPGGame.Tuning.ClassPlaythroughRunner.SmartPolicy = args.Any(x => x.Equals("--smart", StringComparison.OrdinalIgnoreCase));
+                    // --retreat-below N: leave a dungeon between rooms when HP < N% of max (0 = never).
+                    RPGGame.Tuning.ClassPlaythroughRunner.RetreatBelowHpPercent = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--retreat-below") ?? 0;
+                    // --start-level N: raise the hero to level N with collected-loot bag at the first hub (mid-game probes).
+                    RPGGame.Tuning.ClassPlaythroughRunner.StartAtLevel = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--start-level") ?? 0;
+                    RPGGame.Tuning.ClassPlaythroughRunner.StartLootPerLevel = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--start-loot-per-level") ?? RPGGame.Tuning.ClassPlaythroughRunner.StartLootPerLevel;
                     int maxActions = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--max-actions-per-run") ?? 500;
+                    // --fights-json F: every real fight (class, level, enemy, hero actions) for per-enemy checks.
+                    RPGGame.Tuning.ClassPlaythroughBatchRunner.FightsJsonPath = RPGGame.Tuning.Profiles.TuningCliArgs.GetFlagValue(args, "--fights-json");
                     await RPGGame.Game.PlayUntilDeathBatch.RunAsync(runsPerClass, maxActions, RPGGame.Tuning.Profiles.TuningCliArgs.GetFlagValue(args, "--classes"));
                     return;
                 }
@@ -187,6 +199,20 @@ namespace RPGGame
                 {
                     executionMode = "SKILLVALUE";
                     System.Environment.ExitCode = await RPGGame.Tuning.Profiles.SkillValueRunner.RunAsync(args);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0].Equals("BUILDLAB", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "BUILDLAB";
+                    System.Environment.ExitCode = await RPGGame.Tuning.Profiles.BuildLadderRunner.RunAsync(args);
+                    return;
+                }
+
+                if (args.Length > 0 && args[0].Equals("DUNGEONSIM", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "DUNGEONSIM";
+                    System.Environment.ExitCode = await RPGGame.Tuning.DungeonSimRunner.RunAsync(args);
                     return;
                 }
 
@@ -570,7 +596,7 @@ namespace RPGGame
             return cmd.ToUpperInvariant() switch
             {
                 "MCP" or "MCPSMOKE" or "PLAYTODEATH" or "PLAYTODEATHBATCH" or "RUNLOG" or "PLAYTHROUGHTUNING"
-                    or "TUNESIM" or "FUNDMATRIX" or "FIGHTLOG" or "SEQLAB" or "ITEMSTATS" or "WRSOLVE" or "STATVALUE" or "ACTIONVALUE" or "SKILLVALUE" or "TUNEANALYZE" or "TUNEAPPLY" or "TUNETUNING" or "TUNEPROFILES"
+                    or "TUNESIM" or "FUNDMATRIX" or "FIGHTLOG" or "SEQLAB" or "ITEMSTATS" or "WRSOLVE" or "STATVALUE" or "ACTIONVALUE" or "SKILLVALUE" or "BUILDLAB" or "DUNGEONSIM" or "TUNEANALYZE" or "TUNEAPPLY" or "TUNETUNING" or "TUNEPROFILES"
                     or "LEVELSIM" or "LEVELANALYZE" or "LEVELAPPLY" or "LEVELTUNING" or "TEST" => true,
                 _ => false
             };

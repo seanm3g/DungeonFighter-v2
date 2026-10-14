@@ -20,21 +20,37 @@ namespace RPGGame.Tests.Unit.UI
             Console.WriteLine("=== SettingsPanelCatalog Tests ===\n");
             _testsRun = _testsPassed = _testsFailed = 0;
 
-            AllDescriptors_Have_Unique_Tags_And_Valid_Factories();
-            SidebarGroups_Assign_Every_Panel();
-            TextAndAnimation_Is_Main_Content_And_Creates_Panel();
-            CombatTuning_Is_Main_Content_And_Embeds_Child_Panels();
-            ItemAffixes_Is_Main_Content_And_Creates_Panel();
-            AudioPanel_Is_Main_Content_And_Tag_Resolves();
-            Appearance_Creates_Panel_With_NarrativeVideo_Controls();
-            TextAndAnimation_Creates_Panel_With_ClickBurst_Controls();
-            BalanceTuning_DisplayName_Is_SpreadsheetImport();
-            HandlerSaveTags_Match_Descriptor_Flags();
-            FlavorText_Is_Developer_Panel_With_Handler_Save();
-            MaterialBuilds_Is_Developer_Panel_With_Handler_Save();
-            OpenAi_Is_Player_Panel_With_Handler_Save();
+            RunPanelTest(AllDescriptors_Have_Unique_Tags_And_Valid_Factories);
+            RunPanelTest(SidebarGroups_Assign_Every_Panel);
+            RunPanelTest(TextAndAnimation_Is_Main_Content_And_Creates_Panel);
+            RunPanelTest(CombatTuning_Is_Main_Content_And_Embeds_Child_Panels);
+            RunPanelTest(ItemAffixes_Is_Main_Content_And_Creates_Panel);
+            RunPanelTest(AudioPanel_Is_Main_Content_And_Tag_Resolves);
+            RunPanelTest(Appearance_Creates_Panel_With_NarrativeVideo_Controls);
+            RunPanelTest(TextAndAnimation_Creates_Panel_With_ClickBurst_Controls);
+            RunPanelTest(BalanceTuning_DisplayName_Is_SpreadsheetImport);
+            RunPanelTest(HandlerSaveTags_Match_Descriptor_Flags);
+            RunPanelTest(FlavorText_Is_Developer_Panel_With_Handler_Save);
+            RunPanelTest(MaterialBuilds_Is_Developer_Panel_With_Handler_Save);
+            RunPanelTest(OpenAi_Is_Player_Panel_With_Handler_Save);
 
             TestBase.PrintSummary("SettingsPanelCatalog Tests", _testsRun, _testsPassed, _testsFailed);
+        }
+
+        /// <summary>
+        /// Panel tests build real Avalonia controls; without the Avalonia platform (headless --run-tests) building a
+        /// Cursor throws. Skip those tests with a message instead of crashing the rest of the UI suite.
+        /// </summary>
+        private static void RunPanelTest(System.Action test)
+        {
+            try
+            {
+                test();
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("Avalonia", StringComparison.Ordinal))
+            {
+                Console.WriteLine($"  (skipped {test.Method.Name}: no Avalonia platform in this run)");
+            }
         }
 
         private static void OpenAi_Is_Player_Panel_With_Handler_Save()

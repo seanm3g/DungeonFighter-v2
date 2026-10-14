@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
@@ -20,6 +21,17 @@ namespace RPGGame.Tests.Unit.Combat
 
             MaterialBuildsLoader.Reload();
 
+            // These tests cover the legacy rules (flat +N per currency, feed x feed at 5 pieces); pin them so the active
+            // balance patch (e.g. overnight-v2 percent converts) does not change the expected numbers.
+            var combat = GameConfiguration.Instance.Combat;
+            double oldPct = combat.MaterialConvertPercentPerUnit;
+            int oldFive = combat.MaterialFiveStackMintMultiplier;
+            int oldMaxUnits = combat.MaterialConvertMaxUnits;
+            combat.MaterialConvertPercentPerUnit = 0;
+            combat.MaterialFiveStackMintMultiplier = 0;
+            combat.MaterialConvertMaxUnits = 0;
+            try
+            {
             TestMintAmountThresholds();
             TestCountAndConvertGrantAtTwoStack();
             TestTwoStackMintsOne();
@@ -29,12 +41,24 @@ namespace RPGGame.Tests.Unit.Combat
             TestClasslessMaterialHasNoBuild();
             TestConvertDamageScaleFromBankAndStacks();
             TestDsDtDuOverrides();
+            TestStaleScaleColumnsStillPayFromSetBank();
+            TestLoadedConvertActionsPayFromOwnBank();
+            TestConvertCashOutSpendsOwnBank();
+            TestCrossFedSetWithoutPartnerStillMints();
+            TestFocusAndSlowFromAnySourceMint();
             TestTwoRageAddsTenConvertDamage();
             TestMintWritesFeedCombatLine();
             TestFormatWhenLabel();
             TestKeywordBankSurvivesCombatInitAndClearsOnDungeonEnd();
             TestFormingSetHudRequiresTwoPieces();
             TestSyncConvertActionsToPoolOnEquipAndUnequip();
+            }
+            finally
+            {
+                combat.MaterialConvertPercentPerUnit = oldPct;
+                combat.MaterialFiveStackMintMultiplier = oldFive;
+                combat.MaterialConvertMaxUnits = oldMaxUnits;
+            }
 
             TestBase.PrintSummary("Material Set Controller Tests", _run, _passed, _failed);
         }
@@ -173,8 +197,8 @@ namespace RPGGame.Tests.Unit.Combat
             var cull = new Action { Name = "IRON CULL", DamageMultiplier = 1.0 };
             TestBase.AssertEqual(20, MaterialSetController.GetConvertDamageBonus(two, cull),
                 "2-stack uses bank × +5", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("CRISIS +20", MaterialSetController.FormatConvertScaleLine(two, cull),
-                "card line is additive", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("CRISIS x4 +20", MaterialSetController.FormatConvertScaleLine(two, cull),
+                "card line is additive and names the live bank", ref _run, ref _passed, ref _failed);
 
             var three = EquipIron(3);
             three.Effects.AddMaterialKeyword("CRISIS", 4);
@@ -197,8 +221,8 @@ namespace RPGGame.Tests.Unit.Combat
             var wrath = new Action { Name = "BONE WRATH", DamageMultiplier = 1.0 };
             TestBase.AssertEqual(10, MaterialSetController.GetConvertDamageBonus(hero, wrath),
                 "2 RAGE → +10 convert damage", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("RAGE +10", MaterialSetController.FormatConvertScaleLine(hero, wrath),
-                "card line is RAGE +10", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("RAGE x2 +10", MaterialSetController.FormatConvertScaleLine(hero, wrath),
+                "card line is RAGE x2 +10", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestDsDtDuOverrides()
@@ -225,6 +249,114 @@ namespace RPGGame.Tests.Unit.Combat
             };
             TestBase.AssertEqual(15, MaterialSetController.GetConvertDamageBonus(hero, materialOnly),
                 "formula material uses equipped count × +5", ref _run, ref _passed, ref _failed);
+
+            var sheetLayout = new Action
+            {
+                Name = "CUSTOM3",
+                MaterialScale = "3",
+                KeywordScale = "DAMAGE",
+                ScaleFormula = "CRISIS"
+            };
+            TestBase.AssertEqual(12, MaterialSetController.GetConvertDamageBonus(hero, sheetLayout),
+                "sheet layout: DS per-keyword, DT effect, DU keyword", ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>A connecting convert spends the bank it scaled from; other banks are untouched.</summary>
+        private static void TestConvertCashOutSpendsOwnBank()
+        {
+            TestBase.SetCurrentTestName(nameof(TestConvertCashOutSpendsOwnBank));
+            var hero = EquipIron(2);
+            hero.Effects.AddMaterialKeyword("CRISIS", 4);
+            hero.Effects.AddMaterialKeyword("RAGE", 3);
+            var cull = ActionLoader.GetAction("IRON CULL");
+            TestBase.AssertEqual(4, MaterialSetController.SpendConvertBank(hero, cull), "spends 4 CRISIS",
+                ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, hero.Effects.GetMaterialKeyword("CRISIS"), "CRISIS bank empty after cash-out",
+                ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(3, hero.Effects.GetMaterialKeyword("RAGE"), "RAGE bank untouched",
+                ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, MaterialSetController.SpendConvertBank(hero, new Action { Name = "SLAM" }),
+                "non-convert spends nothing", ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>A formed cross-fed set mints at least 1 without its partner (5 Gold, 0 Mithril).</summary>
+        private static void TestCrossFedSetWithoutPartnerStillMints()
+        {
+            TestBase.SetCurrentTestName(nameof(TestCrossFedSetWithoutPartnerStillMints));
+            TestBase.AssertEqual(1, MaterialBuildData.ComputeMintAmount(3, 0), "3-stack, 0 feed → 1",
+                ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(1, MaterialBuildData.ComputeMintAmount(5, 0), "5-stack, 0 feed → 1",
+                ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>ON_FOCUS / ON_SLOW also fire when Focus or Slow came from gear or skills, not only the action.</summary>
+        private static void TestFocusAndSlowFromAnySourceMint()
+        {
+            TestBase.SetCurrentTestName(nameof(TestFocusAndSlowFromAnySourceMint));
+            var silver = EquipPieces(
+                (new HeadItem("S1", 1, 1), "Silver"),
+                (new ChestItem("S2", 1, 1), "Silver"));
+            var plain = new Action { Name = "Bolt", Type = ActionType.Attack };
+            var hit = new CombatEvent(CombatEventType.ActionHit, silver) { Action = plain };
+            MaterialSetController.TryMintFromEvent(silver, hit, plain);
+            TestBase.AssertEqual(0, silver.Effects.GetMaterialKeyword("LENS"), "no Focus → no LENS",
+                ref _run, ref _passed, ref _failed);
+            MaterialSetController.TryMintFromEvent(silver, hit, plain, gainedFocus: true);
+            TestBase.AssertEqual(1, silver.Effects.GetMaterialKeyword("LENS"), "gained Focus → +1 LENS",
+                ref _run, ref _passed, ref _failed);
+
+            var gold = EquipPieces(
+                (new HeadItem("G1", 1, 1), "Gold"),
+                (new ChestItem("G2", 1, 1), "Gold"));
+            var goldHit = new CombatEvent(CombatEventType.ActionHit, gold) { Action = plain };
+            MaterialSetController.TryMintFromEvent(gold, goldHit, plain, appliedSlow: true);
+            TestBase.AssertEqual(1, gold.Effects.GetMaterialKeyword("DRAG"), "applied Slow → +1 DRAG",
+                ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>
+        /// A pool copy whose scale columns name the wrong material still pays the set's stocked keyword.
+        /// </summary>
+        private static void TestStaleScaleColumnsStillPayFromSetBank()
+        {
+            TestBase.SetCurrentTestName(nameof(TestStaleScaleColumnsStillPayFromSetBank));
+            var hero = EquipIron(2);
+            hero.Effects.AddMaterialKeyword("CRISIS", 5);
+            var stale = new Action
+            {
+                Name = "IRON CULL",
+                MaterialScale = "Glass",
+                KeywordScale = "GRAZE",
+                ScaleFormula = "keyword"
+            };
+            TestBase.AssertEqual(25, MaterialSetController.GetConvertDamageBonus(hero, stale),
+                "stale columns still pay 5 CRISIS × +5", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("CRISIS x5 +25", MaterialSetController.FormatConvertScaleLine(hero, stale),
+                "card line follows the live CRISIS bank", ref _run, ref _passed, ref _failed);
+
+            hero.Effects.AddMaterialKeyword("CRISIS", 2);
+            TestBase.AssertEqual(35, MaterialSetController.GetConvertDamageBonus(hero, stale),
+                "raising CRISIS raises the convert add", ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>Every shipped convert action, loaded from Actions.json, pays from its own material's bank.</summary>
+        private static void TestLoadedConvertActionsPayFromOwnBank()
+        {
+            TestBase.SetCurrentTestName(nameof(TestLoadedConvertActionsPayFromOwnBank));
+            foreach (var build in MaterialBuildsLoader.GetAll())
+            {
+                var action = ActionLoader.GetAction(build.ConvertAction);
+                TestBase.AssertTrue(action != null, $"{build.ConvertAction} exists", ref _run, ref _passed, ref _failed);
+                if (action == null)
+                    continue;
+
+                var hero = EquipPieces(
+                    (new HeadItem("Helm", 1, 1), build.Material),
+                    (new ChestItem("Mail", 1, 1), build.Material));
+                hero.Effects.AddMaterialKeyword(build.Keyword, 4);
+                TestBase.AssertEqual(20, MaterialSetController.GetConvertDamageBonus(hero, action),
+                    $"{build.ConvertAction}: 4 {build.Keyword} → +20", ref _run, ref _passed, ref _failed);
+            }
         }
 
         private static void TestMintWritesFeedCombatLine()

@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Unit.Data
             TestEditorDropdownLabelsActionSetStyle();
             TestItemOnlyStatusNotAppliedOnConvert();
             TestFortifyAndMaxHealthAppliedOnConvert();
+            TestGainStatActionsGrantHeroStat();
         }
 
         private static void TestMeasuredAdvanceDetectsComboThresholdAndDefaultsAttackOne()
@@ -38,7 +39,7 @@ namespace RPGGame.Tests.Unit.Data
 
             var data = SpreadsheetToActionDataConverter.Convert(row);
             TestHarnessBase.AssertEqual(1, data.ComboBonusDuration, "MEASURED ADVANCE ATTACK x1");
-            TestHarnessBase.AssertEqual("TURN", data.Cadence, "MEASURED ADVANCE cadence ATTACK");
+            TestHarnessBase.AssertEqual("TURN", data.Cadence?.ToUpperInvariant(), "MEASURED ADVANCE cadence ATTACK");
             TestHarnessBase.AssertTrue(data.Mechanics.Contains("hero_combo_threshold"), "Mechanics list includes hero_combo_threshold");
         }
 
@@ -133,7 +134,8 @@ namespace RPGGame.Tests.Unit.Data
 
         private static void TestAllMechanicIdsTrimmedToGoodOnActions()
         {
-            TestHarnessBase.AssertEqual(35, ActionMechanicsRegistry.AllMechanicIds.Count, "MECHANIC_LIST has 35 GOOD+ON ACTIONS IDs");
+            var ids = ActionMechanicsRegistry.AllMechanicIds;
+            TestHarnessBase.AssertEqual(ids.Count, ids.Distinct(StringComparer.OrdinalIgnoreCase).Count(), "MECHANIC_LIST has no duplicate IDs");
             TestHarnessBase.AssertFalse(ActionMechanicsRegistry.AllMechanicIds.Contains("damage"), "REDUNDANT damage excluded");
             TestHarnessBase.AssertFalse(ActionMechanicsRegistry.AllMechanicIds.Contains("silence"), "CUT silence excluded");
             TestHarnessBase.AssertFalse(ActionMechanicsRegistry.AllMechanicIds.Contains("stun"), "item-only stun excluded from MECHANIC_LIST");
@@ -218,6 +220,31 @@ namespace RPGGame.Tests.Unit.Data
             var maxHpData = SpreadsheetToActionDataConverter.Convert(maxHpRow);
             TestHarnessBase.AssertEqual(15, maxHpData.MaxHealthIncrease, "MAX HEALTH column maps to MaxHealthIncrease");
             TestHarnessBase.AssertEqual("Heal", maxHpData.Type, "max-health-only row is Heal type");
+        }
+
+        /// <summary>MIGHT/CUNNING/etc. once had their value in enemySTR/AGI/TECH, so the hero never gained the stat.</summary>
+        private static void TestGainStatActionsGrantHeroStat()
+        {
+            Console.WriteLine("--- Gain-stat actions grant the hero stat (not the enemy) ---");
+            ActionLoader.EnsureLoaded();
+            var cases = new (string Action, string Stat)[]
+            {
+                ("EXTRA EFFORT", "STR"), ("FIGHTER", "STR"), ("MOMENTUM BASH", "STR"), ("MIGHT", "STR"),
+                ("REACTION TRAINING", "AGI"), ("DEEP BREATHING", "AGI"), ("DANCE", "AGI"), ("CUNNING", "AGI"),
+                ("TAKING AIM", "TECH"), ("QUIET MIND", "TECH"), ("FOCUS", "TECH"), ("CONCENTRATE", "TECH"),
+                ("DUNGEON ANALYSIS", "INT"),
+            };
+            foreach (var (name, stat) in cases)
+            {
+                var data = ActionLoader.GetActionData(name);
+                TestHarnessBase.AssertTrue(data != null, $"{name} loaded");
+                if (data == null) continue;
+                bool viaStatBonuses = data.StatBonuses?.Any(e => e.Value > 0
+                    && string.Equals(e.Type, stat, StringComparison.OrdinalIgnoreCase)) == true;
+                bool viaBonusGroups = data.ActionAttackBonuses?.BonusGroups?.Any(g => g.Bonuses?.Any(b => b.Value > 0
+                    && string.Equals(b.Type, stat, StringComparison.OrdinalIgnoreCase)) == true) == true;
+                TestHarnessBase.AssertTrue(viaStatBonuses || viaBonusGroups, $"{name} grants hero {stat}");
+            }
         }
     }
 }

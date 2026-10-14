@@ -20,6 +20,19 @@ namespace RPGGame.Tests.Unit.Entity
             _testsPassed = 0;
             _testsFailed = 0;
 
+            // Pin the global enemy settings these tests were written for, so the active balance patch (progression
+            // scales, identity mode, damage / health curves) does not change the expected numbers.
+            var es = GameConfiguration.Instance.EnemySystem;
+            var oldProg = es.ProgressionScales;
+            bool oldIdentity = es.Identity.Enabled;
+            double oldBudget = es.AttributeGrowthBudgetPerLevel;
+            bool oldHealthCurve = es.HealthCurve.Enabled;
+            es.ProgressionScales = new EnemyProgressionScalesConfig { ProgressionPivotLevel = 2 };
+            es.Identity.Enabled = false;
+            es.AttributeGrowthBudgetPerLevel = 6.0;
+            es.HealthCurve.Enabled = false;
+            try
+            {
             TestBaseAndZeroGrowthIsStable();
             TestPartialGrowthSharesSixPointBudget();
             TestJsonEnemyUsesAttributesNotDirectStats();
@@ -31,6 +44,14 @@ namespace RPGGame.Tests.Unit.Entity
             TestProgressionScalesApplyToCurves();
             TestGoblinL1ParityHealth();
             TestHealthBreakdownReportsFactors();
+            }
+            finally
+            {
+                es.ProgressionScales = oldProg;
+                es.Identity.Enabled = oldIdentity;
+                es.AttributeGrowthBudgetPerLevel = oldBudget;
+                es.HealthCurve.Enabled = oldHealthCurve;
+            }
 
             TestBase.PrintSummary("Enemy Attribute Growth Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -274,6 +295,7 @@ namespace RPGGame.Tests.Unit.Entity
                     Intelligence = 3,
                     Armor = 2
                 },
+                ProgressionScales = new EnemyProgressionScalesConfig { ProgressionPivotLevel = 2 },
                 ScalingPerLevel = new ScalingPerLevelConfig
                 {
                     Health = 99,
@@ -329,6 +351,7 @@ namespace RPGGame.Tests.Unit.Entity
             {
                 GlobalMultipliers = new GlobalMultipliersConfig { HealthMultiplier = 1.0, DamageMultiplier = 1.0, ArmorMultiplier = 1.0, SpeedMultiplier = 1.0 },
                 BaselineStats = new BaselineStatsConfig { Health = 70, Strength = 3, Agility = 3, Technique = 3, Intelligence = 3, Armor = 2 },
+                ProgressionScales = new EnemyProgressionScalesConfig { ProgressionPivotLevel = 2 },
                 ScalingPerLevel = new ScalingPerLevelConfig { Health = 0, Attributes = 0, Armor = 0 },
                 Archetypes = new Dictionary<string, ArchetypeMultipliersConfig>()
             };
@@ -358,7 +381,9 @@ namespace RPGGame.Tests.Unit.Entity
                 {
                     BaseHealthScale = 2.0,
                     HealthGrowthScale = 0.5,
-                    AttributeGrowthScale = 2.0
+                    AttributeGrowthScale = 2.0,
+                    // Pivot 2 = full growth weight from level 2 (the linear curve these numbers were written for).
+                    ProgressionPivotLevel = 2
                 },
                 BaselineStats = new BaselineStatsConfig { Health = 70, Strength = 3, Agility = 3, Technique = 3, Intelligence = 3, Armor = 2 },
                 ScalingPerLevel = new ScalingPerLevelConfig { Health = 10, Attributes = 1, Armor = 1 },

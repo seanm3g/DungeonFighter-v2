@@ -137,7 +137,7 @@ namespace RPGGame
         public const string TrainingDummyEnemyName = "Training Dummy";
 
         /// <summary>Forced baseline action used by the pre-weapon Training Ground tutorial.</summary>
-        public const string TrainingGroundTutorialActionName = "PUNCH HARD";
+        public const string TrainingGroundTutorialActionName = "PUNCH";
 
         public const int TrainingDummyMaxHealth = 13;
         public const int TrainingDummyDamage = 1;

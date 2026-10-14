@@ -5148,7 +5148,7 @@
     "description": "",
     "maxRoomCount": 4,
     "maxEnemiesPerRoom": 2,
-    "postFightHealPercent": 75
+    "postFightHealPercent": 0
   },
   "dungeonGeneration": {
     "minRooms": 2,

@@ -30,14 +30,14 @@ namespace RPGGame
             // Track dungeon completion statistics
             player.RecordDungeonCompleted();
             
-            // Heal character back to max health between dungeons
-            HealPlayer(player);
-            
             // Award XP (scaled by dungeon level using tuning config)
             Progression.XPRewardSystem.AwardDungeonCompletionXP(player, dungeonLevel, isFirstDungeon);
 
             // Award guaranteed loot for dungeon completion
             await AwardLootAsync(player, inventory, dungeonLevel, dungeonTheme);
+
+            // Full heal after XP/loot so level-up max HP is included (hub starts fresh).
+            HealPlayer(player);
         }
         
         /// <summary>
@@ -56,30 +56,26 @@ namespace RPGGame
             // Track dungeon completion statistics
             player.RecordDungeonCompleted();
             
-            // Heal character back to max health between dungeons
-            HealPlayer(player);
-            
             // Award XP and get the amount and level-up info
             var (xpGained, levelUpInfos) = AwardXPWithReturnAndLevelUpInfo(player, dungeonLevel, isFirstDungeon);
 
             // Award guaranteed loot for dungeon completion and get the item
             Item? lootReceived = await AwardLootWithReturnAsync(player, inventory, dungeonLevel, dungeonTheme);
+
+            // Full heal after XP/loot so level-up max HP is included (hub starts fresh).
+            HealPlayer(player);
             
             return (xpGained, lootReceived, levelUpInfos);
         }
 
         /// <summary>
-        /// Heals the player to full health
+        /// Heals the player to full health after dungeon rewards.
         /// </summary>
         private void HealPlayer(Character player)
         {
-            int effectiveMaxHealth = player.GetEffectiveMaxHealth();
-            int healthRestored = effectiveMaxHealth - player.CurrentHealth;
+            int healthRestored = DungeonRunRecovery.RestoreAfterLeavingDungeon(player);
             if (healthRestored > 0)
-            {
-                player.Heal(healthRestored);
                 BlockDisplayManager.DisplaySystemBlock(DungeonNarrativeColoredText.FormatHealingMessage(healthRestored));
-            }
         }
 
         /// <summary>

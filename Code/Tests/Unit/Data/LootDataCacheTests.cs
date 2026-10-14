@@ -233,18 +233,15 @@ namespace RPGGame.Tests.Unit.Data
                     $"No modification name should dominate the catalog (top '{topName}' x{maxDup})",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
+                // Since the materials pass every adjective is rank Common; the pool just needs variety.
                 var uncommonAdjectives = cache.Modifications
                     .Where(m => m.GetPrefixCategory() == ModificationPrefixCategory.Adjective)
-                    .Where(m => string.Equals(
-                        string.IsNullOrWhiteSpace(m.ItemRank) ? "Common" : m.ItemRank.Trim(),
-                        "Uncommon",
-                        StringComparison.OrdinalIgnoreCase))
                     .Select(m => m.Name)
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
 
                 TestBase.AssertTrue(uncommonAdjectives.Count >= 3,
-                    $"Uncommon adjective pool should share several names (got {uncommonAdjectives.Count}: {string.Join(", ", uncommonAdjectives)})",
+                    $"Adjective pool should share several names (got {uncommonAdjectives.Count}: {string.Join(", ", uncommonAdjectives)})",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 TestBase.AssertTrue(cache.StatBonuses.Count >= 20,

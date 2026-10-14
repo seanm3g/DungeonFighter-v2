@@ -50,6 +50,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "UndoReplayPreservesComboStripEdits: session null", ref run, ref passed, ref failed);
@@ -100,6 +101,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "UndoReplayPreservesLabStatEdits: session null", ref run, ref passed, ref failed);
@@ -151,6 +153,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "UndoLastStep_RemovesOneStep: session null", ref run, ref passed, ref failed);
@@ -196,6 +199,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "UndoLastStep_BumpsInputEpoch: session null", ref run, ref passed, ref failed);
@@ -243,6 +247,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "ResetLabEncounterZerosBothSteps: session null", ref run, ref passed, ref failed);
@@ -273,9 +278,11 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             }
 
             var hero = TestDataBuilders.Character().WithName("LabEncounterReset").Build();
+
             var combatManager = new CombatManager();
             ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
             var lab = ActionInteractionLabSession.Current;
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "ResetLabEncounterAsync_ClearsHistory: session null", ref run, ref passed, ref failed);
@@ -336,6 +343,8 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
                 prepareLabHistoryReplay: () => ctx.ClearCombatLogEnemyAlignmentSticky());
 
             var lab = ActionInteractionLabSession.Current;
+
+            LabTestSlots.Give(lab);
             if (lab == null)
             {
                 TestBase.AssertTrue(false, "ResetLabEncounterAsync_RestoresCombatLogEnemyAlignment: session null", ref run, ref passed, ref failed);
@@ -346,9 +355,14 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             TestBase.AssertEqual(enemyName, ctx.GetCombatLogEnemyAlignmentName(), "Begin registers lab enemy for log alignment", ref run, ref passed, ref failed);
 
             ctx.ClearCombatLogEnemyAlignmentSticky();
-            TestBase.AssertNull(ctx.GetCombatLogEnemyAlignmentName(), "sticky cleared before reset", ref run, ref passed, ref failed);
+            // GetCombatLogEnemyAlignmentName prefers the live current enemy, so check the sticky list itself.
+            TestBase.AssertEqual(0, ctx.GetCombatLogEnemyAlignmentNames().Count, "sticky cleared before reset", ref run, ref passed, ref failed);
 
             lab.ResetLabEncounterAsync().GetAwaiter().GetResult();
+
+            TestBase.AssertTrue(ctx.GetCombatLogEnemyAlignmentNames().Contains(enemyName),
+                "ResetLabEncounter re-registers the lab enemy in the sticky alignment list",
+                ref run, ref passed, ref failed);
 
             TestBase.AssertEqual(enemyName, ctx.GetCombatLogEnemyAlignmentName(),
                 "ResetLabEncounter restores combat log enemy alignment after center panel clear",

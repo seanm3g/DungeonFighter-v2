@@ -27,6 +27,10 @@ namespace RPGGame
         /// <summary>Die face after adv/replace/env, before flat roll bonus — used by ONNATURALROLL.</summary>
         public int NaturalRollValue { get; set; }
         public Actions.RollModification.MultiDiceRollDetail MultiDiceRollDetail { get; set; }
+        /// <summary>Room structure delta that changed this die (0 when none, cancelled, or clamped away).</summary>
+        public int StructureRollShift { get; set; }
+        /// <summary><c>elegant</c> or <c>dilapidated</c> when <see cref="StructureRollShift"/> is non-zero.</summary>
+        public string? StructureRollLabel { get; set; }
         public int RollBonus { get; set; }
         public int AttackRoll { get; set; }
         public bool IsCriticalMiss { get; set; }
@@ -35,8 +39,6 @@ namespace RPGGame
         public bool Hit { get; set; }
         /// <summary>True when miss→hit was forced by a fight-scoped salvage_miss charge.</summary>
         public bool MissSalvaged { get; set; }
-        /// <summary>How many naiveté charges were spent this swing for miss→advantage rerolls.</summary>
-        public int NaiveteAdvantageUses { get; set; }
         public int Damage { get; set; }
         /// <summary>Hero 1d20 defense face for this swing (null when not rolled: miss, pierce, or non-hero target).</summary>
         public int? DefenseFace { get; set; }
@@ -231,18 +233,22 @@ namespace RPGGame
                     }
                     var (damageText, rollInfo) = formatted;
                     string damageString = ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
+                    damageString = AppendStructureRollLine(damageString, result);
                     if (!string.IsNullOrEmpty(result.PackBodyFellText))
                         damageString += "\n" + result.PackBodyFellText;
                     results.Add(damageString);
                 }
                 else if (result.SelectedAction.Type == ActionType.Heal)
                 {
-                    results.Add($"{source.Name} heals {target.Name} for {result.HealAmount} health with {result.SelectedAction.Name}");
+                    results.Add(AppendStructureRollLine(
+                        $"{source.Name} heals {target.Name} for {result.HealAmount} health with {result.SelectedAction.Name}",
+                        result));
                 }
                 else
                 {
                     var (actionText, actionRollInfo) = CombatResults.FormatNonAttackActionColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus, result.MultiDiceRollDetail);
                     string actionString = ColoredTextRenderer.RenderAsMarkup(actionText) + "\n" + ColoredTextRenderer.RenderAsMarkup(actionRollInfo);
+                    actionString = AppendStructureRollLine(actionString, result);
                     results.Add(actionString);
                 }
                 
@@ -253,6 +259,7 @@ namespace RPGGame
             {
                 var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, result.MultiDiceRollDetail);
                 string missString = ColoredTextRenderer.RenderAsMarkup(missText) + "\n" + ColoredTextRenderer.RenderAsMarkup(missRollInfo);
+                missString = AppendStructureRollLine(missString, result);
                 results.Add(missString);
             }
             
@@ -272,7 +279,9 @@ namespace RPGGame
         /// <returns>A tuple containing the main result as ColoredText tuple (actionText, rollInfo) and list of status effect messages as ColoredText</returns>
         public static ((List<ColoredText> actionText, List<ColoredText> rollInfo) mainResult, List<List<ColoredText>> statusEffects) ExecuteActionWithStatusEffectsColored(Actor source, Actor target, Environment? environment = null, Action? lastPlayerAction = null, Action? forcedAction = null, BattleNarrative? battleNarrative = null)
         {
+            long profCore = RPGGame.Diagnostics.ToolProfiler.Start();
             var result = ExecuteActionCore(source, target, environment, lastPlayerAction, forcedAction, battleNarrative);
+            RPGGame.Diagnostics.ToolProfiler.Stop("Turn.ExecuteActionCore", profCore);
             var coloredStatusEffects = new List<List<ColoredText>>();
 
             if (result.SelectedAction != null)
@@ -299,21 +308,35 @@ namespace RPGGame
                     coloredStatusEffects: coloredStatusEffects);
             }
 
+            PrependStructureRollLine(result, coloredStatusEffects);
+
             // Nested strip retriggers: encore hit/miss + its status lines after the outer "prepares…" message.
             AppendNestedRetriggerDisplay(result, source, target, coloredStatusEffects);
             
-            var mainResult = FormatAsColoredText(result, source, target);
+            // Scoped-muted simulations (CombatUiMuteScope.Begin: smart bot, BUILDLAB, lab batches) never show the combat log, and building it
+            // was ~30% of simulation time. A one-segment placeholder keeps the downstream "text was shown" path the same.
+            bool muted = CombatUiMuteScope.IsScopedMuted;
+            long profFmt = RPGGame.Diagnostics.ToolProfiler.Start();
+            var mainResult = muted
+                ? (new List<ColoredText> { new ColoredText(source.Name ?? "", Colors.White) }, new List<ColoredText>())
+                : FormatAsColoredText(result, source, target);
+            RPGGame.Diagnostics.ToolProfiler.Stop("Turn.FormatText", profFmt);
+            long profSeq = RPGGame.Diagnostics.ToolProfiler.Start();
             if (!string.IsNullOrEmpty(result.PackBodyFellText))
                 coloredStatusEffects.Add(PackCombat.FormatBodyFellLine(result.PackBodyFellText));
 
             // Always queue flavor tokens so F7 can dual-view swap later; HUD only when not playing narrative.
-            var sequenceSteps = CombatSequenceBuilder.From(result, source, target);
-            var flavorTokens = CombatSequenceFlavorTokens.From(result, source, target);
-            CombatSequenceFlavorPresenter.SetPending(sequenceSteps, flavorTokens, result.HealthBarHolds);
-            if (!CombatSequenceFlavorPresenter.ShouldPlay() && CombatSequencePresenter.ShouldPlay())
+            if (!muted)
             {
-                CombatSequencePresenter.SetPending(sequenceSteps, result.HealthBarHolds);
+                var sequenceSteps = CombatSequenceBuilder.From(result, source, target);
+                var flavorTokens = CombatSequenceFlavorTokens.From(result, source, target);
+                CombatSequenceFlavorPresenter.SetPending(sequenceSteps, flavorTokens, result.HealthBarHolds);
+                if (!CombatSequenceFlavorPresenter.ShouldPlay() && CombatSequencePresenter.ShouldPlay())
+                {
+                    CombatSequencePresenter.SetPending(sequenceSteps, result.HealthBarHolds);
+                }
             }
+            RPGGame.Diagnostics.ToolProfiler.Stop("Turn.SequenceAndFlavor", profSeq);
 
             if (result.Hit
                 && result.SelectedAction != null
@@ -325,6 +348,24 @@ namespace RPGGame
             }
 
             return (mainResult, coloredStatusEffects);
+        }
+
+        /// <summary>
+        /// Puts the room-structure line first among follow-ups so it sits directly under the roll footer.
+        /// </summary>
+        private static void PrependStructureRollLine(ActionExecutionResult result, List<List<ColoredText>> coloredStatusEffects)
+        {
+            var line = RollInfoFormatter.FormatStructureRollLine(result.StructureRollLabel, result.StructureRollShift);
+            if (line != null)
+                coloredStatusEffects.Insert(0, line);
+        }
+
+        private static string AppendStructureRollLine(string block, ActionExecutionResult result)
+        {
+            var line = RollInfoFormatter.FormatStructureRollLine(result.StructureRollLabel, result.StructureRollShift);
+            if (line == null)
+                return block;
+            return block + "\n" + ColoredTextRenderer.RenderAsPlainText(line);
         }
 
         private static void AppendNestedRetriggerDisplay(
@@ -346,6 +387,9 @@ namespace RPGGame
                     coloredStatusEffects.Add(nestedAction);
                 if (nestedRoll != null && nestedRoll.Count > 0)
                     coloredStatusEffects.Add(nestedRoll);
+                var nestedStructure = RollInfoFormatter.FormatStructureRollLine(nested.StructureRollLabel, nested.StructureRollShift);
+                if (nestedStructure != null)
+                    coloredStatusEffects.Add(nestedStructure);
                 if (nested.StatusEffectMessages.Count > 0)
                     ActionStatusEffectApplier.AppendColoredStatusEffectMessages(
                         nested.StatusEffectMessages, coloredStatusEffects, includeNonFeedMessages: nested.Hit);
@@ -369,6 +413,8 @@ namespace RPGGame
                     ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
                 }
             }
+
+            PrependStructureRollLine(result, coloredStatusEffects);
             
             var formatted = FormatAsColoredText(result, source, target);
             if (!string.IsNullOrEmpty(result.PackBodyFellText))

@@ -21,8 +21,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         public const string ItemDetailLineIndent = "  ";
 
         /// <summary>All mechanical modifiers on this item (catalog, affixes, suffixes).</summary>
-        public static List<ItemStatContribution> GetStatContributions(Item item) =>
-            ItemStatContributionCollector.Collect(item);
+        /// <param name="wielder">When set, weapons show attack time in seconds for this character instead of the bare multiplier.</param>
+        public static List<ItemStatContribution> GetStatContributions(Item item, Character? wielder = null) =>
+            ItemStatContributionCollector.Collect(item, wielder);
 
         /// <summary>
         /// Gets formatted item stats for display as a list (one stat per line)
@@ -32,7 +33,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             if (item == null)
                 return new List<string>();
 
-            return GetStatContributions(item)
+            return GetStatContributions(item, character)
                 .Select(c => c.ToPlainLine())
                 .ToList();
         }
@@ -64,7 +65,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             if (contribution.Label == "Damage" && displayedItem is WeaponItem w && weaponSpeedBaseline != null)
                 return RecolorLastNumeric(segments, w.GetTotalDamage(), weaponSpeedBaseline.GetTotalDamage(), higherIsBetter: true);
 
-            if (contribution.Label == "Attack speed" && displayedItem is WeaponItem ws && weaponSpeedBaseline != null)
+            if ((contribution.Label == "Attack speed" || contribution.Label == "Attack time") && displayedItem is WeaponItem ws && weaponSpeedBaseline != null)
                 return RecolorLastNumeric(segments, ws.GetTotalAttackSpeed(), weaponSpeedBaseline.GetTotalAttackSpeed(), higherIsBetter: false);
 
             if ((contribution.Label == "Armor" || contribution.Label == "Defense") && TryGetArmorPieceTotal(displayedItem, out int mine) &&
@@ -270,6 +271,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             string labelPrefix;
             if (stat.StartsWith("Attack speed: ", StringComparison.Ordinal))
                 labelPrefix = "Attack speed: ";
+            else if (stat.StartsWith("Attack time: ", StringComparison.Ordinal))
+                labelPrefix = "Attack time: ";
             else if (stat.StartsWith("Speed: ", StringComparison.Ordinal))
                 labelPrefix = "Speed: ";
             else

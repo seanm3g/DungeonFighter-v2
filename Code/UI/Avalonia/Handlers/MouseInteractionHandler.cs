@@ -12,6 +12,7 @@ using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Renderers.Inventory;
 using RPGGame.UI.Avalonia.Settings;
 
 namespace RPGGame.UI.Avalonia.Handlers
@@ -29,6 +30,8 @@ namespace RPGGame.UI.Avalonia.Handlers
         private bool _comboStripDragging;
         private int _comboStripDragFrom = -1;
         private List<RPGGame.Action>? _comboStripSnapshot;
+
+        private Point _inventoryDragPressPosition;
 
         public MouseInteractionHandler(
             GameCanvasControl gameCanvas,
@@ -90,6 +93,8 @@ namespace RPGGame.UI.Avalonia.Handlers
                 gameCanvas.NotifyPointerClick(point.Position);
                 if (TryBeginComboStripDrag(e, point.Position))
                     return;
+                if (TryArmInventoryDrag(e, point.Position))
+                    return;
                 HandleMouseClick(point.Position);
             }
         }
@@ -102,6 +107,30 @@ namespace RPGGame.UI.Avalonia.Handlers
             bool altChanged = HoverTooltipDetailState.SetFromModifiers(e.KeyModifiers);
             var point = e.GetCurrentPoint(gameCanvas);
             gameCanvas.NotifyPointerWind(point.Position);
+            if (InventoryDragState.IsArmed && !point.Properties.IsLeftButtonPressed)
+            {
+                // Release never arrived (capture lost): cancel instead of leaving the ghost stuck to the pointer.
+                bool wasActive = InventoryDragState.IsActive;
+                InventoryDragState.Clear();
+                if (wasActive)
+                    game?.RefreshPersistentChromeAfterStatsToggle();
+            }
+            if (InventoryDragState.IsArmed)
+            {
+                var grid = ScreenToGrid(point.Position);
+                bool wasActive = InventoryDragState.IsActive;
+                if (InventoryDragState.MoveTo(grid.X, grid.Y))
+                {
+                    if (!wasActive && canvasUI != null)
+                    {
+                        // The pressed tile's item tooltip would otherwise sit over the paper doll for the whole drag.
+                        canvasUI.ClearHoverStates();
+                        LeftPanelHoverState.UpdateFromClickables(canvasUI.GetClickableElements());
+                    }
+                    game?.RefreshPersistentChromeAfterStatsToggle();
+                }
+                return;
+            }
             HandleMouseHover(point.Position, forceTooltipRefresh: altChanged);
         }
 
@@ -117,6 +146,12 @@ namespace RPGGame.UI.Avalonia.Handlers
             catch
             {
                 // ignore capture release failures
+            }
+
+            if (InventoryDragState.IsArmed)
+            {
+                FinishInventoryDrag(e.GetCurrentPoint(gameCanvas).Position);
+                return;
             }
 
             if (!_comboStripDragging)
@@ -674,6 +709,80 @@ namespace RPGGame.UI.Avalonia.Handlers
             e.Pointer.Capture(gameCanvas);
             e.Handled = true;
             return true;
+        }
+
+        /// <summary>
+        /// New inventory: a press on a bag tile (<c>invsel:N</c>) or a filled paper-doll slot (<c>invslot:slot</c>) arms a drag.
+        /// The click itself is deferred to release so a press-and-release in place still selects.
+        /// </summary>
+        private bool TryArmInventoryDrag(PointerPressedEventArgs e, Point position)
+        {
+            if (canvasUI == null || game?.StateManager?.CurrentState != GameState.Inventory || !canvasUI.IsInventoryGridViewEnabled)
+                return false;
+            var player = game.CurrentPlayer;
+            if (player == null)
+                return false;
+
+            var grid = ScreenToGrid(position);
+            var el = canvasUI.GetElementAt(grid.X, grid.Y);
+            if (el == null || string.IsNullOrEmpty(el.Value))
+                return false;
+
+            if (el.Value.StartsWith(InventoryDetailViewState.SelectInputPrefix, StringComparison.Ordinal))
+            {
+                var inventory = game.StateManager.CurrentInventory;
+                if (!int.TryParse(el.Value.Substring(InventoryDetailViewState.SelectInputPrefix.Length), out int index)
+                    || inventory == null || index < 0 || index >= inventory.Count)
+                    return false;
+                InventoryDragState.ArmFromBag(index, inventory[index], grid.X, grid.Y);
+            }
+            else if (el.Value.StartsWith(InventoryDetailViewState.SlotInputPrefix, StringComparison.Ordinal))
+            {
+                string slot = el.Value.Substring(InventoryDetailViewState.SlotInputPrefix.Length);
+                var item = player.Equipment.GetSlotItem(slot);
+                if (item == null)
+                    return false;
+                InventoryDragState.ArmFromSlot(slot, item, grid.X, grid.Y);
+            }
+            else
+                return false;
+
+            _inventoryDragPressPosition = position;
+            e.Pointer.Capture(gameCanvas);
+            e.Handled = true;
+            return true;
+        }
+
+        /// <summary>
+        /// Release of an armed inventory drag: no movement runs the deferred click; a bag item dropped on the paper doll equips
+        /// into its own slot; gear dropped on the bag unequips. Anything else cancels.
+        /// </summary>
+        private void FinishInventoryDrag(Point releasePosition)
+        {
+            bool moved = InventoryDragState.IsActive;
+            int fromIndex = InventoryDragState.SourceInventoryIndex;
+            string? fromSlot = InventoryDragState.SourceSlot;
+            InventoryDragState.Clear();
+
+            if (!moved)
+            {
+                HandleMouseClick(_inventoryDragPressPosition);
+                return;
+            }
+            if (game == null)
+                return;
+
+            var grid = ScreenToGrid(releasePosition);
+            string? token = null;
+            if (fromIndex >= 0 && InventoryScreenRenderer.BoundsContain(InventoryScreenRenderer.LastPaperDollBounds, grid.X, grid.Y))
+                token = InventoryDetailViewState.DropEquipPrefix + fromIndex;
+            else if (fromSlot != null && InventoryScreenRenderer.BoundsContain(InventoryScreenRenderer.LastBagGridBounds, grid.X, grid.Y))
+                token = InventoryDetailViewState.DropUnequipPrefix + fromSlot;
+
+            if (token != null)
+                _ = game.HandleInput(token);
+            else
+                game.RefreshPersistentChromeAfterStatsToggle();
         }
 
         /// <summary>

@@ -634,7 +634,9 @@ namespace RPGGame.UI.Avalonia
                     elementManager.ProgressBars.ToList(),
                     elementManager.SegmentedBars.ToList(),
                     Colors.Transparent,
-                    fillBackground: false);
+                    fillBackground: false,
+                    images: elementManager.Images.ToList(),
+                    backdrop: BackdropProvider?.Invoke());
 
                 DrawWakeRadiusDebugOverlay(context);
             }
@@ -678,6 +680,12 @@ namespace RPGGame.UI.Avalonia
         {
             elementManager.Clear();
         }
+
+        /// <summary>
+        /// Picture drawn behind the text each frame (the dungeon room's environment plate); null = none.
+        /// Asked at paint time so every render path, reactive or imperative, shows the same backdrop.
+        /// </summary>
+        public Func<CanvasBackdrop?>? BackdropProvider { get; set; }
         
         /// <summary>
         /// Clears text elements within a specific Y range (inclusive)
@@ -819,6 +827,16 @@ namespace RPGGame.UI.Avalonia
         public void AddBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor = default, int opaqueBackgroundBleedDevicePixels = 0, int borderThicknessPixels = 1)
         {
             elementBuilder.AddBox(x, y, width, height, borderColor, backgroundColor, opaqueBackgroundBleedDevicePixels, borderThicknessPixels);
+        }
+
+        /// <summary>Draws <paramref name="sourceRect"/> of <paramref name="source"/> square and centered in a grid-cell rectangle.</summary>
+        public void AddImage(int x, int y, int width, int height, IImage source, Rect sourceRect, double paddingPixels = 2)
+        {
+            elementManager.AddImage(new CanvasImage
+            {
+                X = x, Y = y, Width = width, Height = height,
+                Source = source, SourceRect = sourceRect, PaddingPixels = paddingPixels
+            });
         }
 
         public bool TryUpdateBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor)

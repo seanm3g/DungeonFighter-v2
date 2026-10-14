@@ -77,7 +77,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             string actionType,
             InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
             bool hideRequirementBlockedItems = false,
-            string? inventoryEquipSlotFilter = null)
+            string? inventoryEquipSlotFilter = null,
+            string? inventoryMaterialFilter = null)
         {
             int currentLineCount = 0;
             int startY = y;
@@ -93,7 +94,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 character,
                 sortMode,
                 hideRequirementBlockedItems,
-                inventoryEquipSlotFilter);
+                inventoryEquipSlotFilter,
+                inventoryMaterialFilter);
             if (inventory.Count == 0)
             {
                 canvas.AddText(x + 2, y, "No items in inventory", AsciiArtAssets.Colors.White);
@@ -102,7 +104,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             else if (displayEntries.Count == 0)
             {
-                string emptyMsg = !string.IsNullOrEmpty(inventoryEquipSlotFilter)
+                string emptyMsg = !string.IsNullOrEmpty(inventoryMaterialFilter)
+                    ? "No items match the current material filter."
+                    : !string.IsNullOrEmpty(inventoryEquipSlotFilter)
                     ? "No items in inventory for this equipment slot."
                     : "No items match the current requirements filter";
                 canvas.AddText(x + 2, y, emptyMsg, AsciiArtAssets.Colors.White);
@@ -269,80 +273,97 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         }
         
         /// <summary>
-        /// Renders trade-up preview screen showing items to trade and the resulting item
+        /// Renders trade-up preview screen showing items to trade and the resulting item.
+        /// Traded inputs are name-only so Confirm stays pinned in the footer (full stats on the result only).
         /// </summary>
         public int RenderTradeUpPreview(int x, int y, int width, int height, Character character, List<Item> itemsToTrade, Item resultingItem, string currentRarity, string nextRarity)
         {
             int currentLineCount = 0;
-            
+            int startY = y;
+
+            canvas.ClearTextInArea(x, y, width, height);
+            canvas.ClearProgressBarsInArea(x, y, width, height);
+
+            int confirmY = TradeUpPreviewLayout.GetConfirmY(startY, height);
+            int maxBodyY = TradeUpPreviewLayout.GetMaxBodyY(startY, height);
+
             // Show header
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader("TRADE UP PREVIEW"), AsciiArtAssets.Colors.Gold);
             y += 2;
             currentLineCount += 2;
-            
+
             // Show trade-up information
             canvas.AddText(x + 2, y, $"Trade Up: 5 {currentRarity} items → 1 {nextRarity} item", AsciiArtAssets.Colors.Cyan);
             y += 2;
             currentLineCount += 2;
-            
+
             canvas.AddText(x + 2, y, "Items being traded (5 required):", AsciiArtAssets.Colors.White);
             y += 2;
             currentLineCount += 2;
-            
-            // Show the 5 items being traded
-            for (int i = 0; i < itemsToTrade.Count && i < 5; i++)
+
+            // Compact traded rows: names only (full stat blocks used to push Confirm off-screen).
+            int tradeCount = itemsToTrade != null ? Math.Min(itemsToTrade.Count, 5) : 0;
+            for (int i = 0; i < tradeCount; i++)
             {
-                var item = itemsToTrade[i];
-                var itemStats = ItemStatFormatter.GetItemStats(item, character);
-                
-                // Render item name with colored text
+                if (y >= maxBodyY)
+                    break;
+
+                var item = itemsToTrade![i];
                 ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true, character: character);
                 y++;
                 currentLineCount++;
-                
-                // Render stats against currently equipped same-slot gear when comparable.
-                var equippedForTrade = character.Weapon as WeaponItem;
-                var equippedArmorForTrade = ItemRendererHelper.GetArmorComparisonBaseline(character, item);
-                ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true,
-                    displayedItem: item, weaponSpeedBaseline: equippedForTrade, armorComparisonBaseline: equippedArmorForTrade,
+            }
+
+            if (y + 2 < maxBodyY)
+            {
+                y += 2;
+                currentLineCount += 2;
+            }
+
+            // Show separator and resulting item
+            if (y < maxBodyY)
+            {
+                canvas.AddText(x + 2, y, "─────────────────────────────────", AsciiArtAssets.Colors.Gray);
+                y += 2;
+                currentLineCount += 2;
+            }
+
+            if (y < maxBodyY)
+            {
+                canvas.AddText(x + 2, y, $"Resulting {nextRarity} item:", AsciiArtAssets.Colors.Gold);
+                y += 2;
+                currentLineCount += 2;
+            }
+
+            // Render resulting item (slot bracket red when this character cannot equip it)
+            if (y < maxBodyY)
+            {
+                ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, -1, resultingItem, useColoredText: true, character: character);
+                y++;
+                currentLineCount++;
+            }
+
+            // Result stats only — stop before the pinned Confirm footer.
+            var resultingItemStats = ItemStatFormatter.GetItemStats(resultingItem, character);
+            int statsBudget = Math.Max(0, maxBodyY - y);
+            if (statsBudget > 0 && resultingItemStats.Count > 0)
+            {
+                var cappedStats = resultingItemStats.Count > statsBudget
+                    ? resultingItemStats.GetRange(0, statsBudget)
+                    : resultingItemStats;
+                var equippedForResult = character.Weapon as WeaponItem;
+                var equippedArmorForResult = ItemRendererHelper.GetArmorComparisonBaseline(character, resultingItem);
+                ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, cappedStats, ref y, ref currentLineCount, useColoredText: true,
+                    displayedItem: resultingItem, weaponSpeedBaseline: equippedForResult, armorComparisonBaseline: equippedArmorForResult,
                     characterForEquipRequirements: character);
             }
-            
-            y += 2;
-            currentLineCount += 2;
-            
-            // Show separator and resulting item
-            canvas.AddText(x + 2, y, "─────────────────────────────────", AsciiArtAssets.Colors.Gray);
-            y += 2;
-            currentLineCount += 2;
-            
-            canvas.AddText(x + 2, y, $"Resulting {nextRarity} item:", AsciiArtAssets.Colors.Gold);
-            y += 2;
-            currentLineCount += 2;
-            
-            // Render resulting item (slot bracket red when this character cannot equip it)
-            var resultingItemStats = ItemStatFormatter.GetItemStats(resultingItem, character);
-            ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, -1, resultingItem, useColoredText: true, character: character);
-            y++;
-            currentLineCount++;
-            
-            // Render resulting item stats against currently equipped same-slot gear when comparable.
-            var equippedForResult = character.Weapon as WeaponItem;
-            var equippedArmorForResult = ItemRendererHelper.GetArmorComparisonBaseline(character, resultingItem);
-            ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, resultingItemStats, ref y, ref currentLineCount, useColoredText: true,
-                displayedItem: resultingItem, weaponSpeedBaseline: equippedForResult, armorComparisonBaseline: equippedArmorForResult,
-                characterForEquipRequirements: character);
-            
-            y += 2;
-            currentLineCount += 2;
-            
-            // Show confirmation option
-            // Note: Cancel button removed to force completion of trade-up
-            var confirmButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, "1", MenuOptionFormatter.Format(1, "Confirm Trade Up"));
+
+            // Confirm pinned at bottom (cancel removed — trade-up must be completed once started).
+            var confirmButton = InventoryButtonFactory.CreateButton(x + 2, confirmY, 28, "1", MenuOptionFormatter.Format(1, "Confirm Trade Up"));
             clickableElements.Add(confirmButton);
-            canvas.AddMenuOption(x + 2, y, 1, "Confirm Trade Up", AsciiArtAssets.Colors.Green, confirmButton.IsHovered);
+            canvas.AddMenuOption(x + 2, confirmY, 1, "Confirm Trade Up", AsciiArtAssets.Colors.Green, confirmButton.IsHovered);
             currentLineCount++;
-            
+
             return currentLineCount;
         }
         
@@ -372,6 +393,48 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             
             return rarityOrder[currentIndex + 1];
+        }
+    }
+
+    /// <summary>
+    /// Layout math for trade-up preview: keeps Confirm pinned and body content above the footer.
+    /// </summary>
+    public static class TradeUpPreviewLayout
+    {
+        /// <summary>Rows reserved at the bottom for the Confirm control (with one blank above).</summary>
+        public const int ConfirmFooterLines = 2;
+
+        public static int GetConfirmY(int contentStartY, int contentHeight)
+        {
+            if (contentHeight <= 0)
+                return contentStartY;
+            return contentStartY + contentHeight - 1;
+        }
+
+        /// <summary>Last exclusive body row index (body may paint up to but not including Confirm).</summary>
+        public static int GetMaxBodyY(int contentStartY, int contentHeight)
+        {
+            return GetConfirmY(contentStartY, contentHeight) - 1;
+        }
+
+        /// <summary>
+        /// Compact preview body line count: header block + one line per traded item + result header + result name + result stats.
+        /// Used to verify the compact layout fits typical center-panel heights.
+        /// </summary>
+        public static int EstimateCompactBodyLines(int tradedItemCount, int resultStatLineCount)
+        {
+            int trades = Math.Clamp(tradedItemCount, 0, 5);
+            int stats = Math.Max(0, resultStatLineCount);
+            // title(+2) + trade rule(+2) + "Items being traded"(+2) + names + gap(+2) + sep(+2) + resulting(+2) + name(+1) + stats
+            return 6 + trades + 2 + 2 + 2 + 1 + stats;
+        }
+
+        public static bool CompactPreviewFits(int contentHeight, int tradedItemCount, int resultStatLineCount)
+        {
+            if (contentHeight <= ConfirmFooterLines)
+                return false;
+            int bodyBudget = contentHeight - ConfirmFooterLines;
+            return EstimateCompactBodyLines(tradedItemCount, resultStatLineCount) <= bodyBudget;
         }
     }
 }

@@ -90,7 +90,7 @@ namespace RPGGame.Tests.Unit
             var p = new CharacterProgression { BarbarianPoints = 1 };
             p.EnsureSkillTreeRootsGranted();
 
-            var missing = p.TryLearnSkillNode("b-combo", requirePrimaryPath: false);
+            var missing = p.TryLearnSkillNode("b-scar", requirePrimaryPath: false);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.PrerequisitesMissing, missing,
                 "tier-3 without prereq is blocked",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -101,7 +101,7 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Spent the only available point on age1 rank 1 — another T1 is unaffordable.
-            var unaffordable = p.TryLearnSkillNode("b-lvl2", requirePrimaryPath: false);
+            var unaffordable = p.TryLearnSkillNode("b-bludgeon", requirePrimaryPath: false);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.InsufficientPoints, unaffordable,
                 "not enough remaining points for another skill",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -150,17 +150,26 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine("--- Primary path gate ---");
             var p = new CharacterProgression { BarbarianPoints = 10, WarriorPoints = 1 };
             p.EnsureSkillTreeRootsGranted();
-            // Primary should be Mace (higher points)
-            var denied = p.TryLearnSkillNode("w-loot", requirePrimaryPath: true);
+            // A path with no earned points stays closed.
+            var denied = p.TryLearnSkillNode("z-age1", requirePrimaryPath: true);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.NotPrimaryPath, denied,
-                "cannot spend into non-shared non-primary sword node",
+                "cannot spend into a wand tree with 0 wizard points",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Secondary-class nodes are not spendable from the primary view (hybrid trees replace the shared rail).
+            // Secondary class tree spends its own points (switch tree on the skill screen).
             var secondaryNode = p.TryLearnSkillNode("w-age1", requirePrimaryPath: true);
-            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.NotPrimaryPath, secondaryNode,
-                "secondary-class node is not spendable from the Mace primary",
+            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, secondaryNode,
+                "secondary-class node spends warrior points",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Viewed tree cycles between paths with points.
+            TestBase.AssertTrue(SkillTreeService.CycleViewedPath(p) && SkillTreeService.GetViewedPath(p) == WeaponType.Sword,
+                "T cycles skill screen to the sword tree",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(SkillTreeService.BuildDisplayModel(p).PrimaryPath == WeaponType.Sword,
+                "display model shows the viewed tree",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            p.SkillTreeViewPath = null;
 
             var ok = p.TryLearnSkillNode("b-age1", requirePrimaryPath: true);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, ok,

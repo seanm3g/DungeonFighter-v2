@@ -129,12 +129,43 @@ namespace RPGGame.UI.Avalonia
 
         public void AdjustInventoryItemScroll(int itemDelta)
         {
+            // Grid view scrolls by icon rows: one row per step, capped at the last row that still fills the view.
+            if (inventoryGridViewEnabled)
+                itemDelta = Math.Sign(itemDelta);
             inventoryItemScrollOffset = Math.Max(0, inventoryItemScrollOffset + itemDelta);
+            if (inventoryGridViewEnabled)
+                inventoryItemScrollOffset = Math.Min(inventoryItemScrollOffset, InventoryScreenRenderer.LastGridMaxFirstRow);
         }
 
         public void ResetInventoryItemScroll()
         {
             inventoryItemScrollOffset = 0;
+        }
+
+        public bool IsInventoryDetailViewEnabled => inventoryDetailViewEnabled;
+
+        public bool IsInventoryGridViewEnabled => inventoryGridViewEnabled;
+
+        /// <summary>Switches between the new inventory (icon grid) and the old list. Returns true when the grid is on.</summary>
+        public bool ToggleInventoryGridView()
+        {
+            inventoryGridViewEnabled = !inventoryGridViewEnabled;
+            inventoryItemScrollOffset = 0;
+            return inventoryGridViewEnabled;
+        }
+
+        /// <summary>Toggles the F1 inventory detail view. Returns the new state.</summary>
+        public bool ToggleInventoryDetailView()
+        {
+            inventoryDetailViewEnabled = !inventoryDetailViewEnabled;
+            inventoryItemScrollOffset = 0;
+            return inventoryDetailViewEnabled;
+        }
+
+        /// <summary>Selects which inventory item the detail view describes (raw inventory index).</summary>
+        public void SelectInventoryDetailItem(int inventoryIndex)
+        {
+            inventoryDetailSelectedIndex = inventoryIndex;
         }
 
         public void RenderInventory(
@@ -143,16 +174,21 @@ namespace RPGGame.UI.Avalonia
             string? pendingMutatingInventoryMenuAction = null,
             InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
             bool hideRequirementBlockedItems = false,
-            string? inventoryEquipSlotFilter = null)
+            string? inventoryEquipSlotFilter = null,
+            string? inventoryMaterialFilter = null)
         {
             if (lastRenderedScreenState != GameState.Inventory || !ReferenceEquals(lastInventoryScrollCharacter, character))
             {
                 inventoryItemScrollOffset = 0;
+                inventoryDetailSelectedIndex = -1;
                 lastInventoryScrollCharacter = character;
             }
 
             inventoryItemScrollOffset = InventoryItemScrollLayout.ClampFirstVisibleIndex(inventoryItemScrollOffset, inventory.Count);
-            renderer.RenderInventory(character, inventory, GetContext(), pendingMutatingInventoryMenuAction, inventoryItemScrollOffset, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter);
+            var detailView = inventoryGridViewEnabled
+                ? new InventoryDetailViewState(inventoryDetailSelectedIndex, Grid: true)
+                : inventoryDetailViewEnabled ? new InventoryDetailViewState(inventoryDetailSelectedIndex) : null;
+            renderer.RenderInventory(character, inventory, GetContext(), pendingMutatingInventoryMenuAction, inventoryItemScrollOffset, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter, detailView, inventoryMaterialFilter);
         }
 
         public void RenderItemSelectionPrompt(
@@ -162,7 +198,8 @@ namespace RPGGame.UI.Avalonia
             string actionType,
             InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
             bool hideRequirementBlockedItems = false,
-            string? inventoryEquipSlotFilter = null)
+            string? inventoryEquipSlotFilter = null,
+            string? inventoryMaterialFilter = null)
         {
             renderer.RenderItemSelectionPrompt(
                 character,
@@ -172,7 +209,8 @@ namespace RPGGame.UI.Avalonia
                 GetContext(),
                 sortMode,
                 hideRequirementBlockedItems,
-                inventoryEquipSlotFilter);
+                inventoryEquipSlotFilter,
+                inventoryMaterialFilter);
         }
 
         public void RenderSlotSelectionPrompt(Character character)

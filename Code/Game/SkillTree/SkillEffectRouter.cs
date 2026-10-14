@@ -50,6 +50,8 @@ namespace RPGGame
         private int _ironHideArmor;
         private double _pendingRollAmp;
         private int _steadyMarchApplied;
+        private int _gutInstinctApplied;
+        private int _focusLensApplied;
 
         private const int RiteOfPassageAttributeBonus = 15;
 
@@ -109,6 +111,8 @@ namespace RPGGame
             _ironHideArmor = 0;
             _pendingRollAmp = 0;
             _steadyMarchApplied = 0;
+            _gutInstinctApplied = 0;
+            _focusLensApplied = 0;
             ResetHybridFightState();
         }
 
@@ -122,8 +126,16 @@ namespace RPGGame
 
         private void EnsureSubscribed()
         {
-            if (_subscribed) return;
             var bus = CombatEventBus.Instance;
+            // New games clear the bus (StartNewGameCommand / MainMenuHandler); subscribing only once left every on-hit
+            // skill dead for the rest of the session. Re-subscribe whenever our handler is gone.
+            if (_subscribed && bus.HasSubscriber(CombatEventType.ActionHit, OnHit)) return;
+            bus.Unsubscribe(CombatEventType.ActionMiss, OnMiss);
+            bus.Unsubscribe(CombatEventType.ActionHit, OnHit);
+            bus.Unsubscribe(CombatEventType.ActionCritical, OnHit);
+            bus.Unsubscribe(CombatEventType.EnemyDied, OnKill);
+            bus.Unsubscribe(CombatEventType.ComboEnded, OnComboEnded);
+            bus.Unsubscribe(CombatEventType.ActionExecuted, OnActionExecuted);
             bus.Subscribe(CombatEventType.ActionMiss, OnMiss);
             bus.Subscribe(CombatEventType.ActionHit, OnHit);
             bus.Subscribe(CombatEventType.ActionCritical, OnHit);
@@ -240,6 +252,7 @@ namespace RPGGame
         {
             var hero = AsBoundHero(evt.Source);
             if (hero == null) return;
+            using var skillPin = SkillRanks.Pin(hero.Progression);
 
             TrackConnectStreak(hero, evt);
             ApplyPendingRollAmp(hero);
@@ -764,11 +777,14 @@ namespace RPGGame
 
         private void ApplyGutInstinct(Character hero, CombatEvent evt)
         {
-            if (!Has(hero, "gut_instinct")) return;
-            int rank = GetRank(hero, "gut_instinct");
-            int bonus = (hero.GetEffectiveIntelligence() / 5) * rank;
-            if (bonus > 0)
-                hero.Stats.TempStrengthBonus += bonus;
+            // Sets the bonus instead of adding it on every hit (it stacked without limit, like Steady March did), and uses
+            // rank x power directly so power below 1 still scales it.
+            double power = GetPower(hero, "gut_instinct");
+            int bonus = power > 0 ? (int)Math.Floor(hero.GetEffectiveIntelligence() / 5.0 * power) : 0;
+            if (bonus == _gutInstinctApplied) return;
+            hero.Stats.TempStrengthBonus = Math.Max(0, hero.Stats.TempStrengthBonus - _gutInstinctApplied + bonus);
+            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
+            _gutInstinctApplied = bonus;
         }
 
         /// <summary>
@@ -879,7 +895,11 @@ namespace RPGGame
             int band = len < 0.95 ? -1 : len > 1.05 ? 1 : 0;
             if (_lastSpeedBand != null && _lastSpeedBand.Value != band)
             {
-                hero.FocusStacks = (hero.FocusStacks ?? 0) + GetRank(hero, "cadence_keeper");
+                // rank x power Focus per alternation; the fraction is a chance (it was at least 1 every time).
+                double focus = GetPower(hero, "cadence_keeper");
+                int stacks = (int)Math.Floor(focus) + (RandomUtility.NextDouble() < focus - Math.Floor(focus) ? 1 : 0);
+                if (stacks <= 0) { _lastSpeedBand = band; return; }
+                hero.FocusStacks = (hero.FocusStacks ?? 0) + stacks;
                 hero.FocusTurns = Math.Max(hero.FocusTurns, 2);
             }
             else if (_lastSpeedBand != null && _lastSpeedBand.Value == band && (hero.FocusStacks ?? 0) > 0)
@@ -992,10 +1012,18 @@ namespace RPGGame
             if (!Has(hero, "thermal_shock") || evt.Target == null) return;
             bool burning = evt.Target.BurnIntensity > 0;
             bool slowed = evt.Target is Character c && c.Effects.SlowTurns > 0;
-            if (burning && slowed)
+            // Power is the stun chance (rank 1 x power, at most 1).
+            if (burning && slowed && RandomUtility.NextDouble() < Math.Min(1.0, GetPower(hero, "thermal_shock")))
             {
+                // Consumes both, as the node says (it stun-locked while Burn and Slow stayed up).
                 evt.Target.IsStunned = true;
                 evt.Target.StunTurnsRemaining = Math.Max(evt.Target.StunTurnsRemaining, 1);
+                evt.Target.BurnIntensity = 0;
+                if (evt.Target is Character slowedFoe)
+                {
+                    slowedFoe.Effects.SlowTurns = 0;
+                    slowedFoe.Effects.SlowMultiplier = 1.0;
+                }
             }
         }
 
@@ -1059,8 +1087,9 @@ namespace RPGGame
             if (evt.Target.BurnIntensity > 0) kinds++;
             if (evt.Target.BleedIntensity > 0) kinds++;
             if (evt.Target.AcidIntensity > 0) kinds++;
+            // The hit event fires before damage is rolled, so the bonus rides on this hit as a damage mod.
             if (kinds > 0)
-                hero.Effects.ExtraDamage += (int)(evt.Damage * 0.10 * kinds * GetRank(hero, "toxic_ledger"));
+                AddDamageMod(hero, 10.0 * kinds * GetPower(hero, "toxic_ledger"));
         }
 
         private void ApplyDataDrivenRankMods(Character hero, CombatEvent evt)
@@ -1102,11 +1131,13 @@ namespace RPGGame
 
         private void ApplyBloodPrice(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "blood_price");
-            if (rank <= 0 || evt.Damage <= 0) return;
+            // Heals a share of max HP per connect (the hit event fires before damage, so evt.Damage is 0 here; a flat
+            // 1 HP per rank also stopped mattering past the first levels).
+            double power = GetPower(hero, "blood_price");
+            if (power <= 0 || evt.IsMiss) return;
             bool mace = hero.Equipment.Weapon is WeaponItem w && w.WeaponType == WeaponType.Mace;
             if (!mace) return;
-            hero.Heal(rank);
+            hero.Heal(Math.Max(1, (int)Math.Round(hero.GetEffectiveMaxHealth() * 0.005 * power)));
         }
 
         private void ApplySteadyMarch(Character hero, CombatEvent evt)
@@ -1143,26 +1174,30 @@ namespace RPGGame
 
         private void ApplyManaBleed(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "mana_bleed");
-            if (rank <= 0 || evt.Damage <= 0 || evt.Action == null) return;
+            double power = GetPower(hero, "mana_bleed");
+            if (power <= 0 || evt.IsMiss || evt.Action == null) return;
             bool spell = evt.Action.Tags?.Any(t =>
                 string.Equals(t, "spell", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(t, "wand", StringComparison.OrdinalIgnoreCase)) == true
                 || (hero.Equipment.Weapon is WeaponItem w && w.WeaponType == WeaponType.Wand);
             if (!spell) return;
-            hero.Heal(rank);
+            hero.Heal(Math.Max(1, (int)Math.Round(hero.GetEffectiveMaxHealth() * 0.005 * power)));
         }
 
         private void ApplyFocusLens(Character hero, CombatEvent evt)
         {
-            int rank = GetRank(hero, "focus_lens");
-            if (rank <= 0 || evt.Action == null) return;
+            // A standing bonus while casting: set it (it was added again on every hit and stacked for the whole fight).
+            double power = GetPower(hero, "focus_lens");
+            if (evt.Action == null) return;
             bool spell = evt.Action.Tags?.Any(t =>
                 string.Equals(t, "spell", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(t, "wand", StringComparison.OrdinalIgnoreCase)) == true
                 || (hero.Equipment.Weapon is WeaponItem w && w.WeaponType == WeaponType.Wand);
-            if (!spell) return;
-            hero.Stats.TempTechniqueBonus += rank;
+            int bonus = spell && power > 0 ? Math.Max(1, (int)Math.Round(power)) : 0;
+            if (bonus == _focusLensApplied) return;
+            hero.Stats.TempTechniqueBonus = Math.Max(0, hero.Stats.TempTechniqueBonus - _focusLensApplied + bonus);
+            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
+            _focusLensApplied = bonus;
         }
 
         private void ApplyBronzeKnuckle(Character hero, CombatEvent evt)
@@ -1223,9 +1258,11 @@ namespace RPGGame
 
         private void ApplyGreasePalm(Character hero, CombatEvent evt)
         {
+            // Temporary as written: lasts 2 turns (it never decayed, so it stacked for the whole fight).
             int rank = GetRank(hero, "grease_palm");
             if (rank <= 0 || evt.NaturalRollValue <= 0 || evt.NaturalRollValue > 7) return;
             hero.Stats.TempTechniqueBonus += rank;
+            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 2);
         }
 
         private void ApplySigilBurn(Character hero, CombatEvent evt)
@@ -1255,9 +1292,11 @@ namespace RPGGame
 
         private void ApplyLoadedOdds(Character hero, CombatEvent evt)
         {
+            // Temporary as written: lasts 2 turns (it never decayed, so it stacked for the whole fight).
             int rank = GetRank(hero, "loaded_odds");
             if (rank <= 0 || evt.NaturalRollValue < 15) return;
             hero.Stats.TempIntelligenceBonus += rank;
+            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 2);
         }
 
         private void ApplyRewriteFateSpend(Character hero, CombatEvent evt)

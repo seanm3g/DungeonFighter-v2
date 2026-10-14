@@ -36,6 +36,11 @@ namespace RPGGame.Tests.Unit.Combat
             TestCatalogAttackSpeedOnEquippedLegsAddsToEquipmentBonus();
             TestSlowDebuff();
             TestMinimumAttackTime();
+            TestBreakdownIsTheEquation();
+            TestWeaponSpeedPointDividesTime();
+            TestGearAttackSpeedSuffixIsWeaponSpeedPoints();
+            TestAllSuffixKeepsPercentMeaning();
+            TestWeaponPreviewMatchesEquipping();
 
             TestBase.PrintSummary("SpeedCalculator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -261,6 +266,109 @@ namespace RPGGame.Tests.Unit.Combat
             // Speed should not go below minimum
             TestBase.AssertTrue(speed >= 0.01,
                 "Attack speed should respect minimum attack time",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        #endregion
+
+        #region Core Equation Tests
+
+        private static Character NewHero(string name, double weaponSpeed = 1.0)
+        {
+            var hero = TestDataBuilders.Character()
+                .WithName(name)
+                .WithStats(10, 10, 10, 10)
+                .Build();
+            hero.EquipItem(new WeaponItem("Norm", 1, 5, weaponSpeed, WeaponType.Sword), "weapon");
+            return hero;
+        }
+
+        /// <summary>Swing = max(floor, base × AGI × weapon × tempo); combat reads the same breakdown.</summary>
+        private static void TestBreakdownIsTheEquation()
+        {
+            Console.WriteLine("\n--- Testing breakdown is the swing equation ---");
+            var hero = NewHero("EquationHero");
+            var b = SpeedCalculator.GetBreakdown(hero);
+
+            double expectedRaw = b.BaseSeconds * b.AgilityFactor * b.WeaponFactor * b.TempoFactor;
+            TestBase.AssertTrue(Math.Abs(b.RawSeconds - expectedRaw) < 1e-9,
+                $"Raw = base × AGI × weapon × tempo ({b.RawSeconds:0.####} vs {expectedRaw:0.####})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Math.Abs(SpeedCalculator.CalculateAttackSpeed(hero) - Math.Max(b.FloorSeconds, b.RawSeconds)) < 1e-9,
+                "CalculateAttackSpeed = max(floor, raw)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Math.Abs(b.BaseSeconds - GameConfiguration.Instance.Combat.BaseAttackTime) < 1e-9,
+                "Base time is the fixed config base",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>+1 weapon speed point divides weapon time by (1 + % per point).</summary>
+        private static void TestWeaponSpeedPointDividesTime()
+        {
+            Console.WriteLine("\n--- Testing weapon speed point divides time ---");
+            var hero = NewHero("PointHero");
+            double before = SpeedCalculator.GetBreakdown(hero).RawSeconds;
+            hero.Effects.ConsumedWeaponSpeedFlat = 1;
+            double after = SpeedCalculator.GetBreakdown(hero).RawSeconds;
+            hero.Effects.ConsumedWeaponSpeedFlat = 0;
+
+            double pct = GameConfiguration.Instance.Combat.GetWeaponSpeedPercentPerPoint();
+            TestBase.AssertTrue(Math.Abs(before / after - (1.0 + pct / 100.0)) < 1e-9,
+                $"+1 point = +{pct}% speed ({before:0.###}s → {after:0.###}s)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>Gear "AttackSpeed" suffix value is weapon speed points (literal), not a % of base time.</summary>
+        private static void TestGearAttackSpeedSuffixIsWeaponSpeedPoints()
+        {
+            Console.WriteLine("\n--- Testing gear AttackSpeed suffix is weapon speed points ---");
+            var hero = NewHero("SuffixHero");
+            double before = SpeedCalculator.GetBreakdown(hero).RawSeconds;
+
+            var legs = new LegsItem("Fleet Greaves", 1, 1);
+            legs.StatBonuses.Add(new StatBonus { Name = "of fleeting", StatType = "AttackSpeed", Value = 1 });
+            hero.EquipItem(legs, "legs");
+
+            TestBase.AssertTrue(Math.Abs(hero.GetEquipmentAttackSpeedBonus() - 1.0) < 1e-9,
+                $"of fleeting +1 = 1 weapon speed point, got {hero.GetEquipmentAttackSpeedBonus()}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            double after = SpeedCalculator.GetBreakdown(hero).RawSeconds;
+            double pct = GameConfiguration.Instance.Combat.GetWeaponSpeedPercentPerPoint();
+            TestBase.AssertTrue(Math.Abs(before / after - (1.0 + pct / 100.0)) < 1e-9,
+                $"Suffix point shortens the swing like any other point ({before:0.###}s → {after:0.###}s)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>"ALL +5" suffixes keep their % meaning for speed: +5% = half a point at 10% per point.</summary>
+        private static void TestAllSuffixKeepsPercentMeaning()
+        {
+            Console.WriteLine("\n--- Testing ALL suffix keeps % meaning for weapon speed ---");
+            var chest = new ChestItem("Godly Vest", 1, 1);
+            chest.StatBonuses.Add(new StatBonus { Name = "of gods", StatType = "ALL", Value = 5 });
+            double pct = GameConfiguration.Instance.Combat.GetWeaponSpeedPercentPerPoint();
+            double points = EquipmentBonusCalculator.GetItemWeaponSpeedPoints(chest);
+            TestBase.AssertTrue(Math.Abs(points - 5.0 / pct) < 1e-9,
+                $"ALL +5 = {5.0 / pct:0.##} weapon speed points, got {points}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>Item screens preview a weapon as seconds; that preview must equal actually equipping it.</summary>
+        private static void TestWeaponPreviewMatchesEquipping()
+        {
+            Console.WriteLine("\n--- Testing weapon preview matches equipping ---");
+            var hero = NewHero("PreviewHero");
+            var fast = new WeaponItem("Quick", 1, 5, 0.8, WeaponType.Dagger) { BonusAttackSpeed = 1 };
+
+            double equippedNow = SpeedCalculator.GetBreakdownWithWeapon(hero, hero.Weapon as WeaponItem).FinalSeconds;
+            TestBase.AssertTrue(Math.Abs(equippedNow - SpeedCalculator.CalculateAttackSpeed(hero)) < 1e-9,
+                "Previewing the equipped weapon equals the live swing",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            double preview = SpeedCalculator.GetBreakdownWithWeapon(hero, fast).FinalSeconds;
+            hero.EquipItem(fast, "weapon");
+            double actual = SpeedCalculator.CalculateAttackSpeed(hero);
+            TestBase.AssertTrue(Math.Abs(preview - actual) < 1e-9,
+                $"Preview {preview:0.###}s equals equipped {actual:0.###}s",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

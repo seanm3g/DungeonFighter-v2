@@ -35,6 +35,8 @@ namespace RPGGame.Tuning
         /// <summary>Where and how the run died (null when it did not die).</summary>
         public PlaythroughDeathContext? Death { get; set; }
         public int UpgradesEquipped { get; set; }
+        /// <summary>Dungeons the bot left early (--retreat-below).</summary>
+        public int DungeonsRetreated { get; set; }
         public int SmartSkillsLearned { get; set; }
         public int SmartSequenceChanges { get; set; }
         public int SmartEvaluations { get; set; }

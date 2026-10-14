@@ -124,6 +124,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
 
             // Full name: prefix / base / suffix segments (same as armor). Rarity stays in [brackets] only.
             displayBuilder.AddRange(ItemDisplayColoredText.FormatFullItemName(item));
+            if (item.ExcludeFromTradeUp)
+                displayBuilder.Add(" [Locked]", Colors.Gray);
 
             var built = displayBuilder.Build();
             return slotBlocked ? RecolorAllSegments(built, Colors.Red) : built;

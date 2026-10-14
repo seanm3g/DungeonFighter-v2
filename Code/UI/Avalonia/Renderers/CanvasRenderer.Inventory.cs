@@ -8,11 +8,11 @@ namespace RPGGame.UI.Avalonia.Renderers
 {
     public partial class CanvasRenderer
     {
-        public void RenderInventory(Character character, List<Item> inventory, CanvasContext context, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0, InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder, bool hideRequirementBlockedItems = false, string? inventoryEquipSlotFilter = null)
+        public void RenderInventory(Character character, List<Item> inventory, CanvasContext context, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0, InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder, bool hideRequirementBlockedItems = false, string? inventoryEquipSlotFilter = null, InventoryDetailViewState? detailView = null, string? inventoryMaterialFilter = null)
         {
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                inventoryRenderer.RenderInventory(contentX, contentY, contentWidth, contentHeight, character, inventory, pendingMutatingInventoryMenuAction, itemScrollOffset, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter);
+                inventoryRenderer.RenderInventory(contentX, contentY, contentWidth, contentHeight, character, inventory, pendingMutatingInventoryMenuAction, itemScrollOffset, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter, detailView, inventoryMaterialFilter);
             }, context, null, null, null, clearCanvas: true, inventoryComboRightPanel: true);
             dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();
@@ -26,7 +26,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             CanvasContext context,
             InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder,
             bool hideRequirementBlockedItems = false,
-            string? inventoryEquipSlotFilter = null)
+            string? inventoryEquipSlotFilter = null,
+            string? inventoryMaterialFilter = null)
         {
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
@@ -41,7 +42,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                     actionType,
                     sortMode,
                     hideRequirementBlockedItems,
-                    inventoryEquipSlotFilter);
+                    inventoryEquipSlotFilter,
+                    inventoryMaterialFilter);
             }, context, null, null, null, inventoryComboRightPanel: true);
             dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();

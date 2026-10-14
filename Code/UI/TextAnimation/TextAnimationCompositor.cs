@@ -51,6 +51,7 @@ namespace RPGGame.UI.TextAnimation
                 {
                     AnimationState = animationState,
                     Phase = phase,
+                    PhaseIsOverride = phaseOverride.HasValue,
                     CharacterIndex = charStartIndex + i,
                     LineOffset = lineOffset,
                     ElementOffset = elementOffset

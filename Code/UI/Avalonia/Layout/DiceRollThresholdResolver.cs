@@ -60,7 +60,6 @@ namespace RPGGame.UI.Avalonia.Layout
         public int TechHitSteps { get; init; }
         public int TechComboSteps { get; init; }
         public int TechCritSteps { get; init; }
-        public int NaiveteHitSteps { get; init; }
         public int EqHit { get; init; }
         public int EqCombo { get; init; }
         public int EqCrit { get; init; }
@@ -125,7 +124,6 @@ namespace RPGGame.UI.Avalonia.Layout
             var techMilestoneSteps = actor is Character chTec
                 ? TechniqueMilestoneThresholdBonuses.GetSteps(chTec.GetEffectiveTechnique())
                 : default;
-            int naiveteHitSteps = 0;
 
             int eqHit = 0, eqCombo = 0, eqCrit = 0;
             int dungeonHit = 0, dungeonCombo = 0, dungeonCrit = 0, dungeonCritMiss = 0;
@@ -142,7 +140,7 @@ namespace RPGGame.UI.Avalonia.Layout
             }
 
             int comboRowShift = pendingHud.SharedAccuracy + pendingHud.ComboDelta + techMilestoneSteps.ComboSteps + eqCombo + dungeonCombo;
-            int hitRowShift = pendingHud.SharedAccuracy + pendingHud.HitDelta + techMilestoneSteps.HitSteps + naiveteHitSteps + eqHit + dungeonHit;
+            int hitRowShift = pendingHud.SharedAccuracy + pendingHud.HitDelta + techMilestoneSteps.HitSteps + eqHit + dungeonHit;
             int critRowShift = pendingHud.CritDelta + techMilestoneSteps.CritSteps + eqCrit + dungeonCrit;
             // Crit-miss potions store the same delta passed to AdjustCriticalMissThreshold (add, not subtract).
             int critMissRowShift = -pendingHud.CritMissDelta - dungeonCritMiss;
@@ -153,7 +151,6 @@ namespace RPGGame.UI.Avalonia.Layout
                 TechHitSteps = techMilestoneSteps.HitSteps,
                 TechComboSteps = techMilestoneSteps.ComboSteps,
                 TechCritSteps = techMilestoneSteps.CritSteps,
-                NaiveteHitSteps = naiveteHitSteps,
                 EqHit = eqHit,
                 EqCombo = eqCombo,
                 EqCrit = eqCrit,

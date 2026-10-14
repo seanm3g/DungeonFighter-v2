@@ -32,6 +32,12 @@ namespace RPGGame.Handlers.Inventory
         }
         
         /// <summary>
+        /// Items trade-up may consume: non-consumables the player has not locked.
+        /// </summary>
+        public static bool IsTradeUpCandidate(Item? item) =>
+            item != null && item.Type != ItemType.Consumable && !item.ExcludeFromTradeUp;
+
+        /// <summary>
         /// Prompts user to select a rarity to trade up
         /// </summary>
         public void PromptTradeUp()
@@ -47,7 +53,7 @@ namespace RPGGame.Handlers.Inventory
             
             // Group items by rarity and find rarities with at least 5 items
             var rarityGroups = stateManager.CurrentInventory
-                .Where(item => item != null && item.Type != ItemType.Consumable)
+                .Where(IsTradeUpCandidate)
                 .GroupBy(item => item.Rarity ?? "Common")
                 .Where(group => group.Count() >= 5)
                 .OrderBy(group => GetRarityOrder(group.Key))
@@ -55,7 +61,7 @@ namespace RPGGame.Handlers.Inventory
             
             if (rarityGroups.Count == 0)
             {
-                ShowMessageEvent?.Invoke("You need at least 5 items of the same rarity to trade up.");
+                ShowMessageEvent?.Invoke("You need at least 5 unlocked items of the same rarity to trade up.");
                 ShowInventoryEvent?.Invoke();
                 return;
             }
@@ -105,7 +111,7 @@ namespace RPGGame.Handlers.Inventory
             
             // Get 5 items of the specified rarity
             var itemsToTrade = stateManager.CurrentInventory
-                .Where(item => item != null && item.Type != ItemType.Consumable)
+                .Where(IsTradeUpCandidate)
                 .Where(item => (item.Rarity ?? "Common").Equals(rarity, StringComparison.OrdinalIgnoreCase))
                 .Take(5)
                 .ToList();
@@ -163,7 +169,7 @@ namespace RPGGame.Handlers.Inventory
             
             // Get 5 items of the specified rarity
             var itemsToTrade = stateManager.CurrentInventory
-                .Where(item => item != null && item.Type != ItemType.Consumable)
+                .Where(IsTradeUpCandidate)
                 .Where(item => (item.Rarity ?? "Common").Equals(rarity, StringComparison.OrdinalIgnoreCase))
                 .Take(5)
                 .ToList();

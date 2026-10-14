@@ -49,7 +49,6 @@ namespace RPGGame.UI.Avalonia.Layout
                     AppendShiftLine(lines, parts.Pending.SharedAccuracy, "Queued accuracy");
                     AppendShiftLine(lines, parts.Pending.HitDelta, "Queued HIT");
                     AppendShiftLine(lines, parts.TechHitSteps, "TECH milestones");
-                    AppendShiftLine(lines, parts.NaiveteHitSteps, "Naiveté");
                     AppendShiftLine(lines, parts.EqHit, "Gear HIT");
                     AppendShiftLine(lines, parts.DungeonHit, "Dungeon buff (hit)");
                     AppendFloorNoteIfNeeded(lines, snapshot.EffectiveHit, snapshot.Hit + 1, parts.HitRowShift);

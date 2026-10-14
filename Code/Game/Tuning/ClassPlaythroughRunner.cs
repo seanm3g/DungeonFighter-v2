@@ -19,6 +19,52 @@ namespace RPGGame.Tuning
         /// <summary>When &gt; 0, a run stops successfully once the hero reaches this level.</summary>
         public static int StopAtLevel { get; set; }
 
+        /// <summary>
+        /// When &gt; 0, the bot leaves a dungeon between rooms once HP is below this % of max (leaving fully heals;
+        /// the dungeon counts as not cleared). 0 = never leave.
+        /// </summary>
+        public static int RetreatBelowHpPercent { get; set; }
+
+        /// <summary>
+        /// When &gt; 1, the hero is raised to this level at the first hub screen (normal level-up rules, no banners) and
+        /// handed the loot a player would have collected on the way (<see cref="StartLootLevels"/> levels of
+        /// <see cref="StartLootPerLevel"/> drops). Lets survival / clear rate be measured from mid-game without playing from L1.
+        /// </summary>
+        public static int StartAtLevel { get; set; }
+
+        /// <summary>When true, XP is reset at every dungeon entry so the hero stays at its level (DUNGEONSIM).</summary>
+        public static bool HoldLevel { get; set; }
+
+        /// <summary>When &gt; 0, a run stops successfully after this many dungeons (DUNGEONSIM).</summary>
+        public static int MaxDungeons { get; set; }
+
+        public static int StartLootLevels { get; set; } = 8;
+        /// <summary>
+        /// Drops per level in the starting bag; 0 = by level, max(4, level / 2). Calibrated against heroes who played up
+        /// from L1 (2026-10-12: 4 matches L10, 8 matches L15; unverified above L15).
+        /// </summary>
+        public static int StartLootPerLevel { get; set; }
+
+        public static int ResolveStartLootPerLevel(int level) =>
+            StartLootPerLevel > 0 ? StartLootPerLevel : Math.Max(4, (int)Math.Round(level / 2.0));
+
+        /// <summary>Raises the hero to <see cref="StartAtLevel"/> and fills the bag with drops from the levels just below it.</summary>
+        private static void ApplyStartLevel(Character hero)
+        {
+            if (hero.Level < StartAtLevel)
+                hero.ApplyActionLabLevelDelta(StartAtLevel - hero.Level);
+            for (int lvl = Math.Max(1, StartAtLevel - StartLootLevels); lvl < StartAtLevel; lvl++)
+            {
+                for (int n = 0; n < ResolveStartLootPerLevel(StartAtLevel); n++)
+                {
+                    var item = LootGenerator.GenerateLoot(lvl, lvl, null, guaranteedLoot: true);
+                    if (item != null)
+                        hero.AddToInventory(item);
+                }
+            }
+            hero.CurrentHealth = hero.GetEffectiveMaxHealth();
+        }
+
         public static async Task<PlaythroughRunResult> RunAsync(
             WeaponType weaponType,
             int weaponMenuSlot,
@@ -38,6 +84,20 @@ namespace RPGGame.Tuning
             var smart = SmartPolicy ? new PlaythroughSmartPolicy(trace) : null;
             try
             {
+                if (RetreatBelowHpPercent > 0)
+                {
+                    DungeonExitChoiceHandler.HeadlessExitPolicy = hero =>
+                    {
+                        bool leave = hero != null && hero.CurrentHealth * 100 < RetreatBelowHpPercent * hero.GetEffectiveMaxHealth();
+                        if (leave)
+                        {
+                            result.DungeonsRetreated++;
+                            recorder.MarkRetreat();
+                            trace?.Invoke($"    retreat at {hero!.CurrentHealth}/{hero.GetEffectiveMaxHealth()} HP");
+                        }
+                        return leave;
+                    };
+                }
                 session = new GamePlaySession();
                 await session.Initialize();
                 await session.StartNewGame();
@@ -50,6 +110,7 @@ namespace RPGGame.Tuning
                 string lastEnemyKey = "";
                 string lastDungeonKey = "";
                 string lastGearState = "";
+                bool startLevelApplied = StartAtLevel <= 1;
 
                 for (int i = 0; i < maxActionsPerRun; i++)
                 {
@@ -57,6 +118,13 @@ namespace RPGGame.Tuning
                     var current = state?.CurrentState ?? "";
                     if (current == "Death" || session.IsGameOver())
                         break;
+
+                    if (MaxDungeons > 0 && dungeonsAttempted >= MaxDungeons
+                        && current is "GameLoop" or "DungeonSelection" or "DungeonCompletion")
+                    {
+                        result.StopReason = PlaythroughStopReason.ReachedLevel;
+                        break;
+                    }
 
                     int levelAtAction = state?.Player?.Level ?? 1;
                     if (StopAtLevel > 0 && levelAtAction >= StopAtLevel)
@@ -73,6 +141,14 @@ namespace RPGGame.Tuning
                         if (key != lastTraceKey)
                             trace(line);
                         lastTraceKey = key;
+                    }
+
+                    if (!startLevelApplied && (current == "GameLoop" || current == "DungeonSelection")
+                        && session.Player is { } startHero && startHero.Weapon != null)
+                    {
+                        ApplyStartLevel(startHero);
+                        startLevelApplied = true;
+                        trace?.Invoke($"    start level L{startHero.Level}: bag {startHero.Inventory.Count} items");
                     }
 
                     // Between dungeons the bot goes Completion -> Selection without visiting the hub, so check gear on all three screens.
@@ -96,6 +172,8 @@ namespace RPGGame.Tuning
                     bool enteringDungeon = ClassPlaythroughPolicy.IsDungeonEntry(current, action);
                     if (enteringDungeon)
                     {
+                        if (HoldLevel && session.Player is { } heldHero)
+                            heldHero.XP = 0;
                         dungeonsAttempted++;
                         recorder.BeginDungeon();
                         death.HpAtDungeonEntry = state?.Player?.CurrentHealth ?? 0;
@@ -167,6 +245,7 @@ namespace RPGGame.Tuning
             }
             finally
             {
+                DungeonExitChoiceHandler.HeadlessExitPolicy = null;
                 session?.Dispose();
             }
 

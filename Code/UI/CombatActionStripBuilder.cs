@@ -106,7 +106,7 @@ namespace RPGGame
             if (character.Weapon is WeaponItem classWeapon)
                 total *= ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType);
 
-            int result = (int)total + MaterialSetController.GetConvertDamageBonus(character, action);
+            int result = (int)total + MaterialSetController.GetConvertDamageBonus(character, action, Math.Max(1, (int)total));
             int maxCap = Math.Max(1, GameConfiguration.Instance.Combat.MaximumDamageCap);
             if (result > maxCap)
                 result = maxCap;

@@ -206,7 +206,7 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual("Crit", rows[0].Label, "chance row 1 label", ref run, ref passed, ref failed);
             TestBase.AssertEqual(5, rows[0].Percent, "chance row 1 percent", ref run, ref passed, ref failed);
             TestBase.AssertEqual("Combo", rows[1].Label, "chance row 2 label", ref run, ref passed, ref failed);
-            TestBase.AssertEqual(30, rows[1].Percent, "chance row 2 percent", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(35, rows[1].Percent, "chance row 2 percent includes crit (crit always combos)", ref run, ref passed, ref failed);
             TestBase.AssertEqual("Hit", rows[2].Label, "chance row 3 label", ref run, ref passed, ref failed);
             TestBase.AssertEqual(40, rows[2].Percent, "chance row 3 percent", ref run, ref passed, ref failed);
             TestBase.AssertEqual("Miss", rows[3].Label, "chance row 4 label", ref run, ref passed, ref failed);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Avalonia.Media;
 using RPGGame.Actions.Conditional;
@@ -169,7 +170,12 @@ namespace RPGGame
             TryMintFromEvent(hero, evt, action: null, messages);
         }
 
-        public static bool TryMintFromEvent(Character? hero, CombatEvent? combatEvent, Action? action = null, List<string>? messages = null)
+        /// <param name="gainedFocus">The hero gained Focus from any source in this resolution (feeds ON_FOCUS).</param>
+        /// <param name="appliedSlow">The hero slowed the target from any source in this resolution (feeds ON_SLOW).</param>
+        /// <param name="takeHitOnly">The event is a foe's hit on the hero: only take-hit WHENs (Bone RAGE) may mint. Without
+        /// this, a foe's connect also matched the hero's ON CONNECT / ON HIT / ON ATTACK sets.</param>
+        public static bool TryMintFromEvent(Character? hero, CombatEvent? combatEvent, Action? action = null, List<string>? messages = null,
+            bool gainedFocus = false, bool appliedSlow = false, bool takeHitOnly = false)
         {
             if (hero == null || hero is Enemy || combatEvent == null)
                 return false;
@@ -183,7 +189,9 @@ namespace RPGGame
                     continue;
                 if (string.IsNullOrWhiteSpace(build.WhenToken) || string.IsNullOrWhiteSpace(build.Keyword))
                     continue;
-                if (!WhenMatches(build.WhenToken, subject, combatEvent, hero))
+                if (takeHitOnly != IsTakeHitToken(build.WhenToken))
+                    continue;
+                if (!WhenMatches(build.WhenToken, subject, combatEvent, hero, gainedFocus, appliedSlow))
                     continue;
 
                 int feedCount = CountEquipped(hero, build.FeedMaterial);
@@ -239,41 +247,138 @@ namespace RPGGame
         /// Flat convert damage from the keyword bank. Feed 3/5 only changes how much currency is minted,
         /// not this payoff: 2 RAGE → +10. Formula <c>material</c>/<c>count</c> uses equipped count instead of bank.
         /// </summary>
-        public static int GetConvertDamageBonus(Character? hero, Action? action)
+        public static int GetConvertDamageBonus(Character? hero, Action? action) => GetConvertDamageBonus(hero, action, 0);
+
+        /// <summary>Converts pay a percent of the hit (<see cref="CombatConfig.MaterialConvertPercentPerUnit"/> &gt; 0).</summary>
+        public static bool IsPercentConvertMode => (GameConfiguration.Instance.Combat?.MaterialConvertPercentPerUnit ?? 0) > 0;
+
+        /// <param name="hitDamage">The hit before the convert (percent mode pays a share of it; 0 = card preview, which
+        /// shows the percent as damage on a 100-point hit).</param>
+        public static int GetConvertDamageBonus(Character? hero, Action? action, int hitDamage)
         {
             if (hero == null || action == null)
                 return 0;
 
             MaterialBuildData? build = MaterialBuildsLoader.FindByConvertAction(action.Name);
-            string materialOverride = action.MaterialScale ?? "";
-            string keywordOverride = action.KeywordScale ?? "";
+            int bonus = ComputeConvertDamageBonus(hero, action, build, hitDamage);
+            if (bonus > 0 || build == null || string.IsNullOrWhiteSpace(build.Keyword))
+                return bonus;
 
-            if (build == null && string.IsNullOrWhiteSpace(materialOverride) && string.IsNullOrWhiteSpace(keywordOverride))
+            // Sheet columns on a pool copy can point at the wrong material or an empty bank
+            // (materialScale "5" used to be read as a material name). The set's own keyword is
+            // what the card and the hit should scale with once that currency is actually stocked.
+            if (CountEquipped(hero, build.Material) < MaterialBuildData.StackUnlockCount)
+                return 0;
+            if (GetKeyword(hero, build.Keyword) <= 0)
                 return 0;
 
-            string material = !string.IsNullOrWhiteSpace(materialOverride)
-                ? MaterialBuildData.CanonicalMaterialName(materialOverride)
-                : (build?.Material ?? "");
-            string keyword = !string.IsNullOrWhiteSpace(keywordOverride)
-                ? keywordOverride.Trim().ToUpperInvariant()
-                : (build?.Keyword ?? "");
+            var fromBuild = new Action { Name = action.Name };
+            return ComputeConvertDamageBonus(hero, fromBuild, build, hitDamage);
+        }
+
+        private static int ComputeConvertDamageBonus(Character hero, Action action, MaterialBuildData? build, int hitDamage)
+        {
+            if (!TryResolveConvertScale(action, build, out string material, out string keyword, out int perUnit, out bool useCount))
+                return 0;
 
             int unlock = CountEquipped(hero, material);
+            if (unlock < MaterialBuildData.StackUnlockCount && build != null
+                && !string.Equals(material, build.Material, StringComparison.OrdinalIgnoreCase))
+            {
+                int buildUnlock = CountEquipped(hero, build.Material);
+                if (buildUnlock >= MaterialBuildData.StackUnlockCount)
+                {
+                    material = build.Material;
+                    unlock = buildUnlock;
+                    if (!useCount && GetKeyword(hero, keyword) <= 0 && GetKeyword(hero, build.Keyword) > 0)
+                        keyword = build.Keyword;
+                }
+            }
+
             if (unlock < MaterialBuildData.StackUnlockCount && build != null)
                 return 0;
 
-            int bank = GetKeyword(hero, keyword);
-            int units = Math.Max(0, bank);
-
-            string formula = (action.ScaleFormula ?? "").Trim();
-            if (formula.Equals("material", StringComparison.OrdinalIgnoreCase)
-                || formula.Equals("count", StringComparison.OrdinalIgnoreCase))
-                units = Math.Max(0, unlock);
+            int units = useCount ? Math.Max(0, unlock) : Math.Max(0, GetKeyword(hero, keyword));
+            if (units <= 0 && !useCount && build != null && GetKeyword(hero, build.Keyword) > 0
+                && !string.Equals(keyword, build.Keyword, StringComparison.OrdinalIgnoreCase))
+            {
+                keyword = build.Keyword;
+                units = GetKeyword(hero, keyword);
+            }
 
             if (units <= 0)
                 return 0;
-            int flat = units * MaterialBuildData.ConvertDamagePerKeyword;
+            var combat = GameConfiguration.Instance.Combat;
+            if (combat != null && combat.MaterialConvertMaxUnits > 0)
+                units = Math.Min(units, combat.MaterialConvertMaxUnits);
+            if (combat != null && combat.MaterialConvertPercentPerUnit > 0)
+            {
+                double perUnitPct = !useCount && combat.MaterialConvertPercentByKeyword != null
+                    && combat.MaterialConvertPercentByKeyword.TryGetValue(keyword, out double byKeyword)
+                    ? byKeyword
+                    : perUnit * combat.MaterialConvertPercentPerUnit;
+                double pct = units * perUnitPct / 100.0;
+                double basis = hitDamage > 0 ? hitDamage : 100;
+                return Math.Max(0, (int)Math.Round(basis * pct * CharmBonusController.GetConvertMultiplier(hero)));
+            }
+            int flat = units * perUnit;
             return Math.Max(0, (int)Math.Round(flat * CharmBonusController.GetConvertMultiplier(hero)));
+        }
+
+        /// <summary>
+        /// Convert cash-out: a connecting convert action spends the whole bank it scaled from, so each payout is
+        /// what was minted since the last cash-out. Count-formula converts read equipped pieces and spend nothing.
+        /// </summary>
+        public static int SpendConvertBank(Character? hero, Action? action)
+        {
+            if (hero == null || hero is Enemy || action == null)
+                return 0;
+            MaterialBuildData? build = MaterialBuildsLoader.FindByConvertAction(action.Name);
+            if (!TryResolveConvertScale(action, build, out _, out string keyword, out _, out bool useCount)
+                || useCount || string.IsNullOrWhiteSpace(keyword))
+                return 0;
+            int bank = GetKeyword(hero, keyword);
+            if (bank > 0)
+                hero.Effects.AddMaterialKeyword(keyword, -bank);
+            return bank;
+        }
+
+        /// <summary>
+        /// Reads an action's convert-scale columns. Sheet layout (ACTIONS DS/DT/DU): <c>materialScale</c> = bonus per
+        /// keyword (number), <c>keywordScale</c> = effect (<c>DAMAGE</c>), <c>scaleFormula</c> = keyword or
+        /// <c>material</c>/<c>count</c>. Legacy layout (material name / keyword / formula) still resolves.
+        /// Unset columns fall back to the MATERIAL BUILDS row.
+        /// </summary>
+        private static bool TryResolveConvertScale(Action action, MaterialBuildData? build,
+            out string material, out string keyword, out int perUnit, out bool useCount)
+        {
+            material = build?.Material ?? "";
+            keyword = build?.Keyword ?? "";
+            perUnit = MaterialBuildData.ConvertDamagePerKeyword;
+            useCount = false;
+
+            string materialScale = (action.MaterialScale ?? "").Trim();
+            string keywordScale = (action.KeywordScale ?? "").Trim();
+            string formula = (action.ScaleFormula ?? "").Trim();
+            if (build == null && materialScale.Length == 0 && keywordScale.Length == 0)
+                return false;
+
+            if (int.TryParse(materialScale, NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsedPerUnit))
+                perUnit = Math.Max(0, parsedPerUnit);
+            else if (materialScale.Length > 0)
+                material = MaterialBuildData.CanonicalMaterialName(materialScale);
+
+            if (keywordScale.Length > 0 && !keywordScale.Equals("DAMAGE", StringComparison.OrdinalIgnoreCase))
+                keyword = keywordScale.ToUpperInvariant();
+
+            if (formula.Equals("material", StringComparison.OrdinalIgnoreCase)
+                || formula.Equals("count", StringComparison.OrdinalIgnoreCase))
+                useCount = true;
+            else if (formula.Length > 0
+                && !formula.Equals("keyword", StringComparison.OrdinalIgnoreCase)
+                && !formula.Equals("bank", StringComparison.OrdinalIgnoreCase))
+                keyword = formula.ToUpperInvariant();
+            return true;
         }
 
         /// <summary>
@@ -288,18 +393,23 @@ namespace RPGGame
                 return null;
 
             MaterialBuildData? build = MaterialBuildsLoader.FindByConvertAction(action.Name);
-            string keyword = !string.IsNullOrWhiteSpace(action.KeywordScale)
-                ? action.KeywordScale.Trim().ToUpperInvariant()
-                : (build?.Keyword ?? "");
-            string material = !string.IsNullOrWhiteSpace(action.MaterialScale)
-                ? MaterialBuildData.CanonicalMaterialName(action.MaterialScale)
-                : (build?.Material ?? "");
+            TryResolveConvertScale(action, build, out string material, out string keyword, out _, out bool useCount);
+            if (build != null && !useCount && GetKeyword(hero, keyword) <= 0 && GetKeyword(hero, build.Keyword) > 0)
+                keyword = build.Keyword;
+            if (build != null && CountEquipped(hero, material) < MaterialBuildData.StackUnlockCount
+                && CountEquipped(hero, build.Material) >= MaterialBuildData.StackUnlockCount)
+                material = build.Material;
 
-            if (!string.IsNullOrWhiteSpace(keyword))
-                return $"{keyword} +{bonus}";
+            string unit = IsPercentConvertMode ? "%" : "";
+            int stacks = !useCount && !string.IsNullOrWhiteSpace(keyword)
+                ? GetKeyword(hero, keyword)
+                : CountEquipped(hero, material);
+            string stack = stacks > 0 ? $" x{stacks}" : "";
+            if (!useCount && !string.IsNullOrWhiteSpace(keyword))
+                return $"{keyword}{stack} +{bonus}{unit}";
             if (!string.IsNullOrWhiteSpace(material))
-                return $"{material} +{bonus}";
-            return $"Convert +{bonus}";
+                return $"{material}{stack} +{bonus}{unit}";
+            return $"Convert{stack} +{bonus}{unit}";
         }
 
         /// <summary>
@@ -390,7 +500,11 @@ namespace RPGGame
                 yield return $"{build.Keyword}: {GetKeyword(hero, build.Keyword)}";
         }
 
-        private static bool WhenMatches(string whenToken, Action action, CombatEvent combatEvent, Character hero)
+        private static bool IsTakeHitToken(string whenToken) =>
+            ActionTriggerGate.NormalizeToken(whenToken) is "ONTAKEHIT" or "ONHEROHURT" or "ONRECEIVEHIT";
+
+        private static bool WhenMatches(string whenToken, Action action, CombatEvent combatEvent, Character hero,
+            bool gainedFocus = false, bool appliedSlow = false)
         {
             string token = ActionTriggerGate.NormalizeToken(whenToken);
             if (token == "ONTURN")
@@ -407,11 +521,11 @@ namespace RPGGame
             if (token == "ONSLOW")
                 return !combatEvent.IsMiss
                     && combatEvent.Type == CombatEventType.ActionHit
-                    && action.CausesSlow;
+                    && (action.CausesSlow || appliedSlow);
             if (token == "ONFOCUS")
                 return !combatEvent.IsMiss
                     && combatEvent.Type == CombatEventType.ActionHit
-                    && action.CausesFocus;
+                    && (action.CausesFocus || gainedFocus);
 
             return ActionTriggerGate.MatchesConditionToken(whenToken, action, combatEvent);
         }

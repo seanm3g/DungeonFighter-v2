@@ -10,6 +10,8 @@ namespace RPGGame.UI.TextAnimation
     {
         public BaseAnimationState? AnimationState { get; init; }
         public double Phase { get; init; }
+        /// <summary>True when the caller pinned <see cref="Phase"/> (previews, tests): per-layer clocks must not override it.</summary>
+        public bool PhaseIsOverride { get; init; }
         public int CharacterIndex { get; init; }
         public int LineOffset { get; init; }
         public int ElementOffset { get; init; }
@@ -65,7 +67,7 @@ namespace RPGGame.UI.TextAnimation
         /// </summary>
         private static double ResolveSineWavePhase(TextAnimationMaskConfig mask, TextAnimationContext context)
         {
-            if (mask.PhaseDivisorMs > 0)
+            if (mask.PhaseDivisorMs > 0 && !context.PhaseIsOverride)
                 return GetCurrentPhase(mask.PhaseDivisorMs);
             return context.Phase;
         }

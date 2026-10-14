@@ -135,7 +135,7 @@ namespace RPGGame.Tests.Unit.Data
             reserved.IsComboAction = false;
             reserved.Tags = new System.Collections.Generic.List<string> { ActionTagSyncHelper.ReservePoolTag };
 
-            hero.AddAction(reserved, 100.0);
+            hero.AddAction(reserved, 1.0); // weights are probabilities (0-1)
             hero.AddAction(basic, 0.0001);
 
             bool alwaysBasic = true;

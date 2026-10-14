@@ -33,6 +33,32 @@ namespace RPGGame.Combat.Formatting
         }
 
         /// <summary>
+        /// Indented action-block follow-up when a room structure tag changed the die.
+        /// Null when the shift is zero or clamped away. Example: <c>     (dilapidated: -1)</c>.
+        /// </summary>
+        public static List<ColoredText>? FormatStructureRollLine(string? label, int appliedDelta)
+        {
+            if (appliedDelta == 0 || string.IsNullOrWhiteSpace(label))
+                return null;
+
+            var builder = new ColoredTextBuilder();
+            builder.Add("     (", Colors.Gray);
+            builder.Add(label, ColorPalette.Info);
+            builder.Add(": ", Colors.White);
+            if (appliedDelta > 0)
+            {
+                builder.Add("+", ColorPalette.Success);
+                builder.Add(appliedDelta.ToString(), ColorPalette.Success);
+            }
+            else
+            {
+                builder.Add(appliedDelta.ToString(), ColorPalette.Error);
+            }
+            builder.Add(")", Colors.Gray);
+            return builder.Build();
+        }
+
+        /// <summary>
         /// Appends the d20 (or 2d20 luck/unluck) segment after the <c>roll:</c> label.
         /// </summary>
         public static void AppendRollValue(ColoredTextBuilder builder, int roll, MultiDiceRollDetail detail = default)

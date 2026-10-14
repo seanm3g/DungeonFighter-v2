@@ -59,7 +59,7 @@ namespace RPGGame.Tuning.Profiles
 
         public static readonly Dictionary<string, string> WeaponBasics = new(StringComparer.OrdinalIgnoreCase)
         {
-            ["Mace"] = "SLAM", ["Sword"] = "STRIKE", ["Dagger"] = "STAB", ["Wand"] = "MAGIC MISSLE"
+            ["Mace"] = "SLAM", ["Sword"] = "STRIKE", ["Dagger"] = "STAB", ["Wand"] = "MAGIC MISSILE"
         };
 
         public static async Task<SequenceResult> RunSequenceAsync(

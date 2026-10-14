@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using RPGGame.Combat.Calculators;
 using RPGGame.Data;
+using RPGGame.Items;
 
 namespace RPGGame.UI.Avalonia.Renderers.Helpers
 {
@@ -38,7 +40,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
     /// </summary>
     public static class ItemStatContributionCollector
     {
-        public static List<ItemStatContribution> Collect(Item item)
+        /// <param name="wielder">When set, a weapon's speed line is that character's attack time with it, in seconds.</param>
+        public static List<ItemStatContribution> Collect(Item item, Character? wielder = null)
         {
             var list = new List<ItemStatContribution>();
             if (item == null)
@@ -56,7 +59,15 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             if (item is WeaponItem weapon)
             {
                 list.Add(new ItemStatContribution("Damage", weapon.GetTotalDamage().ToString(CultureInfo.InvariantCulture)));
-                list.Add(new ItemStatContribution("Attack speed", $"{weapon.GetTotalAttackSpeed().ToString("F2", CultureInfo.InvariantCulture)}×"));
+                if (wielder != null)
+                {
+                    double seconds = SpeedCalculator.GetBreakdownWithWeapon(wielder, weapon).FinalSeconds;
+                    list.Add(new ItemStatContribution("Attack time", $"{seconds.ToString("F2", CultureInfo.InvariantCulture)}s"));
+                }
+                else
+                    list.Add(new ItemStatContribution("Attack speed", $"{weapon.GetTotalAttackSpeed().ToString("F2", CultureInfo.InvariantCulture)}×"));
+                if (weapon.BonusAttackSpeed != 0)
+                    list.Add(new ItemStatContribution("Weapon speed", $"{weapon.BonusAttackSpeed:+0;-0}"));
             }
             else
             {
@@ -81,7 +92,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             AddCatalogAttribute(list, item, item.BaseCrit, "Crit threshold");
 
             if (Math.Abs(item.CatalogAttackSpeed) > 1e-9)
-                list.Add(new ItemStatContribution("Attack speed", $"+{item.CatalogAttackSpeed:F3}"));
+                list.Add(new ItemStatContribution("Weapon speed", $"{item.CatalogAttackSpeed:+0.##;-0.##}"));
 
             int actionSlots = ItemStatFormatter.GetActionSlotDisplayTotalPublic(item);
             if (item is FeetItem || actionSlots > 0)
@@ -266,7 +277,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 string.Equals(n, "COMBO", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n, "CRIT", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n, "ACCURACY", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(n, "RollBonus", StringComparison.OrdinalIgnoreCase))
+                string.Equals(n, "RollBonus", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(n, "AttackSpeed", StringComparison.OrdinalIgnoreCase))
                 return true;
             string noSpace = n.Replace(" ", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
             return string.Equals(noSpace, "CRITMISS", StringComparison.OrdinalIgnoreCase);
@@ -307,7 +319,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 "HEALTHREGEN" => "Health regen",
                 "MAGICFIND" => "Magic find",
                 "DAMAGE" or "BASEDAMAGE" or "WEAPONDAMAGE" => "Damage",
-                "ATTACKSPEED" or "SPEED" => "Attack speed",
+                "ATTACKSPEED" or "SPEED" => "Weapon speed",
                 "EXTRAACTIONSLOTS" => "Action slots",
                 "ROLLBONUS" => "Roll bonus",
                 "ACCURACY" => "Accuracy",

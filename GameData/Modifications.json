@@ -261,8 +261,8 @@
       "agility": 2
     },
     "DiceResult": 0,
-    "MinValue": 0,
-    "MaxValue": 0,
+    "MinValue": 0.25,
+    "MaxValue": 0.25,
     "RolledValue": 0
   },
   {

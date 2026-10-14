@@ -68,6 +68,7 @@ namespace RPGGame.Combat.Events
                 var handlersCopy = handlers.ToList();
                 foreach (var handler in handlersCopy)
                 {
+                    long prof = RPGGame.Diagnostics.ToolProfiler.Start();
                     try
                     {
                         handler(evt);
@@ -76,9 +77,18 @@ namespace RPGGame.Combat.Events
                     {
                         // Log error but don't stop other handlers
                     }
+                    finally
+                    {
+                        if (prof != 0)
+                            RPGGame.Diagnostics.ToolProfiler.Stop($"Bus.{evt.Type}.{handler.Method.DeclaringType?.Name}.{handler.Method.Name}", prof);
+                    }
                 }
             }
         }
+
+        /// <summary>True when <paramref name="handler"/> is subscribed to <paramref name="eventType"/>.</summary>
+        public bool HasSubscriber(CombatEventType eventType, Action<CombatEvent> handler) =>
+            _subscribers.TryGetValue(eventType, out var handlers) && handlers.Contains(handler);
 
         /// <summary>
         /// Clears all subscribers (useful for testing or resetting state)
@@ -86,7 +96,14 @@ namespace RPGGame.Combat.Events
         public void Clear()
         {
             _subscribers.Clear();
+            Cleared?.Invoke();
         }
+
+        /// <summary>
+        /// Raised after <see cref="Clear"/>. New games clear the bus; long-lived listeners (audio cues, skill router)
+        /// re-subscribe here instead of going silent for the rest of the session.
+        /// </summary>
+        public event System.Action? Cleared;
 
         /// <summary>
         /// Resets the singleton instance (useful for testing)

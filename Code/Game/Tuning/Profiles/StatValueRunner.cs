@@ -19,7 +19,7 @@ namespace RPGGame.Tuning.Profiles
         public static readonly (string Stat, double Amount)[] DefaultStats =
         {
             ("Damage", 3), ("STR", 10), ("AGI", 10), ("TEC", 10), ("INT", 10), ("HIT", 2), ("COMBO", 2), ("CRIT", 2),
-            ("Armor", 5), ("Health", 30), ("AttackSpeed", 10), ("HealthRegen", 5),
+            ("Armor", 5), ("Health", 30), ("AttackSpeed", 1), ("HealthRegen", 5),
         };
 
         public static async Task<int> RunAsync(string[] args)

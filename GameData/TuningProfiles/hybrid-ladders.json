@@ -1,0 +1,424 @@
+{
+  "builds": [
+    {
+      "id": "HWB",
+      "name": "wb",
+      "weapon": "Mace",
+      "secondWeapon": "Sword",
+      "levels": [
+        30,
+        60,
+        90
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip (both parents)",
+          "strip": [
+            "SLAM",
+            "TAUNT",
+            "RAPID STRIKE"
+          ]
+        },
+        {
+          "label": "tag set Steel3+Bronze2",
+          "materials": {
+            "Steel": 3,
+            "Bronze": 2
+          }
+        },
+        {
+          "label": "+hybrid root/attr/material",
+          "skills": {
+            "wb-root": 1,
+            "wb-attr": 1,
+            "wb-material": 1
+          }
+        },
+        {
+          "label": "+BODY BLOW (rank 3)",
+          "skills": {
+            "wb-act-attr": 3
+          },
+          "strip": [
+            "SLAM",
+            "TAUNT",
+            "BODY BLOW",
+            "RAPID STRIKE"
+          ]
+        },
+        {
+          "label": "+attr accumulation",
+          "skills": {
+            "wb-acc-attr": 3
+          }
+        },
+        {
+          "label": "+WARBRUTE SMASH (rank 3) +tag accumulation",
+          "skills": {
+            "wb-act-tag": 3,
+            "wb-acc-tag": 3
+          },
+          "strip": [
+            "SLAM",
+            "BODY BLOW",
+            "WARBRUTE SMASH",
+            "RAPID STRIKE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "HRV",
+      "name": "rv",
+      "weapon": "Mace",
+      "secondWeapon": "Dagger",
+      "levels": [
+        30,
+        60,
+        90
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip (both parents)",
+          "strip": [
+            "SLAM",
+            "BLUDGEON",
+            "CUT"
+          ]
+        },
+        {
+          "label": "tag set Shadow3+Iron2",
+          "materials": {
+            "Shadow": 3,
+            "Iron": 2
+          }
+        },
+        {
+          "label": "+hybrid root/attr/material",
+          "skills": {
+            "rv-root": 1,
+            "rv-attr": 1,
+            "rv-material": 1
+          }
+        },
+        {
+          "label": "+PROWESS RUSH (rank 3)",
+          "skills": {
+            "rv-act-attr": 3
+          },
+          "strip": [
+            "SLAM",
+            "BLUDGEON",
+            "PROWESS RUSH",
+            "CUT"
+          ]
+        },
+        {
+          "label": "+attr accumulation",
+          "skills": {
+            "rv-acc-attr": 3
+          }
+        },
+        {
+          "label": "+RAVAGER FLURRY (rank 3) +tag accumulation",
+          "skills": {
+            "rv-act-tag": 3,
+            "rv-acc-tag": 3
+          },
+          "strip": [
+            "SLAM",
+            "PROWESS RUSH",
+            "RAVAGER FLURRY",
+            "CUT"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "HRC",
+      "name": "rc",
+      "weapon": "Mace",
+      "secondWeapon": "Wand",
+      "levels": [
+        30,
+        60,
+        90
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip (both parents)",
+          "strip": [
+            "SLAM",
+            "HARDEN",
+            "BOLT"
+          ]
+        },
+        {
+          "label": "tag set Crystal3+Bone2",
+          "materials": {
+            "Crystal": 3,
+            "Bone": 2
+          }
+        },
+        {
+          "label": "+hybrid root/attr/material",
+          "skills": {
+            "rc-root": 1,
+            "rc-attr": 1,
+            "rc-material": 1
+          }
+        },
+        {
+          "label": "+WILLFIRE (rank 3)",
+          "skills": {
+            "rc-act-attr": 3
+          },
+          "strip": [
+            "SLAM",
+            "HARDEN",
+            "WILLFIRE",
+            "BOLT"
+          ]
+        },
+        {
+          "label": "+attr accumulation",
+          "skills": {
+            "rc-acc-attr": 3
+          }
+        },
+        {
+          "label": "+RAGECALLER HOWL (rank 3) +tag accumulation",
+          "skills": {
+            "rc-act-tag": 3,
+            "rc-acc-tag": 3
+          },
+          "strip": [
+            "SLAM",
+            "WILLFIRE",
+            "RAGECALLER HOWL",
+            "BOLT"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "HDU",
+      "name": "du",
+      "weapon": "Sword",
+      "secondWeapon": "Dagger",
+      "levels": [
+        30,
+        60,
+        90
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip (both parents)",
+          "strip": [
+            "STRIKE",
+            "MEASURED CUT",
+            "CUT"
+          ]
+        },
+        {
+          "label": "tag set Glass3+Mithril2",
+          "materials": {
+            "Glass": 3,
+            "Mithril": 2
+          }
+        },
+        {
+          "label": "+hybrid root/attr/material",
+          "skills": {
+            "du-root": 1,
+            "du-attr": 1,
+            "du-material": 1
+          }
+        },
+        {
+          "label": "+FINESSE THRUST (rank 3)",
+          "skills": {
+            "du-act-attr": 3
+          },
+          "strip": [
+            "STRIKE",
+            "MEASURED CUT",
+            "FINESSE THRUST",
+            "CUT"
+          ]
+        },
+        {
+          "label": "+attr accumulation",
+          "skills": {
+            "du-acc-attr": 3
+          }
+        },
+        {
+          "label": "+DUELIST FEINT (rank 3) +tag accumulation",
+          "skills": {
+            "du-act-tag": 3,
+            "du-acc-tag": 3
+          },
+          "strip": [
+            "STRIKE",
+            "FINESSE THRUST",
+            "DUELIST FEINT",
+            "CUT"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "HSB",
+      "name": "sb",
+      "weapon": "Sword",
+      "secondWeapon": "Wand",
+      "levels": [
+        30,
+        60,
+        90
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip (both parents)",
+          "strip": [
+            "STRIKE",
+            "RAPID STRIKE",
+            "BOLT"
+          ]
+        },
+        {
+          "label": "tag set Willow3+Bronze2",
+          "materials": {
+            "Willow": 3,
+            "Bronze": 2
+          }
+        },
+        {
+          "label": "+hybrid root/attr/material",
+          "skills": {
+            "sb-root": 1,
+            "sb-attr": 1,
+            "sb-material": 1
+          }
+        },
+        {
+          "label": "+WITS ARC (rank 3)",
+          "skills": {
+            "sb-act-attr": 3
+          },
+          "strip": [
+            "STRIKE",
+            "RAPID STRIKE",
+            "WITS ARC",
+            "BOLT"
+          ]
+        },
+        {
+          "label": "+attr accumulation",
+          "skills": {
+            "sb-acc-attr": 3
+          }
+        },
+        {
+          "label": "+SPELLBLADE WEAVE (rank 3) +tag accumulation",
+          "skills": {
+            "sb-act-tag": 3,
+            "sb-acc-tag": 3
+          },
+          "strip": [
+            "STRIKE",
+            "WITS ARC",
+            "SPELLBLADE WEAVE",
+            "BOLT"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "HHX",
+      "name": "hx",
+      "weapon": "Dagger",
+      "secondWeapon": "Wand",
+      "levels": [
+        30,
+        60,
+        90
+      ],
+      "steps": [
+        {
+          "label": "default strip"
+        },
+        {
+          "label": "class strip (both parents)",
+          "strip": [
+            "STAB",
+            "CUT",
+            "BOLT"
+          ]
+        },
+        {
+          "label": "tag set Crystal3+Obsidian2",
+          "materials": {
+            "Crystal": 3,
+            "Obsidian": 2
+          }
+        },
+        {
+          "label": "+hybrid root/attr/material",
+          "skills": {
+            "hx-root": 1,
+            "hx-attr": 1,
+            "hx-material": 1
+          }
+        },
+        {
+          "label": "+MIND HEX (rank 3)",
+          "skills": {
+            "hx-act-attr": 3
+          },
+          "strip": [
+            "STAB",
+            "CUT",
+            "MIND HEX",
+            "BOLT"
+          ]
+        },
+        {
+          "label": "+attr accumulation",
+          "skills": {
+            "hx-acc-attr": 3
+          }
+        },
+        {
+          "label": "+HEXBLADE CURSE (rank 3) +tag accumulation",
+          "skills": {
+            "hx-act-tag": 3,
+            "hx-acc-tag": 3
+          },
+          "strip": [
+            "STAB",
+            "MIND HEX",
+            "HEXBLADE CURSE",
+            "BOLT"
+          ]
+        }
+      ]
+    }
+  ]
+}

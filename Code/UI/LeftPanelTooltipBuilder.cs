@@ -381,7 +381,7 @@ namespace RPGGame
             int percent = label switch
             {
                 "Crit" => chances.CritPercent,
-                "Combo" => chances.ComboPercent,
+                "Combo" => chances.ComboOrCritPercent,
                 "Hit" => chances.HitPercent,
                 "Crit Miss" => chances.CritMissPercent,
                 "Miss" => chances.MissPercent,
@@ -400,12 +400,7 @@ namespace RPGGame
             addWrapped("Status effect");
             addWrapped(lines[lineIdx]);
             if (LeatherSetBonus.IsLuckyStatusLine(lines[lineIdx]))
-            {
                 addWrapped("Standing attack-roll advantage (2d20 keep highest) while Leather set is equipped.");
-                int points = NaiveteBalanceHelper.GetDisplayNaivete(c);
-                if (points > 0)
-                    addWrapped($"Miss→advantage charges: {points} (spend 1 on a normal miss for a second d20).");
-            }
             else
                 addWrapped("Duration is in turns unless the effect says otherwise.");
         }

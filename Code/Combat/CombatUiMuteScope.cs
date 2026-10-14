@@ -19,6 +19,12 @@ namespace RPGGame.Combat
         public static bool IsMuted => AsyncMuted.Value ?? GlobalMuted;
 
         /// <summary>
+        /// True only inside a <see cref="Begin"/>(muted: true) scope (simulators: lab encounters, smart bot, BUILDLAB),
+        /// not for the process-global flag, which tests and tools may leave on while still reading combat text.
+        /// </summary>
+        public static bool IsScopedMuted => AsyncMuted.Value == true;
+
+        /// <summary>
         /// Process-global mute used by legacy get/set on <see cref="CombatManager.DisableCombatUIOutput"/>.
         /// </summary>
         public static bool GlobalMute

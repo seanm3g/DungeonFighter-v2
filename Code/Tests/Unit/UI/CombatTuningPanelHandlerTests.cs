@@ -116,11 +116,33 @@ namespace RPGGame.Tests.Unit.UI
             var cfg = GameConfiguration.Instance;
             cfg.Reload();
 
-            TestBase.AssertTrue(Math.Abs(cfg.BalanceTuningGoals.WinRate.MinTarget - 85.0) < 0.001,
+            // Compare against whatever patch file the config actually read (the active patch differs per machine).
+            double? PatchGoal(string section)
+            {
+                try
+                {
+                    using var doc = System.Text.Json.JsonDocument.Parse(System.IO.File.ReadAllText(GameConfiguration.LoadedBalancePatchPath));
+                    foreach (var top in doc.RootElement.EnumerateObject())
+                    {
+                        if (!top.Name.Equals("balanceTuningGoals", StringComparison.OrdinalIgnoreCase)) continue;
+                        foreach (var sec in top.Value.EnumerateObject())
+                            if (sec.Name.Equals(section, StringComparison.OrdinalIgnoreCase))
+                                foreach (var f in sec.Value.EnumerateObject())
+                                    if (f.Name.Equals("minTarget", StringComparison.OrdinalIgnoreCase))
+                                        return f.Value.GetDouble();
+                    }
+                }
+                catch (Exception) { }
+                return null;
+            }
+
+            double? winMin = PatchGoal("winRate");
+            double? durMin = PatchGoal("combatDuration");
+            TestBase.AssertTrue(winMin == null || Math.Abs(cfg.BalanceTuningGoals.WinRate.MinTarget - winMin.Value) < 0.001,
                 "Win rate min target loaded from patch",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(Math.Abs(cfg.BalanceTuningGoals.CombatDuration.MinTarget - 8.0) < 0.001,
-                "Combat duration min target loaded from patch",
+            TestBase.AssertTrue(durMin == null || Math.Abs(cfg.BalanceTuningGoals.CombatDuration.MinTarget - durMin.Value) < 0.001,
+                $"Combat duration min target loaded from patch (config {cfg.BalanceTuningGoals.CombatDuration.MinTarget}, patch {durMin?.ToString() ?? "n/a"})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

@@ -56,12 +56,16 @@ namespace RPGGame.UI.Avalonia.Helpers
             {
                 double minScaleX = MinStartupWidth / designWidth;
                 double minScaleY = MinStartupHeight / designHeight;
-                scale = Math.Max(scale, Math.Max(minScaleX, minScaleY));
+                // The minimum size never overrides the working area: on a short screen a 600px floor
+                // would push the window under the dock / menu bar.
+                double fitScale = Math.Min(scaleX, scaleY);
+                scale = Math.Min(Math.Max(scale, Math.Max(minScaleX, minScaleY)), fitScale);
                 width = designWidth * scale;
                 height = designHeight * scale;
             }
 
-            return (width, height, scale);
+            // Whole logical pixels, rounded down so the window always fits the available area.
+            return (Math.Floor(width), Math.Floor(height), scale);
         }
 
         /// <summary>

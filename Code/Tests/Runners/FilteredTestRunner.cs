@@ -28,6 +28,7 @@ namespace RPGGame.Tests.Runners
         public static int Run(string? filter)
         {
             TestResultCollector.Clear();
+            TestBase.ClearBalancePacingForTests();
 
             if (string.IsNullOrWhiteSpace(filter))
             {
@@ -136,6 +137,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "CadenceCardLineFormatter", () => RPGGame.Tests.Unit.UI.CadenceCardLineFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ItemTooltipFormatter", () => RPGGame.Tests.Unit.UI.ItemTooltipFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ItemStatFormatter", () => RPGGame.Tests.Unit.UI.ItemStatFormatterTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ItemComparisonTable", () => RPGGame.Tests.Unit.UI.ItemComparisonTableTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "LeftPanelTooltipBuilder", () => RPGGame.Tests.Unit.UI.LeftPanelTooltipBuilderTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "LeftPanelSectionVisibility", () => RPGGame.Tests.Unit.UI.LeftPanelSectionVisibilityTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "LeftPanelViewport", () => RPGGame.Tests.Unit.UI.LeftPanelViewportTests.RunAllTests()));
@@ -161,6 +163,18 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "DungeonSelectionHoverLayout", () => RPGGame.Tests.Unit.UI.DungeonSelectionHoverLayoutTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "WeaponSelectionRenderer", () => RPGGame.Tests.Unit.UI.WeaponSelectionRendererTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "MainWindowStartupSizing", () => RPGGame.Tests.Unit.UI.MainWindowStartupSizingTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "PreWeaponPathIntroRenderer", () => RPGGame.Tests.Unit.UI.PreWeaponPathIntroRendererTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "TextAnimationCompositor", () => RPGGame.Tests.Unit.UI.TextAnimationCompositorTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ColoredTextCoordinator", () => RPGGame.Tests.Unit.UI.ColoredTextCoordinatorTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "TravelRouteColoredTextFormatter", () => RPGGame.Tests.Unit.UI.TravelRouteColoredTextFormatterTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "DeathScreenRenderer", () => RPGGame.Tests.Unit.UI.DeathScreenRendererTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "DisplayTiming", () => RPGGame.Tests.Unit.UI.DisplayTimingTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ColorSystemApplication", () => RPGGame.Tests.Unit.ColorSystemApplicationTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "DungeonCompletionHandler", () => RPGGame.Tests.Unit.Game.Handlers.DungeonCompletionHandlerTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("actions", "ActionMechanics", () => RPGGame.Tests.Unit.Data.ActionMechanicsTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("actions", "ActionSequence", () => RPGGame.Tests.Unit.ActionSequenceTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("actions", "ActionSystem", () => RPGGame.Tests.Unit.ActionSystemTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("items", "GearActionNames", () => RPGGame.Tests.Unit.GearActionNamesTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "WindSwayField", () => RPGGame.Tests.Unit.UI.WindSwayFieldTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "InteractiveTextHighlight", () => RPGGame.Tests.Unit.UI.InteractiveTextHighlightTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TextClickBurstField", () => RPGGame.Tests.Unit.UI.TextClickBurstFieldTests.RunAllTests()));
@@ -174,6 +188,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "ClassTags", () => RPGGame.Tests.Unit.ClassTagsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ClassTreeEffects", () => RPGGame.Tests.Unit.ClassTreeEffectsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "HybridTrees", () => RPGGame.Tests.Unit.HybridTreesTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "BuildGlue", () => RPGGame.Tests.Unit.Combat.BuildGlueTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTextEffectCatalog", () => RPGGame.Tests.Unit.Combat.ActionTextEffectCatalogTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTextEmphasisTypewriter", () => RPGGame.Tests.Unit.Combat.ActionTextEmphasisTypewriterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "GameFonts", () => RPGGame.Tests.Unit.UI.GameFontsTests.RunAllTests()));
@@ -222,6 +237,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "CombatSequencePresenter", () => RPGGame.Tests.Unit.Combat.CombatSequencePresenterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatSequenceFlavorPresenter", () => RPGGame.Tests.Unit.Combat.CombatSequenceFlavorPresenterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "WeaponBaseModCadence", () => RPGGame.Tests.Unit.Combat.WeaponBaseModCadenceTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "SpeedCalculator", () => RPGGame.Tests.Unit.Combat.SpeedCalculatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "DamageFormatter", () => RPGGame.Tests.Unit.Combat.DamageFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatResults", () => RPGGame.Tests.Unit.Combat.CombatResultsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "VictoryLimerickValidator", () => RPGGame.Tests.Unit.Combat.VictoryLimerickValidatorTests.RunAllTests()));
@@ -256,6 +272,8 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "DisplayBufferReplaceLast", () => RPGGame.Tests.Unit.UI.BlockDisplay.DisplayBufferReplaceLastTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TextWrappingHelper", () => RPGGame.Tests.Unit.UI.TextWrappingHelperTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ItemComparisonRenderer", () => RPGGame.Tests.Unit.UI.ItemComparisonRendererTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "InventoryRenderer", () => RPGGame.Tests.Unit.UI.InventoryRendererTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "InventoryDragDrop", () => RPGGame.Tests.Unit.UI.InventoryDragDropTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatCenterPanelEnemyLineAlignment", () => RPGGame.Tests.Unit.UI.CombatCenterPanelEnemyLineAlignmentTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TextSpacingSystem", () => RPGGame.Tests.Unit.UI.Spacing.TextSpacingSystemTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "GameStateManagerMultiCharacter", () => RPGGame.Tests.Unit.GameStateManagerMultiCharacterTests.RunAllTests()));

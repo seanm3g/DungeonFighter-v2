@@ -200,7 +200,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 CombatActionStripBuilder.GetStripSwingDisplayPercents(in info, player, action, damageLineMode, out double damageDisplayPct, out double speedDisplayPct);
                 bool damageDiffersFromIntrinsic = Math.Abs(damageDisplayPct - info.DamageBase) > cmpEps;
                 bool speedDiffersFromIntrinsic = Math.Abs(speedDisplayPct - info.SpeedBase) > cmpEps;
-                var swingLineColor = damageDiffersFromIntrinsic
+                bool convertScalesDamage = MaterialSetController.GetConvertDamageBonus(player, action) > 0;
+                var swingLineColor = convertScalesDamage
+                    ? AsciiArtAssets.Colors.Green
+                    : damageDiffersFromIntrinsic
                     ? (damageDisplayPct > info.DamageBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
                     : speedDiffersFromIntrinsic
                         ? (speedDisplayPct > info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)

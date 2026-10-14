@@ -8,6 +8,17 @@ namespace RPGGame.Tests
     /// </summary>
     public static class TestBase
     {
+        /// <summary>
+        /// Mechanics tests build strips on fresh low-level heroes; the active patch's level slot cap
+        /// (lootSystem.comboSlotCapByLevel) is balance pacing, so the runners clear it. Cap tests pin their own config.
+        /// </summary>
+        public static void ClearBalancePacingForTests()
+        {
+            var loot = GameConfiguration.Instance?.LootSystem;
+            if (loot != null)
+                loot.ComboSlotCapByLevel = new System.Collections.Generic.List<int[]>();
+        }
+
         private static string? _currentTestName;
 
         /// <summary>

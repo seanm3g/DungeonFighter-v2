@@ -27,6 +27,12 @@ namespace RPGGame.UI.Avalonia.Layout
             public int CritMissPercent { get; }
 
             /// <summary>
+            /// Chance the roll counts as a combo: a crit always combos, so this is crit + combo band.
+            /// Shown on the CHANCES Combo row; <see cref="ComboPercent"/> stays the exclusive band for Miss math.
+            /// </summary>
+            public int ComboOrCritPercent => Math.Clamp(CritPercent + ComboPercent, 0, 100);
+
+            /// <summary>
             /// d20 faces that are not crit, combo, normal hit, or crit miss (plain miss band between crit miss and hit).
             /// </summary>
             public int MissPercent => Math.Clamp(100 - CritPercent - ComboPercent - HitPercent - CritMissPercent, 0, 100);
@@ -237,12 +243,13 @@ namespace RPGGame.UI.Avalonia.Layout
 
         /// <summary>
         /// Canonical row order for CHANCES data (Crit → Combo → Hit → Miss → Crit Miss). The HUD sorts by percent for display.
+        /// Combo includes crits (a crit always counts as a combo), so the rows overlap and do not sum to 100%.
         /// </summary>
         public static D20ChanceDisplayRow[] GetExclusiveD20ChanceRows(ExclusiveD20OutcomeChances chances) =>
             new[]
             {
                 new D20ChanceDisplayRow("Crit", chances.CritPercent),
-                new D20ChanceDisplayRow("Combo", chances.ComboPercent),
+                new D20ChanceDisplayRow("Combo", chances.ComboOrCritPercent),
                 new D20ChanceDisplayRow("Hit", chances.HitPercent),
                 new D20ChanceDisplayRow("Miss", chances.MissPercent),
                 new D20ChanceDisplayRow("Crit Miss", chances.CritMissPercent)

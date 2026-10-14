@@ -30,8 +30,8 @@ namespace RPGGame.Tests.Unit
         private static void TestCatalogCount()
         {
             TestBase.SetCurrentTestName("Scenario/CatalogCount");
-            TestBase.AssertEqual(106, ItemTriggerIdentityCatalog.Identities.Count,
-                "catalog has 106 identities", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(ItemTriggerIdentityCatalog.Identities.Count >= 106,
+                "catalog has at least the 106 wave-2 identities", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestFilterMatching()

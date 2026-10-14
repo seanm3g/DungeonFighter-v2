@@ -54,6 +54,15 @@ namespace RPGGame
         public List<ActionAttackBonusGroup> TurnBonuses => _state.TurnBonuses;
         public double ConsumedDamageModPercent { get => _state.ConsumedDamageModPercent; set => _state.ConsumedDamageModPercent = value; }
         public double ConsumedSpeedModPercent { get => _state.ConsumedSpeedModPercent; set => _state.ConsumedSpeedModPercent = value; }
+        public double LastSwingSpeedModPercent { get => _state.LastSwingSpeedModPercent; set => _state.LastSwingSpeedModPercent = value; }
+
+        /// <summary>Returns and clears <see cref="LastSwingSpeedModPercent"/> (read once when the swing's duration is set).</summary>
+        public double TakeLastSwingSpeedModPercent()
+        {
+            double v = _state.LastSwingSpeedModPercent;
+            _state.LastSwingSpeedModPercent = 0;
+            return v;
+        }
         public double ConsumedMultiHitMod { get => _state.ConsumedMultiHitMod; set => _state.ConsumedMultiHitMod = value; }
         public double ConsumedAmpModPercent { get => _state.ConsumedAmpModPercent; set => _state.ConsumedAmpModPercent = value; }
         public double ConsumedSkillAmpPercent { get => _state.ConsumedSkillAmpPercent; set => _state.ConsumedSkillAmpPercent = value; }

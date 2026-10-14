@@ -44,10 +44,7 @@ namespace RPGGame
             {
                 var player = stateManager.CurrentPlayer;
                 player.PendingPreWeaponTrainingGround = false;
-                player.ClearAllTempEffects();
-                int maxHp = player.GetEffectiveMaxHealth();
-                if (player.CurrentHealth < maxHp)
-                    player.Heal(maxHp - player.CurrentHealth);
+                DungeonRunRecovery.RestoreAfterLeavingDungeon(player);
                 startingInventory = null;
                 if (!RPGGame.MCP.MCPMode.IsActive)
                     await Task.Delay(400);

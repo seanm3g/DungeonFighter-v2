@@ -41,13 +41,14 @@ namespace RPGGame.Combat.Calculators
             return 1.0 + ActiveStacks(target.VulnerabilityStacks, target.VulnerabilityTurns) * combat.StatusVulnerabilityDamagePerStack;
         }
 
-        /// <summary>Defense added by Harden minus Defense removed by Expose, given the DR constant <paramref name="k"/>.</summary>
+        /// <summary>Defense added by Harden (and Fortify, when <see cref="CombatConfig.StatusFortifyDefensePerStack"/> is set) minus Defense removed by Expose, given the DR constant <paramref name="k"/>.</summary>
         public static double DefenseBonus(Actor? defender, double k)
         {
             if (defender == null)
                 return 0.0;
             var combat = GameConfiguration.Instance.Combat;
             return k * (ActiveStacks(defender.HardenStacks, defender.HardenTurns) * combat.StatusHardenDefensePerStack
+                        + ActiveStacks(defender.FortifyStacks, defender.FortifyTurns) * combat.StatusFortifyDefensePerStack
                         - ActiveStacks(defender.ExposeStacks, defender.ExposeTurns) * combat.StatusExposeDefensePerStack);
         }
     }

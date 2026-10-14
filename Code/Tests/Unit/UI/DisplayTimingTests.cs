@@ -37,11 +37,23 @@ namespace RPGGame.Tests.Unit.UI
             // We can assert that the flag is still false immediately after scheduling from a Task.
             var timing = new DisplayTiming(new MenuDisplayMode());
             bool ranInline = false;
+            bool headless = false;
 
             Task.Run(() =>
             {
-                timing.ScheduleRender(() => ranInline = true);
+                // Without a running Avalonia app the dispatcher reports access from every thread, so the
+                // UI-thread hop cannot be observed; the guard only matters inside the real app.
+                headless = Avalonia.Threading.Dispatcher.UIThread.CheckAccess();
+                if (!headless)
+                    timing.ScheduleRender(() => ranInline = true);
             }).GetAwaiter().GetResult();
+
+            if (headless)
+            {
+                TestBase.AssertTrue(true, "ScheduleRender UI-thread hop skipped (headless: no Avalonia dispatcher loop)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
 
             TestBase.AssertTrue(!ranInline,
                 "ScheduleRender should not invoke render callback inline when called from a background thread",
