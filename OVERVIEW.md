@@ -63,7 +63,7 @@ DungeonFighter v2 is a turn-based RPG written in C# (.NET) with a data-driven co
 
 ### UI — New Game confirms before overwriting a save
 
-If a saved character exists, **1 New Game** stays on the main menu and replaces the footer hint with **Are you sure? (this will overwrite the saved character). Press 1 to continue.** A second **1** starts the new game. Any other menu key clears the prompt and does that key’s usual action. With no save, **1** still starts immediately.
+If a saved character exists, **1 New Game** stays on the main menu and draws **Are you sure? (this will overwrite the saved character). Press 1 to continue.** in yellow directly under the options. A second **1** starts the new game. Any other menu key clears the prompt and does that key’s usual action. With no save, **1** still starts immediately.
 
 ### Bug fix / UI — F5 narrative video locked to line spacing
 

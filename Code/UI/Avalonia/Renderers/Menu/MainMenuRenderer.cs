@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
@@ -54,8 +55,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             
             const int menuLineCount = 4;
             const int footerReserve = 4;
-            int layoutHeight = Math.Max(height - footerReserve, menuLineCount + 2);
-            var (menuStartX, menuStartY) = MenuLayoutCalculator.CalculateCenteredMenu(x, y, width, layoutHeight, menuLineCount, maxOptionLength);
+            var promptLines = WrapNewGameConfirmPrompt(newGameConfirmPrompt, width);
+            // Blank row plus the prompt, so the block stays centered with the options instead of
+            // sitting on the bottom rows that ClearLoadingStatus wipes after this paint.
+            int promptSlots = promptLines.Count == 0 ? 0 : promptLines.Count + 1;
+            int layoutHeight = Math.Max(height - footerReserve, menuLineCount + promptSlots + 2);
+            var (menuStartX, menuStartY) = MenuLayoutCalculator.CalculateCenteredMenu(x, y, width, layoutHeight, menuLineCount + promptSlots, maxOptionLength);
             
             // Color palette for menu items
             var cyanColor = ColorPalette.Cyan.GetColor();
@@ -146,28 +151,52 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             clickableElements.Add(quitOption);
             menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 0, UIConstants.MenuOptions.Quit, coolWhiteColor, quitOption.IsHovered);
             currentLineCount++;
-            
-            RenderMenuFooter(x, y, width, height, newGameConfirmPrompt);
+
+            if (promptLines.Count > 0)
+            {
+                var promptColor = AsciiArtAssets.Colors.Yellow;
+                currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
+                foreach (var line in promptLines)
+                {
+                    currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
+                    int lineX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(x, width, line.Length);
+                    canvas.AddText(lineX, currentY, line, promptColor);
+                    currentLineCount++;
+                }
+            }
+            else
+            {
+                RenderMenuFooter(x, y, width, height);
+            }
             
             return currentLineCount;
         }
 
         /// <summary>
-        /// Footer under the menu options. A new-game overwrite prompt replaces the usual click/number hint.
+        /// Splits the overwrite prompt into lines that fit the menu width. The first visual gap
+        /// is added by the caller so the question sits under Quit.
         /// </summary>
-        private void RenderMenuFooter(int x, int y, int width, int height, string? newGameConfirmPrompt)
+        private static List<string> WrapNewGameConfirmPrompt(string? newGameConfirmPrompt, int width)
         {
-            bool confirming = !string.IsNullOrWhiteSpace(newGameConfirmPrompt);
-            string instructionText = confirming
-                ? newGameConfirmPrompt!
-                : UIConstants.Messages.ClickOrPressNumber;
-            var color = confirming ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.Gray;
+            if (string.IsNullOrWhiteSpace(newGameConfirmPrompt))
+                return new List<string>();
+
+            int wrapWidth = Math.Max(24, CenterColumnTextZoom.ScaleWrapWidth(Math.Max(24, width - 4)));
+            return TextWrapper.WrapText(newGameConfirmPrompt, wrapWidth);
+        }
+
+        /// <summary>
+        /// Usual click/number hint along the bottom of the menu.
+        /// </summary>
+        private void RenderMenuFooter(int x, int y, int width, int height)
+        {
+            string instructionText = UIConstants.Messages.ClickOrPressNumber;
             int instructionY = y + height - 3;
             int textWidth = Math.Min(instructionText.Length, Math.Max(1, width));
             int instructionX = instructionText.Length >= width
                 ? x
                 : MenuLayoutCalculator.CalculateCenteredTextX(x, width, textWidth);
-            canvas.AddText(instructionX, instructionY, instructionText, color);
+            canvas.AddText(instructionX, instructionY, instructionText, AsciiArtAssets.Colors.Gray);
         }
         
         /// <summary>
