@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestEventOrderIsInsertionOrder();
             TestCriticalMissFlavorDoesNotReplayOnLaterHits();
             TestCriticalMissFlavorIsConsumedOnce();
+            TestFirstBloodNarrativeReachesDisplay();
             TestInformationalSummaryExcludesComboCounts();
 
             TestBase.PrintSummary("BattleNarrative Tests", _testsRun, _testsPassed, _testsFailed);
@@ -196,6 +197,40 @@ namespace RPGGame.Tests.Unit.Combat
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0, second.Count,
                 "Second display pass without a new event should not replay flavor",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Regression guard for the display-gate bug: BattleEventAnalyzer.AnalyzeEvent
+        /// consumes the one-shot state flags (first blood, defeats, thresholds) at the
+        /// moment it generates a line. Any display-side code that re-derives significance
+        /// from those same flags afterwards always answers "not significant" and silently
+        /// discards the line. Symptom in-game: zero combat narratives across whole fights.
+        /// </summary>
+        private static void TestFirstBloodNarrativeReachesDisplay()
+        {
+            Console.WriteLine("\n--- Testing first blood narrative reaches the display path ---");
+
+            var narrative = new BattleNarrative("Hero", "Goblin", "Test", 100, 100);
+            var evt = new BattleEvent
+            {
+                Actor = "Hero",
+                Target = "Goblin",
+                Action = "Strike",
+                IsSuccess = true,
+                NaturalRoll = 14,
+                Damage = 7
+            };
+            narrative.AddEvent(evt);
+
+            var generated = narrative.GetTriggeredNarratives();
+            TestBase.AssertTrue(generated.Count > 0,
+                "First damaging hit should generate a first-blood narrative",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var displayed = narrative.GetTriggeredNarrativesIfSignificant();
+            TestBase.AssertTrue(displayed.Count > 0,
+                "Generated first-blood narrative must survive the display gate, not be dropped",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

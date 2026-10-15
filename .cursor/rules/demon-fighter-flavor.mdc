@@ -9,12 +9,12 @@ You are helping Joey (narrative lead) build and test flavor-text FORMATS for a t
 
 Joey talks casually. Treat a casual request as a real request, but when it is unclear what file or screen he means, ask one short question before editing.
 
-## 1. Structure, not story
-- We are building the containers, not filling them. Formats must work no matter what world content goes in later.
-- Never invent proper nouns: no new place names, people, houses, factions, gods, eras, dates, or history. If a test needs text, use lines that already exist in the game data, or an obvious placeholder like `[TEST ROOM LINE]`.
-- Narrative development is paused until the game's scope is set. Nothing you write should lock in a timeline or a fact about the world.
+## 1. Story is live — inside the knowledge horizon
+- **The proper-noun ban was retired 2026-10-15 (Joey).** Established canon lives in `docs/lore/`. Houses, places, eras, named events, and dated history are fair game in player-facing text. The point of this sandbox is to show Sean the game with Joey's narrative actually in it.
+- Formats must still work no matter what world content goes in them. A format that only reads well with one specific line is not a format.
+- Don't invent canon that contradicts `docs/lore/`. Where the lore is silent on something a line needs, write around the gap or ask — don't fill it and make it canonical by accident.
+- The combat narrator is approved as a character. He is extra-diegetic: he sits outside the world, not in it, so he is not bound by what the world knows about itself — but he is still bound by §6's knowledge horizon in what he says to the player.
 - Content packages Joey provides are approved text. Insert them exactly as written; don't rewrite, trim, or add to them. If a line doesn't fit the format, flag it instead of editing it.
-- **Logged exception (2026-10-15, Joey):** the proper-noun ban does not block the combat narrator persona. The narrator is extra-diegetic — he sits outside the world, not in it — so naming/characterizing him is not "inventing a world fact." This exception covers the narrator only; in-world names, places, factions, etc. are still paused.
 
 ## 2. Scale-proof by default
 Every format must behave well whether a pool holds 1 entry or 5,000.
@@ -44,7 +44,8 @@ You may prototype these on the sandbox branch only if Joey explicitly asks, and 
 ## 6. Voice rules (for any test lines you do write)
 - Reads as plain high fantasy. Plain vocabulary, varied sentence rhythm, compact: most lines are one or two sentences.
 - The player is a blank slate. Never state why the player fights, what they believe, or how they feel about their mission.
-- Never use any of these words or ideas in player-facing text: Ark, Genesis, robot, android, machine intelligence, spaceship, starship, Earth, colony, colonist, payload, terraform, planet, alien, technology, circuit, program. If in doubt, leave it out and ask.
+- **The knowledge horizon — permanent, not a placeholder.** Never use any of these words or ideas in player-facing text: Ark, Genesis, robot, android, machine intelligence, spaceship, starship, Earth, colony, colonist, payload, terraform, planet, alien, technology, circuit, program. If in doubt, leave it out and ask.
+  This rule outlived the proper-noun ban on purpose. It is not a scope guardrail — it *is* the setting. `docs/lore/chronicle-of-the-first-child.md` marks the Genesis Era and the Great Forgetting **"Creator only"**, and the Deep Dream and Age of Clans **"unknown in-world."** Nobody alive in the Present Day (yr 275+) has these words. Naming the machines spends the best secret in the setting and turns a `technoEcho` enemy from eerie into a robot. Gesture at it — a cut that opens too clean, a rhythm that never changes, warmth that leaves too fast — and never name it.
 - Watch for crutch patterns: overusing "seven", "eleven", "three generations", "long since", "no one remembers".
 
 ## 7. How to report back

@@ -196,16 +196,23 @@ namespace RPGGame
 
             narrativeCache.MarkAsDisplayed(displayedIndex);
 
-            if (!ShouldDisplayNarrativesForEvent(evt))
-            {
-                return new List<string>();
-            }
-
+            // Significance is decided once, at generation time, inside
+            // BattleEventAnalyzer.AnalyzeEvent: each one-shot bank (first blood, defeats,
+            // environmental actions, health thresholds) tests its state flag and then
+            // immediately sets it. Re-deriving significance here asked the same question a
+            // second time, after the flag had already been consumed, so it always answered
+            // false and the generated line was silently discarded before reaching the screen.
+            // If generation produced a line for this event, the event was significant by
+            // construction - display it.
             return FilterSignificantNarratives(narratives, evt);
         }
 
         /// <summary>
-        /// Determines if narratives should be displayed for a given event
+        /// Determines if narratives should be displayed for a given event.
+        /// NOTE: no longer used by the display path. Calling this after
+        /// BattleEventAnalyzer.AnalyzeEvent has run returns false for every one-shot
+        /// narrative type, because AnalyzeEvent consumes the state flags this check reads.
+        /// Kept for callers that want a significance query on a fresh event.
         /// </summary>
         public bool ShouldDisplayNarrativesForEvent(BattleEvent evt)
         {
