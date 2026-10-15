@@ -140,6 +140,14 @@ namespace RPGGame.UI.Avalonia
                 return;
             }
 
+            if (e.Key == Key.F10)
+            {
+                DeveloperModeState.ToggleZeroDelayDevMode();
+                canvasUI?.RefreshCenterPanelModeTint();
+                e.Handled = true;
+                return;
+            }
+
             if (e.Key == Key.Escape && !SuppressEscapeClose)
             {
                 Close();

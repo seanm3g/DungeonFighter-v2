@@ -92,6 +92,8 @@ namespace RPGGame.Tests.Unit.UI
                 "lists F6 distortion toggle", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("Page Up"),
                 "lists Page Up combat speed", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("F10"),
+                "lists F10 zero-delay dev mode", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("Ctrl+C"),
                 "lists combat log copy", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("Right-click combat log"),

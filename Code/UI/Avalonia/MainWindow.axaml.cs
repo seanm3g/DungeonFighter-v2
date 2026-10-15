@@ -254,6 +254,12 @@ namespace RPGGame.UI.Avalonia
                 return;
             }
 
+            if (TryHandleZeroDelayDevModeKey(e.Key))
+            {
+                e.Handled = true;
+                return;
+            }
+
             if (TryHandleNarrativeCombatLogKey(e.Key))
             {
                 e.Handled = true;
@@ -364,6 +370,21 @@ namespace RPGGame.UI.Avalonia
                 canvasUI.RefreshCenterPanelModeTint();
 
             ShowCombatSpeedNotification($"Combat speed: {speed}x");
+            return true;
+        }
+
+        private bool TryHandleZeroDelayDevModeKey(Key key)
+        {
+            if (key != Key.F10)
+                return false;
+
+            bool enabled = DeveloperModeState.ToggleZeroDelayDevMode();
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+                canvasUI.RefreshCenterPanelModeTint();
+
+            ShowCombatSpeedNotification(
+                enabled ? "Dev mode: ON (no delays)" : "Dev mode: OFF",
+                forceAutoDismiss: true);
             return true;
         }
 

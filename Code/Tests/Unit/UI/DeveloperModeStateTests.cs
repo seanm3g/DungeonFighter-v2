@@ -31,6 +31,8 @@ namespace RPGGame.Tests.Unit.UI
             TestNarrativeVideoFeedToggle();
             TestDistortionEffectsDefaultOn();
             TestDistortionEffectsToggle();
+            TestZeroDelayDevModeDefaultOff();
+            TestZeroDelayDevModeSkipsDelays();
 
             TestBase.PrintSummary("DeveloperModeState Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -319,6 +321,75 @@ namespace RPGGame.Tests.Unit.UI
                 RPGGame.MCP.MCPMode.IsActive = prevMcp;
                 if (!prevFastLatch)
                     SimulationPacing.ResetFastModeLatchForTests();
+            }
+        }
+
+        private static void TestZeroDelayDevModeDefaultOff()
+        {
+            Console.WriteLine("--- F10 zero-delay dev mode default off ---");
+            bool prev = DeveloperModeState.IsZeroDelayDevMode;
+            try
+            {
+                DeveloperModeState.SetZeroDelayDevMode(false);
+                TestBase.AssertTrue(!DeveloperModeState.IsZeroDelayDevMode,
+                    "zero-delay dev mode defaults / resets off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetZeroDelayDevMode(prev);
+            }
+        }
+
+        private static void TestZeroDelayDevModeSkipsDelays()
+        {
+            Console.WriteLine("--- F10 zero-delay dev mode skips gameplay delays ---");
+            bool prevDev = DeveloperModeState.IsZeroDelayDevMode;
+            DeveloperModeState.SetZeroDelayDevMode(false);
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            int prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
+            bool prevTutorial = PreWeaponTrainingFlow.IsTutorialCombatSlowPacingActive;
+            bool prevUiDelays = UIManager.EnableDelays;
+            bool prevFastCombat = GameSettings.Instance.FastCombat;
+            bool prevMute = CombatManager.DisableCombatUIOutput;
+            bool prevMcp = RPGGame.MCP.MCPMode.IsActive;
+            try
+            {
+                DeveloperModeState.SetCombatLogInstant(false);
+                DeveloperModeState.SetCombatSpeedMultiplier(1);
+                PreWeaponTrainingFlow.SetTutorialCombatSlowPacing(false);
+                UIManager.EnableDelays = true;
+                GameSettings.Instance.FastCombat = false;
+                CombatManager.DisableCombatUIOutput = false;
+                RPGGame.MCP.MCPMode.IsActive = false;
+
+                TestBase.AssertTrue(DeveloperModeState.ToggleZeroDelayDevMode(),
+                    "toggle turns dev mode on", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(DeveloperModeState.IsZeroDelayDevMode,
+                    "flag is on", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(DeveloperModeState.IsCombatLogInstant,
+                    "dev mode reports instant combat log", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0, DeveloperModeState.ScaleDelayMs(3000),
+                    "dev mode zeroes a 3000 ms delay", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(SimulationPacing.ShouldSkipDelays,
+                    "room and reward pacing skips while dev mode is on", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TestBase.AssertTrue(!DeveloperModeState.ToggleZeroDelayDevMode(),
+                    "toggle turns dev mode off", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!DeveloperModeState.IsCombatLogInstant,
+                    "instant latch stays off after dev mode", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(3000, DeveloperModeState.ScaleDelayMs(3000),
+                    "delays return at 1x after dev mode", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                DeveloperModeState.SetZeroDelayDevMode(prevDev);
+                DeveloperModeState.SetCombatSpeedMultiplier(prevSpeed);
+                PreWeaponTrainingFlow.SetTutorialCombatSlowPacing(prevTutorial);
+                UIManager.EnableDelays = prevUiDelays;
+                GameSettings.Instance.FastCombat = prevFastCombat;
+                CombatManager.DisableCombatUIOutput = prevMute;
+                RPGGame.MCP.MCPMode.IsActive = prevMcp;
             }
         }
     }

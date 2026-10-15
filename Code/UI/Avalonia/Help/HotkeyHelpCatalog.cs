@@ -52,6 +52,7 @@ namespace RPGGame.UI.Avalonia.Help
             new("F6", "Toggle glyph distortion: mouse wind + click burst (default on)", "General"),
 
             new("Page Up / Page Down", "Combat speed ladder (1x → 2x → 5x → 20x)", "Combat"),
+            new("F10", "Toggle dev mode: skip combat, room, and travel delays (default off)", "Combat"),
             new("F5", "Toggle narrative combat-log video overlay (default off)", "Combat"),
             new("F7", "Toggle narrative combat log (default off; mechanical combat log)", "Combat"),
             new("Ctrl+C / Cmd+C", "Copy the full combat/dungeon text log as plain text", "Combat"),

@@ -8,7 +8,9 @@ namespace RPGGame
     /// Runtime-only combat pacing / display state (not persisted). Page Up/Page Down move through
     /// the speed ladder, scaling combat log / action-block pacing, message-type delays,
     /// progressive menu line delays, and chunked text reveal delays.
-    /// F7 toggles the narrative combat log (sequence beats as flavor lines; HUD band stays up).
+    /// F10 toggles zero-delay dev mode (<see cref="IsZeroDelayDevMode"/>): combat, room, travel,
+    /// and reward pauses are skipped. F7 toggles the narrative combat log (sequence beats as flavor
+    /// lines; HUD band stays up).
     /// F5 toggles the narrative combat-log video overlay (<see cref="IsNarrativeVideoFeedEnabled"/>).
     /// F6 toggles mouse-wind glyph distortion (<see cref="AreDistortionEffectsEnabled"/>).
     /// Does not change JSON config.
@@ -19,6 +21,8 @@ namespace RPGGame
         private static readonly object SpeedLock = new object();
         private static int _combatSpeedStepIndex;
         private static int _combatLogInstant;
+        /// <summary>0 = off (default). F10 skips gameplay pacing delays.</summary>
+        private static int _zeroDelayDevMode;
         /// <summary>0 = off (default). F7 narrative combat log (prose paragraphs); mechanical combat log is default.</summary>
         private static int _narrativeCombatLog = 0;
         /// <summary>0 = off (default). F5 narrative video overlay over the combat log.</summary>
@@ -26,8 +30,18 @@ namespace RPGGame
         /// <summary>1 = on (default). Mouse-wind glyph sway / distortion. F6 toggles.</summary>
         private static int _distortionEffects = 1;
 
-        /// <summary>Legacy instant toggle. New UI uses <see cref="CombatSpeedMultiplier"/> instead.</summary>
-        public static bool IsCombatLogInstant => Volatile.Read(ref _combatLogInstant) != 0;
+        /// <summary>
+        /// True when combat/UI pacing should dump instantly. Includes the legacy instant latch and
+        /// F10 zero-delay dev mode so every existing skip site honors the hotkey.
+        /// </summary>
+        public static bool IsCombatLogInstant =>
+            Volatile.Read(ref _combatLogInstant) != 0 || IsZeroDelayDevMode;
+
+        /// <summary>
+        /// F10 runtime toggle (not persisted). When on, gameplay delays are skipped: combat log,
+        /// action blocks, room intros, travel steps, and dungeon leave/reward pauses.
+        /// </summary>
+        public static bool IsZeroDelayDevMode => Volatile.Read(ref _zeroDelayDevMode) != 0;
 
         /// <summary>
         /// When true, combat plays sequence beats as timed poetic flavor lines in the log.
@@ -68,7 +82,18 @@ namespace RPGGame
             Volatile.Write(ref _combatLogInstant, enabled ? 1 : 0);
 
         public static void ToggleCombatLogInstant() =>
-            SetCombatLogInstant(!IsCombatLogInstant);
+            SetCombatLogInstant(Volatile.Read(ref _combatLogInstant) == 0);
+
+        public static void SetZeroDelayDevMode(bool enabled) =>
+            Volatile.Write(ref _zeroDelayDevMode, enabled ? 1 : 0);
+
+        /// <summary>Toggles F10 zero-delay dev mode. Returns the new enabled state.</summary>
+        public static bool ToggleZeroDelayDevMode()
+        {
+            bool next = !IsZeroDelayDevMode;
+            SetZeroDelayDevMode(next);
+            return next;
+        }
 
         public static void SetNarrativeCombatLog(bool enabled) =>
             Volatile.Write(ref _narrativeCombatLog, enabled ? 1 : 0);

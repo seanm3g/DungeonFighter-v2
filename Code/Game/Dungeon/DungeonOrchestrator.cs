@@ -201,10 +201,7 @@ namespace RPGGame
                                             stateManager.CurrentPlayer, 
                                             stateManager.CurrentDungeon?.Name);
                                     }
-                                    if (!RPGGame.MCP.MCPMode.IsActive)
-                                    {
-                                        await Task.Delay(2000);
-                                    }
+                                    await SimulationPacing.DelayForCombatSpeedAsync(2000);
                                 }
                                 
                                 string? exitingDungeonName = stateManager.CurrentDungeon?.Name;

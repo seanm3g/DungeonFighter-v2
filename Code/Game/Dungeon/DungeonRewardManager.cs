@@ -46,8 +46,7 @@ namespace RPGGame
                 player.PendingPreWeaponTrainingGround = false;
                 DungeonRunRecovery.RestoreAfterLeavingDungeon(player);
                 startingInventory = null;
-                if (!RPGGame.MCP.MCPMode.IsActive)
-                    await Task.Delay(400);
+                await SimulationPacing.DelayForCombatSpeedAsync(400);
                 return (0, null, new List<LevelUpInfo>(), new List<Item>(), true);
             }
             
@@ -93,11 +92,8 @@ namespace RPGGame
                 }
             }
             
-            // Add a delay to let rewards display if in console
-            if (!RPGGame.MCP.MCPMode.IsActive)
-            {
-                await Task.Delay(1500);
-            }
+            // Pause so reward text can be read; skipped in MCP, fast combat, and F10 dev mode.
+            await SimulationPacing.DelayForCombatSpeedAsync(1500);
             
             // Reset starting inventory for next run
             startingInventory = null;

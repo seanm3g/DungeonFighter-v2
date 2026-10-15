@@ -406,6 +406,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
   - **`Code/Config/UIConfig.cs`** - UI customization and messages
   - **`Code/Config/SystemConfig.cs`** - System settings, debug, and balance analysis
 - **`Code/Game/GameSettings.cs`** - User settings and preferences
+- **`Code/Game/DeveloperModeState.cs`** - Runtime pacing (not persisted): Page Up/Down speed ladder; **F10** zero-delay dev mode (skips combat, room, travel, and reward pauses via `IsCombatLogInstant` / `SimulationPacing`); F5/F6/F7 display toggles
 - **`Code/Data/SettingsManager.cs`** - Game settings management
 
 ### **Utility Systems**

@@ -784,6 +784,10 @@ Equipped weapon action resolution should not depend on the item being a `WeaponI
 
 The Avalonia runtime combat speed multiplier keeps its non-persisted `DeveloperModeState` behavior, and the framed center panel shifts to a subtle dark blue-purple background while combat is faster than **1x**. Returning to **1x** returns the panel to black. The tint is applied by the shared center-panel frame renderer, so normal layout repaints and immediate Page Up/Page Down speed changes from both the main window and settings window stay visually consistent.
 
+### UI — F10 zero-delay dev mode
+
+**F10** toggles zero-delay dev mode (`DeveloperModeState.IsZeroDelayDevMode`, default **off**, not persisted). While it is on, combat log, action-block, menu, room, travel, and dungeon leave/reward pauses are skipped (the same instant path as `IsCombatLogInstant`). Page Up/Page Down speed is left as-is and applies again when dev mode turns off. The center panel uses the fast-pacing tint, and a toast confirms **Dev mode: ON (no delays)** or **Dev mode: OFF**. **H** lists the hotkey.
+
 ### UI — Page Up/Page Down combat speed ladder
 
 Combat pacing should be adjustable at runtime with **Page Up** and **Page Down** instead of the old F11 developer fast-combat toggle. Page Up steps through **1x → 2x → 5x → 20x**; Page Down steps back down. The chosen multiplier is runtime-only and scales combat log/action block/display delays rather than replacing them with a separate instant-text mode.
