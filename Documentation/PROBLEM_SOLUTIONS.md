@@ -4,6 +4,13 @@ This document contains solutions to common problems encountered during developme
 
 ## Recent Fixes
 
+### Main menu: New Game over a save needs a second 1 (October 2026)
+**Problem:** New Game started immediately even when a saved character was on disk, so one keypress could replace that run.
+
+**Solution:** With a save present, the first **1** keeps the main menu up and shows “Are you sure? (this will overwrite the saved character). Press 1 to continue.” A second **1** starts the new game. Any other menu key clears the prompt. No save still starts on the first **1**.
+
+**Related files:** `MainMenuHandler.cs`, `MainMenuRenderer.cs`, `UIConstants.cs`, `AgentChoiceBuilder.cs`, `MainMenuHandlerTests.cs`
+
 ### Combat strip: Iron Cull damage stayed flat while CRISIS climbed (October 2026)
 **Problem:** With CRISIS x5 on the status panel, Iron Cull's card still showed the amp-only swing (18) and no live convert line.
 

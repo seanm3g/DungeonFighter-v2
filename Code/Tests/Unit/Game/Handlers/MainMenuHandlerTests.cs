@@ -29,6 +29,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             TestConstructor();
             TestShowMainMenu();
             TestHandleMenuInput_NewGame();
+            TestHandleMenuInput_NewGame_ConfirmsWhenSaveExists();
             TestHandleMenuInput_LoadGame();
             TestHandleMenuInput_Settings();
             TestHandleMenuInput_CharacterSelection();
@@ -96,6 +97,56 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             
             TestBase.AssertTrue(true,
                 "HandleMenuInput for new game should complete",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestHandleMenuInput_NewGame_ConfirmsWhenSaveExists()
+        {
+            Console.WriteLine("\n--- Testing HandleMenuInput - New Game overwrite confirm ---");
+
+            var saved = CharacterSaveManager.ListAllSavedCharacters();
+            bool hasSave = saved != null && saved.Count > 0;
+
+            var stateManager = new GameStateManager();
+            var initManager = new GameInitializationManager();
+            var gameInitializer = new GameInitializer();
+            var handler = new MainMenuHandler(stateManager, initManager, null, gameInitializer);
+
+            int offers = 0;
+            string? message = null;
+            handler.ShowTrainingGroundOfferEvent += () => offers++;
+            handler.ShowMessageEvent += msg => message = msg;
+
+            handler.HandleMenuInput("1").Wait();
+
+            if (!hasSave)
+            {
+                TestBase.AssertTrue(offers == 1 && !handler.AwaitingNewGameOverwriteConfirm,
+                    "New Game with no save should start immediately",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            TestBase.AssertTrue(offers == 0 && handler.AwaitingNewGameOverwriteConfirm,
+                "First New Game with a save should wait for confirmation",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(message != null && message.Contains("overwrite the saved character", StringComparison.OrdinalIgnoreCase),
+                "Overwrite confirmation should say the save will be overwritten",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            handler.HandleMenuInput("3").Wait();
+            TestBase.AssertTrue(!handler.AwaitingNewGameOverwriteConfirm && offers == 0,
+                "Another menu key should cancel the overwrite confirmation",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            handler.HandleMenuInput("1").Wait();
+            TestBase.AssertTrue(handler.AwaitingNewGameOverwriteConfirm && offers == 0,
+                "New Game after cancel should ask again",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            handler.HandleMenuInput("1").Wait();
+            TestBase.AssertTrue(offers == 1 && !handler.AwaitingNewGameOverwriteConfirm,
+                "Pressing 1 again should start the new game",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

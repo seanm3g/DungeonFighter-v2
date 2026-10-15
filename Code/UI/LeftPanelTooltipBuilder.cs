@@ -397,12 +397,9 @@ namespace RPGGame
             var lines = StatusEffectDisplayLines.Build(c, c);
             if (lineIdx < 0 || lineIdx >= lines.Count)
                 return;
-            addWrapped("Status effect");
             addWrapped(lines[lineIdx]);
-            if (LeatherSetBonus.IsLuckyStatusLine(lines[lineIdx]))
-                addWrapped("Standing attack-roll advantage (2d20 keep highest) while Leather set is equipped.");
-            else
-                addWrapped("Duration is in turns unless the effect says otherwise.");
+            foreach (string detail in HoverEffectCopy.ExplainStatusLine(c, lines[lineIdx]))
+                addWrapped(detail);
         }
 
         private static void AppendDamage(Character c, List<string> result, Action<string> addWrapped, int maxLines)

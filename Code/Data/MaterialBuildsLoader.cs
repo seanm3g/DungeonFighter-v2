@@ -40,6 +40,19 @@ namespace RPGGame.Data
             return null;
         }
 
+        public static MaterialBuildData? FindByKeyword(string? keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return null;
+            string key = keyword.Trim();
+            foreach (var row in GetAll())
+            {
+                if (string.Equals(row.Keyword, key, StringComparison.OrdinalIgnoreCase))
+                    return row;
+            }
+            return null;
+        }
+
         public static MaterialBuildData? FindByConvertAction(string? actionName)
         {
             if (string.IsNullOrWhiteSpace(actionName))

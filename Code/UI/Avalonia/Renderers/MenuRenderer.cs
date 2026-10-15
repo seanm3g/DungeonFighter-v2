@@ -112,17 +112,17 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the main menu content within the center panel (top-left justified)
         /// </summary>
-        public void RenderMainMenuContent(int x, int y, int width, int height, bool hasSavedGame, string? characterName, int characterLevel)
+        public void RenderMainMenuContent(int x, int y, int width, int height, bool hasSavedGame, string? characterName, int characterLevel, string? newGameConfirmPrompt = null)
         {
-            currentLineCount = mainMenuRenderer.RenderMainMenuContent(x, y, width, height, hasSavedGame, characterName, characterLevel);
+            currentLineCount = mainMenuRenderer.RenderMainMenuContent(x, y, width, height, hasSavedGame, characterName, characterLevel, newGameConfirmPrompt);
         }
         
         /// <summary>
         /// Renders the main menu with saved game info if available (legacy method)
         /// </summary>
-        public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)
+        public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel, string? newGameConfirmPrompt = null)
         {
-            currentLineCount = mainMenuRenderer.RenderMainMenu(hasSavedGame, characterName, characterLevel);
+            currentLineCount = mainMenuRenderer.RenderMainMenu(hasSavedGame, characterName, characterLevel, newGameConfirmPrompt);
         }
         
         /// <summary>

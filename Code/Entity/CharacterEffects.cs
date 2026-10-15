@@ -100,6 +100,8 @@ namespace RPGGame
 
         public int GetMaterialKeyword(string keyword) => _state.GetMaterialKeyword(keyword);
         public void AddMaterialKeyword(string keyword, int amount) => _state.AddMaterialKeyword(keyword, amount);
+        public void SetMaterialKeywordSource(string keyword, string source) => _state.SetMaterialKeywordSource(keyword, source);
+        public string GetMaterialKeywordSource(string keyword) => _state.GetMaterialKeywordSource(keyword);
         public void ClearMaterialKeywordBank() => _state.ClearMaterialKeywordBank();
         public List<(string Keyword, int Count)> GetMaterialKeywordCounts() => _state.GetMaterialKeywordCounts();
         public int MaterialConsecutiveConnects

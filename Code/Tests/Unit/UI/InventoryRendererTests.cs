@@ -47,6 +47,7 @@ namespace RPGGame.Tests.Unit.UI
             TestTradeUpPreviewLayoutKeepsConfirmInView();
             TestInventoryDetailViewListAndSelection();
             TestInventoryGridViewArtAndToggle();
+            TestDetailPaneShrinksHeroSoComparisonFits();
 
             TestBase.PrintSummary("InventoryRenderer Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -548,6 +549,44 @@ namespace RPGGame.Tests.Unit.UI
             if (hero != null)
                 TestBase.AssertTrue(hero.EndsWith(System.IO.Path.Combine("Steel", "Kukri.webp")) && System.IO.File.Exists(hero),
                     "detail icon resolves to the item's large per-item image", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestDetailPaneShrinksHeroSoComparisonFits()
+        {
+            Console.WriteLine("\n--- Testing Detail Pane Comparison Fit ---");
+
+            var character = new Character("Compare", 1);
+            var worn = new FeetItem("Willow Brogues", tier: 1, armor: 4) { Rarity = "Common" };
+            var selected = new FeetItem("Broken Obsidian Titan's Greaves", tier: 1, armor: 3) { Rarity = "Common" };
+            selected.StatBonuses.Add(new StatBonus { Name = "Item base", StatType = "Agility", Value = 7 });
+            selected.StatBonuses.Add(new StatBonus { Name = "Item base", StatType = "Intelligence", Value = 5 });
+            selected.StatBonuses.Add(new StatBonus { Name = "Obsidian", StatType = "Technique", Value = 3 });
+            selected.Modifications.Add(new Modification { Name = "Broken", Description = "25% weaker damage, armor, and weapon speed" });
+            character.EquipItem(worn, "feet");
+
+            const int detailWidth = 42;
+            const int paneRows = 40;
+            int textRows = InventoryScreenRenderer.EstimateDetailTextRows(selected, character, detailWidth);
+            int comparisonRows = InventoryScreenRenderer.EstimateComparisonRows(selected, character, detailWidth);
+            TestBase.AssertTrue(comparisonRows >= 6,
+                $"vs-equipped table reserves its rows (got {comparisonRows})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(textRows > 12,
+                $"full description ({textRows} rows) is taller than the old fixed 12-row reserve",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var fitted = InventoryScreenRenderer.DetailHeroIconSize(9, 18, detailWidth, paneRows, textRows + 1);
+            var fixedReserve = InventoryScreenRenderer.DetailHeroIconSize(9, 18, detailWidth, paneRows);
+            int fixedLeftover = paneRows - fixedReserve.Rows - 1;
+            TestBase.AssertTrue(fixedReserve.Rows > 0 && fixedLeftover < textRows,
+                $"a square icon leaves {fixedLeftover} rows, short of the {textRows}-row description",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(fitted.Rows < fixedReserve.Rows,
+                $"hero shrinks from {fixedReserve.Rows} to {fitted.Rows} so the comparison stays in the pane",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(fitted.Rows == 0 || paneRows - fitted.Rows - 1 >= textRows,
+                "rows left under the icon cover the description and comparison",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

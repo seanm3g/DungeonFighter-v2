@@ -32,7 +32,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// <summary>
         /// Renders the main menu content within the center panel (centered horizontally and vertically)
         /// </summary>
-        public int RenderMainMenuContent(int x, int y, int width, int height, bool hasSavedGame, string? characterName, int characterLevel)
+        public int RenderMainMenuContent(int x, int y, int width, int height, bool hasSavedGame, string? characterName, int characterLevel, string? newGameConfirmPrompt = null)
         {
             clickableElements.Clear();
             int currentLineCount = 0;
@@ -147,20 +147,34 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 0, UIConstants.MenuOptions.Quit, coolWhiteColor, quitOption.IsHovered);
             currentLineCount++;
             
-            // Add instruction text at bottom of center panel (horizontally centered)
-            int instructionY = y + height - 3;
-            string instructionText = UIConstants.Messages.ClickOrPressNumber;
-            int instructionX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, instructionText.Length);
-            canvas.AddText(instructionX, instructionY, instructionText, AsciiArtAssets.Colors.Gray);
+            RenderMenuFooter(x, y, width, height, newGameConfirmPrompt);
             
             return currentLineCount;
+        }
+
+        /// <summary>
+        /// Footer under the menu options. A new-game overwrite prompt replaces the usual click/number hint.
+        /// </summary>
+        private void RenderMenuFooter(int x, int y, int width, int height, string? newGameConfirmPrompt)
+        {
+            bool confirming = !string.IsNullOrWhiteSpace(newGameConfirmPrompt);
+            string instructionText = confirming
+                ? newGameConfirmPrompt!
+                : UIConstants.Messages.ClickOrPressNumber;
+            var color = confirming ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.Gray;
+            int instructionY = y + height - 3;
+            int textWidth = Math.Min(instructionText.Length, Math.Max(1, width));
+            int instructionX = instructionText.Length >= width
+                ? x
+                : MenuLayoutCalculator.CalculateCenteredTextX(x, width, textWidth);
+            canvas.AddText(instructionX, instructionY, instructionText, color);
         }
         
         /// <summary>
         /// Renders the main menu with saved game info if available (legacy method)
         /// NOTE: This method is legacy and may not be used. Canvas clearing should be handled by the caller.
         /// </summary>
-        public int RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)
+        public int RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel, string? newGameConfirmPrompt = null)
         {
             // Note: Canvas clearing removed - should be handled by caller or CanvasTitleLayoutCoordinator / PersistentLayoutRenderCoordinator
             clickableElements.Clear();
@@ -278,9 +292,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             currentLineCount++;
             
             // Instructions
-            string instructions = UIConstants.Messages.ClickOrPressNumber;
+            string instructions = string.IsNullOrWhiteSpace(newGameConfirmPrompt)
+                ? UIConstants.Messages.ClickOrPressNumber
+                : newGameConfirmPrompt;
+            var instructionColor = string.IsNullOrWhiteSpace(newGameConfirmPrompt)
+                ? AsciiArtAssets.Colors.White
+                : AsciiArtAssets.Colors.Yellow;
             int instructionsX = MenuLayoutCalculator.CalculateCenteredTextX(0, LayoutConstants.SCREEN_WIDTH, instructions.Length);
-            canvas.AddText(instructionsX, currentY + 2, instructions, AsciiArtAssets.Colors.White);
+            canvas.AddText(instructionsX, currentY + 2, instructions, instructionColor);
             currentLineCount += 3; // +2 for spacing, +1 for instruction line
             
             canvas.Refresh();

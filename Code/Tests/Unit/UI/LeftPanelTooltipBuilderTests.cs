@@ -220,6 +220,29 @@ namespace RPGGame.Tests.Unit.UI
             var setColored = LeftPanelTooltipBuilder.BuildColoredItemLines(c, LeftPanelHoverState.Prefix + "set:Iron", 20);
             TestBase.AssertTrue(setColored.Count > 0, "forming-set colored tooltip has lines", ref run, ref passed, ref failed);
 
+            c.Effects.AddMaterialKeyword("CHAIN", 1);
+            c.Effects.SetMaterialKeywordSource("CHAIN", "CAST · ON COMBO");
+            string chainTip = string.Join("\n", LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "status:0", 80, 16));
+            TestBase.AssertTrue(chainTip.Contains("CHAIN", StringComparison.Ordinal)
+                    && chainTip.Contains("ON COMBO", StringComparison.Ordinal)
+                    && chainTip.Contains("WILLOW LASH", StringComparison.Ordinal)
+                    && chainTip.Contains("Last trigger", StringComparison.Ordinal),
+                "status hover explains the keyword trigger and convert",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!chainTip.Contains("unless the effect says otherwise", StringComparison.Ordinal),
+                "status hover does not use the generic duration line",
+                ref run, ref passed, ref failed);
+
+            var hardenHero = new Character("HardenHero", 1);
+            hardenHero.HardenStacks = 2;
+            hardenHero.HardenTurns = 3;
+            hardenHero.NoteStatusSource("harden", "HARDEN");
+            string hardenStatus = string.Join("\n", LeftPanelTooltipBuilder.BuildLines(hardenHero, LeftPanelHoverState.Prefix + "status:0", 80, 12));
+            TestBase.AssertTrue(hardenStatus.Contains("Defense", StringComparison.Ordinal)
+                    && hardenStatus.Contains("Last applied by HARDEN", StringComparison.Ordinal),
+                "status hover explains Harden and the action that applied it",
+                ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("LeftPanelTooltipBuilder Tests", run, passed, failed);
         }
     }

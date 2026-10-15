@@ -36,11 +36,17 @@ namespace RPGGame
 
         #region Material keyword bank (dungeon-run scoped)
         public Dictionary<string, int> MaterialKeywordBank { get; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>Last mint cause for a keyword, e.g. <c>SLAM · ON COMBO</c>. Cleared with the bank.</summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        public Dictionary<string, string> MaterialKeywordSources { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
         public int MaterialConsecutiveConnects { get; set; }
 
         public void ClearMaterialKeywordBank()
         {
             MaterialKeywordBank.Clear();
+            MaterialKeywordSources.Clear();
             MaterialConsecutiveConnects = 0;
         }
 
@@ -69,7 +75,27 @@ namespace RPGGame
                 return;
             string key = keyword.Trim().ToUpperInvariant();
             MaterialKeywordBank.TryGetValue(key, out int current);
-            MaterialKeywordBank[key] = Math.Max(0, current + amount);
+            int next = Math.Max(0, current + amount);
+            MaterialKeywordBank[key] = next;
+            if (next <= 0)
+                MaterialKeywordSources.Remove(key);
+        }
+
+        public void SetMaterialKeywordSource(string keyword, string source)
+        {
+            if (string.IsNullOrWhiteSpace(keyword) || string.IsNullOrWhiteSpace(source))
+                return;
+            string key = keyword.Trim().ToUpperInvariant();
+            if (GetMaterialKeyword(key) <= 0)
+                return;
+            MaterialKeywordSources[key] = source.Trim();
+        }
+
+        public string GetMaterialKeywordSource(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return "";
+            return MaterialKeywordSources.TryGetValue(keyword.Trim(), out string? source) ? source : "";
         }
         #endregion
 

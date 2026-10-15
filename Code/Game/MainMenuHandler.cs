@@ -24,6 +24,12 @@ namespace RPGGame
         private GameInitializationManager initializationManager;
         private IUIManager? customUIManager;
         private GameInitializer gameInitializer;
+        private bool _awaitingNewGameOverwriteConfirm;
+
+        /// <summary>
+        /// True after New Game was chosen while a save exists, until 1 is pressed again or another menu key cancels it.
+        /// </summary>
+        public bool AwaitingNewGameOverwriteConfirm => _awaitingNewGameOverwriteConfirm;
         
         // Delegates for game actions
         public delegate void OnExitGame();
@@ -60,6 +66,7 @@ namespace RPGGame
         /// </summary>
         public void ShowMainMenu()
         {
+            _awaitingNewGameOverwriteConfirm = false;
             var (hasSavedGame, characterName, characterLevel) = ResolveSavedGameMenuLine();
 
             // Use GameScreenCoordinator for standardized screen transition
@@ -82,7 +89,7 @@ namespace RPGGame
             var (hasSavedGame, characterName, characterLevel) = ResolveSavedGameMenuLine();
             canvasUI.Clear();
             canvasUI.ClearClickableElements();
-            canvasUI.RenderMainMenu(hasSavedGame, characterName, characterLevel);
+            canvasUI.RenderMainMenu(hasSavedGame, characterName, characterLevel, NewGameConfirmPromptOrNull());
             canvasUI.Refresh();
         }
 
@@ -104,6 +111,44 @@ namespace RPGGame
             return (false, null, 0);
         }
 
+        private static bool HasSavedCharacter()
+        {
+            var (hasSavedGame, _, _) = ResolveSavedGameMenuLine();
+            return hasSavedGame;
+        }
+
+        private string? NewGameConfirmPromptOrNull() =>
+            _awaitingNewGameOverwriteConfirm ? UIConstants.Messages.NewGameOverwriteConfirm : null;
+
+        /// <summary>
+        /// Keeps the main menu up and asks for a second 1 before a new game replaces the saved character.
+        /// </summary>
+        private void ShowNewGameOverwriteConfirm()
+        {
+            _awaitingNewGameOverwriteConfirm = true;
+            AudioCues.Trigger(AudioCue.Menu_Confirm);
+            if (customUIManager is CanvasUICoordinator && stateManager.CurrentState == GameState.MainMenu)
+            {
+                RefreshMainMenuInPlace();
+                return;
+            }
+
+            ShowMessageEvent?.Invoke(UIConstants.Messages.NewGameOverwriteConfirm);
+        }
+
+        /// <summary>
+        /// Drops the overwrite prompt when the player picks anything other than a second 1.
+        /// </summary>
+        private void CancelNewGameOverwriteConfirm()
+        {
+            if (!_awaitingNewGameOverwriteConfirm)
+                return;
+
+            _awaitingNewGameOverwriteConfirm = false;
+            if (customUIManager is CanvasUICoordinator && stateManager.CurrentState == GameState.MainMenu)
+                RefreshMainMenuInPlace();
+        }
+
         /// <summary>
         /// Handle main menu input (1=New, 2=Load, 3=Settings, 0=Quit)
         /// </summary>
@@ -117,24 +162,42 @@ namespace RPGGame
             switch (trimmedInput)
             {
                 case "1":
+                    if (_awaitingNewGameOverwriteConfirm)
+                    {
+                        _awaitingNewGameOverwriteConfirm = false;
+                        await StartNewGame();
+                        break;
+                    }
+
+                    if (HasSavedCharacter())
+                    {
+                        ShowNewGameOverwriteConfirm();
+                        break;
+                    }
+
                     await StartNewGame();
                     break;
                 case "2":
+                    CancelNewGameOverwriteConfirm();
                     DebugLogger.Log("MainMenuHandler", "Load game option selected");
                     await LoadGame();
                     break;
                 case "3":
+                    CancelNewGameOverwriteConfirm();
                     HandleSettingsSelection();
                     break;
                 case "4":
                 case "C":
+                    CancelNewGameOverwriteConfirm();
                     // Character Selection (multi-character support)
                     ShowCharacterSelectionEvent?.Invoke();
                     break;
                 case "0":
+                    CancelNewGameOverwriteConfirm();
                     HandleQuitSelection();
                     break;
                 default:
+                    CancelNewGameOverwriteConfirm();
                     AudioCues.Trigger(AudioCue.Menu_Invalid);
                     ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Settings), or 0 (Quit).");
                     break;

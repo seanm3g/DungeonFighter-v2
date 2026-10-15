@@ -12,7 +12,7 @@ namespace RPGGame.UI.Avalonia.Renderers
     public interface ICanvasRenderer
     {
         void RenderDisplayBuffer(CanvasContext context);
-        void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel);
+        void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel, string? newGameConfirmPrompt = null);
         void RenderInventory(Character character, List<Item> inventory, CanvasContext context, string? pendingMutatingInventoryMenuAction = null, int itemScrollOffset = 0, InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder, bool hideRequirementBlockedItems = false, string? inventoryEquipSlotFilter = null, InventoryDetailViewState? detailView = null, string? inventoryMaterialFilter = null);
         void RenderItemSelectionPrompt(Character character, List<Item> inventory, string promptMessage, string actionType, CanvasContext context, InventoryItemSortMode sortMode = InventoryItemSortMode.InventoryOrder, bool hideRequirementBlockedItems = false, string? inventoryEquipSlotFilter = null, string? inventoryMaterialFilter = null);
         void RenderSlotSelectionPrompt(Character character, CanvasContext context);

@@ -202,6 +202,11 @@ namespace RPGGame
                 amount += SkillEffectRouter.SynthesisFeedBonus(hero, build.Material);
                 hero.Effects.AddMaterialKeyword(build.Keyword, amount);
                 int total = hero.Effects.GetMaterialKeyword(build.Keyword);
+                string whenLabel = MaterialBuildData.FormatWhenLabel(build.Synthesis);
+                string cause = string.IsNullOrWhiteSpace(subject.Name) || subject.Name == "MaterialSynth"
+                    ? whenLabel
+                    : $"{subject.Name} · {whenLabel}";
+                hero.Effects.SetMaterialKeywordSource(build.Keyword, cause);
                 messages?.Add(FormatFeedCombatLine(build.Synthesis, build.Keyword, amount, total));
                 any = true;
             }

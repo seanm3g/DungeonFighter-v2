@@ -324,8 +324,9 @@ namespace RPGGame.Tests.Unit.UI
                 acts[0].Description = "NARRATIVE_FLAVOR_ONLY_XYZ";
             var tipFlavor = CombatActionStripBuilder.BuildActionTooltipLines(charFlavor, 0, 80);
             string tipFlavorJoined = tipFlavor != null ? string.Join("\n", tipFlavor) : "";
-            TestBase.AssertTrue(!tipFlavorJoined.Contains("NARRATIVE_FLAVOR_ONLY_XYZ", StringComparison.Ordinal),
-                "BuildActionTooltipLines omits narrative Action.Description",
+            TestBase.AssertTrue(tipFlavorJoined.Contains("Does", StringComparison.Ordinal)
+                    && tipFlavorJoined.Contains("NARRATIVE_FLAVOR_ONLY_XYZ", StringComparison.Ordinal),
+                "BuildActionTooltipLines leads with what the action does",
                 ref run, ref passed, ref failed);
 
             var flavorOnly = TestDataBuilders.CreateMockAction("FlavorCardOnly", ActionType.Attack);
@@ -361,6 +362,26 @@ namespace RPGGame.Tests.Unit.UI
                     slamData.Description.Trim(),
                     cardSlam,
                     "ResolveActionCardDescription uses Actions.json DESCRIPTION for SLAM",
+                    ref run, ref passed, ref failed);
+            }
+
+            var hardenAction = ActionLoader.GetAction("HARDEN");
+            if (hardenAction != null)
+            {
+                string hardenTip = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLinesForAction(charWithCombo, hardenAction, 90, includeExtendedDetails: false));
+                TestBase.AssertTrue(
+                    hardenTip.Contains("Does", StringComparison.Ordinal)
+                    && hardenTip.Contains("Harden", StringComparison.Ordinal)
+                    && hardenTip.Contains("Defense", StringComparison.Ordinal)
+                    && hardenTip.Contains("you", StringComparison.Ordinal),
+                    "action-pool hover explains what HARDEN does without Alt",
+                    ref run, ref passed, ref failed);
+                var coloredHarden = CombatActionStripBuilder.BuildColoredActionTooltipLines(charWithCombo, hardenAction, 24, includeExtendedDetails: false);
+                string coloredHardenText = string.Join("\n", coloredHarden.ConvertAll(line =>
+                    line == null || line.Count == 0 ? "" : string.Concat(line.ConvertAll(s => s.Text ?? ""))));
+                TestBase.AssertTrue(coloredHardenText.Contains("Does", StringComparison.Ordinal)
+                        && coloredHardenText.Contains("Defense", StringComparison.Ordinal),
+                    "colored action hover includes the Does section",
                     ref run, ref passed, ref failed);
             }
 

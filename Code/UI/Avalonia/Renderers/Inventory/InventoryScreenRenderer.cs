@@ -10,6 +10,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Help;
     using RPGGame.UI.Avalonia.Renderers.Helpers;
+    using RPGGame.UI.Avalonia.Renderers.Text;
     using RPGGame.UI.Avalonia.Layout;
     using RPGGame.UI.ColorSystem;
     using RPGGame.UI.ColorSystem.Applications.ItemFormatting;
@@ -528,7 +529,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
         /// <summary>
         /// Selected-item icon in the detail pane: the full pane width, tall enough to stay square in pixels,
-        /// and short enough to leave <paramref name="textRows"/> for the description. (0, 0) when the pane is too small.
+        /// and short enough to leave <paramref name="textRows"/> for the description (name, stats, and the
+        /// vs-equipped table). (0, 0) when the pane is too small to keep both a picture and that text.
         /// </summary>
         internal static (int Columns, int Rows) DetailHeroIconSize(double charWidth, double charHeight, int detailWidth, int paneRows, int textRows = 12)
         {
@@ -539,6 +541,116 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 return (0, 0);
             int rows = Math.Min(maxRows, GridRowsForColumns(charWidth, charHeight, detailWidth));
             return rows < 4 ? (0, 0) : (detailWidth, rows);
+        }
+
+        /// <summary>
+        /// Rows the detail description needs, matching <see cref="RenderDetailPane"/>: wrapped name, actions,
+        /// one row per stat, then <see cref="EstimateDetailTailRows"/>.
+        /// </summary>
+        internal static int EstimateDetailTextRows(Item item, Character character, int width)
+        {
+            if (item == null || character == null)
+                return 0;
+
+            int rows = WrappedLineCount(ItemRendererHelper.BuildItemNameSegments(-1, item, character), width) + 1;
+            var itemActions = character.Equipment.GetGearActions(item);
+            if (itemActions != null && itemActions.Count > 0)
+                rows += WrappedLineCount(BuildActionsLine(itemActions), width);
+            rows += ItemStatFormatter.GetItemStats(item, character).Count;
+            rows += EstimateDetailTailRows(item, character, width);
+            return rows;
+        }
+
+        /// <summary>
+        /// Rows after the stat block: mods, requirement note, trade-up lock, and the full vs-equipped table.
+        /// Stat lines give these up first when the pane is short.
+        /// </summary>
+        internal static int EstimateDetailTailRows(Item item, Character character, int width)
+        {
+            if (item == null || character == null)
+                return 0;
+
+            int rows = 0;
+            if (item.Modifications.Count > 0)
+            {
+                rows += WrappedLineCount(
+                    ItemComparisonRenderer.BuildModsLineSegments(item.Modifications, ColorPalette.Cyan.GetColor(), AsciiArtAssets.Colors.White),
+                    width);
+            }
+
+            if (!item.MeetsRequirements(character))
+            {
+                rows += 1;
+                string reason = item.GetEquipBlockedReason(character) ?? "Attribute requirements not met.";
+                rows += WrappedLineCount(new List<ColoredText> { new ColoredText(reason, AsciiArtAssets.Colors.Red) }, width);
+            }
+
+            if (item.ExcludeFromTradeUp)
+                rows += 2;
+
+            rows += EstimateComparisonRows(item, character, width);
+            return rows;
+        }
+
+        /// <summary>Rows <see cref="RenderEquippedComparison"/> draws, including the blank row above the rule.</summary>
+        internal static int EstimateComparisonRows(Item selectedItem, Character character, int width)
+        {
+            string? slot = InventoryActionPoolEntries.GetEquipSlotForItem(selectedItem);
+            if (slot == null)
+                return 0;
+
+            var equipped = character.Equipment.GetSlotItem(slot);
+            if (ReferenceEquals(equipped, selectedItem))
+                return 0;
+
+            int rows = 2; // gap, then the rule
+            if (equipped == null)
+                return rows + 1;
+
+            rows += WrappedLineCount(ItemRendererHelper.BuildItemNameSegments(-1, equipped, character), width) + 1;
+            rows += 1; // New / Worn / Change
+            rows += ItemComparisonTable.Build(
+                ItemStatFormatter.GetStatContributions(selectedItem, character),
+                ItemStatFormatter.GetStatContributions(equipped, character)).Count;
+            rows += 1; // gap before the action diff
+
+            var (gained, lost) = ItemComparisonTable.DiffActions(
+                character.Equipment.GetGearActions(selectedItem),
+                character.Equipment.GetGearActions(equipped));
+            if (gained.Count == 0 && lost.Count == 0)
+                return rows + 1;
+
+            if (gained.Count > 0)
+            {
+                var b = new ColoredTextBuilder();
+                b.Add("+ Gain: ", ColorPalette.Success.GetColor());
+                b.Add(string.Join(", ", gained), AsciiArtAssets.Colors.White);
+                rows += WrappedLineCount(b.Build(), width);
+            }
+
+            if (lost.Count > 0)
+            {
+                var b = new ColoredTextBuilder();
+                b.Add("- Lose: ", ColorPalette.Error.GetColor());
+                b.Add(string.Join(", ", lost), AsciiArtAssets.Colors.White);
+                rows += WrappedLineCount(b.Build(), width);
+            }
+
+            return rows;
+        }
+
+        private static int WrappedLineCount(List<ColoredText> segments, int width)
+        {
+            int n = TextWrappingHelper.WrapColoredSegments(segments, Math.Max(1, width)).Count;
+            return Math.Max(1, n);
+        }
+
+        private static List<ColoredText> BuildActionsLine(IReadOnlyList<string> itemActions)
+        {
+            var actionsBuilder = new ColoredTextBuilder();
+            actionsBuilder.Add("Actions: ", ColorPalette.Cyan.GetColor());
+            actionsBuilder.Add(string.Join(", ", itemActions), AsciiArtAssets.Colors.White);
+            return actionsBuilder.Build();
         }
 
         /// <summary>
@@ -664,7 +776,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
             int detailY = topY;
             int paneRows = Math.Max(0, detailBottomY - topY);
-            var hero = DetailHeroIconSize(canvas.GetCharWidth(), canvas.GetCharHeight(), detailWidth, paneRows);
+            // +1 is the blank row between the icon and the description. Measure the real text so the
+            // comparison table is not clipped under a square icon that only reserved 12 rows.
+            int textRows = EstimateDetailTextRows(selected.Item, character, detailWidth) + 1;
+            var hero = DetailHeroIconSize(canvas.GetCharWidth(), canvas.GetCharHeight(), detailWidth, paneRows, textRows);
             if (haveArt && hero.Rows > 0 && ItemArtAtlas.TryGetHeroIcon(selected.Item, out var bigBitmap, out var bigRect))
             {
                 canvas.AddImage(detailX, detailY, hero.Columns, hero.Rows, bigBitmap, bigRect, paddingPixels: 0, fillFrame: true);
@@ -844,16 +959,15 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             var itemActions = character.Equipment.GetGearActions(item);
             if (itemActions != null && itemActions.Count > 0 && y < bottomY)
             {
-                var actionsBuilder = new ColoredTextBuilder();
-                actionsBuilder.Add("Actions: ", ColorPalette.Cyan.GetColor());
-                actionsBuilder.Add(string.Join(", ", itemActions), AsciiArtAssets.Colors.White);
-                written = textWriter.WriteLineColoredWrapped(actionsBuilder.Build(), x, y, width);
+                written = textWriter.WriteLineColoredWrapped(BuildActionsLine(itemActions), x, y, width);
                 y += written;
                 currentLineCount += written;
             }
 
             var itemStats = ItemStatFormatter.GetItemStats(item, character);
-            int statsBudget = Math.Max(0, bottomY - y);
+            // Keep the mods line and the vs-equipped table. Stat lines are the part that can shrink.
+            int tailRows = EstimateDetailTailRows(item, character, width);
+            int statsBudget = Math.Max(0, bottomY - y - tailRows);
             if (statsBudget > 0 && itemStats.Count > 0)
             {
                 var cappedStats = itemStats.Count > statsBudget ? itemStats.GetRange(0, statsBudget) : itemStats;

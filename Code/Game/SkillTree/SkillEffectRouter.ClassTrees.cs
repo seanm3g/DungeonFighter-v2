@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using RPGGame.Combat.Events;
 
@@ -75,6 +76,40 @@ namespace RPGGame
             return new Item?[] { c.Weapon, c.Head, c.Body, c.Legs, c.Feet }
                 .Count(i => i != null && !string.IsNullOrWhiteSpace(i.Material)
                             && materials.Any(m => string.Equals(m, i.Material, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        /// <summary>
+        /// Player line for a convert mastery the hero has actually ranked. Empty when the node is unranked.
+        /// </summary>
+        public static string DescribeEquippedConvertMastery(Character? hero, string? actionName)
+        {
+            if (hero == null || hero is Enemy || string.IsNullOrWhiteSpace(actionName))
+                return "";
+            foreach (var mastery in ConvertMasteries)
+            {
+                if (!string.Equals(mastery.Action, actionName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                double power = SkillRanks.GetPower(hero, mastery.Effect);
+                if (power <= 0)
+                    return "";
+                string per = mastery.PerUnit.ToString("0.##", CultureInfo.InvariantCulture);
+                string keyword = mastery.Keyword;
+                return mastery.Rider switch
+                {
+                    ConvertRider.HealPctMaxHp => $"Your mastery heals {per}% max HP per {keyword}, per rank.",
+                    ConvertRider.DamageVsLowHp => $"Your mastery adds +{per}% damage per {keyword} against foes at 25% HP or less, per rank.",
+                    ConvertRider.Fortify => $"Your mastery grants Fortify per {keyword}, per rank.",
+                    ConvertRider.Speed => $"Your mastery adds +{per}% speed per {keyword}, per rank.",
+                    ConvertRider.Slow => $"Your mastery slows the target per {keyword}, per rank.",
+                    ConvertRider.Focus => $"Your mastery grants Focus per {keyword}, per rank.",
+                    ConvertRider.Vulnerable => $"Your mastery applies Vulnerability per {keyword}, per rank.",
+                    ConvertRider.Expose => $"Your mastery applies Expose per {keyword}, per rank.",
+                    ConvertRider.Damage => $"Your mastery adds +{per}% damage per {keyword}, per rank.",
+                    ConvertRider.Amp => $"Your mastery adds +{per}% AMP per {keyword}, per rank.",
+                    _ => ""
+                };
+            }
+            return "";
         }
 
         /// <summary>Extra units per mint of <paramref name="material"/>'s resource from the owning class's Synthesis node.</summary>

@@ -9,11 +9,11 @@ namespace RPGGame.UI.Avalonia.Renderers
 {
     public partial class CanvasRenderer
     {
-        public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)
+        public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel, string? newGameConfirmPrompt = null)
         {
             RenderWithLayout(null, "MAIN MENU", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                menuRenderer.RenderMainMenuContent(contentX, contentY, contentWidth, contentHeight, hasSavedGame, characterName, characterLevel);
+                menuRenderer.RenderMainMenuContent(contentX, contentY, contentWidth, contentHeight, hasSavedGame, characterName, characterLevel, newGameConfirmPrompt);
             }, new CanvasContext(), null, null, null, clearCanvas: false, usePersistentChrome: false);
             messageRenderer.ClearLoadingStatus();
             canvas.Refresh();

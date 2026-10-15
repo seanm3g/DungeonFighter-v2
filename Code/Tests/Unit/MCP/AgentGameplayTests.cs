@@ -60,7 +60,7 @@ namespace RPGGame.Tests.Unit.MCP
                 wrapper.ShowMainMenu();
 
                 var game = wrapper.Game!;
-                game.HandleInput("1").GetAwaiter().GetResult();
+                StartNewGameFromMenu(game).GetAwaiter().GetResult();
 
                 TestBase.AssertTrue(game.CurrentState == GameState.TrainingGroundOffer,
                     $"Expected TrainingGroundOffer after new game, got {game.CurrentState}",
@@ -137,10 +137,17 @@ namespace RPGGame.Tests.Unit.MCP
             }
         }
 
+        private static async Task StartNewGameFromMenu(GameCoordinator game)
+        {
+            await game.HandleInput("1");
+            if (game.CurrentState == GameState.MainMenu)
+                await game.HandleInput("1");
+        }
+
         private static async Task AdvanceToDungeonSelection(GameWrapper wrapper)
         {
             var game = wrapper.Game!;
-            await game.HandleInput("1"); // new game
+            await StartNewGameFromMenu(game);
             await game.HandleInput("2"); // skip training
             await game.HandleInput("1"); // path intro
             await game.HandleInput("1"); // weapon

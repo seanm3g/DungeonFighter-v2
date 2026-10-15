@@ -61,6 +61,10 @@ DungeonFighter v2 is a turn-based RPG written in C# (.NET) with a data-driven co
 
 ## Current focus area (for this change)
 
+### UI — New Game confirms before overwriting a save
+
+If a saved character exists, **1 New Game** stays on the main menu and replaces the footer hint with **Are you sure? (this will overwrite the saved character). Press 1 to continue.** A second **1** starts the new game. Any other menu key clears the prompt and does that key’s usual action. With no save, **1** still starts immediately.
+
 ### Bug fix / UI — F5 narrative video locked to line spacing
 
 Stretch-filling the MP4 across the combat-log band let the video’s horizontal features (brick courses / scan bands) beat against character-row height, so the backdrop drifted out of sync with text lines down the panel. Frames are now center-sampled onto the character-cell grid (one solid color per cell) and drawn with nearest-neighbor filtering, so each text row maps to one discrete video strip.
@@ -471,7 +475,7 @@ Hovering **GEAR** (including **Sets:**), **STATS**, or other left-sidebar rows d
 
 ### UI — dungeon run hides GEAR; STATUS EFFECTS until leave
 
-Once a dungeon is selected (`HasCurrentDungeon`), the left-panel **GEAR** section is omitted for the whole run (exploration, combat, inventory mid-run); hover the hero **name** for a compact equipped-gear summary. Gear returns when the run ends. **Action Lab** still shows GEAR so right-click gear editing works. The left-panel **STATUS EFFECTS** section appears for the whole dungeon run and in **Action Lab**; it disappears when you leave the dungeon. When shown, **STATUS EFFECTS** sits above **THRESHOLDS** / **CHANCES**. Visibility: `LeftPanelSectionVisibility`.
+Once a dungeon is selected (`HasCurrentDungeon`), the left-panel **GEAR** section is omitted for the whole run (exploration, combat, inventory mid-run); hover the hero **name** for a compact equipped-gear summary. Gear returns when the run ends. **Action Lab** still shows GEAR so right-click gear editing works. The left-panel **STATUS EFFECTS** section appears for the whole dungeon run and in **Action Lab**; it disappears when you leave the dungeon. When shown, **STATUS EFFECTS** sits above **THRESHOLDS** / **CHANCES**. Hovering a row explains the effect: material keywords name the last mint trigger (or the set WHEN), the convert that spends them, and that they last for the dungeon; other statuses say how they work and the action or item that last applied them (`HoverEffectCopy`). Visibility: `LeftPanelSectionVisibility`.
 
 Tests: `LeftPanelSectionVisibilityTests`, `HoverTooltipDrawingTests`.
 
@@ -791,6 +795,8 @@ The Page Up/Page Down confirmation text is shown in the black band below the mai
 Feet item stat displays include an **Action slots: +N** row so equip comparisons and inventory previews make clear how many extra combo/action strip slots that footwear contributes, including **+0** when a feet item adds none. Gear in other slots still surfaces this row when it has a positive `ExtraActionSlots` roll.
 
 ### UI — inventory pool action requirements and item hover
+
+Hovering a **POOL** action (and the combo strip) leads with a **Does** section: the sheet description, who receives each status, how that status works, and, for a convert such as **WILLOW LASH**, the keyword bank it spends. Stats and the Alt detail stay below that. `HoverEffectCopy` / `CombatActionStripBuilder`.
 
 The right-panel **INVENTORY (from bag)** action pool only lists actions from bag items the hero can currently equip. If an item's STR/AGI/TEC/INT requirements are unmet, its granted actions stay hidden there, matching the equip gate. Hovering a visible bag action row shows the existing item detail tooltip for the source item, so the player can tell which item grants that action before clicking it. Inventory strip paint must not clear that tooltip (same early-out as gear **POOL** hover): otherwise the center wipe leaves only stray overlay fragments in the right column. Bag-item tips stay clamped inside the center panel; pool/inventory row Y helpers stay in sync with `RenderInventoryRightPanel`.
 

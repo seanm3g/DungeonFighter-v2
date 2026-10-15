@@ -13,6 +13,7 @@ namespace RPGGame.UI.Avalonia
             public const string PressAnyKey = "Press any key to continue...";
             public const string PressAnyButton = "Press any button to Start Adventure";
             public const string ClickOrPressNumber = "Click on options or press number keys. Press H for help";
+            public const string NewGameOverwriteConfirm = "Are you sure? (this will overwrite the saved character). Press 1 to continue.";
             public const string PressNumberOrClick = "Press the number key or click to select your weapon";
             public const string Loading = "Loading...";
         }

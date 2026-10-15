@@ -100,6 +100,19 @@ namespace RPGGame
                 AddColoredLine(lines, BuildActionRarityLine(rarity));
             if (lines.Count >= maxLines) return TrimColored(lines, maxLines);
 
+            var does = HoverEffectCopy.BuildActionDoesLines(character, action);
+            if (does.Count > 0 && lines.Count < maxLines)
+            {
+                AddColoredBlank(lines);
+                AddColoredLine(lines, ActionSectionHeader("Does"));
+                foreach (string segment in does)
+                {
+                    if (lines.Count >= maxLines) break;
+                    AddColoredLine(lines, PlainGrayLine(segment));
+                }
+            }
+            if (lines.Count >= maxLines) return TrimColored(lines, maxLines);
+
             var stats = BuildPrimaryStatSegments(character, action, panelIndex, swingLineMode);
             if (stats.Count > 0)
             {

@@ -147,6 +147,8 @@ namespace RPGGame.Tuning
                 .Select((item, index) => (item, index))
                 .Where(x => PlaythroughGearPolicy.SlotOf(x.item) != "")
                 .Where(x => x.item is not WeaponItem w || w.WeaponType == weaponType)
+                // Only gear the hero can wear: the top-2-per-slot cut below must not be spent on items equip refuses.
+                .Where(x => x.item.GetEquipBlockedReason(hero) == null)
                 .ToList();
 
             var picks = new HashSet<int>();

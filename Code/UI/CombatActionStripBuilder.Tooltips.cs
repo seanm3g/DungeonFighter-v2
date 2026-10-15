@@ -613,6 +613,18 @@ namespace RPGGame
                 AddWrapped(rarity);
             if (result.Count >= maxLines) return result;
 
+            var does = HoverEffectCopy.BuildActionDoesLines(character, action);
+            if (does.Count > 0)
+            {
+                AddWrapped("Does");
+                foreach (string segment in does)
+                {
+                    if (result.Count >= maxLines) return result;
+                    AddWrapped(segment);
+                }
+            }
+            if (result.Count >= maxLines) return result;
+
             var stats = BuildPrimaryStatSegments(character, action, panelIndex, swingLineMode);
             if (stats.Count > 0)
             {

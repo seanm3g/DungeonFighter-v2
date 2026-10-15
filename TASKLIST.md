@@ -4,6 +4,10 @@ This file tracks the work currently in progress. Only items listed here should b
 
 ## Active
 
+- [x] **UI / Main menu — confirm New Game when a save exists:** Choosing New Game while a character is saved asks “Are you sure? (this will overwrite the saved character).” Press 1 again to start; any other menu key drops the prompt. Scope: `MainMenuHandler`, `MainMenuRenderer`, `AgentChoiceBuilder`. Tests: `MainMenuHandlerTests`, `AgentGameplayTests`. Docs: `OVERVIEW.md`, `TASKLIST.md`.
+
+- [x] **UI — status and pool hovers explain the effect:** Status-row hover names the trigger (material WHEN or last action/item) and how the effect works. Action-pool and strip hovers lead with a Does section (description, status grant, convert bank). Scope: `HoverEffectCopy`, `LeftPanelTooltipBuilder`, `CombatActionStripBuilder`, `Actor.StatusSources`, `CharacterEffectsState.MaterialKeywordSources`. Tests: `LeftPanelTooltipBuilderTests`, `CombatActionStripBuilderTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `TASKLIST.md`.
+
 - [x] **Combat / UI — room structure shift line:** When elegant or dilapidated actually changes the hero d20, the action block prints `(elegant: +N)` or `(dilapidated: -N)` as the first line under the roll footer. No line when the tags cancel or the shift is clamped off the face. Scope: `EnvironmentRollModifier`, `RollInfoFormatter`, `ActionExecutionFlow.Selection`, `ActionExecutor`. Tests: `EnvironmentRollModifierTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `PROBLEM_SOLUTIONS.md`, `TASKLIST.md`.
 
 - [x] **Gameplay / Dungeon — full heal on leave or clear:** Leaving early or finishing a dungeon (loot → completion → menu) restores the hero to full effective max HP and clears run-scoped buffs via `DungeonRunRecovery` (also used after reward XP/loot). Scope: `DungeonRunRecovery`, `DungeonOrchestrator`, `DungeonRewardManager`, `RewardManager`. Tests: `DungeonRunRecoveryTests`, `DungeonRewardsTests`. Docs: `OVERVIEW.md`, `ARCHITECTURE.md`, `TASKLIST.md`.

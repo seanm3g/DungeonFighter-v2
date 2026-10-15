@@ -27,9 +27,9 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderDungeonSelection(player, dungeons, GetContext(), dungeonSelectionCustomLevelEntryBuffer, regionLabel);
         }
 
-        public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)
+        public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel, string? newGameConfirmPrompt = null)
         {
-            renderer.RenderMainMenu(hasSavedGame, characterName, characterLevel);
+            renderer.RenderMainMenu(hasSavedGame, characterName, characterLevel, newGameConfirmPrompt);
         }
 
         public void RenderWeaponSelection(List<StartingWeapon> weapons)

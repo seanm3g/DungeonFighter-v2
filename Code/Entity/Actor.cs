@@ -549,6 +549,25 @@ namespace RPGGame
             ConfusionChance = 0.0;
             IsMarked = false;
             MarkTurns = 0;
+            StatusSources.Clear();
+        }
+
+        /// <summary>Last action or item that applied a status, keyed by effect id (harden, bleed, …).</summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        public Dictionary<string, string> StatusSources { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        public void NoteStatusSource(string? effectId, string? source)
+        {
+            if (string.IsNullOrWhiteSpace(effectId) || string.IsNullOrWhiteSpace(source))
+                return;
+            StatusSources[effectId.Trim()] = source.Trim();
+        }
+
+        public string GetStatusSource(string? effectId)
+        {
+            if (string.IsNullOrWhiteSpace(effectId))
+                return "";
+            return StatusSources.TryGetValue(effectId.Trim(), out string? source) ? source : "";
         }
 
         public abstract string GetDescription();

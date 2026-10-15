@@ -53,11 +53,16 @@ namespace RPGGame
         /// <summary>
         /// Applies a status effect using the appropriate handler
         /// </summary>
-        public bool ApplyEffect(string effectType, Actor target, Action action, List<string> results)
+        public bool ApplyEffect(string effectType, Actor target, Action? action, List<string> results)
         {
+            if (action == null || string.IsNullOrWhiteSpace(effectType))
+                return false;
             if (_handlers.TryGetValue(effectType.ToLower(), out var handler))
             {
-                return handler.Apply(target, action, results);
+                bool applied = handler.Apply(target, action, results);
+                if (applied)
+                    target?.NoteStatusSource(effectType, action.Name);
+                return applied;
             }
             return false;
         }
