@@ -6659,5 +6659,10 @@
     "wraps"
    ]
   }
+ },
+ "hero": {
+  "size": 768,
+  "dir": "hero",
+  "ext": ".webp"
  }
 }

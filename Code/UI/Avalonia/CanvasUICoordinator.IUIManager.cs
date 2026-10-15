@@ -18,6 +18,17 @@ namespace RPGGame.UI.Avalonia
 
         public int CenterX => canvas.CenterX;
 
+        public int GridWidth => canvas.GridWidth;
+
+        public int GridHeight => canvas.GridHeight;
+
+        /// <summary>Raw full-screen text cell run (title scene); no merge, no center-column zoom.</summary>
+        public void AddSceneText(int x, int y, string text, global::Avalonia.Media.Color color) => canvas.AddSceneText(x, y, text, color);
+
+        /// <summary>Solid filled cell rectangle (title scene pixel blocks).</summary>
+        public void AddSceneBlock(int x, int y, int width, int height, global::Avalonia.Media.Color color) =>
+            canvas.AddBox(x, y, width, height, color, color);
+
         public void Close()
         {
             windowManager.Close();

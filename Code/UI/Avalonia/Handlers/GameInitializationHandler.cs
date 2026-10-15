@@ -187,7 +187,24 @@ namespace RPGGame.UI.Avalonia.Handlers
             }
         }
 
-        private void StartTitleIdleLoop(Action<string> status)
+        /// <summary>
+        /// Restarts the title intro from the title screen or main menu (F5). Any key then returns to the menu.
+        /// </summary>
+        /// <returns>True when the replay started (caller marks the key handled).</returns>
+        public bool TryReplayTitleScreen(Action<string> status)
+        {
+            bool onTitle = waitingForKeyAfterAnimation;
+            bool onMainMenu = isInitialized && game?.CurrentState == GameState.MainMenu;
+            if (!onTitle && !onMainMenu)
+                return false;
+
+            TitleScreenHelper.NewSceneSeed();
+            waitingForKeyAfterAnimation = true;
+            StartTitleIdleLoop(status, firstFrameAlreadyRendered: false);
+            return true;
+        }
+
+        private void StartTitleIdleLoop(Action<string> status, bool firstFrameAlreadyRendered = true)
         {
             titleIdleCts?.Cancel();
             titleIdleCts?.Dispose();
@@ -201,7 +218,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                     await TitleScreenHelper.ShowAnimatedTitleScreenAsync(
                         idleToken,
                         onReadyForKey: null,
-                        firstFrameAlreadyRendered: true).ConfigureAwait(false);
+                        firstFrameAlreadyRendered: firstFrameAlreadyRendered).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {

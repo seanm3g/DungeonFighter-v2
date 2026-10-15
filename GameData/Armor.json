@@ -4,6 +4,10 @@
     "name": "Band",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "intelligence": 5
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -11,21 +15,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Cap",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "intelligence": 5
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -33,24 +40,74 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 5,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "head",
+    "name": "Cowl",
+    "armor": 0,
+    "tier": 1,
+    "attributeRequirements": {
+      "intelligence": 13
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 0,
+    "technique": 5,
+    "intelligence": 2,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
     "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 1,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "head",
+    "name": "Hat",
+    "armor": 0,
+    "tier": 1,
     "attributeRequirements": {
       "intelligence": 5
-    }
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 0,
+    "technique": 5,
+    "intelligence": 2,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 1,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Helmet",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": {},
     "tags": [
       "starter"
     ],
-    "armor": 1,
-    "tier": 1,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -58,63 +115,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 0,
-    "attackSpeed": 0,
-    "attributeRequirements": {}
-  },
-  {
-    "slot": "head",
-    "name": "Cowl",
-    "armor": 0,
-    "tier": 1,
-    "strength": 0,
-    "agility": 0,
-    "technique": 5,
-    "intelligence": 2,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 1,
-    "requirement value": 13,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 13
-    }
-  },
-  {
-    "slot": "head",
-    "name": "Hat",
-    "armor": 0,
-    "tier": 1,
-    "strength": 0,
-    "agility": 0,
-    "technique": 5,
-    "intelligence": 2,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 1,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Hood",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "intelligence": 5
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -122,21 +140,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Scraps",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "intelligence": 14
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -144,21 +165,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 14,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 14
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Skullcap",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "intelligence": 13
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -166,21 +190,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 13,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 13
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Toque",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "intelligence": 10
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -188,21 +215,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 10,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 10
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Veil",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "intelligence": 10
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
@@ -210,21 +240,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 10,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 10
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Wrap",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "intelligence": 5
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
@@ -232,21 +265,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Chainhood",
     "armor": 0,
     "tier": 2,
+    "attributeRequirements": {
+      "will": 46
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -254,21 +290,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 29,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "will": 46
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Circlet",
     "armor": 0,
     "tier": 2,
+    "attributeRequirements": {
+      "intelligence": 29
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -276,21 +315,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 29,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 29
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Face Helm",
     "armor": 0,
     "tier": 2,
+    "attributeRequirements": {
+      "intelligence": 20
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
@@ -298,21 +340,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 20,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 20
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Faceplate",
     "armor": 1,
     "tier": 2,
+    "attributeRequirements": {
+      "intelligence": 53
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
@@ -320,21 +365,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 53,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 53
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Helm",
     "armor": 0,
     "tier": 2,
+    "attributeRequirements": {
+      "wits": 16
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -342,21 +390,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 10,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "wits": 16
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Kerfcheif",
     "armor": 0,
     "tier": 2,
+    "attributeRequirements": {
+      "intelligence": 11
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -364,21 +415,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 11,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 11
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Nasal Helm",
     "armor": 0,
     "tier": 2,
+    "attributeRequirements": {
+      "intelligence": 19
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -386,21 +440,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 19,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 19
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Pointed Helm",
     "armor": 0,
     "tier": 2,
+    "attributeRequirements": {
+      "intelligence": 28
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -408,21 +465,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 28,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 28
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Visored Cap",
     "armor": 0,
     "tier": 2,
+    "attributeRequirements": {
+      "mind": 29
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
@@ -430,21 +490,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 18,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "mind": 29
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "War Cap",
     "armor": 0,
     "tier": 2,
+    "attributeRequirements": {
+      "intelligence": 23
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
@@ -452,21 +515,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 1,
-    "requirement value": 23,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 23
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Forg-Mouth Helm",
     "armor": 1,
     "tier": 3,
+    "attributeRequirements": {
+      "intelligence": 64
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
@@ -474,21 +540,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 64,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 64
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Greathelm",
     "armor": 1,
     "tier": 3,
+    "attributeRequirements": {
+      "intelligence": 61
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -496,21 +565,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 61,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 61
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Hounskull",
     "armor": 1,
     "tier": 3,
+    "attributeRequirements": {
+      "will": 83
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
@@ -518,21 +590,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 52,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "will": 83
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Ironhood",
     "armor": 1,
     "tier": 3,
+    "attributeRequirements": {
+      "intelligence": 54
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
@@ -540,21 +615,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 54,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 54
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Sealed Helm",
     "armor": 1,
     "tier": 3,
+    "attributeRequirements": {
+      "intelligence": 65
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -562,21 +640,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 65,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 65
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Throat Guard",
     "armor": 1,
     "tier": 3,
+    "attributeRequirements": {
+      "intelligence": 64
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -584,21 +665,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 64,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 64
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Visor",
     "armor": 1,
     "tier": 3,
+    "attributeRequirements": {
+      "wits": 56
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -606,21 +690,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 35,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "wits": 56
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Visored Helm",
     "armor": 1,
     "tier": 3,
+    "attributeRequirements": {
+      "intelligence": 63
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -628,21 +715,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 63,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 63
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Visored Helm",
     "armor": 1,
     "tier": 3,
+    "attributeRequirements": {
+      "intelligence": 63
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -650,21 +740,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 63,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 63
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Warhelf",
     "armor": 1,
     "tier": 3,
+    "attributeRequirements": {
+      "intelligence": 55
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -672,21 +765,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 55,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 55
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Doomhelm",
     "armor": 1,
     "tier": 4,
+    "attributeRequirements": {
+      "mind": 142
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -694,21 +790,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 89,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "mind": 142
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Face Guard",
     "armor": 1,
     "tier": 4,
+    "attributeRequirements": {
+      "intelligence": 83
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
@@ -716,21 +815,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 83,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 83
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Godhelm",
     "armor": 1,
     "tier": 4,
+    "attributeRequirements": {
+      "intelligence": 76
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
@@ -738,21 +840,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 76,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 76
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Headdress",
     "armor": 1,
     "tier": 4,
+    "attributeRequirements": {
+      "intelligence": 77
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -760,21 +865,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 77,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 77
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Linked Hood",
     "armor": 1,
     "tier": 4,
+    "attributeRequirements": {
+      "will": 144
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -782,21 +890,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 90,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "will": 144
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Mask",
     "armor": 1,
     "tier": 4,
+    "attributeRequirements": {
+      "intelligence": 70
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -804,21 +915,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 70,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 70
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Siegehelm",
     "armor": 1,
     "tier": 4,
+    "attributeRequirements": {
+      "intelligence": 74
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
@@ -826,65 +940,74 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 74,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 74
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Warcrown",
     "armor": 1,
     "tier": 4,
-    "strength": 0,
-    "agility": 5,
-    "technique": 0,
-    "intelligence": 12,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 2,
-    "requirement value": 76,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 76
-    }
-  },
-  {
-    "slot": "head",
-    "name": "Warcrown",
-    "armor": 1,
-    "tier": 4,
-    "strength": 0,
-    "agility": 5,
-    "technique": 0,
-    "intelligence": 12,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 2,
-    "requirement value": 76,
-    "attackSpeed": 0,
     "attributeRequirements": {
       "wits": 122
-    }
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 5,
+    "technique": 0,
+    "intelligence": 12,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 2,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "head",
+    "name": "Warcrown",
+    "armor": 1,
+    "tier": 4,
+    "attributeRequirements": {
+      "wits": 122
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 5,
+    "technique": 0,
+    "intelligence": 12,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 2,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Worldcrown",
     "armor": 1,
     "tier": 4,
+    "attributeRequirements": {
+      "intelligence": 66
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
@@ -892,21 +1015,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 2,
-    "requirement value": 66,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 66
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Corinthian",
     "armor": 2,
     "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 82
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
@@ -914,21 +1040,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 3,
-    "requirement value": 82,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 82
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Death Mask",
     "armor": 2,
     "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 79
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
@@ -936,21 +1065,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 3,
-    "requirement value": 79,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 79
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Dragon Scale Helmet",
     "armor": 2,
     "tier": 5,
+    "attributeRequirements": {
+      "mind": 152
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -958,21 +1090,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 3,
-    "requirement value": 95,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "mind": 152
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Full Plate Helmet",
     "armor": 2,
     "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 76
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -980,21 +1115,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 3,
-    "requirement value": 76,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 76
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Jawplate",
     "armor": 2,
     "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 99
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -1002,21 +1140,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 3,
-    "requirement value": 99,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 99
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Kabuto",
     "armor": 2,
     "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 90
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -1024,21 +1165,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 3,
-    "requirement value": 90,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 90
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Neckguard",
     "armor": 2,
     "tier": 5,
+    "attributeRequirements": {
+      "will": 112
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -1046,21 +1190,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 3,
-    "requirement value": 70,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "will": 112
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Plated Hood",
     "armor": 2,
     "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 92
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
@@ -1068,21 +1215,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 3,
-    "requirement value": 92,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 92
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Plumed Helm",
     "armor": 2,
     "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 86
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
@@ -1090,21 +1240,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 3,
-    "requirement value": 86,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 86
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "head",
     "name": "Skull Plate",
     "armor": 2,
     "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 57
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -1112,21 +1265,49 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 3,
-    "requirement value": 57,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "chest",
+    "name": "Armor",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": {},
+    "tags": [
+      "starter"
+    ],
+    "strength": 0,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
     "attackSpeed": 0,
-    "attributeRequirements": {
-      "intelligence": 57
-    }
+    "extraActionSlots": 1,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Coat",
     "armor": 3,
     "tier": 1,
+    "attributeRequirements": {
+      "strength": 9
+    },
+    "tags": null,
     "strength": 3,
     "agility": 0,
     "technique": 0,
@@ -1134,21 +1315,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 9,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 9
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Corselet",
     "armor": 3,
     "tier": 1,
+    "attributeRequirements": {
+      "strength": 15
+    },
+    "tags": null,
     "strength": 2,
     "agility": 0,
     "technique": 0,
@@ -1156,21 +1340,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 15,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 15
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Curiass",
     "armor": 1,
     "tier": 1,
+    "attributeRequirements": {
+      "strength": 13
+    },
+    "tags": null,
     "strength": 2,
     "agility": 0,
     "technique": 0,
@@ -1178,21 +1365,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 13,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 13
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Duelist Coat",
     "armor": 1,
     "tier": 1,
+    "attributeRequirements": {
+      "strength": 15
+    },
+    "tags": null,
     "strength": 3,
     "agility": 0,
     "technique": 5,
@@ -1200,21 +1390,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 15,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 15
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Jerkin",
     "armor": 3,
     "tier": 1,
+    "attributeRequirements": {
+      "strength": 5
+    },
+    "tags": null,
     "strength": 1,
     "agility": 0,
     "technique": 5,
@@ -1222,21 +1415,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Sentinel Vest",
     "armor": 3,
     "tier": 1,
+    "attributeRequirements": {
+      "strength": 14
+    },
+    "tags": null,
     "strength": 2,
     "agility": 5,
     "technique": 0,
@@ -1244,21 +1440,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 14,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 14
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Shirt",
     "armor": 2,
     "tier": 1,
+    "attributeRequirements": {
+      "strength": 5
+    },
+    "tags": null,
     "strength": 2,
     "agility": 0,
     "technique": 0,
@@ -1266,44 +1465,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 5
-    }
-  },
-  {
-    "slot": "chest",
-    "name": "Armor",
-    "tags": [
-      "starter"
-    ],
-    "armor": 1,
-    "tier": 1,
-    "strength": 0,
-    "agility": 0,
-    "technique": 0,
-    "intelligence": 0,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "extraActionSlots": 1,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0,
-    "requirement value": 0,
-    "attackSpeed": 0,
-    "attributeRequirements": {}
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Surcoat",
     "armor": 2,
     "tier": 1,
+    "attributeRequirements": {
+      "strength": 11
+    },
+    "tags": null,
     "strength": 2,
     "agility": 5,
     "technique": 0,
@@ -1311,21 +1490,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 11,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 11
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Thick Wrap",
     "armor": 1,
     "tier": 1,
+    "attributeRequirements": {
+      "strength": 5
+    },
+    "tags": null,
     "strength": 2,
     "agility": 0,
     "technique": 0,
@@ -1333,21 +1515,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Vest",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "strength": 5
+    },
+    "tags": null,
     "strength": 3,
     "agility": 0,
     "technique": 0,
@@ -1355,21 +1540,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Breastplate",
     "armor": 5,
     "tier": 2,
+    "attributeRequirements": {
+      "prowess": 43
+    },
+    "tags": null,
     "strength": 4,
     "agility": 0,
     "technique": 0,
@@ -1377,21 +1565,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 27,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "prowess": 43
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Chainmail",
     "armor": 5,
     "tier": 2,
+    "attributeRequirements": {
+      "strength": 18
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
@@ -1399,21 +1590,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 18,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 18
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Defender Cuirass",
     "armor": 5,
     "tier": 2,
+    "attributeRequirements": {
+      "strength": 11
+    },
+    "tags": null,
     "strength": 3,
     "agility": 0,
     "technique": 5,
@@ -1421,21 +1615,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 11,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 11
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Demi-Plate",
     "armor": 9,
     "tier": 2,
+    "attributeRequirements": {
+      "strength": 26
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
@@ -1443,21 +1640,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 26,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 26
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Half-Plate",
     "armor": 9,
     "tier": 2,
+    "attributeRequirements": {
+      "will": 38
+    },
+    "tags": null,
     "strength": 3,
     "agility": 5,
     "technique": 0,
@@ -1465,21 +1665,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 24,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "will": 38
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Rover Jacket",
     "armor": 6,
     "tier": 2,
+    "attributeRequirements": {
+      "strength": 26
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 0,
@@ -1487,21 +1690,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 26,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 26
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Stalker\u0027s Mantle",
     "armor": 6,
     "tier": 2,
+    "attributeRequirements": {
+      "strength": 17
+    },
+    "tags": null,
     "strength": 3,
     "agility": 5,
     "technique": 0,
@@ -1509,21 +1715,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 17,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 17
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Studded Vest",
     "armor": 8,
     "tier": 2,
+    "attributeRequirements": {
+      "strength": 11
+    },
+    "tags": null,
     "strength": 4,
     "agility": 0,
     "technique": 5,
@@ -1531,21 +1740,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 11,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 11
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Tabard",
     "armor": 6,
     "tier": 2,
+    "attributeRequirements": {
+      "body": 40
+    },
+    "tags": null,
     "strength": 2,
     "agility": 0,
     "technique": 0,
@@ -1553,21 +1765,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 25,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "body": 40
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "War Coat",
     "armor": 8,
     "tier": 2,
+    "attributeRequirements": {
+      "strength": 22
+    },
+    "tags": null,
     "strength": 4,
     "agility": 0,
     "technique": 0,
@@ -1575,21 +1790,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 22,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 22
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Aegis",
     "armor": 14,
     "tier": 3,
+    "attributeRequirements": {
+      "strength": 65
+    },
+    "tags": null,
     "strength": 8,
     "agility": 0,
     "technique": 5,
@@ -1597,21 +1815,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 65,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 65
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Bastion Armor",
     "armor": 13,
     "tier": 3,
+    "attributeRequirements": {
+      "strength": 60
+    },
+    "tags": null,
     "strength": 9,
     "agility": 5,
     "technique": 0,
@@ -1619,21 +1840,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 60,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 60
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Bulwark",
     "armor": 18,
     "tier": 3,
+    "attributeRequirements": {
+      "prowess": 82
+    },
+    "tags": null,
     "strength": 6,
     "agility": 5,
     "technique": 0,
@@ -1641,21 +1865,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 51,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "prowess": 82
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Full Plate",
     "armor": 13,
     "tier": 3,
+    "attributeRequirements": {
+      "strength": 36
+    },
+    "tags": null,
     "strength": 6,
     "agility": 0,
     "technique": 0,
@@ -1663,43 +1890,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 36,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 36
-    }
-  },
-  {
-    "slot": "chest",
-    "name": "Ironwall",
-    "armor": 18,
-    "tier": 3,
-    "strength": 6,
-    "agility": 0,
-    "technique": 0,
-    "intelligence": 0,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0,
-    "requirement value": 45,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 45
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Ironwall",
     "armor": 10,
     "tier": 3,
+    "attributeRequirements": {
+      "strength": 45
+    },
+    "tags": null,
     "strength": 6,
     "agility": 0,
     "technique": 0,
@@ -1707,21 +1915,49 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 45,
-    "attackSpeed": 0,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "chest",
+    "name": "Ironwall",
+    "armor": 10,
+    "tier": 3,
     "attributeRequirements": {
       "strength": 45
-    }
+    },
+    "tags": null,
+    "strength": 6,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Pauldron",
     "armor": 19,
     "tier": 3,
+    "attributeRequirements": {
+      "will": 70
+    },
+    "tags": null,
     "strength": 9,
     "agility": 0,
     "technique": 0,
@@ -1729,21 +1965,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 44,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "will": 70
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Phalaanx",
     "armor": 16,
     "tier": 3,
+    "attributeRequirements": {
+      "strength": 50
+    },
+    "tags": null,
     "strength": 7,
     "agility": 0,
     "technique": 0,
@@ -1751,21 +1990,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 50,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 50
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Skirmisher Coat",
     "armor": 14,
     "tier": 3,
+    "attributeRequirements": {
+      "strength": 35
+    },
+    "tags": null,
     "strength": 6,
     "agility": 0,
     "technique": 0,
@@ -1773,21 +2015,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 35,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 35
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Spaulder",
     "armor": 10,
     "tier": 3,
+    "attributeRequirements": {
+      "strength": 56
+    },
+    "tags": null,
     "strength": 6,
     "agility": 0,
     "technique": 5,
@@ -1795,21 +2040,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 56,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 56
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Adamantine Chestplate",
     "armor": 27,
     "tier": 4,
+    "attributeRequirements": {
+      "body": 123
+    },
+    "tags": null,
     "strength": 12,
     "agility": 0,
     "technique": 0,
@@ -1817,21 +2065,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 77,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "body": 123
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Banded Mail",
     "armor": 16,
     "tier": 4,
+    "attributeRequirements": {
+      "strength": 60
+    },
+    "tags": null,
     "strength": 6,
     "agility": 0,
     "technique": 0,
@@ -1839,21 +2090,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 60,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 60
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Fortress",
     "armor": 18,
     "tier": 4,
+    "attributeRequirements": {
+      "strength": 71
+    },
+    "tags": null,
     "strength": 12,
     "agility": 0,
     "technique": 0,
@@ -1861,21 +2115,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 71,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 71
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Ironclad",
     "armor": 27,
     "tier": 4,
+    "attributeRequirements": {
+      "strength": 85
+    },
+    "tags": null,
     "strength": 13,
     "agility": 0,
     "technique": 0,
@@ -1883,21 +2140,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 85,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 85
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Mithril Chestplate",
     "armor": 25,
     "tier": 4,
+    "attributeRequirements": {
+      "prowess": 128
+    },
+    "tags": null,
     "strength": 12,
     "agility": 0,
     "technique": 0,
@@ -1905,21 +2165,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 80,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "prowess": 128
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Ring Mail",
     "armor": 21,
     "tier": 4,
+    "attributeRequirements": {
+      "strength": 69
+    },
+    "tags": null,
     "strength": 7,
     "agility": 0,
     "technique": 5,
@@ -1927,21 +2190,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 69,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 69
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Scale Mail",
     "armor": 29,
     "tier": 4,
+    "attributeRequirements": {
+      "strength": 57
+    },
+    "tags": null,
     "strength": 7,
     "agility": 5,
     "technique": 0,
@@ -1949,21 +2215,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 57,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 57
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Splint Mail",
     "armor": 30,
     "tier": 4,
+    "attributeRequirements": {
+      "strength": 80
+    },
+    "tags": null,
     "strength": 10,
     "agility": 0,
     "technique": 0,
@@ -1971,21 +2240,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 80,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 80
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Stormwall",
     "armor": 21,
     "tier": 4,
+    "attributeRequirements": {
+      "will": 110
+    },
+    "tags": null,
     "strength": 6,
     "agility": 0,
     "technique": 5,
@@ -1993,21 +2265,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 69,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "will": 110
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Vanguard Plate",
     "armor": 18,
     "tier": 4,
+    "attributeRequirements": {
+      "strength": 66
+    },
+    "tags": null,
     "strength": 9,
     "agility": 5,
     "technique": 0,
@@ -2015,21 +2290,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 66,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 66
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Champion",
     "armor": 20,
     "tier": 5,
+    "attributeRequirements": {
+      "strength": 88
+    },
+    "tags": null,
     "strength": 23,
     "agility": 0,
     "technique": 0,
@@ -2037,21 +2315,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 88,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 88
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Citadel",
     "armor": 27,
     "tier": 5,
+    "attributeRequirements": {
+      "strength": 71
+    },
+    "tags": null,
     "strength": 24,
     "agility": 5,
     "technique": 0,
@@ -2059,21 +2340,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 71,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 71
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Colossus",
     "armor": 23,
     "tier": 5,
+    "attributeRequirements": {
+      "body": 115
+    },
+    "tags": null,
     "strength": 7,
     "agility": 0,
     "technique": 0,
@@ -2081,21 +2365,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 72,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "body": 115
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Crusader",
     "armor": 39,
     "tier": 5,
+    "attributeRequirements": {
+      "strength": 97
+    },
+    "tags": null,
     "strength": 8,
     "agility": 5,
     "technique": 0,
@@ -2103,21 +2390,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 97,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 97
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Dragon Scale Armor",
     "armor": 25,
     "tier": 5,
+    "attributeRequirements": {
+      "strength": 76
+    },
+    "tags": null,
     "strength": 24,
     "agility": 0,
     "technique": 0,
@@ -2125,21 +2415,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 76,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 76
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Full Plate Armor",
     "armor": 29,
     "tier": 5,
+    "attributeRequirements": {
+      "strength": 74
+    },
+    "tags": null,
     "strength": 24,
     "agility": 0,
     "technique": 0,
@@ -2147,21 +2440,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 74,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 74
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Plated Mail",
     "armor": 20,
     "tier": 5,
+    "attributeRequirements": {
+      "prowess": 106
+    },
+    "tags": null,
     "strength": 6,
     "agility": 0,
     "technique": 0,
@@ -2169,21 +2465,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 66,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "prowess": 106
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Protector",
     "armor": 34,
     "tier": 5,
+    "attributeRequirements": {
+      "strength": 103
+    },
+    "tags": null,
     "strength": 13,
     "agility": 0,
     "technique": 5,
@@ -2191,21 +2490,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 103,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 103
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Sovereign Plate",
     "armor": 22,
     "tier": 5,
+    "attributeRequirements": {
+      "strength": 66
+    },
+    "tags": null,
     "strength": 16,
     "agility": 0,
     "technique": 0,
@@ -2213,21 +2515,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 66,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 66
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "chest",
     "name": "Vanguard",
     "armor": 26,
     "tier": 5,
+    "attributeRequirements": {
+      "strength": 69
+    },
+    "tags": null,
     "strength": 21,
     "agility": 0,
     "technique": 5,
@@ -2235,21 +2540,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 69,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "strength": 69
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "breeches",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "agility": 5
+    },
+    "tags": null,
     "strength": 0,
     "agility": 3,
     "technique": 5,
@@ -2257,21 +2565,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Handed Down Breeches",
     "armor": 3,
     "tier": 1,
+    "attributeRequirements": {
+      "agility": 12
+    },
+    "tags": null,
     "strength": 0,
     "agility": 3,
     "technique": 0,
@@ -2279,21 +2590,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 12,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 12
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "leggings",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "agility": 5
+    },
+    "tags": null,
     "strength": 5,
     "agility": 2,
     "technique": 0,
@@ -2301,21 +2615,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "shinguards",
     "armor": 3,
     "tier": 1,
+    "attributeRequirements": {
+      "agility": 5
+    },
+    "tags": null,
     "strength": 0,
     "agility": 2,
     "technique": 0,
@@ -2323,21 +2640,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Squire\u0027s Greaves",
     "armor": 3,
     "tier": 1,
+    "attributeRequirements": {
+      "agility": 9
+    },
+    "tags": null,
     "strength": 0,
     "agility": 2,
     "technique": 5,
@@ -2345,21 +2665,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 9,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 9
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "tassets",
     "armor": 2,
     "tier": 1,
+    "attributeRequirements": {
+      "agility": 15
+    },
+    "tags": null,
     "strength": 5,
     "agility": 3,
     "technique": 0,
@@ -2367,21 +2690,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 15,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 15
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Tattered Wraps",
     "armor": 1,
     "tier": 1,
+    "attributeRequirements": {
+      "agility": 6
+    },
+    "tags": null,
     "strength": 0,
     "agility": 1,
     "technique": 0,
@@ -2389,21 +2715,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 6,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 6
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "trousers",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "agility": 11
+    },
+    "tags": null,
     "strength": 0,
     "agility": 3,
     "technique": 0,
@@ -2411,21 +2740,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 11,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 11
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Villager\u0027s Tassets",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "agility": 6
+    },
+    "tags": null,
     "strength": 0,
     "agility": 2,
     "technique": 0,
@@ -2433,21 +2765,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 6,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 6
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "wraps",
     "armor": 2,
     "tier": 1,
+    "attributeRequirements": {
+      "agility": 5
+    },
+    "tags": null,
     "strength": 0,
     "agility": 2,
     "technique": 0,
@@ -2455,21 +2790,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 1,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Frayed Breeches",
     "armor": 8,
     "tier": 2,
+    "attributeRequirements": {
+      "wits": 34
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -2477,21 +2815,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 21,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "wits": 34
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Hardened Breeches",
     "armor": 7,
     "tier": 2,
+    "attributeRequirements": {
+      "agility": 14
+    },
+    "tags": null,
     "strength": 5,
     "agility": 5,
     "technique": 0,
@@ -2499,21 +2840,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 14,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 14
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Knee Guards",
     "armor": 9,
     "tier": 2,
+    "attributeRequirements": {
+      "agility": 20
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -2521,21 +2865,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 20,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 20
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Patched Trousers",
     "armor": 8,
     "tier": 2,
+    "attributeRequirements": {
+      "agility": 18
+    },
+    "tags": null,
     "strength": 0,
     "agility": 4,
     "technique": 0,
@@ -2543,21 +2890,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 18,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 18
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Ranger\u0027s Breeches",
     "armor": 8,
     "tier": 2,
+    "attributeRequirements": {
+      "body": 43
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -2565,21 +2915,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 27,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "body": 43
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Reinforced Breeches",
     "armor": 7,
     "tier": 2,
+    "attributeRequirements": {
+      "agility": 21
+    },
+    "tags": null,
     "strength": 0,
     "agility": 4,
     "technique": 5,
@@ -2587,21 +2940,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 21,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 21
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Scout\u0027s Breeches",
     "armor": 6,
     "tier": 2,
+    "attributeRequirements": {
+      "agility": 20
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 5,
@@ -2609,21 +2965,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 20,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 20
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Simple Breeches",
     "armor": 5,
     "tier": 2,
+    "attributeRequirements": {
+      "agility": 17
+    },
+    "tags": null,
     "strength": 5,
     "agility": 2,
     "technique": 0,
@@ -2631,21 +2990,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 17,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 17
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Strider\u0027s Wraps",
     "armor": 9,
     "tier": 2,
+    "attributeRequirements": {
+      "finesse": 18
+    },
+    "tags": null,
     "strength": 0,
     "agility": 4,
     "technique": 0,
@@ -2653,21 +3015,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 11,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "finesse": 18
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Traveler\u0027s Breeches",
     "armor": 8,
     "tier": 2,
+    "attributeRequirements": {
+      "agility": 30
+    },
+    "tags": null,
     "strength": 0,
     "agility": 4,
     "technique": 0,
@@ -2675,21 +3040,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 2,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 30,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 30
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Battle Greaves",
     "armor": 14,
     "tier": 3,
+    "attributeRequirements": {
+      "agility": 48
+    },
+    "tags": null,
     "strength": 0,
     "agility": 6,
     "technique": 5,
@@ -2697,21 +3065,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 48,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 48
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Footman\u0027s Greaves",
     "armor": 10,
     "tier": 3,
+    "attributeRequirements": {
+      "agility": 56
+    },
+    "tags": null,
     "strength": 5,
     "agility": 9,
     "technique": 0,
@@ -2719,21 +3090,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 56,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 56
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Heavy Greaves",
     "armor": 16,
     "tier": 3,
+    "attributeRequirements": {
+      "wits": 61
+    },
+    "tags": null,
     "strength": 0,
     "agility": 9,
     "technique": 0,
@@ -2741,21 +3115,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 38,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "wits": 61
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Linked Greaves",
     "armor": 13,
     "tier": 3,
+    "attributeRequirements": {
+      "agility": 63
+    },
+    "tags": null,
     "strength": 0,
     "agility": 6,
     "technique": 5,
@@ -2763,43 +3140,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 63,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 63
-    }
-  },
-  {
-    "slot": "legs",
-    "name": "Plated Greaves",
-    "armor": 15,
-    "tier": 3,
-    "strength": 0,
-    "agility": 5,
-    "technique": 0,
-    "intelligence": 5,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "extraActionSlots": 3,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0,
-    "requirement value": 63,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 63
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Plated Greaves",
     "armor": 12,
     "tier": 3,
+    "attributeRequirements": {
+      "agility": 63
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 0,
@@ -2807,21 +3165,49 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 63,
-    "attackSpeed": 0,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "legs",
+    "name": "Plated Greaves",
+    "armor": 12,
+    "tier": 3,
     "attributeRequirements": {
       "agility": 63
-    }
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 5,
+    "technique": 0,
+    "intelligence": 5,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 3,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Reinforced Greaves",
     "armor": 19,
     "tier": 3,
+    "attributeRequirements": {
+      "body": 104
+    },
+    "tags": null,
     "strength": 0,
     "agility": 8,
     "technique": 0,
@@ -2829,21 +3215,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 65,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "body": 104
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Riveted Breeches",
     "armor": 15,
     "tier": 3,
+    "attributeRequirements": {
+      "agility": 46
+    },
+    "tags": null,
     "strength": 0,
     "agility": 8,
     "technique": 0,
@@ -2851,21 +3240,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 46,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 46
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Soldier\u0027s Breeches",
     "armor": 14,
     "tier": 3,
+    "attributeRequirements": {
+      "agility": 44
+    },
+    "tags": null,
     "strength": 0,
     "agility": 6,
     "technique": 0,
@@ -2873,21 +3265,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 44,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 44
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Stompers",
     "armor": 15,
     "tier": 3,
+    "attributeRequirements": {
+      "agility": 49
+    },
+    "tags": null,
     "strength": 0,
     "agility": 8,
     "technique": 0,
@@ -2895,21 +3290,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 49,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 49
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Bulwark Greaves",
     "armor": 20,
     "tier": 4,
+    "attributeRequirements": {
+      "finesse": 106
+    },
+    "tags": null,
     "strength": 0,
     "agility": 7,
     "technique": 0,
@@ -2917,21 +3315,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 66,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "finesse": 106
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Champion\u0027s Greaves",
     "armor": 21,
     "tier": 4,
+    "attributeRequirements": {
+      "agility": 75
+    },
+    "tags": null,
     "strength": 0,
     "agility": 12,
     "technique": 0,
@@ -2939,21 +3340,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 75,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 75
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Crusader\u0027s Greaves",
     "armor": 22,
     "tier": 4,
+    "attributeRequirements": {
+      "agility": 80
+    },
+    "tags": null,
     "strength": 0,
     "agility": 13,
     "technique": 0,
@@ -2961,21 +3365,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 80,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 80
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Defender\u0027s Greaves",
     "armor": 29,
     "tier": 4,
+    "attributeRequirements": {
+      "agility": 62
+    },
+    "tags": null,
     "strength": 5,
     "agility": 8,
     "technique": 0,
@@ -2983,21 +3390,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 62,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 62
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Fortress Greaves",
     "armor": 21,
     "tier": 4,
+    "attributeRequirements": {
+      "wits": 149
+    },
+    "tags": null,
     "strength": 0,
     "agility": 9,
     "technique": 0,
@@ -3005,21 +3415,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 93,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "wits": 149
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Guardian Greaves",
     "armor": 29,
     "tier": 4,
+    "attributeRequirements": {
+      "agility": 67
+    },
+    "tags": null,
     "strength": 0,
     "agility": 14,
     "technique": 5,
@@ -3027,21 +3440,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 67,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 67
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Knight\u0027s Greaves",
     "armor": 25,
     "tier": 4,
+    "attributeRequirements": {
+      "agility": 77
+    },
+    "tags": null,
     "strength": 0,
     "agility": 9,
     "technique": 0,
@@ -3049,21 +3465,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 77,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 77
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Red Octobers",
     "armor": 27,
     "tier": 4,
+    "attributeRequirements": {
+      "agility": 49
+    },
+    "tags": null,
     "strength": 0,
     "agility": 8,
     "technique": 0,
@@ -3071,21 +3490,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 49,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 49
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Sentinel Greaves",
     "armor": 28,
     "tier": 4,
+    "attributeRequirements": {
+      "body": 91
+    },
+    "tags": null,
     "strength": 5,
     "agility": 8,
     "technique": 0,
@@ -3093,21 +3515,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 57,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "body": 91
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "War Greaves",
     "armor": 30,
     "tier": 4,
+    "attributeRequirements": {
+      "agility": 40
+    },
+    "tags": null,
     "strength": 5,
     "agility": 10,
     "technique": 0,
@@ -3115,21 +3540,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 3,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 40,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 40
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Absolute Greaves",
     "armor": 33,
     "tier": 5,
+    "attributeRequirements": {
+      "agility": 95
+    },
+    "tags": null,
     "strength": 0,
     "agility": 6,
     "technique": 0,
@@ -3137,21 +3565,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 95,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 95
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Conqueror\u0027s Greaves",
     "armor": 38,
     "tier": 5,
+    "attributeRequirements": {
+      "agility": 76
+    },
+    "tags": null,
     "strength": 5,
     "agility": 14,
     "technique": 0,
@@ -3159,21 +3590,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 76,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 76
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Eternal Greaves",
     "armor": 26,
     "tier": 5,
+    "attributeRequirements": {
+      "finesse": 114
+    },
+    "tags": null,
     "strength": 0,
     "agility": 19,
     "technique": 0,
@@ -3181,21 +3615,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 71,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "finesse": 114
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Full Greaves",
     "armor": 24,
     "tier": 5,
+    "attributeRequirements": {
+      "agility": 82
+    },
+    "tags": null,
     "strength": 0,
     "agility": 7,
     "technique": 0,
@@ -3203,21 +3640,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 82,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 82
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Godplate Greaves",
     "armor": 24,
     "tier": 5,
+    "attributeRequirements": {
+      "agility": 105
+    },
+    "tags": null,
     "strength": 0,
     "agility": 15,
     "technique": 0,
@@ -3225,21 +3665,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 105,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 105
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Overlord\u0027s Greaves",
     "armor": 33,
     "tier": 5,
+    "attributeRequirements": {
+      "agility": 68
+    },
+    "tags": null,
     "strength": 0,
     "agility": 12,
     "technique": 5,
@@ -3247,21 +3690,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 68,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 68
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Siege Plates",
     "armor": 23,
     "tier": 5,
+    "attributeRequirements": {
+      "wits": 126
+    },
+    "tags": null,
     "strength": 0,
     "agility": 20,
     "technique": 0,
@@ -3269,21 +3715,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 79,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "wits": 126
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Sovereign Greaves",
     "armor": 39,
     "tier": 5,
+    "attributeRequirements": {
+      "agility": 88
+    },
+    "tags": null,
     "strength": 0,
     "agility": 8,
     "technique": 5,
@@ -3291,21 +3740,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 88,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 88
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Warden\u0027s Greaves",
     "armor": 36,
     "tier": 5,
+    "attributeRequirements": {
+      "agility": 81
+    },
+    "tags": null,
     "strength": 0,
     "agility": 11,
     "technique": 5,
@@ -3313,21 +3765,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 81,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 81
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "legs",
     "name": "Warplate Greaves",
     "armor": 32,
     "tier": 5,
+    "attributeRequirements": {
+      "agility": 87
+    },
+    "tags": null,
     "strength": 0,
     "agility": 8,
     "technique": 0,
@@ -3335,21 +3790,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 4,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 87,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "agility": 87
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Bindings",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "technique": 11
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 3,
@@ -3357,24 +3815,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 11,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 11
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Boots",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": {},
     "tags": [
       "starter"
     ],
-    "armor": 1,
-    "tier": 1,
     "strength": 0,
     "agility": 0,
     "technique": 0,
@@ -3382,19 +3840,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 0,
-    "attackSpeed": 0,
-    "attributeRequirements": {}
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Brogues",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "technique": 12
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 2,
@@ -3402,21 +3865,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 12,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 12
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Galoshs",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "technique": 6
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 2,
@@ -3424,21 +3890,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 6,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 6
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "High Boots",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "technique": 15
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 1,
@@ -3446,21 +3915,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 15,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 15
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Moccassins",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "technique": 5
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 1,
@@ -3468,21 +3940,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Sandals",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "technique": 5
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 3,
@@ -3490,21 +3965,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Shoes",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "technique": 5
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 1,
@@ -3512,21 +3990,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Sneakers",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "technique": 5
+    },
+    "tags": null,
     "strength": 5,
     "agility": 8,
     "technique": 0,
@@ -3534,21 +4015,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 5,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 5
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Titan\u0027s Greaves",
     "armor": 0,
     "tier": 1,
+    "attributeRequirements": {
+      "technique": 3
+    },
+    "tags": null,
     "strength": 0,
     "agility": 7,
     "technique": 0,
@@ -3556,21 +4040,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 5,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 3,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 3
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Chausses",
     "armor": 1,
     "tier": 2,
+    "attributeRequirements": {
+      "prowess": 32
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 4,
@@ -3578,21 +4065,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 20,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "prowess": 32
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Courtly Shoes",
     "armor": 1,
     "tier": 2,
+    "attributeRequirements": {
+      "technique": 26
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 3,
@@ -3600,21 +4090,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 26,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 26
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Duskwalker",
     "armor": 1,
     "tier": 2,
+    "attributeRequirements": {
+      "technique": 21
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 3,
@@ -3622,21 +4115,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 21,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 21
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Greaves",
     "armor": 1,
     "tier": 2,
+    "attributeRequirements": {
+      "technique": 17
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 4,
@@ -3644,21 +4140,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 17,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 17
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Ironfoot",
     "armor": 1,
     "tier": 2,
+    "attributeRequirements": {
+      "finesse": 34
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
@@ -3666,21 +4165,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 21,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "finesse": 34
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Legguard",
     "armor": 1,
     "tier": 2,
+    "attributeRequirements": {
+      "technique": 19
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 3,
@@ -3688,21 +4190,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 19,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 19
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Pelt Boots",
     "armor": 1,
     "tier": 2,
+    "attributeRequirements": {
+      "technique": 14
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 4,
@@ -3710,21 +4215,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 14,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 14
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Ranger\u0027s Boots",
     "armor": 1,
     "tier": 2,
+    "attributeRequirements": {
+      "technique": 19
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
@@ -3732,21 +4240,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 19,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 19
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Slippers",
     "armor": 0,
     "tier": 2,
+    "attributeRequirements": {
+      "mind": 13
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 3,
@@ -3754,21 +4265,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 8,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "mind": 13
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Treads",
     "armor": 0,
     "tier": 2,
+    "attributeRequirements": {
+      "technique": 12
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 2,
@@ -3776,21 +4290,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 12,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 12
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Crushers",
     "armor": 2,
     "tier": 3,
+    "attributeRequirements": {
+      "technique": 46
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 7,
@@ -3798,21 +4315,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 46,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 46
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Ironshod Greaves",
     "armor": 2,
     "tier": 3,
+    "attributeRequirements": {
+      "technique": 58
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 6,
@@ -3820,21 +4340,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 58,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 58
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Mail Boots",
     "armor": 2,
     "tier": 3,
+    "attributeRequirements": {
+      "prowess": 91
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 7,
@@ -3842,21 +4365,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 57,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "prowess": 91
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Marchers",
     "armor": 2,
     "tier": 3,
+    "attributeRequirements": {
+      "technique": 49
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 6,
@@ -3864,21 +4390,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 49,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 49
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Plate Boots",
     "armor": 2,
     "tier": 3,
+    "attributeRequirements": {
+      "technique": 57
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 9,
@@ -3886,21 +4415,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 57,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 57
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Shin Guards",
     "armor": 1,
     "tier": 3,
+    "attributeRequirements": {
+      "technique": 21
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 5,
@@ -3908,21 +4440,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 21,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 21
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Shinguard",
     "armor": 1,
     "tier": 3,
+    "attributeRequirements": {
+      "finesse": 19
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 3,
@@ -3930,21 +4465,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 12,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "finesse": 19
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Striders",
     "armor": 2,
     "tier": 3,
+    "attributeRequirements": {
+      "technique": 55
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 8,
@@ -3952,21 +4490,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 55,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 55
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Tramplers",
     "armor": 2,
     "tier": 3,
+    "attributeRequirements": {
+      "technique": 39
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 9,
@@ -3974,21 +4515,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 39,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 39
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Warboots",
     "armor": 2,
     "tier": 3,
+    "attributeRequirements": {
+      "technique": 38
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 7,
@@ -3996,21 +4540,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 38,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 38
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Battlesteps",
     "armor": 2,
     "tier": 4,
+    "attributeRequirements": {
+      "mind": 93
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 5,
@@ -4018,21 +4565,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 58,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "mind": 93
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Battlestriders",
     "armor": 2,
     "tier": 4,
+    "attributeRequirements": {
+      "technique": 56
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 7,
@@ -4040,21 +4590,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 56,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 56
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Doomtreads",
     "armor": 2,
     "tier": 4,
+    "attributeRequirements": {
+      "technique": 85
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 10,
@@ -4062,21 +4615,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 85,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 85
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Irontrods",
     "armor": 2,
     "tier": 4,
+    "attributeRequirements": {
+      "technique": 79
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 9,
@@ -4084,21 +4640,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 79,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 79
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Kneeguards",
     "armor": 2,
     "tier": 4,
+    "attributeRequirements": {
+      "prowess": 146
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 12,
@@ -4106,21 +4665,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 91,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "prowess": 146
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Legplates",
     "armor": 2,
     "tier": 4,
+    "attributeRequirements": {
+      "technique": 64
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 15,
@@ -4128,21 +4690,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 64,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 64
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Oathbound Boots",
     "armor": 2,
     "tier": 4,
+    "attributeRequirements": {
+      "technique": 85
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 10,
@@ -4150,21 +4715,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 85,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 85
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Shadowstep",
     "armor": 2,
     "tier": 4,
+    "attributeRequirements": {
+      "technique": 57
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 10,
@@ -4172,21 +4740,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 57,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 57
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Siegeboots",
     "armor": 2,
     "tier": 4,
+    "attributeRequirements": {
+      "finesse": 117
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 5,
@@ -4194,21 +4765,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 73,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "finesse": 117
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Warstriders",
     "armor": 2,
     "tier": 4,
+    "attributeRequirements": {
+      "technique": 55
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 9,
@@ -4216,21 +4790,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 55,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 55
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Battlecharges",
     "armor": 3,
     "tier": 5,
+    "attributeRequirements": {
+      "technique": 92
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 19,
@@ -4238,21 +4815,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 92,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 92
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Dragon Scale Boots",
     "armor": 3,
     "tier": 5,
+    "attributeRequirements": {
+      "technique": 82
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 9,
@@ -4260,21 +4840,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 82,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 82
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Full Plate Boots",
     "armor": 3,
     "tier": 5,
+    "attributeRequirements": {
+      "mind": 123
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 22,
@@ -4282,21 +4865,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 77,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "mind": 123
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Ironsteps",
     "armor": 3,
     "tier": 5,
+    "attributeRequirements": {
+      "technique": 85
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 19,
@@ -4304,21 +4890,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 85,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 85
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Plate Mail Boots",
     "armor": 3,
     "tier": 5,
+    "attributeRequirements": {
+      "technique": 100
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 25,
@@ -4326,21 +4915,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 100,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 100
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Siegetreads",
     "armor": 3,
     "tier": 5,
+    "attributeRequirements": {
+      "technique": 68
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 13,
@@ -4348,21 +4940,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 68,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 68
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Soultreads",
     "armor": 3,
     "tier": 5,
+    "attributeRequirements": {
+      "prowess": 107
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 20,
@@ -4370,21 +4965,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 67,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "prowess": 107
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Warsteps",
     "armor": 3,
     "tier": 5,
+    "attributeRequirements": {
+      "technique": 94
+    },
+    "tags": null,
     "strength": 0,
     "agility": 5,
     "technique": 17,
@@ -4392,21 +4990,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 94,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 94
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Wayfarer",
     "armor": 3,
     "tier": 5,
+    "attributeRequirements": {
+      "technique": 75
+    },
+    "tags": null,
     "strength": 0,
     "agility": 0,
     "technique": 10,
@@ -4414,21 +5015,24 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 75,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 75
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   },
   {
     "slot": "feet",
     "name": "Worldstriders",
     "armor": 3,
     "tier": 5,
+    "attributeRequirements": {
+      "technique": 78
+    },
+    "tags": null,
     "strength": 5,
     "agility": 0,
     "technique": 17,
@@ -4436,14 +5040,13 @@
     "hit": 0,
     "combo": 0,
     "crit": 0,
+    "attackSpeed": 0,
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
     "minActionBonuses": 0,
-    "requirement value": 78,
-    "attackSpeed": 0,
-    "attributeRequirements": {
-      "technique": 78
-    }
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
   }
 ]

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using Avalonia.Media.Imaging;
+using SkiaSharp;
 
 namespace RPGGame.UI.Avalonia
 {
@@ -17,16 +17,13 @@ namespace RPGGame.UI.Avalonia
     {
         private const string Folder = "RoomArt";
 
-        /// <summary>Black laid over the plate so combat text stays readable (0 = none, 1 = black).</summary>
-        public const double Dim = 0.6;
-
         private static readonly object Gate = new();
         private static readonly Random Rng = new();
         private static bool _loaded;
         private static string _dir = "";
         private static readonly Dictionary<string, string[]> Rooms = new(StringComparer.OrdinalIgnoreCase);
         private static string? _currentRoom;
-        private static Bitmap? _current;
+        private static SKImage? _current;
 
         public static bool IsAvailable
         {
@@ -34,7 +31,7 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>The backdrop for <paramref name="roomName"/>; the same bitmap while the room name stays the same.</summary>
-        public static bool TryGetBackdrop(string? roomName, out Bitmap bitmap)
+        public static bool TryGetBackdrop(string? roomName, out SKImage bitmap)
         {
             bitmap = null!;
             if (string.IsNullOrWhiteSpace(roomName))
@@ -74,14 +71,17 @@ namespace RPGGame.UI.Avalonia
             return location != null ? Rooms[location] : Array.Empty<string>();
         }
 
-        private static Bitmap? Load(string[] files)
+        private static SKImage? Load(string[] files)
         {
             if (files.Length == 0)
                 return null;
             string file = files[Rng.Next(files.Length)];
             try
             {
-                return new Bitmap(Path.Combine(_dir, file));
+                var image = SKImage.FromEncodedData(Path.Combine(_dir, file));
+                if (image == null)
+                    DebugLogger.Log("RoomBackdropArt", $"Could not decode {file}");
+                return image;
             }
             catch (Exception ex)
             {

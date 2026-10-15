@@ -82,6 +82,11 @@ namespace RPGGame
                     int maxActions = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--max-actions-per-run") ?? 2000;
                     RPGGame.Tuning.PlaythroughFightRecorder.Verbose = args.Any(x => x.Equals("--verbose", StringComparison.OrdinalIgnoreCase));
                     RPGGame.Tuning.ClassPlaythroughRunner.SmartPolicy = args.Any(x => x.Equals("--smart", StringComparison.OrdinalIgnoreCase));
+                    // Same mid-game setup as DUNGEONSIM: --start-level N [--hold-level] [--max-dungeons D] [--retreat-below P]
+                    RPGGame.Tuning.ClassPlaythroughRunner.StartAtLevel = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--start-level") ?? 0;
+                    RPGGame.Tuning.ClassPlaythroughRunner.HoldLevel = args.Any(x => x.Equals("--hold-level", StringComparison.OrdinalIgnoreCase));
+                    RPGGame.Tuning.ClassPlaythroughRunner.MaxDungeons = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--max-dungeons") ?? RPGGame.Tuning.ClassPlaythroughRunner.MaxDungeons;
+                    RPGGame.Tuning.ClassPlaythroughRunner.RetreatBelowHpPercent = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--retreat-below") ?? 0;
                     var run = await RPGGame.Tuning.ClassPlaythroughRunner.RunAsync(weaponType, slot, name, maxActions, line => Console.WriteLine(line));
                     Console.WriteLine($"=> {name}: level {run.FinalLevel}, dungeons {run.DungeonsCompleted}/{run.DungeonsAttempted}, {run.StopReason}");
                     return;

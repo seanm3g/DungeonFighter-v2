@@ -32,6 +32,8 @@ namespace RPGGame.UI.Avalonia
         private readonly TextEmphasisExplosionPlayer emphasisExplosionPlayer = new();
         private DispatcherTimer? damageDeltaAnimationTimer;
         private DispatcherTimer? windSwaySettleTimer;
+        private DispatcherTimer? menuSceneTimer;
+        private readonly RPGGame.UI.TitleScreen.MenuSceneBackdrop menuScene = new();
         /// <summary>TickCount64 of last pointer-driven Refresh; used to throttle highlight/wind moves.</summary>
         private long _lastPointerRefreshTickMs = -1;
         /// <summary>True when a throttled pointer move still needs one catch-up paint.</summary>
@@ -623,20 +625,26 @@ namespace RPGGame.UI.Avalonia
 
             // Don't call base.Render() to prevent any default Control rendering
             renderer.SetInteractiveHitRegions(InteractiveHitRegionsProvider?.Invoke());
+            var textElements = elementManager.TextElements.ToList();
+            var sceneUnderlay = MenuSceneBackdropActive?.Invoke() == true
+                ? menuScene.BuildFrame(GridWidth, GridHeight, textElements)
+                : null;
+            UpdateMenuSceneTimer(sceneUnderlay != null);
             using (context.PushTransform(Matrix.CreateTranslation(origin.X, origin.Y)))
             {
                 renderer.Render(
                     context,
                     content.Width,
                     content.Height,
-                    elementManager.TextElements.ToList(),
+                    textElements,
                     elementManager.BoxElements.ToList(),
                     elementManager.ProgressBars.ToList(),
                     elementManager.SegmentedBars.ToList(),
                     Colors.Transparent,
                     fillBackground: false,
                     images: elementManager.Images.ToList(),
-                    backdrop: BackdropProvider?.Invoke());
+                    backdrop: BackdropProvider?.Invoke(),
+                    sceneUnderlay: sceneUnderlay);
 
                 DrawWakeRadiusDebugOverlay(context);
             }
@@ -686,6 +694,32 @@ namespace RPGGame.UI.Avalonia
         /// Asked at paint time so every render path, reactive or imperative, shows the same backdrop.
         /// </summary>
         public Func<CanvasBackdrop?>? BackdropProvider { get; set; }
+
+        /// <summary>
+        /// True while the current screen should show the title's animated cave behind it (menus outside a run).
+        /// Asked at paint time; the cave keeps repainting itself until a paint finds this false.
+        /// </summary>
+        public Func<bool>? MenuSceneBackdropActive { get; set; }
+
+        private void UpdateMenuSceneTimer(bool shown)
+        {
+            if (!shown)
+            {
+                menuSceneTimer?.Stop();
+                return;
+            }
+
+            if (menuSceneTimer == null)
+            {
+                menuSceneTimer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(RPGGame.UI.TitleScreen.MenuSceneBackdrop.FrameIntervalMs)
+                };
+                menuSceneTimer.Tick += (_, _) => InvalidateVisual();
+            }
+            if (!menuSceneTimer.IsEnabled)
+                menuSceneTimer.Start();
+        }
         
         /// <summary>
         /// Clears text elements within a specific Y range (inclusive)
@@ -796,6 +830,15 @@ namespace RPGGame.UI.Avalonia
         }
         
         /// <summary>
+        /// Adds full-screen scene text with no merging/dedupe (title screen paints thousands of cells per frame).
+        /// Skips center-column zoom and clipping.
+        /// </summary>
+        public void AddSceneText(int x, int y, string text, Color color)
+        {
+            elementManager.AddText(new CanvasText { X = x, Y = y, Content = text, Color = color, IgnoresCenterColumn = true });
+        }
+
+        /// <summary>
         /// Adds text to the canvas at the specified position without removing existing text
         /// This is used for rendering multi-segment colored text where segments may round to the same position
         /// </summary>
@@ -829,13 +872,16 @@ namespace RPGGame.UI.Avalonia
             elementBuilder.AddBox(x, y, width, height, borderColor, backgroundColor, opaqueBackgroundBleedDevicePixels, borderThicknessPixels);
         }
 
-        /// <summary>Draws <paramref name="sourceRect"/> of <paramref name="source"/> square and centered in a grid-cell rectangle.</summary>
-        public void AddImage(int x, int y, int width, int height, IImage source, Rect sourceRect, double paddingPixels = 2)
+        /// <summary>
+        /// Draws <paramref name="sourceRect"/> of <paramref name="source"/> in a grid-cell rectangle.
+        /// Square and centered unless <paramref name="fillFrame"/> is set, which paints the whole cell.
+        /// </summary>
+        public void AddImage(int x, int y, int width, int height, IImage source, Rect sourceRect, double paddingPixels = 2, bool fillFrame = false)
         {
             elementManager.AddImage(new CanvasImage
             {
                 X = x, Y = y, Width = width, Height = height,
-                Source = source, SourceRect = sourceRect, PaddingPixels = paddingPixels
+                Source = source, SourceRect = sourceRect, PaddingPixels = paddingPixels, FillFrame = fillFrame
             });
         }
 

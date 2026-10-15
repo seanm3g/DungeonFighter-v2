@@ -30,6 +30,8 @@ namespace RPGGame.Tuning
             public double HpLostPerFight { get; set; }
             /// <summary>Mean hero actions per fight: compare with the median catalog build's hero turns at this level.</summary>
             public double HeroActionsPerFight { get; set; }
+            /// <summary>Mean enemy actions per fight: enemy attacks the hero takes per kill (class-parity gauge).</summary>
+            public double EnemyActionsPerFight { get; set; }
             public int LevelDrift { get; set; }
         }
 
@@ -71,6 +73,7 @@ namespace RPGGame.Tuning
                     Fights = fights.Count,
                     HpLostPerFight = fights.Count == 0 ? 0 : fights.Average(f => f.HeroMaxHp > 0 ? Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp : 0),
                     HeroActionsPerFight = fights.Count == 0 ? 0 : fights.Average(f => f.HeroActions),
+                    EnemyActionsPerFight = fights.Count == 0 ? 0 : fights.Average(f => f.EnemyActions),
                     LevelDrift = agg.Runs.Count(r => r.FinalLevel != level)
                 });
             }
@@ -86,6 +89,7 @@ namespace RPGGame.Tuning
                 Fights = outcomes.Sum(o => o.Fights),
                 HpLostPerFight = outcomes.Sum(o => o.Fights) == 0 ? 0 : outcomes.Sum(o => o.HpLostPerFight * o.Fights) / outcomes.Sum(o => o.Fights),
                 HeroActionsPerFight = outcomes.Sum(o => o.Fights) == 0 ? 0 : outcomes.Sum(o => o.HeroActionsPerFight * o.Fights) / outcomes.Sum(o => o.Fights),
+                EnemyActionsPerFight = outcomes.Sum(o => o.Fights) == 0 ? 0 : outcomes.Sum(o => o.EnemyActionsPerFight * o.Fights) / outcomes.Sum(o => o.Fights),
                 LevelDrift = outcomes.Sum(o => o.LevelDrift)
             };
 
@@ -117,7 +121,7 @@ namespace RPGGame.Tuning
                     // Every real fight at the level (per-enemy reads in Scripts/balance-scan.py).
                     Fights = batch.ClassAggregates.SelectMany(a => a.Runs.SelectMany(r => r.Fights.Where(f => f.HeroLevel >= level).Select(f => new
                     {
-                        Class = a.ClassDisplayName, Enemy = f.EnemyName, f.HeroActions, f.FightInDungeon, f.HeroDied,
+                        Class = a.ClassDisplayName, Enemy = f.EnemyName, f.HeroActions, f.EnemyActions, f.FightInDungeon, f.HeroDied,
                         HpLost = f.HeroMaxHp > 0 ? Math.Round(Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp, 3) : 0
                     }))).ToList()
                 };

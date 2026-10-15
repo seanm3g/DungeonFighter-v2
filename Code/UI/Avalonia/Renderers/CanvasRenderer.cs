@@ -73,6 +73,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.regionTravelRenderer = new RegionTravelRenderer(canvas, new Renderers.ColoredTextWriter(canvas), interactionManager.ClickableElements);
             this.skillTreeRenderer = new SkillTreeRenderer(canvas, interactionManager.ClickableElements);
             canvas.BackdropProvider = ResolveDungeonBackdrop;
+            canvas.MenuSceneBackdropActive = IsMenuSceneBackdropState;
         }
 
         public void RenderDisplayBuffer(CanvasContext context)
@@ -164,6 +165,19 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>
+        /// Menus outside a run show the title screen's animated cave behind them (<see cref="RPGGame.UI.TitleScreen.MenuSceneBackdrop"/>).
+        /// </summary>
+        private bool IsMenuSceneBackdropState() =>
+            gameStateManager?.CurrentState is RPGGame.GameState.MainMenu
+                or RPGGame.GameState.CharacterSelection
+                or RPGGame.GameState.LoadCharacterSelection
+                or RPGGame.GameState.WeaponSelection
+                or RPGGame.GameState.PreWeaponPathIntro
+                or RPGGame.GameState.Settings
+                or RPGGame.GameState.DeveloperMenu
+                or RPGGame.GameState.Testing;
+
+        /// <summary>
         /// From the moment a dungeon is chosen until the run ends, the center panel shows the current room's 50 ft
         /// environment plate (the next room's before the first one is entered), switching as each room is entered.
         /// </summary>
@@ -174,6 +188,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (sm == null || dungeon == null)
                 return null;
             if (sm.CurrentState is not (RPGGame.GameState.Dungeon or RPGGame.GameState.Combat or RPGGame.GameState.DungeonCompletion or RPGGame.GameState.Death))
+                return null;
+            var look = RPGGame.UI.Avalonia.Effects.RoomBackdropSettings.Current;
+            if (!look.Enabled)
                 return null;
 
             string? roomName = sm.CurrentRoom?.Name;
@@ -192,7 +209,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 Width = Avalonia.Layout.LayoutConstants.CENTER_PANEL_WIDTH,
                 Height = Avalonia.Layout.LayoutConstants.CENTER_PANEL_HEIGHT,
                 Source = bitmap,
-                Dim = RoomBackdropArt.Dim
+                Look = look
             };
         }
 

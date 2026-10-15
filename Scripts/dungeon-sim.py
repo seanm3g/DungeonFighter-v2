@@ -141,8 +141,9 @@ def summarize(level, anchors, docs):
         for o in d['Outcomes']:
             if o['Class'] == 'all':
                 continue
-            pc = per_class.setdefault(o['Class'], {'Dungeons': 0, 'Cleared': 0, 'Died': 0})
+            pc = per_class.setdefault(o['Class'], {'Dungeons': 0, 'Cleared': 0, 'Died': 0, 'Fights': 0, 'EnemyActions': 0.0})
             pc['Dungeons'] += o['Dungeons']; pc['Cleared'] += o['Cleared']; pc['Died'] += o['Died']
+            pc['Fights'] += o['Fights']; pc['EnemyActions'] += o.get('EnemyActionsPerFight', 0) * o['Fights']
             for k in ('Runs', 'Dungeons', 'Cleared', 'Retreated', 'Died', 'Fights', 'LevelDrift'):
                 tot[k] += o[k]
             tot['HpLost'] += o['HpLostPerFight'] * o['Fights']
@@ -158,6 +159,8 @@ def summarize(level, anchors, docs):
         'heroActionsPerFight': tot['HeroActions'] / tot['Fights'] if tot['Fights'] else 0,
         'levelDrift': tot['LevelDrift'],
         'perClassClear': {c: round(v['Cleared'] / v['Dungeons'], 3) if v['Dungeons'] else None for c, v in per_class.items()},
+        # Enemy attacks the hero takes per fight, by class (class-parity gauge).
+        'perClassEnemyActs': {c: round(v['EnemyActions'] / v['Fights'], 2) if v['Fights'] else None for c, v in per_class.items()},
         'provenance': sorted(provs),
     }
     return res
@@ -168,7 +171,7 @@ def show(r):
     print(f"L{r['level']:<3} dmg x{r['damageMultiplier']:<6} {r['dungeons']:4} dungeons  "
           f"clear {r['clear'] * 100:5.1f}% {pct(r['clearCI']):9}  retreat {r['retreat'] * 100:5.1f}% {pct(r['retreatCI']):9}  "
           f"death {r['death'] * 100:4.1f}% {pct(r['deathCI']):9}  HP lost/fight {r['hpLostPerFight'] * 100:4.1f}%  hero acts {r['heroActionsPerFight']:4.1f}  "
-          f"by class {r['perClassClear']}", flush=True)
+          f"by class {r['perClassClear']}  enemy acts/fight {r['perClassEnemyActs']}", flush=True)
     if r['levelDrift']:
         print(f"     WARNING: {r['levelDrift']} hero(es) levelled inside a dungeon", flush=True)
     if len(r['provenance']) > 1:

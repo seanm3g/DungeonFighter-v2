@@ -519,6 +519,14 @@ namespace RPGGame.Tests.Unit.UI
                 "list view button offers the new inventory", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(8, InventoryScreenRenderer.GridTileColumns(9, 18, 4),
                 "tiles are square in pixels (4 rows of 18px = 8 columns of 9px)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(4, InventoryScreenRenderer.GridRowsForColumns(9, 18, 8),
+                "eight columns of 9px are four rows of 18px", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual((34, 17), InventoryScreenRenderer.DetailHeroIconSize(9, 18, 34, 40),
+                "the detail icon fills the pane width and stays square", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual((34, 16), InventoryScreenRenderer.DetailHeroIconSize(9, 18, 34, 28),
+                "a shorter pane keeps description rows and still uses the full width", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual((0, 0), InventoryScreenRenderer.DetailHeroIconSize(9, 18, 34, 14),
+                "no hero icon when the description would have fewer than four rows of picture", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             if (!ItemArtAtlas.IsAvailable)
             {
@@ -535,6 +543,11 @@ namespace RPGGame.Tests.Unit.UI
                 "old saves without a material read it from the name", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(ItemArtAtlas.ResolveName("Mystery Thing", "Steel") == null,
                 "unknown base has no icon", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string? hero = ItemArtAtlas.HeroPath("Keen Steel Kukri of the Owl", "Steel");
+            if (hero != null)
+                TestBase.AssertTrue(hero.EndsWith(System.IO.Path.Combine("Steel", "Kukri.webp")) && System.IO.File.Exists(hero),
+                    "detail icon resolves to the item's large per-item image", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

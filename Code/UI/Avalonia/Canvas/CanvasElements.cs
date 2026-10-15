@@ -17,6 +17,11 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// When true, drawn after normal text so opaque panels (e.g. hover tooltips) stay under this text only, not under body copy.
         /// </summary>
         public bool IsOverlay { get; set; }
+
+        /// <summary>
+        /// Full-screen scene text (title screen): skips center-column zoom and clip so it stays on the cell grid.
+        /// </summary>
+        public bool IgnoresCenterColumn { get; set; }
         
         // Glow effect properties
         public bool HasGlow { get; set; } = false;
@@ -50,7 +55,8 @@ namespace RPGGame.UI.Avalonia.Canvas
     }
 
     /// <summary>
-    /// A bitmap region (e.g. one item icon on an atlas sheet) drawn square and centered inside a grid-cell rectangle.
+    /// A bitmap region (e.g. one item icon on an atlas sheet) drawn inside a grid-cell rectangle.
+    /// By default the region stays square and centered. <see cref="FillFrame"/> paints it across the whole cell.
     /// Drawn after non-overlay boxes and before text, so hover tips (overlay boxes) still cover it.
     /// </summary>
     public class CanvasImage
@@ -64,11 +70,13 @@ namespace RPGGame.UI.Avalonia.Canvas
         public global::Avalonia.Rect SourceRect { get; set; }
         /// <summary>Device pixels kept clear inside the cell rectangle on every side.</summary>
         public double PaddingPixels { get; set; } = 2;
+        /// <summary>When true, the bitmap fills the cell. When false, it stays square and centered inside the cell.</summary>
+        public bool FillFrame { get; set; }
     }
 
     /// <summary>
     /// A full picture (the combat room's environment plate) scaled to cover a grid-cell rectangle, cropped to it and
-    /// darkened by <see cref="Dim"/>. Drawn over non-overlay box fills, under everything else.
+    /// styled by <see cref="Look"/>. Drawn over non-overlay box fills, under everything else.
     /// </summary>
     public class CanvasBackdrop
     {
@@ -76,9 +84,9 @@ namespace RPGGame.UI.Avalonia.Canvas
         public int Y { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
-        public global::Avalonia.Media.Imaging.Bitmap Source { get; set; } = null!;
-        /// <summary>0 = picture as rendered, 1 = black.</summary>
-        public double Dim { get; set; }
+        public SkiaSharp.SKImage Source { get; set; } = null!;
+        /// <summary>Brightness, blend mode etc. (Settings → Appearance → Room Backdrop).</summary>
+        public RPGGame.UI.Avalonia.Effects.RoomBackdropConfig Look { get; set; } = new();
         /// <summary>Device pixels kept clear inside the rectangle so the panel border stays visible.</summary>
         public double InsetPixels { get; set; } = 2;
     }

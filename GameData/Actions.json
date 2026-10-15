@@ -70,9 +70,9 @@
     "tags": "startingweapon, dagger"
   },
   {
-    "action": "MAGIC MISSLE",
+    "action": "MAGIC MISSILE",
     "description": "basic wand action: \u002B AMP",
-    "dps": "100%",
+    "dps": "1%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
@@ -214,6 +214,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroSTR": "5",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022STR\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
     "tags": "common, class, barbarian"
   },
   {
@@ -228,6 +229,7 @@
     "block": "0",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroSTR": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022STR\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
     "tags": "common, class, barbarian"
   },
   {
@@ -242,6 +244,7 @@
     "block": "0",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroSTR": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022STR\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
     "tags": "common, class, barbarian"
   },
   {
@@ -256,6 +259,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroAGI": "5",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AGI\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
     "tags": "common, class, warrior"
   },
   {
@@ -270,6 +274,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroAGI": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AGI\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
     "tags": "common, class, warrior"
   },
   {
@@ -284,6 +289,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroAGI": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AGI\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
     "tags": "common, class, warrior"
   },
   {
@@ -298,6 +304,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroTECH": "5",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022TECH\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
     "tags": "common, class, rogue"
   },
   {
@@ -312,6 +319,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroTECH": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022TECH\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
     "tags": "common, class, rogue"
   },
   {
@@ -326,6 +334,7 @@
     "block": "180",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroTECH": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022TECH\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
     "tags": "common, class, rogue"
   },
   {
@@ -384,6 +393,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "speedMod": "5",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
     "tags": "swift"
   },
   {
@@ -397,6 +407,7 @@
     "block": "0",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "speedMod": "5",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
     "tags": "swift"
   },
   {
@@ -410,6 +421,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "speedMod": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
     "tags": "swift"
   },
   {
@@ -423,6 +435,7 @@
     "block": "0",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "speedMod": "0.5",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:0.5}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
     "tags": "swift"
   },
   {
@@ -703,7 +716,7 @@
   },
   {
     "action": "EXPOSE",
-    "description": "LOWER THE ENEMY'S DEFENSE",
+    "description": "LOWER THE ENEMY\u0027S DEFENSE",
     "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
@@ -1278,6 +1291,7 @@
     "block": "0",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroSTR": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022STR\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
     "tags": "common, class, barbarian"
   },
   {
@@ -1305,6 +1319,7 @@
     "block": "180",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroAGI": "3",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AGI\u0022,\u0022value\u0022:3}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
     "tags": "common, class, warrior"
   },
   {
@@ -1332,6 +1347,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroTECH": "3",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022TECH\u0022,\u0022value\u0022:3}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
     "tags": "common, class, rogue"
   },
   {
@@ -1550,7 +1566,7 @@
   },
   {
     "action": "BODY BLOW",
-    "description": "Warbrute: +25% damage on this hit for every 10 Body (x skill rank and power).",
+    "description": "Warbrute: \u002B25% damage on this hit for every 10 Body (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1558,11 +1574,11 @@
     "damage": "100%",
     "speed": "1.00",
     "block": "180",
-    "tags": "hybrid, warbrute, barbarian, warrior"
+    "tags": "common, hybrid, warbrute, barbarian, warrior"
   },
   {
     "action": "WARBRUTE SMASH",
-    "description": "Warbrute: +25% damage on this hit for every 10 Warbrute tags (x skill rank and power).",
+    "description": "Warbrute: \u002B25% damage on this hit for every 10 Warbrute tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1570,11 +1586,11 @@
     "damage": "100%",
     "speed": "1.00",
     "block": "180",
-    "tags": "hybrid, warbrute, barbarian, warrior"
+    "tags": "common, hybrid, warbrute, barbarian, warrior"
   },
   {
     "action": "PROWESS RUSH",
-    "description": "Ravager: +25% speed on this action for every 10 Prowess (x skill rank and power).",
+    "description": "Ravager: \u002B25% speed on this action for every 10 Prowess (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1582,11 +1598,11 @@
     "damage": "100%",
     "speed": "1.00",
     "block": "180",
-    "tags": "hybrid, ravager, barbarian, rogue"
+    "tags": "common, hybrid, ravager, barbarian, rogue"
   },
   {
     "action": "RAVAGER FLURRY",
-    "description": "Ravager: +25% speed on this action for every 10 Ravager tags (x skill rank and power).",
+    "description": "Ravager: \u002B25% speed on this action for every 10 Ravager tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1594,11 +1610,11 @@
     "damage": "100%",
     "speed": "1.00",
     "block": "180",
-    "tags": "hybrid, ravager, barbarian, rogue"
+    "tags": "common, hybrid, ravager, barbarian, rogue"
   },
   {
     "action": "WILLFIRE",
-    "description": "Ragecaller: +25% AMP on this hit for every 10 Will (x skill rank and power).",
+    "description": "Ragecaller: \u002B25% AMP on this hit for every 10 Will (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1606,11 +1622,11 @@
     "damage": "100%",
     "speed": "1.00",
     "block": "180",
-    "tags": "hybrid, ragecaller, barbarian, wizard"
+    "tags": "common, hybrid, ragecaller, barbarian, wizard"
   },
   {
     "action": "RAGECALLER HOWL",
-    "description": "Ragecaller: +25% AMP on this hit for every 10 Ragecaller tags (x skill rank and power).",
+    "description": "Ragecaller: \u002B25% AMP on this hit for every 10 Ragecaller tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1618,11 +1634,11 @@
     "damage": "100%",
     "speed": "1.00",
     "block": "180",
-    "tags": "hybrid, ragecaller, barbarian, wizard"
+    "tags": "common, hybrid, ragecaller, barbarian, wizard"
   },
   {
     "action": "FINESSE THRUST",
-    "description": "Duelist: +25% accuracy (each 25% = +1 to your next roll) for every 10 Finesse (x skill rank and power).",
+    "description": "Duelist: \u002B25% accuracy (each 25% = \u002B1 to your next roll) for every 10 Finesse (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1630,11 +1646,11 @@
     "damage": "100%",
     "speed": "1.00",
     "block": "180",
-    "tags": "hybrid, duelist, warrior, rogue"
+    "tags": "common, hybrid, duelist, warrior, rogue"
   },
   {
     "action": "DUELIST FEINT",
-    "description": "Duelist: +25% accuracy (each 25% = +1 to your next roll) for every 10 Duelist tags (x skill rank and power).",
+    "description": "Duelist: \u002B25% accuracy (each 25% = \u002B1 to your next roll) for every 10 Duelist tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1642,11 +1658,11 @@
     "damage": "100%",
     "speed": "1.00",
     "block": "180",
-    "tags": "hybrid, duelist, warrior, rogue"
+    "tags": "common, hybrid, duelist, warrior, rogue"
   },
   {
     "action": "WITS ARC",
-    "description": "Spellblade: +25% combo (each 25% = 1 easier combo step on your next attack) for every 10 Wits (x skill rank and power).",
+    "description": "Spellblade: \u002B25% combo (each 25% = 1 easier combo step on your next attack) for every 10 Wits (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1654,11 +1670,11 @@
     "damage": "100%",
     "speed": "1.00",
     "block": "180",
-    "tags": "hybrid, spellblade, warrior, wizard"
+    "tags": "common, hybrid, spellblade, warrior, wizard"
   },
   {
     "action": "SPELLBLADE WEAVE",
-    "description": "Spellblade: +25% combo (each 25% = 1 easier combo step on your next attack) for every 10 Spellblade tags (x skill rank and power).",
+    "description": "Spellblade: \u002B25% combo (each 25% = 1 easier combo step on your next attack) for every 10 Spellblade tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1666,11 +1682,11 @@
     "damage": "100%",
     "speed": "1.00",
     "block": "180",
-    "tags": "hybrid, spellblade, warrior, wizard"
+    "tags": "common, hybrid, spellblade, warrior, wizard"
   },
   {
     "action": "MIND HEX",
-    "description": "Hexblade: +25% status potency (each 25% = +1 Vulnerability; also Weakens) for every 10 Mind (x skill rank and power).",
+    "description": "Hexblade: \u002B25% status potency (each 25% = \u002B1 Vulnerability; also Weakens) for every 10 Mind (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1678,11 +1694,11 @@
     "damage": "100%",
     "speed": "1.00",
     "block": "180",
-    "tags": "hybrid, hexblade, rogue, wizard"
+    "tags": "common, hybrid, hexblade, rogue, wizard"
   },
   {
     "action": "HEXBLADE CURSE",
-    "description": "Hexblade: +25% status potency (each 25% = +1 Vulnerability; also Weakens) for every 10 Hexblade tags (x skill rank and power).",
+    "description": "Hexblade: \u002B25% status potency (each 25% = \u002B1 Vulnerability; also Weakens) for every 10 Hexblade tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1690,6 +1706,6 @@
     "damage": "100%",
     "speed": "1.00",
     "block": "180",
-    "tags": "hybrid, hexblade, rogue, wizard"
+    "tags": "common, hybrid, hexblade, rogue, wizard"
   }
 ]

@@ -516,6 +516,31 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             return Math.Max(3, (int)Math.Round(tileRows * charHeight / charWidth));
         }
 
+        /// <summary>Square-in-pixels tile height (rows) for <paramref name="columns"/> columns of the current font.</summary>
+        internal static int GridRowsForColumns(double charWidth, double charHeight, int columns)
+        {
+            if (columns <= 0)
+                return 0;
+            if (charWidth <= 0 || charHeight <= 0)
+                return Math.Max(1, (columns + 1) / 2);
+            return Math.Max(1, (int)Math.Round(columns * charWidth / charHeight));
+        }
+
+        /// <summary>
+        /// Selected-item icon in the detail pane: the full pane width, tall enough to stay square in pixels,
+        /// and short enough to leave <paramref name="textRows"/> for the description. (0, 0) when the pane is too small.
+        /// </summary>
+        internal static (int Columns, int Rows) DetailHeroIconSize(double charWidth, double charHeight, int detailWidth, int paneRows, int textRows = 12)
+        {
+            if (detailWidth < 4 || paneRows < 8)
+                return (0, 0);
+            int maxRows = paneRows - textRows;
+            if (maxRows < 4)
+                return (0, 0);
+            int rows = Math.Min(maxRows, GridRowsForColumns(charWidth, charHeight, detailWidth));
+            return rows < 4 ? (0, 0) : (detailWidth, rows);
+        }
+
         /// <summary>
         /// New inventory: item icons (GameData/ItemArt sheets) in a grid on the left, rarity-coloured frames, the selected
         /// item framed gold; the selected item's large icon and full description on the right. Tiles click as
@@ -638,12 +663,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 return;
 
             int detailY = topY;
-            int bigRows = Math.Min(10, Math.Max(0, (bottomY - topY) / 3));
-            if (haveArt && bigRows >= 4 && ItemArtAtlas.TryGetIcon(selected.Item, out var bigBitmap, out var bigRect))
+            int paneRows = Math.Max(0, detailBottomY - topY);
+            var hero = DetailHeroIconSize(canvas.GetCharWidth(), canvas.GetCharHeight(), detailWidth, paneRows);
+            if (haveArt && hero.Rows > 0 && ItemArtAtlas.TryGetHeroIcon(selected.Item, out var bigBitmap, out var bigRect))
             {
-                int bigCols = Math.Min(detailWidth, GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), bigRows));
-                canvas.AddImage(detailX, detailY, bigCols, bigRows, bigBitmap, bigRect, paddingPixels: 0);
-                detailY += bigRows + 1;
+                canvas.AddImage(detailX, detailY, hero.Columns, hero.Rows, bigBitmap, bigRect, paddingPixels: 0, fillFrame: true);
+                detailY += hero.Rows + 1;
             }
             RenderDetailPane(detailX, detailY, detailWidth, detailBottomY, selected.Item, character, ref currentLineCount);
             RenderDragGhost(x, width, topY, bottomY, tileCols, tileRows, haveArt);

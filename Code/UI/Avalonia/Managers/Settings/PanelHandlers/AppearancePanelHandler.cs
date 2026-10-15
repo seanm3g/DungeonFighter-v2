@@ -5,6 +5,7 @@ using RPGGame;
 using RPGGame.Config;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Settings;
 using System;
@@ -14,7 +15,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
     /// <summary>
     /// Handles wiring and loading for the Appearance settings panel
     /// </summary>
-    public class AppearancePanelHandler : ISettingsPanelHandler
+    public partial class AppearancePanelHandler : ISettingsPanelHandler
     {
         private readonly SettingsColorManager? colorManager;
 
@@ -216,8 +217,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 };
             }
 
+            WireUpCombatLogSidePaddingControls(appearancePanel);
             WireUpAnimatedTextBrightnessControls(appearancePanel);
             WireUpNarrativeVideoControls(appearancePanel);
+            WireUpRoomBackdropControls(appearancePanel);
 
             // Load settings once when panel is wired. Do not subscribe to Loaded: Loaded can fire again on
             // layout/focus (e.g. when user clicks Save), which would overwrite user edits with stale values.
@@ -278,8 +281,18 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 subsequentLineDarkeningTextBox.Text = uiConfig.SubsequentLineDarkening.ToString("F2");
             }
 
+            var sidePaddingSlider = appearancePanel.FindControl<Slider>("CombatLogSidePaddingSlider");
+            var sidePaddingTextBox = appearancePanel.FindControl<TextBox>("CombatLogSidePaddingTextBox");
+            if (sidePaddingSlider != null && sidePaddingTextBox != null)
+            {
+                double percent = CombatLogSidePadding.ConfiguredPercent;
+                sidePaddingSlider.Value = percent;
+                sidePaddingTextBox.Text = percent.ToString("0.#");
+            }
+
             LoadAnimatedTextBrightnessControls(appearancePanel);
             LoadNarrativeVideoControls(appearancePanel);
+            LoadRoomBackdropControls(appearancePanel);
         }
 
         public void SaveSettings(UserControl panel)
@@ -321,12 +334,17 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (subsequentLineDarkeningSlider != null)
                 SaveSubsequentLineDarkening(subsequentLineDarkeningSlider.Value);
 
+            var sidePaddingSlider = appearancePanel.FindControl<Slider>("CombatLogSidePaddingSlider");
+            if (sidePaddingSlider != null)
+                SaveCombatLogSidePadding(sidePaddingSlider.Value);
+
             var minSlider = appearancePanel.FindControl<Slider>("AnimatedTextBrightnessMinSlider");
             var maxSlider = appearancePanel.FindControl<Slider>("AnimatedTextBrightnessMaxSlider");
             if (minSlider != null && maxSlider != null)
                 SaveAnimatedTextBrightness(minSlider.Value, maxSlider.Value);
 
             SaveNarrativeVideoControls(appearancePanel, persistToFile: true);
+            SaveRoomBackdropToFile();
             // Orchestrator persists GameSettings once at end of save; do not call GameSettings.Instance.SaveSettings() here.
         }
         
@@ -352,6 +370,78 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             catch (System.Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error saving subsequent line darkening: {ex.Message}");
+            }
+        }
+
+        private void WireUpCombatLogSidePaddingControls(AppearanceSettingsPanel appearancePanel)
+        {
+            var slider = appearancePanel.FindControl<Slider>("CombatLogSidePaddingSlider");
+            var textBox = appearancePanel.FindControl<TextBox>("CombatLogSidePaddingTextBox");
+            if (slider == null || textBox == null)
+                return;
+
+            double initial = CombatLogSidePadding.ConfiguredPercent;
+            slider.Value = initial;
+            textBox.Text = initial.ToString("0.#");
+
+            slider.ValueChanged += (s, e) =>
+            {
+                textBox.Text = e.NewValue.ToString("0.#");
+                SaveCombatLogSidePadding(e.NewValue);
+            };
+
+            textBox.LostFocus += (s, e) =>
+            {
+                if (double.TryParse(textBox.Text?.TrimEnd('%'), out double value))
+                {
+                    value = Math.Clamp(value, 0, CombatLogSidePadding.MaxPercent);
+                    slider.Value = value;
+                    textBox.Text = value.ToString("0.#");
+                    SaveCombatLogSidePadding(value);
+                }
+                else
+                {
+                    textBox.Text = slider.Value.ToString("0.#");
+                }
+            };
+        }
+
+        /// <summary>
+        /// Applies the combat-log side padding live (re-renders the log) and persists it to UIConfiguration.json.
+        /// </summary>
+        private void SaveCombatLogSidePadding(double percent)
+        {
+            CombatLogSidePadding.ConfiguredPercent = percent;
+            try
+            {
+                if (UIManager.GetCustomUIManager() is CanvasUICoordinator coordinator)
+                    coordinator.ForceRender();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error re-rendering after side padding change: {ex.Message}");
+            }
+
+            try
+            {
+                var uiConfig = UIConfiguration.LoadFromFile();
+                uiConfig.CombatLogSidePaddingPercent = CombatLogSidePadding.ConfiguredPercent;
+
+                string? foundPath = JsonLoader.FindGameDataFile("UIConfiguration.json");
+                if (foundPath != null)
+                {
+                    var jsonOptions = new System.Text.Json.JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                    };
+                    string json = System.Text.Json.JsonSerializer.Serialize(uiConfig, jsonOptions);
+                    System.IO.File.WriteAllText(foundPath, json);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error saving combat log side padding: {ex.Message}");
             }
         }
 

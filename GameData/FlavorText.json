@@ -1090,7 +1090,7 @@
     ],
     "victoryLimerick": [
       "There once was {hero} | who faced down a dreaded {enemy} | In the halls of {place} | they finished the chase | and carved out a legend, you see.",
-      "Said {hero} with grit and with cheer | \"Come closer, foul {enemy}, draw near!\" | Through {place} they fought | till the last blow was caught | and the dungeon grew quiet and clear.",
+      "Said {hero} with grit and with cheer | \u0022Come closer, foul {enemy}, draw near!\u0022 | Through {place} they fought | till the last blow was caught | and the dungeon grew quiet and clear.",
       "In {place} where the shadows hang low | fought {hero} and terrible {enemy} | Steel sang and then ceased | when the battle released | a victor still standing to go."
     ],
     "environmentalAction": [
@@ -1287,7 +1287,7 @@
     ],
     "sequenceActionMiss": [
       "{attacker} lunges but its teeth snap shut with no flesh in between.",
-      "{attacker} snaps at air — jaws close on nothing.",
+      "{attacker} snaps at air \u2014 jaws close on nothing.",
       "{attacker} commits to the strike and finds only empty space.",
       "{attacker} swings true to intent, yet flesh is nowhere to be found.",
       "Jaws and claws find no purchase as {attacker} misses clean."
@@ -1296,7 +1296,7 @@
       "The blow carries {critical}.",
       "{attacker} drives the attack with {critical}.",
       "Fortune favors the strike through {critical}.",
-      "There is no wasted motion — only {critical}.",
+      "There is no wasted motion \u2014 only {critical}.",
       "The hit lands with {critical}."
     ],
     "sequenceCriticalMiss": [
@@ -1345,7 +1345,7 @@
       "Then {attacker} presses the attack again.",
       "Without pause, {attacker} launches another strike.",
       "A second blow follows from {attacker}.",
-      "{attacker} does not relent — another assault begins.",
+      "{attacker} does not relent \u2014 another assault begins.",
       "Again, {attacker} surges toward {target}."
     ]
   },

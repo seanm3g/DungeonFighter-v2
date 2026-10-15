@@ -94,7 +94,7 @@ Two gates now look per enemy, both against `heroTurnsTarget` ± `perEnemyTurnsTo
 | Dungeon clear 100% at L1, 95% at L10, 0% at L100 (linear) | real clear rate + matrix fight win rate | PLAYTODEATHBATCH / FUNDMATRIX / WRSOLVE |
 | Hero survives 100% of runs to L10 | % of playthroughs reaching L10 | PLAYTODEATHBATCH `--stop-at-level 10` |
 | All four weapons ~11 turns, differentiated by speed and variety | per-weapon turns, swing time | FUNDMATRIX, FIGHTLOG |
-| Starter swing 7–10 s, mastery ~2 s | swing time at AGI 10 / 100 | FIGHTLOG header |
+| Starter swing 7–10 s, mastery ~2 s near L100 (2026-10-14: `agilityMax` 200, curve exponent 0.8, so a Warrior stops hitting the floor at L35) | swing time at AGI 10 / 200 | FIGHTLOG header |
 | Rarity: Rare ≈ 2–3% of drops | rarity mix | ITEMSTATS |
 
 ## Tools

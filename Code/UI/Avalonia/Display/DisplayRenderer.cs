@@ -61,7 +61,9 @@ namespace RPGGame.UI.Avalonia.Display
             
             // Center-column UI zoom: wrap sooner and reserve ceil(zoom) grid rows per visual line
             // so larger glyphs do not overlap. Side panels stay at window-fit 100%.
-            int availableWidth = CenterColumnTextZoom.ScaleWrapWidth(contentWidth - 2);
+            // Side padding insets both edges (chat-thread look: hero hugs the left, enemy the right).
+            int sidePadding = CombatLogSidePadding.Effective(contentWidth - 2);
+            int availableWidth = CenterColumnTextZoom.ScaleWrapWidth(contentWidth - 2 - 2 * sidePadding);
             int lineStride = CenterColumnTextZoom.LineStride;
             int visibleLogicalRows = CenterColumnTextZoom.ScaleVisibleRows(contentHeight);
 
@@ -147,10 +149,10 @@ namespace RPGGame.UI.Avalonia.Display
                 if (y < viewportBottomExclusive)
                 {
                     // Use consistent X position - contentX is the content area start,
-                    // add 1 for left padding to match availableWidth calculation (contentWidth - 2)
+                    // add 1 + sidePadding to match availableWidth calculation (contentWidth - 2 - 2 * sidePadding)
                     // This ensures text doesn't shift horizontally when scrolling
                     // Use exact integer values to prevent floating point rounding issues
-                    int renderX = contentX + 1;
+                    int renderX = contentX + 1 + sidePadding;
                     int renderY = y;
                     
                     // Check if this is the dungeon name line and apply animation
@@ -293,9 +295,10 @@ namespace RPGGame.UI.Avalonia.Display
             if (rows.Count == 0)
                 return 0;
             
-            int availableWidth = CenterColumnTextZoom.ScaleWrapWidth(contentWidth - 2);
+            int sidePadding = CombatLogSidePadding.Effective(contentWidth - 2);
+            int availableWidth = CenterColumnTextZoom.ScaleWrapWidth(contentWidth - 2 - 2 * sidePadding);
             int visibleLogicalRows = CenterColumnTextZoom.ScaleVisibleRows(contentHeight);
-            
+
             // Calculate total height needed for all lines (accounting for text wrapping)
             int totalHeight = 0;
             foreach (var row in rows)

@@ -95,7 +95,15 @@ namespace RPGGame
         /// Lower values = darker subsequent lines, higher values = brighter subsequent lines
         /// </summary>
         public double SubsequentLineDarkening { get; set; } = 0.8;
-        
+
+        /// <summary>
+        /// Padding inside both the left and right edges of the center combat log, as a percent of the
+        /// log's width (so it scales with the monitor/window). Hero lines start this far from the left edge
+        /// and enemy lines end this far from the right edge, so the log reads like a chat thread.
+        /// 0 = text runs edge to edge.
+        /// </summary>
+        public double CombatLogSidePaddingPercent { get; set; } = 0;
+
         // Animation Configuration
         /// <summary>
         /// [LEGACY/UNUSED] Controls the speed of the undulation/shimmer effect on colored text (in milliseconds)
@@ -122,6 +130,12 @@ namespace RPGGame
         /// </summary>
         public RPGGame.UI.Avalonia.Effects.NarrativeVideoOverlayConfig NarrativeVideoOverlay { get; set; } =
             new RPGGame.UI.Avalonia.Effects.NarrativeVideoOverlayConfig();
+
+        /// <summary>
+        /// Combat-screen room plate look: brightness, contrast, saturation, blur, opacity, blend mode, base color.
+        /// </summary>
+        public RPGGame.UI.Avalonia.Effects.RoomBackdropConfig RoomBackdrop { get; set; } =
+            new RPGGame.UI.Avalonia.Effects.RoomBackdropConfig();
 
         /// <summary>
         /// Named layered text animation presets (base color + stackable overlay / HSV layers).

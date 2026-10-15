@@ -260,6 +260,13 @@ namespace RPGGame.UI.Avalonia
                 return;
             }
 
+            // F5 on the title screen or main menu replays the title intro (elsewhere it toggles the video feed).
+            if (e.Key == Key.F5 && initializationHandler != null && initializationHandler.TryReplayTitleScreen(UpdateStatus))
+            {
+                e.Handled = true;
+                return;
+            }
+
             if (TryHandleNarrativeVideoFeedKey(e.Key))
             {
                 e.Handled = true;

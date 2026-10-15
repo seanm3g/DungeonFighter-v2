@@ -75,6 +75,13 @@ namespace RPGGame.UI.TitleScreen
             System.Action? onReadyForKey = null,
             bool firstFrameAlreadyRendered = false)
         {
+            if (_renderer is ITitleSceneRenderer sceneRenderer)
+            {
+                await RunSceneLoopAsync(sceneRenderer, cancellationToken, onReadyForKey, firstFrameAlreadyRendered)
+                    .ConfigureAwait(false);
+                return;
+            }
+
             var animConfig = UIConfiguration.LoadFromFile().DungeonSelectionAnimation
                 ?? new DungeonSelectionAnimationConfig();
             int undulationMs = Math.Max(16, animConfig.UndulationIntervalMs);
@@ -194,6 +201,57 @@ namespace RPGGame.UI.TitleScreen
             }
         }
 
+        /// <summary>Target frame interval for the procedural title scene (~30 fps).</summary>
+        public const int SceneFrameIntervalMs = 33;
+
+        /// <summary>
+        /// Full-screen procedural scene: letters fly in and settle to orange / red by
+        /// <see cref="TitleSceneBuilder.SettleSeconds"/>, then the torch-lit environment keeps animating.
+        /// </summary>
+        private async Task RunSceneLoopAsync(
+            ITitleSceneRenderer sceneRenderer,
+            CancellationToken cancellationToken,
+            System.Action? onReadyForKey,
+            bool firstFrameAlreadyRendered)
+        {
+            var builder = new TitleSceneBuilder(TitleScreenHelper.SceneSeed);
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            bool notifiedReady = false;
+
+            if (!firstFrameAlreadyRendered)
+                _renderer.ResetBackground();
+
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    long frameStart = clock.ElapsedMilliseconds;
+                    var (width, height) = sceneRenderer.GridSize;
+                    sceneRenderer.RenderScene(builder.Build(width, height, clock.Elapsed.TotalSeconds));
+
+                    if (!notifiedReady)
+                    {
+                        onReadyForKey?.Invoke();
+                        notifiedReady = true;
+                    }
+
+                    int wait = Math.Max(1, SceneFrameIntervalMs - (int)(clock.ElapsedMilliseconds - frameStart));
+                    try
+                    {
+                        await Task.Delay(wait, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                _renderer.ResetBackground();
+            }
+        }
+
         public int GetAnimationDuration()
         {
             return _animation.GetTotalDurationMs();
@@ -224,6 +282,12 @@ namespace RPGGame.UI.TitleScreen
     {
         private static TitleAnimationConfig? _cachedConfig;
         private static TitleScreenPreload? _preload;
+
+        /// <summary>Seed shared by the preloaded first frame and the idle loop so the scene layout matches.</summary>
+        public static int SceneSeed { get; private set; } = System.Environment.TickCount;
+
+        /// <summary>Re-rolls the scene layout (torch-side eyes, drips, spark paths) for a title replay.</summary>
+        public static void NewSceneSeed() => SceneSeed = System.Environment.TickCount;
 
         private static TitleAnimationConfig GetConfig()
         {
@@ -273,6 +337,13 @@ namespace RPGGame.UI.TitleScreen
                 return;
 
             renderer.ResetBackground();
+            if (renderer is ITitleSceneRenderer sceneRenderer)
+            {
+                var (width, height) = sceneRenderer.GridSize;
+                sceneRenderer.RenderScene(new TitleSceneBuilder(SceneSeed).Build(width, height, 0));
+                return;
+            }
+
             renderer.RenderFrame(preload.FirstFrame, includePressKey: true);
         }
 

@@ -46,7 +46,8 @@
     }
   },
   "whiteTemperatureIntensity": 1.1,
-  "subsequentLineDarkening": 0.6000000000000001,
+  "subsequentLineDarkening": 0.7000000000000001,
+  "combatLogSidePaddingPercent": 20,
   "undulationTimerMs": 1000,
   "brightnessMask": {
     "enabled": false,
@@ -58,7 +59,7 @@
     "undulationSpeed": -0.05,
     "undulationIntervalMs": 50,
     "undulationWaveLength": 4,
-    "animatedTextBrightnessMin": 150,
+    "animatedTextBrightnessMin": 163,
     "animatedTextBrightnessMax": 255,
     "brightnessMask": {
       "enabled": false,
@@ -136,6 +137,16 @@
     "onlyWhenInDungeon": true,
     "muteAudio": true,
     "loop": true
+  },
+  "roomBackdrop": {
+    "enabled": true,
+    "brightness": 0.5035211267605634,
+    "contrast": 1,
+    "saturation": 1,
+    "blur": 2.711267605633803,
+    "opacity": 0.5959507042253521,
+    "blendMode": "Normal",
+    "baseColor": "#000000"
   },
   "textAnimationPresets": {
     "pathIntro": {

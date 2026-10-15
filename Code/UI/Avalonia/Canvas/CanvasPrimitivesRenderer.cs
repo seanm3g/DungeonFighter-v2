@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -102,7 +103,8 @@ namespace RPGGame.UI.Avalonia.Canvas
             Color clearBackground = default,
             bool fillBackground = true,
             List<CanvasImage>? images = null,
-            CanvasBackdrop? backdrop = null)
+            CanvasBackdrop? backdrop = null,
+            RPGGame.UI.TitleScreen.TitleSceneFrame? sceneUnderlay = null)
         {
             // default(Color) / transparent → solid black (normal game backdrop)
             if (fillBackground)
@@ -135,6 +137,8 @@ namespace RPGGame.UI.Avalonia.Canvas
 
             try
             {
+                if (sceneUnderlay != null)
+                    RenderSceneUnderlay(context, sceneUnderlay, charWidth, charHeight);
                 RenderBoxes(context, boxElements, overlayPass: false);
                 if (backdrop != null)
                     RenderBackdrop(context, backdrop, charWidth, charHeight);
@@ -193,7 +197,7 @@ namespace RPGGame.UI.Avalonia.Canvas
         }
 
         private double ResolveFontSize(CanvasText text) =>
-            CenterColumnTextZoom.IsCenterColumnX(text.X)
+            !text.IgnoresCenterColumn && CenterColumnTextZoom.IsCenterColumnX(text.X)
                 ? CenterColumnTextZoom.ScaledFontSize(coordinateConverter.GetFontSize())
                 : coordinateConverter.GetFontSize();
 
@@ -275,7 +279,7 @@ namespace RPGGame.UI.Avalonia.Canvas
 
         private IDisposable? PushCenterColumnClip(DrawingContext context, CanvasText text, double charWidth, double charHeight)
         {
-            if (!CenterColumnTextZoom.IsCenterColumnX(text.X))
+            if (text.IgnoresCenterColumn || !CenterColumnTextZoom.IsCenterColumnX(text.X))
                 return null;
 
             int leftCol = LayoutConstants.LEFT_PANEL_X + LayoutConstants.LEFT_PANEL_WIDTH;
@@ -298,17 +302,49 @@ namespace RPGGame.UI.Avalonia.Canvas
         
         private static void RenderImages(DrawingContext context, List<CanvasImage> images, double charWidth, double charHeight)
         {
+            if (images.Count == 0)
+                return;
+            // Icons are drawn at whatever size the cell grid gives them; filter so scaling stays smooth.
+            using var _ = context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.HighQuality });
             foreach (var image in images)
             {
                 double pad = Math.Max(0, image.PaddingPixels);
                 double w = image.Width * charWidth - 2 * pad;
                 double h = image.Height * charHeight - 2 * pad;
-                double side = Math.Min(w, h);
-                if (side <= 0 || image.Source == null)
+                if (w <= 0 || h <= 0 || image.Source == null)
                     continue;
-                double x = image.X * charWidth + pad + (w - side) / 2;
-                double y = image.Y * charHeight + pad + (h - side) / 2;
-                context.DrawImage(image.Source, image.SourceRect, new Rect(x, y, side, side));
+                double x = image.X * charWidth + pad;
+                double y = image.Y * charHeight + pad;
+                double dw = w;
+                double dh = h;
+                if (!image.FillFrame)
+                {
+                    double side = Math.Min(w, h);
+                    x += (w - side) / 2;
+                    y += (h - side) / 2;
+                    dw = dh = side;
+                }
+                context.DrawImage(image.Source, image.SourceRect, new Rect(x, y, dw, dh));
+            }
+        }
+
+        /// <summary>
+        /// Menu-screen cave (<see cref="RPGGame.UI.TitleScreen.MenuSceneBackdrop"/>): plain grid runs under every
+        /// element, with no wind sway, click burst or interactive highlight.
+        /// </summary>
+        private void RenderSceneUnderlay(DrawingContext context, RPGGame.UI.TitleScreen.TitleSceneFrame scene, double charWidth, double charHeight)
+        {
+            foreach (var block in scene.Blocks)
+                context.FillRectangle(GetCachedBrush(block.Color),
+                    new Rect(block.X * charWidth, block.Y * charHeight, block.Width * charWidth, block.Height * charHeight));
+
+            double fontSize = coordinateConverter.GetFontSize();
+            double glyphAdvance = ResolveGlyphAdvance(charWidth, fontSize);
+            bool forceMonospace = ShouldForceMonospaceGlyphPlacement(GameFonts.UsesPixelGrid);
+            foreach (var run in scene.Texts)
+            {
+                var text = new CanvasText { X = run.X, Y = run.Y, Content = run.Text, Color = run.Color, IgnoresCenterColumn = true };
+                DrawTextRun(context, text, run.Text, run.X * charWidth, run.Y * charHeight, fontSize, glyphAdvance, forceMonospace);
             }
         }
 
@@ -320,20 +356,11 @@ namespace RPGGame.UI.Avalonia.Canvas
                 backdrop.Y * charHeight + inset,
                 backdrop.Width * charWidth - 2 * inset,
                 backdrop.Height * charHeight - 2 * inset);
-            var size = backdrop.Source?.Size ?? default;
-            if (dest.Width <= 0 || dest.Height <= 0 || size.Width <= 0 || size.Height <= 0)
+            if (dest.Width <= 0 || dest.Height <= 0 || backdrop.Source == null || backdrop.Source.Width <= 0 || backdrop.Source.Height <= 0)
                 return;
 
-            // Cover: crop the source to the destination's aspect, centred.
-            double scale = Math.Max(dest.Width / size.Width, dest.Height / size.Height);
-            double srcW = dest.Width / scale;
-            double srcH = dest.Height / scale;
-            var src = new Rect((size.Width - srcW) / 2, (size.Height - srcH) / 2, srcW, srcH);
-            context.DrawImage(backdrop.Source!, src, dest);
-
-            byte alpha = (byte)Math.Round(Math.Clamp(backdrop.Dim, 0, 1) * 255);
-            if (alpha > 0)
-                context.FillRectangle(GetCachedBrush(Color.FromArgb(alpha, 0, 0, 0)), dest);
+            // Skia draw op: cover crop, color filters, blur and blend mode.
+            context.Custom(new RoomBackdropDrawOperation(dest, backdrop.Source, backdrop.Look));
         }
 
         private void RenderBox(DrawingContext context, CanvasBox box)

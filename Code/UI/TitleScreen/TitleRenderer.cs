@@ -42,10 +42,22 @@ namespace RPGGame.UI.TitleScreen
     }
 
     /// <summary>
+    /// Optional renderer capability: paints full-screen procedural title scenes
+    /// (<see cref="TitleSceneBuilder"/>). Renderers without it fall back to the line-based idle loop.
+    /// </summary>
+    public interface ITitleSceneRenderer
+    {
+        /// <summary>Current grid size in cells.</summary>
+        (int Width, int Height) GridSize { get; }
+
+        void RenderScene(TitleSceneFrame scene);
+    }
+
+    /// <summary>
     /// Renders title frames to the Canvas UI (Avalonia GUI)
     /// Uses the existing CanvasUICoordinator for display
     /// </summary>
-    public class CanvasTitleRenderer : ITitleRenderer
+    public class CanvasTitleRenderer : ITitleRenderer, ITitleSceneRenderer
     {
         private readonly CanvasUICoordinator _canvasUI;
 
@@ -103,6 +115,29 @@ namespace RPGGame.UI.TitleScreen
                 
                 // Force the UI thread to process pending operations
                 // This helps ensure the frame is actually rendered before we continue
+                Dispatcher.UIThread.RunJobs(DispatcherPriority.Render);
+            });
+        }
+
+        public (int Width, int Height) GridSize => (_canvasUI.GridWidth, _canvasUI.GridHeight);
+
+        public void RenderScene(TitleSceneFrame scene)
+        {
+            if (scene == null)
+                return;
+
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                _canvasUI.SetClearBackgroundColor(scene.Background);
+                _canvasUI.Clear();
+
+                foreach (var block in scene.Blocks)
+                    _canvasUI.AddSceneBlock(block.X, block.Y, block.Width, block.Height, block.Color);
+
+                foreach (var text in scene.Texts)
+                    _canvasUI.AddSceneText(text.X, text.Y, text.Text, text.Color);
+
+                _canvasUI.Refresh();
                 Dispatcher.UIThread.RunJobs(DispatcherPriority.Render);
             });
         }
