@@ -524,10 +524,14 @@ namespace RPGGame.Tests.Unit.UI
                 "eight columns of 9px are four rows of 18px", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual((34, 17), InventoryScreenRenderer.DetailHeroIconSize(9, 18, 34, 40),
                 "the detail icon fills the pane width and stays square", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual((34, 16), InventoryScreenRenderer.DetailHeroIconSize(9, 18, 34, 28),
-                "a shorter pane keeps description rows and still uses the full width", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual((32, 16), InventoryScreenRenderer.DetailHeroIconSize(9, 18, 34, 28),
+                "a shorter pane shrinks the icon on both axes so it stays square", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual((0, 0), InventoryScreenRenderer.DetailHeroIconSize(9, 18, 34, 14),
                 "no hero icon when the description would have fewer than four rows of picture", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(5, InventoryScreenRenderer.DetailHeroIconX(2, 42, 36),
+                "a shrunk hero is centered in the detail pane", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, InventoryScreenRenderer.DetailHeroIconX(2, 42, 42),
+                "a full-width hero stays on the pane's left edge", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             if (!ItemArtAtlas.IsAvailable)
             {
@@ -581,8 +585,11 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(fixedReserve.Rows > 0 && fixedLeftover < textRows,
                 $"a square icon leaves {fixedLeftover} rows, short of the {textRows}-row description",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(fitted.Rows < fixedReserve.Rows,
-                $"hero shrinks from {fixedReserve.Rows} to {fitted.Rows} so the comparison stays in the pane",
+            TestBase.AssertTrue(fitted.Rows < fixedReserve.Rows && fitted.Columns < detailWidth,
+                $"hero shrinks from {fixedReserve.Columns}x{fixedReserve.Rows} to {fitted.Columns}x{fitted.Rows} so the comparison stays in the pane",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(fitted.Rows == 0 || fitted.Columns * 9 == fitted.Rows * 18,
+                $"shrunk hero stays square in pixels ({fitted.Columns}x{fitted.Rows})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(fitted.Rows == 0 || paneRows - fitted.Rows - 1 >= textRows,
                 "rows left under the icon cover the description and comparison",

@@ -528,9 +528,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         }
 
         /// <summary>
-        /// Selected-item icon in the detail pane: the full pane width, tall enough to stay square in pixels,
-        /// and short enough to leave <paramref name="textRows"/> for the description (name, stats, and the
-        /// vs-equipped table). (0, 0) when the pane is too small to keep both a picture and that text.
+        /// Selected-item icon in the detail pane. Square in pixels, up to the pane width, and short enough
+        /// to leave <paramref name="textRows"/> for the description. When that square would crowd the text,
+        /// both axes shrink together. (0, 0) when the pane cannot hold a 4-row picture and that text.
         /// </summary>
         internal static (int Columns, int Rows) DetailHeroIconSize(double charWidth, double charHeight, int detailWidth, int paneRows, int textRows = 12)
         {
@@ -539,8 +539,36 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int maxRows = paneRows - textRows;
             if (maxRows < 4)
                 return (0, 0);
-            int rows = Math.Min(maxRows, GridRowsForColumns(charWidth, charHeight, detailWidth));
-            return rows < 4 ? (0, 0) : (detailWidth, rows);
+
+            int fullRows = GridRowsForColumns(charWidth, charHeight, detailWidth);
+            if (fullRows >= 4 && fullRows <= maxRows)
+                return (detailWidth, fullRows);
+
+            if (fullRows < 4)
+                return (0, 0);
+
+            // A full-width square is taller than the text budget. Narrow it with the height so the
+            // picture stays square instead of stretching across the pane.
+            int columns = Math.Min(detailWidth, GridTileColumns(charWidth, charHeight, maxRows));
+            int rows = GridRowsForColumns(charWidth, charHeight, columns);
+            while (columns > 3 && rows > maxRows)
+            {
+                columns--;
+                rows = GridRowsForColumns(charWidth, charHeight, columns);
+            }
+
+            if (rows < 4 || rows > maxRows || columns > detailWidth)
+                return (0, 0);
+            return (columns, rows);
+        }
+
+        /// <summary>Left column of the detail icon. A picture narrower than the pane is centered in it.</summary>
+        internal static int DetailHeroIconX(int detailX, int detailWidth, int iconColumns)
+        {
+            int slack = detailWidth - iconColumns;
+            if (slack <= 0)
+                return detailX;
+            return detailX + slack / 2;
         }
 
         /// <summary>
@@ -782,7 +810,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             var hero = DetailHeroIconSize(canvas.GetCharWidth(), canvas.GetCharHeight(), detailWidth, paneRows, textRows);
             if (haveArt && hero.Rows > 0 && ItemArtAtlas.TryGetHeroIcon(selected.Item, out var bigBitmap, out var bigRect))
             {
-                canvas.AddImage(detailX, detailY, hero.Columns, hero.Rows, bigBitmap, bigRect, paddingPixels: 0, fillFrame: true);
+                int iconX = DetailHeroIconX(detailX, detailWidth, hero.Columns);
+                canvas.AddImage(iconX, detailY, hero.Columns, hero.Rows, bigBitmap, bigRect, paddingPixels: 0, fillFrame: true);
                 detailY += hero.Rows + 1;
             }
             RenderDetailPane(detailX, detailY, detailWidth, detailBottomY, selected.Item, character, ref currentLineCount);
