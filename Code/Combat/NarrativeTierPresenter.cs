@@ -106,8 +106,8 @@ namespace RPGGame
             }
 
             var segments = new ColoredTextBuilder()
-                .Add(Indent, ColorPalette.Info)
-                .Add(bestText, best == NarrativeTier.SetPiece ? ColorPalette.Info : ColorPalette.Gray)
+                .Add(Indent, ColorPalette.Gray)
+                .Add(bestText, best == NarrativeTier.SetPiece ? ColorPalette.Purple : ColorPalette.Gray)
                 .Build();
 
             return new List<List<ColoredText>> { segments };

@@ -12,7 +12,7 @@ namespace RPGGame
         private readonly NarrativeTextProvider textProvider;
         private readonly NarrativeStateManager stateManager;
         private readonly TauntSystem tauntSystem;
-        private readonly NarrativeTriggerEvaluator triggerEvaluator;
+        private NarrativeTriggerEvaluator triggerEvaluator;
 
         // References for health calculations
         private int initialPlayerHealth;
@@ -48,6 +48,16 @@ namespace RPGGame
             this.initialEnemyHealth = initialEnemyHealth;
             this.finalPlayerHealth = initialPlayerHealth;
             this.finalEnemyHealth = initialEnemyHealth;
+
+            // The evaluator is built in the constructor, before Initialize supplies the real
+            // combatant names - so it captured empty strings and every line it owns rendered
+            // with a blank {name} ("Pressure changes hands. is the one walking forward.").
+            // Harmless while these banks were generated and discarded; visible the moment they
+            // reach the screen. Rebuild it with the names it is supposed to use.
+            this.triggerEvaluator = new NarrativeTriggerEvaluator(
+                textProvider, stateManager, tauntSystem,
+                playerName, enemyName, currentLocation,
+                initialPlayerHealth, initialEnemyHealth);
         }
 
         /// <summary>

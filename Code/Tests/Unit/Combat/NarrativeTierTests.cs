@@ -33,6 +33,8 @@ namespace RPGGame.Tests.Unit.Combat
             BeatBanksAreWorldVoice();
             FlavorLinesReachTheBlock();
             CollectorKeepsFlavorLines();
+            SetPieceCarriesNarratorColorInBlockPath();
+            EvaluatorBanksSubstituteNames();
 
             TestBase.PrintSummary("Narrative Tier Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -185,6 +187,83 @@ namespace RPGGame.Tests.Unit.Combat
                 all.Contains("First blood hits the stone", StringComparison.Ordinal),
                 "Collector must keep the tiered flavor line in the block",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void SetPieceCarriesNarratorColorInBlockPath()
+        {
+            Console.WriteLine("\n--- Set piece uses the narrator color in the block path too ---");
+            // Two display surfaces render the overseer: the prose presenter (F7 on) and the
+            // mechanical block (F7 off). They must agree on his color, or he changes identity
+            // when the player toggles views.
+            RPGGame.Combat.Sequence.NarrativePacing.OverrideForTesting(
+                new RPGGame.Combat.Sequence.NarrativePacing.Profile { NarratorEnabled = true });
+            try
+            {
+                var narrative = new BattleNarrative("Hero", "Goblin", "Test", 100, 100);
+                narrative.AddEvent(new BattleEvent
+                {
+                    Actor = "Hero", Target = "Goblin", Action = "Strike",
+                    IsSuccess = true, IsCritical = true, NaturalRoll = 19, Roll = 19, Damage = 30
+                });
+
+                var tagged = narrative.GetTriggeredNarrativesTagged();
+                bool isSetPiece = tagged.Exists(t => NarrativeTiers.For(t.Bank) == NarrativeTier.SetPiece);
+                var lines = NarrativeTierPresenter.BuildFlavorLines(narrative);
+
+                bool purple = lines != null && lines.Exists(l =>
+                    l.Exists(seg => !string.IsNullOrWhiteSpace(seg.Text)
+                                    && seg.Color.Equals(ColorPalette.Purple.GetColor())));
+
+                TestBase.AssertTrue(isSetPiece,
+                    "A crit should tag a set-piece bank",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(purple,
+                    "Set-piece line in the block path must use the narrator color",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                RPGGame.Combat.Sequence.NarrativePacing.OverrideForTesting(null);
+                RPGGame.Combat.Sequence.NarrativePacing.Invalidate();
+            }
+        }
+
+        private static void EvaluatorBanksSubstituteNames()
+        {
+            Console.WriteLine("\n--- Evaluator-owned banks fill in {name} ---");
+            // Regression: NarrativeTriggerEvaluator was built in the analyzer's constructor,
+            // before Initialize supplied the combatant names, so every line it owns rendered
+            // with an empty {name} - "Pressure changes hands. is the one walking forward."
+            var textProvider = new NarrativeTextProvider();
+            var analyzer = new BattleEventAnalyzer(
+                textProvider, new NarrativeStateManager(), new TauntSystem(textProvider));
+            analyzer.Initialize("Hero", "Goblin", "Test", 100, 100);
+            analyzer.UpdateFinalHealth(100, 60);
+
+            var tagged = analyzer.AnalyzeEventTagged(new BattleEvent
+            {
+                Actor = "Hero", Target = "Goblin", Action = "Strike",
+                IsSuccess = true, NaturalRoll = 12, Damage = 40
+            }, GameSettings.Instance);
+
+            var lead = tagged.FindAll(t => t.Bank == "healthLeadChange");
+            TestBase.AssertTrue(lead.Count > 0,
+                "A big swing should trigger a health-lead narrative",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            foreach (var entry in lead)
+            {
+                Console.WriteLine($"    [lead] {entry.Text}");
+                TestBase.AssertTrue(
+                    entry.Text.Contains("Hero", StringComparison.Ordinal)
+                        || entry.Text.Contains("Goblin", StringComparison.Ordinal),
+                    $"Health-lead line must name a combatant, got: {entry.Text}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(
+                    !entry.Text.Contains("{name}", StringComparison.Ordinal),
+                    "No raw token may survive into a displayed line",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
         }
 
         private static void BeatBanksAreWorldVoice()
