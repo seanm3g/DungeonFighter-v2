@@ -477,8 +477,23 @@ being right does not mean the text reaches the screen.
 speaking bank is now in voice, and the suite no longer blocks the flip. Nothing else should be
 written until the voice and rhythm are judged in motion.
 
-**Turn it on:** set `"enabled": true` in `GameData/NarrativePacing.json`. **Leave F7 OFF.**
-Fight something that survives several swings.
+**Turn it on:** set `"enabled": true` in `GameData/NarrativePacing.json`, then **restart the
+game**. **Leave F7 OFF.** Fight something that survives several swings.
+
+**The restart is not optional.** `NarrativePacing.Active` caches the resolved profile behind
+`_loaded` on first read, and nothing in product code calls `Invalidate()` — only tests do. So
+the profile is fixed for the lifetime of the process. Editing the file while the game is
+running changes nothing, and the symptom is indistinguishable from the content being broken:
+no narrator, and the per-step prose still eight sentences deep with stance and tempo in it.
+If you see that, you are looking at `Profile.Full`, not at the overseer failing to fire.
+
+The earlier claim in this document that the flip alone was "actually sufficient" was wrong on
+this point. It is sufficient to make the config correct; it is not sufficient to make a running
+game read it.
+
+The game reads the **repo** `GameData/` — `GameConstants.GetPossibleGameDataFilePaths` puts the
+project root first, and nothing copies `GameData` to the build output (the csproj has no copy
+rule). So the file to edit is the one in the working tree, not a copy under `bin/`.
 
 That one-line flip is now actually sufficient. It was not before: the committed file said
 `"activeProfile": "full"` while this document said the profile was already `sparse`, so

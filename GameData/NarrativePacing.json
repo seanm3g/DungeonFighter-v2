@@ -1,7 +1,7 @@
 {
   "_prototype": "PROTOTYPE - flavor sandbox (joey_sandbox_v2). Controls how often the F7 prose narrator speaks. Not reviewed by Max. Default profile reproduces pre-prototype behaviour exactly.",
   "_howToUse": "Set activeProfile to any key under profiles. 'full' = pre-prototype behaviour. 'sparse' = decision 4 pacing. paragraphTargetMs 0 leaves the shipping 8000ms budget alone.",
-  "enabled": false,
+  "enabled": true,
   "activeProfile": "sparse",
   "profiles": {
     "full": {
