@@ -1,6 +1,6 @@
 # Demon Fighter — Flavor Text Session Handoff
 
-**Last updated:** 2026-10-19 (fourth session) · branch `joey_sandbox_v2`
+**Last updated:** 2026-10-19 (fourth session, narrator confirmed on screen) · branch `joey_sandbox_v2`
 
 **New session? Read this file first, then `.cursor/rules/demon-fighter-flavor.mdc`.**
 That covers everything. Don't re-derive it.
@@ -521,9 +521,41 @@ being right does not mean the text reaches the screen.
 
 ## Open items
 
-**Next task: Joey's reaction to the overseer in the F7-OFF view.** The engine is built, every
-speaking bank is now in voice, and the suite no longer blocks the flip. Nothing else should be
-written until the voice and rhythm are judged in motion.
+**DONE — the overseer is on screen and Joey has seen him in the F7-OFF view (2026-10-19).**
+Confirmed from a live fight, not a test. One shot contained: an enemy swing with its beat line
+correctly on the enemy's side, a purple `criticalHit` set piece on the player's side, a fully
+silent swing between them, and a `below50Percent` beat. Ledger every swing, narrator only when
+earned, placement following whose swing it was, no `sequence*` filler. That is the shape.
+
+**NEXT TASK: decide what happens to the `sequence*` banks.** This is the only content question
+left, and it is a fork, not a refinement.
+
+F7 OFF does not show them at all, which is why that view reads clean. F7 ON is prose-only, so
+something must fill each swing — and right now that something is the last placeholder register
+in the game: 15 banks, 73 lines, never rewritten. From Joey's F7-ON screenshot:
+
+```
+  Jace Ashwhisper answers with hit.          <- not even grammatical
+  A decisive STRIKE cuts through the din.
+  The blow leaves a light wound.
+```
+
+The damage is not that they are weak on their own. It is that they sit directly against good
+lines and the eye lands on the filler. In that same screenshot *"Breath from aaaSTARTER comes
+ragged. The weapon hand does not care."* is immediately under *"A decisive STRIKE cuts through
+the din."*
+
+Two options, and they are genuinely different jobs:
+
+1. **Silence them.** Set the `sequence*` `stepChance` values to `0.0` in `NarrativePacing.json`.
+   One config edit, no content work. F7 ON becomes narrator-only and therefore very sparse —
+   many swings render nothing at all. Fine if F7 OFF is the demo view for Sean.
+2. **Rewrite them.** 73 lines in the world's voice (third person, present tense). The real fix
+   for F7 ON and the largest remaining content job on the branch. Decision 9's "sample first"
+   has now been satisfied, so writing at volume is no longer premature.
+
+Nothing else should be written until this is decided — the answer determines whether there is a
+large content job left or none.
 
 **It is already on.** `GameData/NarrativePacing.json` ships `"enabled": true`, profile `sparse`.
 **Leave F7 OFF**, restart the game, and fight something that survives several swings.
@@ -622,7 +654,15 @@ decision note below. Everything else stays green.
    is a stronger check than before — a file that fails to parse returns `Profile.Full` from the
    catch, so the old single "is it passthrough" assertion could not tell a deliberate default
    from a broken read.
-10. **`playerDefeated` is written but has not been seen on screen.** The fight-log harness kills
+10. **`sequence*` banks: silence or rewrite.** The fork above. Blocks all further content work.
+11. **`aaaSTARTER` is leaking into player-facing text.** Joey's fight was against an enemy named
+   `aaaSTARTER` — *"A aaaSTARTER with Charm appears."* A test fixture reaching the player.
+   Not a flavor-branch issue; **Max item**.
+12. **The overseer is still not alone in his paragraph in F7 OFF.** He sits directly under the
+   roll line. In F7 ON he already has air around him and reads correctly, so this is F7-OFF
+   only. Deliberately not changed — presentation taste, not a data-driven requirement, and the
+   colour already does the pre-attentive work. See the placement section. **Joey's call.**
+13. **`playerDefeated` is written but has not been seen on screen.** The fight-log harness kills
    the enemy, not the player. The bank is tested for voice and tier; the render path is the same
    one the other set pieces use. Low risk, still unobserved.
 
