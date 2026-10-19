@@ -1035,11 +1035,14 @@
   },
   "combatNarratives": {
     "firstBlood": [
-      "The first drop of blood is drawn! The battle has truly begun.",
-      "Blood is spilled! The combat intensifies as both fighters feel the sting of battle.",
-      "First blood goes to the attacker! The fight becomes more desperate.",
-      "A crimson stain marks the beginning of this deadly dance.",
-      "The taste of blood in the air signals the start of true combat."
+      "First blood. Neither of them stops to look at it.",
+      "Something opens that will not close on its own.",
+      "The first wound lands, and the fight stops being a question.",
+      "Blood on the floor. The room narrows down to this.",
+      "The first cut goes in clean. Nothing after it is clean.",
+      "A wound opens. The distance between them closes and stays closed.",
+      "First blood, and the air in here changes temperature.",
+      "The first hurt is small. It is also the last small one."
     ],
     "healthRecovery": [
       "A surge of vitality courses through {name}\u0027s body as wounds begin to heal.",
@@ -1069,14 +1072,14 @@
       "In their darkest hour, {name} finds the strength of legends coursing through their veins!"
     ],
     "criticalHit": [
-      "{name} delivers a devastating blow that shakes the very foundations of the battlefield!",
-      "A perfect strike from {name} finds its mark with brutal, bone-shattering precision!",
-      "{name}\u0027s critical hit sends shockwaves through the air, the impact felt by all!",
-      "With masterful technique, {name} delivers a strike of deadly, soul-crushing accuracy!",
-      "{name} seizes the perfect moment, their attack landing with earth-shattering effect!",
-      "The force of {name}\u0027s critical strike reverberates through the ground itself!",
-      "{name} channels their fury into a single, devastating blow that defies all defense!",
-      "A strike worthy of legend! {name}\u0027s critical hit will be remembered for ages to come!"
+      "{name} stops aiming at the body and aims at the rhythm instead.",
+      "{name} finds the gap that was always there and puts everything through it.",
+      "The blow lands exactly where {name} meant it to, which is rarer than it sounds.",
+      "{name} waits one beat longer than the fight wanted, then does not miss.",
+      "Something deep gives way. {name} felt it go before the sound caught up.",
+      "{name} hits the one place that was holding the rest together.",
+      "No wasted motion. {name} spends the opening the way it deserved.",
+      "{name} stops guessing. The next strike goes where the guessing pointed."
     ],
     "criticalMiss": [
       "{name}\u0027s wild swing cuts through empty air, the attack going wide of its intended target!",
@@ -1113,14 +1116,14 @@
       "The very ground shakes as {player} and {enemy} clash in this legendary confrontation!"
     ],
     "enemyDefeated": [
-      "{name} falls to the ground with a thunderous crash, defeated at last by {player}\u0027s superior skill!",
-      "With a final, desperate cry, {name} collapses before {player}, the epic battle finally concluded!",
-      "{name} succumbs to their grievous wounds, {player} standing victorious over their fallen foe!",
-      "The last of {name}\u0027s strength fails them, and they fall before {player}\u0027s relentless assault!",
-      "{name} is vanquished by {player}\u0027s might, their reign of terror brought to an end!",
-      "In a moment of final defeat, {name} crumbles before {player}\u0027s unwavering determination!",
-      "{name} meets their end at {player}\u0027s hands, the battlefield falling silent save for the victor\u0027s breath!",
-      "The mighty {name} falls, {player} standing triumphant over their defeated adversary!"
+      "{name} goes down and stays down. {player} waits to be sure.",
+      "{name} stops. Whatever kept it moving does not pick the motion back up.",
+      "{name} falls. {player} is still holding the stance that ended it.",
+      "It ends. {name} is on the floor and {player} is still standing.",
+      "{name} drops where it stood. The quiet afterward arrives too fast.",
+      "{name} folds, and the fight goes out of the room with it.",
+      "{name} gives out mid-motion, the way a thing does when it is done.",
+      "{player} lowers the weapon. {name} does not get up."
     ],
     "playerDefeated": [
       "You collapse to the ground, your strength finally exhausted by {enemy}\u0027s relentless assault!",

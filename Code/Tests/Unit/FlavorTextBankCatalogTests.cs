@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit
             GenerateSample_CharacterName_And_CombatPlaceholders();
             CombatNarratives_Dictionary_Json_RoundTrip();
             NarrativeTextProvider_Reads_From_Dictionary();
+            NarrativeTextProvider_Never_Repeats_A_Line_Back_To_Back();
             SaveReload_TempFile_Preserves_Banks();
             FormsAndCategories_Json_RoundTrip();
             ExtractCategoryRefs_And_EnsureCategories();
@@ -211,6 +212,59 @@ namespace RPGGame.Tests.Unit
             string miss = provider.GetRandomNarrative("criticalMiss");
             TestBase.AssertTrue(!string.IsNullOrWhiteSpace(miss),
                 "GetRandomNarrative(criticalMiss) should return text from JSON (not only fallback)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void NarrativeTextProvider_Never_Repeats_A_Line_Back_To_Back()
+        {
+            Console.WriteLine("--- NarrativeTextProvider avoids immediate repeats (ground rule 2) ---");
+            FlavorText.Reload();
+            var provider = new NarrativeTextProvider();
+
+            // Every multi-entry bank, drawn many times: no draw may equal the one before it.
+            var data = FlavorText.GetData();
+            string? offender = null;
+            int banksChecked = 0;
+
+            foreach (var entry in data.CombatNarratives)
+            {
+                if (entry.Value == null || entry.Value.Length < 2)
+                    continue;
+
+                banksChecked++;
+                string previous = provider.GetRandomNarrative(entry.Key);
+                for (int i = 0; i < 100; i++)
+                {
+                    string next = provider.GetRandomNarrative(entry.Key);
+                    if (string.Equals(next, previous, StringComparison.Ordinal))
+                    {
+                        offender = entry.Key;
+                        break;
+                    }
+
+                    previous = next;
+                }
+
+                if (offender != null)
+                    break;
+            }
+
+            TestBase.AssertTrue(banksChecked > 0,
+                "Expected at least one multi-entry combat narrative bank to check",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(offender == null,
+                $"No multi-entry bank may return the same line twice in a row (offender: {offender ?? "none"})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // A single-entry bank is allowed to repeat - it has nothing else to say.
+            var single = new[] { "The only line." };
+            data.CombatNarratives["__test_single"] = single;
+            string a = provider.GetRandomNarrative("__test_single");
+            string b = provider.GetRandomNarrative("__test_single");
+            data.CombatNarratives.Remove("__test_single");
+
+            TestBase.AssertTrue(a == single[0] && b == single[0],
+                "A single-entry bank should keep returning its one line",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

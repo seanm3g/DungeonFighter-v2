@@ -205,6 +205,14 @@ namespace RPGGame.Combat.Sequence
             foreach (var step in steps)
                 kindsPresent.Add(step.Kind);
 
+            // PROTOTYPE: pacing gate (GameData/NarrativePacing.json). Default profile is
+            // passthrough, so with no config file this behaves exactly as it did before.
+            // A suppressed swing returns zero beats; PlayPendingAsync already handles that
+            // case cleanly, so a silent beat renders nothing rather than a blank line.
+            var pacing = NarrativePacing.Active;
+            if (!pacing.IsPassthrough && NarrativePacing.SuppressSwing(pacing))
+                return beats;
+
             var replacements = tokens.ToReplacements();
 
             if (continuing)
@@ -223,6 +231,11 @@ namespace RPGGame.Combat.Sequence
                 if (!kindsPresent.Contains(kind) && !tokens.ShouldInclude(kind))
                     continue;
                 if (!tokens.ShouldInclude(kind))
+                    continue;
+
+                // PROTOTYPE: per-step pacing. ShouldInclude answers "is there a value to
+                // report"; this answers "should we say it out loud on this swing".
+                if (!pacing.IsPassthrough && NarrativePacing.SuppressStep(pacing, kind))
                     continue;
 
                 if ((kind is CombatSequenceStepKind.Defense
@@ -255,6 +268,17 @@ namespace RPGGame.Combat.Sequence
                     continue;
 
                 beats.Add(new PlannedNarrativeBeat(kind, NormalizeProseSentence(filled)));
+            }
+
+            // PROTOTYPE: sentence cap. Keeps a narrated swing inside the decision 3 reading
+            // budget. Earlier beats win, so the swing still opens where the prose expects to.
+            if (!pacing.IsPassthrough
+                && pacing.MaxSentencesPerSwing > 0
+                && beats.Count > pacing.MaxSentencesPerSwing)
+            {
+                beats.RemoveRange(
+                    pacing.MaxSentencesPerSwing,
+                    beats.Count - pacing.MaxSentencesPerSwing);
             }
 
             return beats;
@@ -313,6 +337,13 @@ namespace RPGGame.Combat.Sequence
             var beats = PlanNarrativeBeats(steps, tokens, continuing);
             if (beats.Count == 0)
             {
+                // A silent swing ends the open paragraph. Continuation works by re-seeding the
+                // previous paragraph and calling ReplaceLastColoredSegments, which only lands on
+                // the right line while that paragraph is still the last thing in the buffer.
+                // A swing that writes a mechanical block but no prose breaks that invariant, so
+                // the next same-attacker swing would re-print the whole previous paragraph plus
+                // its new sentences as a fresh entry - the duplicated, ever-growing paragraphs.
+                ClearOpenParagraph();
                 CombatSequencePresenter.FinishNarrativeSyncedReveal();
                 HealthBarDisplayHold.ReleaseAll();
                 return;
@@ -329,7 +360,13 @@ namespace RPGGame.Combat.Sequence
             int wrapWidth = Math.Max(1, LayoutConstants.CenterPanelTextColumnWidth);
             var finalWrapped = TextWrappingHelper.ApplySoftWraps(paragraph, wrapWidth);
             string plainWrapped = ColoredTextRenderer.RenderAsPlainText(finalWrapped);
-            int[] schedule = CombatDelayManager.BuildNarrativeParagraphSchedule(plainWrapped);
+            // PROTOTYPE: let the pacing profile override the flat 8s paragraph budget.
+            // Without this, a shorter paragraph just types more slowly and takes the same
+            // wall-clock time, so density changes cannot be felt. 0 = leave as configured.
+            int[] schedule = NarrativePacing.Active.ParagraphTargetMs > 0
+                ? CharacterRevealRhythmCalculator.BuildParagraphSchedule(
+                    plainWrapped, NarrativePacing.Active.ParagraphTargetMs)
+                : CombatDelayManager.BuildNarrativeParagraphSchedule(plainWrapped);
             bool useBudget = schedule.Length == plainWrapped.Length && plainWrapped.Length > 0;
 
             int visibleLen = CharacterRevealRhythmCalculator.WrappedLengthForContentCount(
@@ -434,7 +471,16 @@ namespace RPGGame.Combat.Sequence
         /// </summary>
         private static bool TrySeedOpenParagraph(CombatSequenceFlavorTokens tokens, out List<ColoredText> paragraph)
         {
-            bool sameAttacker = _openParagraph != null
+            // PROTOTYPE: with pacing on, every narrated swing gets its own short paragraph.
+            // Continuation re-seeds the previous paragraph and grows it, so the paragraph on
+            // screen keeps getting longer across swings no matter what maxSentencesPerSwing
+            // says - the cap only limits sentences added this swing, not the seeded ones.
+            // Starting fresh is also what decision 2's separated format wants: one beat, one
+            // line, under its own action.
+            bool pacingWantsFreshParagraphs = !NarrativePacing.Active.IsPassthrough;
+
+            bool sameAttacker = !pacingWantsFreshParagraphs
+                && _openParagraph != null
                 && !string.IsNullOrEmpty(_openParagraphAttacker)
                 && !string.IsNullOrEmpty(tokens.Attacker)
                 && string.Equals(_openParagraphAttacker, tokens.Attacker, StringComparison.Ordinal);
@@ -607,7 +653,13 @@ namespace RPGGame.Combat.Sequence
 
             var wrapped = TextWrappingHelper.ApplySoftWraps(paragraph, wrapWidth);
             string plainWrapped = ColoredTextRenderer.RenderAsPlainText(wrapped);
-            int[] schedule = CombatDelayManager.BuildNarrativeParagraphSchedule(plainWrapped);
+            // PROTOTYPE: let the pacing profile override the flat 8s paragraph budget.
+            // Without this, a shorter paragraph just types more slowly and takes the same
+            // wall-clock time, so density changes cannot be felt. 0 = leave as configured.
+            int[] schedule = NarrativePacing.Active.ParagraphTargetMs > 0
+                ? CharacterRevealRhythmCalculator.BuildParagraphSchedule(
+                    plainWrapped, NarrativePacing.Active.ParagraphTargetMs)
+                : CombatDelayManager.BuildNarrativeParagraphSchedule(plainWrapped);
             bool useBudget = schedule.Length == plainWrapped.Length && plainWrapped.Length > 0;
 
             await WriteOrGrowParagraphRangeAsync(

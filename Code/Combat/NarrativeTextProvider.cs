@@ -11,13 +11,21 @@ namespace RPGGame
     {
         private readonly Random narrativeRandom;
 
+        /// <summary>
+        /// Last line handed out per bank, so a bank with more than one entry never says the
+        /// same thing twice in a row (ground rule 2). With a single-entry bank, repetition
+        /// is unavoidable and allowed.
+        /// </summary>
+        private readonly Dictionary<string, string> lastDrawnByBank = new();
+
         public NarrativeTextProvider()
         {
             narrativeRandom = new Random();
         }
 
         /// <summary>
-        /// Gets a random narrative text from FlavorText.json for the specified event type
+        /// Gets a random narrative text from FlavorText.json for the specified event type.
+        /// Never returns the same entry twice in a row for a bank holding more than one.
         /// </summary>
         /// <param name="eventType">The type of narrative event (firstBlood, criticalHit, etc.)</param>
         /// <returns>A random narrative string for the event type</returns>
@@ -31,7 +39,9 @@ namespace RPGGame
                     && narratives != null
                     && narratives.Length > 0)
                 {
-                    return narratives[narrativeRandom.Next(narratives.Length)];
+                    string picked = PickWithoutImmediateRepeat(eventType, narratives);
+                    lastDrawnByBank[eventType] = picked;
+                    return picked;
                 }
 
                 return GetFallbackNarrative(eventType);
@@ -40,6 +50,35 @@ namespace RPGGame
             {
                 return GetFallbackNarrative(eventType);
             }
+        }
+
+        /// <summary>
+        /// Draws from <paramref name="narratives"/>, avoiding the entry drawn last time for
+        /// this bank. Single-entry banks return their one line.
+        /// </summary>
+        private string PickWithoutImmediateRepeat(string eventType, string[] narratives)
+        {
+            if (narratives.Length == 1)
+            {
+                return narratives[0];
+            }
+
+            if (!lastDrawnByBank.TryGetValue(eventType, out string? previous))
+            {
+                return narratives[narrativeRandom.Next(narratives.Length)];
+            }
+
+            // Draw from the entries that are not the previous one, so the result is uniform
+            // over the remaining options rather than a retry loop that can still collide.
+            int previousIndex = Array.IndexOf(narratives, previous);
+            if (previousIndex < 0)
+            {
+                return narratives[narrativeRandom.Next(narratives.Length)];
+            }
+
+            int offset = narrativeRandom.Next(narratives.Length - 1);
+            int index = offset >= previousIndex ? offset + 1 : offset;
+            return narratives[index];
         }
 
         /// <summary>

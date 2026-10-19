@@ -33,6 +33,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestCriticalMissFlavorDoesNotReplayOnLaterHits();
             TestCriticalMissFlavorIsConsumedOnce();
             TestFirstBloodNarrativeReachesDisplay();
+            TestCriticalHitNarrativeReachesDisplay();
             TestInformationalSummaryExcludesComboCounts();
 
             TestBase.PrintSummary("BattleNarrative Tests", _testsRun, _testsPassed, _testsFailed);
@@ -231,6 +232,49 @@ namespace RPGGame.Tests.Unit.Combat
             var displayed = narrative.GetTriggeredNarrativesIfSignificant();
             TestBase.AssertTrue(displayed.Count > 0,
                 "Generated first-blood narrative must survive the display gate, not be dropped",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCriticalHitNarrativeReachesDisplay()
+        {
+            Console.WriteLine("\n--- Testing critical hit narrative reaches the display path ---");
+
+            var narrative = new BattleNarrative("Hero", "Goblin", "Test", 100, 100);
+
+            // Spend first blood on an ordinary hit so the crit below is the only thing the
+            // next event can generate - otherwise a surviving first-blood line would mask
+            // a dropped critical-hit line.
+            narrative.AddEvent(new BattleEvent
+            {
+                Actor = "Hero",
+                Target = "Goblin",
+                Action = "Strike",
+                IsSuccess = true,
+                NaturalRoll = 12,
+                Damage = 5
+            });
+            narrative.GetTriggeredNarrativesIfSignificant();
+
+            narrative.AddEvent(new BattleEvent
+            {
+                Actor = "Hero",
+                Target = "Goblin",
+                Action = "Strike",
+                IsSuccess = true,
+                IsCritical = true,
+                NaturalRoll = 19,
+                Roll = 19,
+                Damage = 11
+            });
+
+            var generated = narrative.GetTriggeredNarratives();
+            TestBase.AssertTrue(generated.Count > 0,
+                "A critical hit on a high roll should generate a critical-hit narrative",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var displayed = narrative.GetTriggeredNarrativesIfSignificant();
+            TestBase.AssertEqual(generated.Count, displayed.Count,
+                "Every generated critical-hit line must survive the display gate",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

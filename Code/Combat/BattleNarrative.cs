@@ -204,7 +204,7 @@ namespace RPGGame
             // false and the generated line was silently discarded before reaching the screen.
             // If generation produced a line for this event, the event was significant by
             // construction - display it.
-            return FilterSignificantNarratives(narratives, evt);
+            return FilterSignificantNarratives(narratives);
         }
 
         /// <summary>
@@ -221,44 +221,35 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Filters narratives to only include those that should be displayed
+        /// Drops empty entries from a generated narrative list. Nothing else is filtered here.
         /// </summary>
-        private List<string> FilterSignificantNarratives(List<string> narratives, BattleEvent evt)
+        /// <remarks>
+        /// This used to single out critical-hit lines by searching the prose for the literal
+        /// strings "devastating blow" / "strikes true" and re-checking IsSignificantEvent on
+        /// them. That was wrong twice over:
+        ///
+        /// 1. It read the content to recover the bank. Six of the eight shipped criticalHit
+        ///    lines already contained neither phrase, so they skipped the check entirely,
+        ///    and any rewrite of the bank silently changed display behaviour.
+        /// 2. For the two lines it did catch, the check could only fail.
+        ///    BattleEventAnalyzer.AnalyzeEvent calls SetRecentCriticalHitNarrative() at the
+        ///    moment it generates the line, which sets the cooldown to 3. IsSignificantEvent's
+        ///    critical-hit branch requires !HasRecentCriticalHitNarrative, so by the time the
+        ///    display path asked, the answer was already false and the line was discarded.
+        ///
+        /// Removing the sniff does not make critical-hit flavor fire on every crit: the real
+        /// gate - (NarrativeBalance >= 0.7 || Roll >= 18) and a 3-crit cooldown - lives in
+        /// AnalyzeEvent and still runs before a line is ever produced. Significance is decided
+        /// once, at generation. If a line exists, it is meant to be seen.
+        /// </remarks>
+        private static List<string> FilterSignificantNarratives(List<string> narratives)
         {
             if (narratives == null || narratives.Count == 0)
             {
                 return new List<string>();
             }
 
-            var settings = GameSettings.Instance;
-            var filtered = new List<string>();
-
-            foreach (var narrative in narratives)
-            {
-                if (string.IsNullOrEmpty(narrative))
-                {
-                    continue;
-                }
-
-                // Check if this narrative type should be displayed
-                // Critical hit narratives are filtered by IsSignificantEvent
-                // Other narratives (first blood, defeats, etc.) are always shown
-                bool shouldDisplay = true;
-
-                // Critical hit narratives: only show if event is significant
-                if (narrative.Contains("devastating blow", StringComparison.OrdinalIgnoreCase) ||
-                    narrative.Contains("strikes true", StringComparison.OrdinalIgnoreCase))
-                {
-                    shouldDisplay = eventAnalyzer.IsSignificantEvent(evt, settings);
-                }
-
-                if (shouldDisplay)
-                {
-                    filtered.Add(narrative);
-                }
-            }
-
-            return filtered;
+            return narratives.Where(n => !string.IsNullOrEmpty(n)).ToList();
         }
 
         /// <summary>
