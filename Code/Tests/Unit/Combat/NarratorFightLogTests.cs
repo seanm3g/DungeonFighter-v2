@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Combat.Sequence;
 using RPGGame.Tests;
+using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.BlockDisplay;
 using RPGGame.UI.ColorSystem;
 
@@ -40,6 +41,7 @@ namespace RPGGame.Tests.Unit.Combat
             ShippedConfigOpensTheNarratorGate();
             FullFightLogShowsBothVoices();
             EnvironmentalBeatSurvivesToTheBlock();
+            PlacementComesFromTheSwingNotTheWording();
 
             TestBase.PrintSummary("Narrator Fight Log Tests", _run, _passed, _failed);
         }
@@ -242,6 +244,97 @@ namespace RPGGame.Tests.Unit.Combat
                     $"The beat must not carry the mechanical readout inside it, got: {plain}",
                     ref _run, ref _passed, ref _failed);
             }
+        }
+
+        /// <summary>
+        /// Horizontal placement must be a property of WHOSE SWING IT WAS, never of how the line
+        /// happens to be worded.
+        /// </summary>
+        private static void PlacementComesFromTheSwingNotTheWording()
+        {
+            Console.WriteLine("\n--- Placement follows the swing, not the first word ---");
+            NarrativePacing.Invalidate();
+
+            const string Hero = "Zarek Nebulaheart";
+            const string Foe = "Ember Spirit";
+
+            // The centre panel right-aligns a row when it is a continuation of an enemy block,
+            // or when it is a primary row whose text starts with the enemy's name. The second
+            // rule is the trap: these two lines describe the same enemy, and only one of them
+            // opens with its name.
+            var openingWithEnemyName = Line($"{Foe} put the whole fight through a gap.");
+            var openingWithAnythingElse = Line($"Half of {Foe} is gone, and the guard did not leave with it.");
+
+            foreach (var (label, line) in new[]
+                     {
+                         ("opens with the enemy name", openingWithEnemyName),
+                         ("opens with another word  ", openingWithAnythingElse)
+                     })
+            {
+                string plain = ColoredTextRenderer.RenderAsPlainText(line);
+                bool treatedAsContinuation = plain.StartsWith(
+                    BlockMessageCollector.ActionBlockSubsequentIndent, StringComparison.Ordinal);
+
+                Console.WriteLine($"    [{label}] continuation={treatedAsContinuation}");
+
+                TestBase.AssertTrue(treatedAsContinuation,
+                    $"A narrator line ({label.Trim()}) must carry the continuation indent, or the "
+                    + "centre panel falls back to sniffing its first word for the enemy's name",
+                    ref _run, ref _passed, ref _failed);
+            }
+
+            // Both lines must land on the SAME side, because both describe the same swing. If
+            // the name sniff is still reachable they diverge, which is the bug from the
+            // screenshot: a set piece pinned right, a beat about the same enemy pinned left.
+            var flags = CombatCenterPanelEnemyLineAlignment.ResolveRightAlignFlags(
+                new List<List<ColoredText>>
+                {
+                    Line($"{Foe} Attacks {Hero}... and hits for 18 damage", indent: false),
+                    openingWithEnemyName,
+                    openingWithAnythingElse
+                },
+                new[] { Foe },
+                Hero);
+
+            Console.WriteLine($"    [flags] enemyBlock={flags[0]} line1={flags[1]} line2={flags[2]}");
+
+            TestBase.AssertTrue(flags[0],
+                "The enemy's own action line should right-align",
+                ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(flags[1] == flags[2],
+                $"Two narrator lines on the same enemy swing must land on the same side, "
+                + $"got {flags[1]} and {flags[2]} - placement is still following the wording",
+                ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(flags[1] && flags[2],
+                "A narrator line on an enemy swing belongs on the enemy's side",
+                ref _run, ref _passed, ref _failed);
+
+            // And the mirror case: the same wording on a PLAYER swing must go left.
+            var playerFlags = CombatCenterPanelEnemyLineAlignment.ResolveRightAlignFlags(
+                new List<List<ColoredText>>
+                {
+                    Line($"{Hero} Attacks {Foe}... and hits for 25 damage", indent: false),
+                    openingWithEnemyName
+                },
+                new[] { Foe },
+                Hero);
+
+            Console.WriteLine($"    [flags] playerBlock={playerFlags[0]} line={playerFlags[1]}");
+
+            TestBase.AssertTrue(!playerFlags[0] && !playerFlags[1],
+                "The identical line on a player swing must stay on the player's side",
+                ref _run, ref _passed, ref _failed);
+        }
+
+        private static List<ColoredText> Line(string text, bool indent = true)
+        {
+            // The indent must ride inside the text segment. Build() runs
+            // SpacingHelper.ProcessSegments, which collapses a whitespace-only segment to a
+            // single space - the exact trap that produced the bug this test pins.
+            string body = indent
+                ? BlockMessageCollector.ActionBlockSubsequentIndent + text
+                : text;
+            return new ColoredTextBuilder().Add(body, ColorPalette.Gray).Build();
         }
 
         private static BattleEvent Swing(

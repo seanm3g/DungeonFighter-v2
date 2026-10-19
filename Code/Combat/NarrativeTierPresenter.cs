@@ -19,7 +19,31 @@ namespace RPGGame
     /// </summary>
     public static class NarrativeTierPresenter
     {
-        private const string Indent = "  ";
+        /// <summary>
+        /// The combat log's continuation-row marker, not a cosmetic two-space inset.
+        ///
+        /// The centre panel decides left/right placement in
+        /// <see cref="UI.Avalonia.Display.CombatCenterPanelEnemyLineAlignment"/>, and it decides
+        /// it per row by asking two questions: is this row indented with
+        /// <see cref="UI.BlockDisplay.BlockMessageCollector.ActionBlockSubsequentIndent"/>, and
+        /// if not, does its text START WITH THE ENEMY'S NAME. A non-indented row that opens with
+        /// the enemy's name right-aligns; everything else goes left.
+        ///
+        /// With a shorter indent the narrator's line was not recognised as a continuation row,
+        /// so it fell through to the name sniff and its position on screen was decided by its
+        /// FIRST WORD. "{name} put the whole fight through a gap" right-aligned because the bank
+        /// line happens to open with the token; "Half of {name} is gone" left-aligned onto the
+        /// player's side while describing the enemy. Rewording a bank moved the line across the
+        /// screen, which makes layout a property of the prose - the same magic-string coupling
+        /// the TriggeredNarrative bank tag exists to kill, and a direct breach of ground rule 2:
+        /// adding content must never require a code change, and a format that only lays out
+        /// correctly for one phrasing is not a format.
+        ///
+        /// Using the real marker makes the line a continuation of the block it describes, so it
+        /// inherits that swing's side. Enemy swing, enemy side; player swing, player side;
+        /// independent of wording, for every line Joey writes from here on.
+        /// </summary>
+        private const string Indent = UI.BlockDisplay.BlockMessageCollector.ActionBlockSubsequentIndent;
 
         /// <summary>
         /// Lines to render beneath this swing's action block, or null when the swing stays a
@@ -105,9 +129,18 @@ namespace RPGGame
                 return null;
             }
 
+            // The indent is part of the text segment, NOT a segment of its own.
+            // ColoredTextBuilder.Build runs SpacingHelper.ProcessSegments, which normalizes any
+            // whitespace-only segment to a single space - so an indent added separately was
+            // silently collapsed to one space and never matched the continuation marker the
+            // centre panel looks for. That collapse is the root cause of the placement bug:
+            // without the marker every narrator line was treated as a primary line and had its
+            // side decided by whether its first word was the enemy's name.
+            //
+            // Carrying the indent inside the coloured segment also satisfies decision 13's
+            // "flat across the line" - one colour, no two-tone leading run.
             var segments = new ColoredTextBuilder()
-                .Add(Indent, ColorPalette.Gray)
-                .Add(bestText, best == NarrativeTier.SetPiece ? ColorPalette.Purple : ColorPalette.Gray)
+                .Add(Indent + bestText, best == NarrativeTier.SetPiece ? ColorPalette.Purple : ColorPalette.Gray)
                 .Build();
 
             return new List<List<ColoredText>> { segments };

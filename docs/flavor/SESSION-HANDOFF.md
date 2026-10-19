@@ -445,6 +445,45 @@ for the C# fallback.
    invisible only because those lines were generated and discarded. Fixed here by rebuilding the
    evaluator in `Initialize`. **This is a real bug on `main`, not something this branch caused.**
 
+### Placement is a property of the swing, not of the wording (fixed 2026-10-19, fourth session)
+
+`CombatCenterPanelEnemyLineAlignment` decides left/right **per row**, by asking: is this row
+indented with `BlockMessageCollector.ActionBlockSubsequentIndent` (5 spaces), and if not, does
+its text **start with the enemy's name**. Non-indented and starts with the enemy name → right.
+Everything else → left.
+
+The narrator's lines never carried that marker, so every one of them fell through to the name
+sniff and **its position on screen was decided by its first word**:
+
+- `"{name} put the whole fight through a gap."` → right, because the bank line opens with the token.
+- `"Half of {name} is gone."` → left, onto the player's side, while describing the enemy.
+
+Two lines, same enemy, same fight, opposite sides. Rewording a bank moved it across the screen.
+That is layout as a property of prose — the same magic-string coupling `TriggeredNarrative`
+exists to kill, and a breach of ground rule 2: a format that only lays out correctly for one
+phrasing is not a format, and this one would have degraded silently as Joey wrote more lines.
+
+**Root cause, and it is a trap worth knowing about generally.**
+`ColoredTextBuilder.Build()` runs `SpacingHelper.ProcessSegments`, which **normalizes any
+whitespace-only segment to a single space**. The indent was being added as its own segment, so
+it was collapsed to one space every time and could never match the 5-space marker. Any code
+that builds an indented line as `.Add(indent).Add(text)` has the same silent bug. The indent has
+to ride **inside** the text segment: `.Add(indent + text, colour)`.
+
+That also satisfies decision 13's "flat across the line" — one colour, no two-tone leading run.
+
+Pinned by `NarratorFightLogTests.PlacementComesFromTheSwingNotTheWording`, which asserts two
+differently-worded lines on the same swing land on the same side, and that the identical line
+on a player swing goes left.
+
+**Not changed: the overseer is still not alone in his paragraph.** Decision 13 asks for
+isolation (von Restorff) as well as colour. He currently sits directly under the roll line. This
+was left alone deliberately — it is presentation taste, not a data-driven requirement, the
+colour already does the pre-attentive work decision 13's own Treisman argument rests on, and a
+blank line before every narrator line changes the log's vertical rhythm. **Joey's call.**
+
+---
+
 ### How to verify narrative work — READ THIS
 
 Four times this session a change was declared working based on reasoning about the call chain,
