@@ -1,8 +1,8 @@
 {
   "_prototype": "PROTOTYPE - flavor sandbox (joey_sandbox_v2). Controls how often the F7 prose narrator speaks. Not reviewed by Max. Default profile reproduces pre-prototype behaviour exactly.",
   "_howToUse": "Set activeProfile to any key under profiles. 'full' = pre-prototype behaviour. 'sparse' = decision 4 pacing. paragraphTargetMs 0 leaves the shipping 8000ms budget alone.",
-  "enabled": true,
-  "activeProfile": "sparse",
+  "enabled": false,
+  "activeProfile": "full",
   "profiles": {
     "full": {
       "_note": "Pre-prototype behaviour. Every eligible step speaks on every swing.",
@@ -13,24 +13,24 @@
       "narratorEnabled": false
     },
     "sparse": {
-      "_note": "Ledger + highlight. The sequence* per-step prose is demoted to near-silence (swingChance 0.18, one sentence) because it narrates the exchange, not the turn. narratorEnabled routes the one-shot banks back in, tiered by significance.",
-      "swingChance": 0.18,
+      "_note": "Ledger + highlight. swingChance governs the per-step 'texture' clause only; the narrator is never gated by it - tier already decided that moment is worth hearing. paragraphTargetMs overrides the flat 8000ms budget, without which shorter prose just types slower.",
+      "swingChance": 0.45,
       "maxSentencesPerSwing": 1,
       "stepChance": {
         "Attacker": 0.0,
         "Outcome": 0.0,
         "Roll": 0.0,
-        "Action": 0.5,
+        "Action": 0.35,
         "Critical": 0.0,
         "CriticalMiss": 0.0,
-        "Defense": 0.0,
-        "Damage": 0.35,
-        "Heal": 0.0,
-        "Effect": 0.5,
+        "Defense": 0.25,
+        "Damage": 0.55,
+        "Heal": 0.6,
+        "Effect": 0.6,
         "Stance": 0.0,
         "Tempo": 0.0
       },
-      "paragraphTargetMs": 1200,
+      "paragraphTargetMs": 900,
       "narratorEnabled": true
     }
   }

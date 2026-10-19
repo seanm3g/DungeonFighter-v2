@@ -734,6 +734,16 @@ namespace RPGGame.Tests.Unit.Combat
                     !written.Contains("stance", StringComparison.OrdinalIgnoreCase),
                     "A set piece should suppress per-step prose on that swing",
                     ref _run, ref _passed, ref _failed);
+
+                // The overseer must be visually separable from the world's voice, so his line
+                // carries its own color rather than the per-word keyword coloring.
+                var narratorSegments = CombatSequenceFlavorPresenter.LastParagraphSegmentsForTests;
+                bool purpleFound = narratorSegments != null && narratorSegments.Exists(seg =>
+                    seg.Text.Contains("found the seam", StringComparison.Ordinal)
+                    && seg.Color.Equals(ColorPalette.Purple.GetColor()));
+                TestBase.AssertTrue(purpleFound,
+                    "Narrator line should carry the dedicated narrator color",
+                    ref _run, ref _passed, ref _failed);
             }
             finally
             {

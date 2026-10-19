@@ -67,6 +67,9 @@ namespace RPGGame.Combat.Sequence
 
         internal static List<CombatSequenceCue> CuesFiredForTests { get; } = new();
         internal static List<string> LinesWrittenForTests { get; } = new();
+
+        /// <summary>Segments of the last painted paragraph, so tests can assert on color.</summary>
+        internal static List<ColoredText>? LastParagraphSegmentsForTests { get; private set; }
         internal static bool RecordForTests { get; set; }
         internal static bool BypassCanvasCheckForTests { get; set; }
         internal static bool SkipDelaysForTests { get; set; }
@@ -162,10 +165,14 @@ namespace RPGGame.Combat.Sequence
             public CombatSequenceStepKind? Kind { get; }
             public string Sentence { get; }
 
-            public PlannedNarrativeBeat(CombatSequenceStepKind? kind, string sentence)
+            /// <summary>True for the overseer's line, which gets its own color channel.</summary>
+            public bool IsNarrator { get; }
+
+            public PlannedNarrativeBeat(CombatSequenceStepKind? kind, string sentence, bool isNarrator = false)
             {
                 Kind = kind;
                 Sentence = sentence;
+                IsNarrator = isNarrator;
             }
         }
 
@@ -201,7 +208,7 @@ namespace RPGGame.Combat.Sequence
 
             var beats = PlanNarrativeBeats(steps, tokens, continuing);
             foreach (var beat in beats)
-                CombatSequenceNarrativeEmphasis.AppendSentence(paragraph, beat.Sentence, tokens);
+                AppendBeat(paragraph, beat, tokens);
 
             int wrapWidth = Math.Max(1, LayoutConstants.CenterPanelTextColumnWidth);
             return TextWrappingHelper.ApplySoftWraps(paragraph, wrapWidth);
@@ -246,7 +253,7 @@ namespace RPGGame.Combat.Sequence
             // to avoid.
             if (haveNarrator)
             {
-                beats.Add(new PlannedNarrativeBeat(null, NormalizeProseSentence(narratorLine!)));
+                beats.Add(new PlannedNarrativeBeat(null, NormalizeProseSentence(narratorLine!), isNarrator: true));
                 if (narratorIsSetPiece)
                 {
                     return beats;
@@ -322,6 +329,42 @@ namespace RPGGame.Combat.Sequence
             return beats;
         }
 
+        /// <summary>
+        /// Appends one planned beat. The overseer gets a single dedicated color rather than the
+        /// per-word keyword coloring the world's voice uses.
+        ///
+        /// Why color and not position: this log already spends the horizontal axis on *who is
+        /// acting* - player blocks sit left, enemy blocks right, scene and system text centered.
+        /// All three positions are taken, so moving the narrator to one of them would overload a
+        /// mapping players have already learned. Color is an unused channel here, and a target
+        /// defined by a unique color is found pre-attentively (Treisman) - the eye lands on it
+        /// without scanning - whereas a target defined by position among other position-varying
+        /// items needs a serial search. Isolation does the rest (von Restorff): the line is rare,
+        /// it is a different color, and it sits alone in its paragraph.
+        /// </summary>
+        private static void AppendBeat(
+            List<ColoredText> paragraph,
+            PlannedNarrativeBeat beat,
+            CombatSequenceFlavorTokens tokens)
+        {
+            if (!beat.IsNarrator)
+            {
+                CombatSequenceNarrativeEmphasis.AppendSentence(paragraph, beat.Sentence, tokens);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(beat.Sentence))
+                return;
+
+            if (paragraph.Count > 0 && paragraph.Any(seg => !string.IsNullOrWhiteSpace(seg.Text)))
+                paragraph.Add(new ColoredText(" ", Colors.White));
+
+            paragraph.Add(new ColoredText(beat.Sentence.Trim(), NarratorColor));
+        }
+
+        /// <summary>The overseer's dedicated color. Not used by player, enemy, or system text.</summary>
+        private static Color NarratorColor => ColorPalette.Purple.GetColor();
+
         public static async Task PlayPendingAsync(Character? character = null)
         {
             _playedThisBlock = false;
@@ -393,7 +436,7 @@ namespace RPGGame.Combat.Sequence
                 ColoredTextRenderer.RenderAsPlainText(seedParagraph));
 
             foreach (var beat in beats)
-                CombatSequenceNarrativeEmphasis.AppendSentence(paragraph, beat.Sentence, tokens);
+                AppendBeat(paragraph, beat, tokens);
 
             int wrapWidth = Math.Max(1, LayoutConstants.CenterPanelTextColumnWidth);
             var finalWrapped = TextWrappingHelper.ApplySoftWraps(paragraph, wrapWidth);
@@ -441,7 +484,9 @@ namespace RPGGame.Combat.Sequence
                     }
                 }
 
-                CombatSequenceNarrativeEmphasis.AppendSentence(progressive, beat.Sentence, tokens);
+                AppendBeat(progressive, beat, tokens);
+                if (RecordForTests)
+                    LastParagraphSegmentsForTests = new List<ColoredText>(progressive);
                 int contentSoFar = CharacterRevealRhythmCalculator.CountContentChars(
                     ColoredTextRenderer.RenderAsPlainText(progressive));
                 int targetLen = CharacterRevealRhythmCalculator.WrappedLengthForContentCount(
