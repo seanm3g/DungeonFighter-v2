@@ -253,7 +253,11 @@ namespace RPGGame.Combat.Sequence
             // to avoid.
             if (haveNarrator)
             {
-                beats.Add(new PlannedNarrativeBeat(null, NormalizeProseSentence(narratorLine!), isNarrator: true));
+                // Only the overseer gets the dedicated color. A Beat-tier line is the world's
+                // voice - third person, present tense - and must stay visually ordinary, or the
+                // two voices stop being distinguishable at a glance.
+                beats.Add(new PlannedNarrativeBeat(
+                    null, NormalizeProseSentence(narratorLine!), isNarrator: narratorIsSetPiece));
                 if (narratorIsSetPiece)
                 {
                     return beats;
