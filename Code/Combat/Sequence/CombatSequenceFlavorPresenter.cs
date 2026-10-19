@@ -34,6 +34,22 @@ namespace RPGGame.Combat.Sequence
 
         private static readonly NarrativeTextProvider NarrativeProvider = new NarrativeTextProvider();
 
+        /// <summary>
+        /// PROTOTYPE: the tiered narrator line for the swing being presented, if it earned one.
+        /// In F7 narrative mode this presenter owns everything that reaches the screen - the
+        /// mechanical block is collected only as hover info - so a narrator line attached to
+        /// that block never rendered. It has to arrive here instead.
+        /// </summary>
+        private static string? _pendingNarratorLine;
+        private static bool _pendingNarratorIsSetPiece;
+
+        /// <summary>Hands this swing's tiered narrator line to the prose path.</summary>
+        public static void SetPendingNarratorLine(string? line, bool isSetPiece)
+        {
+            _pendingNarratorLine = string.IsNullOrWhiteSpace(line) ? null : line;
+            _pendingNarratorIsSetPiece = isSetPiece;
+        }
+
         private static List<CombatSequenceStep>? _pendingSteps;
         private static CombatSequenceFlavorTokens? _pendingTokens;
         private static bool _playedThisBlock;
@@ -205,15 +221,37 @@ namespace RPGGame.Combat.Sequence
             foreach (var step in steps)
                 kindsPresent.Add(step.Kind);
 
+            // The narrator is claimed before any pacing decision. Tier already decided this
+            // moment is worth hearing, and a dice roll must never be able to mute the crit or
+            // the kill - randomness belongs in which line is drawn, not in whether a turn
+            // speaks at all.
+            string? narratorLine = _pendingNarratorLine;
+            bool narratorIsSetPiece = _pendingNarratorIsSetPiece;
+            _pendingNarratorLine = null;
+            _pendingNarratorIsSetPiece = false;
+            bool haveNarrator = !string.IsNullOrWhiteSpace(narratorLine);
+
             // PROTOTYPE: pacing gate (GameData/NarrativePacing.json). Default profile is
             // passthrough, so with no config file this behaves exactly as it did before.
             // A suppressed swing returns zero beats; PlayPendingAsync already handles that
             // case cleanly, so a silent beat renders nothing rather than a blank line.
             var pacing = NarrativePacing.Active;
-            if (!pacing.IsPassthrough && NarrativePacing.SuppressSwing(pacing))
+            if (!haveNarrator && !pacing.IsPassthrough && NarrativePacing.SuppressSwing(pacing))
                 return beats;
 
             var replacements = tokens.ToReplacements();
+
+            // The narrator speaks first and, on a set piece, alone. Letting per-step prose run
+            // alongside him puts two voices on one beat, which is the wall this model exists
+            // to avoid.
+            if (haveNarrator)
+            {
+                beats.Add(new PlannedNarrativeBeat(null, NormalizeProseSentence(narratorLine!)));
+                if (narratorIsSetPiece)
+                {
+                    return beats;
+                }
+            }
 
             if (continuing)
             {

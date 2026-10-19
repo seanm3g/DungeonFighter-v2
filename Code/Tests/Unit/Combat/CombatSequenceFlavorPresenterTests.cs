@@ -45,6 +45,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestHudShouldPlayFalseWhenNarrativeOn();
             TestFromEnvironmentalTokensBuildEffectSentences();
             TestPlayWritesProseParagraphWithoutHud();
+            TestNarratorLineReachesProse();
             TestPlayEnvironmentalWritesOwnProseParagraph();
             TestSameAttackerContinuesParagraphWithFollowUp();
             TestNarrativeRevealsHudColumnsInBeatOrder();
@@ -685,6 +686,65 @@ namespace RPGGame.Tests.Unit.Combat
                     string.Equals(s.Text.Trim(), "The", StringComparison.Ordinal)
                     && s.Color == enemyColor),
                 "sentence-initial The stays uncolored", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestNarratorLineReachesProse()
+        {
+            Console.WriteLine("--- Narrator line reaches the F7 prose path ---");
+            // The bug this guards: in narrative mode DisplayActionBlockAsync returns early and
+            // collects the mechanical block only as hover info, so a narrator line attached to
+            // that block was filed into a tooltip instead of printed. It has to arrive through
+            // the prose presenter.
+            bool prevNarrative = DeveloperModeState.IsNarrativeCombatLog;
+            bool prevInstant = DeveloperModeState.IsCombatLogInstant;
+            bool prevMute = CombatUiMuteScope.GlobalMute;
+            try
+            {
+                CombatUiMuteScope.GlobalMute = false;
+                DeveloperModeState.SetCombatLogInstant(false);
+                DeveloperModeState.SetNarrativeCombatLog(true);
+                CombatSequenceFlavorPresenter.ResetForTests();
+                CombatSequencePresenter.ResetForTests();
+                CombatSequenceHudState.ResetForTests();
+                CombatSequenceHudState.IsBandReserved = true;
+                CombatSequenceFlavorPresenter.BypassCanvasCheckForTests = true;
+                CombatSequenceFlavorPresenter.SkipDelaysForTests = true;
+                CombatSequenceFlavorPresenter.RecordForTests = true;
+
+                const string NarratorLine = "He found the seam.";
+                CombatSequenceFlavorPresenter.SetPendingNarratorLine(NarratorLine, isSetPiece: true);
+
+                var result = HitResult("SLAM", damage: 72);
+                var hero = DummyHero();
+                var foe = DummyEnemy();
+                CombatSequenceFlavorPresenter.SetPending(
+                    CombatSequenceBuilder.From(result, hero, foe),
+                    CombatSequenceFlavorTokens.From(result, hero, foe));
+
+                CombatSequenceFlavorPresenter.PlayPendingAsync(hero).GetAwaiter().GetResult();
+
+                string written = string.Join(" | ", CombatSequenceFlavorPresenter.LinesWrittenForTests);
+                TestBase.AssertTrue(
+                    written.Contains("found the seam", StringComparison.Ordinal),
+                    $"Narrator line must reach the prose path (got: {written})",
+                    ref _run, ref _passed, ref _failed);
+
+                // A set piece speaks alone - no per-step prose alongside it.
+                TestBase.AssertTrue(
+                    !written.Contains("stance", StringComparison.OrdinalIgnoreCase),
+                    "A set piece should suppress per-step prose on that swing",
+                    ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                CombatSequenceFlavorPresenter.SetPendingNarratorLine(null, false);
+                CombatSequenceFlavorPresenter.RecordForTests = false;
+                CombatSequenceFlavorPresenter.SkipDelaysForTests = false;
+                CombatSequenceFlavorPresenter.BypassCanvasCheckForTests = false;
+                DeveloperModeState.SetNarrativeCombatLog(prevNarrative);
+                DeveloperModeState.SetCombatLogInstant(prevInstant);
+                CombatUiMuteScope.GlobalMute = prevMute;
+            }
         }
 
         private static void TestPlayWritesProseParagraphWithoutHud()

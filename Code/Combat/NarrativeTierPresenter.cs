@@ -25,6 +25,45 @@ namespace RPGGame
         /// Lines to render beneath this swing's action block, or null when the swing stays a
         /// pure ledger entry. Null is the pre-prototype behaviour and the default.
         /// </summary>
+        /// <summary>
+        /// The one line this swing has earned, if any, with the tier that chose it.
+        /// </summary>
+        public static bool TryGetFlavorLine(BattleNarrative? battleNarrative, out string text, out NarrativeTier tier)
+        {
+            text = string.Empty;
+            tier = NarrativeTier.Ledger;
+
+            if (battleNarrative == null || !NarrativePacing.Active.NarratorEnabled)
+            {
+                return false;
+            }
+
+            var tagged = battleNarrative.GetTriggeredNarrativesTagged();
+            if (tagged.Count == 0)
+            {
+                return false;
+            }
+
+            // A swing can trigger several banks at once (first blood and a lead change on the
+            // same hit). Showing both flattens the moment, so the loudest tier wins.
+            foreach (var entry in tagged)
+            {
+                if (string.IsNullOrWhiteSpace(entry.Text))
+                {
+                    continue;
+                }
+
+                var entryTier = NarrativeTiers.For(entry.Bank);
+                if (entryTier > tier)
+                {
+                    tier = entryTier;
+                    text = entry.Text;
+                }
+            }
+
+            return tier != NarrativeTier.Ledger && !string.IsNullOrWhiteSpace(text);
+        }
+
         public static List<List<ColoredText>>? BuildFlavorLines(BattleNarrative? battleNarrative)
         {
 

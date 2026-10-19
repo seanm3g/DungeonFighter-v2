@@ -93,7 +93,16 @@ namespace RPGGame
                     var battleNarrative = stateManager.GetCurrentBattleNarrative();
                     if (textDisplayed && actionText != null && rollInfo != null)
                     {
+                        // Both display surfaces: the mechanical block (overview mode) and the
+                        // prose presenter (F7 narrative mode, which returns before the block is
+                        // ever rendered and would otherwise file the line into a hover tooltip).
                         var flavorLines = NarrativeTierPresenter.BuildFlavorLines(battleNarrative);
+                    if (NarrativeTierPresenter.TryGetFlavorLine(battleNarrative, out var narratorText, out var narratorTier))
+                        RPGGame.Combat.Sequence.CombatSequenceFlavorPresenter.SetPendingNarratorLine(
+                            narratorText, narratorTier == NarrativeTier.SetPiece);
+                        if (NarrativeTierPresenter.TryGetFlavorLine(battleNarrative, out var playerNarratorText, out var playerNarratorTier))
+                            RPGGame.Combat.Sequence.CombatSequenceFlavorPresenter.SetPendingNarratorLine(
+                                playerNarratorText, playerNarratorTier == NarrativeTier.SetPiece);
                         battleNarrative?.GetTriggeredNarrativesIfSignificant();
                         await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, flavorLines, player);
                     }

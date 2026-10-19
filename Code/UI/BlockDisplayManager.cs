@@ -375,8 +375,6 @@ namespace RPGGame
                 }
             }
 
-            try { System.IO.File.AppendAllText("/tmp/df_bind.log",
-                $"BIND narratives={(narratives?.Count ?? -1)} haveProse={haveProse} proseLen={(prose?.Count ?? 0)}\n"); } catch {}
 
             if (!haveProse || prose == null || prose.Count == 0)
             {
