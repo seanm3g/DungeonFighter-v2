@@ -291,6 +291,26 @@ namespace RPGGame
             }
         }
 
+        /// <summary>
+        /// Zero-based index of the swing currently on screen, or -1 before the first event.
+        ///
+        /// This is the identity of "this swing". The display path asks the tier presenter for a
+        /// line more than once per swing - once for the mechanical block and once for the prose
+        /// presenter - and those calls must agree with each other and must not each count as a
+        /// separate swing against the set-piece cooldown. Comparing this index is how the
+        /// presenter tells a repeat question about the same swing from a genuinely new one.
+        /// </summary>
+        public int CurrentEventIndex
+        {
+            get
+            {
+                lock (lastEventLock)
+                {
+                    return lastAddedEvent == null ? -1 : eventCount - 1;
+                }
+            }
+        }
+
         private List<string> AnalyzeEventForNarratives(BattleEvent evt)
         {
             var context = new BattleNarrativeContext

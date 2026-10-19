@@ -527,37 +527,49 @@ correctly on the enemy's side, a purple `criticalHit` set piece on the player's 
 silent swing between them, and a `below50Percent` beat. Ledger every swing, narrator only when
 earned, placement following whose swing it was, no `sequence*` filler. That is the shape.
 
-**FIRST: the overseer contradicts himself, and he will do it in nearly every fight.**
-Found by watching a screen recording of a live fight, not from a test. End of a Skeleton fight,
-two consecutive lines, both purple:
+**FIXED 2026-10-19 (fourth session): the overseer contradicted himself at the end of every
+fight.** Found by watching a recording of a live fight. Two consecutive purple lines closed a
+Skeleton kill:
 
 ```
   This is where it is decided for Skeleton, and I will not say which way.   <- below10Percent
   The cold left the room slower than Skeleton did.                          <- enemyDefeated
 ```
 
-He promises to withhold, then resolves it one line later. "He withholds" is one of the five
-rules the voice runs on, and this breaks it in the most visible place in the fight.
+He promised to withhold and resolved it one line later. Structural, not unlucky:
+`below10Percent` fires crossing 10% and `enemyDefeated` fires on death, and those are nearly
+always a swing or two apart, so this was the NORMAL ending.
 
-**It is structural, not unlucky.** `below10Percent` fires when the enemy crosses 10%, and
-`enemyDefeated` fires when it dies. Those two events are nearly always within a swing or two of
-each other, so this pairing is the normal ending, not an edge case. It also destroys decision
-13's isolation: two adjacent purple lines are not a rare highlight, they are a block of purple.
+**Three parts, and the middle one is the interesting one.**
 
-Two things to fix, and they are separable:
+1. **A set-piece adjacency cooldown**, data-side as `setPieceCooldownSwings` in
+   `NarrativePacing.json` (`sparse` ships `1`). A suppressed set piece falls back to that
+   swing's Beat if it has one, and goes silent otherwise. All tier resolution now runs through
+   one `NarrativeTierPresenter.Resolve`, memoized per swing in a `ConditionalWeakTable` keyed on
+   the `BattleNarrative` — per-battle, so no cooldown leaks into the next fight, and idempotent,
+   because the live path asks twice per swing (once for the block, once for the prose presenter)
+   and the second question must neither change the answer nor count as another swing.
 
-1. **A set-piece adjacency cooldown.** No two SetPiece lines on consecutive swings; the later
-   one yields to its Beat, or to silence. The crit path already has a cooldown of 3
-   (`SetRecentCriticalHitNarrative`), so the mechanism exists — it just was never generalised
-   to the tier. This is the general fix and it protects every future bank pairing.
-2. **`below10Percent` should probably not fire at all once death is imminent.** Even with a
-   cooldown, a "this is the moment of decision" line landing immediately before the death line
-   is the wrong beat. Worth considering whether that bank should suppress when the enemy's
-   remaining health is below one average hit.
+2. **The cooldown alone made it worse, and this is worth remembering.** Its first draft passed
+   the adjacency test by muting *the death* and keeping "Skeleton is nearly out" — trading one
+   bug for a worse one, because the payoff of the whole fight rendered as nothing. Whichever of
+   the two yields, one of them is wrong to lose. So the ending is **exempt**: `enemyDefeated`
+   and `playerDefeated` ignore the cooldown. They fire once per fight and can never cause a run
+   of purple. `NarratorFightLogTests` asserts the last swing always speaks.
 
-Whoever picks this up: do NOT verify it by reading the call chain. Extend
-`NarratorFightLogTests` with a fight that crosses 10% and then kills, and assert no two
-consecutive swings both produce a SetPiece.
+3. **`below10Percent` is the one that stands down**, upstream, in
+   `NarrativeTriggerEvaluator.IsOneHitFromTheEnd`: it does not fire when the target's remaining
+   health is at or below the heaviest blow this fight has already produced. No lookahead needed
+   — it is measured from the fight, not a constant. That is exactly the case where its
+   withholding framing is about to be contradicted.
+
+Result on the recording's fight shape: crit set piece, a beat, a silent swing, then the death
+keeps its line. No two purple adjacent, nothing important muted.
+
+**Still open and still Joey's call: should `below10Percent` be a SetPiece at all?** It now
+yields in the common case, but when it does fire it is still first-person overseer in purple.
+Demoting it to Beat would need its lines rewritten into the world's voice, which is content, not
+plumbing.
 
 ---
 
@@ -688,9 +700,9 @@ decision note below. Everything else stays green.
    is a stronger check than before — a file that fails to parse returns `Profile.Full` from the
    catch, so the old single "is it passthrough" assertion could not tell a deliberate default
    from a broken read.
-10. **Set pieces fire back-to-back at the end of a fight, and the overseer contradicts
-   himself.** See the section above. Highest-value fix on the branch; it is visible in every
-   fight that ends normally.
+10. ~~**Set pieces fire back-to-back at the end of a fight.**~~ DONE 2026-10-19 (fourth
+   session). See the section above. Remaining sub-question: whether `below10Percent` should be
+   a SetPiece at all.
 11. **`sequence*` banks: silence or rewrite.** The fork above. Blocks further content work.
 12. **`aaaSTARTER` is leaking into player-facing text.** Joey's fight was against an enemy named
    `aaaSTARTER` — *"A aaaSTARTER with Charm appears."* A test fixture reaching the player.

@@ -70,6 +70,33 @@ namespace RPGGame
 
             narrativeEventCount = 0;
             criticalHitNarrativeCooldown = 0;
+
+            maxDamageToPlayer = 0;
+            maxDamageToEnemy = 0;
+        }
+
+        // ===== Heaviest blow landed on each side =====
+        // Used to tell whether a combatant is one hit from the end. below10Percent's lines are
+        // built on withholding ("I will not say which way"), and that promise is broken the
+        // moment the fight ends on the next swing - so the bank stands down when a blow of a
+        // size already seen in THIS fight would finish the job. Measured rather than guessed:
+        // it is the heaviest hit this fight has actually produced, not a constant.
+        private int maxDamageToPlayer;
+        private int maxDamageToEnemy;
+
+        public int MaxDamageToPlayer => maxDamageToPlayer;
+        public int MaxDamageToEnemy => maxDamageToEnemy;
+
+        public void RecordDamageToPlayer(int amount)
+        {
+            if (amount > maxDamageToPlayer)
+                maxDamageToPlayer = amount;
+        }
+
+        public void RecordDamageToEnemy(int amount)
+        {
+            if (amount > maxDamageToEnemy)
+                maxDamageToEnemy = amount;
         }
 
         // ===== First Blood State =====

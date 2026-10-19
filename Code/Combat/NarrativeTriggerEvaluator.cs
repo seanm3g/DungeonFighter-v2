@@ -135,6 +135,25 @@ namespace RPGGame
         /// <summary>
         /// Adds health threshold narratives if applicable
         /// </summary>
+        /// <summary>
+        /// True when a blow of a size this fight has already produced would end it.
+        ///
+        /// below10Percent's lines are built on withholding - "This is where it is decided, and
+        /// I will not say which way", "I will not look away". That promise is broken the moment
+        /// the fight ends on the next swing, which is exactly what happens when the bank fires
+        /// at 9% and the killing blow lands immediately after. The overseer then says he will
+        /// not say which way, and says which way, one line later.
+        ///
+        /// A cooldown alone cannot fix that pairing: whichever of the two yields, one of them
+        /// is wrong to lose. Muting the death removes the payoff of the whole fight. So the
+        /// earlier line is the one that stands down, and it can be decided without lookahead by
+        /// asking whether the heaviest hit already seen would finish the target.
+        /// </summary>
+        private bool IsOneHitFromTheEnd(int remainingHealth, int heaviestBlowTaken)
+        {
+            return heaviestBlowTaken > 0 && remainingHealth <= heaviestBlowTaken;
+        }
+
         public void AddHealthThresholdNarratives(List<TriggeredNarrative> triggeredNarratives, GameSettings settings)
         {
             var playerHealthPercentage = (double)finalPlayerHealth / initialPlayerHealth;
@@ -162,7 +181,8 @@ namespace RPGGame
             }
 
             // Below 10% Health
-            if (!stateManager.HasPlayerBelow10Percent && playerHealthPercentage < 0.1 && finalPlayerHealth > 0)
+            if (!stateManager.HasPlayerBelow10Percent && playerHealthPercentage < 0.1 && finalPlayerHealth > 0
+                && !IsOneHitFromTheEnd(finalPlayerHealth, stateManager.MaxDamageToPlayer))
             {
                 stateManager.SetPlayerBelow10Percent();
                 var replacements = new Dictionary<string, string> { { "name", playerName } };
@@ -172,7 +192,8 @@ namespace RPGGame
                 triggeredNarratives.Add(new TriggeredNarrative("below10Percent", narrative));
             }
 
-            if (!stateManager.HasEnemyBelow10Percent && enemyHealthPercentage < 0.1 && finalEnemyHealth > 0)
+            if (!stateManager.HasEnemyBelow10Percent && enemyHealthPercentage < 0.1 && finalEnemyHealth > 0
+                && !IsOneHitFromTheEnd(finalEnemyHealth, stateManager.MaxDamageToEnemy))
             {
                 stateManager.SetEnemyBelow10Percent();
                 var replacements = new Dictionary<string, string> { { "name", enemyName } };

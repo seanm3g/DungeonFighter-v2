@@ -42,6 +42,7 @@ namespace RPGGame.Tests.Unit.Combat
             FullFightLogShowsBothVoices();
             EnvironmentalBeatSurvivesToTheBlock();
             PlacementComesFromTheSwingNotTheWording();
+            SetPiecesNeverLandOnConsecutiveSwings();
 
             TestBase.PrintSummary("Narrator Fight Log Tests", _run, _passed, _failed);
         }
@@ -323,6 +324,88 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertTrue(!playerFlags[0] && !playerFlags[1],
                 "The identical line on a player swing must stay on the player's side",
+                ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>
+        /// The ending that exposed this: the overseer promising to withhold, then resolving it
+        /// one line later.
+        ///
+        ///   This is where it is decided for Skeleton, and I will not say which way.
+        ///   The cold left the room slower than Skeleton did.
+        ///
+        /// below10Percent fires when the enemy crosses 10% and enemyDefeated fires when it dies,
+        /// and those are nearly always a swing or two apart - so this is the NORMAL ending, not
+        /// an edge case. Two adjacent purple lines are also a block of purple rather than the
+        /// rare highlight decision 13 is built on.
+        /// </summary>
+        private static void SetPiecesNeverLandOnConsecutiveSwings()
+        {
+            Console.WriteLine("\n--- Set pieces never land on consecutive swings ---");
+            NarrativePacing.Invalidate();
+
+            const string Hero = "Alaric Mistwalker";
+            const string Foe = "Skeleton";
+
+            // Walk the enemy down through 50%, then through 10%, then kill it - the exact shape
+            // of the fight in the recording.
+            var narrative = new BattleNarrative(Hero, Foe, "Armory", 250, 150);
+            var swings = new List<BattleEvent>
+            {
+                Swing(Hero, Foe, "STRIKE", 20, roll: 12),
+                Swing(Foe, Hero, "BONE STRIKE", 14, roll: 11),
+                Swing(Hero, Foe, "SLASH", 55, roll: 20, critical: true),
+                Swing(Hero, Foe, "STRIKE", 45, roll: 15),
+                Swing(Hero, Foe, "SLASH", 18, roll: 17),
+                Swing(Hero, Foe, "STRIKE", 12, roll: 14),
+            };
+
+            var tiers = new List<NarrativeTier>();
+
+            for (int i = 0; i < swings.Count; i++)
+            {
+                narrative.AddEvent(swings[i]);
+
+                // Ask the way the live path asks: twice per swing, for the two display
+                // surfaces. The second question must not change the answer, and must not count
+                // as another swing against the cooldown.
+                var lines = NarrativeTierPresenter.BuildFlavorLines(narrative);
+                bool spoke = NarrativeTierPresenter.TryGetFlavorLine(narrative, out string text, out var tier);
+                NarrativeTierPresenter.TryGetFlavorLine(narrative, out string text2, out var tier2);
+
+                TestBase.AssertTrue(text == text2 && tier == tier2,
+                    $"Asking twice in one swing must give the same answer, got '{text}' then '{text2}'",
+                    ref _run, ref _passed, ref _failed);
+
+                bool renderedSomething = lines != null && lines.Count > 0;
+                TestBase.AssertTrue(renderedSomething == spoke,
+                    "The block path and the prose path must agree on whether this swing speaks",
+                    ref _run, ref _passed, ref _failed);
+
+                var effective = spoke ? tier : NarrativeTier.Ledger;
+                tiers.Add(effective);
+                Console.WriteLine($"    swing {i + 1}: {effective,-8} {(spoke ? text : "(silent)")}");
+            }
+
+            for (int i = 1; i < tiers.Count; i++)
+            {
+                TestBase.AssertTrue(
+                    !(tiers[i] == NarrativeTier.SetPiece && tiers[i - 1] == NarrativeTier.SetPiece),
+                    $"Set pieces landed on consecutive swings {i} and {i + 1} - the overseer "
+                    + "stops being rare and starts contradicting himself",
+                    ref _run, ref _passed, ref _failed);
+            }
+
+            TestBase.AssertTrue(tiers.Contains(NarrativeTier.SetPiece),
+                "The cooldown must not silence the overseer entirely - this fight has a crit and a death",
+                ref _run, ref _passed, ref _failed);
+
+            // The cooldown's first draft passed the adjacency check by muting the DEATH and
+            // keeping "Skeleton is nearly out", which trades one bug for a worse one: the
+            // payoff of the whole fight renders as nothing. The ending is exempt, and this is
+            // the assertion that keeps it exempt.
+            TestBase.AssertTrue(tiers[^1] == NarrativeTier.SetPiece,
+                $"The killing blow must always speak, got {tiers[^1]} on the last swing",
                 ref _run, ref _passed, ref _failed);
         }
 

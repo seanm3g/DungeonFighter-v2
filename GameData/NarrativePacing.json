@@ -13,7 +13,7 @@
       "narratorEnabled": false
     },
     "sparse": {
-      "_note": "Ledger + highlight. swingChance governs the per-step 'texture' clause only; the narrator is never gated by it - tier already decided that moment is worth hearing. paragraphTargetMs overrides the flat 8000ms budget, without which shorter prose just types slower.",
+      "_note": "Ledger + highlight. setPieceCooldownSwings is the minimum gap between two purple overseer lines - below10Percent and enemyDefeated otherwise land back-to-back at the end of almost every fight. swingChance governs the per-step 'texture' clause only; the narrator is never gated by it - tier already decided that moment is worth hearing. paragraphTargetMs overrides the flat 8000ms budget, without which shorter prose just types slower.",
       "swingChance": 0.45,
       "maxSentencesPerSwing": 1,
       "stepChance": {
@@ -31,7 +31,8 @@
         "Tempo": 0.0
       },
       "paragraphTargetMs": 900,
-      "narratorEnabled": true
+      "narratorEnabled": true,
+      "setPieceCooldownSwings": 1
     }
   }
 }

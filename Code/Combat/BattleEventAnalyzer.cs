@@ -162,6 +162,16 @@ namespace RPGGame
             // Taunt System - characters and enemies taunt periodically
             triggerEvaluator.AddTauntNarratives(evt, triggeredNarratives, settings);
 
+            // Record the heaviest blow each side has taken, before the thresholds are read.
+            // below10Percent uses it to tell whether this fight is one hit from over.
+            if (evt.Damage > 0 && !string.IsNullOrEmpty(evt.Target))
+            {
+                if (evt.Target == playerName)
+                    stateManager.RecordDamageToPlayer(evt.Damage);
+                else if (evt.Target == enemyName)
+                    stateManager.RecordDamageToEnemy(evt.Damage);
+            }
+
             // Health Thresholds
             triggerEvaluator.AddHealthThresholdNarratives(triggeredNarratives, settings);
 

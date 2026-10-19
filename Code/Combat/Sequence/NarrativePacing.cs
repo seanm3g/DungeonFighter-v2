@@ -78,12 +78,28 @@ namespace RPGGame.Combat.Sequence
             /// </summary>
             public bool NarratorEnabled { get; init; }
 
+            /// <summary>
+            /// Minimum gap, in swings, between two SetPiece lines. 0 disables the rule.
+            ///
+            /// Without this the normal ending of a fight is two purple lines in a row:
+            /// below10Percent fires when the enemy crosses 10%, enemyDefeated fires when it
+            /// dies, and those are nearly always a swing or two apart. The result reads as a
+            /// block of purple rather than a highlight, and worse, it makes the overseer
+            /// contradict himself - "I will not say which way" followed immediately by saying
+            /// which way.
+            ///
+            /// Data-side because rarity is a tuning question, not a structural one (ground rule
+            /// 2: adding or retuning content must never require a code change).
+            /// </summary>
+            public int SetPieceCooldownSwings { get; init; }
+
             /// <summary>True when this profile cannot change anything (the shipping default).</summary>
             public bool IsPassthrough =>
                 SwingChance >= 1.0
                 && MaxSentencesPerSwing <= 0
                 && StepChance.Count == 0
                 && ParagraphTargetMs <= 0
+                && SetPieceCooldownSwings <= 0
                 && !NarratorEnabled;
 
             public static Profile Full { get; } = new();
@@ -240,13 +256,22 @@ namespace RPGGame.Combat.Sequence
                 bool narratorEnabled = profile.TryGetProperty("narratorEnabled", out var narrator)
                     && narrator.ValueKind == JsonValueKind.True;
 
+                int setPieceCooldown = 0;
+                if (profile.TryGetProperty("setPieceCooldownSwings", out var cooldown)
+                    && cooldown.ValueKind == JsonValueKind.Number
+                    && cooldown.TryGetInt32(out int cooldownValue))
+                {
+                    setPieceCooldown = Math.Max(0, cooldownValue);
+                }
+
                 return new Profile
                 {
                     NarratorEnabled = narratorEnabled,
                     SwingChance = swingChance,
                     MaxSentencesPerSwing = maxSentences,
                     StepChance = stepChance,
-                    ParagraphTargetMs = paragraphTargetMs
+                    ParagraphTargetMs = paragraphTargetMs,
+                    SetPieceCooldownSwings = setPieceCooldown
                 };
             }
             catch (Exception)
