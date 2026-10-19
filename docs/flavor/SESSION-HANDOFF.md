@@ -451,7 +451,16 @@ Four times this session a change was declared working based on reasoning about t
 and four times the output surface was different from what the reasoning assumed. The call chain
 being right does not mean the text reaches the screen.
 
+- **`--run-test-filter NarratorFightLog` is the one that would have caught all of this.** It
+  reads the REAL committed config rather than an override, runs a ten-swing fight, drives
+  `BlockMessageCollector.CollectActionBlockMessages` — the exact list `BlockDisplayManager`
+  hands the renderer — and prints every group. A test that overrides the config cannot catch
+  a config that is switched off, which is what kept the narrator invisible for four sessions
+  while every other suite was green.
 - `--run-test-filter` suites: `NarrativeTier`, `NarrativePacing`, `CombatSequenceFlavorPresenter`.
+- **The `Combat` filter matches suite NAMES, not the category.** `NarrativePacing`,
+  `NarrativeTier` and `NarratorFightLog` are NOT in it. Run them by name; a green `Combat`
+  run says nothing about the narrator.
 - `CombatSequenceFlavorPresenter` has `RecordForTests` / `LinesWrittenForTests` /
   `LastParagraphSegmentsForTests` — these drive the REAL prose path and let you assert on the
   text and colour actually painted. Use them. `TestNarratorLineReachesProse` is the model.
@@ -477,8 +486,36 @@ being right does not mean the text reaches the screen.
 speaking bank is now in voice, and the suite no longer blocks the flip. Nothing else should be
 written until the voice and rhythm are judged in motion.
 
-**Turn it on:** set `"enabled": true` in `GameData/NarrativePacing.json`, then **restart the
-game**. **Leave F7 OFF.** Fight something that survives several swings.
+**It is already on.** `GameData/NarrativePacing.json` ships `"enabled": true`, profile `sparse`.
+**Leave F7 OFF**, restart the game, and fight something that survives several swings.
+
+**The narrator is verified to reach the screen.** Not "the function returns a line" — the
+actual list handed to the renderer. `--run-test-filter NarratorFightLog` runs a ten-swing
+fight and prints the log:
+
+```
+  swing 1    Michael Ironthorn Attacks Magma Beast... and hits for 13 damage
+                 (roll: 10)
+             First blood hits the stone, and the room learns the shape of the fight.
+
+  swing 3    Michael Ironthorn Attacks Magma Beast... and hits for 18 damage
+                 (roll: 20)
+  [OVERSEER] The opening stood there the whole time. Michael Ironthorn was the
+             first to spend it.
+
+  swing 5    The blows from Michael Ironthorn arrive in order, and the order is the point.
+
+  swing 8    Hurt like this, Magma Beast can be finished by the next clean hit.
+
+  swing 9    [OVERSEER] Magma Beast is nearly out. I will not look away.
+                        That is the whole of what I can give.
+
+  swing 10   [OVERSEER] Magma Beast fell. Michael Ironthorn is standing, and that
+                        is the part that gets remembered.
+```
+
+Six lines across ten swings, four of them silent, three purple set pieces. That is the
+ledger-plus-highlight shape decision 4 asks for.
 
 **The restart is not optional.** `NarrativePacing.Active` caches the resolved profile behind
 `_loaded` on first read, and nothing in product code calls `Invalidate()` — only tests do. So
@@ -538,11 +575,17 @@ decision note below. Everything else stays green.
    `sparse`'s `stepChance`. They are the next content job only if the per-step texture clause
    survives Joey's reaction at all; under `sparse` it fires on roughly one swing in two and
    says one thing.
-9. **Should `enabled: true` be the branch default?** Open item 5 no longer blocks it. The case
-   for: the whole point of the branch is showing Sean the game with the narrative in it, and a
-   default that hides the work is wrong for a demo branch. The case against: ground rule 4 says
-   keep the live path working and put the trial alongside it. Joey's call, and it is one line
-   plus a rewrite of the passthrough canary in `NarrativePacingTests`.
+9. ~~**Should `enabled: true` be the branch default?**~~ DONE — yes. The branch exists to show
+   Sean the game with the narrative in it, and a default that hides the work is wrong for a
+   demo branch. The passthrough canary in `NarrativePacingTests` was rewritten to match: it now
+   asserts `Profile.Full` is inert (the fallback for a missing or unreadable file) AND that the
+   committed file resolves to something that is *not* the fallback, with the narrator on. That
+   is a stronger check than before — a file that fails to parse returns `Profile.Full` from the
+   catch, so the old single "is it passthrough" assertion could not tell a deliberate default
+   from a broken read.
+10. **`playerDefeated` is written but has not been seen on screen.** The fight-log harness kills
+   the enemy, not the player. The bank is tested for voice and tier; the render path is the same
+   one the other set pieces use. Low risk, still unobserved.
 
 ---
 

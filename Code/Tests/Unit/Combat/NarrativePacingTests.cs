@@ -45,14 +45,45 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void ShippedConfig_Resolves_To_Passthrough()
         {
-            Console.WriteLine("--- Shipped config leaves behaviour unchanged ---");
+            Console.WriteLine("--- Shipped config is live and wired ---");
+
+            // This assertion used to read "the committed file must resolve to passthrough",
+            // which was right while the narrator was an unproven prototype and wrong once the
+            // branch's whole purpose was showing it. The property worth keeping is not "the
+            // default is off" - it is "the file is genuinely read", which is what catches a
+            // config that has silently stopped being parsed.
+            //
+            // Both halves matter. Profile.Full must still be inert, so the fallback for a
+            // missing or unreadable file changes nothing; and the committed file must resolve
+            // to something that is NOT the fallback, which proves parsing works end to end.
+            // A file that failed to parse returns Profile.Full from the catch, so a single
+            // "is it passthrough" check cannot tell a deliberate default from a broken read.
+
+            TestBase.AssertTrue(NarrativePacing.Profile.Full.IsPassthrough,
+                "Profile.Full must stay inert - it is the fallback for a missing or unreadable file",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             NarrativePacing.OverrideForTesting(null);
             NarrativePacing.Invalidate();
 
             var active = NarrativePacing.Active;
-            TestBase.AssertTrue(active.IsPassthrough,
-                "NarrativePacing.json as committed must resolve to passthrough (enabled: false)",
+            Console.WriteLine($"    [committed] narratorEnabled={active.NarratorEnabled} "
+                              + $"swingChance={active.SwingChance} "
+                              + $"maxSentences={active.MaxSentencesPerSwing} "
+                              + $"paragraphTargetMs={active.ParagraphTargetMs}");
+
+            TestBase.AssertTrue(!active.IsPassthrough,
+                "NarrativePacing.json as committed must resolve to a real profile, not the "
+                + "fallback - if this fails the file is missing, unparseable, or disabled",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertTrue(active.NarratorEnabled,
+                "The committed profile must let the narrator speak - this branch exists to show him",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertTrue(active.ParagraphTargetMs > 0,
+                "The committed profile must override the flat 8000ms paragraph budget, or "
+                + "shorter prose just types more slowly",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

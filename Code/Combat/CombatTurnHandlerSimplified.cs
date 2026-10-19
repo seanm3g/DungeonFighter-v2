@@ -20,6 +20,27 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Hands this swing's narrator line to the F7 prose presenter.
+        ///
+        /// Both display surfaces need the line and they take it by different routes. The
+        /// overview log gets it as the <c>narratives</c> argument of the action block; the F7
+        /// prose view returns from <see cref="UI.BlockDisplayManager.DisplayActionBlockAsync"/>
+        /// before the block is ever rendered, so a line attached to the block ends up in a
+        /// hover tooltip instead of on screen. This is the second route.
+        ///
+        /// It is a method rather than three copies because it was three copies: duplicated on
+        /// the enemy path, absent on the player path, and absent on the environmental path.
+        /// </summary>
+        private static void SetNarratorLineForProsePath(BattleNarrative? battleNarrative)
+        {
+            if (NarrativeTierPresenter.TryGetFlavorLine(battleNarrative, out var text, out var tier))
+            {
+                RPGGame.Combat.Sequence.CombatSequenceFlavorPresenter.SetPendingNarratorLine(
+                    text, tier == NarrativeTier.SetPiece);
+            }
+        }
+
+        /// <summary>
         /// Processes a single player turn using the new ActionSelector system
         /// </summary>
         public async System.Threading.Tasks.Task<bool> ProcessPlayerTurnAsync(
@@ -97,12 +118,7 @@ namespace RPGGame
                         // prose presenter (F7 narrative mode, which returns before the block is
                         // ever rendered and would otherwise file the line into a hover tooltip).
                         var flavorLines = NarrativeTierPresenter.BuildFlavorLines(battleNarrative);
-                    if (NarrativeTierPresenter.TryGetFlavorLine(battleNarrative, out var narratorText, out var narratorTier))
-                        RPGGame.Combat.Sequence.CombatSequenceFlavorPresenter.SetPendingNarratorLine(
-                            narratorText, narratorTier == NarrativeTier.SetPiece);
-                        if (NarrativeTierPresenter.TryGetFlavorLine(battleNarrative, out var playerNarratorText, out var playerNarratorTier))
-                            RPGGame.Combat.Sequence.CombatSequenceFlavorPresenter.SetPendingNarratorLine(
-                                playerNarratorText, playerNarratorTier == NarrativeTier.SetPiece);
+                        SetNarratorLineForProsePath(battleNarrative);
                         battleNarrative?.GetTriggeredNarrativesIfSignificant();
                         await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, flavorLines, player);
                     }
@@ -195,7 +211,18 @@ namespace RPGGame
                     {
                         // Use empty list if rollInfo is null (DisplayActionBlock expects non-nullable rollInfo)
                         var rollInfoToDisplay = rollInfo ?? new List<UI.ColorSystem.ColoredText>();
-                        await BlockDisplayManager.DisplayActionBlockAsync(actionText, rollInfoToDisplay, statusEffects, null, null, null, TextSpacingSystem.BlockType.EnvironmentalAction);
+
+                        // The environmentalAction beat has to be collected HERE or it is lost.
+                        // AddEnvironmentalAction stores its line in lastAddedTagged, and the next
+                        // ordinary swing's AddEvent overwrites that slot - so passing null for
+                        // narratives meant the bank was generated every time and never once
+                        // rendered. Same class of bug as the discarded one-shot banks.
+                        var envFlavorLines = NarrativeTierPresenter.BuildFlavorLines(battleNarrative);
+                        SetNarratorLineForProsePath(battleNarrative);
+
+                        await BlockDisplayManager.DisplayActionBlockAsync(
+                            actionText, rollInfoToDisplay, statusEffects, null, envFlavorLines, null,
+                            TextSpacingSystem.BlockType.EnvironmentalAction);
                     }
                     
                     // Update environment's action timing in the action speed system
@@ -273,6 +300,10 @@ namespace RPGGame
                 if (textDisplayed && actionText != null && rollInfo != null)
                 {
                     var flavorLines = NarrativeTierPresenter.BuildFlavorLines(battleNarrative);
+                    // The player's swings set the prose-path line too. Only the enemy path did
+                    // this before, so in F7 ON the narrator spoke for the enemy's turns and went
+                    // silent for the player's - including on the player's own crits.
+                    SetNarratorLineForProsePath(battleNarrative);
                     battleNarrative?.GetTriggeredNarrativesIfSignificant();
                     await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, flavorLines, player);
                 }
