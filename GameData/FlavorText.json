@@ -1089,11 +1089,14 @@
       "That swing from {name} spends itself on air, and the hole it leaves is rude."
     ],
     "environmentalAction": [
-      "The environment itself joins the fray! {effect}",
-      "Nature\u0027s power manifests as {effect}",
-      "The very air crackles with energy as {effect}",
-      "Environmental forces take hold: {effect}",
-      "The surroundings react to the battle: {effect}"
+      "The room takes its turn, and it does not care which of them is winning.",
+      "Something in the room moves that neither of them swung at.",
+      "The fight is no longer only between the two of them.",
+      "Whatever is in this room has been waiting, and it stops waiting.",
+      "Both of them flinch at the same thing, and it is not each other.",
+      "Neither of them chose this, and both of them pay for it.",
+      "The room is not neutral. It only looks that way between fights.",
+      "The two of them stop fighting each other long enough to look up."
     ],
     "healthLeadChange": [
       "The fight tips, and {name} is the one the room is watching.",
@@ -1123,14 +1126,24 @@
       "That is the whole of it. {name} does not rise, and I do not say what follows."
     ],
     "playerDefeated": [
-      "You collapse to the ground, your strength finally exhausted by {enemy}\u0027s relentless assault!",
-      "The world fades to black as you succumb to your wounds, {enemy} standing victorious over your fallen form!",
-      "Your last conscious thought is of the battle lost, {enemy}\u0027s triumph echoing in your fading mind!",
-      "Darkness takes you as your body can fight no more, {enemy} having proven the stronger warrior!",
-      "You fall before {enemy}\u0027s might, defeated in body but not broken in spirit!",
-      "The mighty {enemy} has bested you, your valiant effort ending in noble defeat!",
-      "You meet your end at {enemy}\u0027s hands, your courage remembered even in defeat!",
-      "Though you fall to {enemy}, your fighting spirit will inspire others to rise!"
+      "You went still. {enemy} did not. I have never seen it settled any other way.",
+      "I watched it happen and I did not reach for you. That is the agreement.",
+      "{enemy} is standing. I counted the others it stood over, and then I stopped.",
+      "You went down where many have gone down. I will not tell you how many.",
+      "The last thing you spent was the one you needed. I saw you spend it.",
+      "You had it, and then you did not. {enemy} only had to wait for the second part.",
+      "It ended a beat early for you. I have seen fights end on half of that.",
+      "{enemy} took what was left. I remember the whole of it, and that is all I do."
+    ],
+    "goodCombo": [
+      "{name} strings it together, and the second hit is already in the air.",
+      "That was not one blow from {name}. It was one decision, spent several times.",
+      "{name} finds the sequence, and the guard has to answer all of it at once.",
+      "Each hit from {name} sets up the next. Nothing here is improvised.",
+      "The blows from {name} arrive in order, and the order is the point.",
+      "The rhythm belongs to {name} now, and the other one is late to all of it.",
+      "{name} lands one, then lands the one that only works after it.",
+      "No gap opens between {name}\u0027s blows. That is where a guard usually lives."
     ],
     "playerTaunt": [
       "\u0022{enemy}, you\u0027re no match for me!\u0022 {name} declares confidently.",

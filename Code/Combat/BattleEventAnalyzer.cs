@@ -168,19 +168,23 @@ namespace RPGGame
             // Intense Battle - when both combatants are below 50% health
             triggerEvaluator.AddIntenseBattleNarrative(triggeredNarratives, settings);
 
-            // Good Combo - when someone gets a 3+ step combo
+            // Good Combo - when someone gets a 3+ step combo.
+            // The two branches here used to be interpolated C# literals, one per side, which
+            // broke ground rule 3 (words live in data) and meant the only way to retune the
+            // line was a rebuild. One bank now covers both sides: {name} is the actor, so the
+            // lines carry no gendered pronouns and never count the steps.
             if (!stateManager.HasGoodComboOccurred && evt.IsCombo && evt.ComboStep >= 2)
             {
                 stateManager.SetGoodComboOccurred();
-                string narrative;
-                if (evt.Actor == playerName)
+                var replacements = new Dictionary<string, string>
                 {
-                    narrative = $"{playerName} unleashes a devastating combo sequence! Each strike flows into the next with deadly precision!";
-                }
-                else
-                {
-                    narrative = $"{enemyName} demonstrates masterful technique with a brutal combo that leaves {playerName} reeling!";
-                }
+                    { "name", evt.Actor },
+                    { "player", playerName },
+                    { "enemy", enemyName }
+                };
+                string narrative = textProvider.ReplacePlaceholders(
+                    textProvider.GetRandomNarrative("goodCombo"),
+                    replacements);
                 triggeredNarratives.Add(new TriggeredNarrative("goodCombo", narrative));
             }
 

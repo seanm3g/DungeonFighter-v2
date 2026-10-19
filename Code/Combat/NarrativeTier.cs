@@ -59,6 +59,7 @@ namespace RPGGame
                 ["intenseBattle"] = NarrativeTier.Beat,
                 ["criticalMiss"] = NarrativeTier.Beat,
                 ["environmentalAction"] = NarrativeTier.Beat,
+                ["goodCombo"] = NarrativeTier.Beat,
 
                 // Noise at volume. Present in the data, silent in the log.
                 ["healthRecovery"] = NarrativeTier.Ledger,

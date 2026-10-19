@@ -31,6 +31,8 @@ namespace RPGGame.Tests.Unit.Combat
             BiomeSuffixedBanksInheritTheirFamily();
             SetPieceBanksAreOverseerVoice();
             BeatBanksAreWorldVoice();
+            EnvironmentalBeatCarriesNoEffectToken();
+            GoodComboLivesInDataNotCode();
             FlavorLinesReachTheBlock();
             CollectorKeepsFlavorLines();
             SetPieceCarriesNarratorColorInBlockPath();
@@ -110,7 +112,7 @@ namespace RPGGame.Tests.Unit.Combat
 
             // The overseer recounts: first person, past tense. Present-tense "I watch" or a
             // missing narrator would put him back in the commentator's chair.
-            foreach (var bank in new[] { "criticalHit", "enemyDefeated", "below10Percent" })
+            foreach (var bank in new[] { "criticalHit", "enemyDefeated", "below10Percent", "playerDefeated" })
             {
                 if (!data.CombatNarratives.TryGetValue(bank, out var lines) || lines == null)
                     continue;
@@ -274,7 +276,11 @@ namespace RPGGame.Tests.Unit.Combat
 
             // The world's voice has no narrator in it. A stray "I" here would blur the two
             // voices the tense/person split exists to keep apart.
-            foreach (var bank in new[] { "firstBlood", "below50Percent", "healthLeadChange" })
+            foreach (var bank in new[]
+                     {
+                         "firstBlood", "below50Percent", "healthLeadChange",
+                         "criticalMiss", "environmentalAction", "goodCombo"
+                     })
             {
                 if (!data.CombatNarratives.TryGetValue(bank, out var lines) || lines == null)
                     continue;
@@ -283,6 +289,96 @@ namespace RPGGame.Tests.Unit.Combat
                     lines.All(l => !l.StartsWith("I ", StringComparison.Ordinal)
                                    && !l.Contains(" I ", StringComparison.Ordinal)),
                     $"{bank} should not speak in the narrator's first person",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TestBase.AssertTrue(
+                    lines.All(l => !l.Contains('!')),
+                    $"{bank} must not use exclamation marks",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void EnvironmentalBeatCarriesNoEffectToken()
+        {
+            Console.WriteLine("\n--- environmentalAction carries no {effect} token ---");
+            // BattleEventAnalyzer passes evt.EnvironmentEffect as {effect}, and
+            // CombatTurnHandlerSimplified builds that string by rendering the whole mechanical
+            // block to plain text - action line, then roll info, then one line per status
+            // effect, newline-joined. A bank line containing {effect} therefore reprints the
+            // entire readout inside the narrator's single-line slot. Same hazard as firstBlood,
+            // which must stay token-free because nothing substitutes it at all.
+            FlavorText.Reload();
+            var data = FlavorText.GetData();
+
+            if (data.CombatNarratives.TryGetValue("environmentalAction", out var lines) && lines != null)
+            {
+                TestBase.AssertTrue(
+                    lines.All(l => !l.Contains("{effect}", StringComparison.Ordinal)),
+                    "environmentalAction lines must not embed {effect} - it is the rendered mechanical block",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+
+            TestBase.AssertTrue(
+                !new NarrativeTextProvider().GetFallbackNarrative("environmentalAction")
+                    .Contains("{effect}", StringComparison.Ordinal),
+                "The environmentalAction fallback must not embed {effect} either",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void GoodComboLivesInDataNotCode()
+        {
+            Console.WriteLine("\n--- goodCombo draws from the bank, not a C# literal ---");
+            // The two branches in BattleEventAnalyzer were interpolated string literals, one
+            // per side, which broke ground rule 3 (words live in data) and meant retuning the
+            // line needed a rebuild. goodCombo was also unclassified, so it fell through to
+            // Beat and rendered that placeholder voice in the log.
+            TestBase.AssertTrue(
+                NarrativeTiers.For("goodCombo") == NarrativeTier.Beat,
+                "goodCombo should be a beat",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var textProvider = new NarrativeTextProvider();
+            var analyzer = new BattleEventAnalyzer(
+                textProvider, new NarrativeStateManager(), new TauntSystem(textProvider));
+            analyzer.Initialize("Hero", "Goblin", "Test", 100, 100);
+            analyzer.UpdateFinalHealth(100, 90);
+
+            var tagged = analyzer.AnalyzeEventTagged(new BattleEvent
+            {
+                Actor = "Hero", Target = "Goblin", Action = "Strike",
+                IsSuccess = true, NaturalRoll = 12, Damage = 10,
+                IsCombo = true, ComboStep = 2
+            }, GameSettings.Instance);
+
+            var combo = tagged.FindAll(t => t.Bank == "goodCombo");
+            TestBase.AssertTrue(combo.Count > 0,
+                "A 3+ step combo should trigger a goodCombo narrative",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            FlavorText.Reload();
+            var bank = FlavorText.GetData().CombatNarratives.TryGetValue("goodCombo", out var lines)
+                ? lines : null;
+
+            foreach (var entry in combo)
+            {
+                Console.WriteLine($"    [combo] {entry.Text}");
+                TestBase.AssertTrue(
+                    !entry.Text.Contains("{name}", StringComparison.Ordinal),
+                    "No raw token may survive into a displayed line",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(
+                    entry.Text.Contains("Hero", StringComparison.Ordinal),
+                    $"goodCombo line should name the actor, got: {entry.Text}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // The literal is gone only if the rendered line is one of the bank's lines
+                // with {name} filled in. Reading the bank from data is what proves it.
+                TestBase.AssertTrue(
+                    bank != null && bank.Any(l =>
+                        entry.Text == l.Replace("{name}", "Hero", StringComparison.Ordinal)
+                            .Replace("{player}", "Hero", StringComparison.Ordinal)
+                            .Replace("{enemy}", "Goblin", StringComparison.Ordinal)),
+                    $"goodCombo line must come from the data bank, got: {entry.Text}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }

@@ -13,6 +13,18 @@ namespace RPGGame.Tests.Unit.Combat
 {
     /// <summary>
     /// F7 narrative combat log: tokens, beat order, and presenter line playback.
+    ///
+    /// This suite asserts how a swing is ASSEMBLED - token contents, beat order, paragraph
+    /// growth, color. None of that is pacing policy, which has its own suite in
+    /// <see cref="NarrativePacingTests"/>. So the whole class pins the passthrough profile
+    /// rather than reading GameData/NarrativePacing.json.
+    ///
+    /// It used to read the live file, which made the suite's meaning depend on a config value.
+    /// Flipping that file to a sparse profile did not just fail the paragraph-growth
+    /// assertions - a suppressed swing left LinesWrittenForTests empty, the next line indexed
+    /// it with [^1], and the IndexOutOfRangeException aborted the run before the remaining
+    /// ~240 assertions executed. Pinning here is what lets the branch default be flipped
+    /// without the suite going dark.
     /// </summary>
     public static class CombatSequenceFlavorPresenterTests
     {
@@ -23,6 +35,24 @@ namespace RPGGame.Tests.Unit.Combat
             Console.WriteLine("=== CombatSequenceFlavorPresenter Tests ===\n");
             _run = _passed = _failed = 0;
 
+            NarrativePacing.OverrideForTesting(NarrativePacing.Profile.Full);
+            try
+            {
+                RunAssemblyTests();
+            }
+            finally
+            {
+                NarrativePacing.OverrideForTesting(null);
+                NarrativePacing.Invalidate();
+            }
+
+            CombatSequenceFlavorPresenter.ResetForTests();
+            CombatSequencePresenter.ResetForTests();
+            TestBase.PrintSummary("CombatSequenceFlavorPresenter Tests", _run, _passed, _failed);
+        }
+
+        private static void RunAssemblyTests()
+        {
             TestTokensHitIncludesOptionalColumns();
             TestTokensMissSkipsDefenseAndDamage();
             TestInterpretiveTokensHaveNoDigits();
@@ -51,10 +81,6 @@ namespace RPGGame.Tests.Unit.Combat
             TestNarrativeRevealsHudColumnsInBeatOrder();
             TestReserveBandHiddenWhenNarrativeOn();
             TestNarrativeTypewriterTruncatePreservesColors();
-
-            CombatSequenceFlavorPresenter.ResetForTests();
-            CombatSequencePresenter.ResetForTests();
-            TestBase.PrintSummary("CombatSequenceFlavorPresenter Tests", _run, _passed, _failed);
         }
 
         private static void TestTokensHitIncludesOptionalColumns()

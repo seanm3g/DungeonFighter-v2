@@ -1,6 +1,6 @@
 # Demon Fighter — Flavor Text Session Handoff
 
-**Last updated:** 2026-10-19 (third session) · branch `joey_sandbox_v2`
+**Last updated:** 2026-10-19 (fourth session) · branch `joey_sandbox_v2`
 
 **New session? Read this file first, then `.cursor/rules/demon-fighter-flavor.mdc`.**
 That covers everything. Don't re-derive it.
@@ -384,9 +384,37 @@ Profile `sparse` holds the live tuning. Knobs:
 ### Content
 
 Beat banks are v1's F-01 rewrite, ported as written (ground rule 1 — approved text goes in
-untouched). Set-piece banks are new, in the overseer's voice: `criticalHit`, `enemyDefeated`,
-`below10Percent`. **The other five set-piece/beat banks are NOT written yet** — decision 9
-says get Joey's reaction to the sample first.
+untouched). Set-piece banks are new, in the overseer's voice.
+
+**As of the fourth session, every bank that can speak is written in one of the two voices.**
+The previous session's sample covered 8 of the 11 speaking banks; the remaining three were
+still the old placeholder register and all three fire during an ordinary fight, so judging
+the voice with them in place would have been judging a mix.
+
+| Bank | Tier | State |
+|---|---|---|
+| `criticalHit`, `enemyDefeated`, `below10Percent` | SetPiece | Overseer (third session) |
+| `playerDefeated` | SetPiece | Overseer (**fourth session**) |
+| `firstBlood`, `below50Percent`, `healthLeadChange`, `intenseBattle`, `criticalMiss` | Beat | v1 F-01, ported |
+| `environmentalAction` | Beat | World voice (**fourth session**) |
+| `goodCombo` | Beat | World voice (**fourth session**, and moved out of C#) |
+| `healthRecovery`, `playerTaunt`, `enemyTaunt` | Ledger | Silent by design, not rewritten |
+
+Two things found while writing those three:
+
+**`goodCombo` was two interpolated C# string literals** in `BattleEventAnalyzer`, one per
+side, with exclamation marks — breaking ground rule 3 and meaning the only way to retune the
+line was a rebuild. It was also absent from `NarrativeTiers`, so it fell through the unknown-bank
+default to **Beat** and spoke in the log. It is now a data bank with `{name}` = the actor
+(either side, so no gendered pronouns), and is classified explicitly.
+
+**`environmentalAction` must stay free of `{effect}`,** the way `firstBlood` must stay
+token-free. `CombatTurnHandlerSimplified` builds `evt.EnvironmentEffect` by rendering the
+whole mechanical block to plain text — action line, then roll info, then one line per status
+effect, newline-joined — and `AnalyzeEvent` passes that in as `{effect}`. All five old lines
+embedded it, so every one reprinted the entire readout inside the narrator's one-line slot.
+`NarrativeTierTests.EnvironmentalBeatCarriesNoEffectToken` now guards this, for the bank and
+for the C# fallback.
 
 ### Bugs fixed on the way (all verified by test, not by reading)
 
@@ -403,7 +431,13 @@ says get Joey's reaction to the sample first.
    mode swaps out. It was landing in a hover tooltip. Now routed to the prose presenter.
 6. **Narrator colour disagreed between the two paths** — block path used `Info`, prose path
    `Purple`. Now both `Purple`.
-7. **BLANK `{name}` IN EVERY EVALUATOR-OWNED LINE — pre-existing, exists on `main`, tell Max.**
+7. **`goodCombo` spoke from a C# literal** — unclassified, so it fell to Beat and rendered in
+   the log, in the old exclamation-mark register, from a string that could only be changed by
+   rebuilding. Fixed fourth session: data bank plus an explicit tier entry.
+8. **`environmentalAction` reprinted the whole mechanical block** inside the narrator's
+   one-line slot, because `{effect}` is the rendered readout, not a short phrase. Fixed fourth
+   session by dropping the token; guarded by a test.
+9. **BLANK `{name}` IN EVERY EVALUATOR-OWNED LINE — pre-existing, exists on `main`, tell Max.**
    `NarrativeTriggerEvaluator` is constructed inside `BattleEventAnalyzer`'s CONSTRUCTOR, before
    `Initialize()` supplies the combatant names, and `Initialize()` never rebuilt it. So
    `healthLeadChange`, `below50Percent`, `below10Percent` and `intenseBattle` have ALWAYS
@@ -425,18 +459,37 @@ being right does not mean the text reaches the screen.
   `CombatManager.DisableCombatUIOutput = true`, so the display layer returns before rendering.
   It is fine for verifying the combat loop, useless for verifying output.
 - Baseline: `--run-test-filter Combat` gives **17 pre-existing failures**. Diff the failure list
-  against a clean stash rather than trusting the count.
+  against a clean stash rather than trusting the count. Verified again fourth session —
+  byte-identical lists before and after, `git stash push -u` / `pop` around the run.
+- **A filtered suite can abort mid-run and still print a summary that looks like a result.**
+  The presenter suite did exactly this under `sparse`: one assertion failed, the next threw
+  `IndexOutOfRangeException`, and ~240 assertions silently never executed. Grep the output for
+  `Exception`, not only for `✗`.
+- 12 of the 17 baseline failures live in `CombatSequencePresenter` (the HUD suite, not the
+  prose one). They are identical with pacing on and off — that suite is not pacing-gated, so
+  it is not a useful signal for narrative work either way.
 
 ---
 
 ## Open items
 
-**Next task: Joey's reaction to the overseer in the F7-OFF view.** The engine is built and the
-sample content is in. If the voice and rhythm land, write the remaining set-piece and beat banks
-against the approved target. If not, retune `NarrativePacing.json` before writing any more lines.
+**Next task: Joey's reaction to the overseer in the F7-OFF view.** The engine is built, every
+speaking bank is now in voice, and the suite no longer blocks the flip. Nothing else should be
+written until the voice and rhythm are judged in motion.
 
-**Turn it on:** set `"enabled": true` in `GameData/NarrativePacing.json` (profile is already
-`sparse`). **Leave F7 OFF.** Fight something that survives several swings.
+**Turn it on:** set `"enabled": true` in `GameData/NarrativePacing.json`. **Leave F7 OFF.**
+Fight something that survives several swings.
+
+That one-line flip is now actually sufficient. It was not before: the committed file said
+`"activeProfile": "full"` while this document said the profile was already `sparse`, so
+following these instructions enabled pacing with the **passthrough** profile —
+`narratorEnabled: false`, every step speaking, 8000ms paragraphs. The narrator would not have
+appeared at all, and the obvious conclusion would have been that the voice work had failed.
+`activeProfile` is now `sparse`, which is what this document always claimed.
+
+Flipping `enabled` deliberately fails one assertion, `NarrativePacing.json as committed must
+resolve to passthrough`. That is the canary proving the config is live rather than inert — see
+decision note below. Everything else stays green.
 
 1. ~~**Magic-string coupling.**~~ DONE 2026-10-15.
 1a. ~~**`IsCriticalMissFlavorText`.**~~ DONE 2026-10-19 — deleted; the bank tag replaced it.
@@ -448,18 +501,87 @@ against the approved target. If not, retune `NarrativePacing.json` before writin
 4. **Spreadsheet vs JSON.** Precedence doc says the workbook's `flavor` sheet is authoritative;
    the game reads `FlavorText.json`. Writing to JSON for this demo. Raise the pipeline question
    with Max before anything goes near `main`.
-5. **Five tests encode the pre-prototype behaviour.** In
-   `Code/Tests/Unit/Combat/CombatSequenceFlavorPresenterTests.cs` — paragraph growth across
-   swings, every step firing. They pass with pacing OFF and fail with it ON. **They must be
-   rewritten before `sparse` can ship as the branch default.** Until then the committed config
-   stays `enabled: false` and the suite stays green.
+5. ~~**Five tests encode the pre-prototype behaviour.**~~ DONE 2026-10-19 (fourth session).
+   It was worse than "they fail with pacing on": a suppressed swing left `LinesWrittenForTests`
+   empty, the next assertion indexed it with `[^1]`, and the `IndexOutOfRangeException` **aborted
+   the suite** — so the remaining ~240 assertions never ran and nobody could have known whether
+   sparse broke anything else.
+   Fix: `CombatSequenceFlavorPresenterTests` now pins `NarrativePacing.Profile.Full` for the
+   whole class. That suite asserts how a swing is *assembled* — token contents, beat order,
+   paragraph growth, colour — which is not pacing policy; pacing policy has its own suite in
+   `NarrativePacingTests`. Reading the live config made the suite's meaning depend on a config
+   value. **267/267 now pass with `sparse` enabled**, so the branch default is no longer gated
+   on a test rewrite — only on Joey's call about whether the demo should ship narrator-on.
 6. **Decision 2's separated format still does not exist.** F7 SWAPS prose and mechanics rather
    than stacking them (`CombatLogDualView.cs:8`). The F7-OFF view is the closest thing to it and
    is good enough for the demo. True stacking is a Max call under rule 5.
 7. **Blank `{name}` bug (fixed here) exists on `main`.** See the narrator section, item 7.
    Worth a separate heads-up to Max — it is not a flavor-branch issue.
-8. **Remaining banks unwritten:** `playerDefeated` (set piece), and the beat banks not ported.
-   `sequence*` banks are still the old placeholder register, now demoted to near-silence.
+8. ~~**Remaining banks unwritten.**~~ DONE 2026-10-19 (fourth session) — `playerDefeated`,
+   `environmentalAction` and `goodCombo` are in voice. See the Content section.
+   `sequence*` banks are still the old placeholder register, now demoted to near-silence by
+   `sparse`'s `stepChance`. They are the next content job only if the per-step texture clause
+   survives Joey's reaction at all; under `sparse` it fires on roughly one swing in two and
+   says one thing.
+9. **Should `enabled: true` be the branch default?** Open item 5 no longer blocks it. The case
+   for: the whole point of the branch is showing Sean the game with the narrative in it, and a
+   default that hides the work is wrong for a demo branch. The case against: ground rule 4 says
+   keep the live path working and put the trial alongside it. Joey's call, and it is one line
+   plus a rewrite of the passthrough canary in `NarrativePacingTests`.
+
+---
+
+## Fourth session (2026-10-19) — what changed
+
+Files touched:
+
+| File | Change |
+|---|---|
+| `GameData/FlavorText.json` | `playerDefeated` and `environmentalAction` rewritten; `goodCombo` bank added |
+| `Code/Combat/BattleEventAnalyzer.cs` | `goodCombo` draws the bank instead of two C# literals |
+| `Code/Combat/NarrativeTier.cs` | `goodCombo` classified Beat explicitly |
+| `Code/Combat/NarrativeTextProvider.cs` | fallbacks for those three banks match the new voice; env fallback no longer embeds `{effect}` |
+| `GameData/NarrativePacing.json` | `activeProfile` `full` → `sparse` |
+| `Code/Tests/Unit/Combat/CombatSequenceFlavorPresenterTests.cs` | whole class pins the passthrough profile |
+| `Code/Tests/Unit/Combat/NarrativeTierTests.cs` | `playerDefeated` added to the overseer-voice check; exclamation-mark ban extended to every beat bank; two new tests |
+
+Verification: `NarrativeTier` 51/51, `NarrativePacing` 9/9, `CombatSequenceFlavorPresenter`
+267/267 — and 267/267 again with `enabled: true` / `sparse`, which is the point of the pin.
+`Combat` filter failure list byte-identical to a clean stash, 17 both ways.
+
+**`playerDefeated`, the new set piece.** The overseer addresses the player directly here. That
+is licensed by the approved sample's closing lines (*"You are not the first to stand in this
+room. I will not tell you how the others did."*), and a death is the moment the register is
+built for — he was always going to have to say something to the man he refused to help:
+
+```
+  You went still. The Lich did not. I have never seen it settled any other way.
+
+  I watched it happen and I did not reach for you. That is the agreement.
+
+  The last thing you spent was the one you needed. I saw you spend it.
+
+  You had it, and then you did not. The Lich only had to wait for the second part.
+```
+
+**`environmentalAction`, the world's voice.** Third person, present, no narrator. Has to read
+across all seven themes in `EnvironmentalActions.json`, so nothing in it names a hazard:
+
+```
+  Both of them flinch at the same thing, and it is not each other.
+  Neither of them chose this, and both of them pay for it.
+  The room is not neutral. It only looks that way between fights.
+```
+
+**`goodCombo`, the world's voice.** `{name}` is the actor and fires for either side.
+`ComboStep >= 2` means "three or more", not "three", so no line counts the blows — and
+"three" is on the crutch-word list anyway:
+
+```
+  Each hit from Fergus sets up the next. Nothing here is improvised.
+  Fergus lands one, then lands the one that only works after it.
+  No gap opens between Fergus's blows. That is where a guard usually lives.
+```
 
 ---
 
