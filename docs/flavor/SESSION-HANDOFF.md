@@ -1,9 +1,18 @@
 # Demon Fighter — Flavor Text Session Handoff
 
-**Last updated:** 2026-10-15 (second session) · branch `joey_sandbox_v2`
+**Last updated:** 2026-10-19 (third session) · branch `joey_sandbox_v2`
 
 **New session? Read this file first, then `.cursor/rules/demon-fighter-flavor.mdc`.**
 That covers everything. Don't re-derive it.
+
+**START HERE, in this order:**
+1. **THE NARRATOR SYSTEM** (below) — the architecture, the two display modes, and how to verify.
+2. **Decisions locked** — especially 10-14, which supersede parts of 1-9.
+3. **Open items.**
+4. **The target voice** (bottom) — both voices, worked.
+
+The sections dated 2026-10-15 are kept for history. Where they conflict with the narrator
+section or decisions 10-14, **the later text wins**.
 
 ---
 
@@ -28,9 +37,9 @@ Joey's working preference: **ask plain, direct questions.** Avoid hedged or comp
 - `Scripts/sync-flavor-text-from-xlsx.py` and `Scripts/apply-flavor-content-package.py`
 - The ~10-line `RoomInfoBuilder.cs` patch that wires `locationDescriptions` into room entry
 
-So `FlavorText.json` on this branch holds the OLD placeholder combat text
-("The first drop of blood is drawn! The battle has truly begun.") — the wordy register
-Joey is trying to get away from.
+**UPDATE 2026-10-19:** the F-01 bank rewrite HAS now been brought forward, read straight off
+`joey_sandbox_v1` with `git show joey_sandbox_v1:GameData/FlavorText.json`. The branch is still
+live and readable — do not rewrite v1 content from scratch, port it.
 
 ---
 
@@ -61,6 +70,37 @@ Joey is trying to get away from.
 9. **Draft 2-3 banks first, get Joey's reaction, then write the rest** (Joey approved
    2026-10-15). Do NOT write all 13 banks up front — the voice gets approved on a small
    sample before several hundred lines are committed to it.
+
+### Locked 2026-10-19
+
+10. **The narrator is a mystical overseer, not a sports commentator.** Decision 7's
+    "WWE-commentator register" is SUPERSEDED. The reference is the Watcher (Uatu): omniscient,
+    present, detached, bound by a refusal to intervene. Joey's phrasing: "the voice, tone and
+    cadence of a wizard, an elf and a dwarf all rolled into one." Commentator energy survives
+    only as a rare dry glimmer, about one bank in ten.
+11. **Two voices, split by tense and person.**
+    - Beat tier = the world. Third person, PRESENT tense, no narrator present.
+    - Set piece = the overseer. First person, PAST tense. He recounts; he does not commentate.
+    The split is what keeps them distinguishable without labels. Past tense is the single
+    highest-leverage rule for keeping him out of the commentator's chair (stolen from Bastion,
+    where Rucks narrates present action in past tense all game and never grates).
+12. **Tier by significance, never by dice.** Randomness picks WHICH line a tier draws, never
+    WHETHER a moment speaks. A fight where the crit is muted and a stance change speaks is
+    worse than no pacing at all. The narrator is claimed before the pacing gate runs.
+13. **Emphasis is colour, not position.** Joey asked whether the narrator should sit left
+    (against right-aligned mechanics) or centred. Answer: NEITHER — this log already spends the
+    horizontal axis on *who is acting* (player left, enemy right, scene/system centred). All
+    three positions are taken. Treisman's feature-integration work: a target with a unique
+    COLOUR is found pre-attentively, while a target defined by position among other
+    position-varying items needs serial search. Plus von Restorff (isolation) for rarity, and
+    Bringhurst against centring anything over one line. The overseer gets `ColorPalette.Purple`,
+    flat across the line, alone in its paragraph. Disco Elysium is the shipped precedent:
+    many voices, one column, separated by colour.
+14. **Prose quality rule, from Joey's critique of "it is always smaller than people expect":**
+    never write an ABSTRACT COMPARATIVE — a vague noun measured against a vague expectation.
+    It has the shape of wisdom with nothing to point at, and it is the AI tell. Build on
+    antithesis and balance instead ("win from worse and lose from better"), concrete nouns,
+    almost no adjectives.
 
 ---
 
@@ -283,36 +323,143 @@ existing precedent, handled in `TauntSystem`). Not built — waiting on Joey's c
 
 ---
 
+## THE NARRATOR SYSTEM (built 2026-10-19) — read this before touching combat text
+
+### How a line gets to the screen
+
+```
+BattleEventAnalyzer.AnalyzeEventTagged()    -> List<TriggeredNarrative>(Bank, Text)
+NarrativeTiers.For(bank)                    -> Ledger | Beat | SetPiece
+NarrativeTierPresenter.TryGetFlavorLine()   -> the loudest tier wins, one line per swing
+   |
+   +-- F7 OFF (overview): CombatTurnHandlerSimplified -> DisplayCombatActionAsync(narratives:)
+   |        -> BlockMessageCollector renders it under the mechanical block
+   |
+   +-- F7 ON (narrative): CombatSequenceFlavorPresenter.SetPendingNarratorLine()
+            -> PlanNarrativeBeats emits it; a SetPiece returns early and speaks alone
+```
+
+**Every line now carries its bank** (`TriggeredNarrative`). This replaced BOTH magic-string
+sniffs — the crit filter and `IsCriticalMissFlavorText`, which is now deleted. Never classify a
+flavor line by searching its prose again; the bank is on the line.
+
+### THE TWO MODES — the single most important thing in this document
+
+**F7 OFF (overview) is the mode Joey wants and the one to tune.** Mechanical block every swing,
+one short line underneath when the moment earns it. Ledger plus highlight.
+
+**F7 ON (narrative) is prose-only.** `DisplayActionBlockAsync` takes an early-return branch,
+collects the mechanical block ONLY as hover-tooltip content, and hands all visible output to
+`CombatSequenceFlavorPresenter`. **There is no ledger in that view by design.** Three sessions
+were burned pointing Joey at F7 ON and wondering where the ledger went. Do not repeat this.
+
+Both modes render the narrator, and both must agree on his colour — they are different code
+paths and they silently diverged once already.
+
+### Tiers
+
+| Tier | Banks | Voice |
+|---|---|---|
+| SetPiece | criticalHit, enemyDefeated, playerDefeated, below10Percent | Overseer. 1st person, PAST. Purple. Alone. |
+| Beat | firstBlood, below50Percent, healthLeadChange, intenseBattle, criticalMiss, environmentalAction | The world. 3rd person, PRESENT. Dim. |
+| Ledger | healthRecovery, taunts | Silent. |
+
+Unknown banks fall to **Beat**, not Ledger — silence by omission is the harder failure to spot.
+Biome-suffixed banks (`playerTaunt_lava`) inherit the family tier.
+
+### Config: `GameData/NarrativePacing.json`
+
+`enabled: false` ships as the default and reproduces pre-prototype behaviour exactly.
+Profile `sparse` holds the live tuning. Knobs:
+
+- `swingChance` — chance of a per-step texture clause. **Does not gate the narrator.**
+- `maxSentencesPerSwing` — cap for a narrated swing.
+- `stepChance` — per `CombatSequenceStepKind`. Stance/Tempo/Roll are 0.0 (bookkeeping);
+  Critical/CriticalMiss are 0.0 because the narrator owns those moments.
+- `paragraphTargetMs` — **overrides `GameConstants.NarrativeParagraphTargetMs` (8000).**
+  `BuildParagraphSchedule` divides that budget by SENTENCE COUNT, so without this a two-sentence
+  paragraph takes the same eight seconds as an eight-sentence one. Shortening prose without this
+  makes the log type slower, not faster. This was the real cause of "it feels sluggish".
+
+### Content
+
+Beat banks are v1's F-01 rewrite, ported as written (ground rule 1 — approved text goes in
+untouched). Set-piece banks are new, in the overseer's voice: `criticalHit`, `enemyDefeated`,
+`below10Percent`. **The other five set-piece/beat banks are NOT written yet** — decision 9
+says get Joey's reaction to the sample first.
+
+### Bugs fixed on the way (all verified by test, not by reading)
+
+1. **Crit magic-string filter** — see earlier section. Deleted; the gate was already in
+   `AnalyzeEvent`.
+2. **Duplicated growing paragraphs** — continuation re-seeds the previous paragraph and calls
+   `ReplaceLastColoredSegments`, which only lands correctly while that paragraph is the LAST
+   line in the buffer. A silent swing broke that invariant. Fixed by clearing the open paragraph
+   on a silent swing, and by never continuing paragraphs while pacing is on.
+3. **Back-to-back identical lines** — `GetRandomNarrative` drew with no memory. Added a
+   no-immediate-repeat draw (ground rule 2 had always required it).
+4. **The 8-second paragraph budget** — see `paragraphTargetMs` above.
+5. **Narrator discarded in F7 ON** — the line was attached to the mechanical block, which that
+   mode swaps out. It was landing in a hover tooltip. Now routed to the prose presenter.
+6. **Narrator colour disagreed between the two paths** — block path used `Info`, prose path
+   `Purple`. Now both `Purple`.
+7. **BLANK `{name}` IN EVERY EVALUATOR-OWNED LINE — pre-existing, exists on `main`, tell Max.**
+   `NarrativeTriggerEvaluator` is constructed inside `BattleEventAnalyzer`'s CONSTRUCTOR, before
+   `Initialize()` supplies the combatant names, and `Initialize()` never rebuilt it. So
+   `healthLeadChange`, `below50Percent`, `below10Percent` and `intenseBattle` have ALWAYS
+   rendered with an empty name — "Pressure changes hands. is the one walking forward." It was
+   invisible only because those lines were generated and discarded. Fixed here by rebuilding the
+   evaluator in `Initialize`. **This is a real bug on `main`, not something this branch caused.**
+
+### How to verify narrative work — READ THIS
+
+Four times this session a change was declared working based on reasoning about the call chain,
+and four times the output surface was different from what the reasoning assumed. The call chain
+being right does not mean the text reaches the screen.
+
+- `--run-test-filter` suites: `NarrativeTier`, `NarrativePacing`, `CombatSequenceFlavorPresenter`.
+- `CombatSequenceFlavorPresenter` has `RecordForTests` / `LinesWrittenForTests` /
+  `LastParagraphSegmentsForTests` — these drive the REAL prose path and let you assert on the
+  text and colour actually painted. Use them. `TestNarratorLineReachesProse` is the model.
+- **`PLAYTODEATH` cannot verify display.** `SimulationPacing` sets
+  `CombatManager.DisableCombatUIOutput = true`, so the display layer returns before rendering.
+  It is fine for verifying the combat loop, useless for verifying output.
+- Baseline: `--run-test-filter Combat` gives **17 pre-existing failures**. Diff the failure list
+  against a clean stash rather than trusting the count.
+
+---
+
 ## Open items
 
-**Next task:** rewrite 2-3 of the `sequence*` banks in the agreed voice, with the pacing
-prototype switched on, and show Joey. Those are the banks that actually reach the screen.
-The three one-shot banks already written stay as a voice reference but do not render.
+**Next task: Joey's reaction to the overseer in the F7-OFF view.** The engine is built and the
+sample content is in. If the voice and rhythm land, write the remaining set-piece and beat banks
+against the approved target. If not, retune `NarrativePacing.json` before writing any more lines.
 
-**Note on the register for `sequence*`:** these banks are a *woven* format by construction —
-each line is a fragment with a mechanical token interpolated (`{outcome}`, `{damage}`,
-`{stance}`). Decision 2 chose the separated format and deferred woven to a later session. The
-pacing gate narrows the gap (fewer fragments per swing) but does not close it. Getting true
-separated format is the `CombatLogDualView` swap-vs-stack change — a Max call under rule 5.
+**Turn it on:** set `"enabled": true` in `GameData/NarrativePacing.json` (profile is already
+`sparse`). **Leave F7 OFF.** Fight something that survives several swings.
 
-1. ~~**Magic-string coupling.**~~ **DONE 2026-10-15** — see "Code work completed" above.
-
-1a. **A second magic-string sniff is still live: `BattleEventAnalyzer.IsCriticalMissFlavorText`.**
-   It matches `criticalMiss` lines against 14 literal phrases (`"wild swing"`, `"goes wide"`,
-   `"empty space"`, …). It is **only called from tests**, not from the shipping display path,
-   so it is not a live display bug — but `BattleNarrativeTests.cs:157` asserts that a natural 1
-   surfaces a line matching it. **Rewriting the `criticalMiss` bank will break that test.**
-   Fix it the same way, in the same pass that writes that bank. Not touched this session,
-   because the `criticalMiss` bank was not part of the three-bank sample.
-2. **`--run-tests` dies early.** A pre-existing `NullReferenceException` during
-   *Equipped Item Trigger Tests* crashes the comprehensive runner before it reaches any
-   combat suite. Pre-existing, not from this session's work. Probably a Max item.
-3. **Rooms are dark on this branch.** `locationDescriptions` content exists and is good, but
-   the `RoomInfoBuilder.cs` wiring lived only on v1. ~10 lines to port.
-4. **Spreadsheet vs JSON.** Precedence doc says `DEMON FIGHTER - DATA (1).xlsx` (`flavor`
-   sheet) is authoritative; the game reads `FlavorText.json`. Decision made: write to the
-   JSON for this demo, raise the pipeline question with Max before anything goes near `main`.
-5. **Task 3 (narrator persona)** and **task 4 (three research-backed prototypes)** not started.
+1. ~~**Magic-string coupling.**~~ DONE 2026-10-15.
+1a. ~~**`IsCriticalMissFlavorText`.**~~ DONE 2026-10-19 — deleted; the bank tag replaced it.
+2. **`--run-tests` dies early.** Pre-existing `NullReferenceException` in *Equipped Item Trigger
+   Tests* crashes the comprehensive runner before any combat suite. Use `--run-test-filter`.
+   Max item.
+3. **Rooms are dark on this branch.** `locationDescriptions` content is good but the
+   `RoomInfoBuilder.cs` wiring lived only on v1. ~10 lines to port.
+4. **Spreadsheet vs JSON.** Precedence doc says the workbook's `flavor` sheet is authoritative;
+   the game reads `FlavorText.json`. Writing to JSON for this demo. Raise the pipeline question
+   with Max before anything goes near `main`.
+5. **Five tests encode the pre-prototype behaviour.** In
+   `Code/Tests/Unit/Combat/CombatSequenceFlavorPresenterTests.cs` — paragraph growth across
+   swings, every step firing. They pass with pacing OFF and fail with it ON. **They must be
+   rewritten before `sparse` can ship as the branch default.** Until then the committed config
+   stays `enabled: false` and the suite stays green.
+6. **Decision 2's separated format still does not exist.** F7 SWAPS prose and mechanics rather
+   than stacking them (`CombatLogDualView.cs:8`). The F7-OFF view is the closest thing to it and
+   is good enough for the demo. True stacking is a Max call under rule 5.
+7. **Blank `{name}` bug (fixed here) exists on `main`.** See the narrator section, item 7.
+   Worth a separate heads-up to Max — it is not a flavor-branch issue.
+8. **Remaining banks unwritten:** `playerDefeated` (set piece), and the beat banks not ported.
+   `sequence*` banks are still the old placeholder register, now demoted to near-silence.
 
 ---
 
@@ -359,3 +506,60 @@ A Ghoul comes up the hall. It looks at his pack before it looks at him.
 
 Nine beats, five of them silent or near-silent. Every line fits inside its turn's reading
 budget. Three lines point at the machines; none names one.
+
+---
+
+## The overseer's voice — worked example (approved 2026-10-19)
+
+Same fight twice. Only the voice changes. The second is the approved register.
+
+**Rejected — commentator.** Gets its energy from volume, and becomes unbearable by the
+fortieth fight:
+
+```
+  Here we go. A narrow room and nobody coming.
+  First blood to Fergus. The Lich does not appear to have noticed.
+  Oh, that was deliberate. He found the seam and went through it.
+```
+
+**Approved — overseer.** Gets its energy from what he knows. Nothing here asks the reader
+to react, which is why it survives rereading:
+
+```
+  It was a man. It kept the shape and let the rest go.
+
+  First blood. I have never seen a fight decided by it.
+
+  Two unanswered. Fights turn on less.
+
+  He is down to half. I have watched men win from worse
+  and lose from better.
+
+  He is nearly out. I will not look away.
+  That is the whole of what I can give him.
+
+  He found the seam. Men look a lifetime for one
+  and walk past it twice.
+
+  It stops. What kept it moving does not take the motion back up.
+
+  You are not the first to stand in this room.
+  I will not tell you how the others did.
+```
+
+Joey's note on the line he singled out — *"I have watched men win from worse and lose from
+better"* — "it sums up the detachment I want from the character."
+
+**The rules this voice runs on:**
+- **Past tense, first person, always.** He recounts; he does not commentate.
+- **Every line contains something you can point at.** Cold, seam, pace, half, floor. The moment
+  a line rests on an abstract noun (*fate, moment, presence, truth*) it is the AI tell again.
+- **Built on balance, not adornment.** *win from worse / lose from better.* *look a lifetime /
+  walk past it twice.* The ear registers the shape before the meaning.
+- **Almost no adjectives.** Adjectives are where this register dies.
+- **He withholds.** He has seen it; he will not say how it goes. This is also why he never
+  spoils a fight in progress.
+- **No exclamation marks, ever.** Enforced by `NarrativeTierTests`.
+
+The world's voice (Beat tier) stays third person, present tense, no narrator in it — v1's F-01
+banks are already correct for this and were ported as written.
