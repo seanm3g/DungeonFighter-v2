@@ -67,12 +67,24 @@ namespace RPGGame.Combat.Sequence
             /// </summary>
             public int ParagraphTargetMs { get; init; }
 
+            /// <summary>
+            /// Routes the one-shot narrative banks (firstBlood, criticalHit, enemyDefeated, the
+            /// health thresholds) back into the combat log, tiered by significance.
+            ///
+            /// v2 generates all of them every swing and discards the result - the comment at
+            /// CombatTurnHandlerSimplified's call site says so outright. v1 had no per-step
+            /// prose at all and showed exactly these lines at exactly these moments, which is
+            /// the ledger-plus-highlight shape worth getting back to.
+            /// </summary>
+            public bool NarratorEnabled { get; init; }
+
             /// <summary>True when this profile cannot change anything (the shipping default).</summary>
             public bool IsPassthrough =>
                 SwingChance >= 1.0
                 && MaxSentencesPerSwing <= 0
                 && StepChance.Count == 0
-                && ParagraphTargetMs <= 0;
+                && ParagraphTargetMs <= 0
+                && !NarratorEnabled;
 
             public static Profile Full { get; } = new();
         }
@@ -225,8 +237,12 @@ namespace RPGGame.Combat.Sequence
                     paragraphTargetMs = Math.Max(0, targetValue);
                 }
 
+                bool narratorEnabled = profile.TryGetProperty("narratorEnabled", out var narrator)
+                    && narrator.ValueKind == JsonValueKind.True;
+
                 return new Profile
                 {
+                    NarratorEnabled = narratorEnabled,
                     SwingChance = swingChance,
                     MaxSentencesPerSwing = maxSentences,
                     StepChance = stepChance,

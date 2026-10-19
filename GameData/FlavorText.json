@@ -1035,14 +1035,11 @@
   },
   "combatNarratives": {
     "firstBlood": [
-      "First blood. Neither of them stops to look at it.",
-      "Something opens that will not close on its own.",
-      "The first wound lands, and the fight stops being a question.",
-      "Blood on the floor. The room narrows down to this.",
-      "The first cut goes in clean. Nothing after it is clean.",
-      "A wound opens. The distance between them closes and stays closed.",
-      "First blood, and the air in here changes temperature.",
-      "The first hurt is small. It is also the last small one."
+      "First blood hits the stone, and the room learns the shape of the fight.",
+      "The opening swing's only answer is blood on the stone.",
+      "The first cut draws blood, and every later blow has to live up to it.",
+      "Someone is bleeding now, and the blood has settled who is serious.",
+      "Once blood shows, the standoff is over, and the pace stops being polite."
     ],
     "healthRecovery": [
       "A surge of vitality courses through {name}\u0027s body as wounds begin to heal.",
@@ -1052,44 +1049,44 @@
       "A warm glow surrounds {name} as their health is restored."
     ],
     "below50Percent": [
-      "{name} staggers under the weight of their injuries, but their eyes still burn with defiance!",
-      "Blood streams from {name}\u0027s wounds, yet they stand firm against the onslaught!",
-      "{name} is wounded but far from broken, their fighting spirit blazing brighter than ever!",
-      "Despite the crimson stains marking their body, {name} presses forward with renewed fury!",
-      "{name} grits their teeth through the pain, their resolve hardening like steel!",
-      "The battle has taken its toll on {name}, but their warrior\u0027s heart beats strong!",
-      "{name} bears the marks of combat proudly, each wound a testament to their courage!",
-      "Though battered and bleeding, {name} refuses to let their opponent see weakness!"
+      "{name} is bleeding in earnest now, and still has not given the room an inch.",
+      "Half of {name} is gone, and the guard did not leave with it.",
+      "{name} favors the bad side, and the next blow already knows the address.",
+      "The damage on {name} is no longer a rumor. It is the way they move.",
+      "{name} keeps coming, and every step spends something that does not come back.",
+      "Breath from {name} comes ragged. The weapon hand does not care.",
+      "Hurt like this, {name} can be finished by the next clean hit.",
+      "What {name} has left would fit in one good swing, and they are spending it."
     ],
     "below10Percent": [
-      "{name} stands on the precipice of death, yet their eyes blaze with unbreakable determination!",
-      "Bloodied and broken, {name} rises from the ground like a phoenix from the ashes!",
-      "{name} is at death\u0027s door, but their warrior\u0027s soul refuses to surrender to the darkness!",
-      "With their last breath, {name} summons the fury of a thousand battles!",
-      "{name} is mortally wounded, yet their fighting spirit burns brighter than the sun!",
-      "The very air crackles with {name}\u0027s desperate resolve as they face their final moments!",
-      "{name} stands alone against the tide of fate, their courage unshaken by mortal wounds!",
-      "In their darkest hour, {name} finds the strength of legends coursing through their veins!"
+      "{name} is nearly out. I will not look away. That is the whole of what I can give.",
+      "There is very little of {name} left. I have seen less hold.",
+      "{name} is one blow from the end. I have watched that blow arrive and watched it miss.",
+      "This is where it is decided for {name}, and I will not say which way.",
+      "{name} is running out. The fight has not noticed yet.",
+      "What is left of {name} would not fill a cup. It has been enough before.",
+      "{name} stands on the last of it. I have no counsel, only attention.",
+      "The end is close enough to touch {name}. Close is not arrived."
     ],
     "criticalHit": [
-      "{name} stops aiming at the body and aims at the rhythm instead.",
-      "{name} finds the gap that was always there and puts everything through it.",
-      "The blow lands exactly where {name} meant it to, which is rarer than it sounds.",
-      "{name} waits one beat longer than the fight wanted, then does not miss.",
-      "Something deep gives way. {name} felt it go before the sound caught up.",
-      "{name} hits the one place that was holding the rest together.",
-      "No wasted motion. {name} spends the opening the way it deserved.",
-      "{name} stops guessing. The next strike goes where the guessing pointed."
+      "{name} found the seam. Men look a lifetime for one and walk past it twice.",
+      "That was not luck. I have watched enough of both to tell them apart.",
+      "{name} stopped cutting at the body and cut the rhythm instead. The rhythm stopped.",
+      "The opening stood there the whole time. {name} was the first to spend it.",
+      "I have seen that blow thrown every way it can be thrown. That is the way.",
+      "{name} put the whole fight through a gap the width of a decision.",
+      "There. Whatever held the shape of this, {name} took it apart.",
+      "It landed as it was meant to land. That is rarer than either of them knows."
     ],
     "criticalMiss": [
-      "{name}\u0027s wild swing cuts through empty air, the attack going wide of its intended target!",
-      "The strike from {name} falters at the crucial moment, finding nothing but disappointment!",
-      "{name}\u0027s clumsy attack fails spectacularly, the weapon finding no purchase!",
-      "A critical miss! {name}\u0027s blow goes astray, missing the target by a wide margin!",
-      "{name}\u0027s poorly timed strike fails to connect, leaving them vulnerable and exposed!",
-      "The attack from {name} goes completely off-target, a moment of embarrassing failure!",
-      "{name} stumbles in their assault, the critical miss leaving them off-balance!",
-      "A devastating miss! {name}\u0027s attack finds only empty space where their foe once stood!"
+      "{name} overcommits, and the empty air charges interest.",
+      "The strike from {name} finds nothing, and the recovery will cost the next beat.",
+      "{name} is a half-step long, and that half-step is now a target.",
+      "Timing leaves {name} at the worst instant, the arm still traveling.",
+      "{name} throws a blow the fight has already stepped out of.",
+      "Nothing is where {name}'s strike expected it, and the follow-through tells on them.",
+      "{name} commits, the hit is not there, and the stance comes apart around the mistake.",
+      "That swing from {name} spends itself on air, and the hole it leaves is rude."
     ],
     "environmentalAction": [
       "The environment itself joins the fray! {effect}",
@@ -1099,31 +1096,31 @@
       "The surroundings react to the battle: {effect}"
     ],
     "healthLeadChange": [
-      "The tide of battle shifts! {name} now holds the advantage!",
-      "A dramatic reversal! {name} gains the upper hand!",
-      "The momentum swings! {name} seizes control of the fight!",
-      "The balance of power changes! {name} now leads the assault!",
-      "A turning point! {name} gains the advantage in this deadly dance!"
+      "The fight tips, and {name} is the one the room is watching.",
+      "Pressure changes hands. {name} is the one walking forward.",
+      "{name} stops giving ground, and the exchange has to answer that.",
+      "The advantage slides, ugly and obvious, toward {name}.",
+      "From this breath on, {name} is the one closing the distance."
     ],
     "intenseBattle": [
-      "The battle reaches a fever pitch as both {player} and {enemy} stand bloodied but unbroken!",
-      "The air crackles with tension as {player} and {enemy} face each other in this epic struggle!",
-      "Both {player} and {enemy} are wounded, yet their determination burns brighter than ever!",
-      "The battlefield trembles as {player} and {enemy} engage in a battle for the ages!",
-      "Bloodied warriors {player} and {enemy} circle each other, each knowing only one will walk away!",
-      "The intensity reaches new heights as {player} and {enemy} push themselves beyond their limits!",
-      "Both {player} and {enemy} stand on the edge of victory and defeat in this climactic moment!",
-      "The very ground shakes as {player} and {enemy} clash in this legendary confrontation!"
+      "Neither {player} nor {enemy} gives an inch, and both bleed for the refusal.",
+      "Caution is gone. {player} and {enemy} are throwing what they have left.",
+      "Nothing is being saved between {player} and {enemy} for a later that may not come.",
+      "Here is the question {player} and {enemy} are beating into the floor: who breaks.",
+      "One clean hit, from {player} or from {enemy}, writes how this ends.",
+      "Breath is scarce for {player} and for {enemy}, and both keep spending it.",
+      "Speed has the exchange. {player} and {enemy} have no time left to think.",
+      "So close, {player} and {enemy}, that the room cannot yet pick who walks out."
     ],
     "enemyDefeated": [
-      "{name} goes down and stays down. {player} waits to be sure.",
-      "{name} stops. Whatever kept it moving does not pick the motion back up.",
-      "{name} falls. {player} is still holding the stance that ended it.",
-      "It ends. {name} is on the floor and {player} is still standing.",
-      "{name} drops where it stood. The quiet afterward arrives too fast.",
-      "{name} folds, and the fight goes out of the room with it.",
-      "{name} gives out mid-motion, the way a thing does when it is done.",
-      "{player} lowers the weapon. {name} does not get up."
+      "{name} stopped. Whatever kept it moving did not take the motion back up.",
+      "It went down holding what it came for. {player} had to open the hand.",
+      "{name} is finished. I have watched that ending arrive for better and for worse.",
+      "The cold left the room slower than {name} did.",
+      "{name} fell. {player} is standing, and that is the part that gets remembered.",
+      "It ended the way most of them end: one beat late for {name}.",
+      "{name} gave out mid-motion. The room is quieter and no wiser.",
+      "That is the whole of it. {name} does not rise, and I do not say what follows."
     ],
     "playerDefeated": [
       "You collapse to the ground, your strength finally exhausted by {enemy}\u0027s relentless assault!",

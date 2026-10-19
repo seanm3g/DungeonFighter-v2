@@ -65,14 +65,28 @@ namespace RPGGame
         /// </summary>
         public List<string> AnalyzeEvent(BattleEvent evt, GameSettings settings)
         {
-            var triggeredNarratives = new List<string>();
+            var tagged = AnalyzeEventTagged(evt, settings);
+            var plain = new List<string>(tagged.Count);
+            foreach (var entry in tagged)
+                plain.Add(entry.Text);
+            return plain;
+        }
+
+        /// <summary>
+        /// Same analysis as <see cref="AnalyzeEvent"/>, but each line carries the bank it came
+        /// from. Tiering and any other consumer that needs to know *what kind* of moment this
+        /// was reads the bank instead of searching the prose for magic phrases.
+        /// </summary>
+        public List<TriggeredNarrative> AnalyzeEventTagged(BattleEvent evt, GameSettings settings)
+        {
+            var triggeredNarratives = new List<TriggeredNarrative>();
 
             // First Blood - first successful hit that deals damage
             if (!stateManager.HasFirstBloodOccurred && evt.Damage > 0 && evt.IsSuccess)
             {
                 stateManager.SetFirstBloodOccurred();
                 string narrative = textProvider.GetRandomNarrative("firstBlood");
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("firstBlood", narrative));
                 stateManager.IncrementNarrativeEventCount();
             }
 
@@ -93,7 +107,7 @@ namespace RPGGame
                     string narrative = textProvider.ReplacePlaceholders(
                         textProvider.GetRandomNarrative("criticalHit"),
                         replacements);
-                    triggeredNarratives.Add(narrative);
+                    triggeredNarratives.Add(new TriggeredNarrative("criticalHit", narrative));
                     stateManager.IncrementNarrativeEventCount();
                 }
             }
@@ -106,7 +120,7 @@ namespace RPGGame
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("criticalMiss"),
                     replacements);
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("criticalMiss", narrative));
                 stateManager.IncrementNarrativeEventCount();
             }
 
@@ -118,7 +132,7 @@ namespace RPGGame
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("environmentalAction"),
                     replacements);
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("environmentalAction", narrative));
                 stateManager.IncrementNarrativeEventCount();
             }
 
@@ -129,7 +143,7 @@ namespace RPGGame
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("healthRecovery"),
                     replacements);
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("healthRecovery", narrative));
             }
 
             // Health Lead Change - when someone gains or loses health advantage
@@ -157,7 +171,7 @@ namespace RPGGame
                 {
                     narrative = $"{enemyName} demonstrates masterful technique with a brutal combo that leaves {playerName} reeling!";
                 }
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("goodCombo", narrative));
             }
 
             // Defeat Events - when someone is defeated
@@ -168,7 +182,7 @@ namespace RPGGame
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("playerDefeated"),
                     replacements);
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("playerDefeated", narrative));
             }
 
             if (!stateManager.HasEnemyDefeated && finalEnemyHealth <= 0)
@@ -182,7 +196,7 @@ namespace RPGGame
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("enemyDefeated"),
                     replacements);
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("enemyDefeated", narrative));
             }
 
             return triggeredNarratives;
@@ -299,33 +313,6 @@ namespace RPGGame
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// True when <paramref name="narrativeText"/> is a critical-miss flavor line (JSON bank or fallback).
-        /// Hit/miss actions must not show these unless the swing itself was a critical miss.
-        /// </summary>
-        public static bool IsCriticalMissFlavorText(string? narrativeText)
-        {
-            if (string.IsNullOrEmpty(narrativeText))
-            {
-                return false;
-            }
-
-            return narrativeText.Contains("wild swing", StringComparison.OrdinalIgnoreCase)
-                || narrativeText.Contains("misses completely", StringComparison.OrdinalIgnoreCase)
-                || narrativeText.Contains("goes wide", StringComparison.OrdinalIgnoreCase)
-                || narrativeText.Contains("falters at the crucial moment", StringComparison.OrdinalIgnoreCase)
-                || narrativeText.Contains("fails spectacularly", StringComparison.OrdinalIgnoreCase)
-                || narrativeText.Contains("critical miss", StringComparison.OrdinalIgnoreCase)
-                || narrativeText.Contains("poorly timed strike", StringComparison.OrdinalIgnoreCase)
-                || narrativeText.Contains("fails to connect", StringComparison.OrdinalIgnoreCase)
-                || narrativeText.Contains("off-target", StringComparison.OrdinalIgnoreCase)
-                || narrativeText.Contains("embarrassing failure", StringComparison.OrdinalIgnoreCase)
-                || narrativeText.Contains("devastating miss", StringComparison.OrdinalIgnoreCase)
-                || narrativeText.Contains("empty space", StringComparison.OrdinalIgnoreCase)
-                || narrativeText.Contains("goes astray", StringComparison.OrdinalIgnoreCase)
-                || narrativeText.Contains("finding nothing but disappointment", StringComparison.OrdinalIgnoreCase);
         }
 
     }

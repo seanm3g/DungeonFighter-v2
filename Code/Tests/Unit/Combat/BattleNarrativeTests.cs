@@ -153,11 +153,13 @@ namespace RPGGame.Tests.Unit.Combat
                 NaturalRoll = 1,
                 Damage = 0
             });
+            var missTagged = narrative.GetTriggeredNarrativesTagged();
             var missLines = narrative.GetTriggeredNarrativesIfSignificant();
             TestBase.AssertTrue(
-                missLines.Exists(BattleEventAnalyzer.IsCriticalMissFlavorText),
+                missTagged.Exists(t => t.Bank == "criticalMiss"),
                 "Natural 1 miss should surface critical-miss flavor",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            _ = missLines;
 
             for (int i = 0; i < 5; i++)
             {
@@ -170,9 +172,10 @@ namespace RPGGame.Tests.Unit.Combat
                     NaturalRoll = 12 + (i % 6),
                     Damage = 5
                 });
-                var later = narrative.GetTriggeredNarrativesIfSignificant();
+                var laterTagged = narrative.GetTriggeredNarrativesTagged();
+                narrative.GetTriggeredNarrativesIfSignificant();
                 TestBase.AssertTrue(
-                    !later.Exists(BattleEventAnalyzer.IsCriticalMissFlavorText),
+                    !laterTagged.Exists(t => t.Bank == "criticalMiss"),
                     $"Hit {i + 1} after a crit miss must not reuse miss flavor",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }

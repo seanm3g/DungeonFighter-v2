@@ -135,7 +135,7 @@ namespace RPGGame
                     var renderer = BlockRendererFactory.GetRenderer();
                     renderer.RenderMessageGroups(messageGroups, delayAfterBatchMs, character);
                     PunchlineRevealFeedback.CommitQueued();
-                    BindMechanicalDualViewIfPossible(messageGroups, character);
+                    BindMechanicalDualViewIfPossible(messageGroups, narratives, character);
                 }
                 else
                 {
@@ -277,7 +277,7 @@ namespace RPGGame
                     }
 
                     // Bind silent narrative so F7 can convert this mechanical block to prose.
-                    BindMechanicalDualViewIfPossible(messageGroups, character);
+                    BindMechanicalDualViewIfPossible(messageGroups, narratives, character);
                 }
                 else
                 {
@@ -331,6 +331,7 @@ namespace RPGGame
         /// </summary>
         private static void BindMechanicalDualViewIfPossible(
             List<(List<ColoredText> segments, UIMessageType messageType)> messageGroups,
+            List<List<ColoredText>>? narratives,
             Character? character)
         {
             if (messageGroups == null || messageGroups.Count == 0)
@@ -339,9 +340,45 @@ namespace RPGGame
                 return;
             }
 
-            if (!CombatSequenceFlavorPresenter.TryBuildSilentParagraphFromPending(out var prose)
-                || prose == null
-                || prose.Count == 0)
+            bool haveProse = CombatSequenceFlavorPresenter.TryBuildSilentParagraphFromPending(out var prose)
+                && prose != null
+                && prose.Count > 0;
+
+            // PROTOTYPE: F7 swaps the whole mechanical block for the prose alternate, so a
+            // tiered flavor line attached to the block was being discarded in narrative mode -
+            // exactly the view the narrator exists for. The tiered line IS the prose when there
+            // is one; per-step sequence prose follows only if it survived its own pacing gate.
+            if (narratives != null && narratives.Count > 0)
+            {
+                var combined = new List<ColoredText>();
+                foreach (var line in narratives)
+                {
+                    if (line == null || line.Count == 0)
+                        continue;
+
+                    if (combined.Count > 0)
+                        combined.Add(new ColoredText(" ", ColorPalette.Info.GetColor()));
+
+                    combined.AddRange(line);
+                }
+
+                if (combined.Count > 0)
+                {
+                    if (haveProse && prose != null)
+                    {
+                        combined.Add(new ColoredText(" ", ColorPalette.Info.GetColor()));
+                        combined.AddRange(prose);
+                    }
+
+                    prose = combined;
+                    haveProse = true;
+                }
+            }
+
+            try { System.IO.File.AppendAllText("/tmp/df_bind.log",
+                $"BIND narratives={(narratives?.Count ?? -1)} haveProse={haveProse} proseLen={(prose?.Count ?? 0)}\n"); } catch {}
+
+            if (!haveProse || prose == null || prose.Count == 0)
             {
                 return;
             }

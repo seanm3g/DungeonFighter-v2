@@ -31,7 +31,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestInitialize();
             TestUpdateFinalHealth();
             TestAnalyzeEvent();
-            TestIsCriticalMissFlavorText();
+            TestCriticalMissIsTaggedByBank();
 
             TestBase.PrintSummary("BattleEventAnalyzer Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -145,21 +145,31 @@ namespace RPGGame.Tests.Unit.Combat
             }
         }
 
-        private static void TestIsCriticalMissFlavorText()
+        private static void TestCriticalMissIsTaggedByBank()
         {
-            Console.WriteLine("\n--- Testing IsCriticalMissFlavorText ---");
+            Console.WriteLine("\n--- Testing critical-miss lines carry their bank ---");
 
+            // Replaces the old IsCriticalMissFlavorText phrase sniff. Classifying a line by
+            // searching its prose broke the moment the bank was rewritten; generation knows
+            // which bank it drew from, so it reports it.
+            var textProvider = new NarrativeTextProvider();
+            var analyzer = new BattleEventAnalyzer(
+                textProvider, new NarrativeStateManager(), new TauntSystem(textProvider));
+            analyzer.Initialize("Hero", "Goblin", "Test", 100, 100);
+
+            var miss = new BattleEvent
+            {
+                Actor = "Hero", Target = "Goblin", Action = "Swing",
+                IsSuccess = false, NaturalRoll = 1
+            };
+            var tagged = analyzer.AnalyzeEventTagged(miss, GameSettings.Instance);
             TestBase.AssertTrue(
-                BattleEventAnalyzer.IsCriticalMissFlavorText("The attack from Hero goes completely off-target, a moment of embarrassing failure!"),
-                "off-target miss line should classify as crit-miss flavor",
+                tagged.Exists(t => t.Bank == "criticalMiss"),
+                "A natural 1 should produce a line tagged criticalMiss",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(
-                BattleEventAnalyzer.IsCriticalMissFlavorText("Hero's poorly timed strike fails to connect, leaving them vulnerable and exposed!"),
-                "fails-to-connect miss line should classify as crit-miss flavor",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(
-                !BattleEventAnalyzer.IsCriticalMissFlavorText("Hero delivers a devastating blow that shakes the very foundations of the battlefield!"),
-                "critical-hit flavor should not classify as crit-miss",
+                !tagged.Exists(t => t.Bank == "criticalHit"),
+                "A miss must not produce a criticalHit-tagged line",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -70,6 +70,7 @@ namespace RPGGame
         private readonly object lastEventLock = new object();
         private BattleEvent? lastAddedEvent;
         private List<string> lastAddedNarratives = new List<string>();
+        private List<TriggeredNarrative> lastAddedTagged = new List<TriggeredNarrative>();
         private bool lastAddedNarrativesConsumed;
         private int eventCount;
 
@@ -129,12 +130,17 @@ namespace RPGGame
 
             // Analyze once per event. Re-analyzing a crit miss later would mint a new random
             // miss line and attach it to whatever swing is currently on screen.
-            var triggeredNarratives = AnalyzeEventForNarratives(evt);
+            var tagged = AnalyzeEventForNarrativesTagged(evt);
+            var triggeredNarratives = new List<string>(tagged.Count);
+            foreach (var entry in tagged)
+                triggeredNarratives.Add(entry.Text);
+
             narrativeCache.CacheNarratives(evt, triggeredNarratives, addedIndex);
             lock (lastEventLock)
             {
                 lastAddedEvent = evt;
                 lastAddedNarratives = triggeredNarratives;
+                lastAddedTagged = tagged;
                 lastAddedNarrativesConsumed = false;
             }
         }
@@ -255,6 +261,36 @@ namespace RPGGame
         /// <summary>
         /// Analyzes an event for significant narrative triggers using the event analyzer
         /// </summary>
+        private List<TriggeredNarrative> AnalyzeEventForNarrativesTagged(BattleEvent evt)
+        {
+            var settings = GameSettings.Instance;
+            if (!settings.EnableNarrativeEvents)
+            {
+                return new List<TriggeredNarrative>();
+            }
+
+            var tagged = eventAnalyzer.AnalyzeEventTagged(evt, settings);
+            foreach (var entry in tagged)
+                narrativeEvents.Add(entry.Text);
+
+            return tagged;
+        }
+
+        /// <summary>
+        /// The last event's narratives with the bank each came from, for tier-aware display.
+        /// Does not consume the one-shot flag - callers that display must still call
+        /// <see cref="GetTriggeredNarrativesIfSignificant"/> (or consume it themselves).
+        /// </summary>
+        public List<TriggeredNarrative> GetTriggeredNarrativesTagged()
+        {
+            lock (lastEventLock)
+            {
+                return lastAddedEvent == null
+                    ? new List<TriggeredNarrative>()
+                    : new List<TriggeredNarrative>(lastAddedTagged);
+            }
+        }
+
         private List<string> AnalyzeEventForNarratives(BattleEvent evt)
         {
             var context = new BattleNarrativeContext

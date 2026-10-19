@@ -1,35 +1,37 @@
 {
   "_prototype": "PROTOTYPE - flavor sandbox (joey_sandbox_v2). Controls how often the F7 prose narrator speaks. Not reviewed by Max. Default profile reproduces pre-prototype behaviour exactly.",
   "_howToUse": "Set activeProfile to any key under profiles. 'full' = pre-prototype behaviour. 'sparse' = decision 4 pacing. paragraphTargetMs 0 leaves the shipping 8000ms budget alone.",
-  "enabled": false,
-  "activeProfile": "full",
+  "enabled": true,
+  "activeProfile": "sparse",
   "profiles": {
     "full": {
       "_note": "Pre-prototype behaviour. Every eligible step speaks on every swing.",
       "swingChance": 1.0,
       "maxSentencesPerSwing": 0,
       "stepChance": {},
-      "paragraphTargetMs": 0
+      "paragraphTargetMs": 0,
+      "narratorEnabled": false
     },
     "sparse": {
-      "_note": "Decision 4 target: 40-60% of beats carry no flavor. paragraphTargetMs overrides the flat 8000ms whole-paragraph typewriter budget - without it a shorter paragraph just types slower and still takes 8 seconds.",
-      "swingChance": 0.5,
-      "maxSentencesPerSwing": 2,
+      "_note": "Ledger + highlight. The sequence* per-step prose is demoted to near-silence (swingChance 0.18, one sentence) because it narrates the exchange, not the turn. narratorEnabled routes the one-shot banks back in, tiered by significance.",
+      "swingChance": 0.18,
+      "maxSentencesPerSwing": 1,
       "stepChance": {
-        "Attacker": 0.25,
-        "Outcome": 0.15,
-        "Roll": 0.1,
-        "Action": 0.6,
-        "Critical": 1.0,
-        "CriticalMiss": 1.0,
-        "Defense": 0.3,
-        "Damage": 0.5,
-        "Heal": 0.6,
+        "Attacker": 0.0,
+        "Outcome": 0.0,
+        "Roll": 0.0,
+        "Action": 0.5,
+        "Critical": 0.0,
+        "CriticalMiss": 0.0,
+        "Defense": 0.0,
+        "Damage": 0.35,
+        "Heal": 0.0,
         "Effect": 0.5,
-        "Stance": 0.15,
-        "Tempo": 0.1
+        "Stance": 0.0,
+        "Tempo": 0.0
       },
-      "paragraphTargetMs": 1200
+      "paragraphTargetMs": 1200,
+      "narratorEnabled": true
     }
   }
 }

@@ -130,6 +130,7 @@ namespace RPGGame.Tests.Runners
             list.AddRange(MCPSystemTestRunner.GetSuiteEntries());
             list.Add(new TestSuiteEntry("combat", "BattleNarrative", () => RPGGame.Tests.Unit.Combat.BattleNarrativeTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "NarrativePacing", () => RPGGame.Tests.Unit.Combat.NarrativePacingTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "NarrativeTier", () => RPGGame.Tests.Unit.Combat.NarrativeTierTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "ActionBonusMechanics", () => RPGGame.Tests.Unit.Data.ActionBonusMechanicsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "ActionBonusMechanicsFlow", RunActionBonusMechanicsFlow));
             list.Add(new TestSuiteEntry("data", "JsonArraySheetConverterEnemies", RunJsonArraySheetConverterEnemies));

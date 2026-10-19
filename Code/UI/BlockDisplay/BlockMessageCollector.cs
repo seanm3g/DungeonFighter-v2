@@ -74,10 +74,26 @@ namespace RPGGame.UI.BlockDisplay
                 messageGroups.Add((darkenedRollInfo, rollLineType));
             }
 
-            // Overview / mechanical action blocks are action + roll + status only.
-            // BattleNarrative / tutorial / crit-miss flavor is omitted; F7 prose is the flavor path.
+            // PROTOTYPE (flavor sandbox): tier-aware flavor under the mechanical block.
+            //
+            // v2 discarded both of these outright - the overview log was action + roll + status
+            // and F7 was the only flavor path. That is what removed v1's ledger-plus-highlight
+            // shape. Callers that pass null (every pre-prototype call site) are unaffected; only
+            // the tiered narrator path supplies lines here.
             _ = criticalMissNarrative;
-            _ = narratives;
+
+            if (narratives != null && narratives.Count > 0)
+            {
+                foreach (var narrative in narratives)
+                {
+                    if (narrative == null || narrative.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    messageGroups.Add((narrative, actionLineType));
+                }
+            }
             
             // Add status effects
             // Multiple status effects from one action should be grouped together:

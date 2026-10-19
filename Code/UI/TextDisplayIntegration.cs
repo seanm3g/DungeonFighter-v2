@@ -65,8 +65,10 @@ namespace RPGGame
             List<List<ColoredText>>? narrativeMessages = null,
             Character? character = null)
         {
-            _ = narrativeMessages;
-            await BlockDisplayManager.DisplayActionBlockAsync(actionText, rollInfo, statusEffects, null, null, character);
+            // PROTOTYPE: narrativeMessages is live again for the tiered narrator path. Pre-
+            // prototype call sites pass null and behave exactly as before.
+            await BlockDisplayManager.DisplayActionBlockAsync(
+                actionText, rollInfo, statusEffects, null, narrativeMessages, character);
         }
 
         /// <summary>

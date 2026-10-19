@@ -54,7 +54,7 @@ namespace RPGGame
         /// <summary>
         /// Adds health lead change narratives if applicable
         /// </summary>
-        public void AddHealthLeadNarratives(BattleEvent evt, List<string> triggeredNarratives, GameSettings settings)
+        public void AddHealthLeadNarratives(BattleEvent evt, List<TriggeredNarrative> triggeredNarratives, GameSettings settings)
         {
             // Determine current health lead
             bool playerCurrentlyLeads = finalPlayerHealth > finalEnemyHealth;
@@ -71,7 +71,7 @@ namespace RPGGame
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("healthLeadChange"),
                     replacements);
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("healthLeadChange", narrative));
                 stateManager.IncrementNarrativeEventCount();
             }
             else if (enemyCurrentlyLeads && !stateManager.HasEnemyHealthLead && significantDamage)
@@ -81,7 +81,7 @@ namespace RPGGame
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("healthLeadChange"),
                     replacements);
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("healthLeadChange", narrative));
                 stateManager.IncrementNarrativeEventCount();
             }
         }
@@ -89,7 +89,7 @@ namespace RPGGame
         /// <summary>
         /// Adds taunt narratives if applicable
         /// </summary>
-        public void AddTauntNarratives(BattleEvent evt, List<string> triggeredNarratives, GameSettings settings)
+        public void AddTauntNarratives(BattleEvent evt, List<TriggeredNarrative> triggeredNarratives, GameSettings settings)
         {
             TrackActorAction(evt.Actor);
 
@@ -106,7 +106,7 @@ namespace RPGGame
 
                 if (shouldTaunt)
                 {
-                    triggeredNarratives.Add(tauntText);
+                    triggeredNarratives.Add(new TriggeredNarrative("playerTaunt", tauntText));
                     stateManager.IncrementNarrativeEventCount();
                     stateManager.IncrementPlayerTauntCount();
                 }
@@ -125,7 +125,7 @@ namespace RPGGame
 
                 if (shouldTaunt)
                 {
-                    triggeredNarratives.Add(tauntText);
+                    triggeredNarratives.Add(new TriggeredNarrative("enemyTaunt", tauntText));
                     stateManager.IncrementNarrativeEventCount();
                     stateManager.IncrementEnemyTauntCount();
                 }
@@ -135,7 +135,7 @@ namespace RPGGame
         /// <summary>
         /// Adds health threshold narratives if applicable
         /// </summary>
-        public void AddHealthThresholdNarratives(List<string> triggeredNarratives, GameSettings settings)
+        public void AddHealthThresholdNarratives(List<TriggeredNarrative> triggeredNarratives, GameSettings settings)
         {
             var playerHealthPercentage = (double)finalPlayerHealth / initialPlayerHealth;
             var enemyHealthPercentage = (double)finalEnemyHealth / initialEnemyHealth;
@@ -148,7 +148,7 @@ namespace RPGGame
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("below50Percent"),
                     replacements);
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("below50Percent", narrative));
             }
 
             if (!stateManager.HasEnemyBelow50Percent && enemyHealthPercentage < 0.5 && finalEnemyHealth > 0)
@@ -158,7 +158,7 @@ namespace RPGGame
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("below50Percent"),
                     replacements);
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("below50Percent", narrative));
             }
 
             // Below 10% Health
@@ -169,7 +169,7 @@ namespace RPGGame
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("below10Percent"),
                     replacements);
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("below10Percent", narrative));
             }
 
             if (!stateManager.HasEnemyBelow10Percent && enemyHealthPercentage < 0.1 && finalEnemyHealth > 0)
@@ -179,14 +179,14 @@ namespace RPGGame
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("below10Percent"),
                     replacements);
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("below10Percent", narrative));
             }
         }
         
         /// <summary>
         /// Adds intense battle narrative if applicable
         /// </summary>
-        public void AddIntenseBattleNarrative(List<string> triggeredNarratives, GameSettings settings)
+        public void AddIntenseBattleNarrative(List<TriggeredNarrative> triggeredNarratives, GameSettings settings)
         {
             var playerHealthPercentage = (double)finalPlayerHealth / initialPlayerHealth;
             var enemyHealthPercentage = (double)finalEnemyHealth / initialEnemyHealth;
@@ -202,7 +202,7 @@ namespace RPGGame
                 string narrative = textProvider.ReplacePlaceholders(
                     textProvider.GetRandomNarrative("intenseBattle"),
                     replacements);
-                triggeredNarratives.Add(narrative);
+                triggeredNarratives.Add(new TriggeredNarrative("intenseBattle", narrative));
                 stateManager.IncrementNarrativeEventCount();
             }
         }

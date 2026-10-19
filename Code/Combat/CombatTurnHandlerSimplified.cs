@@ -93,8 +93,9 @@ namespace RPGGame
                     var battleNarrative = stateManager.GetCurrentBattleNarrative();
                     if (textDisplayed && actionText != null && rollInfo != null)
                     {
+                        var flavorLines = NarrativeTierPresenter.BuildFlavorLines(battleNarrative);
                         battleNarrative?.GetTriggeredNarrativesIfSignificant();
-                        await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, null, player);
+                        await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, flavorLines, player);
                     }
                 
                     // Update enemy's action timing in the action speed system
@@ -262,8 +263,9 @@ namespace RPGGame
                 var battleNarrative = stateManager.GetCurrentBattleNarrative();
                 if (textDisplayed && actionText != null && rollInfo != null)
                 {
+                    var flavorLines = NarrativeTierPresenter.BuildFlavorLines(battleNarrative);
                     battleNarrative?.GetTriggeredNarrativesIfSignificant();
-                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, null, player);
+                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, flavorLines, player);
                 }
                 
                 // End turn for statistics tracking
