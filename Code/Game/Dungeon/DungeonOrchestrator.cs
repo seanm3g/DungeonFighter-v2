@@ -235,9 +235,19 @@ namespace RPGGame
                     return;
                 }
                 
+                // Let the reader finish the end of the fight before the summary lands.
+                //
+                // The completion summary is appended to the same scrollback the fight was
+                // written to, so appending it jumps the view to the bottom. Anyone still
+                // reading the last few lines - which is exactly where the overseer's closing
+                // set piece sits - gets pulled away from them and has to scroll back up.
+                // Nothing is lost, but the last thing the narrator says is the thing most
+                // likely to be missed, so it gets a beat to be read in.
+                await PauseBeforeCompletionSummaryAsync();
+
                 // Transition to completion state
                 stateManager.TransitionToState(GameState.DungeonCompletion);
-                
+
                 // Trigger event to handle UI display with reward data
                 onDungeonCompleted?.Invoke(xpGained, lootReceived, levelUpInfos, itemsFoundDuringRun);
             }
@@ -251,6 +261,24 @@ namespace RPGGame
                 if (tutorialCombatSlowPacing)
                     PreWeaponTrainingFlow.SetTutorialCombatSlowPacing(false);
             }
+        }
+
+        /// <summary>
+        /// Holds briefly after the last swing so the end of the fight can be read before the
+        /// completion summary scrolls the view to the bottom.
+        ///
+        /// Skipped entirely when combat output is off, which is how the simulation and balance
+        /// runners execute thousands of fights - a pause there would add real minutes to a
+        /// tuning sweep for a screen nobody is looking at.
+        /// </summary>
+        private static async Task PauseBeforeCompletionSummaryAsync()
+        {
+            if (CombatManager.DisableCombatUIOutput)
+                return;
+
+            int pauseMs = RPGGame.Combat.Sequence.NarrativePacing.Active.DungeonCompletionPauseMs;
+            if (pauseMs > 0)
+                await Task.Delay(pauseMs);
         }
     }
 }

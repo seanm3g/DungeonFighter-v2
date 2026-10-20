@@ -623,6 +623,29 @@ contains its fallback's wording.
 
 ---
 
+**A reading beat before the outcome screen (2026-10-20).** The fight's last lines and the
+victory summary share one scrollback, so appending the summary jumps the view to the bottom.
+Nothing is lost - it all scrolls back - but a reader still working through the final lines gets
+pulled away and has to scroll up to find where they were. Those final lines are where the
+overseer's closing set piece sits, so the one line the fight has been building to is the one
+most likely to be missed.
+
+`dungeonCompletionPauseMs` in `NarrativePacing.json` (`sparse` ships `2600`) holds before the
+summary is raised. Applied at BOTH endings - `DungeonOrchestrator` for victory and
+`EnemyEncounterHandler` for death - because the death path has the identical yank and
+`playerDefeated` is the line it would throw away.
+
+Both check `CombatManager.DisableCombatUIOutput` first, so simulation and balance sweeps pay
+nothing; thousands of headless fights would otherwise each wait seconds for a screen nobody is
+looking at.
+
+**Not fixed: the auto-scroll itself.** The view jumps to the bottom whenever the buffer is
+appended to, regardless of where the reader is. The pause buys time, it does not stop the jump.
+Making the log hold position when the reader has scrolled up is display architecture and a
+**Max call** under rule 5.
+
+---
+
 **THEN: decide what happens to the `sequence*` banks.** This is the only content question
 left, and it is a fork, not a refinement.
 

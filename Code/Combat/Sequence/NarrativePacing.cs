@@ -93,6 +93,20 @@ namespace RPGGame.Combat.Sequence
             /// </summary>
             public int SetPieceCooldownSwings { get; init; }
 
+            /// <summary>
+            /// Pause, in milliseconds, between the killing blow and the dungeon completion
+            /// screen. 0 keeps the old behaviour of appending it immediately.
+            ///
+            /// The completion summary is appended to the same scrollback the fight was written
+            /// to, and appending it jumps the view to the bottom. A reader still working
+            /// through the last few lines - which is where the overseer's closing set piece
+            /// lives - gets yanked away from them and has to scroll back up. Nothing is lost,
+            /// but the last thing the narrator says is the thing most likely to be missed.
+            ///
+            /// This is reading pace, so it is data-side like the rest of the pacing knobs.
+            /// </summary>
+            public int DungeonCompletionPauseMs { get; init; }
+
             /// <summary>True when this profile cannot change anything (the shipping default).</summary>
             public bool IsPassthrough =>
                 SwingChance >= 1.0
@@ -100,6 +114,7 @@ namespace RPGGame.Combat.Sequence
                 && StepChance.Count == 0
                 && ParagraphTargetMs <= 0
                 && SetPieceCooldownSwings <= 0
+                && DungeonCompletionPauseMs <= 0
                 && !NarratorEnabled;
 
             public static Profile Full { get; } = new();
@@ -256,6 +271,14 @@ namespace RPGGame.Combat.Sequence
                 bool narratorEnabled = profile.TryGetProperty("narratorEnabled", out var narrator)
                     && narrator.ValueKind == JsonValueKind.True;
 
+                int completionPause = 0;
+                if (profile.TryGetProperty("dungeonCompletionPauseMs", out var pause)
+                    && pause.ValueKind == JsonValueKind.Number
+                    && pause.TryGetInt32(out int pauseValue))
+                {
+                    completionPause = Math.Max(0, pauseValue);
+                }
+
                 int setPieceCooldown = 0;
                 if (profile.TryGetProperty("setPieceCooldownSwings", out var cooldown)
                     && cooldown.ValueKind == JsonValueKind.Number
@@ -271,7 +294,8 @@ namespace RPGGame.Combat.Sequence
                     MaxSentencesPerSwing = maxSentences,
                     StepChance = stepChance,
                     ParagraphTargetMs = paragraphTargetMs,
-                    SetPieceCooldownSwings = setPieceCooldown
+                    SetPieceCooldownSwings = setPieceCooldown,
+                    DungeonCompletionPauseMs = completionPause
                 };
             }
             catch (Exception)

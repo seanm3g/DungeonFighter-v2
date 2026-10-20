@@ -169,6 +169,13 @@ namespace RPGGame
                             $"EnemyEncounterHandler: failed to tombstone save on death: {ex.Message}");
                     }
 
+                    // Same beat the victory path gets, for the same reason: the death summary
+                    // is appended to the fight's own scrollback and scrolls the view to the
+                    // bottom. The overseer's playerDefeated line is the last thing written
+                    // before it, and it is the one line in the fight the player has most
+                    // reason to want to read.
+                    await PauseBeforeOutcomeSummaryAsync();
+
                     stateManager.TransitionToState(GameState.Death);
                     onPlayerDeath?.Invoke(stateManager.CurrentPlayer);
                 }
@@ -344,6 +351,24 @@ namespace RPGGame
             bool isActive = activeCharacter == character;
             
             return isActive;
+        }
+
+        /// <summary>
+        /// Holds briefly after the last swing so the end of the fight can be read before an
+        /// outcome summary scrolls the view to the bottom. Shares the
+        /// dungeonCompletionPauseMs knob with the victory path - one reading-pace setting, two
+        /// endings.
+        ///
+        /// Skipped when combat output is off, so simulation and balance sweeps do not pay it.
+        /// </summary>
+        private static async Task PauseBeforeOutcomeSummaryAsync()
+        {
+            if (CombatManager.DisableCombatUIOutput)
+                return;
+
+            int pauseMs = RPGGame.Combat.Sequence.NarrativePacing.Active.DungeonCompletionPauseMs;
+            if (pauseMs > 0)
+                await Task.Delay(pauseMs);
         }
     }
 }

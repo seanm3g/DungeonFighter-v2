@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit.Combat
             try
             {
                 ShippedConfig_Resolves_To_Passthrough();
+            CompletionPause_IsConfigured_AndFreeInSimulation();
                 Passthrough_Suppresses_Nothing();
                 ZeroSwingChance_Always_Suppresses_Swing();
                 FullSwingChance_Never_Suppresses_Swing();
@@ -41,6 +42,40 @@ namespace RPGGame.Tests.Unit.Combat
             }
 
             TestBase.PrintSummary("Narrative Pacing Tests", _testsRun, _testsPassed, _testsFailed);
+        }
+
+        private static void CompletionPause_IsConfigured_AndFreeInSimulation()
+        {
+            Console.WriteLine("\n--- The end-of-fight reading pause ---");
+
+            NarrativePacing.OverrideForTesting(null);
+            NarrativePacing.Invalidate();
+            var active = NarrativePacing.Active;
+
+            Console.WriteLine($"    [pause] dungeonCompletionPauseMs={active.DungeonCompletionPauseMs}");
+
+            // The committed profile must actually hold a pause, or the fix is inert.
+            TestBase.AssertTrue(active.DungeonCompletionPauseMs > 0,
+                "The committed profile must set dungeonCompletionPauseMs, or the outcome summary "
+                + "still scrolls the view away from the last lines of the fight",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Long enough to read a line or two; short enough not to feel like a hang.
+            TestBase.AssertTrue(active.DungeonCompletionPauseMs <= 5000,
+                $"A pause over five seconds reads as a freeze, got {active.DungeonCompletionPauseMs}ms",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Passthrough must not introduce it - the shipped-off profile changes nothing.
+            TestBase.AssertTrue(NarrativePacing.Profile.Full.DungeonCompletionPauseMs == 0,
+                "Profile.Full must not add a pause; it is the no-change fallback",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // The guard that keeps tuning sweeps fast. Both outcome paths check
+            // CombatManager.DisableCombatUIOutput before waiting, so thousands of simulated
+            // fights do not each pay seconds for a screen nobody is looking at.
+            TestBase.AssertTrue(NarrativePacing.Profile.Full.IsPassthrough,
+                "Profile.Full must still report as passthrough with the new knob present",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void ShippedConfig_Resolves_To_Passthrough()

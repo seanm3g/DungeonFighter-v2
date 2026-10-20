@@ -32,7 +32,8 @@
       },
       "paragraphTargetMs": 900,
       "narratorEnabled": true,
-      "setPieceCooldownSwings": 1
+      "setPieceCooldownSwings": 1,
+      "dungeonCompletionPauseMs": 2600
     }
   }
 }
