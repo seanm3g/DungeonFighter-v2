@@ -38,6 +38,7 @@ namespace RPGGame.Game.Services
             public DeathScreenHandler? DeathScreenHandler { get; set; }
             public CharacterManagementHandler? CharacterManagementHandler { get; set; }
             public LoadCharacterSelectionHandler? LoadCharacterSelectionHandler { get; set; }
+            public StableHandler? StableHandler { get; set; }
             public TrainingGroundOfferHandler? TrainingGroundOfferHandler { get; set; }
             public PreWeaponPathIntroHandler? PreWeaponPathIntroHandler { get; set; }
             public RegionTravelHandler? RegionTravelHandler { get; set; }
@@ -97,6 +98,7 @@ namespace RPGGame.Game.Services
             result.DeathScreenHandler = handlerResult.DeathScreenHandler;
             result.CharacterManagementHandler = handlerResult.CharacterManagementHandler;
             result.LoadCharacterSelectionHandler = handlerResult.LoadCharacterSelectionHandler;
+            result.StableHandler = handlerResult.StableHandler;
             result.TrainingGroundOfferHandler = handlerResult.TrainingGroundOfferHandler;
             result.PreWeaponPathIntroHandler = handlerResult.PreWeaponPathIntroHandler;
             result.RegionTravelHandler = handlerResult.RegionTravelHandler;
@@ -201,6 +203,7 @@ namespace RPGGame.Game.Services
                 DeathScreenHandler = result.DeathScreenHandler,
                 CharacterManagementHandler = result.CharacterManagementHandler,
                 LoadCharacterSelectionHandler = result.LoadCharacterSelectionHandler,
+                StableHandler = result.StableHandler,
                 DungeonExitChoiceHandler = result.DungeonRunnerManager?.GetExitChoiceHandler(),
                 TrainingGroundOfferHandler = result.TrainingGroundOfferHandler,
                 PreWeaponPathIntroHandler = result.PreWeaponPathIntroHandler,
@@ -211,7 +214,8 @@ namespace RPGGame.Game.Services
             {
                 ActionEditorHandler = result.ActionEditorHandler,
                 InventoryMenuHandler = result.InventoryMenuHandler,
-                DungeonSelectionHandler = result.DungeonSelectionHandler
+                DungeonSelectionHandler = result.DungeonSelectionHandler,
+                StableHandler = result.StableHandler
             };
             
             // Create input router

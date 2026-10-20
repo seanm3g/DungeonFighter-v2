@@ -29,6 +29,10 @@ namespace RPGGame
         
         // Custom UI Manager for non-console interfaces (like Avalonia)
         private static IUIManager? _customUIManager = null;
+
+        // Headless game running beside the live one (Stable fighters): its async flow sees its own UI manager
+        // and writes nothing through the shared output managers, so the live screen is untouched.
+        private static readonly System.Threading.AsyncLocal<IUIManager?> _scopedUIManager = new();
         
         // Flag to enable/disable delays
         public static bool EnableDelays = true;
@@ -116,7 +120,30 @@ namespace RPGGame
         /// </summary>
         public static IUIManager? GetCustomUIManager()
         {
-            return _customUIManager;
+            return _scopedUIManager.Value ?? _customUIManager;
+        }
+
+        /// <summary>
+        /// True when shared UI output is off: <see cref="DisableAllUIOutput"/>, or inside a <see cref="BeginScopedUIManager"/> flow.
+        /// </summary>
+        public static bool IsOutputDisabled => DisableAllUIOutput || _scopedUIManager.Value != null;
+
+        /// <summary>
+        /// For the current async flow only, <see cref="GetCustomUIManager"/> returns <paramref name="uiManager"/> and the
+        /// static write helpers are silent. Lets a headless game run without drawing on the live canvas. Dispose to restore.
+        /// </summary>
+        public static IDisposable BeginScopedUIManager(IUIManager uiManager)
+        {
+            var previous = _scopedUIManager.Value;
+            _scopedUIManager.Value = uiManager;
+            return new ScopedUIManagerRestore(previous);
+        }
+
+        private sealed class ScopedUIManagerRestore : IDisposable
+        {
+            private readonly IUIManager? _previous;
+            public ScopedUIManagerRestore(IUIManager? previous) => _previous = previous;
+            public void Dispose() => _scopedUIManager.Value = _previous;
         }
         
         /// <summary>
@@ -138,7 +165,7 @@ namespace RPGGame
         /// <param name="messageType">Type of message for delay configuration</param>
         public static void WriteLine(string message, UIMessageType messageType = UIMessageType.System)
         {
-            UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () =>
+            UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () =>
             {
                 OutputManager.WriteLine(message, messageType);
                 DelayManager.ApplyDelay(messageType);
@@ -146,12 +173,12 @@ namespace RPGGame
         }
         
         public static void Write(string message) 
-            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => OutputManager.Write(message));
+            => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => OutputManager.Write(message));
         
         public static void WriteSystemLine(string message) => WriteLine(message, UIMessageType.System);
         public static void WriteMenuLine(string message)
         {
-            UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () =>
+            UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () =>
             {
                 OutputManager.WriteMenuLine(message);
                 DelayManager.ApplyProgressiveMenuDelay();
@@ -173,9 +200,9 @@ namespace RPGGame
         public static int GetConsecutiveMenuLineCount() => DelayManager.GetConsecutiveMenuLineCount();
         public static int GetBaseMenuDelay() => DelayManager.GetBaseMenuDelay();
         public static void WriteBlankLine() 
-            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => OutputManager.WriteBlankLine());
+            => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => OutputManager.WriteBlankLine());
         public static void WriteChunked(string message, ChunkedTextReveal.RevealConfig? config = null) 
-            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => OutputManager.WriteChunked(message, config));
+            => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => OutputManager.WriteChunked(message, config));
         
         /// <summary>
         /// Writes dungeon exploration text with chunked reveal (optimized for dungeon content)
@@ -227,19 +254,19 @@ namespace RPGGame
         // ===== COLORED TEXT SYSTEM METHODS =====
         
         public static void WriteColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System) 
-            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteColoredText(coloredText, messageType));
+            => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => ColoredTextManager.WriteColoredText(coloredText, messageType));
         public static void WriteColoredText(List<ColoredText> coloredTexts, UIMessageType messageType = UIMessageType.System) 
-            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteColoredText(coloredTexts, messageType));
+            => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => ColoredTextManager.WriteColoredText(coloredTexts, messageType));
         public static void WriteLineColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System) 
-            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteLineColoredText(coloredText, messageType));
+            => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => ColoredTextManager.WriteLineColoredText(coloredText, messageType));
         public static void WriteColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System) 
-            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteColoredSegments(segments, messageType));
+            => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => ColoredTextManager.WriteColoredSegments(segments, messageType));
         public static void WriteLineColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System) 
-            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteLineColoredSegments(segments, messageType));
+            => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => ColoredTextManager.WriteLineColoredSegments(segments, messageType));
         public static void WriteColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System) 
-            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteColoredTextBuilder(builder, messageType));
+            => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => ColoredTextManager.WriteColoredTextBuilder(builder, messageType));
         public static void WriteLineColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System) 
-            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteLineColoredTextBuilder(builder, messageType));
+            => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => ColoredTextManager.WriteLineColoredTextBuilder(builder, messageType));
         
         // ===== COMBAT MESSAGE BUILDING METHODS =====
         
@@ -256,11 +283,11 @@ namespace RPGGame
         /// <param name="isDodge">Whether this is dodged</param>
         public static void WriteCombatMessage(string attacker, string action, string target, int? damage = null, 
             bool isCritical = false, bool isMiss = false, bool isBlock = false, bool isDodge = false) 
-            => MessageBuilder.WriteCombatMessage(attacker, action, target, damage, isCritical, isMiss, isBlock, isDodge);
+            => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => MessageBuilder.WriteCombatMessage(attacker, action, target, damage, isCritical, isMiss, isBlock, isDodge));
         public static void WriteHealingMessage(string healer, string target, int amount) 
-            => MessageBuilder.WriteHealingMessage(healer, target, amount);
+            => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => MessageBuilder.WriteHealingMessage(healer, target, amount));
         public static void WriteStatusEffectMessage(string target, string effect, bool isApplied = true) 
-            => MessageBuilder.WriteStatusEffectMessage(target, effect, isApplied);
+            => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => MessageBuilder.WriteStatusEffectMessage(target, effect, isApplied));
         
         /// <summary>
         /// Parses a string strategy name to ChunkStrategy enum

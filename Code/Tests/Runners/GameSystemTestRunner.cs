@@ -49,6 +49,7 @@ namespace RPGGame.Tests.Runners
             ("GameLoopInputHandler", () => GameLoopInputHandlerTests.RunAllTests()),
             ("DeathScreenHandler", () => DeathScreenHandlerTests.RunAllTests()),
             ("LoadCharacterSelectionHandler", () => LoadCharacterSelectionHandlerTests.RunAllTests()),
+            ("StableManager", () => RPGGame.Tests.Unit.Game.StableManagerTests.RunAllTests()),
             ("DungeonExitChoiceHandler", () => DungeonExitChoiceHandlerTests.RunAllTests()),
             ("HandlerInitializer", () => HandlerInitializerTests.RunAllTests()),
             ("GameInputRouter", () => GameInputRouterTests.RunAllTests()),

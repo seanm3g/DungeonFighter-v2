@@ -253,6 +253,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             return mainMenuRenderer.RenderLoadCharacterSelectionContent(x, y, width, height, view);
         }
 
+        public void RenderStableScreen(StableMenuView view) => mainMenuRenderer.RenderStableScreen(view);
+
         /// <summary>
         /// Renders the developer menu content
         /// </summary>

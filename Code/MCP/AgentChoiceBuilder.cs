@@ -271,6 +271,7 @@ namespace RPGGame.MCP
             GameState.Death => "Death",
             GameState.Inventory => "Inventory",
             GameState.LoadCharacterSelection => "Load Character",
+            GameState.Stable => "Stable",
             _ => state.ToString()
         };
     }

@@ -62,6 +62,11 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderLoadCharacterSelection(view, GetContext());
         }
 
+        public void RenderStable(StableMenuView view)
+        {
+            renderer.RenderStable(view, GetContext());
+        }
+
         public void RenderSettings()
         {
             renderer.RenderSettings();

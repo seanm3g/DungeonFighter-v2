@@ -25,6 +25,7 @@ namespace RPGGame.UI.Avalonia
             public const string NewGame = "New Game";
             public const string LoadGame = "Load Game";
             public const string Settings = "Settings";
+            public const string Stable = "Stable";
             public const string Quit = "Quit";
             public const string Cancel = "Cancel";
             public const string ReturnToMenu = "Return to Menu";

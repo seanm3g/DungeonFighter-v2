@@ -359,7 +359,7 @@ namespace RPGGame
             UIMessageType messageType,
             bool applyDelay = true)
         {
-            if (UIManager.DisableAllUIOutput || content == null || content.Count == 0) return;
+            if (UIManager.IsOutputDisabled || content == null || content.Count == 0) return;
             
             // Apply context-aware spacing
             TextSpacingSystem.ApplySpacingBefore(blockType);
@@ -400,7 +400,7 @@ namespace RPGGame
         /// </summary>
         public static void DisplayEffectBlock(List<ColoredText> effectText, List<ColoredText>? details = null)
         {
-            if (UIManager.DisableAllUIOutput || effectText == null || effectText.Count == 0) return;
+            if (UIManager.IsOutputDisabled || effectText == null || effectText.Count == 0) return;
             
             // Extract entity name from effect text for tracking
             // Status effect messages may be in formats like "[Actor] takes X damage" or "Actor is affected by..."

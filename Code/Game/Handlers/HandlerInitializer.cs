@@ -30,6 +30,7 @@ namespace RPGGame.Handlers
             public DeathScreenHandler? DeathScreenHandler { get; set; }
             public CharacterManagementHandler? CharacterManagementHandler { get; set; }
             public LoadCharacterSelectionHandler? LoadCharacterSelectionHandler { get; set; }
+            public StableHandler? StableHandler { get; set; }
             public TrainingGroundOfferHandler? TrainingGroundOfferHandler { get; set; }
             public PreWeaponPathIntroHandler? PreWeaponPathIntroHandler { get; set; }
             public RegionTravelHandler? RegionTravelHandler { get; set; }
@@ -68,6 +69,7 @@ namespace RPGGame.Handlers
                 DeathScreenHandler = new DeathScreenHandler(stateManager),
                 CharacterManagementHandler = new CharacterManagementHandler(stateManager, uiManager, initializationManager),
                 LoadCharacterSelectionHandler = new LoadCharacterSelectionHandler(stateManager, uiManager, gameInitializer),
+                StableHandler = new StableHandler(stateManager, uiManager),
                 TrainingGroundOfferHandler = trainingGroundOfferHandler,
                 PreWeaponPathIntroHandler = preWeaponPathIntroHandler,
                 RegionTravelHandler = new RegionTravelHandler(stateManager, uiManager)
@@ -114,6 +116,7 @@ namespace RPGGame.Handlers
                 handlers.MainMenuHandler.ShowSettingsEvent += () => handlers.SettingsMenuHandler?.ShowSettings();
                 handlers.MainMenuHandler.ShowCharacterSelectionEvent += () => handlers.CharacterManagementHandler?.ShowCharacterSelection();
                 handlers.MainMenuHandler.ShowLoadCharacterSelectionEvent += () => _ = handlers.LoadCharacterSelectionHandler?.ShowLoadCharacterSelection();
+                handlers.MainMenuHandler.ShowStableEvent += () => handlers.StableHandler?.ShowStable();
                 handlers.MainMenuHandler.ExitGameEvent += () => exitGame();
                 handlers.MainMenuHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }
@@ -172,6 +175,7 @@ namespace RPGGame.Handlers
                 handlers.GameLoopInputHandler.ShowCharacterSelectionEvent += () => handlers.CharacterManagementHandler?.ShowCharacterSelection();
                 handlers.GameLoopInputHandler.ExitGameEvent += () => exitGame();
                 handlers.GameLoopInputHandler.ShowMainMenuEvent += () => showMainMenu();
+                handlers.GameLoopInputHandler.ShowStableEvent += () => handlers.StableHandler?.ShowStable();
             }
 
             if (handlers.RegionTravelHandler != null)
@@ -199,6 +203,14 @@ namespace RPGGame.Handlers
                 // Character creation is handled by CharacterManagementHandler / CharacterCreationHandler as applicable
             }
             
+            if (handlers.StableHandler != null)
+            {
+                handlers.StableHandler.ShowGameLoopEvent += () => showGameLoop();
+                handlers.StableHandler.ShowMainMenuEvent += () => showMainMenu();
+                handlers.StableHandler.ShowMessageEvent += (msg) => showMessage(msg);
+                handlers.StableHandler.StartNewHeroEvent += () => handlers.MainMenuHandler?.HandleMenuInput("1") ?? Task.CompletedTask;
+            }
+
             if (handlers.LoadCharacterSelectionHandler != null)
             {
                 handlers.LoadCharacterSelectionHandler.ShowGameLoopEvent += () => showGameLoop();

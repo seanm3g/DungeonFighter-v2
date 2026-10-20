@@ -28,6 +28,8 @@ namespace RPGGame
         DungeonSelection,
         CharacterSelection,
         LoadCharacterSelection,
+        /// <summary>Stable: several saved heroes running dungeons side by side (<see cref="StableHandler"/>).</summary>
+        Stable,
         Dungeon,
         Combat,
         /// <summary>Developer sandbox: stepped combat with forced actions and fixed d20 (Settings → Testing).</summary>

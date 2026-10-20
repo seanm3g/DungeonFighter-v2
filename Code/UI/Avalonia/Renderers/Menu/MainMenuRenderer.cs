@@ -20,6 +20,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         private readonly ICanvasTextManager textManager;
         private readonly MenuOptionRenderer menuOptionRenderer;
         private readonly CharacterSelectionRenderer characterSelectionRenderer;
+        private readonly StableScreenRenderer stableScreenRenderer;
         
         public MainMenuRenderer(GameCanvasControl canvas, List<ClickableElement> clickableElements, ICanvasTextManager textManager)
         {
@@ -28,6 +29,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             this.textManager = textManager;
             this.menuOptionRenderer = new MenuOptionRenderer(canvas);
             this.characterSelectionRenderer = new CharacterSelectionRenderer(canvas, clickableElements, menuOptionRenderer);
+            this.stableScreenRenderer = new StableScreenRenderer(canvas, clickableElements);
         }
         
         /// <summary>
@@ -48,12 +50,15 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     MenuOptionFormatter.Format(2, loadGameTextForWidth).Length,
                     Math.Max(
                         MenuOptionFormatter.Format(3, UIConstants.MenuOptions.Settings).Length,
-                        MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Quit).Length
+                        Math.Max(
+                            MenuOptionFormatter.Format(4, UIConstants.MenuOptions.Stable).Length,
+                            MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Quit).Length
+                        )
                     )
                 )
             );
-            
-            const int menuLineCount = 4;
+
+            const int menuLineCount = 5;
             const int footerReserve = 4;
             var promptLines = WrapNewGameConfirmPrompt(newGameConfirmPrompt, width);
             // Blank row plus the prompt, so the block stays centered with the options instead of
@@ -133,9 +138,26 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 3, UIConstants.MenuOptions.Settings, orangeColor, settingsOption.IsHovered);
             currentLineCount++;
             currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
-            
-            // Note: Characters option (4 or C) is hidden from UI but still accessible via keyboard
-            
+
+            // Render [4] Stable - Gold (several heroes running side by side)
+            string stableText = MenuOptionFormatter.Format(4, UIConstants.MenuOptions.Stable);
+            var stableOption = new ClickableElement
+            {
+                X = menuStartX,
+                Y = currentY,
+                Width = maxOptionLength,
+                Height = optionHitHeight,
+                Type = ElementType.MenuOption,
+                Value = "4",
+                DisplayText = stableText
+            };
+            clickableElements.Add(stableOption);
+            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 4, UIConstants.MenuOptions.Stable, goldColor, stableOption.IsHovered);
+            currentLineCount++;
+            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
+
+            // Note: Characters option (C) is hidden from UI but still accessible via keyboard
+
             // Render [0] Quit - Cool white
             string quitText = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Quit);
             var quitOption = new ClickableElement
@@ -342,6 +364,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         {
             return characterSelectionRenderer.RenderCharacterSelectionContent(x, y, width, height, characters, activeCharacterName, characterStatuses);
         }
+
+        /// <summary>Renders the full-screen Stable (see <see cref="StableScreenRenderer"/>).</summary>
+        public void RenderStableScreen(StableMenuView view) => stableScreenRenderer.Render(view);
 
         /// <summary>
         /// Renders one page of the load character menu (saved characters from disk).

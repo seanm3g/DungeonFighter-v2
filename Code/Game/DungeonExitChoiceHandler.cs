@@ -45,8 +45,32 @@ namespace RPGGame
         /// </summary>
         public static Func<Character?, bool>? HeadlessExitPolicy { get; set; }
 
+        private static readonly System.Threading.AsyncLocal<Func<Character?, int, int, Task<bool>>?> ScopedExitDecider = new();
+
+        /// <summary>
+        /// For the current async flow only, the exit prompt is answered by <paramref name="decider"/>
+        /// (hero, room just cleared, total rooms; true = leave). Stable fighters use it to wait for the player's call
+        /// from the Stable screen while the dungeon run stays suspended. Dispose to restore.
+        /// </summary>
+        public static IDisposable BeginScopedExitDecider(Func<Character?, int, int, Task<bool>> decider)
+        {
+            var previous = ScopedExitDecider.Value;
+            ScopedExitDecider.Value = decider;
+            return new ScopedExitDeciderRestore(previous);
+        }
+
+        private sealed class ScopedExitDeciderRestore : IDisposable
+        {
+            private readonly Func<Character?, int, int, Task<bool>>? _previous;
+            public ScopedExitDeciderRestore(Func<Character?, int, int, Task<bool>>? previous) => _previous = previous;
+            public void Dispose() => ScopedExitDecider.Value = _previous;
+        }
+
         public async Task<bool> ShowExitChoiceMenu(int currentRoom, int totalRooms)
         {
+            if (ScopedExitDecider.Value is { } scopedDecider)
+                return await scopedDecider(stateManager.CurrentPlayer, currentRoom, totalRooms);
+
             // MCP/agent mode: no nested input channel while RunDungeon blocks HandleInput
             if (RPGGame.MCP.MCPMode.IsActive)
                 return HeadlessExitPolicy?.Invoke(stateManager.CurrentPlayer) ?? false;

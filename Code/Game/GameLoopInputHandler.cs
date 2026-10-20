@@ -30,6 +30,8 @@ namespace RPGGame
 #pragma warning restore CS0067
         public event OnShowCharacterSelection? ShowCharacterSelectionEvent;
         public event OnShowMainMenu? ShowMainMenuEvent;
+        /// <summary>Raised instead of <see cref="ShowMainMenuEvent"/> on 0 when the hero was taken in hand from the Stable.</summary>
+        public event System.Action? ShowStableEvent;
         public event OnShowRegionTravel? ShowRegionTravelEvent;
 
         public GameLoopInputHandler(GameStateManager stateManager)
@@ -89,6 +91,12 @@ namespace RPGGame
                             // Error already logged/shown by CharacterSaveService; still warn and exit.
                             ShowMessageEvent?.Invoke($"Save failed ({ex.Message}). Returning to main menu.");
                         }
+                    }
+                    if (ShowStableEvent != null && activeCharacter != null
+                        && StableManager.Instance.Find(activeCharacter)?.Status == StableFighterStatus.InHand)
+                    {
+                        ShowStableEvent.Invoke();
+                        break;
                     }
                     stateManager.TransitionToState(GameState.MainMenu);
                     ShowMainMenuEvent?.Invoke();

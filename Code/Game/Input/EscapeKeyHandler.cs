@@ -117,6 +117,13 @@ namespace RPGGame.GameCore.Input
                         handlers.ActionEditorHandler.HandleActionDetailInput("0");
                     }
                     break;
+                case GameState.Stable:
+                    // Esc first cancels a dungeon pick / confirm on the Stable, then leaves it.
+                    if (handlers.StableHandler != null)
+                        return handlers.StableHandler.HandleInput("escape");
+                    stateManager.TransitionToState(GameState.MainMenu);
+                    showMainMenu();
+                    break;
                 default:
                     stateManager.TransitionToState(GameState.MainMenu);
                     showMainMenu();
@@ -135,6 +142,7 @@ namespace RPGGame.GameCore.Input
         public ActionEditorHandler? ActionEditorHandler { get; set; }
         public InventoryMenuHandler? InventoryMenuHandler { get; set; }
         public DungeonSelectionHandler? DungeonSelectionHandler { get; set; }
+        public StableHandler? StableHandler { get; set; }
     }
 }
 

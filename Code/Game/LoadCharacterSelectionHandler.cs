@@ -169,7 +169,40 @@ namespace RPGGame
             }
 
             var selected = savedCharacters[index];
+            if (StableManager.Instance.Find(selected.characterId) is { } fighter)
+            {
+                TakeFromStable(fighter);
+                return;
+            }
             await LoadCharacter(selected.characterId, selected.characterName);
+        }
+
+        /// <summary>
+        /// The hero is already loaded in the Stable: play that same instance (taken in hand) rather than a second copy
+        /// from disk, which would overwrite each other's saves. Refused while it is out in a dungeon.
+        /// </summary>
+        private void TakeFromStable(StableFighter fighter)
+        {
+            var stable = StableManager.Instance;
+            if (fighter.Status != StableFighterStatus.InHand && !stable.CheckOut(fighter))
+            {
+                AudioCues.Trigger(AudioCue.Menu_Invalid);
+                ShowMessageEvent?.Invoke($"{fighter.Character.Name} is busy in the Stable. Open the Stable from the main menu.");
+                return;
+            }
+
+            var hero = fighter.Character;
+            stateManager.AddCharacter(hero, fighter.CharacterId);
+            stateManager.SetCurrentPlayer(hero);
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.RestoreDisplayBufferRendering();
+                canvasUI.SetCharacter(hero);
+                canvasUI.RefreshCharacterPanel();
+            }
+            ShowMessageEvent?.Invoke($"Took {hero.Name} from the Stable. Press 0 at the hub to send them back.");
+            stateManager.TransitionToState(GameState.GameLoop);
+            ShowGameLoopEvent?.Invoke();
         }
 
         private void HandleDeleteConfirm(string key)

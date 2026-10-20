@@ -37,7 +37,8 @@ namespace RPGGame.UI.Services
             GameState.CreateAction,
             GameState.ViewAction,
             GameState.CharacterSelection,
-            GameState.LoadCharacterSelection
+            GameState.LoadCharacterSelection,
+            GameState.Stable
         };
 
         /// <summary>

@@ -34,6 +34,7 @@ namespace RPGGame
         public delegate void OnShowTrainingGroundOffer();
         public delegate void OnShowCharacterSelection();
         public delegate void OnShowLoadCharacterSelection();
+        public delegate void OnShowStable();
         
         public event OnExitGame? ExitGameEvent;
         public event OnShowMessage? ShowMessageEvent;
@@ -44,6 +45,7 @@ namespace RPGGame
         public event OnShowCharacterSelection? ShowCharacterSelectionEvent;
         /// <summary>Opens the Load Character list. When unwired (headless/tests), Load falls back to the most recent save.</summary>
         public event OnShowLoadCharacterSelection? ShowLoadCharacterSelectionEvent;
+        public event OnShowStable? ShowStableEvent;
 
         public MainMenuHandler(
             GameStateManager stateManager,
@@ -134,7 +136,10 @@ namespace RPGGame
                     HandleSettingsSelection();
                     break;
                 case "4":
+                    ShowStableEvent?.Invoke();
+                    break;
                 case "C":
+                case "c":
                     // Character Selection (multi-character support)
                     ShowCharacterSelectionEvent?.Invoke();
                     break;
@@ -143,7 +148,7 @@ namespace RPGGame
                     break;
                 default:
                     AudioCues.Trigger(AudioCue.Menu_Invalid);
-                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Settings), or 0 (Quit).");
+                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Settings), 4 (Stable), or 0 (Quit).");
                     break;
             }
         }

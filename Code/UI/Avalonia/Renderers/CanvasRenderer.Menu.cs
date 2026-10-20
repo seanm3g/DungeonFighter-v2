@@ -69,6 +69,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.Refresh();
         }
 
+        /// <summary>The Stable takes the whole screen: no side panels or title chrome.</summary>
+        public void RenderStable(StableMenuView view, CanvasContext context)
+        {
+            messageRenderer.ClearLoadingStatus();
+            menuRenderer.RenderStableScreen(view);
+        }
+
         public void RenderSettings()
         {
             menuRenderer.RenderSettings();

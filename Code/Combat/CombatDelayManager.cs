@@ -46,8 +46,39 @@ namespace RPGGame
         /// GUI: no-op — end-of-action pacing is applied by the batch display path via delayAfterBatchMs
         /// so the combat loop does not double-wait after DisplayActionBlockAsync returns.
         /// </summary>
+        private static readonly System.Threading.AsyncLocal<System.Action?> ScopedAfterAction = new();
+
+        /// <summary>
+        /// For the current async flow, <paramref name="afterAction"/> runs at the end of every combat action, once its
+        /// damage is applied (Stable fighters build their live feed from it). Dispose to restore.
+        /// </summary>
+        public static System.IDisposable BeginAfterActionHook(System.Action afterAction)
+        {
+            var previous = ScopedAfterAction.Value;
+            ScopedAfterAction.Value = afterAction;
+            return new AfterActionRestore(previous);
+        }
+
+        private sealed class AfterActionRestore : System.IDisposable
+        {
+            private readonly System.Action? _previous;
+            public AfterActionRestore(System.Action? previous) => _previous = previous;
+            public void Dispose() => ScopedAfterAction.Value = _previous;
+        }
+
         public static async Task DelayAfterActionAsync()
         {
+            ScopedAfterAction.Value?.Invoke();
+
+            // Stable fighter: nothing is displayed, so this is the whole beat a visible action would take.
+            if (SimulationPacing.IsPacedScope)
+            {
+                int pacedMs = DeveloperModeState.ScaleDelayMs(Config.ActionDelayMs);
+                if (pacedMs > 0)
+                    await Task.Delay(pacedMs);
+                return;
+            }
+
             if (!ShouldApplyDelay()) return;
 
             // GUI action gaps are owned by BatchOperationCoordinator's delayAfterBatchMs.

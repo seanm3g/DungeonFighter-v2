@@ -136,8 +136,32 @@ namespace RPGGame
             InitializeHandlers(null);
         }
 
+        // Constructor 4: Stable fighter - a headless game for one saved hero, running beside the live game.
+        // Unlike the other constructors it registers nothing process-wide (UI manager, block display state manager,
+        // shutdown save); the caller scopes its async flow with UIManager.BeginScopedUIManager(headlessUi).
+        public GameCoordinator(Character existingCharacter, string? characterId, IUIManager headlessUi)
+        {
+            GameTicker.Instance.Start();
+            customUIManager = headlessUi;
+            gameInitializer = new GameInitializer();
+            screenCoordinator = new GameScreenCoordinator(stateManager);
+
+            inputHandler = new GameInputHandler(stateManager);
+            // Register under the save's ID so saves and the death tombstone write the hero's own file.
+            stateManager.AddCharacter(existingCharacter, characterId);
+            stateManager.SetCurrentPlayer(existingCharacter);
+            dungeonManager = new DungeonManagerWithRegistry();
+            combatManager = new CombatManager();
+
+            var availableDungeons = new List<Dungeon>();
+            gameInitializer.InitializeExistingGame(existingCharacter, availableDungeons);
+            stateManager.SetAvailableDungeons(availableDungeons);
+
+            InitializeHandlers(headlessUi, registerBlockDisplayState: false);
+        }
+
         // Initialize all handler managers
-        private void InitializeHandlers(IUIManager? uiManager)
+        private void InitializeHandlers(IUIManager? uiManager, bool registerBlockDisplayState = true)
         {
             var result = HandlerInitializationService.Initialize(
                 stateManager,
@@ -188,7 +212,8 @@ namespace RPGGame
             escapeKeyHandler = result.EscapeKeyHandler;
             
             // Set GameStateManager in BlockDisplayManager for character filtering
-            BlockDisplayManager.SetStateManager(stateManager);
+            if (registerBlockDisplayState)
+                BlockDisplayManager.SetStateManager(stateManager);
         }
 
         // Static delegates for compatibility

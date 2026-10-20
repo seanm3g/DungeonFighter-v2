@@ -13,6 +13,28 @@ namespace RPGGame
     {
         private static int _fastModeEnabled;
 
+        // Stable fighters: combat UI is muted (which normally skips every delay), but the run should still take
+        // as long as a watched fight. Inside this scope the action and room delays run anyway.
+        private static readonly AsyncLocal<bool> _pacedScope = new();
+
+        /// <summary>True inside <see cref="BeginPacedScope"/>: muted, but paced like a visible fight.</summary>
+        public static bool IsPacedScope => _pacedScope.Value;
+
+        /// <summary>For the current async flow, keep combat and room pacing even while combat UI is muted. Dispose to restore.</summary>
+        public static System.IDisposable BeginPacedScope()
+        {
+            bool previous = _pacedScope.Value;
+            _pacedScope.Value = true;
+            return new PacedScopeRestore(previous);
+        }
+
+        private sealed class PacedScopeRestore : System.IDisposable
+        {
+            private readonly bool _previous;
+            public PacedScopeRestore(bool previous) => _previous = previous;
+            public void Dispose() => _pacedScope.Value = _previous;
+        }
+
         public static bool IsFastModeEnabled => Volatile.Read(ref _fastModeEnabled) != 0;
 
         public static bool ShouldSkipDelays =>
@@ -45,7 +67,7 @@ namespace RPGGame
 
         public static async Task DelayForCombatSpeedAsync(int delayMs)
         {
-            if (ShouldSkipDelays)
+            if (ShouldSkipDelays && !IsPacedScope)
                 return;
 
             int scaledDelayMs = DeveloperModeState.ScaleDelayMs(delayMs);
