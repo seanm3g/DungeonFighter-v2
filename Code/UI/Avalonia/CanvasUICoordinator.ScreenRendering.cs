@@ -57,9 +57,9 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderCharacterSelection(characters, activeCharacterName, characterStatuses, GetContext());
         }
 
-        public void RenderLoadCharacterSelection(List<(string characterId, string characterName, int level)> savedCharacters)
+        public void RenderLoadCharacterSelection(LoadCharacterMenuView view)
         {
-            renderer.RenderLoadCharacterSelection(savedCharacters, GetContext());
+            renderer.RenderLoadCharacterSelection(view, GetContext());
         }
 
         public void RenderSettings()

@@ -201,11 +201,6 @@ namespace RPGGame
         // Public properties
         public GameState CurrentState => stateManager.CurrentState;
 
-        /// <summary>
-        /// True while the main menu is waiting for a second 1 before starting a new game over a save.
-        /// </summary>
-        public bool AwaitingNewGameOverwriteConfirm =>
-            mainMenuHandler?.AwaitingNewGameOverwriteConfirm == true;
         /// <summary>Combat manager used by dungeon runs and the action interaction lab.</summary>
         public CombatManager? Combat => combatManager;
         public Character? CurrentPlayer => stateManager.CurrentPlayer;

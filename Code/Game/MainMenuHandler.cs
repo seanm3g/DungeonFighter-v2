@@ -24,12 +24,6 @@ namespace RPGGame
         private GameInitializationManager initializationManager;
         private IUIManager? customUIManager;
         private GameInitializer gameInitializer;
-        private bool _awaitingNewGameOverwriteConfirm;
-
-        /// <summary>
-        /// True after New Game was chosen while a save exists, until 1 is pressed again or another menu key cancels it.
-        /// </summary>
-        public bool AwaitingNewGameOverwriteConfirm => _awaitingNewGameOverwriteConfirm;
         
         // Delegates for game actions
         public delegate void OnExitGame();
@@ -39,6 +33,7 @@ namespace RPGGame
         public delegate void OnShowWeaponSelection();
         public delegate void OnShowTrainingGroundOffer();
         public delegate void OnShowCharacterSelection();
+        public delegate void OnShowLoadCharacterSelection();
         
         public event OnExitGame? ExitGameEvent;
         public event OnShowMessage? ShowMessageEvent;
@@ -47,6 +42,8 @@ namespace RPGGame
         public event OnShowWeaponSelection? ShowWeaponSelectionEvent;
         public event OnShowTrainingGroundOffer? ShowTrainingGroundOfferEvent;
         public event OnShowCharacterSelection? ShowCharacterSelectionEvent;
+        /// <summary>Opens the Load Character list. When unwired (headless/tests), Load falls back to the most recent save.</summary>
+        public event OnShowLoadCharacterSelection? ShowLoadCharacterSelectionEvent;
 
         public MainMenuHandler(
             GameStateManager stateManager,
@@ -66,7 +63,6 @@ namespace RPGGame
         /// </summary>
         public void ShowMainMenu()
         {
-            _awaitingNewGameOverwriteConfirm = false;
             var (hasSavedGame, characterName, characterLevel) = ResolveSavedGameMenuLine();
 
             // Use GameScreenCoordinator for standardized screen transition
@@ -89,7 +85,7 @@ namespace RPGGame
             var (hasSavedGame, characterName, characterLevel) = ResolveSavedGameMenuLine();
             canvasUI.Clear();
             canvasUI.ClearClickableElements();
-            canvasUI.RenderMainMenu(hasSavedGame, characterName, characterLevel, NewGameConfirmPromptOrNull());
+            canvasUI.RenderMainMenu(hasSavedGame, characterName, characterLevel);
             canvasUI.Refresh();
         }
 
@@ -111,44 +107,6 @@ namespace RPGGame
             return (false, null, 0);
         }
 
-        private static bool HasSavedCharacter()
-        {
-            var (hasSavedGame, _, _) = ResolveSavedGameMenuLine();
-            return hasSavedGame;
-        }
-
-        private string? NewGameConfirmPromptOrNull() =>
-            _awaitingNewGameOverwriteConfirm ? UIConstants.Messages.NewGameOverwriteConfirm : null;
-
-        /// <summary>
-        /// Keeps the main menu up and asks for a second 1 before a new game replaces the saved character.
-        /// </summary>
-        private void ShowNewGameOverwriteConfirm()
-        {
-            _awaitingNewGameOverwriteConfirm = true;
-            AudioCues.Trigger(AudioCue.Menu_Confirm);
-            if (customUIManager is CanvasUICoordinator && stateManager.CurrentState == GameState.MainMenu)
-            {
-                RefreshMainMenuInPlace();
-                return;
-            }
-
-            ShowMessageEvent?.Invoke(UIConstants.Messages.NewGameOverwriteConfirm);
-        }
-
-        /// <summary>
-        /// Drops the overwrite prompt when the player picks anything other than a second 1.
-        /// </summary>
-        private void CancelNewGameOverwriteConfirm()
-        {
-            if (!_awaitingNewGameOverwriteConfirm)
-                return;
-
-            _awaitingNewGameOverwriteConfirm = false;
-            if (customUIManager is CanvasUICoordinator && stateManager.CurrentState == GameState.MainMenu)
-                RefreshMainMenuInPlace();
-        }
-
         /// <summary>
         /// Handle main menu input (1=New, 2=Load, 3=Settings, 0=Quit)
         /// </summary>
@@ -162,42 +120,28 @@ namespace RPGGame
             switch (trimmedInput)
             {
                 case "1":
-                    if (_awaitingNewGameOverwriteConfirm)
-                    {
-                        _awaitingNewGameOverwriteConfirm = false;
-                        await StartNewGame();
-                        break;
-                    }
-
-                    if (HasSavedCharacter())
-                    {
-                        ShowNewGameOverwriteConfirm();
-                        break;
-                    }
-
+                    // Every new hero gets its own save file, so this never replaces an existing character.
                     await StartNewGame();
                     break;
                 case "2":
-                    CancelNewGameOverwriteConfirm();
                     DebugLogger.Log("MainMenuHandler", "Load game option selected");
-                    await LoadGame();
+                    if (ShowLoadCharacterSelectionEvent != null)
+                        ShowLoadCharacterSelectionEvent.Invoke();
+                    else
+                        await LoadGame();
                     break;
                 case "3":
-                    CancelNewGameOverwriteConfirm();
                     HandleSettingsSelection();
                     break;
                 case "4":
                 case "C":
-                    CancelNewGameOverwriteConfirm();
                     // Character Selection (multi-character support)
                     ShowCharacterSelectionEvent?.Invoke();
                     break;
                 case "0":
-                    CancelNewGameOverwriteConfirm();
                     HandleQuitSelection();
                     break;
                 default:
-                    CancelNewGameOverwriteConfirm();
                     AudioCues.Trigger(AudioCue.Menu_Invalid);
                     ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Settings), or 0 (Quit).");
                     break;
@@ -292,7 +236,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Load a saved game - automatically loads the last saved character
+        /// Load the most recently saved character (fallback when the Load Character menu is not wired)
         /// </summary>
         private async Task LoadGame()
         {
@@ -346,7 +290,9 @@ namespace RPGGame
                 }
                 
                 // Register character in state manager (multi-character support)
-                var registeredCharacterId = stateManager.AddCharacter(loadedCharacter);
+                // Register under the save's own ID so later saves overwrite this file instead of duplicating it.
+                bool isLegacy = mostRecentCharacterInfo.characterId.EndsWith("_legacy");
+                stateManager.AddCharacter(loadedCharacter, isLegacy ? null : mostRecentCharacterInfo.characterId);
                 stateManager.SetCurrentPlayer(loadedCharacter);
                 
                 // Apply health multiplier if configured

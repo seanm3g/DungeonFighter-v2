@@ -113,6 +113,7 @@ namespace RPGGame.Handlers
                 };
                 handlers.MainMenuHandler.ShowSettingsEvent += () => handlers.SettingsMenuHandler?.ShowSettings();
                 handlers.MainMenuHandler.ShowCharacterSelectionEvent += () => handlers.CharacterManagementHandler?.ShowCharacterSelection();
+                handlers.MainMenuHandler.ShowLoadCharacterSelectionEvent += () => _ = handlers.LoadCharacterSelectionHandler?.ShowLoadCharacterSelection();
                 handlers.MainMenuHandler.ExitGameEvent += () => exitGame();
                 handlers.MainMenuHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }

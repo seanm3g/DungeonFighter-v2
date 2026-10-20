@@ -60,11 +60,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.Refresh();
         }
 
-        public void RenderLoadCharacterSelection(List<(string characterId, string characterName, int level)> savedCharacters, CanvasContext context)
+        public void RenderLoadCharacterSelection(LoadCharacterMenuView view, CanvasContext context)
         {
             RenderWithLayout(null, "LOAD CHARACTER", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                menuRenderer.RenderLoadCharacterSelectionContent(contentX, contentY, contentWidth, contentHeight, savedCharacters);
+                menuRenderer.RenderLoadCharacterSelectionContent(contentX, contentY, contentWidth, contentHeight, view);
             }, context, null, null, null);
             canvas.Refresh();
         }

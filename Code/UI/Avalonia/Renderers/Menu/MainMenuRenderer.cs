@@ -344,102 +344,96 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         }
 
         /// <summary>
-        /// Renders the load character selection menu content (shows saved characters from disk)
+        /// Renders one page of the load character menu (saved characters from disk).
         /// </summary>
-        public int RenderLoadCharacterSelectionContent(int x, int y, int width, int height, List<(string characterId, string characterName, int level)> savedCharacters)
+        public int RenderLoadCharacterSelectionContent(int x, int y, int width, int height, LoadCharacterMenuView view)
         {
             clickableElements.Clear();
-            int currentLineCount = 0;
-            
-            // Position menu at top-left of center panel
             var (menuStartX, menuStartY) = MenuLayoutCalculator.CalculateTopLeftMenu(x, y);
-            
-            // Color palette for menu items
+            int startY = menuStartY;
+
             var cyanColor = ColorPalette.Cyan.GetColor();
             var goldColor = ColorPalette.Gold.GetColor();
+            var orangeColor = ColorPalette.Orange.GetColor();
             var whiteColor = ColorLayerSystem.GetWhite(WhiteTemperature.Cool);
-            
+
             int currentY = menuStartY;
-            
-            // Handle empty characters list
-            if (savedCharacters == null || savedCharacters.Count == 0)
+
+            void AddOption(string value, int number, string text, Color color)
+            {
+                string formatted = MenuOptionFormatter.Format(number, text);
+                var option = new ClickableElement
+                {
+                    X = menuStartX,
+                    Y = currentY,
+                    Width = formatted.Length,
+                    Height = 1,
+                    Type = ElementType.MenuOption,
+                    Value = value,
+                    DisplayText = formatted
+                };
+                clickableElements.Add(option);
+                menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, number, text, color, option.IsHovered);
+                currentY++;
+            }
+
+            void AddLetterOption(string key, string text, Color color)
+            {
+                string formatted = $"[{key}] {text}";
+                clickableElements.Add(new ClickableElement
+                {
+                    X = menuStartX,
+                    Y = currentY,
+                    Width = formatted.Length,
+                    Height = 1,
+                    Type = ElementType.MenuOption,
+                    Value = key.ToLowerInvariant(),
+                    DisplayText = formatted
+                });
+                canvas.AddText(menuStartX, currentY, formatted, color);
+                currentY++;
+            }
+
+            if (view.TotalCount == 0)
             {
                 canvas.AddText(menuStartX, currentY, "No saved characters found.", whiteColor);
                 currentY += 2;
-                currentLineCount += 2;
-                
-                string backText = MenuOptionFormatter.Format(0, "Back to Main Menu");
-                var backOption = new ClickableElement
-                {
-                    X = menuStartX,
-                    Y = currentY,
-                    Width = backText.Length,
-                    Height = 1,
-                    Type = ElementType.MenuOption,
-                    Value = "0",
-                    DisplayText = backText
-                };
-                clickableElements.Add(backOption);
-                menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 0, "Back to Main Menu", goldColor, backOption.IsHovered);
-                currentY += 2;
-                currentLineCount += 2;
-                
-                canvas.AddText(menuStartX, currentY, "Press 0 to return to main menu.", whiteColor);
-                currentLineCount++;
-            }
-            else
-            {
-                // Render saved character list
-                for (int i = 0; i < savedCharacters.Count; i++)
-                {
-                    var (characterId, characterName, level) = savedCharacters[i];
-                    
-                    var optionText = $"{characterName} - Level {level}";
-                    string formattedText = MenuOptionFormatter.Format(i + 1, optionText);
-                    var option = new ClickableElement
-                    {
-                        X = menuStartX,
-                        Y = currentY,
-                        Width = formattedText.Length,
-                        Height = 1,
-                        Type = ElementType.MenuOption,
-                        Value = (i + 1).ToString(),
-                        DisplayText = formattedText
-                    };
-                    clickableElements.Add(option);
-                    
-                    menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, i + 1, optionText, cyanColor, option.IsHovered);
-                    currentY++;
-                    currentLineCount++;
-                }
-                
+                AddOption("0", 0, "Back to Main Menu", goldColor);
                 currentY++;
-                currentLineCount++;
-                
-                // Back to main menu option
-                string backText = MenuOptionFormatter.Format(0, "Back to Main Menu");
-                var backOption = new ClickableElement
-                {
-                    X = menuStartX,
-                    Y = currentY,
-                    Width = backText.Length,
-                    Height = 1,
-                    Type = ElementType.MenuOption,
-                    Value = "0",
-                    DisplayText = backText
-                };
-                clickableElements.Add(backOption);
-                menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 0, "Back to Main Menu", goldColor, backOption.IsHovered);
-                currentY += 2;
-                currentLineCount += 2;
-                
-                canvas.AddText(menuStartX, currentY, "Select a character number to load, or press 0 to return.", whiteColor);
-                currentLineCount++;
+                canvas.AddText(menuStartX, currentY, "Press 0 to return to main menu.", whiteColor);
+                currentY++;
+                canvas.Refresh();
+                return currentY - startY;
             }
-            
+
+            string header = view.PageCount > 1
+                ? $"{view.TotalCount} saved characters  -  page {view.Page + 1} of {view.PageCount}"
+                : $"{view.TotalCount} saved character{(view.TotalCount == 1 ? "" : "s")}";
+            canvas.AddText(menuStartX, currentY, header, whiteColor);
+            currentY += 2;
+
+            foreach (var (number, characterName, level) in view.Entries)
+                AddOption(number.ToString(), number, $"{characterName} - Level {level}", cyanColor);
+
+            currentY++;
+            if (view.HasNextPage)
+                AddLetterOption("N", "Next page", whiteColor);
+            if (view.HasPreviousPage)
+                AddLetterOption("P", "Previous page", whiteColor);
+            AddLetterOption("D", "Delete a character", orangeColor);
+            AddOption("0", 0, "Back to Main Menu", goldColor);
+            currentY++;
+
+            string prompt = view.Prompt ?? "Select a character number to load, or press 0 to return.";
+            var promptColor = view.PromptIsWarning ? orangeColor : whiteColor;
+            foreach (var line in TextWrapper.WrapText(prompt, Math.Max(20, width - (menuStartX - x) - 2)))
+            {
+                canvas.AddText(menuStartX, currentY, line, promptColor);
+                currentY++;
+            }
+
             canvas.Refresh();
-            return currentLineCount;
+            return currentY - startY;
         }
     }
 }
-

@@ -13,7 +13,6 @@ namespace RPGGame.MCP
         public const string ModeNormal = "Normal";
         public const string ModeCustomDungeonLevel = "CustomDungeonLevel";
         public const string ModeExitChoice = "ExitChoice";
-        public const string ModeNewGameOverwriteConfirm = "NewGameOverwriteConfirm";
 
         public static McpGameplayInputContext ResolveInputContext(GameCoordinator game)
         {
@@ -33,9 +32,6 @@ namespace RPGGame.MCP
                 ctx.CustomLevelBuffer = dungeonHandler.CustomLevelBuffer;
                 return ctx;
             }
-
-            if (game.AwaitingNewGameOverwriteConfirm)
-                ctx.PendingInputMode = ModeNewGameOverwriteConfirm;
 
             return ctx;
         }
@@ -59,12 +55,6 @@ namespace RPGGame.MCP
                 return hints;
             }
 
-            if (inputContext.PendingInputMode == ModeNewGameOverwriteConfirm)
-            {
-                hints.Add("Are you sure? (this will overwrite the saved character). Press 1 to continue.");
-                return hints;
-            }
-
             if (state == GameState.DungeonSelection)
             {
                 hints.Add("Selecting a dungeon runs the entire dungeon in one handle_input call (auto-combat).");
@@ -85,17 +75,6 @@ namespace RPGGame.MCP
                 {
                     new() { Input = "1", Label = "Stay and continue through the dungeon", Recommended = true },
                     new() { Input = "2", Label = "Leave the dungeon safely (no rewards)" }
-                };
-            }
-
-            if (inputContext.PendingInputMode == ModeNewGameOverwriteConfirm)
-            {
-                return new List<AgentChoice>
-                {
-                    new() { Input = "1", Label = "Yes, start a new game (overwrites the saved character)", Recommended = true },
-                    new() { Input = "2", Label = "Load Game" },
-                    new() { Input = "3", Label = "Settings" },
-                    new() { Input = "0", Label = "Exit" }
                 };
             }
 
@@ -143,6 +122,13 @@ namespace RPGGame.MCP
                 },
                 GameState.Combat => BuildCombatChoices(game),
                 GameState.Inventory => BuildNumberedChoices("Inventory action", 6, includeZero: true, zeroLabel: "Back"),
+                GameState.LoadCharacterSelection => new List<AgentChoice>
+                {
+                    new() { Input = "1", Label = "Load the most recently saved character", Recommended = true },
+                    new() { Input = "n", Label = "Next page of saved characters" },
+                    new() { Input = "p", Label = "Previous page of saved characters" },
+                    new() { Input = "0", Label = "Back to main menu" }
+                },
                 _ => new List<AgentChoice>
                 {
                     new() { Input = "1", Label = "Continue / default action", Recommended = true }
@@ -284,6 +270,7 @@ namespace RPGGame.MCP
             GameState.DungeonCompletion => "Dungeon Complete",
             GameState.Death => "Death",
             GameState.Inventory => "Inventory",
+            GameState.LoadCharacterSelection => "Load Character",
             _ => state.ToString()
         };
     }

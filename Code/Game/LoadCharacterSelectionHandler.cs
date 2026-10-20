@@ -5,19 +5,44 @@ namespace RPGGame
     using System.Linq;
     using System.Threading.Tasks;
     using Avalonia.Threading;
+    using RPGGame.Audio;
     using RPGGame.UI.Avalonia;
     using RPGGame.Utils;
 
     /// <summary>
-    /// Handles loading saved characters from disk.
-    /// Automatically loads the last or only saved character without showing a menu.
+    /// One page of the Load Character menu, as handed to the renderer.
+    /// </summary>
+    public sealed class LoadCharacterMenuView
+    {
+        public List<(int number, string characterName, int level)> Entries { get; init; } = new();
+        public int Page { get; init; }
+        public int PageCount { get; init; }
+        public int TotalCount { get; init; }
+        public bool HasPreviousPage => Page > 0;
+        public bool HasNextPage => Page < PageCount - 1;
+        /// <summary>Delete-mode / confirm prompt shown under the list, or null for the default help line.</summary>
+        public string? Prompt { get; init; }
+        public bool PromptIsWarning { get; init; }
+    }
+
+    /// <summary>
+    /// Load Character menu: lists every saved character on disk (most recently saved first), nine per page.
+    /// 1-9 load, N/P page, D deletes a save (with confirmation), 0 returns to the main menu.
     /// </summary>
     public class LoadCharacterSelectionHandler
     {
+        public const int PageSize = 9;
+
         private GameStateManager stateManager;
         private IUIManager? customUIManager;
         private GameInitializer gameInitializer;
-        
+
+        // Listing every save deserializes each file, so cache it while the menu is open.
+        private List<(string characterId, string characterName, int level)> savedCharacters = new();
+        private int currentPage;
+        private bool deleteMode;
+        private int? pendingDeleteIndex;
+
         // Delegates
         public delegate void OnShowGameLoop();
         public delegate void OnShowMainMenu();
@@ -36,6 +61,10 @@ namespace RPGGame
             this.gameInitializer = gameInitializer ?? throw new ArgumentNullException(nameof(gameInitializer));
         }
 
+        public int CurrentPage => currentPage;
+        public int PageCount => Math.Max(1, (savedCharacters.Count + PageSize - 1) / PageSize);
+        public bool IsInDeleteMode => deleteMode || pendingDeleteIndex.HasValue;
+
         /// <summary>
         /// Shows the load character selection menu and transitions to LoadCharacterSelection state
         /// </summary>
@@ -43,40 +72,16 @@ namespace RPGGame
         {
             try
             {
-                // Transition to LoadCharacterSelection state first
                 stateManager.TransitionToState(GameState.LoadCharacterSelection);
-                
-                // Get list of all saved characters from disk
-                var savedCharacters = CharacterSaveManager.ListAllSavedCharacters();
-                
-                // Check UI type once
-                var canvasUI = customUIManager as CanvasUICoordinator;
-                
-                // Handle no saved characters
-                if (savedCharacters == null || savedCharacters.Count == 0)
-                {
+
+                currentPage = 0;
+                ClearDeleteState();
+                ReloadSavedCharacters();
+
+                if (savedCharacters.Count == 0)
                     ShowMessageEvent?.Invoke("No saved characters found.");
-                    // Still show the menu (with empty list) so user can return to main menu
-                    if (canvasUI != null)
-                    {
-                        RenderLoadCharacterSelection(canvasUI, new List<(string, string, int)>());
-                    }
-                    else
-                    {
-                        ShowLoadCharacterListConsole(new List<(string, string, int)>());
-                    }
-                    return;
-                }
-                
-                // Render the character selection menu
-                if (canvasUI != null)
-                {
-                    RenderLoadCharacterSelection(canvasUI, savedCharacters);
-                }
-                else
-                {
-                    ShowLoadCharacterListConsole(savedCharacters);
-                }
+
+                Render();
             }
             catch (Exception ex)
             {
@@ -85,7 +90,7 @@ namespace RPGGame
                 stateManager.TransitionToState(GameState.MainMenu);
                 ShowMainMenuEvent?.Invoke();
             }
-            
+
             await Task.CompletedTask;
         }
 
@@ -94,56 +99,183 @@ namespace RPGGame
         /// </summary>
         public async Task HandleLoadCharacterSelectionInput(string input)
         {
-            var savedCharacters = CharacterSaveManager.ListAllSavedCharacters();
-            
-            if (int.TryParse(input, out int choice))
+            // Input can arrive before Show (tests, MCP); list lazily so the first keypress still works.
+            if (savedCharacters.Count == 0)
+                ReloadSavedCharacters();
+
+            string key = (input ?? "").Trim().ToLowerInvariant();
+
+            if (pendingDeleteIndex.HasValue)
             {
-                // Handle empty characters list
-                if (savedCharacters == null || savedCharacters.Count == 0)
-                {
-                    if (choice == 0)
+                HandleDeleteConfirm(key);
+                return;
+            }
+
+            switch (key)
+            {
+                case "0":
+                case "escape":
+                    if (deleteMode)
                     {
-                        // Return to main menu
-                        if (customUIManager is CanvasUICoordinator canvasUI)
-                        {
-                            canvasUI.RestoreDisplayBufferRendering();
-                        }
-                        stateManager.TransitionToState(GameState.MainMenu);
-                        ShowMainMenuEvent?.Invoke();
+                        ClearDeleteState();
+                        Render();
+                        return;
                     }
-                    else
-                    {
-                        ShowMessageEvent?.Invoke("Invalid choice. Press 0 to return.");
-                    }
+                    ReturnToMainMenu();
                     return;
-                }
-                
-                // Handle character selection
-                if (choice >= 1 && choice <= savedCharacters.Count)
-                {
-                    // Load selected character
-                    var selectedCharacterInfo = savedCharacters[choice - 1];
-                    await LoadCharacter(selectedCharacterInfo.characterId, selectedCharacterInfo.characterName);
-                }
-                else if (choice == 0)
-                {
-                    // Return to main menu
-                    if (customUIManager is CanvasUICoordinator canvasUI)
+                case "n":
+                case "right":
+                case "pagedown":
+                    ChangePage(+1);
+                    return;
+                case "p":
+                case "left":
+                case "pageup":
+                    ChangePage(-1);
+                    return;
+                case "d":
+                    if (savedCharacters.Count == 0)
                     {
-                        canvasUI.RestoreDisplayBufferRendering();
+                        ShowMessageEvent?.Invoke("No saved characters to delete.");
+                        return;
                     }
-                    stateManager.TransitionToState(GameState.MainMenu);
-                    ShowMainMenuEvent?.Invoke();
-                }
-                else
-                {
-                    ShowMessageEvent?.Invoke("Invalid choice.");
-                }
+                    deleteMode = !deleteMode;
+                    AudioCues.Trigger(AudioCue.Menu_Confirm);
+                    Render();
+                    return;
+            }
+
+            if (!int.TryParse(key, out int choice))
+            {
+                AudioCues.Trigger(AudioCue.Menu_Invalid);
+                ShowMessageEvent?.Invoke("Invalid input. Enter a number, N/P to change page, D to delete, or 0 to return.");
+                return;
+            }
+
+            int index = currentPage * PageSize + (choice - 1);
+            if (choice < 1 || choice > PageSize || index >= savedCharacters.Count)
+            {
+                AudioCues.Trigger(AudioCue.Menu_Invalid);
+                ShowMessageEvent?.Invoke(savedCharacters.Count == 0 ? "Invalid choice. Press 0 to return." : "Invalid choice.");
+                return;
+            }
+
+            if (deleteMode)
+            {
+                deleteMode = false;
+                pendingDeleteIndex = index;
+                Render();
+                return;
+            }
+
+            var selected = savedCharacters[index];
+            await LoadCharacter(selected.characterId, selected.characterName);
+        }
+
+        private void HandleDeleteConfirm(string key)
+        {
+            int index = pendingDeleteIndex!.Value;
+            ClearDeleteState();
+
+            if (key == "y" && index < savedCharacters.Count)
+            {
+                var (characterId, characterName, level) = savedCharacters[index];
+                // Legacy single-file saves (character_save.json) map to the default filename.
+                string? filename = characterId.EndsWith("_legacy")
+                    ? null
+                    : CharacterSaveManager.GetCharacterSaveFilename(characterId);
+                CharacterSaveManager.DeleteSaveFile(filename);
+                ShowMessageEvent?.Invoke($"Deleted {characterName} (Level {level}).");
+
+                ReloadSavedCharacters();
+                currentPage = Math.Min(currentPage, PageCount - 1);
             }
             else
             {
-                ShowMessageEvent?.Invoke("Invalid input. Please enter a number.");
+                ShowMessageEvent?.Invoke("Delete cancelled.");
             }
+
+            Render();
+        }
+
+        private void ChangePage(int delta)
+        {
+            int target = currentPage + delta;
+            if (target < 0 || target >= PageCount)
+            {
+                AudioCues.Trigger(AudioCue.Menu_Invalid);
+                return;
+            }
+            currentPage = target;
+            pendingDeleteIndex = null;
+            Render();
+        }
+
+        private void ReturnToMainMenu()
+        {
+            ClearDeleteState();
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.RestoreDisplayBufferRendering();
+            }
+            stateManager.TransitionToState(GameState.MainMenu);
+            ShowMainMenuEvent?.Invoke();
+        }
+
+        private void ClearDeleteState()
+        {
+            deleteMode = false;
+            pendingDeleteIndex = null;
+        }
+
+        private void ReloadSavedCharacters()
+        {
+            savedCharacters = CharacterSaveManager.ListAllSavedCharacters()
+                ?? new List<(string characterId, string characterName, int level)>();
+        }
+
+        /// <summary>Builds the visible page (also used by tests).</summary>
+        public LoadCharacterMenuView BuildView()
+        {
+            int start = currentPage * PageSize;
+            var entries = savedCharacters
+                .Skip(start)
+                .Take(PageSize)
+                .Select((c, i) => (i + 1, c.characterName, c.level))
+                .ToList();
+
+            string? prompt = null;
+            bool warning = false;
+            if (pendingDeleteIndex.HasValue && pendingDeleteIndex.Value < savedCharacters.Count)
+            {
+                var c = savedCharacters[pendingDeleteIndex.Value];
+                prompt = $"Delete {c.characterName} (Level {c.level}) permanently? Press Y to confirm, any other key to cancel.";
+                warning = true;
+            }
+            else if (deleteMode)
+            {
+                prompt = "DELETE MODE: press the number of the character to delete, or D / 0 to cancel.";
+                warning = true;
+            }
+
+            return new LoadCharacterMenuView
+            {
+                Entries = entries,
+                Page = currentPage,
+                PageCount = PageCount,
+                TotalCount = savedCharacters.Count,
+                Prompt = prompt,
+                PromptIsWarning = warning
+            };
+        }
+
+        private void Render()
+        {
+            var view = BuildView();
+            if (customUIManager is CanvasUICoordinator canvasUI)
+                RenderLoadCharacterSelection(canvasUI, view);
+            else
+                ShowLoadCharacterListConsole(view);
         }
 
         /// <summary>
@@ -154,28 +286,18 @@ namespace RPGGame
             try
             {
                 ShowMessageEvent?.Invoke($"Loading {characterName}...");
-                
+
                 // Show loading animation
                 if (customUIManager is CanvasUICoordinator canvasUI)
                 {
                     canvasUI.ShowLoadingAnimation("Loading character...");
                 }
-                
-                // Load character from disk
-                Character? loadedCharacter = null;
-                
-                // Check if characterId is a legacy save (ends with "_legacy")
-                if (characterId.EndsWith("_legacy"))
-                {
-                    // Load legacy save file
-                    loadedCharacter = await Character.LoadCharacterAsync().ConfigureAwait(false);
-                }
-                else
-                {
-                    // Load character by ID
-                    loadedCharacter = await Character.LoadCharacterAsync(characterId).ConfigureAwait(false);
-                }
-                
+
+                bool isLegacy = characterId.EndsWith("_legacy");
+                Character? loadedCharacter = isLegacy
+                    ? await Character.LoadCharacterAsync().ConfigureAwait(false)
+                    : await Character.LoadCharacterAsync(characterId).ConfigureAwait(false);
+
                 if (loadedCharacter == null)
                 {
                     if (customUIManager is CanvasUICoordinator canvasUIClear)
@@ -185,18 +307,19 @@ namespace RPGGame
                     ShowMessageEvent?.Invoke($"Failed to load character: {characterName}");
                     return;
                 }
-                
-                // Register character in state manager (multi-character support)
-                var registeredCharacterId = stateManager.AddCharacter(loadedCharacter);
+
+                // Register under the save's own ID so later saves overwrite this file instead of
+                // writing a fresh duplicate. Legacy saves get a new ID and migrate to a per-character file.
+                stateManager.AddCharacter(loadedCharacter, isLegacy ? null : characterId);
                 stateManager.SetCurrentPlayer(loadedCharacter);
-                
+
                 // Apply health multiplier if configured
                 var settings = GameSettings.Instance;
                 if (settings.PlayerHealthMultiplier != 1.0)
                 {
                     loadedCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
                 }
-                
+
                 var ch = loadedCharacter;
                 Dispatcher.UIThread.Post(() =>
                 {
@@ -226,19 +349,18 @@ namespace RPGGame
         /// <summary>
         /// Renders load character selection screen for CanvasUI
         /// </summary>
-        private void RenderLoadCharacterSelection(CanvasUICoordinator canvasUI, List<(string characterId, string characterName, int level)> savedCharacters)
+        private void RenderLoadCharacterSelection(CanvasUICoordinator canvasUI, LoadCharacterMenuView view)
         {
             try
             {
                 // Clear canvas first like other menus do
                 canvasUI.Clear();
-                
+
                 // Suppress display buffer auto-rendering to prevent conflicts
                 canvasUI.SuppressDisplayBufferRendering();
                 canvasUI.ClearDisplayBufferWithoutRender();
-                
-                // Use proper menu renderer
-                canvasUI.RenderLoadCharacterSelection(savedCharacters ?? new List<(string, string, int)>());
+
+                canvasUI.RenderLoadCharacterSelection(view);
             }
             catch (Exception ex)
             {
@@ -257,32 +379,33 @@ namespace RPGGame
         /// <summary>
         /// Shows saved character list in console mode
         /// </summary>
-        private void ShowLoadCharacterListConsole(List<(string characterId, string characterName, int level)> savedCharacters)
+        private void ShowLoadCharacterListConsole(LoadCharacterMenuView view)
         {
             UIManager.WriteLine("=== LOAD CHARACTER ===");
             UIManager.WriteBlankLine();
-            
-            if (savedCharacters == null || savedCharacters.Count == 0)
+
+            if (view.TotalCount == 0)
             {
                 UIManager.WriteMenuLine("No saved characters found.");
                 UIManager.WriteBlankLine();
                 UIManager.WriteMenuLine("0. Back to Main Menu");
                 UIManager.WriteBlankLine();
                 UIManager.WriteSystemLine("Press 0 to return.");
+                return;
             }
-            else
+
+            foreach (var (number, characterName, level) in view.Entries)
             {
-                for (int i = 0; i < savedCharacters.Count; i++)
-                {
-                    var (characterId, characterName, level) = savedCharacters[i];
-                    UIManager.WriteMenuLine($"{i + 1}. {characterName} - Level {level}");
-                }
-                
-                UIManager.WriteBlankLine();
-                UIManager.WriteMenuLine("0. Back to Main Menu");
-                UIManager.WriteBlankLine();
-                UIManager.WriteSystemLine("Select a character number to load, or press 0 to return.");
+                UIManager.WriteMenuLine($"{number}. {characterName} - Level {level}");
             }
+
+            UIManager.WriteBlankLine();
+            if (view.PageCount > 1)
+                UIManager.WriteMenuLine($"Page {view.Page + 1}/{view.PageCount}  (N) Next  (P) Previous");
+            UIManager.WriteMenuLine("D. Delete a character");
+            UIManager.WriteMenuLine("0. Back to Main Menu");
+            UIManager.WriteBlankLine();
+            UIManager.WriteSystemLine(view.Prompt ?? "Select a character number to load, or press 0 to return.");
         }
     }
 }
