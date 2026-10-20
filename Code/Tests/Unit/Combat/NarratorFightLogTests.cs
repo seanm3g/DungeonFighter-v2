@@ -43,6 +43,8 @@ namespace RPGGame.Tests.Unit.Combat
             EnvironmentalBeatSurvivesToTheBlock();
             PlacementComesFromTheSwingNotTheWording();
             SetPiecesNeverLandOnConsecutiveSwings();
+            EveryEnemyGetsAnOpeningLine();
+            OpeningLinePrefersTheMostSpecificBank();
 
             TestBase.PrintSummary("Narrator Fight Log Tests", _run, _passed, _failed);
         }
@@ -407,6 +409,220 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(tiers[^1] == NarrativeTier.SetPiece,
                 $"The killing blow must always speak, got {tiers[^1]} on the last swing",
                 ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>
+        /// Ground rule 2, checked against the real roster rather than a sample. There are 129
+        /// enemies in Enemies.json and only a handful have a bank of their own; every one of
+        /// the rest has to reach a line through a tag or the generic pool. A creature that
+        /// silently gets nothing is the failure this guards - it would look exactly like the
+        /// narrator being quiet on purpose.
+        /// </summary>
+        private static void EveryEnemyGetsAnOpeningLine()
+        {
+            Console.WriteLine("\n--- Every enemy in the roster resolves to an opening line ---");
+            FlavorText.Reload();
+            var data = FlavorText.GetData();
+            var provider = new NarrativeTextProvider();
+
+            var roster = LoadEnemyRoster();
+            TestBase.AssertTrue(roster.Count > 0,
+                "Enemies.json should load - without it this test proves nothing",
+                ref _run, ref _passed, ref _failed);
+
+            int specific = 0, viaTag = 0, generic = 0;
+            var unresolved = new List<string>();
+
+            foreach (var (name, tags) in roster)
+            {
+                string? hit = null;
+                foreach (string bank in CandidateBanksFor(name, tags))
+                {
+                    if (data.CombatNarratives.TryGetValue(bank, out var lines) && lines is { Length: > 0 })
+                    {
+                        hit = bank;
+                        break;
+                    }
+                }
+
+                if (hit == null)
+                {
+                    unresolved.Add(name);
+                }
+                else if (hit == "encounterOpening")
+                {
+                    generic++;
+                }
+                else if (hit == $"encounterOpening_{EncounterNarrator.NormalizeKey(name)}")
+                {
+                    specific++;
+                }
+                else
+                {
+                    viaTag++;
+                }
+            }
+
+            Console.WriteLine($"    [coverage] {roster.Count} enemies: {specific} own bank, "
+                              + $"{viaTag} via tag, {generic} generic, {unresolved.Count} unresolved");
+
+            TestBase.AssertTrue(unresolved.Count == 0,
+                $"Every enemy must resolve to a line; unresolved: {string.Join(", ", unresolved)}",
+                ref _run, ref _passed, ref _failed);
+
+            // The generic pool is the safety net, not the plan. If most of the roster lands
+            // there the tag banks have stopped matching and the lines have gone shapeless.
+            TestBase.AssertTrue(generic < roster.Count / 2,
+                $"Most enemies should reach a tagged or specific bank, {generic}/{roster.Count} fell to generic",
+                ref _run, ref _passed, ref _failed);
+
+            // Voice rules, checked on every opening bank at once.
+            foreach (var (bank, lines) in data.CombatNarratives)
+            {
+                if (!bank.StartsWith("encounterOpening", StringComparison.OrdinalIgnoreCase) || lines == null)
+                    continue;
+
+                foreach (string line in lines)
+                {
+                    TestBase.AssertTrue(!line.Contains('!'),
+                        $"{bank} must not use exclamation marks, got: {line}",
+                        ref _run, ref _passed, ref _failed);
+                    TestBase.AssertTrue(!line.Contains('{') || line.Contains("{enemy}", StringComparison.Ordinal),
+                        $"{bank} may only use the {{enemy}} token, got: {line}",
+                        ref _run, ref _passed, ref _failed);
+                }
+            }
+
+            _ = provider;
+        }
+
+        /// <summary>
+        /// A Ghoul must get the Ghoul line, not the generic undead one. The whole reason for
+        /// doing this at the encounter is that the canon is creature-specific - a Ghoul goes
+        /// for what a corpse carries - and that is lost if the tag bank wins.
+        /// </summary>
+        private static void OpeningLinePrefersTheMostSpecificBank()
+        {
+            Console.WriteLine("\n--- The most specific bank wins ---");
+            FlavorText.Reload();
+
+            // Ghoul carries the "undead" tag, so both banks exist and the specific one must win.
+            var banks = new List<string>(CandidateBanksFor("Ghoul", new List<string> { "undead" }));
+            Console.WriteLine($"    [chain] {string.Join(" -> ", banks)}");
+
+            TestBase.AssertTrue(banks.Count >= 3
+                    && banks[0] == "encounterOpening_ghoul"
+                    && banks[^1] == "encounterOpening",
+                $"Chain must run specific -> tag -> generic, got: {string.Join(" -> ", banks)}",
+                ref _run, ref _passed, ref _failed);
+
+            TestBase.AssertTrue(banks.IndexOf("encounterOpening_undead") > 0
+                    && banks.IndexOf("encounterOpening_undead") < banks.IndexOf("encounterOpening"),
+                "The tag bank must sit between the specific bank and the generic pool",
+                ref _run, ref _passed, ref _failed);
+
+            // Names normalize the same way whatever the spelling in Enemies.json.
+            TestBase.AssertTrue(
+                EncounterNarrator.NormalizeKey("Magma Beast") == "magmabeast"
+                && EncounterNarrator.NormalizeKey("magma-beast") == "magmabeast",
+                "Enemy names must normalize to one bank key regardless of spacing or case",
+                ref _run, ref _passed, ref _failed);
+
+            // And the whole way to painted segments, in the overseer's colour. The block path
+            // and the prose path disagreed about his colour for a session; this is a third
+            // surface and it has to match them.
+            var ghoul = MockFactories.CreateMockEnemy("Ghoul");
+            var provider = new NarrativeTextProvider();
+
+            NarrativePacing.OverrideForTesting(
+                new NarrativePacing.Profile { NarratorEnabled = true });
+            try
+            {
+                var segments = EncounterNarrator.BuildOpeningSegments(ghoul, provider);
+                string painted = segments == null
+                    ? "(nothing)"
+                    : ColoredTextRenderer.RenderAsPlainText(segments);
+                Console.WriteLine($"    [encounter] {painted}");
+
+                TestBase.AssertTrue(segments != null && segments.Count > 0,
+                    "A Ghoul encounter must produce an opening line",
+                    ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(
+                    segments != null && segments.Exists(s =>
+                        !string.IsNullOrWhiteSpace(s.Text)
+                        && s.Color.Equals(ColorPalette.Purple.GetColor())),
+                    "The encounter line must carry the narrator colour",
+                    ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                NarrativePacing.OverrideForTesting(null);
+                NarrativePacing.Invalidate();
+            }
+
+            // And it stays silent when the narrator is switched off, like every other path.
+            NarrativePacing.OverrideForTesting(NarrativePacing.Profile.Full);
+            try
+            {
+                TestBase.AssertTrue(
+                    EncounterNarrator.BuildOpeningSegments(ghoul, provider) == null,
+                    "With the narrator disabled the encounter must stay quiet",
+                    ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                NarrativePacing.OverrideForTesting(null);
+                NarrativePacing.Invalidate();
+            }
+        }
+
+        /// <summary>Mirrors EncounterNarrator.CandidateBanks without needing a live Enemy.</summary>
+        private static IEnumerable<string> CandidateBanksFor(string name, IReadOnlyList<string> tags)
+        {
+            string key = EncounterNarrator.NormalizeKey(name);
+            if (key.Length > 0)
+                yield return $"encounterOpening_{key}";
+
+            foreach (string tag in tags)
+            {
+                string t = EncounterNarrator.NormalizeKey(tag);
+                if (t.Length > 0)
+                    yield return $"encounterOpening_{t}";
+            }
+
+            yield return "encounterOpening";
+        }
+
+        private static List<(string Name, IReadOnlyList<string> Tags)> LoadEnemyRoster()
+        {
+            var result = new List<(string, IReadOnlyList<string>)>();
+            string? path = GameConstants.TryGetExistingGameDataFilePath("Enemies.json");
+            if (path == null)
+                return result;
+
+            using var doc = System.Text.Json.JsonDocument.Parse(System.IO.File.ReadAllText(path));
+            foreach (var entry in doc.RootElement.EnumerateArray())
+            {
+                if (!entry.TryGetProperty("name", out var nameEl))
+                    continue;
+
+                string name = nameEl.GetString() ?? string.Empty;
+                var tags = new List<string>();
+                if (entry.TryGetProperty("tags", out var tagsEl)
+                    && tagsEl.ValueKind == System.Text.Json.JsonValueKind.Array)
+                {
+                    foreach (var t in tagsEl.EnumerateArray())
+                    {
+                        string? v = t.GetString();
+                        if (!string.IsNullOrWhiteSpace(v))
+                            tags.Add(v);
+                    }
+                }
+
+                result.Add((name, tags));
+            }
+
+            return result;
         }
 
         private static List<ColoredText> Line(string text, bool indent = true)

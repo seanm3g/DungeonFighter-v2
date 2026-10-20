@@ -28,6 +28,15 @@ namespace RPGGame
     public class DungeonDisplayManager
     {
         private readonly GameNarrativeManager narrativeManager;
+
+        /// <summary>
+        /// Draws the overseer's encounter-opening line. Held for the lifetime of the manager
+        /// rather than created per encounter, because NarrativeTextProvider carries the
+        /// no-immediate-repeat memory per bank - a fresh instance each fight would forget what
+        /// it said last time and a two-line bank would repeat itself constantly.
+        /// </summary>
+        private readonly NarrativeTextProvider encounterNarratorText = new();
+
         private readonly IUIManager? uiManager;
         private readonly CanvasUICoordinator? canvasUI;
         private readonly RPGGame.Display.Dungeon.DungeonDisplayBuffer displayBuffer;
@@ -252,6 +261,14 @@ namespace RPGGame
                     {
                         SpacingApplier.ApplySpacingBefore(batch, TextSpacingSystem.BlockType.EnemyAppearance);
                         batch.Add(EnemyInfoBuilder.BuildEncounterAppearanceSegments(enemy));
+
+                        // The overseer names what just walked in. This is the only moment he
+                        // speaks before the fight starts, and it is what makes him read as a
+                        // presence rather than an effect that shows up on crits.
+                        var opening = EncounterNarrator.BuildOpeningSegments(enemy, encounterNarratorText);
+                        if (opening != null)
+                            batch.Add(opening);
+
                         TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyAppearance);
                         
                         if (enemyInfoList.Count > 1)
@@ -268,6 +285,14 @@ namespace RPGGame
             {
                 SpacingApplier.ApplySpacingBefore(uiManager, TextSpacingSystem.BlockType.EnemyAppearance);
                 uiManager.WriteLineColoredSegments(EnemyInfoBuilder.BuildEncounterAppearanceSegments(enemy), UIMessageType.System);
+
+                // Same line on the non-canvas path. Two surfaces render the encounter and they
+                // have silently diverged before - the narrator's colour disagreed between the
+                // block path and the prose path for a whole session.
+                var openingLine = EncounterNarrator.BuildOpeningSegments(enemy, encounterNarratorText);
+                if (openingLine != null)
+                    uiManager.WriteLineColoredSegments(openingLine, UIMessageType.System);
+
                 TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyAppearance);
                 
                 if (enemyInfoList.Count > 1)

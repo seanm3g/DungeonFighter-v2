@@ -31,6 +31,31 @@ namespace RPGGame
         /// <returns>A random narrative string for the event type</returns>
         public string GetRandomNarrative(string eventType)
         {
+            return TryGetRandomNarrative(eventType, out string picked)
+                ? picked
+                : GetFallbackNarrative(eventType);
+        }
+
+        /// <summary>
+        /// Draws from <paramref name="eventType"/>, reporting a MISS instead of substituting a
+        /// fallback line.
+        ///
+        /// <see cref="GetRandomNarrative"/> cannot be used to test whether a bank exists: on a
+        /// miss it returns the hardcoded fallback, which is a real-looking sentence. Any caller
+        /// that walks a chain of increasingly general banks needs to tell "this bank is empty"
+        /// from "this bank returned a line", and comparing the result against
+        /// <see cref="GetFallbackNarrative"/> - which is what TauntSystem does today - breaks
+        /// the moment a bank legitimately contains the same wording as its fallback.
+        /// </summary>
+        public bool TryGetRandomNarrative(string eventType, out string narrative)
+        {
+            narrative = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(eventType))
+            {
+                return false;
+            }
+
             try
             {
                 var combatNarratives = FlavorText.GetData().CombatNarratives;
@@ -41,14 +66,15 @@ namespace RPGGame
                 {
                     string picked = PickWithoutImmediateRepeat(eventType, narratives);
                     lastDrawnByBank[eventType] = picked;
-                    return picked;
+                    narrative = picked;
+                    return true;
                 }
 
-                return GetFallbackNarrative(eventType);
+                return false;
             }
             catch (Exception)
             {
-                return GetFallbackNarrative(eventType);
+                return false;
             }
         }
 

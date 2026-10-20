@@ -1145,6 +1145,136 @@
       "{name} lands one, then lands the one that only works after it.",
       "No gap opens between {name}\u0027s blows. That is where a guard usually lives."
     ],
+    "encounterOpening_goblin": [
+      "It was a man. It went looking for what a demon keeps and did not ask the price.",
+      "Look at its eyes. Nothing else here holds that colour, and I know why.",
+      "Someone poor and desperate stood where it is standing. That is the whole of the story."
+    ],
+    "encounterOpening_spider": [
+      "Its web will hold your weight. That is not the part to worry about.",
+      "Most never feel the second bite. I have counted, and most never do.",
+      "There is nothing strange in this one. It is only very good at what it is."
+    ],
+    "encounterOpening_wolf": [
+      "Raise your hand at it and watch. Something in it still expects that to mean something.",
+      "It hunts in a shape that was taught. Whoever taught it never came back to finish.",
+      "I knew what it was before it was this. It does not, and that is the kindness."
+    ],
+    "encounterOpening_fireelemental": [
+      "That flame will not gutter in wind. No hearth has ever managed it.",
+      "There is violet in it. Find that, and then leave it alone.",
+      "They say it climbed out of a wound in the world. They also say there is no wound."
+    ],
+    "encounterOpening_lavagolem": [
+      "Its core is too regular for stone. Nothing underground makes that shape.",
+      "What is in its chest will still be warm in your pack days from now.",
+      "Something assembled the middle of it. The outside is only what collected."
+    ],
+    "encounterOpening_bats": [
+      "They move through dark that gives you nothing. They have never needed it.",
+      "It will sound like weather. It is not weather.",
+      "Trust your feet down here. Your eyes have nothing to work with."
+    ],
+    "encounterOpening_skeleton": [
+      "It will ring when you hit it. Bone does not do that, and nobody asks why anymore.",
+      "I have heard that sound a great many times. It has never once sounded like bone.",
+      "Strike it and listen. That is all I will say about it."
+    ],
+    "encounterOpening_zombie": [
+      "It is going slower than it should. Flesh has a rate, and this is not it.",
+      "There was a sickness that ended before anyone living saw it end. This remembers.",
+      "It is hollow in a way that carries. Some mothers still will not say the name."
+    ],
+    "encounterOpening_wraith": [
+      "Travellers who never met describe its colour the same way. I have heard them all.",
+      "It is the grey of a grief kept private. I do not know whose.",
+      "It drifts and does not hurry. Whatever it wants, it has had the time."
+    ],
+    "encounterOpening_bear": [
+      "It dens where the ground allows, and it does not negotiate the boundary.",
+      "A bear beaten is a story worth keeping. I have heard the ones that got told.",
+      "There is no mystery here. There is only a great deal of bear."
+    ],
+    "encounterOpening_treant": [
+      "Open it and count the rings. They do not spiral. They were set.",
+      "It grew the way it was told to grow. I watched the telling.",
+      "Something planned this one. I will not say what did the planning."
+    ],
+    "encounterOpening_boar": [
+      "Corner it indoors and it may simply stop. It is looking for something that was never here.",
+      "It charges before it thinks. Once, something fed it by hand. Neither of you remembers.",
+      "It roots at the floor. There was never a trough there, and it keeps looking."
+    ],
+    "encounterOpening_salamander": [
+      "Its line runs back to something still smouldering under the western sea.",
+      "Whatever it is kin to failed a long way out, before anyone had named the continents.",
+      "It is a lizard that lives in fire. The rest of it I will keep."
+    ],
+    "encounterOpening_emberspirit": [
+      "Count its pulses. Fire does not keep time, and this one does.",
+      "The fisherfolk call it the tide\u0027s twin, and they mean it plainly.",
+      "It flickers on a measure. I have never heard it miss one."
+    ],
+    "encounterOpening_magmabeast": [
+      "Its glow does not change when it rages. Something underneath holds the colour steady.",
+      "I have seen it calm and seen it furious. The light was the same both times.",
+      "Heat has moods. This one has none, and that should tell you something."
+    ],
+    "encounterOpening_ghoul": [
+      "It went for what the dead were carrying before it went for the dead. It never reverses the order.",
+      "I have watched this one work a field after a battle. It takes the pack first. It always has.",
+      "It is not hungry the way you are hungry. I have had long enough to be sure of that."
+    ],
+    "encounterOpening_lich": [
+      "Its hand has been shut longer than your house has had a name. I know what is in it.",
+      "I watched it take that thing. I will not tell you what it was.",
+      "It kept one fist closed through every fight I have seen it win and lose. The fist is the fight."
+    ],
+    "encounterOpening_wight": [
+      "It holds one spot, exact to the footstep. The line was drawn before it took the post.",
+      "It is guarding something. Not the crypt. A place inside the crypt.",
+      "Step past the mark and find out. I will not mark it for you."
+    ],
+    "encounterOpening_undead": [
+      "It is moving, and it should not be. I stopped expecting anyone to ask.",
+      "Something is keeping this one upright, and it is not breath.",
+      "Whatever animates it does not tire and does not hurry.",
+      "It was finished once already. Something declined the result.",
+      "The cold came off it before it did. That is usually the order."
+    ],
+    "encounterOpening_elemental": [
+      "There is nothing in it that wants anything. That has never made it less dangerous.",
+      "It burns on a measure. Nothing that burns honestly does.",
+      "It holds its shape with nothing to hold it. I have watched that longer than you have.",
+      "Whatever is at the middle of it was made. The rest only gathered.",
+      "It does not tire, because tiring is a thing bodies do."
+    ],
+    "encounterOpening_plant": [
+      "It grew toward this. Slowly, and on purpose.",
+      "It was here before the room. The room came up around it.",
+      "It does not chase. It has never had to.",
+      "Cut it and it keeps the shape. Wood forgets nothing."
+    ],
+    "encounterOpening_living": [
+      "There is no riddle in this one. It is hungry and it is quick.",
+      "It wants what you want. Only one of you gets it.",
+      "Nothing strange here. Only teeth, and a reason to use them.",
+      "It is doing what it was made for, and it was not made by anyone.",
+      "I have watched this kind a long while. They are exactly what they look like."
+    ],
+    "encounterOpening_boss": [
+      "This one has a name where it comes from. I will not be the one to give it.",
+      "I have watched a great many walk into this. I remember the ones who walked out.",
+      "You are not the first to stand in this room. I will not tell you how the others did."
+    ],
+    "encounterOpening": [
+      "Something is here. I have seen it before and I will see it again.",
+      "It has noticed you. That is the part that matters.",
+      "I know what this is. You will find out at the usual speed.",
+      "Here is the next one. I have no advice.",
+      "It stands where a great many things have stood. Few of them left.",
+      "I am watching. That is the whole of what I do."
+    ],
     "playerTaunt": [
       "\u0022{enemy}, you\u0027re no match for me!\u0022 {name} declares confidently.",
       "\u0022Is that all you\u0027ve got?\u0022 {name} taunts with a smirk.",

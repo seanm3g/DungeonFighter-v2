@@ -1,6 +1,6 @@
 # Demon Fighter — Flavor Text Session Handoff
 
-**Last updated:** 2026-10-19 (fourth session, narrator confirmed on screen) · branch `joey_sandbox_v2`
+**Last updated:** 2026-10-20 (fifth session, the overseer opens every fight) · branch `joey_sandbox_v2`
 
 **New session? Read this file first, then `.cursor/rules/demon-fighter-flavor.mdc`.**
 That covers everything. Don't re-derive it.
@@ -570,6 +570,56 @@ keeps its line. No two purple adjacent, nothing important muted.
 yields in the common case, but when it does fire it is still first-person overseer in purple.
 Demoting it to Beat would need its lines rewritten into the world's voice, which is content, not
 plumbing.
+
+---
+
+**The overseer now opens every fight, and the line knows what it is looking at
+(2026-10-20).** Sean's note on the first-person voice - *"gives it a lot of distinction and
+made me as the user wonder about this thing"* - is a contrast effect, so consolidating the two
+voices into one (briefly considered, then dropped) would have removed the thing he responded
+to. The problem it was reaching for was real, but it was not the colour: **he had no voice at
+the start of a fight.** He spoke on crits, at ten percent and at death, all of them late, so he
+read as an occasional effect rather than a presence.
+
+The approved worked example opens on exactly such a line - *"It was a man. It kept the shape
+and let the rest go."* - and it had never been built. What shipped in that slot was
+`AsciiArtAssets.EncounteredFormat`, the hardcoded `"A {0}{1} appears."`
+
+**`EncounterNarrator`** resolves the line most-specific-first:
+
+```
+encounterOpening_<enemy name>    e.g. encounterOpening_ghoul
+encounterOpening_<tag>           e.g. encounterOpening_undead, in the enemy's own tag order
+encounterOpening                 the generic pool
+```
+
+Tags come straight off the enemy and are tried in the order `Enemies.json` lists them, which
+already runs most-significant-first (`undead` before `frail`, `elemental` before `fire`). A tag
+with no bank just misses, so the anatomical tags cost nothing and no list of them exists in
+code - and adding `encounterOpening_fire` later needs no code change, which is the point.
+
+Coverage over the real roster, asserted rather than assumed: **129 enemies, 18 with their own
+bank, 111 via tag, 0 falling to generic, 0 unresolved.** The 18 are the General Reckoning set,
+each written off its bestiary entry, so the line says something only true of that creature:
+
+```
+  Ghoul     It went for what the dead were carrying before it went for the dead.
+            It never reverses the order.
+  Wolf      Raise your hand at it and watch. Something in it still expects that
+            to mean something.
+  Skeleton  It will ring when you hit it. Bone does not do that, and nobody asks why anymore.
+  Boar      It roots at the floor. There was never a trough there, and it keeps looking.
+```
+
+Note what the Wolf and Boar lines do: feral Earth-stock carries "a faint, structural memory of
+having once been cared for", and both lines point straight at it without going near the banned
+list. That is the register the knowledge horizon exists to protect.
+
+`NarrativeTextProvider.TryGetRandomNarrative` was added because `GetRandomNarrative` cannot be
+used to test whether a bank exists - on a miss it returns the hardcoded fallback, which is a
+real-looking sentence. `TauntSystem` still does the old thing (comparing the result against
+`GetFallbackNarrative`) and should be moved over; it breaks the moment a bank legitimately
+contains its fallback's wording.
 
 ---
 
