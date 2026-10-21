@@ -56,6 +56,29 @@ namespace RPGGame.Data
 
             [JsonPropertyName("causesPoison")]
             public bool CausesPoison { get; set; }
+
+            [JsonPropertyName("causesBurn")]
+            public bool CausesBurn { get; set; }
+
+            [JsonPropertyName("causesAcid")]
+            public bool CausesAcid { get; set; }
+        }
+
+        private static EnvironmentalActionLoader? _shared;
+
+        /// <summary>
+        /// Room hazard by name from <c>EnvironmentalActions.json</c> (rooms reference these in their <c>actions</c> column).
+        /// Returns a fresh <see cref="Action"/> or null when no row matches.
+        /// </summary>
+        public static Action? TryCreateByName(string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
+            _shared ??= new EnvironmentalActionLoader();
+            var data = _shared.LoadAllActions().FirstOrDefault(a =>
+                string.Equals(a.Name?.Trim(), name.Trim(), StringComparison.OrdinalIgnoreCase)
+                || string.Equals(a.Id?.Trim(), name.Trim(), StringComparison.OrdinalIgnoreCase));
+            return data == null ? null : _shared.ConvertToAction(data);
         }
 
         /// <summary>
@@ -176,6 +199,8 @@ namespace RPGGame.Data
                 action.CausesStun = data.CausesStun;
                 action.CausesSlow = data.CausesSlow;
                 action.CausesPoison = data.CausesPoison;
+                action.CausesBurn = data.CausesBurn;
+                action.CausesAcid = data.CausesAcid;
 
                 return action;
             }

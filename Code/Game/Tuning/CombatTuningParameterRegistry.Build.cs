@@ -272,13 +272,13 @@ namespace RPGGame.Tuning
                 "Combo sequence absolute max", "Hard cap on combo strip length", 1, 12,
                 () => cfg().LootSystem.ComboSequenceAbsoluteMax, v => cfg().LootSystem.ComboSequenceAbsoluteMax = v));
             list.Add(DoubleParam("comboAmplifierMax", tab, CombatTuningLayer.ComboAffordance, "Combo growth",
-                "Combo amplifier max", "Base AMP multiplier at max TECH", 1, 5, 0.1,
+                "Combo amplifier max", "Base AMP multiplier at max INT", 1, 5, 0.1,
                 () => cfg().ComboSystem.ComboAmplifierMax, v => cfg().ComboSystem.ComboAmplifierMax = v));
             list.Add(IntParam("comboAmplifierMaxTech", tab, CombatTuningLayer.ComboAffordance, "Combo growth",
-                "Combo amplifier max TECH", "Effective TECH where base AMP reaches max", 20, 200,
+                "Combo amplifier max INT", "Effective INT where base AMP reaches max", 20, 200,
                 () => cfg().ComboSystem.ComboAmplifierMaxTech, v => cfg().ComboSystem.ComboAmplifierMaxTech = v));
             list.Add(DoubleParam("comboAmplifierCurveExponent", tab, CombatTuningLayer.ComboAffordance, "Combo growth",
-                "Combo amplifier curve exponent", "Early/mid TECH power-ramp exponent", 0.5, 2.5, 0.05,
+                "Combo amplifier curve exponent", "Early/mid INT power-ramp exponent", 0.5, 2.5, 0.05,
                 () => cfg().ComboSystem.ComboAmplifierCurveExponent,
                 v => cfg().ComboSystem.ComboAmplifierCurveExponent = v));
 

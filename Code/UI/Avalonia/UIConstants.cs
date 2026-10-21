@@ -23,9 +23,10 @@ namespace RPGGame.UI.Avalonia
         public static class MenuOptions
         {
             public const string NewGame = "New Game";
-            public const string LoadGame = "Load Game";
+            public const string LoadGame = "Load Character(s)";
             public const string Settings = "Settings";
             public const string Stable = "Stable";
+            public const string History = "History";
             public const string Quit = "Quit";
             public const string Cancel = "Cancel";
             public const string ReturnToMenu = "Return to Menu";
@@ -83,7 +84,12 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public static class Formats
         {
-            public const string LoadGameWithCharacter = "Load Game - *{0} - lvl {1}*";
+            public const string LoadCharactersSeparator = " | ";
+
+            public static string FighterCountLabel(int count) => count == 1 ? "Fighter" : "Fighters";
+
+            public static string LoadCharactersWithCount(int count) =>
+                $"{MenuOptions.LoadGame}{LoadCharactersSeparator}{count} {FighterCountLabel(count)}";
             public const string DungeonWithLevel = "{0} (lvl {1})";
             public const string ItemWithNumber = "[{0}] {1}";
             public const string SlotWithItem = "{0}: {1}";

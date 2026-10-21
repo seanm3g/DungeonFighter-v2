@@ -26,6 +26,7 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
+    "tempo": "fast",
     "description": "A quick and cunning creature that strikes from the shadows",
     "tags": [
       "living",
@@ -63,6 +64,7 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
+    "tempo": "fast",
     "description": "A large forest spider with venomous fangs - extremely fast, fragile",
     "tags": [
       "living",
@@ -101,6 +103,7 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
+    "tempo": "normal",
     "description": "A swift predator that hunts in packs - balanced attacker",
     "tags": [
       "living",
@@ -136,6 +139,7 @@
     ],
     "isLiving": false,
     "resolvedPackSize": 1,
+    "tempo": "fast",
     "description": "A being of pure flame with magical powers - high damage caster",
     "tags": [
       "elemental",
@@ -173,6 +177,7 @@
     ],
     "isLiving": false,
     "resolvedPackSize": 1,
+    "tempo": "heavy",
     "description": "A massive construct of molten rock and metal - slow tank with high damage",
     "tags": [
       "elemental",
@@ -208,6 +213,7 @@
     "isLiving": true,
     "packSize": 3,
     "resolvedPackSize": 3,
+    "tempo": "swarm",
     "description": "A small bat swarm - three fragile flyers; overkill on one is wasted",
     "tags": [
       "living",
@@ -246,6 +252,7 @@
     "isLiving": true,
     "packSize": 7,
     "resolvedPackSize": 7,
+    "tempo": "swarm",
     "description": "A squealing pack of seven rats - peels quickly if you waste overkill",
     "tags": [
       "living",
@@ -284,6 +291,7 @@
     "isLiving": true,
     "packSize": 5,
     "resolvedPackSize": 5,
+    "tempo": "swarm",
     "description": "Five giant ants - the swarm bites once per living ant",
     "tags": [
       "living",
@@ -322,6 +330,7 @@
     ],
     "isLiving": false,
     "resolvedPackSize": 1,
+    "tempo": "fast",
     "description": "An undead warrior with bony armor - protected but fragile bones",
     "tags": [
       "undead",
@@ -359,6 +368,7 @@
     ],
     "isLiving": false,
     "resolvedPackSize": 1,
+    "tempo": "slow",
     "description": "A shambling undead - durable but slow and decaying",
     "tags": [
       "undead"
@@ -391,6 +401,7 @@
     ],
     "isLiving": false,
     "resolvedPackSize": 1,
+    "tempo": "fast",
     "description": "A spectral being with powerful magic - fast magical caster",
     "tags": [
       "undead",
@@ -427,6 +438,7 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
+    "tempo": "slow",
     "description": "A powerful forest predator - heavy hitter with high health",
     "tags": [
       "living",
@@ -463,6 +475,7 @@
     ],
     "isLiving": false,
     "resolvedPackSize": 1,
+    "tempo": "heavy",
     "description": "An ancient tree spirit - slow but heavily armored",
     "tags": [
       "plant",
@@ -496,6 +509,7 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
+    "tempo": "normal",
     "description": "A fierce woodland beast that charges and gores",
     "tags": [
       "living",
@@ -531,6 +545,7 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
+    "tempo": "fast",
     "description": "A fire-dwelling lizard that strikes from the heat haze",
     "tags": [
       "living",
@@ -567,6 +582,7 @@
     ],
     "isLiving": false,
     "resolvedPackSize": 1,
+    "tempo": "fast",
     "description": "A wisp of living flame - bursts of magical damage",
     "tags": [
       "elemental",
@@ -601,6 +617,7 @@
     ],
     "isLiving": false,
     "resolvedPackSize": 1,
+    "tempo": "slow",
     "description": "A creature of molten rock - devastating heavy attacks",
     "tags": [
       "elemental",
@@ -635,6 +652,7 @@
     ],
     "isLiving": false,
     "resolvedPackSize": 1,
+    "tempo": "fast",
     "description": "A ravenous undead that lunges from the shadows",
     "tags": [
       "undead"
@@ -667,6 +685,7 @@
     ],
     "isLiving": false,
     "resolvedPackSize": 1,
+    "tempo": "normal",
     "description": "An undead spellcaster with potent magical strikes",
     "tags": [
       "undead",
@@ -703,6 +722,7 @@
     ],
     "isLiving": false,
     "resolvedPackSize": 1,
+    "tempo": "normal",
     "description": "A spectral guardian of the crypt - tough and controlling",
     "tags": [
       "undead",
@@ -739,7 +759,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A desert raider that cuts in from the blinding sand \u00E2\u20AC\u201D fast strikes from the edge of vision",
+    "tempo": "normal",
+    "description": "A desert raider that cuts in from the blinding sand — fast strikes from the edge of vision",
     "tags": [
       "living",
       "earth",
@@ -774,7 +795,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A buried serpent that erupts from the dunes \u00E2\u20AC\u201D ambushes with venomous precision",
+    "tempo": "fast",
+    "description": "A buried serpent that erupts from the dunes — ambushes with venomous precision",
     "tags": [
       "living",
       "earth",
@@ -811,7 +833,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A armored desert dweller that curls and rolls at high speed \u00E2\u20AC\u201D hits hard on impact",
+    "tempo": "heavy",
+    "description": "A armored desert dweller that curls and rolls at high speed — hits hard on impact",
     "tags": [
       "living",
       "earth",
@@ -850,7 +873,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A scorpion whose tail gleams like a spear in the sun \u00E2\u20AC\u201D precise, poisonous strikes",
+    "tempo": "fast",
+    "description": "A scorpion whose tail gleams like a spear in the sun — precise, poisonous strikes",
     "tags": [
       "living",
       "fire",
@@ -888,6 +912,7 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
+    "tempo": "normal",
     "description": "A hunter that uses reflected sunlight to blind prey before closing in",
     "tags": [
       "living",
@@ -925,7 +950,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A construct of fused desert glass \u00E2\u20AC\u201D sharp, brittle, and deadly up close",
+    "tempo": "heavy",
+    "description": "A construct of fused desert glass — sharp, brittle, and deadly up close",
     "tags": [
       "elemental",
       "earth",
@@ -961,7 +987,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A predator that hunts by false shapes in the heat haze \u00E2\u20AC\u201D strikes where you aren\u0027t looking",
+    "tempo": "normal",
+    "description": "A predator that hunts by false shapes in the heat haze — strikes where you aren't looking",
     "tags": [
       "living",
       "fire",
@@ -999,7 +1026,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A shade born of desert noon \u00E2\u20AC\u201D phases through light and drains the unwary",
+    "tempo": "normal",
+    "description": "A shade born of desert noon — phases through light and drains the unwary",
     "tags": [
       "undead",
       "air"
@@ -1032,7 +1060,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A parasitic desert leech that feeds and mends itself \u00E2\u20AC\u201D sustains through stolen life",
+    "tempo": "fast",
+    "description": "A parasitic desert leech that feeds and mends itself — sustains through stolen life",
     "tags": [
       "living",
       "water",
@@ -1069,7 +1098,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A towering statue of carved sandstone \u00E2\u20AC\u201D slow, massive, and nearly immovable",
+    "tempo": "heavy",
+    "description": "A towering statue of carved sandstone — slow, massive, and nearly immovable",
     "tags": [
       "living",
       "earth",
@@ -1104,7 +1134,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A tomb guardian that fires venomous darts from stillness \u00E2\u20AC\u201D patient and precise",
+    "tempo": "fast",
+    "description": "A tomb guardian that fires venomous darts from stillness — patient and precise",
     "tags": [
       "undead",
       "young",
@@ -1141,7 +1172,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A desert cleric who channels solar wrath \u00E2\u20AC\u201D casts with burning conviction",
+    "tempo": "heavy",
+    "description": "A desert cleric who channels solar wrath — casts with burning conviction",
     "tags": [
       "celestial",
       "fire",
@@ -1179,7 +1211,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A sacred beetle grown to impossible size \u00E2\u20AC\u201D armored and fiercely territorial",
+    "tempo": "heavy",
+    "description": "A sacred beetle grown to impossible size — armored and fiercely territorial",
     "tags": [
       "living",
       "earth",
@@ -1218,7 +1251,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A corpse-thief that crawls through burial passages \u00E2\u20AC\u201D strikes from tight darkness",
+    "tempo": "fast",
+    "description": "A corpse-thief that crawls through burial passages — strikes from tight darkness",
     "tags": [
       "undead",
       "tiny"
@@ -1247,11 +1281,12 @@
     "healthGrowthPercent": 4.29,
     "actions": [
       "Entomb",
-      "Mummy\u0027s Grasp"
+      "Mummy's Grasp"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "An undead bound to a cracked sarcophagus \u00E2\u20AC\u201D shambling, heavy, and hard to put down",
+    "tempo": "slow",
+    "description": "An undead bound to a cracked sarcophagus — shambling, heavy, and hard to put down",
     "tags": [
       "undead"
     ]
@@ -1283,7 +1318,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "An ancient necromancer of the tombs \u00E2\u20AC\u201D commands death with cold intelligence",
+    "tempo": "heavy",
+    "description": "An ancient necromancer of the tombs — commands death with cold intelligence",
     "tags": [
       "undead",
       "boss",
@@ -1320,7 +1356,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A wrapped undead preserved by desert rites \u00E2\u20AC\u201D durable and relentless",
+    "tempo": "slow",
+    "description": "A wrapped undead preserved by desert rites — durable and relentless",
     "tags": [
       "undead"
     ]
@@ -1330,7 +1367,7 @@
     "biome": "Pyramids",
     "location": "Burial Chamber",
     "rarity": "Rare",
-    "name": "Ancestor\u0027s Shade",
+    "name": "Ancestor's Shade",
     "archetype": "Sage",
     "baseAttributes": {
       "strength": 3,
@@ -1352,7 +1389,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "The lingering spirit of a forgotten dynasty \u00E2\u20AC\u201D strikes with the weight of old grudges",
+    "tempo": "normal",
+    "description": "The lingering spirit of a forgotten dynasty — strikes with the weight of old grudges",
     "tags": [
       "undead"
     ]
@@ -1384,7 +1422,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A desert raptor that dives from above \u00E2\u20AC\u201D swift aerial strikes",
+    "tempo": "fast",
+    "description": "A desert raptor that dives from above — swift aerial strikes",
     "tags": [
       "living",
       "air"
@@ -1417,7 +1456,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A brute that hurls sun-baked stones from a distance \u00E2\u20AC\u201D simple, crushing force",
+    "tempo": "heavy",
+    "description": "A brute that hurls sun-baked stones from a distance — simple, crushing force",
     "tags": [
       "living",
       "earth",
@@ -1455,7 +1495,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A blade-wielding hunter that circles the rim of sight \u00E2\u20AC\u201D waits for an opening",
+    "tempo": "fast",
+    "description": "A blade-wielding hunter that circles the rim of sight — waits for an opening",
     "tags": [
       "living",
       "has_hands",
@@ -1491,7 +1532,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A gnawing vermin of the wastes \u00E2\u20AC\u201D quick, dirty, and opportunistic",
+    "tempo": "fast",
+    "description": "A gnawing vermin of the wastes — quick, dirty, and opportunistic",
     "tags": [
       "living",
       "minion",
@@ -1528,6 +1570,7 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
+    "tempo": "normal",
     "description": "A mutated desert dweller that drinks poison to fuel its attacks",
     "tags": [
       "living"
@@ -1560,7 +1603,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "The ghost of a soldier who fled into the dunes \u00E2\u20AC\u201D elusive and bitter",
+    "tempo": "normal",
+    "description": "The ghost of a soldier who fled into the dunes — elusive and bitter",
     "tags": [
       "undead"
     ]
@@ -1592,7 +1636,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A mountain mystic who summons thunder and wind \u00E2\u20AC\u201D casts from afar",
+    "tempo": "normal",
+    "description": "A mountain mystic who summons thunder and wind — casts from afar",
     "tags": [
       "living",
       "air"
@@ -1625,7 +1670,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A thin-air specter that haunts high passes \u00E2\u20AC\u201D cold, fast, and disorienting",
+    "tempo": "fast",
+    "description": "A thin-air specter that haunts high passes — cold, fast, and disorienting",
     "tags": [
       "undead",
       "air",
@@ -1655,11 +1701,12 @@
     "healthGrowthPercent": 4.29,
     "actions": [
       "Peak Slam",
-      "Mountain\u0027s Fury"
+      "Mountain's Fury"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A giant of stone and ice at the mountain peak \u00E2\u20AC\u201D slow but overwhelming",
+    "tempo": "heavy",
+    "description": "A giant of stone and ice at the mountain peak — slow but overwhelming",
     "tags": [
       "living",
       "earth",
@@ -1669,7 +1716,7 @@
   },
   {
     "region": "Fire",
-    "biome": "Ashen land",
+    "biome": "Ashen Land",
     "location": "Smoldering Ridge",
     "rarity": "uncommon",
     "name": "Cinder Hound",
@@ -1694,6 +1741,7 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
+    "tempo": "normal",
     "description": "A fire-scorched hound that hunts in bursts of speed and fury",
     "tags": [
       "living",
@@ -1702,7 +1750,7 @@
   },
   {
     "region": "Fire",
-    "biome": "Ashen land",
+    "biome": "Ashen Land",
     "location": "Smoldering Ridge",
     "rarity": "uncommon",
     "name": "Magma Creeper",
@@ -1727,7 +1775,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A lava-dwelling predator that crawls through fissures \u00E2\u20AC\u201D ambushes from below",
+    "tempo": "fast",
+    "description": "A lava-dwelling predator that crawls through fissures — ambushes from below",
     "tags": [
       "elemental",
       "fire",
@@ -1736,7 +1785,7 @@
   },
   {
     "region": "Fire",
-    "biome": "Ashen land",
+    "biome": "Ashen Land",
     "location": "Smoldering Ridge",
     "rarity": "Rare",
     "name": "Ashwing Harpy",
@@ -1761,7 +1810,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A winged scavenger of volcanic skies \u00E2\u20AC\u201D fast, shrieking dives",
+    "tempo": "fast",
+    "description": "A winged scavenger of volcanic skies — fast, shrieking dives",
     "tags": [
       "living",
       "fire",
@@ -1770,7 +1820,7 @@
   },
   {
     "region": "Fire",
-    "biome": "Ashen land",
+    "biome": "Ashen Land",
     "location": "Smokey Cave",
     "rarity": "uncommon",
     "name": "Soot Golem",
@@ -1795,7 +1845,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A construct of compressed ash and cinders \u00E2\u20AC\u201D armored and smothering",
+    "tempo": "heavy",
+    "description": "A construct of compressed ash and cinders — armored and smothering",
     "tags": [
       "elemental",
       "fire",
@@ -1805,7 +1856,7 @@
   },
   {
     "region": "Fire",
-    "biome": "Ashen land",
+    "biome": "Ashen Land",
     "location": "Smokey Cave",
     "rarity": "uncommon",
     "name": "Cave Ember Toad",
@@ -1830,7 +1881,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A bloated toad swollen with inner heat \u00E2\u20AC\u201D lurks and lunges from cave pools",
+    "tempo": "slow",
+    "description": "A bloated toad swollen with inner heat — lurks and lunges from cave pools",
     "tags": [
       "elemental",
       "fire",
@@ -1842,7 +1894,7 @@
   },
   {
     "region": "Fire",
-    "biome": "Ashen land",
+    "biome": "Ashen Land",
     "location": "Smokey Cave",
     "rarity": "Rare",
     "name": "Smog Lurker",
@@ -1867,7 +1919,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A predator hidden in volcanic fumes \u00E2\u20AC\u201D strikes when visibility fails",
+    "tempo": "fast",
+    "description": "A predator hidden in volcanic fumes — strikes when visibility fails",
     "tags": [
       "living",
       "fire"
@@ -1875,7 +1928,7 @@
   },
   {
     "region": "Fire",
-    "biome": "Ashen land",
+    "biome": "Ashen Land",
     "location": "Blackened Forest",
     "rarity": "uncommon",
     "name": "Charwood Stalker",
@@ -1895,12 +1948,13 @@
     "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
-      "Predator\u0027s Focus",
+      "Predator's Focus",
       "Smoldering Strike"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A burned forest hunter that moves through blackened trunks \u00E2\u20AC\u201D patient ambusher",
+    "tempo": "fast",
+    "description": "A burned forest hunter that moves through blackened trunks — patient ambusher",
     "tags": [
       "plant",
       "fire",
@@ -1912,7 +1966,7 @@
   },
   {
     "region": "Fire",
-    "biome": "Ashen land",
+    "biome": "Ashen Land",
     "location": "Blackened Forest",
     "rarity": "uncommon",
     "name": "Scorched Treant",
@@ -1937,7 +1991,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A fire-blackened tree spirit \u00E2\u20AC\u201D slow, thick-barked, and heavy-hitting",
+    "tempo": "heavy",
+    "description": "A fire-blackened tree spirit — slow, thick-barked, and heavy-hitting",
     "tags": [
       "plant",
       "fire",
@@ -1946,7 +2001,7 @@
   },
   {
     "region": "Fire",
-    "biome": "Ashen land",
+    "biome": "Ashen Land",
     "location": "Blackened Forest",
     "rarity": "Rare",
     "name": "Reignited Wisp",
@@ -1971,7 +2026,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A flame spirit that flares back to life \u00E2\u20AC\u201D bursts of magical fire",
+    "tempo": "fast",
+    "description": "A flame spirit that flares back to life — bursts of magical fire",
     "tags": [
       "elemental",
       "fire",
@@ -2006,7 +2062,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A lava-bridge guardian in scorched armor \u00E2\u20AC\u201D holds the line with discipline",
+    "tempo": "heavy",
+    "description": "A lava-bridge guardian in scorched armor — holds the line with discipline",
     "tags": [
       "living",
       "fire",
@@ -2046,7 +2103,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A creature that spews molten rock from a distance \u00E2\u20AC\u201D ranged elemental attacker",
+    "tempo": "normal",
+    "description": "A creature that spews molten rock from a distance — ranged elemental attacker",
     "tags": [
       "elemental",
       "fire",
@@ -2080,7 +2138,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A wandering fire spirit that darts through heat currents \u00E2\u20AC\u201D mobile and evasive",
+    "tempo": "fast",
+    "description": "A wandering fire spirit that darts through heat currents — mobile and evasive",
     "tags": [
       "elemental",
       "fire"
@@ -2113,7 +2172,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A zealot knight sworn to the flame temple \u00E2\u20AC\u201D armored, trained, unyielding",
+    "tempo": "slow",
+    "description": "A zealot knight sworn to the flame temple — armored, trained, unyielding",
     "tags": [
       "living",
       "fire",
@@ -2152,7 +2212,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A sentinel posted beside temple pillars \u00E2\u20AC\u201D still, alert, and heavily guarded",
+    "tempo": "slow",
+    "description": "A sentinel posted beside temple pillars — still, alert, and heavily guarded",
     "tags": [
       "living",
       "earth",
@@ -2190,7 +2251,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A ghost bound to eternal flame \u00E2\u20AC\u201D deceptive strikes from flickering light",
+    "tempo": "normal",
+    "description": "A ghost bound to eternal flame — deceptive strikes from flickering light",
     "tags": [
       "undead",
       "fire"
@@ -2223,7 +2285,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "An elite temple defender in ceremonial armor \u00E2\u20AC\u201D disciplined and resilient",
+    "tempo": "heavy",
+    "description": "An elite temple defender in ceremonial armor — disciplined and resilient",
     "tags": [
       "living",
       "fire",
@@ -2263,7 +2326,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A mage who binds enemies with fiery sigils \u00E2\u20AC\u201D technical, controlling magic",
+    "tempo": "normal",
+    "description": "A mage who binds enemies with fiery sigils — technical, controlling magic",
     "tags": [
       "living",
       "earth",
@@ -2300,7 +2364,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A stone guardian carved to sit before a molten throne \u00E2\u20AC\u201D immovable sentinel",
+    "tempo": "heavy",
+    "description": "A stone guardian carved to sit before a molten throne — immovable sentinel",
     "tags": [
       "elemental",
       "fire",
@@ -2340,7 +2405,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A parasite that drains life from open wounds \u00E2\u20AC\u201D predatory and precise",
+    "tempo": "fast",
+    "description": "A parasite that drains life from open wounds — predatory and precise",
     "tags": [
       "living"
     ]
@@ -2372,7 +2438,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A fungal spore creature born from volcanic vents \u00E2\u20AC\u201D spreads harm through contact",
+    "tempo": "fast",
+    "description": "A fungal spore creature born from volcanic vents — spreads harm through contact",
     "tags": [
       "plant",
       "fire",
@@ -2406,7 +2473,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A glassy parasite that latches to heated crystal \u00E2\u20AC\u201D drains and hardens",
+    "tempo": "fast",
+    "description": "A glassy parasite that latches to heated crystal — drains and hardens",
     "tags": [
       "elemental",
       "earth",
@@ -2444,7 +2512,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A turtle shelled in cooled slag \u00E2\u20AC\u201D slow, dense, and extremely tough",
+    "tempo": "heavy",
+    "description": "A turtle shelled in cooled slag — slow, dense, and extremely tough",
     "tags": [
       "living",
       "earth",
@@ -2481,7 +2550,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A creature carried by thermal winds between lava isles \u00E2\u20AC\u201D fast and hard to pin down",
+    "tempo": "fast",
+    "description": "A creature carried by thermal winds between lava isles — fast and hard to pin down",
     "tags": [
       "living",
       "fire",
@@ -2515,7 +2585,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A crab with a shell of hardened magma \u00E2\u20AC\u201D armored and snapping",
+    "tempo": "heavy",
+    "description": "A crab with a shell of hardened magma — armored and snapping",
     "tags": [
       "elemental",
       "fire",
@@ -2553,7 +2624,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A guardian encased in ancient amber \u00E2\u20AC\u201D preserved, patient, and hard to crack",
+    "tempo": "heavy",
+    "description": "A guardian encased in ancient amber — preserved, patient, and hard to crack",
     "tags": [
       "living",
       "earth",
@@ -2591,7 +2663,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A mischievous spirit of excess heat and pressure \u00E2\u20AC\u201D chaotic and evasive",
+    "tempo": "fast",
+    "description": "A mischievous spirit of excess heat and pressure — chaotic and evasive",
     "tags": [
       "elemental",
       "fire",
@@ -2630,7 +2703,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A predator that lures prey into sticky amber pools \u00E2\u20AC\u201D traps with cunning",
+    "tempo": "normal",
+    "description": "A predator that lures prey into sticky amber pools — traps with cunning",
     "tags": [
       "living",
       "earth"
@@ -2663,7 +2737,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A fierce hound that defends its hunting ground \u00E2\u20AC\u201D aggressive pack striker",
+    "tempo": "normal",
+    "description": "A fierce hound that defends its hunting ground — aggressive pack striker",
     "tags": [
       "living"
     ]
@@ -2690,12 +2765,13 @@
     "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
-      "Leader\u0027s Fang",
+      "Leader's Fang",
       "Rally Pack"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "The lead wolf of a border pack \u00E2\u20AC\u201D fast, commanding, and relentless",
+    "tempo": "normal",
+    "description": "The lead wolf of a border pack — fast, commanding, and relentless",
     "tags": [
       "living",
       "has_feet",
@@ -2730,7 +2806,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A necromantic scavenger that scatters cursed bones \u00E2\u20AC\u201D spreads decay and dark magic",
+    "tempo": "normal",
+    "description": "A necromantic scavenger that scatters cursed bones — spreads decay and dark magic",
     "tags": [
       "undead"
     ]
@@ -2762,7 +2839,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A bound creature left as offering to old powers \u00E2\u20AC\u201D heavy, savage, and enduring",
+    "tempo": "slow",
+    "description": "A bound creature left as offering to old powers — heavy, savage, and enduring",
     "tags": [
       "living"
     ]
@@ -2794,7 +2872,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A bear twisted by forest hexes \u00E2\u20AC\u201D powerful, brutal, and hard to fell",
+    "tempo": "heavy",
+    "description": "A bear twisted by forest hexes — powerful, brutal, and hard to fell",
     "tags": [
       "living",
       "giant",
@@ -2830,7 +2909,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A guardian of ancient burial mounds \u00E2\u20AC\u201D armored and territorial",
+    "tempo": "heavy",
+    "description": "A guardian of ancient burial mounds — armored and territorial",
     "tags": [
       "undead",
       "earth",
@@ -2865,11 +2945,12 @@
     "healthGrowthPercent": 4.29,
     "actions": [
       "Celestial Strike",
-      "Night\u0027s Grace"
+      "Night's Grace"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A forest spirit touched by moonlight \u00E2\u20AC\u201D heals and harms with sacred power",
+    "tempo": "heavy",
+    "description": "A forest spirit touched by moonlight — heals and harms with sacred power",
     "tags": [
       "elemental",
       "boss"
@@ -2902,7 +2983,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A hunter that strikes from reflected sound \u00E2\u20AC\u201D deceptive and hard to track",
+    "tempo": "normal",
+    "description": "A hunter that strikes from reflected sound — deceptive and hard to track",
     "tags": [
       "living",
       "has_hands",
@@ -2933,12 +3015,13 @@
     "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
-      "Pack Leader\u0027s Call",
+      "Pack Leader's Call",
       "Dominant Bite"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "The commander of a night watch pack \u00E2\u20AC\u201D leads with strength and cunning",
+    "tempo": "heavy",
+    "description": "The commander of a night watch pack — leads with strength and cunning",
     "tags": [
       "living",
       "boss"
@@ -2946,7 +3029,7 @@
   },
   {
     "region": "Forest",
-    "biome": "Laybrinth",
+    "biome": "Labyrinth",
     "location": "Hedge Corridor",
     "rarity": "uncommon",
     "name": "Guile Sprite",
@@ -2971,7 +3054,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A tiny fey spirit of trickery \u00E2\u20AC\u201D fast, mischievous, and unpredictable",
+    "tempo": "fast",
+    "description": "A tiny fey spirit of trickery — fast, mischievous, and unpredictable",
     "tags": [
       "elemental",
       "minion",
@@ -2980,7 +3064,7 @@
   },
   {
     "region": "Forest",
-    "biome": "Laybrinth",
+    "biome": "Labyrinth",
     "location": "Hedge Corridor",
     "rarity": "uncommon",
     "name": "Hedge Hound",
@@ -3005,14 +3089,15 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A lean hound that hunts along maze hedges \u00E2\u20AC\u201D quick flanking predator",
+    "tempo": "normal",
+    "description": "A lean hound that hunts along maze hedges — quick flanking predator",
     "tags": [
       "living"
     ]
   },
   {
     "region": "Forest",
-    "biome": "Laybrinth",
+    "biome": "Labyrinth",
     "location": "Hedge Corridor",
     "rarity": "Rare",
     "name": "Dead End Mimic",
@@ -3037,7 +3122,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A shapeshifter that waits at false exits \u00E2\u20AC\u201D lures victims into ambush",
+    "tempo": "normal",
+    "description": "A shapeshifter that waits at false exits — lures victims into ambush",
     "tags": [
       "living",
       "has_hands",
@@ -3048,7 +3134,7 @@
   },
   {
     "region": "Forest",
-    "biome": "Laybrinth",
+    "biome": "Labyrinth",
     "location": "Endless Maze",
     "rarity": "uncommon",
     "name": "Maze Runner",
@@ -3073,7 +3159,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A creature born to sprint endless corridors \u00E2\u20AC\u201D blinding speed, low endurance",
+    "tempo": "fast",
+    "description": "A creature born to sprint endless corridors — blinding speed, low endurance",
     "tags": [
       "living",
       "has_hands"
@@ -3081,7 +3168,7 @@
   },
   {
     "region": "Forest",
-    "biome": "Laybrinth",
+    "biome": "Labyrinth",
     "location": "Endless Maze",
     "rarity": "uncommon",
     "name": "Loop Shade",
@@ -3106,14 +3193,15 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A spirit trapped in repeating paths \u00E2\u20AC\u201D disorients and strikes from nowhere",
+    "tempo": "normal",
+    "description": "A spirit trapped in repeating paths — disorients and strikes from nowhere",
     "tags": [
       "undead"
     ]
   },
   {
     "region": "Forest",
-    "biome": "Laybrinth",
+    "biome": "Labyrinth",
     "location": "Endless Maze",
     "rarity": "Rare",
     "name": "Instinct Eater",
@@ -3138,14 +3226,15 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A horror that feeds on prey\u00E2\u20AC\u2122s fear and reflex \u00E2\u20AC\u201D preys on hesitation",
+    "tempo": "normal",
+    "description": "A horror that feeds on prey’s fear and reflex — preys on hesitation",
     "tags": [
       "living"
     ]
   },
   {
     "region": "Forest",
-    "biome": "Laybrinth",
+    "biome": "Labyrinth",
     "location": "The Room of Two Mirrors",
     "rarity": "uncommon",
     "name": "Duplicate",
@@ -3170,7 +3259,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A mirror-image foe that copies your movements \u00E2\u20AC\u201D unsettling and elusive",
+    "tempo": "normal",
+    "description": "A mirror-image foe that copies your movements — unsettling and elusive",
     "tags": [
       "living",
       "has_hands"
@@ -3178,7 +3268,7 @@
   },
   {
     "region": "Forest",
-    "biome": "Laybrinth",
+    "biome": "Labyrinth",
     "location": "The Room of Two Mirrors",
     "rarity": "uncommon",
     "name": "Shattered Reflection",
@@ -3203,6 +3293,7 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
+    "tempo": "normal",
     "description": "A broken mirror spirit that attacks through fractured images",
     "tags": [
       "elemental"
@@ -3210,7 +3301,7 @@
   },
   {
     "region": "Forest",
-    "biome": "Laybrinth",
+    "biome": "Labyrinth",
     "location": "The Room of Two Mirrors",
     "rarity": "Rare",
     "name": "The Other",
@@ -3235,7 +3326,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A doppelganger that wears your own face \u00E2\u20AC\u201D psychological and deadly",
+    "tempo": "heavy",
+    "description": "A doppelganger that wears your own face — psychological and deadly",
     "tags": [
       "living",
       "boss"
@@ -3268,7 +3360,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A bristling boar wrapped in thorny hide \u00E2\u20AC\u201D charges with brutal force",
+    "tempo": "slow",
+    "description": "A bristling boar wrapped in thorny hide — charges with brutal force",
     "tags": [
       "plant",
       "has_feet",
@@ -3298,12 +3391,13 @@
     "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
-      "Nature\u0027s Touch",
+      "Nature's Touch",
       "Vine Whip"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A small woodland spirit tied to living roots \u00E2\u20AC\u201D nimble and evasive",
+    "tempo": "fast",
+    "description": "A small woodland spirit tied to living roots — nimble and evasive",
     "tags": [
       "plant",
       "minion",
@@ -3337,7 +3431,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A coiled viper that strikes without warning \u00E2\u20AC\u201D venomous and precise",
+    "tempo": "fast",
+    "description": "A coiled viper that strikes without warning — venomous and precise",
     "tags": [
       "living",
       "has_feet",
@@ -3372,7 +3467,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A oversized pollinator driven to frenzy \u00E2\u20AC\u201D fast, swarming attacks",
+    "tempo": "fast",
+    "description": "A oversized pollinator driven to frenzy — fast, swarming attacks",
     "tags": [
       "plant",
       "minion",
@@ -3406,7 +3502,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A drifting spirit of choking pollen \u00E2\u20AC\u201D obscures sight and saps strength",
+    "tempo": "normal",
+    "description": "A drifting spirit of choking pollen — obscures sight and saps strength",
     "tags": [
       "undead"
     ]
@@ -3438,7 +3535,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A lowland predator that hunts at dusk \u00E2\u20AC\u201D swift and aggressive",
+    "tempo": "normal",
+    "description": "A lowland predator that hunts at dusk — swift and aggressive",
     "tags": [
       "living"
     ]
@@ -3470,7 +3568,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A vine-creature that scales vertical stone \u00E2\u20AC\u201D ambushes from above",
+    "tempo": "fast",
+    "description": "A vine-creature that scales vertical stone — ambushes from above",
     "tags": [
       "plant",
       "earth"
@@ -3503,7 +3602,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A writhing plant lash given hostile will \u00E2\u20AC\u201D whips with disciplined force",
+    "tempo": "normal",
+    "description": "A writhing plant lash given hostile will — whips with disciplined force",
     "tags": [
       "plant",
       "has_head"
@@ -3536,7 +3636,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A ghost of a fallen settlement \u00E2\u20AC\u201D lingers in broken halls",
+    "tempo": "normal",
+    "description": "A ghost of a fallen settlement — lingers in broken halls",
     "tags": [
       "undead"
     ]
@@ -3564,11 +3665,12 @@
     "healthGrowthPercent": 4.29,
     "actions": [
       "Reed Skewer",
-      "Predator\u0027s Eye"
+      "Predator's Eye"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A hunter that moves unseen through tall reeds \u00E2\u20AC\u201D silent, precise strikes",
+    "tempo": "fast",
+    "description": "A hunter that moves unseen through tall reeds — silent, precise strikes",
     "tags": [
       "plant",
       "has_hands",
@@ -3604,7 +3706,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A cloud of blood-hungry insects \u00E2\u20AC\u201D overwhelming speed, fragile individually",
+    "tempo": "swarm",
+    "description": "A cloud of blood-hungry insects — overwhelming speed, fragile individually",
     "tags": [
       "living"
     ]
@@ -3636,7 +3739,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A bog predator that rises from thick mud \u00E2\u20AC\u201D ambushes from below",
+    "tempo": "slow",
+    "description": "A bog predator that rises from thick mud — ambushes from below",
     "tags": [
       "living",
       "giant"
@@ -3669,7 +3773,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A spirit that surfs river currents \u00E2\u20AC\u201D fast, fluid, and evasive",
+    "tempo": "fast",
+    "description": "A spirit that surfs river currents — fast, fluid, and evasive",
     "tags": [
       "elemental"
     ]
@@ -3701,7 +3806,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A slippery river eel that strikes in flashes \u00E2\u20AC\u201D agile and hard to catch",
+    "tempo": "fast",
+    "description": "A slippery river eel that strikes in flashes — agile and hard to catch",
     "tags": [
       "living"
     ]
@@ -3733,7 +3839,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A empty-souled wanderer of misty hollows \u00E2\u20AC\u201D elusive and unsettling",
+    "tempo": "normal",
+    "description": "A empty-souled wanderer of misty hollows — elusive and unsettling",
     "tags": [
       "living"
     ]
@@ -3765,7 +3872,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A shapeshifter hidden in river fog \u00E2\u20AC\u201D lures prey into false safety",
+    "tempo": "normal",
+    "description": "A shapeshifter hidden in river fog — lures prey into false safety",
     "tags": [
       "living",
       "has_hands",
@@ -3801,7 +3909,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A chill-loving predator of damp caves \u00E2\u20AC\u201D slow approach, sudden strike",
+    "tempo": "fast",
+    "description": "A chill-loving predator of damp caves — slow approach, sudden strike",
     "tags": [
       "living",
       "tiny"
@@ -3834,7 +3943,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A ghost that haunts narrow cave ledges \u00E2\u20AC\u201D strikes from cramped angles",
+    "tempo": "normal",
+    "description": "A ghost that haunts narrow cave ledges — strikes from cramped angles",
     "tags": [
       "living"
     ]
@@ -3866,7 +3976,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A bioluminescent cave insect \u00E2\u20AC\u201D small, quick, and distracting",
+    "tempo": "fast",
+    "description": "A bioluminescent cave insect — small, quick, and distracting",
     "tags": [
       "living"
     ]
@@ -3898,7 +4009,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A ice-cloaked cave stalker \u00E2\u20AC\u201D patient ambusher in the cold dark",
+    "tempo": "fast",
+    "description": "A ice-cloaked cave stalker — patient ambusher in the cold dark",
     "tags": [
       "living",
       "tiny",
@@ -3935,7 +4047,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A heavy cave beast that lurches from darkness \u00E2\u20AC\u201D slow, crushing blows",
+    "tempo": "slow",
+    "description": "A heavy cave beast that lurches from darkness — slow, crushing blows",
     "tags": [
       "living"
     ]
@@ -3967,7 +4080,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A lore-keeper spirit that guards ancient records \u00E2\u20AC\u201D wise, magical, and vigilant",
+    "tempo": "normal",
+    "description": "A lore-keeper spirit that guards ancient records — wise, magical, and vigilant",
     "tags": [
       "elemental",
       "has_hands",
@@ -4003,7 +4117,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A predator that waits beneath unstable ground \u00E2\u20AC\u201D pulls prey down to strike",
+    "tempo": "fast",
+    "description": "A predator that waits beneath unstable ground — pulls prey down to strike",
     "tags": [
       "living"
     ]
@@ -4030,12 +4145,13 @@
     "healthPercent": 100,
     "healthGrowthPercent": 4.29,
     "actions": [
-      "Predator\u0027s Focus",
+      "Predator's Focus",
       "Tentacle Snap"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A shadowy hunter that moves through dark water \u00E2\u20AC\u201D precise, ink-cloud ambushes",
+    "tempo": "fast",
+    "description": "A shadowy hunter that moves through dark water — precise, ink-cloud ambushes",
     "tags": [
       "living",
       "has_hands",
@@ -4071,7 +4187,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A playful but dangerous spirit of cave vents \u00E2\u20AC\u201D mischievous and evasive",
+    "tempo": "fast",
+    "description": "A playful but dangerous spirit of cave vents — mischievous and evasive",
     "tags": [
       "elemental",
       "minion",
@@ -4105,7 +4222,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A venomous spined fish \u00E2\u20AC\u201D beautiful, slow, and painfully precise",
+    "tempo": "fast",
+    "description": "A venomous spined fish — beautiful, slow, and painfully precise",
     "tags": [
       "living"
     ]
@@ -4137,7 +4255,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A formless spirit of deep mist \u00E2\u20AC\u201D drifts through attacks and confuses foes",
+    "tempo": "normal",
+    "description": "A formless spirit of deep mist — drifts through attacks and confuses foes",
     "tags": [
       "elemental"
     ]
@@ -4169,7 +4288,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A disciplined guard of an flooded court \u00E2\u20AC\u201D armored sentinel of the depths",
+    "tempo": "heavy",
+    "description": "A disciplined guard of an flooded court — armored sentinel of the depths",
     "tags": [
       "living",
       "giant",
@@ -4206,7 +4326,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A abyssal creature that saps life from the deep \u00E2\u20AC\u201D magical life drain",
+    "tempo": "normal",
+    "description": "A abyssal creature that saps life from the deep — magical life drain",
     "tags": [
       "living"
     ]
@@ -4238,7 +4359,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A armored watcher of tidal passages \u00E2\u20AC\u201D holds ground against the current",
+    "tempo": "heavy",
+    "description": "A armored watcher of tidal passages — holds ground against the current",
     "tags": [
       "living",
       "giant",
@@ -4275,7 +4397,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A ascetic trained in crushing depth \u00E2\u20AC\u201D martial discipline under extreme force",
+    "tempo": "normal",
+    "description": "A ascetic trained in crushing depth — martial discipline under extreme force",
     "tags": [
       "living"
     ]
@@ -4307,7 +4430,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A rider of falling water and rapids \u00E2\u20AC\u201D fast, fluid, and relentless",
+    "tempo": "fast",
+    "description": "A rider of falling water and rapids — fast, fluid, and relentless",
     "tags": [
       "living"
     ]
@@ -4339,7 +4463,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A guardian of ancient water channels \u00E2\u20AC\u201D armored and immovable",
+    "tempo": "heavy",
+    "description": "A guardian of ancient water channels — armored and immovable",
     "tags": [
       "living",
       "giant",
@@ -4376,7 +4501,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A meditative watcher of unmoving pools \u00E2\u20AC\u201D reads foes and strikes with intent",
+    "tempo": "normal",
+    "description": "A meditative watcher of unmoving pools — reads foes and strikes with intent",
     "tags": [
       "living"
     ]
@@ -4408,7 +4534,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "A ghost dragged beneath the current \u00E2\u20AC\u201D pulls and strikes from below",
+    "tempo": "normal",
+    "description": "A ghost dragged beneath the current — pulls and strikes from below",
     "tags": [
       "undead"
     ]
@@ -4440,7 +4567,8 @@
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
-    "description": "An undead monarch risen from a sunken throne \u00E2\u20AC\u201D commands death with royal fury",
+    "tempo": "normal",
+    "description": "An undead monarch risen from a sunken throne — commands death with royal fury",
     "tags": [
       "undead",
       "earth"

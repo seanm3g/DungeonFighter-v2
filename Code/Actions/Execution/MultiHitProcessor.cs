@@ -150,7 +150,8 @@ namespace RPGGame.Actions.Execution
         }
 
         /// <summary>
-        /// One swing against a pack hits one body. Tick damage is summed, then applied once so leftover ticks cannot spill.
+        /// Multi-hit against a pack: each hit lands on the current front body. A hit that kills a body wastes its overkill,
+        /// and the next hit moves to the next body (3 hits can drop 3 bodies). Self damage on a pack source still applies once.
         /// </summary>
         private static int ProcessPackCappedMultiHit(
             Actor source,
@@ -168,6 +169,7 @@ namespace RPGGame.Actions.Execution
         {
             int rawTarget = 0;
             int rawSelf = 0;
+            var targetHits = new List<int>(multiHitCount);
             using (DamageCalculator.BeginMultiHitSwing())
             for (int hit = 0; hit < multiHitCount; hit++)
             {
@@ -182,10 +184,14 @@ namespace RPGGame.Actions.Execution
                 else if (action.Target == TargetType.SelfAndTarget)
                 {
                     rawTarget += hitDamage;
+                    targetHits.Add(hitDamage);
                     rawSelf += hitDamage;
                 }
                 else
+                {
                     rawTarget += hitDamage;
+                    targetHits.Add(hitDamage);
+                }
             }
 
             // Minimum damage applies to the whole swing, not to each tick.
@@ -193,12 +199,17 @@ namespace RPGGame.Actions.Execution
             {
                 int floor = DamageCalculator.SwingMinimumDamage;
                 if (action.Target != TargetType.Self && rawTarget > 0 && rawTarget < floor)
+                {
+                    targetHits[targetHits.Count - 1] += floor - rawTarget;
                     rawTarget = floor;
+                }
                 if ((action.Target == TargetType.Self || action.Target == TargetType.SelfAndTarget) && rawSelf > 0 && rawSelf < floor)
                     rawSelf = floor;
             }
 
-            int appliedTarget = ApplyRawOnce(target, rawTarget);
+            int appliedTarget = target is Enemy packTarget && packTarget.IsPack
+                ? PackCombat.ApplyHitsAcrossBodies(packTarget, targetHits)
+                : ApplyRawOnce(target, rawTarget);
             int appliedSelf = ApplyRawOnce(source, rawSelf);
             int totalDamage = action.Target == TargetType.Self ? appliedSelf : appliedTarget;
 

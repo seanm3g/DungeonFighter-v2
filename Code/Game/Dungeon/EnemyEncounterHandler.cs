@@ -49,7 +49,8 @@ namespace RPGGame
             Enemy enemy,
             bool playerGetsFirstAttack = false,
             bool enemyGetsFirstAttack = false,
-            bool isDungeonFinaleRoom = false)
+            bool isDungeonFinaleRoom = false,
+            bool heroOpeningAdvantage = false)
         {
             if (stateManager.CurrentPlayer == null || combatManager == null) return false;
 
@@ -69,19 +70,23 @@ namespace RPGGame
             {
             var player = stateManager.CurrentPlayer;
             var room = stateManager.CurrentRoom;
-            
+
             // Check if this character is currently active (for background combat support)
             bool isCharacterActive = IsCharacterActive(player);
-            
+
             // Start enemy encounter using unified display manager
             displayManager.StartEnemyEncounter(enemy);
-            
-            // Show surprise message after enemy appears (if applicable)
+
+            // Opening edge: an ambusher rolls its first attack with advantage; a scouting critical gives the hero the same.
+            enemy.EncounterAdvantageRolls = enemyGetsFirstAttack ? 1 : 0;
+            player.EncounterAdvantageRolls = heroOpeningAdvantage && !enemyGetsFirstAttack ? 1 : 0;
+
+            // Initiative lines come after the enemy appears so the encounter info is read first.
             if (enemyGetsFirstAttack)
-            {
-                AddEnemySurpriseCombatEvent(displayManager, player);
-            }
-            
+                AddEnemySurpriseCombatEvent(displayManager, player, enemy);
+            else if (playerGetsFirstAttack)
+                AddPlayerSurpriseCombatEvent(displayManager, player, enemy, heroOpeningAdvantage);
+
             // Only render UI if this character is currently active
             // This allows combat to run in the background without interrupting menus or other character views
             if (isCharacterActive)
@@ -91,17 +96,17 @@ namespace RPGGame
                 {
                     canvasUISetup.ResetForNewBattle();
                 }
-                
+
                 // Render enemy encounter screen to show enemy information after room info
                 // This ensures the enemy encounter information is visible before combat starts
                 if (customUIManager is CanvasUICoordinator canvasUIEnemy)
                 {
-                    canvasUIEnemy.RenderEnemyEncounter(enemy, player, displayManager.DungeonContext, 
+                    canvasUIEnemy.RenderEnemyEncounter(enemy, player, displayManager.DungeonContext,
                         stateManager.CurrentDungeon?.Name, stateManager.CurrentRoom?.Name);
                     // Brief delay to show enemy encounter information.
                     await SimulationPacing.DelayForCombatSpeedAsync(2000);
                 }
-                
+
                 // Initial render of combat screen with structured content
                 // This sets up the layout and enables structured combat mode
                 if (customUIManager is CanvasUICoordinator canvasUIInitial)
@@ -109,7 +114,7 @@ namespace RPGGame
                     canvasUIInitial.RenderCombat(player, enemy, displayManager.CombatLog);
                 }
             }
-            
+
             // Create debouncer for UI updates (only if character is active)
             CombatEventDebouncer? debouncer = null;
             if (isCharacterActive && customUIManager is CanvasUICoordinator canvasUI)
@@ -125,7 +130,7 @@ namespace RPGGame
                 });
                 displayManager.CombatEventAdded += debouncer.TriggerRefresh;
             }
-            
+
             // While fighting, use GameState.Combat so UI policy can lock combo reorder (state often stayed Dungeon with CombatDisplayMode out of sync).
             bool transitionedToCombatForReorder = false;
             if (isCharacterActive && stateManager.CurrentState == GameState.Dungeon)
@@ -165,6 +170,8 @@ namespace RPGGame
                 // on the death screen cannot reload a healthy live save. Clone/resurrect recreate live.
                 if (stateManager.CurrentPlayer != null)
                 {
+                    FighterHistory.RecordDeath(stateManager.CurrentPlayer, enemy, stateManager.CurrentDungeon?.Name, room?.Name);
+
                     try
                     {
                         var characterId = stateManager.GetCharacterId(stateManager.CurrentPlayer);
@@ -185,12 +192,12 @@ namespace RPGGame
                 }
                 return false;
             }
-            
+
             // Record enemy defeat in session statistics
             if (player != null)
             {
                 player.RecordEnemyDefeat();
-                
+
                 // Award XP for enemy kill
                 if (enemy != null)
                 {
@@ -202,12 +209,12 @@ namespace RPGGame
             // room-clear event for audio purposes. CombatEventBus already fires Combat_EnemyDied
             // for the per-enemy death sting; this is the longer "room complete" stinger.
             AudioCues.Trigger(AudioCue.Dungeon_RoomClear);
-            
+
             // Check for one-shot kill and scale dungeon level if needed
             if (playerWon && combatManager != null && combatManager.HadOneShotKill() && stateManager.CurrentDungeon != null)
             {
                 stateManager.CurrentDungeon.ScaleLevelUp(1);
-                
+
                 // Notify player about dungeon scaling
                 if (displayManager != null)
                 {
@@ -217,7 +224,7 @@ namespace RPGGame
                     displayManager.AddCombatEvent(ColoredTextRenderer.RenderAsMarkup(scalingBuilder.Build()));
                 }
             }
-            
+
             // Enemy defeated - add victory message with proper spacing BEFORE final render
             // This ensures the victory message is included in the final render and prevents overlapping text
             if (enemy != null && displayManager != null)
@@ -230,7 +237,7 @@ namespace RPGGame
                 victoryBuilder.Add(" has been defeated!", ColorPalette.Success);
                 // Use structured routing so creature-name RGB survives; markup round-trip maps colors to nearest palette.
                 displayManager.AddCombatEvent(victoryBuilder, player);
-                
+
                 // Optional post-fight recovery (dungeonScaling.postFightHealPercent).
                 double postFightHeal = GameConfiguration.Instance.DungeonScaling?.PostFightHealPercent ?? 0;
                 if (player != null && postFightHeal > 0 && player.CurrentHealth > 0)
@@ -244,7 +251,7 @@ namespace RPGGame
                 // Remaining health after defeat — victory verse is deferred to dungeon completion.
                 if (player != null)
                 {
-                    string healthMsg = string.Format(AsciiArtAssets.UIText.RemainingHealth, 
+                    string healthMsg = string.Format(AsciiArtAssets.UIText.RemainingHealth,
                         player.CurrentHealth, player.GetEffectiveMaxHealth());
                     var healthBuilder = new ColoredTextBuilder();
                     healthBuilder.Add(healthMsg, ColorPalette.Gold);
@@ -254,11 +261,11 @@ namespace RPGGame
                 // Record defeat block so the next enemy's "appears" line gets a separating blank line
                 TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyDefeated);
             }
-            
+
             // Wait for any reactive renders triggered by AddCombatEvent to complete before final render
             // This prevents text from overlapping when multiple renders happen in quick succession
             await SimulationPacing.DelayForCombatSpeedAsync(250);
-            
+
             // Final refresh to show complete combat log including victory message (use Post to avoid blocking)
             // This single render will replace any previous renders and show the complete state
             // Only render if character is still active
@@ -275,20 +282,20 @@ namespace RPGGame
                 // Small delay to ensure the final render completes before continuing
                 await SimulationPacing.DelayForCombatSpeedAsync(100);
             }
-            
+
             // Remove the dead enemy from the room's enemy list
             // This prevents dead enemies from persisting and showing up during room transitions
             if (enemy != null && !enemy.IsAlive && room != null)
             {
                 room.RemoveDeadEnemies();
             }
-            
+
             // Clear enemy context after combat ends to prevent old enemies from showing during transitions
             if (isCharacterActive && customUIManager is CanvasUICoordinator canvasUIClear)
             {
                 canvasUIClear.ClearCurrentEnemy();
             }
-            
+
             // Small delay before next
             await SimulationPacing.DelayForCombatSpeedAsync(1000);
 
@@ -301,18 +308,18 @@ namespace RPGGame
             }
         }
 
-        internal static void AddEnemySurpriseCombatEvent(DungeonDisplayManager displayManager, Character player, Random? random = null)
+        internal static void AddEnemySurpriseCombatEvent(DungeonDisplayManager displayManager, Character player, Enemy? enemy = null, Random? random = null)
         {
             if (displayManager == null) throw new ArgumentNullException(nameof(displayManager));
             if (player == null) throw new ArgumentNullException(nameof(player));
 
+            string foe = string.IsNullOrWhiteSpace(enemy?.Name) ? "The enemy" : $"The {enemy!.Name}";
             var surpriseMessages = new[]
             {
-                "You've been surprised! The enemy will strike first!",
-                "The enemy catches you off guard! They attack first!",
-                "You're caught unaware! The enemy gains the first strike!",
-                "The enemy has the element of surprise! They act first!",
-                "You're taken by surprise! The enemy strikes first!"
+                $"Ambush! {foe} strikes first, with the advantage!",
+                $"{foe} catches you off guard - it attacks first, with the advantage!",
+                $"You're caught unaware! {foe} takes the first strike, with the advantage!",
+                $"{foe} has the element of surprise - it acts first, with the advantage!"
             };
 
             random ??= new Random();
@@ -322,6 +329,29 @@ namespace RPGGame
 
             displayManager.AddCombatEvent("", player);
             displayManager.AddCombatEvent(surpriseBuilder, player, UIMessageType.Environmental);
+            displayManager.AddCombatEvent("", player);
+        }
+
+        /// <summary>Hero caught the enemy unaware: shown after the enemy's info so the player sees who they surprised.</summary>
+        internal static void AddPlayerSurpriseCombatEvent(DungeonDisplayManager displayManager, Character player, Enemy enemy, bool withAdvantage, Random? random = null)
+        {
+            if (displayManager == null) throw new ArgumentNullException(nameof(displayManager));
+            if (player == null) throw new ArgumentNullException(nameof(player));
+
+            string foe = string.IsNullOrWhiteSpace(enemy?.Name) ? "the enemy" : $"the {enemy!.Name}";
+            string tail = withAdvantage ? " and with the advantage!" : "!";
+            var messages = new[]
+            {
+                $"You catch {foe} unaware - you strike first{tail}",
+                $"{char.ToUpperInvariant(foe[0]) + foe.Substring(1)} hasn't noticed you - you strike first{tail}",
+                $"You get the drop on {foe} - you act first{tail}"
+            };
+            random ??= new Random();
+            displayManager.AddCombatEvent("", player);
+            displayManager.AddCombatEvent(
+                new ColoredTextBuilder().Add(messages[random.Next(messages.Length)], ColorPalette.Success),
+                player,
+                UIMessageType.Environmental);
             displayManager.AddCombatEvent("", player);
         }
 
@@ -361,7 +391,7 @@ namespace RPGGame
         private bool IsCharacterActive(Character character)
         {
             if (character == null) return false;
-            
+
             // Check if we're in a menu state - don't show combat in menus
             var currentState = stateManager.CurrentState;
             bool isMenuState = currentState == GameState.MainMenu ||
@@ -383,16 +413,16 @@ namespace RPGGame
                              currentState == GameState.CreateAction ||
                              currentState == GameState.ViewAction ||
                              currentState == GameState.CharacterSelection;
-            
+
             if (isMenuState)
             {
                 return false;
             }
-            
+
             // Check if character matches active character (for multi-character support)
             var activeCharacter = stateManager.GetActiveCharacter();
             bool isActive = activeCharacter == character;
-            
+
             return isActive;
         }
     }

@@ -56,6 +56,19 @@ namespace RPGGame.UI.Avalonia
             // Desert/Arid themes
             { "Desert", Color.FromRgb(237, 201, 175) },      // Sandy beige
             { "Ruins", Color.FromRgb(160, 144, 119) },       // Stone gray-brown
+
+            // Region biome dungeons (Regions.json linkedDungeonThemes)
+            { "Den", Color.FromRgb(139, 110, 60) },          // Earthy brown - animal den
+            { "Labyrinth", Color.FromRgb(46, 160, 87) },     // Hedge green
+            { "Dense Brush", Color.FromRgb(0, 170, 40) },    // Thicket green
+            { "Mirror Pond", Color.FromRgb(120, 170, 200) }, // Misty blue
+            { "Spring", Color.FromRgb(64, 200, 210) },       // Spring cyan
+            { "Water Temple", Color.FromRgb(30, 110, 190) }, // Deep temple blue
+            { "Ashen Land", Color.FromRgb(150, 140, 130) },  // Ash gray
+            { "Fire Temple", Color.FromRgb(255, 120, 20) },  // Flame orange
+            { "Lava Cave", Color.FromRgb(215, 66, 0) },      // Molten red
+            { "Pyramids", Color.FromRgb(214, 180, 90) },     // Sandstone gold
+            { "Mountains", Color.FromRgb(192, 192, 210) },   // Snowy silver
             
             // Generic/Default
             { "Generic", Color.FromRgb(192, 192, 192) },     // Silver - neutral

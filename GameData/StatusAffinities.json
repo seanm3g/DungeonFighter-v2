@@ -1,0 +1,19 @@
+[
+  {"tag": "undead", "status": "poison", "multiplier": 0, "note": "No living blood to poison"},
+  {"tag": "undead", "status": "bleed", "multiplier": 0, "note": "No blood left to spill"},
+  {"tag": "undead", "status": "burn", "multiplier": 1.5, "note": "Dry flesh and old bone catch fire"},
+  {"tag": "elemental", "status": "poison", "multiplier": 0, "note": "Not made of flesh"},
+  {"tag": "elemental", "status": "bleed", "multiplier": 0, "note": "Not made of flesh"},
+  {"tag": "plant", "status": "burn", "multiplier": 2, "note": "Wood and leaf burn readily"},
+  {"tag": "plant", "status": "poison", "multiplier": 0.5, "note": "Sap dilutes toxins"},
+  {"tag": "plant", "status": "bleed", "multiplier": 0.5, "note": "Sap seeps slowly"},
+  {"tag": "fire", "status": "burn", "multiplier": 0, "note": "Already ablaze"},
+  {"tag": "water", "status": "burn", "multiplier": 0.5, "note": "Damp body smothers flames"},
+  {"tag": "water", "status": "acid", "multiplier": 0.5, "note": "Water dilutes acid"},
+  {"tag": "earth", "status": "acid", "multiplier": 2, "note": "Acid eats through stone and shell"},
+  {"tag": "earth", "status": "poison", "multiplier": 0.5, "note": "Stone hide resists toxins"},
+  {"tag": "air", "status": "slow", "multiplier": 0, "note": "Cannot be pinned down"},
+  {"tag": "tiny", "status": "poison", "multiplier": 1.5, "note": "Small bodies saturate quickly"},
+  {"tag": "frail", "status": "bleed", "multiplier": 1.5, "note": "Thin skin tears easily"},
+  {"tag": "boss", "status": "stun", "multiplier": 0, "note": "Too strong-willed to stagger"}
+]

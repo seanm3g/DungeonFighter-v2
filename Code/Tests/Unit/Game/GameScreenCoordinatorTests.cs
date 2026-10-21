@@ -196,7 +196,7 @@ namespace RPGGame.Tests.Unit.Game
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 // Test with saved game info
-                coordinator.ShowMainMenu(true, "TestCharacter", 5);
+                coordinator.ShowMainMenu(true, 3);
                 
                 TestBase.AssertTrue(true,
                     "ShowMainMenu should execute with saved game info",

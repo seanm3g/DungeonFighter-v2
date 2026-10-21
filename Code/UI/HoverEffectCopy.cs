@@ -44,16 +44,26 @@ namespace RPGGame
             string effectId = EffectIdFromHudLine(line);
             if (!string.IsNullOrEmpty(effectId))
             {
-                string how = HowItWorks(effectId);
-                if (!string.IsNullOrEmpty(how))
-                    lines.Add(how);
-                string source = FormatSourceLabel(hero?.GetStatusSource(effectId));
-                if (!string.IsNullOrEmpty(source))
-                    lines.Add($"Last applied by {source}.");
+                lines.AddRange(StatusEffectHoverDetails.Describe(hero, effectId));
                 return lines;
             }
 
             AppendLooseLine(lines, line);
+            return lines;
+        }
+
+        /// <summary>Status row hover for any actor (enemy right-panel rows); hero-only lines fall back to the short copy.</summary>
+        public static List<string> ExplainActorStatusLine(Actor? actor, string? displayLine)
+        {
+            if (actor is Character hero && actor is not Enemy)
+                return ExplainStatusLine(hero, displayLine);
+            var lines = new List<string>();
+            string line = (displayLine ?? "").Trim();
+            string effectId = EffectIdFromHudLine(line);
+            if (!string.IsNullOrEmpty(effectId))
+                lines.AddRange(StatusEffectHoverDetails.Describe(actor, effectId));
+            else
+                AppendLooseLine(lines, line);
             return lines;
         }
 

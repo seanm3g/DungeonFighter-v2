@@ -7,6 +7,9 @@ namespace RPGGame
     /// <summary>
     /// Inherent animal tag ladder (no sheet): 2+ animal general, 2+ taxon mechanic, 3+ specific heighten / action unlock.
     /// Charm slot is excluded from counts (gear slots only).
+    /// <para>Taxon set bonuses (2+ pieces of one taxon; scaled by the charm ladder and the 3+ specific heighten):
+    /// Beast +6% damage, Bird +8% speed, Shell −8% damage taken, Reptile +4% damage / −4% taken,
+    /// Bug +5% speed / +3% damage, Fish −6% damage taken, Mythic +5% AMP.</para>
     /// </summary>
     public static class AnimalSetController
     {
@@ -17,6 +20,122 @@ namespace RPGGame
         public const int BaseBirdSpeedPct = 8;
         public const int BaseMythicAmpPct = 5;
         public const double SpecificHeightenFactor = 1.5;
+
+        /// <summary>One taxon's set bonus at base strength (percent points).</summary>
+        public readonly record struct TaxonBonus(string Taxon, string Name, double DamagePct, double SpeedPct, double AmpPct, double DamageTakenPct);
+
+        private static readonly Dictionary<string, TaxonBonus> TaxonBonuses = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["beast"] = new TaxonBonus("beast", "Ferocity", 6, 0, 0, 0),
+            ["bird"] = new TaxonBonus("bird", "Swiftness", 0, BaseBirdSpeedPct, 0, 0),
+            ["shell"] = new TaxonBonus("shell", "Carapace", 0, 0, 0, 8),
+            ["reptile"] = new TaxonBonus("reptile", "Scaled Hide", 4, 0, 0, 4),
+            ["bug"] = new TaxonBonus("bug", "Swarm", 3, 5, 0, 0),
+            ["fish"] = new TaxonBonus("fish", "Slippery", 0, 0, 0, 6),
+            ["mythic"] = new TaxonBonus("mythic", "Legend", 0, 0, BaseMythicAmpPct, 0),
+        };
+
+        /// <summary>Active taxon bonuses (2+ pieces), already scaled by <see cref="GetTaxonMagnitudeMultiplier"/>.</summary>
+        public static List<(TaxonBonus Bonus, int Count)> GetActiveTaxonBonuses(Character? hero)
+        {
+            var list = new List<(TaxonBonus, int)>();
+            if (hero == null || hero is Enemy)
+                return list;
+            double mult = -1;
+            foreach (var taxon in AnimalTagHelper.TaxonTags)
+            {
+                int n = CountTag(hero, taxon);
+                if (n < TaxonThreshold || !TaxonBonuses.TryGetValue(taxon, out var b))
+                    continue;
+                if (mult < 0)
+                    mult = GetTaxonMagnitudeMultiplier(hero);
+                list.Add((b with
+                {
+                    DamagePct = b.DamagePct * mult,
+                    SpeedPct = b.SpeedPct * mult,
+                    AmpPct = b.AmpPct * mult,
+                    DamageTakenPct = b.DamageTakenPct * mult
+                }, n));
+            }
+            return list;
+        }
+
+        /// <summary>Hero damage dealt × this (beast / reptile / bug sets).</summary>
+        public static double GetOutgoingDamageMultiplier(Actor? actor)
+        {
+            if (actor is not Character hero || actor is Enemy)
+                return 1.0;
+            double pct = 0;
+            foreach (var (b, _) in GetActiveTaxonBonuses(hero))
+                pct += b.DamagePct;
+            return 1.0 + pct / 100.0;
+        }
+
+        /// <summary>Hero damage taken × this (shell / reptile / fish sets), never below 50%.</summary>
+        public static double GetIncomingDamageMultiplier(Actor? actor)
+        {
+            if (actor is not Character hero || actor is Enemy)
+                return 1.0;
+            double pct = 0;
+            foreach (var (b, _) in GetActiveTaxonBonuses(hero))
+                pct += b.DamageTakenPct;
+            return Math.Max(0.5, 1.0 - pct / 100.0);
+        }
+
+        /// <summary>Standing speed % from bird / bug sets (added to the general animal speed %).</summary>
+        public static double GetTaxonSpeedPct(Character? hero)
+        {
+            double pct = 0;
+            foreach (var (b, _) in GetActiveTaxonBonuses(hero))
+                pct += b.SpeedPct;
+            return pct;
+        }
+
+        /// <summary>Base AMP × (1 + this/100) from the mythic set.</summary>
+        public static double GetAmpBonusPct(Character? hero)
+        {
+            double pct = 0;
+            foreach (var (b, _) in GetActiveTaxonBonuses(hero))
+                pct += b.AmpPct;
+            return pct;
+        }
+
+        /// <summary>"Beast 2 - Ferocity: +6% damage" style lines for HUD tooltips.</summary>
+        public static string DescribeBonus(TaxonBonus b)
+        {
+            var parts = new List<string>();
+            if (b.DamagePct > 0) parts.Add($"+{b.DamagePct:0.#}% damage");
+            if (b.SpeedPct > 0) parts.Add($"+{b.SpeedPct:0.#}% speed");
+            if (b.AmpPct > 0) parts.Add($"+{b.AmpPct:0.#}% AMP");
+            if (b.DamageTakenPct > 0) parts.Add($"-{b.DamageTakenPct:0.#}% damage taken");
+            return $"{b.Name}: {string.Join(", ", parts)}";
+        }
+
+        /// <summary>Tooltip lines for an "animal:Label" HUD row: what every animal tier does and what is active now.</summary>
+        public static List<string> DescribeSetBonuses(Character? hero)
+        {
+            var lines = new List<string>();
+            int animals = CountAnimals(hero);
+            lines.Add($"Animal gear: {animals} piece(s) (charm excluded).");
+            lines.Add(animals >= GeneralThreshold
+                ? $"Active - {GeneralThreshold}+ animals: +{GetGeneralSpeedPct(hero)}% speed."
+                : $"{GeneralThreshold}+ animal pieces: +{BaseGeneralSpeedPct}% speed.");
+            var active = GetActiveTaxonBonuses(hero);
+            foreach (var (b, n) in active)
+                lines.Add($"Active - {char.ToUpperInvariant(b.Taxon[0]) + b.Taxon.Substring(1)} {n}: {DescribeBonus(b)}");
+            foreach (var kv in TaxonBonuses)
+            {
+                if (active.Exists(a => string.Equals(a.Bonus.Taxon, kv.Key, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+                int have = CountTag(hero, kv.Key);
+                lines.Add($"{char.ToUpperInvariant(kv.Key[0]) + kv.Key.Substring(1)} {have}/{TaxonThreshold}: {DescribeBonus(kv.Value)}");
+            }
+            string? specific = GetDominantSpecific(hero);
+            lines.Add(specific != null
+                ? $"Active - 3x {specific.Replace('_', ' ')}: taxon bonuses x{SpecificHeightenFactor:0.#}."
+                : $"{SpecificThreshold}+ of the same animal: taxon bonuses x{SpecificHeightenFactor:0.#}.");
+            return lines;
+        }
 
         public static IEnumerable<Item?> EnumerateGear(Character? hero)
         {
@@ -159,7 +278,8 @@ namespace RPGGame
                 if (n >= TaxonThreshold)
                 {
                     string label = char.ToUpperInvariant(taxon[0]) + taxon.Substring(1);
-                    list.Add(($"{label} {n}", n));
+                    string bonus = TaxonBonuses.TryGetValue(taxon, out var b) ? $" {b.Name}" : "";
+                    list.Add(($"{label} {n}{bonus}", n));
                 }
             }
 

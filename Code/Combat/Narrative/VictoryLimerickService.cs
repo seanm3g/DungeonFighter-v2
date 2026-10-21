@@ -21,6 +21,7 @@ namespace RPGGame.Combat.Narrative
             "Refer to the hero only via a pun or metaphor inspired by their name " +
             "(you may use or riff on the suggested epithet). " +
             "Stay in-world; no meta talk about dice, UI, APIs, or being an AI. " +
+            "You may weave in any gear, move, or loot names provided, but none are required. " +
             "Return ONLY the limerick, no title or commentary.";
         private readonly Func<OpenAiPreferences> _prefsFactory;
         private readonly Func<OpenAiPreferences, ILlmTextClient> _clientFactory;
@@ -185,9 +186,37 @@ namespace RPGGame.Combat.Narrative
         /// Fire-and-forget: awaits a prefetched result when available, otherwise generates from
         /// <paramref name="packetFallback"/> (or the packet stored at prefetch), then invokes <paramref name="onReady"/>.
         /// </summary>
+        /// <summary>
+        /// Like <see cref="DeliverPrefetchOrRequest"/>, but when <paramref name="lootNames"/> has entries the verse is
+        /// regenerated from the stored packet with the loot attached (the prefetch was made before loot dropped).
+        /// </summary>
+        public void DeliverWithLoot(IReadOnlyList<string>? lootNames, System.Action<string> onReady)
+        {
+            if (lootNames == null || lootNames.Count == 0)
+            {
+                DeliverPrefetchOrRequest(null, onReady);
+                return;
+            }
+            BattleLimerickPacket? pending;
+            lock (_prefetchLock)
+                pending = _pendingPacket;
+            if (pending == null)
+            {
+                DeliverPrefetchOrRequest(null, onReady);
+                return;
+            }
+            DeliverPrefetchOrRequest(BattleLimerickPacketBuilder.WithLoot(pending, lootNames), onReady, preferFallback: true);
+        }
+
         public void DeliverPrefetchOrRequest(
             BattleLimerickPacket? packetFallback,
             System.Action<string> onReady)
+            => DeliverPrefetchOrRequest(packetFallback, onReady, preferFallback: false);
+
+        private void DeliverPrefetchOrRequest(
+            BattleLimerickPacket? packetFallback,
+            System.Action<string> onReady,
+            bool preferFallback)
         {
             if (onReady == null)
                 return;
@@ -208,7 +237,9 @@ namespace RPGGame.Combat.Narrative
                 try
                 {
                     string? limerick = null;
-                    if (existing != null)
+                    if (preferFallback && packetFallback != null && packetFallback.HeroWon)
+                        limerick = await GenerateAsync(packetFallback).ConfigureAwait(false);
+                    if (string.IsNullOrWhiteSpace(limerick) && existing != null)
                         limerick = await existing.ConfigureAwait(false);
 
                     var fallback = packetFallback ?? pending;

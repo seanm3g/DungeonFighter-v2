@@ -5,8 +5,9 @@ using RPGGame.UI.ColorSystem;
 namespace RPGGame.Combat
 {
     /// <summary>
-    /// Pack enemies are one combat role split into bodies. A swing can kill at most the front body,
-    /// and the pack's own attack hit count is the number of bodies still alive.
+    /// Pack enemies are one combat role split into bodies. A single hit can kill at most the front body (overkill is
+    /// wasted), but each hit of a multi-hit swing lands on whichever body is in front, so 3 hits can drop 3 bodies.
+    /// The pack's own attack hit count is the number of bodies still alive.
     /// </summary>
     public static class PackCombat
     {
@@ -30,6 +31,31 @@ namespace RPGGame.Combat
             if (source is Enemy enemy && enemy.IsPack && enemy.PackSize > 1)
                 return Math.Min(1.0, Math.Max(1, authoredCount) / (double)enemy.PackSize);
             return 1.0;
+        }
+
+        /// <summary>
+        /// Applies each hit separately to the pack's current front body: a hit that kills a body wastes its overkill,
+        /// and the next hit moves on to the next body. Returns HP actually removed; the enemy's
+        /// <see cref="Enemy.LastOverkillWasted"/> becomes the overkill summed over all hits.
+        /// </summary>
+        public static int ApplyHitsAcrossBodies(Enemy pack, IReadOnlyList<int> hits)
+        {
+            int before = pack.CurrentHealth;
+            int overkill = 0;
+            foreach (int hit in hits)
+            {
+                if (hit <= 0)
+                    continue;
+                if (pack.CurrentHealth <= 0)
+                {
+                    overkill += hit;
+                    continue;
+                }
+                RPGGame.ActionUtilities.ApplyDamage(pack, hit);
+                overkill += Math.Max(0, pack.LastOverkillWasted);
+            }
+            pack.SetLastOverkillWasted(overkill);
+            return Math.Max(0, before - pack.CurrentHealth);
         }
 
         internal static void SnapshotHeadlines(ActionExecutionResult result, Actor source, Actor target)
@@ -70,7 +96,17 @@ namespace RPGGame.Combat
             if (replaceDamage)
                 result.Damage = Math.Max(0, hpBefore - enemy.CurrentHealth);
             if (enemy.LivingBodyCount < livingBefore && enemy.LivingBodyCount > 0 && string.IsNullOrEmpty(result.PackBodyFellText))
-                result.PackBodyFellText = $"One falls. {enemy.Name}({enemy.LivingBodyCount}x) remain.";
+                result.PackBodyFellText = FormatBodiesFell(enemy, livingBefore - enemy.LivingBodyCount);
+        }
+
+        /// <summary>"One falls." / "Two fall." prose for bodies dropped by one swing, plus how many remain.</summary>
+        public static string FormatBodiesFell(Enemy enemy, int fallen)
+        {
+            string[] words = { "None", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten" };
+            string count = fallen >= 0 && fallen < words.Length ? words[fallen] : fallen.ToString();
+            string verb = fallen == 1 ? "falls" : "fall";
+            string remain = enemy.LivingBodyCount == 1 ? "remains" : "remain";
+            return $"{count} {verb}. {enemy.Name}({enemy.LivingBodyCount}x) {remain}.";
         }
 
         public static List<ColoredText> FormatBodyFellLine(string text)

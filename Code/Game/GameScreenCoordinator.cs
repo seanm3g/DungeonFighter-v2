@@ -10,14 +10,14 @@ namespace RPGGame
 {
     /// <summary>
     /// Central coordinator for high-level screen transitions.
-    /// 
+    ///
     /// Goal:
     /// - Provide a single place to manage how core screens are rendered
     ///   (Game Menu, Inventory, Dungeon Completion, etc.).
     /// - Make state + UI invariants explicit and reduce duplicated
     ///   CanvasUICoordinator access scattered across Game/handlers.
     /// - Use standardized ScreenTransitionProtocol for consistent behavior.
-    /// 
+    ///
     /// This coordinator now handles ALL screen transitions using the
     /// standardized protocol to ensure consistent behavior.
     /// </summary>
@@ -120,13 +120,21 @@ namespace RPGGame
             );
 
             // Victory verse: prefetched on the final room's kill; append when ready (does not block completion UI).
-            TryDeliverVictoryLimerickAtDungeonCompletion(canvasUI, player);
+            var lootNames = new List<string>();
+            if (lootReceived != null && !string.IsNullOrWhiteSpace(lootReceived.Name))
+                lootNames.Add(lootReceived.Name);
+            foreach (var found in safeItemsFound)
+            {
+                if (!string.IsNullOrWhiteSpace(found?.Name))
+                    lootNames.Add(found.Name);
+            }
+            TryDeliverVictoryLimerickAtDungeonCompletion(canvasUI, player, lootNames);
         }
 
         /// <summary>
         /// Appends a prefetched (or freshly generated) victory limerick after the dungeon summary.
         /// </summary>
-        private void TryDeliverVictoryLimerickAtDungeonCompletion(CanvasUICoordinator canvasUI, Character player)
+        private void TryDeliverVictoryLimerickAtDungeonCompletion(CanvasUICoordinator canvasUI, Character player, IReadOnlyList<string>? lootNames = null)
         {
             try
             {
@@ -141,7 +149,7 @@ namespace RPGGame
                     return;
 
                 var playerRef = player;
-                limerickService.DeliverPrefetchOrRequest(null, limerick =>
+                limerickService.DeliverWithLoot(lootNames, limerick =>
                 {
                     var lines = RPGGame.Combat.Narrative.VictoryLimerickValidator.SplitToDisplayLines(limerick);
                     if (lines.Count == 0)
@@ -243,7 +251,7 @@ namespace RPGGame
         /// Show the main menu.
         /// Uses standardized ScreenTransitionProtocol for consistent behavior.
         /// </summary>
-        public void ShowMainMenu(bool hasSavedGame = false, string? characterName = null, int characterLevel = 0)
+        public void ShowMainMenu(bool hasSavedGame = false, int savedFighterCount = 0)
         {
             var canvasUI = TryGetCanvasUI();
 
@@ -257,7 +265,7 @@ namespace RPGGame
                 stateManager,
                 canvasUI,
                 GameState.MainMenu,
-                (ui) => ui.RenderMainMenu(hasSavedGame, characterName, characterLevel),
+                (ui) => ui.RenderMainMenu(hasSavedGame, savedFighterCount),
                 character: null,
                 clearEnemyContext: true,
                 clearDungeonContext: true
@@ -403,7 +411,7 @@ namespace RPGGame
                 stateManager,
                 canvasUI,
                 GameState.CharacterInfo,
-                (ui) => 
+                (ui) =>
                 {
                     // Use the renderer to render character info with persistent layout
                     ui.RenderCharacterInfoScreen(player);

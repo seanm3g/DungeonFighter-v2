@@ -362,7 +362,8 @@ namespace RPGGame.UI.Avalonia
             ctm.SwitchToCharacterDisplayManager(player);
             var dm = ctm.GetDisplayManagerForCharacter(player);
             dm.Buffer.Add(new List<ColoredText>());
-            int summaryWidth = Math.Max(1, LayoutConstants.CenterPanelTextColumnWidth);
+            // Same column the death log renders in (side padding + zoom), so the block centers on screen.
+            int summaryWidth = Math.Max(1, DisplayRenderer.ResolveTextColumnWidth(LayoutConstants.CENTER_PANEL_WIDTH - 2));
             dm.Buffer.AddRange(DeathScreenRenderer.BuildDeathSummaryLines(defeatSummary, summaryWidth));
         }
 

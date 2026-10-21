@@ -447,6 +447,9 @@ namespace RPGGame
                     var capped = PickStatBonusCapped(signature: i == 0, usedStats);
                     if (capped == null)
                         continue;
+                    // Two Common suffixes fuse into one random Uncommon suffix ("of Agility of Vitality" → one Uncommon line).
+                    if (TryFuseCommonSuffixes(item, capped, usedStats))
+                        continue;
                     usedStats.Add(StatKey(capped));
                     item.StatBonuses.Add(capped.CloneForItemInstance());
                     continue;
@@ -509,6 +512,37 @@ namespace RPGGame
                     return pool[_random.Next(pool.Count)];
             }
             return null;
+        }
+
+        /// <summary>
+        /// When <paramref name="pick"/> is Common and the item already carries a Common suffix, removes that line and adds
+        /// one random Uncommon suffix (unused stat) instead. Returns false when no fusion happened.
+        /// </summary>
+        internal bool TryFuseCommonSuffixes(Item item, StatBonus pick, HashSet<string> usedStats)
+        {
+            const string common = "Common";
+            if (!NormalizeStatBonusAffixRarity(pick.Rarity).Equals(common, StringComparison.OrdinalIgnoreCase))
+                return false;
+            var existing = item.StatBonuses.FirstOrDefault(s =>
+                NormalizeStatBonusAffixRarity(s.Rarity).Equals(common, StringComparison.OrdinalIgnoreCase));
+            if (existing == null)
+                return false;
+
+            usedStats.Remove(StatKey(existing));
+            var pool = FilterStatBonusesByAffixTier(_dataCache.StatBonuses!, "Uncommon")
+                .Where(s => !usedStats.Contains(StatKey(s)))
+                .ToList();
+            if (pool.Count == 0)
+            {
+                usedStats.Add(StatKey(existing));
+                return false;
+            }
+
+            item.StatBonuses.Remove(existing);
+            var fused = pool[_random.Next(pool.Count)];
+            usedStats.Add(StatKey(fused));
+            item.StatBonuses.Add(fused.CloneForItemInstance());
+            return true;
         }
 
         /// <summary>At most one stat suffix per affix-line rarity; duplicate rolls promote up <see cref="AffixTierOrder"/>.</summary>

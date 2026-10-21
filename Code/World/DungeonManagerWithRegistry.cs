@@ -87,6 +87,37 @@ namespace RPGGame
             if (regionDungeons.Count == 0)
                 regionDungeons = CreateFallbackDungeons();
 
+            // Level-banded region: one dungeon per linked biome, each at a random level inside the region's fixed band.
+            // Harder dungeons require travelling to a higher region (no custom-level / reset entries).
+            if (currentRegion.HasLevelRange)
+            {
+                foreach (var theme in themePool.Distinct(StringComparer.OrdinalIgnoreCase))
+                {
+                    var candidates = regionDungeons
+                        .Where(d => string.Equals(d.theme, theme, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                    if (candidates.Count == 0)
+                        continue;
+                    var data = candidates[random.Next(candidates.Count)];
+                    int level = random.Next(currentRegion.MinLevel, currentRegion.MaxLevel + 1);
+                    availableDungeons.Add(new Dungeon(
+                        data.name,
+                        level,
+                        level,
+                        data.theme,
+                        data.possibleEnemies,
+                        data.colorOverride,
+                        player.CurrentRegionId));
+                }
+                if (availableDungeons.Count > 0)
+                {
+                    var byLevel = availableDungeons.OrderBy(d => d.MinLevel).ToList();
+                    availableDungeons.Clear();
+                    availableDungeons.AddRange(byLevel);
+                    return;
+                }
+            }
+
             // One entry per slot: cycle a shuffled theme pool so the three picks usually show different themes
             // when the pool has more than one theme and matching dungeon rows exist.
             var shuffledThemes = themePool.OrderBy(_ => random.Next()).ToList();

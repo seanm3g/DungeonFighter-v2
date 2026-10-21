@@ -148,6 +148,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                 {
                     DebugLogger.Log("GameInitializationHandler", $"InitializeTitleScreenMusic: {ex.Message}");
                 }
+                StartupTimeline.Mark("Title music started");
 
                 StartGameWarmup(status);
 
@@ -160,6 +161,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                     DebugLogger.Log("GameInitializationHandler",
                         $"Preloaded title frame failed: {ex.Message}");
                 }
+                StartupTimeline.Mark("Title first frame rendered");
 
                 if (gameWarmupTask != null)
                 {
@@ -264,8 +266,10 @@ namespace RPGGame.UI.Avalonia.Handlers
                         if (game != null)
                             return;
 
+                        StartupTimeline.Mark("Warmup: dispatched to UI thread");
                         game = new GameCoordinator(canvasUIManager);
                         game.SetUIManager(canvasUIManager);
+                        StartupTimeline.Mark("Warmup: GameCoordinator built");
 
                         // Wire up the audio system once the GameStateManager exists so the music controller
                         // reacts to state changes (MainMenu / Dungeon / Combat / Death / etc.) and the cue
@@ -279,6 +283,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                         {
                             DebugLogger.Log("GameInitializationHandler", $"AudioBootstrap.Initialize threw: {ex.Message}");
                         }
+                        StartupTimeline.Mark("Warmup: audio initialized");
 
                         // Set the game reference in CanvasUICoordinator so it can access handlers for interactive panels
                         if (canvasUIManager is CanvasUICoordinator canvasUIForGame)
@@ -298,6 +303,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                         {
                             DebugLogger.Log("GameInitializationHandler", $"Save list warm failed: {ex.Message}");
                         }
+                        StartupTimeline.Mark("Warmup: save list scanned");
                     }, DispatcherPriority.Background);
                 }
                 catch (Exception ex)

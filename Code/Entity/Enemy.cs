@@ -89,6 +89,9 @@ namespace RPGGame
         /// <summary>Damage past the front body on the last <see cref="DamageFrontBody"/> call.</summary>
         public int LastOverkillWasted { get; private set; }
 
+        /// <summary>Multi-hit swings report the overkill summed across every hit, not just the last one.</summary>
+        internal void SetLastOverkillWasted(int amount) => LastOverkillWasted = Math.Max(0, amount);
+
         /// <summary>Fractions of max HP where black bar dividers sit (one per boundary between bodies).</summary>
         public double[] PackDividerFractions
         {
@@ -510,12 +513,12 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets combo amplification for enemies (same as heroes: based on Technique)
+        /// Gets combo amplification for enemies (same as heroes: based on Intelligence)
         /// </summary>
         public new double GetComboAmplifier()
         {
             var tuning = GameConfiguration.Instance;
-            return ComboAmplifierCurve.Compute(Technique, tuning.ComboSystem);
+            return ComboAmplifierCurve.Compute(Intelligence, tuning.ComboSystem);
         }
 
         /// <summary>HUD: sheet <c>DAMAGE_MOD</c> (percent points) queued on this enemy for their next attack.</summary>
@@ -599,21 +602,21 @@ namespace RPGGame
 
         public override int GetMaxHealthForPoisonDot() => MaxHealth;
 
-        /// <summary>Undead are immune to poison % DoT.</summary>
-        public override int ProcessPoison(double currentTime)
-        {
-            if (!IsLiving)
-                return 0;
-            return base.ProcessPoison(currentTime);
-        }
+        /// <summary>Poison ticks scale by tag affinity (undead/elemental immune, plant/earth resist, tiny weak).</summary>
+        public override int ProcessPoison(double currentTime) =>
+            RPGGame.Combat.StatusAffinity.ScaleTick(this, "poison", base.ProcessPoison(currentTime));
 
-        /// <summary>Undead are immune to bleed.</summary>
-        public override int ProcessBleedOnAction()
-        {
-            if (!IsLiving)
-                return 0;
-            return base.ProcessBleedOnAction();
-        }
+        /// <summary>Burn ticks scale by tag affinity (plant ×2, fire immune, water resists).</summary>
+        public override int ProcessBurn(double currentTime) =>
+            RPGGame.Combat.StatusAffinity.ScaleTick(this, "burn", base.ProcessBurn(currentTime));
+
+        /// <summary>Acid ticks scale by tag affinity (earth ×2, water resists).</summary>
+        public override int ProcessAcid(double currentTime) =>
+            RPGGame.Combat.StatusAffinity.ScaleTick(this, "acid", base.ProcessAcid(currentTime));
+
+        /// <summary>Bleed ticks scale by tag affinity (undead/elemental immune, frail weak).</summary>
+        public override int ProcessBleedOnAction() =>
+            RPGGame.Combat.StatusAffinity.ScaleTick(this, "bleed", base.ProcessBleedOnAction());
 
         // Archetype-related methods moved to ArchetypeManager
     }

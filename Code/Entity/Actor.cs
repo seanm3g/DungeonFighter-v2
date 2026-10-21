@@ -19,6 +19,21 @@ namespace RPGGame
         // Stun debuff system
         public bool IsStunned { get; set; } = false; // Whether entity is stunned
         public int StunTurnsRemaining { get; set; } = 0; // Number of turns stunned
+
+        /// <summary>
+        /// Opening-roll edge for the current fight (surprise / scouting): the next N attack rolls use 2d20 keep highest.
+        /// Consumed in <c>ActionExecutionFlow</c> when the roll is made.
+        /// </summary>
+        public int EncounterAdvantageRolls { get; set; }
+
+        /// <summary>Consumes one opening advantage roll when available.</summary>
+        public bool TryConsumeEncounterAdvantage()
+        {
+            if (EncounterAdvantageRolls <= 0)
+                return false;
+            EncounterAdvantageRolls--;
+            return true;
+        }
         
         // Roll penalty system (for effects like Dust Cloud)
         public int RollPenalty { get; set; } = 0; // Penalty to dice rolls
@@ -355,8 +370,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Burn / bleed tick damage × (1 + level × <see cref="CombatConfig.DotDamagePerLevel"/>), level = this actor's
-        /// (the target's). Stacks are flat integers, so without it a 1-stack bleed did 1 damage at L60. 0 = legacy.
+        /// Burn / bleed tick damage × (1 + (level − 1) × <see cref="CombatConfig.DotDamagePerLevel"/>), level = this actor's
+        /// (the target's), so a level 1 target takes exactly its intensity. Stacks are flat integers, so without it a
+        /// 1-stack bleed did 1 damage at L60. 0 = legacy.
         /// </summary>
         protected int ScaleDotTickDamage(int damage)
         {
@@ -364,7 +380,7 @@ namespace RPGGame
             if (k <= 0 || damage <= 0)
                 return damage;
             int level = this is Character c ? Math.Max(1, c.Level) : 1;
-            return (int)Math.Round(damage * (1.0 + level * k));
+            return (int)Math.Round(damage * (1.0 + (level - 1) * k));
         }
 
         /// <summary>

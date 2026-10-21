@@ -35,13 +35,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// <summary>
         /// Renders the main menu content within the center panel (centered horizontally and vertically)
         /// </summary>
-        public int RenderMainMenuContent(int x, int y, int width, int height, bool hasSavedGame, string? characterName, int characterLevel, string? newGameConfirmPrompt = null)
+        public int RenderMainMenuContent(int x, int y, int width, int height, bool hasSavedGame, int savedFighterCount, string? newGameConfirmPrompt = null)
         {
             clickableElements.Clear();
             int currentLineCount = 0;
             
-            string loadGameTextForWidth = hasSavedGame && characterName != null
-                ? string.Format(UIConstants.Formats.LoadGameWithCharacter, characterName, characterLevel)
+            string loadGameTextForWidth = hasSavedGame
+                ? UIConstants.Formats.LoadCharactersWithCount(savedFighterCount)
                 : UIConstants.MenuOptions.LoadGame;
             
             int maxOptionLength = Math.Max(
@@ -52,13 +52,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                         MenuOptionFormatter.Format(3, UIConstants.MenuOptions.Settings).Length,
                         Math.Max(
                             MenuOptionFormatter.Format(4, UIConstants.MenuOptions.Stable).Length,
-                            MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Quit).Length
+                            Math.Max(
+                                MenuOptionFormatter.Format(5, UIConstants.MenuOptions.History).Length,
+                                MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Quit).Length
+                            )
                         )
                     )
                 )
             );
 
-            const int menuLineCount = 5;
+            const int menuLineCount = 6;
             const int footerReserve = 4;
             var promptLines = WrapNewGameConfirmPrompt(newGameConfirmPrompt, width);
             // Blank row plus the prompt, so the block stays centered with the options instead of
@@ -71,7 +74,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             var cyanColor = ColorPalette.Cyan.GetColor();
             var goldColor = ColorPalette.Gold.GetColor();
             var orangeColor = ColorPalette.Orange.GetColor();
-            var playerColor = ColorPalette.Player.GetColor();
             var coolWhiteColor = ColorLayerSystem.GetWhite(WhiteTemperature.Cool);
             
             // Render [1] New Game - Cyan
@@ -93,7 +95,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             currentLineCount++;
             currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
             
-            // Render [2] Load Game - with special coloring for character name
+            // Render [2] Load Character(s) - with the saved fighter count highlighted
             string loadGameText = loadGameTextForWidth;
             
             string loadGameDisplayText = MenuOptionFormatter.Format(2, loadGameText);
@@ -109,10 +111,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             };
             clickableElements.Add(loadGameOption);
             
-            if (hasSavedGame && characterName != null)
+            if (hasSavedGame)
             {
-                // Render with colored character name and level
-                menuOptionRenderer.RenderColoredLoadGameOption(menuStartX, currentY, 2, characterName, characterLevel, playerColor, orangeColor, loadGameOption.IsHovered);
+                // Render with the fighter count highlighted
+                menuOptionRenderer.RenderColoredLoadGameOption(menuStartX, currentY, 2, savedFighterCount, orangeColor, loadGameOption.IsHovered);
             }
             else
             {
@@ -153,6 +155,23 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             };
             clickableElements.Add(stableOption);
             menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 4, UIConstants.MenuOptions.Stable, goldColor, stableOption.IsHovered);
+            currentLineCount++;
+            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
+
+            // Render [5] History - Cyan (fallen fighters and records; screen coming soon)
+            string historyText = MenuOptionFormatter.Format(5, UIConstants.MenuOptions.History);
+            var historyOption = new ClickableElement
+            {
+                X = menuStartX,
+                Y = currentY,
+                Width = maxOptionLength,
+                Height = optionHitHeight,
+                Type = ElementType.MenuOption,
+                Value = "5",
+                DisplayText = historyText
+            };
+            clickableElements.Add(historyOption);
+            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 5, UIConstants.MenuOptions.History, cyanColor, historyOption.IsHovered);
             currentLineCount++;
             currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
 
@@ -225,7 +244,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// Renders the main menu with saved game info if available (legacy method)
         /// NOTE: This method is legacy and may not be used. Canvas clearing should be handled by the caller.
         /// </summary>
-        public int RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel, string? newGameConfirmPrompt = null)
+        public int RenderMainMenu(bool hasSavedGame, int savedFighterCount, string? newGameConfirmPrompt = null)
         {
             // Note: Canvas clearing removed - should be handled by caller or CanvasTitleLayoutCoordinator / PersistentLayoutRenderCoordinator
             clickableElements.Clear();
@@ -239,12 +258,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             var cyanColor = ColorPalette.Cyan.GetColor();
             var goldColor = ColorPalette.Gold.GetColor();
             var orangeColor = ColorPalette.Orange.GetColor();
-            var playerColor = ColorPalette.Player.GetColor();
             var coolWhiteColor = ColorLayerSystem.GetWhite(WhiteTemperature.Cool);
             
             // Find the longest menu option for centering
-            string loadGameText = hasSavedGame && characterName != null 
-                ? string.Format(UIConstants.Formats.LoadGameWithCharacter, characterName, characterLevel)
+            string loadGameText = hasSavedGame
+                ? UIConstants.Formats.LoadCharactersWithCount(savedFighterCount)
                 : UIConstants.MenuOptions.LoadGame;
             
             int maxOptionLength = Math.Max(
@@ -280,7 +298,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             currentLineCount++;
             currentY++;
             
-            // Render [2] Load Game - with special coloring for character name
+            // Render [2] Load Character(s) - with the saved fighter count highlighted
             string loadGameDisplayText = MenuOptionFormatter.Format(2, loadGameText);
             var loadGameOption = new ClickableElement
             {
@@ -294,10 +312,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             };
             clickableElements.Add(loadGameOption);
             
-            if (hasSavedGame && characterName != null)
+            if (hasSavedGame)
             {
-                // Render with colored character name and level
-                menuOptionRenderer.RenderColoredLoadGameOption(menuStartX, currentY, 2, characterName, characterLevel, playerColor, orangeColor, loadGameOption.IsHovered);
+                // Render with the fighter count highlighted
+                menuOptionRenderer.RenderColoredLoadGameOption(menuStartX, currentY, 2, savedFighterCount, orangeColor, loadGameOption.IsHovered);
             }
             else
             {

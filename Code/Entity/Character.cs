@@ -532,8 +532,15 @@ namespace RPGGame
         public static async Task<Character?> LoadCharacterAsync(
             string? characterId = null,
             string? filename = null,
-            System.Threading.CancellationToken cancellationToken = default) =>
-            await CharacterFacade.LoadCharacterAsync(characterId, filename, cancellationToken).ConfigureAwait(false);
+            System.Threading.CancellationToken cancellationToken = default)
+        {
+            var loaded = await CharacterFacade.LoadCharacterAsync(characterId, filename, cancellationToken).ConfigureAwait(false);
+            // Loading always lands at the hub, never mid-dungeon. Saves can be written mid-fight (window close) or
+            // before the end-of-dungeon heal, so restore the hub state: run effects cleared and full HP.
+            if (loaded != null && loaded.IsAlive)
+                DungeonRunRecovery.RestoreAfterLeavingDungeon(loaded);
+            return loaded;
+        }
         public static void DeleteSaveFile(string? filename = null) => CharacterFacade.DeleteSaveFile(filename);
         
         // Session statistics methods
@@ -563,6 +570,13 @@ namespace RPGGame
                 StartingLevel = Level,
                 FinalLevel = Level
             };
+        }
+
+        /// <summary>Restores this life's statistics from a save so History bests survive reloads.</summary>
+        public void RestoreSessionStatistics(SessionStatistics stats)
+        {
+            SessionStats = stats ?? throw new ArgumentNullException(nameof(stats));
+            SessionStats.CurrentTurnDamage = 0;
         }
 
         /// <summary>

@@ -474,7 +474,7 @@
         /// F1 toggles the detail view; <c>invgrid</c> (header button) switches between the new icon grid and the old list;
         /// <c>invsel:N</c> (detail-view row or grid tile click) picks the item described on the right.
         /// New inventory drag and drop: <c>invequip:N</c> equips a bag item into its own slot, <c>invunequip:slot</c> moves gear to the bag;
-        /// <c>invslot:slot</c> (paper-doll click) only shows its tooltip.
+        /// <c>invslot:slot</c> (paper-doll or left-panel gear click) describes that equipped item in the pane.
         /// All only act on the main inventory list and are swallowed otherwise.
         /// </summary>
         private bool TryHandleDetailViewInput(string input)
@@ -492,7 +492,14 @@
                 return true;
 
             if (isSlotClick)
+            {
+                if (canvasUI.IsInventoryDetailViewEnabled || canvasUI.IsInventoryGridViewEnabled)
+                {
+                    canvasUI.SelectInventoryDetailEquippedSlot(input.Substring(InventoryDetailViewState.SlotInputPrefix.Length));
+                    RefreshInventoryScreen();
+                }
                 return true;
+            }
 
             if (isDropEquip || isDropUnequip)
             {

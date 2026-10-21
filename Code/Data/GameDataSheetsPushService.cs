@@ -53,6 +53,9 @@ namespace RPGGame.Data
                 }
             }
 
+            // Regions tab is new; fill its name in memory so the first push creates REGIONS.
+            cfg.ApplyDefaultRegionsTabNameIfUnset();
+
             if (cfg.ApplyDefaultDungeonsTabNameIfUnset())
             {
                 try
@@ -392,6 +395,20 @@ namespace RPGGame.Data
                     cancellationToken)
                 .ConfigureAwait(false);
 
+            await PushOptionalJsonArrayTabAsync(
+                    service,
+                    cfg,
+                    tabGids,
+                    cfg.PushRegionsTab,
+                    "REGIONS",
+                    cfg.RegionsSheetTabName,
+                    GameConstants.RegionsJson,
+                    GameDataTabularSheetKind.Regions,
+                    "Regions.json",
+                    result,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
             await PushOptionalClassPresentationTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
 
             await PushOptionalVariablesTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
@@ -442,6 +459,9 @@ namespace RPGGame.Data
 
             if (cfg.PushDungeonsTab && !string.IsNullOrWhiteSpace(cfg.DungeonsSheetTabName))
                 yield return cfg.DungeonsSheetTabName.Trim();
+
+            if (cfg.PushRegionsTab && !string.IsNullOrWhiteSpace(cfg.RegionsSheetTabName))
+                yield return cfg.RegionsSheetTabName.Trim();
 
             if (cfg.PushClassPresentationTab && !string.IsNullOrWhiteSpace(cfg.ClassPresentationSheetTabName))
                 yield return cfg.ClassPresentationSheetTabName.Trim();

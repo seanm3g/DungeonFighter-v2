@@ -62,6 +62,8 @@ namespace RPGGame
             TagDefinitions.TryParseEnemyArchetype(data.Archetype, out var archetype);
             var profile = ArchetypeManager.GetArchetypeProfile(archetype);
             attackTime *= Math.Pow(ArchetypeManager.GetArchetypeAttackTimeMultiplier(profile), intensity);
+            // Authored tempo applies at full strength from L1 so slow/heavy and fast/swarm enemies feel different at once.
+            attackTime *= EnemyTempo.AttackTimeMultiplier(data.Tempo);
 
             double refGrowth = config.ReferenceHealthGrowthPercent > 0 ? config.ReferenceHealthGrowthPercent : 1.0;
             double growth = data.HealthGrowthPercent ?? refGrowth;

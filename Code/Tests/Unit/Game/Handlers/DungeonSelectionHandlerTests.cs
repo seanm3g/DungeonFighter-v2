@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RPGGame.Tests;
@@ -236,9 +236,10 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             var offered = stateManager.AvailableDungeons.FindAll(d => !RPGGame.GameConstants.IsDungeonSelectionUtilityOption(d.Name));
             var levels = offered.ConvertAll(d => d.MinLevel);
             levels.Sort();
-            TestBase.AssertEqual(19, levels[0], "Next menu easier option should be 19", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(20, levels[1], "Next menu middle option should be 20", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(21, levels[2], "Next menu harder option should be 21", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // Level-banded regions pin dungeon levels to the region band; the anchor no longer moves them.
+            var band = new TravelRegionCatalog().GetRegionForCharacter(character);
+            TestBase.AssertTrue(levels.Count > 0 && levels.TrueForAll(band.ContainsLevel),
+                "Next menu levels stay inside the current region band", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestHandleMenuInput_ResetDifficultyClearsAnchor()
@@ -277,9 +278,9 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             var offered = stateManager.AvailableDungeons.FindAll(d => !RPGGame.GameConstants.IsDungeonSelectionUtilityOption(d.Name));
             var levels = offered.ConvertAll(d => d.MinLevel);
             levels.Sort();
-            TestBase.AssertEqual(4, levels[0], "After reset, easier option should be hero level - 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(5, levels[1], "After reset, middle option should be hero level", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(6, levels[2], "After reset, harder option should be hero level + 1", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var band = new TravelRegionCatalog().GetRegionForCharacter(character);
+            TestBase.AssertTrue(levels.Count > 0 && levels.TrueForAll(band.ContainsLevel),
+                "After reset, levels stay inside the current region band", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestHandleMenuInput_CustomLevelWaitsForEnter()

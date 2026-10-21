@@ -32,9 +32,9 @@ namespace RPGGame.UI.Avalonia.Renderers
 
 
 
-        /// <summary>Prompt + gap + 4 menu rows + bottom padding (anchored to bottom of content rect).</summary>
+        /// <summary>Prompt + gap + 5 menu rows + bottom padding (anchored to bottom of content rect).</summary>
 
-        public const int FooterReservedRows = 1 + 1 + 4 + FooterBottomPaddingRows;
+        public const int FooterReservedRows = 1 + 1 + 5 + FooterBottomPaddingRows;
 
         private const int SummaryMetricLabelWidth = 24;
 
@@ -120,11 +120,11 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             AddLogLine(lines, BuildMetricLine("Rooms Cleared:", dungeon.Rooms.Count.ToString("N0")));
 
-            AddLogLine(lines, BuildMetricLine("Enemies Defeated:", sessionStats.EnemiesDefeated.ToString("N0")));
+            AddLogLine(lines, BuildMetricLine("Enemies Defeated:", sessionStats.RunEnemiesDefeated.ToString("N0")));
 
-            AddLogLine(lines, BuildMetricLine("Total Damage Dealt:", sessionStats.TotalDamageDealt.ToString("N0")));
+            AddLogLine(lines, BuildMetricLine("Total Damage Dealt:", sessionStats.RunDamageDealt.ToString("N0")));
 
-            AddLogLine(lines, BuildMetricLine("Total Damage Received:", sessionStats.TotalDamageReceived.ToString("N0")));
+            AddLogLine(lines, BuildMetricLine("Total Damage Received:", sessionStats.RunDamageReceived.ToString("N0")));
 
 
 
@@ -337,6 +337,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             string optLine2 = MenuOptionFormatter.Format(2, UIConstants.MenuOptions.ShowInventory);
 
             string optLine3 = MenuOptionFormatter.Format(3, UIConstants.MenuOptions.ShowSkillTree);
+            string optLine4 = MenuOptionFormatter.Format(4, UIConstants.MenuOptions.Travel);
 
             string optLine0 = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.SaveAndExit);
 
@@ -345,6 +346,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             int row2X = textAreaLeft + System.Math.Max(0, (textAreaWidth - optLine2.Length) / 2);
 
             int row3X = textAreaLeft + System.Math.Max(0, (textAreaWidth - optLine3.Length) / 2);
+
+            int row4X = textAreaLeft + System.Math.Max(0, (textAreaWidth - optLine4.Length) / 2);
 
             int row0X = textAreaLeft + System.Math.Max(0, (textAreaWidth - optLine0.Length) / 2);
 
@@ -416,13 +419,24 @@ namespace RPGGame.UI.Avalonia.Renderers
 
 
 
+            var option4 = new ClickableElement
+            {
+                X = row4X,
+                Y = menuStartY + 3,
+                Width = optLine4.Length,
+                Height = 1,
+                Type = ElementType.MenuOption,
+                Value = "4",
+                DisplayText = optLine4
+            };
+
             var option0 = new ClickableElement
 
             {
 
                 X = row0X,
 
-                Y = menuStartY + 3,
+                Y = menuStartY + 4,
 
                 Width = optLine0.Length,
 
@@ -438,7 +452,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
 
 
-            clickableElements.AddRange(new[] { option1, option2, option3, option0 });
+            clickableElements.AddRange(new[] { option1, option2, option3, option4, option0 });
 
 
 
@@ -448,7 +462,9 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             canvas.AddMenuOption(row3X, menuStartY + 2, 3, UIConstants.MenuOptions.ShowSkillTree, AsciiArtAssets.Colors.White, option3.IsHovered);
 
-            canvas.AddMenuOption(row0X, menuStartY + 3, 0, UIConstants.MenuOptions.SaveAndExit, AsciiArtAssets.Colors.White, option0.IsHovered);
+            canvas.AddMenuOption(row4X, menuStartY + 3, 4, UIConstants.MenuOptions.Travel, AsciiArtAssets.Colors.White, option4.IsHovered);
+
+            canvas.AddMenuOption(row0X, menuStartY + 4, 0, UIConstants.MenuOptions.SaveAndExit, AsciiArtAssets.Colors.White, option0.IsHovered);
 
         }
 

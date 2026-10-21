@@ -25,6 +25,12 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
+  <!-- Release publish: precompile IL to native code so startup skips most JIT work. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <TieredPGO>true</TieredPGO>
+  </PropertyGroup>
+
   <ItemGroup>
     <AvaloniaResource Include="UI\Avalonia\Assets\df_icon.ico" />
     <AvaloniaResource Include="UI\Avalonia\Assets\Fonts\VT323-Regular.ttf" />
@@ -59,7 +65,8 @@
 
   <!-- Kill a leftover GUI process before build copies overwrite DF.exe (MSB3026). -->
   <Target Name="StopRunningInstanceBeforeBuild" BeforeTargets="BeforeBuild" Condition="'$(OS)' == 'Windows_NT'">
-    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;$ErrorActionPreference='SilentlyContinue'; Get-Process -Name DF | Stop-Process -Force; Start-Sleep -Milliseconds 400&quot;" IgnoreExitCode="true" StandardOutputImportance="low" StandardErrorImportance="low" />
+    <!-- taskkill avoids ~1.5s of PowerShell startup per build; exit code 128 (not running) is ignored. -->
+    <Exec Command="taskkill /IM DF.exe /F /T &gt;nul 2&gt;&amp;1" IgnoreExitCode="true" StandardOutputImportance="low" StandardErrorImportance="low" />
   </Target>
 
 </Project>

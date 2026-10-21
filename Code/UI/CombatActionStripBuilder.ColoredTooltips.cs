@@ -92,11 +92,14 @@ namespace RPGGame
         {
             var lines = new List<List<ColoredText>>();
 
-            AddColoredLine(lines, BuildActionTitleLine(action.Name));
+            AddColoredLine(lines, BuildActionTitleLine(action.Name, ActionNameColors.Resolve(action)));
             if (lines.Count >= maxLines) return TrimColored(lines, maxLines);
 
+            string origin = ActionNameColors.Describe(action);
             string rarity = ResolveActionRarityLabel(action);
-            if (!string.IsNullOrEmpty(rarity))
+            if (!string.IsNullOrEmpty(origin))
+                AddColoredLine(lines, BuildActionOriginLine(origin, ActionNameColors.Resolve(action)));
+            else if (!string.IsNullOrEmpty(rarity))
                 AddColoredLine(lines, BuildActionRarityLine(rarity));
             if (lines.Count >= maxLines) return TrimColored(lines, maxLines);
 
@@ -109,6 +112,23 @@ namespace RPGGame
                 {
                     if (lines.Count >= maxLines) break;
                     AddColoredLine(lines, PlainGrayLine(segment));
+                }
+            }
+            if (lines.Count >= maxLines) return TrimColored(lines, maxLines);
+
+            // How each status this action applies actually behaves (tick timing, decay, stacking).
+            var statusIds = StatusEffectActionResolver.GetEffectTypesFromAction(action);
+            if (statusIds.Count > 0 && lines.Count < maxLines)
+            {
+                AddColoredBlank(lines);
+                AddColoredLine(lines, ActionSectionHeader("Statuses"));
+                foreach (string effectId in statusIds)
+                {
+                    if (lines.Count >= maxLines) break;
+                    string how = HoverEffectCopy.HowItWorks(effectId);
+                    if (string.IsNullOrEmpty(how))
+                        continue;
+                    AddColoredLine(lines, PlainGrayLine($"{StatusEffectHoverDetails.DisplayName(effectId)}: {how}"));
                 }
             }
             if (lines.Count >= maxLines) return TrimColored(lines, maxLines);
@@ -163,10 +183,17 @@ namespace RPGGame
             return TrimColored(lines, maxLines);
         }
 
-        private static List<ColoredText> BuildActionTitleLine(string? name)
+        private static List<ColoredText> BuildActionTitleLine(string? name, Color? color = null)
         {
             var b = new ColoredTextBuilder();
-            b.Add(FormatTooltipActionName(name), Colors.White);
+            b.Add(FormatTooltipActionName(name), color ?? Colors.White);
+            return b.Build();
+        }
+
+        private static List<ColoredText> BuildActionOriginLine(string origin, Color color)
+        {
+            var b = new ColoredTextBuilder();
+            b.Add(origin, color);
             return b.Build();
         }
 

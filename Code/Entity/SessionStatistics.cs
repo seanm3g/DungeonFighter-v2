@@ -28,6 +28,23 @@ namespace RPGGame
         public int TotalDamageReceived { get; set; }
         public int TotalHealingReceived { get; set; }
         public int TotalActionsPerformed { get; set; }
+
+        // Current dungeon run baselines (runtime only): the completion screen shows totals minus these.
+        [System.Text.Json.Serialization.JsonIgnore] public int RunStartEnemiesDefeated { get; private set; }
+        [System.Text.Json.Serialization.JsonIgnore] public int RunStartDamageDealt { get; private set; }
+        [System.Text.Json.Serialization.JsonIgnore] public int RunStartDamageReceived { get; private set; }
+
+        /// <summary>Snapshot session totals at dungeon entry so the completion screen can show this run only.</summary>
+        public void BeginDungeonRun()
+        {
+            RunStartEnemiesDefeated = EnemiesDefeated;
+            RunStartDamageDealt = TotalDamageDealt;
+            RunStartDamageReceived = TotalDamageReceived;
+        }
+
+        [System.Text.Json.Serialization.JsonIgnore] public int RunEnemiesDefeated => Math.Max(0, EnemiesDefeated - RunStartEnemiesDefeated);
+        [System.Text.Json.Serialization.JsonIgnore] public int RunDamageDealt => Math.Max(0, TotalDamageDealt - RunStartDamageDealt);
+        [System.Text.Json.Serialization.JsonIgnore] public int RunDamageReceived => Math.Max(0, TotalDamageReceived - RunStartDamageReceived);
         public int TotalMisses { get; set; }
         public int TotalCriticalHits { get; set; }
         public int TotalCriticalMisses { get; set; }
@@ -300,7 +317,7 @@ namespace RPGGame
                 AverageDamagePerTurn = (double)TotalDamageDealt / EncountersSurvived;
             }
             
-            if (TotalCombosExecuted > 0)
+            if (TotalCombosExecuted > 0 && EncountersSurvived > 0)
             {
                 ComboSuccessRate = ((double)TotalCombosExecuted / EncountersSurvived) * 100;
             }

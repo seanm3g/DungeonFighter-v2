@@ -844,6 +844,22 @@ namespace RPGGame.UI.Avalonia.Handlers
                         return;
                     }
 
+                    // Inventory: clicking an equipped GEAR row shows that item in the description pane like a bag item.
+                    if (game.StateManager?.CurrentState == GameState.Inventory
+                        && element.Value.StartsWith(LeftPanelHoverState.Prefix + "gear:", StringComparison.Ordinal))
+                    {
+                        string gearSlot = element.Value.Substring((LeftPanelHoverState.Prefix + "gear:").Length);
+                        await game.HandleInput(InventoryDetailViewState.SlotInputPrefix + gearSlot);
+                        return;
+                    }
+
+                    if (LeftPanelAttributeOrder.IsAttributeHoverId(element.Value))
+                    {
+                        statsPanelStateManager.ToggleAttributeSort();
+                        RefreshChromeAfterStatsToggle();
+                        return;
+                    }
+
                     switch (element.Value)
                     {
                         case "toggle_section_hero":

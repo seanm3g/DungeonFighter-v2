@@ -189,6 +189,23 @@ namespace RPGGame
                 }
             }
             
+            // Scouting roll from the last continue / leave prompt overrides exploration initiative.
+            bool scoutedAdvantage = false;
+            if (stateManager.CurrentPlayer != null && RoomScouting.TakeFor(stateManager.CurrentPlayer, room) is { } scouting)
+            {
+                if (scouting.HeroAdvantage)
+                {
+                    playerGetsFirstAttack = true;
+                    enemyGetsFirstAttack = false;
+                    scoutedAdvantage = true;
+                }
+                else if (scouting.HeroLosesInitiative)
+                {
+                    playerGetsFirstAttack = false;
+                    enemyGetsFirstAttack = true;
+                }
+            }
+
             // Check if room is empty (no enemies)
             bool roomWasHostile = room.IsHostile;
             if (!skipCombat)
@@ -212,40 +229,9 @@ namespace RPGGame
                 }
                 else
                 {
-                    // Display surprise/advantage status before combat
-                    var random = new Random();
-                    if (playerGetsFirstAttack)
-                    {
-                        var advantageMessages = new[]
-                        {
-                            "You have the advantage! You'll strike first!",
-                            "You've caught the enemy off guard! You attack first!",
-                            "Your quick reflexes give you the first strike!",
-                            "You've gained the upper hand! You'll act first!",
-                            "The element of surprise is yours! You strike first!"
-                        };
-                        displayManager.AddCombatEvent("", stateManager.CurrentPlayer);
-                        var advantageMessage = advantageMessages[random.Next(advantageMessages.Length)];
-                        var advantageBuilder = new ColoredTextBuilder()
-                            .Add(advantageMessage, ColorPalette.Red);
-                        displayManager.AddCombatEvent(advantageBuilder, stateManager.CurrentPlayer, UIMessageType.Environmental);
-                    }
-                    else if (enemyGetsFirstAttack)
-                    {
-                        // Surprise message will be shown after enemy appears in ProcessEnemyEncounter
-                    }
-                    else
-                    {
-                        // Both combatants are prepared - no message displayed
-                    }
-                    
-                    // Re-render to show advantage message
-                    if (customUIManager is CanvasUICoordinator canvasUIAdvantage && stateManager.CurrentPlayer != null)
-                    {
-                        canvasUIAdvantage.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
-                        await SimulationPacing.DelayForCombatSpeedAsync(1500);
-                    }
-                    
+                    // First-strike / ambush lines are shown per encounter, after that enemy's info is on screen
+                    // (EnemyEncounterHandler), so the hero sees who they caught (or who caught them) before combat starts.
+
                     // Process all enemies in the room
                     while (room.HasLivingEnemies())
                     {
@@ -253,7 +239,7 @@ namespace RPGGame
                         if (currentEnemy == null) break;
                         
                         if (!await enemyEncounterHandler.ProcessEnemyEncounter(
-                                currentEnemy, playerGetsFirstAttack, enemyGetsFirstAttack, isLastRoom))
+                                currentEnemy, playerGetsFirstAttack, enemyGetsFirstAttack, isLastRoom, scoutedAdvantage))
                         {
                             return false; // Player died
                         }

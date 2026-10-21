@@ -42,6 +42,7 @@ namespace RPGGame.Tests.Unit
             TestStarterLeatherArmorSurvivesCharacterSerializerRoundTrip();
             TestDeadCharacterTombstone();
             TestComboStripRoundTrip();
+            TestLoadRestoresFullHealthAtHub();
             TestFilenameSanitization();
             TestAtomicSaveLeavesValidJson();
 
@@ -172,6 +173,40 @@ namespace RPGGame.Tests.Unit
                 TestBase.AssertTrue(false,
                     $"Multi-character save/load should not throw exception: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        /// <summary>Saves can be written mid-fight (window close); loading lands at the hub, so HP comes back full.</summary>
+        private static void TestLoadRestoresFullHealthAtHub()
+        {
+            Console.WriteLine("\n--- Testing load restores full HP ---");
+
+            _ = GameConfiguration.Instance;
+            var character = TestDataBuilders.Character().WithName("WoundedHero").WithLevel(3).Build();
+            int max = character.GetEffectiveMaxHealth();
+            character.CurrentHealth = Math.Max(1, max / 2);
+            string testId = "wounded_" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            string path = CharacterSaveManager.GetCharacterSaveFilename(testId);
+
+            try
+            {
+                CharacterSaveManager.SaveCharacter(character, testId);
+                var loaded = Character.LoadCharacterAsync(testId).GetAwaiter().GetResult();
+                TestBase.AssertNotNull(loaded, "loaded wounded hero", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                if (loaded == null)
+                    return;
+                TestBase.AssertEqual(loaded.GetEffectiveMaxHealth(), loaded.CurrentHealth,
+                    "Loading a hero saved at half HP should restore full HP at the hub",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                try
+                {
+                    if (File.Exists(path))
+                        CharacterSaveManager.DeleteSaveFile(path);
+                }
+                catch { /* best effort */ }
             }
         }
 

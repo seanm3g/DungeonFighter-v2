@@ -3,6 +3,7 @@
         xmlns:vm="clr-namespace:RPGGame.Tuning.LabBalance"
         xmlns:settingsVm="clr-namespace:RPGGame.UI.Avalonia.Settings.ViewModels"
         x:Class="RPGGame.UI.Avalonia.ActionInteractionLab.ActionLabBalanceWindow"
+        x:DataType="vm:ActionLabBalanceViewModel"
         Title="Action Lab — Balance Layers"
         Width="720"
         Height="900"

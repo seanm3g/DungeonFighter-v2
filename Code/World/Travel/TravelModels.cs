@@ -35,6 +35,23 @@ namespace RPGGame
         /// </summary>
         public string SettlementType { get; set; } = "";
 
+        /// <summary>Lowest dungeon level offered in this region (0 with <see cref="MaxLevel"/> 0 = legacy hero-level scaling).</summary>
+        public int MinLevel { get; set; }
+
+        /// <summary>Highest dungeon level offered in this region. To fight harder dungeons the hero travels to a higher region.</summary>
+        public int MaxLevel { get; set; }
+
+        /// <summary>True when this region pins dungeons to a fixed level band.</summary>
+        public bool HasLevelRange => MaxLevel > 0 && MaxLevel >= MinLevel;
+
+        public bool ContainsLevel(int level) => HasLevelRange && level >= MinLevel && level <= MaxLevel;
+
+        /// <summary>"Lv 6-10", or empty for legacy regions.</summary>
+        public string LevelRangeLabel => !HasLevelRange ? "" : MinLevel == MaxLevel ? $"Lv {MinLevel}" : $"Lv {MinLevel}-{MaxLevel}";
+
+        /// <summary>Display name with the level band appended when present.</summary>
+        public string DisplayNameWithLevels => HasLevelRange ? $"{DisplayName} ({LevelRangeLabel})" : DisplayName;
+
         /// <summary>
         /// Non-empty theme pool for loot and journey rolls; falls back to <see cref="Theme"/> or default dungeon theme.
         /// </summary>
@@ -197,8 +214,10 @@ namespace RPGGame
             if (region != null)
                 return region;
 
-            character.CurrentRegionId = GameConstants.DefaultRegionId;
-            return GetDefaultRegion();
+            // Unknown / retired region id (older saves): land in the band that fits the hero, else the default region.
+            var fallback = GetAllRegions().FirstOrDefault(r => r.ContainsLevel(character.Level)) ?? GetDefaultRegion();
+            character.CurrentRegionId = fallback.Id;
+            return fallback;
         }
 
         public TravelRegion? GetById(string? id)
@@ -224,6 +243,7 @@ namespace RPGGame
             string currentId = GetRegionForCharacter(character).Id;
             return GetAllRegions()
                 .Where(region => !string.Equals(region.Id, currentId, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(region => region.HasLevelRange ? region.MinLevel : int.MaxValue)
                 .ToList();
         }
 

@@ -5,7 +5,8 @@ namespace RPGGame.Handlers.Inventory
     /// </summary>
     /// <param name="SelectedInventoryIndex">Raw inventory index of the described item; -1 (or a hidden item) falls back to the first listed item.</param>
     /// <param name="Grid">New inventory: item icons in a grid on the left instead of one-line names.</param>
-    public sealed record InventoryDetailViewState(int SelectedInventoryIndex, bool Grid = false)
+    /// <param name="SelectedEquippedSlot">When set (e.g. "weapon"), the pane describes that equipped item instead of a bag item.</param>
+    public sealed record InventoryDetailViewState(int SelectedInventoryIndex, bool Grid = false, string? SelectedEquippedSlot = null)
     {
         /// <summary>Click token for the header button that switches between the new (icon grid) and old inventory.</summary>
         public const string ToggleGridInput = "invgrid";
@@ -13,7 +14,7 @@ namespace RPGGame.Handlers.Inventory
         /// <summary>Click token prefix for detail-view list rows (<c>invsel:{inventoryIndex}</c>).</summary>
         public const string SelectInputPrefix = "invsel:";
 
-        /// <summary>Click token prefix for new-inventory paper-doll gear slots (<c>invslot:{slot}</c>); clicks only show the tooltip.</summary>
+        /// <summary>Click token prefix for paper-doll / left-panel gear slots (<c>invslot:{slot}</c>); selects that equipped item for the description pane.</summary>
         public const string SlotInputPrefix = "invslot:";
 
         /// <summary>Drop token: bag item dragged onto the paper doll (<c>invequip:{inventoryIndex}</c>), equips into its own slot.</summary>

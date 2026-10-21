@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -210,6 +210,30 @@ namespace RPGGame
         /// <summary>
         /// Spawns from <see cref="RoomData.Enemies"/> when present and at least one name matches <paramref name="enemyData"/>.
         /// </summary>
+        /// <summary>Chance per spawn in an authored room that a "General" (anywhere) enemy shows up instead of a local one.</summary>
+        public const double GeneralWandererChance = 0.15;
+
+        /// <summary>
+        /// Elemental wanderers only roam regions of their element: a Fire Elemental or Lava Golem can wander into the Fire
+        /// region, but never a forest den. Wanderers without an element tag (Goblin, Rats, Skeleton, ...) go anywhere.
+        /// </summary>
+        internal static bool WandererFitsRegion(EnemyData enemy, string? region)
+        {
+            var elements = new[] { "fire", "water", "air", "earth" };
+            var tags = enemy.Tags ?? new List<string>();
+            var enemyElements = elements.Where(el => tags.Any(t => string.Equals(t, el, StringComparison.OrdinalIgnoreCase))).ToList();
+            if (enemyElements.Count == 0)
+                return true;
+            string[] allowed = (region ?? "").Trim().ToLowerInvariant() switch
+            {
+                "fire" => new[] { "fire", "earth" },
+                "water" => new[] { "water" },
+                "air" => new[] { "air", "earth" },
+                _ => Array.Empty<string>()
+            };
+            return enemyElements.Any(el => allowed.Contains(el));
+        }
+
         private bool TryGenerateFromRoomEnemyPool(
             int roomLevel,
             int enemyCount,
@@ -238,13 +262,19 @@ namespace RPGGame
 
             var spawnCtx = spawnContext ?? new EnemySpawnContext(null, theme, null);
             var roomCandidates = weighted.Select(w => w.data).ToList();
+            // "General" placement enemies (Goblin, Rats, Bats, Giant Ants packs, ...) can wander into any room.
+            var wanderers = enemyData
+                .Where(e => EnemySpawnFilter.IsPlacementWildcard(e.Region) && EnemySpawnFilter.IsPlacementWildcard(e.Location))
+                .Where(e => WandererFitsRegion(e, spawnCtx.RegionId ?? resolvedRegion?.Theme))
+                .ToList();
 
             var tuning = GameConfiguration.Instance;
             for (int i = 0; i < enemyCount; i++)
             {
                 int enemyLevel = CalculateEnemyLevel(roomLevel, tuning.EnemySystem.LevelVariance, minLevel, maxLevel);
-                var enemyTemplate = EnemySpawnFilter.PickByTieredSpawnRoll(
-                    roomCandidates, spawnCtx, resolvedRegion, random);
+                var enemyTemplate = wanderers.Count > 0 && random.NextDouble() < GeneralWandererChance
+                    ? wanderers[random.Next(wanderers.Count)]
+                    : EnemySpawnFilter.PickByTieredSpawnRoll(roomCandidates, spawnCtx, resolvedRegion, random);
 
                 var enemy = EnemyLoader.CreateEnemy(enemyTemplate.Name, enemyLevel);
                 if (enemy != null)

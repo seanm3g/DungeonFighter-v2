@@ -151,6 +151,16 @@ namespace RPGGame.Data
                 ClearJsonCacheForGameDataFile(GameConstants.DungeonsJson);
             }
 
+            if (tabFlags.PushRegionsTab && !string.IsNullOrWhiteSpace(sc.RegionsSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.RegionsSheetUrl, cancellationToken).ConfigureAwait(false);
+                string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Regions);
+                string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.RegionsJson)
+                    ?? GameConstants.GetGameDataFilePath(GameConstants.RegionsJson);
+                await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                ClearJsonCacheForGameDataFile(GameConstants.RegionsJson);
+            }
+
             if (tabFlags.PushClassPresentationTab && !string.IsNullOrWhiteSpace(sc.ClassPresentationSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.ClassPresentationSheetUrl, cancellationToken).ConfigureAwait(false);

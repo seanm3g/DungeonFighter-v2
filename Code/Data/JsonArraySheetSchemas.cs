@@ -44,7 +44,7 @@ namespace RPGGame.Data
             "baseAttributes.strength", "baseAttributes.agility", "baseAttributes.technique", "baseAttributes.intelligence",
             "growthPerLevel.strength", "growthPerLevel.agility", "growthPerLevel.technique", "growthPerLevel.intelligence",
             "healthPercent", "healthGrowthPercent",
-            "actions", "isLiving", "packSize", "description", "colorOverride"
+            "actions", "isLiving", "packSize", "tempo", "description", "colorOverride"
         };
 
         internal static readonly string[] EnemyNestedObjectNames = { "baseAttributes", "growthPerLevel" };
@@ -61,7 +61,10 @@ namespace RPGGame.Data
             { "region", "biome", "location", "tags", "description", "actions", "enemies" };
 
         public static readonly string[] DungeonsCanonicalHeaders =
-            { "name", "theme", "minLevel", "maxLevel", "possibleEnemies", "colorOverride" };
+            { "name", "theme", "region", "minLevel", "maxLevel", "possibleEnemies", "colorOverride" };
+
+        public static readonly string[] RegionsCanonicalHeaders =
+            { "id", "displayName", "theme", "minLevel", "maxLevel", "linkedDungeonThemes", "settlementType", "description" };
 
         public static readonly string[] StatBonusesCanonicalHeaders =
         {
@@ -131,6 +134,7 @@ namespace RPGGame.Data
                 GameDataTabularSheetKind.Triggers => TriggersCanonicalHeaders,
                 GameDataTabularSheetKind.MaterialBuilds => MaterialBuildsCanonicalHeaders,
                 GameDataTabularSheetKind.Charms => CharmsCanonicalHeaders,
+                GameDataTabularSheetKind.Regions => RegionsCanonicalHeaders,
                 _ => Array.Empty<string>()
             };
     }

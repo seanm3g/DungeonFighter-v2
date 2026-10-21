@@ -46,6 +46,10 @@ namespace RPGGame.Data
         [JsonPropertyName("dungeonsSheetUrl")]
         public string DungeonsSheetUrl { get; set; } = "";
 
+        /// <summary>Published CSV URL for the REGIONS tab (→ <c>Regions.json</c>).</summary>
+        [JsonPropertyName("regionsSheetUrl")]
+        public string RegionsSheetUrl { get; set; } = "";
+
         /// <summary>Published CSV URL for the item-suffix / stat-bonus pool tab (→ <c>StatBonuses.json</c>).</summary>
         [JsonPropertyName("statBonusesSheetUrl")]
         public string StatBonusesSheetUrl { get; set; } = "";

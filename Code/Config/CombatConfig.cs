@@ -336,13 +336,13 @@ namespace RPGGame
         /// <summary>Legacy tuning field retained for old configs.</summary>
         public double ComboAmplifierAtTech5 { get; set; }
 
-        /// <summary>Maximum base combo AMP multiplier at <see cref="ComboAmplifierMaxTech"/> effective TECH.</summary>
+        /// <summary>Maximum base combo AMP multiplier at <see cref="ComboAmplifierMaxTech"/> effective INT (name kept for config compatibility).</summary>
         public double ComboAmplifierMax { get; set; }
 
-        /// <summary>Effective TECH at which base combo AMP reaches <see cref="ComboAmplifierMax"/>.</summary>
+        /// <summary>Effective INT at which base combo AMP reaches <see cref="ComboAmplifierMax"/>.</summary>
         public int ComboAmplifierMaxTech { get; set; }
 
-        /// <summary>Power exponent for the slow early/mid TECH ramp (0 → knee TECH).</summary>
+        /// <summary>Power exponent for the slow early/mid INT ramp (0 → knee INT).</summary>
         public double ComboAmplifierCurveExponent { get; set; }
 
         /// <summary>Repairs zero/invalid combo AMP tuning values from older configs.</summary>
@@ -358,7 +358,7 @@ namespace RPGGame
     }
 
     /// <summary>
-    /// Maps effective Technique to base combo amplifier using a slow power ramp (0 → knee TECH)
+    /// Maps effective Intelligence to base combo amplifier (TECH only shifts dice thresholds) using a slow power ramp (0 → knee TECH)
     /// and a short linear finish (knee TECH → max TECH). Default knee: TECH 99 → 1.98×, TECH 110 → 2.00×.
     /// </summary>
     public static class ComboAmplifierCurve
@@ -393,7 +393,7 @@ namespace RPGGame
     }
 
     /// <summary>Obsolete name; use <see cref="ComboAmplifierCurve"/>.</summary>
-    [Obsolete("Use ComboAmplifierCurve — AMP is driven by effective Technique.")]
+    [Obsolete("Use ComboAmplifierCurve — AMP is driven by effective Intelligence.")]
     public static class ComboAmplifierFromIntelligence
     {
         public static double Compute(int technique, ComboSystemConfig combo) =>

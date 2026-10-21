@@ -168,9 +168,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 var info = panelData[i];
                 string name = string.IsNullOrEmpty(info.Name) ? "?" : (info.Name.Length > contentW ? info.Name.Substring(0, contentW - 3) + "..." : info.Name);
                 var action = comboForStrip[i];
+                // Required weapon basic stays red; other titles carry their class / rarity color.
                 var nameColor = WeaponRequiredComboAction.IsRequiredBasicForEquippedWeapon(player, action)
                     ? AsciiArtAssets.Colors.Red
-                    : AsciiArtAssets.Colors.White;
+                    : ActionNameColors.Resolve(action);
                 canvas.AddText(contentX, contentY, name, nameColor);
                 contentY++;
 

@@ -223,9 +223,13 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         public static string? GetNonLivingEnemyImmunityLine(Enemy enemy)
         {
-            if (enemy == null || enemy.IsLiving)
+            if (enemy == null)
                 return null;
-            return "Immune: Bleed, Poison";
+            return GetEnemyAffinityLines(enemy).FirstOrDefault(l => l.StartsWith("Immune", StringComparison.Ordinal));
         }
+
+        /// <summary>Immune / Weak / Resists lines from <see cref="RPGGame.Combat.StatusAffinity"/> (enemy tags).</summary>
+        public static List<string> GetEnemyAffinityLines(Enemy enemy) =>
+            enemy == null ? new List<string>() : RPGGame.Combat.StatusAffinity.GetHudLines(enemy);
     }
 }

@@ -34,6 +34,7 @@ namespace RPGGame.UI.Avalonia
         public MainWindow()
         {
             InitializeComponent();
+            StartupTimeline.Mark("MainWindow XAML loaded");
             Opened += OnMainWindowOpened;
             // Tunnel so Ctrl/Cmd chords are handled before focused children; bubble KeyDown on the window often never runs when focus is on the canvas.
             this.AddHandler(InputElement.KeyDownEvent, OnGlobalKeyDownTunnel, RoutingStrategies.Tunnel);
@@ -61,9 +62,11 @@ namespace RPGGame.UI.Avalonia
                         sm?.CurrentState);
                 });
             NarrativeVideoOverlay?.ReloadConfigAndMaybeStart();
+            StartupTimeline.Mark("Video overlay configured");
 
             LoadPersistedGameFontPreferences();
-            
+            StartupTimeline.Mark("Fonts loaded");
+
             // Initialize the game and UI
             InitializeGame();
         }
@@ -129,6 +132,8 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public void RevealAfterTitleReady()
         {
+            StartupTimeline.Mark("Window revealed");
+            StartupTimeline.Flush();
             Opacity = TitleToMenuBootstrap.GetStartupWindowOpacity(titleFirstFrameReady: true);
             ShowInTaskbar = TitleToMenuBootstrap.GetStartupShowInTaskbar(titleFirstFrameReady: true);
             WindowState = TitleToMenuBootstrap.GetStartupWindowState(titleFirstFrameReady: true);
@@ -141,6 +146,7 @@ namespace RPGGame.UI.Avalonia
         private void OnMainWindowOpened(object? sender, EventArgs e)
         {
             Opened -= OnMainWindowOpened;
+            StartupTimeline.Mark("Window opened (hidden)");
 
             if (OperatingSystem.IsMacOS())
             {
@@ -211,6 +217,7 @@ namespace RPGGame.UI.Avalonia
         {
             initializationHandler = new GameInitializationHandler(GameCanvas, this);
             initializationHandler.InitializeGame(UpdateStatus);
+            StartupTimeline.Mark("Canvas UI initialized");
             CombatTuningNavigation.OpenSettingsAndNavigateToProgressionCurve = () => OpenCombatTuningProgressionCurveSettings();
         }
 

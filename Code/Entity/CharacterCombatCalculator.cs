@@ -18,13 +18,16 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the base combo amplifier based on effective Technique stat
+        /// Gets the base combo amplifier based on effective Intelligence stat
         /// </summary>
         /// <returns>Base combo amplifier value</returns>
         public double GetComboAmplifier()
         {
             var tuning = GameConfiguration.Instance;
-            return ComboAmplifierCurve.Compute(character.GetEffectiveTechnique(), tuning.ComboSystem);
+            double amp = ComboAmplifierCurve.Compute(character.GetEffectiveIntelligence(), tuning.ComboSystem);
+            // Mythic animal set: +% on the base per-step AMP.
+            double mythicPct = AnimalSetController.GetAmpBonusPct(character);
+            return mythicPct > 0 ? amp * (1.0 + mythicPct / 100.0) : amp;
         }
 
         /// <summary>
@@ -211,7 +214,7 @@ namespace RPGGame
 
             int primaryAttr = character.GetEffectivePrimaryAttributeValue();
             string stats = $"Damage: {damage} (STR: {character.GetEffectiveStrength()} + Primary: {primaryAttr} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Defense: {armor}";
-            
+
             if (magicFind > 0)
             {
                 stats += $"  Magic Find: +{magicFind} (better prefix/suffix/action rolls; not base rarity)";

@@ -52,6 +52,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
         /// <summary>Separator column of a description pane that extended below the Actions header this frame; the shortcut hint stops short of it.</summary>
         private int? detailSeparatorXBesideActions;
+        /// <summary>Equipped item chosen for the description pane this frame (paper-doll / left-panel gear click); null = bag selection.</summary>
+        private Item? selectedEquippedItem;
+        private string? selectedEquippedSlot;
 
         /// <summary>Bottom row for the description column: the extended bound when it starts right of the Actions buttons, else the bag's bound.</summary>
         private int ResolveDetailBottomY(int x, int separatorX, int bottomY, int extendedBottomY)
@@ -160,6 +163,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int itemsHeaderY = y;
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.InventoryItems), AsciiArtAssets.Colors.Gold);
             bool gridView = detailView?.Grid == true;
+            selectedEquippedItem = detailView?.SelectedEquippedSlot is string eqSlot ? character.Equipment.GetSlotItem(eqSlot) : null;
+            selectedEquippedSlot = selectedEquippedItem != null ? detailView!.SelectedEquippedSlot : null;
             int viewToggleWidth = RenderViewToggleButton(x, itemsHeaderY, width, gridView, blockClick: pendingMutatingInventoryMenuAction != null);
             y += 2;
             currentLineCount += 2;
@@ -445,7 +450,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             for (int displayIndex = visibleRange.FirstIndex; displayIndex < visibleRange.LastExclusiveIndex; displayIndex++)
             {
                 var entry = displayEntries[displayIndex];
-                bool isSelected = entry.InventoryIndex == selected.InventoryIndex;
+                bool isSelected = selectedEquippedItem == null && entry.InventoryIndex == selected.InventoryIndex;
                 textWriter.RenderSegments(BuildDetailViewListRowSegments(entry, character, isSelected), listX, rowY);
                 if (!blockRowClicks)
                 {
@@ -476,8 +481,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             for (int sepY = topY; sepY < detailBottomY; sepY++)
                 canvas.AddText(separatorX, sepY, "│", AsciiArtAssets.Colors.DarkGray);
 
-            if (selected.Item != null)
-                RenderDetailPane(detailX, topY, detailWidth, detailBottomY, selected.Item, character, ref currentLineCount);
+            var paneItem = selectedEquippedItem ?? selected.Item;
+            if (paneItem != null)
+                RenderDetailPane(detailX, topY, detailWidth, detailBottomY, paneItem, character, ref currentLineCount);
         }
 
         /// <summary>Label of the header button that switches inventories (shows where it goes).</summary>
@@ -748,7 +754,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 int ty = topY + (slot / perRow) * stepY;
                 var entry = displayEntries[displayIndex];
                 var item = entry.Item;
-                bool isSelected = entry.InventoryIndex == selected.InventoryIndex;
+                bool isSelected = selectedEquippedItem == null && entry.InventoryIndex == selected.InventoryIndex;
                 bool blocked = ItemRendererHelper.IsEquipBlockedForCharacter(item, character);
                 bool beingDragged = InventoryDragState.IsActive && InventoryDragState.SourceInventoryIndex == entry.InventoryIndex;
                 Color frame = beingDragged
@@ -799,22 +805,23 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             for (int sepY = topY; sepY < detailBottomY; sepY++)
                 canvas.AddText(separatorX, sepY, "│", AsciiArtAssets.Colors.DarkGray);
 
-            if (selected.Item == null)
+            var paneItem = selectedEquippedItem ?? selected.Item;
+            if (paneItem == null)
                 return;
 
             int detailY = topY;
             int paneRows = Math.Max(0, detailBottomY - topY);
             // +1 is the blank row between the icon and the description. Measure the real text so the
             // comparison table is not clipped under a square icon that only reserved 12 rows.
-            int textRows = EstimateDetailTextRows(selected.Item, character, detailWidth) + 1;
+            int textRows = EstimateDetailTextRows(paneItem, character, detailWidth) + 1;
             var hero = DetailHeroIconSize(canvas.GetCharWidth(), canvas.GetCharHeight(), detailWidth, paneRows, textRows);
-            if (haveArt && hero.Rows > 0 && ItemArtAtlas.TryGetHeroIcon(selected.Item, out var bigBitmap, out var bigRect))
+            if (haveArt && hero.Rows > 0 && ItemArtAtlas.TryGetHeroIcon(paneItem, out var bigBitmap, out var bigRect))
             {
                 int iconX = DetailHeroIconX(detailX, detailWidth, hero.Columns);
                 canvas.AddImage(iconX, detailY, hero.Columns, hero.Rows, bigBitmap, bigRect, paddingPixels: 0, fillFrame: true);
                 detailY += hero.Rows + 1;
             }
-            RenderDetailPane(detailX, detailY, detailWidth, detailBottomY, selected.Item, character, ref currentLineCount);
+            RenderDetailPane(detailX, detailY, detailWidth, detailBottomY, paneItem, character, ref currentLineCount);
             RenderDragGhost(x, width, topY, bottomY, tileCols, tileRows, haveArt);
         }
 
@@ -896,7 +903,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         ? AsciiArtAssets.Colors.Red
                         : ItemThemeProvider.GetRarityColor(item!.Rarity?.Trim() ?? "Common");
 
-                canvas.AddBox(tx, ty, tileCols, tileRows, frame, borderThicknessPixels: isDropTarget ? 2 : 1);
+                bool isPaneSelection = shown && string.Equals(selectedEquippedSlot, slot, StringComparison.Ordinal);
+                if (isPaneSelection && !isDropTarget)
+                    frame = AsciiArtAssets.Colors.Gold;
+                canvas.AddBox(tx, ty, tileCols, tileRows, frame, borderThicknessPixels: isDropTarget || isPaneSelection ? 2 : 1);
                 if (shown && haveArt && ItemArtAtlas.TryGetIcon(item!, out var bitmap, out var sourceRect))
                     canvas.AddImage(tx, ty, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3);
                 else

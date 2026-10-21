@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using RPGGame.Combat.Effects;
 using RPGGame.Combat.Formatting;
+using RPGGame.Combat;
 
 namespace RPGGame
 {
@@ -56,6 +57,9 @@ namespace RPGGame
         public bool ApplyEffect(string effectType, Actor target, Action? action, List<string> results)
         {
             if (action == null || string.IsNullOrWhiteSpace(effectType))
+                return false;
+            // Immune targets never receive the status, so nothing is logged ("is poisoned" on a skeleton).
+            if (StatusAffinity.IsImmune(target, effectType))
                 return false;
             if (_handlers.TryGetValue(effectType.ToLower(), out var handler))
             {

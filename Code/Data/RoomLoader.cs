@@ -156,7 +156,10 @@ namespace RPGGame
 
                 return false;
 
-            return string.Equals(GetBiomeForThemeMatch(), dungeonTheme.Trim(), StringComparison.OrdinalIgnoreCase);
+            string wanted = dungeonTheme.Trim();
+            return GetBiomeForThemeMatch()
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Any(b => string.Equals(b, wanted, StringComparison.OrdinalIgnoreCase));
 
         }
 
@@ -450,16 +453,20 @@ namespace RPGGame
 
 
 
+                // Authored hazards replace the generic theme defaults so a Den never rolls lava splashes.
+                var authoredActions = new List<(Action action, double weight)>();
                 foreach (var actionData in roomData.Actions)
-
                 {
-
-                    var action = ActionLoader.GetAction(actionData.Name);
-
+                    var action = EnvironmentalActionLoader.TryCreateByName(actionData.Name)
+                        ?? ActionLoader.GetAction(actionData.Name);
                     if (action != null)
-
-                        room.AddAction(action, actionData.Weight);
-
+                        authoredActions.Add((action, actionData.Weight));
+                }
+                if (authoredActions.Count > 0)
+                {
+                    room.ActionPool.Clear();
+                    foreach (var (action, weight) in authoredActions)
+                        room.AddAction(action, weight);
                 }
 
 

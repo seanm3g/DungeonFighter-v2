@@ -271,22 +271,17 @@ namespace RPGGame.UI.Avalonia.Layout
                 string primaryStat = GetPrimaryStatForCharacter(character);
                 var primaryStatHighlight = PrimaryStatRowHighlightColors.ForCharacter(character);
 
-                int strRowY = y;
-                PanelCharacterStat(x, y, "STR", character.GetEffectiveStrength(), 0,
-                    primaryStat == "Strength" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
-                y++;
-                int agiRowY = y;
-                PanelCharacterStat(x, y, "AGI", character.GetEffectiveAgility(), 0,
-                    primaryStat == "Agility" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
-                y++;
-                int tecRowY = y;
-                PanelCharacterStat(x, y, "TECH", character.GetEffectiveTechnique(), 0,
-                    primaryStat == "Technique" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
-                y++;
-                int intRowY = y;
-                PanelCharacterStat(x, y, "INT", character.GetEffectiveIntelligence(), 0,
-                    primaryStat == "Intelligence" ? primaryStatHighlight : AsciiArtAssets.Colors.White);
-                y++;
+                // Click any attribute row to toggle highest → lowest ordering (stable for ties).
+                bool sortAttributes = stateManager?.SortAttributesByValue == true;
+                var attributeRows = LeftPanelAttributeOrder.Build(character, sortAttributes);
+                var attributeRowYs = new List<(int rowY, string idSuffix)>();
+                foreach (var row in attributeRows)
+                {
+                    attributeRowYs.Add((y, row.HoverId));
+                    PanelCharacterStat(x, y, row.Label, row.Value, 0,
+                        primaryStat == row.PrimaryName ? primaryStatHighlight : AsciiArtAssets.Colors.White);
+                    y++;
+                }
 
                 List<(int rowY, string idSuffix)>? expandedHoverTargets = interactionManager != null && stateManager != null
                     ? new List<(int rowY, string idSuffix)>()
@@ -307,10 +302,8 @@ namespace RPGGame.UI.Avalonia.Layout
                     RegisterLeftPanelHoverRow(x, armorRowY, headerClickWidth, 1, "stat:armor");
                     if (slotsRowY >= 0)
                         RegisterLeftPanelHoverRow(x, slotsRowY, headerClickWidth, 1, "stat:actionslots");
-                    RegisterLeftPanelHoverRow(x, strRowY, headerClickWidth, 1, "stat:str");
-                    RegisterLeftPanelHoverRow(x, agiRowY, headerClickWidth, 1, "stat:agi");
-                    RegisterLeftPanelHoverRow(x, tecRowY, headerClickWidth, 1, "stat:tec");
-                    RegisterLeftPanelHoverRow(x, intRowY, headerClickWidth, 1, "stat:int");
+                    foreach (var (rowY, id) in attributeRowYs)
+                        RegisterLeftPanelHoverRow(x, rowY, headerClickWidth, 1, id);
                     if (expandedHoverTargets != null)
                     {
                         foreach (var (rowY, id) in expandedHoverTargets)

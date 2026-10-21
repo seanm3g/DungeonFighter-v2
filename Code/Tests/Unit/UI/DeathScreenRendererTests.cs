@@ -103,10 +103,30 @@ namespace RPGGame.Tests.Unit.UI
 
             string dealtLine = FindPlainLine(lines, "Total Damage Dealt:");
             string receivedLine = FindPlainLine(lines, "Total Damage Received:");
+            string levelLine = FindPlainLine(lines, "Level:");
             TestBase.AssertEqual(
-                dealtLine.TrimStart().IndexOf("1,672", StringComparison.Ordinal),
-                receivedLine.TrimStart().IndexOf("232", StringComparison.Ordinal),
-                "Metric values should align after padded labels",
+                dealtLine.IndexOf("1,672", StringComparison.Ordinal),
+                receivedLine.IndexOf("232", StringComparison.Ordinal),
+                "Metric values should share one column",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+            TestBase.AssertEqual(
+                dealtLine.IndexOf(':'),
+                levelLine.IndexOf(':'),
+                "Metric labels should right-align on the colon",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+            TestBase.AssertTrue(
+                !dealtLine.TrimStart().Contains("  ", StringComparison.Ordinal),
+                "Metric rows should not rely on inner space runs (the log wrapper collapses them)",
+                ref _testsRun,
+                ref _testsPassed,
+                ref _testsFailed);
+            TestBase.AssertTrue(
+                !FindPlainLine(lines, "CHARACTER PROGRESSION").Contains("📈", StringComparison.Ordinal),
+                "Section headers should drop wide emoji prefixes",
                 ref _testsRun,
                 ref _testsPassed,
                 ref _testsFailed);

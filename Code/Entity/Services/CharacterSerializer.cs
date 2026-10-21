@@ -61,7 +61,8 @@ namespace RPGGame.Entity.Services
                 CurrentRegionId = string.IsNullOrWhiteSpace(character.CurrentRegionId)
                     ? GameConstants.DefaultRegionId
                     : character.CurrentRegionId,
-                DungeonDifficultyAnchorLevel = character.DungeonDifficultyAnchorLevel
+                DungeonDifficultyAnchorLevel = character.DungeonDifficultyAnchorLevel,
+                SessionStats = character.SessionStats
             };
 
             var options = new JsonSerializerOptions
@@ -141,7 +142,9 @@ namespace RPGGame.Entity.Services
                 ? GameConstants.DefaultRegionId
                 : saveData.CurrentRegionId;
             character.DungeonDifficultyAnchorLevel = saveData.DungeonDifficultyAnchorLevel;
-            
+            if (saveData.SessionStats != null)
+                character.RestoreSessionStatistics(saveData.SessionStats);
+
             // Restore equipment with proper type conversion
             character.Equipment.Inventory = ItemTypeConverter.ConvertItemsToProperTypes(saveData.Inventory);
             character.Equipment.Head = ItemTypeConverter.ConvertItemToProperType(saveData.Head);

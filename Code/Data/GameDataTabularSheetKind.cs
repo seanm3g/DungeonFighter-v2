@@ -21,6 +21,8 @@ namespace RPGGame.Data
         /// <summary><c>MaterialBuilds.json</c> — material-set synthesis / convert / feed (sheet tab MATERIAL BUILDS).</summary>
         MaterialBuilds,
         /// <summary><c>Charms.json</c> — charm slot amplifiers (sheet tab CHARMS).</summary>
-        Charms
+        Charms,
+        /// <summary><c>Regions.json</c> — travel regions with fixed dungeon level bands and linked biomes (sheet tab REGIONS).</summary>
+        Regions
     }
 }

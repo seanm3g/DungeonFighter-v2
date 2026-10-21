@@ -53,17 +53,16 @@ namespace RPGGame.Actions.Execution
                 int hpBefore = target is Character packHp ? packHp.CurrentHealth : 0;
 
                 // Always resolve every planned tick so totals match (attack − armor) × hits.
-                // A pack target takes the sum once so extra ticks cannot spill into the next body.
+                // A pack target takes each hit on its current front body, so later hits move on to the next body.
                 if (capToOneBody)
                 {
-                    int raw = 0;
+                    var hits = new List<int>(multiHitCount);
                     for (int hit = 0; hit < multiHitCount; hit++)
                     {
                         int perHitTotalRoll = MultiHitProcessor.GetMultihitDamageTotalRoll(totalRoll, source, hit);
-                        raw += CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, perHitTotalRoll, true, null, baseRoll, hit);
+                        hits.Add(CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, perHitTotalRoll, true, null, baseRoll, hit));
                     }
-                    ActionUtilities.ApplyDamage(target, raw);
-                    totalDamage = Math.Max(0, hpBefore - ((Character)target).CurrentHealth);
+                    totalDamage = PackCombat.ApplyHitsAcrossBodies((Enemy)target, hits);
                     overkillWasted = ((Enemy)target).LastOverkillWasted;
                 }
                 else

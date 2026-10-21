@@ -1,274 +1,1427 @@
 [
   {
-    "description": "A large, imposing entrance to the dungeon. The air is thick with anticipation.",
+    "region": "Forest",
+    "biome": "Den",
+    "location": "Cave Entrance",
+    "description": "A low cave mouth ringed with claw marks; something large sleeps further in.",
     "actions": [
       {
-        "name": "Magical Barrier",
+        "name": "Bone-Strewn Floor",
+        "weight": 1.0
+      },
+      {
+        "name": "Musk Haze",
         "weight": 1.0
       }
     ],
-    "location": "Entrance",
-    "tags": [
-      "earth",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A room filled with glittering gold and precious artifacts. But is it too good to be true?",
-    "actions": [
+    "enemies": [
       {
-        "name": "Treasure Guardian",
-        "weight": 0.8
+        "name": "Territorial Hound",
+        "weight": 2.0
       },
       {
-        "name": "Trap Spring",
-        "weight": 0.2
-      }
-    ],
-    "location": "Treasure Room",
-    "tags": [
-      "earth",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A well-fortified position, manned by vigilant guards.",
-    "actions": [
-      {
-        "name": "Trap Spring",
-        "weight": 0.6
+        "name": "Alpha Wolf",
+        "weight": 2.0
       },
       {
-        "name": "Poisonous Gas",
-        "weight": 0.4
+        "name": "Bone Spreader",
+        "weight": 1.0
       }
     ],
-    "location": "Guard Post",
     "tags": [
       "earth",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "The floor is suspiciously clean, and the walls have strange markings.",
-    "actions": [
-      {
-        "name": "Trap Spring",
-        "weight": 0.8
-      },
-      {
-        "name": "Poisonous Gas",
-        "weight": 0.2
-      }
-    ],
-    "location": "Trap Room",
-    "tags": [
-      "earth",
-      "exposed",
-      "dilapidated",
-      "active"
-    ],
-    "unstableThresholdMod": 2
-  },
-  {
-    "description": "Ancient mechanisms and cryptic symbols cover the walls.",
-    "actions": [
-      {
-        "name": "Ancient Curse",
-        "weight": 0.7
-      },
-      {
-        "name": "Magical Barrier",
-        "weight": 0.3
-      }
-    ],
-    "location": "Puzzle Chamber",
-    "tags": [
-      "earth",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A surprisingly peaceful area, with comfortable furnishings.",
-    "actions": [
-      {
-        "name": "Magical Barrier",
-        "weight": 0.8
-      },
-      {
-        "name": "Forest Spirits",
-        "weight": 0.2
-      }
-    ],
-    "location": "Rest Area",
-    "tags": [
-      "earth",
-      "exposed",
-      "dormant"
-    ]
-  },
-  {
-    "description": "Shelves and crates line the walls, filled with supplies.",
-    "actions": [
-      {
-        "name": "Magical Barrier",
-        "weight": 0.6
-      },
-      {
-        "name": "Ancient Curse",
-        "weight": 0.4
-      }
-    ],
-    "location": "Storage Room",
-    "tags": [
-      "earth",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Rows of ancient tomes and scrolls fill this room.",
-    "actions": [
-      {
-        "name": "Ancient Curse",
-        "weight": 0.5
-      },
-      {
-        "name": "Magical Barrier",
-        "weight": 0.5
-      }
-    ],
-    "location": "Library",
-    "tags": [
-      "earth",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Weapons and armor are displayed on racks and stands.",
-    "actions": [
-      {
-        "name": "Treasure Guardian",
-        "weight": 0.7
-      },
-      {
-        "name": "Magical Barrier",
-        "weight": 0.3
-      }
-    ],
-    "location": "Armory",
-    "tags": [
-      "earth",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A large cooking area, with pots and pans hanging from the ceiling.",
-    "actions": [
-      {
-        "name": "Poisonous Gas",
-        "weight": 0.6
-      },
-      {
-        "name": "Trap Spring",
-        "weight": 0.4
-      }
-    ],
-    "location": "Kitchen",
-    "tags": [
-      "earth",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A long table set for a feast, though the food looks... questionable.",
-    "actions": [
-      {
-        "name": "Poisonous Gas",
-        "weight": 0.5
-      },
-      {
-        "name": "Ancient Curse",
-        "weight": 0.5
-      }
-    ],
-    "location": "Dining Hall",
-    "tags": [
-      "earth",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A grand chamber, clearly the domain of a powerful being. The walls are adorned with trophies of past conquests.",
-    "actions": [
-      {
-        "name": "Boss Rage",
-        "weight": 0.8
-      },
-      {
-        "name": "Ancient Curse",
-        "weight": 0.2
-      }
-    ],
-    "location": "Boss Chamber",
-    "tags": [
-      "earth",
-      "exposed",
-      "elegant",
-      "active"
-    ]
-  },
-  {
-    "description": "A peaceful clearing in the woods, dappled with sunlight.",
-    "actions": [
-      {
-        "name": "Forest Spirits",
-        "weight": 0.8
-      },
-      {
-        "name": "Magical Barrier",
-        "weight": 0.2
-      }
-    ],
-    "location": "Forest Clearing",
-    "tags": [
       "overgrown",
       "dormant"
     ]
   },
   {
-    "description": "Molten rock flows through channels in the floor, creating an oppressive heat.",
+    "region": "Forest",
+    "biome": "Den",
+    "location": "Offering Mound",
+    "description": "A heap of bones and trinkets left for whatever rules the den.",
     "actions": [
       {
-        "name": "Lava Surge",
-        "weight": 0.8
+        "name": "Bone-Strewn Floor",
+        "weight": 1.0
       },
       {
-        "name": "Falling Rocks",
-        "weight": 0.2
+        "name": "Musk Haze",
+        "weight": 1.0
       }
     ],
-    "location": "Lava Chamber",
+    "enemies": [
+      {
+        "name": "Tribute Beast",
+        "weight": 2.0
+      },
+      {
+        "name": "Cursed Bear",
+        "weight": 2.0
+      },
+      {
+        "name": "Mound Warden",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "earth",
+      "dilapidated",
+      "exposed"
+    ]
+  },
+  {
+    "region": "Forest",
+    "biome": "Den",
+    "location": "Vigil Circle",
+    "description": "Standing stones under open sky where the pack keeps watch at night.",
+    "actions": [
+      {
+        "name": "Musk Haze",
+        "weight": 1.0
+      },
+      {
+        "name": "Bone-Strewn Floor",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Moon Blessed",
+        "weight": 2.0
+      },
+      {
+        "name": "Echo Stalker",
+        "weight": 2.0
+      },
+      {
+        "name": "Vigil Alpha",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "earth",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Forest",
+    "biome": "Dense Brush",
+    "location": "Overgrown Ruin",
+    "description": "Old stonework split apart by roots and choked with vines.",
+    "actions": [
+      {
+        "name": "Thorn Vines",
+        "weight": 1.0
+      },
+      {
+        "name": "Falling Branch",
+        "weight": 1.0
+      },
+      {
+        "name": "Pollen Cloud",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Living Wall Crawler",
+        "weight": 2.0
+      },
+      {
+        "name": "Animated Vine",
+        "weight": 2.0
+      },
+      {
+        "name": "Ruin Wraith",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "overgrown",
+      "dilapidated",
+      "earth"
+    ]
+  },
+  {
+    "region": "Forest",
+    "biome": "Dense Brush",
+    "location": "Thicket",
+    "description": "Brambles close overhead and the light turns green and dim.",
+    "actions": [
+      {
+        "name": "Thorn Vines",
+        "weight": 1.0
+      },
+      {
+        "name": "Falling Branch",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Thorn Boar",
+        "weight": 2.0
+      },
+      {
+        "name": "Root Sprite",
+        "weight": 2.0
+      },
+      {
+        "name": "Rattlesnake",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "overgrown",
+      "earth"
+    ]
+  },
+  {
+    "region": "Forest",
+    "biome": "Dense Brush",
+    "location": "Wildflower Valley",
+    "description": "A valley drowned in flowers, humming with insects.",
+    "actions": [
+      {
+        "name": "Pollen Cloud",
+        "weight": 1.0
+      },
+      {
+        "name": "Thorn Vines",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Nectar Drone",
+        "weight": 2.0
+      },
+      {
+        "name": "Pollen Wraith",
+        "weight": 2.0
+      },
+      {
+        "name": "Valley Prowler",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "overgrown",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Forest",
+    "biome": "Labyrinth",
+    "location": "Endless Maze",
+    "description": "Every turn looks like the last one. The path has been walked many times.",
+    "actions": [
+      {
+        "name": "Shifting Hedges",
+        "weight": 1.0
+      },
+      {
+        "name": "Mirror Glare",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Maze Runner",
+        "weight": 2.0
+      },
+      {
+        "name": "Loop Shade",
+        "weight": 2.0
+      },
+      {
+        "name": "Instinct Eater",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "overgrown",
+      "cycling",
+      "active"
+    ]
+  },
+  {
+    "region": "Forest",
+    "biome": "Labyrinth",
+    "location": "Hedge Corridor",
+    "description": "Walls of clipped hedge run straight for a while, then do not.",
+    "actions": [
+      {
+        "name": "Shifting Hedges",
+        "weight": 1.0
+      },
+      {
+        "name": "Mirror Glare",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Guile Sprite",
+        "weight": 2.0
+      },
+      {
+        "name": "Hedge Hound",
+        "weight": 2.0
+      },
+      {
+        "name": "Dead End Mimic",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "overgrown",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Forest",
+    "biome": "Labyrinth",
+    "location": "The Room of Two Mirrors",
+    "description": "Two great mirrors face each other; your reflection is a beat too slow.",
+    "actions": [
+      {
+        "name": "Mirror Glare",
+        "weight": 1.0
+      },
+      {
+        "name": "Shifting Hedges",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Duplicate",
+        "weight": 2.0
+      },
+      {
+        "name": "Shattered Reflection",
+        "weight": 2.0
+      },
+      {
+        "name": "The Other",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "elegant",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Water",
+    "biome": "Mirror Pond",
+    "location": "Fog Shelf",
+    "description": "A rocky ledge over still water, wrapped in cold fog.",
+    "actions": [
+      {
+        "name": "Fog Bank",
+        "weight": 1.0
+      },
+      {
+        "name": "Slick Mud",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Fog Mimic",
+        "weight": 2.0
+      },
+      {
+        "name": "Cold Creeper",
+        "weight": 2.0
+      },
+      {
+        "name": "Shelf Specter",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "water",
+      "exposed",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Water",
+    "biome": "Mirror Pond",
+    "location": "Reed Shallows",
+    "description": "Waist-high reeds hide the waterline and whatever moves beneath it.",
+    "actions": [
+      {
+        "name": "Slick Mud",
+        "weight": 1.0
+      },
+      {
+        "name": "Fog Bank",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Reed Stalker",
+        "weight": 2.0
+      },
+      {
+        "name": "Mosquito Swarm",
+        "weight": 2.0
+      },
+      {
+        "name": "Mud Lurker",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "water",
+      "flooded",
+      "overgrown"
+    ]
+  },
+  {
+    "region": "Water",
+    "biome": "Mirror Pond",
+    "location": "Tidal Hollow",
+    "description": "A basin that fills and empties with an unseen tide.",
+    "actions": [
+      {
+        "name": "Slick Mud",
+        "weight": 1.0
+      },
+      {
+        "name": "Fog Bank",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Current Rider",
+        "weight": 2.0
+      },
+      {
+        "name": "Slick Eel",
+        "weight": 2.0
+      },
+      {
+        "name": "Hollow Drifter",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "water",
+      "flooded",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Water",
+    "biome": "Spring",
+    "location": "Blue Vent Basin",
+    "description": "Blue-lit vents bubble up through the pool floor.",
+    "actions": [
+      {
+        "name": "Scalding Vent",
+        "weight": 1.0
+      },
+      {
+        "name": "Cold Current",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Vent Sprite",
+        "weight": 2.0
+      },
+      {
+        "name": "Lion Fish",
+        "weight": 2.0
+      },
+      {
+        "name": "Mist Phantom",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "water",
+      "active",
+      "flooded"
+    ]
+  },
+  {
+    "region": "Water",
+    "biome": "Spring",
+    "location": "Chronicle Basin",
+    "description": "Names and dates are carved all around a deep, clear pool.",
+    "actions": [
+      {
+        "name": "Cold Current",
+        "weight": 1.0
+      },
+      {
+        "name": "Scalding Vent",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Chronicle Watcher",
+        "weight": 2.0
+      },
+      {
+        "name": "Sinkhole Lurker",
+        "weight": 2.0
+      },
+      {
+        "name": "Ink Stalker",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "water",
+      "elegant",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Water",
+    "biome": "Spring",
+    "location": "Grotto",
+    "description": "A dripping grotto lit by glowing mites on the ceiling.",
+    "actions": [
+      {
+        "name": "Cold Current",
+        "weight": 1.0
+      },
+      {
+        "name": "Scalding Vent",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Glow Mite",
+        "weight": 2.0
+      },
+      {
+        "name": "Frost Creeper",
+        "weight": 2.0
+      },
+      {
+        "name": "Cave Lurcher",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "water",
+      "earth",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Water",
+    "biome": "Water Temple",
+    "location": "Aqueduct Nave",
+    "description": "Water runs in channels along a vaulted nave toward the altar.",
+    "actions": [
+      {
+        "name": "Corroding Brine",
+        "weight": 1.0
+      },
+      {
+        "name": "Tidal Surge",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Pressure Monk",
+        "weight": 2.0
+      },
+      {
+        "name": "Cascade Rider",
+        "weight": 2.0
+      },
+      {
+        "name": "Aqueduct Warden",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "water",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Water",
+    "biome": "Water Temple",
+    "location": "Flooded Forecourt",
+    "description": "The temple forecourt sits ankle-deep in seawater.",
+    "actions": [
+      {
+        "name": "Tidal Surge",
+        "weight": 1.0
+      },
+      {
+        "name": "Corroding Brine",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Fourecourt Guard",
+        "weight": 2.0
+      },
+      {
+        "name": "Depth Drainer",
+        "weight": 2.0
+      },
+      {
+        "name": "Tide Sentinel",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "water",
+      "flooded",
+      "elegant"
+    ]
+  },
+  {
+    "region": "Water",
+    "biome": "Water Temple",
+    "location": "The Drowned Throne",
+    "description": "A throne sunk to its armrests; something still sits on it.",
+    "actions": [
+      {
+        "name": "Tidal Surge",
+        "weight": 1.0
+      },
+      {
+        "name": "Corroding Brine",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Still Gazer",
+        "weight": 2.0
+      },
+      {
+        "name": "Undertow Shade",
+        "weight": 2.0
+      },
+      {
+        "name": "Throne Revenant",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "water",
+      "flooded",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Fire",
+    "biome": "Ashen Land",
+    "location": "Blackened Forest",
+    "description": "Charred trunks stand in rows like burnt matches.",
+    "actions": [
+      {
+        "name": "Ember Rain",
+        "weight": 1.0
+      },
+      {
+        "name": "Ash Cloud",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Charwood Stalker",
+        "weight": 2.0
+      },
+      {
+        "name": "Scorched Treant",
+        "weight": 2.0
+      },
+      {
+        "name": "Reignited Wisp",
+        "weight": 1.0
+      }
+    ],
     "tags": [
       "fire",
       "scorched",
+      "dilapidated"
+    ]
+  },
+  {
+    "region": "Fire",
+    "biome": "Ashen Land",
+    "location": "Smokey Cave",
+    "description": "Smoke pools along the ceiling; breathing low is the only option.",
+    "actions": [
+      {
+        "name": "Ash Cloud",
+        "weight": 1.0
+      },
+      {
+        "name": "Ember Rain",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Soot Golem",
+        "weight": 2.0
+      },
+      {
+        "name": "Cave Ember Toad",
+        "weight": 2.0
+      },
+      {
+        "name": "Smog Lurker",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "fire",
+      "earth",
+      "scorched"
+    ]
+  },
+  {
+    "region": "Fire",
+    "biome": "Ashen Land",
+    "location": "Smoldering Ridge",
+    "description": "A ridge of black stone, still warm, under a sky of drifting ash.",
+    "actions": [
+      {
+        "name": "Ash Cloud",
+        "weight": 1.0
+      },
+      {
+        "name": "Ember Rain",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Cinder Hound",
+        "weight": 2.0
+      },
+      {
+        "name": "Magma Creeper",
+        "weight": 2.0
+      },
+      {
+        "name": "Ashwing Harpy",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "fire",
+      "scorched",
+      "exposed"
+    ]
+  },
+  {
+    "region": "Fire",
+    "biome": "Fire Temple",
+    "location": "Lava Moat Bridge",
+    "description": "A narrow bridge over a moat of slow-moving lava.",
+    "actions": [
+      {
+        "name": "Sacred Flames",
+        "weight": 1.0
+      },
+      {
+        "name": "Collapsing Pillar",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Bridge Warden",
+        "weight": 2.0
+      },
+      {
+        "name": "Lava Spitter",
+        "weight": 2.0
+      },
+      {
+        "name": "Flame Drifter",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "fire",
+      "exposed",
+      "active"
+    ]
+  },
+  {
+    "region": "Fire",
+    "biome": "Fire Temple",
+    "location": "Throne Room",
+    "description": "A throne of blackened gold before a wall of fire.",
+    "actions": [
+      {
+        "name": "Sacred Flames",
+        "weight": 1.0
+      },
+      {
+        "name": "Collapsing Pillar",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Royal Flame Guard",
+        "weight": 2.0
+      },
+      {
+        "name": "Seal Caster",
+        "weight": 2.0
+      },
+      {
+        "name": "Throne Effigy",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "fire",
       "elegant",
       "active"
     ]
   },
   {
+    "region": "Fire",
+    "biome": "Fire Temple",
+    "location": "Torched Great Hall",
+    "description": "Tapestries burn without ever turning to ash.",
+    "actions": [
+      {
+        "name": "Sacred Flames",
+        "weight": 1.0
+      },
+      {
+        "name": "Collapsing Pillar",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Temple Knight",
+        "weight": 2.0
+      },
+      {
+        "name": "Pilar Watcher",
+        "weight": 2.0
+      },
+      {
+        "name": "Torch Wraith",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "fire",
+      "elegant",
+      "scorched"
+    ]
+  },
+  {
+    "region": "Fire",
+    "biome": "Lava Cave",
+    "location": "Amber City",
+    "description": "A buried city sealed in amber-colored glass.",
+    "actions": [
+      {
+        "name": "Steam Burst",
+        "weight": 1.0
+      },
+      {
+        "name": "Lava Splash",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Amber Sentinel",
+        "weight": 2.0
+      },
+      {
+        "name": "Overflow Imp",
+        "weight": 2.0
+      },
+      {
+        "name": "Amber Trapper",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "fire",
+      "elegant",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Fire",
+    "biome": "Lava Cave",
+    "location": "Lava Spring",
+    "description": "Lava wells up from below and spills in glowing channels.",
+    "actions": [
+      {
+        "name": "Lava Splash",
+        "weight": 1.0
+      },
+      {
+        "name": "Steam Burst",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Blood Feeder",
+        "weight": 2.0
+      },
+      {
+        "name": "Vent Spore",
+        "weight": 2.0
+      },
+      {
+        "name": "Crystal Leech",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "fire",
+      "earth",
+      "active"
+    ]
+  },
+  {
+    "region": "Fire",
+    "biome": "Lava Cave",
+    "location": "Slag Archipelago",
+    "description": "Islands of cooled slag float on a lake of molten rock.",
+    "actions": [
+      {
+        "name": "Lava Splash",
+        "weight": 1.0
+      },
+      {
+        "name": "Steam Burst",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Slag Tortoise",
+        "weight": 2.0
+      },
+      {
+        "name": "Island Drifter",
+        "weight": 2.0
+      },
+      {
+        "name": "Molten Crab",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "fire",
+      "earth",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Air",
+    "biome": "Desert",
+    "location": "Dune",
+    "description": "Wind-carved dunes roll to the horizon under a white sun.",
+    "actions": [
+      {
+        "name": "Sandstorm",
+        "weight": 1.0
+      },
+      {
+        "name": "Heat Wave",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Sandstorm Flanker",
+        "weight": 2.0
+      },
+      {
+        "name": "Sand Serpent",
+        "weight": 2.0
+      },
+      {
+        "name": "Dune Roller",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "air",
+      "earth",
+      "exposed"
+    ]
+  },
+  {
+    "region": "Air",
+    "biome": "Desert",
+    "location": "Glass Plains",
+    "description": "Sand fused into sheets of glass that throw back the glare.",
+    "actions": [
+      {
+        "name": "Heat Wave",
+        "weight": 1.0
+      },
+      {
+        "name": "Sandstorm",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Sun Lance Scorpion",
+        "weight": 2.0
+      },
+      {
+        "name": "Glare Stalker",
+        "weight": 2.0
+      },
+      {
+        "name": "Glass Shard Golem",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "air",
+      "scorched",
+      "exposed"
+    ]
+  },
+  {
+    "region": "Air",
+    "biome": "Desert",
+    "location": "Oasis",
+    "description": "A ring of palms around clear water, the only shade for miles.",
+    "actions": [
+      {
+        "name": "Heat Wave",
+        "weight": 1.0
+      },
+      {
+        "name": "Sandstorm",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Mirage Hunter",
+        "weight": 2.0
+      },
+      {
+        "name": "Shadow Wraith",
+        "weight": 2.0
+      },
+      {
+        "name": "Restorative Leech",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "air",
+      "water",
+      "overgrown"
+    ]
+  },
+  {
+    "region": "Air",
+    "biome": "Mountains",
+    "location": "Abandoned Campsite",
+    "description": "Torn tents and a cold fire pit; whoever camped here left in a hurry.",
+    "actions": [
+      {
+        "name": "Rockfall",
+        "weight": 1.0
+      },
+      {
+        "name": "Gale Force",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Scavenger Rat",
+        "weight": 2.0
+      },
+      {
+        "name": "Toxic Drinker",
+        "weight": 2.0
+      },
+      {
+        "name": "Deserter Shade",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "air",
+      "dilapidated",
+      "exposed"
+    ]
+  },
+  {
+    "region": "Air",
+    "biome": "Mountains",
+    "location": "Cliffs Edge",
+    "description": "A thin ledge above a long drop and a hard wind.",
+    "actions": [
+      {
+        "name": "Gale Force",
+        "weight": 1.0
+      },
+      {
+        "name": "Rockfall",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Hawk",
+        "weight": 2.0
+      },
+      {
+        "name": "Rock Lobber",
+        "weight": 2.0
+      },
+      {
+        "name": "Edge Stalker",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "air",
+      "exposed",
+      "earth"
+    ]
+  },
+  {
+    "region": "Air",
+    "biome": "Mountains",
+    "location": "The Summit",
+    "description": "The top of the world, thin of air and loud with wind.",
+    "actions": [
+      {
+        "name": "Gale Force",
+        "weight": 1.0
+      },
+      {
+        "name": "Rockfall",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Storm Caller",
+        "weight": 2.0
+      },
+      {
+        "name": "Altitude Wraith",
+        "weight": 2.0
+      },
+      {
+        "name": "Summit Titan",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "air",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Air",
+    "biome": "Pyramids",
+    "location": "Burial Chamber",
+    "description": "Sarcophagi line the walls; one lid is not quite closed.",
+    "actions": [
+      {
+        "name": "Curse of the Tomb",
+        "weight": 1.0
+      },
+      {
+        "name": "Dart Trap",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Burial Lich",
+        "weight": 2.0
+      },
+      {
+        "name": "Mummy",
+        "weight": 2.0
+      },
+      {
+        "name": "Ancestor's Shade",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "earth",
+      "elegant",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Air",
+    "biome": "Pyramids",
+    "location": "Grand Corridor",
+    "description": "A long sloping corridor lined with painted gods.",
+    "actions": [
+      {
+        "name": "Dart Trap",
+        "weight": 1.0
+      },
+      {
+        "name": "Curse of the Tomb",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Stone Colossus",
+        "weight": 2.0
+      },
+      {
+        "name": "Poison Dart Sentinel",
+        "weight": 2.0
+      },
+      {
+        "name": "Sun Priest",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "earth",
+      "elegant",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Air",
+    "biome": "Pyramids",
+    "location": "Tomb Entrance",
+    "description": "A sealed door, recently unsealed.",
+    "actions": [
+      {
+        "name": "Dart Trap",
+        "weight": 1.0
+      },
+      {
+        "name": "Curse of the Tomb",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [
+      {
+        "name": "Guardian Scarab",
+        "weight": 2.0
+      },
+      {
+        "name": "Tomb Creeper",
+        "weight": 2.0
+      },
+      {
+        "name": "Sarcopha Gus",
+        "weight": 1.0
+      }
+    ],
+    "tags": [
+      "earth",
+      "dilapidated",
+      "exposed"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Arcane",
+    "location": "Magic Vault",
+    "description": "Contained spells and magical artifacts line the walls, their power barely contained.",
+    "actions": [
+      {
+        "name": "Arcane Discharge",
+        "weight": 0.8
+      },
+      {
+        "name": "Ancient Curse",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Arcane",
+    "location": "Spell Chamber",
+    "description": "Arcane symbols glow on the walls, and the air crackles with magical energy.",
+    "actions": [
+      {
+        "name": "Arcane Discharge",
+        "weight": 0.7
+      },
+      {
+        "name": "Magical Barrier",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Arcane",
+    "location": "Wizard's Study",
+    "description": "Books float in mid-air, and magical instruments hum with contained power.",
+    "actions": [
+      {
+        "name": "Ancient Curse",
+        "weight": 0.5
+      },
+      {
+        "name": "Magical Barrier",
+        "weight": 0.5
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Astral",
+    "location": "Galaxy Vault",
+    "description": "A chamber where entire galaxies seem to swirl in miniature, their light casting dancing shadows.",
+    "actions": [
+      {
+        "name": "Gravity Well",
+        "weight": 0.8
+      },
+      {
+        "name": "Cosmic Ray",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "air",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Astral",
+    "location": "Nebula Observatory",
+    "description": "Astronomical instruments point toward swirling clouds of cosmic dust and energy.",
+    "actions": [
+      {
+        "name": "Stellar Alignment",
+        "weight": 0.6
+      },
+      {
+        "name": "Cosmic Ray",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "air",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Astral",
+    "location": "Star Chamber",
+    "description": "The ceiling is a map of the cosmos, with stars that actually twinkle and move.",
+    "actions": [
+      {
+        "name": "Cosmic Ray",
+        "weight": 0.7
+      },
+      {
+        "name": "Gravity Well",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "air",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Crypt",
+    "location": "Crumbling Hall",
+    "description": "Broken pillars and fallen stones litter the floor of this once-grand chamber.",
+    "actions": [
+      {
+        "name": "Falling Debris",
+        "weight": 0.7
+      },
+      {
+        "name": "Ancient Curse",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Crypt",
+    "location": "Crypt Passage",
     "description": "Ancient stone walls lined with burial niches, the air thick with dust and decay.",
     "actions": [
       {
@@ -280,7 +1433,7 @@
         "weight": 0.3
       }
     ],
-    "location": "Crypt Passage",
+    "enemies": [],
     "tags": [
       "exposed",
       "dilapidated",
@@ -288,118 +1441,46 @@
     ]
   },
   {
-    "description": "A natural cave where wolves have made their home. Bones and fur litter the ground.",
+    "region": "Legacy",
+    "biome": "Crypt",
+    "location": "Decayed Chamber",
+    "description": "Time has taken its toll on this room, leaving only fragments of its former glory.",
     "actions": [
       {
-        "name": "Falling Branch",
-        "weight": 0.6
-      },
-      {
-        "name": "Thorn Vines",
-        "weight": 0.4
-      }
-    ],
-    "location": "Wolf Den",
-    "tags": [
-      "earth",
-      "overgrown",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Massive trees tower overhead, their branches forming a natural cathedral.",
-    "actions": [
-      {
-        "name": "Forest Spirits",
-        "weight": 0.9
-      },
-      {
-        "name": "Spider Web",
-        "weight": 0.1
-      }
-    ],
-    "location": "Ancient Grove",
-    "tags": [
-      "overgrown",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A deep cave entrance with claw marks on the walls and the smell of wild animals.",
-    "actions": [
-      {
-        "name": "Falling Branch",
-        "weight": 0.5
-      },
-      {
-        "name": "Thorn Vines",
-        "weight": 0.3
-      },
-      {
-        "name": "Spider Web",
-        "weight": 0.2
-      }
-    ],
-    "location": "Bear Cave",
-    "tags": [
-      "earth",
-      "overgrown",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A bubbling pool of molten rock with steam rising from its surface.",
-    "actions": [
-      {
-        "name": "Lava Splash",
-        "weight": 0.7
-      },
-      {
-        "name": "Steam Burst",
-        "weight": 0.3
-      }
-    ],
-    "location": "Magma Pool",
-    "tags": [
-      "fire",
-      "scorched",
-      "active"
-    ]
-  },
-  {
-    "description": "A narrow passage where superheated gases escape from deep underground.",
-    "actions": [
-      {
-        "name": "Steam Burst",
+        "name": "Falling Debris",
         "weight": 0.8
       },
       {
-        "name": "Bat Swarm",
+        "name": "Ruins Blessing",
         "weight": 0.2
       }
     ],
-    "location": "Volcanic Vent",
+    "enemies": [],
     "tags": [
-      "fire",
-      "scorched",
-      "active"
-    ],
-    "unstableThresholdMod": 0
+      "earth",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
   },
   {
-    "description": "A solemn chamber filled with ornate sarcophagi and funerary offerings.",
+    "region": "Legacy",
+    "biome": "Crypt",
+    "location": "Lost Shrine",
+    "description": "A weathered altar stands among the ruins, still radiating ancient power.",
     "actions": [
       {
-        "name": "Curse of the Crypt",
+        "name": "Ruins Blessing",
         "weight": 0.6
       },
       {
-        "name": "Ghostly Whisper",
+        "name": "Ancient Curse",
         "weight": 0.4
       }
     ],
-    "location": "Burial Chamber",
+    "enemies": [],
     "tags": [
+      "earth",
       "exposed",
       "elegant",
       "dilapidated",
@@ -407,6 +1488,9 @@
     ]
   },
   {
+    "region": "Legacy",
+    "biome": "Crypt",
+    "location": "Tomb of the Forgotten",
     "description": "A forgotten tomb where the walls are covered in ancient hieroglyphs.",
     "actions": [
       {
@@ -418,7 +1502,7 @@
         "weight": 0.5
       }
     ],
-    "location": "Tomb of the Forgotten",
+    "enemies": [],
     "tags": [
       "exposed",
       "dilapidated",
@@ -426,6 +1510,9 @@
     ]
   },
   {
+    "region": "Legacy",
+    "biome": "Crystal",
+    "location": "Crystal Garden",
     "description": "A beautiful chamber where crystals grow in intricate formations.",
     "actions": [
       {
@@ -441,7 +1528,7 @@
         "weight": 0.2
       }
     ],
-    "location": "Crystal Garden",
+    "enemies": [],
     "tags": [
       "earth",
       "exposed",
@@ -450,6 +1537,9 @@
     ]
   },
   {
+    "region": "Legacy",
+    "biome": "Crystal",
+    "location": "Geode Chamber",
     "description": "A massive geode has been cracked open, revealing its crystalline interior.",
     "actions": [
       {
@@ -461,7 +1551,7 @@
         "weight": 0.4
       }
     ],
-    "location": "Geode Chamber",
+    "enemies": [],
     "tags": [
       "earth",
       "exposed",
@@ -470,6 +1560,1257 @@
     ]
   },
   {
+    "region": "Legacy",
+    "biome": "Desert Legacy",
+    "location": "Mirage Chamber",
+    "description": "The walls seem to shimmer and shift, making it difficult to determine what's real.",
+    "actions": [
+      {
+        "name": "Heat Mirage",
+        "weight": 0.6
+      },
+      {
+        "name": "Sandstorm",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "air",
+      "scorched",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Desert Legacy",
+    "location": "Sand Dune",
+    "description": "Endless waves of sand stretch in all directions, shifting with the hot desert winds.",
+    "actions": [
+      {
+        "name": "Sandstorm",
+        "weight": 0.7
+      },
+      {
+        "name": "Quicksand",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "scorched",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Dimensional",
+    "location": "Dimension Rift",
+    "description": "Reality tears apart at the seams, revealing glimpses of other worlds beyond.",
+    "actions": [
+      {
+        "name": "Reality Tear",
+        "weight": 0.7
+      },
+      {
+        "name": "Dimensional Shift",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "air",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Dimensional",
+    "location": "Multiverse Hall",
+    "description": "Infinite versions of this room exist simultaneously, each slightly different from the others.",
+    "actions": [
+      {
+        "name": "Dimensional Blessing",
+        "weight": 0.6
+      },
+      {
+        "name": "Dimensional Shift",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "air",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Dimensional",
+    "location": "Quantum Chamber",
+    "description": "The laws of physics break down here, creating impossible geometries and paradoxical spaces.",
+    "actions": [
+      {
+        "name": "Reality Tear",
+        "weight": 0.8
+      },
+      {
+        "name": "Dimensional Shift",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "air",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Divine",
+    "location": "Celestial Sanctum",
+    "description": "A place where mortals can commune with the divine, surrounded by angelic choirs.",
+    "actions": [
+      {
+        "name": "Divine Blessing",
+        "weight": 0.8
+      },
+      {
+        "name": "Sacred Flames",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "air",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Divine",
+    "location": "Eternal Hall",
+    "description": "Time has no meaning in this hallowed space, where the divine presence is eternal.",
+    "actions": [
+      {
+        "name": "Divine Wrath",
+        "weight": 0.8
+      },
+      {
+        "name": "Divine Blessing",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "air",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Divine",
+    "location": "Heavenly Chamber",
+    "description": "Divine light fills this sacred space, radiating peace and overwhelming power.",
+    "actions": [
+      {
+        "name": "Divine Wrath",
+        "weight": 0.7
+      },
+      {
+        "name": "Sacred Flames",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "air",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Dream",
+    "location": "Dreamscape",
+    "description": "Reality bends and shifts in this realm where dreams and nightmares take physical form.",
+    "actions": [
+      {
+        "name": "Nightmare",
+        "weight": 0.7
+      },
+      {
+        "name": "Dream Weave",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Dream",
+    "location": "Lucid Chamber",
+    "description": "A space where consciousness and dreams merge, offering clarity in the chaos.",
+    "actions": [
+      {
+        "name": "Dream Blessing",
+        "weight": 0.7
+      },
+      {
+        "name": "Dream Weave",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Dream",
+    "location": "Subconscious Hall",
+    "description": "The deepest recesses of the mind manifest as a twisting maze of thoughts and memories.",
+    "actions": [
+      {
+        "name": "Nightmare",
+        "weight": 0.8
+      },
+      {
+        "name": "Dream Weave",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest",
+    "location": "Ancient Grove",
+    "description": "Massive trees tower overhead, their branches forming a natural cathedral.",
+    "actions": [
+      {
+        "name": "Forest Spirits",
+        "weight": 0.9
+      },
+      {
+        "name": "Spider Web",
+        "weight": 0.1
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "overgrown",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest",
+    "location": "Bear Cave",
+    "description": "A deep cave entrance with claw marks on the walls and the smell of wild animals.",
+    "actions": [
+      {
+        "name": "Falling Branch",
+        "weight": 0.5
+      },
+      {
+        "name": "Thorn Vines",
+        "weight": 0.3
+      },
+      {
+        "name": "Spider Web",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "overgrown",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest",
+    "location": "Forest Clearing",
+    "description": "A peaceful clearing in the woods, dappled with sunlight.",
+    "actions": [
+      {
+        "name": "Forest Spirits",
+        "weight": 0.8
+      },
+      {
+        "name": "Magical Barrier",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "overgrown",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest",
+    "location": "Natural Spring",
+    "description": "Crystal-clear water bubbles from the earth, surrounded by lush vegetation.",
+    "actions": [
+      {
+        "name": "Healing Waters",
+        "weight": 0.9
+      },
+      {
+        "name": "Nature's Blessing",
+        "weight": 0.1
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "water",
+      "overgrown",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest",
+    "location": "Sacred Grove",
+    "description": "Ancient trees form a natural cathedral, their branches intertwining overhead.",
+    "actions": [
+      {
+        "name": "Nature's Blessing",
+        "weight": 0.8
+      },
+      {
+        "name": "Thorn Vines",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "overgrown",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest",
+    "location": "Wildflower Meadow",
+    "description": "A carpet of colorful flowers stretches as far as the eye can see, filling the air with sweet perfume.",
+    "actions": [
+      {
+        "name": "Pollen Cloud",
+        "weight": 0.6
+      },
+      {
+        "name": "Thorn Vines",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "overgrown",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest",
+    "location": "Wolf Den",
+    "description": "A natural cave where wolves have made their home. Bones and fur litter the ground.",
+    "actions": [
+      {
+        "name": "Falling Branch",
+        "weight": 0.6
+      },
+      {
+        "name": "Thorn Vines",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "overgrown",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest, Lava, Crypt",
+    "location": "Armory",
+    "description": "Weapons and armor are displayed on racks and stands.",
+    "actions": [
+      {
+        "name": "Treasure Guardian",
+        "weight": 0.7
+      },
+      {
+        "name": "Magical Barrier",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest, Lava, Crypt",
+    "location": "Boss Chamber",
+    "description": "A grand chamber, clearly the domain of a powerful being. The walls are adorned with trophies of past conquests.",
+    "actions": [
+      {
+        "name": "Boss Rage",
+        "weight": 0.8
+      },
+      {
+        "name": "Ancient Curse",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "elegant",
+      "active"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest, Lava, Crypt",
+    "location": "Dining Hall",
+    "description": "A long table set for a feast, though the food looks... questionable.",
+    "actions": [
+      {
+        "name": "Poisonous Gas",
+        "weight": 0.5
+      },
+      {
+        "name": "Ancient Curse",
+        "weight": 0.5
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest, Lava, Crypt",
+    "location": "Entrance",
+    "description": "A large, imposing entrance to the dungeon. The air is thick with anticipation.",
+    "actions": [
+      {
+        "name": "Magical Barrier",
+        "weight": 1.0
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest, Lava, Crypt",
+    "location": "Guard Post",
+    "description": "A well-fortified position, manned by vigilant guards.",
+    "actions": [
+      {
+        "name": "Trap Spring",
+        "weight": 0.6
+      },
+      {
+        "name": "Poisonous Gas",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest, Lava, Crypt",
+    "location": "Kitchen",
+    "description": "A large cooking area, with pots and pans hanging from the ceiling.",
+    "actions": [
+      {
+        "name": "Poisonous Gas",
+        "weight": 0.6
+      },
+      {
+        "name": "Trap Spring",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest, Lava, Crypt",
+    "location": "Library",
+    "description": "Rows of ancient tomes and scrolls fill this room.",
+    "actions": [
+      {
+        "name": "Ancient Curse",
+        "weight": 0.5
+      },
+      {
+        "name": "Magical Barrier",
+        "weight": 0.5
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest, Lava, Crypt",
+    "location": "Puzzle Chamber",
+    "description": "Ancient mechanisms and cryptic symbols cover the walls.",
+    "actions": [
+      {
+        "name": "Ancient Curse",
+        "weight": 0.7
+      },
+      {
+        "name": "Magical Barrier",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest, Lava, Crypt",
+    "location": "Rest Area",
+    "description": "A surprisingly peaceful area, with comfortable furnishings.",
+    "actions": [
+      {
+        "name": "Magical Barrier",
+        "weight": 0.8
+      },
+      {
+        "name": "Forest Spirits",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest, Lava, Crypt",
+    "location": "Storage Room",
+    "description": "Shelves and crates line the walls, filled with supplies.",
+    "actions": [
+      {
+        "name": "Magical Barrier",
+        "weight": 0.6
+      },
+      {
+        "name": "Ancient Curse",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest, Lava, Crypt",
+    "location": "Trap Room",
+    "description": "The floor is suspiciously clean, and the walls have strange markings.",
+    "actions": [
+      {
+        "name": "Trap Spring",
+        "weight": 0.8
+      },
+      {
+        "name": "Poisonous Gas",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "dilapidated",
+      "active"
+    ],
+    "unstableThresholdMod": 2
+  },
+  {
+    "region": "Legacy",
+    "biome": "Forest, Lava, Crypt",
+    "location": "Treasure Room",
+    "description": "A room filled with glittering gold and precious artifacts. But is it too good to be true?",
+    "actions": [
+      {
+        "name": "Treasure Guardian",
+        "weight": 0.8
+      },
+      {
+        "name": "Trap Spring",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Ice",
+    "location": "Frozen Cavern",
+    "description": "Ice crystals hang from the ceiling like chandeliers, and your breath forms clouds in the frigid air.",
+    "actions": [
+      {
+        "name": "Ice Shards",
+        "weight": 0.7
+      },
+      {
+        "name": "Blizzard",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "water",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Ice",
+    "location": "Frozen Lake",
+    "description": "A perfectly still lake frozen solid, with strange shapes visible beneath the ice.",
+    "actions": [
+      {
+        "name": "Cracking Ice",
+        "weight": 0.8
+      },
+      {
+        "name": "Frozen Breath",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "water",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Ice",
+    "location": "Glacial Chamber",
+    "description": "A vast chamber carved from solid ice, with frozen waterfalls cascading down the walls.",
+    "actions": [
+      {
+        "name": "Frost Aura",
+        "weight": 0.6
+      },
+      {
+        "name": "Ice Shards",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "water",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Lava",
+    "location": "Fire Chamber",
+    "description": "The walls glow red-hot, and the air shimmers with intense heat.",
+    "actions": [
+      {
+        "name": "Lava Splash",
+        "weight": 0.6
+      },
+      {
+        "name": "Steam Burst",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "fire",
+      "scorched",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Lava",
+    "location": "Lava Chamber",
+    "description": "Molten rock flows through channels in the floor, creating an oppressive heat.",
+    "actions": [
+      {
+        "name": "Lava Surge",
+        "weight": 0.8
+      },
+      {
+        "name": "Falling Rocks",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "fire",
+      "scorched",
+      "elegant",
+      "active"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Lava",
+    "location": "Magma Chamber",
+    "description": "Molten rock bubbles and churns in a vast underground lake of fire.",
+    "actions": [
+      {
+        "name": "Lava Surge",
+        "weight": 0.8
+      },
+      {
+        "name": "Ash Cloud",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "fire",
+      "scorched",
+      "elegant",
+      "active"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Lava",
+    "location": "Magma Pool",
+    "description": "A bubbling pool of molten rock with steam rising from its surface.",
+    "actions": [
+      {
+        "name": "Lava Splash",
+        "weight": 0.7
+      },
+      {
+        "name": "Steam Burst",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "fire",
+      "scorched",
+      "active"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Lava",
+    "location": "Volcanic Vent",
+    "description": "A narrow passage where superheated gases escape from deep underground.",
+    "actions": [
+      {
+        "name": "Steam Burst",
+        "weight": 0.8
+      },
+      {
+        "name": "Bat Swarm",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "fire",
+      "scorched",
+      "active"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Lava",
+    "location": "Volcanic Vent",
+    "description": "Superheated gases escape through cracks in the rock, creating an oppressive atmosphere.",
+    "actions": [
+      {
+        "name": "Steam Burst",
+        "weight": 0.7
+      },
+      {
+        "name": "Ash Cloud",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "fire",
+      "scorched",
+      "active"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Mountain",
+    "location": "Alpine Meadow",
+    "description": "A peaceful clearing high in the mountains, surrounded by snow-capped peaks.",
+    "actions": [
+      {
+        "name": "Mountain Blessing",
+        "weight": 0.8
+      },
+      {
+        "name": "Avalanche",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "overgrown",
+      "exposed",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Mountain",
+    "location": "Peak Summit",
+    "description": "The highest point offers a breathtaking view, but the thin air makes breathing difficult.",
+    "actions": [
+      {
+        "name": "Avalanche",
+        "weight": 0.7
+      },
+      {
+        "name": "Rockfall",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Mountain",
+    "location": "Rocky Outcrop",
+    "description": "Jagged rocks and boulders create a treacherous landscape of stone and shadow.",
+    "actions": [
+      {
+        "name": "Rockfall",
+        "weight": 0.8
+      },
+      {
+        "name": "Avalanche",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "dilapidated",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Ocean",
+    "location": "Abyssal Depths",
+    "description": "The crushing pressure of the deep ocean creates an otherworldly atmosphere.",
+    "actions": [
+      {
+        "name": "Tidal Wave",
+        "weight": 0.8
+      },
+      {
+        "name": "Ocean Current",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "water",
+      "flooded",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Ocean",
+    "location": "Coral Garden",
+    "description": "Vibrant coral formations create a natural underwater garden of incredible beauty.",
+    "actions": [
+      {
+        "name": "Ocean Blessing",
+        "weight": 0.7
+      },
+      {
+        "name": "Ocean Current",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "water",
+      "flooded",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Ocean",
+    "location": "Underwater Cavern",
+    "description": "Coral formations and sea creatures create a beautiful underwater landscape.",
+    "actions": [
+      {
+        "name": "Tidal Wave",
+        "weight": 0.6
+      },
+      {
+        "name": "Ocean Current",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "water",
+      "flooded",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Shadow",
+    "location": "Shadow Realm",
+    "description": "Darkness seems to have substance here, swirling and moving with malevolent intent.",
+    "actions": [
+      {
+        "name": "Shadow Grasp",
+        "weight": 0.7
+      },
+      {
+        "name": "Darkness",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "exposed",
+      "dilapidated",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Shadow",
+    "location": "Umbra Sanctum",
+    "description": "A sacred space where shadows gather, pulsing with otherworldly energy.",
+    "actions": [
+      {
+        "name": "Shadow Veil",
+        "weight": 0.5
+      },
+      {
+        "name": "Darkness",
+        "weight": 0.5
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Steampunk",
+    "location": "Clockwork Laboratory",
+    "description": "Brass instruments and mechanical contraptions line the walls, ticking in perfect harmony.",
+    "actions": [
+      {
+        "name": "Mechanical Whir",
+        "weight": 0.7
+      },
+      {
+        "name": "Steam Blast",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Steampunk",
+    "location": "Cog Chamber",
+    "description": "Enormous interlocking gears create a maze of moving metal, each turn revealing new dangers.",
+    "actions": [
+      {
+        "name": "Gear Trap",
+        "weight": 0.8
+      },
+      {
+        "name": "Steam Blast",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Steampunk",
+    "location": "Steam Engine Room",
+    "description": "Massive gears and pistons churn endlessly, filling the air with the sound of industry.",
+    "actions": [
+      {
+        "name": "Steam Blast",
+        "weight": 0.6
+      },
+      {
+        "name": "Gear Trap",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "fire",
+      "earth",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Storm",
+    "location": "Hurricane Vault",
+    "description": "A circular chamber where winds spiral upward, creating a vortex of air and debris.",
+    "actions": [
+      {
+        "name": "Wind Gust",
+        "weight": 0.8
+      },
+      {
+        "name": "Lightning Strike",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "air",
+      "exposed",
+      "elegant",
+      "active"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Storm",
+    "location": "Tempest Chamber",
+    "description": "Winds howl through the room, carrying the scent of rain and ozone.",
+    "actions": [
+      {
+        "name": "Storm's Eye",
+        "weight": 0.6
+      },
+      {
+        "name": "Lightning Strike",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "air",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Storm",
+    "location": "Thunder Hall",
+    "description": "Lightning crackles through the air, illuminating the chamber with brilliant flashes.",
+    "actions": [
+      {
+        "name": "Lightning Strike",
+        "weight": 0.7
+      },
+      {
+        "name": "Wind Gust",
+        "weight": 0.3
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "air",
+      "exposed",
+      "elegant",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Swamp",
+    "location": "Bog Clearing",
+    "description": "A small dry patch in the endless swamp, surrounded by murky water and twisted trees.",
+    "actions": [
+      {
+        "name": "Poisonous Gas",
+        "weight": 0.6
+      },
+      {
+        "name": "Quicksand",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "water",
+      "flooded",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Swamp",
+    "location": "Marsh Sanctuary",
+    "description": "An ancient stone circle rises from the swamp, offering a moment of peace in the mire.",
+    "actions": [
+      {
+        "name": "Marsh Spirits",
+        "weight": 0.8
+      },
+      {
+        "name": "Poisonous Gas",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "water",
+      "flooded",
+      "overgrown",
+      "elegant",
+      "dormant"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Swamp",
+    "location": "Toxic Pool",
+    "description": "A bubbling pool of greenish liquid emits noxious fumes that make your eyes water.",
+    "actions": [
+      {
+        "name": "Poisonous Gas",
+        "weight": 0.9
+      },
+      {
+        "name": "Quicksand",
+        "weight": 0.1
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "water",
+      "flooded",
+      "active"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Temple",
+    "location": "Sacred Altar",
     "description": "An ancient altar where the faithful once gathered for worship.",
     "actions": [
       {
@@ -485,7 +2826,7 @@
         "weight": 0.4
       }
     ],
-    "location": "Sacred Altar",
+    "enemies": [],
     "tags": [
       "fire",
       "exposed",
@@ -493,844 +2834,9 @@
     ]
   },
   {
-    "description": "Ice crystals hang from the ceiling like chandeliers, and your breath forms clouds in the frigid air.",
-    "actions": [
-      {
-        "name": "Ice Shards",
-        "weight": 0.7
-      },
-      {
-        "name": "Blizzard",
-        "weight": 0.3
-      }
-    ],
-    "location": "Frozen Cavern",
-    "tags": [
-      "water",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A vast chamber carved from solid ice, with frozen waterfalls cascading down the walls.",
-    "actions": [
-      {
-        "name": "Frost Aura",
-        "weight": 0.6
-      },
-      {
-        "name": "Ice Shards",
-        "weight": 0.4
-      }
-    ],
-    "location": "Glacial Chamber",
-    "tags": [
-      "water",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A perfectly still lake frozen solid, with strange shapes visible beneath the ice.",
-    "actions": [
-      {
-        "name": "Cracking Ice",
-        "weight": 0.8
-      },
-      {
-        "name": "Frozen Breath",
-        "weight": 0.2
-      }
-    ],
-    "location": "Frozen Lake",
-    "tags": [
-      "water",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Darkness seems to have substance here, swirling and moving with malevolent intent.",
-    "actions": [
-      {
-        "name": "Shadow Grasp",
-        "weight": 0.7
-      },
-      {
-        "name": "Darkness",
-        "weight": 0.3
-      }
-    ],
-    "location": "Shadow Realm",
-    "tags": [
-      "exposed",
-      "dilapidated",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A sacred space where shadows gather, pulsing with otherworldly energy.",
-    "actions": [
-      {
-        "name": "Shadow Veil",
-        "weight": 0.5
-      },
-      {
-        "name": "Darkness",
-        "weight": 0.5
-      }
-    ],
-    "location": "Umbra Sanctum",
-    "tags": [
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "An empty space where light itself seems to be consumed by the surrounding darkness.",
-    "actions": [
-      {
-        "name": "Void Touch",
-        "weight": 0.8
-      },
-      {
-        "name": "Shadow Grasp",
-        "weight": 0.2
-      }
-    ],
-    "location": "Void Chamber",
-    "tags": [
-      "exposed",
-      "elegant",
-      "dilapidated",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Massive gears and pistons churn endlessly, filling the air with the sound of industry.",
-    "actions": [
-      {
-        "name": "Steam Blast",
-        "weight": 0.6
-      },
-      {
-        "name": "Gear Trap",
-        "weight": 0.4
-      }
-    ],
-    "location": "Steam Engine Room",
-    "tags": [
-      "fire",
-      "earth",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Brass instruments and mechanical contraptions line the walls, ticking in perfect harmony.",
-    "actions": [
-      {
-        "name": "Mechanical Whir",
-        "weight": 0.7
-      },
-      {
-        "name": "Steam Blast",
-        "weight": 0.3
-      }
-    ],
-    "location": "Clockwork Laboratory",
-    "tags": [
-      "earth",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Enormous interlocking gears create a maze of moving metal, each turn revealing new dangers.",
-    "actions": [
-      {
-        "name": "Gear Trap",
-        "weight": 0.8
-      },
-      {
-        "name": "Steam Blast",
-        "weight": 0.2
-      }
-    ],
-    "location": "Cog Chamber",
-    "tags": [
-      "earth",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A small dry patch in the endless swamp, surrounded by murky water and twisted trees.",
-    "actions": [
-      {
-        "name": "Poisonous Gas",
-        "weight": 0.6
-      },
-      {
-        "name": "Quicksand",
-        "weight": 0.4
-      }
-    ],
-    "location": "Bog Clearing",
-    "tags": [
-      "water",
-      "flooded",
-      "dormant"
-    ]
-  },
-  {
-    "description": "An ancient stone circle rises from the swamp, offering a moment of peace in the mire.",
-    "actions": [
-      {
-        "name": "Marsh Spirits",
-        "weight": 0.8
-      },
-      {
-        "name": "Poisonous Gas",
-        "weight": 0.2
-      }
-    ],
-    "location": "Marsh Sanctuary",
-    "tags": [
-      "water",
-      "flooded",
-      "overgrown",
-      "elegant",
-      "dormant"
-    ]
-  },
-  {
-    "description": "A bubbling pool of greenish liquid emits noxious fumes that make your eyes water.",
-    "actions": [
-      {
-        "name": "Poisonous Gas",
-        "weight": 0.9
-      },
-      {
-        "name": "Quicksand",
-        "weight": 0.1
-      }
-    ],
-    "location": "Toxic Pool",
-    "tags": [
-      "water",
-      "flooded",
-      "active"
-    ]
-  },
-  {
-    "description": "The ceiling is a map of the cosmos, with stars that actually twinkle and move.",
-    "actions": [
-      {
-        "name": "Cosmic Ray",
-        "weight": 0.7
-      },
-      {
-        "name": "Gravity Well",
-        "weight": 0.3
-      }
-    ],
-    "location": "Star Chamber",
-    "tags": [
-      "air",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Astronomical instruments point toward swirling clouds of cosmic dust and energy.",
-    "actions": [
-      {
-        "name": "Stellar Alignment",
-        "weight": 0.6
-      },
-      {
-        "name": "Cosmic Ray",
-        "weight": 0.4
-      }
-    ],
-    "location": "Nebula Observatory",
-    "tags": [
-      "air",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A chamber where entire galaxies seem to swirl in miniature, their light casting dancing shadows.",
-    "actions": [
-      {
-        "name": "Gravity Well",
-        "weight": 0.8
-      },
-      {
-        "name": "Cosmic Ray",
-        "weight": 0.2
-      }
-    ],
-    "location": "Galaxy Vault",
-    "tags": [
-      "air",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A narrow passage carved through solid rock, with the sound of dripping water echoing endlessly.",
-    "actions": [
-      {
-        "name": "Cave-in",
-        "weight": 0.6
-      },
-      {
-        "name": "Rockfall",
-        "weight": 0.4
-      }
-    ],
-    "location": "Deep Tunnel",
-    "tags": [
-      "earth",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A vast underground chamber with stone pillars supporting the weight of the earth above.",
-    "actions": [
-      {
-        "name": "Echoing Silence",
-        "weight": 0.7
-      },
-      {
-        "name": "Cave-in",
-        "weight": 0.3
-      }
-    ],
-    "location": "Subterranean Hall",
-    "tags": [
-      "earth",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Abandoned tools and carts litter the ground, evidence of long-forgotten industry.",
-    "actions": [
-      {
-        "name": "Rockfall",
-        "weight": 0.8
-      },
-      {
-        "name": "Cave-in",
-        "weight": 0.2
-      }
-    ],
-    "location": "Mining Shaft",
-    "tags": [
-      "earth",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Lightning crackles through the air, illuminating the chamber with brilliant flashes.",
-    "actions": [
-      {
-        "name": "Lightning Strike",
-        "weight": 0.7
-      },
-      {
-        "name": "Wind Gust",
-        "weight": 0.3
-      }
-    ],
-    "location": "Thunder Hall",
-    "tags": [
-      "air",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Winds howl through the room, carrying the scent of rain and ozone.",
-    "actions": [
-      {
-        "name": "Storm's Eye",
-        "weight": 0.6
-      },
-      {
-        "name": "Lightning Strike",
-        "weight": 0.4
-      }
-    ],
-    "location": "Tempest Chamber",
-    "tags": [
-      "air",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A circular chamber where winds spiral upward, creating a vortex of air and debris.",
-    "actions": [
-      {
-        "name": "Wind Gust",
-        "weight": 0.8
-      },
-      {
-        "name": "Lightning Strike",
-        "weight": 0.2
-      }
-    ],
-    "location": "Hurricane Vault",
-    "tags": [
-      "air",
-      "exposed",
-      "elegant",
-      "active"
-    ]
-  },
-  {
-    "description": "Ancient trees form a natural cathedral, their branches intertwining overhead.",
-    "actions": [
-      {
-        "name": "Nature's Blessing",
-        "weight": 0.8
-      },
-      {
-        "name": "Thorn Vines",
-        "weight": 0.2
-      }
-    ],
-    "location": "Sacred Grove",
-    "tags": [
-      "overgrown",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A carpet of colorful flowers stretches as far as the eye can see, filling the air with sweet perfume.",
-    "actions": [
-      {
-        "name": "Pollen Cloud",
-        "weight": 0.6
-      },
-      {
-        "name": "Thorn Vines",
-        "weight": 0.4
-      }
-    ],
-    "location": "Wildflower Meadow",
-    "tags": [
-      "overgrown",
-      "dormant"
-    ]
-  },
-  {
-    "description": "Crystal-clear water bubbles from the earth, surrounded by lush vegetation.",
-    "actions": [
-      {
-        "name": "Healing Waters",
-        "weight": 0.9
-      },
-      {
-        "name": "Nature's Blessing",
-        "weight": 0.1
-      }
-    ],
-    "location": "Natural Spring",
-    "tags": [
-      "water",
-      "overgrown",
-      "dormant"
-    ]
-  },
-  {
-    "description": "Arcane symbols glow on the walls, and the air crackles with magical energy.",
-    "actions": [
-      {
-        "name": "Arcane Discharge",
-        "weight": 0.7
-      },
-      {
-        "name": "Magical Barrier",
-        "weight": 0.3
-      }
-    ],
-    "location": "Spell Chamber",
-    "tags": [
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Books float in mid-air, and magical instruments hum with contained power.",
-    "actions": [
-      {
-        "name": "Ancient Curse",
-        "weight": 0.5
-      },
-      {
-        "name": "Magical Barrier",
-        "weight": 0.5
-      }
-    ],
-    "location": "Wizard's Study",
-    "tags": [
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Contained spells and magical artifacts line the walls, their power barely contained.",
-    "actions": [
-      {
-        "name": "Arcane Discharge",
-        "weight": 0.8
-      },
-      {
-        "name": "Ancient Curse",
-        "weight": 0.2
-      }
-    ],
-    "location": "Magic Vault",
-    "tags": [
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Endless waves of sand stretch in all directions, shifting with the hot desert winds.",
-    "actions": [
-      {
-        "name": "Sandstorm",
-        "weight": 0.7
-      },
-      {
-        "name": "Quicksand",
-        "weight": 0.3
-      }
-    ],
-    "location": "Sand Dune",
-    "tags": [
-      "earth",
-      "scorched",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A small pool of clear water surrounded by palm trees offers respite from the desert heat.",
-    "actions": [
-      {
-        "name": "Desert Blessing",
-        "weight": 0.8
-      },
-      {
-        "name": "Sandstorm",
-        "weight": 0.2
-      }
-    ],
-    "location": "Oasis",
-    "tags": [
-      "earth",
-      "water",
-      "cycling"
-    ]
-  },
-  {
-    "description": "The walls seem to shimmer and shift, making it difficult to determine what's real.",
-    "actions": [
-      {
-        "name": "Heat Mirage",
-        "weight": 0.6
-      },
-      {
-        "name": "Sandstorm",
-        "weight": 0.4
-      }
-    ],
-    "location": "Mirage Chamber",
-    "tags": [
-      "earth",
-      "air",
-      "scorched",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Molten rock bubbles and churns in a vast underground lake of fire.",
-    "actions": [
-      {
-        "name": "Lava Surge",
-        "weight": 0.8
-      },
-      {
-        "name": "Ash Cloud",
-        "weight": 0.2
-      }
-    ],
-    "location": "Magma Chamber",
-    "tags": [
-      "fire",
-      "scorched",
-      "elegant",
-      "active"
-    ]
-  },
-  {
-    "description": "Superheated gases escape through cracks in the rock, creating an oppressive atmosphere.",
-    "actions": [
-      {
-        "name": "Steam Burst",
-        "weight": 0.7
-      },
-      {
-        "name": "Ash Cloud",
-        "weight": 0.3
-      }
-    ],
-    "location": "Volcanic Vent",
-    "tags": [
-      "fire",
-      "scorched",
-      "active"
-    ],
-    "unstableThresholdMod": 0
-  },
-  {
-    "description": "The walls glow red-hot, and the air shimmers with intense heat.",
-    "actions": [
-      {
-        "name": "Lava Splash",
-        "weight": 0.6
-      },
-      {
-        "name": "Steam Burst",
-        "weight": 0.4
-      }
-    ],
-    "location": "Fire Chamber",
-    "tags": [
-      "fire",
-      "scorched",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Broken pillars and fallen stones litter the floor of this once-grand chamber.",
-    "actions": [
-      {
-        "name": "Falling Debris",
-        "weight": 0.7
-      },
-      {
-        "name": "Ancient Curse",
-        "weight": 0.3
-      }
-    ],
-    "location": "Crumbling Hall",
-    "tags": [
-      "earth",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A weathered altar stands among the ruins, still radiating ancient power.",
-    "actions": [
-      {
-        "name": "Ruins Blessing",
-        "weight": 0.6
-      },
-      {
-        "name": "Ancient Curse",
-        "weight": 0.4
-      }
-    ],
-    "location": "Lost Shrine",
-    "tags": [
-      "earth",
-      "exposed",
-      "elegant",
-      "dilapidated",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Time has taken its toll on this room, leaving only fragments of its former glory.",
-    "actions": [
-      {
-        "name": "Falling Debris",
-        "weight": 0.8
-      },
-      {
-        "name": "Ruins Blessing",
-        "weight": 0.2
-      }
-    ],
-    "location": "Decayed Chamber",
-    "tags": [
-      "earth",
-      "exposed",
-      "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Coral formations and sea creatures create a beautiful underwater landscape.",
-    "actions": [
-      {
-        "name": "Tidal Wave",
-        "weight": 0.6
-      },
-      {
-        "name": "Ocean Current",
-        "weight": 0.4
-      }
-    ],
-    "location": "Underwater Cavern",
-    "tags": [
-      "water",
-      "flooded",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Vibrant coral formations create a natural underwater garden of incredible beauty.",
-    "actions": [
-      {
-        "name": "Ocean Blessing",
-        "weight": 0.7
-      },
-      {
-        "name": "Ocean Current",
-        "weight": 0.3
-      }
-    ],
-    "location": "Coral Garden",
-    "tags": [
-      "water",
-      "flooded",
-      "cycling"
-    ]
-  },
-  {
-    "description": "The crushing pressure of the deep ocean creates an otherworldly atmosphere.",
-    "actions": [
-      {
-        "name": "Tidal Wave",
-        "weight": 0.8
-      },
-      {
-        "name": "Ocean Current",
-        "weight": 0.2
-      }
-    ],
-    "location": "Abyssal Depths",
-    "tags": [
-      "water",
-      "flooded",
-      "cycling"
-    ]
-  },
-  {
-    "description": "The highest point offers a breathtaking view, but the thin air makes breathing difficult.",
-    "actions": [
-      {
-        "name": "Avalanche",
-        "weight": 0.7
-      },
-      {
-        "name": "Rockfall",
-        "weight": 0.3
-      }
-    ],
-    "location": "Peak Summit",
-    "tags": [
-      "earth",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A peaceful clearing high in the mountains, surrounded by snow-capped peaks.",
-    "actions": [
-      {
-        "name": "Mountain Blessing",
-        "weight": 0.8
-      },
-      {
-        "name": "Avalanche",
-        "weight": 0.2
-      }
-    ],
-    "location": "Alpine Meadow",
-    "tags": [
-      "earth",
-      "overgrown",
-      "exposed",
-      "dormant"
-    ]
-  },
-  {
-    "description": "Jagged rocks and boulders create a treacherous landscape of stone and shadow.",
-    "actions": [
-      {
-        "name": "Rockfall",
-        "weight": 0.8
-      },
-      {
-        "name": "Avalanche",
-        "weight": 0.2
-      }
-    ],
-    "location": "Rocky Outcrop",
-    "tags": [
-      "earth",
-      "exposed",
-      "dilapidated",
-      "cycling"
-    ]
-  },
-  {
-    "description": "The very fabric of time seems unstable here, with moments from past and future overlapping.",
-    "actions": [
-      {
-        "name": "Time Distortion",
-        "weight": 0.7
-      },
-      {
-        "name": "Temporal Rift",
-        "weight": 0.3
-      }
-    ],
-    "location": "Time Chamber",
-    "tags": [
-      "air",
-      "exposed",
-      "elegant",
-      "active"
-    ],
-    "unstableThresholdMod": -2
-  },
-  {
+    "region": "Legacy",
+    "biome": "Temporal",
+    "location": "Chronos Sanctum",
     "description": "Ancient clocks and hourglasses mark the passage of time in this sacred space.",
     "actions": [
       {
@@ -1342,7 +2848,7 @@
         "weight": 0.4
       }
     ],
-    "location": "Chronos Sanctum",
+    "enemies": [],
     "tags": [
       "air",
       "exposed",
@@ -1350,6 +2856,9 @@
     ]
   },
   {
+    "region": "Legacy",
+    "biome": "Temporal",
+    "location": "Echo Chamber",
     "description": "Sounds from the past echo through this chamber, creating a haunting symphony of memories.",
     "actions": [
       {
@@ -1361,7 +2870,7 @@
         "weight": 0.2
       }
     ],
-    "location": "Echo Chamber",
+    "enemies": [],
     "tags": [
       "earth",
       "exposed",
@@ -1370,81 +2879,100 @@
     ]
   },
   {
-    "description": "Reality bends and shifts in this realm where dreams and nightmares take physical form.",
+    "region": "Legacy",
+    "biome": "Temporal",
+    "location": "Time Chamber",
+    "description": "The very fabric of time seems unstable here, with moments from past and future overlapping.",
     "actions": [
       {
-        "name": "Nightmare",
+        "name": "Time Distortion",
         "weight": 0.7
       },
       {
-        "name": "Dream Weave",
+        "name": "Temporal Rift",
         "weight": 0.3
       }
     ],
-    "location": "Dreamscape",
+    "enemies": [],
     "tags": [
+      "air",
+      "exposed",
+      "elegant",
+      "active"
+    ],
+    "unstableThresholdMod": -2
+  },
+  {
+    "region": "Legacy",
+    "biome": "Underground",
+    "location": "Deep Tunnel",
+    "description": "A narrow passage carved through solid rock, with the sound of dripping water echoing endlessly.",
+    "actions": [
+      {
+        "name": "Cave-in",
+        "weight": 0.6
+      },
+      {
+        "name": "Rockfall",
+        "weight": 0.4
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
       "exposed",
       "cycling"
     ]
   },
   {
-    "description": "A space where consciousness and dreams merge, offering clarity in the chaos.",
+    "region": "Legacy",
+    "biome": "Underground",
+    "location": "Mining Shaft",
+    "description": "Abandoned tools and carts litter the ground, evidence of long-forgotten industry.",
     "actions": [
       {
-        "name": "Dream Blessing",
+        "name": "Rockfall",
+        "weight": 0.8
+      },
+      {
+        "name": "Cave-in",
+        "weight": 0.2
+      }
+    ],
+    "enemies": [],
+    "tags": [
+      "earth",
+      "exposed",
+      "cycling"
+    ]
+  },
+  {
+    "region": "Legacy",
+    "biome": "Underground",
+    "location": "Subterranean Hall",
+    "description": "A vast underground chamber with stone pillars supporting the weight of the earth above.",
+    "actions": [
+      {
+        "name": "Echoing Silence",
         "weight": 0.7
       },
       {
-        "name": "Dream Weave",
+        "name": "Cave-in",
         "weight": 0.3
       }
     ],
-    "location": "Lucid Chamber",
+    "enemies": [],
     "tags": [
+      "earth",
       "exposed",
       "elegant",
       "cycling"
     ]
   },
   {
-    "description": "The deepest recesses of the mind manifest as a twisting maze of thoughts and memories.",
-    "actions": [
-      {
-        "name": "Nightmare",
-        "weight": 0.8
-      },
-      {
-        "name": "Dream Weave",
-        "weight": 0.2
-      }
-    ],
-    "location": "Subconscious Hall",
-    "tags": [
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "An empty space where nothing exists, not even the concept of existence itself.",
-    "actions": [
-      {
-        "name": "Void Touch",
-        "weight": 0.8
-      },
-      {
-        "name": "Nullification",
-        "weight": 0.2
-      }
-    ],
-    "location": "Void Chamber",
-    "tags": [
-      "exposed",
-      "elegant",
-      "dilapidated",
-      "cycling"
-    ]
-  },
-  {
+    "region": "Legacy",
+    "biome": "Void",
+    "location": "Emptiness Hall",
     "description": "A vast chamber where the absence of everything creates a profound sense of peace.",
     "actions": [
       {
@@ -1456,7 +2984,7 @@
         "weight": 0.3
       }
     ],
-    "location": "Emptiness Hall",
+    "enemies": [],
     "tags": [
       "exposed",
       "elegant",
@@ -1464,6 +2992,9 @@
     ]
   },
   {
+    "region": "Legacy",
+    "biome": "Void",
+    "location": "Nothingness Room",
     "description": "A space that defies description, where the very concept of 'room' seems inadequate.",
     "actions": [
       {
@@ -1475,125 +3006,55 @@
         "weight": 0.1
       }
     ],
-    "location": "Nothingness Room",
+    "enemies": [],
     "tags": [
       "exposed",
       "cycling"
     ]
   },
   {
-    "description": "Reality tears apart at the seams, revealing glimpses of other worlds beyond.",
+    "region": "Legacy",
+    "biome": "Void",
+    "location": "Void Chamber",
+    "description": "An empty space where light itself seems to be consumed by the surrounding darkness.",
     "actions": [
       {
-        "name": "Reality Tear",
-        "weight": 0.7
-      },
-      {
-        "name": "Dimensional Shift",
-        "weight": 0.3
-      }
-    ],
-    "location": "Dimension Rift",
-    "tags": [
-      "air",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Infinite versions of this room exist simultaneously, each slightly different from the others.",
-    "actions": [
-      {
-        "name": "Dimensional Blessing",
-        "weight": 0.6
-      },
-      {
-        "name": "Dimensional Shift",
-        "weight": 0.4
-      }
-    ],
-    "location": "Multiverse Hall",
-    "tags": [
-      "air",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "The laws of physics break down here, creating impossible geometries and paradoxical spaces.",
-    "actions": [
-      {
-        "name": "Reality Tear",
+        "name": "Void Touch",
         "weight": 0.8
       },
       {
-        "name": "Dimensional Shift",
+        "name": "Shadow Grasp",
         "weight": 0.2
       }
     ],
-    "location": "Quantum Chamber",
+    "enemies": [],
     "tags": [
-      "air",
       "exposed",
       "elegant",
+      "dilapidated",
       "cycling"
     ]
   },
   {
-    "description": "Divine light fills this sacred space, radiating peace and overwhelming power.",
+    "region": "Legacy",
+    "biome": "Void",
+    "location": "Void Chamber",
+    "description": "An empty space where nothing exists, not even the concept of existence itself.",
     "actions": [
       {
-        "name": "Divine Wrath",
-        "weight": 0.7
+        "name": "Void Touch",
+        "weight": 0.8
       },
       {
-        "name": "Sacred Flames",
-        "weight": 0.3
+        "name": "Nullification",
+        "weight": 0.2
       }
     ],
-    "location": "Heavenly Chamber",
+    "enemies": [],
     "tags": [
-      "air",
       "exposed",
       "elegant",
-      "cycling"
-    ]
-  },
-  {
-    "description": "A place where mortals can commune with the divine, surrounded by angelic choirs.",
-    "actions": [
-      {
-        "name": "Divine Blessing",
-        "weight": 0.8
-      },
-      {
-        "name": "Sacred Flames",
-        "weight": 0.2
-      }
-    ],
-    "location": "Celestial Sanctum",
-    "tags": [
-      "air",
-      "exposed",
-      "cycling"
-    ]
-  },
-  {
-    "description": "Time has no meaning in this hallowed space, where the divine presence is eternal.",
-    "actions": [
-      {
-        "name": "Divine Wrath",
-        "weight": 0.8
-      },
-      {
-        "name": "Divine Blessing",
-        "weight": 0.2
-      }
-    ],
-    "location": "Eternal Hall",
-    "tags": [
-      "air",
-      "exposed",
+      "dilapidated",
       "cycling"
     ]
   }

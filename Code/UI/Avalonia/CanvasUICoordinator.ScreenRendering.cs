@@ -23,13 +23,13 @@ namespace RPGGame.UI.Avalonia
         {
             animationManager.StartDungeonSelectionAnimation(player, dungeons);
             var currentRegion = new TravelRegionCatalog().GetRegionForCharacter(player);
-            string? regionLabel = string.IsNullOrWhiteSpace(currentRegion.DisplayName) ? null : currentRegion.DisplayName.Trim();
+            string? regionLabel = string.IsNullOrWhiteSpace(currentRegion.DisplayName) ? null : currentRegion.DisplayNameWithLevels.Trim();
             renderer.RenderDungeonSelection(player, dungeons, GetContext(), dungeonSelectionCustomLevelEntryBuffer, regionLabel);
         }
 
-        public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel, string? newGameConfirmPrompt = null)
+        public void RenderMainMenu(bool hasSavedGame, int savedFighterCount, string? newGameConfirmPrompt = null)
         {
-            renderer.RenderMainMenu(hasSavedGame, characterName, characterLevel, newGameConfirmPrompt);
+            renderer.RenderMainMenu(hasSavedGame, savedFighterCount, newGameConfirmPrompt);
         }
 
         public void RenderWeaponSelection(List<StartingWeapon> weapons)
@@ -171,6 +171,13 @@ namespace RPGGame.UI.Avalonia
         public void SelectInventoryDetailItem(int inventoryIndex)
         {
             inventoryDetailSelectedIndex = inventoryIndex;
+            inventoryDetailSelectedSlot = null;
+        }
+
+        /// <summary>Selects an equipped gear slot (e.g. "weapon") for the detail pane; bag selection is kept for when it is cleared.</summary>
+        public void SelectInventoryDetailEquippedSlot(string? slot)
+        {
+            inventoryDetailSelectedSlot = string.IsNullOrWhiteSpace(slot) ? null : slot.Trim().ToLowerInvariant();
         }
 
         public void RenderInventory(
@@ -186,13 +193,14 @@ namespace RPGGame.UI.Avalonia
             {
                 inventoryItemScrollOffset = 0;
                 inventoryDetailSelectedIndex = -1;
+                inventoryDetailSelectedSlot = null;
                 lastInventoryScrollCharacter = character;
             }
 
             inventoryItemScrollOffset = InventoryItemScrollLayout.ClampFirstVisibleIndex(inventoryItemScrollOffset, inventory.Count);
             var detailView = inventoryGridViewEnabled
-                ? new InventoryDetailViewState(inventoryDetailSelectedIndex, Grid: true)
-                : inventoryDetailViewEnabled ? new InventoryDetailViewState(inventoryDetailSelectedIndex) : null;
+                ? new InventoryDetailViewState(inventoryDetailSelectedIndex, Grid: true, SelectedEquippedSlot: inventoryDetailSelectedSlot)
+                : inventoryDetailViewEnabled ? new InventoryDetailViewState(inventoryDetailSelectedIndex, SelectedEquippedSlot: inventoryDetailSelectedSlot) : null;
             renderer.RenderInventory(character, inventory, GetContext(), pendingMutatingInventoryMenuAction, inventoryItemScrollOffset, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter, detailView, inventoryMaterialFilter);
         }
 

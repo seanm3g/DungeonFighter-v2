@@ -51,7 +51,7 @@ namespace RPGGame
     {
         /// <summary>
         /// Resolves damage % and speed % factors for <paramref name="mode"/> (used for color diffs and to derive flat/seconds display).
-        /// Effective mode: damage is slot-modified % × strip amp (TECH combo-slot multiplier + pending sheet AMP_MOD).
+        /// Effective mode: damage is slot-modified % × strip amp (INT combo-slot multiplier + pending sheet AMP_MOD).
         /// </summary>
         public static void GetStripSwingDisplayPercents(
             in ActionPanelInfo info,

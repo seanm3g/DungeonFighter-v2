@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using RPGGame.Tests;
 using RPGGame;
@@ -116,7 +116,7 @@ namespace RPGGame.Tests.Unit.Game
             var manager = new DungeonDisplayManager(narrativeManager);
             var player = new Character("TestHero", 1);
 
-            EnemyEncounterHandler.AddEnemySurpriseCombatEvent(manager, player, new FixedRandom(0));
+            EnemyEncounterHandler.AddEnemySurpriseCombatEvent(manager, player, null, new FixedRandom(0));
 
             var log = manager.CombatLog;
             TestBase.AssertEqual(3, log.Count,
@@ -125,7 +125,7 @@ namespace RPGGame.Tests.Unit.Game
             TestBase.AssertEqual("", log[0],
                 "Enemy surprise should start with a leading blank line after enemy appears",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("You've been surprised! The enemy will strike first!",
+            TestBase.AssertEqual("Ambush! The enemy strikes first, with the advantage!",
                 ColoredTextRenderer.RenderAsPlainText(ColoredTextParser.Parse(log[1])),
                 "Enemy surprise plain text should match the selected message",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);

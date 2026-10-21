@@ -39,6 +39,7 @@ namespace RPGGame.Data
             {
                 "name" => GetEnvironmentStringProperty(el, "name"),
                 "theme" => GetEnvironmentStringProperty(el, "theme"),
+                "region" => GetEnvironmentStringProperty(el, "region"),
                 "minLevel" => TryGetJsonPropertyCaseInsensitive(el, "minLevel", out var min)
                     ? JsonElementToCellString(min)
                     : "",

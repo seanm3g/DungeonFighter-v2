@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using RPGGame;
 using RPGGame.Data;
 using RPGGame.Entity.Services;
@@ -19,6 +19,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestCharmAmplifiesMaterialConvertOnly();
             TestAnimalLadderThresholds();
             TestMaterialCountsIgnoreCharm();
+            TestTaxonSetBonuses();
 
             TestBase.PrintSummary("Charm Slot + Animal Ladder Tests", _run, _passed, _failed);
         }
@@ -112,6 +113,40 @@ namespace RPGGame.Tests.Unit.Combat
                 }
                 TestBase.AssertTrue(hasAction, "menagerie unlocks animal action", ref _run, ref _passed, ref _failed);
             }
+        }
+
+        private static void TestTaxonSetBonuses()
+        {
+            TestBase.SetCurrentTestName(nameof(TestTaxonSetBonuses));
+            var hero = new Character("BeastHero", 5);
+
+            void EquipBeast(string slot, Item item, string suffix)
+            {
+                item.StatBonuses.Add(new StatBonus
+                {
+                    Name = suffix,
+                    Tags = new System.Collections.Generic.List<string> { "beast" }
+                });
+                AnimalTagHelper.SyncSuffixTags(item);
+                hero.TryEquipItem(item, slot, out _, out _, ignoreAttributeRequirements: true);
+            }
+
+            TestBase.AssertEqual(1.0, AnimalSetController.GetOutgoingDamageMultiplier(hero), "no set: damage x1", ref _run, ref _passed, ref _failed);
+            EquipBeast("head", new HeadItem("WolfHelm", 1, 1), "of the Wolf");
+            TestBase.AssertEqual(1.0, AnimalSetController.GetOutgoingDamageMultiplier(hero), "1 beast piece: no bonus", ref _run, ref _passed, ref _failed);
+            EquipBeast("body", new ChestItem("BearChest", 1, 1), "of the Bear");
+            TestBase.AssertTrue(Math.Abs(AnimalSetController.GetOutgoingDamageMultiplier(hero) - 1.06) < 0.001,
+                "2 beast pieces: Ferocity +6% damage", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(1.0, AnimalSetController.GetIncomingDamageMultiplier(hero), "beast does not reduce damage taken", ref _run, ref _passed, ref _failed);
+
+            var enemy = new Enemy("Dummy", 1, 100, 5, 5, 5, 5, 0);
+            TestBase.AssertEqual(1.0, AnimalSetController.GetOutgoingDamageMultiplier(enemy), "enemies never get set bonuses", ref _run, ref _passed, ref _failed);
+
+            string tip = string.Join("\n", AnimalSetController.DescribeSetBonuses(hero));
+            TestBase.AssertTrue(tip.Contains("Active - Beast 2", StringComparison.Ordinal) && tip.Contains("Ferocity", StringComparison.Ordinal),
+                "set tooltip lists the active beast bonus", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(tip.Contains("Shell 0/2", StringComparison.Ordinal),
+                "set tooltip lists inactive taxa with progress", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestMaterialCountsIgnoreCharm()

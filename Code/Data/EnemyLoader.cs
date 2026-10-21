@@ -84,6 +84,9 @@ namespace RPGGame
         /// </summary>
         [JsonPropertyName("healthGrowthPercent")]
         public double? HealthGrowthPercent { get; set; }
+        /// <summary>Swing cadence (swarm / fast / normal / slow / heavy); see <see cref="EnemyTempo"/>.</summary>
+        [JsonPropertyName("tempo")]
+        public string? Tempo { get; set; }
         [JsonPropertyName("actions")]
         public List<string> Actions { get; set; } = new List<string>();
         [JsonPropertyName("isLiving")]

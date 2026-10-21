@@ -80,8 +80,8 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(ampLines.Any(l => l.Contains("Scaling:", StringComparison.Ordinal) && l.Contains("Combo 4", StringComparison.Ordinal)),
                 "AMP tooltip scaling example through combo 4",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(ampLines.Any(l => l.Contains("TECH (feeds AMP)", StringComparison.Ordinal)),
-                "AMP tooltip TECH section",
+            TestBase.AssertTrue(ampLines.Any(l => l.Contains("INT (feeds AMP)", StringComparison.Ordinal)),
+                "AMP tooltip INT section",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(ampLines.Any(l => l.Contains("Slot 1", StringComparison.Ordinal) && l.Contains('×')),
                 "AMP tooltip lists per-strip-slot multiplier (tier 1)",
@@ -239,7 +239,7 @@ namespace RPGGame.Tests.Unit.UI
             hardenHero.NoteStatusSource("harden", "HARDEN");
             string hardenStatus = string.Join("\n", LeftPanelTooltipBuilder.BuildLines(hardenHero, LeftPanelHoverState.Prefix + "status:0", 80, 12));
             TestBase.AssertTrue(hardenStatus.Contains("Defense", StringComparison.Ordinal)
-                    && hardenStatus.Contains("Last applied by HARDEN", StringComparison.Ordinal),
+                    && hardenStatus.Contains("Applied by: HARDEN", StringComparison.Ordinal),
                 "status hover explains Harden and the action that applied it",
                 ref run, ref passed, ref failed);
 

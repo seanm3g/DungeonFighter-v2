@@ -42,5 +42,221 @@
       "Lich",
       "Wight"
     ]
+  },
+  {
+    "name": "The Den",
+    "theme": "Den",
+    "region": "Forest",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Territorial Hound",
+      "Alpha Wolf",
+      "Bone Spreader",
+      "Tribute Beast",
+      "Cursed Bear",
+      "Mound Warden",
+      "Moon Blessed",
+      "Echo Stalker",
+      "Vigil Alpha"
+    ]
+  },
+  {
+    "name": "Hedge Labyrinth",
+    "theme": "Labyrinth",
+    "region": "Forest",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Guile Sprite",
+      "Hedge Hound",
+      "Dead End Mimic",
+      "Maze Runner",
+      "Loop Shade",
+      "Instinct Eater",
+      "Duplicate",
+      "Shattered Reflection",
+      "The Other"
+    ]
+  },
+  {
+    "name": "Dense Brush",
+    "theme": "Dense Brush",
+    "region": "Forest",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Thorn Boar",
+      "Root Sprite",
+      "Rattlesnake",
+      "Nectar Drone",
+      "Pollen Wraith",
+      "Valley Prowler",
+      "Living Wall Crawler",
+      "Animated Vine",
+      "Ruin Wraith"
+    ]
+  },
+  {
+    "name": "Mirror Pond",
+    "theme": "Mirror Pond",
+    "region": "Water",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Reed Stalker",
+      "Mosquito Swarm",
+      "Mud Lurker",
+      "Current Rider",
+      "Slick Eel",
+      "Hollow Drifter",
+      "Fog Mimic",
+      "Cold Creeper",
+      "Shelf Specter"
+    ]
+  },
+  {
+    "name": "Hidden Spring",
+    "theme": "Spring",
+    "region": "Water",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Glow Mite",
+      "Frost Creeper",
+      "Cave Lurcher",
+      "Chronicle Watcher",
+      "Sinkhole Lurker",
+      "Ink Stalker",
+      "Vent Sprite",
+      "Lion Fish",
+      "Mist Phantom"
+    ]
+  },
+  {
+    "name": "Water Temple",
+    "theme": "Water Temple",
+    "region": "Water",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Fourecourt Guard",
+      "Depth Drainer",
+      "Tide Sentinel",
+      "Pressure Monk",
+      "Cascade Rider",
+      "Aqueduct Warden",
+      "Still Gazer",
+      "Undertow Shade",
+      "Throne Revenant"
+    ]
+  },
+  {
+    "name": "Ashen Land",
+    "theme": "Ashen Land",
+    "region": "Fire",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Cinder Hound",
+      "Magma Creeper",
+      "Ashwing Harpy",
+      "Soot Golem",
+      "Cave Ember Toad",
+      "Smog Lurker",
+      "Charwood Stalker",
+      "Scorched Treant",
+      "Reignited Wisp"
+    ]
+  },
+  {
+    "name": "Fire Temple",
+    "theme": "Fire Temple",
+    "region": "Fire",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Bridge Warden",
+      "Lava Spitter",
+      "Flame Drifter",
+      "Temple Knight",
+      "Pilar Watcher",
+      "Torch Wraith",
+      "Royal Flame Guard",
+      "Seal Caster",
+      "Throne Effigy"
+    ]
+  },
+  {
+    "name": "Lava Cave",
+    "theme": "Lava Cave",
+    "region": "Fire",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Blood Feeder",
+      "Vent Spore",
+      "Crystal Leech",
+      "Slag Tortoise",
+      "Island Drifter",
+      "Molten Crab",
+      "Amber Sentinel",
+      "Overflow Imp",
+      "Amber Trapper"
+    ]
+  },
+  {
+    "name": "Glass Desert",
+    "theme": "Desert",
+    "region": "Air",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Sandstorm Flanker",
+      "Sand Serpent",
+      "Dune Roller",
+      "Sun Lance Scorpion",
+      "Glare Stalker",
+      "Glass Shard Golem",
+      "Mirage Hunter",
+      "Shadow Wraith",
+      "Restorative Leech"
+    ]
+  },
+  {
+    "name": "The Pyramids",
+    "theme": "Pyramids",
+    "region": "Air",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Stone Colossus",
+      "Poison Dart Sentinel",
+      "Sun Priest",
+      "Guardian Scarab",
+      "Tomb Creeper",
+      "Sarcopha Gus",
+      "Burial Lich",
+      "Mummy",
+      "Ancestor's Shade"
+    ]
+  },
+  {
+    "name": "Windswept Mountains",
+    "theme": "Mountains",
+    "region": "Air",
+    "minLevel": 1,
+    "maxLevel": 100,
+    "possibleEnemies": [
+      "Hawk",
+      "Rock Lobber",
+      "Edge Stalker",
+      "Scavenger Rat",
+      "Toxic Drinker",
+      "Deserter Shade",
+      "Storm Caller",
+      "Altitude Wraith",
+      "Summit Titan"
+    ]
   }
 ]

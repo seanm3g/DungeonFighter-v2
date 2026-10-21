@@ -66,7 +66,7 @@ namespace RPGGame
             public void Dispose() => ScopedExitDecider.Value = _previous;
         }
 
-        public async Task<bool> ShowExitChoiceMenu(int currentRoom, int totalRooms)
+        public async Task<bool> ShowExitChoiceMenu(int currentRoom, int totalRooms, IReadOnlyList<List<ColoredText>>? scoutingReport = null)
         {
             if (ScopedExitDecider.Value is { } scopedDecider)
                 return await scopedDecider(stateManager.CurrentPlayer, currentRoom, totalRooms);
@@ -81,6 +81,14 @@ namespace RPGGame
             // Display the menu
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
+                // Scouting report for the next room (the roll itself is never shown).
+                if (scoutingReport != null)
+                {
+                    canvasUI.WriteLineColoredSegments(new List<ColoredText>(), UIMessageType.Environmental);
+                    foreach (var line in scoutingReport)
+                        canvasUI.WriteLineColoredSegments(line, UIMessageType.Environmental);
+                }
+
                 // Title lines center in the room-entry column so dividers and options align with narrative above.
                 foreach (var line in BuildExitChoiceMenuLines())
                 {

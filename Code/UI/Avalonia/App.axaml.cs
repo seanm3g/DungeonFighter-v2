@@ -16,6 +16,7 @@ namespace RPGGame.UI.Avalonia
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
+            StartupTimeline.Mark("App XAML loaded");
         }
 
         public override void OnFrameworkInitializationCompleted()
@@ -37,7 +38,10 @@ namespace RPGGame.UI.Avalonia
                     DebugLogger.Log("App", $"TitleScreenHelper.Preload failed: {ex.Message}");
                 }
 
+                StartupTimeline.Mark("Title preload done");
+
                 desktop.MainWindow = new MainWindow();
+                StartupTimeline.Mark("MainWindow constructed");
 
                 // Localhost combat-scene JSON for ComfyUI (http://127.0.0.1:7877/).
                 try

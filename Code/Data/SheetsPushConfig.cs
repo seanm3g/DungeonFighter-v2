@@ -46,6 +46,9 @@ namespace RPGGame.Data
         [JsonPropertyName("dungeonsSheetTabName")]
         public string DungeonsSheetTabName { get; set; } = "";
 
+        [JsonPropertyName("regionsSheetTabName")]
+        public string RegionsSheetTabName { get; set; } = "";
+
         [JsonPropertyName("statBonusesSheetTabName")]
         public string StatBonusesSheetTabName { get; set; } = "";
 
@@ -119,6 +122,9 @@ namespace RPGGame.Data
         [JsonPropertyName("pushDungeonsTab")]
         public bool PushDungeonsTab { get; set; } = true;
 
+        [JsonPropertyName("pushRegionsTab")]
+        public bool PushRegionsTab { get; set; } = true;
+
         [JsonPropertyName("pushClassPresentationTab")]
         public bool PushClassPresentationTab { get; set; } = true;
 
@@ -141,6 +147,8 @@ namespace RPGGame.Data
         public const string DefaultEnvironmentsSheetTabName = "ENVIRONMENTS";
 
         public const string DefaultDungeonsSheetTabName = "DUNGEONS";
+
+        public const string DefaultRegionsSheetTabName = "REGIONS";
 
         public const string DefaultStatBonusesSheetTabName = "SUFFIXES";
 
@@ -232,6 +240,15 @@ namespace RPGGame.Data
             if (!string.IsNullOrWhiteSpace(DungeonsSheetTabName))
                 return false;
             DungeonsSheetTabName = DefaultDungeonsSheetTabName;
+            return true;
+        }
+
+        /// <summary>Fills <see cref="RegionsSheetTabName"/> when still blank (field added with level-banded regions).</summary>
+        public bool ApplyDefaultRegionsTabNameIfUnset()
+        {
+            if (!string.IsNullOrWhiteSpace(RegionsSheetTabName))
+                return false;
+            RegionsSheetTabName = DefaultRegionsSheetTabName;
             return true;
         }
 

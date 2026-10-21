@@ -183,7 +183,7 @@ namespace RPGGame.Combat.Calculators
 
             // Tempo: slow debuff and standing set-bonus speed %.
             double slowFactor = hero.SlowTurns > 0 ? 1.0 / Math.Max(0.1, hero.SlowMultiplier) : 1.0;
-            double setPct = Math.Max(0, AnimalSetController.GetGeneralSpeedPct(hero));
+            double setPct = Math.Max(0, AnimalSetController.GetGeneralSpeedPct(hero) + AnimalSetController.GetTaxonSpeedPct(hero));
 
             double raw = baseSeconds * agilityFactor * weaponFactor * slowFactor / (1.0 + setPct / 100.0);
             return new SpeedBreakdown

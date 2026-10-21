@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
@@ -76,13 +76,16 @@ namespace RPGGame.Tests.Unit.World
             var catalog = new TravelRegionCatalog();
             var regions = catalog.GetAllRegions();
 
-            TestBase.AssertEqual(3, regions.Count,
-                "Region catalog should load exactly three regions",
+            // Level-banded regions: 4 elements x 5 tiers, contiguous 5-level bands from 1 to 100.
+            TestBase.AssertEqual(20, regions.Count,
+                "Region catalog should load twenty level-banded regions",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(regions.Any(region => region.Theme == "Forest") &&
-                                regions.Any(region => region.Theme == "Lava") &&
-                                regions.Any(region => region.Theme == "Crypt"),
-                "Region catalog should include Forest, Lava, and Crypt primary themes",
+            var ordered = regions.OrderBy(r => r.MinLevel).ToList();
+            bool contiguous = ordered.Count > 0 && ordered[0].MinLevel == 1 && ordered[^1].MaxLevel == 100;
+            for (int i = 1; i < ordered.Count; i++)
+                contiguous &= ordered[i].MinLevel == ordered[i - 1].MaxLevel + 1;
+            TestBase.AssertTrue(contiguous,
+                "Region level bands should cover 1-100 without gaps",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             foreach (var region in regions)
@@ -95,17 +98,14 @@ namespace RPGGame.Tests.Unit.World
 
             var forest = catalog.GetById("forest");
             var lava = catalog.GetById("lava");
-            var crypt = catalog.GetById("crypt");
-            TestBase.AssertTrue(forest != null && lava != null && crypt != null,
-                "Region catalog should include forest, lava, and crypt ids",
+            TestBase.AssertTrue(forest != null && lava != null && forest.ContainsLevel(1),
+                "Region catalog should include forest (Lv 1-5) and lava ids",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            CollectionContainsThemes(forest!.ResolveLinkedDungeonThemePool(), new[] { "Forest", "Crypt", "Sky" },
+            CollectionContainsThemes(forest!.ResolveLinkedDungeonThemePool(), new[] { "Den", "Labyrinth", "Dense Brush" },
                 "forest region pool", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            CollectionContainsThemes(lava!.ResolveLinkedDungeonThemePool(), new[] { "Lava", "Ice", "Sky" },
+            CollectionContainsThemes(lava!.ResolveLinkedDungeonThemePool(), new[] { "Ashen Land", "Fire Temple", "Lava Cave" },
                 "lava region pool", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            CollectionContainsThemes(crypt!.ResolveLinkedDungeonThemePool(), new[] { "Crypt", "Dark", "Forest" },
-                "crypt region pool", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void CollectionContainsThemes(
@@ -207,7 +207,7 @@ namespace RPGGame.Tests.Unit.World
             var generator = new TravelRouteGenerator();
             var scriptedRolls = new[] { 20, 14, 6, 5, 1, 20, 14, 6, 5, 1 };
 
-            var result = generator.GenerateRoute(character, "crypt", scriptedRolls, scriptedEventCount: scriptedSteps);
+            var result = generator.GenerateRoute(character, "air", scriptedRolls, scriptedEventCount: scriptedSteps);
 
             TestBase.AssertEqual(result.Steps.Sum(step => step.DelayMs), result.TotalDelayMs,
                 "Route total delay should sum the generated step delays",
@@ -263,7 +263,7 @@ namespace RPGGame.Tests.Unit.World
             var generator = new TravelRouteGenerator();
 
             const int scriptedSteps = 10;
-            generator.GenerateRoute(character, "crypt", Enumerable.Repeat(1, scriptedSteps).ToList(), scriptedEventCount: scriptedSteps);
+            generator.GenerateRoute(character, "air", Enumerable.Repeat(1, scriptedSteps).ToList(), scriptedEventCount: scriptedSteps);
 
             TestBase.AssertTrue(character.CurrentHealth >= 1,
                 "Travel critical misses should not kill the character",

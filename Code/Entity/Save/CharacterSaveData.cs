@@ -57,6 +57,9 @@ namespace RPGGame
         /// Optional dungeon-selection difficulty anchor. Null/omitted uses the hero's current level.
         /// </summary>
         public int? DungeonDifficultyAnchorLevel { get; set; }
+
+        /// <summary>This life's running statistics (kills, damage, bests) feeding the History log. Null on legacy saves.</summary>
+        public SessionStatistics? SessionStats { get; set; }
     }
 }
 

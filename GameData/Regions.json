@@ -3,21 +3,260 @@
     "id": "forest",
     "displayName": "Whisperledger Wilds",
     "theme": "Forest",
-    "description": "Trade-roads where relics once changed hands; the trees remember every inscription and every hushed appraisal.",
-    "linkedDungeonThemes": ["Forest", "Crypt", "Sky"]
+    "description": "Trade-roads under old trees, where dens and hedge mazes hide the first real dangers.",
+    "minLevel": 1,
+    "maxLevel": 5,
+    "linkedDungeonThemes": [
+      "Den",
+      "Labyrinth",
+      "Dense Brush"
+    ]
+  },
+  {
+    "id": "water",
+    "displayName": "Mirrormere Shallows",
+    "theme": "Water",
+    "description": "Reed beds and still pools that show you a little more than your reflection.",
+    "minLevel": 6,
+    "maxLevel": 10,
+    "linkedDungeonThemes": [
+      "Mirror Pond",
+      "Spring",
+      "Water Temple"
+    ]
   },
   {
     "id": "lava",
     "displayName": "Ashglass Covenant",
-    "theme": "Lava",
-    "description": "Forges and vaults where oaths were tempered in heat and brittle glass, and every blade demanded a witness.",
-    "linkedDungeonThemes": ["Lava", "Ice", "Sky"]
+    "theme": "Fire",
+    "description": "Forges and vaults where oaths were tempered in heat and brittle glass.",
+    "minLevel": 11,
+    "maxLevel": 15,
+    "linkedDungeonThemes": [
+      "Ashen Land",
+      "Fire Temple",
+      "Lava Cave"
+    ]
   },
   {
-    "id": "crypt",
-    "displayName": "Oubliette of Echoed Names",
-    "theme": "Crypt",
-    "description": "Lower ways where titles go to die; only the dust keeps inventory, and the walls murmur affixes long unspoken.",
-    "linkedDungeonThemes": ["Crypt", "Dark", "Forest"]
+    "id": "air",
+    "displayName": "Sandglass Dunes",
+    "theme": "Air",
+    "description": "Dunes, glass plains and a single oasis under a merciless sun.",
+    "minLevel": 16,
+    "maxLevel": 20,
+    "linkedDungeonThemes": [
+      "Desert",
+      "Pyramids",
+      "Mountains"
+    ]
+  },
+  {
+    "id": "forest-2",
+    "displayName": "Thornveil Deepwood",
+    "theme": "Forest",
+    "description": "The canopy closes and the brush grows teeth; packs hunt in the green dark.",
+    "minLevel": 21,
+    "maxLevel": 25,
+    "linkedDungeonThemes": [
+      "Den",
+      "Labyrinth",
+      "Dense Brush"
+    ]
+  },
+  {
+    "id": "water-2",
+    "displayName": "Tideglass Reach",
+    "theme": "Water",
+    "description": "Springs and grottos where the tide runs underground.",
+    "minLevel": 26,
+    "maxLevel": 30,
+    "linkedDungeonThemes": [
+      "Mirror Pond",
+      "Spring",
+      "Water Temple"
+    ]
+  },
+  {
+    "id": "fire-2",
+    "displayName": "Cinderfall Marches",
+    "theme": "Fire",
+    "description": "Ash falls like snow across ridges of black stone.",
+    "minLevel": 31,
+    "maxLevel": 35,
+    "linkedDungeonThemes": [
+      "Ashen Land",
+      "Fire Temple",
+      "Lava Cave"
+    ]
+  },
+  {
+    "id": "air-2",
+    "displayName": "Sunscour Wastes",
+    "theme": "Air",
+    "description": "Wind-scoured desert ringed by tombs of forgotten kings.",
+    "minLevel": 36,
+    "maxLevel": 40,
+    "linkedDungeonThemes": [
+      "Desert",
+      "Pyramids",
+      "Mountains"
+    ]
+  },
+  {
+    "id": "forest-3",
+    "displayName": "Elderroot Expanse",
+    "theme": "Forest",
+    "description": "Roots older than kingdoms split the ruins; the maze walls move when unwatched.",
+    "minLevel": 41,
+    "maxLevel": 45,
+    "linkedDungeonThemes": [
+      "Den",
+      "Labyrinth",
+      "Dense Brush"
+    ]
+  },
+  {
+    "id": "water-3",
+    "displayName": "Sunken Choir",
+    "theme": "Water",
+    "description": "Half-drowned temples that still ring with hymns at high water.",
+    "minLevel": 46,
+    "maxLevel": 50,
+    "linkedDungeonThemes": [
+      "Mirror Pond",
+      "Spring",
+      "Water Temple"
+    ]
+  },
+  {
+    "id": "fire-3",
+    "displayName": "Emberforge Depths",
+    "theme": "Fire",
+    "description": "Lava caves beneath a temple that burns without fuel.",
+    "minLevel": 51,
+    "maxLevel": 55,
+    "linkedDungeonThemes": [
+      "Ashen Land",
+      "Fire Temple",
+      "Lava Cave"
+    ]
+  },
+  {
+    "id": "air-3",
+    "displayName": "Tombwind Heights",
+    "theme": "Air",
+    "description": "Pyramids at the foot of the mountains, their curses carried on the wind.",
+    "minLevel": 56,
+    "maxLevel": 60,
+    "linkedDungeonThemes": [
+      "Desert",
+      "Pyramids",
+      "Mountains"
+    ]
+  },
+  {
+    "id": "forest-4",
+    "displayName": "Gloamhollow Weald",
+    "theme": "Forest",
+    "description": "A forest at permanent dusk where every den has a crowned alpha.",
+    "minLevel": 61,
+    "maxLevel": 65,
+    "linkedDungeonThemes": [
+      "Den",
+      "Labyrinth",
+      "Dense Brush"
+    ]
+  },
+  {
+    "id": "water-4",
+    "displayName": "Abyssal Mirror",
+    "theme": "Water",
+    "description": "The pond floor drops away into black water that watches back.",
+    "minLevel": 66,
+    "maxLevel": 70,
+    "linkedDungeonThemes": [
+      "Mirror Pond",
+      "Spring",
+      "Water Temple"
+    ]
+  },
+  {
+    "id": "fire-4",
+    "displayName": "Pyre of Oaths",
+    "theme": "Fire",
+    "description": "Where broken promises are burned, along with whoever made them.",
+    "minLevel": 71,
+    "maxLevel": 75,
+    "linkedDungeonThemes": [
+      "Ashen Land",
+      "Fire Temple",
+      "Lava Cave"
+    ]
+  },
+  {
+    "id": "air-4",
+    "displayName": "Skyreach Spires",
+    "theme": "Air",
+    "description": "Cliffs so high the clouds pass below your feet.",
+    "minLevel": 76,
+    "maxLevel": 80,
+    "linkedDungeonThemes": [
+      "Desert",
+      "Pyramids",
+      "Mountains"
+    ]
+  },
+  {
+    "id": "forest-5",
+    "displayName": "Worldroot Heart",
+    "theme": "Forest",
+    "description": "The heartwood of the world, where the oldest beasts keep their vigil.",
+    "minLevel": 81,
+    "maxLevel": 85,
+    "linkedDungeonThemes": [
+      "Den",
+      "Labyrinth",
+      "Dense Brush"
+    ]
+  },
+  {
+    "id": "water-5",
+    "displayName": "Drowned Crown",
+    "theme": "Water",
+    "description": "The seat of the drowned court, where the throne is never empty.",
+    "minLevel": 86,
+    "maxLevel": 90,
+    "linkedDungeonThemes": [
+      "Mirror Pond",
+      "Spring",
+      "Water Temple"
+    ]
+  },
+  {
+    "id": "fire-5",
+    "displayName": "Molten Throne",
+    "theme": "Fire",
+    "description": "The heart of the fire, ruled from a throne of slag and gold.",
+    "minLevel": 91,
+    "maxLevel": 95,
+    "linkedDungeonThemes": [
+      "Ashen Land",
+      "Fire Temple",
+      "Lava Cave"
+    ]
+  },
+  {
+    "id": "air-5",
+    "displayName": "Stormcrown Summit",
+    "theme": "Air",
+    "description": "The roof of the world, where storms are born and titans sleep.",
+    "minLevel": 96,
+    "maxLevel": 100,
+    "linkedDungeonThemes": [
+      "Desert",
+      "Pyramids",
+      "Mountains"
+    ]
   }
 ]

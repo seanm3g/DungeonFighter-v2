@@ -444,6 +444,7 @@ GameData/character_save.json
 GameData/character_save_dead.json
 GameData/character_*_save.json
 GameData/character_*_dead.json
+GameData/fighter_history.json
 GameData/gamesettings.json
 GameData/TuningConfig.json
 GameData/PatchProfile.json

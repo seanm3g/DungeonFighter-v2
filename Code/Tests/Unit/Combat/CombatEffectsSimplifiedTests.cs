@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RPGGame.Tests;
 using RPGGame;
@@ -339,7 +339,8 @@ namespace RPGGame.Tests.Unit.Combat
 
                     StatusEffectProcessor.ProcessDamageOverTimeEffects(player, enemy);
 
-                    TestBase.AssertEqual(hpBefore - 10, enemy.CurrentHealth,
+                    // Non-living templates count as undead: burn ticks deal ×1.5 (StatusAffinities.json).
+                    TestBase.AssertEqual(hpBefore - 15, enemy.CurrentHealth,
                         "burn tick should reduce HP on non-living enemy",
                         ref _testsRun, ref _testsPassed, ref _testsFailed);
                     TestBase.AssertEqual(9, enemy.BurnIntensity,

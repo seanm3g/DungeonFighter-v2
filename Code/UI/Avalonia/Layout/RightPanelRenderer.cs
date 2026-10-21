@@ -128,16 +128,17 @@ namespace RPGGame.UI.Avalonia.Layout
                     if (actionName.Length > 20)
                         actionName = actionName.Substring(0, 17) + "...";
                     string line = $"{actionName}{currentStep}";
+                    var seqColor = ActionNameColors.Resolve(action);
                     if (interactive)
                     {
                         string value = $"{ComboPointerInput.Prefix}rm:{i}";
                         var btn = InventoryButtonFactory.CreateButton(x, y, rowWidth, value, line);
                         interactionManager!.AddClickableElement(btn);
-                        var c = btn.IsHovered ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White;
+                        var c = btn.IsHovered ? AsciiArtAssets.Colors.Yellow : seqColor;
                         canvas.AddText(x, y, line, c);
                     }
                     else
-                        canvas.AddText(x, y, line, AsciiArtAssets.Colors.White);
+                        canvas.AddText(x, y, line, seqColor);
                     y++;
                 }
                 
@@ -179,7 +180,7 @@ namespace RPGGame.UI.Avalonia.Layout
                         actionName = actionName.Substring(0, 17) + "...";
                     string tag = inSeq ? "*" : "";
                     string line = $"{tag}{actionName}";
-                    var baseColor = inSeq ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Cyan;
+                    var baseColor = inSeq ? AsciiArtAssets.Colors.DarkGray : ActionNameColors.Resolve(poolAction);
                     if (interactive)
                     {
                         string value = $"{ComboPointerInput.Prefix}pool:{poolIdx}";
@@ -240,12 +241,12 @@ namespace RPGGame.UI.Avalonia.Layout
                         var invBtn = InventoryButtonFactory.CreateButton(x, y, rowWidth, invValue, invLine);
                         interactionManager!.AddClickableElement(invBtn);
                         var invC = invBtn.IsHovered ? AsciiArtAssets.Colors.Yellow
-                            : (invInSeq ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Magenta);
+                            : (invInSeq ? AsciiArtAssets.Colors.DarkGray : ActionNameColors.ResolveByName(invEntry.ActionName));
                         canvas.AddText(x, y, invLine, invC);
                     }
                     else
                     {
-                        var invBase = invInSeq ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Magenta;
+                        var invBase = invInSeq ? AsciiArtAssets.Colors.DarkGray : ActionNameColors.ResolveByName(invEntry.ActionName);
                         canvas.AddText(x, y, invLine, invBase);
                     }
 
@@ -277,6 +278,7 @@ namespace RPGGame.UI.Avalonia.Layout
             int innerRight = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
             int innerW = Math.Max(8, innerRight - innerLeft + 1);
             const int maxTooltipLines = 18;
+            const int maxPoolActionTooltipLines = 28;
             int boxWFinal = Math.Min(52, innerW);
             int innerTextW = Math.Max(4, boxWFinal - 2);
             List<string>? tipLines;
@@ -312,6 +314,15 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (rpPool >= pool.Count)
                     return;
 
+                // Colored like the strip tooltip: class/rarity title color, what it does, and how each status it applies works.
+                var coloredActionLines = CombatActionStripBuilder.BuildColoredActionTooltipLines(
+                    character, pool[rpPool], maxPoolActionTooltipLines + 2,
+                    includeExtendedDetails: HoverTooltipDetailState.IsAltDetailActive);
+                if (coloredActionLines.Count > 0)
+                {
+                    DrawPoolItemColoredTooltip(coloredActionLines, rowY, boxWFinal, innerLeft, innerTop, innerRight, maxPoolActionTooltipLines);
+                    return;
+                }
                 tipLines = CombatActionStripBuilder.BuildActionTooltipLinesForAction(
                     character, pool[rpPool], innerTextW, maxTooltipLines + 2,
                     includeExtendedDetails: HoverTooltipDetailState.IsAltDetailActive);
@@ -373,6 +384,23 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>
         /// Renders location and enemy information panel
         /// </summary>
+        /// <summary>Hover target for an enemy status / affinity row; the tooltip explains the effect in full.</summary>
+        private void RegisterEnemyStatusHoverRow(int x, int y, string idSuffix)
+        {
+            if (interactionManager == null)
+                return;
+            interactionManager.AddClickableElement(new ClickableElement
+            {
+                X = x,
+                Y = y,
+                Width = Math.Max(8, LayoutConstants.RIGHT_PANEL_WIDTH - 4),
+                Height = 1,
+                Type = ElementType.Text,
+                Value = LeftPanelHoverState.Prefix + idSuffix,
+                DisplayText = "Enemy status"
+            });
+        }
+
         private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName, bool registerActionLabEnemyLevelHover, int? heroLevelForLabEnemyCaption)
         {
             // Location section - always shown
@@ -539,13 +567,21 @@ namespace RPGGame.UI.Avalonia.Layout
             {
                 canvas.AddText(x, y, "Enemy:", AsciiArtAssets.Colors.Gray);
                 y++;
-                var immunityLine = StatusEffectDisplayLines.GetNonLivingEnemyImmunityLine(enemy);
-                if (immunityLine != null)
+                StatusEffectHoverDetails.CurrentEnemy = enemy;
+                int affinityIndex = 0;
+                foreach (var affinityLine in StatusEffectDisplayLines.GetEnemyAffinityLines(enemy))
                 {
-                    string imm = "  " + immunityLine;
+                    RegisterEnemyStatusHoverRow(x, y, "eaff:" + affinityIndex);
+                    affinityIndex++;
+                    string imm = "  " + affinityLine;
                     if (imm.Length > maxLineLen)
                         imm = imm.Substring(0, maxLineLen - 3) + "...";
-                    canvas.AddText(x, y, imm, AsciiArtAssets.Colors.Cyan);
+                    var affinityColor = affinityLine.StartsWith("Weak", StringComparison.Ordinal)
+                        ? AsciiArtAssets.Colors.Orange
+                        : affinityLine.StartsWith("Resists", StringComparison.Ordinal)
+                            ? AsciiArtAssets.Colors.Gray
+                            : AsciiArtAssets.Colors.Cyan;
+                    canvas.AddText(x, y, imm, affinityColor);
                     y++;
                 }
                 const int maxEnemyEffectLines = 3;
@@ -559,6 +595,7 @@ namespace RPGGame.UI.Avalonia.Layout
                         if (line.Length > maxLineLen)
                             line = line.Substring(0, maxLineLen - 3) + "...";
                         canvas.AddText(x, y, line, AsciiArtAssets.Colors.White);
+                        RegisterEnemyStatusHoverRow(x, y, "estatus:" + i);
                         y++;
                     }
                     if (enemyEffects.Count > toShow)

@@ -65,11 +65,11 @@ namespace RPGGame
         /// </summary>
         public void ShowMainMenu()
         {
-            var (hasSavedGame, characterName, characterLevel) = ResolveSavedGameMenuLine();
+            var (hasSavedGame, savedFighterCount) = ResolveSavedGameMenuLine();
 
             // Use GameScreenCoordinator for standardized screen transition
             var screenCoordinator = new GameScreenCoordinator(stateManager);
-            screenCoordinator.ShowMainMenu(hasSavedGame, characterName, characterLevel);
+            screenCoordinator.ShowMainMenu(hasSavedGame, savedFighterCount);
         }
 
         /// <summary>
@@ -84,33 +84,28 @@ namespace RPGGame
             if (customUIManager is not CanvasUICoordinator canvasUI)
                 return;
 
-            var (hasSavedGame, characterName, characterLevel) = ResolveSavedGameMenuLine();
+            var (hasSavedGame, savedFighterCount) = ResolveSavedGameMenuLine();
             canvasUI.Clear();
             canvasUI.ClearClickableElements();
-            canvasUI.RenderMainMenu(hasSavedGame, characterName, characterLevel);
+            canvasUI.RenderMainMenu(hasSavedGame, savedFighterCount);
             canvasUI.Refresh();
         }
 
         /// <summary>
-        /// Load Game line must match what LoadGame() can actually load: only show name/level
-        /// when at least one save exists on disk (ignore in-memory CurrentPlayer — e.g. new unsaved character).
+        /// Load Character(s) line must match what the Load Character menu can actually load: only show
+        /// the fighter count when saves exist on disk (ignore in-memory CurrentPlayer — e.g. new unsaved character).
         /// </summary>
-        private static (bool hasSavedGame, string? characterName, int characterLevel) ResolveSavedGameMenuLine()
+        private static (bool hasSavedGame, int savedFighterCount) ResolveSavedGameMenuLine()
         {
             // Skip a "Loading data..." flash here — listing save metadata is fast, and the title→menu
             // path already warms GameCoordinator so a status message only adds a hitch.
             var savedCharacters = CharacterSaveManager.ListAllSavedCharacters();
-            if (savedCharacters != null && savedCharacters.Count > 0 &&
-                !string.IsNullOrWhiteSpace(savedCharacters[0].characterName))
-            {
-                return (true, savedCharacters[0].characterName, savedCharacters[0].level);
-            }
-
-            return (false, null, 0);
+            int savedFighterCount = savedCharacters?.Count(c => !string.IsNullOrWhiteSpace(c.characterName)) ?? 0;
+            return (savedFighterCount > 0, savedFighterCount);
         }
 
         /// <summary>
-        /// Handle main menu input (1=New, 2=Load, 3=Settings, 0=Quit)
+        /// Handle main menu input (1=New, 2=Load, 3=Settings, 4=Stable, 5=History, 0=Quit)
         /// </summary>
         public async Task HandleMenuInput(string input)
         {
@@ -138,6 +133,10 @@ namespace RPGGame
                 case "4":
                     ShowStableEvent?.Invoke();
                     break;
+                case "5":
+                    // Deaths are already logged to FighterHistory; the History screen itself is not built yet.
+                    ShowMessageEvent?.Invoke("History: coming soon.");
+                    break;
                 case "C":
                 case "c":
                     // Character Selection (multi-character support)
@@ -148,7 +147,7 @@ namespace RPGGame
                     break;
                 default:
                     AudioCues.Trigger(AudioCue.Menu_Invalid);
-                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Settings), 4 (Stable), or 0 (Quit).");
+                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Settings), 4 (Stable), 5 (History), or 0 (Quit).");
                     break;
             }
         }

@@ -231,6 +231,9 @@ namespace RPGGame.Actions.Execution
                     RollModificationManager.CollectAdvantageFlags(layer, ref pendingAdvantage, ref pendingDisadvantage);
                 }
             }
+            // Surprise / scouting opener: the first roll of the fight is made with advantage.
+            if (source.TryConsumeEncounterAdvantage())
+                pendingAdvantage = true;
             result.ModifiedBaseRoll = RollModificationManager.ApplyMultiDiceRoll(
                 result.BaseRoll, pendingAdvantage, pendingDisadvantage, result.SelectedAction, source, target,
                 out var multiDiceDetail);

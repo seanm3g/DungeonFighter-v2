@@ -52,6 +52,11 @@ namespace RPGGame.Combat.Sequence
         /// Played one after another so an env act + two applications read as ~three lines.
         /// </summary>
         public IReadOnlyList<string> EffectSentences { get; init; } = Array.Empty<string>();
+        /// <summary>
+        /// Sentences appended after every beat of the swing (e.g. pack bodies falling), so they read as part of the
+        /// centered prose paragraph instead of a mechanical sub-line under the action block.
+        /// </summary>
+        public IReadOnlyList<string> TrailingSentences { get; init; } = Array.Empty<string>();
         /// <summary>Extra identity names (status victims) for emphasis beyond Attacker/Target.</summary>
         public IReadOnlyList<string> AdditionalNames { get; init; } = Array.Empty<string>();
 
@@ -336,9 +341,29 @@ namespace RPGGame.Combat.Sequence
                 IncludeCritical = includeCritical,
                 IncludeCriticalMiss = includeCriticalMiss,
                 IsHeal = isHeal,
-                IsMiss = !result.Hit
+                IsMiss = !result.Hit,
+                TrailingSentences = InterpretPackBodiesFell(result, displayTarget)
             };
         }
+
+        /// <summary>Numeral-free prose for pack bodies dropped by this swing ("Two of the rats fall; one remains").</summary>
+        internal static IReadOnlyList<string> InterpretPackBodiesFell(ActionExecutionResult result, Actor? target)
+        {
+            if (string.IsNullOrEmpty(result.PackBodyFellText) || target is not Enemy pack || !pack.IsPack)
+                return Array.Empty<string>();
+            int remaining = pack.LivingBodyCount;
+            int before = result.TargetPackHeadlineCount ?? remaining + 1;
+            int fallen = Math.Max(1, before - remaining);
+            string[] words = { "none", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten" };
+            string Word(int n) => n >= 0 && n < words.Length ? words[n] : "many";
+            string name = StripLeadingArticle(FormatNarrativeActorName(pack, pack.Name)).ToLowerInvariant();
+            string fallenText = fallen == 1 ? $"One of the {name} falls" : $"{CapitalizeFirst(Word(fallen))} of the {name} fall";
+            string remainText = remaining == 1 ? "one remains" : $"{Word(remaining)} remain";
+            return new[] { $"{fallenText}; {remainText}" };
+        }
+
+        private static string CapitalizeFirst(string s) =>
+            string.IsNullOrEmpty(s) ? s : char.ToUpperInvariant(s[0]) + s.Substring(1);
 
         /// <summary>
         /// Maps a d20 (or bonus-adjusted) face to a poetic adjudication — no numerals.

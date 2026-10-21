@@ -94,6 +94,13 @@ namespace RPGGame
                 CombatActionStripBuilder.AddWrappedTooltipParagraph(result, paragraph, maxWidth, maxLines);
             }
 
+            void addWrappedAnimal(string label)
+            {
+                AddWrapped(label);
+                foreach (string line in AnimalSetController.DescribeSetBonuses(character))
+                    AddWrapped(line);
+            }
+
             switch (key)
             {
                 case "stat:damage":
@@ -209,6 +216,15 @@ namespace RPGGame
                     break;
                 case string st when st.StartsWith("status:", StringComparison.Ordinal):
                     AppendStatusLine(character, st, AddWrapped);
+                    break;
+                case string animalKey when animalKey.StartsWith("animal:", StringComparison.Ordinal):
+                    addWrappedAnimal(animalKey.Substring("animal:".Length));
+                    break;
+                case string est when est.StartsWith("estatus:", StringComparison.Ordinal):
+                    AppendEnemyStatusLine(est, AddWrapped);
+                    break;
+                case string eaff when eaff.StartsWith("eaff:", StringComparison.Ordinal):
+                    AppendEnemyAffinityLine(eaff, AddWrapped);
                     break;
                 case "center:itemsHeader":
                     AddWrapped("Items you are carrying (not necessarily equipped).");
@@ -399,6 +415,34 @@ namespace RPGGame
                 return;
             addWrapped(lines[lineIdx]);
             foreach (string detail in HoverEffectCopy.ExplainStatusLine(c, lines[lineIdx]))
+                addWrapped(detail);
+        }
+
+        /// <summary>Right-panel enemy status row (<c>estatus:N</c>) for <see cref="StatusEffectHoverDetails.CurrentEnemy"/>.</summary>
+        private static void AppendEnemyStatusLine(string key, Action<string> addWrapped)
+        {
+            var enemy = StatusEffectHoverDetails.CurrentEnemy;
+            if (enemy == null || !int.TryParse(key.AsSpan("estatus:".Length), out int lineIdx))
+                return;
+            var lines = StatusEffectDisplayLines.Build(enemy, enemy);
+            if (lineIdx < 0 || lineIdx >= lines.Count)
+                return;
+            addWrapped($"{enemy.Name}: {lines[lineIdx]}");
+            foreach (string detail in HoverEffectCopy.ExplainActorStatusLine(enemy, lines[lineIdx]))
+                addWrapped(detail);
+        }
+
+        /// <summary>Right-panel enemy Immune / Weak / Resists row (<c>eaff:N</c>).</summary>
+        private static void AppendEnemyAffinityLine(string key, Action<string> addWrapped)
+        {
+            var enemy = StatusEffectHoverDetails.CurrentEnemy;
+            if (enemy == null || !int.TryParse(key.AsSpan("eaff:".Length), out int lineIdx))
+                return;
+            var rows = StatusEffectDisplayLines.GetEnemyAffinityLines(enemy);
+            if (lineIdx < 0 || lineIdx >= rows.Count)
+                return;
+            addWrapped($"{enemy.Name}: {rows[lineIdx]}");
+            foreach (string detail in StatusEffectHoverDetails.DescribeAffinityRow(enemy, rows[lineIdx]))
                 addWrapped(detail);
         }
 

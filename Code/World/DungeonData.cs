@@ -27,6 +27,9 @@ namespace RPGGame
         public string name { get; set; } = "";
         [JsonPropertyName("theme")]
         public string theme { get; set; } = "";
+        /// <summary>Element region (Forest / Water / Fire / Air) this biome dungeon belongs to; informational for the sheet.</summary>
+        [JsonPropertyName("region")]
+        public string region { get; set; } = "";
         [JsonPropertyName("minLevel")]
         public int minLevel { get; set; }
         [JsonPropertyName("maxLevel")]

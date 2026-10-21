@@ -13,7 +13,6 @@ namespace RPGGame.UI.Avalonia.Renderers
     {
         /// <summary>Footer choice text anchored to the bottom of the content rect.</summary>
         public const int FooterReservedRows = 7;
-        private const int SummaryMetricLabelWidth = 28;
 
         private readonly GameCanvasControl canvas;
         private readonly List<ClickableElement> clickableElements;
@@ -26,171 +25,154 @@ namespace RPGGame.UI.Avalonia.Renderers
         
         /// <summary>
         /// Builds colored lines appended to the center display buffer so the death summary sits after combat log text.
+        /// Metric rows form one block centered in <paramref name="summaryWidth"/> with labels right-aligned on the colon.
+        /// Alignment uses leading indent only: the log wrapper collapses runs of inner spaces to one.
         /// </summary>
         public static List<List<ColoredText>> BuildDeathSummaryLines(string defeatSummary, int summaryWidth = 0)
         {
-            var lines = new List<List<ColoredText>>();
+            var rows = ParseSummaryRows(defeatSummary);
 
-            AddCenteredLine(lines, new List<ColoredText> { new ColoredText("═══ YOU DIED ═══", AsciiArtAssets.Colors.Red) }, summaryWidth);
-            lines.Add(new List<ColoredText>());
-
-            string[] summaryLines = (defeatSummary ?? "").Split('\n');
-
-            var statsToSkip = new HashSet<string>
+            int labelWidth = 0;
+            int valueWidth = 0;
+            foreach (var row in rows)
             {
-                "Total Healing Received: 0",
-                "Combo Success Rate: ∞%",
-                "Combo Success Rate: NaN%",
-                "Rare Items: 0",
-                "Epic Items: 0",
-                "Legendary Items: 0",
-                "Dungeons Completed: 0",
-                "Rooms Explored: 0",
-                "Encounters Survived: 0"
-            };
-            
-            foreach (string line in summaryLines)
+                if (row.Kind != SummaryRowKind.Metric)
+                    continue;
+                labelWidth = Math.Max(labelWidth, row.Label.Length);
+                valueWidth = Math.Max(valueWidth, row.Value.Length);
+            }
+            int blockLeft = Math.Max(0, (summaryWidth - (labelWidth + 1 + valueWidth)) / 2);
+
+            var lines = new List<List<ColoredText>>();
+            AddCenteredLine(lines, "═══ YOU DIED ═══", AsciiArtAssets.Colors.Red, summaryWidth);
+
+            foreach (var row in rows)
+            {
+                if (row.Kind == SummaryRowKind.Header)
+                {
+                    lines.Add(new List<ColoredText>());
+                    AddCenteredLine(lines, row.Label, row.Color, summaryWidth);
+                }
+                else if (row.Kind == SummaryRowKind.Metric)
+                {
+                    int indent = summaryWidth > 0 ? blockLeft + (labelWidth - row.Label.Length) : 0;
+                    var line = new List<ColoredText>();
+                    if (indent > 0)
+                        line.Add(new ColoredText(new string(' ', indent), AsciiArtAssets.Colors.White));
+                    line.Add(new ColoredText(row.Label + " ", row.Color));
+                    line.Add(new ColoredText(row.Value, row.Color));
+                    lines.Add(line);
+                }
+                else
+                {
+                    AddCenteredLine(lines, row.Label, row.Color, summaryWidth);
+                }
+            }
+
+            lines.Add(new List<ColoredText>());
+            AddCenteredLine(lines, "Better luck next time!", AsciiArtAssets.Colors.Yellow, summaryWidth);
+
+            return lines;
+        }
+
+        private enum SummaryRowKind { Header, Metric, Text }
+
+        private readonly record struct SummaryRow(SummaryRowKind Kind, string Label, string Value, Color Color);
+
+        private static readonly (string Key, Color Color)[] SectionHeaders =
+        {
+            ("CHARACTER PROGRESSION", AsciiArtAssets.Colors.Cyan),
+            ("COMBAT PERFORMANCE", AsciiArtAssets.Colors.Red),
+            ("COMBO MASTERY", AsciiArtAssets.Colors.Yellow),
+            ("ITEM COLLECTION", AsciiArtAssets.Colors.Magenta),
+            ("ACHIEVEMENTS UNLOCKED", AsciiArtAssets.Colors.Gold),
+        };
+
+        // Headers dropped from the summary; their stats (if any survive the skip list) stay.
+        private static readonly string[] HiddenHeaders = { "DAMAGE RECORDS", "EXPLORATION" };
+
+        private static readonly string[] StatsToSkip =
+        {
+            "Total Healing Received: 0",
+            "Combo Success Rate: ∞%",
+            "Combo Success Rate: NaN%",
+            "Rare Items: 0",
+            "Epic Items: 0",
+            "Legendary Items: 0",
+            "Dungeons Completed: 0",
+            "Rooms Explored: 0",
+            "Encounters Survived: 0"
+        };
+
+        private static List<SummaryRow> ParseSummaryRows(string defeatSummary)
+        {
+            var rows = new List<SummaryRow>();
+            foreach (string line in (defeatSummary ?? "").Split('\n'))
             {
                 string trimmedLine = line.Trim();
-                
-                // Skip old header/footer lines
-                if (trimmedLine == "═══════════════════════════════════════" || 
+
+                // Old header/footer lines and blank spacing; this renderer owns its own spacing.
+                if (string.IsNullOrWhiteSpace(trimmedLine) ||
+                    trimmedLine.Trim('═').Length == 0 ||
                     trimmedLine == "DEFEAT STATISTICS" ||
                     trimmedLine == "YOU DIED" ||
                     trimmedLine == "Better luck next time!")
                 {
                     continue;
                 }
-                
-                // Summary spacing is controlled here so the appended block stays compact.
-                if (string.IsNullOrWhiteSpace(trimmedLine))
+
+                if (Array.Exists(StatsToSkip, skip => trimmedLine.Contains(skip, StringComparison.Ordinal)))
+                    continue;
+                if (Array.Exists(HiddenHeaders, h => trimmedLine.Contains(h, StringComparison.Ordinal)))
+                    continue;
+
+                int headerIndex = Array.FindIndex(SectionHeaders, h => trimmedLine.Contains(h.Key, StringComparison.Ordinal));
+                if (headerIndex >= 0)
                 {
+                    // Drop the emoji prefix: wide glyphs overlap the header text on the cell grid.
+                    rows.Add(new SummaryRow(SummaryRowKind.Header, StripSymbolPrefix(trimmedLine), "", SectionHeaders[headerIndex].Color));
                     continue;
                 }
-                
-                // Skip less relevant stats
-                bool shouldSkip = false;
-                foreach (var skipPattern in statsToSkip)
+
+                if (trimmedLine.Contains("✓", StringComparison.Ordinal))
                 {
-                    if (trimmedLine.Contains(skipPattern))
-                    {
-                        shouldSkip = true;
-                        break;
-                    }
-                }
-                if (shouldSkip) continue;
-                
-                // Detect and render section headers (compact, no separator lines)
-                if (trimmedLine.Contains("CHARACTER PROGRESSION"))
-                {
-                    AddCenteredLine(lines, new List<ColoredText> { new ColoredText(trimmedLine, AsciiArtAssets.Colors.Cyan) }, summaryWidth);
+                    rows.Add(new SummaryRow(SummaryRowKind.Text, trimmedLine, "", AsciiArtAssets.Colors.Green));
                     continue;
                 }
-                else if (trimmedLine.Contains("COMBAT PERFORMANCE"))
+
+                int separatorIndex = trimmedLine.IndexOf(':', StringComparison.Ordinal);
+                if (separatorIndex <= 0 || separatorIndex == trimmedLine.Length - 1)
                 {
-                    AddCenteredLine(lines, new List<ColoredText> { new ColoredText(trimmedLine, AsciiArtAssets.Colors.Red) }, summaryWidth);
+                    rows.Add(new SummaryRow(SummaryRowKind.Text, trimmedLine, "", AsciiArtAssets.Colors.White));
                     continue;
                 }
-                else if (trimmedLine.Contains("DAMAGE RECORDS"))
-                {
-                    continue; // Skip the header, just show the stats
-                }
-                else if (trimmedLine.Contains("COMBO MASTERY"))
-                {
-                    AddCenteredLine(lines, new List<ColoredText> { new ColoredText(trimmedLine, AsciiArtAssets.Colors.Yellow) }, summaryWidth);
-                    continue;
-                }
-                else if (trimmedLine.Contains("ITEM COLLECTION"))
-                {
-                    AddCenteredLine(lines, new List<ColoredText> { new ColoredText(trimmedLine, AsciiArtAssets.Colors.Magenta) }, summaryWidth);
-                    continue;
-                }
-                else if (trimmedLine.Contains("EXPLORATION"))
-                {
-                    // Skip exploration if all zeros
-                    continue;
-                }
-                else if (trimmedLine.Contains("ACHIEVEMENTS UNLOCKED"))
-                {
-                    AddCenteredLine(lines, new List<ColoredText> { new ColoredText(trimmedLine, AsciiArtAssets.Colors.Gold) }, summaryWidth);
-                    continue;
-                }
-                
-                // Render stat lines
-                var lineColor = trimmedLine.Contains("✓", StringComparison.Ordinal) ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.White;
-                AddCenteredLine(lines, BuildSummaryLine(trimmedLine, lineColor), summaryWidth);
+
+                rows.Add(new SummaryRow(
+                    SummaryRowKind.Metric,
+                    trimmedLine.Substring(0, separatorIndex + 1),
+                    trimmedLine.Substring(separatorIndex + 1).Trim(),
+                    AsciiArtAssets.Colors.White));
             }
 
-            lines.Add(new List<ColoredText>());
-            AddCenteredLine(lines, new List<ColoredText> { new ColoredText("Better luck next time!", AsciiArtAssets.Colors.Yellow) }, summaryWidth);
-
-            return lines;
+            return rows;
         }
 
-        private static List<ColoredText> BuildSummaryLine(string text, Color color)
+        private static string StripSymbolPrefix(string text)
         {
-            int separatorIndex = text.IndexOf(':', StringComparison.Ordinal);
-            if (separatorIndex <= 0 || separatorIndex == text.Length - 1)
-                return new List<ColoredText> { new ColoredText(text, color) };
-
-            string label = text.Substring(0, separatorIndex + 1).PadRight(SummaryMetricLabelWidth);
-            string value = text.Substring(separatorIndex + 1).TrimStart();
-            return new List<ColoredText>
-            {
-                new ColoredText(label, color),
-                new ColoredText(value, color)
-            };
+            int i = 0;
+            while (i < text.Length && !char.IsLetterOrDigit(text[i]))
+                i++;
+            return i < text.Length ? text.Substring(i) : text;
         }
 
-        private static void AddCenteredLine(List<List<ColoredText>> lines, List<ColoredText> segments, int summaryWidth)
+        private static void AddCenteredLine(List<List<ColoredText>> lines, string text, Color color, int summaryWidth)
         {
-            lines.Add(CenterLine(segments, summaryWidth));
-        }
-
-        private static List<ColoredText> CenterLine(List<ColoredText> segments, int summaryWidth)
-        {
-            var normalized = TrimLeadingWhitespace(segments);
-            if (summaryWidth <= 0 || normalized.Count == 0)
-                return normalized;
-
-            int textLength = 0;
-            foreach (var segment in normalized)
-                textLength += segment.Text?.Length ?? 0;
-
-            int leftPadding = (summaryWidth - textLength) / 2;
-            if (leftPadding <= 0)
-                return normalized;
-
-            var centered = new List<ColoredText>
-            {
-                new ColoredText(new string(' ', leftPadding), AsciiArtAssets.Colors.White)
-            };
-            centered.AddRange(normalized);
-            return centered;
-        }
-
-        private static List<ColoredText> TrimLeadingWhitespace(List<ColoredText> segments)
-        {
-            var normalized = new List<ColoredText>();
-            bool trimming = true;
-
-            foreach (var segment in segments)
-            {
-                string text = segment.Text ?? string.Empty;
-                if (trimming)
-                {
-                    string trimmed = text.TrimStart();
-                    if (trimmed.Length == 0)
-                        continue;
-
-                    text = trimmed;
-                    trimming = false;
-                }
-
-                normalized.Add(new ColoredText(text, segment.Color, segment.SourceTemplate, segment.ColorReadyForCanvas));
-            }
-
-            return normalized;
+            int leftPadding = summaryWidth > 0 ? (summaryWidth - text.Length) / 2 : 0;
+            var line = new List<ColoredText>();
+            if (leftPadding > 0)
+                line.Add(new ColoredText(new string(' ', leftPadding), AsciiArtAssets.Colors.White));
+            line.Add(new ColoredText(text, color));
+            lines.Add(line);
         }
 
         /// <summary>

@@ -36,7 +36,7 @@ namespace RPGGame.Tests.Unit.UI
 
             const int promptRows = 1;
             const int gapRows = 1;
-            const int menuOptionRows = 4;
+            const int menuOptionRows = 5;
             int expected = promptRows + gapRows + menuOptionRows + DungeonCompletionRenderer.FooterBottomPaddingRows;
 
             TestBase.AssertEqual(
@@ -50,7 +50,7 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(
                 expected,
                 DungeonCompletionRenderer.FooterReservedRows,
-                "FooterReservedRows should include prompt, gap, 4 options, and bottom padding",
+                "FooterReservedRows should include prompt, gap, 5 options, and bottom padding",
                 ref _testsRun,
                 ref _testsPassed,
                 ref _testsFailed);

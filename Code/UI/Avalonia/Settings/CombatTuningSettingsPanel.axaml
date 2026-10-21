@@ -6,6 +6,7 @@
              xmlns:settings="clr-namespace:RPGGame.UI.Avalonia.Settings"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="900"
              x:Class="RPGGame.UI.Avalonia.Settings.CombatTuningSettingsPanel"
+             x:DataType="vm:CombatTuningPanelViewModel"
              Classes="settings-ui"
              Background="Transparent">
 

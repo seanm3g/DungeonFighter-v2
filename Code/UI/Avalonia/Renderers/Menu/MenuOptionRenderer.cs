@@ -38,52 +38,39 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         }
 
         /// <summary>
-        /// Renders the Load Game option with special coloring for character name and level
+        /// Renders the Load Character(s) option with the saved fighter count highlighted
         /// </summary>
         /// <param name="x">X position</param>
         /// <param name="y">Y position</param>
         /// <param name="number">Menu option number</param>
-        /// <param name="characterName">Character name to display</param>
-        /// <param name="characterLevel">Character level to display</param>
-        /// <param name="nameColor">Color for character name</param>
-        /// <param name="levelColor">Color for character level</param>
+        /// <param name="fighterCount">Number of saved fighters to display</param>
+        /// <param name="countColor">Color for the fighter count</param>
         /// <param name="isHovered">Whether the option is currently hovered</param>
-        public void RenderColoredLoadGameOption(int x, int y, int number, string characterName, int characterLevel, Color nameColor, Color levelColor, bool isHovered)
+        public void RenderColoredLoadGameOption(int x, int y, int number, int fighterCount, Color countColor, bool isHovered)
         {
             Color baseColor = isHovered ? Colors.Yellow : Colors.White;
-            Color charNameColor = isHovered ? Colors.Yellow : nameColor;
-            Color charLevelColor = isHovered ? Colors.Yellow : levelColor;
+            Color fighterCountColor = isHovered ? Colors.Yellow : countColor;
             
             string numberText = $"[{number}]";
-            string prefix = "Load Game - *";
-            string namePart = characterName;
-            string middlePart = " - lvl ";
-            string levelPart = characterLevel.ToString();
-            string suffix = "*";
+            string prefix = UIConstants.MenuOptions.LoadGame + UIConstants.Formats.LoadCharactersSeparator;
+            string countPart = fighterCount.ToString();
+            string suffix = " " + UIConstants.Formats.FighterCountLabel(fighterCount);
             
             int currentX = x;
             
             // Render [2]
-            canvas.AddText(currentX, y, numberText, isHovered ? Colors.Yellow : baseColor);
+            canvas.AddText(currentX, y, numberText, baseColor);
             currentX += numberText.Length + 1;
             
-            // Render "Load Game - *"
+            // Render "Load Character(s) | "
             canvas.AddText(currentX, y, prefix, baseColor);
             currentX += prefix.Length;
             
-            // Render character name in gold
-            canvas.AddText(currentX, y, namePart, charNameColor);
-            currentX += namePart.Length;
+            // Render fighter count in orange
+            canvas.AddText(currentX, y, countPart, fighterCountColor);
+            currentX += countPart.Length;
             
-            // Render " - lvl "
-            canvas.AddText(currentX, y, middlePart, baseColor);
-            currentX += middlePart.Length;
-            
-            // Render level in orange/gold
-            canvas.AddText(currentX, y, levelPart, charLevelColor);
-            currentX += levelPart.Length;
-            
-            // Render closing "*"
+            // Render " Fighters"
             canvas.AddText(currentX, y, suffix, baseColor);
         }
 

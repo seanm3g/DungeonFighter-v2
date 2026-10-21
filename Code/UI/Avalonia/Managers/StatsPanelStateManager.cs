@@ -81,6 +81,11 @@ namespace RPGGame.UI.Avalonia.Managers
         /// <summary>Last measured left-panel body height in rows (used to clamp scroll).</summary>
         public int LeftPanelContentHeight => leftPanelContentHeight;
 
+        /// <summary>When true, STR/AGI/TECH/INT rows render highest → lowest instead of the fixed default order.</summary>
+        public bool SortAttributesByValue { get; private set; }
+
+        public void ToggleAttributeSort() => SortAttributesByValue = !SortAttributesByValue;
+
         public void ToggleHeroCollapsed() => heroCollapsed = !heroCollapsed;
         public void ToggleStatsCollapsed() => statsCollapsed = !statsCollapsed;
         public void ToggleGearCollapsed() => gearCollapsed = !gearCollapsed;

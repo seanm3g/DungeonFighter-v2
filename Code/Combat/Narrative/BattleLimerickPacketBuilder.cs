@@ -48,6 +48,8 @@ namespace RPGGame.Combat.Narrative
 
             return new BattleLimerickPacket
             {
+                GearNames = CollectGearNames(hero),
+                ActionNames = CollectActionNames(hero, battleNarrative),
                 HeroName = hero.Name ?? "Hero",
                 EnemyName = enemy.Name ?? "Foe",
                 Location = string.IsNullOrWhiteSpace(location) ? "the dungeon" : location.Trim(),
@@ -57,6 +59,67 @@ namespace RPGGame.Combat.Narrative
                 Highlights = highlights
             };
         }
+
+        public const int MaxNames = 4;
+
+        /// <summary>Equipped weapon first, then armor pieces.</summary>
+        internal static List<string> CollectGearNames(Character hero)
+        {
+            var names = new List<string>();
+            foreach (var item in new[] { hero.Weapon, hero.Head, hero.Body, hero.Legs, hero.Feet })
+            {
+                if (item != null && !string.IsNullOrWhiteSpace(item.Name) && names.Count < MaxNames)
+                    names.Add(item.Name.Trim());
+            }
+            return names;
+        }
+
+        /// <summary>Actions the hero actually used this fight (most recent first), else their combo strip.</summary>
+        internal static List<string> CollectActionNames(Character hero, BattleNarrative? battleNarrative)
+        {
+            var names = new List<string>();
+            if (battleNarrative != null)
+            {
+                foreach (var evt in battleNarrative.GetAllEvents().AsEnumerable().Reverse())
+                {
+                    if (names.Count >= MaxNames)
+                        break;
+                    if (evt == null || !string.Equals(evt.Actor, hero.Name, StringComparison.Ordinal)
+                        || string.IsNullOrWhiteSpace(evt.Action))
+                        continue;
+                    string action = evt.Action.Trim();
+                    if (!names.Contains(action, StringComparer.OrdinalIgnoreCase))
+                        names.Add(action);
+                }
+            }
+            if (names.Count == 0)
+            {
+                foreach (var a in hero.GetComboActions())
+                {
+                    if (names.Count >= MaxNames)
+                        break;
+                    if (!string.IsNullOrWhiteSpace(a?.Name) && !names.Contains(a.Name, StringComparer.OrdinalIgnoreCase))
+                        names.Add(a.Name.Trim());
+                }
+            }
+            return names;
+        }
+
+        /// <summary>Copy of <paramref name="packet"/> with loot names attached.</summary>
+        public static BattleLimerickPacket WithLoot(BattleLimerickPacket packet, IEnumerable<string> lootNames) =>
+            new BattleLimerickPacket
+            {
+                HeroName = packet.HeroName,
+                EnemyName = packet.EnemyName,
+                Location = packet.Location,
+                HeroWon = packet.HeroWon,
+                HeroHpLeft = packet.HeroHpLeft,
+                HeroMaxHp = packet.HeroMaxHp,
+                Highlights = packet.Highlights,
+                GearNames = packet.GearNames,
+                ActionNames = packet.ActionNames,
+                LootNames = lootNames.Where(n => !string.IsNullOrWhiteSpace(n)).Take(MaxNames).ToList()
+            };
 
         private static string SanitizeHighlight(string text)
         {

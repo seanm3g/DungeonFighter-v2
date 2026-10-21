@@ -360,7 +360,8 @@ namespace RPGGame.Combat.Calculators
 
             // Calculate raw damage before armor
             int totalDamage = CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll, rollBonus);
-            double outgoing = StatusCombatModifiers.OutgoingDamageMultiplier(attacker);
+            double outgoing = StatusCombatModifiers.OutgoingDamageMultiplier(attacker)
+                * AnimalSetController.GetOutgoingDamageMultiplier(attacker);
             if (outgoing != 1.0)
                 totalDamage = (int)Math.Round(totalDamage * outgoing);
 
@@ -442,7 +443,8 @@ namespace RPGGame.Combat.Calculators
 
         private static int ApplyIncomingStatus(Actor target, int damage)
         {
-            double incoming = StatusCombatModifiers.IncomingDamageMultiplier(target);
+            double incoming = StatusCombatModifiers.IncomingDamageMultiplier(target)
+                * AnimalSetController.GetIncomingDamageMultiplier(target);
             return incoming == 1.0 ? damage : (int)Math.Round(damage * incoming);
         }
 

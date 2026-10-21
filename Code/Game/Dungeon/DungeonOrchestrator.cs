@@ -128,6 +128,7 @@ namespace RPGGame
                 return;
             }
             displayManager.StartDungeon(stateManager.CurrentDungeon, stateManager.CurrentPlayer);
+            stateManager.CurrentPlayer.SessionStats.BeginDungeonRun();
 
             RPGGame.Combat.Narrative.VictoryLimerickService.Instance.ClearPrefetch();
             RPGGame.Combat.Narrative.VictoryLimerickService.Instance.SetFinaleRoomPrefetchAllowed(false);
@@ -178,7 +179,16 @@ namespace RPGGame
                     {
                         if (exitChoiceHandler != null)
                         {
-                            bool shouldExit = await exitChoiceHandler.ShowExitChoiceMenu(roomNumber, totalRooms);
+                            // Hidden d20 scouting roll on the next room: shapes the report and that room's initiative.
+                            RoomScouting.Report? scouting = null;
+                            if (stateManager.CurrentPlayer != null)
+                            {
+                                var nextRoom = stateManager.CurrentDungeon.Rooms[traversal.NextContentIndex];
+                                scouting = RoomScouting.Roll(stateManager.CurrentPlayer, nextRoom, stateManager.CurrentDungeon);
+                            }
+                            bool shouldExit = await exitChoiceHandler.ShowExitChoiceMenu(roomNumber, totalRooms, scouting?.Lines);
+                            if (shouldExit && stateManager.CurrentPlayer != null)
+                                RoomScouting.Clear(stateManager.CurrentPlayer);
                             if (shouldExit)
                             {
                                 // Player chose to leave - exit dungeon without rewards; full heal at hub.

@@ -284,6 +284,16 @@ namespace RPGGame.UI.Avalonia.Display
         }
         
         /// <summary>
+        /// Text column width (in zoomed glyph cells) that <see cref="Render"/> wraps and aligns lines within,
+        /// for a center content area of <paramref name="contentWidth"/> cells.
+        /// </summary>
+        public static int ResolveTextColumnWidth(int contentWidth)
+        {
+            int sidePadding = CombatLogSidePadding.Effective(contentWidth - 2);
+            return CenterColumnTextZoom.ScaleWrapWidth(contentWidth - 2 - 2 * sidePadding);
+        }
+
+        /// <summary>
         /// Calculates the maximum scroll offset for the given buffer
         /// This is the total height of all wrapped lines minus the visible area (contentHeight - 2 lines)
         /// Scrolling starts when content reaches 2 lines from the bottom
@@ -295,8 +305,7 @@ namespace RPGGame.UI.Avalonia.Display
             if (rows.Count == 0)
                 return 0;
             
-            int sidePadding = CombatLogSidePadding.Effective(contentWidth - 2);
-            int availableWidth = CenterColumnTextZoom.ScaleWrapWidth(contentWidth - 2 - 2 * sidePadding);
+            int availableWidth = ResolveTextColumnWidth(contentWidth);
             int visibleLogicalRows = CenterColumnTextZoom.ScaleVisibleRows(contentHeight);
 
             // Calculate total height needed for all lines (accounting for text wrapping)

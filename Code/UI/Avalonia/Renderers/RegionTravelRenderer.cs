@@ -35,7 +35,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             canvas.AddText(left, currentY, "REGION TRAVEL", AsciiArtAssets.Colors.Gold);
             currentY += 2;
-            canvas.AddText(left, currentY, $"Current region: {currentRegion.DisplayName}", AsciiArtAssets.Colors.White);
+            canvas.AddText(left, currentY, $"Current region: {currentRegion.DisplayNameWithLevels}", AsciiArtAssets.Colors.White);
             currentY++;
             foreach (var line in TextWrapper.WrapText(currentRegion.Description ?? string.Empty, contentWidth))
             {
@@ -62,10 +62,16 @@ namespace RPGGame.UI.Avalonia.Renderers
                 int optionNumber = i + 1;
                 int descriptionIndent = $"[{optionNumber}] ".Length;
                 int descriptionWidth = Math.Max(1, contentWidth - descriptionIndent);
-                var descriptionLines = TextWrapper.WrapText(destination.Description ?? string.Empty, descriptionWidth);
+                // Many level-banded regions: one row each (name + band + dungeons) so the list fits the panel.
+                bool compact = destinations.Count > 5;
+                var descriptionLines = compact
+                    ? new List<string>()
+                    : TextWrapper.WrapText(destination.Description ?? string.Empty, descriptionWidth);
                 var themePool = destination.ResolveLinkedDungeonThemePool();
                 string dungeonsLine = "Dungeons: " + string.Join(", ", themePool);
-                var dungeonLines = TextWrapper.WrapText(dungeonsLine, descriptionWidth);
+                var dungeonLines = compact
+                    ? new List<string>()
+                    : TextWrapper.WrapText(dungeonsLine, descriptionWidth);
                 int destinationHeight = 1 + descriptionLines.Count + dungeonLines.Count;
 
                 var option = new ClickableElement
@@ -76,10 +82,15 @@ namespace RPGGame.UI.Avalonia.Renderers
                     Height = destinationHeight,
                     Type = ElementType.MenuOption,
                     Value = optionNumber.ToString(),
-                    DisplayText = MenuOptionFormatter.Format(optionNumber, destination.DisplayName)
+                    DisplayText = MenuOptionFormatter.Format(optionNumber, destination.DisplayNameWithLevels)
                 };
                 clickableElements.Add(option);
-                canvas.AddMenuOption(left, currentY, optionNumber, destination.DisplayName, AsciiArtAssets.Colors.White, option.IsHovered);
+                string optionLabel = compact
+                    ? Truncate($"{destination.DisplayNameWithLevels} - {string.Join(", ", themePool)}", Math.Max(1, contentWidth - descriptionIndent))
+                    : destination.DisplayNameWithLevels;
+                bool inBand = destination.ContainsLevel(player.Level);
+                canvas.AddMenuOption(left, currentY, optionNumber, optionLabel,
+                    inBand ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.White, option.IsHovered);
                 currentY++;
 
                 foreach (var line in descriptionLines)
@@ -94,8 +105,11 @@ namespace RPGGame.UI.Avalonia.Renderers
                     currentY++;
                 }
 
-                currentY++;
+                if (!compact)
+                    currentY++;
             }
+            if (destinations.Count > 5)
+                currentY++;
 
             var returnOption = new ClickableElement
             {

@@ -329,6 +329,13 @@ namespace RPGGame.Combat.Sequence
                 beats.Add(new PlannedNarrativeBeat(kind, NormalizeProseSentence(filled)));
             }
 
+            foreach (var trailing in tokens.TrailingSentences)
+            {
+                string sentence = NormalizeProseSentence(trailing);
+                if (!string.IsNullOrWhiteSpace(sentence))
+                    beats.Add(new PlannedNarrativeBeat(null, sentence));
+            }
+
             return beats;
         }
 
