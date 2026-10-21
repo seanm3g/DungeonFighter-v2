@@ -49,11 +49,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 Math.Max(
                     MenuOptionFormatter.Format(2, loadGameTextForWidth).Length,
                     Math.Max(
-                        MenuOptionFormatter.Format(3, UIConstants.MenuOptions.Settings).Length,
+                        MenuOptionFormatter.Format(3, UIConstants.MenuOptions.Stable).Length,
                         Math.Max(
-                            MenuOptionFormatter.Format(4, UIConstants.MenuOptions.Stable).Length,
+                            MenuOptionFormatter.Format(4, UIConstants.MenuOptions.History).Length,
                             Math.Max(
-                                MenuOptionFormatter.Format(5, UIConstants.MenuOptions.History).Length,
+                                MenuOptionFormatter.Format(5, UIConstants.MenuOptions.Settings).Length,
                                 MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Quit).Length
                             )
                         )
@@ -61,7 +61,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 )
             );
 
-            const int menuLineCount = 6;
+            const int menuLineCount = 7; // six options plus the blank row above Quit
             const int footerReserve = 4;
             var promptLines = WrapNewGameConfirmPrompt(newGameConfirmPrompt, width);
             // Blank row plus the prompt, so the block stays centered with the options instead of
@@ -124,25 +124,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             currentLineCount++;
             currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
             
-            // Render [3] Settings - Orange
-            string settingsText = MenuOptionFormatter.Format(3, UIConstants.MenuOptions.Settings);
-            var settingsOption = new ClickableElement
-            {
-                X = menuStartX,
-                Y = currentY,
-                Width = maxOptionLength,
-                Height = optionHitHeight,
-                Type = ElementType.MenuOption,
-                Value = "3",
-                DisplayText = settingsText
-            };
-            clickableElements.Add(settingsOption);
-            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 3, UIConstants.MenuOptions.Settings, orangeColor, settingsOption.IsHovered);
-            currentLineCount++;
-            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
-
-            // Render [4] Stable - Gold (several heroes running side by side)
-            string stableText = MenuOptionFormatter.Format(4, UIConstants.MenuOptions.Stable);
+            // Render [3] Stable - Gold (several heroes running side by side)
+            string stableText = MenuOptionFormatter.Format(3, UIConstants.MenuOptions.Stable);
             var stableOption = new ClickableElement
             {
                 X = menuStartX,
@@ -150,16 +133,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 Width = maxOptionLength,
                 Height = optionHitHeight,
                 Type = ElementType.MenuOption,
-                Value = "4",
+                Value = "3",
                 DisplayText = stableText
             };
             clickableElements.Add(stableOption);
-            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 4, UIConstants.MenuOptions.Stable, goldColor, stableOption.IsHovered);
+            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 3, UIConstants.MenuOptions.Stable, goldColor, stableOption.IsHovered);
             currentLineCount++;
             currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
 
-            // Render [5] History - Cyan (fallen fighters and records; screen coming soon)
-            string historyText = MenuOptionFormatter.Format(5, UIConstants.MenuOptions.History);
+            // Render [4] History - Cyan (fallen fighters and records; screen coming soon)
+            string historyText = MenuOptionFormatter.Format(4, UIConstants.MenuOptions.History);
             var historyOption = new ClickableElement
             {
                 X = menuStartX,
@@ -167,12 +150,31 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 Width = maxOptionLength,
                 Height = optionHitHeight,
                 Type = ElementType.MenuOption,
-                Value = "5",
+                Value = "4",
                 DisplayText = historyText
             };
             clickableElements.Add(historyOption);
-            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 5, UIConstants.MenuOptions.History, cyanColor, historyOption.IsHovered);
+            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 4, UIConstants.MenuOptions.History, cyanColor, historyOption.IsHovered);
             currentLineCount++;
+            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
+
+            // Render [5] Settings - Orange
+            string settingsText = MenuOptionFormatter.Format(5, UIConstants.MenuOptions.Settings);
+            var settingsOption = new ClickableElement
+            {
+                X = menuStartX,
+                Y = currentY,
+                Width = maxOptionLength,
+                Height = optionHitHeight,
+                Type = ElementType.MenuOption,
+                Value = "5",
+                DisplayText = settingsText
+            };
+            clickableElements.Add(settingsOption);
+            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 5, UIConstants.MenuOptions.Settings, orangeColor, settingsOption.IsHovered);
+            currentLineCount++;
+            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
+            // Blank row between the options and Quit
             currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
 
             // Note: Characters option (C) is hidden from UI but still accessible via keyboard

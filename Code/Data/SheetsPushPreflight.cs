@@ -51,6 +51,36 @@ namespace RPGGame.Data
             }
         }
 
+        /// <summary>Adds an empty tab titled <paramref name="tabTitle"/> when the spreadsheet has none. Returns true when it was created.</summary>
+        public static async Task<bool> CreateTabIfMissingAsync(
+            SheetsService service,
+            string spreadsheetId,
+            string tabTitle,
+            CancellationToken cancellationToken)
+        {
+            string title = tabTitle.Trim();
+            var map = await FetchTabTitleToSheetIdOrThrowAsync(service, spreadsheetId, cancellationToken)
+                .ConfigureAwait(false);
+            if (title.Length == 0 || map.ContainsKey(title))
+                return false;
+
+            var body = new Google.Apis.Sheets.v4.Data.BatchUpdateSpreadsheetRequest
+            {
+                Requests = new List<Google.Apis.Sheets.v4.Data.Request>
+                {
+                    new Google.Apis.Sheets.v4.Data.Request
+                    {
+                        AddSheet = new Google.Apis.Sheets.v4.Data.AddSheetRequest
+                        {
+                            Properties = new Google.Apis.Sheets.v4.Data.SheetProperties { Title = title }
+                        }
+                    }
+                }
+            };
+            await service.Spreadsheets.BatchUpdate(body, spreadsheetId).ExecuteAsync(cancellationToken).ConfigureAwait(false);
+            return true;
+        }
+
         /// <summary>
         /// Fetches tab titles for <paramref name="spreadsheetId"/>; throws <see cref="InvalidOperationException"/>
         /// with guidance when the spreadsheet is missing or inaccessible (often HTTP 404).

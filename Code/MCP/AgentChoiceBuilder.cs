@@ -84,7 +84,9 @@ namespace RPGGame.MCP
                 {
                     new() { Input = "1", Label = "New Game", Recommended = true },
                     new() { Input = "2", Label = "Load Game" },
-                    new() { Input = "3", Label = "Settings" },
+                    new() { Input = "3", Label = "Stable" },
+                    new() { Input = "4", Label = "History" },
+                    new() { Input = "5", Label = "Settings" },
                     new() { Input = "0", Label = "Exit" }
                 },
                 GameState.TrainingGroundOffer => new List<AgentChoice>

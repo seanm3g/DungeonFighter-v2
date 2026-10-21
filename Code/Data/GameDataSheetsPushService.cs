@@ -219,6 +219,10 @@ namespace RPGGame.Data
             var service = await SheetsPushUtilities.CreateAuthorizedSheetsServiceAsync(cfg, pushConfigPath, cancellationToken)
                 .ConfigureAwait(false);
 
+            if (cfg.PushRegionsTab && !string.IsNullOrWhiteSpace(cfg.RegionsSheetTabName)
+                && await SheetsPushPreflight.CreateTabIfMissingAsync(service, cfg.SpreadsheetId, cfg.RegionsSheetTabName, cancellationToken).ConfigureAwait(false))
+                result.AddLine($"Created missing tab '{cfg.RegionsSheetTabName.Trim()}'.");
+
             IReadOnlyDictionary<string, int> tabGids = await SheetsPushPreflight.EnsureSpreadsheetAccessAndTabsAsync(
                     service,
                     cfg.SpreadsheetId,

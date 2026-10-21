@@ -42,6 +42,22 @@ namespace RPGGame
             }
             if (maxLines <= lines.Count) return Trim(lines, maxLines);
 
+            if (item is CharmItem charm)
+            {
+                var effects = CharmBonusController.DescribeEffects(charm);
+                if (effects.Count > 0)
+                {
+                    AddBlank(lines);
+                    AddLine(lines, SectionHeader("Effect"));
+                    foreach (var effect in effects)
+                    {
+                        if (lines.Count >= maxLines) break;
+                        AddLine(lines, BuildTriggerLine(effect));
+                    }
+                }
+            }
+            if (maxLines <= lines.Count) return Trim(lines, maxLines);
+
             string? reqSummary = item.GetAttributeRequirementsSummaryLine();
             if (!string.IsNullOrEmpty(reqSummary))
             {

@@ -105,7 +105,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Handle main menu input (1=New, 2=Load, 3=Settings, 4=Stable, 5=History, 0=Quit)
+        /// Handle main menu input (1=New, 2=Load, 3=Stable, 4=History, 5=Settings, 0=Quit)
         /// </summary>
         public async Task HandleMenuInput(string input)
         {
@@ -128,14 +128,14 @@ namespace RPGGame
                         await LoadGame();
                     break;
                 case "3":
-                    HandleSettingsSelection();
-                    break;
-                case "4":
                     ShowStableEvent?.Invoke();
                     break;
-                case "5":
+                case "4":
                     // Deaths are already logged to FighterHistory; the History screen itself is not built yet.
                     ShowMessageEvent?.Invoke("History: coming soon.");
+                    break;
+                case "5":
+                    HandleSettingsSelection();
                     break;
                 case "C":
                 case "c":
@@ -147,7 +147,7 @@ namespace RPGGame
                     break;
                 default:
                     AudioCues.Trigger(AudioCue.Menu_Invalid);
-                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Settings), 4 (Stable), 5 (History), or 0 (Quit).");
+                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Stable), 4 (History), 5 (Settings), or 0 (Quit).");
                     break;
             }
         }

@@ -176,6 +176,32 @@ namespace RPGGame.Tests.Unit.UI
                 "Boar suffix is not duplicated under Stats as a trigger",
                 ref run, ref passed, ref failed);
 
+            var menagerie = new CharmItem("Menagerie Charm")
+            {
+                Rarity = "Rare",
+                Layer = "animal",
+                AmplifyAnimalLadder = 2.0,
+                UnlockAnimalAction = true
+            };
+            var charmLines = ItemTooltipFormatter.BuildItemTooltipLines(hero, menagerie, "Charm", 30);
+            string charmFlat = string.Join("\n", charmLines.Select(ColoredTextRenderer.RenderAsPlainText));
+            TestBase.AssertTrue(charmFlat.Contains("Effect", StringComparison.Ordinal)
+                    && charmFlat.Contains("Animal set bonuses", StringComparison.Ordinal)
+                    && charmFlat.Contains("x2", StringComparison.Ordinal),
+                "compact charm tooltip explains animal amplify",
+                ref run, ref passed, ref failed);
+            TestBase.AssertTrue(charmFlat.Contains("ANIMAL action", StringComparison.Ordinal),
+                "compact charm tooltip explains animal action unlock",
+                ref run, ref passed, ref failed);
+
+            var mark = new CharmItem("Mark of Class") { Layer = "class", AmplifyClassDefense = 1.5, AmplifyClassTagDamage = 1.25 };
+            string markFlat = string.Join("\n", ItemTooltipFormatter.BuildItemTooltipLines(hero, mark, "Charm", 30)
+                .Select(ColoredTextRenderer.RenderAsPlainText));
+            TestBase.AssertTrue(markFlat.Contains("Class DEFENSE x1.5", StringComparison.Ordinal)
+                    && markFlat.Contains("x1.25", StringComparison.Ordinal),
+                "class charm tooltip lists both multipliers",
+                ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("ItemTooltipFormatter Tests", run, passed, failed);
         }
     }

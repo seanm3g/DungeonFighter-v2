@@ -4,7 +4,7 @@ namespace DungeonFighter.Game.Menu.Core
 {
     /// <summary>
     /// Validation rules for the Main Menu.
-    /// Valid inputs: "1" (New Game), "2" (Load Game), "3" (Settings), "4" (Stable), "5" (History), "0" (Exit)
+    /// Valid inputs: "1" (New Game), "2" (Load Game), "3" (Stable), "4" (History), "5" (Settings), "0" (Exit)
     /// </summary>
     public class MainMenuValidationRules : IValidationRules
     {
@@ -16,7 +16,7 @@ namespace DungeonFighter.Game.Menu.Core
                 return ValidationResult.Invalid("Please enter a single digit (0-5)");
 
             if (!"012345".Contains(cleaned))
-                return ValidationResult.Invalid("Invalid choice. Enter 1 (New Game), 2 (Load), 3 (Settings), 4 (Stable), 5 (History), or 0 (Exit)");
+                return ValidationResult.Invalid("Invalid choice. Enter 1 (New Game), 2 (Load), 3 (Stable), 4 (History), 5 (Settings), or 0 (Exit)");
 
             return ValidationResult.Valid();
         }

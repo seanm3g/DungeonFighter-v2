@@ -152,7 +152,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             handler.ShowSettingsEvent += () => { };
             
             // Test settings input
-            handler.HandleMenuInput("3").Wait();
+            handler.HandleMenuInput("5").Wait();
             
             TestBase.AssertTrue(true,
                 "HandleMenuInput for settings should complete",
