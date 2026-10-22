@@ -77,8 +77,8 @@ function Cmd-Test {
     Write-Header "TEST SUITE"
     Write-Host "Stopping any running DF.exe (avoids locked-output build errors)..." -ForegroundColor Yellow
     & (Join-Path $PSScriptRoot "stop-locked-df-output.ps1") -OutputDir (Join-Path $root "Code\bin")
-    Write-Host "Building project..." -ForegroundColor Yellow
-    $exit = Invoke-DotNet @("build", "Code/Code.csproj", "--configuration", "Debug")
+    Write-Host "Building game + tests..." -ForegroundColor Yellow
+    $exit = Invoke-DotNet @("build", "Code/Tests/Tests.csproj", "--configuration", "Debug")
     if ($exit -ne 0) { exit $exit }
 
     $testExe = Join-Path $root "Code\bin\Debug\net8.0\DF.exe"

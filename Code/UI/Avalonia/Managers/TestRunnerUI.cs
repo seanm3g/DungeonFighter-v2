@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using Avalonia.Threading;
 using RPGGame;
-using RPGGame.Tests.Runners;
+using RPGGame.Utils.Testing;
 using RPGGame.UI.Avalonia;
 
 namespace RPGGame.UI.Avalonia.Managers
@@ -77,7 +77,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunAllTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunAllTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunAllTests"),
                 "tests",
                 $"{GameConstants.StandardSeparator}\n  COMPREHENSIVE GAME TEST SUITE\n{GameConstants.StandardSeparator}"
             );
@@ -89,7 +89,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunQuickTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunQuickTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunQuickTests"),
                 "quick tests",
                 "=== QUICK TESTS ==="
             );
@@ -101,7 +101,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunActionSystemTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunActionSystemTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunActionSystemTests"),
                 "action system tests"
             );
         }
@@ -112,7 +112,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunDiceMechanicsTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunDiceMechanicsTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunDiceMechanicsTests"),
                 "dice mechanics tests"
             );
         }
@@ -123,7 +123,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunComboSystemTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunComboSystemTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunComboSystemTests"),
                 "combo system tests"
             );
         }
@@ -134,7 +134,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunColorSystemTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunColorSystemTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunColorSystemTests"),
                 "color system tests"
             );
         }
@@ -145,7 +145,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunDisplaySystemTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunDisplaySystemTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunDisplaySystemTests"),
                 "display system tests"
             );
         }
@@ -156,7 +156,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunCharacterSystemTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunCharacterSystemTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunCharacterSystemTests"),
                 "character system tests"
             );
         }
@@ -167,7 +167,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunStatusEffectsTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunStatusEffectsTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunStatusEffectsTests"),
                 "status effects tests"
             );
         }
@@ -178,7 +178,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunIntegrationTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunIntegrationTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunIntegrationTests"),
                 "integration tests"
             );
         }
@@ -189,7 +189,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunActionBlockTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunActionBlockTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunActionBlockTests"),
                 "action block tests"
             );
         }
@@ -200,7 +200,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunDiceRollMechanicsTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunDiceRollMechanicsTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunDiceRollMechanicsTests"),
                 "dice roll mechanics tests"
             );
         }
@@ -211,7 +211,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunDungeonEnemyGenerationTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunDungeonEnemyGenerationTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunDungeonEnemyGenerationTests"),
                 "dungeon/enemy generation tests"
             );
         }
@@ -222,7 +222,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void RunActionExecutionTests()
         {
             RunTestSuite(
-                () => ComprehensiveTestRunner.RunActionExecutionTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunActionExecutionTests"),
                 "action execution tests"
             );
         }

@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ModelContextProtocol.Server;
-using RPGGame.Tests.Unit;
 using RPGGame.UI.Avalonia;
 using RPGGame.MCP;
 using RPGGame.MCP.Tools.Utilities;

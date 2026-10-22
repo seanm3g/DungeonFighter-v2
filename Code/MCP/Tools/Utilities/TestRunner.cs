@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using RPGGame.MCP;
-using RPGGame.Tests.Unit;
+using RPGGame.Utils.Testing;
 
 namespace RPGGame.MCP.Tools.Utilities
 {
@@ -36,7 +36,7 @@ namespace RPGGame.MCP.Tools.Utilities
         /// </summary>
         public static async Task<string> RunComboDiceRollTests()
         {
-            return await RunTestWithCapture(() => ComboDiceRollTests.RunAllTests());
+            return await RunTestWithCapture(() => TestAssembly.Run("Unit.ComboDiceRollTests", "RunAllTests"));
         }
         
         /// <summary>
@@ -44,7 +44,7 @@ namespace RPGGame.MCP.Tools.Utilities
         /// </summary>
         public static async Task<string> RunActionSequenceTests()
         {
-            return await RunTestWithCapture(() => ActionAndSequenceTests.RunAllTests());
+            return await RunTestWithCapture(() => TestAssembly.Run("Unit.ActionAndSequenceTests", "RunAllTests"));
         }
         
         /// <summary>
@@ -52,7 +52,7 @@ namespace RPGGame.MCP.Tools.Utilities
         /// </summary>
         public static async Task<string> RunCombatSystemTests()
         {
-            return await RunTestWithCapture(() => CombatSystemTests.RunAllTests());
+            return await RunTestWithCapture(() => TestAssembly.Run("Unit.CombatSystemTests", "RunAllTests"));
         }
         
         /// <summary>

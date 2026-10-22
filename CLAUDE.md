@@ -17,7 +17,7 @@ Code/               C# source (single .csproj)
   Entity/           Actor, Character, Enemy, builders, managers
   Game/             State machine, handlers, menu system, tuning tools
   Items/            Item, inventory, combo management
-  Tests/            Unit tests
+  Tests/            Tests (separate Tests.csproj → DF.Tests.dll)
   UI/               Avalonia UI, color system, renderers, display
   Utils/            RandomUtility, helpers
 GameData/           Runtime data (JSON)
@@ -208,5 +208,12 @@ Output assembly: `DF.exe`. Avalonia/SkiaSharp native libs are self-extracted at 
 
 ## Tests
 
-Unit tests in `Code/Tests/Unit/`. Run with `dotnet test` from the `Code/` directory.
+Tests live in their own project, `Code/Tests/Tests.csproj` (assembly `DF.Tests`), so they stay out of `DF.dll` and game builds. Building it builds the game and copies `DF.Tests.dll` next to `DF.exe`. The game's `--run-tests` / `--run-test-filter` / `--list-test-suites` flags, the Settings → Testing panel and the MCP test tools load it at runtime via `RPGGame.Utils.Testing.TestAssembly` (calls by type/method name, so a rename in `Tests/` needs the matching string updated). `Code.csproj` excludes `Tests/**`.
+
+```bash
+dotnet build Code/Tests/Tests.csproj
+Code/bin/Debug/net8.0/DF.exe --run-tests      # or Scripts/run-tests.ps1 [filter]
+```
+
+Unit tests in `Code/Tests/Unit/`.
 Key test files: `ActionExecutionComponentsTest`, `BattleNarrativeManagersTest`, `GameDataGeneratorTest`, `TierDistributionTest`, `ColoredTextBuilderTest`.

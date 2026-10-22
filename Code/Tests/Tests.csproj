@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Test suites live in their own assembly so game builds don't compile them (see Utils/Testing/TestAssembly.cs).
+       Building this project builds the game too, then copies DF.Tests.dll next to DF.exe, where the
+       game's run-tests command-line flags, Settings > Testing panel and MCP test tools load it. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>DF.Tests</AssemblyName>
+    <RootNamespace>RPGGame.Tests</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <GameOutputDir>$(MSBuildThisFileDirectory)..\bin\$(Configuration)\$(TargetFramework)\</GameOutputDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Code.csproj" />
+  </ItemGroup>
+
+  <Target Name="CopyTestsNextToGame" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(GameOutputDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

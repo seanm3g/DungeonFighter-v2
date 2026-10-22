@@ -4,8 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
-using RPGGame.Tests;
-using RPGGame.Tests.Runners;
+using RPGGame.Utils.Testing;
 
 namespace RPGGame.UI.Avalonia.Managers
 {
@@ -57,8 +56,15 @@ namespace RPGGame.UI.Avalonia.Managers
                 UpdateStatus(statusMessage);
                 SetProgress(0);
 
+                if (!TestAssembly.IsAvailable)
+                {
+                    AppendOutput(TestAssembly.NotBuiltMessage + "\n");
+                    UpdateStatus("Tests not built");
+                    return;
+                }
+
                 // Reset collector so status stats reflect only this run (not prior suites in the session).
-                TestResultCollector.Clear();
+                TestAssembly.Run("TestResultCollector", "Clear");
                 
                 StartCapturingOutput();
                 
@@ -239,7 +245,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         private (int passed, int total, double passRate) CalculateTestResults()
         {
-            var (collectorTotal, collectorPassed, _, collectorRate) = TestResultCollector.GetStatistics();
+            var (collectorTotal, collectorPassed, _, collectorRate) = TestAssembly.Invoke<(int total, int passed, int failed, double successRate)>("TestResultCollector", "GetStatistics");
             if (collectorTotal > 0)
             {
                 return (collectorPassed, collectorTotal, collectorRate);

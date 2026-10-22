@@ -10,7 +10,8 @@
     <ApplicationIcon>UI\Avalonia\Assets\df_icon.ico</ApplicationIcon>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-    <DefaultItemExcludes>$(DefaultItemExcludes);StandaloneColorDemo/**;ColorSystemTest/**</DefaultItemExcludes>
+    <!-- Tests/ is its own project (Tests/Tests.csproj). _*/bin_*/obj_*/verify_out are stray build-output folders. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);StandaloneColorDemo/**;ColorSystemTest/**;Tests/**;_*/**;bin_*/**;obj_*/**;verify_out/**</DefaultItemExcludes>
     <StartupObject>RPGGame.Program</StartupObject>
     
     <!-- Build Performance Optimizations -->
@@ -23,6 +24,12 @@
 
     <!-- dist/DF.exe single-file publish: Avalonia/SkiaSharp need native libs extracted at startup -->
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+
+  <!-- Debug inner loop: analyzers still run in the IDE; skip them and the SourceLink git queries at build time. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
   </PropertyGroup>
 
   <!-- Release publish: precompile IL to native code so startup skips most JIT work. -->

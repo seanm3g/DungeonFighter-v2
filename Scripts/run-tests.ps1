@@ -15,7 +15,7 @@ Set-Location (Join-Path $scriptPath "..")
 # Build the project first
 Write-Host "Building project..." -ForegroundColor Yellow
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-$buildResult = dotnet build Code/Code.csproj --configuration Debug
+$buildResult = dotnet build Code/Tests/Tests.csproj --configuration Debug  # builds the game too
 $buildSuccess = ($LASTEXITCODE -eq 0)
 $stopwatch.Stop()
 

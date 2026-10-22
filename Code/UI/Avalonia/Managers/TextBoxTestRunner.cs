@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
-using RPGGame.Tests.Runners;
+using RPGGame.Utils.Testing;
 
 namespace RPGGame.UI.Avalonia.Managers
 {
@@ -30,7 +30,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunAllTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunAllTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunAllTests"),
                 "Running all tests...",
                 "All tests complete");
         }
@@ -41,7 +41,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunActionSystemTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunActionSystemTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunActionSystemTests"),
                 "Running action system tests...",
                 "Action system tests complete");
         }
@@ -52,7 +52,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunCombatTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunCombatTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunCombatTests"),
                 "Running combat tests...",
                 "Combat tests complete");
         }
@@ -63,7 +63,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunDungeonTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunDungeonTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunDungeonTests"),
                 "Running dungeon tests...",
                 "Dungeon tests complete");
         }
@@ -74,7 +74,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunRoomTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunIntegrationTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunIntegrationTests"),
                 "Running room tests...",
                 "Room tests complete");
         }
@@ -85,7 +85,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunNarrativeTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunDisplaySystemTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunDisplaySystemTests"),
                 "Running narrative tests...",
                 "Narrative tests complete");
         }
@@ -96,7 +96,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunActionBlockTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunActionBlockTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunActionBlockTests"),
                 "Running action block tests...",
                 "Action block tests complete");
         }
@@ -107,7 +107,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunDiceRollMechanicsTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunDiceRollMechanicsTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunDiceRollMechanicsTests"),
                 "Running dice roll mechanics tests...",
                 "Dice roll mechanics tests complete");
         }
@@ -118,7 +118,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunDungeonEnemyGenerationTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunDungeonEnemyGenerationTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunDungeonEnemyGenerationTests"),
                 "Running dungeon/enemy generation tests...",
                 "Dungeon/enemy generation tests complete");
         }
@@ -129,7 +129,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunActionExecutionTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunActionExecutionTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunActionExecutionTests"),
                 "Running action execution tests...",
                 "Action execution tests complete");
         }
@@ -140,7 +140,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunCharacterSystemTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunCharacterSystemTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunCharacterSystemTests"),
                 "Running character system tests...",
                 "Character system tests complete");
         }
@@ -151,7 +151,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunEquipmentSystemTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => Tests.Unit.EquipmentSystemTests.RunAllTests(),
+                () => TestAssembly.Run("Unit.EquipmentSystemTests", "RunAllTests"),
                 "Running equipment system tests...",
                 "Equipment system tests complete");
         }
@@ -162,7 +162,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunDungeonRewardsTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => Tests.Unit.DungeonRewardsTests.RunAllTests(),
+                () => TestAssembly.Run("Unit.DungeonRewardsTests", "RunAllTests"),
                 "Running dungeon rewards tests...",
                 "Dungeon rewards tests complete");
         }
@@ -173,7 +173,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunLevelUpSystemTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => Tests.Unit.LevelUpSystemTests.RunAllTests(),
+                () => TestAssembly.Run("Unit.LevelUpSystemTests", "RunAllTests"),
                 "Running level up system tests...",
                 "Level up system tests complete");
         }
@@ -184,7 +184,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunXPSystemTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => Tests.Unit.XPSystemTests.RunAllTests(),
+                () => TestAssembly.Run("Unit.XPSystemTests", "RunAllTests"),
                 "Running XP system tests...",
                 "XP system tests complete");
         }
@@ -195,7 +195,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunMultiSourceXPRewardTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => Tests.Unit.MultiSourceXPRewardTests.RunAllTests(),
+                () => TestAssembly.Run("Unit.MultiSourceXPRewardTests", "RunAllTests"),
                 "Running multi-source XP reward system tests...",
                 "Multi-source XP reward system tests complete");
         }
@@ -206,7 +206,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunSaveLoadSystemTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => Tests.Unit.SaveLoadSystemTests.RunAllTests(),
+                () => TestAssembly.Run("Unit.SaveLoadSystemTests", "RunAllTests"),
                 "Running save/load system tests...",
                 "Save/load system tests complete");
         }
@@ -217,7 +217,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunGameStateManagementTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => Tests.Unit.GameStateManagementTests.RunAllTests(),
+                () => TestAssembly.Run("Unit.GameStateManagementTests", "RunAllTests"),
                 "Running game state management tests...",
                 "Game state management tests complete");
         }
@@ -228,7 +228,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunErrorHandlingTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => Tests.Unit.ErrorHandlingTests.RunAllTests(),
+                () => TestAssembly.Run("Unit.ErrorHandlingTests", "RunAllTests"),
                 "Running error handling tests...",
                 "Error handling tests complete");
         }
@@ -239,7 +239,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunGameplayFlowTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => Tests.Integration.GameplayFlowTests.RunAllTests(),
+                () => TestAssembly.Run("Integration.GameplayFlowTests", "RunAllTests"),
                 "Running gameplay flow tests...",
                 "Gameplay flow tests complete");
         }
@@ -250,7 +250,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunMultiHitTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunMultiHitTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunMultiHitTests"),
                 "Running multi-hit tests...",
                 "Multi-hit tests complete");
         }
@@ -261,7 +261,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunStatusEffectsTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunStatusEffectsTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunStatusEffectsTests"),
                 "Running status effects tests...",
                 "Status effects tests complete");
         }
@@ -272,7 +272,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunSpreadsheetImportTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunSpreadsheetImportTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunSpreadsheetImportTests"),
                 "Running spreadsheet import tests...",
                 "Spreadsheet import tests complete");
         }
@@ -283,7 +283,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunActionMechanicsTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunActionMechanicsTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunActionMechanicsTests"),
                 "Running action mechanics tests (all)...",
                 "Action mechanics tests complete");
         }
@@ -294,7 +294,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunActionsSettingsIntegrationTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunActionsSettingsIntegrationTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunActionsSettingsIntegrationTests"),
                 "Running Actions Settings integration tests...",
                 "Actions Settings integration tests complete");
         }
@@ -305,7 +305,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunCombatMechanicsTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunCombatMechanicsTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunCombatMechanicsTests"),
                 "Running combat mechanics tests...",
                 "Combat mechanics tests complete");
         }
@@ -316,7 +316,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunProgressionTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunProgressionTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunProgressionTests"),
                 "Running progression tests...",
                 "Progression tests complete");
         }
@@ -327,7 +327,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunDungeonAndRewardsTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunDungeonAndRewardsTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunDungeonAndRewardsTests"),
                 "Running dungeon & rewards tests...",
                 "Dungeon & rewards tests complete");
         }
@@ -338,7 +338,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunComboSystemTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunComboSystemTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunComboSystemTests"),
                 "Running combo tests...",
                 "Combo tests complete");
         }
@@ -349,7 +349,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public async Task RunMechanicsAndReliabilityTestsAsync()
         {
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunMechanicsAndReliabilityTests(),
+                () => TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunMechanicsAndReliabilityTests"),
                 "Running all mechanics & reliability tests...",
                 "Mechanics & reliability tests complete");
         }

@@ -8,6 +8,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using RPGGame.UI.Avalonia;
 using RPGGame.Utils;
+using RPGGame.Utils.Testing;
 using RPGGame.Data;
 
 namespace RPGGame
@@ -320,8 +321,8 @@ namespace RPGGame
                 {
                     executionMode = "TEST";
                     BuildExecutionMetrics.RecordLaunchTime("TEST");
-                    RPGGame.Tests.Runners.ComprehensiveTestRunner.RunAllTests();
-                    System.Environment.ExitCode = RPGGame.Tests.Runners.ComprehensiveTestRunner.ExitCode();
+                    TestAssembly.Run("Runners.ComprehensiveTestRunner", "RunAllTests");
+                    System.Environment.ExitCode = TestAssembly.Invoke<int>("Runners.ComprehensiveTestRunner", "ExitCode");
                     return;
                 }
 
@@ -329,7 +330,7 @@ namespace RPGGame
                 {
                     executionMode = "TEST";
                     BuildExecutionMetrics.RecordLaunchTime("TEST");
-                    RPGGame.Tests.Runners.DataSystemTestRunner.RunAllTests();
+                    TestAssembly.Run("Runners.DataSystemTestRunner", "RunAllTests");
                     return;
                 }
 
@@ -337,7 +338,7 @@ namespace RPGGame
                 {
                     executionMode = "TEST";
                     BuildExecutionMetrics.RecordLaunchTime("TEST");
-                    RPGGame.Tests.Runners.GameSystemTestRunner.RunAllTests();
+                    TestAssembly.Run("Runners.GameSystemTestRunner", "RunAllTests");
                     return;
                 }
 
@@ -345,7 +346,7 @@ namespace RPGGame
                 {
                     executionMode = "TEST";
                     BuildExecutionMetrics.RecordLaunchTime("TEST");
-                    RPGGame.Tests.Runners.FilteredTestRunner.ListSuites();
+                    TestAssembly.Run("Runners.FilteredTestRunner", "ListSuites");
                     return;
                 }
 
@@ -354,7 +355,7 @@ namespace RPGGame
                     executionMode = "TEST";
                     BuildExecutionMetrics.RecordLaunchTime("TEST");
                     string filter = args.Length > 1 ? string.Join(' ', args.Skip(1)) : "";
-                    System.Environment.ExitCode = RPGGame.Tests.Runners.FilteredTestRunner.Run(filter);
+                    System.Environment.ExitCode = TestAssembly.Invoke<int>("Runners.FilteredTestRunner", "Run", filter);
                     return;
                 }
 
@@ -424,7 +425,7 @@ namespace RPGGame
                     executionMode = "TEST";
                     BuildExecutionMetrics.RecordLaunchTime("TEST");
                     // Run test battle comparison
-                    await RPGGame.Tests.TestBattleComparison.Main(args);
+                    await TestAssembly.Invoke<Task>("TestBattleComparison", "Main", new object[] { args });
                     return;
                 }
 

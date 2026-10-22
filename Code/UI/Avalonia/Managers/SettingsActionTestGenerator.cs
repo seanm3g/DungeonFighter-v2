@@ -25,6 +25,17 @@ namespace RPGGame.UI.Avalonia.Managers
             this.showStatusMessage = showStatusMessage;
         }
 
+        /// <summary>Level 1 hero with flat 10 stats for the sample action blocks.</summary>
+        private static Character CreateMockHero()
+        {
+            var hero = new Character("Test Hero", 1);
+            hero.Stats.Strength = 10;
+            hero.Stats.Agility = 10;
+            hero.Stats.Technique = 10;
+            hero.Stats.Intelligence = 10;
+            return hero;
+        }
+
         /// <summary>
         /// Generates a random action block and displays it in the center panel
         /// </summary>
@@ -44,12 +55,8 @@ namespace RPGGame.UI.Avalonia.Managers
                 var randomAction = allActions[random.Next(allActions.Count)];
                 
                 // Create mock characters for the action
-                var attacker = Tests.TestDataBuilders.Character()
-                    .WithName("Test Hero")
-                    .Build();
-                var target = Tests.TestDataBuilders.Enemy()
-                    .WithName("Test Enemy")
-                    .Build();
+                var attacker = CreateMockHero();
+                var target = new Enemy("Test Enemy", 1, 50, 5, 5, 5, 5);
                 
                 // Generate random roll values
                 int roll = random.Next(1, 21); // 1-20
@@ -122,12 +129,8 @@ namespace RPGGame.UI.Avalonia.Managers
                     var random = new Random();
                     
                     // Create mock characters
-                    var attacker = Tests.TestDataBuilders.Character()
-                        .WithName("Test Hero")
-                        .Build();
-                    var target = Tests.TestDataBuilders.Enemy()
-                        .WithName("Test Enemy")
-                        .Build();
+                    var attacker = CreateMockHero();
+                    var target = new Enemy("Test Enemy", 1, 50, 5, 5, 5, 5);
                     
                     // Add header
                     var headerBuilder = new ColoredTextBuilder();
