@@ -214,7 +214,7 @@
     "packSize": 3,
     "resolvedPackSize": 3,
     "tempo": "swarm",
-    "description": "A small bat swarm - three fragile flyers; overkill on one is wasted",
+    "description": "A small bat swarm of fragile flyers; overkill on one is wasted",
     "tags": [
       "living",
       "air",
@@ -253,7 +253,7 @@
     "packSize": 7,
     "resolvedPackSize": 7,
     "tempo": "swarm",
-    "description": "A squealing pack of seven rats - peels quickly if you waste overkill",
+    "description": "A squealing pack of rats - peels quickly if you waste overkill",
     "tags": [
       "living",
       "minion",
@@ -292,7 +292,7 @@
     "packSize": 5,
     "resolvedPackSize": 5,
     "tempo": "swarm",
-    "description": "Five giant ants - the swarm bites once per living ant",
+    "description": "A column of giant ants - the swarm bites once per living ant",
     "tags": [
       "living",
       "minion",
