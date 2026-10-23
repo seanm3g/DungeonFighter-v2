@@ -1745,6 +1745,181 @@
         "W"
       ],
       "description": "Enhanced transcendent rarity - white to magenta to cyan to blue (ethereal)"
+    },
+    {
+      "name": "den",
+      "shaderType": "sequence",
+      "colors": [
+        "w",
+        "o",
+        "w",
+        "r"
+      ],
+      "description": "The Den - Brown/ember/brown/crimson (musky animal den)"
+    },
+    {
+      "name": "labyrinth",
+      "shaderType": "sequence",
+      "colors": [
+        "g",
+        "G",
+        "w",
+        "G"
+      ],
+      "description": "Hedge Labyrinth - Dark green/green/brown/green (clipped hedge walls)"
+    },
+    {
+      "name": "dense_brush",
+      "shaderType": "sequence",
+      "colors": [
+        "g",
+        "G",
+        "G",
+        "w",
+        "g"
+      ],
+      "description": "Dense Brush - Greens with a bark-brown knot (tangled thicket)"
+    },
+    {
+      "name": "mirror_pond",
+      "shaderType": "sequence",
+      "colors": [
+        "c",
+        "C",
+        "Y",
+        "C"
+      ],
+      "description": "Mirror Pond - Teal/cyan/white glint/cyan (still reflective water)"
+    },
+    {
+      "name": "spring",
+      "shaderType": "sequence",
+      "colors": [
+        "B",
+        "C",
+        "Y",
+        "c"
+      ],
+      "description": "Hidden Spring - Blue/cyan/white/teal (bubbling fresh water)"
+    },
+    {
+      "name": "water_temple",
+      "shaderType": "sequence",
+      "colors": [
+        "b",
+        "B",
+        "W",
+        "C",
+        "B"
+      ],
+      "description": "Water Temple - Deep blue/blue/gold/cyan (sunken sacred halls)"
+    },
+    {
+      "name": "ashen_land",
+      "shaderType": "sequence",
+      "colors": [
+        "y",
+        "w",
+        "y",
+        "o",
+        "w"
+      ],
+      "description": "Ashen Land - Ash grey/brown/ash/ember/brown (smouldering wasteland)"
+    },
+    {
+      "name": "fire_temple",
+      "shaderType": "sequence",
+      "colors": [
+        "W",
+        "O",
+        "R",
+        "O"
+      ],
+      "description": "Fire Temple - Gold/orange/red/orange (sacred flame)"
+    },
+    {
+      "name": "lava_cave",
+      "shaderType": "sequence",
+      "colors": [
+        "r",
+        "R",
+        "o",
+        "O",
+        "R"
+      ],
+      "description": "Lava Cave - Crimson/red/ember/orange/red (molten cavern)"
+    },
+    {
+      "name": "pyramids",
+      "shaderType": "sequence",
+      "colors": [
+        "W",
+        "O",
+        "w",
+        "W"
+      ],
+      "description": "The Pyramids - Gold/orange/sandstone/gold (sun-baked tombs)"
+    },
+    {
+      "name": "mountains",
+      "shaderType": "sequence",
+      "colors": [
+        "y",
+        "Y",
+        "C",
+        "y",
+        "w"
+      ],
+      "description": "Windswept Mountains - Grey/snow/sky/grey/stone (high peaks)"
+    },
+    {
+      "name": "region_forest",
+      "shaderType": "sequence",
+      "colors": [
+        "g",
+        "G",
+        "W",
+        "G"
+      ],
+      "description": "Forest region names - greens with golden light"
+    },
+    {
+      "name": "region_water",
+      "shaderType": "sequence",
+      "colors": [
+        "b",
+        "B",
+        "C",
+        "Y",
+        "C",
+        "B"
+      ],
+      "description": "Water region names - deep blue to cyan crest"
+    },
+    {
+      "name": "region_fire",
+      "shaderType": "sequence",
+      "colors": [
+        "r",
+        "R",
+        "O",
+        "W",
+        "O",
+        "R"
+      ],
+      "description": "Fire region names - crimson through flame to gold"
+    },
+    {
+      "name": "region_air",
+      "shaderType": "sequence",
+      "colors": [
+        "C",
+        "Y",
+        "W",
+        "Y",
+        "C"
+      ],
+      "description": "Air region names - sky cyan/white/sun gold"
     }
   ],
   "usageExamples": null

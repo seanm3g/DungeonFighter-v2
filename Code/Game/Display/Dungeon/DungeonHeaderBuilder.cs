@@ -23,29 +23,14 @@ namespace RPGGame.Display.Dungeon
                 .Build();
             header.Add(ColoredTextRenderer.RenderAsMarkup(coloredHeader));
 
-            char themeColorCode = DungeonThemeColors.GetThemeColorCode(dungeon.Theme);
-            var dungeonNameColor = GetColorFromThemeCode(themeColorCode);
-
             var dungeonInfo = new ColoredTextBuilder()
                 .Add("Dungeon: ", AsciiArtAssets.Colors.Gold)
-                .Add(dungeon.Name, dungeonNameColor)
+                .AddRange(DungeonThemeColors.BuildThemedName(dungeon.Name, dungeon.Theme))
                 .Build();
             header.Add(ColoredTextRenderer.RenderAsMarkup(dungeonInfo));
             header.Add("");
 
             return header;
-        }
-        
-        private static ColorPalette GetColorFromThemeCode(char themeCode)
-        {
-            return themeCode switch
-            {
-                'R' => ColorPalette.Error,
-                'G' => ColorPalette.Success,
-                'B' => ColorPalette.Info,
-                'Y' => ColorPalette.Warning,
-                _ => ColorPalette.White
-            };
         }
     }
 }

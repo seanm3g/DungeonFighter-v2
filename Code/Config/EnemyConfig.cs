@@ -502,6 +502,11 @@ namespace RPGGame
         public EnemyDamageCurveConfig DamageCurve { get; set; } = new();
         /// <summary>Enemy max HP × multiplier by level (same anchor table format as <see cref="DamageCurve"/>; off by default).</summary>
         public EnemyDamageCurveConfig HealthCurve { get; set; } = new();
+        /// <summary>
+        /// Pack body count × multiplier by level (same anchor format; off by default). The pack's HP is unchanged, only
+        /// split over fewer bodies, so early packs need fewer swings. See <see cref="RPGGame.Combat.PackCombat.BodiesAtLevel"/>.
+        /// </summary>
+        public EnemyDamageCurveConfig PackSizeCurve { get; set; } = new();
         public ScalingPerLevelConfig ScalingPerLevel { get; set; } = new();
         public Dictionary<string, ArchetypeMultipliersConfig> Archetypes { get; set; } = new();
         /// <summary>Per-archetype combat overrides (attack time / outgoing damage), keyed by <see cref="EnemyArchetype"/> name.
@@ -557,6 +562,7 @@ namespace RPGGame
             Archetypes ??= new Dictionary<string, ArchetypeMultipliersConfig>();
             ArchetypeCombat = new Dictionary<string, ArchetypeCombatConfig>(
                 ArchetypeCombat ?? new Dictionary<string, ArchetypeCombatConfig>(), StringComparer.OrdinalIgnoreCase);
+            PackSizeCurve ??= new EnemyDamageCurveConfig();
             Identity ??= new EnemyIdentityConfig();
             Identity.Calibration = new Dictionary<string, List<EnemyDamageCurveAnchor>>(
                 Identity.Calibration ?? new Dictionary<string, List<EnemyDamageCurveAnchor>>(), StringComparer.OrdinalIgnoreCase);

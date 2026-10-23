@@ -6,11 +6,13 @@ using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.TextAnimation;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
     /// <summary>
-    /// Specialized renderer for dungeon selection screen
+    /// Specialized renderer for dungeon selection screen: the dungeon list on the left and, beside it, the
+    /// travel map zoomed in on the current region with each dungeon marked as a numbered level tile.
     /// Uses centralized animation state for brightness mask and undulation effects
     /// </summary>
     public class DungeonSelectionRenderer
@@ -22,6 +24,21 @@ namespace RPGGame.UI.Avalonia.Renderers
         
         // Cache template segments per dungeon (no animation state stored here)
         private readonly Dictionary<string, List<ColoredText>> dungeonTemplateCache = new();
+
+        // Narrower screens keep the plain full-width list.
+        private const int MinWidthForMap = 90;
+        private static readonly Color MapEdge = Color.FromRgb(150, 118, 80);
+        private static readonly Color MapSea = Color.FromRgb(12, 34, 40);
+
+        private readonly TravelRegionCatalog regionCatalog = new();
+        private readonly TravelMapPainter mapPainter = new();
+        private TravelMapGeographyResult? mapGeography;
+        private string mapKey = "";
+
+        /// <summary>Dungeon (list number) under the pointer, on its map tile or its list row; -1 for none.</summary>
+        private int hoveredDungeon = -1;
+
+        private const string SiteTargetPrefix = "dungeon:";
         
         public DungeonSelectionRenderer(GameCanvasControl canvas, ColoredTextWriter textWriter, List<ClickableElement> clickableElements)
         {
@@ -42,7 +59,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             int height,
             List<Dungeon> dungeons,
             string? customDungeonLevelEntryBuffer = null,
-            string? currentRegionDisplayName = null)
+            string? currentRegionDisplayName = null,
+            string? currentRegionTheme = null)
         {
             int currentLineCount = 0;
             
@@ -50,6 +68,18 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (dungeons == null)
             {
                 throw new ArgumentNullException(nameof(dungeons), "Dungeon list cannot be null");
+            }
+
+            int mapLeft = x;
+            bool showMap = width >= MinWidthForMap;
+            hoveredDungeon = -1;
+            if (showMap)
+            {
+                // The list keeps a column on the left; the region map takes the rest of the panel.
+                int listWidth = Math.Clamp(width * 36 / 100, 36, 56);
+                mapLeft = x + listWidth;
+                RenderRegionMap(mapLeft, y, x + width - mapLeft - 1, height - 1, dungeons, currentRegionDisplayName);
+                width = listWidth;
             }
 
             int contentWidth = Math.Max(20, width - 4);
@@ -63,8 +93,26 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             if (!string.IsNullOrWhiteSpace(currentRegionDisplayName))
             {
-                string regionLine = "Region: " + currentRegionDisplayName.Trim();
-                canvas.AddText(x + 2, y, Truncate(regionLine, contentWidth), AsciiArtAssets.Colors.Cyan);
+                const string regionPrefix = "Region: ";
+                string regionName = Truncate(currentRegionDisplayName.Trim(), Math.Max(1, contentWidth - regionPrefix.Length));
+                string? regionTemplate = DungeonThemeColors.GetRegionThemeTemplate(currentRegionTheme);
+                canvas.ClearTextInArea(x + 2, y, contentWidth, 1);
+                if (regionTemplate == null)
+                {
+                    canvas.AddText(x + 2, y, regionPrefix + regionName, AsciiArtAssets.Colors.Cyan);
+                }
+                else
+                {
+                    var regionSegments = PerCharSegments(regionPrefix, AsciiArtAssets.Colors.Cyan);
+                    regionSegments.AddRange(TextAnimationCompositor.Compose(
+                        "dungeonSelection",
+                        baseSegments: ColoredText.FromTemplate(regionTemplate, regionName),
+                        charStartIndex: regionPrefix.Length,
+                        lineOffset: y,
+                        animationState: animationState,
+                        elementOffset: GetElementRandomOffset(y)));
+                    textWriter.RenderSegments(regionSegments, x + 2, y);
+                }
                 y++;
                 currentLineCount++;
             }
@@ -103,10 +151,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 string cacheKey = $"{dungeon.Theme}_{dungeon.Name}";
                 if (!dungeonTemplateCache.TryGetValue(cacheKey, out templateSegments) || templateSegments == null)
                 {
-                    templateSegments = ColoredText.FromTemplate(
-                        GetDungeonThemeTemplate(dungeon.Theme),
-                        dungeon.Name
-                    );
+                    templateSegments = DungeonThemeColors.BuildThemedName(dungeon.Name, dungeon.Theme);
                     if (templateSegments.Count == 0)
                     {
                         templateSegments = new List<ColoredText> { new ColoredText(dungeon.Name, Colors.White) };
@@ -125,8 +170,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                     animationState: animationState,
                     customDungeonLevelEntryBuffer: customDungeonLevelEntryBuffer);
 
-                if (option.IsHovered)
+                if (option.IsHovered || hoveredDungeon == i + 1)
                     RecolorSegments(segments, ColorPalette.Yellow.GetColor());
+                if (showMap && dungeon.Name != RPGGame.GameConstants.DungeonCustomLevelMenuName)
+                    TravelMapHoverState.AddTarget(option.X, option.Y, option.Width, 1, SiteTargetPrefix + (i + 1));
 
                 textWriter.RenderSegments(segments, x + 4, y);
                 
@@ -159,6 +206,78 @@ namespace RPGGame.UI.Avalonia.Renderers
             return currentLineCount;
         }
         
+        /// <summary>
+        /// The world map zoomed in on the current region, with the region's dungeons as numbered tiles on its land.
+        /// The region arrives as its display label, so it is matched back to the catalog by that label.
+        /// </summary>
+        private void RenderRegionMap(int left, int top, int width, int height, List<Dungeon> dungeons, string? regionLabel)
+        {
+            if (width < 20 || height < 8)
+                return;
+
+            var regions = RegionTravelRenderer.OrderRegions(regionCatalog.GetAllRegions());
+            var region = regions.FirstOrDefault(r => string.Equals(r.DisplayNameWithLevels.Trim(), regionLabel?.Trim(), StringComparison.Ordinal))
+                ?? regions.FirstOrDefault(r => string.Equals(r.DisplayName.Trim(), regionLabel?.Trim(), StringComparison.Ordinal));
+            if (region == null)
+                return;
+
+            TravelMapHoverState.BeginTargets();
+            string? hovered = TravelMapHoverState.HoveredRegionId;
+            if (hovered != null && hovered.StartsWith(SiteTargetPrefix, StringComparison.Ordinal)
+                && int.TryParse(hovered.AsSpan(SiteTargetPrefix.Length), out int hoveredNumber))
+                hoveredDungeon = hoveredNumber;
+
+            // Dungeon markers follow list order; the custom-level entry is not a place on the map.
+            var placed = dungeons
+                .Select((d, i) => (Dungeon: d, Number: i + 1))
+                .Where(e => e.Dungeon.Name != RPGGame.GameConstants.DungeonCustomLevelMenuName)
+                .ToList();
+
+            string key = $"{width}x{height}:{region.Id}:{placed.Count}:" + string.Join(";", regions.Select(r => $"{r.Id}@{r.MapX},{r.MapY}"));
+            if (mapGeography == null || key != mapKey)
+            {
+                mapGeography = TravelMapGeography.BuildRegionView(width * 2, height * 2, regions, region.Id, placed.Count);
+                mapKey = key;
+            }
+
+            // Sites are numbered 1..n in placement order; relabel them with each dungeon's list number.
+            var sites = mapGeography.Sites
+                .Select(s => s with { Number = s.Number - 1 < placed.Count ? placed[s.Number - 1].Number : s.Number })
+                .ToList();
+
+            canvas.AddBox(left, top, width, height, MapEdge, MapSea);
+            var hoveredEntry = placed.FirstOrDefault(e => e.Number == hoveredDungeon);
+            var frame = new TravelMapFrame
+            {
+                Pins = mapGeography.Pins,
+                CurrentRegionId = region.Id,
+                Sites = sites,
+                HoveredSite = hoveredDungeon,
+                HoveredSiteLabel = hoveredEntry.Dungeon != null ? $"{hoveredEntry.Dungeon.Name} (lvl {hoveredEntry.Dungeon.MinLevel})" : null
+            };
+            double scaling = global::Avalonia.Controls.TopLevel.GetTopLevel(canvas)?.RenderScaling ?? 1.0;
+            var image = mapPainter.Paint(mapGeography, mapKey, width, height, canvas.GetCharWidth(), canvas.GetCharHeight(), scaling, (0, 0, 0, 0), frame);
+            canvas.AddImage(left, top, width, height, image, new global::Avalonia.Rect(image.Size), paddingPixels: 0, fillFrame: true);
+
+            // Each tile is clickable, the same as its row in the list, and hovering it names the dungeon.
+            foreach (var site in sites)
+            {
+                var entry = placed.First(e => e.Number == site.Number);
+                TravelMapHoverState.AddTarget(left + site.FineX / 2 - 1, top + site.FineY / 2, 3, 1, SiteTargetPrefix + site.Number);
+                clickableElements.Add(new ClickableElement
+                {
+                    X = left + site.FineX / 2 - 1,
+                    Y = top + site.FineY / 2,
+                    Width = 3,
+                    Height = 1,
+                    Type = ElementType.MenuOption,
+                    Value = site.Number.ToString(),
+                    DisplayText = MenuOptionFormatter.FormatDungeon(site.Number, entry.Dungeon.Name, entry.Dungeon.MinLevel)
+                });
+            }
+
+        }
+
         /// <summary>
         /// Builds the dungeon-row segments (prefix + undulating name + level suffix).
         /// Prefix/suffix are one glyph per segment so paint stays on the character grid —
@@ -249,24 +368,6 @@ namespace RPGGame.UI.Avalonia.Renderers
             return hash - 50; // Shift to -50 to +50 range
         }
         
-        /// <summary>
-        /// Maps dungeon themes to their corresponding color template names
-        /// </summary>
-        private string GetDungeonThemeTemplate(string theme)
-        {
-            // Convert theme name to lowercase for template lookup
-            string templateName = theme.ToLower();
-            
-            // Check if the template exists, otherwise fall back to a generic one
-            if (ColorTemplateLibrary.HasTemplate(templateName))
-            {
-                return templateName;
-            }
-            
-            // Fallback for themes without specific templates
-            return "y"; // Default to grey color code
-        }
-
         private static string Truncate(string text, int maxLength)
         {
             if (string.IsNullOrEmpty(text) || text.Length <= maxLength)

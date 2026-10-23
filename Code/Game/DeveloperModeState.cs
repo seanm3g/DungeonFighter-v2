@@ -18,6 +18,8 @@ namespace RPGGame
     public static class DeveloperModeState
     {
         private static readonly int[] CombatSpeedSteps = { 1, 2, 5, 20 };
+        /// <summary>Baseline pacing: 1x plays at what used to be the 2x step.</summary>
+        private const int BaseCombatSpeedFactor = 2;
         private static readonly object SpeedLock = new object();
         private static int _combatSpeedStepIndex;
         private static int _combatLogInstant;
@@ -162,7 +164,7 @@ namespace RPGGame
             if (delayMs <= 0 || IsCombatLogInstant)
                 return 0;
 
-            int speed = Math.Max(1, CombatSpeedMultiplier);
+            int speed = Math.Max(1, CombatSpeedMultiplier) * BaseCombatSpeedFactor;
             int scaled = Math.Max(1, (int)Math.Ceiling(delayMs / (double)speed));
 
             if (PreWeaponTrainingFlow.IsTutorialCombatSlowPacingActive)

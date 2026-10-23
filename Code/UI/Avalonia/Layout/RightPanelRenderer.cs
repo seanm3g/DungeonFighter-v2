@@ -407,23 +407,32 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Location), AsciiArtAssets.Colors.Gold);
             y += 2;
             
+            // Rooms carry their dungeon's theme, so both lines share its palette
+            string? locationTheme = DungeonThemeColors.GetThemeForDungeonName(dungeonName);
+
             // Dungeon — value line omitted when empty
             canvas.AddText(x, y, "Dungeon:", AsciiArtAssets.Colors.Gray);
             y++;
             if (!string.IsNullOrEmpty(dungeonName))
             {
                 string displayDungeon = RightPanelContentText.EllipsizeToPanelWidth(dungeonName);
-                canvas.AddText(x, y, displayDungeon, AsciiArtAssets.Colors.Cyan);
+                if (locationTheme != null)
+                    textWriter.RenderSegments(DungeonThemeColors.BuildThemedName(displayDungeon, locationTheme), x, y);
+                else
+                    canvas.AddText(x, y, displayDungeon, AsciiArtAssets.Colors.Cyan);
                 y++;
             }
-            
+
             // Room — value line omitted when empty
             canvas.AddText(x, y, "Room:", AsciiArtAssets.Colors.Gray);
             y++;
             if (!string.IsNullOrEmpty(roomName))
             {
                 string displayRoom = RightPanelContentText.EllipsizeToPanelWidth(roomName);
-                canvas.AddText(x, y, displayRoom, AsciiArtAssets.Colors.Yellow);
+                if (locationTheme != null)
+                    textWriter.RenderSegments(DungeonThemeColors.BuildThemedName(displayRoom, locationTheme), x, y);
+                else
+                    canvas.AddText(x, y, displayRoom, AsciiArtAssets.Colors.Yellow);
                 y++;
             }
             

@@ -465,6 +465,13 @@ namespace RPGGame
             {
                 { "MAGIC MISSLE", "MAGIC MISSILE" },
                 { "SOUL DRAIN", "Soul Drain" },
+                // Renamed so the name matches what the action does; old names stay valid in saves and strips.
+                { "ANGRY ENRAGE", "ENRAGE" },
+                { "BERZERKER", "BERSERKER" },
+                { "TURN BONUS", "STEADY HAND" },
+                { "DUNGEON BONUS", "KEEN EYE" },
+                { "TWISTING STRIKE", "HONE" },
+                { "WHIRLWIND", "WHETSTONE" },
             };
 
             if (_actions == null)

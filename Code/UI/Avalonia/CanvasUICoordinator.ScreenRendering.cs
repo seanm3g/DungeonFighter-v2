@@ -24,7 +24,7 @@ namespace RPGGame.UI.Avalonia
             animationManager.StartDungeonSelectionAnimation(player, dungeons);
             var currentRegion = new TravelRegionCatalog().GetRegionForCharacter(player);
             string? regionLabel = string.IsNullOrWhiteSpace(currentRegion.DisplayName) ? null : currentRegion.DisplayNameWithLevels.Trim();
-            renderer.RenderDungeonSelection(player, dungeons, GetContext(), dungeonSelectionCustomLevelEntryBuffer, regionLabel);
+            renderer.RenderDungeonSelection(player, dungeons, GetContext(), dungeonSelectionCustomLevelEntryBuffer, regionLabel, currentRegion.Theme);
         }
 
         public void RenderMainMenu(bool hasSavedGame, int savedFighterCount, string? newGameConfirmPrompt = null)

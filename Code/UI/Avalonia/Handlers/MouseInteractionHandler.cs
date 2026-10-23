@@ -327,6 +327,10 @@ namespace RPGGame.UI.Avalonia.Handlers
             bool rpHoverChanged = RightPanelActionHoverState.UpdateFromClickables(canvasUI.GetClickableElements(), inventoryActive);
             bool lpHoverChanged = LeftPanelHoverState.UpdateFromClickables(canvasUI.GetClickableElements());
             bool logHoverChanged = CombatLogActionHoverState.UpdateFromPointer(gridPos.X, gridPos.Y);
+            // The dungeon selection map reuses the travel map's hover targets for its dungeon tiles.
+            bool travelMapHoverChanged = (game?.StateManager?.CurrentState == GameState.RegionTravel
+                    || game?.StateManager?.CurrentState == GameState.DungeonSelection)
+                && TravelMapHoverState.UpdateFromPointer(gridPos.X, gridPos.Y);
 
             bool tooltipStripOrPanel = newStripHover >= 0
                 || RightPanelActionHoverState.HoveredSequenceIndex >= 0
@@ -335,7 +339,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                 || LeftPanelHoverState.IsActive
                 || CombatLogActionHoverState.IsActive;
 
-            if (!stripHoverChanged && !rpHoverChanged && !lpHoverChanged && !logHoverChanged
+            if (!stripHoverChanged && !rpHoverChanged && !lpHoverChanged && !logHoverChanged && !travelMapHoverChanged
                 && !(forceTooltipRefresh && tooltipStripOrPanel))
                 return;
 

@@ -1030,6 +1030,21 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 y++;
                 string reason = item.GetEquipBlockedReason(character) ?? "Attribute requirements not met.";
                 written = textWriter.WriteLineColoredWrapped(new List<ColoredText> { new ColoredText(reason, AsciiArtAssets.Colors.Red) }, x, y, width);
+                // Hovering the line explains the attribute it names (e.g. Finesse = AGI + TEC).
+                string? blockingKey = item.GetEquipBlockingRequirementKey(character);
+                if (blockingKey != null)
+                {
+                    clickableElements.Add(new ClickableElement
+                    {
+                        X = x,
+                        Y = y,
+                        Width = Math.Max(1, Math.Min(width, reason.Length)),
+                        Height = Math.Max(1, written),
+                        Type = ElementType.Text,
+                        Value = Prefix + "attr:" + blockingKey,
+                        DisplayText = reason
+                    });
+                }
                 y += written;
                 currentLineCount += written;
             }

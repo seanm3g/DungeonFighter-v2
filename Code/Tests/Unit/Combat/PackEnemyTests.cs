@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestNonPackMultiHitStillCreditsOverkill(ref run, ref passed, ref failed);
             TestCombatLogText(ref run, ref passed, ref failed);
             TestAuthoredPackSizesFromData(ref run, ref passed, ref failed);
+            TestPackSizeCurveShrinksEarlyPacks(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("Pack Enemy Tests", run, passed, failed);
         }
@@ -40,6 +41,22 @@ namespace RPGGame.Tests.Unit.Combat
                 .Build();
             enemy.InitializePack(packSize);
             return enemy;
+        }
+
+        private static void TestPackSizeCurveShrinksEarlyPacks(ref int run, ref int passed, ref int failed)
+        {
+            var curve = new EnemyDamageCurveConfig
+            {
+                Enabled = true,
+                Anchors = { new EnemyDamageCurveAnchor { Level = 1, Multiplier = 0.2 }, new EnemyDamageCurveAnchor { Level = 11, Multiplier = 1.0 } }
+            };
+            TestBase.AssertEqual(2, PackCombat.BodiesAtLevel(7, 1, curve), "L1 rats floor at two bodies", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(7, PackCombat.BodiesAtLevel(7, 11, curve), "full pack by L11", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(7, PackCombat.BodiesAtLevel(7, 40, curve), "never above authored", ref run, ref passed, ref failed);
+            int mid = PackCombat.BodiesAtLevel(7, 6, curve);
+            TestBase.AssertTrue(mid > 2 && mid < 7, $"mid-level pack in between (got {mid})", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(2, PackCombat.BodiesAtLevel(2, 1, curve), "two-body pack unchanged", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(7, PackCombat.BodiesAtLevel(7, 1, new EnemyDamageCurveConfig()), "disabled curve keeps authored", ref run, ref passed, ref failed);
         }
 
         private static void TestOverkillWastesDamageAndDropsOneBody(ref int run, ref int passed, ref int failed)

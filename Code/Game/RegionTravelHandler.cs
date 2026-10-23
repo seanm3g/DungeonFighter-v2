@@ -1,7 +1,9 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Renderers;
 
 namespace RPGGame
 {
@@ -16,6 +18,8 @@ namespace RPGGame
         private readonly TravelRouteGenerator routeGenerator;
         private readonly Func<int, Task> delayAsync;
         private TravelRouteResult? lastRouteResult;
+        /// <summary>Redraw interval while the hero walks the map route.</summary>
+        private const int WalkFrameMs = 50;
         private bool isTravelInProgress;
 
         public delegate void OnShowGameLoop();
@@ -51,9 +55,13 @@ namespace RPGGame
                 return;
             }
 
+            lastRouteResult = null;
             stateManager.TransitionToState(GameState.RegionTravel);
             RenderTravelScreen();
         }
+
+        /// <summary>Redraws the travel map with the route in progress (hover changes, chrome refresh).</summary>
+        public void Refresh() => RenderTravelScreen();
 
         public async Task HandleMenuInput(string input)
         {
@@ -78,14 +86,21 @@ namespace RPGGame
                 return;
             }
 
-            var destinations = regionCatalog.GetDestinationRegions(stateManager.CurrentPlayer).ToList();
-            if (choice < 1 || choice > destinations.Count)
+            // Numbers match the map pins: every region in level order, including the one the hero is in.
+            var regions = RegionTravelRenderer.OrderRegions(regionCatalog.GetAllRegions());
+            if (choice < 1 || choice > regions.Count)
             {
-                ShowMessageEvent?.Invoke("Invalid destination. Select one of the listed regions.");
+                ShowMessageEvent?.Invoke("Invalid destination. Select one of the numbered regions.");
                 return;
             }
 
-            var destination = destinations[choice - 1];
+            var destination = regions[choice - 1];
+            if (string.Equals(destination.Id, regionCatalog.GetRegionForCharacter(stateManager.CurrentPlayer).Id, StringComparison.OrdinalIgnoreCase))
+            {
+                ShowMessageEvent?.Invoke($"You are already in {destination.DisplayName}.");
+                return;
+            }
+
             await RunRouteTravelAsync(destination);
         }
 
@@ -96,11 +111,14 @@ namespace RPGGame
                 return;
 
             isTravelInProgress = true;
+            // The pointer may leave the window mid-walk; don't keep the clicked pin lit for the whole journey.
+            RPGGame.UI.TravelMapHoverState.Clear();
             try
             {
                 lastRouteResult = routeGenerator.CreateRouteResult(player, destination.Id);
                 RenderTravelScreen();
 
+                int eventCount = Math.Max(1, lastRouteResult.EventCount);
                 for (int i = 0; i < lastRouteResult.EventCount; i++)
                 {
                     var step = routeGenerator.GenerateRouteStep(player, lastRouteResult.ToRegion, i + 1, null, lastRouteResult.JourneyDungeonThemes);
@@ -109,10 +127,16 @@ namespace RPGGame
                     if (step.LootReceived != null)
                         lastRouteResult.LootFound.Add(step.LootReceived);
 
+                    // Each event happens at its stretch of the road; the walk to the next one plays out during the pause.
+                    lastRouteResult.WalkProgress = (i + 0.5) / eventCount;
                     RenderTravelScreen();
 
                     if (i < lastRouteResult.EventCount - 1)
-                        await ApplyTravelDelayAsync(step.DelayMs);
+                    {
+                        int scaledDelayMs = DeveloperModeState.ScaleDelayMs(step.DelayMs);
+                        await AnimateWalkAsync(ApplyTravelDelayAsync(step.DelayMs), scaledDelayMs,
+                            lastRouteResult.WalkProgress, (i + 1.5) / eventCount);
+                    }
                 }
 
                 routeGenerator.CompleteRoute(player, lastRouteResult);
@@ -122,6 +146,34 @@ namespace RPGGame
             {
                 isTravelInProgress = false;
             }
+        }
+
+        /// <summary>
+        /// Advances the hero along the map route while <paramref name="pause"/> runs, redrawing every frame.
+        /// Without the canvas UI (tests, headless) it just awaits the pause.
+        /// </summary>
+        private async Task AnimateWalkAsync(Task pause, int durationMs, double fromProgress, double toProgress)
+        {
+            var route = lastRouteResult;
+            if (route == null || durationMs <= 0 || customUIManager is not CanvasUICoordinator)
+            {
+                await pause;
+                if (route != null)
+                    route.WalkProgress = toProgress;
+                return;
+            }
+
+            var clock = Stopwatch.StartNew();
+            while (!pause.IsCompleted)
+            {
+                double t = Math.Min(1.0, clock.ElapsedMilliseconds / (double)durationMs);
+                route.WalkProgress = fromProgress + (toProgress - fromProgress) * t;
+                RenderTravelScreen();
+                await Task.WhenAny(pause, Task.Delay(WalkFrameMs));
+            }
+
+            await pause;
+            route.WalkProgress = toProgress;
         }
 
         private Task ApplyTravelDelayAsync(int delayMs)

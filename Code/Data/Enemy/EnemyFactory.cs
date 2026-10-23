@@ -45,7 +45,7 @@ namespace RPGGame
 
             enemy.Identity = stats.Identity;
             enemy.SetTags(BuildRuntimeTags(data));
-            enemy.InitializePack(data.ResolvedPackSize);
+            enemy.InitializePack(Combat.PackCombat.BodiesAtLevel(data.ResolvedPackSize, level, tuning.EnemySystem.PackSizeCurve));
 
             if (data.ColorOverride != null)
             {

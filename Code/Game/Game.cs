@@ -52,6 +52,7 @@ namespace RPGGame
         private DungeonSelectionHandler? dungeonSelectionHandler;
         private DungeonRunnerManager? dungeonRunnerManager;
         private DungeonCompletionHandler? dungeonCompletionHandler;
+        private RegionTravelHandler? regionTravelHandler;
         private DeathScreenHandler? deathScreenHandler;
         
         // Game loop state
@@ -205,6 +206,7 @@ namespace RPGGame
             dungeonSelectionHandler = result.DungeonSelectionHandler;
             dungeonRunnerManager = result.DungeonRunnerManager;
             dungeonCompletionHandler = result.DungeonCompletionHandler;
+            regionTravelHandler = result.RegionTravelHandler;
             deathScreenHandler = result.DeathScreenHandler;
             menuInputRouter = result.MenuInputRouter;
             menuInputValidator = result.MenuInputValidator;
@@ -372,7 +374,9 @@ namespace RPGGame
                     }
                     break;
                 case GameState.RegionTravel:
-                    if (player != null)
+                    if (regionTravelHandler != null)
+                        regionTravelHandler.Refresh();
+                    else if (player != null)
                     {
                         canvasUI.Clear();
                         var destinations = new TravelRegionCatalog().GetDestinationRegions(player);

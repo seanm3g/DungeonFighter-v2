@@ -83,6 +83,17 @@ def interp(anchors, level, key):
     return float(a[-1][key])
 
 
+def turns_target(level):
+    """Hero turns wanted at a level: the early-game ramp (heroTurnsAnchors), else heroTurnsTarget."""
+    return interp(TARGETS['heroTurnsAnchors'], level, 'turns') if TARGETS.get('heroTurnsAnchors') else TURNS
+
+
+def turns_tolerances(level):
+    # Tolerances are set for heroTurnsTarget; shorter early fights get the same relative slack.
+    k = turns_target(level) / TURNS
+    return turns_target(level), max(0.5, TURNS_TOL * k), max(1.0, ENEMY_TOL * k)
+
+
 def wilson(k, n, z=1.96):
     if n == 0:
         return 0.0, 1.0
@@ -194,18 +205,19 @@ def analyze_median(results, median_levels):
         METRICS[f'median turns L{l}'] = round(t, 2); METRICS[f'median full-HP win L{l}'] = round(w, 1)
         if l > TARGETS.get('heroTurnsCheckMaxLevel', 50):
             continue   # lethal levels: short losses, turns are not a target
-        dev = abs(t - TURNS)
-        if dev > TURNS_TOL:
-            finding('median turns', l, 'median build', f'{t:.1f} ({len(rows)} builds)', f'{TURNS:g} +/- {TURNS_TOL:g}', dev / TURNS_TOL - 1, 'FAIL',
+        want, tol, etol = turns_tolerances(l)
+        dev = abs(t - want)
+        if dev > tol:
+            finding('median turns', l, 'median build', f'{t:.1f} ({len(rows)} builds)', f'{want:.3g} +/- {tol:.2g}', dev / tol - 1, 'FAIL',
                     f'python Scripts/median-curve-solve.py {tools_arg()} --only health --levels {l}   (writes the patch)',
-                    'enemies die too fast' if t < TURNS else 'enemies take too long')
+                    'enemies die too fast' if t < want else 'enemies take too long')
         for name, (et, p90) in per.items():
-            edev = abs(et - TURNS)
-            if edev > ENEMY_TOL:
-                finding('median turns per enemy', l, name, f'{et:.1f} (p90 {p90:.0f})', f'{TURNS:g} +/- {ENEMY_TOL:g}', edev / ENEMY_TOL - 1, 'FAIL',
+            edev = abs(et - want)
+            if edev > etol:
+                finding('median turns per enemy', l, name, f'{et:.1f} (p90 {p90:.0f})', f'{want:.3g} +/- {etol:.2g}', edev / etol - 1, 'FAIL',
                         f'dotnet {A.tools}/DF.dll BUILDLAB --patch {PATCH} --level {l} --max-step {STEP[l]} --level-slots --enemies "{name}" --encounters 40 --seed 2'
                         f'  then  FIGHTLOG --level {l} --enemy "{name}" --gear typical',
-                        'slow pack or tank (Enemies.json HP / bodies)' if et > TURNS else 'paper enemy')
+                        'slow pack or tank (Enemies.json HP / bodies)' if et > want else 'paper enemy')
     return out
 
 

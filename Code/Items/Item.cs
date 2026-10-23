@@ -427,18 +427,26 @@ namespace RPGGame
             if (Type == ItemType.Consumable)
                 return "Room-search food and potions apply when found; they cannot be equipped.";
 
-            if (character == null || character.Facade == null || !AttributeRequirements.HasRequirements)
+            string? keyLower = GetEquipBlockingRequirementKey(character);
+            if (keyLower == null)
+                return null;
+
+            int need = AttributeRequirements.First(kv => CanonicalizeAttributeRequirementKey(kv.Key) == keyLower).Value;
+            int have = GetEffectiveValueForRequirementKey(keyLower, character);
+            return $"Requires {FormatRequirementAttributeDisplayName(keyLower)} {need} (you have {have}).";
+        }
+
+        /// <summary>Normalized key (e.g. <c>finesse</c>, <c>strength</c>) of the first attribute gate the character fails, or null.</summary>
+        public string? GetEquipBlockingRequirementKey(Character character)
+        {
+            if (Type == ItemType.Consumable || character == null || character.Facade == null || !AttributeRequirements.HasRequirements)
                 return null;
 
             foreach (var requirement in AttributeRequirements)
             {
                 string keyLower = CanonicalizeAttributeRequirementKey(requirement.Key);
-                int have = GetEffectiveValueForRequirementKey(keyLower, character);
-                if (have < requirement.Value)
-                {
-                    string label = FormatRequirementAttributeDisplayName(keyLower);
-                    return $"Requires {label} {requirement.Value} (you have {have}).";
-                }
+                if (GetEffectiveValueForRequirementKey(keyLower, character) < requirement.Value)
+                    return keyLower;
             }
 
             return null;

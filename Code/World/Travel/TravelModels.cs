@@ -42,6 +42,12 @@ namespace RPGGame
         public int MaxLevel { get; set; }
 
         /// <summary>True when this region pins dungeons to a fixed level band.</summary>
+        /// <summary>Horizontal position on the travel map, 0 (west) to 100 (east). Null = auto-placed.</summary>
+        public double? MapX { get; set; }
+
+        /// <summary>Vertical position on the travel map, 0 (north) to 100 (south). Null = auto-placed.</summary>
+        public double? MapY { get; set; }
+
         public bool HasLevelRange => MaxLevel > 0 && MaxLevel >= MinLevel;
 
         public bool ContainsLevel(int level) => HasLevelRange && level >= MinLevel && level <= MaxLevel;
@@ -120,6 +126,8 @@ namespace RPGGame
         public List<TravelStepResult> Steps { get; set; } = new();
         public List<Item> LootFound { get; set; } = new();
         public bool IsComplete { get; set; }
+        /// <summary>How far along the map route the hero has walked, 0 (departed) to 1 (arrived).</summary>
+        public double WalkProgress { get; set; }
         public int TotalProgressDelta => Steps.Sum(step => step.ProgressDelta);
         public int TotalDamageTaken => Steps.Sum(step => step.DamageTaken);
         public int TotalHealingReceived => Steps.Sum(step => step.HealingReceived);
@@ -487,6 +495,7 @@ namespace RPGGame
 
             player.CurrentRegionId = result.ToRegion.Id;
             result.IsComplete = true;
+            result.WalkProgress = 1.0;
         }
 
         private static List<string> RollJourneyDungeonThemes(TravelRegion destination)

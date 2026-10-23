@@ -224,9 +224,87 @@ namespace RPGGame.UI.Avalonia
             }
 
             // Fallback to hard-coded values
-            return fallbackThemeColorCodeMap.TryGetValue(theme, out char code) 
-                ? code 
+            return fallbackThemeColorCodeMap.TryGetValue(theme, out char code)
+                ? code
                 : 'Y';
+        }
+
+        /// <summary>
+        /// ColorTemplates.json template for a dungeon theme ("Fire Temple" → "fire_temple"), or null when none exists.
+        /// Rooms carry their dungeon's theme, so this also themes room names.
+        /// </summary>
+        public static string? GetThemeTemplate(string? theme)
+        {
+            if (string.IsNullOrWhiteSpace(theme))
+                return null;
+            string slug = ToTemplateSlug(theme);
+            return ColorTemplateLibrary.HasTemplate(slug) ? slug : null;
+        }
+
+        /// <summary>
+        /// Template for a travel region's element theme (Forest / Water / Fire / Air → "region_fire"), or null.
+        /// </summary>
+        public static string? GetRegionThemeTemplate(string? regionTheme)
+        {
+            if (string.IsNullOrWhiteSpace(regionTheme))
+                return null;
+            string slug = "region_" + ToTemplateSlug(regionTheme);
+            return ColorTemplateLibrary.HasTemplate(slug) ? slug : null;
+        }
+
+        /// <summary>
+        /// Name painted with the theme's color template; single theme color when the theme has no template.
+        /// Segments keep <see cref="ColoredText.SourceTemplate"/> so markup and animation preserve the palette.
+        /// </summary>
+        public static List<ColoredText> BuildThemedName(string name, string? theme)
+        {
+            if (string.IsNullOrEmpty(name))
+                return new List<ColoredText>();
+            string? template = GetThemeTemplate(theme);
+            if (template != null)
+            {
+                var segments = ColoredText.FromTemplate(template, name);
+                if (segments.Count > 0)
+                    return segments;
+            }
+            return new List<ColoredText> { new ColoredText(name, GetThemeColor(theme ?? "")) };
+        }
+
+        private static Dictionary<string, string>? dungeonThemeByName;
+
+        /// <summary>
+        /// Theme for a dungeon display name from Dungeons.json (for UI that only has the name, e.g. the LOCATION panel).
+        /// </summary>
+        public static string? GetThemeForDungeonName(string? dungeonName)
+        {
+            if (string.IsNullOrWhiteSpace(dungeonName))
+                return null;
+            if (dungeonThemeByName == null)
+            {
+                var map = new Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase);
+                try
+                {
+                    foreach (var d in JsonLoader.LoadJsonList<DungeonData>("Dungeons.json"))
+                    {
+                        if (!string.IsNullOrWhiteSpace(d.name) && !string.IsNullOrWhiteSpace(d.theme))
+                            map[d.name.Trim()] = d.theme.Trim();
+                    }
+                }
+                catch
+                {
+                    // Missing data file: names fall back to their plain colors
+                }
+                dungeonThemeByName = map;
+            }
+            return dungeonThemeByName.TryGetValue(dungeonName.Trim(), out var theme) ? theme : null;
+        }
+
+        private static string ToTemplateSlug(string theme)
+        {
+            var sb = new System.Text.StringBuilder(theme.Length);
+            foreach (char c in theme.Trim().ToLowerInvariant())
+                sb.Append(char.IsLetterOrDigit(c) ? c : '_');
+            return sb.ToString();
         }
     }
 }

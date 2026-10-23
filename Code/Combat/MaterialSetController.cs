@@ -26,12 +26,21 @@ namespace RPGGame
             yield return hero.Equipment.Weapon;
         }
 
+        /// <summary>Wildcard material: each equipped piece counts toward every other material the hero is wearing.</summary>
+        public const string WildcardMaterial = "Unknown";
+
+        /// <summary>
+        /// Equipped pieces of <paramref name="material"/>. <see cref="WildcardMaterial"/> pieces join the count once
+        /// at least one real piece of that material is worn (wildcards alone never form a set).
+        /// </summary>
         public static int CountEquipped(Character? hero, string? material)
         {
             string key = MaterialBuildData.CanonicalMaterialName(material);
             if (key.Length == 0 || hero == null)
                 return 0;
+            bool keyIsWildcard = string.Equals(key, WildcardMaterial, StringComparison.OrdinalIgnoreCase);
             int count = 0;
+            int wildcards = 0;
             foreach (var item in EnumerateEquipped(hero))
             {
                 if (item == null)
@@ -39,8 +48,10 @@ namespace RPGGame
                 string itemMat = ItemMaterialRules.RemapLegacyMaterial(item.Material);
                 if (string.Equals(itemMat, key, StringComparison.OrdinalIgnoreCase))
                     count++;
+                else if (!keyIsWildcard && string.Equals(itemMat, WildcardMaterial, StringComparison.OrdinalIgnoreCase))
+                    wildcards++;
             }
-            return count;
+            return count > 0 ? count + wildcards : 0;
         }
 
         public static IReadOnlyList<string> GetGrantedConvertActionNames(Character? hero)
@@ -384,6 +395,31 @@ namespace RPGGame
                 && !formula.Equals("bank", StringComparison.OrdinalIgnoreCase))
                 keyword = formula.ToUpperInvariant();
             return true;
+        }
+
+        /// <summary>
+        /// Per-unit convert rate under the active rules, e.g. <c>+3.5% damage per GRAZE</c> (percent mode) or
+        /// <c>+5 damage per GRAZE</c> (flat). Null when the action is not a keyword convert.
+        /// </summary>
+        public static string? FormatConvertRateText(Action? action)
+        {
+            if (action == null)
+                return null;
+            MaterialBuildData? build = MaterialBuildsLoader.FindByConvertAction(action.Name);
+            if (!TryResolveConvertScale(action, build, out _, out string keyword, out int perUnit, out bool useCount)
+                || useCount || string.IsNullOrWhiteSpace(keyword))
+                return null;
+
+            var combat = GameConfiguration.Instance.Combat;
+            if (combat != null && combat.MaterialConvertPercentPerUnit > 0)
+            {
+                double pct = combat.MaterialConvertPercentByKeyword != null
+                    && combat.MaterialConvertPercentByKeyword.TryGetValue(keyword, out double byKeyword)
+                    ? byKeyword
+                    : perUnit * combat.MaterialConvertPercentPerUnit;
+                return $"+{pct.ToString("0.#", CultureInfo.InvariantCulture)}% damage per {keyword}";
+            }
+            return $"+{perUnit} damage per {keyword}";
         }
 
         /// <summary>

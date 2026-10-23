@@ -105,7 +105,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     {
                         var dungeonSegments = new ColoredTextBuilder()
                             .Add("Dungeon: ", ColorPalette.Info)
-                            .Add(dungeonName, ColorPalette.Info)
+                            .AddRange(DungeonThemeColors.BuildThemedName(dungeonName, DungeonThemeColors.GetThemeForDungeonName(dungeonName)))
                             .Build();
                         int linesRendered = textWriter.WriteLineColoredWrapped(dungeonSegments, x + 2, currentY, availableWidth);
                         currentY += linesRendered;
@@ -116,7 +116,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     {
                         var roomSegments = new ColoredTextBuilder()
                             .Add("Room: ", ColorPalette.Info)
-                            .Add(roomName, ColorPalette.Info)
+                            .AddRange(DungeonThemeColors.BuildThemedName(roomName, DungeonThemeColors.GetThemeForDungeonName(dungeonName)))
                             .Build();
                         int linesRendered = textWriter.WriteLineColoredWrapped(roomSegments, x + 2, currentY, availableWidth);
                         currentY += linesRendered;

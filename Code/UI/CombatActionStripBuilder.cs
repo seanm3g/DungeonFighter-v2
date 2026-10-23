@@ -430,9 +430,13 @@ namespace RPGGame
         public static string BuildActionStripMetadataLine(Action? action) =>
             action == null ? "" : BuildActionMetadataLine(action);
 
+        private static readonly System.Text.RegularExpressions.Regex LegacyConvertDescription =
+            new(@"^\+\d+ damage per [A-Z]+$", System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
         /// <summary>
         /// Author description from the ACTIONS spreadsheet / <c>Actions.json</c> (<see cref="ActionData.Description"/>).
         /// Prefers loaded sheet data so mechanical enhancer suffixes on <see cref="Action.Description"/> stay off the card.
+        /// Flat convert text is restated at the active convert rate.
         /// </summary>
         public static string ResolveActionCardDescription(Action? action)
         {
@@ -443,7 +447,13 @@ namespace RPGGame
             {
                 var data = ActionLoader.GetActionData(action.Name);
                 if (data != null && !string.IsNullOrWhiteSpace(data.Description))
-                    return data.Description.Trim();
+                {
+                    string authored = data.Description.Trim();
+                    // Converts are authored as flat "+5 damage per GRAZE"; percent-mode patches pay a share of the hit instead.
+                    if (LegacyConvertDescription.IsMatch(authored))
+                        return MaterialSetController.FormatConvertRateText(action) ?? authored;
+                    return authored;
+                }
             }
 
             string raw = (action.Description ?? "").Trim();

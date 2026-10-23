@@ -34,6 +34,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ActionStripHoverStateTests.RunAllTests();
             Console.WriteLine();
+            DungeonThemeColorsTests.RunAllTests();
+            Console.WriteLine();
             CombatLogProseHoverTests.RunAllTests();
             Console.WriteLine();
             CombatLogDualViewTests.RunAllTests();

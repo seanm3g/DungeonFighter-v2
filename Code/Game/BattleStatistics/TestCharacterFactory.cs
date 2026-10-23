@@ -186,6 +186,12 @@ namespace RPGGame.BattleStatistics
         /// </summary>
         public static Environment CreateTestEnvironment()
         {
+            // DF_SIM_ROOM=<room location> runs lab / tuning fights inside that authored room (its hazards and tags)
+            // instead of the neutral room, so environments can be priced against the same hero and enemy.
+            string? simRoom = System.Environment.GetEnvironmentVariable("DF_SIM_ROOM");
+            if (!string.IsNullOrWhiteSpace(simRoom) && RoomLoader.GetRoomData(simRoom.Trim()) is { } roomData)
+                return RoomLoader.CreateRoom(simRoom.Trim(), roomData.Region, overrideIsHostile: true);
+
             return new Environment(
                 name: "Test Room",
                 description: "Testing environment",

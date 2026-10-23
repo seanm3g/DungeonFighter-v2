@@ -199,8 +199,8 @@ namespace RPGGame.Tests.Unit.UI
                 DeveloperModeState.SetCombatLogInstant(false);
                 DeveloperModeState.SetCombatSpeedMultiplier(5);
 
-                TestBase.AssertEqual(200, DeveloperModeState.ScaleDelayMs(1000),
-                    "5x speed scales 1000 ms to 200 ms",
+                TestBase.AssertEqual(100, DeveloperModeState.ScaleDelayMs(1000),
+                    "5x speed (on the 2x baseline) scales 1000 ms to 100 ms",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(1, DeveloperModeState.ScaleDelayMs(1),
                     "non-zero scaled delays keep a one millisecond floor",
@@ -231,13 +231,13 @@ namespace RPGGame.Tests.Unit.UI
                 DeveloperModeState.SetCombatSpeedMultiplier(1);
                 PreWeaponTrainingFlow.SetTutorialCombatSlowPacing(false);
 
-                TestBase.AssertEqual(3000, DeveloperModeState.ScaleDelayMs(3000),
-                    "default combat action delay stays at 3000 ms at 1x speed",
+                TestBase.AssertEqual(1500, DeveloperModeState.ScaleDelayMs(3000),
+                    "default 1x speed plays a 3000 ms combat action delay at 1500 ms",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 PreWeaponTrainingFlow.SetTutorialCombatSlowPacing(true);
 
-                int expectedTutorial = (int)Math.Ceiling(3000 * TextDelayConfiguration.GetTutorialCombatDelayMultiplier());
+                int expectedTutorial = (int)Math.Ceiling(1500 * TextDelayConfiguration.GetTutorialCombatDelayMultiplier());
                 TestBase.AssertEqual(expectedTutorial, DeveloperModeState.ScaleDelayMs(3000),
                     "tutorial combat pacing applies the configured delay multiplier",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -377,7 +377,7 @@ namespace RPGGame.Tests.Unit.UI
                     "toggle turns dev mode off", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(!DeveloperModeState.IsCombatLogInstant,
                     "instant latch stays off after dev mode", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(3000, DeveloperModeState.ScaleDelayMs(3000),
+                TestBase.AssertEqual(1500, DeveloperModeState.ScaleDelayMs(3000),
                     "delays return at 1x after dev mode", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally

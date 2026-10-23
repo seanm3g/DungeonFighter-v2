@@ -12,6 +12,18 @@ namespace RPGGame.Combat
     public static class PackCombat
     {
         /// <summary>
+        /// Bodies a pack spawns with at <paramref name="level"/>: the authored size × <paramref name="curve"/> (rounded),
+        /// at least 2 so a pack stays a pack, never more than authored. Non-packs and a disabled curve keep the authored size.
+        /// </summary>
+        public static int BodiesAtLevel(int authoredSize, int level, EnemyDamageCurveConfig? curve)
+        {
+            if (authoredSize <= 2 || curve == null || !curve.Enabled)
+                return Math.Max(1, authoredSize);
+            int bodies = (int)Math.Round(authoredSize * curve.MultiplierAt(level), MidpointRounding.AwayFromZero);
+            return Math.Clamp(bodies, 2, authoredSize);
+        }
+
+        /// <summary>
         /// Pack attackers swing once per living body. Other actors keep <paramref name="authoredCount"/>.
         /// </summary>
         public static int ResolveOutgoingHitCount(Actor source, int authoredCount)

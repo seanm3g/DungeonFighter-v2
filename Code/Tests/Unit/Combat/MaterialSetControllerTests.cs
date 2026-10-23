@@ -39,6 +39,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestFiveStackMultipliesFeed();
             TestGoldCrossFeedsMithril();
             TestClasslessMaterialHasNoBuild();
+            TestUnknownIsWildcardForWornMaterials();
             TestConvertDamageScaleFromBankAndStacks();
             TestDsDtDuOverrides();
             TestStaleScaleColumnsStillPayFromSetBank();
@@ -162,6 +163,32 @@ namespace RPGGame.Tests.Unit.Combat
             var hit = new CombatEvent(CombatEventType.ActionHit, hero) { Action = swing };
             MaterialSetController.TryMintFromEvent(hero, hit, swing);
             TestBase.AssertEqual(2, hero.Effects.GetMaterialKeyword("DRAG"), "Gold 3+ feeds Mithril count", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestUnknownIsWildcardForWornMaterials()
+        {
+            TestBase.SetCurrentTestName(nameof(TestUnknownIsWildcardForWornMaterials));
+            var mixed = EquipPieces(
+                (new HeadItem("Helm", 1, 1), "Iron"),
+                (new ChestItem("Mail", 1, 1), "Unknown"),
+                (new LegsItem("Greaves", 1, 1), "Unknown"),
+                (new FeetItem("Boots", 1, 1), "Leather"));
+            TestBase.AssertEqual(3, MaterialSetController.CountEquipped(mixed, "Iron"),
+                "1 iron + 2 unknown counts 3 iron", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(3, MaterialSetController.CountEquipped(mixed, "Leather"),
+                "1 leather + 2 unknown counts 3 leather", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(LeatherSetBonus.HasLuckyStatus(mixed),
+                "unknown completes the Leather Lucky set", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, MaterialSetController.CountEquipped(mixed, "Gold"),
+                "unknown does not count toward unworn Gold", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(2, MaterialSetController.CountEquipped(mixed, "Unknown"),
+                "unknown counts itself once", ref _run, ref _passed, ref _failed);
+
+            var onlyUnknown = EquipPieces(
+                (new HeadItem("Helm", 1, 1), "Unknown"),
+                (new ChestItem("Mail", 1, 1), "Unknown"));
+            TestBase.AssertEqual(0, MaterialSetController.GetGrantedConvertActionNames(onlyUnknown).Count,
+                "unknown alone forms no set", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestClasslessMaterialHasNoBuild()

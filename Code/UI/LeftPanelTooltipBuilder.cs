@@ -156,6 +156,9 @@ namespace RPGGame
                 case "stat:poison":
                     AppendSimpleStat(character, "POISON", $"+{character.GetWeaponPoisonPercentPerHit():0.#}% max HP on critical hit from weapon mods.", result, AddWrapped, maxLines);
                     break;
+                case string attrKey when attrKey.StartsWith("attr:", StringComparison.Ordinal):
+                    AppendRequirementAttribute(character, attrKey.Substring("attr:".Length), result, AddWrapped, maxLines);
+                    break;
                 case "gear:weapon":
                     AppendGear(character, character.Weapon, "Weapon", result, AddWrapped, maxLines);
                     break;
@@ -475,6 +478,66 @@ namespace RPGGame
             if (!string.IsNullOrEmpty(key))
                 AppendColoredStatTooltip(c, key, result, maxLines);
         }
+
+        /// <summary>Gear requirement attribute (<c>attr:finesse</c>, <c>attr:strength</c>, <c>attr:primary</c>…): what it is and the hero's value.</summary>
+        private static void AppendRequirementAttribute(Character c, string keyLower, List<string> result, Action<string> addWrapped, int maxLines)
+        {
+            switch (keyLower)
+            {
+                case "strength": AppendPrimaryStat(c, "STR", "Strength", result, addWrapped, maxLines); return;
+                case "agility": AppendPrimaryStat(c, "AGI", "Agility", result, addWrapped, maxLines); return;
+                case "technique": AppendPrimaryStat(c, "TEC", "Technique", result, addWrapped, maxLines); return;
+                case "intelligence": AppendPrimaryStat(c, "INT", "Intelligence", result, addWrapped, maxLines); return;
+            }
+
+            string label = Item.FormatRequirementAttributeDisplayName(keyLower);
+            int have = Item.GetEffectiveValueForRequirementKey(keyLower, c);
+
+            if (HybridTrees.ByAttributeName(keyLower) is HybridInfo h)
+            {
+                int a = AttributeValue(c, h.StatA);
+                int b = AttributeValue(c, h.StatB);
+                int fromFight = have - a - b;
+                addWrapped(label.ToUpperInvariant());
+                addWrapped($"Hybrid attribute of the {h.Key} tree ({h.ClassA} + {h.ClassB}): {AttributeName(h.StatA)} + {AttributeName(h.StatB)}.");
+                string extra = fromFight != 0 ? $" {fromFight:+0;-0} this fight" : "";
+                addWrapped($"Yours: {have} ({h.StatA} {a} + {h.StatB} {b}{extra}).");
+                addWrapped($"Raise either {AttributeName(h.StatA)} or {AttributeName(h.StatB)} to meet {label} requirements.");
+                return;
+            }
+
+            if (Item.IsDynamicAttributeRequirementKey(keyLower))
+            {
+                string rank = keyLower switch
+                {
+                    "primary" => "highest",
+                    "secondary" => "second-highest",
+                    "neglected" => "third-highest",
+                    _ => "lowest"
+                };
+                addWrapped(label);
+                addWrapped($"Your {rank} attribute (STR, AGI, TEC, INT), whichever that is right now.");
+                addWrapped($"Yours: {have}.");
+            }
+        }
+
+        private static int AttributeValue(Character c, string code) => code switch
+        {
+            "STR" => c.GetEffectiveStrength(),
+            "AGI" => c.GetEffectiveAgility(),
+            "TEC" => c.GetEffectiveTechnique(),
+            "INT" => c.GetEffectiveIntelligence(),
+            _ => 0
+        };
+
+        private static string AttributeName(string code) => code switch
+        {
+            "STR" => "Strength",
+            "AGI" => "Agility",
+            "TEC" => "Technique",
+            "INT" => "Intelligence",
+            _ => code
+        };
 
         private static void AppendColoredStatTooltip(Character c, string statKey, List<string> result, int maxLines)
         {

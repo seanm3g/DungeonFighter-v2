@@ -89,6 +89,21 @@ function Get-TargetFightWinRate([int]$level) {
     return 100.0 * [math]::Pow($clear / 100.0, 1.0 / [double]$targets.fightsPerDungeon)
 }
 
+# Hero turns wanted at a level: the early-game ramp (heroTurnsAnchors, linear), else heroTurnsTarget. Tolerances are
+# set for heroTurnsTarget, so shorter early fights get the same relative slack.
+function Get-TurnsTarget([double]$level) {
+    $a = @($targets.heroTurnsAnchors | Sort-Object level)
+    if ($a.Count -eq 0) { return [double]$targets.heroTurnsTarget }
+    if ($level -le $a[0].level) { return [double]$a[0].turns }
+    for ($i = 1; $i -lt $a.Count; $i++) {
+        if ($level -le $a[$i].level) { return $a[$i - 1].turns + ($a[$i].turns - $a[$i - 1].turns) * ($level - $a[$i - 1].level) / ($a[$i].level - $a[$i - 1].level) }
+    }
+    return [double]$a[-1].turns
+}
+function Get-TurnsTolerance([double]$level, [double]$tol, [double]$floor) {
+    return [math]::Max($floor, $tol * (Get-TurnsTarget $level) / [double]$targets.heroTurnsTarget)
+}
+
 # Matrix: one process per level x weapon, in parallel. Each weapon has the same number of pairings,
 # so the level result is the plain mean of the four weapon results (identical to one combined run).
 $weapons = @("Mace", "Sword", "Dagger", "Wand")
@@ -220,17 +235,18 @@ foreach ($level in $targets.matrixLevels) {
         Add-Check "L$level fight win rate" ("{0:N1}%" -f $row.winRate) ("{0:N1}% +/- {1}" -f $target, $targets.winRateTolerance) ([math]::Abs($row.winRate - $target) -le $targets.winRateTolerance)
     }
     if ($level -le $targets.heroTurnsCheckMaxLevel) {
-        Add-Check "L$level hero turns" ("{0:N1}" -f $row.heroTurns) ("{0} +/- {1}" -f $targets.heroTurnsTarget, $targets.heroTurnsTolerance) ([math]::Abs($row.heroTurns - $targets.heroTurnsTarget) -le $targets.heroTurnsTolerance)
+        $want = Get-TurnsTarget $level; $wantTol = Get-TurnsTolerance $level $targets.heroTurnsTolerance 0.5
+        Add-Check "L$level hero turns" ("{0:N1}" -f $row.heroTurns) ("{0:0.#} +/- {1:0.#}" -f $want, $wantTol) ([math]::Abs($row.heroTurns - $want) -le $wantTol)
         # Per enemy: the slowest / fastest single enemy for the median build (a playtest found a 21-turn L1 rat pack
         # the level mean hid). perEnemyTurnsTolerance is wider than the level tolerance: enemies may differ, not double.
         if ($row.perEnemy -and $null -ne $targets.perEnemyTurnsTolerance) {
             $per = @($row.perEnemy.PSObject.Properties | ForEach-Object { [pscustomobject]@{ Name = $_.Name; Turns = [double]$_.Value.heroTurns; P90 = [double]$_.Value.heroTurnsP90 } })
             $slow = $per | Sort-Object Turns -Descending | Select-Object -First 1
             $fast = $per | Sort-Object Turns | Select-Object -First 1
-            $tol = [double]$targets.perEnemyTurnsTolerance
-            $off = @($per | Where-Object { [math]::Abs($_.Turns - $targets.heroTurnsTarget) -gt $tol } | ForEach-Object { "{0} {1:N1}" -f $_.Name, $_.Turns })
+            $tol = Get-TurnsTolerance $level $targets.perEnemyTurnsTolerance 1
+            $off = @($per | Where-Object { [math]::Abs($_.Turns - $want) -gt $tol } | ForEach-Object { "{0} {1:N1}" -f $_.Name, $_.Turns })
             $value = if ($off.Count) { "off: " + ($off -join ", ") } else { "{0} {1:N1} (p90 {2:N0}) .. {3} {4:N1}" -f $slow.Name, $slow.Turns, $slow.P90, $fast.Name, $fast.Turns }
-            Add-Check "L$level per-enemy turns" $value ("each {0} +/- {1}" -f $targets.heroTurnsTarget, $tol) ($off.Count -eq 0)
+            Add-Check "L$level per-enemy turns" $value ("each {0:0.#} +/- {1:0.#}" -f $want, $tol) ($off.Count -eq 0)
         }
     }
 }
@@ -251,7 +267,8 @@ foreach ($level in $(if ($BareHero) { $targets.matrixLevels } else { @() })) {
     $target = Get-TargetFightWinRate $level
     Add-Info "L$level bare hero win rate" ("{0:N1}%" -f $wr) ("{0:N1}% +/- {1}" -f $target, $targets.winRateTolerance) ([math]::Abs($wr - $target) -le $targets.winRateTolerance)
     if ($level -le $targets.heroTurnsCheckMaxLevel) {
-        Add-Info "L$level bare hero turns" ("{0:N1}" -f $turns) ("{0} +/- {1}" -f $targets.heroTurnsTarget, $targets.heroTurnsTolerance) ([math]::Abs($turns - $targets.heroTurnsTarget) -le $targets.heroTurnsTolerance)
+        $want = Get-TurnsTarget $level; $wantTol = Get-TurnsTolerance $level $targets.heroTurnsTolerance 0.5
+        Add-Info "L$level bare hero turns" ("{0:N1}" -f $turns) ("{0:0.#} +/- {1:0.#}" -f $want, $wantTol) ([math]::Abs($turns - $want) -le $wantTol)
     }
 }
 
@@ -293,11 +310,14 @@ if (-not $SkipSurvival -and $null -ne $targets.perEnemyTurnsTolerance) {
                 P90 = $t[[math]::Min($t.Count - 1, [math]::Ceiling(0.9 * $t.Count) - 1)]; Max = $t[-1] }
         }
         $sized = @($per | Where-Object { $_.N -ge $minFights })
-        $off = @($sized | Where-Object { [math]::Abs($_.Mean - $targets.heroTurnsTarget) -gt $tol } | Sort-Object Mean -Descending)
+        # The band's target: the turns target averaged over its fights' levels (the early ramp moves inside a band).
+        $want = ($inBand | ForEach-Object { Get-TurnsTarget $_.HeroLevel } | Measure-Object -Average).Average
+        $bandTol = [math]::Max(1, $tol * $want / [double]$targets.heroTurnsTarget)
+        $off = @($sized | Where-Object { [math]::Abs($_.Mean - $want) -gt $bandTol } | Sort-Object Mean -Descending)
         $slow = $sized | Sort-Object Mean -Descending | Select-Object -First 1
         $value = if ($off.Count) { "off: " + (($off | ForEach-Object { "{0} {1:N1} (p90 {2}, max {3}, n={4})" -f $_.Name, $_.Mean, $_.P90, $_.Max, $_.N }) -join "; ") }
                  elseif ($slow) { "slowest {0} {1:N1} (p90 {2}, max {3}, n={4})" -f $slow.Name, $slow.Mean, $slow.P90, $slow.Max, $slow.N } else { "too few fights" }
-        Add-Check ("L{0}-{1} real fights per enemy" -f $band[0], $band[1]) $value ("each {0} +/- {1}, n>={2}" -f $targets.heroTurnsTarget, $tol, $minFights) ($off.Count -eq 0)
+        Add-Check ("L{0}-{1} real fights per enemy" -f $band[0], $band[1]) $value ("each {0:0.#} +/- {1:0.#}, n>={2}" -f $want, $bandTol, $minFights) ($off.Count -eq 0)
     }
 }
 

@@ -135,6 +135,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("data", "JsonArraySheetConverterWeapons", RunJsonArraySheetConverterWeapons));
             list.Add(new TestSuiteEntry("data", "ActionCadenceEditorSync", () => RPGGame.Tests.Unit.Data.ActionCadenceEditorSyncTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CadenceCardLineFormatter", () => RPGGame.Tests.Unit.UI.CadenceCardLineFormatterTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "DungeonThemeColors", () => RPGGame.Tests.Unit.UI.DungeonThemeColorsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ItemTooltipFormatter", () => RPGGame.Tests.Unit.UI.ItemTooltipFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ItemStatFormatter", () => RPGGame.Tests.Unit.UI.ItemStatFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ItemComparisonTable", () => RPGGame.Tests.Unit.UI.ItemComparisonTableTests.RunAllTests()));
@@ -153,7 +154,8 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "BlockMessageCollector", () => RPGGame.Tests.Unit.UI.BlockDisplay.BlockMessageCollectorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "HeroDefenseHudFormatter", () => RPGGame.Tests.Unit.UI.HeroDefenseHudFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "StatTooltipFormatter", () => RPGGame.Tests.Unit.UI.StatTooltipFormatterTests.RunAllTests()));
-            list.Add(new TestSuiteEntry("ui", "ActionCardExternalBonusCollector", () => RPGGame.Tests.Unit.UI.ActionCardExternalBonusCollectorTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ActionCardConsistency", () => RPGGame.Tests.Unit.Data.ActionCardConsistencyTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ActionCardExternalBonusCollector",() => RPGGame.Tests.Unit.UI.ActionCardExternalBonusCollectorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TitleScreenAsciiSpacing", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleScreenAsciiSpacingTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TitleScreenAnimation", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleScreenAnimationTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TitleToMenuBootstrap", () => RPGGame.Tests.Unit.UI.TitleScreen.TitleToMenuBootstrapTests.RunAllTests()));

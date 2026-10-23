@@ -4,7 +4,8 @@
 Every BUILD_CATALOG ladder (GameData/TuningProfiles/build-ladders.json) is run in BUILDLAB at the ladder step a player
 is expected to have reached by that level (STEP below), with strips trimmed to the level's real slot max
 (--level-slots: lootSystem.comboSlotCapByLevel). Health pass: near-harmless enemies (damage x0.05) so hero turns measure
-kill speed; each health anchor is scaled so the median build needs ~11 hero turns. Damage pass: per level, bisect a
+kill speed; each health anchor is scaled so the median build needs the level's turns target (balance-targets.json
+heroTurnsAnchors: 2 at L1 rising to 11 at L11, then heroTurnsTarget). Damage pass: per level, bisect a
 damage scale so the median build's win rate hits the target, then fold it into the anchor.
 
   python Scripts/median-curve-solve.py --patch overnight-v2 --tools Code/bin/T1 --passes 1
@@ -28,9 +29,22 @@ PATCH = os.path.join(ROOT, 'GameData', 'Patches', 'Balance', ARGS.patch + '.json
 E = "Goblin,Rats,Wraith,Wolf,Bear,Lich,Fire Elemental,Zombie,Wight,Glass Shard Golem,Guardian Scarab,Vigil Alpha"
 # Ladder step a typical player has by each anchor level (0 default, 1 class strip, 2 two-piece + convert,
 # 3 full set, 4 weapon mods, 5 catalog skills, 6 core & rite). Strips are trimmed to the level's slot cap.
-STEP = {1: 0, 5: 1, 10: 2, 20: 2, 35: 3, 50: 4, 75: 5, 100: 6}
+STEP = {1: 0, 3: 0, 5: 1, 7: 1, 9: 1, 10: 2, 11: 2, 20: 2, 35: 3, 50: 4, 75: 5, 100: 6}
 WR = {10: 99.1, 20: 97.1, 35: 93.6, 50: 89.4, 75: 79.2, 100: 1.5}
-TURNS = 11.0
+TARGETS = json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balance-targets.json'), encoding='utf-8'))
+
+def turns_target(level):
+    """Median-build hero turns wanted at a level: heroTurnsAnchors (early-game ramp, linear), else heroTurnsTarget."""
+    pts = sorted((a['level'], a['turns']) for a in TARGETS.get('heroTurnsAnchors', []))
+    if not pts: return float(TARGETS['heroTurnsTarget'])
+    if level <= pts[0][0]: return float(pts[0][1])
+    for (l0, t0), (l1, t1) in zip(pts, pts[1:]):
+        if level <= l1: return t0 + (t1 - t0) * (level - l0) / (l1 - l0)
+    return float(pts[-1][1])
+
+def turns_tolerance(level):
+    # heroTurnsTolerance is set for 11 turns; a 2-turn fight gets the same relative slack (at least half a turn).
+    return max(0.5, float(TARGETS['heroTurnsTolerance']) * turns_target(level) / float(TARGETS['heroTurnsTarget']))
 BUILDS = [b['id'] for b in json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'build-ladders.json'), encoding='utf-8'))['builds']]
 TMP = tempfile.mkdtemp(prefix='mcs-')
 
@@ -60,13 +74,13 @@ def chosen(levels):
 
 def health_pass():
     d = load(); anchors = {a['level']: a for a in d['enemySystem']['healthCurve']['anchors']}
-    for l in chosen(STEP):
+    for l in chosen(l for l in STEP if l in anchors):
         rows = median_at(l, ['enemySystem.damageCurve.baseMultiplier=0.05'], f'h{l}')
         if not rows: print(f'health L{l}: no data', flush=True); continue
         turns = statistics.median(r['HeroTurns'] for r in rows)
-        old = anchors[l]['multiplier']; new = round(old * (TURNS / max(0.5, turns)) ** 0.9, 3)
+        old = anchors[l]['multiplier']; new = round(old * (turns_target(l) / max(0.5, turns)) ** 0.9, 3)
         anchors[l]['multiplier'] = new
-        print(f'health L{l}: median build {turns:.1f} turns ({len(rows)} builds)  {old} -> {new}', flush=True)
+        print(f'health L{l}: median build {turns:.1f} turns (target {turns_target(l):.1f}, {len(rows)} builds)  {old} -> {new}', flush=True)
     save(d)
 
 def damage_pass():
@@ -102,7 +116,7 @@ def check():
         rows = [r for lv, r in results if lv == l and r]
         if not rows: print(f'L{l}: no data'); continue
         t = statistics.median(r['HeroTurns'] for r in rows); w = statistics.median(r['WinRate'] for r in rows) * 100
-        good_t = abs(t - TURNS) <= 1.5 if l < 75 else True   # lethal levels: short losses, turns not a target
+        good_t = abs(t - turns_target(l)) <= turns_tolerance(l) if l < 75 else True   # lethal levels: short losses, turns not a target
         good_w = abs(w - WR[l]) <= 4 if l in WR else True
         n += 1; ok += good_t and good_w
         # Per enemy (median over builds): one slow enemy, e.g. a pack whose bodies each need two swings, hides in the mean.
@@ -113,12 +127,12 @@ def check():
                 per[name] = {'heroTurns': round(statistics.median(x['HeroTurns'] for x in pe), 2),
                              'heroTurnsP90': round(statistics.median(x['HeroTurnsP90'] for x in pe), 2),
                              'winRate': round(statistics.median(x['WinRate'] for x in pe) * 100, 2)}
-        out.append({'level': l, 'step': STEP[l], 'builds': len(rows), 'heroTurns': round(t, 2), 'winRate': round(w, 2), 'perEnemy': per})
+        out.append({'level': l, 'step': STEP[l], 'builds': len(rows), 'heroTurns': round(t, 2), 'heroTurnsTarget': round(turns_target(l), 2), 'heroTurnsTolerance': round(turns_tolerance(l), 2), 'winRate': round(w, 2), 'perEnemy': per})
         spread = ''
         if per:
             slow = max(per, key=lambda k: per[k]['heroTurns']); fast = min(per, key=lambda k: per[k]['heroTurns'])
             spread = f"  slowest {slow} {per[slow]['heroTurns']:.1f} (p90 {per[slow]['heroTurnsP90']:.0f}), fastest {fast} {per[fast]['heroTurns']:.1f}"
-        print(f"L{l:<5}{STEP[l]:>5}{t:8.1f}{TURNS:8.0f}{w:8.1f}{WR.get(l, float('nan')):8.1f}  {'PASS' if good_t and good_w else 'FAIL'}{spread}")
+        print(f"L{l:<5}{STEP[l]:>5}{t:8.1f}{turns_target(l):8.1f}{w:8.1f}{WR.get(l, float('nan')):8.1f}  {'PASS' if good_t and good_w else 'FAIL'}{spread}")
     print(f'{ok} of {n} levels on target (median of {len(BUILDS)} catalog builds)')
     if ARGS.json:
         json.dump(out, open(ARGS.json, 'w', encoding='utf-8'), indent=1)

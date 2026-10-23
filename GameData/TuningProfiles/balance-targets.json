@@ -16,6 +16,10 @@
   ],
   "winRateTolerance": 4,
   "heroTurnsTarget": 11,
+  "heroTurnsAnchors": [
+    { "level": 1, "turns": 2 },
+    { "level": 11, "turns": 11 }
+  ],
   "heroTurnsTolerance": 1.5,
   "heroTurnsCheckMaxLevel": 50,
   "perEnemyTurnsTolerance": 4,

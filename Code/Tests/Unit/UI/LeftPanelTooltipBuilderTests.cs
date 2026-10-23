@@ -34,6 +34,12 @@ namespace RPGGame.Tests.Unit.UI
                 "STR tooltip shows effective",
                 ref run, ref passed, ref failed);
 
+            string finesseTip = string.Join("\n", LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "attr:finesse", 80, 12));
+            TestBase.AssertTrue(finesseTip.Contains("FINESSE", StringComparison.Ordinal)
+                    && finesseTip.Contains("Agility + Technique", StringComparison.Ordinal),
+                "requirement hover explains Finesse as Agility + Technique",
+                ref run, ref passed, ref failed);
+
             c.Stats.Agility = 10;
             c.Stats.TempAgilityBonus = 2;
             var agileHelm = new HeadItem("Agile Helm", tier: 1, armor: 1)

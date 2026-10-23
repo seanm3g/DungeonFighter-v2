@@ -23,13 +23,9 @@ namespace RPGGame.Display.Dungeon
                 .Build();
             info.Add(ColoredTextRenderer.RenderAsMarkup(coloredRoomHeader));
 
-            // Get room name color based on theme (single color, not template)
-            char themeColorCode = DungeonThemeColors.GetThemeColorCode(room.Theme);
-            var roomNameColor = GetColorFromThemeCode(themeColorCode);
-            
             var roomNameInfo = new ColoredTextBuilder()
                 .Add("Room: ", AsciiArtAssets.Colors.Gold)
-                .Add(room.Name, roomNameColor)
+                .AddRange(DungeonThemeColors.BuildThemedName(room.Name, room.Theme))
                 .Build();
             info.Add(ColoredTextRenderer.RenderAsMarkup(roomNameInfo));
             info.Add(""); // Blank line after room name
@@ -41,18 +37,6 @@ namespace RPGGame.Display.Dungeon
             // Note: No trailing blank line - spacing system handles transitions
 
             return info;
-        }
-        
-        private static ColorPalette GetColorFromThemeCode(char themeCode)
-        {
-            return themeCode switch
-            {
-                'R' => ColorPalette.Error,
-                'G' => ColorPalette.Success,
-                'B' => ColorPalette.Info,
-                'Y' => ColorPalette.Warning,
-                _ => ColorPalette.White
-            };
         }
     }
 }

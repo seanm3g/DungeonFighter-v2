@@ -86,7 +86,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
                     });
 
                 handler.ShowRegionTravel();
-                Task.Run(async () => await handler.HandleMenuInput("1")).Wait();
+                Task.Run(async () => await handler.HandleMenuInput("2")).Wait();
 
                 TestBase.AssertEqual(3, delays.Count,
                     "Region travel should delay between route rolls (4d4=4 events with test roll 1 => three gaps)",
