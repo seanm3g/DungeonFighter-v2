@@ -17,6 +17,17 @@ namespace RPGGame.Entity.Services
         private static readonly object WriteLock = new object();
 
         /// <summary>
+        /// When set, character saves are read and written here instead of GameData. Test runs set this
+        /// (see <c>TestAssembly</c>) so test heroes never show up in the player's load menu.
+        /// </summary>
+        public static string? SaveDirectoryOverride { get; set; }
+
+        private static string SaveFilePath(string fileName) =>
+            SaveDirectoryOverride != null
+                ? Path.Combine(SaveDirectoryOverride, fileName)
+                : GameConstants.GetGameDataFilePath(fileName);
+
+        /// <summary>
         /// Gets the save filename for a character ID
         /// </summary>
         /// <param name="characterId">The character ID</param>
@@ -28,7 +39,7 @@ namespace RPGGame.Entity.Services
 
             var sanitizedId = SanitizeForFilename(characterId);
             var fileName = $"character_{sanitizedId}_save.json";
-            return GameConstants.GetGameDataFilePath(fileName);
+            return SaveFilePath(fileName);
         }
 
         /// <summary>Non-loadable tombstone path for a per-character save after the hero dies.</summary>
@@ -39,7 +50,7 @@ namespace RPGGame.Entity.Services
 
             var sanitizedId = SanitizeForFilename(characterId);
             var fileName = $"character_{sanitizedId}_dead.json";
-            return GameConstants.GetGameDataFilePath(fileName);
+            return SaveFilePath(fileName);
         }
 
         /// <summary>
@@ -69,12 +80,12 @@ namespace RPGGame.Entity.Services
         /// <returns>The full path to the default character save file</returns>
         public string GetDefaultSaveFilename()
         {
-            return GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+            return SaveFilePath(GameConstants.CharacterSaveJson);
         }
 
         public string GetDefaultDeadSaveFilename()
         {
-            return GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveDeadJson);
+            return SaveFilePath(GameConstants.CharacterSaveDeadJson);
         }
 
         /// <summary>
@@ -233,7 +244,7 @@ namespace RPGGame.Entity.Services
         {
             // Use a known file to get the GameData directory path
             // This ensures we get the correct resolved path
-            var gameDataFilePath = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+            var gameDataFilePath = SaveFilePath(GameConstants.CharacterSaveJson);
             var directory = Path.GetDirectoryName(gameDataFilePath);
 
             // Normalize the path to resolve any ".." components
@@ -249,7 +260,7 @@ namespace RPGGame.Entity.Services
             }
 
             // Fallback: try to find GameData directory using empty string
-            var gameDataPath = GameConstants.GetGameDataFilePath("");
+            var gameDataPath = SaveFilePath("");
             directory = Path.GetDirectoryName(gameDataPath);
             if (!string.IsNullOrEmpty(directory))
             {

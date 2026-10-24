@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
+using RPGGame.Entity.Services;
 
 [assembly: InternalsVisibleTo("DF.Tests")]
 
@@ -46,6 +47,11 @@ namespace RPGGame.Utils.Testing
             // Trailing optional parameters the caller left out get their declared defaults.
             var parameters = method.GetParameters();
             var callArgs = parameters.Select((p, i) => i < args.Length ? args[i] : p.DefaultValue).ToArray();
+            // Tests save throwaway heroes; keep them out of GameData so they never reach the load menu.
+            string? previousSaveDir = CharacterFileManager.SaveDirectoryOverride;
+            string testSaveDir = Path.Combine(Path.GetTempPath(), "DF.Tests", "Saves");
+            Directory.CreateDirectory(testSaveDir);
+            CharacterFileManager.SaveDirectoryOverride = testSaveDir;
             try
             {
                 return method.Invoke(null, callArgs);
@@ -54,6 +60,10 @@ namespace RPGGame.Utils.Testing
             {
                 ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
                 throw;
+            }
+            finally
+            {
+                CharacterFileManager.SaveDirectoryOverride = previousSaveDir;
             }
         }
 
