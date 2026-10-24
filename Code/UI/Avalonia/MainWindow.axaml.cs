@@ -381,14 +381,16 @@ namespace RPGGame.UI.Avalonia
             if (currentState is GameState.ActionInteractionLab or GameState.SkillTree)
                 return false;
 
-            int speed = key == Key.PageUp
+            double speed = key == Key.PageUp
                 ? DeveloperModeState.IncreaseCombatSpeed()
                 : DeveloperModeState.DecreaseCombatSpeed();
 
             if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
                 canvasUI.RefreshCenterPanelModeTint();
 
-            ShowCombatSpeedNotification($"Combat speed: {speed}x");
+            ShowCombatSpeedNotification(speed <= 0
+                ? "Combat paused (Page Up to resume)"
+                : $"Combat speed: {DeveloperModeState.FormatCombatSpeed(speed)}");
             return true;
         }
 
@@ -618,9 +620,9 @@ namespace RPGGame.UI.Avalonia
             combatSpeedNotificationTimer.Stop();
             combatSpeedNotificationTimer.Tick -= HideCombatSpeedNotification;
 
-            // Keep the footer label visible while combat is accelerated; only 1x auto-dismisses.
+            // Keep the footer label visible while combat is off 1x (fast, slow or paused); only 1x auto-dismisses.
             // Narrative-log toast always auto-dismisses.
-            if (forceAutoDismiss || DeveloperModeState.CombatSpeedMultiplier <= 1)
+            if (forceAutoDismiss || DeveloperModeState.CombatSpeedMultiplier == 1)
             {
                 combatSpeedNotificationTimer.Tick += HideCombatSpeedNotification;
                 combatSpeedNotificationTimer.Start();

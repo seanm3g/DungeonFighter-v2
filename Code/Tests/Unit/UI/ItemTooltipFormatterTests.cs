@@ -202,6 +202,28 @@ namespace RPGGame.Tests.Unit.UI
                 "class charm tooltip lists both multipliers",
                 ref run, ref passed, ref failed);
 
+            // Two AMP adjectives with different names still synergize; the tooltip names what is shared.
+            var synergyHero = new Character("S", 1);
+            var vest = new ChestItem("refined Sentinel Vest", tier: 1, armor: 3);
+            vest.Modifications.Add(new Modification { Name = "refined", PrefixCategory = "ADJECTIVE", Effect = "AMP", RolledValue = 0.1 });
+            var cudgel = new WeaponItem("Keen Cudgel", tier: 1, baseDamage: 5);
+            cudgel.Modifications.Add(new Modification { Name = "Keen", PrefixCategory = "ADJECTIVE", Effect = "AMP", RolledValue = 0.05 });
+            var plain = new WeaponItem("Plain Club", tier: 1, baseDamage: 5);
+            synergyHero.AddToInventory(cudgel);
+            synergyHero.AddToInventory(plain);
+            string synergyFlat = string.Join("\n", ItemTooltipFormatter.BuildItemTooltipLines(synergyHero, vest, "Inventory", 40)
+                .Select(ColoredTextRenderer.RenderAsPlainText));
+            TestBase.AssertTrue(synergyFlat.Contains("SYNERGY", StringComparison.Ordinal)
+                    && synergyFlat.Contains("Combo amp ← Keen Cudgel", StringComparison.Ordinal)
+                    && !synergyFlat.Contains("Plain Club", StringComparison.Ordinal),
+                "tooltip lists synergy partners with the shared effect",
+                ref run, ref passed, ref failed);
+            string loneFlat = string.Join("\n", ItemTooltipFormatter.BuildItemTooltipLines(synergyHero, plain, "Inventory", 40)
+                .Select(ColoredTextRenderer.RenderAsPlainText));
+            TestBase.AssertTrue(!loneFlat.Contains("SYNERGY", StringComparison.Ordinal),
+                "tooltip omits synergy section when nothing is shared",
+                ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("ItemTooltipFormatter Tests", run, passed, failed);
         }
     }

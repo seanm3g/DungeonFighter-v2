@@ -160,12 +160,12 @@ namespace RPGGame.UI.Avalonia
             if (key != Key.PageUp && key != Key.PageDown)
                 return false;
 
-            int speed = key == Key.PageUp
+            double speed = key == Key.PageUp
                 ? DeveloperModeState.IncreaseCombatSpeed()
                 : DeveloperModeState.DecreaseCombatSpeed();
 
             canvasUI?.RefreshCenterPanelModeTint();
-            updateStatus?.Invoke($"Combat speed: {speed}x (Page Up/Page Down)");
+            updateStatus?.Invoke($"Combat speed: {DeveloperModeState.FormatCombatSpeed(speed)} (Page Up/Page Down)");
             return true;
         }
     }

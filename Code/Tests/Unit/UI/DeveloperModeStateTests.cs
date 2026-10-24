@@ -155,7 +155,7 @@ namespace RPGGame.Tests.Unit.UI
         {
             Console.WriteLine("--- Combat speed ladder steps through supported values ---");
 
-            int prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
+            double prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
             bool prevInstant = DeveloperModeState.IsCombatLogInstant;
             try
             {
@@ -180,6 +180,31 @@ namespace RPGGame.Tests.Unit.UI
                 TestBase.AssertEqual(5, DeveloperModeState.DecreaseCombatSpeed(),
                     "Page Down step moves 20x to 5x",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                DeveloperModeState.SetCombatSpeedMultiplier(1);
+                TestBase.AssertEqual(0.5, DeveloperModeState.DecreaseCombatSpeed(),
+                    "Page Down step moves 1x to 0.5x",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0.25, DeveloperModeState.DecreaseCombatSpeed(),
+                    "Page Down step moves 0.5x to 0.25x",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0.0, DeveloperModeState.DecreaseCombatSpeed(),
+                    "Page Down step moves 0.25x to pause",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(DeveloperModeState.IsCombatPaused,
+                    "bottom step pauses combat",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0.0, DeveloperModeState.DecreaseCombatSpeed(),
+                    "Page Down stays at pause",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(0.25, DeveloperModeState.IncreaseCombatSpeed(),
+                    "Page Up resumes from pause at 0.25x",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                DeveloperModeState.SetCombatSpeedMultiplier(0.5);
+                TestBase.AssertEqual(3000, DeveloperModeState.ScaleDelayMs(3000),
+                    "0.5x speed (on the 2x baseline) plays a 3000 ms delay at full length",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {
@@ -192,7 +217,7 @@ namespace RPGGame.Tests.Unit.UI
         {
             Console.WriteLine("--- Combat speed scales delays without making them instant ---");
 
-            int prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
+            double prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
             bool prevInstant = DeveloperModeState.IsCombatLogInstant;
             try
             {
@@ -222,7 +247,7 @@ namespace RPGGame.Tests.Unit.UI
         {
             Console.WriteLine("--- Tutorial combat pacing doubles default delay length ---");
 
-            int prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
+            double prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
             bool prevInstant = DeveloperModeState.IsCombatLogInstant;
             bool prevTutorialPacing = PreWeaponTrainingFlow.IsTutorialCombatSlowPacingActive;
             try
@@ -254,7 +279,7 @@ namespace RPGGame.Tests.Unit.UI
         {
             Console.WriteLine("--- Center panel tint changes when combat speed is accelerated ---");
 
-            int prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
+            double prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
             bool prevInstant = DeveloperModeState.IsCombatLogInstant;
             try
             {
@@ -346,7 +371,7 @@ namespace RPGGame.Tests.Unit.UI
             bool prevDev = DeveloperModeState.IsZeroDelayDevMode;
             DeveloperModeState.SetZeroDelayDevMode(false);
             bool prevInstant = DeveloperModeState.IsCombatLogInstant;
-            int prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
+            double prevSpeed = DeveloperModeState.CombatSpeedMultiplier;
             bool prevTutorial = PreWeaponTrainingFlow.IsTutorialCombatSlowPacingActive;
             bool prevUiDelays = UIManager.EnableDelays;
             bool prevFastCombat = GameSettings.Instance.FastCombat;

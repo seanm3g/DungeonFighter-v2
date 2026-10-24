@@ -191,6 +191,8 @@ namespace RPGGame
             if (!ShouldApplyDelay()) return;
             if (delayMs > 0)
                 await Task.Delay(delayMs);
+            // Page Down to pause holds mid-action too, between log lines and HUD beats.
+            await DeveloperModeState.WaitWhilePausedAsync();
         }
         
         /// <summary>

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Avalonia.Media;
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Renderers.Helpers;
+using RPGGame.UI.Avalonia.Renderers.Inventory;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
 using RPGGame.UI.ColorSystem.Applications.ItemFormatting;
@@ -90,6 +92,24 @@ namespace RPGGame
                 {
                     if (lines.Count >= maxLines) break;
                     AddLine(lines, BuildTriggerLine(summary));
+                }
+            }
+
+            var synergyPartners = InventoryAffixSynergy.FindPartners(item, character);
+            if (synergyPartners.Count > 0 && lines.Count < maxLines)
+            {
+                AddBlank(lines);
+                AddLine(lines, BuildSynergyHeader());
+                foreach (var (partner, equipped, shared) in synergyPartners.Take(MaxSynergyLines))
+                {
+                    if (lines.Count >= maxLines) break;
+                    AddLine(lines, BuildSynergyLine(partner, equipped, shared));
+                }
+                if (synergyPartners.Count > MaxSynergyLines && lines.Count < maxLines)
+                {
+                    var more = new ColoredTextBuilder();
+                    more.Add($"  +{synergyPartners.Count - MaxSynergyLines} more", Colors.DarkGray);
+                    AddLine(lines, more.Build());
                 }
             }
 
@@ -231,6 +251,31 @@ namespace RPGGame
                 return true;
             // Slot / tier / level always available on Alt
             return true;
+        }
+
+        private const int MaxSynergyLines = 4;
+
+        /// <summary>Cyan, matching the frame the inventory grid draws around synergy tiles.</summary>
+        private static Color SynergyColor => AsciiArtAssets.Colors.Cyan;
+
+        private static List<ColoredText> BuildSynergyHeader()
+        {
+            var b = new ColoredTextBuilder();
+            b.Add("SYNERGY", SynergyColor);
+            return b.Build();
+        }
+
+        /// <summary>"  Combo amp ← Keen Bone Cudgel (worn)": what is shared, highlighted, then the partner item.</summary>
+        private static List<ColoredText> BuildSynergyLine(Item partner, bool equipped, List<string> shared)
+        {
+            var b = new ColoredTextBuilder();
+            b.Add("  ", Colors.Gray);
+            b.Add(string.Join(", ", shared), SynergyColor);
+            b.Add(" ← ", Colors.DarkGray);
+            b.Add(partner.Name ?? "item", Colors.White);
+            if (equipped)
+                b.Add(" (worn)", Colors.Gray);
+            return b.Build();
         }
 
         private static List<ColoredText> BuildAltHintLine()

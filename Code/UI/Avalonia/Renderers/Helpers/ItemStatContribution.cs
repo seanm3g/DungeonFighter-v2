@@ -184,7 +184,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             effect.Contains("Multiplier", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(effect, "gearPrimaryStatMultiplier", StringComparison.OrdinalIgnoreCase);
 
-        private static string? GetModificationLabel(string effect)
+        internal static string? GetModificationLabel(string effect)
         {
             string e = effect.Trim();
             return e.ToUpperInvariant() switch

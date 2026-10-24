@@ -402,6 +402,8 @@ namespace RPGGame
                 while (player.IsAlive && currentEnemy.IsAlive)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
+                    if (!CombatUiMuteScope.IsMuted && !DisableCombatUIOutput)
+                        await DeveloperModeState.WaitWhilePausedAsync(cancellationToken);
                     var step = await AdvanceSingleTurnAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: tutorialScript);
                     if (step == CombatSingleTurnResult.Advanced)
                         continue;

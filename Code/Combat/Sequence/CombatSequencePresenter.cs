@@ -205,7 +205,7 @@ namespace RPGGame.Combat.Sequence
                     {
                         CombatSequenceHudState.SetActive(i, resultRevealed: false);
                         Invalidate();
-                        if (!await WaitForBeatAsync())
+                        if (!await WaitForBeatAsync(step.Kind == CombatSequenceStepKind.Roll ? RollTumbleBeats : 1))
                             return;
                     }
 
@@ -244,7 +244,10 @@ namespace RPGGame.Combat.Sequence
         /// Timed delay in Swing/live play; Piece mode waits for <see cref="TryAdvanceManualBeat"/>.
         /// </summary>
         /// <returns><c>false</c> when playback was cancelled.</returns>
-        private static async Task<bool> WaitForBeatAsync()
+        /// <summary>Beats the d20 tumbles (faces shuffling) before the ROLL column reveals the kept die.</summary>
+        public const int RollTumbleBeats = 3;
+
+        private static async Task<bool> WaitForBeatAsync(int beats = 1)
         {
             if (UseManualPlayback)
             {
@@ -276,7 +279,8 @@ namespace RPGGame.Combat.Sequence
 
             if (SkipDelaysForTests)
                 return true;
-            await CombatDelayManager.DelayAfterSequenceHudBeatAsync();
+            for (int i = 0; i < beats; i++)
+                await CombatDelayManager.DelayAfterSequenceHudBeatAsync();
             return true;
         }
 

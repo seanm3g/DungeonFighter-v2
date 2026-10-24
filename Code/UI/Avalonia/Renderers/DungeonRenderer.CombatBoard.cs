@@ -8,6 +8,7 @@ using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -198,7 +199,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 if (stage < 1)
                     return null;
-                // Land with a quarter beat to spare so the settled caret reads before OUTCOME draws from it.
+                // Land a little before the die reveals so the settled caret reads before OUTCOME draws from it.
                 if (stage == 1)
                     return ThresholdBarFeedback.TumbleFace(roll, raw / RollLandsAt);
                 return roll;
@@ -209,7 +210,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>Fraction of the ROLL beat the caret tumbles before it lands on the roll.</summary>
-        private const double RollLandsAt = 0.75;
+        private const double RollLandsAt = 0.9;
 
         /// <summary>The line from the roll appears on OUTCOME, after the bands settle and the caret lands.</summary>
         private static bool RollKnown(int stage) => stage >= 2;
@@ -255,7 +256,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             var kind = CombatSequenceHudState.ActiveKind;
             if (kind == null)
                 return (0, 0.0, 0.0);
-            double raw = CombatBoardAnimation.PhaseProgress(CombatBoardAnimation.BeatMs);
+            // ROLL tumbles for several beats before the die lands; stretch its motion to match.
+            int beats = kind == CombatSequenceStepKind.Roll ? CombatSequencePresenter.RollTumbleBeats : 1;
+            double raw = CombatBoardAnimation.PhaseProgress(CombatBoardAnimation.BeatMs * beats);
             if (raw < 1.0)
                 CombatBoardAnimation.RequestFrame();
             return (BoardStageOf(kind.Value), CombatBoardAnimation.EaseOut(raw), raw);
@@ -309,6 +312,55 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (t <= 0.0)
                 return;
             canvas.AddLine(a.X, a.Y, CombatBoardAnimation.Lerp(a.X, b.X, t), CombatBoardAnimation.Lerp(a.Y, b.Y, t), color, thickness);
+        }
+
+        /// <summary>
+        /// <see cref="AddGrowingLine"/> with the stretches that cross <paramref name="under"/> left out. Lines draw above
+        /// every box, so this is how a line reads as passing beneath the panels it crosses.
+        /// </summary>
+        private void AddGrowingLineUnder((double X, double Y) a, (double X, double Y) b, double t, Color color, double thickness,
+            IEnumerable<BoardRect> under)
+        {
+            if (t <= 0.0)
+                return;
+            double dx = (b.X - a.X) * t, dy = (b.Y - a.Y) * t;
+            var hidden = new List<(double From, double To)>();
+            foreach (var r in under)
+            {
+                // Liang-Barsky: the part of the segment (in 0..1) that lies inside r.
+                double lo = 0.0, hi = 1.0;
+                if (!Clip(-dx, a.X - r.X, ref lo, ref hi) || !Clip(dx, r.Right - a.X, ref lo, ref hi)
+                    || !Clip(-dy, a.Y - r.Y, ref lo, ref hi) || !Clip(dy, r.Bottom - a.Y, ref lo, ref hi))
+                    continue;
+                if (hi > lo)
+                    hidden.Add((lo, hi));
+            }
+            hidden.Sort((p, q) => p.From.CompareTo(q.From));
+            double at = 0.0;
+            foreach (var (from, to) in hidden.Append((1.0, 1.0)))
+            {
+                if (from > at)
+                    canvas.AddLine(a.X + dx * at, a.Y + dy * at, a.X + dx * from, a.Y + dy * from, color, thickness);
+                at = Math.Max(at, to);
+            }
+
+            static bool Clip(double p, double q, ref double lo, ref double hi)
+            {
+                if (p == 0.0)
+                    return q >= 0.0;
+                double r = q / p;
+                if (p < 0.0)
+                {
+                    if (r > hi) return false;
+                    lo = Math.Max(lo, r);
+                }
+                else
+                {
+                    if (r < lo) return false;
+                    hi = Math.Min(hi, r);
+                }
+                return true;
+            }
         }
 
         /// <summary>Where the segment from <paramref name="a"/> to the center of <paramref name="r"/> crosses its border
@@ -545,7 +597,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             // while the act NOW held slides into PREV - one move, both cards together.
             if (nextRolling && stage == 2)
             {
-                int pick = branches.FindIndex(b => b.Outcome == swing!.Outcome);
+                int pick = TakenBranch(branches, swing!);
                 if (pick >= 0 && pick < slots)
                 {
                     _boardLandSwing = swing;
@@ -626,19 +678,25 @@ namespace RPGGame.UI.Avalonia.Renderers
             else
                 canvas.AddText(prevR.X + 1, prevR.Y - 1, "PREV", AsciiArtAssets.Colors.Gray);
 
-            // Roll line: the face on the actor's d20 bar -> the center of NOW (hero bar below, enemy bar above). Lines sit
-            // above boxes, so it stops at NOW's border to read as running under the panel. Gone at rest.
-            if (swing != null && RollKnown(stage))
-            {
-                var rollPoint = RollPoint(swing.Roll, hero: swing.Source is not Enemy);
-                AddGrowingLine(rollPoint, EntryPoint(rollPoint, nowR), OutcomeHalf(stage, rawP, second: false), strikeColor, 2.0);
-            }
-
             // --- Die between NOW and the queue ---
             bool dieVisible = swing != null && stage >= 1 && !cardInFlight;
             BoardRect dieR = default;
             if (dieVisible)
                 dieR = DrawBoardDie(junction, swing!, stage, rawP, x, w);
+
+            // Roll line: the face on the actor's d20 bar -> the center of NOW (hero bar below, enemy bar above). Lines sit
+            // above boxes, so it stops at NOW's border and skips the other panels it crosses (queue cards, their label,
+            // PREV, the die) to read as running under them. Gone at rest.
+            if (swing != null && RollKnown(stage))
+            {
+                var rollPoint = RollPoint(swing.Roll, hero: swing.Source is not Enemy);
+                var under = new List<BoardRect>(queueR) { prevR, new BoardRect(prevR.X, prevR.Y - 1, prevR.W, 1) };
+                if (slots > 0)
+                    under.Add(new BoardRect(nextX, queueR[0].Y - 1, nextW, 1));
+                if (dieVisible)
+                    under.Add(dieR);
+                AddGrowingLineUnder(rollPoint, EntryPoint(rollPoint, nowR), OutcomeHalf(stage, rawP, second: false), strikeColor, 2.0, under);
+            }
             (double X, double Y) junctionIn = dieVisible ? (dieR.X, junction.Y) : junction;
             (double X, double Y) junctionOut = dieVisible ? (dieR.Right, junction.Y) : junction;
             canvas.AddLine(nowR.Right, nowR.CenterY, junctionIn.X, junctionIn.Y,
@@ -652,11 +710,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                 string label = nextRolling ? "ROLLING" : nextEntry.IsActing ? "ACTING" : "NEXT";
                 canvas.AddText(nextX + 1, queueR[0].Y - 1, Truncate($"{label}  {actor.Name}", nextW), BoardActorColor(actor));
                 double fade = stage > 2 ? 1.0 : CombatBoardAnimation.EaseOut(rawP);
+                int taken = nextRolling ? TakenBranch(branches, swing!) : -1;
                 for (int i = 0; i < slots; i++)
                 {
                     var b = branches[i];
                     bool resolved = nextRolling && stage >= 2 && b.Outcome != null;
-                    bool chosen = resolved && b.Outcome == swing!.Outcome;
+                    bool chosen = resolved && i == taken;
                     canvas.AddLine(junctionOut.X, junctionOut.Y, queueR[i].X, queueR[i].CenterY,
                         resolved && !chosen ? BoardFadedBorder : BoardIdleLine, 1.0);
                     if (chosen)
@@ -667,13 +726,10 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             if (cardInFlight)
                 DrawBoardAct(_boardNowAct, BoardRect.Lerp(_boardLandFrom, nowR, shift), OutcomeColor(swing!.Outcome), 3, mode);
-
-            if (swing != null && stage >= 3)
-                RenderBoardResultLine(swing, stage, p, nowR, x + w - nowR.X - 1);
         }
 
         /// <summary>One possible result of the next roll: its odds (faces or percent), what it does, and any detail lines.</summary>
-        private sealed record BoardBranch(string Odds, string Text, Color Color, CombatSequenceSwingOutcome? Outcome, List<string> Detail);
+        private sealed record BoardBranch(string Odds, string Text, Color Color, CombatSequenceSwingOutcome? Outcome, List<string> Detail, bool Critical = false);
 
         /// <summary>
         /// One outcome box of the next roll. While that roll plays, OUTCOME lights the branch taken and fades the rest.
@@ -690,7 +746,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             if (resolved)
             {
-                border = chosen ? OutcomeColor(b.Outcome!.Value) : LerpColor(BoardDimBorder, BoardFadedBorder, fade);
+                border = chosen ? (b.Critical ? b.Color : OutcomeColor(b.Outcome!.Value)) : LerpColor(BoardDimBorder, BoardFadedBorder, fade);
                 thickness = chosen ? 3 : 1;
                 if (!chosen)
                     color = LerpColor(color, BoardFadedBorder, fade * 0.85);
@@ -755,13 +811,34 @@ namespace RPGGame.UI.Avalonia.Renderers
                 _boardRestComboName[actor] = combo;
             }
 
+            // Same exclusive bands as the d20 bar: crit, combo, hit, miss, crit miss. Crit and crit miss only show when
+            // the actor can roll them.
             static string Faces(int lo, int hi) => lo > hi ? "--" : lo == hi ? $"{lo}" : $"{lo}-{hi}";
-            int comboAt = Math.Clamp(t.Combo, 1, 21);
+            int critAt = Math.Clamp(t.Crit, 1, 21);
+            int comboAt = Math.Clamp(t.Combo, 1, critAt);
             int hitAt = Math.Clamp(t.MinHit, 1, comboAt);
-            list.Add(new BoardBranch(Faces(comboAt, 20), combo, BoardComboBorder, CombatSequenceSwingOutcome.Combo, new()));
+            int critMissTop = Math.Clamp(t.CritMiss, 0, hitAt - 1);
+            if (critAt <= 20)
+                list.Add(new BoardBranch(Faces(critAt, 20), $"CRIT {combo}", ThresholdDisplayFormatting.D20ThresholdBarColors.Crit, CombatSequenceSwingOutcome.Combo, new(), Critical: true));
+            list.Add(new BoardBranch(Faces(comboAt, critAt - 1), combo, BoardComboBorder, CombatSequenceSwingOutcome.Combo, new()));
             list.Add(new BoardBranch(Faces(hitAt, comboAt - 1), "hit", AsciiArtAssets.Colors.White, CombatSequenceSwingOutcome.Hit, new()));
-            list.Add(new BoardBranch(Faces(1, hitAt - 1), "miss", AsciiArtAssets.Colors.Red, CombatSequenceSwingOutcome.Miss, new()));
+            list.Add(new BoardBranch(Faces(critMissTop + 1, hitAt - 1), "miss", AsciiArtAssets.Colors.Red, CombatSequenceSwingOutcome.Miss, new()));
+            if (critMissTop >= 1)
+                list.Add(new BoardBranch(Faces(1, critMissTop), "CRIT MISS", ThresholdDisplayFormatting.D20ThresholdBarColors.CritMiss, CombatSequenceSwingOutcome.Miss, new(), Critical: true));
             return list;
+        }
+
+        /// <summary>
+        /// The branch a swing took: a crit lights the crit box and a crit miss the crit-miss box; falls back to the plain
+        /// outcome when that box isn't shown (e.g. a crit from a natural-face trigger outside the crit band).
+        /// </summary>
+        private static int TakenBranch(List<BoardBranch> branches, CombatSequenceSwingInfo swing)
+        {
+            bool miss = swing.Outcome == CombatSequenceSwingOutcome.Miss;
+            bool critical = miss ? swing.IsCriticalMiss : swing.IsCritical;
+            int exact = branches.FindIndex(b => b.Outcome != null && b.Critical == critical
+                && (b.Outcome == swing.Outcome || (critical && !miss && b.Outcome != CombatSequenceSwingOutcome.Miss)));
+            return exact >= 0 ? exact : branches.FindIndex(b => b.Outcome == swing.Outcome);
         }
 
         private void DrawBoardAct(BoardAct? act, BoardRect r, Color border, int thickness, ActionStripDamageLineMode mode)
@@ -799,13 +876,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             else if (miss)
             {
-                title = "MISS";
+                title = act.Swing!.IsCriticalMiss ? "CRIT MISS" : "MISS";
                 sub = "combo resets to 1";
-                color = AsciiArtAssets.Colors.Red;
+                color = act.Swing.IsCriticalMiss ? ThresholdDisplayFormatting.D20ThresholdBarColors.CritMiss : AsciiArtAssets.Colors.Red;
             }
             else if (act.Swing?.Outcome == CombatSequenceSwingOutcome.Hit)
             {
-                title = "HIT";
+                title = act.Swing.IsCritical ? "CRIT HIT" : "HIT";
                 sub = "combo resets to 1";
                 color = AsciiArtAssets.Colors.White;
             }
@@ -914,37 +991,6 @@ namespace RPGGame.UI.Avalonia.Renderers
             double pulse = 1.0 - Math.Clamp(raw, 0.0, 1.0);
             var tint = Color.FromRgb((byte)(flash.R / 5), (byte)(flash.G / 5), (byte)(flash.B / 5));
             return (LerpColor(border, flash, pulse), LerpColor(BoardCardBackground, tint, pulse), pulse > 0.4 ? 4 : thickness);
-        }
-
-        /// <summary>
-        /// ACTION onward, written as a result line under <paramref name="anchor"/>: "whiff" on a miss, the DEFENSE and DAMAGE
-        /// math as each beat reveals, then EFFECTS typed out. The acting card carries the accent (<see cref="AccentForBeat"/>).
-        /// </summary>
-        private void RenderBoardResultLine(CombatSequenceSwingInfo swing, int stage, double p, BoardRect anchor, int maxW)
-        {
-            int tx = anchor.X + 1;
-            int ty = anchor.Y + anchor.H;
-            int w = Math.Max(4, maxW);
-            var text = Flatten(CombatSequenceHudState.VisibleResult);
-            if (swing.Outcome == CombatSequenceSwingOutcome.Miss && stage == 3)
-                canvas.AddText(tx, ty, "whiff", AsciiArtAssets.Colors.Gray);
-            else if ((stage == 4 || stage == 5) && text.Length > 0)
-            {
-                Color color = stage == 4 ? AsciiArtAssets.Colors.Cyan
-                    : swing.Action.Type == ActionType.Heal ? BoardHealLine
-                    : swing.IsCritical ? AsciiArtAssets.Colors.Gold : AsciiArtAssets.Colors.Red;
-                canvas.AddText(tx, ty, Truncate(text, w), color);
-            }
-            else if (stage == 6 && text.Length > 0)
-                TypeOut(text, p, tx, ty, w);
-        }
-
-        /// <summary>Types <paramref name="text"/> out over the first ~60% of the beat.</summary>
-        private void TypeOut(string text, double p, int tx, int ty, int maxW)
-        {
-            int shown = (int)Math.Ceiling(text.Length * Math.Min(1.0, p * 1.6));
-            if (shown > 0)
-                canvas.AddText(tx, ty, Truncate(text.Substring(0, Math.Min(shown, text.Length)), maxW), AsciiArtAssets.Colors.Cyan);
         }
 
         private static string Truncate(string text, int max) =>

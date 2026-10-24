@@ -153,7 +153,8 @@ namespace RPGGame.Combat.Sequence
             if (result.ResolvedCritThreshold is int crit && result.ResolvedComboThreshold is int combo
                 && result.ResolvedHitThreshold is int hit && result.ResolvedCritMissThreshold is int critMiss)
                 thresholds = new CombatSequenceThresholds(crit, combo, hit + 1, critMiss);
-            var swing = new CombatSequenceSwingInfo(source, selected, roll, outcome, result.IsCritical, result.Hit ? result.Damage : 0, thresholds);
+            var swing = new CombatSequenceSwingInfo(source, selected, roll, outcome, result.IsCritical, result.Hit ? result.Damage : 0, thresholds,
+                isCriticalMiss: !result.Hit && result.IsCriticalMiss);
             for (int i = firstStep; i < steps.Count; i++)
                 steps[i].Swing = swing;
         }

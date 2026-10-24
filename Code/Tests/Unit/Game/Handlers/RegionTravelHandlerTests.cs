@@ -66,7 +66,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             stateManager.SetCurrentPlayer(character);
 
             var delays = new List<int>();
-            int previousSpeed = DeveloperModeState.CombatSpeedMultiplier;
+            double previousSpeed = DeveloperModeState.CombatSpeedMultiplier;
             bool previousInstant = DeveloperModeState.IsCombatLogInstant;
             try
             {

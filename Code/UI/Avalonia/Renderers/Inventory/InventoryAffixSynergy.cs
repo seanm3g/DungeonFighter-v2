@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RPGGame.UI.Avalonia.Renderers.Inventory
 {
@@ -76,17 +77,77 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             return GetAffixKeys(item, includeMaterial).Overlaps(hoveredAffixes);
         }
 
+        private static readonly string[] GearSlots = { "head", "body", "legs", "weapon", "feet", "charm" };
+
         /// <summary>True when <paramref name="item"/> is worn in one of <paramref name="character"/>'s gear slots.</summary>
         public static bool IsEquipped(Item? item, Character? character)
         {
             if (item == null || character == null)
                 return false;
-            foreach (var slot in new[] { "head", "body", "legs", "weapon", "feet", "charm" })
+            foreach (var slot in GearSlots)
             {
                 if (ReferenceEquals(character.Equipment.GetSlotItem(slot), item))
                     return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Worn and bagged items that light up when <paramref name="hovered"/> is hovered, with what each shares
+        /// ("Combo amp", "Keen", "Bone set"). Uses the same matching as the grid frames: gear-to-gear also matches material.
+        /// </summary>
+        public static List<(Item Item, bool Equipped, List<string> Shared)> FindPartners(Item? hovered, Character? character)
+        {
+            var partners = new List<(Item, bool, List<string>)>();
+            if (hovered == null || character == null)
+                return partners;
+            bool hoveredIsGear = IsEquipped(hovered, character);
+            var bagAffixes = GetAffixKeys(hovered);
+            var gearAffixes = hoveredIsGear ? GetAffixKeys(hovered, includeMaterial: true) : bagAffixes;
+            var seen = new HashSet<Item>(ReferenceEqualityComparer.Instance) { hovered };
+            foreach (var slot in GearSlots)
+            {
+                var item = character.Equipment.GetSlotItem(slot);
+                if (item == null || !seen.Add(item))
+                    continue;
+                var shared = DescribeShared(gearAffixes, GetAffixKeys(item, hoveredIsGear));
+                if (shared.Count > 0)
+                    partners.Add((item, true, shared));
+            }
+            foreach (var item in character.Inventory ?? new List<Item>())
+            {
+                if (item == null || !seen.Add(item))
+                    continue;
+                var shared = DescribeShared(bagAffixes, GetAffixKeys(item));
+                if (shared.Count > 0)
+                    partners.Add((item, false, shared));
+            }
+            return partners;
+        }
+
+        private static List<string> DescribeShared(HashSet<string> hoveredAffixes, HashSet<string> otherAffixes)
+        {
+            var labels = new List<string>();
+            foreach (var key in hoveredAffixes)
+            {
+                if (!otherAffixes.Contains(key))
+                    continue;
+                string label = DescribeKey(key);
+                if (!labels.Contains(label, StringComparer.OrdinalIgnoreCase))
+                    labels.Add(label);
+            }
+            return labels;
+        }
+
+        private static string DescribeKey(string key)
+        {
+            if (key.StartsWith(NameKey, StringComparison.OrdinalIgnoreCase))
+                return key.Substring(NameKey.Length);
+            if (key.StartsWith(MaterialKey, StringComparison.OrdinalIgnoreCase))
+                return key.Substring(MaterialKey.Length) + " set";
+            string effect = key.Substring(EffectKey.Length);
+            return Helpers.ItemStatContributionCollector.GetModificationLabel(effect)
+                ?? char.ToUpperInvariant(effect[0]) + effect.Substring(1).ToLowerInvariant();
         }
 
         /// <summary>

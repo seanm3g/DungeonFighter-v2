@@ -123,8 +123,7 @@ namespace RPGGame.UI.Avalonia
             }
 
             string padded = " " + name.ToLowerInvariant() + " ";
-            string? baseName = _bases.FirstOrDefault(b => padded.Contains(b.Padded, StringComparison.Ordinal)).Name;
-            (string, string)? result = null;
+            string? baseName = _bases.FirstOrDefault(b => padded.Contains(b.Padded, StringComparison.Ordinal)).Name;            (string, string)? result = null;
             if (baseName != null)
             {
                 string? mat = !string.IsNullOrWhiteSpace(material)

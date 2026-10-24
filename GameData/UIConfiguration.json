@@ -148,7 +148,7 @@
     "blendMode": "Normal",
     "baseColor": "#000000",
     "style": "Ascii",
-    "asciiRamp": " .:-=+*#%@",
+    "asciiRamp": " .:-=\u002B*#%@",
     "asciiBackground": 0.15,
     "asciiImageUnderlay": 0.25,
     "asciiGlyphGain": 1.6,
@@ -157,7 +157,9 @@
     "itemAsciiDensity": 3,
     "itemAsciiGlyphGain": 2.6,
     "itemAsciiBackground": 0,
-    "itemAsciiCutoff": 0.25
+    "itemAsciiCutoff": 0.25,
+    "isAscii": true,
+    "isItemAscii": false
   },
   "textAnimationPresets": {
     "pathIntro": {

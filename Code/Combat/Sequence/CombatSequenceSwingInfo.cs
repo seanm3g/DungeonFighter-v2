@@ -19,9 +19,10 @@ namespace RPGGame.Combat.Sequence
     public sealed class CombatSequenceSwingInfo
     {
         public CombatSequenceSwingInfo(Actor source, Action action, int roll, CombatSequenceSwingOutcome outcome, bool isCritical, int damage,
-            CombatSequenceThresholds? thresholds = null)
+            CombatSequenceThresholds? thresholds = null, bool isCriticalMiss = false)
         {
             Thresholds = thresholds;
+            IsCriticalMiss = isCriticalMiss;
             Source = source;
             Action = action;
             Roll = roll;
@@ -38,6 +39,7 @@ namespace RPGGame.Combat.Sequence
 
         public CombatSequenceSwingOutcome Outcome { get; }
         public bool IsCritical { get; }
+        public bool IsCriticalMiss { get; }
         public int Damage { get; }
 
         /// <summary>Thresholds in force for this roll (null when execution did not record them).</summary>
