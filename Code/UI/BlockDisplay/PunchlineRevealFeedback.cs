@@ -10,6 +10,16 @@ namespace RPGGame.UI.BlockDisplay
     /// </summary>
     internal static class PunchlineRevealFeedback
     {
+        /// <summary>
+        /// Action block is starting: play the swing cue ahead of the queued outcome.
+        /// Blocks with nothing queued (stun notices, status ticks) stay silent.
+        /// </summary>
+        public static void NotifyBlockStarting()
+        {
+            if (AudioCues.HasQueued)
+                AudioCues.Trigger(AudioCue.Combat_ActionStart);
+        }
+
         public static void CommitQueued()
         {
             HeroActionStripFeedback.CommitQueued();

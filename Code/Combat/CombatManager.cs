@@ -292,7 +292,10 @@ namespace RPGGame
 
                 if (nextEntity == player && player.IsAlive)
                 {
-                    bool combatContinues = await turnHandler.ProcessPlayerTurnAsync(player, currentEnemy, room, forcedAction, tutorialScript);
+                    CombatTurnQueue.BeginTurn(player);
+                    bool combatContinues;
+                    try { combatContinues = await turnHandler.ProcessPlayerTurnAsync(player, currentEnemy, room, forcedAction, tutorialScript); }
+                    finally { CombatTurnQueue.EndTurn(); }
                     await CombatDelayManager.DelayAfterActionAsync();
                     if (!player.IsAlive)
                         return CombatSingleTurnResult.PlayerDefeated;
@@ -305,7 +308,10 @@ namespace RPGGame
 
                 if (nextEntity == currentEnemy && currentEnemy.IsAlive)
                 {
-                    bool combatContinues = await turnHandler.ProcessEnemyTurnAsync(player, currentEnemy, room, forcedAction: null, tutorialScript);
+                    CombatTurnQueue.BeginTurn(currentEnemy);
+                    bool combatContinues;
+                    try { combatContinues = await turnHandler.ProcessEnemyTurnAsync(player, currentEnemy, room, forcedAction: null, tutorialScript); }
+                    finally { CombatTurnQueue.EndTurn(); }
                     await CombatDelayManager.DelayAfterActionAsync();
                     if (!player.IsAlive)
                         return CombatSingleTurnResult.PlayerDefeated;
@@ -318,7 +324,11 @@ namespace RPGGame
 
                 if (nextEntity == room && room.IsHostile && room.ActionPool.Count > 0)
                 {
-                    if (!await turnHandler.ProcessEnvironmentTurnAsync(player, currentEnemy, room))
+                    CombatTurnQueue.BeginTurn(room);
+                    bool environmentContinues;
+                    try { environmentContinues = await turnHandler.ProcessEnvironmentTurnAsync(player, currentEnemy, room); }
+                    finally { CombatTurnQueue.EndTurn(); }
+                    if (!environmentContinues)
                     {
                         if (!player.IsAlive)
                             return CombatSingleTurnResult.PlayerDefeated;

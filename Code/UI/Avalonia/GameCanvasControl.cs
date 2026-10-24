@@ -909,13 +909,13 @@ namespace RPGGame.UI.Avalonia
         /// Square and centered unless <paramref name="fillFrame"/> is set, which paints the whole cell.
         /// </summary>
         public void AddImage(int x, int y, int width, int height, IImage source, Rect sourceRect, double paddingPixels = 2, bool fillFrame = false,
-            bool pixelAligned = false, Action<DrawingContext>? overlay = null)
+            bool pixelAligned = false, Action<DrawingContext>? overlay = null, bool followsAsciiStyle = false)
         {
             elementManager.AddImage(new CanvasImage
             {
                 X = x, Y = y, Width = width, Height = height,
                 Source = source, SourceRect = sourceRect, PaddingPixels = paddingPixels, FillFrame = fillFrame,
-                PixelAligned = pixelAligned, Overlay = overlay
+                PixelAligned = pixelAligned, Overlay = overlay, FollowsAsciiStyle = followsAsciiStyle
             });
         }
 

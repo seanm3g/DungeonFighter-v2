@@ -143,7 +143,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                 if (backdrop != null)
                     RenderBackdrop(context, backdrop, charWidth, charHeight);
                 if (images != null)
-                    RenderImages(context, images, charWidth, charHeight);
+                    RenderImages(context, images, charWidth, charHeight, coordinateConverter.GetFontSize());
                 RenderBoxes(context, boxElements, overlayPass: false, aboveBackdrop: true);
                 RenderProgressBars(context, progressBars);
                 RenderSegmentedBars(context, segmentedBars);
@@ -303,7 +303,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             }
         }
         
-        private static void RenderImages(DrawingContext context, List<CanvasImage> images, double charWidth, double charHeight)
+        private static void RenderImages(DrawingContext context, List<CanvasImage> images, double charWidth, double charHeight, double fontSize)
         {
             if (images.Count == 0)
                 return;
@@ -311,6 +311,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             // Pixel-aligned images (the travel map) are already at screen size, so they skip the costly filter.
             var smooth = new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.HighQuality };
             var exact = new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.None };
+            var look = RPGGame.UI.Avalonia.Effects.RoomBackdropSettings.Current;
             foreach (var image in images)
             {
                 double pad = Math.Max(0, image.PaddingPixels);
@@ -329,8 +330,16 @@ namespace RPGGame.UI.Avalonia.Canvas
                     y += (h - side) / 2;
                     dw = dh = side;
                 }
-                using (context.PushRenderOptions(image.PixelAligned ? exact : smooth))
-                    context.DrawImage(image.Source, image.SourceRect, new Rect(x, y, dw, dh));
+                if (image.FollowsAsciiStyle && look.IsItemAscii &&image.Source is global::Avalonia.Media.Imaging.Bitmap bitmap)
+                {
+                    var grid = new Rect(image.X * charWidth, image.Y * charHeight, image.Width * charWidth, image.Height * charHeight);
+                    context.Custom(new ItemArtAsciiDrawOperation(grid, new Rect(x, y, dw, dh), bitmap, image.SourceRect, look, charWidth, charHeight, fontSize));
+                }
+                else
+                {
+                    using (context.PushRenderOptions(image.PixelAligned ? exact : smooth))
+                        context.DrawImage(image.Source, image.SourceRect, new Rect(x, y, dw, dh));
+                }
                 if (image.Overlay != null)
                 {
                     using (context.PushTransform(Matrix.CreateTranslation(image.X * charWidth, image.Y * charHeight)))
@@ -831,6 +840,32 @@ namespace RPGGame.UI.Avalonia.Canvas
             context.DrawText(formatted, SnapDrawPoint(x, y));
         }
 
+        /// <summary>Chromatic ghost of a whole run, placed on the same advances as <see cref="DrawTextRun"/>.</summary>
+        private void DrawTintedRun(
+            DrawingContext context,
+            string content,
+            double x,
+            double y,
+            Color color,
+            double fontSize,
+            double glyphAdvance,
+            bool forceMonospace)
+        {
+            if (!forceMonospace || content.Length <= 1)
+            {
+                DrawTintedGlyph(context, content, x, y, color, fontSize);
+                return;
+            }
+
+            for (int i = 0; i < content.Length; i++)
+            {
+                char ch = content[i];
+                if (ch == '\0')
+                    continue;
+                DrawTintedGlyph(context, GlyphString(ch), MonospaceGlyphOriginX(x, i, glyphAdvance), y, color, fontSize);
+            }
+        }
+
         private void DrawTextBlock(
             DrawingContext context,
             CanvasText text,
@@ -1069,14 +1104,16 @@ namespace RPGGame.UI.Avalonia.Canvas
                     (fdx, fdy) = SnapPixelFontOffset(fdx, fdy, GameFonts.UsesPixelGrid);
                     if (Math.Abs(fdx) > WindSwayChromatic.IdleEpsilon || Math.Abs(fdy) > WindSwayChromatic.IdleEpsilon)
                     {
-                        DrawTintedGlyph(context, content, x - fdx, y - fdy,
-                            Color.FromArgb(ghostAlpha, 255, 40, 40), fontSize);
-                        DrawTintedGlyph(context, content, x + fdx, y + fdy,
-                            Color.FromArgb(ghostAlpha, 40, 220, 255), fontSize);
+                        DrawTintedRun(context, content, x - fdx, y - fdy,
+                            Color.FromArgb(ghostAlpha, 255, 40, 40), fontSize, glyphAdvance, forceMonospace);
+                        DrawTintedRun(context, content, x + fdx, y + fdy,
+                            Color.FromArgb(ghostAlpha, 40, 220, 255), fontSize, glyphAdvance, forceMonospace);
                     }
                 }
 
-                DrawTextBlock(context, text, content, x, y, fontSize);
+                // Same grid advances as the idle path: one FormattedText would re-kern the
+                // ═══ fallback glyphs and the header would snap wider/narrower each frame.
+                DrawTextRun(context, text, content, x, y, fontSize, glyphAdvance, forceMonospace);
             }
 
             if (Math.Abs(pose.RotationRadians) > WindSwayChromatic.IdleEpsilon)

@@ -236,6 +236,12 @@ namespace RPGGame
             return true;
         }
         public void InitializeDefaultCombo() => _character.Actions.InitializeDefaultCombo(_character, _character.Equipment.Weapon);
+        /// <summary>Sets the combo sequence to <paramref name="actions"/> in order, uncapped, and restarts at slot 1.</summary>
+        public void SetComboSequenceInOrder(IEnumerable<Action> actions)
+        {
+            _character.Actions.SetComboSequenceInOrder(actions);
+            _character.ComboStep = 0;
+        }
         public bool RestoreComboFromActionNames(IReadOnlyList<string> actionNames) => _character.Actions.RestoreComboFromActionNames(_character, actionNames);
         public double CalculateTurnsFromActionLength(double actionLength) => _character.Actions.CalculateTurnsFromActionLength(actionLength);
         public void RemoveItemActions() => _character.Actions.RemoveItemActions(_character);

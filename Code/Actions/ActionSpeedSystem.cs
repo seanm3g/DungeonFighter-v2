@@ -250,6 +250,18 @@ namespace RPGGame
             return nextEntity.NextActionTime;
         }
 
+        /// <summary>Copy of every entity's readiness (alive or not) for turn-order previews; safe to call from the UI thread.</summary>
+        public List<CombatEntity> GetScheduleSnapshot()
+        {
+            var copy = new List<CombatEntity>(entities.Count);
+            foreach (var e in entities.ToArray())
+            {
+                if (IsEntityAlive(e.Entity))
+                    copy.Add(new CombatEntity { Entity = e.Entity, BaseSpeed = e.BaseSpeed, NextActionTime = e.NextActionTime });
+            }
+            return copy;
+        }
+
         public string GetTurnOrderInfo()
         {
             // Optimized: Single pass with manual sorting instead of LINQ

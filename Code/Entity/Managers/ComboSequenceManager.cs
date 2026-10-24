@@ -221,6 +221,23 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Replaces the sequence with <paramref name="actions"/> in the given order (combo actions only). No hero cap and
+        /// no opener/finisher reorder; ComboOrder is stamped 1..n so <see cref="GetComboActions"/> keeps that order.
+        /// </summary>
+        public void SetSequenceInOrder(IEnumerable<Action> actions)
+        {
+            ComboSequence.Clear();
+            int slot = 1;
+            foreach (var action in actions)
+            {
+                if (action == null || !action.IsComboAction || ComboSequence.Contains(action))
+                    continue;
+                action.ComboOrder = slot++;
+                ComboSequence.Add(action);
+            }
+        }
+
+        /// <summary>
         /// Restores the combo sequence from a list of action names.
         /// Matches actions by name from the entity's ActionPool and adds them in order.
         /// Skips names that are not in the pool or not combo actions.

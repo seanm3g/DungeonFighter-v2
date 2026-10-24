@@ -83,12 +83,13 @@ namespace RPGGame.Tests.Unit.Data
             Console.WriteLine("\n--- Testing shipped Armor.json starter leather kit ---");
 
             var items = StarterCatalogItems.LoadStarterArmorItems();
-            TestBase.AssertEqual(3, items.Count,
-                "Shipped catalog must tag starter head/chest/feet (no legs)",
+            TestBase.AssertEqual(4, items.Count,
+                "Shipped catalog must tag starter head/chest/legs/feet",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             string? head = items.OfType<HeadItem>().FirstOrDefault()?.Name;
             string? chest = items.OfType<ChestItem>().FirstOrDefault()?.Name;
+            string? legs = items.OfType<LegsItem>().FirstOrDefault()?.Name;
             string? feet = items.OfType<FeetItem>().FirstOrDefault()?.Name;
             TestBase.AssertTrue(head != null && head.Contains("Helmet", StringComparison.OrdinalIgnoreCase),
                 "Starter head should be Helmet",
@@ -99,8 +100,8 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(feet != null && feet.Contains("Boots", StringComparison.OrdinalIgnoreCase),
                 "Starter feet should be Boots",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(items.All(i => i is not LegsItem),
-                "Starter armor should not include legs",
+            TestBase.AssertTrue(legs != null && legs.Contains("Pants", StringComparison.OrdinalIgnoreCase),
+                "Starter legs should be Pants",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(items.All(i =>
                     string.Equals(ItemMaterialRules.RemapLegacyMaterial(i.Material), "Leather", StringComparison.OrdinalIgnoreCase)),

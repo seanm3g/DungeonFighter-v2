@@ -285,10 +285,10 @@ namespace RPGGame.UI.Avalonia
         public void RenderDisplayBuffer()
         {
             textManager.RenderDisplayBuffer(
-                LayoutConstants.CENTER_PANEL_X + 1,
-                LayoutConstants.CENTER_PANEL_Y + 1,
-                LayoutConstants.CENTER_PANEL_WIDTH - 2,
-                LayoutConstants.CENTER_PANEL_HEIGHT - 2);
+                LayoutConstants.CombatLogContentX,
+                LayoutConstants.CombatLogContentY,
+                LayoutConstants.CombatLogContentWidth,
+                LayoutConstants.CombatLogContentHeight);
         }
 
         /// <summary>
@@ -381,7 +381,11 @@ namespace RPGGame.UI.Avalonia
             var dm = ctm.GetDisplayManagerForCharacter(player);
             dm.Buffer.Add(new List<ColoredText>());
             // Same column the death log renders in (side padding + zoom), so the block centers on screen.
-            int summaryWidth = Math.Max(1, DisplayRenderer.ResolveTextColumnWidth(LayoutConstants.CENTER_PANEL_WIDTH - 2));
+            // With the board enabled the death screen draws in the board's narrower interlude box.
+            int logWidth = CombatBoardLayout.Enabled
+                ? Math.Max(1, CombatBoardLayout.InterludeBoxRect().W - 2)
+                : LayoutConstants.CENTER_PANEL_WIDTH - 2;
+            int summaryWidth = Math.Max(1, DisplayRenderer.ResolveTextColumnWidth(logWidth));
             dm.Buffer.AddRange(DeathScreenRenderer.BuildDeathSummaryLines(defeatSummary, summaryWidth));
         }
 
@@ -418,11 +422,11 @@ namespace RPGGame.UI.Avalonia
             }
 
             var dm = ctm.GetDisplayManagerForCharacter(player);
-            int contentWidth = LayoutConstants.CENTER_PANEL_WIDTH - 2;
+            int contentWidth = LayoutConstants.CombatLogContentWidth;
             int footer = stateManager.CurrentState == GameState.Death
                 ? DeathScreenRenderer.FooterReservedRows
                 : DungeonCompletionRenderer.FooterReservedRows;
-            int logHeight = Math.Max(1, LayoutConstants.CENTER_PANEL_HEIGHT - 2 - footer);
+            int logHeight = Math.Max(1, LayoutConstants.CombatLogContentHeight - footer);
             var dr = new DisplayRenderer(new ColoredTextWriter(canvas));
             int maxOffset = dr.CalculateMaxScrollOffset(dm.Buffer, contentWidth, logHeight);
 

@@ -60,15 +60,39 @@ namespace RPGGame.UI.Avalonia.Effects
         /// </summary>
         public double AsciiDensity { get; set; } = 2;
 
+        /// <summary>Redraw item icons as glyphs too (only while <see cref="Style"/> is "Ascii"). Default: false.</summary>
+        public bool ItemAscii { get; set; } = false;
+
+        /// <summary>Ascii style, item icons: glyphs per text-grid cell along each axis (icons are small, so finer than the room). Default: 3.</summary>
+        public double ItemAsciiDensity { get; set; } = 3;
+
+        /// <summary>Ascii style, item icons: glyph color multiplier. Default: 2.6.</summary>
+        public double ItemAsciiGlyphGain { get; set; } = 2.6;
+
+        /// <summary>Ascii style, item icons: cell color fill behind each glyph (0 = glyphs only). Default: 0.</summary>
+        public double ItemAsciiBackground { get; set; } = 0;
+
+        /// <summary>
+        /// Ascii style, item icons: cells darker than this share of the icon's brightness range stay blank, so the dark
+        /// backdrop behind the item drops out and the item reads as a silhouette. Default: 0.25.
+        /// </summary>
+        public double ItemAsciiCutoff { get; set; } = 0.25;
+
         public const string DefaultAsciiRamp = " .:-=+*#%@";
         public const double MaxAsciiGlyphGain = 4;
         public const double MaxAsciiDensity = 4;
+        public const double MaxItemAsciiDensity = 8;
+        public const double MaxItemAsciiCutoff = 0.9;
 
         public int ResolveAsciiDensity() => (int)Math.Clamp(Math.Round(AsciiDensity), 1, MaxAsciiDensity);
+
+        public int ResolveItemAsciiDensity() => (int)Math.Clamp(Math.Round(ItemAsciiDensity), 1, MaxItemAsciiDensity);
 
         public static readonly IReadOnlyList<string> StyleNames = new[] { "Image", "Ascii" };
 
         public bool IsAscii => string.Equals(Style, "Ascii", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsItemAscii => IsAscii && ItemAscii;
 
         public string ResolveAsciiRamp() => string.IsNullOrEmpty(AsciiRamp) ? DefaultAsciiRamp : AsciiRamp;
 

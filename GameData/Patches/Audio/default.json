@@ -30,6 +30,11 @@
       "volume": 1,
       "rateLimitMs": null
     },
+    "Combat_ActionStart": {
+      "file": "SFX/swing.wav",
+      "volume": 0.6,
+      "rateLimitMs": null
+    },
     "Combat_CriticalMiss": {
       "file": "SFX/crit miss2.wav",
       "volume": 1,
@@ -95,13 +100,38 @@
       "volume": 1,
       "rateLimitMs": null
     },
+    "Combat_ComboStep1": {
+      "file": "SFX/combo_step1.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_ComboStep2": {
+      "file": "SFX/combo_step2.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_ComboStep3": {
+      "file": "SFX/combo_step3.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_ComboStep4": {
+      "file": "SFX/combo_step4.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_ComboStep5": {
+      "file": "SFX/combo_step5.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
     "Combat_ComboComplete": {
-      "file": "",
+      "file": "SFX/combo_finish.wav",
       "volume": 1,
       "rateLimitMs": null
     },
     "Combat_CriticalHit": {
-      "file": "",
+      "file": "SFX/crit.wav",
       "volume": 1,
       "rateLimitMs": null
     },

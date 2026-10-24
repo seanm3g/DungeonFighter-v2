@@ -1,4 +1,5 @@
 using RPGGame;
+using System;
 
 namespace RPGGame.UI.Avalonia.Layout
 {
@@ -15,6 +16,16 @@ namespace RPGGame.UI.Avalonia.Layout
 
         /// <summary>True while the board owns the center column (Enabled and in Combat).</summary>
         public static bool IsActive { get; private set; }
+
+        /// <summary>
+        /// Between fights of a dungeon run (room text, next-room choice) and on the completion / death screens while
+        /// <see cref="Enabled"/>: the hero strip stays at the bottom and the log sits in a framed box like the board's
+        /// log view (<see cref="InterludeBoxRect"/>) instead of the classic strip + full-width log.
+        /// </summary>
+        public static bool IsInterlude { get; private set; }
+
+        /// <summary>Board geometry owns the center column: hero strip at the bottom, no sequence HUD band.</summary>
+        public static bool OwnsCenterColumn => IsActive || IsInterlude;
 
         /// <summary>Middle view: false = previous / current / next combo cards, true = framed combat log. Click toggles.</summary>
         public static bool ShowLog { get; private set; }
@@ -42,35 +53,63 @@ namespace RPGGame.UI.Avalonia.Layout
         public static bool Toggle()
         {
             Enabled = !Enabled;
-            if (IsActive && !Enabled)
+            if (OwnsCenterColumn && !Enabled)
                 _pendingTeardown = true;
             IsActive = Enabled && IsActive;
+            IsInterlude = Enabled && IsInterlude;
             return Enabled;
         }
 
         public static bool ShouldBeActive(GameState? state) => Enabled && state == GameState.Combat;
 
-        /// <summary>Aligns <see cref="IsActive"/> with <paramref name="state"/>; no-op when state is unknown.</summary>
-        public static void Sync(GameState? state)
+        public static bool ShouldBeInterlude(GameState? state, bool inDungeonRun) =>
+            Enabled && ((state == GameState.Dungeon && inDungeonRun)
+                || state == GameState.DungeonCompletion
+                || state == GameState.Death);
+
+        /// <summary>Aligns <see cref="IsActive"/> / <see cref="IsInterlude"/> with <paramref name="state"/>; no-op when state is unknown.</summary>
+        public static void Sync(GameState? state, bool inDungeonRun)
         {
             if (state == null)
                 return;
             bool next = ShouldBeActive(state);
-            if (IsActive && !next)
+            bool nextInterlude = !next && ShouldBeInterlude(state, inDungeonRun);
+            if ((IsActive && !next) || (IsInterlude && !nextInterlude))
                 _pendingTeardown = true;
             IsActive = next;
+            IsInterlude = nextInterlude;
+        }
+
+        /// <summary>Width of the board's health bars and log box, centered in a <paramref name="columnWidth"/> column.</summary>
+        public static int BarWidth(int columnWidth) =>
+            Math.Max(1, Math.Clamp(columnWidth * 11 / 20, Math.Min(20, columnWidth - 12), columnWidth - 12));
+
+        /// <summary>Hero health bar row on the board (name sits one row below), counted up from the hero strip.</summary>
+        public static int HeroBarY => LayoutConstants.ACTION_INFO_Y - 3;
+
+        /// <summary>
+        /// Framed log box for <see cref="IsInterlude"/>: same width as the board's log view, from the top of the column
+        /// down to just above the hero health bar.
+        /// </summary>
+        public static (int X, int Y, int W, int H) InterludeBoxRect()
+        {
+            int colW = LayoutConstants.CENTER_PANEL_WIDTH;
+            int w = BarWidth(colW);
+            int x = LayoutConstants.CENTER_PANEL_X + (colW - w) / 2;
+            const int y = 1;
+            return (x, y, w, Math.Max(4, HeroBarY - 1 - y));
         }
 
         private static bool _pendingTeardown;
 
         /// <summary>
-        /// After the board switches off (fight over, F9), removes what only the board paints in the center column:
+        /// After the board switches off or between fight and interlude (fight over, F9), removes what only the board paints in the center column:
         /// its health / d20 bars, connector lines, card boxes and text. Partial layout renders do not clear the
         /// canvas, so without this they linger under the dungeon log between fights.
         /// </summary>
         public static void TeardownIfNeeded(GameCanvasControl canvas)
         {
-            if (!_pendingTeardown || IsActive || canvas == null)
+            if (!_pendingTeardown || canvas == null)
                 return;
             _pendingTeardown = false;
             int x = LayoutConstants.CENTER_PANEL_X;

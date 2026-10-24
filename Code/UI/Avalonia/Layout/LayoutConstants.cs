@@ -148,12 +148,12 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int ACTION_INFO_STRIP_HEIGHT => _actionInfoStripHeight;
         /// <summary>First row of the action-info strip (top of center column, aligned with side panels).</summary>
         /// <remarks>Board combat (<see cref="CombatBoardLayout"/>) moves the hero strip to the bottom of the column.</remarks>
-        public static int ACTION_INFO_Y => CombatBoardLayout.IsActive ? Math.Max(0, _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT) : 0;
+        public static int ACTION_INFO_Y => CombatBoardLayout.OwnsCenterColumn ? Math.Max(0, _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT) : 0;
         /// <summary>
         /// Combat log frame. In Combat this sits below the two-row sequence HUD panel and a one-row gap;
         /// otherwise it sits directly under the action-info strip.
         /// </summary>
-        public static int CENTER_PANEL_Y => CombatBoardLayout.IsActive ? 0 : ACTION_INFO_STRIP_HEIGHT + CombatSequenceBandHeight;
+        public static int CENTER_PANEL_Y => CombatBoardLayout.OwnsCenterColumn ? 0 : ACTION_INFO_STRIP_HEIGHT + CombatSequenceBandHeight;
         /// <summary>Height of the framed combat-log panel; leaves room for the action-info strip (and sequence HUD in Combat).</summary>
         public static int CENTER_PANEL_HEIGHT => _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT - CombatSequenceBandHeight;
 
@@ -167,24 +167,30 @@ namespace RPGGame.UI.Avalonia.Layout
 
         /// <summary>Framed sequence HUD height in Combat; zero outside Combat so the log uses the full center column.</summary>
         public static int CombatSequencePanelHeight =>
-            RPGGame.Combat.Sequence.CombatSequenceHudState.IsBandReserved && !CombatBoardLayout.IsActive
+            RPGGame.Combat.Sequence.CombatSequenceHudState.IsBandReserved && !CombatBoardLayout.OwnsCenterColumn
                 ? COMBAT_SEQUENCE_HUD_HEIGHT
                 : 0;
 
         /// <summary>Sequence HUD panel plus the gap above the combat log (zero outside Combat).</summary>
         public static int CombatSequenceBandHeight =>
-            RPGGame.Combat.Sequence.CombatSequenceHudState.IsBandReserved && !CombatBoardLayout.IsActive
+            RPGGame.Combat.Sequence.CombatSequenceHudState.IsBandReserved && !CombatBoardLayout.OwnsCenterColumn
                 ? COMBAT_SEQUENCE_HUD_HEIGHT + COMBAT_SEQUENCE_LOG_GAP
                 : 0;
 
         /// <summary>First content row of the sequence HUD (same as the panel top; the box is a pixel frame around these two lines).</summary>
         public static int CombatSequenceHudY => CombatSequencePanelY;
 
+        /// <summary>First inner column of combat-log text (inside the log frame, or the board's interlude box).</summary>
+        public static int CombatLogContentX => CombatBoardLayout.IsInterlude ? CombatBoardLayout.InterludeBoxRect().X + 1 : CENTER_PANEL_X + 1;
+
+        /// <summary>Inner width of combat-log text (framed log panel, or the board's interlude box, minus its borders).</summary>
+        public static int CombatLogContentWidth => CombatBoardLayout.IsInterlude ? Math.Max(1, CombatBoardLayout.InterludeBoxRect().W - 2) : CENTER_PANEL_WIDTH - 2;
+
         /// <summary>First inner row of combat-log text (inside the log frame, below the sequence HUD panel in combat).</summary>
-        public static int CombatLogContentY => CENTER_PANEL_Y + 1;
+        public static int CombatLogContentY => CombatBoardLayout.IsInterlude ? CombatBoardLayout.InterludeBoxRect().Y + 1 : CENTER_PANEL_Y + 1;
 
         /// <summary>Inner height of combat-log text (framed log panel minus its border rows).</summary>
-        public static int CombatLogContentHeight => Math.Max(1, CENTER_PANEL_HEIGHT - 2);
+        public static int CombatLogContentHeight => CombatBoardLayout.IsInterlude ? Math.Max(1, CombatBoardLayout.InterludeBoxRect().H - 2) : Math.Max(1, CENTER_PANEL_HEIGHT - 2);
 
         /// <summary>
         /// Monospace width used for wrapped / center-aligned combat log text inside the framed center panel.
@@ -228,7 +234,7 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         public static bool ContainsCombatSequenceHud(int gridX, int gridY)
         {
-            if (!RPGGame.Combat.Sequence.CombatSequenceHudState.IsBandReserved || CombatBoardLayout.IsActive)
+            if (!RPGGame.Combat.Sequence.CombatSequenceHudState.IsBandReserved || CombatBoardLayout.OwnsCenterColumn)
                 return false;
             int x = CENTER_PANEL_X;
             int y = CombatSequencePanelY;

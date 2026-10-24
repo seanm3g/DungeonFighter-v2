@@ -99,19 +99,26 @@ namespace RPGGame.UI.Avalonia.Layout
             int contentY;
             int contentW;
             int contentH;
+            bool interlude = usePersistentChrome && CombatBoardLayout.IsInterlude;
             if (usePersistentChrome)
             {
-                contentX = LayoutConstants.CENTER_PANEL_X + 1;
+                contentX = LayoutConstants.CombatLogContentX;
                 contentY = LayoutConstants.CombatLogContentY;
-                contentW = LayoutConstants.CENTER_PANEL_WIDTH - 2;
+                contentW = LayoutConstants.CombatLogContentWidth;
                 contentH = LayoutConstants.CombatLogContentHeight;
             }
             else
             {
                 (contentX, contentY, contentW, contentH) = LayoutConstants.GetChromelessContentRect();
             }
-            
+
+            if (interlude)
+                CombatBoardInterludeRenderer.ClearColumn(canvas);
+
             renderCenterContent?.Invoke(contentX, contentY, contentW, contentH);
+
+            if (interlude)
+                CombatBoardInterludeRenderer.RenderChrome(canvas, character, CombatBoardInterludeRenderer.ResolveLabel(title, dungeonName));
 
             if (usePersistentChrome)
             {

@@ -52,16 +52,21 @@ namespace RPGGame
             failedAttempts = 0;
         }
 
-        public bool ShouldEnvironmentAct(bool isHostile)
+        /// <summary>Chance the environment's next turn acts (0 once it has used its actions or isn't hostile).</summary>
+        public double GetChanceToAct(bool isHostile)
         {
-            if (environmentActionCount >= maxEnvironmentActions)
-                return false;
-
-            if (!isHostile)
-                return false;
+            if (environmentActionCount >= maxEnvironmentActions || !isHostile)
+                return 0.0;
 
             double currentChance = (baseEnvironmentChance + (failedAttempts * environmentChanceIncrease)) * chanceMultiplier;
-            currentChance = Math.Min(currentChance, 0.50);
+            return Math.Min(currentChance, 0.50);
+        }
+
+        public bool ShouldEnvironmentAct(bool isHostile)
+        {
+            double currentChance = GetChanceToAct(isHostile);
+            if (currentChance <= 0.0)
+                return false;
 
             if (random.NextDouble() < currentChance)
             {

@@ -21,6 +21,7 @@ namespace RPGGame.Tests.Unit.UI
             TestSpentSlotsAreBeforeNext(ref run, ref passed, ref failed);
             TestPulseSpeedsUpWithCharge(ref run, ref passed, ref failed);
             TestPulseInUnitInterval(ref run, ref passed, ref failed);
+            TestLowHealthVignetteOnlyForHero(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ComboTension Tests", run, passed, failed);
         }
@@ -78,6 +79,26 @@ namespace RPGGame.Tests.Unit.UI
                 ok &= t >= 0.0 && t <= 1.0;
             }
             TestBase.AssertTrue(ok, "Pulse wave stays in 0..1", ref run, ref passed, ref failed);
+        }
+
+        private static void TestLowHealthVignetteOnlyForHero(ref int run, ref int passed, ref int failed)
+        {
+            var hero = new Character("Hero", 1) { MaxHealth = 100, CurrentHealth = 15 };
+            TestBase.AssertTrue(ComboTension.IsHeroLowHealth(hero),
+                "Low-health vignette shows for a hurt hero", ref run, ref passed, ref failed);
+            hero.CurrentHealth = 60;
+            TestBase.AssertTrue(!ComboTension.IsHeroLowHealth(hero),
+                "No low-health vignette for a healthy hero", ref run, ref passed, ref failed);
+            hero.CurrentHealth = 0;
+            TestBase.AssertTrue(!ComboTension.IsHeroLowHealth(hero),
+                "No low-health vignette for a dead hero", ref run, ref passed, ref failed);
+
+            var enemy = new Enemy(name: "Goblin", level: 1, maxHealth: 100, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0)
+            {
+                CurrentHealth = 10
+            };
+            TestBase.AssertTrue(!ComboTension.IsHeroLowHealth(enemy),
+                "Low enemy health never triggers the vignette", ref run, ref passed, ref failed);
         }
     }
 }

@@ -51,6 +51,8 @@ namespace RPGGame
                 }
             }
 
+            enemy.InitializeActionSequence();
+
             // Additional safeguard: ensure enemy has at least one damaging action (Attack or Spell)
             bool hasDamagingAction = enemy.ActionPool.Any(a => a.action.Type == ActionType.Attack || a.action.Type == ActionType.Spell);
             if (!hasDamagingAction)

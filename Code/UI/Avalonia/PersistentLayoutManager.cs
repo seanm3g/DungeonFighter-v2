@@ -53,7 +53,7 @@ namespace RPGGame.UI.Avalonia
         public void RenderLayout(Character? character, Action<int, int, int, int> renderCenterContent, string title = "DUNGEON FIGHTERS", Enemy? enemy = null, string? dungeonName = null, string? roomName = null, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false, GameState? gameState = null, bool inDungeonRun = false)
         {
             interactionManager?.ClearClickableElements();
-            CombatBoardLayout.Sync(gameState);
+            CombatBoardLayout.Sync(gameState, inDungeonRun);
             CombatBoardLayout.TeardownIfNeeded(canvas);
             layoutCoordinator.CoordinateLayout(
                 character,
@@ -79,7 +79,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public (int x, int y, int width, int height) GetCenterContentArea()
         {
-            return (LayoutConstants.CENTER_PANEL_X + 1, LayoutConstants.CombatLogContentY, LayoutConstants.CENTER_PANEL_WIDTH - 2, LayoutConstants.CombatLogContentHeight);
+            return (LayoutConstants.CombatLogContentX, LayoutConstants.CombatLogContentY, LayoutConstants.CombatLogContentWidth, LayoutConstants.CombatLogContentHeight);
         }
     }
 }

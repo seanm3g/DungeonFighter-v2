@@ -15,7 +15,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 {
     /// <summary>
     /// Board-style combat center column (<see cref="CombatBoardLayout"/>): enemy combo strip on top, enemy health,
-    /// the hero's previous → current → next combo cards with connector lines, hero health, and (drawn separately by
+    /// PREV → NOW cards with the turn queue (hero, enemy, room in speed order) beside them, hero health, and (drawn separately by
     /// <see cref="RenderActionInfoStrip"/>) the hero strip along the bottom.
     /// </summary>
     public partial class DungeonRenderer
@@ -46,9 +46,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             // --- Enemy strip (top) ---
             int enemyStripH = Math.Clamp(boardH / 4, 5, 10);
             var enemyCard = RenderBoardEnemyStrip(enemy, colX, 0, colW, enemyStripH, mode);
+            var turn = BuildBoardTurnView(player, enemy);
+            // The enemy's lined-up card reads NEXT when it acts after the turn now playing (or at rest).
+            if (enemyCard is { } nextCard && nextCard.W > 9 && turn.Queue.Count > 0
+                && ReferenceEquals(turn.Queue[0].Actor, enemy) && !turn.Queue[0].IsActing)
+                canvas.AddText(nextCard.X + 1, nextCard.Y, " NEXT ", AsciiArtAssets.Colors.Gold);
 
             // --- Enemy name + health / d20 bar ---
-            int barW = Math.Clamp(colW * 11 / 20, 20, colW - 12);
+            int barW = CombatBoardLayout.BarWidth(colW);
             int barX = colX + (colW - barW) / 2;
             int enemyNameY = enemyStripH + 1;
             canvas.AddText(barX, enemyNameY, enemy.Name, AsciiArtAssets.Colors.Red);
@@ -60,7 +65,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 dividerFractions: enemy.IsPack ? enemy.PackDividerFractions : null);
             _boardBarX = barX;
             _boardBarW = barW;
-            _enemyRollY = enemyBarY + D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor + D20ThresholdBarRenderer.CombatStripHeightScale;
+            _enemyRollY = enemyBarY + D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor + D20ThresholdBarRenderer.CombatBoardStripHeightScale;
             RenderBoardThresholdBar(enemy, ThresholdBarPanel.Enemy, barX, enemyBarY, barW, D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor);
             canvas.AddText(barX + barW + 2, enemyBarY, $"{enemyHp}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
             int enemyBlockBottom = enemyBarY + 2;
@@ -71,8 +76,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             int heroD20Y = heroBarY - 1;
             int heroHp = RPGGame.Combat.UI.HealthBarDisplayHold.Resolve($"player_{player.Name}", player.CurrentHealth);
             int heroMax = player.GetEffectiveMaxHealth();
-            _heroRollY = heroD20Y + (1.0 - D20ThresholdBarRenderer.CombatStripHeightScale);
-            RenderBoardThresholdBar(player, ThresholdBarPanel.Hero, barX, heroD20Y, barW, 1.0 - D20ThresholdBarRenderer.CombatStripHeightScale);
+            _heroRollY = heroBarY - D20ThresholdBarRenderer.CombatBoardStripHeightScale;
+            RenderBoardThresholdBar(player, ThresholdBarPanel.Hero, barX, heroD20Y - 1, barW, 2.0 - D20ThresholdBarRenderer.CombatBoardStripHeightScale);
             canvas.AddHealthBar(barX, heroBarY, barW, heroHp, heroMax,
                 entityId: $"player_{player.Name}",
                 heightScale: D20ThresholdBarRenderer.CombatHealthHeightScale);
@@ -80,15 +85,38 @@ namespace RPGGame.UI.Avalonia.Renderers
             string heroName = player.Name ?? "";
             canvas.AddText(barX + Math.Max(0, (barW - heroName.Length) / 2), heroNameY, heroName, AsciiArtAssets.Colors.Gold);
 
+            // --- Sequence (left edge, between the strips) ---
+            int seqW = RenderBoardSequencePanel(colX, enemyNameY, colW, barW, heroNameY + 1 - enemyNameY);
+            int flowX = colX + seqW;
+            int flowW = colW - seqW;
+
             // --- Combo flow (middle) ---
             int midTop = enemyBlockBottom + 1;
             int midBottom = heroD20Y - 1; // exclusive
-            CombatBoardLayout.MiddleRect = (colX, midTop, colW, midBottom - midTop);
+            CombatBoardLayout.MiddleRect = (flowX, midTop, flowW, midBottom - midTop);
             if (CombatBoardLayout.ShowLog && log != null)
                 RenderBoardLog(player, log, barX, midTop, barW, midBottom - midTop, enemyNamesForLogAlignment);
             else
-                RenderBoardComboFlow(player, enemy, colX, midTop, colW, midBottom - midTop,
-                    (barX + barW / 2.0, enemyBarY + 1.0), enemyCard, mode);
+                RenderBoardComboFlow(player, turn, flowX, midTop, flowW, midBottom - midTop, mode);
+        }
+
+        /// <summary>
+        /// The sequence HUD's columns (ATTACKER .. EFFECTS) stacked in a framed panel down the left of the board, in the
+        /// margin beside the health bars. Returns the columns it takes from the middle (0 when the column is too narrow).
+        /// </summary>
+        private int RenderBoardSequencePanel(int colX, int top, int colW, int barW, int availH)
+        {
+            int margin = (colW - barW) / 2;
+            int w = Math.Min(Math.Clamp(colW * 17 / 100, 14, 24), margin - 1);
+            if (w < 12 || availH < 9)
+                return 0;
+            int innerH = Math.Min(availH - 2, CombatSequenceHudRenderer.VerticalContentHeight(CombatSequenceHudRenderer.VerticalRowsPerEntry(availH - 2)));
+            int h = innerH + 2;
+            int y = top + (availH - h) / 2;
+            AddBoardBox(colX, y, w, h, BoardDimBorder, BoardCardBackground);
+            canvas.AddText(colX + 1, y, " SEQUENCE ", AsciiArtAssets.Colors.Cyan);
+            CombatSequenceHudRenderer.RenderVertical(canvas, colX + 1, y + 1, w - 2, innerH);
+            return w + 1;
         }
 
         /// <summary>Framed combat log between the health bars (click the middle to swap back to the combo cards).</summary>
@@ -150,7 +178,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (swing == null)
             {
                 _settledBands[panel] = live;
-                D20ThresholdBarRenderer.RenderBar(canvas, barX, barY, barW, actor, panel, verticalOffsetScale: verticalOffsetScale);
+                D20ThresholdBarRenderer.RenderBar(canvas, barX, barY, barW, actor, panel,
+                    heightScale: D20ThresholdBarRenderer.CombatBoardStripHeightScale, verticalOffsetScale: verticalOffsetScale);
                 return;
             }
 
@@ -174,6 +203,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 return roll;
             };
             D20ThresholdBarRenderer.RenderBar(canvas, barX, barY, barW, actor, panel,
+                heightScale: D20ThresholdBarRenderer.CombatBoardStripHeightScale,
                 verticalOffsetScale: verticalOffsetScale, thresholds: bands, rollMarker: marker);
         }
 
@@ -194,12 +224,6 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static readonly Color BoardFadedBorder = Color.FromRgb(38, 38, 38);
         private static readonly Color BoardIdleLine = Color.FromRgb(120, 52, 20);
         private static readonly Color BoardHealLine = Color.FromRgb(80, 220, 120);
-
-        /// <summary>
-        /// The hero's PREV card as it stood before the swing now playing. <see cref="Character.LastAction"/> already
-        /// names the swing itself once execution resolves, so the board keeps the settled value until the slide ends.
-        /// </summary>
-        private static Action? _boardSettledPrev;
 
         /// <summary>Board stage per sequence column: 0 attacker, 1 roll, 2 outcome, 3 action, 4 defense, 5 damage/heal, 6 effects.</summary>
         private static int BoardStageOf(CombatSequenceStepKind kind) => kind switch
@@ -248,6 +272,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             CombatSequenceSwingOutcome.Combo => BoardComboBorder,
             CombatSequenceSwingOutcome.Hit => AsciiArtAssets.Colors.White,
             _ => AsciiArtAssets.Colors.Red
+        };
+
+        /// <summary>Border of a settled act still on NOW: its outcome, the room's color for a hazard, dim when empty.</summary>
+        private static Color BoardRestBorder(BoardAct? act) => act switch
+        {
+            { Swing: { } s } => OutcomeColor(s.Outcome),
+            { Actor: Environment } => BoardHazardColor,
+            _ => BoardDimBorder
         };
 
         private static Color LerpColor(Color a, Color b, double t)
@@ -299,93 +331,153 @@ namespace RPGGame.UI.Avalonia.Renderers
             int gap = 1;
             int avail = Math.Max(count, w - inset * 2 - gap * (count - 1));
             int cardW = avail / count;
-            int rem = avail % count;
             int cardH = Math.Max(3, h - 1);
-            int cx = x + inset;
+            // Enemy sequences are short (most enemies carry one or two actions): cards keep the min-slot width and
+            // sit centered, with no empty placeholder slots.
+            int rowW = filled * cardW + Math.Max(0, filled - 1) * gap;
+            int cx = x + Math.Max(inset, (w - rowW) / 2);
             BoardRect? selectedRect = null;
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < filled; i++)
             {
-                int cw = cardW + (i < rem ? 1 : 0);
-                if (i >= filled)
+                int cw = cardW;
+                bool isSel = i == selected;
+                Color border = isSel ? AsciiArtAssets.Colors.White : BoardDimBorder;
+                int thickness = isSel ? 2 : 1;
+                if (isSel && swing != null)
                 {
-                    canvas.AddBorder(cx, y, cw, cardH, AsciiArtAssets.Colors.Black);
+                    // Attacker beat: the firing card flares red, then holds its outcome color.
+                    border = stage == 0
+                        ? LerpColor(AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Red, Math.Sin(p * Math.PI))
+                        : stage >= 2 ? OutcomeColor(swing.Outcome) : AsciiArtAssets.Colors.White;
+                    thickness = 3;
                 }
-                else
-                {
-                    bool isSel = i == selected;
-                    Color border = isSel ? AsciiArtAssets.Colors.White : BoardDimBorder;
-                    int thickness = isSel ? 2 : 1;
-                    if (isSel && swing != null)
-                    {
-                        // Attacker beat: the firing card flares red, then holds its outcome color.
-                        border = stage == 0
-                            ? LerpColor(AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Red, Math.Sin(p * Math.PI))
-                            : stage >= 2 ? OutcomeColor(swing.Outcome) : AsciiArtAssets.Colors.White;
-                        thickness = 3;
-                    }
-                    Color fill = BoardCardBackground;
-                    if (isSel && swing != null)
-                        (border, fill, thickness) = AccentForBeat(swing, stage, CombatBoardAnimation.PhaseProgress(CombatBoardAnimation.BeatMs), border, thickness);
-                    AddBoardBox(cx, y, cw, cardH, border, fill, borderThicknessPixels: thickness);
-                    DrawActionCardContent(enemy, panelData[i], actions[i], i, cx, y, cw, cardH, mode);
-                    if (isSel)
-                        selectedRect = new BoardRect(cx, y, cw, cardH);
-                }
+                Color fill = BoardCardBackground;
+                if (isSel && swing != null)
+                    (border, fill, thickness) = AccentForBeat(swing, stage, CombatBoardAnimation.PhaseProgress(CombatBoardAnimation.BeatMs), border, thickness);
+                AddBoardBox(cx, y, cw, cardH, border, fill, borderThicknessPixels: thickness);
+                DrawActionCardContent(enemy, panelData[i], actions[i], i, cx, y, cw, cardH, mode);
+                if (isSel)
+                    selectedRect = new BoardRect(cx, y, cw, cardH);
                 cx += cw + gap;
             }
             return selectedRect;
         }
 
+        private static readonly Color BoardHazardColor = Color.FromRgb(90, 210, 160);
+        private const int BoardQueueLength = 1;
+
+        /// <summary>One resolved action as the board shows it on NOW / PREV (a swing, or a room hazard with no swing).</summary>
+        private sealed record BoardAct(Actor Actor, Action Action, CombatSequenceSwingInfo? Swing);
+
+        /// <summary>The newest act and the two before it. Pushed once per swing / hazard turn; the newest only reaches NOW
+        /// once it lands, so until then NOW still holds the previous act and PREV the one before that.</summary>
+        private static BoardAct? _boardNowAct, _boardPrevAct, _boardPrev2Act;
+        private static CombatSequenceSwingInfo? _boardRegisteredSwing;
+        private static long _boardSwingTurn = -1, _boardHazardTurn = -1;
+        private static Enemy? _boardEnemy;
+
+        /// <summary>The branch box OUTCOME picked for the live swing; on ACTION its card slides from there into NOW.</summary>
+        private static CombatSequenceSwingInfo? _boardLandSwing;
+        private static BoardRect _boardLandFrom;
+
+        /// <summary>The act whose landing started the NOW -> PREV shift, and when (the incoming card and the outgoing one move together).</summary>
+        private static BoardAct? _boardShiftAct;
+        private static DateTimeOffset _boardShiftStartUtc;
+
+        /// <summary>Combo action each actor was lined up on at rest; a rolling entry keeps it after ComboStep moves on.</summary>
+        private static readonly Dictionary<Actor, string> _boardRestComboName = new(ReferenceEqualityComparer.Instance);
+
+        /// <summary>The board's reading of the turn in progress, built once per paint.</summary>
+        private sealed class BoardTurnView
+        {
+            public CombatSequenceSwingInfo? LiveSwing;
+            public int Stage = 7;
+            public double P = 1.0, Raw = 1.0;
+            public BoardAct? HazardAct;
+            public List<CombatTurnQueueEntry> Queue = new();
+
+            /// <summary>ACTION has fired, so the queue moves on to whoever acts after this turn.</summary>
+            public bool Triggered => LiveSwing != null ? Stage >= 3 : HazardAct != null;
+        }
+
+        private static void PushBoardAct(BoardAct act)
+        {
+            _boardPrev2Act = _boardPrevAct;
+            _boardPrevAct = _boardNowAct;
+            _boardNowAct = act;
+        }
+
+        private static BoardTurnView BuildBoardTurnView(Character player, Enemy enemy)
+        {
+            var v = new BoardTurnView();
+            var last = CombatSequenceHudState.ActiveSwing;
+            bool finished = CombatSequenceHudState.IsFinished;
+            if (!ReferenceEquals(_boardEnemy, enemy))
+            {
+                // New fight: drop the last fight's cards and don't replay its final swing.
+                _boardEnemy = enemy;
+                _boardNowAct = _boardPrevAct = _boardPrev2Act = null;
+                _boardShiftAct = null;
+                _boardRegisteredSwing = last;
+            }
+
+            v.LiveSwing = LiveSwingFor(player) ?? LiveSwingFor(enemy);
+            if (v.LiveSwing != null)
+                (v.Stage, v.P, v.Raw) = LiveStage();
+
+            long turn = CombatTurnQueue.TurnSerial;
+            var acting = CombatTurnQueue.ActingEntity;
+            var swing = v.LiveSwing ?? (finished ? last : null);
+            if (swing != null && !ReferenceEquals(swing, _boardRegisteredSwing))
+            {
+                _boardRegisteredSwing = swing;
+                if (ReferenceEquals(swing.Source, acting))
+                    _boardSwingTurn = turn;
+                PushBoardAct(new BoardAct(swing.Source, swing.Action, swing));
+            }
+
+            if (v.LiveSwing == null && acting is Environment room && CombatTurnQueue.ActingAction is { } hazard)
+            {
+                if (_boardHazardTurn != turn)
+                {
+                    _boardHazardTurn = turn;
+                    PushBoardAct(new BoardAct(room, hazard, null));
+                }
+                v.HazardAct = _boardNowAct;
+            }
+
+            // Turn handlers advance the actor's timeline only after the swing displays, so once ACTION fires
+            // (or the swing has finished inside the same turn) the queue projects the actor past this turn.
+            bool spent = acting != null && (v.Triggered || (v.LiveSwing == null && _boardSwingTurn == turn));
+            double length = (v.LiveSwing?.Action ?? v.HazardAct?.Action ?? _boardNowAct?.Action)?.Length ?? 1.0;
+            v.Queue = CombatTurnQueue.GetUpcoming(BoardQueueLength, spent, length);
+            return v;
+        }
+
+        private static Color BoardActorColor(Actor actor) => actor switch
+        {
+            Environment => BoardHazardColor,
+            Enemy => AsciiArtAssets.Colors.Red,
+            _ => AsciiArtAssets.Colors.Gold
+        };
+
         /// <summary>
-        /// Middle of the board. At rest: PREV, NOW, then NOW forks through a junction into the COMBO / HIT / MISS next cards.
-        /// While the hero's swing plays, each sequence column animates: ATTACKER draws the hero's line up to NOW, ROLL tumbles
-        /// a d20 at the junction, OUTCOME lights the branch taken and fades the rest, ACTION lunges NOW and throws a strike
-        /// line at the enemy bar, DEFENSE / DAMAGE ride that line, EFFECTS type out under the card. When the swing finishes the
-        /// taken branch slides into NOW and NOW slides into PREV. Enemy swings throw their own line from the firing strip card.
+        /// Middle of the board, read right to left: the next roll's outcome branches (one box each), the d20, NOW, PREV.
+        /// Only the next actor is shown - nothing further ahead. A swing plays in sequence-column order:
+        /// ATTACKER pulses the branches, ROLL tumbles the die, OUTCOME applies the thresholds (the branch taken lights up),
+        /// ACTION flies its card into NOW while the act NOW held slides into PREV, and the branches move on to whoever acts
+        /// after, then DEFENSE / DAMAGE / EFFECTS write the result under NOW. NOW keeps that act through the next swing's
+        /// setup. Room hazards have no roll and land on NOW directly.
         /// </summary>
-        private void RenderBoardComboFlow(Character player, Enemy enemy, int x, int y, int w, int h,
-            (double X, double Y) enemyAnchor, BoardRect? enemyCard, ActionStripDamageLineMode mode)
+        private void RenderBoardComboFlow(Character player, BoardTurnView turn, int x, int y, int w, int h, ActionStripDamageLineMode mode)
         {
             if (h < 9)
                 return;
 
-            var actions = player.GetComboActions();
-            var panelData = CombatActionStripBuilder.BuildPanelData(player);
-            int filled = Math.Min(actions.Count, panelData.Count);
-            if (filled == 0)
-                return;
-
-            var heroSwing = LiveSwingFor(player);
-            var lastSwing = CombatSequenceHudState.ActiveSwing;
-            CombatSequenceSwingInfo? slideSwing = null;
-            double slide = 1.0;
-            if (heroSwing == null && lastSwing != null && CombatSequenceHudState.IsFinished && ReferenceEquals(lastSwing.Source, player))
-            {
-                double raw = CombatBoardAnimation.SlideProgress();
-                if (raw < 1.0)
-                {
-                    slideSwing = lastSwing;
-                    slide = CombatBoardAnimation.EaseOut(raw);
-                    CombatBoardAnimation.RequestFrame();
-                }
-            }
-            if (heroSwing == null && slideSwing == null)
-                _boardSettledPrev = player.LastAction;
-
-            // NOW at rest is the live combo step. Without a sequence playing (instant log) the strip's held slot still applies.
-            int current = player.ComboStep % filled;
-            if (CombatSequenceHudState.Steps.Count == 0
-                && HeroActionStripFeedback.TryGetHeldSelectedIndex(out int held) && held >= 0 && held < filled)
-                current = held;
-            var anim = heroSwing ?? slideSwing;
-            int fired = anim != null ? FindSlot(actions, anim.Action) : -1;
-            if (heroSwing != null && fired >= 0 && fired < filled)
-                current = fired;
-
             // --- Layout (rest positions) ---
             int curW = Math.Clamp(w * 26 / 100, 22, 40);
             int prevW = Math.Clamp(curW * 2 / 3, 16, 28);
-            int nextW = Math.Clamp(w * 20 / 100, 18, 32);
+            int nextW = Math.Clamp(w * 24 / 100, 20, 34);
             int lineGap = Math.Clamp(w * 9 / 100, 10, 16);
             int prevGap = 2;
             int total = prevW + prevGap + curW + lineGap + nextW;
@@ -406,156 +498,304 @@ namespace RPGGame.UI.Avalonia.Renderers
             var prevR = new BoardRect(left, curR.Y + (curH - prevH) / 2, prevW, prevH);
             int nextX = curR.X + curW + lineGap;
 
-            // COMBO gets a full card (the next combo action); HIT and MISS are small generic outcome boxes.
-            const int outcomeH = 4;
-            int nextGapRows = 1;
-            int comboH = Math.Clamp(h - 2 * outcomeH - 2 * nextGapRows, 5, curH);
-            int branchTotal = comboH + 2 * outcomeH + 2 * nextGapRows;
-            int nextTop = y + Math.Max(0, (h - branchTotal) / 2);
-            var branchR = new[]
-            {
-                new BoardRect(nextX, nextTop, nextW, comboH),
-                new BoardRect(nextX, nextTop + comboH + nextGapRows, nextW, outcomeH),
-                new BoardRect(nextX, nextTop + comboH + outcomeH + 2 * nextGapRows, nextW, outcomeH),
-            };
+            // The next actor's roll branches stack down the right column, one box per possible outcome.
+            bool hasNext = turn.Queue.Count > 0;
+            var nextEntry = hasNext ? turn.Queue[0] : default;
+            bool nextRolling = hasNext && turn.LiveSwing != null && nextEntry.IsActing
+                && ReferenceEquals(turn.LiveSwing.Source, nextEntry.Actor);
+            var branches = hasNext ? BoardBranches(nextEntry.Actor, nextRolling ? turn.LiveSwing : null) : new List<BoardBranch>();
+            const int branchGap = 1;
+            int slots = branches.Count;
+            var branchH = new int[slots];
+            for (int i = 0; i < slots; i++)
+                branchH[i] = 2 + Math.Max(1, branches[i].Detail.Count + 1);
+            int stackH() { int s = Math.Max(0, slots - 1) * branchGap; foreach (var bh in branchH) s += bh; return s; }
+            for (int i = slots - 1; i >= 0 && stackH() > h - 1; i--)
+                branchH[i] = 3; // squeeze detail lines (hazard lists) before dropping boxes
+            while (slots > 1 && stackH() > h - 1)
+                slots--;
+            int queueTop = y + 1 + Math.Max(0, (h - 1 - stackH()) / 2);
+            var queueR = new BoardRect[slots];
+            for (int i = 0, by = queueTop; i < slots; by += branchH[i] + branchGap, i++)
+                queueR[i] = new BoardRect(nextX, by, nextW, branchH[i]);
             (double X, double Y) junction = (curR.Right + lineGap / 2.0, curR.CenterY);
 
-            if (slideSwing != null)
+            var swing = turn.LiveSwing;
+            int stage = turn.Stage;
+            double p = turn.P, rawP = turn.Raw;
+            Color strikeColor = swing?.Source is Enemy ? AsciiArtAssets.Colors.Red : BoardConnectorColor;
+
+            // The branch the roll picked waits on OUTCOME, then on ACTION its card leaves the column and slides into NOW
+            // while the act NOW held slides into PREV - one move, both cards together.
+            if (nextRolling && stage == 2)
             {
-                RenderBoardSlide(player, actions, panelData, filled, slideSwing, fired, slide, prevR, curR, branchR, mode);
-                return;
+                int pick = branches.FindIndex(b => b.Outcome == swing!.Outcome);
+                if (pick >= 0 && pick < slots)
+                {
+                    _boardLandSwing = swing;
+                    _boardLandFrom = queueR[pick];
+                }
             }
+            bool flies = swing != null && ReferenceEquals(_boardLandSwing, swing);
 
-            // Branches from NOW, per the d20 bands: a combo roll advances, a plain hit or miss restarts at slot 1.
-            var branches = new (string Label, CombatSequenceSwingOutcome Outcome, string Note)[]
+            // The newest act reaches NOW on ACTION (OUTCOME if it has no branch to fly from); a hazard or a finished
+            // swing is already there. Until then NOW keeps the previous act - the setup never plays in the center.
+            bool landed = swing == null || stage >= (flies ? 3 : 2);
+            double shift = 1.0;
+            if (landed && _boardNowAct != null)
             {
-                ("ACTION", CombatSequenceSwingOutcome.Combo, ""),
-                ("HIT", CombatSequenceSwingOutcome.Hit, "normal hit"),
-                ("MISS", CombatSequenceSwingOutcome.Miss, "whiff"),
-            };
+                if (!ReferenceEquals(_boardShiftAct, _boardNowAct))
+                {
+                    _boardShiftAct = _boardNowAct;
+                    _boardShiftStartUtc = DateTimeOffset.UtcNow;
+                }
+                double raw = CombatBoardAnimation.Progress(_boardShiftStartUtc, CombatBoardAnimation.SlideMs);
+                if (raw < 1.0)
+                {
+                    shift = CombatBoardAnimation.EaseOut(raw);
+                    CombatBoardAnimation.RequestFrame();
+                }
+            }
+            bool shifting = landed && shift < 1.0;
+            bool cardInFlight = flies && shifting;
+            var nowAct = landed ? _boardNowAct : _boardPrevAct;
 
-            int stage = 7;
-            double p = 1.0, rawP = 1.0;
-            if (heroSwing != null)
-                (stage, p, rawP) = LiveStage();
+            // --- NOW ---
+            var nowR = curR;
+            Color nowBorder = BoardRestBorder(nowAct);
+            Color nowFill = BoardCardBackground;
+            int nowThickness = 1;
+            if (swing != null && landed)
+            {
+                nowBorder = LerpColor(AsciiArtAssets.Colors.White, OutcomeColor(swing.Outcome), stage > 2 ? 1.0 : CombatBoardAnimation.EaseOut(rawP));
+                nowThickness = 3;
+                (nowBorder, nowFill, nowThickness) = AccentForBeat(swing, stage, rawP, nowBorder, nowThickness);
+            }
+            else if (turn.HazardAct != null)
+            {
+                nowBorder = BoardHazardColor;
+                nowThickness = 3;
+            }
+            if (cardInFlight)
+                (nowBorder, nowThickness) = (BoardDimBorder, 1);
+            AddBoardBox(nowR.X, nowR.Y, nowR.W, nowR.H, nowBorder, nowFill, borderThicknessPixels: nowThickness);
+            if (nowAct != null && !cardInFlight)
+            {
+                canvas.AddText(nowR.X + 1, nowR.Y - 1, Truncate($"NOW  {nowAct.Actor.Name}", nowR.W), BoardActorColor(nowAct.Actor));
+                DrawBoardActContent(nowAct, nowR, mode);
+            }
+            else
+                canvas.AddText(nowR.X + 1, nowR.Y - 1, "NOW", AsciiArtAssets.Colors.White);
 
-            // --- PREV ---
-            var prevAction = heroSwing != null ? _boardSettledPrev : player.LastAction;
-            DrawBoardCard(player, actions, panelData, filled, FindSlot(actions, prevAction), prevAction, prevR, BoardDimBorder, 1, mode);
+            // --- PREV (and, while the new act lands, the old NOW sliding into it) ---
+            if (shifting && _boardPrevAct != null)
+            {
+                if (shift < 0.5)
+                    DrawBoardAct(_boardPrev2Act, prevR, LerpColor(BoardDimBorder, BoardFadedBorder, shift * 2), 1, mode);
+                DrawBoardAct(_boardPrevAct, BoardRect.Lerp(curR, prevR, shift),
+                    LerpColor(BoardRestBorder(_boardPrevAct), BoardDimBorder, shift), 1, mode);
+            }
+            else
+            {
+                var prevAct = landed ? _boardPrevAct : _boardPrev2Act;
+                if (prevAct == null && CombatSequenceHudState.Steps.Count == 0 && player.LastAction != null)
+                    prevAct = new BoardAct(player, player.LastAction, null); // instant log: no swings to track
+                DrawBoardAct(prevAct, prevR, BoardDimBorder, 1, mode);
+            }
             canvas.AddText(prevR.X + 1, prevR.Y - 1, "PREV", AsciiArtAssets.Colors.Gray);
 
-            // --- NOW (accents by border and fill only; cards never move mid-swing) ---
-            var nowR = curR;
-            Color nowBorder = AsciiArtAssets.Colors.White;
-            Color nowFill = BoardCardBackground;
-            int nowThickness = 2;
-            if (heroSwing != null)
-            {
-                if (stage == 0)
-                {
-                    nowBorder = LerpColor(BoardDimBorder, AsciiArtAssets.Colors.White, p);
-                    nowThickness = rawP < 1.0 ? 3 : 2;
-                }
-                else if (stage >= 2)
-                {
-                    nowBorder = OutcomeColor(heroSwing.Outcome);
-                    nowThickness = 3;
-                }
-                (nowBorder, nowFill, nowThickness) = AccentForBeat(heroSwing, stage, rawP, nowBorder, nowThickness);
-            }
-            AddBoardBox(nowR.X, nowR.Y, nowR.W, nowR.H, nowBorder, nowFill, borderThicknessPixels: nowThickness);
-            canvas.AddText(nowR.X + 1, nowR.Y - 1, $"NOW  {current + 1}/{filled}", AsciiArtAssets.Colors.White);
-            DrawActionCardContent(player, panelData[current], actions[current], current, nowR.X, nowR.Y, nowR.W, nowR.H, mode);
+            // Roll line: the face on the actor's d20 bar -> the die (hero bar below, enemy bar above). Gone at rest.
+            if (swing != null && RollKnown(stage))
+                AddGrowingLine(RollPoint(swing.Roll, hero: swing.Source is not Enemy), junction,
+                    OutcomeHalf(stage, rawP, second: false), strikeColor, 2.0);
 
-            // Hero health -> NOW: drawn up the screen on the ATTACKER beat.
-            // Your turn only: the roll's face on your d20 bar -> NOW. Gone at rest and on the enemy's turn.
-            if (heroSwing != null && RollKnown(stage))
-                AddGrowingLine(RollPoint(heroSwing.Roll, hero: true), (nowR.CenterX, nowR.Bottom), OutcomeHalf(stage, rawP, second: false), BoardConnectorColor, 2.0);
-
-            // --- Junction die ---
-            bool dieVisible = heroSwing != null && stage >= 1;
+            // --- Die between NOW and the queue ---
+            bool dieVisible = swing != null && stage >= 1 && !cardInFlight;
             BoardRect dieR = default;
             if (dieVisible)
-                dieR = DrawBoardDie(junction, heroSwing!, stage, rawP, x, w);
+                dieR = DrawBoardDie(junction, swing!, stage, rawP, x, w);
             (double X, double Y) junctionIn = dieVisible ? (dieR.X, junction.Y) : junction;
             (double X, double Y) junctionOut = dieVisible ? (dieR.Right, junction.Y) : junction;
             canvas.AddLine(nowR.Right, nowR.CenterY, junctionIn.X, junctionIn.Y,
-                dieVisible ? BoardConnectorColor : BoardIdleLine, dieVisible ? 2.0 : 1.5);
+                dieVisible ? strikeColor : BoardIdleLine, dieVisible ? 2.0 : 1.5);
 
-            // --- Branches ---
-            for (int i = 0; i < branches.Length; i++)
+            // --- Next roll: one branch per outcome ---
+            // The next actor's branches wait until the flying card has cleared the column (text draws above every box).
+            if (hasNext && slots > 0 && !(cardInFlight && shift < 0.5))
             {
-                var (label, outcome, note) = branches[i];
-                var r = branchR[i];
-                Color baseColor = OutcomeColor(outcome);
-                bool chosen = heroSwing != null && heroSwing.Outcome == outcome;
-                Color border = i == 0 ? BoardComboBorder : BoardDimBorder;
-                Color labelColor = baseColor;
-                Color lineColor = BoardIdleLine;
-                double lineThickness = 1.5;
-                int thickness = 1;
-                if (heroSwing != null && stage >= 2)
+                var actor = nextEntry.Actor;
+                string label = nextRolling ? "ROLLING" : nextEntry.IsActing ? "ACTING" : "NEXT";
+                canvas.AddText(nextX + 1, queueR[0].Y - 1, Truncate($"{label}  {actor.Name}", nextW), BoardActorColor(actor));
+                double fade = stage > 2 ? 1.0 : CombatBoardAnimation.EaseOut(rawP);
+                for (int i = 0; i < slots; i++)
                 {
-                    double t = OutcomeHalf(stage, rawP, second: true);
+                    var b = branches[i];
+                    bool resolved = nextRolling && stage >= 2 && b.Outcome != null;
+                    bool chosen = resolved && b.Outcome == swing!.Outcome;
+                    canvas.AddLine(junctionOut.X, junctionOut.Y, queueR[i].X, queueR[i].CenterY,
+                        resolved && !chosen ? BoardFadedBorder : BoardIdleLine, 1.0);
                     if (chosen)
-                    {
-                        border = LerpColor(BoardDimBorder, baseColor, t);
-                        lineColor = baseColor;
-                        thickness = 2;
-                        lineThickness = 2.5;
-                    }
-                    else
-                    {
-                        border = LerpColor(border, BoardFadedBorder, t);
-                        labelColor = LerpColor(baseColor, BoardFadedBorder, t * 0.85);
-                        lineColor = LerpColor(BoardIdleLine, BoardFadedBorder, t);
-                    }
+                        AddGrowingLine(junctionOut, (queueR[i].X, queueR[i].CenterY), OutcomeHalf(stage, rawP, second: true), strikeColor, 2.0);
+                    DrawBoardBranch(b, queueR[i], resolved, chosen, fade, nextRolling && stage == 0 ? p : 0.0, BoardActorColor(actor));
                 }
-
-                (double X, double Y) target = (r.X, r.CenterY);
-                if (chosen && stage == 2)
-                {
-                    // The taken path fills in from the die toward its card.
-                    canvas.AddLine(junctionOut.X, junctionOut.Y, target.X, target.Y, BoardIdleLine, 1.5);
-                    AddGrowingLine(junctionOut, target, OutcomeHalf(stage, rawP, second: true), lineColor, lineThickness);
-                }
-                else
-                {
-                    canvas.AddLine(junctionOut.X, junctionOut.Y, target.X, target.Y, lineColor, lineThickness);
-                }
-
-                AddBoardBox(r.X, r.Y, r.W, r.H, border, BoardCardBackground, borderThicknessPixels: thickness);
-                if (outcome == CombatSequenceSwingOutcome.Combo)
-                {
-                    int slot = (current + 1) % filled;
-                    DrawActionCardContent(player, panelData[slot], actions[slot], slot, r.X, r.Y, r.W, r.H, mode);
-                }
-                else
-                {
-                    // Generic outcome: no action of its own, the combo just starts over.
-                    bool faded = heroSwing != null && stage >= 2 && !chosen;
-                    canvas.AddText(r.X + 2, r.Y + 1, Truncate(note, r.W - 3), faded ? labelColor : AsciiArtAssets.Colors.White);
-                    canvas.AddText(r.X + 2, r.Y + 2, Truncate("combo resets to 1", r.W - 3), faded ? labelColor : AsciiArtAssets.Colors.Gray);
-                }
-                if (r.W > label.Length + 3)
-                    canvas.AddText(r.X + 1, r.Y, $" {label} ", labelColor);
             }
 
-            if (heroSwing != null && stage >= 3)
-                RenderBoardResultLine(heroSwing, stage, p, nowR, x + w - nowR.X - 1);
+            if (cardInFlight)
+                DrawBoardAct(_boardNowAct, BoardRect.Lerp(_boardLandFrom, nowR, shift), OutcomeColor(swing!.Outcome), 3, mode);
 
-            if (heroSwing == null && LiveSwingFor(enemy) is { } enemySwing)
-                RenderBoardEnemySwing(enemySwing, enemyCard, enemyAnchor, x, y, w);
+            if (swing != null && stage >= 3)
+                RenderBoardResultLine(swing, stage, p, nowR, x + w - nowR.X - 1);
         }
 
-        private void DrawBoardCard(Character player, List<Action> actions, List<ActionPanelInfo> panelData, int filled,
-            int slot, Action? fallback, BoardRect r, Color border, int thickness, ActionStripDamageLineMode mode)
+        /// <summary>One possible result of the next roll: its odds (faces or percent), what it does, and any detail lines.</summary>
+        private sealed record BoardBranch(string Odds, string Text, Color Color, CombatSequenceSwingOutcome? Outcome, List<string> Detail);
+
+        /// <summary>
+        /// One outcome box of the next roll. While that roll plays, OUTCOME lights the branch taken and fades the rest.
+        /// </summary>
+        private void DrawBoardBranch(BoardBranch b, BoardRect r, bool resolved, bool chosen, double fade, double attackerPulse, Color actorColor)
+        {
+            Color border = BoardDimBorder;
+            int thickness = 1;
+            Color color = b.Color;
+            if (attackerPulse > 0.0)
+            {
+                border = LerpColor(BoardDimBorder, actorColor, Math.Sin(attackerPulse * Math.PI));
+                thickness = 2;
+            }
+            if (resolved)
+            {
+                border = chosen ? OutcomeColor(b.Outcome!.Value) : LerpColor(BoardDimBorder, BoardFadedBorder, fade);
+                thickness = chosen ? 3 : 1;
+                if (!chosen)
+                    color = LerpColor(color, BoardFadedBorder, fade * 0.85);
+            }
+            AddBoardBox(r.X, r.Y, r.W, r.H, border, BoardCardBackground, borderThicknessPixels: thickness);
+
+            int tx = r.X + 1, ty = r.Y + 1, tw = r.W - 2;
+            int bottom = (int)r.Bottom - 1;
+            string line = b.Odds.Length > 0 ? $"{b.Odds,-6}{b.Text}" : b.Text;
+            canvas.AddText(tx, ty++, Truncate(line, tw), color);
+            foreach (var d in b.Detail)
+            {
+                if (ty >= bottom)
+                    break;
+                canvas.AddText(tx, ty++, Truncate("  " + d, tw), color);
+            }
+        }
+
+        /// <summary>
+        /// What the next roll could become: COMBO (the strip action the actor is lined up on), HIT (a normal attack) or
+        /// MISS, with the faces each needs - or, for the room, quiet vs. strikes (with the hazards it may throw).
+        /// </summary>
+        private static List<BoardBranch> BoardBranches(Actor actor, CombatSequenceSwingInfo? rolling)
+        {
+            var list = new List<BoardBranch>();
+            if (actor is Environment room)
+            {
+                // The room rolls a percent chance (not a d20) to act, then picks a hazard from its pool.
+                int strikePct = (int)Math.Round(room.ChanceToAct * 100);
+                if (strikePct <= 0)
+                {
+                    list.Add(new BoardBranch("", "won't act", AsciiArtAssets.Colors.Gray, null, new()));
+                    return list;
+                }
+                var hazards = new List<string>();
+                foreach (var (hazard, _) in room.ActionPool)
+                    hazards.Add(hazard.Name ?? "?");
+                list.Add(new BoardBranch($"{100 - strikePct}%", "quiet", AsciiArtAssets.Colors.Gray, null, new()));
+                list.Add(new BoardBranch($"{strikePct}%", "strikes:", BoardHazardColor, null, hazards));
+                return list;
+            }
+
+            var t = rolling?.Thresholds ?? D20ThresholdBarRenderer.CurrentThresholds(actor);
+            string combo;
+            if (rolling != null)
+            {
+                // ComboStep has already moved on mid-swing; keep the name it was lined up on.
+                combo = rolling.Outcome == CombatSequenceSwingOutcome.Combo ? rolling.Action.Name
+                    : _boardRestComboName.TryGetValue(actor, out var held) ? held : "-";
+            }
+            else
+            {
+                combo = "-";
+                if (actor is Character ch)
+                {
+                    var actions = ch.GetComboActions();
+                    if (actions.Count > 0)
+                        combo = actions[ch.ComboStep % actions.Count].Name ?? "-";
+                }
+                _boardRestComboName[actor] = combo;
+            }
+
+            static string Faces(int lo, int hi) => lo > hi ? "--" : lo == hi ? $"{lo}" : $"{lo}-{hi}";
+            int comboAt = Math.Clamp(t.Combo, 1, 21);
+            int hitAt = Math.Clamp(t.MinHit, 1, comboAt);
+            list.Add(new BoardBranch(Faces(comboAt, 20), combo, BoardComboBorder, CombatSequenceSwingOutcome.Combo, new()));
+            list.Add(new BoardBranch(Faces(hitAt, comboAt - 1), "hit", AsciiArtAssets.Colors.White, CombatSequenceSwingOutcome.Hit, new()));
+            list.Add(new BoardBranch(Faces(1, hitAt - 1), "miss", AsciiArtAssets.Colors.Red, CombatSequenceSwingOutcome.Miss, new()));
+            return list;
+        }
+
+        private void DrawBoardAct(BoardAct? act, BoardRect r, Color border, int thickness, ActionStripDamageLineMode mode)
         {
             AddBoardBox(r.X, r.Y, r.W, r.H, border, BoardCardBackground, borderThicknessPixels: thickness);
-            if (slot >= 0 && slot < filled)
-                DrawActionCardContent(player, panelData[slot], actions[slot], slot, r.X, r.Y, r.W, r.H, mode);
+            if (act != null)
+                DrawBoardActContent(act, r, mode);
             else
-                canvas.AddText(r.X + 1, r.Y + 1, fallback != null ? Truncate(fallback.Name ?? "?", r.W - 2) : "-", AsciiArtAssets.Colors.Gray);
+                canvas.AddText(r.X + 1, r.Y + 1, "-", AsciiArtAssets.Colors.Gray);
+        }
+
+        /// <summary>A strip action gets its full card; a normal hit, a miss or a room hazard gets a short title card.</summary>
+        private void DrawBoardActContent(BoardAct act, BoardRect r, ActionStripDamageLineMode mode)
+        {
+            bool miss = act.Swing?.Outcome == CombatSequenceSwingOutcome.Miss;
+            if (!miss && act.Actor is Character ch && act.Action.IsComboAction)
+            {
+                var actions = ch.GetComboActions();
+                int slot = FindSlot(actions, act.Action);
+                var panelData = slot >= 0 ? CombatActionStripBuilder.BuildPanelData(ch) : null;
+                if (panelData != null && slot < panelData.Count)
+                {
+                    DrawActionCardContent(ch, panelData[slot], actions[slot], slot, r.X, r.Y, r.W, r.H, mode);
+                    return;
+                }
+            }
+
+            string title, sub;
+            Color color;
+            if (act.Actor is Environment)
+            {
+                title = act.Action.Name ?? "?";
+                sub = "room hazard";
+                color = BoardHazardColor;
+            }
+            else if (miss)
+            {
+                title = "MISS";
+                sub = "combo resets to 1";
+                color = AsciiArtAssets.Colors.Red;
+            }
+            else if (act.Swing?.Outcome == CombatSequenceSwingOutcome.Hit)
+            {
+                title = "HIT";
+                sub = "combo resets to 1";
+                color = AsciiArtAssets.Colors.White;
+            }
+            else
+            {
+                title = string.IsNullOrEmpty(act.Action.Name) ? "NORMAL ATTACK" : act.Action.Name;
+                sub = "";
+                color = AsciiArtAssets.Colors.White;
+            }
+            int tw = r.W - 2;
+            int bottom = (int)r.Bottom - 1;
+            int ty = r.Y + 1;
+            canvas.AddText(r.X + 1, ty++, Truncate(title, tw), color);
+            if (sub.Length > 0 && ty < bottom)
+                canvas.AddText(r.X + 1, ty++, Truncate(sub, tw), AsciiArtAssets.Colors.Gray);
+            foreach (var line in CombatActionStripBuilder.BuildActionStripDescriptionLines(act.Action, tw, Math.Max(0, bottom - ty)))
+                canvas.AddText(r.X + 1, ty++, line, AsciiArtAssets.Colors.Gray);
         }
 
         /// <summary>
@@ -678,65 +918,6 @@ namespace RPGGame.UI.Avalonia.Renderers
             int shown = (int)Math.Ceiling(text.Length * Math.Min(1.0, p * 1.6));
             if (shown > 0)
                 canvas.AddText(tx, ty, Truncate(text.Substring(0, Math.Min(shown, text.Length)), maxW), AsciiArtAssets.Colors.Cyan);
-        }
-
-        /// <summary>
-        /// Enemy swing over the resting hero cards: a line rises from the roll on the enemy d20 bar to the firing strip card, a d20 shows below it,
-        /// the outcome stamps above the die, and the result line (whiff / defense / damage / effects) appears under it.
-        /// The strip card itself carries the accent.
-        /// </summary>
-        private void RenderBoardEnemySwing(CombatSequenceSwingInfo swing, BoardRect? enemyCard, (double X, double Y) enemyAnchor, int x, int y, int w)
-        {
-            var (stage, p, raw) = LiveStage();
-            (double X, double Y) cardBottom = enemyCard is { } card ? (card.CenterX, card.Bottom) : enemyAnchor;
-            (double X, double Y) diePoint = (cardBottom.X, y + 1.5);
-
-            if (stage < 1)
-                return;
-            // Their turn only: the roll's face on the enemy d20 bar -> the firing strip card.
-            if (RollKnown(stage))
-                AddGrowingLine(RollPoint(swing.Roll, hero: false), cardBottom, OutcomeHalf(stage, raw, second: false), AsciiArtAssets.Colors.Red, 2.0);
-            var dieR = DrawBoardDie(diePoint, swing, stage, raw, x, w);
-            if (stage >= 3)
-                RenderBoardResultLine(swing, stage, p, dieR, x + w - dieR.X - 1);
-        }
-
-        /// <summary>
-        /// After a hero swing: the branch taken slides into NOW (linked to the fired card), the fired card slides into PREV,
-        /// and the old PREV fades out in place.
-        /// The new branches appear once the slide lands.
-        /// </summary>
-        private void RenderBoardSlide(Character player, List<Action> actions, List<ActionPanelInfo> panelData, int filled,
-            CombatSequenceSwingInfo swing, int fired, double s, BoardRect prevR, BoardRect curR, BoardRect[] branchR,
-            ActionStripDamageLineMode mode)
-        {
-            int branchIndex = swing.Outcome switch
-            {
-                CombatSequenceSwingOutcome.Combo => 0,
-                CombatSequenceSwingOutcome.Hit => 1,
-                _ => 2
-            };
-            int incoming = player.ComboStep % filled;
-
-            if (s < 0.5)
-            {
-                DrawBoardCard(player, actions, panelData, filled, FindSlot(actions, _boardSettledPrev), _boardSettledPrev, prevR,
-                    LerpColor(BoardDimBorder, BoardFadedBorder, s * 2), 1, mode);
-            }
-
-            var firedR = BoardRect.Lerp(curR, prevR, s);
-            DrawBoardCard(player, actions, panelData, filled, fired, swing.Action, firedR,
-                LerpColor(OutcomeColor(swing.Outcome), BoardDimBorder, s), 1, mode);
-
-            var inR = BoardRect.Lerp(branchR[branchIndex], curR, s);
-            DrawBoardCard(player, actions, panelData, filled, incoming, null, inR,
-                LerpColor(OutcomeColor(swing.Outcome), AsciiArtAssets.Colors.White, s), 2, mode);
-
-            canvas.AddText(prevR.X + 1, prevR.Y - 1, "PREV", AsciiArtAssets.Colors.Gray);
-            canvas.AddText(curR.X + 1, curR.Y - 1, $"NOW  {incoming + 1}/{filled}", AsciiArtAssets.Colors.White);
-            // Potential -> action: the taken branch stays linked to the card that fired while it becomes NOW.
-            if (inR.X > firedR.Right)
-                canvas.AddLine(firedR.Right, firedR.CenterY, inR.X, inR.CenterY, OutcomeColor(swing.Outcome), 2.5);
         }
 
         private static string Truncate(string text, int max) =>

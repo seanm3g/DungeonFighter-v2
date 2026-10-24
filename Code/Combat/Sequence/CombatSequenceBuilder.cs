@@ -133,10 +133,15 @@ namespace RPGGame.Combat.Sequence
                 string first = result.StatusEffectMessages[0];
                 if (!string.IsNullOrWhiteSpace(first))
                 {
-                    steps.Add(new CombatSequenceStep(
-                        CombatSequenceStepKind.Effect,
-                        "EFFECTS",
-                        Plain(first.Trim(), ColorPalette.Info)));
+                    // Status lines carry color markup; parse it like the combat log does instead of printing raw codes.
+                    var segments = TrimSegments(ColoredTextParser.Parse(first.Trim()));
+                    if (segments.Count > 0)
+                    {
+                        steps.Add(new CombatSequenceStep(
+                            CombatSequenceStepKind.Effect,
+                            "EFFECTS",
+                            segments));
+                    }
                 }
             }
 
@@ -210,6 +215,20 @@ namespace RPGGame.Combat.Sequence
 
         private static List<ColoredText> Last(List<List<ColoredText>> beats) =>
             beats.Count > 0 ? beats[beats.Count - 1] : new List<ColoredText>();
+
+        private static List<ColoredText> TrimSegments(List<ColoredText> segments)
+        {
+            while (segments.Count > 0 && string.IsNullOrWhiteSpace(segments[0].Text))
+                segments.RemoveAt(0);
+            while (segments.Count > 0 && string.IsNullOrWhiteSpace(segments[segments.Count - 1].Text))
+                segments.RemoveAt(segments.Count - 1);
+            if (segments.Count > 0)
+            {
+                segments[0].Text = segments[0].Text.TrimStart();
+                segments[segments.Count - 1].Text = segments[segments.Count - 1].Text.TrimEnd();
+            }
+            return segments;
+        }
 
         private static List<ColoredText> Plain(string text, ColorPalette palette)
         {

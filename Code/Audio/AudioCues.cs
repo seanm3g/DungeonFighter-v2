@@ -45,6 +45,9 @@ namespace RPGGame.Audio
             _queuedPunchlineCue = cue;
         }
 
+        /// <summary>True while a combat outcome cue is waiting for its punchline (i.e. the block being shown is a resolved action).</summary>
+        public static bool HasQueued => _queuedPunchlineCue.HasValue;
+
         /// <summary>Play a previously queued combat outcome cue, if any.</summary>
         public static void CommitQueued()
         {

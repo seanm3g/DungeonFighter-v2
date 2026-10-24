@@ -79,6 +79,8 @@ namespace RPGGame.UI.Avalonia.Canvas
         public bool FillFrame { get; set; }
         /// <summary>The bitmap was rendered at the cell rectangle's device size, so it is drawn without filtering.</summary>
         public bool PixelAligned { get; set; }
+        /// <summary>Item art: redrawn as glyphs on its cells while the room plate uses the Ascii style (needs a <see cref="global::Avalonia.Media.Imaging.Bitmap"/> source).</summary>
+        public bool FollowsAsciiStyle { get; set; }
         /// <summary>Drawn right after the bitmap, with the origin at the cell rectangle's top-left (DIPs).</summary>
         public System.Action<global::Avalonia.Media.DrawingContext>? Overlay { get; set; }
     }

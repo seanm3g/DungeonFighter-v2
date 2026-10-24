@@ -152,6 +152,7 @@ namespace RPGGame
                 var envAction = room.SelectAction();
                 if (envAction != null)
                 {
+                    CombatTurnQueue.SetActingAction(envAction);
                     // Create list of all characters in the room (player and current enemy)
                     var allTargets = new List<Actor> { player, currentEnemy };
                     

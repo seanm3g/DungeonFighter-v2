@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.Actions.Execution;
 using RPGGame.Combat.Sequence;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.ColorSystem;
@@ -15,6 +16,8 @@ namespace RPGGame.UI.Avalonia.Feedback
     /// Card states are baked when the strip is built; the glow and vignette are painted every frame by
     /// <see cref="GameCanvasControl"/> via <see cref="Paint"/> so they animate without rebuilding the layout.
     /// A miss resets <see cref="Character.ComboStep"/> to 0, which drops charge back to 0 and clears the cue.
+    /// The red low-health vignette is separate: it shows only while the tracked hero (never an enemy) is at or
+    /// below <see cref="ActionEventPublisher.LowHealthThreshold"/>.
     /// </summary>
     public static class ComboTension
     {
@@ -41,9 +44,16 @@ namespace RPGGame.UI.Avalonia.Feedback
         /// <summary>Gold glow / border for the finisher card.</summary>
         internal static readonly Color FinisherGold = Color.FromRgb(255, 200, 70);
 
-        /// <summary>Vignette edge color: neutral black early, ember red at the finisher.</summary>
-        private static readonly Color VignetteEarly = Color.FromRgb(0, 0, 0);
-        private static readonly Color VignetteFinisher = Color.FromRgb(48, 6, 0);
+        /// <summary>Combo vignette edge color: neutral black (red is reserved for hero low health).</summary>
+        private static readonly Color VignetteEdge = Color.FromRgb(0, 0, 0);
+
+        /// <summary>Low-health vignette edge color.</summary>
+        private static readonly Color LowHealthEdge = Color.FromRgb(150, 0, 0);
+
+        /// <summary>Low-health vignette alpha swings between these on a heartbeat pulse.</summary>
+        internal const double LowHealthMinAlpha = 0.28;
+        internal const double LowHealthMaxAlpha = 0.48;
+        internal const double LowHealthPulsePeriodMs = 900.0;
 
         private static System.Action? _requestInvalidate;
         private static DispatcherTimer? _timer;
@@ -100,20 +110,40 @@ namespace RPGGame.UI.Avalonia.Feedback
             return (Math.Sin(phase) + 1.0) * 0.5;
         }
 
+        /// <summary>True when <paramref name="player"/> is the hero (not an enemy), alive, and at or below the low-health threshold.</summary>
+        internal static bool IsHeroLowHealth(Character? player)
+        {
+            if (player == null || player is Enemy || player.CurrentHealth <= 0)
+                return false;
+            return ActionEventPublisher.GetActorHealthPercentage(player) <= ActionEventPublisher.LowHealthThreshold;
+        }
+
         /// <summary>
-        /// Paints the next-card glow and the vignette. Call inside the content-origin transform, after the
-        /// grid elements. No-op outside the dungeon/combat chrome or when charge is 0.
+        /// Paints the low-health vignette, the combo vignette and the next-card glow. Call inside the content-origin
+        /// transform, after the grid elements. No-op outside the dungeon/combat chrome, or when charge is 0 and the
+        /// hero is not low on health.
         /// </summary>
         public static void Paint(DrawingContext context, double contentWidth, double contentHeight, double charWidth, double charHeight)
         {
-            if (!TryGetLiveState(out int filled, out int next, out double charge) || charge <= 0.0)
+            bool lowHealth = IsTrackedHeroLowHealth();
+            bool combo = TryGetLiveState(out int filled, out int next, out double charge) && charge > 0.0;
+            if (!lowHealth && !combo)
                 return;
 
             var now = Now();
+            if (lowHealth)
+                PaintLowHealthVignette(context, contentWidth, contentHeight, now);
+
+            if (!combo)
+            {
+                EnsureTimerStarted();
+                return;
+            }
+
             double pulse = GetPulseT(charge, now);
             bool finisher = IsFinisherNext(next, filled);
 
-            PaintVignette(context, contentWidth, contentHeight, charge, pulse, finisher);
+            PaintVignette(context, contentWidth, contentHeight, charge, pulse);
 
             // The board layout draws its own cards elsewhere; only the strip has fixed rects to glow around.
             if (!CombatBoardLayout.IsActive)
@@ -125,6 +155,13 @@ namespace RPGGame.UI.Avalonia.Feedback
             }
 
             EnsureTimerStarted();
+        }
+
+        private static bool IsTrackedHeroLowHealth()
+        {
+            if (!CombatSequenceHudState.IsBandReserved)
+                return false;
+            return _tracked != null && _tracked.TryGetTarget(out var player) && IsHeroLowHealth(player);
         }
 
         private static bool TryGetLiveState(out int filled, out int next, out double charge)
@@ -162,14 +199,26 @@ namespace RPGGame.UI.Avalonia.Feedback
             }
         }
 
-        private static void PaintVignette(DrawingContext context, double w, double h, double charge, double pulse, bool finisher)
+        private static void PaintVignette(DrawingContext context, double w, double h, double charge, double pulse)
         {
-            if (w <= 0 || h <= 0)
-                return;
             // Ease-in so early steps stay almost clean and the last steps carry the weight.
             double strength = charge * charge;
             double alpha = VignetteMaxAlpha * strength * (0.88 + 0.12 * pulse);
-            var edge = finisher ? VignetteFinisher : VignetteEarly;
+            PaintEdgeBands(context, w, h, VignetteEdge, alpha);
+        }
+
+        private static void PaintLowHealthVignette(DrawingContext context, double w, double h, DateTimeOffset now)
+        {
+            double phase = now.ToUnixTimeMilliseconds() / LowHealthPulsePeriodMs * Math.PI * 2.0;
+            double pulse = (Math.Sin(phase) + 1.0) * 0.5;
+            double alpha = LowHealthMinAlpha + (LowHealthMaxAlpha - LowHealthMinAlpha) * pulse;
+            PaintEdgeBands(context, w, h, LowHealthEdge, alpha);
+        }
+
+        private static void PaintEdgeBands(DrawingContext context, double w, double h, Color edge, double alpha)
+        {
+            if (w <= 0 || h <= 0)
+                return;
             var solid = Color.FromArgb((byte)Math.Round(alpha * 255), edge.R, edge.G, edge.B);
             var clear = Color.FromArgb(0, edge.R, edge.G, edge.B);
             double bandX = w * VignetteBandFraction;
@@ -208,8 +257,9 @@ namespace RPGGame.UI.Avalonia.Feedback
         private static void OnTimerTick(object? sender, EventArgs e)
         {
             _requestInvalidate?.Invoke();
-            // Stop once the combo drops back to the opener; the next paint with charge re-arms it.
-            if (!TryGetLiveState(out _, out _, out double charge) || charge <= 0.0)
+            // Stop once the combo drops back to the opener and the hero is out of danger; the next paint re-arms it.
+            bool combo = TryGetLiveState(out _, out _, out double charge) && charge > 0.0;
+            if (!combo && !IsTrackedHeroLowHealth())
                 _timer?.Stop();
         }
 

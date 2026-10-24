@@ -151,7 +151,12 @@
     "asciiRamp": " .:-=+*#%@",
     "asciiBackground": 0.15,
     "asciiGlyphGain": 1.6,
-    "asciiDensity": 2
+    "asciiDensity": 2,
+    "itemAscii": false,
+    "itemAsciiDensity": 3,
+    "itemAsciiGlyphGain": 2.6,
+    "itemAsciiBackground": 0,
+    "itemAsciiCutoff": 0.25
   },
   "textAnimationPresets": {
     "pathIntro": {

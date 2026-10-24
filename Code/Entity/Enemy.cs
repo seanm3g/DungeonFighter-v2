@@ -467,6 +467,15 @@ namespace RPGGame
             }
         }
 
+        /// <summary>
+        /// The enemy's action sequence: its combo-flagged pool actions in pool (data) order — the same list combat used
+        /// as a fallback before enemies had an explicit sequence. Most enemies carry one or two actions.
+        /// Call after the action pool is (re)built (<see cref="EnemyActionManager.AddActionsToEnemy"/> does). Constructor
+        /// defaults leave it empty so harness enemies that swap their pool keep the pool fallback.
+        /// </summary>
+        public void InitializeActionSequence() =>
+            Facade.SetComboSequenceInOrder(ActionPool.Select(entry => entry.action));
+
         public override string GetDescription()
         {
             string primaryAttr = PrimaryAttribute.ToString();

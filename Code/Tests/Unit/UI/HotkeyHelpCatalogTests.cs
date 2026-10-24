@@ -104,6 +104,12 @@ namespace RPGGame.Tests.Unit.UI
                 "lists inventory sort", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("Mouse wheel (over left panel)"),
                 "lists left-panel wheel scroll", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("F1"),
+                "lists F1 inventory detail view", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("Alt"),
+                "lists Alt tooltip detail", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(HotkeyHelpCatalog.MentionsKey("T / Tab"),
+                "lists skill tree path switch", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(HotkeyHelpCatalog.Entries.Count >= 10,
                 "enough entries for a useful help sheet", ref _run, ref _passed, ref _failed);
         }

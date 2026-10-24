@@ -26,6 +26,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             new("AsciiBackground", 1, c => c.AsciiBackground, (c, v) => c.AsciiBackground = v),
             new("AsciiGlyphGain", RoomBackdropConfig.MaxAsciiGlyphGain, c => c.AsciiGlyphGain, (c, v) => c.AsciiGlyphGain = v),
             new("AsciiDensity", RoomBackdropConfig.MaxAsciiDensity, c => c.AsciiDensity, (c, v) => c.AsciiDensity = Math.Max(1, Math.Round(v))),
+            new("ItemAsciiDensity", RoomBackdropConfig.MaxItemAsciiDensity, c => c.ItemAsciiDensity, (c, v) => c.ItemAsciiDensity = Math.Max(1, Math.Round(v))),
+            new("ItemAsciiGlyphGain", RoomBackdropConfig.MaxAsciiGlyphGain, c => c.ItemAsciiGlyphGain, (c, v) => c.ItemAsciiGlyphGain = v),
+            new("ItemAsciiBackground", 1, c => c.ItemAsciiBackground, (c, v) => c.ItemAsciiBackground = v),
+            new("ItemAsciiCutoff", RoomBackdropConfig.MaxItemAsciiCutoff, c => c.ItemAsciiCutoff, (c, v) => c.ItemAsciiCutoff = v),
         };
 
         private void WireUpRoomBackdropControls(AppearanceSettingsPanel appearancePanel)
@@ -61,6 +65,18 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     if (loadingRoomBackdrop)
                         return;
                     RoomBackdropSettings.Current.Enabled = enabled.IsChecked == true;
+                    RefreshRoomBackdrop();
+                };
+            }
+
+            var itemAscii = appearancePanel.FindControl<CheckBox>("RoomBackdropItemAsciiCheckBox");
+            if (itemAscii != null)
+            {
+                itemAscii.IsCheckedChanged += (_, _) =>
+                {
+                    if (loadingRoomBackdrop)
+                        return;
+                    RoomBackdropSettings.Current.ItemAscii = itemAscii.IsChecked == true;
                     RefreshRoomBackdrop();
                 };
             }
@@ -153,6 +169,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 var enabled = appearancePanel.FindControl<CheckBox>("RoomBackdropEnabledCheckBox");
                 if (enabled != null)
                     enabled.IsChecked = cfg.Enabled;
+
+                var itemAscii = appearancePanel.FindControl<CheckBox>("RoomBackdropItemAsciiCheckBox");
+                if (itemAscii != null)
+                    itemAscii.IsChecked = cfg.ItemAscii;
 
                 var blendMode = appearancePanel.FindControl<ComboBox>("RoomBackdropBlendModeComboBox");
                 if (blendMode != null)

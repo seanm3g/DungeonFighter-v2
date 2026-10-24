@@ -304,6 +304,12 @@ namespace RPGGame.UI.Avalonia
                 return;
             }
 
+            if (TryHandleAsciiArtKey(e.Key))
+            {
+                e.Handled = true;
+                return;
+            }
+
             // If waiting for key after animation, initialize game
             if (initializationHandler != null && initializationHandler.WaitingForKeyAfterAnimation)
             {
@@ -490,6 +496,22 @@ namespace RPGGame.UI.Avalonia
             ShowCombatSpeedNotification(
                 enabled ? "Distortion: ON" : "Distortion: OFF",
                 forceAutoDismiss: true);
+            return true;
+        }
+
+        private bool TryHandleAsciiArtKey(Key key)
+        {
+            // Main menu keeps F8 for the Action Lab shortcut (no room plates or item art there).
+            if (key != Key.F8 || initializationHandler?.Game?.CurrentState == GameState.MainMenu)
+                return false;
+
+            // Room plates follow the backdrop Style (item icons too when ItemAscii is on); live only (Settings → Save persists it).
+            var look = RPGGame.UI.Avalonia.Effects.RoomBackdropSettings.Current;
+            look.Style = look.IsAscii ? "Image" : "Ascii";
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+                canvasUI.Refresh();
+
+            ShowCombatSpeedNotification(look.IsAscii ? "ASCII art: ON" : "ASCII art: OFF", forceAutoDismiss: true);
             return true;
         }
 

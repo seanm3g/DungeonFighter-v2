@@ -710,7 +710,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             Item? hoveredItem,
             ref int currentLineCount)
         {
-            var hoveredAffixes = InventoryAffixSynergy.GetAffixNames(hoveredItem);
+            var hoveredAffixes = InventoryAffixSynergy.GetAffixKeys(hoveredItem);
             int tileRows = GridTileRows;
             int tileCols = GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), tileRows);
             int stepX = tileCols + 1;
@@ -779,7 +779,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     // Left empty: the ghost under the pointer carries the icon.
                 }
                 else if (haveArt && ItemArtAtlas.TryGetIcon(item, out var bitmap, out var sourceRect))
-                    canvas.AddImage(tx, ty, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3);
+                    canvas.AddImage(tx, ty, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3, followsAsciiStyle: true);
                 else
                     canvas.AddText(tx + 1, ty + tileRows / 2, TruncateTo(item.Name, tileCols - 2), frame);
 
@@ -828,7 +828,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (haveArt && hero.Rows > 0 && ItemArtAtlas.TryGetHeroIcon(paneItem, out var bigBitmap, out var bigRect))
             {
                 int iconX = DetailHeroIconX(detailX, detailWidth, hero.Columns);
-                canvas.AddImage(iconX, detailY, hero.Columns, hero.Rows, bigBitmap, bigRect, paddingPixels: 0, fillFrame: true);
+                canvas.AddImage(iconX, detailY, hero.Columns, hero.Rows, bigBitmap, bigRect, paddingPixels: 0, fillFrame: true, followsAsciiStyle: true);
                 detailY += hero.Rows + 1;
             }
             RenderDetailPane(detailX, detailY, detailWidth, detailBottomY, paneItem, character, ref currentLineCount);
@@ -905,6 +905,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 ? InventoryActionPoolEntries.GetEquipSlotForItem(InventoryDragState.Item)
                 : null;
             bool haveArt = ItemArtAtlas.IsAvailable;
+            // Worn pieces of one material build a set, so gear-to-gear hover also matches material.
+            bool hoveredIsGear = InventoryAffixSynergy.IsEquipped(hoveredItem, character);
+            var gearAffixes = hoveredIsGear ? InventoryAffixSynergy.GetAffixKeys(hoveredItem, includeMaterial: true) : hoveredAffixes;
 
             foreach (var (slot, label, col, row) in PaperDollSlots)
             {
@@ -928,7 +931,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         : ItemThemeProvider.GetRarityColor(item!.Rarity?.Trim() ?? "Common");
 
                 bool isPaneSelection = shown && string.Equals(selectedEquippedSlot, slot, StringComparison.Ordinal);
-                bool synergy = shown && !isDropTarget && InventoryAffixSynergy.SharesAffix(item, hoveredItem, hoveredAffixes);
+                bool synergy = shown && !isDropTarget && InventoryAffixSynergy.SharesAffix(item, hoveredItem, gearAffixes, includeMaterial: hoveredIsGear);
                 if (synergy)
                     frame = SynergyFrameColor;
                 else if (isPaneSelection && !isDropTarget)
@@ -936,7 +939,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 canvas.AddBox(tx, ty, tileCols, tileRows, frame, synergy ? SynergyGlowColor : default,
                     borderThicknessPixels: isDropTarget || isPaneSelection || synergy ? 2 : 1);
                 if (shown && haveArt && ItemArtAtlas.TryGetIcon(item!, out var bitmap, out var sourceRect))
-                    canvas.AddImage(tx, ty, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3);
+                    canvas.AddImage(tx, ty, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3, followsAsciiStyle: true);
                 else
                 {
                     string text = TruncateTo(shown ? item!.Name : label, tileCols - 2);
@@ -968,7 +971,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int gy = Math.Clamp(InventoryDragState.PointerY + 1, topY, Math.Max(topY, bottomY - tileRows));
             canvas.AddBox(gx, gy, tileCols, tileRows, AsciiArtAssets.Colors.Gold, AsciiArtAssets.Colors.Black, borderThicknessPixels: 2);
             if (haveArt && ItemArtAtlas.TryGetIcon(item, out var bitmap, out var sourceRect))
-                canvas.AddImage(gx, gy, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3);
+                canvas.AddImage(gx, gy, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3, followsAsciiStyle: true);
             else
                 canvas.AddText(gx + 1, gy + tileRows / 2, TruncateTo(item.Name, tileCols - 2), AsciiArtAssets.Colors.Gold);
         }

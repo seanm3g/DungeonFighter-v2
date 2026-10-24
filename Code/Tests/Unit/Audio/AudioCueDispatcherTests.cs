@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using RPGGame;
 using RPGGame.Actions.Execution;
 using RPGGame.Audio;
@@ -27,6 +28,9 @@ namespace RPGGame.Tests.Unit.Audio
             TestPublisherQueuesCombatCueUntilPunchlineCommit(ref run, ref passed, ref failed);
             TestClearQueuedDropsCombatCueWithoutPlaying(ref run, ref passed, ref failed);
             TestPublisherRoutesComboHitToComboCue(ref run, ref passed, ref failed);
+            TestPublisherRoutesComboStripSlotsToStepCues(ref run, ref passed, ref failed);
+            TestSwingCuePlaysOnlyBeforeQueuedOutcome(ref run, ref passed, ref failed);
+            TestUnboundCueFallsBackToParentCue(ref run, ref passed, ref failed);
             TestPublisherRoutesCriticalHitToCriticalHitCue(ref run, ref passed, ref failed);
             TestPublisherRoutesEnemyHitToHeroHurtCue(ref run, ref passed, ref failed);
             TestPublisherRoutesMissToMissCue(ref run, ref passed, ref failed);
@@ -241,6 +245,137 @@ namespace RPGGame.Tests.Unit.Audio
                 AudioCues.SetDispatcher(null);
                 CombatEventBus.Reset();
                 TryDelete(stub);
+            }
+        }
+
+        private static void TestPublisherRoutesComboStripSlotsToStepCues(ref int run, ref int passed, ref int failed)
+        {
+            string step1 = CreateStubFile();
+            string step2 = CreateStubFile();
+            string finish = CreateStubFile();
+            try
+            {
+                CombatEventBus.Reset();
+                var engine = new NullAudioEngine { RecordCalls = true };
+                var cfg = CreateTestConfig(CreateStubFile());
+                cfg.CueMap[AudioCue.Combat_ComboStep1.ToString()].File = step1;
+                cfg.CueMap[AudioCue.Combat_ComboStep2.ToString()].File = step2;
+                cfg.CueMap[AudioCue.Combat_ComboComplete.ToString()].File = finish;
+                using var dispatcher = new AudioCueDispatcher(engine,
+                    configResolver: () => cfg,
+                    globalEnabledResolver: () => true);
+                AudioCues.SetDispatcher(dispatcher);
+
+                var hero = new Character("StepHero", 1);
+                foreach (var existing in hero.GetComboActions().ToList())
+                    hero.Actions.RemoveFromCombo(existing);
+                for (int i = 0; i < 3; i++)
+                {
+                    var strip = new RPGGame.Action(name: $"Strip{i}") { IsComboAction = true };
+                    hero.AddAction(strip, 1.0);
+                    hero.Actions.AddToCombo(strip);
+                }
+                var enemy = new Enemy(name: "Goblin", level: 1, maxHealth: 100, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0);
+
+                var played = new List<string>();
+                for (int slot = 0; slot < 4; slot++)
+                {
+                    hero.ComboStep = slot;
+                    engine.PlayCalls.Clear();
+                    ActionEventPublisher.PublishActionHit(hero, enemy, hero.GetComboActions()[slot % 3],
+                        rollValue: 15, isCombo: true, isCritical: false);
+                    AudioCues.CommitQueued();
+                    played.Add(engine.PlayCalls.Count > 0 ? engine.PlayCalls[0].file : "");
+                }
+
+                TestBase.AssertEqual(3, hero.GetComboActions().Count, "Step test hero has a three-slot strip", ref run, ref passed, ref failed);
+                TestBase.AssertEqual(step1, played[0], "Combo slot 1 plays step 1 cue", ref run, ref passed, ref failed);
+                TestBase.AssertEqual(step2, played[1], "Combo slot 2 plays step 2 cue", ref run, ref passed, ref failed);
+                TestBase.AssertEqual(finish, played[2], "Last combo slot plays the finisher cue", ref run, ref passed, ref failed);
+                TestBase.AssertEqual(step1, played[3], "Wrapped combo step restarts at step 1 cue", ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                AudioCues.SetDispatcher(null);
+                CombatEventBus.Reset();
+                TryDelete(step1);
+                TryDelete(step2);
+                TryDelete(finish);
+            }
+        }
+
+        private static void TestSwingCuePlaysOnlyBeforeQueuedOutcome(ref int run, ref int passed, ref int failed)
+        {
+            string hitStub = CreateStubFile();
+            string swingStub = CreateStubFile();
+            try
+            {
+                CombatEventBus.Reset();
+                var engine = new NullAudioEngine { RecordCalls = true };
+                var cfg = CreateTestConfig(hitStub);
+                cfg.CueMap[AudioCue.Combat_ActionStart.ToString()].File = swingStub;
+                using var dispatcher = new AudioCueDispatcher(engine,
+                    configResolver: () => cfg,
+                    globalEnabledResolver: () => true);
+                AudioCues.SetDispatcher(dispatcher);
+
+                RPGGame.UI.BlockDisplay.PunchlineRevealFeedback.NotifyBlockStarting();
+                TestBase.AssertEqual(0, engine.PlayCalls.Count, "No swing for a block without a queued outcome (stun/status)", ref run, ref passed, ref failed);
+
+                ActionEventPublisher.PublishActionHit(
+                    new Character("Hero", 1),
+                    new Enemy(name: "Goblin", level: 1, maxHealth: 100, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0),
+                    new RPGGame.Action(name: "Strike"),
+                    rollValue: 12,
+                    isCombo: false,
+                    isCritical: false);
+                RPGGame.UI.BlockDisplay.PunchlineRevealFeedback.NotifyBlockStarting();
+                AudioCues.CommitQueued();
+
+                TestBase.AssertEqual(2, engine.PlayCalls.Count, "Resolved action plays swing then outcome", ref run, ref passed, ref failed);
+                if (engine.PlayCalls.Count == 2)
+                {
+                    TestBase.AssertEqual(swingStub, engine.PlayCalls[0].file, "Swing cue plays first (setup line)", ref run, ref passed, ref failed);
+                    TestBase.AssertEqual(hitStub, engine.PlayCalls[1].file, "Hit cue plays on punchline", ref run, ref passed, ref failed);
+                }
+            }
+            finally
+            {
+                AudioCues.SetDispatcher(null);
+                CombatEventBus.Reset();
+                TryDelete(hitStub);
+                TryDelete(swingStub);
+            }
+        }
+
+        private static void TestUnboundCueFallsBackToParentCue(ref int run, ref int passed, ref int failed)
+        {
+            string hitStub = CreateStubFile();
+            try
+            {
+                var engine = new NullAudioEngine { RecordCalls = true };
+                var cfg = new AudioConfig();
+                cfg.EnsureDefaultEntriesForAllCues();
+                cfg.CueMap[AudioCue.Combat_Hit.ToString()].File = hitStub;
+                using var dispatcher = new AudioCueDispatcher(engine,
+                    configResolver: () => cfg,
+                    globalEnabledResolver: () => true);
+
+                dispatcher.Trigger(AudioCue.Combat_ComboStep3);
+                dispatcher.Trigger(AudioCue.Combat_CriticalHit);
+                dispatcher.Trigger(AudioCue.Combat_EnemyDied);
+
+                TestBase.AssertEqual(2, engine.PlayCalls.Count, "Unbound step/crit cues fall back to Hit; unrelated unbound cue stays silent", ref run, ref passed, ref failed);
+                if (engine.PlayCalls.Count > 0)
+                    TestBase.AssertEqual(hitStub, engine.PlayCalls[0].file, "Fallback plays the Hit binding", ref run, ref passed, ref failed);
+
+                engine.PlayCalls.Clear();
+                dispatcher.Trigger(AudioCue.Combat_ComboStep3, settingsPreview: true);
+                TestBase.AssertEqual(0, engine.PlaySettingsPreviewCalls.Count, "Settings Test on an unbound cue does not borrow the fallback", ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                TryDelete(hitStub);
             }
         }
 

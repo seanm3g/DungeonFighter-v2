@@ -158,6 +158,9 @@ namespace RPGGame
             return combatStateManager.ShouldEnvironmentAct(IsHostile);
         }
 
+        /// <summary>Chance the environment's next turn acts, for the combat board's turn queue.</summary>
+        public double ChanceToAct => combatStateManager.GetChanceToAct(IsHostile);
+
         public override string GetDescription()
         {
             var allEnemies = enemyGenerator.Enemies;

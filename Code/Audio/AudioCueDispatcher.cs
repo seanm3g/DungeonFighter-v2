@@ -108,6 +108,13 @@ namespace RPGGame.Audio
             if (!settingsPreview && !config.MasterEnabled) return;
 
             var binding = config.GetBinding(cue);
+            // Unbound fine-grained cues (combo steps, crits) borrow their parent cue's sound; Test previews stay exact.
+            while (!settingsPreview && (binding == null || string.IsNullOrEmpty(binding.File)))
+            {
+                cue = cue.GetFallback();
+                if (cue == AudioCue.None) return;
+                binding = config.GetBinding(cue);
+            }
             if (binding == null || string.IsNullOrEmpty(binding.File)) return;
 
             var bus = cue.GetBus();

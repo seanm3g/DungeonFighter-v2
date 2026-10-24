@@ -69,6 +69,9 @@ namespace RPGGame
 
         public void RefreshComboFromLoader() => _comboManager.RefreshActionInstancesFromLoader();
 
+        /// <summary>Replaces the combo sequence with <paramref name="actions"/> in order (enemy sequences; no hero cap).</summary>
+        public void SetComboSequenceInOrder(IEnumerable<Action> actions) => _comboManager.SetSequenceInOrder(actions);
+
         // ========== Gear Actions Delegation ==========
 
         public void AddWeaponActions(Actor actor, Item? weapon)

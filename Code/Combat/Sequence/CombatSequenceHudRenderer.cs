@@ -77,5 +77,60 @@ namespace RPGGame.Combat.Sequence
                 }
             }
         }
+
+        /// <summary>Rows <see cref="RenderVertical"/> needs for <paramref name="rowsPerEntry"/> (3 = title, result, gap; 2 = title, result; 1 = both on one row).</summary>
+        public static int VerticalContentHeight(int rowsPerEntry)
+        {
+            int n = CombatSequenceHudLayout.ColumnTitles.Length;
+            return rowsPerEntry >= 3 ? n * 3 - 1 : n * Math.Max(1, rowsPerEntry);
+        }
+
+        /// <summary>Most rows per entry that fit <paramref name="innerHeight"/> rows (1 when even that is short).</summary>
+        public static int VerticalRowsPerEntry(int innerHeight) =>
+            innerHeight >= VerticalContentHeight(3) ? 3 : innerHeight >= VerticalContentHeight(2) ? 2 : 1;
+
+        /// <summary>
+        /// Board combat (<see cref="CombatBoardLayout"/>) has no HUD band, so the same columns stack down a narrow panel
+        /// on the left of the board: each title over its result, or both on one row when the panel is short.
+        /// The caller draws the frame; this fills the inner rect.
+        /// </summary>
+        public static void RenderVertical(GameCanvasControl canvas, int x, int y, int w, int h)
+        {
+            if (canvas == null || w <= 0 || h <= 0)
+                return;
+            canvas.ClearTextInArea(x, y, w, h);
+
+            int rowsPer = VerticalRowsPerEntry(h);
+            var writer = new ColoredTextWriter(canvas);
+            var steps = CombatSequenceHudState.Steps;
+            bool revealed = CombatSequenceHudState.ResultRevealed;
+            bool idle = steps.Count == 0;
+            var titles = CombatSequenceHudLayout.ColumnTitles;
+
+            for (int i = 0; i < titles.Length; i++)
+            {
+                int rowY = y + i * Math.Min(rowsPer, 3);
+                if (rowY >= y + h)
+                    break;
+
+                int stepIndex = idle ? -1 : CombatSequenceHudLayout.FindStepIndex(steps, i);
+                var phase = stepIndex >= 0 ? CombatSequenceHudState.GetStepPhase(stepIndex) : CombatSequenceHudLayout.Phase.Pending;
+                string title = CombatSequenceHudLayout.FormatTitle(titles[i], phase, w);
+                Color titleColor = idle ? ColorPalette.Cyan.GetColor() : CombatSequenceHudLayout.TitlePalette(phase).GetColor();
+                canvas.AddText(x, rowY, title, titleColor);
+
+                if (stepIndex < 0)
+                    continue;
+                var step = steps[stepIndex];
+                var cell = phase == CombatSequenceHudLayout.Phase.Active && revealed
+                    ? CombatSequenceHudState.VisibleResult
+                    : step.Result;
+                int resultX = rowsPer == 1 ? x + title.Length + 1 : x + 1;
+                int resultY = rowsPer == 1 ? rowY : rowY + 1;
+                var result = CombatSequenceHudLayout.FormatResult(cell, phase, revealed, x + w - resultX);
+                if (result.Count > 0 && resultY < y + h)
+                    writer.RenderSegments(result, resultX, resultY);
+            }
+        }
     }
 }

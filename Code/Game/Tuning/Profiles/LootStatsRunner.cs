@@ -36,6 +36,7 @@ namespace RPGGame.Tuning.Profiles
             // Gear actions by slot: "Mace" / "armor" -> class / neutral / other-class / basic counts.
             var gearActionMix = new SortedDictionary<string, Dictionary<string, int>>();
             var gearActionNames = new SortedDictionary<string, Dictionary<string, int>>();
+            var slotCounts = new SortedDictionary<string, int>();
 
             foreach (int level in levels)
             {
@@ -60,6 +61,7 @@ namespace RPGGame.Tuning.Profiles
 
                 foreach (var it in items)
                 {
+                    slotCounts[it.Type.ToString()] = slotCounts.GetValueOrDefault(it.Type.ToString()) + 1;
                     foreach (var s in it.StatBonuses)
                     {
                         string key = string.IsNullOrEmpty(s.StatType) ? s.Name : $"{s.Name} ({s.StatType})";
@@ -101,6 +103,8 @@ namespace RPGGame.Tuning.Profiles
             }
 
             Console.WriteLine();
+            int slotTotal = Math.Max(1, slotCounts.Values.Sum());
+            Console.WriteLine("Drops by slot (all levels): " + string.Join("  ", slotCounts.Select(k => $"{k.Key} {100.0 * k.Value / slotTotal:F1}%")));
             Console.WriteLine("Suffix count by rarity: " + string.Join("  ",
                 RarityOrder.Where(suffixByRarity.ContainsKey).Select(r => $"{r}={suffixByRarity[r].Average():F2}")));
             Console.WriteLine("What sets the rarity (non-Common items, all levels): " + string.Join(", ", promotionSources.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}")));

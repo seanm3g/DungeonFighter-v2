@@ -55,11 +55,25 @@ namespace RPGGame.Actions.Execution
             if (source is Enemy && target is Character and not Enemy)
                 return AudioCue.Combat_HeroHurt;
 
-            return isCritical
-                ? AudioCue.Combat_CriticalHit
-                : isCombo
-                    ? AudioCue.Combat_ComboComplete
-                    : AudioCue.Combat_Hit;
+            if (isCritical) return AudioCue.Combat_CriticalHit;
+            if (!isCombo) return AudioCue.Combat_Hit;
+            return source is Character hero and not Enemy
+                ? ResolveComboStepCue(hero)
+                : AudioCue.Combat_ComboComplete;
+        }
+
+        /// <summary>
+        /// Combo hits climb through per-slot cues; the strip's last slot plays the finisher.
+        /// Read before the combo step advances, so <see cref="Character.ComboStep"/> is the slot being swung.
+        /// </summary>
+        private static AudioCue ResolveComboStepCue(Character hero)
+        {
+            int count = hero.GetComboActions().Count;
+            if (count <= 1) return AudioCue.Combat_ComboComplete;
+            int slot = ((hero.ComboStep % count) + count) % count;
+            return slot == count - 1
+                ? AudioCue.Combat_ComboComplete
+                : AudioCueExtensions.ComboStepCueForSlot(slot);
         }
 
         /// <summary>

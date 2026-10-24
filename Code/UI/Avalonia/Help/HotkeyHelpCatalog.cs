@@ -45,28 +45,40 @@ namespace RPGGame.UI.Avalonia.Help
             new("Enter / Space", "Confirm selection", "General"),
             new("Arrow keys", "Navigate menus and scroll lists", "General"),
             new("Shift/Ctrl + Up/Down", "Page-scroll lists and the combat log", "General"),
+            new("C", "Main menu / game menu: switch characters", "General"),
+            new("Hold Alt", "Expand item and action hover tooltips with full detail", "General"),
+            new("Mouse wheel (over left panel)", "Scroll the hero panel when it overflows", "General"),
             new("F3", "Cycle game font: VT323 → Noplato Mono → Pixelzone → Bytesized → Courier New", "General"),
             new("Ctrl+/- / Cmd+/-", "Size the UI up/down (scales content; saved per font)", "General"),
             new("Ctrl+0 / Cmd+0", "Reset UI size to this font's default", "General"),
             new("Ctrl+Shift+0 / Cmd+Shift+0", "Save current UI size as this font's default", "General"),
             new("F6", "Toggle glyph distortion: mouse wind + click burst (default on)", "General"),
+            new("F8", "Toggle ASCII style for room backdrops and item art (outside main menu)", "General"),
 
             new("Page Up / Page Down", "Combat speed ladder (1x → 2x → 5x → 20x)", "Combat"),
-            new("F10", "Toggle dev mode: skip combat, room, and travel delays (default off)", "Combat"),
-            new("F5", "Toggle narrative combat-log video overlay (default off)", "Combat"),
             new("F7", "Cycle combat mode: board (default) → combat log → narrative log", "Combat"),
-            new("F9", "Toggle combat board layout: enemy strip top, combo flow center, your strip bottom (default on)", "Combat"),
+            new("F9", "Toggle combat board: enemy strip top, combo flow center, your strip bottom (default on)", "Combat"),
+            new("F5", "Toggle narrative video feed overlay (default off); on title/main menu replays the intro", "Combat"),
+            new("F10", "Toggle dev mode: skip combat, room, and travel delays (default off)", "Combat"),
             new("Ctrl+C / Cmd+C", "Copy the full combat/dungeon text log as plain text", "Combat"),
             new("Right-click combat log", "Save combat scene JSON (GameData/CombatLogs) and copy it; live feed at http://127.0.0.1:7877/", "Combat"),
             new("Mouse wheel (over combat log)", "Scroll the combat log", "Combat"),
-            new("Mouse wheel (over left panel)", "Scroll the hero panel when it overflows", "General"),
 
-            new("F8", "Main menu: open Action Lab (+ Settings layout)", "Tools"),
-
+            new("F1", "Inventory: toggle detail view (list left, description right)", "Inventory"),
             new("Numpad +", "Inventory: cycle bag sort (order / rarity / slot)", "Inventory"),
             new("Numpad -", "Inventory: toggle hide unmet requirements", "Inventory"),
             new("Numpad *", "Inventory: auto-equip empty gear slots from bag", "Inventory"),
             new("Numpad /", "Inventory: cycle equipment slot filter", "Inventory"),
+            new("M", "Inventory: cycle material filter", "Inventory"),
+
+            new("Arrow keys / click", "Skill Tree: select a node", "Skill Tree"),
+            new("L / Enter", "Skill Tree: learn the selected node", "Skill Tree"),
+            new("T / Tab", "Skill Tree: switch to another weapon path's tree", "Skill Tree"),
+            new("Page Up / Page Down", "Skill Tree: scroll the tree", "Skill Tree"),
+
+            new("Tab", "Stable: jump to the next fighter waiting on you", "Stable"),
+
+            new("F8", "Main menu: open Action Lab (+ Settings layout)", "Tools"),
         };
 
         /// <summary>Plain multiline help body for the overlay (and canvas fallback).</summary>

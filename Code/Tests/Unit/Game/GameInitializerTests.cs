@@ -109,8 +109,10 @@ namespace RPGGame.Tests.Unit.Game
             TestBase.AssertNotNull(player.Body,
                 "New game should equip catalog starter chest (Armor)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(player.Legs == null,
-                "New game should leave legs empty (leather kit is head/chest/feet)",
+            TestBase.AssertTrue(player.Legs is LegsItem legsItem
+                    && legsItem.Name.Contains("Pants", StringComparison.OrdinalIgnoreCase)
+                    && ItemMaterialRules.RemapLegacyMaterial(legsItem.Material) == "Leather",
+                "New game should equip catalog starter legs (Leather Pants)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertNotNull(player.Feet,
                 "New game should equip catalog starter feet (Boots)",

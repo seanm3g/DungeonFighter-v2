@@ -2551,6 +2551,31 @@
   },
   {
     "slot": "legs",
+    "name": "Pants",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": {},
+    "tags": [
+      "starter"
+    ],
+    "strength": 0,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "legs",
     "name": "breeches",
     "armor": 0,
     "tier": 1,

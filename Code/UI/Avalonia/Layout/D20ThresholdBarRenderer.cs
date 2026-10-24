@@ -13,6 +13,9 @@ namespace RPGGame.UI.Avalonia.Layout
         public const double CombatHealthHeightScale = 1.0;
         public const double CombatStripHeightScale = 0.5;
 
+        /// <summary>Combat board's d20 strip: thicker, eating half the gap row next to its health bar.</summary>
+        public const double CombatBoardStripHeightScale = 1.5;
+
         /// <summary>Grid rows cleared for the combat bar block (health 1.0 + threshold 0.5).</summary>
         public const int CombatBarAreaRowCount = 2;
 

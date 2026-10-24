@@ -95,6 +95,8 @@ namespace RPGGame
                     CombatSequenceFlavorPresenter.CancelPlaybackHolds();
                     return;
                 }
+
+                PunchlineRevealFeedback.NotifyBlockStarting();
                 
                 // Extract entity name from ColoredText for tracking
                 string? currentEntity = null;
@@ -203,6 +205,8 @@ namespace RPGGame
                     CombatSequenceFlavorPresenter.CancelPlaybackHolds();
                     return;
                 }
+
+                PunchlineRevealFeedback.NotifyBlockStarting();
                 
                 // Extract entity name from ColoredText for tracking
                 string? currentEntity = null;

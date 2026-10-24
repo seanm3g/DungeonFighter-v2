@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Platform;
@@ -26,7 +25,6 @@ namespace RPGGame.UI.Avalonia.Canvas
 
         private static SKImage? cachedAscii;
         private static (SKImage Plate, int Cols, int Rows, double CellW, double CellH, double FontSize, string Family, string Ramp, double Background, double Gain) cachedAsciiKey;
-        private static readonly Dictionary<string, SKTypeface> Typefaces = new(StringComparer.Ordinal);
 
         private readonly SKImage source;
         private readonly RoomBackdropConfig config;
@@ -153,10 +151,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             return cachedImage;
         }
 
-        /// <summary>
-        /// The processed plate redrawn as glyphs: one per grid cell, picked from the ramp by the cell's auto-levelled
-        /// brightness and colored by its average color. Caller holds <see cref="CacheGate"/>.
-        /// </summary>
+        /// <summary>The processed plate redrawn as glyphs on the grid cells (<see cref="AsciiGlyphRaster"/>). Caller holds <see cref="CacheGate"/>.</summary>
         private SKImage? GetAscii(SKImage plate, int w, int h, double scale)
         {
             // Density splits each text cell into density×density glyph cells (same aspect, font scaled down to match).
@@ -174,103 +169,15 @@ namespace RPGGame.UI.Avalonia.Canvas
             if (cachedAscii != null && cachedAsciiKey.Equals(key))
                 return cachedAscii;
 
-            // Average each cell: draw the plate down to one pixel per cell with mipmapped sampling.
-            using var cellBitmap = new SKBitmap(new SKImageInfo(cols, rows, SKColorType.Rgba8888, SKAlphaType.Premul));
-            using (var cellCanvas = new SKCanvas(cellBitmap))
-            using (var sample = new SKPaint { FilterQuality = SKFilterQuality.High })
-            {
-                cellCanvas.Clear(SKColors.Black);
-                cellCanvas.DrawImage(plate, new SKRect(0, 0, cols, rows), sample);
-            }
-
-            // Auto-level: spread the 2nd–98th percentile of cell brightness over the ramp so dark plates still use all of it.
-            var colors = cellBitmap.Pixels;
-            var lumas = new float[colors.Length];
-            for (int i = 0; i < colors.Length; i++)
-                lumas[i] = Luma(colors[i]);
-            var sorted = (float[])lumas.Clone();
-            Array.Sort(sorted);
-            float low = sorted[(int)(0.02 * (sorted.Length - 1))];
-            float high = sorted[(int)(0.98 * (sorted.Length - 1))];
-            float range = Math.Max(1, high - low);
-
-            using var surface = SKSurface.Create(new SKImageInfo(w, h, SKColorType.Rgba8888, SKAlphaType.Premul));
-            if (surface == null)
+            var ascii = AsciiGlyphRaster.Render(plate, w, h, cols, rows, (float)(glyphCellWidth * scale), (float)(glyphCellHeight * scale),
+                (float)(glyphFontSize * scale), family, ramp, background, gain, SKColors.Black);
+            if (ascii == null)
                 return null;
-            var canvas = surface.Canvas;
-            canvas.Clear(SKColors.Black);
-
-            float cw = (float)(glyphCellWidth * scale);
-            float ch = (float)(glyphCellHeight * scale);
-            using var font = new SKFont(ResolveTypeface(family), (float)(glyphFontSize * scale)) { Edging = SKFontEdging.Antialias };
-            float baselineOffset = ch / 2 - (font.Metrics.Ascent + font.Metrics.Descent) / 2;
-            using var fill = new SKPaint { IsAntialias = false };
-            using var glyph = new SKPaint { IsAntialias = true, Typeface = font.Typeface, TextSize = font.Size };
-            var glyphs = new string[ramp.Length];
-            var advances = new float[ramp.Length];
-            for (int i = 0; i < ramp.Length; i++)
-            {
-                glyphs[i] = ramp[i].ToString();
-                advances[i] = glyph.MeasureText(glyphs[i]);
-            }
-
-            for (int row = 0; row < rows; row++)
-            {
-                for (int col = 0; col < cols; col++)
-                {
-                    var c = colors[row * cols + col];
-                    float x = col * cw, y = row * ch;
-                    if (background > 0)
-                    {
-                        fill.Color = Scale(c, background);
-                        canvas.DrawRect(x, y, cw, ch, fill);
-                    }
-                    int index = Math.Clamp((int)Math.Round((lumas[row * cols + col] - low) / range * (ramp.Length - 1)), 0, ramp.Length - 1);
-                    if (char.IsWhiteSpace(ramp[index]))
-                        continue;
-                    glyph.Color = Scale(c, gain);
-                    canvas.DrawText(glyphs[index], x + (cw - advances[index]) / 2, y + baselineOffset, font, glyph);
-                }
-            }
 
             cachedAscii?.Dispose();
-            cachedAscii = surface.Snapshot();
+            cachedAscii = ascii;
             cachedAsciiKey = key;
             return cachedAscii;
-        }
-
-        private static float Luma(SKColor c) => 0.2126f * c.Red + 0.7152f * c.Green + 0.0722f * c.Blue;
-
-        private static SKColor Scale(SKColor c, double factor) => new(
-            (byte)Math.Clamp(c.Red * factor, 0, 255),
-            (byte)Math.Clamp(c.Green * factor, 0, 255),
-            (byte)Math.Clamp(c.Blue * factor, 0, 255));
-
-        /// <summary>The game font as a Skia typeface: embedded avares fonts load from the assembly, others by family name.</summary>
-        private static SKTypeface ResolveTypeface(string family)
-        {
-            if (Typefaces.TryGetValue(family, out var cached))
-                return cached;
-            SKTypeface? typeface = null;
-            try
-            {
-                if (family.StartsWith("avares://", StringComparison.OrdinalIgnoreCase))
-                {
-                    using var stream = AssetLoader.Open(new Uri(family.Split('#')[0]));
-                    typeface = SKTypeface.FromStream(stream);
-                }
-                else
-                {
-                    typeface = SKTypeface.FromFamilyName(family.Split(',')[0].Trim());
-                }
-            }
-            catch (Exception ex)
-            {
-                DebugLogger.Log("RoomBackdropDrawOperation", $"Could not load font {family}: {ex.Message}");
-            }
-            typeface ??= SKTypeface.FromFamilyName("Courier New") ?? SKTypeface.Default;
-            Typefaces[family] = typeface;
-            return typeface;
         }
 
         private static float[] ScaleOffsetMatrix(float scale, float offset) => new[]
