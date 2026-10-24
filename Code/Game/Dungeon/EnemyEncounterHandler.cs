@@ -290,14 +290,16 @@ namespace RPGGame
                 room.RemoveDeadEnemies();
             }
 
-            // Clear enemy context after combat ends to prevent old enemies from showing during transitions
+            // Small delay before next
+            await SimulationPacing.DelayForCombatSpeedAsync(1000);
+
+            // Clear enemy context after combat ends to prevent old enemies from showing during transitions.
+            // Not before the pause: renders during it (board animation frames) still run in Combat, and with no enemy
+            // the board skips the center column, leaving a half-updated frame on screen until the state changes.
             if (isCharacterActive && customUIManager is CanvasUICoordinator canvasUIClear)
             {
                 canvasUIClear.ClearCurrentEnemy();
             }
-
-            // Small delay before next
-            await SimulationPacing.DelayForCombatSpeedAsync(1000);
 
             // Restore exploration state only after combat UI / victory messaging is finished — early restore made
             // GameState.Dungeon while the screen still looked like combat, allowing combo reorder in that window.

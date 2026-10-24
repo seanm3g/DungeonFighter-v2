@@ -23,6 +23,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             new("Saturation", RoomBackdropConfig.MaxSaturation, c => c.Saturation, (c, v) => c.Saturation = v),
             new("Blur", RoomBackdropConfig.MaxBlur, c => c.Blur, (c, v) => c.Blur = v),
             new("Opacity", 1, c => c.Opacity, (c, v) => c.Opacity = v),
+            new("AsciiImageUnderlay", 1, c => c.AsciiImageUnderlay, (c, v) => c.AsciiImageUnderlay = v),
             new("AsciiBackground", 1, c => c.AsciiBackground, (c, v) => c.AsciiBackground = v),
             new("AsciiGlyphGain", RoomBackdropConfig.MaxAsciiGlyphGain, c => c.AsciiGlyphGain, (c, v) => c.AsciiGlyphGain = v),
             new("AsciiDensity", RoomBackdropConfig.MaxAsciiDensity, c => c.AsciiDensity, (c, v) => c.AsciiDensity = Math.Max(1, Math.Round(v))),

@@ -150,6 +150,7 @@
     "style": "Ascii",
     "asciiRamp": " .:-=+*#%@",
     "asciiBackground": 0.15,
+    "asciiImageUnderlay": 0.25,
     "asciiGlyphGain": 1.6,
     "asciiDensity": 2,
     "itemAscii": false,

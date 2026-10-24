@@ -14,13 +14,20 @@ namespace RPGGame.UI.Avalonia.Feedback
 
     /// <summary>
     /// Pulses the selected d20 threshold bar segment after a combat roll resolves.
-    /// Segment highlight uses the same on/off half-period as hero action strip success feedback;
-    /// the roll caret stays visible for the full <see cref="FeedbackDurationMs"/> window.
+    /// The roll caret first tumbles across the faces for <see cref="RollTumbleMs"/>, slowing until it lands;
+    /// then the segment highlight pulses (same on/off half-period as hero action strip success feedback)
+    /// and the caret stays on the roll for the full <see cref="FeedbackDurationMs"/> window.
     /// </summary>
     public static class ThresholdBarFeedback
     {
-        /// <summary>Total time segment pulse and roll caret remain visible after a combat roll.</summary>
+        /// <summary>Time the caret tumbles across the faces before landing on the roll.</summary>
+        internal const int RollTumbleMs = 450;
+
+        /// <summary>Total time segment pulse and roll caret remain visible after the caret lands.</summary>
         internal const int FeedbackDurationMs = 3000;
+
+        /// <summary>Face changes over a full tumble; eased so they come fast at first and slow into the landing.</summary>
+        private const int TumbleSteps = 12;
 
         private static readonly TimeSpan TimerInterval = TimeSpan.FromMilliseconds(16);
 
@@ -30,6 +37,7 @@ namespace RPGGame.UI.Avalonia.Feedback
         private static ThresholdBarPanel _panel;
         private static int _segmentIndex = -1;
         private static int _roll = -1;
+        private static DateTimeOffset _tumbleStartAt;
         private static DateTimeOffset _pulseSequenceEndAt;
         private static DateTimeOffset _pulseSequenceStartAt;
         private static int _pulseHalfPeriodMs = 150;
@@ -58,6 +66,9 @@ namespace RPGGame.UI.Avalonia.Feedback
                 _roll = roll >= 1 && roll <= 20 ? roll : -1;
                 var t = Now();
                 _pulseActive = true;
+                _tumbleStartAt = t;
+                if (_roll > 0)
+                    t = t.AddMilliseconds(RollTumbleMs);
                 _pulseSequenceStartAt = t;
                 _pulseHalfPeriodMs = Math.Max(50, gs.ActionStripSuccessFlashPulseHalfPeriodMs);
                 _pulseSequenceEndAt = t.AddMilliseconds(FeedbackDurationMs);
@@ -94,6 +105,9 @@ namespace RPGGame.UI.Avalonia.Feedback
                 return false;
             }
 
+            if (t < _pulseSequenceStartAt)
+                return false;
+
             double elapsedMs = (t - _pulseSequenceStartAt).TotalMilliseconds;
             int half = Math.Max(1, _pulseHalfPeriodMs);
             if ((int)(elapsedMs / half) % 2 != 0)
@@ -104,8 +118,8 @@ namespace RPGGame.UI.Avalonia.Feedback
         }
 
         /// <summary>
-        /// When active, returns the base d20 roll (1–20) for a pixel caret under the threshold bar.
-        /// Visible for the full flash window (not only the segment pulse on-phase).
+        /// When active, returns the face (1–20) for a pixel caret under the threshold bar: a tumbling face while the
+        /// roll animates, then the base d20 roll for the full flash window (not only the segment pulse on-phase).
         /// </summary>
         public static bool TryGetRollMarker(ThresholdBarPanel panel, out int roll)
         {
@@ -120,8 +134,27 @@ namespace RPGGame.UI.Avalonia.Feedback
                 return false;
             }
 
-            roll = _roll;
+            roll = t < _pulseSequenceStartAt
+                ? TumbleFace(_roll, (t - _tumbleStartAt).TotalMilliseconds / RollTumbleMs)
+                : _roll;
             return true;
+        }
+
+        /// <summary>
+        /// Face a tumbling d20 caret shows at <paramref name="progress"/> (0..1) of its roll: it hops between faces,
+        /// slowing as it goes, and shows <paramref name="roll"/> from 1 on. Never repeats the previous hop's face.
+        /// </summary>
+        public static int TumbleFace(int roll, double progress)
+        {
+            roll = Math.Clamp(roll, 1, 20);
+            if (progress >= 1.0)
+                return roll;
+
+            double u = 1.0 - Math.Clamp(progress, 0.0, 1.0);
+            int step = (int)((1.0 - u * u) * TumbleSteps);
+            // Stride 7 is coprime with 20, so consecutive hops always land on different faces.
+            int face = 1 + (roll * 3 + step * 7 + 5) % 20;
+            return face == roll ? 1 + face % 20 : face;
         }
 
         internal static void ResetForTests()

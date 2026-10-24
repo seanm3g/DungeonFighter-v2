@@ -24,7 +24,7 @@ namespace RPGGame.UI.Avalonia.Canvas
         private static (SKImage Source, int W, int H, double Brightness, double Contrast, double Saturation, double Blur) cachedKey;
 
         private static SKImage? cachedAscii;
-        private static (SKImage Plate, int Cols, int Rows, double CellW, double CellH, double FontSize, string Family, string Ramp, double Background, double Gain) cachedAsciiKey;
+        private static (SKImage Plate, int Cols, int Rows, double CellW, double CellH, double FontSize, string Family, string Ramp, double Background, double Gain, double Underlay) cachedAsciiKey;
 
         private readonly SKImage source;
         private readonly RoomBackdropConfig config;
@@ -165,14 +165,30 @@ namespace RPGGame.UI.Avalonia.Canvas
             string ramp = config.ResolveAsciiRamp();
             double background = Math.Clamp(config.AsciiBackground, 0, 1);
             double gain = Math.Clamp(config.AsciiGlyphGain, 0, RoomBackdropConfig.MaxAsciiGlyphGain);
-            var key = (plate, cols, rows, glyphCellWidth * scale, glyphCellHeight * scale, glyphFontSize * scale, family, ramp, background, gain);
+            double underlay = Math.Clamp(config.AsciiImageUnderlay, 0, 1);
+            var key = (plate, cols, rows, glyphCellWidth * scale, glyphCellHeight * scale, glyphFontSize * scale, family, ramp, background, gain, underlay);
             if (cachedAscii != null && cachedAsciiKey.Equals(key))
                 return cachedAscii;
 
             var ascii = AsciiGlyphRaster.Render(plate, w, h, cols, rows, (float)(glyphCellWidth * scale), (float)(glyphCellHeight * scale),
-                (float)(glyphFontSize * scale), family, ramp, background, gain, SKColors.Black);
+                (float)(glyphFontSize * scale), family, ramp, background, gain, underlay > 0 ? SKColors.Transparent : SKColors.Black);
             if (ascii == null)
                 return null;
+
+            if (underlay > 0)
+            {
+                // Faded picture under the glyphs fills the gaps between them; composited here so blend/opacity apply as before.
+                using var surface = SKSurface.Create(new SKImageInfo(w, h, SKColorType.Rgba8888, SKAlphaType.Premul));
+                if (surface != null)
+                {
+                    surface.Canvas.Clear(SKColors.Black);
+                    using (var underlayPaint = new SKPaint { Color = SKColors.White.WithAlpha((byte)Math.Round(underlay * 255)) })
+                        surface.Canvas.DrawImage(plate, new SKRect(0, 0, w, h), underlayPaint);
+                    surface.Canvas.DrawImage(ascii, 0, 0);
+                    ascii.Dispose();
+                    ascii = surface.Snapshot();
+                }
+            }
 
             cachedAscii?.Dispose();
             cachedAscii = ascii;

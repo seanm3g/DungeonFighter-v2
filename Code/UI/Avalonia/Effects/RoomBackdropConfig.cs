@@ -51,6 +51,9 @@ namespace RPGGame.UI.Avalonia.Effects
         /// <summary>Ascii style: how much of each cell's color fills the cell behind its glyph (0 = glyphs only). Default: 0.15.</summary>
         public double AsciiBackground { get; set; } = 0.15;
 
+        /// <summary>Ascii style: opacity of the filtered picture drawn under the glyphs (0 = glyphs on black). Default: 0.25.</summary>
+        public double AsciiImageUnderlay { get; set; } = 0.25;
+
         /// <summary>Ascii style: glyph color multiplier; glyphs cover a fraction of the cell, so they read darker than the plate. Default: 1.6.</summary>
         public double AsciiGlyphGain { get; set; } = 1.6;
 

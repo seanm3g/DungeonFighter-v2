@@ -1060,7 +1060,7 @@
                               IsChecked="False"
                               Margin="0,0,0,10"/>
 
-                    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="180,*,80">
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="180,*,80">
                         <TextBlock Grid.Row="0" Grid.Column="0"
                                    Text="Style"
                                    VerticalAlignment="Center"
@@ -1075,13 +1075,37 @@
                                   ToolTip.Tip="Image draws the picture as painted. Ascii redraws it as glyphs on the text grid, one per cell, picked by brightness and colored by the picture."/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0"
+                                   Text="Ascii image underlay"
+                                   VerticalAlignment="Center"
+                                   Classes="settings-field-label"
+                                   FontSize="14"
+                                   Margin="0,0,12,10"/>
+                        <Slider x:Name="RoomBackdropAsciiImageUnderlaySlider"
+                                Grid.Row="1" Grid.Column="1"
+                                Minimum="0" Maximum="1"
+                                Value="0.25"
+                                TickFrequency="0.05"
+                                Margin="0,0,12,10"
+                                VerticalAlignment="Center"
+                                ToolTip.Tip="Ascii style: opacity of the picture drawn under the glyphs. 0 = glyphs on black."/>
+                        <TextBox x:Name="RoomBackdropAsciiImageUnderlayTextBox"
+                                 Grid.Row="1" Grid.Column="2"
+                                 Height="28"
+                                 BorderThickness="1"
+                                 Padding="6,4"
+                                 FontSize="14"
+                                 VerticalAlignment="Center"
+                                 Margin="0,0,0,10"
+                                 Text="0.25"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0"
                                    Text="Ascii cell fill"
                                    VerticalAlignment="Center"
                                    Classes="settings-field-label"
                                    FontSize="14"
                                    Margin="0,0,12,10"/>
                         <Slider x:Name="RoomBackdropAsciiBackgroundSlider"
-                                Grid.Row="1" Grid.Column="1"
+                                Grid.Row="2" Grid.Column="1"
                                 Minimum="0" Maximum="1"
                                 Value="0.15"
                                 TickFrequency="0.05"
@@ -1089,7 +1113,7 @@
                                 VerticalAlignment="Center"
                                 ToolTip.Tip="Ascii style: how much of each cell's color fills the cell behind its glyph. 0 = glyphs on black."/>
                         <TextBox x:Name="RoomBackdropAsciiBackgroundTextBox"
-                                 Grid.Row="1" Grid.Column="2"
+                                 Grid.Row="2" Grid.Column="2"
                                  Height="28"
                                  BorderThickness="1"
                                  Padding="6,4"
@@ -1098,14 +1122,14 @@
                                  Margin="0,0,0,10"
                                  Text="0.15"/>
 
-                        <TextBlock Grid.Row="2" Grid.Column="0"
+                        <TextBlock Grid.Row="3" Grid.Column="0"
                                    Text="Ascii glyph gain"
                                    VerticalAlignment="Center"
                                    Classes="settings-field-label"
                                    FontSize="14"
                                    Margin="0,0,12,0"/>
                         <Slider x:Name="RoomBackdropAsciiGlyphGainSlider"
-                                Grid.Row="2" Grid.Column="1"
+                                Grid.Row="3" Grid.Column="1"
                                 Minimum="0" Maximum="4"
                                 Value="1.6"
                                 TickFrequency="0.05"
@@ -1113,7 +1137,7 @@
                                 VerticalAlignment="Center"
                                 ToolTip.Tip="Ascii style: glyph color multiplier. Glyphs cover only part of a cell, so they read darker than the picture."/>
                         <TextBox x:Name="RoomBackdropAsciiGlyphGainTextBox"
-                                 Grid.Row="2" Grid.Column="2"
+                                 Grid.Row="3" Grid.Column="2"
                                  Height="28"
                                  BorderThickness="1"
                                  Padding="6,4"
@@ -1122,14 +1146,14 @@
                                  Margin="0,0,0,10"
                                  Text="1.6"/>
 
-                        <TextBlock Grid.Row="3" Grid.Column="0"
+                        <TextBlock Grid.Row="4" Grid.Column="0"
                                    Text="Ascii density"
                                    VerticalAlignment="Center"
                                    Classes="settings-field-label"
                                    FontSize="14"
                                    Margin="0,0,12,0"/>
                         <Slider x:Name="RoomBackdropAsciiDensitySlider"
-                                Grid.Row="3" Grid.Column="1"
+                                Grid.Row="4" Grid.Column="1"
                                 Minimum="1" Maximum="4"
                                 Value="2"
                                 TickFrequency="1"
@@ -1138,7 +1162,7 @@
                                 VerticalAlignment="Center"
                                 ToolTip.Tip="Ascii style: glyphs per text cell along each axis. 1 = one glyph per cell on the text grid; 2–4 = smaller glyphs for a finer picture."/>
                         <TextBox x:Name="RoomBackdropAsciiDensityTextBox"
-                                 Grid.Row="3" Grid.Column="2"
+                                 Grid.Row="4" Grid.Column="2"
                                  Height="28"
                                  BorderThickness="1"
                                  Padding="6,4"
@@ -1147,14 +1171,14 @@
                                  Margin="0,0,0,10"
                                  Text="2"/>
 
-                        <TextBlock Grid.Row="4" Grid.Column="0"
+                        <TextBlock Grid.Row="5" Grid.Column="0"
                                    Text="Item ascii density"
                                    VerticalAlignment="Center"
                                    Classes="settings-field-label"
                                    FontSize="14"
                                    Margin="0,0,12,0"/>
                         <Slider x:Name="RoomBackdropItemAsciiDensitySlider"
-                                Grid.Row="4" Grid.Column="1"
+                                Grid.Row="5" Grid.Column="1"
                                 Minimum="1" Maximum="8"
                                 Value="3"
                                 TickFrequency="1"
@@ -1163,7 +1187,7 @@
                                 VerticalAlignment="Center"
                                 ToolTip.Tip="Ascii style, item icons: glyphs per text cell along each axis. Higher = finer icon."/>
                         <TextBox x:Name="RoomBackdropItemAsciiDensityTextBox"
-                                 Grid.Row="4" Grid.Column="2"
+                                 Grid.Row="5" Grid.Column="2"
                                  Height="28"
                                  BorderThickness="1"
                                  Padding="6,4"
@@ -1172,14 +1196,14 @@
                                  Margin="0,0,0,10"
                                  Text="3"/>
 
-                        <TextBlock Grid.Row="5" Grid.Column="0"
+                        <TextBlock Grid.Row="6" Grid.Column="0"
                                    Text="Item glyph brightness"
                                    VerticalAlignment="Center"
                                    Classes="settings-field-label"
                                    FontSize="14"
                                    Margin="0,0,12,0"/>
                         <Slider x:Name="RoomBackdropItemAsciiGlyphGainSlider"
-                                Grid.Row="5" Grid.Column="1"
+                                Grid.Row="6" Grid.Column="1"
                                 Minimum="0" Maximum="4"
                                 Value="2.6"
                                 TickFrequency="0.05"
@@ -1187,7 +1211,7 @@
                                 VerticalAlignment="Center"
                                 ToolTip.Tip="Ascii style, item icons: glyph color multiplier."/>
                         <TextBox x:Name="RoomBackdropItemAsciiGlyphGainTextBox"
-                                 Grid.Row="5" Grid.Column="2"
+                                 Grid.Row="6" Grid.Column="2"
                                  Height="28"
                                  BorderThickness="1"
                                  Padding="6,4"
@@ -1196,14 +1220,14 @@
                                  Margin="0,0,0,10"
                                  Text="2.6"/>
 
-                        <TextBlock Grid.Row="6" Grid.Column="0"
+                        <TextBlock Grid.Row="7" Grid.Column="0"
                                    Text="Item cell fill"
                                    VerticalAlignment="Center"
                                    Classes="settings-field-label"
                                    FontSize="14"
                                    Margin="0,0,12,0"/>
                         <Slider x:Name="RoomBackdropItemAsciiBackgroundSlider"
-                                Grid.Row="6" Grid.Column="1"
+                                Grid.Row="7" Grid.Column="1"
                                 Minimum="0" Maximum="1"
                                 Value="0"
                                 TickFrequency="0.01"
@@ -1211,7 +1235,7 @@
                                 VerticalAlignment="Center"
                                 ToolTip.Tip="Ascii style, item icons: how much of each cell's color fills the cell behind its glyph."/>
                         <TextBox x:Name="RoomBackdropItemAsciiBackgroundTextBox"
-                                 Grid.Row="6" Grid.Column="2"
+                                 Grid.Row="7" Grid.Column="2"
                                  Height="28"
                                  BorderThickness="1"
                                  Padding="6,4"
@@ -1220,14 +1244,14 @@
                                  Margin="0,0,0,10"
                                  Text="0"/>
 
-                        <TextBlock Grid.Row="7" Grid.Column="0"
+                        <TextBlock Grid.Row="8" Grid.Column="0"
                                    Text="Item dark cutoff"
                                    VerticalAlignment="Center"
                                    Classes="settings-field-label"
                                    FontSize="14"
                                    Margin="0,0,12,0"/>
                         <Slider x:Name="RoomBackdropItemAsciiCutoffSlider"
-                                Grid.Row="7" Grid.Column="1"
+                                Grid.Row="8" Grid.Column="1"
                                 Minimum="0" Maximum="0.9"
                                 Value="0.25"
                                 TickFrequency="0.01"
@@ -1235,7 +1259,7 @@
                                 VerticalAlignment="Center"
                                 ToolTip.Tip="Ascii style, item icons: cells darker than this share of the icon's brightness range stay blank, dropping the dark backdrop."/>
                         <TextBox x:Name="RoomBackdropItemAsciiCutoffTextBox"
-                                 Grid.Row="7" Grid.Column="2"
+                                 Grid.Row="8" Grid.Column="2"
                                  Height="28"
                                  BorderThickness="1"
                                  Padding="6,4"

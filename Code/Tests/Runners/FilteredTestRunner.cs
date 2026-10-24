@@ -206,6 +206,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("world", "DungeonTraversalStrategy", () => RPGGame.Tests.Unit.World.DungeonTraversalStrategyTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionBonusBorderShimmer", () => RPGGame.Tests.Unit.UI.ActionBonusBorderShimmerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ComboTension", () => RPGGame.Tests.Unit.UI.ComboTensionTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ThresholdBarFeedback", () => RPGGame.Tests.Unit.UI.ThresholdBarFeedbackTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "HeroActionStripFeedback", () => RPGGame.Tests.Unit.UI.HeroActionStripFeedbackTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionsTabManager", () => RPGGame.Tests.Unit.UI.ActionsTabManagerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "ActionSetVisibility", () => RPGGame.Tests.Unit.Data.ActionSetVisibilityTests.RunAllTests()));

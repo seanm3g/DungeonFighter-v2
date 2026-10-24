@@ -311,6 +311,18 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.AddLine(a.X, a.Y, CombatBoardAnimation.Lerp(a.X, b.X, t), CombatBoardAnimation.Lerp(a.Y, b.Y, t), color, thickness);
         }
 
+        /// <summary>Where the segment from <paramref name="a"/> to the center of <paramref name="r"/> crosses its border
+        /// (<paramref name="a"/> itself when it is already inside).</summary>
+        private static (double X, double Y) EntryPoint((double X, double Y) a, BoardRect r)
+        {
+            double cx = r.CenterX, cy = r.CenterY, t = 0.0;
+            if (a.X < r.X) t = Math.Max(t, (r.X - a.X) / (cx - a.X));
+            else if (a.X > r.Right) t = Math.Max(t, (a.X - r.Right) / (a.X - cx));
+            if (a.Y < r.Y) t = Math.Max(t, (r.Y - a.Y) / (cy - a.Y));
+            else if (a.Y > r.Bottom) t = Math.Max(t, (a.Y - r.Bottom) / (a.Y - cy));
+            return (CombatBoardAnimation.Lerp(a.X, cx, t), CombatBoardAnimation.Lerp(a.Y, cy, t));
+        }
+
         private BoardRect? RenderBoardEnemyStrip(Enemy enemy, int x, int y, int w, int h, ActionStripDamageLineMode mode)
         {
             var actions = enemy.GetComboActions();
@@ -592,26 +604,35 @@ namespace RPGGame.UI.Avalonia.Renderers
                 canvas.AddText(nowR.X + 1, nowR.Y - 1, "NOW", AsciiArtAssets.Colors.White);
 
             // --- PREV (and, while the new act lands, the old NOW sliding into it) ---
+            BoardAct? prevAct;
             if (shifting && _boardPrevAct != null)
             {
                 if (shift < 0.5)
                     DrawBoardAct(_boardPrev2Act, prevR, LerpColor(BoardDimBorder, BoardFadedBorder, shift * 2), 1, mode);
                 DrawBoardAct(_boardPrevAct, BoardRect.Lerp(curR, prevR, shift),
                     LerpColor(BoardRestBorder(_boardPrevAct), BoardDimBorder, shift), 1, mode);
+                prevAct = shift < 0.5 ? _boardPrev2Act : _boardPrevAct; // the label follows whichever card holds the slot
             }
             else
             {
-                var prevAct = landed ? _boardPrevAct : _boardPrev2Act;
+                prevAct = landed ? _boardPrevAct : _boardPrev2Act;
                 if (prevAct == null && CombatSequenceHudState.Steps.Count == 0 && player.LastAction != null)
                     prevAct = new BoardAct(player, player.LastAction, null); // instant log: no swings to track
                 DrawBoardAct(prevAct, prevR, BoardDimBorder, 1, mode);
             }
-            canvas.AddText(prevR.X + 1, prevR.Y - 1, "PREV", AsciiArtAssets.Colors.Gray);
+            if (prevAct != null)
+                canvas.AddText(prevR.X + 1, prevR.Y - 1, Truncate($"PREV  {prevAct.Actor.Name}", prevR.W),
+                    LerpColor(BoardActorColor(prevAct.Actor), AsciiArtAssets.Colors.Gray, 0.35));
+            else
+                canvas.AddText(prevR.X + 1, prevR.Y - 1, "PREV", AsciiArtAssets.Colors.Gray);
 
-            // Roll line: the face on the actor's d20 bar -> the die (hero bar below, enemy bar above). Gone at rest.
+            // Roll line: the face on the actor's d20 bar -> the center of NOW (hero bar below, enemy bar above). Lines sit
+            // above boxes, so it stops at NOW's border to read as running under the panel. Gone at rest.
             if (swing != null && RollKnown(stage))
-                AddGrowingLine(RollPoint(swing.Roll, hero: swing.Source is not Enemy), junction,
-                    OutcomeHalf(stage, rawP, second: false), strikeColor, 2.0);
+            {
+                var rollPoint = RollPoint(swing.Roll, hero: swing.Source is not Enemy);
+                AddGrowingLine(rollPoint, EntryPoint(rollPoint, nowR), OutcomeHalf(stage, rawP, second: false), strikeColor, 2.0);
+            }
 
             // --- Die between NOW and the queue ---
             bool dieVisible = swing != null && stage >= 1 && !cardInFlight;
