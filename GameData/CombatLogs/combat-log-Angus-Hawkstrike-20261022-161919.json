@@ -1,0 +1,726 @@
+﻿[
+  {
+    "environment": "Mining Shaft",
+    "emotion": "still and waiting",
+    "camera": "ultra-wide empty room establishing shot, no characters",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": []
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "guarded sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "off-balance",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "bone strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "fierce and aggressive",
+    "camera": "same ultra-wide room camera, impact beat with fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "lunging sword slash",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "guarded sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "lunging sword slash",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "bone strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "guarded sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "rattle",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "lunging sword slash",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "guarded",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "guarded sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "fierce and aggressive",
+    "camera": "same ultra-wide room camera, impact beat with fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "sparks",
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "off-balance",
+    "camera": "same ultra-wide room camera, recovery stumble with fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "off-balance",
+    "camera": "same ultra-wide room camera, recovery stumble with fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "guarded",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "bone strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "fierce and aggressive",
+    "camera": "same ultra-wide room camera, impact beat with fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "guarded",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "guarded sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "lunging sword slash",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "off-balance",
+    "camera": "same ultra-wide room camera, recovery stumble with fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": []
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "guarded",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "guarded",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "off-balance",
+    "camera": "same ultra-wide room camera, recovery stumble with fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": []
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "guarded sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "guarded",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "off-balance",
+    "camera": "same ultra-wide room camera, recovery stumble with fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": []
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "guarded sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "bone strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "off-balance",
+    "camera": "same ultra-wide room camera, recovery stumble with fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "guarded sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "rattle",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "guarded",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "guarded sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "guarded",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "guarded sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "fierce and aggressive",
+    "camera": "same ultra-wide room camera, impact beat with fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "sparks",
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "guarded",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "bone strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "guarded",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "off-balance",
+    "camera": "same ultra-wide room camera, recovery stumble with fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  },
+  {
+    "character": "Skeleton",
+    "action": "bone strike",
+    "target": "Angus Hawkstrike",
+    "environment": "Mining Shaft",
+    "emotion": "focused and aggressive",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "effects": [
+      "sparks"
+    ]
+  },
+  {
+    "character": "Angus Hawkstrike",
+    "action": "guarded sword strike",
+    "target": "Skeleton",
+    "environment": "Mining Shaft",
+    "emotion": "off-balance",
+    "camera": "same ultra-wide room camera, fighters small in the far corner",
+    "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+    "gear": {
+      "helmet": "Leather Helmet",
+      "armor": "Leather Armor",
+      "weapon_main": "Bronze Branch"
+    },
+    "effects": [
+      "faint green necrotic glow"
+    ]
+  }
+]

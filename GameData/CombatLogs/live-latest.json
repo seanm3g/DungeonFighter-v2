@@ -1,0 +1,17 @@
+﻿{
+  "character": "Angus Hawkstrike",
+  "action": "guarded sword strike",
+  "target": "Skeleton",
+  "environment": "Mining Shaft",
+  "emotion": "off-balance",
+  "camera": "same ultra-wide room camera, fighters small in the far corner",
+  "composition": "environment fills the frame; combatants occupy a small far-corner region only",
+  "gear": {
+    "helmet": "Leather Helmet",
+    "armor": "Leather Armor",
+    "weapon_main": "Bronze Branch"
+  },
+  "effects": [
+    "faint green necrotic glow"
+  ]
+}
