@@ -60,6 +60,12 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Headless sims (DUNGEONSIM): when set, level-banded regions offer every dungeon at this level instead of a
+        /// random level inside the band, so a run measures exactly the level it was asked for.
+        /// </summary>
+        public static int? HeadlessFixedDungeonLevel { get; set; }
+
+        /// <summary>
         /// Regenerates available dungeons based on the current difficulty anchor using Dungeons.json.
         /// Randomly selects 3 dungeons (scaled to the anchor ±1), then appends a "custom difficulty" option
         /// and a "reset to default level" option. The anchor is a stored custom level, or the hero's level.
@@ -100,6 +106,8 @@ namespace RPGGame
                         continue;
                     var data = candidates[random.Next(candidates.Count)];
                     int level = random.Next(currentRegion.MinLevel, currentRegion.MaxLevel + 1);
+                    if (HeadlessFixedDungeonLevel is int fixedLevel)
+                        level = fixedLevel;
                     availableDungeons.Add(new Dungeon(
                         data.name,
                         level,

@@ -127,7 +127,7 @@ namespace RPGGame.Tuning
                     // Every real fight at the level (per-enemy reads in Scripts/balance-scan.py).
                     Fights = batch.ClassAggregates.SelectMany(a => a.Runs.SelectMany(r => r.Fights.Where(f => f.HeroLevel >= level).Select(f => new
                     {
-                        Class = a.ClassDisplayName, Enemy = f.EnemyName, f.HeroActions, f.EnemyActions, f.FightInDungeon, f.HeroDied,
+                        Class = a.ClassDisplayName, Enemy = f.EnemyName, f.EnemyLevel, f.HeroActions, f.EnemyActions, f.FightInDungeon, f.HeroDied,
                         HpLost = f.HeroMaxHp > 0 ? Math.Round(Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp, 3) : 0
                     }))).ToList()
                 };

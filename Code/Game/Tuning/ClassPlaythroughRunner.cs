@@ -53,6 +53,10 @@ namespace RPGGame.Tuning
         {
             if (hero.Level < StartAtLevel)
                 hero.ApplyActionLabLevelDelta(StartAtLevel - hero.Level);
+            // A hero at this level would have travelled: use the region whose level band holds it (themes, enemy pools).
+            var region = new TravelRegionCatalog().GetAllRegions().FirstOrDefault(r => r.ContainsLevel(StartAtLevel));
+            if (region != null)
+                hero.CurrentRegionId = region.Id;
             for (int lvl = Math.Max(1, StartAtLevel - StartLootLevels); lvl < StartAtLevel; lvl++)
             {
                 for (int n = 0; n < ResolveStartLootPerLevel(StartAtLevel); n++)
@@ -84,6 +88,9 @@ namespace RPGGame.Tuning
             var smart = SmartPolicy ? new PlaythroughSmartPolicy(trace) : null;
             try
             {
+                // DUNGEONSIM measures one level: offer its dungeons at exactly that level, not anywhere in the region band.
+                if (HoldLevel && StartAtLevel > 1)
+                    DungeonManagerWithRegistry.HeadlessFixedDungeonLevel = StartAtLevel;
                 if (RetreatBelowHpPercent > 0)
                 {
                     DungeonExitChoiceHandler.HeadlessExitPolicy = hero =>
@@ -246,6 +253,7 @@ namespace RPGGame.Tuning
             finally
             {
                 DungeonExitChoiceHandler.HeadlessExitPolicy = null;
+                DungeonManagerWithRegistry.HeadlessFixedDungeonLevel = null;
                 session?.Dispose();
             }
 
