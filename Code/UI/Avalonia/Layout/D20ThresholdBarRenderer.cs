@@ -26,14 +26,16 @@ namespace RPGGame.UI.Avalonia.Layout
             Actor actor,
             ThresholdBarPanel panel = ThresholdBarPanel.Hero,
             double heightScale = CombatStripHeightScale,
-            double verticalOffsetScale = 0.0)
+            double verticalOffsetScale = 0.0,
+            RPGGame.Combat.Sequence.CombatSequenceThresholds? thresholds = null,
+            System.Func<int?>? rollMarker = null)
         {
-            var snapshot = DiceRollThresholdResolver.Resolve(actor);
+            var bands = thresholds ?? CurrentThresholds(actor);
             var segments = ThresholdDisplayFormatting.BuildD20OutcomeSegments(
-                snapshot.EffectiveCrit,
-                snapshot.EffectiveCombo,
-                snapshot.EffectiveHit,
-                snapshot.EffectiveCritMiss);
+                bands.Crit,
+                bands.Combo,
+                bands.MinHit,
+                bands.CritMiss);
 
             canvas.AddSegmentedBar(
                 x,
@@ -48,9 +50,17 @@ namespace RPGGame.UI.Avalonia.Layout
                         : baseColor,
                 heightScale: heightScale,
                 verticalOffsetScale: verticalOffsetScale,
-                rollMarkerRoll: () =>
-                    ThresholdBarFeedback.TryGetRollMarker(panel, out int roll) ? roll : null);
+                rollMarkerRoll: rollMarker ?? (() =>
+                    ThresholdBarFeedback.TryGetRollMarker(panel, out int roll) ? roll : null));
             return segments;
+        }
+
+        /// <summary>The bands the bar shows for <paramref name="actor"/> right now (effective, with HUD shifts).</summary>
+        public static RPGGame.Combat.Sequence.CombatSequenceThresholds CurrentThresholds(Actor actor)
+        {
+            var snapshot = DiceRollThresholdResolver.Resolve(actor);
+            return new RPGGame.Combat.Sequence.CombatSequenceThresholds(
+                snapshot.EffectiveCrit, snapshot.EffectiveCombo, snapshot.EffectiveHit, snapshot.EffectiveCritMiss);
         }
 
         /// <summary>Maps segment face counts to approximate grid-column hover widths.</summary>

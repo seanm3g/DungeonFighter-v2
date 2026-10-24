@@ -283,7 +283,11 @@ namespace RPGGame
             }
             if (state == SkillTreeService.NodeViewState.Locked)
             {
-                statusMessage = $"{node.Name} requires earlier nodes.";
+                var hybrid = HybridTrees.ForTree(SkillTreePrerequisites.FindOwnerTree(node));
+                int need = HybridTrees.UnlockPointsPerParent;
+                statusMessage = hybrid != null && !HybridTrees.IsUnlocked(player.Progression, hybrid)
+                    ? $"{hybrid.Key} opens at {need} {hybrid.ClassA} and {need} {hybrid.ClassB} points."
+                    : $"{node.Name} is locked — see the checklist in the details panel.";
                 Render(ensureSelectionVisible: false);
                 return;
             }

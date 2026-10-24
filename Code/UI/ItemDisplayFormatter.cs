@@ -87,7 +87,7 @@ namespace RPGGame
                 "durability" => $"+{modification.RolledValue:F0} durability",
                 "gearPrimaryStatMultiplier" => DescribeGearPrimaryStatMultiplier(modification.RolledValue),
                 "ARMOR" => $"+{(int)Math.Round(modification.RolledValue)} armor on this piece",
-                "COMBO" => $"+{(int)Math.Round(modification.RolledValue)} combo threshold",
+                "COMBO" => $"+{(int)Math.Round(modification.RolledValue)} action threshold",
                 "HIT" => $"+{(int)Math.Round(modification.RolledValue)} hit threshold",
                 "SPEED" => DescribeSpeedModification(modification.RolledValue),
                 "MULTI-HIT" => $"+{(int)Math.Round(modification.RolledValue)} extra hit(s) on attacks",

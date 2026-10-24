@@ -8,7 +8,8 @@ namespace RPGGame.UI.Avalonia.Effects
     /// Look of the combat-screen room plate (<see cref="RoomBackdropArt"/>).
     /// Config: <c>UIConfiguration.json</c> → <c>roomBackdrop</c>; tuned live from Settings → Appearance → Room Backdrop.
     /// The plate is filtered (saturation → contrast → brightness, then blur), then drawn onto <see cref="BaseColor"/>
-    /// with <see cref="BlendMode"/> at <see cref="Opacity"/>.
+    /// with <see cref="BlendMode"/> at <see cref="Opacity"/>. With <see cref="Style"/> "Ascii" the filtered plate is
+    /// averaged per text-grid cell and redrawn as glyphs picked by brightness from <see cref="AsciiRamp"/>.
     /// </summary>
     public class RoomBackdropConfig
     {
@@ -40,6 +41,36 @@ namespace RPGGame.UI.Avalonia.Effects
 
         /// <summary>Hex color under the plate; with Multiply / Color / Luminosity etc. it tints the room. Default: #000000.</summary>
         public string BaseColor { get; set; } = "#000000";
+
+        /// <summary>How the plate is drawn: one of <see cref="StyleNames"/>. "Ascii" redraws it as glyphs on the text grid. Default: Image.</summary>
+        public string Style { get; set; } = "Image";
+
+        /// <summary>Ascii style: glyphs from darkest to brightest cell. Default: " .:-=+*#%@".</summary>
+        public string AsciiRamp { get; set; } = DefaultAsciiRamp;
+
+        /// <summary>Ascii style: how much of each cell's color fills the cell behind its glyph (0 = glyphs only). Default: 0.15.</summary>
+        public double AsciiBackground { get; set; } = 0.15;
+
+        /// <summary>Ascii style: glyph color multiplier; glyphs cover a fraction of the cell, so they read darker than the plate. Default: 1.6.</summary>
+        public double AsciiGlyphGain { get; set; } = 1.6;
+
+        /// <summary>
+        /// Ascii style: glyphs per text-grid cell along each axis (1 = one glyph per cell, on the text grid; 2 = a 2×2 block
+        /// of half-size glyphs). Higher = finer picture. Default: 2.
+        /// </summary>
+        public double AsciiDensity { get; set; } = 2;
+
+        public const string DefaultAsciiRamp = " .:-=+*#%@";
+        public const double MaxAsciiGlyphGain = 4;
+        public const double MaxAsciiDensity = 4;
+
+        public int ResolveAsciiDensity() => (int)Math.Clamp(Math.Round(AsciiDensity), 1, MaxAsciiDensity);
+
+        public static readonly IReadOnlyList<string> StyleNames = new[] { "Image", "Ascii" };
+
+        public bool IsAscii => string.Equals(Style, "Ascii", StringComparison.OrdinalIgnoreCase);
+
+        public string ResolveAsciiRamp() => string.IsNullOrEmpty(AsciiRamp) ? DefaultAsciiRamp : AsciiRamp;
 
         /// <summary>Blend modes offered in settings (Skia separable + non-separable modes).</summary>
         public static readonly IReadOnlyList<string> BlendModeNames = new[]

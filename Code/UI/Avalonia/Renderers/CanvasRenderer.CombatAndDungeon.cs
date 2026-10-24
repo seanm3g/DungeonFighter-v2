@@ -24,10 +24,8 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderCharacterCreation(Character character, CanvasContext context)
         {
+            // Full-screen on the menu cave backdrop: no action strip or other run chrome.
             characterCreationRenderer.RenderCharacterCreation(character, context);
-            // No center hover tooltip: it ClearTextInArea's the narrative region; cards in the strip still show Dmg/Spd.
-            dungeonRenderer.RenderActionInfoStrip(character, drawHoverDetailOverlay: false, damageLineMode: ResolveActionStripDamageLineMode(character));
-            canvas.Refresh();
         }
 
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context, string? customDungeonLevelEntryBuffer = null, string? currentRegionDisplayName = null, string? currentRegionTheme = null)

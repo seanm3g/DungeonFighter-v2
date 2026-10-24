@@ -256,8 +256,11 @@ namespace RPGGame.UI.Avalonia.Renderers
                 HoveredSiteLabel = hoveredEntry.Dungeon != null ? $"{hoveredEntry.Dungeon.Name} (lvl {hoveredEntry.Dungeon.MinLevel})" : null
             };
             double scaling = global::Avalonia.Controls.TopLevel.GetTopLevel(canvas)?.RenderScaling ?? 1.0;
-            var image = mapPainter.Paint(mapGeography, mapKey, width, height, canvas.GetCharWidth(), canvas.GetCharHeight(), scaling, (0, 0, 0, 0), frame);
-            canvas.AddImage(left, top, width, height, image, new global::Avalonia.Rect(image.Size), paddingPixels: 0, fillFrame: true);
+            double cellWidth = canvas.GetCharWidth();
+            double cellHeight = canvas.GetCharHeight();
+            var image = mapPainter.Paint(mapGeography, mapKey, width, height, cellWidth, cellHeight, scaling, (0, 0, 0, 0));
+            canvas.AddImage(left, top, width, height, image, new global::Avalonia.Rect(image.Size), paddingPixels: 0, fillFrame: true,
+                pixelAligned: true, overlay: mapPainter.Overlay(frame, width, height, cellWidth, cellHeight));
 
             // Each tile is clickable, the same as its row in the list, and hovering it names the dungeon.
             foreach (var site in sites)

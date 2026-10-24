@@ -136,11 +136,11 @@ namespace RPGGame.Combat.Sequence
         private static List<ColoredText> OutcomeLabel(ActionExecutionResult result)
         {
             if (result.IsCritical && result.IsCombo)
-                return Plain("CRIT COMBO", ColorPalette.Critical);
+                return Plain("CRIT ACTION", ColorPalette.Critical);
             if (result.IsCritical)
                 return Plain("CRIT", ColorPalette.Critical);
             if (result.IsCombo)
-                return Plain("COMBO", ColorPalette.Gold);
+                return Plain("ACTION", ColorPalette.Gold);
             return Plain("HIT", ColorPalette.Success);
         }
 

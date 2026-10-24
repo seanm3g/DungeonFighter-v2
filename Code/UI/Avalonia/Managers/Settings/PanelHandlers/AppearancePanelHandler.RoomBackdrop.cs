@@ -23,6 +23,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             new("Saturation", RoomBackdropConfig.MaxSaturation, c => c.Saturation, (c, v) => c.Saturation = v),
             new("Blur", RoomBackdropConfig.MaxBlur, c => c.Blur, (c, v) => c.Blur = v),
             new("Opacity", 1, c => c.Opacity, (c, v) => c.Opacity = v),
+            new("AsciiBackground", 1, c => c.AsciiBackground, (c, v) => c.AsciiBackground = v),
+            new("AsciiGlyphGain", RoomBackdropConfig.MaxAsciiGlyphGain, c => c.AsciiGlyphGain, (c, v) => c.AsciiGlyphGain = v),
+            new("AsciiDensity", RoomBackdropConfig.MaxAsciiDensity, c => c.AsciiDensity, (c, v) => c.AsciiDensity = Math.Max(1, Math.Round(v))),
         };
 
         private void WireUpRoomBackdropControls(AppearanceSettingsPanel appearancePanel)
@@ -71,6 +74,19 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     if (loadingRoomBackdrop || blendMode.SelectedItem is not string mode)
                         return;
                     RoomBackdropSettings.Current.BlendMode = mode;
+                    RefreshRoomBackdrop();
+                };
+            }
+
+            var style = appearancePanel.FindControl<ComboBox>("RoomBackdropStyleComboBox");
+            if (style != null)
+            {
+                style.ItemsSource = RoomBackdropConfig.StyleNames;
+                style.SelectionChanged += (_, _) =>
+                {
+                    if (loadingRoomBackdrop || style.SelectedItem is not string name)
+                        return;
+                    RoomBackdropSettings.Current.Style = name;
                     RefreshRoomBackdrop();
                 };
             }
@@ -149,6 +165,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     }
                     blendMode.SelectedIndex = Math.Max(0, index);
                 }
+
+                var style = appearancePanel.FindControl<ComboBox>("RoomBackdropStyleComboBox");
+                if (style != null)
+                    style.SelectedIndex = cfg.IsAscii ? 1 : 0;
 
                 var baseColor = appearancePanel.FindControl<TextBox>("RoomBackdropBaseColorTextBox");
                 if (baseColor != null)

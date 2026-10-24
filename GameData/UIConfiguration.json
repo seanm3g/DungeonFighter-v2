@@ -146,7 +146,12 @@
     "blur": 2.711267605633803,
     "opacity": 0.5959507042253521,
     "blendMode": "Normal",
-    "baseColor": "#000000"
+    "baseColor": "#000000",
+    "style": "Ascii",
+    "asciiRamp": " .:-=+*#%@",
+    "asciiBackground": 0.15,
+    "asciiGlyphGain": 1.6,
+    "asciiDensity": 2
   },
   "textAnimationPresets": {
     "pathIntro": {

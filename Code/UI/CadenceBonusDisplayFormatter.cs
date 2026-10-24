@@ -26,7 +26,7 @@ namespace RPGGame.UI
             {
                 "ACCURACY" => $"{sign}{b.Value:0} ACC",
                 "HIT" => $"{sign}{b.Value:0} HIT",
-                "COMBO" => $"{sign}{b.Value:0} COMBO",
+                "COMBO" => $"{sign}{b.Value:0} ACTION",
                 "CRIT" => $"{sign}{b.Value:0} CRIT",
                 "CRIT_MISS" => $"{sign}{b.Value:0} CRIT MISS",
                 "DAMAGE_MOD" when b.Value >= 0 => b.Value >= 100 ? $"{(b.Value / 100.0):0.#}x DMG" : $"{sign}{b.Value:0}% DMG",

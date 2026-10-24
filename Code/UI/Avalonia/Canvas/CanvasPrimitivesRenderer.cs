@@ -144,6 +144,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                     RenderBackdrop(context, backdrop, charWidth, charHeight);
                 if (images != null)
                     RenderImages(context, images, charWidth, charHeight);
+                RenderBoxes(context, boxElements, overlayPass: false, aboveBackdrop: true);
                 RenderProgressBars(context, progressBars);
                 RenderSegmentedBars(context, segmentedBars);
                 RenderText(context, textElements, overlayPass: false);
@@ -290,11 +291,13 @@ namespace RPGGame.UI.Avalonia.Canvas
             return context.PushClip(new Rect(left, 0, width, height));
         }
         
-        private void RenderBoxes(DrawingContext context, List<CanvasBox> boxElements, bool overlayPass)
+        private void RenderBoxes(DrawingContext context, List<CanvasBox> boxElements, bool overlayPass, bool aboveBackdrop = false)
         {
             foreach (var box in boxElements)
             {
                 if (box.IsOverlay != overlayPass)
+                    continue;
+                if (!overlayPass && box.AboveBackdrop != aboveBackdrop)
                     continue;
                 RenderBox(context, box);
             }
@@ -305,7 +308,9 @@ namespace RPGGame.UI.Avalonia.Canvas
             if (images.Count == 0)
                 return;
             // Icons are drawn at whatever size the cell grid gives them; filter so scaling stays smooth.
-            using var _ = context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.HighQuality });
+            // Pixel-aligned images (the travel map) are already at screen size, so they skip the costly filter.
+            var smooth = new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.HighQuality };
+            var exact = new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.None };
             foreach (var image in images)
             {
                 double pad = Math.Max(0, image.PaddingPixels);
@@ -324,7 +329,13 @@ namespace RPGGame.UI.Avalonia.Canvas
                     y += (h - side) / 2;
                     dw = dh = side;
                 }
-                context.DrawImage(image.Source, image.SourceRect, new Rect(x, y, dw, dh));
+                using (context.PushRenderOptions(image.PixelAligned ? exact : smooth))
+                    context.DrawImage(image.Source, image.SourceRect, new Rect(x, y, dw, dh));
+                if (image.Overlay != null)
+                {
+                    using (context.PushTransform(Matrix.CreateTranslation(image.X * charWidth, image.Y * charHeight)))
+                        image.Overlay(context);
+                }
             }
         }
 
@@ -359,8 +370,9 @@ namespace RPGGame.UI.Avalonia.Canvas
             if (dest.Width <= 0 || dest.Height <= 0 || backdrop.Source == null || backdrop.Source.Width <= 0 || backdrop.Source.Height <= 0)
                 return;
 
-            // Skia draw op: cover crop, color filters, blur and blend mode.
-            context.Custom(new RoomBackdropDrawOperation(dest, backdrop.Source, backdrop.Look));
+            // Skia draw op: cover crop, color filters, blur and blend mode (Ascii style: glyphs on the grid cells).
+            var grid = new Rect(backdrop.X * charWidth, backdrop.Y * charHeight, backdrop.Width * charWidth, backdrop.Height * charHeight);
+            context.Custom(new RoomBackdropDrawOperation(dest, backdrop.Source, backdrop.Look, grid, charWidth, charHeight, coordinateConverter.GetFontSize()));
         }
 
         private void RenderBox(DrawingContext context, CanvasBox box)

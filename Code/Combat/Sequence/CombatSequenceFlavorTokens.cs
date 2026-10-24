@@ -876,11 +876,11 @@ namespace RPGGame.Combat.Sequence
             if (!result.Hit)
                 return "MISS";
             if (result.IsCritical && result.IsCombo)
-                return "CRIT COMBO";
+                return "CRIT ACTION";
             if (result.IsCritical)
                 return "CRIT";
             if (result.IsCombo)
-                return "COMBO";
+                return "ACTION";
             return "HIT";
         }
 

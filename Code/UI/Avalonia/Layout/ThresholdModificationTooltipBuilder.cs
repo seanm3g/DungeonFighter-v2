@@ -36,11 +36,11 @@ namespace RPGGame.UI.Avalonia.Layout
                     AppendFloorNoteIfNeeded(lines, snapshot.EffectiveCrit, snapshot.Crit, parts.CritRowShift);
                     break;
                 case Kind.Combo:
-                    AppendStoredLine(lines, snapshot.Combo, snapshot.DefaultCombo, "Combo threshold tuning");
+                    AppendStoredLine(lines, snapshot.Combo, snapshot.DefaultCombo, "Action threshold tuning");
                     AppendShiftLine(lines, parts.Pending.SharedAccuracy, "Queued accuracy");
-                    AppendShiftLine(lines, parts.Pending.ComboDelta, "Queued COMBO");
+                    AppendShiftLine(lines, parts.Pending.ComboDelta, "Queued ACTION");
                     AppendShiftLine(lines, parts.TechComboSteps, "TECH milestones");
-                    AppendShiftLine(lines, parts.EqCombo, "Gear COMBO");
+                    AppendShiftLine(lines, parts.EqCombo, "Gear ACTION");
                     AppendShiftLine(lines, parts.DungeonCombo, "Dungeon buff (combo)");
                     AppendFloorNoteIfNeeded(lines, snapshot.EffectiveCombo, snapshot.Combo, parts.ComboRowShift);
                     break;

@@ -45,6 +45,7 @@ namespace RPGGame.Combat.Sequence
 
         /// <summary>Mechanical combat-log tip lines for the pending swing (set by BlockDisplayManager).</summary>
         private static List<List<ColoredText>>? _pendingHoverInfo;
+        private static List<List<ColoredText>>? _pendingMathInfo;
 
         /// <summary>Characters typed in the current battle (drives typewriter ramp).</summary>
         private static int _narrativeCharsTyped;
@@ -85,10 +86,12 @@ namespace RPGGame.Combat.Sequence
         public static void SetPending(
             List<CombatSequenceStep>? steps,
             CombatSequenceFlavorTokens? tokens,
-            IReadOnlyList<(string EntityId, int Health)>? healthHolds = null)
+            IReadOnlyList<(string EntityId, int Health)>? healthHolds = null,
+            List<List<ColoredText>>? mathInfo = null)
         {
             _pendingSteps = steps;
             _pendingTokens = tokens;
+            _pendingMathInfo = mathInfo;
             if (steps != null && steps.Count > 0 && tokens != null && ShouldPlay())
                 HealthBarDisplayHold.SetFrom(healthHolds);
         }
@@ -98,15 +101,19 @@ namespace RPGGame.Combat.Sequence
             _pendingSteps = null;
             _pendingTokens = null;
             _pendingHoverInfo = null;
+            _pendingMathInfo = null;
             _playedThisBlock = false;
         }
 
         /// <summary>
-        /// Stores the mechanical combat-log block for the pending swing's prose hover tip.
+        /// Stores the mechanical combat-log block for the pending swing's prose hover tip,
+        /// followed by the swing's roll/damage explanation when one was queued with <see cref="SetPending"/>.
         /// </summary>
         public static void SetPendingHoverInfo(List<List<ColoredText>>? infoLines)
         {
-            _pendingHoverInfo = CombatLogProseHoverInfo.CloneLines(infoLines);
+            _pendingHoverInfo = _pendingMathInfo is { Count: > 0 }
+                ? CombatLogProseHoverInfo.AppendBlocks(infoLines, _pendingMathInfo)
+                : CombatLogProseHoverInfo.CloneLines(infoLines);
         }
 
         /// <summary>Drops open-paragraph continuation state (new battle / mode reset).</summary>

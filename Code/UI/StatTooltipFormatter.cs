@@ -70,9 +70,9 @@ namespace RPGGame
                 var steps = TechniqueMilestoneThresholdBonuses.GetSteps(b.Effective);
                 if (steps.HitSteps + steps.ComboSteps + steps.CritSteps > 0)
                     AddNoteLine(lines,
-                        $"Milestones: +{steps.HitSteps} HIT, +{steps.ComboSteps} COMBO, +{steps.CritSteps} CRIT threshold steps (easier bands).");
+                        $"Milestones: +{steps.HitSteps} HIT, +{steps.ComboSteps} ACTION, +{steps.CritSteps} CRIT threshold steps (easier bands).");
                 else
-                    AddNoteLine(lines, "Milestones at TECH 10+ improve HIT/COMBO/CRIT thresholds each attack.");
+                    AddNoteLine(lines, "Milestones at TECH 10+ improve HIT/ACTION/CRIT thresholds each attack.");
                 AddNoteLine(lines, "TECH only moves dice-roll thresholds; it does not change AMP.");
             }
             else if (code == "INT")
@@ -80,6 +80,30 @@ namespace RPGGame
                 double amp = ComboAmplifierCurve.Compute(b.Effective, GameConfiguration.Instance.ComboSystem);
                 AddNoteLine(lines, $"Feeds combo AMP: {amp:F2}× per combo step (slow INT power ramp + late finish).");
             }
+            else if (code == "STR")
+            {
+                AddNoteLine(lines, GameConfiguration.Instance.Combat.StrengthDamagePerPoint > 0
+                    ? $"Multiplies hero damage: ×{c.GetStrengthDamageMultiplier():0.00} now (hover Damage for the formula)."
+                    : "Adds flat damage with your primary stat (hover Damage for the formula).");
+            }
+            else if (code == "AGI")
+            {
+                AddNoteLine(lines, $"Shortens attack time: ×{SpeedCalculator.GetBreakdown(c).AgilityFactor:0.000} on swing time now (hover Speed for the formula).");
+            }
+
+            var attrs = GameConfiguration.Instance.Attributes;
+            int perLevelPrimary = attrs.PlayerPrimaryStatPerLevel > 0 ? attrs.PlayerPrimaryStatPerLevel : 3;
+            int perLevelSecondary = attrs.PlayerSecondaryStatPerLevel > 0 ? attrs.PlayerSecondaryStatPerLevel : 1;
+            string favoredWeapon = code switch
+            {
+                "STR" => "Mace",
+                "AGI" => "Sword",
+                "TEC" => "Dagger",
+                _ => "Wand"
+            };
+            AddNoteLine(lines,
+                $"Base comes from your starting stats plus each level-up: +{perLevelPrimary} {code} with a {favoredWeapon} equipped, +{perLevelSecondary} with any other weapon, +2 unarmed.");
+            AddNoteLine(lines, "Tuning: Attributes.PlayerPrimaryStatPerLevel / PlayerSecondaryStatPerLevel. Gear lines come from item stats and affixes; skill tree from learned nodes.");
 
             return Trim(lines, maxLines);
         }
@@ -106,9 +130,19 @@ namespace RPGGame
             if (attrScale <= 0) attrScale = 0.05;
             if (strMult != 1.0)
             {
+                var combatCfg = GameConfiguration.Instance.Combat;
+                int strCap = combatCfg.StrengthDamageMaxStat > 0
+                    ? combatCfg.StrengthDamageMaxStat + SkillEffectRouter.StrengthCapBonus(c)
+                    : int.MaxValue;
                 AddSection(lines, "Strength multiplies damage");
                 AddStatRow(lines, "Strength", strEff);
                 AddDecimalStatRow(lines, "Damage multiplier", strMult, "0.00");
+                string capText = strCap == int.MaxValue ? "no cap" : $"cap {strCap}";
+                string overflowText = strEff > strCap && combatCfg.StrengthOverflowEfficiency > 0
+                    ? $" + ({strEff} − {strCap}) × {combatCfg.StrengthOverflowEfficiency:0.##} overflow"
+                    : "";
+                AddNoteLine(lines,
+                    $"Multiplier = 1 + min(STR {strEff}, {capText}){overflowText} × {combatCfg.StrengthDamagePerPoint:0.####} per point = {strMult:0.00}");
                 AddBlank(lines);
             }
             else
@@ -135,7 +169,14 @@ namespace RPGGame
                 AddNoteLine(lines, "STR is your primary — Strength and Primary both use the same value.");
             else
                 AddNoteLine(lines, $"Primary is {primaryLabel} ({primaryCode}), your highest effective stat.");
-            AddNoteLine(lines, "Combat adds d20 rolls, AMP, and action multipliers on top of this base.");
+
+            AppendPerSwingDamageSection(lines, c, total);
+            AddBlank(lines);
+            AddSection(lines, "Where the numbers come from");
+            AddNoteLine(lines, "Weapon: catalog damage (Weapons.json) plus its affixes. Equipment: Damage stat lines on all gear. Modifications: damage mods (ModificationTables.json).");
+            AddNoteLine(lines, strMult != 1.0
+                ? "Tuning (balance patch): Combat.StrengthDamagePerPoint / StrengthDamageMaxStat / StrengthOverflowEfficiency."
+                : "Tuning (balance patch): Combat.AttributeDamageScale.");
 
             return Trim(lines, maxLines);
         }
@@ -186,6 +227,32 @@ namespace RPGGame
             AddLine(lines, seg.Build());
         }
 
+        /// <summary>
+        /// The multipliers <see cref="Combat.Calculators.DamageCalculator.CalculateRawDamage"/> stacks on the base
+        /// attack total for each swing, with live tuning values.
+        /// </summary>
+        private static void AppendPerSwingDamageSection(List<List<ColoredText>> lines, Character c, int baseTotal)
+        {
+            var balance = GameConfiguration.Instance.CombatBalance;
+            var combatCfg = GameConfiguration.Instance.Combat;
+            double critMult = balance.CriticalHitDamageMultiplier > 0 ? balance.CriticalHitDamageMultiplier : 2.0;
+            double comboMult = balance.RollDamageMultipliers.ComboRollDamageMultiplier > 0 ? balance.RollDamageMultipliers.ComboRollDamageMultiplier : 1.0;
+            double basicMult = balance.RollDamageMultipliers.BasicRollDamageMultiplier > 0 ? balance.RollDamageMultipliers.BasicRollDamageMultiplier : 1.0;
+            double classMult = c.Weapon is WeaponItem cw ? ClassBalanceHelper.GetDamageMultiplier(cw.WeaponType) : 1.0;
+            double overflowMult = SpeedCalculator.GetSpeedOverflowDamageMultiplier(c);
+
+            AddBlank(lines);
+            AddSection(lines, "Each swing in combat");
+            AddNoteLine(lines,
+                $"floor({baseTotal} × action damage % × AMP × roll band × class {classMult:0.##}" +
+                (Math.Abs(overflowMult - 1.0) > 0.0001 ? $" × speed overflow {overflowMult:0.00}" : "") +
+                ") − target armor, capped at " + Math.Max(1, combatCfg.MaximumDamageCap) + ".");
+            AddNoteLine(lines,
+                $"Roll band: crit ×{critMult:0.##}, action roll ×{comboMult:0.##}, normal hit ×{basicMult:0.##}. " +
+                "Action damage % and AMP come from the strip card (hover a card to see them).");
+            AddNoteLine(lines, "Tuning: CombatBalance.CriticalHitDamageMultiplier, CombatBalance.RollDamageMultipliers, ClassBalance (per weapon class), Combat.MaximumDamageCap.");
+        }
+
         private static List<List<ColoredText>> BuildArmor(Character c, int maxLines)
         {
             var lines = new List<List<ColoredText>>();
@@ -232,6 +299,16 @@ namespace RPGGame
                 AddSignedStatRow(lines, "From all gear (Defense stat)", globalBonus);
             }
             AddBlank(lines);
+            AddSection(lines, "How it's calculated");
+            int drPct = (int)Math.Round(preview.DrPercent * 100.0, MidpointRounding.AwayFromZero);
+            AddNoteLine(lines,
+                $"Effective = rating {preview.Rating} × stance {preview.ActionMult:0.##}" +
+                (Math.Abs(preview.EffectiveDefense - preview.Rating * preview.ActionMult) > 0.5
+                    ? $" + status {preview.EffectiveDefense - preview.Rating * preview.ActionMult:+0;-0}"
+                    : "") +
+                $" = {effPts}.");
+            AddNoteLine(lines, $"Reduction = effective ÷ (effective + K) = {effPts} ÷ ({effPts} + {kPts}) = {drPct}% off each incoming hit (negative defense adds up to +50%).");
+            AddNoteLine(lines, "Tuning: Combat.ArmorReductionFactor (K), Combat.PlayerBaseArmor. Piece armor: Armor.json + affixes.");
             AddNoteLine(lines, "Piece values include that item's defense rating and affixes.");
             AddNoteLine(lines, "Current Defense is base rating × stance (aggressive 0%, neutral 100%, defensive 180%). A named hit sets that stance. A miss or a normal hit sets neutral. An incoming hit also returns you to neutral. Level is added to the rating. Damage reduction is live incoming DR. Incoming multi-hit uses the stance on tick 0 only.");
 
@@ -271,6 +348,11 @@ namespace RPGGame
                 (Math.Abs(b.TempoFactor - 1.0) > 0.0001 ? $" × {b.TempoFactor:F3} (tempo)" : "") +
                 $" = {b.RawSeconds:F2}s, minimum {b.FloorSeconds:F2}s → {b.FinalSeconds:F2}s.");
             AddNoteLine(lines, $"Each weapon speed point is +{pctPerPoint:0.#}% speed. Action length and next-action speed % scale this per swing.");
+            double overflowMult = SpeedCalculator.GetSpeedOverflowDamageMultiplier(c);
+            if (overflowMult > 1.0001)
+                AddNoteLine(lines,
+                    $"Faster than the minimum: the excess becomes damage ×{overflowMult:0.00} = 1 + {GameConfiguration.Instance.Combat.SpeedOverflowDamageEfficiency:0.##} × ({b.FloorSeconds:F2} ÷ {b.RawSeconds:F2} − 1).");
+            AddNoteLine(lines, "Tuning: Combat.BaseAttackTime, Combat.MinimumAttackTime, Combat.AgilityMax (AGI curve), weapon speed per point; weapon catalog speed from Weapons.json, class speed from ClassBalance.");
 
             return Trim(lines, maxLines);
         }
@@ -310,11 +392,44 @@ namespace RPGGame
             }
             AddBlank(lines);
             AddNoteLine(lines, $"INT eff. {intBreakdown.Effective} → base {baseAmp:F2}×; combo steps use Pow(base, zero-based index).");
+            AppendAmpCurveNotes(lines, c, intBreakdown.Effective, baseAmp);
             if (queuedSheetAmpPct > 0.05)
                 AddNoteLine(lines, $"Queued sheet AMP_MOD on next hero damage swing: +{queuedSheetAmpPct:0.#}%.");
             AddNoteLine(lines, "Non-combo strip actions stay at 1.00×; combat rolls may apply further swing multipliers.");
 
             return Trim(lines, maxLines);
+        }
+
+        /// <summary>Spells out <see cref="ComboAmplifierCurve.Compute"/> for the hero's INT and the combat-time INT potency multiplier.</summary>
+        private static void AppendAmpCurveNotes(List<List<ColoredText>> lines, Character c, int effectiveInt, double baseAmp)
+        {
+            var comboCfg = GameConfiguration.Instance.ComboSystem;
+            comboCfg.EnsureValidComboAmplifierDefaults();
+            double maxAmp = comboCfg.ComboAmplifierMax;
+            int maxInt = comboCfg.ComboAmplifierMaxTech;
+            int kneeInt = Math.Max(1, maxInt - Utils.GameConstants.COMBO_AMPLIFIER_KNEE_TECH_OFFSET);
+            double kneeAmp = Math.Max(1.0, maxAmp - Utils.GameConstants.COMBO_AMPLIFIER_KNEE_AMP_DELTA);
+            int i = Math.Max(0, effectiveInt);
+
+            string curve;
+            if (maxAmp <= 1.0)
+                curve = "AMP curve is off (max ≤ 1.00×), so the base is 1.00×.";
+            else if (i >= maxInt)
+                curve = $"INT {i} ≥ {maxInt}: base is the max, {maxAmp:0.00}×.";
+            else if (i >= kneeInt)
+                curve = $"INT {i} is past the knee ({kneeInt}): {kneeAmp:0.00} + ({i} − {kneeInt}) ÷ {Math.Max(1, maxInt - kneeInt)} × ({maxAmp:0.00} − {kneeAmp:0.00}).";
+            else
+                curve = $"Base = 1 + ({kneeAmp:0.00} − 1) × ({i} ÷ {kneeInt})^{comboCfg.ComboAmplifierCurveExponent:0.##}; reaches {kneeAmp:0.00}× at INT {kneeInt} and {maxAmp:0.00}× at INT {maxInt}.";
+            AddNoteLine(lines, curve);
+
+            double mythicPct = AnimalSetController.GetAmpBonusPct(c);
+            if (mythicPct > 0)
+                AddNoteLine(lines, $"Mythic animal set: base × (1 + {mythicPct:0.#}%).");
+
+            double intPotency = c.GetIntelligenceAmpMultiplier();
+            if (Math.Abs(intPotency - 1.0) > 0.0001)
+                AddNoteLine(lines, $"In combat, AMP is also × {intPotency:0.00} from INT potency (1 + INT × Combat.IntelligenceAmpPerPoint).");
+            AddNoteLine(lines, "Tuning: ComboSystem.ComboAmplifierMax / ComboAmplifierMaxTech / ComboAmplifierCurveExponent.");
         }
 
         private static void AppendAttributeSummaryRows(List<List<ColoredText>> lines, AttributeBreakdown b, string effectiveLabel = "Effective STR")

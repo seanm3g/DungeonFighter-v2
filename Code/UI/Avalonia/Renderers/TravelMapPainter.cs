@@ -29,7 +29,8 @@ namespace RPGGame.UI.Avalonia.Renderers
     /// <summary>
     /// Paints the travel map as a dense field of small coloured glyphs on dark ground, one per fine cell,
     /// with a few large landmark glyphs over them. Regions are plain dots; while travelling, an @ moves from
-    /// one dot to the other (no route line). Terrain is cached; each frame redraws only the dots.
+    /// one dot to the other (no route line). Terrain is cached in a bitmap; the dots are drawn live over it
+    /// by <see cref="PaintFrame"/>, so a redraw never touches the terrain pixels.
     /// </summary>
     public sealed class TravelMapPainter
     {
@@ -43,11 +44,16 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static readonly Color LabelText = Color.FromRgb(255, 236, 170);
         private static readonly Color LabelBack = Color.FromArgb(225, 10, 8, 6);
 
+        private static readonly Dictionary<Color, IBrush> SolidBrushes = new();
+
         private RenderTargetBitmap? baseBitmap;
-        private RenderTargetBitmap? frameBitmap;
         private string baseKey = "";
         private GlyphCache? glyphs;
 
+        /// <summary>
+        /// The cached terrain bitmap, rebuilt only when the layout or font changes. Draw the frame's dots over it
+        /// with <see cref="PaintFrame"/> (see <see cref="Overlay"/>).
+        /// </summary>
         /// <param name="cellWidth">Game grid cell width in DIPs (one cell = two fine map cells).</param>
         /// <param name="hole">Game-cell rectangle (relative to the map) left transparent for the log slip.</param>
         public IImage Paint(
@@ -58,8 +64,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             double cellWidth,
             double cellHeight,
             double renderScaling,
-            (int X, int Y, int W, int H) hole,
-            TravelMapFrame frame)
+            (int X, int Y, int W, int H) hole)
         {
             var dipSize = new Size(gridWidth * cellWidth, gridHeight * cellHeight);
             var pixelSize = new PixelSize(
@@ -77,17 +82,22 @@ namespace RPGGame.UI.Avalonia.Renderers
                 using (var ctx = baseBitmap.CreateDrawingContext())
                     PaintBase(ctx, geography, dipSize, cellWidth / 2, cellHeight / 2, holeRect);
                 baseKey = key;
-
-                frameBitmap?.Dispose();
-                frameBitmap = new RenderTargetBitmap(pixelSize, dpi);
             }
+            return baseBitmap;
+        }
 
-            using (var ctx = frameBitmap!.CreateDrawingContext())
-            {
-                ctx.DrawImage(baseBitmap, new Rect(baseBitmap.Size), new Rect(dipSize));
-                PaintFrame(ctx, frame, cellWidth, cellHeight, dipSize);
-            }
-            return frameBitmap;
+        /// <summary>A canvas overlay that draws <paramref name="frame"/> over the terrain from the last <see cref="Paint"/>.</summary>
+        public Action<DrawingContext> Overlay(TravelMapFrame frame, int gridWidth, int gridHeight, double cellWidth, double cellHeight)
+        {
+            var size = new Size(gridWidth * cellWidth, gridHeight * cellHeight);
+            return ctx => PaintFrame(ctx, frame, cellWidth, cellHeight, size);
+        }
+
+        private static IBrush Solid(Color color)
+        {
+            if (!SolidBrushes.TryGetValue(color, out var brush))
+                SolidBrushes[color] = brush = new SolidColorBrush(color);
+            return brush;
         }
 
         /// <summary>DIP center of a pin's dot: the middle of its game-grid cell.</summary>
@@ -177,10 +187,10 @@ namespace RPGGame.UI.Avalonia.Renderers
 
                 var fill = isHovered || isTarget ? DotHover : isCurrent ? DotHere : DotFill;
                 double r = isHovered || isCurrent || isTarget ? radius * 1.3 : radius;
-                ctx.DrawEllipse(new SolidColorBrush(DotRing), null, c, r + 2, r + 2);
-                ctx.DrawEllipse(new SolidColorBrush(fill), null, c, r, r);
+                ctx.DrawEllipse(Solid(DotRing), null, c, r + 2, r + 2);
+                ctx.DrawEllipse(Solid(fill), null, c, r, r);
                 if (isCurrent || isHovered)
-                    ctx.DrawEllipse(null, new Pen(new SolidColorBrush(fill), 1.2), c, r + 4, r + 4);
+                    ctx.DrawEllipse(null, new Pen(Solid(fill), 1.2), c, r + 4, r + 4);
             }
 
             foreach (var site in frame.Sites)
@@ -210,10 +220,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             var c = SiteCenter(site, cellWidth, cellHeight);
             double half = Math.Max(3, Math.Min(cellWidth, cellHeight) * (hovered ? 0.8 : 0.65));
             var tile = new Rect(c.X - half, c.Y - half, half * 2, half * 2);
-            ctx.DrawRectangle(new SolidColorBrush(DotRing), null, tile.Inflate(2).Translate(new Vector(1.5, 1.5)), 3, 3);
-            ctx.DrawRectangle(new SolidColorBrush(hovered ? SiteHover : SiteFill), new Pen(new SolidColorBrush(DotRing), 1.5), tile, 2, 2);
+            ctx.DrawRectangle(Solid(DotRing), null, tile.Inflate(2).Translate(new Vector(1.5, 1.5)), 3, 3);
+            ctx.DrawRectangle(Solid(hovered ? SiteHover : SiteFill), new Pen(Solid(DotRing), 1.5), tile, 2, 2);
             if (hovered)
-                ctx.DrawRectangle(null, new Pen(new SolidColorBrush(SiteHover), 1.2), tile.Inflate(4), 4, 4);
+                ctx.DrawRectangle(null, new Pen(Solid(SiteHover), 1.2), tile.Inflate(4), 4, 4);
         }
 
         /// <summary>The hovered dungeon's name on a dark slip just above its tile, kept inside the map.</summary>
@@ -228,7 +238,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (top < 2)
                 top = c.Y + cellHeight;
             var slip = new Rect(left, top, w, h);
-            ctx.DrawRectangle(new SolidColorBrush(LabelBack), new Pen(new SolidColorBrush(SiteHover), 1), slip, 3, 3);
+            ctx.DrawRectangle(Solid(LabelBack), new Pen(Solid(SiteHover), 1), slip, 3, 3);
             ctx.DrawText(text, new Point(slip.X + cellWidth / 2, slip.Y + 2));
         }
 

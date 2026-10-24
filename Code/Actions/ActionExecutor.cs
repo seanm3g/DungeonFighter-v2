@@ -181,7 +181,7 @@ namespace RPGGame
                         {
                             rollInfoBuilder.Add("|", Colors.Gray);
                             rollInfoBuilder.AddSpace();
-                            rollInfoBuilder.Add("speed: ", ColorPalette.Info);
+                            rollInfoBuilder.Add("cooldown: ", ColorPalette.Info);
                             rollInfoBuilder.Add($"{actualSpeed:F1}s", Colors.White);
                         }
                     }
@@ -330,7 +330,8 @@ namespace RPGGame
             {
                 var sequenceSteps = CombatSequenceBuilder.From(result, source, target);
                 var flavorTokens = CombatSequenceFlavorTokens.From(result, source, target);
-                CombatSequenceFlavorPresenter.SetPending(sequenceSteps, flavorTokens, result.HealthBarHolds);
+                CombatSequenceFlavorPresenter.SetPending(sequenceSteps, flavorTokens, result.HealthBarHolds,
+                    CombatSwingMathExplainer.Build(result, source, target));
                 if (!CombatSequenceFlavorPresenter.ShouldPlay() && CombatSequencePresenter.ShouldPlay())
                 {
                     CombatSequencePresenter.SetPending(sequenceSteps, result.HealthBarHolds);

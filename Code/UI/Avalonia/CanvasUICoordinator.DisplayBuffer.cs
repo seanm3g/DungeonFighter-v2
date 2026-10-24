@@ -35,6 +35,24 @@ namespace RPGGame.UI.Avalonia
         /// <summary>
         /// Repaints only the center panel frame so combat speed changes are visible immediately.
         /// </summary>
+        /// <summary>
+        /// Repaints from scratch after <see cref="CombatBoardLayout"/> flips (strip moves between top and bottom).
+        /// </summary>
+        public void RefreshCombatBoardLayout()
+        {
+            void Run()
+            {
+                canvas.Clear();
+                ForceRenderDisplayBuffer();
+                canvas.Refresh();
+            }
+
+            if (Dispatcher.UIThread.CheckAccess())
+                Run();
+            else
+                Dispatcher.UIThread.Post(Run);
+        }
+
         public void RefreshCenterPanelModeTint()
         {
             if (CenterPanelModeTint.TryUpdateExistingFrame(canvas))

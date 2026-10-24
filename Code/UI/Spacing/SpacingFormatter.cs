@@ -37,7 +37,7 @@ namespace RPGGame.UI.Spacing
             if (!string.IsNullOrEmpty(speedText))
             {
                 parts.Add("|");
-                parts.Add("speed:");
+                parts.Add("cooldown:");
                 parts.Add(speedText);
             }
             

@@ -48,6 +48,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Layout
                 stats = ctm.DisplayManager?.StatsPanelStateManager;
                 gameState = ctm.StateManager?.CurrentState;
                 inDungeonRun = ctm.StateManager?.HasCurrentDungeon == true;
+                RPGGame.UI.Avalonia.Layout.CombatBoardLayout.Sync(gameState);
                 RPGGame.Combat.Sequence.CombatSequenceHudState.SyncReservation(gameState);
             }
 

@@ -19,6 +19,20 @@ namespace RPGGame.UI.Avalonia.Canvas
         private readonly List<CanvasProgressBar> progressBars;
         private readonly List<CanvasSegmentedBar> segmentedBars;
         private readonly List<CanvasImage> images = new List<CanvasImage>();
+        private readonly List<CanvasLine> lines = new List<CanvasLine>();
+
+        /// <summary>Connector lines (combat board); drawn above panels.</summary>
+        public List<CanvasLine> Lines => lines;
+
+        public void AddLine(CanvasLine line) => lines.Add(line);
+
+        /// <summary>Removes lines whose start point lies inside the rectangle.</summary>
+        public void ClearLinesInArea(int startX, int startY, int width, int height)
+        {
+            lines.RemoveAll(l =>
+                l.X1 >= startX && l.X1 < startX + width &&
+                l.Y1 >= startY && l.Y1 < startY + height);
+        }
         
         public CanvasElementManager()
         {
@@ -66,6 +80,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             progressBars.Clear();
             segmentedBars.Clear();
             images.Clear();
+            lines.Clear();
         }
         
         /// <summary>

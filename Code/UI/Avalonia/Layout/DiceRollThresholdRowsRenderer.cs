@@ -116,7 +116,7 @@ namespace RPGGame.UI.Avalonia.Layout
             else
             {
                 RenderThresholdRow(cy++, "Crit", snapshot.Crit, snapshot.DefaultCrit, snapshot.EffectiveCrit, snapshot.DefaultCrit);
-                RenderThresholdRow(cy++, "Combo", snapshot.Combo, snapshot.DefaultCombo, snapshot.EffectiveCombo, snapshot.DefaultCombo);
+                RenderThresholdRow(cy++, "Action", snapshot.Combo, snapshot.DefaultCombo, snapshot.EffectiveCombo, snapshot.DefaultCombo);
                 RenderThresholdRow(cy++, "Hit", snapshot.Hit, snapshot.DefaultHit, snapshot.EffectiveHit, snapshot.DefaultMinRollToHit);
                 RenderThresholdRow(cy++, "Crit Miss", snapshot.CritMiss, DiceRollThresholdSnapshot.DefaultCritMiss, snapshot.EffectiveCritMiss, DiceRollThresholdSnapshot.DefaultCritMiss);
             }

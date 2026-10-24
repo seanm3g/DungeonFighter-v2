@@ -40,6 +40,10 @@ namespace RPGGame.UI.Avalonia.Display
         /// <param name="combatHeroNameForLineAlignment">Hero display name (optional but recommended): primary lines starting with this name end the enemy continuation block and stay left-aligned.</param>
         public void Render(DisplayBuffer buffer, int contentX, int contentY, int contentWidth, int contentHeight, bool clearContent = true, IReadOnlyList<string>? combatEnemyNamesForPrimaryLineRightAlign = null, string? combatHeroNameForLineAlignment = null)
         {
+            // The combat board owns the center column; the log would clear its cards.
+            if (CombatBoardLayout.IsActive && !CombatBoardLayout.IsPaintingBoardLog)
+                return;
+
             var rows = buffer.GetLast(buffer.MaxLines);
             if (rows.Count == 0)
             {

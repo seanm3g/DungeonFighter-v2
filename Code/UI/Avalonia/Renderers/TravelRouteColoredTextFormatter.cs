@@ -106,7 +106,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             TravelRollOutcome.CriticalMiss => "Critical miss",
             TravelRollOutcome.Miss => "Miss",
             TravelRollOutcome.Hit => "Hit",
-            TravelRollOutcome.Combo => "Combo",
+            TravelRollOutcome.Combo => "Action",
             TravelRollOutcome.Critical => "Critical",
             _ => outcome.ToString()
         };

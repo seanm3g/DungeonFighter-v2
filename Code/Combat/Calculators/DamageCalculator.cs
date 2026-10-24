@@ -211,7 +211,10 @@ namespace RPGGame.Combat.Calculators
             double totalDamage = (baseDamage * actionMultiplier * comboAmplifier * damageMultiplier * nextAttackMultiplier);
             if (attacker is Character strengthHero)
             {
-                totalDamage *= strengthHero.GetStrengthDamageMultiplier();
+                double strMult = strengthHero.GetStrengthDamageMultiplier();
+                totalDamage *= strMult;
+                if (_sequenceTrace != null)
+                    _sequenceTrace.StrengthMultiplier = strMult;
                 totalDamage *= SpeedCalculator.GetSpeedOverflowDamageMultiplier(strengthHero);
                 // Retrigger swings re-resolve late, high-AMP strip slots; combat.retriggerDamageMultiplier trims them.
                 if (strengthHero is not Enemy && RPGGame.Actions.Execution.ActionExecutionFlow.IsResolvingRetrigger)
@@ -258,6 +261,11 @@ namespace RPGGame.Combat.Calculators
                         }
                     }
                     totalDamage *= combatBalance.CriticalHitDamageMultiplier;
+                    if (_sequenceTrace != null)
+                    {
+                        _sequenceTrace.RollBand = "crit";
+                        _sequenceTrace.RollBandMultiplier = combatBalance.CriticalHitDamageMultiplier;
+                    }
                     if (GameConfiguration.IsDebugEnabled)
                     {
                         if (!ActionExecutor.DisableCombatDebugOutput)
@@ -280,6 +288,11 @@ namespace RPGGame.Combat.Calculators
                             comboMultiplier = 1.0;
                         }
                         totalDamage *= comboMultiplier;
+                        if (_sequenceTrace != null)
+                        {
+                            _sequenceTrace.RollBand = "action roll";
+                            _sequenceTrace.RollBandMultiplier = comboMultiplier;
+                        }
                     }
                     else if (roll >= rollSystem.BasicAttackThreshold.Min) // Normal attack range (6-13)
                     {
@@ -290,6 +303,11 @@ namespace RPGGame.Combat.Calculators
                             basicMultiplier = 1.0;
                         }
                         totalDamage *= basicMultiplier;
+                        if (_sequenceTrace != null)
+                        {
+                            _sequenceTrace.RollBand = "normal hit";
+                            _sequenceTrace.RollBandMultiplier = basicMultiplier;
+                        }
                     }
                 }
             }
@@ -297,7 +315,10 @@ namespace RPGGame.Combat.Calculators
             // Apply class damage multiplier for hero attackers
             if (attacker is Character classChar && classChar.Weapon is WeaponItem classWeapon)
             {
-                totalDamage *= ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType);
+                double classMult = ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType);
+                totalDamage *= classMult;
+                if (_sequenceTrace != null)
+                    _sequenceTrace.ClassMultiplier = classMult;
             }
 
             // Mark of Class: amplify primary class-tagged actions
@@ -307,6 +328,9 @@ namespace RPGGame.Combat.Calculators
                 if (classTagMult > 1.0 && ActionHasHeroPrimaryClassTag(tagHero, action))
                     totalDamage *= classTagMult;
             }
+
+            if (_sequenceTrace != null)
+                _sequenceTrace.PreRoundTotal = totalDamage;
 
             var swing = _multiHitSwing.Value;
             int wholeDamage;
@@ -371,6 +395,9 @@ namespace RPGGame.Combat.Calculators
                 double tagModifier = Combat.TagDamageCalculator.GetDamageModifier(action, target);
                 totalDamage = (int)(totalDamage * tagModifier);
             }
+
+            if (_sequenceTrace != null)
+                _sequenceTrace.BeforeArmor = totalDamage;
 
             bool pierce = IgnoresArmor(target, action);
             bool inSwing = InMultiHitSwing;

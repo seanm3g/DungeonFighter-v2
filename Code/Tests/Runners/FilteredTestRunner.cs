@@ -140,6 +140,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "ItemStatFormatter", () => RPGGame.Tests.Unit.UI.ItemStatFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ItemComparisonTable", () => RPGGame.Tests.Unit.UI.ItemComparisonTableTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "LeftPanelTooltipBuilder", () => RPGGame.Tests.Unit.UI.LeftPanelTooltipBuilderTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "InventoryAffixSynergy", () => RPGGame.Tests.Unit.UI.InventoryAffixSynergyTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "LeftPanelSectionVisibility", () => RPGGame.Tests.Unit.UI.LeftPanelSectionVisibilityTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "LeftPanelViewport", () => RPGGame.Tests.Unit.UI.LeftPanelViewportTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "StatsPanelStateManager", () => RPGGame.Tests.Unit.UI.StatsPanelStateManagerTests.RunAllTests()));
@@ -203,6 +204,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("world", "DungeonMapGenerator", () => RPGGame.Tests.Unit.World.DungeonMapGeneratorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("world", "DungeonTraversalStrategy", () => RPGGame.Tests.Unit.World.DungeonTraversalStrategyTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionBonusBorderShimmer", () => RPGGame.Tests.Unit.UI.ActionBonusBorderShimmerTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ComboTension", () => RPGGame.Tests.Unit.UI.ComboTensionTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "HeroActionStripFeedback", () => RPGGame.Tests.Unit.UI.HeroActionStripFeedbackTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionsTabManager", () => RPGGame.Tests.Unit.UI.ActionsTabManagerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "ActionSetVisibility", () => RPGGame.Tests.Unit.Data.ActionSetVisibilityTests.RunAllTests()));

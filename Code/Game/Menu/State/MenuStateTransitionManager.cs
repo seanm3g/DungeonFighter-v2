@@ -146,7 +146,7 @@ namespace DungeonFighter.Game.Menu.State
 
             // Weapon Selection transitions
             RegisterTransition(new StateTransitionRule(
-                GameState.WeaponSelection, GameState.CharacterCreation, "Weapon Selected"));
+                GameState.WeaponSelection, GameState.Inventory, "Weapon Selected"));
             RegisterTransition(new StateTransitionRule(
                 GameState.WeaponSelection, GameState.MainMenu, "Weapon Selection Cancelled"));
 

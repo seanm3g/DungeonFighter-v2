@@ -88,7 +88,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             AddCatalogAttribute(list, item, item.BaseTechnique, "Technique");
             AddCatalogAttribute(list, item, item.BaseIntelligence, "Intelligence");
             AddCatalogAttribute(list, item, item.BaseHit, "Hit threshold");
-            AddCatalogAttribute(list, item, item.BaseCombo, "Combo threshold");
+            AddCatalogAttribute(list, item, item.BaseCombo, "Action threshold");
             AddCatalogAttribute(list, item, item.BaseCrit, "Crit threshold");
 
             if (Math.Abs(item.CatalogAttackSpeed) > 1e-9)
@@ -194,7 +194,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 "TEC" or "EQUIPMENTTEC" or "TECHNIQUE" or "TECH" => "Technique",
                 "INT" or "EQUIPMENTINT" or "INTELLIGENCE" => "Intelligence",
                 "HIT" => "Hit threshold",
-                "COMBO" => "Combo threshold",
+                "COMBO" => "Action threshold",
                 "CRIT" => "Crit threshold",
                 "ARMOR" => "Defense",
                 "SPEED" => "Attack speed",
@@ -312,7 +312,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 "TEC" or "TECH" or "TECHNIQUE" => "Technique",
                 "INT" or "INTELLIGENCE" => "Intelligence",
                 "HIT" => "Hit threshold",
-                "COMBO" => "Combo threshold",
+                "COMBO" => "Action threshold",
                 "CRIT" => "Crit threshold",
                 "ARMOR" => "Defense",
                 "HEALTH" => "Max health",

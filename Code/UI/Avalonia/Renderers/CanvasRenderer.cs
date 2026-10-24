@@ -172,6 +172,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 or RPGGame.GameState.CharacterSelection
                 or RPGGame.GameState.LoadCharacterSelection
                 or RPGGame.GameState.WeaponSelection
+                or RPGGame.GameState.TrainingGroundOffer
+                or RPGGame.GameState.CharacterCreation
                 or RPGGame.GameState.PreWeaponPathIntro
                 or RPGGame.GameState.Settings
                 or RPGGame.GameState.DeveloperMenu

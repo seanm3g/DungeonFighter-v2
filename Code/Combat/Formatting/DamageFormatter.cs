@@ -162,12 +162,12 @@ namespace RPGGame.Combat.Formatting
         }
         
         /// <summary>
-        /// Adds "speed: X.Xs" pattern to a ColoredTextBuilder with proper spacing
+        /// Adds "cooldown: X.Xs" pattern to a ColoredTextBuilder with proper spacing
         /// </summary>
         public static void AddSpeedInfo(ColoredTextBuilder builder, double speed)
         {
             builder.Add(" | ", Colors.Gray);
-            builder.Add("speed:", ColorPalette.Info);
+            builder.Add("cooldown:", ColorPalette.Info);
             builder.AddSpace();
             builder.Add($"{speed:F1}s", Colors.White);
         }

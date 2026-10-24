@@ -59,5 +59,8 @@ namespace RPGGame.Combat.Sequence
         public List<ColoredText> Result { get; }
         public CombatSequenceCue Cue { get; }
         public IReadOnlyList<List<ColoredText>> MathBeats { get; }
+
+        /// <summary>The swing this step belongs to (null for environment hazards).</summary>
+        public CombatSequenceSwingInfo? Swing { get; internal set; }
     }
 }

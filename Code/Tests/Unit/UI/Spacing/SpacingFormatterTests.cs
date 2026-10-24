@@ -63,7 +63,7 @@ namespace RPGGame.Tests.Unit.UI.Spacing
                 "FormatRollInfo should return a formatted string with all parameters",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             
-            TestBase.AssertTrue(result.Contains("speed:") && result.Contains("amp:"),
+            TestBase.AssertTrue(result.Contains("cooldown:") && result.Contains("amp:"),
                 "Formatted roll info should contain speed and amplifier information",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 

@@ -91,8 +91,8 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             TestBase.AssertNotNull(character.Weapon,
                 "Valid weapon choice should equip a starter weapon",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqualEnum(GameState.CharacterCreation, stateManager.CurrentState,
-                "After weapon choice, state should be CharacterCreation (welcome screen before game loop)",
+            TestBase.AssertEqualEnum(GameState.Inventory, stateManager.CurrentState,
+                "After weapon choice, state should be Inventory",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

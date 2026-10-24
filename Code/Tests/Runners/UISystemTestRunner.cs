@@ -44,6 +44,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             LeftPanelHoverStateTests.RunAllTests();
             Console.WriteLine();
+            InventoryAffixSynergyTests.RunAllTests();
+            Console.WriteLine();
             LeftPanelTooltipBuilderTests.RunAllTests();
             LeftPanelSectionVisibilityTests.RunAllTests();
             LeftPanelViewportTests.RunAllTests();
@@ -72,6 +74,8 @@ namespace RPGGame.Tests.Runners
             HeroActionStripFeedbackTests.RunAllTests();
             Console.WriteLine();
             ActionBonusBorderShimmerTests.RunAllTests();
+            Console.WriteLine();
+            ComboTensionTests.RunAllTests();
             Console.WriteLine();
             ThresholdBarFeedbackTests.RunAllTests();
             Console.WriteLine();

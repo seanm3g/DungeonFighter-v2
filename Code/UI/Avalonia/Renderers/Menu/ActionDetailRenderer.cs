@@ -162,7 +162,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     canvas.AddText(menuStartX, menuStartY, $"  Hit: {action.HitThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White);
                 menuStartY += action.HitThresholdAdjustment != 0 ? 1 : 0;
                 if (action.ComboThresholdAdjustment != 0)
-                    canvas.AddText(menuStartX, menuStartY, $"  Combo: {action.ComboThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White);
+                    canvas.AddText(menuStartX, menuStartY, $"  Action: {action.ComboThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White);
                 menuStartY += action.ComboThresholdAdjustment != 0 ? 1 : 0;
                 if (action.CriticalHitThresholdAdjustment != 0)
                     canvas.AddText(menuStartX, menuStartY, $"  Crit: {action.CriticalHitThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White);

@@ -143,11 +143,14 @@ namespace RPGGame
             PropertyNameCaseInsensitive = true
         };
 
-        /// <summary>Tier index 0..4 → default Skill Point cost when a node omits/zeros cost (roots stay 0).</summary>
+        /// <summary>Tier index 0..9 → default Skill Point cost when a node omits/zeros cost (roots stay 0).</summary>
         public static readonly int[] TierCosts = { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
         /// <summary>Class points earned (in the owning class) needed before a tier opens. Index = tier; deeper tiers use the last value.</summary>
         public static readonly int[] TierPointGates = { 0, 0, 2, 5, 10, 18, 28, 40, 55, 70 };
+
+        /// <summary>Deepest tier a node may sit on (last entry of <see cref="TierPointGates"/>).</summary>
+        public static int MaxTier => TierPointGates.Length - 1;
 
         public static int TierPointGate(int tier) =>
             tier <= 0 ? 0 : TierPointGates[Math.Min(tier, TierPointGates.Length - 1)];
@@ -209,7 +212,7 @@ namespace RPGGame
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .ToList();
                     node.SharedWithWeapons = ResolveSharedWithWeapons(node.SharedWith);
-                    node.Tier = Math.Clamp(node.Tier, 0, 4);
+                    node.Tier = Math.Clamp(node.Tier, 0, MaxTier);
                     if (node.MaxRank <= 0)
                         node.MaxRank = 1;
                     if (node.DamageModPerRank < 0)

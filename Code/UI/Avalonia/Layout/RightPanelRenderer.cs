@@ -277,8 +277,9 @@ namespace RPGGame.UI.Avalonia.Layout
             int innerLeft = LayoutConstants.CENTER_PANEL_X + 1;
             int innerRight = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
             int innerW = Math.Max(8, innerRight - innerLeft + 1);
-            const int maxTooltipLines = 18;
-            const int maxPoolActionTooltipLines = 28;
+            int panelTooltipLines = Math.Max(1, LayoutConstants.CombatLogContentHeight - 2);
+            int maxTooltipLines = Math.Max(18, Math.Min(32, panelTooltipLines));
+            int maxPoolActionTooltipLines = Math.Max(28, Math.Min(40, panelTooltipLines));
             int boxWFinal = Math.Min(52, innerW);
             int innerTextW = Math.Max(4, boxWFinal - 2);
             List<string>? tipLines;

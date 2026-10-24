@@ -472,7 +472,7 @@ namespace RPGGame.UI.Avalonia.Layout
             label switch
             {
                 "Crit" => "thresh:crit",
-                "Combo" => "thresh:combo",
+                "Action" => "thresh:combo",
                 "Hit" => "thresh:hit",
                 "Miss" => "thresh:miss",
                 "Crit Miss" => "thresh:critmiss",

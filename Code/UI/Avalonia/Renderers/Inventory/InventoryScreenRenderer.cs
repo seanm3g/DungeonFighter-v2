@@ -205,8 +205,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             else if (gridView)
             {
+                var hoveredItem = InventoryDragState.IsActive
+                    ? null
+                    : InventoryAffixSynergy.ResolveHoveredItem(LeftPanelHoverState.Value, inventory, character);
                 RenderGridView(x, y, width, actionsStartY, detailExtendedBottomY, character, displayEntries, itemScrollOffset,
-                    detailView!.SelectedInventoryIndex, blockRowClicks: pendingMutatingInventoryMenuAction != null, ref currentLineCount);
+                    detailView!.SelectedInventoryIndex, blockRowClicks: pendingMutatingInventoryMenuAction != null, hoveredItem, ref currentLineCount);
             }
             else if (detailView != null)
             {
@@ -691,6 +694,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// New inventory: item icons (GameData/ItemArt sheets) in a grid on the left, rarity-coloured frames, the selected
         /// item framed gold; the selected item's large icon and full description on the right. Tiles click as
         /// <c>invsel:{inventoryIndex}</c> and hover the same item tooltip as list rows. Scroll offset counts tile rows.
+        /// While <paramref name="hoveredItem"/> is set, other tiles sharing one of its affixes glow cyan.
         /// </summary>
         private void RenderGridView(
             int x,
@@ -703,8 +707,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int itemScrollOffset,
             int selectedInventoryIndex,
             bool blockRowClicks,
+            Item? hoveredItem,
             ref int currentLineCount)
         {
+            var hoveredAffixes = InventoryAffixSynergy.GetAffixNames(hoveredItem);
             int tileRows = GridTileRows;
             int tileCols = GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), tileRows);
             int stepX = tileCols + 1;
@@ -720,7 +726,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int dollWidth = dollRows > 0 ? 3 * dollCols + 2 * PaperDollArmGap : 0;
             if (dollRows > 0 && width - 4 - (dollWidth + 3) - GridDetailMinWidth - 3 >= tileCols)
             {
-                RenderPaperDoll(gridX, topY, dollRows, dollCols, dollWidth, character, blockRowClicks);
+                RenderPaperDoll(gridX, topY, dollRows, dollCols, dollWidth, character, blockRowClicks, hoveredItem, hoveredAffixes);
                 LastPaperDollBounds = (gridX, topY, dollWidth, bottomY - topY);
                 for (int sepY = topY; sepY < bottomY; sepY++)
                     canvas.AddText(gridX + dollWidth + 1, sepY, "│", AsciiArtAssets.Colors.DarkGray);
@@ -757,13 +763,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 bool isSelected = selectedEquippedItem == null && entry.InventoryIndex == selected.InventoryIndex;
                 bool blocked = ItemRendererHelper.IsEquipBlockedForCharacter(item, character);
                 bool beingDragged = InventoryDragState.IsActive && InventoryDragState.SourceInventoryIndex == entry.InventoryIndex;
+                bool synergy = !beingDragged && InventoryAffixSynergy.SharesAffix(item, hoveredItem, hoveredAffixes);
                 Color frame = beingDragged
                     ? AsciiArtAssets.Colors.DarkGray
+                    : synergy
+                    ? SynergyFrameColor
                     : isSelected
                     ? AsciiArtAssets.Colors.Gold
                     : blocked ? AsciiArtAssets.Colors.Red : ItemThemeProvider.GetRarityColor(item.Rarity?.Trim() ?? "Common");
 
-                canvas.AddBox(tx, ty, tileCols, tileRows, frame, borderThicknessPixels: isSelected && !beingDragged ? 2 : 1);
+                canvas.AddBox(tx, ty, tileCols, tileRows, frame, synergy ? SynergyGlowColor : default,
+                    borderThicknessPixels: (isSelected || synergy) && !beingDragged ? 2 : 1);
                 if (beingDragged)
                 {
                     // Left empty: the ghost under the pointer carries the icon.
@@ -825,6 +835,19 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             RenderDragGhost(x, width, topY, bottomY, tileCols, tileRows, haveArt);
         }
 
+        /// <summary>Frame of a tile sharing an affix with the hovered item.</summary>
+        private static Color SynergyFrameColor => AsciiArtAssets.Colors.Cyan;
+
+        /// <summary>Faint fill behind a synergy tile's icon so the frame reads as a glow.</summary>
+        private static Color SynergyGlowColor
+        {
+            get
+            {
+                var c = AsciiArtAssets.Colors.Cyan;
+                return Color.FromArgb(56, c.R, c.G, c.B);
+            }
+        }
+
         /// <summary>Columns between the paper doll's arm slots and the body (drawn as <c>──</c>).</summary>
         private const int PaperDollArmGap = 2;
 
@@ -860,9 +883,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// <summary>
         /// Character figure of gear slots (head over body, weapon and charm as arms, legs, feet) joined by thin lines.
         /// Filled slots show the item icon in its rarity frame and hover the left-panel gear tooltip; while a bag item is
-        /// dragged its slot lights green (red when requirements block it).
+        /// dragged its slot lights green (red when requirements block it). Gear sharing an affix with the hovered item glows cyan.
         /// </summary>
-        private void RenderPaperDoll(int dollX, int topY, int tileRows, int tileCols, int dollWidth, Character character, bool blockClicks)
+        private void RenderPaperDoll(int dollX, int topY, int tileRows, int tileCols, int dollWidth, Character character, bool blockClicks,
+            Item? hoveredItem, HashSet<string> hoveredAffixes)
         {
             canvas.AddText(dollX, topY, TruncateTo(character.Name, dollWidth), AsciiArtAssets.Colors.Gold);
             int dollTop = topY + 1;
@@ -904,9 +928,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         : ItemThemeProvider.GetRarityColor(item!.Rarity?.Trim() ?? "Common");
 
                 bool isPaneSelection = shown && string.Equals(selectedEquippedSlot, slot, StringComparison.Ordinal);
-                if (isPaneSelection && !isDropTarget)
+                bool synergy = shown && !isDropTarget && InventoryAffixSynergy.SharesAffix(item, hoveredItem, hoveredAffixes);
+                if (synergy)
+                    frame = SynergyFrameColor;
+                else if (isPaneSelection && !isDropTarget)
                     frame = AsciiArtAssets.Colors.Gold;
-                canvas.AddBox(tx, ty, tileCols, tileRows, frame, borderThicknessPixels: isDropTarget || isPaneSelection ? 2 : 1);
+                canvas.AddBox(tx, ty, tileCols, tileRows, frame, synergy ? SynergyGlowColor : default,
+                    borderThicknessPixels: isDropTarget || isPaneSelection || synergy ? 2 : 1);
                 if (shown && haveArt && ItemArtAtlas.TryGetIcon(item!, out var bitmap, out var sourceRect))
                     canvas.AddImage(tx, ty, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3);
                 else

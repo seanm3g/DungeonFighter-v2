@@ -264,6 +264,14 @@ namespace RPGGame.UI.Avalonia.Handlers
             // Convert screen coordinates to character grid coordinates
             var gridPos = ScreenToGrid(position);
 
+            // Combat board: clicking between the health bars swaps combo cards <-> combat log.
+            if (CombatBoardLayout.ContainsMiddle(gridPos.X, gridPos.Y))
+            {
+                CombatBoardLayout.ToggleMiddleView();
+                canvasUI.ForceRenderDisplayBuffer();
+                return;
+            }
+
             // Clicking a hovered narrative prose tip dismisses the mechanical action-block overlay.
             if (CombatLogActionHoverState.TryDismissFromClick(gridPos.X, gridPos.Y))
                 RedrawAfterCombatLogHoverVisibilityChange();

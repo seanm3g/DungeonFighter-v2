@@ -62,7 +62,7 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
             character.Effects.ClearAllTempEffects();
             character.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 3 } });
             var lines = CombatActionStripBuilder.BuildActiveModifierLines(character);
-            TestBase.AssertTrue(lines != null && lines.Count >= 1 && lines[0].Contains("Next action:") && lines[0].Contains("COMBO"),
+            TestBase.AssertTrue(lines != null && lines.Count >= 1 && lines[0].Contains("Next action:") && lines[0].Contains("ACTION"),
                 "Display: BuildActiveModifierLines shows 'Next action: ... COMBO'",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 

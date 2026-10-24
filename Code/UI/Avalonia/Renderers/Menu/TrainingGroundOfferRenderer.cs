@@ -23,23 +23,30 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
 
         public int RenderTrainingGroundOfferContent(int x, int y, int width, int height, Character character)
         {
-            int boxWidth = Math.Min(70, width - 8);
-            int boxHeight = 16;
-            int boxX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, boxWidth);
-            int boxY = y + Math.Max(2, (height / 2) - (boxHeight / 2));
+            // Drawn straight onto the menu cave backdrop (no panels), centered like the path intro screen.
+            string title = "────────── Training Ground ──────────";
+            string intro = $"{character.Name}: practice unarmed before choosing your weapon.";
+            string enter = "1. Enter Training Ground (1 room, Training Dummy)";
+            string skip = "2. Skip tutorial — go to weapon selection";
+            string prompt = "Press 1 or 2.";
 
-            int cx = boxX + 2;
-            int cy = boxY + 2;
+            // Options share one left edge so the numbers line up.
+            int optionsWidth = Math.Max(enter.Length, skip.Length);
+            int optionsX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, optionsWidth);
 
-            canvas.AddText(cx, cy++, "────────── Training Ground ──────────", AsciiArtAssets.Colors.Cyan);
-            canvas.AddText(cx, cy++, $"{character.Name}: practice unarmed before choosing your weapon.", AsciiArtAssets.Colors.White);
+            const int blockHeight = 7;
+            int cy = y + Math.Max(0, (height / 2) - (blockHeight / 2));
+            int startY = cy;
+
+            canvas.AddText(MenuLayoutCalculator.CalculateCenteredTextX(x, width, title.Length), cy++, title, AsciiArtAssets.Colors.Cyan);
+            canvas.AddText(MenuLayoutCalculator.CalculateCenteredTextX(x, width, intro.Length), cy++, intro, AsciiArtAssets.Colors.White);
             cy++;
-            canvas.AddText(cx, cy++, "1. Enter Training Ground (1 room, Training Dummy)", AsciiArtAssets.Colors.Yellow);
-            canvas.AddText(cx, cy++, "2. Skip tutorial — go to weapon selection", AsciiArtAssets.Colors.White);
+            canvas.AddText(optionsX, cy++, enter, AsciiArtAssets.Colors.Yellow);
+            canvas.AddText(optionsX, cy++, skip, AsciiArtAssets.Colors.White);
             cy++;
-            canvas.AddText(cx, cy++, "Press 1 or 2.", AsciiArtAssets.Colors.Gray);
+            canvas.AddText(MenuLayoutCalculator.CalculateCenteredTextX(x, width, prompt.Length), cy++, prompt, AsciiArtAssets.Colors.Gray);
 
-            return cy - y;
+            return cy - startY;
         }
     }
 }

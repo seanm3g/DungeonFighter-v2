@@ -33,10 +33,10 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderTrainingGroundOffer(Character character, CanvasContext context)
         {
-            RenderWithLayout(character, "TRAINING GROUND", (contentX, contentY, contentWidth, contentHeight) =>
+            RenderWithLayout(null, "", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 menuRenderer.RenderTrainingGroundOfferContent(contentX, contentY, contentWidth, contentHeight, character);
-            }, context, null, null, null, clearCanvas: true, usePersistentChrome: true);
+            }, context, null, null, null, clearCanvas: true, usePersistentChrome: false);
             messageRenderer.ClearLoadingStatus();
             canvas.Refresh();
         }

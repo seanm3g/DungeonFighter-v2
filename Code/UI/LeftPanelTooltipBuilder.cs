@@ -121,6 +121,7 @@ namespace RPGGame
                     int labBonus = character.ActionLabActionSlotBonus;
                     string labNote = labBonus > 0 ? $" Includes +{labBonus} Action Lab bonus." : "";
                     AppendSimpleStat(character, "ACTION SLOTS", $"Max combo sequence length: {slots}.{labNote}", result, AddWrapped, maxLines);
+                    AppendActionSlotBreakdown(character, AddWrapped);
                     break;
                 }
                 case "stat:str":
@@ -140,21 +141,28 @@ namespace RPGGame
                     break;
                 case "stat:hpregen":
                     AppendSimpleStat(character, "HP REGEN", $"+{character.GetEquipmentHealthRegenBonus()}/turn from equipment.", result, AddWrapped, maxLines);
+                    AddWrapped("Sum of HealthRegen stat lines on all equipped gear and affixes. Heals that much each turn in combat, up to max HP.");
                     break;
                 case "stat:lifesteal":
                     AppendSimpleStat(character, "LIFESTEAL", $"{character.GetModificationLifesteal():P0} from modifications.", result, AddWrapped, maxLines);
+                    AddWrapped("Sum of lifesteal mods on your gear (ModificationTables.json). After a hit: heal = round(damage dealt × (gear % + the action's own lifesteal %)), at least 1.");
+                    AddWrapped($"Example: a 20-damage hit heals {(character.GetModificationLifesteal() > 0 ? Math.Max(1, (int)Math.Round(20 * character.GetModificationLifesteal())) : 0)}.");
                     break;
                 case "stat:bleed":
                     AppendSimpleStat(character, "BLEED", $"+{character.GetWeaponBleedPerHit()} on critical hit from weapon mods.", result, AddWrapped, maxLines);
+                    AppendWeaponDotSource(AddWrapped, "weaponBleed", "bleed stacks");
                     break;
                 case "stat:burn":
                     AppendSimpleStat(character, "BURN", $"+{character.GetWeaponBurnPerHit()} on critical hit from weapon mods.", result, AddWrapped, maxLines);
+                    AppendWeaponDotSource(AddWrapped, "weaponBurn", "burn stacks");
                     break;
                 case "stat:acid":
                     AppendSimpleStat(character, "ACID", $"+{character.GetWeaponAcidPerHit()} on critical hit from weapon mods.", result, AddWrapped, maxLines);
+                    AppendWeaponDotSource(AddWrapped, "weaponAcid", "acid stacks");
                     break;
                 case "stat:poison":
                     AppendSimpleStat(character, "POISON", $"+{character.GetWeaponPoisonPercentPerHit():0.#}% max HP on critical hit from weapon mods.", result, AddWrapped, maxLines);
+                    AppendWeaponDotSource(AddWrapped, "weaponPoison", "% of the target's max HP per poison tick");
                     break;
                 case string attrKey when attrKey.StartsWith("attr:", StringComparison.Ordinal):
                     AppendRequirementAttribute(character, attrKey.Substring("attr:".Length), result, AddWrapped, maxLines);
@@ -318,75 +326,153 @@ namespace RPGGame
         {
             int cur = c.CurrentHealth;
             int max = c.GetEffectiveMaxHealth();
+            int baseMax = c.MaxHealth;
+            int gear = max - baseMax;
+            var tuning = GameConfiguration.Instance;
+            int perLevel = tuning.Character.HealthPerLevel > 0 ? tuning.Character.HealthPerLevel : 3;
+            double classHpMult = c.Weapon is WeaponItem w
+                ? ClassBalanceHelper.GetMultipliersForWeapon(w.WeaponType).HealthMultiplier
+                : 0;
+            int nextLevelGain = classHpMult > 0 ? Math.Max(1, (int)(perLevel * classHpMult)) : perLevel;
+
             addWrapped("Health");
-            addWrapped($"{cur} / {max} HP (effective max includes bonuses from gear and effects).");
+            addWrapped($"{cur} / {max} HP.");
+            addWrapped($"Equation: character max {baseMax} + gear Health {gear:+0;-0;+0} = {max}.");
+            addWrapped($"Character max starts at Character.PlayerBaseHealth ({tuning.Character.PlayerBaseHealth}) and grows each level-up by Character.HealthPerLevel ({perLevel})" +
+                (classHpMult > 0 ? $" × your weapon class's ClassBalance HealthMultiplier ({classHpMult:0.##}) = +{nextLevelGain} next level." : $" = +{nextLevelGain} next level."));
+            addWrapped("Level-ups heal to full. Health stat lines on gear and affixes add to the max.");
+            if (c.GetEquipmentHealthRegenBonus() > 0)
+                addWrapped($"Regenerates +{c.GetEquipmentHealthRegenBonus()} HP per turn from gear (hover HP REGEN).");
         }
 
         private static void AppendHeroLevel(Character c, Action<string> addWrapped)
         {
+            var attrs = GameConfiguration.Instance.Attributes;
+            int primary = attrs.PlayerPrimaryStatPerLevel > 0 ? attrs.PlayerPrimaryStatPerLevel : 3;
+            int secondary = attrs.PlayerSecondaryStatPerLevel > 0 ? attrs.PlayerSecondaryStatPerLevel : 1;
+            string weaponText = c.Weapon is WeaponItem w ? $"your {w.WeaponType}" : "your weapon";
             addWrapped("Level and class");
             addWrapped($"Level {c.Level} — {c.GetCurrentClass()}.");
-            addWrapped("Class points (from leveling) unlock hybrid skills; see class points line if shown.");
+            addWrapped($"Class title comes from your class points (highest path first; hover the class points row).");
+            addWrapped($"Each level-up gives: +HP (hover the health bar), +{primary} to the stat {weaponText} favors and +{secondary} to the others (+2 each unarmed), and 1 class point + 1 skill point on {weaponText}'s path.");
+            addWrapped("Tuning: Attributes.PlayerPrimaryStatPerLevel / PlayerSecondaryStatPerLevel, Character.HealthPerLevel.");
         }
 
         private static void AppendHeroXp(Character c, Action<string> addWrapped)
         {
             int need = c.Progression.GetXPRequiredForNextLevel();
+            var prog = GameConfiguration.Instance.Progression;
+            prog.EnsureValidEnemyXpAndGoldDefaults();
+            int enemyXp = CharacterProgression.GetBaseXpForContentLevel(c.Level);
+            int clearXp = CharacterProgression.GetStandardDungeonCompletionXpForLevel(c.Level);
             addWrapped("Experience");
-            addWrapped($"{c.XP} / {need} XP toward the next level.");
+            addWrapped($"{c.XP} / {need} XP toward the next level ({Math.Max(0, need - c.XP)} to go).");
+            addWrapped($"Enemy XP = Progression.EnemyXPBase {prog.EnemyXPBase} + enemy level × EnemyXPPerLevel {prog.EnemyXPPerLevel} (a level {c.Level} enemy gives {enemyXp}). Clearing a level {c.Level} dungeon gives {clearXp}.");
+            addWrapped($"XP to level = estimated dungeon-run XP at your level × expected dungeons per level, anchored so level 1 → 2 costs Progression.BaseXPToLevel2 ({prog.BaseXPToLevel2}), × XPScalingFactor ({(prog.XPScalingFactor > 0 ? prog.XPScalingFactor : 1.0):0.##}).");
+            addWrapped("Leftover XP carries into the next level.");
         }
 
         private static void AppendHeroClassPoints(Character c, Action<string> addWrapped)
         {
+            var progression = c.Progression;
+            var pres = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
             addWrapped("Class points");
-            addWrapped("Points per class track how much you have invested in Barbarian, Warrior, Rogue, and Wizard paths.");
+            addWrapped("You earn 1 point on a path each level-up, on the path of the weapon you have equipped (Mace → Barbarian, Sword → Warrior, Dagger → Rogue, Wand → Wizard).");
+            foreach (var (label, path) in new[] { ("Barbarian", WeaponType.Mace), ("Warrior", WeaponType.Sword), ("Rogue", WeaponType.Dagger), ("Wizard", WeaponType.Wand) })
+            {
+                int pts = progression.GetClassPoints(path);
+                if (pts <= 0)
+                    continue;
+                int next = progression.GetNextClassThreshold(path);
+                string nextText = next > pts ? $", next tier at {next}" : ", top tier";
+                addWrapped($"  {label}: {pts} pts{nextText}; skill points free {progression.GetAvailableSkillPoints(path)} = {pts} − {progression.GetSpentSkillPoints(path)} spent.");
+            }
+            addWrapped($"Tier gates: {string.Join(", ", pres.TierThresholds)} points (ClassPresentation.TierThresholds). Each tier reached on any path adds 1 action slot (now +{progression.GetClassUpgradeActionSlotBonus()}).");
             addWrapped("Which combo actions unlock at each tier (and optional extra point gates) comes from GameData/ClassActions.json, usually filled from the CLASS ACTIONS sheet when you pull from Google Sheets.");
         }
 
         private static void AppendThresholdCrit(Character c, Action<string> addWrapped)
         {
             var snapshot = DiceRollThresholdResolver.Resolve(c);
+            var parts = DiceRollThresholdResolver.ResolveShiftParts(c);
             addWrapped("Critical hit threshold (crit-eval roll)");
             addWrapped($"Panel: {snapshot.EffectiveCrit}{ThresholdDisplayFormatting.FormatSignedDeltaSuffix(snapshot.EffectiveCrit - snapshot.DefaultCrit)} (stored {snapshot.Crit}, default {snapshot.DefaultCrit}).");
             addWrapped("Compared to your underlying d20 total for this attack (accuracy and other roll bonuses do not make crits easier).");
+            addWrapped($"Equation: stored {snapshot.Crit} − shifts {parts.CritRowShift} = {snapshot.Crit - parts.CritRowShift}{FloorSuffix(snapshot.EffectiveCrit, snapshot.Crit - parts.CritRowShift)}.");
             ThresholdModificationTooltipBuilder.AppendLines(c, ThresholdModificationTooltipBuilder.Kind.Crit, addWrapped);
+            int perfectAim = SkillEffectRouter.PerfectAimCritSteps(c);
+            if (perfectAim > 0)
+                addWrapped($"  Perfect Aim (+{perfectAim}): applied when the swing resolves; not in the panel number.");
+            addWrapped($"Crit damage: ×{CritDamageMultiplier():0.##} (CombatBalance.CriticalHitDamageMultiplier).");
+            AppendLadderExplainer(snapshot, addWrapped);
             AppendThresholdOutcomePercent(c, "Crit", addWrapped);
+            addWrapped("Default from the balance patch: Combat.CriticalHitThreshold.");
         }
 
         private static void AppendThresholdCombo(Character c, Action<string> addWrapped)
         {
             var snapshot = DiceRollThresholdResolver.Resolve(c);
-            addWrapped("Combo threshold (d20 roll)");
+            var parts = DiceRollThresholdResolver.ResolveShiftParts(c);
+            addWrapped("Action threshold (d20 roll)");
             addWrapped($"Panel: {snapshot.EffectiveCombo}{ThresholdDisplayFormatting.FormatSignedDeltaSuffix(snapshot.EffectiveCombo - snapshot.DefaultCombo)} (stored {snapshot.Combo}, default {snapshot.DefaultCombo}).");
             addWrapped("Named combo-strip swings require meeting this on the modified die (panel ACC shifts hit and post-roll combo outcomes, not which strip action is chosen).");
+            addWrapped($"Equation: stored {snapshot.Combo} − shifts {parts.ComboRowShift} = {snapshot.Combo - parts.ComboRowShift}{FloorSuffix(snapshot.EffectiveCombo, snapshot.Combo - parts.ComboRowShift)}.");
             ThresholdModificationTooltipBuilder.AppendLines(c, ThresholdModificationTooltipBuilder.Kind.Combo, addWrapped);
-            AppendThresholdOutcomePercent(c, "Combo", addWrapped);
+            int cadence = ClassCadence.ComboSteps(c);
+            if (cadence > 0)
+                addWrapped($"  Class cadence (+{cadence}): applied when the swing resolves; not in the panel number.");
+            double comboMult = GameConfiguration.Instance.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier;
+            addWrapped($"Action roll damage: ×{(comboMult > 0 ? comboMult : 1.0):0.##} (CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier).");
+            AppendLadderExplainer(snapshot, addWrapped);
+            AppendThresholdOutcomePercent(c, "Action", addWrapped);
+            addWrapped("Default from the balance patch: RollSystem.ComboThreshold.Min.");
         }
 
         private static void AppendThresholdHit(Character c, Action<string> addWrapped)
         {
             var snapshot = DiceRollThresholdResolver.Resolve(c);
+            var parts = DiceRollThresholdResolver.ResolveShiftParts(c);
             addWrapped("Hit vs miss (d20 roll)");
             addWrapped($"Panel: min roll to hit {snapshot.EffectiveHit}{ThresholdDisplayFormatting.FormatSignedDeltaSuffix(snapshot.EffectiveHit - snapshot.DefaultMinRollToHit)} (miss-band max {snapshot.Hit}, default {snapshot.DefaultHit}).");
+            addWrapped($"Equation: (miss-band max {snapshot.Hit} + 1) − shifts {parts.HitRowShift} = {snapshot.Hit + 1 - parts.HitRowShift}{FloorSuffix(snapshot.EffectiveHit, snapshot.Hit + 1 - parts.HitRowShift)}.");
             ThresholdModificationTooltipBuilder.AppendLines(c, ThresholdModificationTooltipBuilder.Kind.Hit, addWrapped);
+            double basicMult = GameConfiguration.Instance.CombatBalance.RollDamageMultipliers.BasicRollDamageMultiplier;
+            addWrapped($"Normal hit damage: ×{(basicMult > 0 ? basicMult : 1.0):0.##} (CombatBalance.RollDamageMultipliers.BasicRollDamageMultiplier).");
+            AppendLadderExplainer(snapshot, addWrapped);
             AppendThresholdOutcomePercent(c, "Hit", addWrapped);
+            addWrapped("Default from the balance patch: RollSystem.MissThreshold.Max (the highest face that misses).");
         }
 
         private static void AppendThresholdCritMiss(Character c, Action<string> addWrapped)
         {
             var snapshot = DiceRollThresholdResolver.Resolve(c);
+            var parts = DiceRollThresholdResolver.ResolveShiftParts(c);
             addWrapped("Critical miss threshold");
             addWrapped($"Panel: {snapshot.EffectiveCritMiss}{ThresholdDisplayFormatting.FormatSignedDeltaSuffix(snapshot.EffectiveCritMiss - DiceRollThresholdSnapshot.DefaultCritMiss)} (stored {snapshot.CritMiss}, default {DiceRollThresholdSnapshot.DefaultCritMiss}).");
             addWrapped("Uses the same crit-eval roll as critical hit (accuracy affects hit/combo only, not this band).");
+            addWrapped($"Equation: stored {snapshot.CritMiss} − shifts {parts.CritMissRowShift} = {snapshot.CritMiss - parts.CritMissRowShift}{FloorSuffix(snapshot.EffectiveCritMiss, snapshot.CritMiss - parts.CritMissRowShift)}. Higher = more faces crit-miss.");
             ThresholdModificationTooltipBuilder.AppendLines(c, ThresholdModificationTooltipBuilder.Kind.CritMiss, addWrapped);
+            AppendLadderExplainer(snapshot, addWrapped);
             AppendThresholdOutcomePercent(c, "Crit Miss", addWrapped);
+            addWrapped("Default: 1 (only a natural 1 crit-misses).");
         }
 
         private static void AppendThresholdMiss(Character c, Action<string> addWrapped)
         {
+            var snapshot = DiceRollThresholdResolver.Resolve(c);
             addWrapped("Miss");
             addWrapped("Share of d20 outcomes that are not critical hit, combo, normal hit, or critical miss.");
+            addWrapped($"Miss faces sit between crit miss (≤ {snapshot.EffectiveCritMiss}) and the minimum hit ({snapshot.EffectiveHit}).");
+            AppendLadderExplainer(snapshot, addWrapped);
             AppendThresholdOutcomePercent(c, "Miss", addWrapped);
+        }
+
+        /// <summary>The order a swing's d20 is checked in, with the panel's effective numbers.</summary>
+        private static void AppendLadderExplainer(DiceRollThresholdSnapshot snapshot, Action<string> addWrapped)
+        {
+            addWrapped("How a swing resolves");
+            addWrapped($"  Roll d20, add accuracy. Crit if the die ≥ {snapshot.EffectiveCrit}; else action if the total ≥ {snapshot.EffectiveCombo}; else hit if ≥ {snapshot.EffectiveHit}; crit miss if the die ≤ {snapshot.EffectiveCritMiss}; anything else misses.");
+            addWrapped("  Shifts: positive values lower crit/action/hit (easier). Sources: queued action accuracy, TECH milestones (TEC 10, 15, 20…), gear HIT/ACTION/CRIT lines, dungeon search buffs.");
         }
 
         private static void AppendThresholdOutcomePercent(Character c, string label, Action<string> addWrapped)
@@ -400,13 +486,60 @@ namespace RPGGame
             int percent = label switch
             {
                 "Crit" => chances.CritPercent,
-                "Combo" => chances.ComboOrCritPercent,
+                "Action" => chances.ComboOrCritPercent,
                 "Hit" => chances.HitPercent,
                 "Crit Miss" => chances.CritMissPercent,
                 "Miss" => chances.MissPercent,
                 _ => 0
             };
             addWrapped($"Outcome chance: {ThresholdDisplayFormatting.FormatD20ChancePercent(percent)}");
+
+            // Same exclusive priority as CalculateExclusiveD20OutcomeChances: crit, action, hit, crit miss, miss.
+            var faces = new List<int>();
+            for (int roll = 1; roll <= 20; roll++)
+            {
+                string outcome = roll >= snapshot.EffectiveCrit ? "Crit"
+                    : roll >= snapshot.EffectiveCombo ? "Action"
+                    : roll >= snapshot.EffectiveHit ? "Hit"
+                    : roll <= snapshot.EffectiveCritMiss ? "Crit Miss"
+                    : "Miss";
+                if (outcome == label || (label == "Action" && outcome == "Crit"))
+                    faces.Add(roll);
+            }
+            string faceText = faces.Count == 0 ? "no faces" : $"faces {FormatFaceRanges(faces)}";
+            string note = label == "Action" ? " (crits count as actions)" : "";
+            addWrapped($"  = {faces.Count} of 20 d20 faces × 5%: {faceText}{note}. Before accuracy bonuses on the roll.");
+        }
+
+        private static string FormatFaceRanges(List<int> faces)
+        {
+            var ranges = new List<string>();
+            int start = faces[0];
+            int prev = start;
+            for (int i = 1; i <= faces.Count; i++)
+            {
+                if (i < faces.Count && faces[i] == prev + 1)
+                {
+                    prev = faces[i];
+                    continue;
+                }
+                ranges.Add(start == prev ? start.ToString() : $"{start}–{prev}");
+                if (i < faces.Count)
+                {
+                    start = faces[i];
+                    prev = start;
+                }
+            }
+            return string.Join(", ", ranges);
+        }
+
+        private static string FloorSuffix(int effective, int unclamped) =>
+            effective != unclamped ? $", shown as {effective} (floored at 1)" : "";
+
+        private static double CritDamageMultiplier()
+        {
+            double m = GameConfiguration.Instance.CombatBalance.CriticalHitDamageMultiplier;
+            return m > 0 ? m : 2.0;
         }
 
         private static void AppendStatusLine(Character c, string key, Action<string> addWrapped)
@@ -571,8 +704,34 @@ namespace RPGGame
             int v = c.GetMagicFind();
             addWrapped("Magic find");
             addWrapped($"Total: +{v}");
+            int fromMods = c.Equipment.GetModificationMagicFind();
+            addWrapped($"Equation: gear MagicFind lines {v - fromMods:+0;-0;+0} + magicFind mods {fromMods:+0;-0;+0} = +{v}.");
             addWrapped("Sum of MagicFind stat bonuses on equipment plus modification magicFind effects.");
             addWrapped("Loot: improves affix-line tier odds and optional extra affix chances (0–100); does not change base rarity table.");
+        }
+
+        /// <summary>Spells out <see cref="ComboSequenceMaxHelper.GetEffectiveMax"/>.</summary>
+        private static void AppendActionSlotBreakdown(Character c, Action<string> addWrapped)
+        {
+            var loot = GameConfiguration.Instance.LootSystem;
+            int baseMax = Math.Max(1, loot?.ComboSequenceBaseMax ?? 2);
+            int absMax = Math.Max(baseMax, loot?.ComboSequenceAbsoluteMax ?? 8);
+            int gear = Math.Max(0, c.Equipment.GetEquipmentStatBonus("ExtraActionSlots", c));
+            int cls = Math.Max(0, c.Progression.GetClassUpgradeActionSlotBonus());
+            int levelCap = loot?.GetComboSlotCapForLevel(c.Level) ?? 0;
+            int earned = baseMax + gear + cls;
+            addWrapped($"Equation: base {baseMax} + gear {gear} + class tiers {cls} = {earned}" +
+                (levelCap > 0 && earned > levelCap ? $", capped at {levelCap} for level {c.Level}" : "") +
+                (c.ActionLabActionSlotBonus > 0 ? $", + lab {c.ActionLabActionSlotBonus}" : "") +
+                $"; never above {absMax}.");
+            addWrapped("Gear: ExtraActionSlots on items and affixes. Class tiers: +1 per tier reached on each class path.");
+            addWrapped("Tuning: LootSystem.ComboSequenceBaseMax / ComboSequenceAbsoluteMax / comboSlotCapByLevel.");
+        }
+
+        private static void AppendWeaponDotSource(Action<string> addWrapped, string modEffect, string unit)
+        {
+            addWrapped($"Sum of {modEffect} mods on your equipped weapon only, in {unit}. Each mod fires on its own trigger (critical hit unless the mod says otherwise) and adds its rolled value to the target.");
+            addWrapped("Mod values come from ModificationTables.json, rolled when the item drops.");
         }
 
         private static void AppendSimpleStat(Character c, string title, string detail, List<string> result, Action<string> addWrapped, int maxLines)

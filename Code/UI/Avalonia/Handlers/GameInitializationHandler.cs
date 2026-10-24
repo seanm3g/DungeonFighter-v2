@@ -61,6 +61,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                 HeroActionStripFeedback.SetRequestInvalidate(() => gameCanvas.Refresh());
                 ThresholdBarFeedback.SetRequestInvalidate(() => gameCanvas.Refresh());
                 ActionBonusBorderShimmer.SetRequestInvalidate(() => gameCanvas.Refresh());
+                ComboTension.SetRequestInvalidate(() => gameCanvas.Refresh());
                 // HUD text is drawn during RenderLayout, so a visual invalidate is not enough.
                 // CombatSequencePresenter posts this to the UI thread before invoking it.
                 RPGGame.Combat.Sequence.CombatSequencePresenter.SetRequestInvalidate(() =>
@@ -69,6 +70,12 @@ namespace RPGGame.UI.Avalonia.Handlers
                         canvasUi.ForceRender();
                     else
                         gameCanvas.Refresh();
+                });
+                // Board animation frames also rebuild layout (cards move between grid cells).
+                RPGGame.UI.Avalonia.Layout.CombatBoardAnimation.SetRequestRender(() =>
+                {
+                    if (canvasUIManager is CanvasUICoordinator canvasUi)
+                        canvasUi.ForceRender();
                 });
 
                 // Set the close action for the UI manager

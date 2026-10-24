@@ -156,7 +156,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 {
                     if (actionData.CriticalMissThresholdAdjustment != 0) { canvas.AddText(menuStartX, menuStartY, $"    - Roll bonus Crit Miss: {actionData.CriticalMissThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White); menuStartY++; }
                     if (actionData.HitThresholdAdjustment != 0) { canvas.AddText(menuStartX, menuStartY, $"    - Roll bonus Hit: {actionData.HitThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White); menuStartY++; }
-                    if (actionData.ComboThresholdAdjustment != 0) { canvas.AddText(menuStartX, menuStartY, $"    - Roll bonus Combo: {actionData.ComboThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (actionData.ComboThresholdAdjustment != 0) { canvas.AddText(menuStartX, menuStartY, $"    - Roll bonus Action: {actionData.ComboThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White); menuStartY++; }
                     if (actionData.CriticalHitThresholdAdjustment != 0) { canvas.AddText(menuStartX, menuStartY, $"    - Roll bonus Crit: {actionData.CriticalHitThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White); menuStartY++; }
                 }
                 if (actionData.RollBonus != 0) { canvas.AddText(menuStartX, menuStartY, $"    - Accuracy: {actionData.RollBonus:+0;-0;0}", AsciiArtAssets.Colors.White); menuStartY++; }

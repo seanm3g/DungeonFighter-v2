@@ -27,6 +27,9 @@ namespace RPGGame.UI.Avalonia.Layout
 
         public static bool TryUpdateExistingFrame(GameCanvasControl canvas)
         {
+            // Board combat draws its own unframed center column.
+            if (CombatBoardLayout.IsActive)
+                return true;
             bool log = canvas.TryUpdateBox(
                 LayoutConstants.CENTER_PANEL_X,
                 LayoutConstants.CENTER_PANEL_Y,
@@ -51,6 +54,16 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         private static void EnsureFrames(GameCanvasControl canvas)
         {
+            if (CombatBoardLayout.IsActive)
+            {
+                canvas.ClearBoxesInArea(
+                    LayoutConstants.CENTER_PANEL_X,
+                    0,
+                    LayoutConstants.CENTER_PANEL_WIDTH,
+                    LayoutConstants.SCREEN_HEIGHT + 1);
+                return;
+            }
+
             if (TryUpdateExistingFrame(canvas))
                 return;
 

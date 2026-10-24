@@ -52,6 +52,11 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// When true, drawn after normal text and non-overlay boxes so the fill is not covered by center-panel narrative.
         /// </summary>
         public bool IsOverlay { get; set; }
+
+        /// <summary>
+        /// Non-overlay box drawn after the room backdrop (still under text), so board cards stay solid over the scene.
+        /// </summary>
+        public bool AboveBackdrop { get; set; }
     }
 
     /// <summary>
@@ -72,6 +77,10 @@ namespace RPGGame.UI.Avalonia.Canvas
         public double PaddingPixels { get; set; } = 2;
         /// <summary>When true, the bitmap fills the cell. When false, it stays square and centered inside the cell.</summary>
         public bool FillFrame { get; set; }
+        /// <summary>The bitmap was rendered at the cell rectangle's device size, so it is drawn without filtering.</summary>
+        public bool PixelAligned { get; set; }
+        /// <summary>Drawn right after the bitmap, with the origin at the cell rectangle's top-left (DIPs).</summary>
+        public System.Action<global::Avalonia.Media.DrawingContext>? Overlay { get; set; }
     }
 
     /// <summary>
@@ -132,6 +141,17 @@ namespace RPGGame.UI.Avalonia.Canvas
     {
         public int FaceCount { get; set; }
         public Color Color { get; set; }
+    }
+
+    /// <summary>Straight connector line between two points in grid-cell units (fractional cells allowed).</summary>
+    public class CanvasLine
+    {
+        public double X1 { get; set; }
+        public double Y1 { get; set; }
+        public double X2 { get; set; }
+        public double Y2 { get; set; }
+        public Color Color { get; set; } = Colors.White;
+        public double ThicknessPixels { get; set; } = 1.5;
     }
 
     /// <summary>Multi-segment bar (e.g. d20 threshold outcomes) with internal divider lines.</summary>

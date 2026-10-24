@@ -1,5 +1,6 @@
 using Avalonia.Media;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
@@ -25,89 +26,65 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Renders the character creation screen
+        /// Renders the character creation screen full-screen (no side panels), every line centered.
         /// </summary>
         public void RenderCharacterCreation(Character character, CanvasContext context)
         {
-            RenderWithLayout(character, "CHARACTER CREATION", (contentX, contentY, contentWidth, contentHeight) =>
+            interactionManager.ClearClickableElements();
+            canvas.Clear();
+
+            int centerX = canvas.CenterX;
+            var equipment = new List<string>
             {
-                RenderCharacterCreationContent(contentX, contentY, contentWidth, contentHeight, character);
-            }, context);
-        }
-        
-        /// <summary>
-        /// Renders the character creation content with welcome message and starting equipment
-        /// </summary>
-        private void RenderCharacterCreationContent(int x, int y, int width, int height, Character character)
-        {
-            int startY = y; // Store initial Y position for bottom calculations
-            int centerY = y + (height / 2) - 8;
-            
-            // Welcome message
-            canvas.AddText(x + (width / 2) - 20, centerY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.YourHeroHasBeenCreated), AsciiArtAssets.Colors.Gold);
-            centerY += 3;
-            
+                character.Weapon != null ? ItemDisplayFormatter.GetColoredItemName(character.Weapon) : "Bare Fists"
+            };
+            foreach (var item in new[] { character.Head, character.Body, character.Legs, character.Feet })
+            {
+                if (item != null)
+                    equipment.Add(ItemDisplayFormatter.GetColoredItemName(item));
+            }
+
+            // Header, welcome (4), adventure line (3), equipment header + items (3), button
+            int blockHeight = 1 + 4 + 3 + 1 + equipment.Count + 3 + 1;
+            int y = Math.Max(1, (LayoutConstants.SCREEN_HEIGHT - blockHeight) / 2);
+
+            string header = AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.YourHeroHasBeenCreated);
+            canvas.AddText(CenteredX(centerX, header.Length), y, header, AsciiArtAssets.Colors.Gold);
+            y += 3;
+
             // Render welcome message with character name in Player color
             var welcomeSegments = new ColoredTextBuilder()
                 .Add("Welcome, ", Colors.White)
                 .Add(character.Name, ColorPalette.Player)
                 .Add("!", Colors.White)
                 .Build();
-            textManager.WriteLineColoredSegments(welcomeSegments, x + 4, centerY);
-            centerY += 2;
-            canvas.AddText(x + 4, centerY, "Your adventure in the dungeons begins now.", AsciiArtAssets.Colors.White);
-            centerY += 2;
-            canvas.AddText(x + 4, centerY, "Check your stats and equipment on the left.", AsciiArtAssets.Colors.White);
-            centerY += 3;
-            
-            // Starting equipment summary
-            canvas.AddText(x + 4, centerY, "Starting Equipment:", AsciiArtAssets.Colors.Gold);
-            centerY++;
-            string weaponDisplay = character.Weapon != null ? ItemDisplayFormatter.GetColoredItemName(character.Weapon) : "Bare Fists";
-            textManager.WriteLineColored($"• {weaponDisplay}", x + 6, centerY);
-            centerY++;
-            if (character.Head != null)
-            {
-                textManager.WriteLineColored($"• {ItemDisplayFormatter.GetColoredItemName(character.Head)}", x + 6, centerY);
-                centerY++;
-            }
-            if (character.Body != null)
-            {
-                textManager.WriteLineColored($"• {ItemDisplayFormatter.GetColoredItemName(character.Body)}", x + 6, centerY);
-                centerY++;
-            }
-            if (character.Legs != null)
-            {
-                textManager.WriteLineColored($"• {ItemDisplayFormatter.GetColoredItemName(character.Legs)}", x + 6, centerY);
-                centerY++;
-            }
-            if (character.Feet != null)
-            {
-                textManager.WriteLineColored($"• {ItemDisplayFormatter.GetColoredItemName(character.Feet)}", x + 6, centerY);
-                centerY++;
-            }
-            
-            // Action buttons at bottom
-            y = startY + height - 6;
-            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Actions), AsciiArtAssets.Colors.Gold);
+            textManager.WriteLineColoredSegments(welcomeSegments, CenteredX(centerX, ColoredTextRenderer.GetDisplayLength(welcomeSegments)), y);
             y += 2;
-            
-            var startButton = interactionManager.CreateButton(x + 4, y, 35, "1", MenuOptionFormatter.Format(1, UIConstants.Messages.PressAnyButton));
+            const string adventure = "Your adventure in the dungeons begins now.";
+            canvas.AddText(CenteredX(centerX, adventure.Length), y, adventure, AsciiArtAssets.Colors.White);
+            y += 3;
+
+            // Starting equipment summary
+            const string equipmentHeader = "Starting Equipment:";
+            canvas.AddText(CenteredX(centerX, equipmentHeader.Length), y, equipmentHeader, AsciiArtAssets.Colors.Gold);
+            y++;
+            foreach (var name in equipment)
+            {
+                string line = $"• {name}";
+                textManager.WriteLineColored(line, CenteredX(centerX, ColoredTextRenderer.GetDisplayLength(ColoredTextParser.Parse(line))), y);
+                y++;
+            }
+            y += 2;
+
+            string buttonText = MenuOptionFormatter.Format(1, UIConstants.Messages.PressAnyButton);
+            int buttonX = CenteredX(centerX, buttonText.Length);
+            var startButton = interactionManager.CreateButton(buttonX, y, buttonText.Length, "1", buttonText);
             interactionManager.AddClickableElement(startButton);
-            
-            canvas.AddMenuOption(x + 4, y, 1, UIConstants.Messages.PressAnyButton, AsciiArtAssets.Colors.White, startButton.IsHovered);
+            canvas.AddMenuOption(buttonX, y, 1, UIConstants.Messages.PressAnyButton, AsciiArtAssets.Colors.White, startButton.IsHovered);
+
+            canvas.Refresh();
         }
-        
-        /// <summary>
-        /// Helper method to render with layout context using PersistentLayoutManager
-        /// </summary>
-        private void RenderWithLayout(Character character, string title, Action<int, int, int, int> renderContent, CanvasContext context)
-        {
-            interactionManager.ClearClickableElements();
-            
-            // Use the persistent layout manager for proper three-panel layout
-            var layoutManager = new PersistentLayoutManager(canvas);
-            layoutManager.RenderLayout(character, renderContent, title, null, null, null);
-        }
+
+        private static int CenteredX(int centerX, int length) => Math.Max(0, centerX - length / 2);
     }
 }

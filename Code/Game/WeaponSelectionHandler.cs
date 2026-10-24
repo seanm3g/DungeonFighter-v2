@@ -13,7 +13,7 @@ namespace RPGGame
     /// - Display available weapon options
     /// - Handle weapon selection input
     /// - Initialize character with selected weapon
-    /// - Transition to character creation (welcome / confirm), then game loop
+    /// - Transition to the inventory (back from there goes to the game loop)
     /// </summary>
     public class WeaponSelectionHandler
     {
@@ -140,8 +140,9 @@ namespace RPGGame
 
                 ShowMessageEvent?.Invoke($"You selected {player.Weapon.Name}. A random armor piece was added to your inventory.");
 
+                // Go straight to the inventory so the new hero can equip the starter armor; leaving it lands on the game loop.
                 var screenCoordinator = new GameScreenCoordinator(stateManager);
-                screenCoordinator.ShowCharacterCreation(player);
+                screenCoordinator.ShowInventory();
             }
             else
             {

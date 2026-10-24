@@ -471,8 +471,50 @@ namespace RPGGame
                     if (!string.IsNullOrWhiteSpace(bonus.Text))
                         segments.Add(bonus.Text);
                 }
+                foreach (string line in BuildCardMathLines(character, action, panelIndex, swingLineMode))
+                    segments.Add(line);
             }
             return segments;
+        }
+
+        /// <summary>
+        /// How the strip card's flat damage and seconds are derived (<see cref="ConvertDamagePercentToFlat"/>,
+        /// <see cref="GetStripSwingDisplayValues"/>) and what combat stacks on top.
+        /// </summary>
+        private static List<string> BuildCardMathLines(Character character, Action action, int panelIndex, ActionStripDamageLineMode mode)
+        {
+            var lines = new List<string>();
+            int baseAttack = Math.Max(1, character.Combat.GetTotalDamage());
+            double damagePct;
+            int damage;
+            double seconds = -1;
+            var panels = panelIndex >= 0 ? BuildPanelData(character) : null;
+            if (panels != null && panelIndex < panels.Count)
+            {
+                var info = panels[panelIndex];
+                GetStripSwingDisplayPercents(in info, character, action, mode, out damagePct, out _, panelIndex);
+                GetStripSwingDisplayValues(in info, character, action, mode, out damage, out seconds, panelIndex);
+            }
+            else
+            {
+                damagePct = action.DamageMultiplier * 100.0;
+                if (mode == ActionStripDamageLineMode.EffectiveWithComboAmp)
+                    damagePct *= GetStripSwingDisplayAmp(character, action, panelIndex);
+                damage = ConvertDamagePercentToFlat(character, action, damagePct);
+            }
+
+            if (action.DamageMultiplier > 0)
+            {
+                double starting = EarlyGameBalanceHelper.GetStartingActionDamageMultiplier(character, action);
+                double classMult = character.Weapon is WeaponItem w ? ClassBalanceHelper.GetDamageMultiplier(w.WeaponType) : 1.0;
+                string extra = (Math.Abs(starting - 1.0) > 0.0001 ? $" × starting {starting:0.##}" : "")
+                    + (Math.Abs(classMult - 1.0) > 0.0001 ? $" × class {classMult:0.##}" : "");
+                double critMult = GameConfiguration.Instance.CombatBalance.CriticalHitDamageMultiplier;
+                lines.Add($"Card damage: base attack {baseAttack} × {damagePct:0.#}%{extra} ≈ {damage} per hit; combat then applies the roll band (crit ×{(critMult > 0 ? critMult : 2.0):0.##}) and enemy armor.");
+            }
+            if (seconds > 0)
+                lines.Add($"Card time: attack time {character.GetTotalAttackSpeed():0.00}s × length {action.Length:0.##}, scaled by pending speed % ≈ {seconds:0.0}s (hover Speed for attack time).");
+            return lines;
         }
 
         /// <summary>

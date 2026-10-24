@@ -9,6 +9,7 @@ using RPGGame;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Avalonia.Canvas;
 using RPGGame.UI.Avalonia.Effects;
+using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.UI.Avalonia
@@ -646,8 +647,39 @@ namespace RPGGame.UI.Avalonia
                     backdrop: BackdropProvider?.Invoke(),
                     sceneUnderlay: sceneUnderlay);
 
+                DrawConnectorLines(context);
+                if (!IsAuxiliaryLayoutCanvas)
+                    ComboTension.Paint(context, content.Width, content.Height,
+                        coordinateConverter.GetCharWidth(), coordinateConverter.GetCharHeight());
                 DrawWakeRadiusDebugOverlay(context);
             }
+        }
+
+        private void DrawConnectorLines(DrawingContext context)
+        {
+            var lines = elementManager.Lines;
+            if (lines.Count == 0)
+                return;
+            double charWidth = coordinateConverter.GetCharWidth();
+            double charHeight = coordinateConverter.GetCharHeight();
+            foreach (var line in lines.ToList())
+            {
+                var pen = new Pen(new SolidColorBrush(line.Color), line.ThicknessPixels);
+                context.DrawLine(pen,
+                    new Point(line.X1 * charWidth, line.Y1 * charHeight),
+                    new Point(line.X2 * charWidth, line.Y2 * charHeight));
+            }
+        }
+
+        /// <summary>Adds a connector line between grid points (fractional cells allowed).</summary>
+        public void AddLine(double x1, double y1, double x2, double y2, Color color, double thicknessPixels = 1.5)
+        {
+            elementManager.AddLine(new CanvasLine { X1 = x1, Y1 = y1, X2 = x2, Y2 = y2, Color = color, ThicknessPixels = thicknessPixels });
+        }
+
+        public void ClearLinesInArea(int startX, int startY, int width, int height)
+        {
+            elementManager.ClearLinesInArea(startX, startY, width, height);
         }
 
         private void DrawWakeRadiusDebugOverlay(DrawingContext context)
@@ -867,21 +899,23 @@ namespace RPGGame.UI.Avalonia
         /// <summary>
         /// Adds a box to the canvas
         /// </summary>
-        public void AddBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor = default, int opaqueBackgroundBleedDevicePixels = 0, int borderThicknessPixels = 1)
+        public void AddBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor = default, int opaqueBackgroundBleedDevicePixels = 0, int borderThicknessPixels = 1, bool aboveBackdrop = false)
         {
-            elementBuilder.AddBox(x, y, width, height, borderColor, backgroundColor, opaqueBackgroundBleedDevicePixels, borderThicknessPixels);
+            elementBuilder.AddBox(x, y, width, height, borderColor, backgroundColor, opaqueBackgroundBleedDevicePixels, borderThicknessPixels, aboveBackdrop);
         }
 
         /// <summary>
         /// Draws <paramref name="sourceRect"/> of <paramref name="source"/> in a grid-cell rectangle.
         /// Square and centered unless <paramref name="fillFrame"/> is set, which paints the whole cell.
         /// </summary>
-        public void AddImage(int x, int y, int width, int height, IImage source, Rect sourceRect, double paddingPixels = 2, bool fillFrame = false)
+        public void AddImage(int x, int y, int width, int height, IImage source, Rect sourceRect, double paddingPixels = 2, bool fillFrame = false,
+            bool pixelAligned = false, Action<DrawingContext>? overlay = null)
         {
             elementManager.AddImage(new CanvasImage
             {
                 X = x, Y = y, Width = width, Height = height,
-                Source = source, SourceRect = sourceRect, PaddingPixels = paddingPixels, FillFrame = fillFrame
+                Source = source, SourceRect = sourceRect, PaddingPixels = paddingPixels, FillFrame = fillFrame,
+                PixelAligned = pixelAligned, Overlay = overlay
             });
         }
 

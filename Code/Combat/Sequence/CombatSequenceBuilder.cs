@@ -92,6 +92,7 @@ namespace RPGGame.Combat.Sequence
             Actor? target)
         {
             var selected = result.SelectedAction!;
+            int firstStep = steps.Count;
             steps.Add(BuildAttackerStep(source));
             steps.Add(BuildRollStep(result));
             steps.Add(BuildOutcomeStep(result));
@@ -138,6 +139,18 @@ namespace RPGGame.Combat.Sequence
                         Plain(first.Trim(), ColorPalette.Info)));
                 }
             }
+
+            var outcome = result.IsCombo && result.Hit
+                ? CombatSequenceSwingOutcome.Combo
+                : result.Hit ? CombatSequenceSwingOutcome.Hit : CombatSequenceSwingOutcome.Miss;
+            int roll = result.AttackRoll != 0 ? result.AttackRoll : result.ModifiedBaseRoll + result.RollBonus;
+            CombatSequenceThresholds? thresholds = null;
+            if (result.ResolvedCritThreshold is int crit && result.ResolvedComboThreshold is int combo
+                && result.ResolvedHitThreshold is int hit && result.ResolvedCritMissThreshold is int critMiss)
+                thresholds = new CombatSequenceThresholds(crit, combo, hit + 1, critMiss);
+            var swing = new CombatSequenceSwingInfo(source, selected, roll, outcome, result.IsCritical, result.Hit ? result.Damage : 0, thresholds);
+            for (int i = firstStep; i < steps.Count; i++)
+                steps[i].Swing = swing;
         }
 
         private static CombatSequenceStep BuildAttackerStep(Actor source)

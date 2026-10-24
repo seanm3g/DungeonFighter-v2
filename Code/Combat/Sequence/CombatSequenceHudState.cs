@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using RPGGame;
 using RPGGame.UI.ColorSystem;
@@ -55,6 +56,40 @@ namespace RPGGame.Combat.Sequence
 
         public static IReadOnlyList<ColoredText> VisibleResult { get; private set; } = new List<ColoredText>();
 
+        /// <summary>When the active column (or its latest math beat) started; drives combat-board animation.</summary>
+        public static DateTimeOffset PhaseStartedUtc { get; private set; }
+
+        /// <summary>SetActive calls on the current column so far: 0 = title only, 1+ = math beats revealed.</summary>
+        public static int BeatInPhase { get; private set; }
+
+        /// <summary>When <see cref="FinishSequence"/> last ran (start of the board's card slide).</summary>
+        public static DateTimeOffset FinishedUtc { get; private set; }
+
+        /// <summary>True once the current swing has finished (every column complete).</summary>
+        public static bool IsFinished => Steps.Count > 0 && CurrentIndex >= Steps.Count;
+
+        /// <summary>Swing info for the active column, or the last step's swing once finished.</summary>
+        public static CombatSequenceSwingInfo? ActiveSwing
+        {
+            get
+            {
+                if (Steps.Count == 0)
+                    return null;
+                int i = Math.Clamp(CurrentIndex, 0, Steps.Count - 1);
+                return Steps[i].Swing;
+            }
+        }
+
+        /// <summary>Kind of the active column, or null when idle or finished.</summary>
+        public static CombatSequenceStepKind? ActiveKind =>
+            CurrentIndex >= 0 && CurrentIndex < Steps.Count ? Steps[CurrentIndex].Kind : null;
+
+        private static void StampPhase(int index)
+        {
+            BeatInPhase = index == CurrentIndex ? BeatInPhase + 1 : 0;
+            PhaseStartedUtc = DateTimeOffset.UtcNow;
+        }
+
         /// <summary>True while F7 is revealing HUD columns by narrative kind (not left-to-right).</summary>
         public static bool IsSelectiveReveal => _selectivelyRevealed != null;
 
@@ -70,6 +105,8 @@ namespace RPGGame.Combat.Sequence
                 ? new List<CombatSequenceStep>(steps)
                 : new List<CombatSequenceStep>();
             CurrentIndex = Steps.Count > 0 ? 0 : -1;
+            BeatInPhase = -1;
+            PhaseStartedUtc = DateTimeOffset.UtcNow;
             ResultRevealed = false;
             VisibleResult = new List<ColoredText>();
         }
@@ -92,6 +129,7 @@ namespace RPGGame.Combat.Sequence
 
         public static void SetActive(int index, bool resultRevealed, IReadOnlyList<ColoredText>? visibleResult = null)
         {
+            StampPhase(index);
             CurrentIndex = index;
             ResultRevealed = resultRevealed;
             VisibleResult = visibleResult ?? new List<ColoredText>();
@@ -115,6 +153,7 @@ namespace RPGGame.Combat.Sequence
                 if (!_selectivelyRevealed.Add(i))
                     continue;
 
+                StampPhase(i);
                 CurrentIndex = i;
                 ResultRevealed = true;
                 VisibleResult = Steps[i].Result;
@@ -149,6 +188,8 @@ namespace RPGGame.Combat.Sequence
             }
 
             _selectivelyRevealed = null;
+            if (CurrentIndex < Steps.Count)
+                FinishedUtc = DateTimeOffset.UtcNow;
             CurrentIndex = Steps.Count;
             ResultRevealed = true;
         }

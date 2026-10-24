@@ -49,7 +49,7 @@ namespace RPGGame.UI
             {
                 "ACCURACY" => "ACC",
                 "HIT" => "HIT",
-                "COMBO" => "COMBO",
+                "COMBO" => "ACTION",
                 "CRIT" => "CRIT",
                 "CRIT_MISS" => "CRIT MISS",
                 "DAMAGE_MOD" => "DAMAGE",

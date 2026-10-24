@@ -15,7 +15,7 @@ namespace RPGGame.Combat.Sequence
     {
         public static void Render(GameCanvasControl canvas)
         {
-            if (canvas == null || !CombatSequenceHudState.IsBandReserved)
+            if (canvas == null || !CombatSequenceHudState.IsBandReserved || LayoutConstants.CombatSequencePanelHeight == 0)
                 return;
 
             int x = LayoutConstants.CENTER_PANEL_X + 1;

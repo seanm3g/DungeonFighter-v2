@@ -53,6 +53,8 @@ namespace RPGGame.UI.Avalonia
         public void RenderLayout(Character? character, Action<int, int, int, int> renderCenterContent, string title = "DUNGEON FIGHTERS", Enemy? enemy = null, string? dungeonName = null, string? roomName = null, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false, GameState? gameState = null, bool inDungeonRun = false)
         {
             interactionManager?.ClearClickableElements();
+            CombatBoardLayout.Sync(gameState);
+            CombatBoardLayout.TeardownIfNeeded(canvas);
             layoutCoordinator.CoordinateLayout(
                 character,
                 renderCenterContent,

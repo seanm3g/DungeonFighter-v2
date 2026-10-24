@@ -98,10 +98,12 @@ namespace RPGGame.UI.Avalonia.Renderers
             };
 
             double scaling = TopLevel.GetTopLevel(canvas)?.RenderScaling ?? 1.0;
-            var image = painter.Paint(geography, geographyKey, mapWidth, mapHeight,
-                canvas.GetCharWidth(), canvas.GetCharHeight(), scaling,
-                (slipX - mapLeft, slipY - mapTop, slipWidth, slipHeight), frame);
-            canvas.AddImage(mapLeft, mapTop, mapWidth, mapHeight, image, new global::Avalonia.Rect(image.Size), paddingPixels: 0, fillFrame: true);
+            double cellWidth = canvas.GetCharWidth();
+            double cellHeight = canvas.GetCharHeight();
+            var image = painter.Paint(geography, geographyKey, mapWidth, mapHeight, cellWidth, cellHeight, scaling,
+                (slipX - mapLeft, slipY - mapTop, slipWidth, slipHeight));
+            canvas.AddImage(mapLeft, mapTop, mapWidth, mapHeight, image, new global::Avalonia.Rect(image.Size), paddingPixels: 0, fillFrame: true,
+                pixelAligned: true, overlay: painter.Overlay(frame, mapWidth, mapHeight, cellWidth, cellHeight));
 
             string title = " ~ THE KNOWN REALMS ~ ";
             canvas.AddText(mapLeft + (mapWidth - title.Length) / 2, y, title, MapEdge);

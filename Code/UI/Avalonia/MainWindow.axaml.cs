@@ -273,6 +273,12 @@ namespace RPGGame.UI.Avalonia
                 return;
             }
 
+            if (TryHandleCombatBoardKey(e.Key))
+            {
+                e.Handled = true;
+                return;
+            }
+
             // F5 on the title screen or main menu replays the title intro (elsewhere it toggles the video feed).
             if (e.Key == Key.F5 && initializationHandler != null && initializationHandler.TryReplayTitleScreen(UpdateStatus))
             {
@@ -400,21 +406,47 @@ namespace RPGGame.UI.Avalonia
             if (key != Key.F7)
                 return false;
 
+            // Cycle combat views: board (pokebattle) → mechanical combat log → narrative log → board.
+            bool boardOn = RPGGame.UI.Avalonia.Layout.CombatBoardLayout.Enabled;
             bool wasNarrative = DeveloperModeState.IsNarrativeCombatLog;
-            bool enabled = DeveloperModeState.ToggleNarrativeCombatLog();
-            var state = initializationHandler?.Game?.CurrentState;
-            CombatSequenceHudState.SyncReservation(state);
-            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+            bool nextBoard = !boardOn && wasNarrative;
+            bool nextNarrative = !boardOn && !wasNarrative;
+            string label = nextBoard ? "Combat mode: Board"
+                : nextNarrative ? "Combat mode: Narrative"
+                : "Combat mode: Combat log";
+
+            var canvasUI = initializationHandler?.CanvasUIManager as CanvasUICoordinator;
+            if (nextNarrative != wasNarrative)
             {
+                DeveloperModeState.SetNarrativeCombatLog(nextNarrative);
+                CombatSequenceHudState.SyncReservation(initializationHandler?.Game?.CurrentState);
                 // Convert already-buffered swings to the other log form (uses dual-view bindings).
-                canvasUI.SwapCombatLogDualView(currentlyShowingNarrative: wasNarrative);
-                canvasUI.RefreshCenterPanelModeTint();
+                canvasUI?.SwapCombatLogDualView(currentlyShowingNarrative: wasNarrative);
             }
+            if (nextBoard != boardOn)
+            {
+                RPGGame.UI.Avalonia.Layout.CombatBoardLayout.Toggle();
+                canvasUI?.RefreshCombatBoardLayout();
+            }
+            canvasUI?.RefreshCenterPanelModeTint();
+
+            ShowCombatSpeedNotification(label, forceAutoDismiss: true);
+            NarrativeVideoOverlay?.NotifyContextChanged();
+            return true;
+        }
+
+        private bool TryHandleCombatBoardKey(Key key)
+        {
+            if (key != Key.F9)
+                return false;
+
+            bool enabled = RPGGame.UI.Avalonia.Layout.CombatBoardLayout.Toggle();
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+                canvasUI.RefreshCombatBoardLayout();
 
             ShowCombatSpeedNotification(
-                enabled ? "Narrative log: ON" : "Narrative log: OFF",
+                enabled ? "Combat board: ON" : "Combat board: OFF (log view)",
                 forceAutoDismiss: true);
-            NarrativeVideoOverlay?.NotifyContextChanged();
             return true;
         }
 

@@ -112,7 +112,8 @@ namespace RPGGame.UI
 
             string plain = ColoredTextRenderer.RenderAsPlainText(segments).TrimStart();
             if (plain.StartsWith("(roll:", StringComparison.OrdinalIgnoreCase)
-                || plain.StartsWith("(speed:", StringComparison.OrdinalIgnoreCase))
+                || plain.StartsWith("(speed:", StringComparison.OrdinalIgnoreCase)
+                || plain.StartsWith("(cooldown:", StringComparison.OrdinalIgnoreCase))
                 return UIMessageType.RollInfo;
 
             return UIMessageType.Combat;

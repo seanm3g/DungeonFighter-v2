@@ -60,6 +60,13 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void RenderCombatScreen(int x, int y, int width, int height, Dungeon? dungeon, Environment? room, Enemy enemy, ICanvasTextManager textManager, Character? player = null, List<string>? dungeonContext = null, IReadOnlyList<string>? combatEnemyNamesForLogAlignment = null)
         {
+            if (CombatBoardLayout.IsActive && player != null)
+            {
+                var boardLog = (textManager as CanvasTextManager)?.GetDisplayManagerForCharacter(player).Buffer;
+                RenderCombatBoard(player, enemy, boardLog, combatEnemyNamesForLogAlignment);
+                return;
+            }
+
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 var displayManager = canvasTextManager.GetDisplayManagerForCharacter(player);
@@ -84,6 +91,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
         }
 
+        /// <summary>Text brightness on strip cards that already fired in the current combo run.</summary>
+        private const double SpentCardTextBrightness = 0.45;
+
         /// <summary>
         /// Renders the action-info strip at the top of the center column (combat, inventory, etc.), above the combat log.
         /// Shows at least <see cref="LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT"/> panels (empty placeholders when the combo is shorter or empty);
@@ -105,7 +115,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.ClearBoxesInArea(stripX, stripY, stripW, stripH);
 
             if (player == null)
+            {
+                ComboTension.Track(null);
                 return;
+            }
 
             var panelData = CombatActionStripBuilder.BuildPanelData(player);
             var comboForStrip = player.GetComboActions();
@@ -121,6 +134,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 selectedIndex = heldSelected;
             }
             int effectiveMaxSlots = ComboSequenceMaxHelper.GetEffectiveMax(player);
+            ComboTension.Track(player);
             bool anyBonusShimmer = false;
             var shimmerNow = DateTimeOffset.UtcNow;
 
@@ -129,6 +143,13 @@ namespace RPGGame.UI.Avalonia.Renderers
                 ActionInfoStripLayout.GetPanelRect(i, displayCount, out int px, out int py, out int pw, out int panelH);
                 bool isEmptySlot = i >= filled;
                 var baseBorder = ActionInfoStripLayout.GetPanelBorderColor(i, filled, selectedIndex, effectiveMaxSlots);
+                // Combo anticipation: fired slots fade, the finisher always reads gold so the goal is visible from the opener.
+                bool isSpent = !isEmptySlot && i < effectiveMaxSlots && ComboTension.IsSpent(i, selectedIndex);
+                bool isFinisherSlot = !isEmptySlot && i < effectiveMaxSlots && ComboTension.IsFinisherNext(i, filled);
+                if (isFinisherSlot)
+                    baseBorder = i == selectedIndex ? ComboTension.FinisherGold : ActionInfoStripLayout.DarkenRgb(ComboTension.FinisherGold, 0.45);
+                else if (isSpent)
+                    baseBorder = ActionInfoStripLayout.DarkenRgb(AsciiArtAssets.Colors.NeutralGray70, 0.25);
                 bool flashActive = HeroActionStripFeedback.TryGetBorderOverride(i, out var flashColor);
                 bool isSelected = !isEmptySlot && selectedIndex >= 0 && i == selectedIndex;
                 bool bonusCue = !isEmptySlot && i < effectiveMaxSlots
@@ -161,83 +182,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 if (isEmptySlot || i >= effectiveMaxSlots)
                     continue;
 
-                int contentX = px + 1;
-                int contentY = py + 1;
-                int contentW = Math.Max(0, pw - 2);
-                int panelBottomExclusive = py + panelH;
-                var info = panelData[i];
-                string name = string.IsNullOrEmpty(info.Name) ? "?" : (info.Name.Length > contentW ? info.Name.Substring(0, contentW - 3) + "..." : info.Name);
-                var action = comboForStrip[i];
-                // Required weapon basic stays red; other titles carry their class / rarity color.
-                var nameColor = WeaponRequiredComboAction.IsRequiredBasicForEquippedWeapon(player, action)
-                    ? AsciiArtAssets.Colors.Red
-                    : ActionNameColors.Resolve(action);
-                canvas.AddText(contentX, contentY, name, nameColor);
-                contentY++;
-
-                bool hasThreshold = !string.IsNullOrEmpty(info.ThresholdText);
-                int reserveBottomRows = hasThreshold ? 1 : 0;
-
-                void drawLine(string text, Color color)
-                {
-                    if (contentY >= panelBottomExclusive - reserveBottomRows)
-                        return;
-                    if (string.IsNullOrEmpty(text))
-                    {
-                        contentY++;
-                        return;
-                    }
-                    if (text.Length > contentW)
-                        text = text.Substring(0, Math.Max(1, contentW - 3)) + "...";
-                    canvas.AddText(contentX, contentY, text, color);
-                    contentY++;
-                }
-
-                foreach (var roleLine in CombatActionStripBuilder.BuildActionStripComboRoleLines(player, action))
-                    drawLine(roleLine, AsciiArtAssets.Colors.White);
-
-                // Calculated damage | seconds on cards; hover tip uses % damage/speed for the same damageLineMode
-                const double cmpEps = 0.0001;
-                CombatActionStripBuilder.GetStripSwingDisplayPercents(in info, player, action, damageLineMode, out double damageDisplayPct, out double speedDisplayPct);
-                bool damageDiffersFromIntrinsic = Math.Abs(damageDisplayPct - info.DamageBase) > cmpEps;
-                bool speedDiffersFromIntrinsic = Math.Abs(speedDisplayPct - info.SpeedBase) > cmpEps;
-                bool convertScalesDamage = MaterialSetController.GetConvertDamageBonus(player, action) > 0;
-                var swingLineColor = convertScalesDamage
-                    ? AsciiArtAssets.Colors.Green
-                    : damageDiffersFromIntrinsic
-                    ? (damageDisplayPct > info.DamageBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
-                    : speedDiffersFromIntrinsic
-                        ? (speedDisplayPct > info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
-                        : AsciiArtAssets.Colors.White;
-                string swingLine = CombatActionStripBuilder.FormatStripSwingLine(in info, player, action, damageLineMode, i);
-                drawLine(swingLine, swingLineColor);
-                string stanceLine = HeroDefenseHudFormatter.FormatActionBlockSuffix(action);
-                if (!string.IsNullOrEmpty(stanceLine))
-                    drawLine(stanceLine, AsciiArtAssets.Colors.White);
-
-                // Spreadsheet DESCRIPTION directly under damage/speed (name → swing → description).
-                int rowsLeftAfterSwing = Math.Max(0, panelBottomExclusive - contentY - reserveBottomRows);
-                int descBudget = Math.Min(2, rowsLeftAfterSwing);
-                foreach (var descLine in CombatActionStripBuilder.BuildActionStripDescriptionLines(action, contentW, descBudget))
-                    drawLine(descLine, AsciiArtAssets.Colors.Gray);
-
-                foreach (var bonus in ActionCardExternalBonusCollector.BuildLines(player, action, i))
-                {
-                    if (string.IsNullOrWhiteSpace(bonus.Text))
-                        continue;
-                    drawLine(bonus.Text, bonus.Beneficial ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red);
-                }
-
-                int tailBudget = Math.Max(0, panelBottomExclusive - contentY - reserveBottomRows);
-                var tailLines = CombatActionStripBuilder.BuildActionStripModifierTailLines(action, contentW, tailBudget, player, i);
-                foreach (var tl in tailLines)
-                    drawLine(tl, AsciiArtAssets.Colors.White);
-
-                if (hasThreshold && contentY < panelBottomExclusive)
-                {
-                    string thresholdLine = info.ThresholdText!.Length > contentW ? info.ThresholdText.Substring(0, contentW - 3) + "..." : info.ThresholdText;
-                    canvas.AddText(contentX, contentY, thresholdLine, AsciiArtAssets.Colors.Cyan);
-                }
+                DrawActionCardContent(player, panelData[i], comboForStrip[i], i, px, py, pw, panelH, damageLineMode,
+                    textBrightness: isSpent ? SpentCardTextBrightness : 1.0);
             }
 
             if (anyBonusShimmer)
@@ -245,6 +191,92 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             if (drawHoverDetailOverlay)
                 RenderActionStripTooltipOverlay(player, filled, displayCount, damageLineMode);
+        }
+
+        /// <summary>
+        /// Draws one action card's text (name, role, swing, description, bonuses, modifiers, threshold) inside the
+        /// bordered rect. Shared by the action strip and the combat board (<see cref="CombatBoardRenderer"/>).
+        /// </summary>
+        /// <param name="textBrightness">RGB scale for every line (below 1 dims a combo slot that already fired this run).</param>
+        internal void DrawActionCardContent(Character player, ActionPanelInfo info, Action action, int slotIndex,
+            int px, int py, int pw, int panelH, ActionStripDamageLineMode damageLineMode, double textBrightness = 1.0)
+        {
+            Color Shade(Color c) => textBrightness >= 1.0 ? c : ActionInfoStripLayout.DarkenRgb(c, textBrightness);
+            int contentX = px + 1;
+            int contentY = py + 1;
+            int contentW = Math.Max(0, pw - 2);
+            int panelBottomExclusive = py + panelH;
+            string name = string.IsNullOrEmpty(info.Name) ? "?" : (info.Name.Length > contentW ? info.Name.Substring(0, contentW - 3) + "..." : info.Name);
+            // Required weapon basic stays red; other titles carry their class / rarity color.
+            var nameColor = WeaponRequiredComboAction.IsRequiredBasicForEquippedWeapon(player, action)
+                ? AsciiArtAssets.Colors.Red
+                : ActionNameColors.Resolve(action);
+            canvas.AddText(contentX, contentY, name, Shade(nameColor));
+            contentY++;
+
+            bool hasThreshold = !string.IsNullOrEmpty(info.ThresholdText);
+            int reserveBottomRows = hasThreshold ? 1 : 0;
+
+            void drawLine(string text, Color color)
+            {
+                if (contentY >= panelBottomExclusive - reserveBottomRows)
+                    return;
+                if (string.IsNullOrEmpty(text))
+                {
+                    contentY++;
+                    return;
+                }
+                if (text.Length > contentW)
+                    text = text.Substring(0, Math.Max(1, contentW - 3)) + "...";
+                canvas.AddText(contentX, contentY, text, Shade(color));
+                contentY++;
+            }
+
+            foreach (var roleLine in CombatActionStripBuilder.BuildActionStripComboRoleLines(player, action))
+                drawLine(roleLine, AsciiArtAssets.Colors.White);
+
+            // Calculated damage | seconds on cards; hover tip uses % damage/speed for the same damageLineMode
+            const double cmpEps = 0.0001;
+            CombatActionStripBuilder.GetStripSwingDisplayPercents(in info, player, action, damageLineMode, out double damageDisplayPct, out double speedDisplayPct);
+            bool damageDiffersFromIntrinsic = Math.Abs(damageDisplayPct - info.DamageBase) > cmpEps;
+            bool speedDiffersFromIntrinsic = Math.Abs(speedDisplayPct - info.SpeedBase) > cmpEps;
+            bool convertScalesDamage = MaterialSetController.GetConvertDamageBonus(player, action) > 0;
+            var swingLineColor = convertScalesDamage
+                ? AsciiArtAssets.Colors.Green
+                : damageDiffersFromIntrinsic
+                ? (damageDisplayPct > info.DamageBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
+                : speedDiffersFromIntrinsic
+                    ? (speedDisplayPct > info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
+                    : AsciiArtAssets.Colors.White;
+            string swingLine = CombatActionStripBuilder.FormatStripSwingLine(in info, player, action, damageLineMode, slotIndex);
+            drawLine(swingLine, swingLineColor);
+            string stanceLine = HeroDefenseHudFormatter.FormatActionBlockSuffix(action);
+            if (!string.IsNullOrEmpty(stanceLine))
+                drawLine(stanceLine, AsciiArtAssets.Colors.White);
+
+            // Spreadsheet DESCRIPTION directly under damage/speed (name → swing → description).
+            int rowsLeftAfterSwing = Math.Max(0, panelBottomExclusive - contentY - reserveBottomRows);
+            int descBudget = Math.Min(2, rowsLeftAfterSwing);
+            foreach (var descLine in CombatActionStripBuilder.BuildActionStripDescriptionLines(action, contentW, descBudget))
+                drawLine(descLine, AsciiArtAssets.Colors.Gray);
+
+            foreach (var bonus in ActionCardExternalBonusCollector.BuildLines(player, action, slotIndex))
+            {
+                if (string.IsNullOrWhiteSpace(bonus.Text))
+                    continue;
+                drawLine(bonus.Text, bonus.Beneficial ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red);
+            }
+
+            int tailBudget = Math.Max(0, panelBottomExclusive - contentY - reserveBottomRows);
+            var tailLines = CombatActionStripBuilder.BuildActionStripModifierTailLines(action, contentW, tailBudget, player, slotIndex);
+            foreach (var tl in tailLines)
+                drawLine(tl, AsciiArtAssets.Colors.White);
+
+            if (hasThreshold && contentY < panelBottomExclusive)
+            {
+                string thresholdLine = info.ThresholdText!.Length > contentW ? info.ThresholdText.Substring(0, contentW - 3) + "..." : info.ThresholdText;
+                canvas.AddText(contentX, contentY, thresholdLine, Shade(AsciiArtAssets.Colors.Cyan));
+            }
         }
 
         /// <summary>
@@ -269,8 +301,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             int innerW = Math.Max(8, innerRight - innerLeft + 1);
             // Item tooltips (animal suffixes + taxon synergies) need more rows than action tips:
             // colored segments wrap after "Name —", so a tight 18-row cap clipped trigger bodies.
-            const int maxActionTooltipLines = 18;
-            const int maxItemTooltipLines = 28;
+            // Stat/threshold/action tips carry their formulas and sources, so let them use the panel's height.
+            int panelTooltipLines = Math.Max(1, LayoutConstants.CombatLogContentHeight - 2);
+            int maxActionTooltipLines = Math.Max(18, Math.Min(32, panelTooltipLines));
+            int maxItemTooltipLines = Math.Max(28, Math.Min(40, panelTooltipLines));
             int boxW = Math.Min(52, innerW);
             int innerTextW = Math.Max(4, boxW - 2);
 

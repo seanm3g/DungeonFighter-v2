@@ -75,7 +75,7 @@ namespace RPGGame
             if (action != null && action.Length > 0)
             {
                 double actualSpeed = CalculateActualActionSpeed(attacker, action);
-                rollInfo.Add($"speed: {actualSpeed:F1}s");
+                rollInfo.Add($"cooldown: {actualSpeed:F1}s");
             }
             
             // Amp line must match damage (includes queued sheet AMP_MOD on the attacker).

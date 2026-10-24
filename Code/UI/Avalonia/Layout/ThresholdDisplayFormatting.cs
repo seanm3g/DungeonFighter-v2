@@ -83,7 +83,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 "Crit Miss" => D20ThresholdBarColors.CritMiss,
                 "Miss" => D20ThresholdBarColors.Miss,
                 "Hit" => D20ThresholdBarColors.Hit,
-                "Combo" => D20ThresholdBarColors.Combo,
+                "Action" => D20ThresholdBarColors.Combo,
                 "Crit" => D20ThresholdBarColors.Crit,
                 _ => Colors.Gray
             };
@@ -167,7 +167,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (roll >= critMinRoll)
                 return "Crit";
             if (roll >= comboMinRoll)
-                return "Combo";
+                return "Action";
             if (roll >= hitMinRoll)
                 return "Hit";
             if (roll <= critMissMaxRoll)
@@ -249,7 +249,7 @@ namespace RPGGame.UI.Avalonia.Layout
             new[]
             {
                 new D20ChanceDisplayRow("Crit", chances.CritPercent),
-                new D20ChanceDisplayRow("Combo", chances.ComboOrCritPercent),
+                new D20ChanceDisplayRow("Action", chances.ComboOrCritPercent),
                 new D20ChanceDisplayRow("Hit", chances.HitPercent),
                 new D20ChanceDisplayRow("Miss", chances.MissPercent),
                 new D20ChanceDisplayRow("Crit Miss", chances.CritMissPercent)

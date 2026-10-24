@@ -76,7 +76,7 @@ namespace RPGGame.Actions.Execution
                 {
                     rollInfoBuilder.Add("|", Colors.Gray);
                     rollInfoBuilder.AddSpace();
-                    rollInfoBuilder.Add("speed: ", ColorPalette.Info);
+                    rollInfoBuilder.Add("cooldown: ", ColorPalette.Info);
                     rollInfoBuilder.Add($"{actualSpeed:F1}s", Colors.White);
                 }
             }

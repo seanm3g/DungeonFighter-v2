@@ -197,7 +197,7 @@ namespace RPGGame
             {
                 var hybrid = HybridTrees.ForPair(primary.Value, secondary.Value);
                 railTitle = hybrid != null
-                    ? $"{hybrid.Key.ToUpperInvariant()} ({hybrid.Attribute})" + (HybridTrees.IsUnlocked(progression, hybrid) ? "" : " - needs 10 + 10")
+                    ? $"{hybrid.Key.ToUpperInvariant()} ({hybrid.Attribute})"
                     : $"SHARED · {secondary.Value}";
             }
 

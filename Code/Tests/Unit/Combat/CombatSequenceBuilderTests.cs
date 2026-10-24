@@ -90,7 +90,7 @@ namespace RPGGame.Tests.Unit.Combat
             result.SelectedAction!.IsComboAction = true;
             var steps = CombatSequenceBuilder.From(result, DummyHero(), DummyEnemy());
             var outcome = steps.First(s => s.Kind == CombatSequenceStepKind.Outcome);
-            TestBase.AssertTrue(Plain(outcome).Contains("CRIT COMBO", System.StringComparison.Ordinal),
+            TestBase.AssertTrue(Plain(outcome).Contains("CRIT ACTION", System.StringComparison.Ordinal),
                 "crit+combo label", ref _run, ref _passed, ref _failed);
         }
 
@@ -142,7 +142,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(joined.Contains("≥", System.StringComparison.Ordinal)
                 && joined.Contains("6", System.StringComparison.Ordinal)
                 && joined.Contains("14", System.StringComparison.Ordinal)
-                && joined.Contains("COMBO", System.StringComparison.Ordinal),
+                && joined.Contains("ACTION", System.StringComparison.Ordinal),
                 $"combo climb shows hit then combo then label, got: {joined}", ref _run, ref _passed, ref _failed);
         }
 
