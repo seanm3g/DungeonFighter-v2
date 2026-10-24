@@ -10,7 +10,7 @@ namespace RPGGame
     /// </summary>
     public class DungeonManagerWithRegistry
     {
-        private readonly Random random = new Random();
+        private readonly Random random = RandomUtility.Ambient;
         private readonly EnvironmentalEffectRegistry environmentalRegistry;
         private List<DungeonData>? allDungeons = null;
 

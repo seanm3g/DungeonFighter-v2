@@ -33,6 +33,7 @@ ap.add_argument('--target', type=float, default=0, help='--solve: target clear %
 ap.add_argument('--iterations', type=int, default=5)
 ap.add_argument('--scale-range', default='0.25,4', help='--solve: bracket for the anchor scale, lo,hi')
 ap.add_argument('--json', default='', help='write results here')
+ap.add_argument('--seed', type=int, default=1, help='base seed; each shard derives its own, so reruns replay the same heroes (0 = unseeded)')
 ap.add_argument('--parallel', type=int, default=os.cpu_count() or 8,
                 help='shards at once; all levels share one pool, so no level waits on the slowest shard of another')
 ap.add_argument('--shard-timeout', type=int, default=1800, help='seconds before a shard is killed and dropped (a stuck fight)')
@@ -91,6 +92,8 @@ def shard(patch, level, cls, i, tag):
             '--dungeons', str(A.dungeons), '--classes', cls, '--retreat-below', str(A.retreat), '--json', out]
     if A.start_loot_per_level > 0:
         args += ['--start-loot-per-level', str(A.start_loot_per_level)]
+    if A.seed:
+        args += ['--seed', str(A.seed * 1_000_000 + level * 1000 + i)]
     env = dict(os.environ, DF_GAMEDATA_DIR=DATA)
     log = open(os.path.join(WORK, f'{tag}-L{level}-{cls}-{i}.log'), 'w', encoding='utf-8')
     try:

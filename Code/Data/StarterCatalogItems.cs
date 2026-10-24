@@ -93,7 +93,7 @@ namespace RPGGame
 
             var filledSlots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var result = new List<Item>();
-            var materialApplier = new LootBonusApplier(LootDataCache.Load(), Random.Shared);
+            var materialApplier = new LootBonusApplier(LootDataCache.Load(), RandomUtility.Ambient);
             foreach (var row in rows)
             {
                 if (!GameDataTagHelper.HasTag(row.Tags, StarterTag))

@@ -15,7 +15,7 @@ namespace RPGGame
 
         public LootModificationSelector(Random random)
         {
-            _random = random ?? new Random();
+            _random = random ?? RandomUtility.Ambient;
             _tables = LootTableLoader.GetModificationTables();
         }
 

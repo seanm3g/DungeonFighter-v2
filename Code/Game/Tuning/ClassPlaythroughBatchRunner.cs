@@ -16,7 +16,8 @@ namespace RPGGame.Tuning
             int runsPerClass = 5,
             string? classesCsv = null,
             int maxActionsPerRun = 500,
-            IProgress<(int completed, int total, string status)>? progress = null)
+            IProgress<(int completed, int total, string status)>? progress = null,
+            int? seed = null)
         {
             if (runsPerClass < 1)
                 throw new ArgumentOutOfRangeException(nameof(runsPerClass), "runsPerClass must be at least 1.");
@@ -43,6 +44,12 @@ namespace RPGGame.Tuning
                     progress?.Report((completed, totalRuns,
                         $"{displayName} run {runIndex + 1}/{runsPerClass}"));
 
+                    // Seeded: each run replays exactly (dungeons, loot, combat), independent of the other classes in the batch.
+                    // The run also gets its own game clock: the global ticker follows wall time, which shifts turn order.
+                    using var runScope = seed.HasValue
+                        ? RandomUtility.BeginSeededScope(new Random(DeriveRunSeed(seed.Value, menuSlot, runIndex)))
+                        : null;
+                    using var runClock = seed.HasValue ? GameTicker.BeginIsolatedEncounterGameTime() : null;
                     var run = await ClassPlaythroughRunner.RunAsync(
                         weaponType,
                         menuSlot,
@@ -66,6 +73,10 @@ namespace RPGGame.Tuning
                 WriteFightsJson(batch, FightsJsonPath);
             return batch;
         }
+
+        /// <summary>Stable per-run seed (no HashCode: it is randomized per process).</summary>
+        internal static int DeriveRunSeed(int seed, int menuSlot, int runIndex) =>
+            unchecked(seed * 1_000_003 + menuSlot * 10_007 + runIndex);
 
         private static void WriteFightsJson(ClassPlaythroughBatchResult batch, string path)
         {

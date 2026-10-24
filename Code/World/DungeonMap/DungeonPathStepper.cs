@@ -17,7 +17,7 @@ namespace RPGGame.World.DungeonMap
         public static IDungeonPathStepper Create(TraversalStrategy strategy, Random? rng = null) =>
             strategy == TraversalStrategy.Smart
                 ? new SmartPathStepper()
-                : new RandomPathStepper(rng ?? new Random());
+                : new RandomPathStepper(rng ?? RandomUtility.Ambient);
     }
 
     /// <summary>
@@ -107,7 +107,7 @@ namespace RPGGame.World.DungeonMap
 
         public RandomPathStepper(Random? rng = null)
         {
-            _rng = rng ?? new Random();
+            _rng = rng ?? RandomUtility.Ambient;
         }
 
         public bool TryGetNextStep(DungeonTraversalState state, int targetX, int targetY, out int nextX, out int nextY)

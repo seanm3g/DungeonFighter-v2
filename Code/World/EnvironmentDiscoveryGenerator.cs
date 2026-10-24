@@ -9,7 +9,7 @@ namespace RPGGame
     /// </summary>
     public class EnvironmentDiscoveryGenerator
     {
-        private static readonly Random random = new Random();
+        private static readonly Random random = RandomUtility.Ambient;
 
         /// <summary>
         /// Generates a discovery message based on room theme and type

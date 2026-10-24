@@ -50,7 +50,7 @@ namespace RPGGame.Data
             var all = GetAll();
             if (all.Count == 0)
                 return null;
-            rng ??= new Random();
+            rng ??= RandomUtility.Ambient;
             return all[rng.Next(all.Count)].ToItem();
         }
 

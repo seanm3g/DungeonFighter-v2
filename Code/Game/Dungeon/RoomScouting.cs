@@ -50,7 +50,7 @@ namespace RPGGame
         /// <summary>Rolls for <paramref name="nextRoom"/>, remembers the result for that room and returns the report.</summary>
         public static Report Roll(Character hero, Environment nextRoom, Dungeon? dungeon, Random? rng = null)
         {
-            rng ??= Random.Shared;
+            rng ??= RandomUtility.Ambient;
             int roll = rng.Next(1, 21);
             var (hitSteps, comboSteps, critSteps) = TechniqueMilestoneThresholdBonuses.GetSteps(hero.GetEffectiveTechnique());
             var outcome = Resolve(roll, hitSteps, comboSteps, critSteps);

@@ -15,7 +15,7 @@ namespace RPGGame
 
         public ExplorationManager()
         {
-            random = new Random();
+            random = RandomUtility.Ambient;
             discoveryGenerator = new EnvironmentDiscoveryGenerator();
         }
 

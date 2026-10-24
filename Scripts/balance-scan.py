@@ -47,6 +47,7 @@ ap.add_argument('--dungeons', type=int, default=4, help='dungeons per hero (hero
 ap.add_argument('--encounters', type=int, default=8, help='BUILDLAB fights per enemy')
 ap.add_argument('--builds', default='', help='comma list of catalog builds (default: all)')
 ap.add_argument('--min-fights', type=int, default=6, help='real fights an enemy needs at a level to be judged')
+ap.add_argument('--seed', type=int, default=1, help='base DUNGEONSIM seed so --compare scans replay the same heroes (0 = unseeded)')
 ap.add_argument('--bot-ratio', type=float, default=1.33, help='flag bot/median kill-speed ratios outside 1/x .. x')
 ap.add_argument('--from', dest='from_scan', default='', help='re-analyze the raw results saved in an earlier scan JSON (no sims)')
 ap.add_argument('--compare', default='', help='earlier balance-scan JSON: print level metrics side by side')
@@ -155,7 +156,8 @@ def dungeonsim(level, cls, data_dir):
     log = open(os.path.join(WORK, f'ds-L{level}-{cls}-{hero}.log'), 'w', encoding='utf-8')
     try:
         subprocess.run(['dotnet', DLL, 'DUNGEONSIM', '--patch', PATCH, '--level', str(level), '--runs', '1',
-                        '--dungeons', str(A.dungeons), '--classes', cls, '--retreat-below', str(RETREAT), '--json', out],
+                        '--dungeons', str(A.dungeons), '--classes', cls, '--retreat-below', str(RETREAT), '--json', out]
+                       + (['--seed', str(A.seed * 1_000_000 + level * 1000 + int(hero))] if A.seed else []),
                        cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, env=dict(os.environ, DF_GAMEDATA_DIR=data_dir), timeout=1800)
         return json.load(open(out, encoding='utf-8-sig'))
     except Exception:

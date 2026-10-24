@@ -21,7 +21,7 @@ namespace RPGGame
             if (item == null)
                 return;
 
-            random ??= Random.Shared;
+            random ??= RandomUtility.Ambient;
 
             string material = ResolveMaterialName(item);
             if (!MaterialTriggerCatalog.TryGetPool(material, out var pool) || pool.Count == 0)

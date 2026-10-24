@@ -24,7 +24,7 @@ namespace RPGGame
             this.theme = theme;
             this.isHostile = isHostile;
             this.roomEnemySpawnPool = roomEnemySpawnPool;
-            this.random = random ?? new Random();
+            this.random = random ?? RandomUtility.Ambient;
             this.enemies = new List<Enemy>();
         }
 

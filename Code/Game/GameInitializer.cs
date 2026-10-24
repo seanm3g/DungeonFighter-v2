@@ -38,7 +38,7 @@ namespace RPGGame
 
         public GameInitializer()
         {
-            random = new Random();
+            random = RandomUtility.Ambient;
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace RPGGame
 
             var starterWeapon = ItemGenerator.GenerateWeaponItem(catalogRow);
             ApplyStartingWeaponTuning(starterWeapon, weaponType, slotFallback: null, baseDamageFromWeaponsCatalog: true);
-            var materialApplier = new LootBonusApplier(LootDataCache.Load(), Random.Shared);
+            var materialApplier = new LootBonusApplier(LootDataCache.Load(), RandomUtility.Ambient);
             materialApplier.ApplyAlwaysMaterialAndTrigger(starterWeapon, starterWeapon.Rarity);
             return starterWeapon;
         }
@@ -177,7 +177,7 @@ namespace RPGGame
             WeaponType weaponType = starterWeapon.WeaponType;
             
             // Get starting weapon actions from Actions.json using "startingWeapon" tag
-            var actionSelector = new LootActionSelector(new Random());
+            var actionSelector = new LootActionSelector(RandomUtility.Ambient);
             var startingActions = actionSelector.GetStartingWeaponActions(weaponType.ToString());
             
             if (startingActions.Count > 0)

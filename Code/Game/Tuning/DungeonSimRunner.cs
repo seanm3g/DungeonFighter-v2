@@ -44,6 +44,7 @@ namespace RPGGame.Tuning
             bool basic = TuningCliArgs.HasFlag(args, "--basic");
             string? classes = TuningCliArgs.GetFlagValue(args, "--classes");
             string? jsonPath = TuningCliArgs.GetFlagValue(args, "--json");
+            int? seed = TuningCliArgs.GetIntFlag(args, "--seed");
 
             ClassPlaythroughRunner.StartAtLevel = level;
             ClassPlaythroughRunner.StartLootPerLevel = TuningCliArgs.GetIntFlag(args, "--start-loot-per-level") ?? ClassPlaythroughRunner.StartLootPerLevel;
@@ -54,9 +55,13 @@ namespace RPGGame.Tuning
             ClassPlaythroughRunner.RetreatBelowHpPercent = retreat;
 
             Console.WriteLine($"Balance patch: {FundamentalsMatrixRunner.ActiveBalancePatchPath()}");
-            Console.WriteLine($"=== DUNGEONSIM L{level} | {runs} run(s) x {dungeons} dungeon(s) per class | {(basic ? "basic" : "smart")} bot | retreat below {retreat}% HP | start loot {ClassPlaythroughRunner.ResolveStartLootPerLevel(level)}/level{(level > 15 ? " (bag calibrated to L10-L15 only)" : "")} ===");
+            Console.WriteLine($"=== DUNGEONSIM L{level} | {runs} run(s) x {dungeons} dungeon(s) per class | {(basic ? "basic" : "smart")} bot | retreat below {retreat}% HP | start loot {ClassPlaythroughRunner.ResolveStartLootPerLevel(level)}/level{(level > 15 ? " (bag calibrated to L10-L15 only)" : "")} | seed {(seed?.ToString() ?? "none")} ===");
 
-            var batch = await ClassPlaythroughBatchRunner.RunAsync(runs, classes, maxActionsPerRun: 60 * dungeons + 300);
+            var batch = await ClassPlaythroughBatchRunner.RunAsync(runs, classes, maxActionsPerRun: 60 * dungeons + 300, seed: seed);
+
+            foreach (var agg in batch.ClassAggregates)
+                foreach (var run in agg.Runs.Where(r => r.StopReason == PlaythroughStopReason.Error))
+                    Console.WriteLine($"ERROR: {agg.ClassDisplayName} run stopped: {run.ErrorMessage}");
 
             var outcomes = new List<Outcome>();
             foreach (var agg in batch.ClassAggregates)
@@ -113,6 +118,7 @@ namespace RPGGame.Tuning
                 {
                     Provenance = RunProvenance.Describe(),
                     Level = level,
+                    Seed = seed,
                     RunsPerClass = runs,
                     DungeonsPerRun = dungeons,
                     RetreatBelowHpPercent = retreat,

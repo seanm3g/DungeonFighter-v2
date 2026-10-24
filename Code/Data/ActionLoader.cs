@@ -662,7 +662,7 @@ namespace RPGGame
                 }
 
                 if (actionsOfType.Count > 0)
-                    return actionsOfType[Random.Shared.Next(actionsOfType.Count)];
+                    return actionsOfType[RandomUtility.Ambient.Next(actionsOfType.Count)];
 
                 return type switch
                 {

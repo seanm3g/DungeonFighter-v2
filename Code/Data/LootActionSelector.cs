@@ -22,7 +22,7 @@ namespace RPGGame
 
         public LootActionSelector(Random random)
         {
-            _random = random ?? new Random();
+            _random = random ?? RandomUtility.Ambient;
             _tables = LootTableLoader.GetActionTables();
         }
 

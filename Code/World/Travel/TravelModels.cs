@@ -329,7 +329,7 @@ namespace RPGGame
             if (matchingEvents.Count == 0)
                 matchingEvents = CreateFallbackEvents().Where(travelEvent => travelEvent.Outcome == outcome).ToList();
 
-            return matchingEvents[Random.Shared.Next(matchingEvents.Count)];
+            return matchingEvents[RandomUtility.Ambient.Next(matchingEvents.Count)];
         }
 
         public Dictionary<TravelRollOutcome, int> CountByOutcome() =>
@@ -503,17 +503,17 @@ namespace RPGGame
             var pool = destination.ResolveLinkedDungeonThemePool().ToList();
             var picks = new List<string>(JourneyThemePickCount);
             for (int i = 0; i < JourneyThemePickCount; i++)
-                picks.Add(pool[Random.Shared.Next(pool.Count)]);
+                picks.Add(pool[RandomUtility.Ambient.Next(pool.Count)]);
             return picks;
         }
 
         private static string PickTravelLootDungeonTheme(TravelRegion destination, IReadOnlyList<string>? journeyDungeonThemes)
         {
             if (journeyDungeonThemes != null && journeyDungeonThemes.Count > 0)
-                return journeyDungeonThemes[Random.Shared.Next(journeyDungeonThemes.Count)];
+                return journeyDungeonThemes[RandomUtility.Ambient.Next(journeyDungeonThemes.Count)];
 
             var pool = destination.ResolveLinkedDungeonThemePool().ToList();
-            return pool[Random.Shared.Next(pool.Count)];
+            return pool[RandomUtility.Ambient.Next(pool.Count)];
         }
 
         private static TravelStepResult ApplyEvent(

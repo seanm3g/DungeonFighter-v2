@@ -95,7 +95,7 @@ namespace RPGGame
         private static FlavorTextData? _data;
         private static string? _resolvedPath;
         private static readonly object _lock = new object();
-        private static readonly Random _random = new Random();
+        private static readonly Random _random = RandomUtility.Ambient;
 
         private static readonly JsonSerializerOptions JsonOptions = new()
         {

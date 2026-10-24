@@ -561,7 +561,7 @@ namespace RPGGame
                 }
 
                 // Pick a random tier 1 weapon
-                var random = new Random();
+                var random = RandomUtility.Ambient;
                 var selectedWeapon = tier1Weapons[random.Next(tier1Weapons.Count)];
 
                 var weapon = ItemGenerator.GenerateWeaponItem(selectedWeapon);

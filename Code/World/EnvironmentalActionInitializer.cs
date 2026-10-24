@@ -19,7 +19,7 @@ namespace RPGGame
         {
             this.theme = theme;
             this.roomType = roomType;
-            this.random = new Random();
+            this.random = RandomUtility.Ambient;
         }
 
         /// <summary>

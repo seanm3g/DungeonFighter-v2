@@ -18,7 +18,7 @@ namespace RPGGame.World.DungeonMap
             if (rooms.Count == 0)
                 throw new ArgumentException("At least one content room is required.", nameof(rooms));
 
-            rng ??= new Random();
+            rng ??= RandomUtility.Ambient;
 
             if (trainingGround)
                 return GenerateTrainingGround(rooms[0]);

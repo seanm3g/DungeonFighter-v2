@@ -18,7 +18,7 @@ namespace RPGGame
     /// </summary>
     public class LootGenerator
     {
-        private static Random _random = new Random();
+        private static Random _random = RandomUtility.Ambient;
 
         /// <summary>
         /// Tools only: replaces the loot RNG with a seeded one and rebuilds the roll helpers so loot sampling is reproducible
@@ -278,7 +278,7 @@ namespace RPGGame
         {
             if (CharmsLoader.GetAll().Count == 0)
                 return null;
-            rng ??= new Random();
+            rng ??= RandomUtility.Ambient;
             if (rng.NextDouble() >= 0.05)
                 return null;
             return CharmsLoader.CreateRandomItem(rng);

@@ -252,7 +252,7 @@ namespace RPGGame
         private Item? GenerateItemWithRarity(int tier, int level, bool isWeapon, string rarity, Character? player)
         {
             var dataCache = LootDataCache.Load();
-            var random = new Random();
+            var random = RandomUtility.Ambient;
             
             // Get rarity data
             var rarityData = dataCache.RarityData?.FirstOrDefault(

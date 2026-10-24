@@ -33,6 +33,27 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// A <see cref="Random"/> that forwards every draw to <see cref="Current"/>. Hand it to code that keeps a Random
+        /// in a field (loot selectors, dungeon generation) so cached instances still follow a seeded sim scope.
+        /// </summary>
+        public static Random Ambient { get; } = new AmbientRandom();
+
+        private sealed class AmbientRandom : Random
+        {
+            public override int Next() => Current.Next();
+            public override int Next(int maxValue) => Current.Next(maxValue);
+            public override int Next(int minValue, int maxValue) => Current.Next(minValue, maxValue);
+            public override long NextInt64() => Current.NextInt64();
+            public override long NextInt64(long maxValue) => Current.NextInt64(maxValue);
+            public override long NextInt64(long minValue, long maxValue) => Current.NextInt64(minValue, maxValue);
+            public override double NextDouble() => Current.NextDouble();
+            public override float NextSingle() => Current.NextSingle();
+            public override void NextBytes(byte[] buffer) => Current.NextBytes(buffer);
+            public override void NextBytes(Span<byte> buffer) => Current.NextBytes(buffer);
+            protected override double Sample() => Current.NextDouble();
+        }
+
+        /// <summary>
         /// Gets a random integer between min (inclusive) and max (exclusive)
         /// </summary>
         /// <param name="min">Minimum value (inclusive)</param>

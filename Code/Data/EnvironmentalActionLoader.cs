@@ -14,7 +14,7 @@ namespace RPGGame.Data
     public class EnvironmentalActionLoader
     {
         private List<EnvironmentalActionData>? cachedActions;
-        private static readonly Random random = new Random();
+        private static readonly Random random = RandomUtility.Ambient;
 
         public class EnvironmentalActionData
         {

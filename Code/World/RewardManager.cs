@@ -11,7 +11,7 @@ namespace RPGGame
     /// </summary>
     public class RewardManager
     {
-        private readonly Random random = new Random();
+        private readonly Random random = RandomUtility.Ambient;
 
         /// <summary>
         /// Awards loot and XP for dungeon completion

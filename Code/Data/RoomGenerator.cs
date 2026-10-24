@@ -10,7 +10,7 @@ namespace RPGGame
     /// </summary>
     public static class RoomGenerator
     {
-        private static readonly Random random = new Random();
+        private static readonly Random random = RandomUtility.Ambient;
 
         /// <summary>
         /// Generates a room environment based on dungeon theme and player level

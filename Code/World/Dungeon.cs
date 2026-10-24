@@ -22,7 +22,7 @@ namespace RPGGame
         public Dungeon(string name, int minLevel, int maxLevel, string theme, List<string>? possibleEnemies = null, ColorOverride? colorOverride = null, string? spawnRegionId = null, int? generationSeed = null)
         {
             GenerationSeed = generationSeed;
-            random = generationSeed.HasValue ? new Random(generationSeed.Value) : new Random();
+            random = generationSeed.HasValue ? new Random(generationSeed.Value) : RandomUtility.Ambient;
             Name = name;
             MinLevel = minLevel;
             MaxLevel = maxLevel;
