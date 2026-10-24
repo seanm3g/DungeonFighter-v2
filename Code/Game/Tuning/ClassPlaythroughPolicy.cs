@@ -14,6 +14,8 @@ namespace RPGGame.Tuning
                 "PreWeaponPathIntro" => "1",
                 "WeaponSelection" => weaponMenuSlot.ToString(),
                 "CharacterCreation" => "1",
+                // A new hero lands in the inventory after weapon selection; Back goes on to the game loop.
+                "Inventory" => "0",
                 "GameLoop" => "1",
                 "DungeonCompletion" => "1",
                 "DungeonSelection" => "2",

@@ -151,7 +151,7 @@ namespace RPGGame.Tests.Unit.MCP
             await game.HandleInput("2"); // skip training
             await game.HandleInput("1"); // path intro
             await game.HandleInput("1"); // weapon
-            await game.HandleInput("1"); // confirm character -> game loop
+            await game.HandleInput("0"); // leave the starter inventory -> game loop
             await game.HandleInput("1"); // enter dungeons
         }
 
