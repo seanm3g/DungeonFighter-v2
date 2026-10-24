@@ -349,11 +349,11 @@ namespace RPGGame
         public void EnsureValidComboAmplifierDefaults()
         {
             if (ComboAmplifierMax <= 0)
-                ComboAmplifierMax = Utils.GameConstants.COMBO_AMPLIFIER_MAX;
+                ComboAmplifierMax = GameConstants.COMBO_AMPLIFIER_MAX;
             if (ComboAmplifierMaxTech <= 0)
-                ComboAmplifierMaxTech = Utils.GameConstants.COMBO_AMPLIFIER_MAX_TECH;
+                ComboAmplifierMaxTech = GameConstants.COMBO_AMPLIFIER_MAX_TECH;
             if (ComboAmplifierCurveExponent <= 0)
-                ComboAmplifierCurveExponent = Utils.GameConstants.COMBO_AMPLIFIER_CURVE_EXPONENT;
+                ComboAmplifierCurveExponent = GameConstants.COMBO_AMPLIFIER_CURVE_EXPONENT;
         }
     }
 
@@ -376,8 +376,8 @@ namespace RPGGame
             if (clamped <= 0)
                 return 1.0;
 
-            int kneeTech = Math.Max(1, maxTech - Utils.GameConstants.COMBO_AMPLIFIER_KNEE_TECH_OFFSET);
-            double kneeAmp = Math.Max(1.0, maxAmp - Utils.GameConstants.COMBO_AMPLIFIER_KNEE_AMP_DELTA);
+            int kneeTech = Math.Max(1, maxTech - GameConstants.COMBO_AMPLIFIER_KNEE_TECH_OFFSET);
+            double kneeAmp = Math.Max(1.0, maxAmp - GameConstants.COMBO_AMPLIFIER_KNEE_AMP_DELTA);
             double curveExponent = combo.ComboAmplifierCurveExponent;
 
             if (clamped >= kneeTech)

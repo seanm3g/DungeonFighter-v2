@@ -132,7 +132,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 }
                 
                 string displayText = dungeon.Name == RPGGame.GameConstants.DungeonCustomLevelMenuName
-                    ? MenuOptionFormatter.FormatDisplayText(i + 1, dungeon.Name, $" (levels {RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL}-{RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL})")
+                    ? MenuOptionFormatter.FormatDisplayText(i + 1, dungeon.Name, $" (levels {RPGGame.GameConstants.MIN_DUNGEON_LEVEL}-{RPGGame.GameConstants.MAX_DUNGEON_LEVEL})")
                     : MenuOptionFormatter.FormatDungeon(i + 1, dungeon.Name, dungeon.MinLevel);
                 var option = new ClickableElement
                 {
@@ -310,7 +310,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             segments.AddRange(animatedName);
 
             string levelSuffix = dungeon.Name == RPGGame.GameConstants.DungeonCustomLevelMenuName
-                ? $" (levels {RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL}-{RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL})"
+                ? $" (levels {RPGGame.GameConstants.MIN_DUNGEON_LEVEL}-{RPGGame.GameConstants.MAX_DUNGEON_LEVEL})"
                 : $" (lvl {dungeon.MinLevel})";
             segments.AddRange(PerCharSegments(levelSuffix, ColorPalette.Gray.GetColor()));
 

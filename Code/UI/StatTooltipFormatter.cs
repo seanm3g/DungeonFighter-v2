@@ -407,8 +407,8 @@ namespace RPGGame
             comboCfg.EnsureValidComboAmplifierDefaults();
             double maxAmp = comboCfg.ComboAmplifierMax;
             int maxInt = comboCfg.ComboAmplifierMaxTech;
-            int kneeInt = Math.Max(1, maxInt - Utils.GameConstants.COMBO_AMPLIFIER_KNEE_TECH_OFFSET);
-            double kneeAmp = Math.Max(1.0, maxAmp - Utils.GameConstants.COMBO_AMPLIFIER_KNEE_AMP_DELTA);
+            int kneeInt = Math.Max(1, maxInt - GameConstants.COMBO_AMPLIFIER_KNEE_TECH_OFFSET);
+            double kneeAmp = Math.Max(1.0, maxAmp - GameConstants.COMBO_AMPLIFIER_KNEE_AMP_DELTA);
             int i = Math.Max(0, effectiveInt);
 
             string curve;

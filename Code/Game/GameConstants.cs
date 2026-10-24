@@ -8,6 +8,24 @@ namespace RPGGame
     /// </summary>
     public static class GameConstants
     {
+        // Level bounds
+        public const int MAX_CHARACTER_LEVEL = 100;
+        public const int MIN_CHARACTER_LEVEL = 1;
+        public const int MAX_DUNGEON_LEVEL = 100;
+        public const int MIN_DUNGEON_LEVEL = 1;
+
+        public const int DISPLAY_BUFFER_MAX_LINES = 50000; // Large buffer to preserve all test output and allow full scrolling
+
+        // Combo amplifier (AMP) curve defaults, used when CombatConfig values are zero
+        public const double COMBO_AMPLIFIER_MAX = 2.0;
+        public const int COMBO_AMPLIFIER_MAX_TECH = 110;
+        /// <summary>INT below max where AMP finishes the last linear step to <see cref="COMBO_AMPLIFIER_MAX"/>.</summary>
+        public const int COMBO_AMPLIFIER_KNEE_TECH_OFFSET = 11;
+        /// <summary>AMP at the knee TECH (max − offset); last segment ramps knee → max.</summary>
+        public const double COMBO_AMPLIFIER_KNEE_AMP_DELTA = 0.02;
+        /// <summary>Power exponent for the slow early/mid INT AMP ramp (0 → knee).</summary>
+        public const double COMBO_AMPLIFIER_CURVE_EXPONENT = 1.1;
+
         // File and Directory Constants
         public const string GameDataDirectory = "GameData";
         public const string SaveDirectory = "Saves";

@@ -272,8 +272,8 @@ namespace RPGGame
         /// <param name="levelIncrease">The amount to increase the dungeon level (default: 1)</param>
         public void ScaleLevelUp(int levelIncrease = 1)
         {
-            MinLevel = Math.Min(MinLevel + levelIncrease, Utils.GameConstants.MAX_DUNGEON_LEVEL);
-            MaxLevel = Math.Min(MaxLevel + levelIncrease, Utils.GameConstants.MAX_DUNGEON_LEVEL);
+            MinLevel = Math.Min(MinLevel + levelIncrease, GameConstants.MAX_DUNGEON_LEVEL);
+            MaxLevel = Math.Min(MaxLevel + levelIncrease, GameConstants.MAX_DUNGEON_LEVEL);
         }
     }
 }

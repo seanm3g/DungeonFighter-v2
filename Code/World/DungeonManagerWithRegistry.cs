@@ -169,14 +169,14 @@ namespace RPGGame
             var customTemplate = regionDungeons[random.Next(regionDungeons.Count)];
             availableDungeons.Add(new Dungeon(
                 GameConstants.DungeonCustomLevelMenuName,
-                Math.Max(RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL, playerLevel),
-                Math.Max(RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL, playerLevel),
+                Math.Max(RPGGame.GameConstants.MIN_DUNGEON_LEVEL, playerLevel),
+                Math.Max(RPGGame.GameConstants.MIN_DUNGEON_LEVEL, playerLevel),
                 customTemplate.theme,
                 customTemplate.possibleEnemies,
                 customTemplate.colorOverride,
                 player.CurrentRegionId));
 
-            int defaultLevel = Math.Max(RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL, playerLevel);
+            int defaultLevel = Math.Max(RPGGame.GameConstants.MIN_DUNGEON_LEVEL, playerLevel);
             availableDungeons.Add(new Dungeon(
                 GameConstants.DungeonResetDifficultyMenuName,
                 defaultLevel,

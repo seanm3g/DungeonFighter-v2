@@ -16,7 +16,7 @@ using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Services;
 using RPGGame.Utils;
-using static RPGGame.Utils.GameConstants;
+using static RPGGame.GameConstants;
 
 namespace RPGGame.UI.Avalonia.Display
 {

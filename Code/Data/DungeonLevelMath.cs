@@ -10,9 +10,9 @@ namespace RPGGame
         /// </summary>
         public static int ResolveEffectiveDungeonLevel(int heroLevel, int dungeonDelta)
         {
-            heroLevel = Math.Clamp(heroLevel, Utils.GameConstants.MIN_CHARACTER_LEVEL, Utils.GameConstants.MAX_CHARACTER_LEVEL);
+            heroLevel = Math.Clamp(heroLevel, GameConstants.MIN_CHARACTER_LEVEL, GameConstants.MAX_CHARACTER_LEVEL);
             int dungeon = heroLevel + dungeonDelta;
-            return Math.Clamp(dungeon, Utils.GameConstants.MIN_DUNGEON_LEVEL, Utils.GameConstants.MAX_DUNGEON_LEVEL);
+            return Math.Clamp(dungeon, GameConstants.MIN_DUNGEON_LEVEL, GameConstants.MAX_DUNGEON_LEVEL);
         }
 
         /// <summary>
@@ -21,13 +21,13 @@ namespace RPGGame
         public static int ResolveSelectionAnchorLevel(int heroLevel, int? customAnchor)
         {
             if (customAnchor is int anchor
-                && anchor >= Utils.GameConstants.MIN_DUNGEON_LEVEL
-                && anchor <= Utils.GameConstants.MAX_DUNGEON_LEVEL)
+                && anchor >= GameConstants.MIN_DUNGEON_LEVEL
+                && anchor <= GameConstants.MAX_DUNGEON_LEVEL)
             {
                 return anchor;
             }
 
-            return Math.Clamp(heroLevel, Utils.GameConstants.MIN_DUNGEON_LEVEL, Utils.GameConstants.MAX_DUNGEON_LEVEL);
+            return Math.Clamp(heroLevel, GameConstants.MIN_DUNGEON_LEVEL, GameConstants.MAX_DUNGEON_LEVEL);
         }
 
         /// <summary>
@@ -35,8 +35,8 @@ namespace RPGGame
         /// </summary>
         public static int ResolveDungeonLevelAroundAnchor(int anchorLevel, int dungeonDelta)
         {
-            anchorLevel = Math.Clamp(anchorLevel, Utils.GameConstants.MIN_DUNGEON_LEVEL, Utils.GameConstants.MAX_DUNGEON_LEVEL);
-            return Math.Clamp(anchorLevel + dungeonDelta, Utils.GameConstants.MIN_DUNGEON_LEVEL, Utils.GameConstants.MAX_DUNGEON_LEVEL);
+            anchorLevel = Math.Clamp(anchorLevel, GameConstants.MIN_DUNGEON_LEVEL, GameConstants.MAX_DUNGEON_LEVEL);
+            return Math.Clamp(anchorLevel + dungeonDelta, GameConstants.MIN_DUNGEON_LEVEL, GameConstants.MAX_DUNGEON_LEVEL);
         }
 
         /// <summary>
@@ -44,9 +44,9 @@ namespace RPGGame
         /// </summary>
         public static int ClampDungeonDelta(int heroLevel, int dungeonDelta)
         {
-            heroLevel = Math.Clamp(heroLevel, Utils.GameConstants.MIN_CHARACTER_LEVEL, Utils.GameConstants.MAX_CHARACTER_LEVEL);
-            int minDelta = Utils.GameConstants.MIN_DUNGEON_LEVEL - heroLevel;
-            int maxDelta = Utils.GameConstants.MAX_DUNGEON_LEVEL - heroLevel;
+            heroLevel = Math.Clamp(heroLevel, GameConstants.MIN_CHARACTER_LEVEL, GameConstants.MAX_CHARACTER_LEVEL);
+            int minDelta = GameConstants.MIN_DUNGEON_LEVEL - heroLevel;
+            int maxDelta = GameConstants.MAX_DUNGEON_LEVEL - heroLevel;
             return Math.Clamp(dungeonDelta, minDelta, maxDelta);
         }
     }

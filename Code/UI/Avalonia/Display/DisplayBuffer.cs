@@ -25,7 +25,7 @@ namespace RPGGame.UI.Avalonia.Display
         /// <see cref="Buffer.BufferStorage"/> wraps to the live
         /// <c>LayoutConstants.CenterPanelTextColumnWidth</c>. Pass a narrower value in tests.
         /// </param>
-        public DisplayBuffer(int maxLines = RPGGame.Utils.GameConstants.DISPLAY_BUFFER_MAX_LINES, int maxLineWidth = 4096)
+        public DisplayBuffer(int maxLines = RPGGame.GameConstants.DISPLAY_BUFFER_MAX_LINES, int maxLineWidth = 4096)
         {
             this.storage = new BufferStorage(maxLines, maxLineWidth);
             this.scrollManager = new ScrollStateManager();

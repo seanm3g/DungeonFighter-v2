@@ -211,7 +211,7 @@ namespace RPGGame
             if (string.IsNullOrEmpty(customLevelBuffer))
             {
                 ShowNonBlockingDungeonMessage(
-                    $"Type a level ({RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL}-{RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL}), then press Enter.");
+                    $"Type a level ({RPGGame.GameConstants.MIN_DUNGEON_LEVEL}-{RPGGame.GameConstants.MAX_DUNGEON_LEVEL}), then press Enter.");
                 RefreshDungeonSelectionScreen();
                 return;
             }
@@ -222,10 +222,10 @@ namespace RPGGame
                 return;
             }
 
-            if (level < RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL || level > RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL)
+            if (level < RPGGame.GameConstants.MIN_DUNGEON_LEVEL || level > RPGGame.GameConstants.MAX_DUNGEON_LEVEL)
             {
                 ShowNonBlockingDungeonMessage(
-                    $"Level must be between {RPGGame.Utils.GameConstants.MIN_DUNGEON_LEVEL} and {RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL}.");
+                    $"Level must be between {RPGGame.GameConstants.MIN_DUNGEON_LEVEL} and {RPGGame.GameConstants.MAX_DUNGEON_LEVEL}.");
                 return;
             }
 

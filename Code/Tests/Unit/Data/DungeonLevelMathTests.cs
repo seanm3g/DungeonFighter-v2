@@ -42,7 +42,7 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual(1, d, "clamps dungeon to 1", ref _run, ref _pass, ref _fail);
 
             d = DungeonLevelMath.ResolveEffectiveDungeonLevel(heroLevel: 99, dungeonDelta: 999);
-            TestBase.AssertEqual(RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL, d, "clamps dungeon to max dungeon level", ref _run, ref _pass, ref _fail);
+            TestBase.AssertEqual(RPGGame.GameConstants.MAX_DUNGEON_LEVEL, d, "clamps dungeon to max dungeon level", ref _run, ref _pass, ref _fail);
         }
 
         private static void TestResolveSelectionAnchorLevel()
@@ -65,8 +65,8 @@ namespace RPGGame.Tests.Unit.Data
                 "anchor 20 -1 => 19", ref _run, ref _pass, ref _fail);
             TestBase.AssertEqual(1, DungeonLevelMath.ResolveDungeonLevelAroundAnchor(1, -1),
                 "anchor 1 -1 clamps to 1", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL,
-                DungeonLevelMath.ResolveDungeonLevelAroundAnchor(RPGGame.Utils.GameConstants.MAX_DUNGEON_LEVEL, 1),
+            TestBase.AssertEqual(RPGGame.GameConstants.MAX_DUNGEON_LEVEL,
+                DungeonLevelMath.ResolveDungeonLevelAroundAnchor(RPGGame.GameConstants.MAX_DUNGEON_LEVEL, 1),
                 "anchor max +1 clamps to max", ref _run, ref _pass, ref _fail);
         }
 

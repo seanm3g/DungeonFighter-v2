@@ -161,11 +161,11 @@ namespace RPGGame.Tests.Unit.Config
                 ComboAmplifierMaxTech = 0
             };
             zeroed.EnsureValidComboAmplifierDefaults();
-            TestBase.AssertEqual(Utils.GameConstants.COMBO_AMPLIFIER_MAX, zeroed.ComboAmplifierMax,
-                "Zero ComboAmplifierMax should use Utils.GameConstants default",
+            TestBase.AssertEqual(GameConstants.COMBO_AMPLIFIER_MAX, zeroed.ComboAmplifierMax,
+                "Zero ComboAmplifierMax should use GameConstants default",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(Utils.GameConstants.COMBO_AMPLIFIER_MAX_TECH, zeroed.ComboAmplifierMaxTech,
-                "Zero ComboAmplifierMaxTech should use Utils.GameConstants default",
+            TestBase.AssertEqual(GameConstants.COMBO_AMPLIFIER_MAX_TECH, zeroed.ComboAmplifierMaxTech,
+                "Zero ComboAmplifierMaxTech should use GameConstants default",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             double ampMid = ComboAmplifierCurve.Compute(10, zeroed);
