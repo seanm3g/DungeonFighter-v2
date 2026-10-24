@@ -183,7 +183,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 return;
             }
 
-            var (stage, p, _) = LiveStage();
+            var (stage, p, raw) = LiveStage();
             var from = _settledBands.TryGetValue(panel, out var settled) ? settled : live;
             var to = swing.Thresholds ?? live;
             double t = stage == 0 ? p : 1.0;
@@ -198,14 +198,18 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 if (stage < 1)
                     return null;
-                if (stage == 1 && !CombatSequenceHudState.ResultRevealed)
-                    return 1 + (int)((DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 55 * 7919 + 13) % 20);
+                // Land with a quarter beat to spare so the settled caret reads before OUTCOME draws from it.
+                if (stage == 1)
+                    return ThresholdBarFeedback.TumbleFace(roll, raw / RollLandsAt);
                 return roll;
             };
             D20ThresholdBarRenderer.RenderBar(canvas, barX, barY, barW, actor, panel,
                 heightScale: D20ThresholdBarRenderer.CombatBoardStripHeightScale,
                 verticalOffsetScale: verticalOffsetScale, thresholds: bands, rollMarker: marker);
         }
+
+        /// <summary>Fraction of the ROLL beat the caret tumbles before it lands on the roll.</summary>
+        private const double RollLandsAt = 0.75;
 
         /// <summary>The line from the roll appears on OUTCOME, after the bands settle and the caret lands.</summary>
         private static bool RollKnown(int stage) => stage >= 2;
@@ -693,9 +697,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             var list = new List<BoardBranch>();
             if (actor is Environment room)
             {
-                // The room rolls a percent chance (not a d20) to act, then picks a hazard from its pool.
-                int strikePct = (int)Math.Round(room.ChanceToAct * 100);
-                if (strikePct <= 0)
+                // The room rolls a d20 to act (strikes on a high face), then picks a hazard from its pool.
+                int strikeAt = room.StrikeThreshold;
+                if (strikeAt > 20)
                 {
                     list.Add(new BoardBranch("", "won't act", AsciiArtAssets.Colors.Gray, null, new()));
                     return list;
@@ -703,8 +707,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 var hazards = new List<string>();
                 foreach (var (hazard, _) in room.ActionPool)
                     hazards.Add(hazard.Name ?? "?");
-                list.Add(new BoardBranch($"{100 - strikePct}%", "quiet", AsciiArtAssets.Colors.Gray, null, new()));
-                list.Add(new BoardBranch($"{strikePct}%", "strikes:", BoardHazardColor, null, hazards));
+                string strikeFaces = strikeAt == 20 ? "20" : $"{strikeAt}-20";
+                string quietFaces = strikeAt - 1 == 1 ? "1" : $"1-{strikeAt - 1}";
+                list.Add(new BoardBranch(strikeFaces, "strikes:", BoardHazardColor, null, hazards));
+                list.Add(new BoardBranch(quietFaces, "quiet", AsciiArtAssets.Colors.Gray, null, new()));
                 return list;
             }
 

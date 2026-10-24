@@ -20,6 +20,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestCancelledTagsDoNotAffectRoll(ref _run, ref _pass, ref _fail);
             TestClampDoesNotAffectRoll(ref _run, ref _pass, ref _fail);
             TestActionBlockLineOnlyWhenShiftLands(ref _run, ref _pass, ref _fail);
+            TestStrikeIsD20Threshold(ref _run, ref _pass, ref _fail);
             testsRun += _run;
             testsPassed += _pass;
             testsFailed += _fail;
@@ -30,6 +31,26 @@ namespace RPGGame.Tests.Unit.Combat
             var room = new Environment("Test", "desc", true, "Forest");
             room.SetTags(tags);
             return room;
+        }
+
+        private static void TestStrikeIsD20Threshold(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(TestStrikeIsD20Threshold));
+            var state = new EnvironmentCombatStateManager();
+            TestBase.AssertEqual(20, state.GetStrikeThreshold(true), "fresh room strikes only on a natural 20", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(21, state.GetStrikeThreshold(false), "non-hostile room never acts", ref run, ref pass, ref fail);
+            try
+            {
+                Dice.QueueUnforcedTestRolls(19, 19);
+                TestBase.AssertTrue(!state.ShouldEnvironmentAct(true), "19 misses a 20 threshold", ref run, ref pass, ref fail);
+                TestBase.AssertEqual(19, state.GetStrikeThreshold(true), "quiet turn widens the strike range by one face", ref run, ref pass, ref fail);
+                TestBase.AssertTrue(state.ShouldEnvironmentAct(true), "19 meets the widened threshold", ref run, ref pass, ref fail);
+                TestBase.AssertEqual(20, state.GetStrikeThreshold(true), "striking resets the threshold", ref run, ref pass, ref fail);
+            }
+            finally
+            {
+                Dice.ClearUnforcedTestRolls();
+            }
         }
 
         private static void TestElegantBoostsRoll(ref int run, ref int pass, ref int fail)

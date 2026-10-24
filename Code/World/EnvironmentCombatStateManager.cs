@@ -5,43 +5,38 @@ namespace RPGGame
 {
     /// <summary>
     /// Manages combat state for environmental effects in a room.
-    /// Tracks whether the environment should act during combat with probability scaling.
+    /// The environment rolls a d20 each turn and acts on a high enough face; every quiet turn widens the strike range.
     /// </summary>
     public class EnvironmentCombatStateManager
     {
         private int environmentActionCount = 0;
         private int maxEnvironmentActions = 2;
         private int failedAttempts = 0;
-        private double baseEnvironmentChance = 0.05;
-        private double environmentChanceIncrease = 0.05;
-        private double chanceMultiplier = 1.0;
-        private Random random;
-
-        public EnvironmentCombatStateManager()
-        {
-            random = new Random();
-        }
+        private const int BaseStrikeFaces = 1;
+        private const int StrikeFacesPerFailedAttempt = 1;
+        private const int MaxStrikeFaces = 10;
+        private double strikeFacesMultiplier = 1.0;
 
         public void ConfigureActivityFromTags(IEnumerable<string>? tags)
         {
-            chanceMultiplier = 1.0;
+            strikeFacesMultiplier = 1.0;
             maxEnvironmentActions = 2;
             if (tags == null)
                 return;
 
             if (tags.Any(t => string.Equals(t, "dormant", StringComparison.OrdinalIgnoreCase)))
             {
-                chanceMultiplier = 0.25;
+                strikeFacesMultiplier = 0.25;
                 maxEnvironmentActions = 1;
             }
             else if (tags.Any(t => string.Equals(t, "active", StringComparison.OrdinalIgnoreCase)))
             {
-                chanceMultiplier = 2.0;
+                strikeFacesMultiplier = 2.0;
                 maxEnvironmentActions = 3;
             }
             else if (tags.Any(t => string.Equals(t, "cycling", StringComparison.OrdinalIgnoreCase)))
             {
-                chanceMultiplier = 1.0;
+                strikeFacesMultiplier = 1.0;
                 maxEnvironmentActions = 2;
             }
         }
@@ -52,23 +47,27 @@ namespace RPGGame
             failedAttempts = 0;
         }
 
-        /// <summary>Chance the environment's next turn acts (0 once it has used its actions or isn't hostile).</summary>
-        public double GetChanceToAct(bool isHostile)
+        /// <summary>
+        /// Lowest d20 face on which the environment's next turn acts (21 once it has used its actions or isn't hostile).
+        /// </summary>
+        public int GetStrikeThreshold(bool isHostile)
         {
             if (environmentActionCount >= maxEnvironmentActions || !isHostile)
-                return 0.0;
+                return 21;
 
-            double currentChance = (baseEnvironmentChance + (failedAttempts * environmentChanceIncrease)) * chanceMultiplier;
-            return Math.Min(currentChance, 0.50);
+            int faces = (int)Math.Floor((BaseStrikeFaces + failedAttempts * StrikeFacesPerFailedAttempt) * strikeFacesMultiplier);
+            faces = Math.Clamp(faces, 1, MaxStrikeFaces);
+            return 21 - faces;
         }
 
         public bool ShouldEnvironmentAct(bool isHostile)
         {
-            double currentChance = GetChanceToAct(isHostile);
-            if (currentChance <= 0.0)
+            int threshold = GetStrikeThreshold(isHostile);
+            if (threshold > 20)
                 return false;
 
-            if (random.NextDouble() < currentChance)
+            // Unforced so scripted/lab d20 queues meant for actors aren't consumed by the room.
+            if (Dice.RollUnforced(20) >= threshold)
             {
                 environmentActionCount++;
                 failedAttempts = 0;

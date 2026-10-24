@@ -158,8 +158,8 @@ namespace RPGGame
             return combatStateManager.ShouldEnvironmentAct(IsHostile);
         }
 
-        /// <summary>Chance the environment's next turn acts, for the combat board's turn queue.</summary>
-        public double ChanceToAct => combatStateManager.GetChanceToAct(IsHostile);
+        /// <summary>Lowest d20 face on which the environment's next turn acts (21 = won't act), for the combat board.</summary>
+        public int StrikeThreshold => combatStateManager.GetStrikeThreshold(IsHostile);
 
         public override string GetDescription()
         {
