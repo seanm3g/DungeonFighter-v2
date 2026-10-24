@@ -419,6 +419,11 @@ _build_verify_out/
 /build-verify-multi-affix/
 Code/_bc3/
 Code/_buildcheck*/
+# Ad-hoc build/verify output folders (dotnet build -o ...) under Code/
+Code/_*/
+Code/bin_*/
+Code/obj_*/
+Code/verify_out/
 tools/JsonParseProbe/
 
 # Claude AI settings
