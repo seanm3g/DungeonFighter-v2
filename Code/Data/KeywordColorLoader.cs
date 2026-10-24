@@ -104,39 +104,6 @@ namespace RPGGame.Data
         }
         
         /// <summary>
-        /// Loads keyword groups and registers them with KeywordColorSystem
-        /// </summary>
-        public static void LoadAndRegisterKeywordGroups()
-        {
-            var config = LoadKeywordColors();
-            
-            if (config.Groups == null)
-            {
-                ErrorHandler.LogWarning("No keyword groups found in KeywordColorGroups.json", "KeywordColorLoader");
-                return;
-            }
-            
-            foreach (var groupData in config.Groups)
-            {
-                try
-                {
-                    // Add each keyword to the group using the simplified API
-                    if (groupData.Keywords != null && groupData.Keywords.Count > 0)
-                    {
-                        foreach (var keyword in groupData.Keywords)
-                        {
-                            KeywordColorSystem.AddKeyword(keyword, groupData.Name);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ErrorHandler.LogError(ex, "KeywordColorLoader", $"Failed to load keyword group: {groupData.Name}");
-                }
-            }
-        }
-        
-        /// <summary>
         /// Reloads the keyword color configuration from disk
         /// </summary>
         public static void Reload()
