@@ -2,6 +2,8 @@
 
 Draft, 2026-10-25. A proposal only: `GameData/Actions.json` is unchanged.
 
+> **Superseded in part by [ACTION_ROSTER_V2.md](ACTION_ROSTER_V2.md).** v2 applies the design decisions (flat vs % modifiers, Vulnerability over Expose, four-scope ladders, Rogue multi-hit and dice, AMP Wizard then Warrior) and aims for every mechanic to be expressed rather than for a minimal roster. Where the two disagree, v2 wins. The layer model, enemy section and build matrix here still apply.
+
 This sorts every action in `Actions.json` by the layer it teaches (L0–L7, simplest to most complex), and marks each one **Keep**, **Merge** (becomes a variant of another action) or **Cut**. Each class's ladder is marked in the **Class** column and summarised at the end.
 
 ## Result
