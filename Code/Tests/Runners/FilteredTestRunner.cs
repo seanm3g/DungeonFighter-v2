@@ -266,6 +266,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("data", "FlavorText", () => RPGGame.Tests.Unit.FlavorTextBankCatalogTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "FlavorTextSheetConverter", () => RPGGame.Tests.Unit.Data.FlavorTextSheetConverterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "SkillTreesSheetConverter", () => RPGGame.Tests.Unit.Data.SkillTreesSheetConverterTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("data", "ActionModelConverter", () => RPGGame.Tests.Unit.Data.ActionModelConverterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "FlavorTextWindowPlacement", () => RPGGame.Tests.Unit.UI.FlavorTextWindowPlacementTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionLabWindowPlacement", () => RPGGame.Tests.Unit.UI.ActionLabWindowPlacementTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "SettingsMenuHandler", () => RPGGame.Tests.Unit.Game.Handlers.SettingsMenuHandlerTests.RunAllTests()));
