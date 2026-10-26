@@ -229,6 +229,8 @@ namespace RPGGame
         public double ConsumedWeaponDamageFlat { get; set; }
         /// <summary>Flat weapon speed points from consumed WEAPON_SPEED (each point ≈ −0.1 weapon time mult).</summary>
         public double ConsumedWeaponSpeedFlat { get; set; }
+        /// <summary>WEAPON_SPEED the last swing used, kept past <see cref="ClearConsumedModifierBonuses"/> for the same reason as <see cref="LastSwingSpeedModPercent"/>.</summary>
+        public double LastSwingWeaponSpeedFlat { get; set; }
         /// <summary>TURN bonuses consumed this roll; apply stat bonuses on hit, then clear.</summary>
         public List<ActionAttackBonusItem> ConsumedTurnBonusesThisRoll { get; set; } = new List<ActionAttackBonusItem>();
 

@@ -40,6 +40,22 @@ namespace RPGGame.Actions.Execution
                     result.IsCombo,
                     result.IsCritical,
                     result.StatusEffectMessages);
+                // The action's own same-swing bundles (BERSERKER's "this hit +50%") must land before damage too.
+                ActionTriggerBundleApplicator.ApplySameSwingBundles(
+                    selected,
+                    new CombatEvent(CombatEventType.ActionHit, source)
+                    {
+                        Target = target,
+                        Action = selected,
+                        NaturalRollValue = result.NaturalRollValue,
+                        RollValue = result.ModifiedBaseRoll + result.RollBonus,
+                        IsCombo = result.IsCombo,
+                        IsCritical = result.IsCritical,
+                        IsMiss = false
+                    },
+                    source,
+                    target,
+                    result.StatusEffectMessages);
             }
             long pfHit = RPGGame.Diagnostics.ToolProfiler.Start();
             var hitEvent = ActionEventPublisher.PublishActionHit(

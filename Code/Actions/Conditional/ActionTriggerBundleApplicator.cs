@@ -107,7 +107,43 @@ namespace RPGGame.Actions.Conditional
             Actor source,
             Actor target,
             List<string> messages,
-            bool allowWhileEquippedSameSwing = false)
+            bool allowWhileEquippedSameSwing = false,
+            bool skipSameSwing = false)
+        {
+            return ApplyMatchingBundlesCore(action, combatEvent, source, target, messages,
+                allowWhileEquippedSameSwing, skipSameSwing ? SameSwingPass.Skip : SameSwingPass.Include);
+        }
+
+        /// <summary>
+        /// Pre-damage pass for the swinging action's own bundles: applies only same-swing ids
+        /// (<c>hero_action_damage</c> / speed / amp) against a provisional hit event, so the bonus lands on this swing.
+        /// The post-hit pass must then use <c>skipSameSwing</c> so they are not applied twice.
+        /// </summary>
+        public static bool ApplySameSwingBundles(
+            Action action,
+            CombatEvent provisionalHit,
+            Actor source,
+            Actor target,
+            List<string> messages)
+        {
+            return ApplyMatchingBundlesCore(action, provisionalHit, source, target, messages,
+                allowWhileEquippedSameSwing: false, SameSwingPass.Only);
+        }
+
+        /// <summary>Same-swing mechanic ids: they modify the hit being resolved, so they must apply before damage.</summary>
+        public static bool IsSameSwingMechanic(string? mechanicId) =>
+            ActionMechanicsRegistry.NormalizeMechanicId(mechanicId) is "hero_action_damage" or "hero_action_speed" or "hero_action_amp";
+
+        private enum SameSwingPass { Include, Skip, Only }
+
+        private static bool ApplyMatchingBundlesCore(
+            Action action,
+            CombatEvent? combatEvent,
+            Actor source,
+            Actor target,
+            List<string> messages,
+            bool allowWhileEquippedSameSwing,
+            SameSwingPass sameSwing)
         {
             if (action?.Triggers?.Bundles == null || action.Triggers.Bundles.Count == 0)
                 return false;
@@ -119,12 +155,17 @@ namespace RPGGame.Actions.Conditional
             {
                 if (bundle == null || !bundle.IsEnabled)
                     continue;
-                if (bundle.ParseMechanicIds().Count == 0)
+                var ids = bundle.ParseMechanicIds();
+                if (ids.Count == 0)
+                    continue;
+                if (sameSwing == SameSwingPass.Only && !ids.Any(IsSameSwingMechanic))
+                    continue;
+                if (sameSwing == SameSwingPass.Skip && ids.All(IsSameSwingMechanic))
                     continue;
                 if (!BundleWhenMatches(bundle, action, combatEvent, allowWhileEquippedSameSwing))
                     continue;
 
-                any |= ApplyBundle(bundle, action, source, target, messages);
+                any |= ApplyBundle(bundle, action, source, target, messages, sameSwing);
             }
 
             return any;
@@ -187,7 +228,8 @@ namespace RPGGame.Actions.Conditional
             Action action,
             Actor source,
             Actor target,
-            List<string> messages)
+            List<string> messages,
+            SameSwingPass sameSwing = SameSwingPass.Include)
         {
             string scope = CadenceKeywords.Normalize(bundle.Scope);
             bool lasting = CadenceKeywords.IsTurn(scope)
@@ -212,6 +254,10 @@ namespace RPGGame.Actions.Conditional
                 }
 
                 if (string.IsNullOrEmpty(id))
+                    continue;
+                if (sameSwing == SameSwingPass.Only && !IsSameSwingMechanic(id))
+                    continue;
+                if (sameSwing == SameSwingPass.Skip && IsSameSwingMechanic(id))
                     continue;
 
                 if (id is "heal" or "max_health")

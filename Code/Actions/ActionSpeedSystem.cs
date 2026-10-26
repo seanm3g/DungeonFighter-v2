@@ -129,8 +129,14 @@ namespace RPGGame
             }
             else if (entity is Character character)
             {
-                // For heroes (non-enemy characters): use the new attack speed system
+                // For heroes (non-enemy characters): use the new attack speed system.
+                // The swing's WEAPON_SPEED points were cleared with the other consumed mods; put them back while timing it.
+                double lastWeaponSpeed = character is not Enemy ? character.Effects.TakeLastSwingWeaponSpeedFlat() : 0;
+                if (lastWeaponSpeed != 0)
+                    character.Effects.ConsumedWeaponSpeedFlat += lastWeaponSpeed;
                 double attackSpeed = character.GetTotalAttackSpeed();
+                if (lastWeaponSpeed != 0)
+                    character.Effects.ConsumedWeaponSpeedFlat -= lastWeaponSpeed;
                 
                 // Use action length for all actions
                 double lengthMultiplier = action.Length;

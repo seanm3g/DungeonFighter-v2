@@ -63,6 +63,15 @@ namespace RPGGame
             _state.LastSwingSpeedModPercent = 0;
             return v;
         }
+        public double LastSwingWeaponSpeedFlat { get => _state.LastSwingWeaponSpeedFlat; set => _state.LastSwingWeaponSpeedFlat = value; }
+
+        /// <summary>Returns and clears <see cref="LastSwingWeaponSpeedFlat"/> (read once when the swing's duration is set).</summary>
+        public double TakeLastSwingWeaponSpeedFlat()
+        {
+            double v = _state.LastSwingWeaponSpeedFlat;
+            _state.LastSwingWeaponSpeedFlat = 0;
+            return v;
+        }
         public double ConsumedMultiHitMod { get => _state.ConsumedMultiHitMod; set => _state.ConsumedMultiHitMod = value; }
         public double ConsumedAmpModPercent { get => _state.ConsumedAmpModPercent; set => _state.ConsumedAmpModPercent = value; }
         public double ConsumedSkillAmpPercent { get => _state.ConsumedSkillAmpPercent; set => _state.ConsumedSkillAmpPercent = value; }

@@ -100,6 +100,49 @@ namespace RPGGame
                     carrier, combatEvent, hero, attacker ?? hero, messages);
             }
 
+            any |= ApplyStripTakeHitBundles(hero, attacker, combatEvent, messages);
+            return any;
+        }
+
+        /// <summary>
+        /// ONTAKEHIT bundles on actions in the hero's strip fire while slotted (RETALIATE: "when hit, next action +25%"),
+        /// the same way gear procs do: the hit happens on the enemy's turn, outside the action's own swing.
+        /// Only the take-hit bundles ride along, so the action's ONCONNECT bundles never match the enemy's hit.
+        /// </summary>
+        private static bool ApplyStripTakeHitBundles(
+            Character hero,
+            Actor? attacker,
+            CombatEvent combatEvent,
+            List<string> messages)
+        {
+            bool any = false;
+            foreach (var action in ActionUtilities.GetComboActions(hero)
+                         .GroupBy(a => a.Name, StringComparer.OrdinalIgnoreCase)
+                         .Select(g => g.First()))
+            {
+                var bundles = action.Triggers?.Bundles?
+                    .Where(b => b != null && b.IsEnabled && IsTakeHitWhen(b.When))
+                    .ToList();
+                if (bundles == null || bundles.Count == 0)
+                    continue;
+
+                var carrier = new Action
+                {
+                    Name = action.Name,
+                    Type = action.Type,
+                    Tags = action.Tags,
+                    Triggers = new ConditionalTriggerProperties
+                    {
+                        Bundles = bundles,
+                        TriggerConditions = action.Triggers!.TriggerConditions
+                    },
+                    Advanced = new AdvancedMechanicsProperties(),
+                    RollMods = new RollModificationProperties()
+                };
+                any |= ActionTriggerBundleApplicator.ApplyMatchingBundles(
+                    carrier, combatEvent, hero, attacker ?? hero, messages);
+            }
+
             return any;
         }
 

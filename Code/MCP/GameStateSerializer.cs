@@ -117,7 +117,7 @@ namespace RPGGame.MCP
                 Level = player.Level,
                 XP = player.XP,
                 CurrentHealth = player.CurrentHealth,
-                MaxHealth = player.MaxHealth,
+                MaxHealth = player.GetEffectiveMaxHealth(),
                 HealthPercentage = player.GetHealthPercentage(),
                 Strength = player.Strength,
                 Agility = player.Agility,

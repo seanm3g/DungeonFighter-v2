@@ -247,6 +247,7 @@ namespace RPGGame.Actions.Execution
                 if (RetriggerDepth == 0)
                 {
                     clearConsumedAfterSwing.Effects.LastSwingSpeedModPercent = clearConsumedAfterSwing.Effects.ConsumedSpeedModPercent;
+                    clearConsumedAfterSwing.Effects.LastSwingWeaponSpeedFlat = clearConsumedAfterSwing.Effects.ConsumedWeaponSpeedFlat;
                     // A replaced swing that missed (no strip advance) must not carry its slot into the next swing.
                     clearConsumedAfterSwing.ReplacedStripSlot = null;
                 }

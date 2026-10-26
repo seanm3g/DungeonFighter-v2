@@ -144,8 +144,9 @@ namespace RPGGame
                 }
             }
 
+            // Same-swing ids already ran before damage (ActionExecutionFlow.ApplyHitOutcome).
             effectsApplied |= ActionTriggerBundleApplicator.ApplyMatchingBundles(
-                action, combatEvent, attacker, target, results);
+                action, combatEvent, attacker, target, results, skipSameSwing: true);
 
             // Room clear runs a dedicated equip pass once in RoomClearedTriggerApplicator
             // (pool actions may call ApplyStatusEffects multiple times).

@@ -28,6 +28,11 @@ namespace RPGGame.Tests.Unit
             TestOwnedWeaken_SkippedByWholeRowGate_OnHit();
             TestBlankScope_InstantDamageMod_BanksActionCadence();
             TestGateOnlyListed_PoisonStillAppliesOnHitWhileWeakenIsOwned();
+            TestSameSwingDamage_LandsBeforeDamage_AndPostPassSkipsIt();
+            TestSameSwingDamage_RespectsTargetHealthFilter();
+            TestTakeHit_StripActionBanksNextActionDamage();
+            TestTakeHit_StripActionOnConnectDoesNotFireOnEnemyHit();
+            TestWeaponSpeedFlat_ShortensTheSwingThatUsedIt();
 
             TestBase.PrintSummary("Action Trigger Bundle Applicator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -181,6 +186,153 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!foe.IsWeakened,
                 "owned weaken still skipped on hit",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static Action MakeSameSwingAction(string name, params string[] conditions)
+        {
+            return new Action
+            {
+                Name = name,
+                Type = ActionType.Attack,
+                Advanced = new AdvancedMechanicsProperties(),
+                Triggers = new ConditionalTriggerProperties
+                {
+                    TriggerConditions = conditions.ToList(),
+                    Bundles = new List<ActionTriggerBundle>
+                    {
+                        new ActionTriggerBundle { When = "ONCONNECT", Count = "1", Scope = "", Mechanics = "hero_action_damage", Value = 50 }
+                    }
+                }
+            };
+        }
+
+        private static CombatEvent HitBy(Actor source, Actor target, Action action) =>
+            new CombatEvent(CombatEventType.ActionHit, source) { Target = target, Action = action };
+
+        private static void TestSameSwingDamage_LandsBeforeDamage_AndPostPassSkipsIt()
+        {
+            TestBase.SetCurrentTestName(nameof(TestSameSwingDamage_LandsBeforeDamage_AndPostPassSkipsIt));
+            var hero = new Character("SameSwingHero", 1);
+            var foe = new Enemy("Goblin", 1, 100, 10, 5, 5, 5);
+            var action = MakeSameSwingAction("SAME SWING");
+            var messages = new List<string>();
+
+            bool pre = ActionTriggerBundleApplicator.ApplySameSwingBundles(action, HitBy(hero, foe, action), hero, foe, messages);
+            TestBase.AssertTrue(pre, "pre-damage pass applies the action's own hero_action_damage",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Math.Abs(hero.Effects.ConsumedDamageModPercent - 50) < 0.001,
+                $"this swing carries +50% damage (got {hero.Effects.ConsumedDamageModPercent})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            ActionTriggerBundleApplicator.ApplyMatchingBundles(action, HitBy(hero, foe, action), hero, foe, messages, skipSameSwing: true);
+            TestBase.AssertTrue(Math.Abs(hero.Effects.ConsumedDamageModPercent - 50) < 0.001,
+                "post-hit pass does not apply it a second time",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestSameSwingDamage_RespectsTargetHealthFilter()
+        {
+            TestBase.SetCurrentTestName(nameof(TestSameSwingDamage_RespectsTargetHealthFilter));
+            var hero = new Character("ExecuteHero", 1);
+            var foe = new Enemy("Goblin", 1, 100, 10, 5, 5, 5);
+            var action = MakeSameSwingAction("EXECUTE", "IFTARGETHEALTHBELOW:25");
+            var messages = new List<string>();
+
+            ActionTriggerBundleApplicator.ApplySameSwingBundles(action, HitBy(hero, foe, action), hero, foe, messages);
+            TestBase.AssertTrue(hero.Effects.ConsumedDamageModPercent == 0,
+                "no bonus while the target is above 25% HP",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            foe.CurrentHealth = foe.MaxHealth / 5;
+            ActionTriggerBundleApplicator.ApplySameSwingBundles(action, HitBy(hero, foe, action), hero, foe, messages);
+            TestBase.AssertTrue(Math.Abs(hero.Effects.ConsumedDamageModPercent - 50) < 0.001,
+                $"+50% once the target is at 20% HP (got {hero.Effects.ConsumedDamageModPercent})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static Character HeroWithStripAction(string heroName, Action action)
+        {
+            var hero = new Character(heroName, 1);
+            action.IsComboAction = true;
+            hero.AddAction(action, 1.0);
+            hero.AddToCombo(action);
+            return hero;
+        }
+
+        private static void TestTakeHit_StripActionBanksNextActionDamage()
+        {
+            TestBase.SetCurrentTestName(nameof(TestTakeHit_StripActionBanksNextActionDamage));
+            var retaliate = new Action
+            {
+                Name = "RETALIATE",
+                Type = ActionType.Attack,
+                Advanced = new AdvancedMechanicsProperties(),
+                Triggers = new ConditionalTriggerProperties
+                {
+                    Bundles = new List<ActionTriggerBundle>
+                    {
+                        new ActionTriggerBundle { When = "ONTAKEHIT", Count = "1", Scope = "ACTION", Mechanics = "hero_next_action_damage", Value = 25 }
+                    }
+                }
+            };
+            var hero = HeroWithStripAction("RetaliateHero", retaliate);
+            var foe = new Enemy("Goblin", 1, 100, 10, 5, 5, 5);
+            var bite = new Action { Name = "BITE", Type = ActionType.Attack, Advanced = new AdvancedMechanicsProperties() };
+            var messages = new List<string>();
+
+            bool fired = EquippedItemTriggerApplicator.ApplyFromDefender(hero, foe, HitBy(foe, hero, bite), messages);
+            TestBase.AssertTrue(fired, "slotted ONTAKEHIT bundle fires when the hero is hit",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(hero.Effects.HasPendingActionCadenceBank(),
+                "it banks next-action damage",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestTakeHit_StripActionOnConnectDoesNotFireOnEnemyHit()
+        {
+            TestBase.SetCurrentTestName(nameof(TestTakeHit_StripActionOnConnectDoesNotFireOnEnemyHit));
+            var strike = new Action
+            {
+                Name = "SETUP STRIKE",
+                Type = ActionType.Attack,
+                Advanced = new AdvancedMechanicsProperties(),
+                Triggers = new ConditionalTriggerProperties
+                {
+                    Bundles = new List<ActionTriggerBundle>
+                    {
+                        new ActionTriggerBundle { When = "ONCONNECT", Count = "1", Scope = "ACTION", Mechanics = "hero_next_action_damage", Value = 25 }
+                    }
+                }
+            };
+            var hero = HeroWithStripAction("ConnectHero", strike);
+            var foe = new Enemy("Goblin", 1, 100, 10, 5, 5, 5);
+            var bite = new Action { Name = "BITE", Type = ActionType.Attack, Advanced = new AdvancedMechanicsProperties() };
+
+            EquippedItemTriggerApplicator.ApplyFromDefender(hero, foe, HitBy(foe, hero, bite), new List<string>());
+            TestBase.AssertTrue(!hero.Effects.HasPendingActionCadenceBank(),
+                "a slotted action's ONCONNECT bundle ignores the enemy's hit",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestWeaponSpeedFlat_ShortensTheSwingThatUsedIt()
+        {
+            TestBase.SetCurrentTestName(nameof(TestWeaponSpeedFlat_ShortensTheSwingThatUsedIt));
+            var hero = new Character("WeaponSpeedHero", 1);
+            var swing = new Action { Name = "SWING", Type = ActionType.Attack, Length = 1.0, Advanced = new AdvancedMechanicsProperties() };
+            var speed = new ActionSpeedSystem();
+            speed.AddEntity(hero, 1.0);
+
+            double plain = speed.ExecuteAction(hero, swing);
+            // The action flow clears consumed mods before the duration is set; WEAPON_SPEED rides over in LastSwingWeaponSpeedFlat.
+            hero.Effects.LastSwingWeaponSpeedFlat = 5;
+            double faster = speed.ExecuteAction(hero, swing);
+
+            TestBase.AssertTrue(faster < plain,
+                $"+5 weapon speed shortens the swing ({faster:F3}s vs {plain:F3}s)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(hero.Effects.LastSwingWeaponSpeedFlat == 0 && hero.Effects.ConsumedWeaponSpeedFlat == 0,
+                "the carried points are used once and nothing stays behind",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

@@ -110,7 +110,7 @@ namespace RPGGame.Tuning
                     EnemyLevel = enemy.Level,
                     EnemyMaxHealth = enemy.MaxHealth,
                     HeroHpStart = hero.CurrentHealth,
-                    HeroMaxHp = hero.MaxHealth,
+                    HeroMaxHp = hero.GetEffectiveMaxHealth(),
                     FightInDungeon = _fightInDungeon,
                     RoomsClearedInDungeon = _roomsCleared
                 };
@@ -121,7 +121,7 @@ namespace RPGGame.Tuning
             else
                 _current!.EnemyActions++;
             if (Verbose)
-                _trace?.Invoke($"      {evt.Source?.Name,-14} {evt.Action?.Name,-16} roll {evt.RollValue,2}{(evt.IsCombo ? " combo" : "")}{(evt.IsCritical ? " crit" : "")} | hero {hero.CurrentHealth}/{hero.MaxHealth} enemy {enemy.CurrentHealth}/{enemy.MaxHealth} | swing hero {hero.GetTotalAttackSpeed():F2}s enemy {enemy.GetTotalAttackSpeed():F2}s AGI {enemy.GetEffectiveAgility()} lvl {enemy.Level} | heroPenalty {hero.RollPenalty} hitThr {RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetHitThreshold(hero)} comboThr {RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetComboThreshold(hero)}");
+                _trace?.Invoke($"      {evt.Source?.Name,-14} {evt.Action?.Name,-16} roll {evt.RollValue,2}{(evt.IsCombo ? " combo" : "")}{(evt.IsCritical ? " crit" : "")} | hero {hero.CurrentHealth}/{hero.GetEffectiveMaxHealth()} enemy {enemy.CurrentHealth}/{enemy.MaxHealth} | swing hero {hero.GetTotalAttackSpeed():F2}s enemy {enemy.GetTotalAttackSpeed():F2}s AGI {enemy.GetEffectiveAgility()} lvl {enemy.Level} | heroPenalty {hero.RollPenalty} hitThr {RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetHitThreshold(hero)} comboThr {RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetComboThreshold(hero)}");
         }
 
         private void OnEnemyDied(CombatEvent evt)
