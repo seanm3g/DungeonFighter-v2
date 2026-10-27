@@ -36,9 +36,11 @@ ap.add_argument('--json', default='', help='write results here')
 ap.add_argument('--seed', type=int, default=1, help='base seed; each shard derives its own, so reruns replay the same heroes (0 = unseeded)')
 ap.add_argument('--parallel', type=int, default=os.cpu_count() or 8,
                 help='shards at once; all levels share one pool, so no level waits on the slowest shard of another')
+ap.add_argument('--classes', default=','.join(CLASSES), help='comma list of classes to run')
 ap.add_argument('--keep', default='', help='copy the raw shard JSON (fight rows) into this folder')
 ap.add_argument('--shard-timeout', type=int, default=1800, help='seconds before a shard is killed and dropped (a stuck fight)')
 A = ap.parse_args()
+CLASSES = [c.strip() for c in A.classes.split(',') if c.strip()]
 
 DLL = os.path.join(ROOT, A.tools, 'DF.dll')
 WORK = tempfile.mkdtemp(prefix='dsim-')
