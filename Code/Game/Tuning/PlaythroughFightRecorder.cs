@@ -42,6 +42,8 @@ namespace RPGGame.Tuning
         public int ComboHits { get; set; }
         /// <summary>HP the enemy lost by source: hit, dot, retrigger, reflect (during an enemy action), environment.</summary>
         public Dictionary<string, int> DamageBySource { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>HP the hero lost by source: hit (enemy swing), dot, retrigger, self (during its own action), environment.</summary>
+        public Dictionary<string, int> HeroDamageBySource { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         /// <summary>Parts of hit damage from crits, combo hits and convert actions (subsets of "hit"; they overlap).</summary>
         public int CritDamage { get; set; }
         public int ComboDamage { get; set; }
@@ -212,6 +214,15 @@ namespace RPGGame.Tuning
                     if (_hitCombo) _current.ComboDamage += lost;
                     if (_hitConvert) _current.ConvertDamage += lost;
                 }
+            }
+            else if (lost > 0 && ReferenceEquals(target, _hero))
+            {
+                // Hit during the hero's own action = self-damage (costs, reflect); otherwise by who acted last.
+                string key = source != DamageLedger.Hit ? source
+                    : _lastRole == Role.Other ? "environment"
+                    : _lastRole == Role.Hero ? "self"
+                    : DamageLedger.Hit;
+                _current.HeroDamageBySource[key] = _current.HeroDamageBySource.GetValueOrDefault(key) + lost;
             }
             UpdatePacing();
         }

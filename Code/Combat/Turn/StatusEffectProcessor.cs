@@ -59,11 +59,25 @@ namespace RPGGame.Combat.Turn
             }
         }
 
+        /// <summary>
+        /// combat.enemyDotFollowsDamageCurve: DoT ticks on the hero scale by enemySystem.damageCurve at the hero's level,
+        /// like enemy hits. Without it, enemy poison / burn / bleed ignore the curve (37% of hero HP lost at L10, where the
+        /// curve cuts hits to ~0.27x). The tick message still shows the unscaled amount.
+        /// </summary>
+        private static int ScaleHeroDot(Actor entity, int damage)
+        {
+            if (damage <= 0 || entity is Enemy || entity is not Character hero
+                || GameConfiguration.Instance.Combat?.EnemyDotFollowsDamageCurve != true)
+                return damage;
+            double m = GameConfiguration.Instance.EnemySystem?.DamageCurve?.MultiplierAt(hero.Level) ?? 1.0;
+            return Math.Max(1, (int)Math.Round(damage * m));
+        }
+
         /// <summary>Bleed resolves when the afflicted actor finishes their combat turn (including stun).</summary>
         public static void ProcessBleedAfterActorResolvedTurn(Actor entity)
         {
             var results = new List<string>();
-            int damage = CombatEffectsSimplified.ProcessBleedAfterActorTurn(entity, results);
+            int damage = ScaleHeroDot(entity, CombatEffectsSimplified.ProcessBleedAfterActorTurn(entity, results));
             if (damage > 0)
             {
                 string? barId = HealthBarEntityId.ForActor(entity);
@@ -103,7 +117,7 @@ namespace RPGGame.Combat.Turn
         {
             var results = new List<string>();
             var breakdown = CombatEffectsSimplified.ProcessStatusEffectsWithBreakdown(entity, results);
-            int damage = breakdown.TotalDamage;
+            int damage = ScaleHeroDot(entity, breakdown.TotalDamage);
 
             if (damage > 0)
             {

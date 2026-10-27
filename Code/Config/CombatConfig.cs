@@ -183,6 +183,8 @@ namespace RPGGame
 
         /// <summary>Burn / bleed tick damage × (1 + target level × this). 0 = legacy flat stacks (1 stack = 1 damage at any level).</summary>
         public double DotDamagePerLevel { get; set; }
+        /// <summary>DoT ticks on the hero scale by enemySystem.damageCurve at the hero's level (false = legacy, curve ignored).</summary>
+        public bool EnemyDotFollowsDamageCurve { get; set; }
         /// <summary>Most stacks of one Focus/Vulnerability/Harden/Expose status that count (0 = no cap).</summary>
         public int StatusMaxStacks { get; set; } = 3;
     }

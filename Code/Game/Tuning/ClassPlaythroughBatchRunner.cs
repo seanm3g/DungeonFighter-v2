@@ -84,7 +84,7 @@ namespace RPGGame.Tuning
             {
                 Class = r.ClassDisplayName, f.HeroLevel, Enemy = f.EnemyName, f.EnemyLevel, f.HeroActions, f.EnemyActions,
                 f.FightInDungeon, f.HeroDied, f.Strip, f.ActionUses, f.HpMinPct, f.LeadChanges, f.HeroMisses, f.LongestMissStreak, f.HeroHits, f.ComboHits, f.BossFight,
-                f.DamageBySource, f.CritDamage, f.ComboDamage, f.ConvertDamage,
+                f.DamageBySource, f.HeroDamageBySource, f.CritDamage, f.ComboDamage, f.ConvertDamage,
                 HpLost = f.HeroMaxHp > 0 ? Math.Round(Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp, 3) : 0
             }));
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(path))!);
