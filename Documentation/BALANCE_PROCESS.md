@@ -62,7 +62,7 @@ What the scan rows mean:
   retrigger, reflect; crit / combo / convert parts of hit), miss rate, HP lost per fight, kill speed and enemy swings per
   kill (log vs level mean), the primary-attribute reads (hit size per hero hit, tempo = hero actions per enemy action,
   both log vs level mean; combo lift = log of combo-hit over plain-hit damage), action spread. **class distance** flags
-  the closest pair under `--min-class-distance` (0.15, uncalibrated). **signature share** flags a class that doesn't
+  the closest pair under `--min-class-distance` (0.25, just under the 2026-10-26 baseline's Barbarian ~ Wizard 0.27). **signature share** flags a class that doesn't
   lead the roster on its primary attribute's read: Barbarian hit size (STR), Warrior tempo (AGI), Rogue crit (TEC),
   Wizard combo lift (INT).
 - Experience bands default to `experience` in balance-targets.json (designer answers 2026-10-26; the flags override).

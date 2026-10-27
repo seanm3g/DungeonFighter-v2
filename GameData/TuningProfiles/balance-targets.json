@@ -70,6 +70,6 @@
     "maxLengthP90": 2.5,
     "maxMissStreakShare": 10,
     "maxOneShotShare": 25,
-    "minClassDistance": 0.15
+    "minClassDistance": 0.25
   }
 }

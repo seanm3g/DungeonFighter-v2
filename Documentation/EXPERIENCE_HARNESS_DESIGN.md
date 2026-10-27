@@ -188,11 +188,11 @@ Live in `GameData/TuningProfiles/balance-targets.json` (`experience`, 2026-10-26
   "minDistinctCounterShare": 50,
   "viableWithin": 0.03, "dominantShare": 0.75,
   "minLengthCv": 0.25, "maxLengthP90": 2.5, "maxMissStreakShare": 10, "maxOneShotShare": 25,
-  "minClassDistance": 0.15
+  "minClassDistance": 0.25
 }
 ```
 
-`maxDryLevels` and `minDistinctCounterShare` have no scan row yet (phase 3). `minClassDistance` is still uncalibrated.
+`maxDryLevels` and `minDistinctCounterShare` have no scan row yet (phase 3). `minClassDistance` 0.25 sits just under the 2026-10-26 baseline's closest pair (Barbarian ~ Wizard 0.27), so it flags convergence from today. Baseline: `GameData/TuningRuns/balance-scan-baseline-2026-10-26.json` (local, gitignored; 6 heroes x 4 dungeons per class at L10-50).
 
 ## Phases
 
