@@ -50,5 +50,26 @@
     { "level": 100, "clear": 0 }
   ],
   "realClearTolerance": 4,
-  "retreatBelowHpPercent": 50
+  "retreatBelowHpPercent": 50,
+  "experience": {
+    "description": "Player-experience targets read by Scripts/balance-scan.py (designer answers 2026-10-26; see Documentation/EXPERIENCE_HARNESS_DESIGN.md). Command-line flags override these.",
+    "classSignatures": {
+      "Barbarian": "hit size",
+      "Warrior": "tempo",
+      "Rogue": "crit",
+      "Wizard": "combo lift"
+    },
+    "classSignatureWhy": "Each class plays to its primary attribute: Mace/STR scales damage (hit size), Sword/AGI swing speed (tempo: hero swings per enemy swing), Dagger/TEC lowers hit/combo/crit thresholds (crit share), Wand/INT the combo amplifier (combo lift: combo hit damage over plain hit damage).",
+    "signatureActionsMayDominate": true,
+    "closeCallBand": [5, 15],
+    "maxDryLevels": 1,
+    "minDistinctCounterShare": 50,
+    "viableWithin": 0.03,
+    "dominantShare": 0.75,
+    "minLengthCv": 0.25,
+    "maxLengthP90": 2.5,
+    "maxMissStreakShare": 10,
+    "maxOneShotShare": 25,
+    "minClassDistance": 0.15
+  }
 }

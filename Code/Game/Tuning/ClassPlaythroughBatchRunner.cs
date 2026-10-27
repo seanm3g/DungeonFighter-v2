@@ -83,7 +83,7 @@ namespace RPGGame.Tuning
             var rows = batch.ClassAggregates.SelectMany(a => a.Runs).SelectMany(r => r.Fights.Select(f => new
             {
                 Class = r.ClassDisplayName, f.HeroLevel, Enemy = f.EnemyName, f.EnemyLevel, f.HeroActions, f.EnemyActions,
-                f.FightInDungeon, f.HeroDied, f.Strip, f.ActionUses, f.HpMinPct, f.LeadChanges, f.HeroMisses, f.LongestMissStreak,
+                f.FightInDungeon, f.HeroDied, f.Strip, f.ActionUses, f.HpMinPct, f.LeadChanges, f.HeroMisses, f.LongestMissStreak, f.HeroHits, f.ComboHits,
                 f.DamageBySource, f.CritDamage, f.ComboDamage, f.ConvertDamage,
                 HpLost = f.HeroMaxHp > 0 ? Math.Round(Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp, 3) : 0
             }));

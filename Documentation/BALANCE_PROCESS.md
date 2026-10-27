@@ -60,10 +60,14 @@ What the scan rows mean:
   `--max-one-shot-share` 25%), lead changes per fight (metric only). FAIL from 6 heroes at the level.
 - **identity** (2026-10-26): a fingerprint per class over every scanned level (won fights): damage shares (dot,
   retrigger, reflect; crit / combo / convert parts of hit), miss rate, HP lost per fight, kill speed and enemy swings per
-  kill (log vs level mean), action spread. **class distance** flags the closest pair under `--min-class-distance`
-  (0.15, uncalibrated). **signature share** flags a class that doesn't lead the roster on its signature feature
-  (`experience.classSignatures` in balance-targets.json; default Barbarian convert, Rogue crit, Wizard dot, Warrior
-  open). Bands are proposals from `EXPERIENCE_HARNESS_DESIGN.md` until the designer sets them.
+  kill (log vs level mean), the primary-attribute reads (hit size per hero hit, tempo = hero actions per enemy action,
+  both log vs level mean; combo lift = log of combo-hit over plain-hit damage), action spread. **class distance** flags
+  the closest pair under `--min-class-distance` (0.15, uncalibrated). **signature share** flags a class that doesn't
+  lead the roster on its primary attribute's read: Barbarian hit size (STR), Warrior tempo (AGI), Rogue crit (TEC),
+  Wizard combo lift (INT).
+- Experience bands default to `experience` in balance-targets.json (designer answers 2026-10-26; the flags override).
+  A class's rare class actions (e.g. Warrior AVENGE) may dominate its strips: tracked as `signature action share`, not
+  flagged.
 
 First scan (overnight-v2, 2026-10-13): median turns L35 9.1 (FAIL), Goblin at L50 16.4 turns for the median build. The bot
 kills ×1.67 faster than the median build at L10 and ×0.72 slower at L35: `STEP[10]` (two-piece + convert) undershoots

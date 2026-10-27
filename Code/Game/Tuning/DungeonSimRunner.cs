@@ -129,7 +129,7 @@ namespace RPGGame.Tuning
                     {
                         Class = a.ClassDisplayName, Enemy = f.EnemyName, f.EnemyLevel, f.HeroActions, f.EnemyActions, f.FightInDungeon, f.HeroDied,
                         HpLost = f.HeroMaxHp > 0 ? Math.Round(Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp, 3) : 0,
-                        f.Strip, f.ActionUses, HpMinPct = Math.Round(f.HpMinPct, 3), f.LeadChanges, f.HeroMisses, f.LongestMissStreak,
+                        f.Strip, f.ActionUses, HpMinPct = Math.Round(f.HpMinPct, 3), f.LeadChanges, f.HeroMisses, f.LongestMissStreak, f.HeroHits, f.ComboHits,
                         f.DamageBySource, f.CritDamage, f.ComboDamage, f.ConvertDamage
                     }))).ToList(),
                     // Smart bot sequence searches at the level (viable-set reads in Scripts/balance-scan.py).

@@ -27,6 +27,23 @@ from datetime import datetime
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TARGETS = json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balance-targets.json'), encoding='utf-8-sig'))
 CLASSES = ['Barbarian', 'Warrior', 'Rogue', 'Wizard']
+EXP = TARGETS.get('experience', {})   # designer experience targets; the flags below default to them
+
+
+def signature_actions():
+    """Class -> its rare class actions (tags rare + class + class name, e.g. Warrior AVENGE). The designer allows these to
+    dominate their class's strips (experience.signatureActionsMayDominate)."""
+    out = {c: set() for c in CLASSES}
+    try:
+        actions = json.load(open(os.path.join(ROOT, 'GameData', 'Actions.json'), encoding='utf-8-sig'))
+    except (OSError, ValueError):
+        return out
+    for a in actions:
+        tags = {x.strip().lower() for x in str(a.get('tags', '')).split(',')}
+        for c in CLASSES:
+            if {'rare', 'class', c.lower()} <= tags:
+                out[c].add(str(a.get('action', '')).lower())
+    return out
 
 
 def median_steps():
@@ -52,14 +69,14 @@ ap.add_argument('--builds', default='', help='comma list of catalog builds (defa
 ap.add_argument('--min-fights', type=int, default=6, help='real fights an enemy needs at a level to be judged')
 ap.add_argument('--seed', type=int, default=1, help='base DUNGEONSIM seed so --compare scans replay the same heroes (0 = unseeded)')
 ap.add_argument('--bot-ratio', type=float, default=1.33, help='flag bot/median kill-speed ratios outside 1/x .. x')
-ap.add_argument('--viable-within', type=float, default=0.03, help='an action is viable when its best strip scores within this share of the best strip')
-ap.add_argument('--dominant-share', type=float, default=0.75, help="flag a non-required action in more than this share of a class's strips")
-ap.add_argument('--close-call-band', default='5,15', help='percent of won fights where the hero dropped below 25%% HP')
-ap.add_argument('--min-length-cv', type=float, default=0.25, help='flag levels whose fight lengths (hero actions) vary less than this (every fight alike)')
-ap.add_argument('--max-length-p90', type=float, default=2.5, help='flag levels whose p90 fight is this many times the median (slogs)')
-ap.add_argument('--max-miss-streak-share', type=float, default=10, help='percent of fights allowed a 4+ hero miss streak')
-ap.add_argument('--max-one-shot-share', type=float, default=25, help='percent of won fights allowed to end in <= 2 hero actions')
-ap.add_argument('--min-class-distance', type=float, default=0.15, help='flag class pairs whose fingerprints sit closer than this')
+ap.add_argument('--viable-within', type=float, default=EXP.get('viableWithin', 0.03), help='an action is viable when its best strip scores within this share of the best strip')
+ap.add_argument('--dominant-share', type=float, default=EXP.get('dominantShare', 0.75), help="flag a non-required action in more than this share of a class's strips")
+ap.add_argument('--close-call-band', default=','.join(str(x) for x in EXP.get('closeCallBand', [5, 15])), help='percent of won fights where the hero dropped below 25%% HP')
+ap.add_argument('--min-length-cv', type=float, default=EXP.get('minLengthCv', 0.25), help='flag levels whose fight lengths (hero actions) vary less than this (every fight alike)')
+ap.add_argument('--max-length-p90', type=float, default=EXP.get('maxLengthP90', 2.5), help='flag levels whose p90 fight is this many times the median (slogs)')
+ap.add_argument('--max-miss-streak-share', type=float, default=EXP.get('maxMissStreakShare', 10), help='percent of fights allowed a 4+ hero miss streak')
+ap.add_argument('--max-one-shot-share', type=float, default=EXP.get('maxOneShotShare', 25), help='percent of won fights allowed to end in <= 2 hero actions')
+ap.add_argument('--min-class-distance', type=float, default=EXP.get('minClassDistance', 0.15), help='flag class pairs whose fingerprints sit closer than this')
 ap.add_argument('--from', dest='from_scan', default='', help='re-analyze the raw results saved in an earlier scan JSON (no sims)')
 ap.add_argument('--compare', default='', help='earlier balance-scan JSON: print level metrics side by side')
 ap.add_argument('--parallel', type=int, default=os.cpu_count() or 8)
@@ -328,6 +345,7 @@ def analyze_variety(results, dungeon_levels):
       slot max means the strip is not a choice: the bot slots everything worth slotting.
     Dominance and dead actions pool every scanned level (2 heroes per class per level is too few alone)."""
     pooled = {c: {'heroes': 0, 'picks': {}, 'owned': {}, 'near': {}, 'required': set()} for c in CLASSES}
+    SIGNATURE_ACTIONS.update(signature_actions())
     for l in dungeon_levels:
         docs = [d for (k, lv, _), d in results if k == 'ds' and lv == l and d]
         for c in CLASSES:
@@ -381,6 +399,9 @@ def analyze_variety(results, dungeon_levels):
         status = 'FAIL' if n >= 6 else 'LIKELY'
         for a, s in sorted(p['picks'].items(), key=lambda kv: -kv[1]):
             if a.lower() in p['required'] or s / n < A.dominant_share:
+                continue
+            if EXP.get('signatureActionsMayDominate', True) and a.lower() in SIGNATURE_ACTIONS.get(c, ()):
+                METRICS[f'signature action share {c} {a}'] = round(s / n, 2)   # allowed to dominate; tracked only
                 continue
             finding('dominant action', 0, f'{c} {a}', f'in {100 * s / n:.0f}% of strips ({n} heroes)', f'< {100 * A.dominant_share:.0f}%',
                     (s / n - A.dominant_share) / (1 - A.dominant_share + 1e-9), status,
@@ -451,20 +472,35 @@ def analyze_pacing(results, dungeon_levels):
                     f'python Scripts/median-curve-solve.py {tools_arg()} --only health --levels {l}', 'the enemy never got to matter')
 
 
-SIGNATURE_DEFAULT = {'Barbarian': 'convert', 'Rogue': 'crit', 'Wizard': 'dot'}   # proposal; Warrior open
-FEATURES = ['dot', 'crit', 'combo', 'convert', 'retrigger', 'reflect', 'miss rate', 'hp lost', 'kill speed', 'enemy swings', 'action spread']
+# Each class plays to its primary attribute (designer, 2026-10-26): Mace/STR damage, Sword/AGI swing speed, Dagger/TEC
+# hit/combo/crit thresholds, Wand/INT combo amplifier. balance-targets.json experience.classSignatures overrides.
+SIGNATURE_DEFAULT = {'Barbarian': 'hit size', 'Warrior': 'tempo', 'Rogue': 'crit', 'Wizard': 'combo lift'}
+SIGNATURE_ACTIONS = {}
+LOG_FEATURES = {'kill speed', 'enemy swings', 'hit size', 'tempo', 'combo lift'}
+FEATURES = ['dot', 'crit', 'combo', 'convert', 'retrigger', 'reflect', 'miss rate', 'hp lost', 'kill speed', 'enemy swings',
+            'hit size', 'tempo', 'combo lift', 'action spread']
 IDENTITY = {}
 
 
 def analyze_identity(results, dungeon_levels):
     """Do classes fight differently? A fingerprint per class over every scanned level (won fights):
     damage shares (dot / retrigger / reflect of all enemy HP lost; crit / combo / convert parts of it), miss rate, HP lost
-    per fight, kill speed and enemy swings per kill (log of the hero's mean over the level mean, so levels pool), action
-    spread (effective actions used / strip length). Shares and rates are 0-1, so the Euclidean distance between
+    per fight, kill speed and enemy swings per kill (log of the hero's mean over the level mean, so levels pool), the
+    attribute reads (hit size: hit damage per hero hit, STR; tempo: hero actions per enemy action, AGI; both log vs the
+    level mean; combo lift: log of combo-hit damage over plain-hit damage, INT), action spread (effective actions used /
+    strip length). Shares and rates are 0-1, so the Euclidean distance between
     fingerprints reads directly; calibrate --min-class-distance on today's roster before trusting it.
     Signature share: each class with a declared signature (balance-targets.json experience.classSignatures, else
     SIGNATURE_DEFAULT) should lead the roster on that feature."""
-    acc = {c: {'heroes': 0, 'src': {}, 'tot': 0, 'misses': 0, 'acts': 0, 'hp': [], 'speed': [], 'swings': [], 'spread': []} for c in CLASSES}
+    acc = {c: {'heroes': 0, 'src': {}, 'tot': 0, 'misses': 0, 'acts': 0, 'hp': [], 'speed': [], 'swings': [], 'spread': [],
+               'size': [], 'tempo': [], 'lift': []} for c in CLASSES}
+
+    def per_hit(fs):
+        hits = sum(f.get('HeroHits', 0) for f in fs)
+        return sum(f['DamageBySource'].get('hit', 0) for f in fs) / hits if hits else None
+
+    def tempo(fs):
+        return sum(f['HeroActions'] for f in fs) / max(1, sum(f['EnemyActions'] for f in fs))
     for l in dungeon_levels:
         docs = level_docs(results, l)
         fights = [f for d in docs for f in d.get('Fights', []) if 'DamageBySource' in f]
@@ -472,6 +508,8 @@ def analyze_identity(results, dungeon_levels):
             continue
         mean_acts = statistics.mean(f['HeroActions'] for f in fights) or 1e-9
         mean_swings = statistics.mean(f['EnemyActions'] for f in fights) or 1e-9
+        mean_hit = per_hit(fights)
+        mean_tempo = tempo(fights)
         for d in docs:
             for c in {f['Class'] for f in d.get('Fights', [])}:
                 fs = [f for f in d['Fights'] if f['Class'] == c and 'DamageBySource' in f and not f['HeroDied']]
@@ -491,6 +529,16 @@ def analyze_identity(results, dungeon_levels):
                 a['hp'].append(statistics.mean(f['HpLost'] for f in fs))
                 a['speed'].append(math.log(max(0.5, statistics.mean(f['HeroActions'] for f in fs)) / mean_acts))
                 a['swings'].append(math.log(max(0.5, statistics.mean(f['EnemyActions'] for f in fs)) / mean_swings))
+                size = per_hit(fs)
+                if size and mean_hit:
+                    a['size'].append(math.log(size / mean_hit))
+                a['tempo'].append(math.log(max(0.05, tempo(fs)) / max(0.05, mean_tempo)))
+                combo_hits = sum(f.get('ComboHits', 0) for f in fs)
+                plain_hits = sum(f.get('HeroHits', 0) for f in fs) - combo_hits
+                combo_dmg = sum(f['ComboDamage'] for f in fs)
+                plain_dmg = sum(f['DamageBySource'].get('hit', 0) for f in fs) - combo_dmg
+                if combo_hits >= 3 and plain_hits >= 3 and combo_dmg > 0 and plain_dmg > 0:
+                    a['lift'].append(math.log((combo_dmg / combo_hits) / (plain_dmg / plain_hits)))
                 if all(f.get('Strip') for f in fs):
                     a['spread'].append(effective_count(list(uses.values())) / statistics.mean(len(f['Strip']) for f in fs))
     for c, a in acc.items():
@@ -500,6 +548,8 @@ def analyze_identity(results, dungeon_levels):
         fp['miss rate'] = a['misses'] / a['acts'] if a['acts'] else 0
         fp['hp lost'] = statistics.mean(a['hp']); fp['kill speed'] = statistics.mean(a['speed'])
         fp['enemy swings'] = statistics.mean(a['swings']); fp['action spread'] = statistics.mean(a['spread']) if a['spread'] else 0
+        for k, src in (('hit size', 'size'), ('tempo', 'tempo'), ('combo lift', 'lift')):
+            fp[k] = statistics.mean(a[src]) if a[src] else 0
         IDENTITY[c] = fp
         for k, v in fp.items():
             METRICS[f'identity {c} {k}'] = round(v, 3)
@@ -522,10 +572,12 @@ def analyze_identity(results, dungeon_levels):
             continue
         leader = max(IDENTITY, key=lambda k: IDENTITY[k][feature])
         if leader != c:
-            finding('identity: signature share', 0, f'{c} {feature}',
-                    f'{100 * IDENTITY[c][feature]:.1f}% ({leader} leads with {100 * IDENTITY[leader][feature]:.1f}%)',
-                    f'{c} leads the roster on {feature}',
-                    (IDENTITY[leader][feature] - IDENTITY[c][feature]) / max(1e-9, IDENTITY[leader][feature]),
+            # Shares print as percents; log reads (hit size, tempo, combo lift) as x factors.
+            fmt = (lambda v: f'x{math.exp(v):.2f}') if feature in LOG_FEATURES else (lambda v: f'{100 * v:.1f}%')
+            mine, top = IDENTITY[c][feature], IDENTITY[leader][feature]
+            gap = top - mine if feature in LOG_FEATURES else (top - mine) / max(1e-9, top)
+            finding('identity: signature share', 0, f'{c} {feature}', f'{fmt(mine)} ({leader} leads with {fmt(top)})',
+                    f'{c} leads the roster on {feature}', min(1.0, gap),
                     'FAIL' if acc[c]['heroes'] >= 6 else 'LIKELY',
                     f'dotnet {A.tools}/DF.dll SKILLVALUE --level <L> --classes {c}   (signature nodes), BUILDLAB --builds <{c} builds>',
                     'the class signature is not what sets it apart')

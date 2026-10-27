@@ -92,8 +92,10 @@ they are not the same.
 - **Rows:**
   - *class distance*: the smallest pairwise distance between class fingerprints (z-scored, Euclidean). Flag pairs
     under a threshold `TBD` (calibrate on today's roster: the closest pair today is the floor to beat).
-  - *signature share*: each class's declared signature (Barbarian rage/converts, Rogue crits/bleeds, Wizard elemental
-    statuses, Warrior …) is its largest damage source. Flag when it isn't.
+  - *signature share*: each class plays to the affordance of its primary attribute (designer, 2026-10-26), so it should
+    lead the roster on that attribute's read: Barbarian (Mace/STR, damage) **hit size**, Warrior (Sword/AGI, swing
+    speed) **tempo**, Rogue (Dagger/TEC, hit/combo/crit thresholds) **crit share**, Wizard (Wand/INT, combo amplifier)
+    **combo lift**. Flag when it doesn't.
   - *build distance within a class*: catalog builds of one class should differ (material sets exist for this).
 - **Focus:** RUNLOG `--verbose` for the two closest classes; SKILLVALUE for signature nodes.
 - **Levers:** class skill trees, gear action class share (`weaponGearActionClassShare`), material triggers, weapon speed spread.
@@ -175,18 +177,22 @@ pooled), so most will read LIKELY in the scan and be confirmed in focus.
 
 ## Targets file sketch
 
+Live in `GameData/TuningProfiles/balance-targets.json` (`experience`, 2026-10-26); scan flags override them:
+
 ```json
 "experience": {
-  "viableAboveSlotsFromLevel": 10,
-  "minActionBreadth": 1.5,
-  "maxDominantShare": 0.75,
-  "minClassDistance": "TBD",
+  "classSignatures": { "Barbarian": "hit size", "Warrior": "tempo", "Rogue": "crit", "Wizard": "combo lift" },
+  "signatureActionsMayDominate": true,
   "closeCallBand": [5, 15],
-  "maxMissStreak4Share": "TBD",
-  "maxDrySpellLevels": 3,
-  "minEnemiesWithOwnCounter": "TBD"
+  "maxDryLevels": 1,
+  "minDistinctCounterShare": 50,
+  "viableWithin": 0.03, "dominantShare": 0.75,
+  "minLengthCv": 0.25, "maxLengthP90": 2.5, "maxMissStreakShare": 10, "maxOneShotShare": 25,
+  "minClassDistance": 0.15
 }
 ```
+
+`maxDryLevels` and `minDistinctCounterShare` have no scan row yet (phase 3). `minClassDistance` is still uncalibrated.
 
 ## Phases
 
@@ -208,10 +214,13 @@ pooled), so most will read LIKELY in the scan and be confirmed in focus.
 4. **Gate and personas:** `experience` targets in `balance-targets.json`, set by the designer from phase 2–3 reads;
    persona scoring and wider evaluation enemies in the smart bot.
 
-## Open questions for the designer
+## Designer answers (2026-10-26)
 
-- Each class's **signature**: which damage source or status should dominate its fingerprint?
-- **Close-call rate**: how often should a won fight feel dangerous? Does that change with level?
-- **Unlock pacing**: how many levels may pass with no new action, slot or skill tier?
-- Should every enemy demand a different strip, or is "most enemies, one strip; a few, a counter" the goal?
-- Is a dominant action acceptable when it **is** the class's signature (e.g. Warrior AVENGE)?
+- **Signature:** each class plays differently, from the affordances of its primary attribute (Mace STR, Sword AGI,
+  Dagger TEC, Wand INT; `CharacterStats.GetPrimaryStatLabelForWeapon`). Encoded as the four signature reads above.
+- **Close calls:** a won fight should feel dangerous periodically, not all the time. Band 5-15% of won fights under
+  25% HP, at every level.
+- **Unlock pacing:** at most 1 level may pass with no new action, slot or skill tier (`maxDryLevels` 1).
+- **Encounters:** enemies may share a best strip, but most should want a different one (`minDistinctCounterShare` 50%).
+- **Signature dominance:** a class's rare class actions (tags `rare` + `class` + the class name, e.g. Warrior AVENGE)
+  may dominate its strips; the scan tracks their share as a metric instead of flagging them.

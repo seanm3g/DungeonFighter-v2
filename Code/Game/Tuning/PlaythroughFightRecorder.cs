@@ -35,6 +35,9 @@ namespace RPGGame.Tuning
         public int LeadChanges { get; set; }
         public int HeroMisses { get; set; }
         public int LongestMissStreak { get; set; }
+        /// <summary>Hero hits, and the combo ones among them (hit size and combo lift reads).</summary>
+        public int HeroHits { get; set; }
+        public int ComboHits { get; set; }
         /// <summary>HP the enemy lost by source: hit, dot, retrigger, reflect (during an enemy action), environment.</summary>
         public Dictionary<string, int> DamageBySource { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         /// <summary>Parts of hit damage from crits, combo hits and convert actions (subsets of "hit"; they overlap).</summary>
@@ -172,6 +175,9 @@ namespace RPGGame.Tuning
             if (Suspended || _current == null || !ReferenceEquals(evt.Source, _hero))
                 return;
             _missStreak = 0;
+            _current.HeroHits++;
+            if (evt.IsCombo)
+                _current.ComboHits++;
             _hitCrit = evt.IsCritical;
             _hitCombo = evt.IsCombo;
             _hitConvert = IsConvert(evt.Action?.Name);
