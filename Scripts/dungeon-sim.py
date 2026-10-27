@@ -36,6 +36,7 @@ ap.add_argument('--json', default='', help='write results here')
 ap.add_argument('--seed', type=int, default=1, help='base seed; each shard derives its own, so reruns replay the same heroes (0 = unseeded)')
 ap.add_argument('--parallel', type=int, default=os.cpu_count() or 8,
                 help='shards at once; all levels share one pool, so no level waits on the slowest shard of another')
+ap.add_argument('--keep', default='', help='copy the raw shard JSON (fight rows) into this folder')
 ap.add_argument('--shard-timeout', type=int, default=1800, help='seconds before a shard is killed and dropped (a stuck fight)')
 A = ap.parse_args()
 
@@ -210,6 +211,11 @@ def main():
     print(f'Provenance: {sorted({p for r in results for p in r["provenance"]})}')
     if A.json:
         json.dump(results, open(A.json, 'w', encoding='utf-8'), indent=2)
+    if A.keep:
+        os.makedirs(A.keep, exist_ok=True)
+        for f in os.listdir(WORK):
+            if f.endswith('.json') and not f.startswith('patch-'):
+                shutil.copy(os.path.join(WORK, f), A.keep)
     shutil.rmtree(WORK, ignore_errors=True)
 
 
