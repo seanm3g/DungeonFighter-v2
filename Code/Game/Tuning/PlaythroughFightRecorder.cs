@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using RPGGame.Combat.Analytics;
 using RPGGame.Combat.Events;
+using RPGGame.Data;
 
 namespace RPGGame.Tuning
 {
@@ -22,6 +25,22 @@ namespace RPGGame.Tuning
         public bool HeroDied { get; set; }
         /// <summary>The hero left the dungeon early after this fight (retreat; the dungeon is not cleared).</summary>
         public bool RetreatedAfter { get; set; }
+        /// <summary>Hero combo strip when the fight started.</summary>
+        public List<string> Strip { get; set; } = new();
+        /// <summary>Hero actions fired in the fight (action name → count).</summary>
+        public Dictionary<string, int> ActionUses { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Lowest hero HP during the fight, as a share of max HP.</summary>
+        public double HpMinPct { get; set; } = 1;
+        /// <summary>Times the lead (hero HP % vs enemy HP %) changed hands.</summary>
+        public int LeadChanges { get; set; }
+        public int HeroMisses { get; set; }
+        public int LongestMissStreak { get; set; }
+        /// <summary>HP the enemy lost by source: hit, dot, retrigger, reflect (during an enemy action), environment.</summary>
+        public Dictionary<string, int> DamageBySource { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Parts of hit damage from crits, combo hits and convert actions (subsets of "hit"; they overlap).</summary>
+        public int CritDamage { get; set; }
+        public int ComboDamage { get; set; }
+        public int ConvertDamage { get; set; }
     }
 
     /// <summary>
@@ -37,6 +56,12 @@ namespace RPGGame.Tuning
         private int _fightInDungeon;
         private int _roomsCleared;
         private readonly Action<string>? _trace;
+        private readonly Action<Actor, int, string> _onDamage;
+        private enum Role { Hero, Enemy, Other }
+        private Role _lastRole;
+        private bool _hitCrit, _hitCombo, _hitConvert;
+        private int _missStreak, _lead;
+        private static readonly Dictionary<string, bool> ConvertActions = new(StringComparer.OrdinalIgnoreCase);
 
         public List<PlaythroughFightRecord> Fights { get; } = new();
 
@@ -46,7 +71,11 @@ namespace RPGGame.Tuning
         /// <summary>When true, every action event is traced (RUNLOG --verbose).</summary>
         public static bool Verbose { get; set; }
 
-        public PlaythroughFightRecorder(Action<string>? trace) => _trace = trace;
+        public PlaythroughFightRecorder(Action<string>? trace)
+        {
+            _trace = trace;
+            _onDamage = OnDamage;
+        }
 
         /// <summary>
         /// Call before each session action. Always re-subscribes: new games call <c>CombatEventBus.Instance.Clear()</c>,
@@ -60,6 +89,9 @@ namespace RPGGame.Tuning
             _bus.Subscribe(CombatEventType.ActionExecuted, OnAction);
             _bus.Subscribe(CombatEventType.EnemyDied, OnEnemyDied);
             _bus.Subscribe(CombatEventType.RoomCleared, OnRoomCleared);
+            _bus.Subscribe(CombatEventType.ActionHit, OnHit);
+            _bus.Subscribe(CombatEventType.ActionMiss, OnMiss);
+            DamageLedger.Report = _onDamage;
         }
 
         /// <summary>Marks a new dungeon: fight and room counters restart.</summary>
@@ -92,6 +124,8 @@ namespace RPGGame.Tuning
         {
             if (Suspended)
                 return;
+            _lastRole = evt.Source is not Character ? Role.Other : evt.Source is Enemy ? Role.Enemy : Role.Hero;
+            _hitCrit = _hitCombo = _hitConvert = false;
             var (hero, enemy) = Resolve(evt.Source, evt.Target);
             if (hero == null || enemy == null)
                 return;
@@ -112,16 +146,93 @@ namespace RPGGame.Tuning
                     HeroHpStart = hero.CurrentHealth,
                     HeroMaxHp = hero.GetEffectiveMaxHealth(),
                     FightInDungeon = _fightInDungeon,
-                    RoomsClearedInDungeon = _roomsCleared
+                    RoomsClearedInDungeon = _roomsCleared,
+                    Strip = hero.GetComboActions().Select(a => a.Name).ToList()
                 };
+                _missStreak = 0;
+                _lead = 0;
+                UpdatePacing();
             }
 
             if (ReferenceEquals(evt.Source, hero))
+            {
                 _current!.HeroActions++;
+                string? name = evt.Action?.Name;
+                if (!string.IsNullOrWhiteSpace(name))
+                    _current.ActionUses[name] = _current.ActionUses.GetValueOrDefault(name) + 1;
+            }
             else
                 _current!.EnemyActions++;
             if (Verbose)
                 _trace?.Invoke($"      {evt.Source?.Name,-14} {evt.Action?.Name,-16} roll {evt.RollValue,2}{(evt.IsCombo ? " combo" : "")}{(evt.IsCritical ? " crit" : "")} | hero {hero.CurrentHealth}/{hero.GetEffectiveMaxHealth()} enemy {enemy.CurrentHealth}/{enemy.MaxHealth} | swing hero {hero.GetTotalAttackSpeed():F2}s enemy {enemy.GetTotalAttackSpeed():F2}s AGI {enemy.GetEffectiveAgility()} lvl {enemy.Level} | heroPenalty {hero.RollPenalty} hitThr {RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetHitThreshold(hero)} comboThr {RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetComboThreshold(hero)}");
+        }
+
+        private void OnHit(CombatEvent evt)
+        {
+            if (Suspended || _current == null || !ReferenceEquals(evt.Source, _hero))
+                return;
+            _missStreak = 0;
+            _hitCrit = evt.IsCritical;
+            _hitCombo = evt.IsCombo;
+            _hitConvert = IsConvert(evt.Action?.Name);
+        }
+
+        private void OnMiss(CombatEvent evt)
+        {
+            if (Suspended || _current == null || !ReferenceEquals(evt.Source, _hero))
+                return;
+            _current.HeroMisses++;
+            _current.LongestMissStreak = Math.Max(_current.LongestMissStreak, ++_missStreak);
+        }
+
+        /// <summary>HP actually lost by any actor (<see cref="DamageLedger"/>); attributes enemy HP loss to a source.</summary>
+        private void OnDamage(Actor target, int lost, string source)
+        {
+            if (Suspended || _current == null || lost == 0)
+                return;
+            if (lost > 0 && ReferenceEquals(target, _currentEnemy))
+            {
+                string key = source != DamageLedger.Hit ? source
+                    : _lastRole == Role.Other ? "environment"
+                    : _lastRole == Role.Enemy ? "reflect"
+                    : DamageLedger.Hit;
+                _current.DamageBySource[key] = _current.DamageBySource.GetValueOrDefault(key) + lost;
+                if (key == DamageLedger.Hit)
+                {
+                    if (_hitCrit) _current.CritDamage += lost;
+                    if (_hitCombo) _current.ComboDamage += lost;
+                    if (_hitConvert) _current.ConvertDamage += lost;
+                }
+            }
+            UpdatePacing();
+        }
+
+        /// <summary>Lowest hero HP and lead changes (whose HP share is higher), after every HP change.</summary>
+        private void UpdatePacing()
+        {
+            if (_current == null || _hero == null || _currentEnemy == null)
+                return;
+            int heroMax = _hero.GetEffectiveMaxHealth();
+            double heroPct = heroMax > 0 ? _hero.CurrentHealth / (double)heroMax : 0;
+            double enemyPct = _currentEnemy.MaxHealth > 0 ? _currentEnemy.CurrentHealth / (double)_currentEnemy.MaxHealth : 0;
+            _current.HpMinPct = Math.Min(_current.HpMinPct, Math.Max(0, heroPct));
+            int sign = Math.Sign(heroPct - enemyPct);
+            if (sign != 0 && _lead != 0 && sign != _lead)
+                _current.LeadChanges++;
+            if (sign != 0)
+                _lead = sign;
+        }
+
+        private static bool IsConvert(string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return false;
+            lock (ConvertActions)
+            {
+                if (!ConvertActions.TryGetValue(name, out bool isConvert))
+                    ConvertActions[name] = isConvert = MaterialBuildsLoader.FindByConvertAction(name) != null;
+                return isConvert;
+            }
         }
 
         private void OnEnemyDied(CombatEvent evt)
@@ -167,6 +278,10 @@ namespace RPGGame.Tuning
             _bus.Unsubscribe(CombatEventType.ActionExecuted, OnAction);
             _bus.Unsubscribe(CombatEventType.EnemyDied, OnEnemyDied);
             _bus.Unsubscribe(CombatEventType.RoomCleared, OnRoomCleared);
+            _bus.Unsubscribe(CombatEventType.ActionHit, OnHit);
+            _bus.Unsubscribe(CombatEventType.ActionMiss, OnMiss);
+            if (DamageLedger.Report == _onDamage)
+                DamageLedger.Report = null;
             _bus = null;
         }
 

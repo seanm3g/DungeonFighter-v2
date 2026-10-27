@@ -128,8 +128,24 @@ namespace RPGGame.Tuning
                     Fights = batch.ClassAggregates.SelectMany(a => a.Runs.SelectMany(r => r.Fights.Where(f => f.HeroLevel >= level).Select(f => new
                     {
                         Class = a.ClassDisplayName, Enemy = f.EnemyName, f.EnemyLevel, f.HeroActions, f.EnemyActions, f.FightInDungeon, f.HeroDied,
-                        HpLost = f.HeroMaxHp > 0 ? Math.Round(Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp, 3) : 0
-                    }))).ToList()
+                        HpLost = f.HeroMaxHp > 0 ? Math.Round(Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp, 3) : 0,
+                        f.Strip, f.ActionUses, HpMinPct = Math.Round(f.HpMinPct, 3), f.LeadChanges, f.HeroMisses, f.LongestMissStreak,
+                        f.DamageBySource, f.CritDamage, f.ComboDamage, f.ConvertDamage
+                    }))).ToList(),
+                    // Smart bot sequence searches at the level (viable-set reads in Scripts/balance-scan.py).
+                    Decisions = batch.ClassAggregates.SelectMany(a => a.Runs.SelectMany(r => r.SequenceDecisions.Where(d => d.HeroLevel >= level).Select(d => new
+                    {
+                        Class = a.ClassDisplayName, d.HeroLevel, d.SlotMax, d.Required, d.Strip, d.ScoreVsBest
+                    }))).ToList(),
+                    // Skill picks, gear passes and hub milestones (choice / progression reads). Runs start at the level, so
+                    // milestones here are the start-level setup plus any drops picked up between dungeons.
+                    SkillDecisions = batch.ClassAggregates.SelectMany(a => a.Runs.SelectMany(r => r.SkillDecisions.Where(d => d.HeroLevel >= level)
+                        .Select(d => new { Class = a.ClassDisplayName, d.HeroLevel, d.Chosen, d.ScoreVsBest }))).ToList(),
+                    GearDecisions = batch.ClassAggregates.SelectMany(a => a.Runs.SelectMany(r => r.GearDecisions.Where(d => d.HeroLevel >= level)
+                        .Select(d => new { Class = a.ClassDisplayName, d.HeroLevel, d.Chosen, d.ScoreVsBest }))).ToList(),
+                    Milestones = batch.ClassAggregates.SelectMany(a => a.Runs.SelectMany(r => r.Milestones.Where(m => m.HeroLevel >= level)
+                        .Select(m => new { Class = a.ClassDisplayName, m.HeroLevel, m.SlotMax, m.InventoryCount, m.SkillsLearned, m.GearEquipped,
+                                           m.StripBefore, m.StripAfter, m.ScoreAfterSkills, m.ScoreFinal }))).ToList()
                 };
                 File.WriteAllText(jsonPath, JsonSerializer.Serialize(doc, new JsonSerializerOptions { WriteIndented = true }));
             }

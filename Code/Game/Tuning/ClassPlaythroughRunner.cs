@@ -230,6 +230,10 @@ namespace RPGGame.Tuning
                     result.SmartSkillsLearned = smart.SkillsLearned;
                     result.SmartSequenceChanges = smart.SequenceChanges;
                     result.SmartEvaluations = smart.Evaluations;
+                    result.SequenceDecisions = smart.SequenceDecisions;
+                    result.SkillDecisions = smart.SkillDecisions;
+                    result.GearDecisions = smart.GearDecisions;
+                    result.Milestones = smart.Milestones;
                 }
                 trace?.Invoke(result.ReachedDeath
                     ? $"DIED at L{death.Level} in room {death.RoomNumber} vs {death.EnemyName} L{death.EnemyLevel} | fight #{death.FightsInDungeon} in this dungeon | entered dungeon at {death.HpAtDungeonEntry}/{death.MaxHpAtDungeonEntry} HP"

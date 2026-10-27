@@ -42,6 +42,50 @@ namespace RPGGame.Tuning
         public int SmartEvaluations { get; set; }
         /// <summary>Every fight in the run, in order.</summary>
         public List<PlaythroughFightRecord> Fights { get; set; } = new();
+        /// <summary>Smart bot sequence searches, in order (empty for the basic bot).</summary>
+        public List<PlaythroughSequenceDecision> SequenceDecisions { get; set; } = new();
+        public List<PlaythroughChoiceDecision> SkillDecisions { get; set; } = new();
+        public List<PlaythroughChoiceDecision> GearDecisions { get; set; } = new();
+        /// <summary>Smart bot hub re-optimizations, in order (progression reads).</summary>
+        public List<PlaythroughMilestone> Milestones { get; set; } = new();
+    }
+
+    /// <summary>One smart-bot skill pick or gear pass: what it chose and every option's score over the best.</summary>
+    public class PlaythroughChoiceDecision
+    {
+        public int HeroLevel { get; set; }
+        public string Chosen { get; set; } = "";
+        public Dictionary<string, double> ScoreVsBest { get; set; } = new();
+    }
+
+    /// <summary>
+    /// One smart-bot hub re-optimization (something changed: level, drops, skill points or slots). Scores are the bot's
+    /// own (win rate × kill speed × HP kept vs level-matched enemies), so a level-up moves both hero and enemies.
+    /// </summary>
+    public class PlaythroughMilestone
+    {
+        public int HeroLevel { get; set; }
+        public int SlotMax { get; set; }
+        public int InventoryCount { get; set; }
+        public List<string> SkillsLearned { get; set; } = new();
+        public List<string> GearEquipped { get; set; } = new();
+        public List<string> StripBefore { get; set; } = new();
+        public List<string> StripAfter { get; set; } = new();
+        /// <summary>Setup score after skill picks, before gear and sequence changes.</summary>
+        public double ScoreAfterSkills { get; set; }
+        public double ScoreFinal { get; set; }
+    }
+
+    /// <summary>One smart-bot sequence search: the strip it settled on and how close every owned action came.</summary>
+    public class PlaythroughSequenceDecision
+    {
+        public int HeroLevel { get; set; }
+        public int SlotMax { get; set; }
+        /// <summary>Weapon basic the game forces into the strip ("" when none).</summary>
+        public string Required { get; set; } = "";
+        public List<string> Strip { get; set; } = new();
+        /// <summary>Owned action → best score of any evaluated strip holding it, over the best score found (1 = in the best strip).</summary>
+        public Dictionary<string, double> ScoreVsBest { get; set; } = new();
     }
 
     /// <summary>Snapshot of the circumstances of a playthrough death.</summary>

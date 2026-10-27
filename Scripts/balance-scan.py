@@ -6,7 +6,10 @@ Tier 1 of scan -> focus -> gate (Documentation/BALANCE_PROCESS.md). One pool run
   - DUNGEONSIM with one hero per class and several dungeons at a few levels (HP carried, retreat rule, smart bot).
 Then ranks findings against GameData/TuningProfiles/balance-targets.json, each with a focus command to run next:
   median turns per level / per enemy, real dungeon clear per level, smart bot vs median build kill speed (is the
-  median build's stepping stone what real play hands out?), per-enemy turns and HP cost in real dungeons, class spread.
+  median build's stepping stone what real play hands out?), per-enemy turns and HP cost in real dungeons, class spread,
+  action variety per class (effective actions, breadth across heroes, viable set, dominant and dead actions), pacing
+  (fight length spread, close calls, miss streaks, one-shot fights) and class identity (fingerprints, closest class pair,
+  signature share).
 
 Small samples by design, so only large misses show. A hero's dungeons share its gear and skills, so the real sample is
 heroes, not dungeons: clear intervals come from per-hero clear rates (never narrower than the dungeon-count interval),
@@ -49,6 +52,14 @@ ap.add_argument('--builds', default='', help='comma list of catalog builds (defa
 ap.add_argument('--min-fights', type=int, default=6, help='real fights an enemy needs at a level to be judged')
 ap.add_argument('--seed', type=int, default=1, help='base DUNGEONSIM seed so --compare scans replay the same heroes (0 = unseeded)')
 ap.add_argument('--bot-ratio', type=float, default=1.33, help='flag bot/median kill-speed ratios outside 1/x .. x')
+ap.add_argument('--viable-within', type=float, default=0.03, help='an action is viable when its best strip scores within this share of the best strip')
+ap.add_argument('--dominant-share', type=float, default=0.75, help="flag a non-required action in more than this share of a class's strips")
+ap.add_argument('--close-call-band', default='5,15', help='percent of won fights where the hero dropped below 25%% HP')
+ap.add_argument('--min-length-cv', type=float, default=0.25, help='flag levels whose fight lengths (hero actions) vary less than this (every fight alike)')
+ap.add_argument('--max-length-p90', type=float, default=2.5, help='flag levels whose p90 fight is this many times the median (slogs)')
+ap.add_argument('--max-miss-streak-share', type=float, default=10, help='percent of fights allowed a 4+ hero miss streak')
+ap.add_argument('--max-one-shot-share', type=float, default=25, help='percent of won fights allowed to end in <= 2 hero actions')
+ap.add_argument('--min-class-distance', type=float, default=0.15, help='flag class pairs whose fingerprints sit closer than this')
 ap.add_argument('--from', dest='from_scan', default='', help='re-analyze the raw results saved in an earlier scan JSON (no sims)')
 ap.add_argument('--compare', default='', help='earlier balance-scan JSON: print level metrics side by side')
 ap.add_argument('--parallel', type=int, default=os.cpu_count() or 8)
@@ -302,6 +313,224 @@ def analyze_dungeons(results, dungeon_levels, median):
                         'below the rest' if k / n < mean else 'above the rest')
 
 
+def effective_count(weights):
+    """Effective number of choices, 1 / sum(p^2): 1 = one action carries everything, n = n actions used evenly."""
+    tot = sum(weights)
+    return 1 / sum((w / tot) ** 2 for w in weights) if tot else 0.0
+
+
+def analyze_variety(results, dungeon_levels):
+    """Action variety per class from the smart bot's real fights and sequence searches.
+    - effective actions: 1/sum(p^2) over hero action uses (within-fight variety, capped by strip length);
+    - action breadth: effective actions over every hero's strip, over mean strip length (1 = every hero runs the same
+      actions, 2 = heroes split across two strips' worth);
+    - viable actions: owned actions whose best evaluated strip scored within --viable-within of the best strip. Viable <=
+      slot max means the strip is not a choice: the bot slots everything worth slotting.
+    Dominance and dead actions pool every scanned level (2 heroes per class per level is too few alone)."""
+    pooled = {c: {'heroes': 0, 'picks': {}, 'owned': {}, 'near': {}, 'required': set()} for c in CLASSES}
+    for l in dungeon_levels:
+        docs = [d for (k, lv, _), d in results if k == 'ds' and lv == l and d]
+        for c in CLASSES:
+            heroes = [d for d in docs if any(o['Class'] == c for o in d['Outcomes'])]
+            fights = [f for d in heroes for f in d.get('Fights', []) if f['Class'] == c and f.get('Strip')]
+            if not fights:
+                continue
+            uses = {}
+            for f in fights:
+                for a, n in (f.get('ActionUses') or {}).items():
+                    uses[a] = uses.get(a, 0) + n
+            # Pick share per hero: fraction of its fights with the action in the strip, so each hero weighs the same.
+            picks, lens = {}, []
+            for d in heroes:
+                fs = [f for f in d.get('Fights', []) if f['Class'] == c and f.get('Strip')]
+                if not fs:
+                    continue
+                pooled[c]['heroes'] += 1
+                lens.append(statistics.mean(len(f['Strip']) for f in fs))
+                for a in {a for f in fs for a in f['Strip']}:
+                    share = sum(1 for f in fs if a in f['Strip']) / len(fs)
+                    picks[a] = picks.get(a, 0) + share
+                    pooled[c]['picks'][a] = pooled[c]['picks'].get(a, 0) + share
+            decisions = [x for d in heroes for x in d.get('Decisions', []) if x['Class'] == c]
+            for x in decisions:
+                if x.get('Required'):
+                    pooled[c]['required'].add(x['Required'].lower())
+                for a, r in x['ScoreVsBest'].items():
+                    if a.lower() == (x.get('Required') or '').lower():
+                        continue
+                    pooled[c]['owned'][a] = pooled[c]['owned'].get(a, 0) + 1
+                    pooled[c]['near'][a] = max(pooled[c]['near'].get(a, 0), r)
+            eff = effective_count(list(uses.values()))
+            breadth = effective_count(list(picks.values())) / statistics.mean(lens) if lens else 0
+            METRICS[f'effective actions L{l} {c}'] = round(eff, 2)
+            METRICS[f'action breadth L{l} {c}'] = round(breadth, 2)
+            if decisions:
+                viable = statistics.mean(sum(1 for r in x['ScoreVsBest'].values() if r >= 1 - A.viable_within) for x in decisions)
+                slots = statistics.mean(x['SlotMax'] for x in decisions)
+                owned = statistics.mean(len(x['ScoreVsBest']) for x in decisions)
+                METRICS[f'viable actions L{l} {c}'] = round(viable, 2)
+                if owned > slots and viable <= slots:
+                    finding('viable actions', l, c, f'{viable:.1f} viable of {owned:.0f} owned, {slots:.0f} slots ({len(decisions)} searches)',
+                            f'> slot max (within {100 * A.viable_within:.0f}% of the best strip)', (slots - viable + 1) / max(1.0, slots), 'LIKELY',
+                            f'dotnet {A.tools}/DF.dll ACTIONVALUE --patch {PATCH} --shard 0/16 (x16) then SEQLAB the near misses',
+                            'the strip is not a choice: everything worth slotting fits')
+    for c, p in pooled.items():
+        n = p['heroes']
+        if n < 2:
+            continue
+        status = 'FAIL' if n >= 6 else 'LIKELY'
+        for a, s in sorted(p['picks'].items(), key=lambda kv: -kv[1]):
+            if a.lower() in p['required'] or s / n < A.dominant_share:
+                continue
+            finding('dominant action', 0, f'{c} {a}', f'in {100 * s / n:.0f}% of strips ({n} heroes)', f'< {100 * A.dominant_share:.0f}%',
+                    (s / n - A.dominant_share) / (1 - A.dominant_share + 1e-9), status,
+                    f'dotnet {A.tools}/DF.dll SEQLAB --patch {PATCH} --weapon <{c} weapon> --seq "{a},<basic>" --seq "<rival>,<basic>"',
+                    'beats every alternative for this class')
+        dead = sorted(a for a, k in p['owned'].items()
+                      if k >= 3 and p['picks'].get(a, 0) == 0 and p['near'].get(a, 0) < 1 - 2 * A.viable_within)
+        if dead:
+            finding('dead actions', 0, c, f'{len(dead)} owned, never slotted, never within {200 * A.viable_within:.0f}% of the best: {", ".join(dead[:8])}'
+                    + (' ...' if len(dead) > 8 else ''), 'none', 0.2 * len(dead) / max(1, len(p['owned'])), 'LIKELY',
+                    f'dotnet {A.tools}/DF.dll ACTIONVALUE --patch {PATCH} --shard 0/16 (x16); buff or cut in Actions.json')
+
+
+def level_docs(results, l):
+    return [d for (k, lv, _), d in results if k == 'ds' and lv == l and d]
+
+
+def share(k, n):
+    return 100 * k / n if n else 0.0
+
+
+def analyze_pacing(results, dungeon_levels):
+    """Does a fight have shape? Per level over every class (phase 1 fields; older scans lack them and are skipped).
+    Rows: fight length spread (CV, p90/p50), close calls (won with the hero under 25% HP), 4+ miss streaks, one-shot
+    fights (<= 2 hero actions), lead changes. Bands are proposals (EXPERIENCE_HARNESS_DESIGN.md) until the designer sets them."""
+    lo_cc, hi_cc = (float(x) for x in A.close_call_band.split(','))
+    for l in dungeon_levels:
+        docs = level_docs(results, l)
+        fights = [f for d in docs for f in d.get('Fights', []) if 'HpMinPct' in f]
+        if len(fights) < 2 * A.min_fights:
+            continue
+        heroes = len(docs)
+        status = 'FAIL' if heroes >= 6 else 'LIKELY'
+        acts = sorted(f['HeroActions'] for f in fights)
+        mean = statistics.mean(acts); cv = statistics.stdev(acts) / mean if mean else 0
+        p50 = statistics.median(acts); p90 = acts[min(len(acts) - 1, int(0.9 * len(acts)))]
+        won = [f for f in fights if not f['HeroDied']]
+        close = sum(1 for f in won if f['HpMinPct'] < 0.25)
+        streak = sum(1 for f in fights if f['LongestMissStreak'] >= 4)
+        oneshot = sum(1 for f in won if f['HeroActions'] <= 2)
+        leads = statistics.mean(f['LeadChanges'] for f in fights)
+        METRICS[f'fight length cv L{l}'] = round(cv, 2); METRICS[f'fight length p90/p50 L{l}'] = round(p90 / p50, 2) if p50 else 0
+        METRICS[f'close calls L{l}'] = round(share(close, len(won)), 1); METRICS[f'miss streak 4+ L{l}'] = round(share(streak, len(fights)), 1)
+        METRICS[f'one-shot fights L{l}'] = round(share(oneshot, len(won)), 1); METRICS[f'lead changes L{l}'] = round(leads, 2)
+        fightlog = f'dotnet {A.tools}/DF.dll FIGHTLOG --patch {PATCH} --level {l} --enemy <enemy> --gear typical'
+        if cv < A.min_length_cv:
+            finding('pacing: fight length', l, 'spread', f'CV {cv:.2f} (n={len(fights)}, {heroes} heroes)', f'>= {A.min_length_cv:g}',
+                    (A.min_length_cv - cv) / A.min_length_cv, status, 'compare per-enemy acts in this scan; vary Enemies.json HP / bodies',
+                    'every fight runs about the same length')
+        if p50 and p90 / p50 > A.max_length_p90:
+            finding('pacing: fight length', l, 'slogs', f'p90 {p90} vs median {p50:g} acts (n={len(fights)})', f'<= {A.max_length_p90:g}x',
+                    p90 / p50 / A.max_length_p90 - 1, status, fightlog + '   (the slowest enemies in "real fights per enemy")')
+        cc_lo, cc_hi = (100 * x for x in wilson(close, len(won)))
+        cc = share(close, len(won))
+        if not lo_cc <= cc <= hi_cc:
+            inside = cc_hi >= lo_cc and cc_lo <= hi_cc
+            finding('pacing: close calls', l, 'won fights under 25% HP', f'{cc:.0f}% [{cc_lo:.0f}-{cc_hi:.0f}] (n={len(won)})', f'{lo_cc:g}-{hi_cc:g}%',
+                    abs(cc - (lo_cc if cc < lo_cc else hi_cc)) / max(1.0, hi_cc - lo_cc), 'LIKELY' if inside else status,
+                    f'python Scripts/dungeon-sim.py {tools_arg()} --levels {l} --anchor {l}=<damage x>   (enemy damage anchor)',
+                    'no fight feels dangerous' if cc < lo_cc else 'too many fights end on a knife edge')
+        if share(streak, len(fights)) > A.max_miss_streak_share:
+            finding('pacing: miss streaks', l, '4+ misses in a row', f'{share(streak, len(fights)):.0f}% of fights (n={len(fights)})',
+                    f'<= {A.max_miss_streak_share:g}%', share(streak, len(fights)) / A.max_miss_streak_share - 1, status,
+                    fightlog + '   (hit thresholds / TEC)', 'dead turns')
+        if share(oneshot, len(won)) > A.max_one_shot_share:
+            finding('pacing: one-shot fights', l, '<= 2 hero actions', f'{share(oneshot, len(won)):.0f}% of won fights (n={len(won)})',
+                    f'<= {A.max_one_shot_share:g}%', share(oneshot, len(won)) / A.max_one_shot_share - 1, status,
+                    f'python Scripts/median-curve-solve.py {tools_arg()} --only health --levels {l}', 'the enemy never got to matter')
+
+
+SIGNATURE_DEFAULT = {'Barbarian': 'convert', 'Rogue': 'crit', 'Wizard': 'dot'}   # proposal; Warrior open
+FEATURES = ['dot', 'crit', 'combo', 'convert', 'retrigger', 'reflect', 'miss rate', 'hp lost', 'kill speed', 'enemy swings', 'action spread']
+IDENTITY = {}
+
+
+def analyze_identity(results, dungeon_levels):
+    """Do classes fight differently? A fingerprint per class over every scanned level (won fights):
+    damage shares (dot / retrigger / reflect of all enemy HP lost; crit / combo / convert parts of it), miss rate, HP lost
+    per fight, kill speed and enemy swings per kill (log of the hero's mean over the level mean, so levels pool), action
+    spread (effective actions used / strip length). Shares and rates are 0-1, so the Euclidean distance between
+    fingerprints reads directly; calibrate --min-class-distance on today's roster before trusting it.
+    Signature share: each class with a declared signature (balance-targets.json experience.classSignatures, else
+    SIGNATURE_DEFAULT) should lead the roster on that feature."""
+    acc = {c: {'heroes': 0, 'src': {}, 'tot': 0, 'misses': 0, 'acts': 0, 'hp': [], 'speed': [], 'swings': [], 'spread': []} for c in CLASSES}
+    for l in dungeon_levels:
+        docs = level_docs(results, l)
+        fights = [f for d in docs for f in d.get('Fights', []) if 'DamageBySource' in f]
+        if not fights:
+            continue
+        mean_acts = statistics.mean(f['HeroActions'] for f in fights) or 1e-9
+        mean_swings = statistics.mean(f['EnemyActions'] for f in fights) or 1e-9
+        for d in docs:
+            for c in {f['Class'] for f in d.get('Fights', [])}:
+                fs = [f for f in d['Fights'] if f['Class'] == c and 'DamageBySource' in f and not f['HeroDied']]
+                if not fs:
+                    continue
+                a = acc[c]; a['heroes'] += 1
+                uses = {}
+                for f in fs:
+                    for k, v in f['DamageBySource'].items():
+                        a['src'][k] = a['src'].get(k, 0) + v
+                        a['tot'] += v
+                    for k in ('crit', 'combo', 'convert'):
+                        a['src'][k] = a['src'].get(k, 0) + f[f'{k.capitalize()}Damage']
+                    a['misses'] += f['HeroMisses']; a['acts'] += f['HeroActions']
+                    for k, v in (f.get('ActionUses') or {}).items():
+                        uses[k] = uses.get(k, 0) + v
+                a['hp'].append(statistics.mean(f['HpLost'] for f in fs))
+                a['speed'].append(math.log(max(0.5, statistics.mean(f['HeroActions'] for f in fs)) / mean_acts))
+                a['swings'].append(math.log(max(0.5, statistics.mean(f['EnemyActions'] for f in fs)) / mean_swings))
+                if all(f.get('Strip') for f in fs):
+                    a['spread'].append(effective_count(list(uses.values())) / statistics.mean(len(f['Strip']) for f in fs))
+    for c, a in acc.items():
+        if not a['tot']:
+            continue
+        fp = {k: a['src'].get(k, 0) / a['tot'] for k in ('dot', 'crit', 'combo', 'convert', 'retrigger', 'reflect')}
+        fp['miss rate'] = a['misses'] / a['acts'] if a['acts'] else 0
+        fp['hp lost'] = statistics.mean(a['hp']); fp['kill speed'] = statistics.mean(a['speed'])
+        fp['enemy swings'] = statistics.mean(a['swings']); fp['action spread'] = statistics.mean(a['spread']) if a['spread'] else 0
+        IDENTITY[c] = fp
+        for k, v in fp.items():
+            METRICS[f'identity {c} {k}'] = round(v, 3)
+    names = sorted(IDENTITY)
+    pairs = sorted((math.dist([IDENTITY[x][k] for k in FEATURES], [IDENTITY[y][k] for k in FEATURES]), x, y)
+                   for i, x in enumerate(names) for y in names[i + 1:])
+    if pairs:
+        dist, x, y = pairs[0]
+        METRICS['closest class pair distance'] = round(dist, 3)
+        if dist < A.min_class_distance:
+            n = min(acc[x]['heroes'], acc[y]['heroes'])
+            apart = max(FEATURES, key=lambda k: abs(IDENTITY[x][k] - IDENTITY[y][k]))
+            finding('identity: class distance', 0, f'{x} ~ {y}', f'{dist:.3f} ({n}+ heroes each; most apart on {apart})', f'>= {A.min_class_distance:g}',
+                    (A.min_class_distance - dist) / A.min_class_distance, 'FAIL' if n >= 6 else 'LIKELY',
+                    f'dotnet {A.tools}/DF.dll RUNLOG --class {x} --verbose  vs  --class {y}; SKILLVALUE --level <L> --classes {x},{y}',
+                    'parity without identity: these two fight alike')
+    sig = dict(SIGNATURE_DEFAULT, **(TARGETS.get('experience', {}).get('classSignatures') or {}))
+    for c, feature in sig.items():
+        if c not in IDENTITY or feature not in FEATURES:
+            continue
+        leader = max(IDENTITY, key=lambda k: IDENTITY[k][feature])
+        if leader != c:
+            finding('identity: signature share', 0, f'{c} {feature}',
+                    f'{100 * IDENTITY[c][feature]:.1f}% ({leader} leads with {100 * IDENTITY[leader][feature]:.1f}%)',
+                    f'{c} leads the roster on {feature}',
+                    (IDENTITY[leader][feature] - IDENTITY[c][feature]) / max(1e-9, IDENTITY[leader][feature]),
+                    'FAIL' if acc[c]['heroes'] >= 6 else 'LIKELY',
+                    f'dotnet {A.tools}/DF.dll SKILLVALUE --level <L> --classes {c}   (signature nodes), BUILDLAB --builds <{c} builds>',
+                    'the class signature is not what sets it apart')
+
+
 def print_report(provenance, elapsed, median_levels, dungeon_levels):
     print(f'\nBalance scan: patch {PATCH}  ({elapsed / 60:.1f} min)')
     print(f'Provenance: {" | ".join(sorted(provenance)) or "unknown"}' + ('  MIXED' if len(provenance) > 1 else ''))
@@ -312,6 +541,27 @@ def print_report(provenance, elapsed, median_levels, dungeon_levels):
         tgt = f"{interp(TARGETS['realClearAnchors'], l, 'clear'):.0f}%" if l in dungeon_levels else '-'
         print(f"{l:>6}{STEP.get(l, '-'):>5}{g(f'median turns L{l}', '{:.1f}'):>14}{g(f'bot hero acts L{l}', '{:.1f}'):>10}"
               f"{g(f'dungeon clear L{l}', '{:.0f}%'):>8}{tgt:>8}{g(f'death per dungeon L{l}', '{:.0f}%'):>8}")
+    if any(k.startswith('effective actions') for k in METRICS):
+        print("\nAction variety per class: eff / breadth / viable (effective actions used, strips' worth across heroes, near-best options)")
+        print(f"{'level':>6}" + ''.join(f'{c:>16}' for c in CLASSES))
+        for l in dungeon_levels:
+            cell = lambda c: ' / '.join(f"{METRICS[k]:.1f}" if k in METRICS else '-' for k in
+                                        (f'effective actions L{l} {c}', f'action breadth L{l} {c}', f'viable actions L{l} {c}'))
+            print(f'{l:>6}' + ''.join(f'{cell(c):>16}' for c in CLASSES))
+    if any(k.startswith('close calls') for k in METRICS):
+        print('\nPacing (all classes): length CV, p90/p50, close calls, 4+ miss streaks, one-shot fights, lead changes per fight')
+        print(f"{'level':>6}{'CV':>7}{'p90/50':>8}{'close':>8}{'streak':>8}{'1-shot':>8}{'leads':>7}")
+        for l in dungeon_levels:
+            g = lambda key, fmt: (fmt.format(METRICS[key]) if key in METRICS else '-')
+            print(f"{l:>6}{g(f'fight length cv L{l}', '{:.2f}'):>7}{g(f'fight length p90/p50 L{l}', '{:.1f}'):>8}{g(f'close calls L{l}', '{:.0f}%'):>8}"
+                  f"{g(f'miss streak 4+ L{l}', '{:.0f}%'):>8}{g(f'one-shot fights L{l}', '{:.0f}%'):>8}{g(f'lead changes L{l}', '{:.2f}'):>7}")
+    if IDENTITY:
+        print('\nClass fingerprints (all scanned levels; shares of enemy HP lost, kill speed / enemy swings = log vs level mean)')
+        print(f"{'':16}" + ''.join(f'{c:>11}' for c in CLASSES))
+        for k in FEATURES:
+            print(f'{k:16}' + ''.join(f"{IDENTITY[c][k]:>11.3f}" if c in IDENTITY else f"{'-':>11}" for c in CLASSES))
+        if 'closest class pair distance' in METRICS:
+            print(f"closest pair distance {METRICS['closest class pair distance']:.3f} (flag below {A.min_class_distance:g})")
     ranked = sorted(FINDINGS, key=lambda f: (f['status'] != 'FAIL', -f['severity']))
     print(f'\nProblem areas ({len(ranked)}, worst first; LIKELY = inside sampling noise, confirm before acting)')
     if not ranked:
@@ -374,6 +624,9 @@ def analyze_and_report(results, median_levels, dungeon_levels, t0):
     median = analyze_median(results, median_levels)
     if dungeon_levels:
         analyze_dungeons(results, dungeon_levels, median)
+        analyze_variety(results, dungeon_levels)
+        analyze_pacing(results, dungeon_levels)
+        analyze_identity(results, dungeon_levels)
     ranked = print_report(provenance, time.time() - t0, median_levels, dungeon_levels)
     if A.compare:
         print_compare(A.compare)

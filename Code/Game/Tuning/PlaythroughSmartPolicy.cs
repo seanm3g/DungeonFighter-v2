@@ -32,6 +32,15 @@ namespace RPGGame.Tuning
         public int SkillsLearned { get; private set; }
         public int GearChanges { get; private set; }
         public int SequenceChanges { get; private set; }
+        /// <summary>Every sequence search, with how close each owned action came to the best strip (variety reads).</summary>
+        public List<PlaythroughSequenceDecision> SequenceDecisions { get; } = new();
+        /// <summary>Every paid skill pick: each available node's score over the best node's.</summary>
+        public List<PlaythroughChoiceDecision> SkillDecisions { get; } = new();
+        /// <summary>Every gear pass: "keep" and each candidate item's score over the best.</summary>
+        public List<PlaythroughChoiceDecision> GearDecisions { get; } = new();
+        /// <summary>One row per hub re-optimization: what changed and the setup's score after skills and at the end.</summary>
+        public List<PlaythroughMilestone> Milestones { get; } = new();
+        private PlaythroughMilestone? _milestone;
 
         public PlaythroughSmartPolicy(Action<string>? trace) => _trace = trace;
 
@@ -45,6 +54,13 @@ namespace RPGGame.Tuning
 
             PlaythroughFightRecorder.Suspended = true;
             ProfOptimize.Start();
+            _milestone = new PlaythroughMilestone
+            {
+                HeroLevel = hero.Level,
+                SlotMax = ComboSequenceMaxHelper.GetEffectiveMax(hero),
+                InventoryCount = hero.Inventory.Count,
+                StripBefore = StripOf(hero)
+            };
             try
             {
                 await SpendSkillPointsAsync(hero, weaponType).ConfigureAwait(false);
@@ -55,6 +71,9 @@ namespace RPGGame.Tuning
             {
                 ProfOptimize.Stop();
                 PlaythroughFightRecorder.Suspended = false;
+                _milestone.StripAfter = StripOf(hero);
+                Milestones.Add(_milestone);
+                _milestone = null;
             }
 
             _lastSignature = Signature(hero, weaponType);
@@ -76,12 +95,14 @@ namespace RPGGame.Tuning
 
                 string? bestId = null;
                 double best = double.MinValue;
+                var scores = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
                 foreach (var node in available)
                 {
                     var clone = Clone(hero);
                     if (SkillTreeService.TryLearn(clone, node.Id) != CharacterProgression.LearnSkillResult.Success)
                         continue;
                     double score = await ScoreAsync(clone, StripOf(clone)).ConfigureAwait(false);
+                    scores[node.Id] = score;
                     if (score > best)
                     {
                         best = score;
@@ -91,6 +112,8 @@ namespace RPGGame.Tuning
 
                 if (bestId == null || SkillTreeService.TryLearn(hero, bestId) != CharacterProgression.LearnSkillResult.Success)
                     return;
+                AddChoice(SkillDecisions, hero, bestId, scores);
+                _milestone?.SkillsLearned.Add(bestId);
                 SkillsLearned++;
                 _trace?.Invoke($"    smart: learned skill {bestId}");
             }
@@ -103,9 +126,12 @@ namespace RPGGame.Tuning
             for (int pass = 0; pass < 5; pass++)
             {
                 double current = await ScoreAsync(Clone(hero), StripOf(hero)).ConfigureAwait(false);
+                if (pass == 0 && _milestone != null)
+                    _milestone.ScoreAfterSkills = Math.Round(current, 4);
                 var candidates = GearCandidates(hero, weaponType);
                 int bestIndex = -1;
                 double best = current * ImprovementThreshold;
+                var scores = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase) { ["keep"] = current };
                 foreach (int index in candidates)
                 {
                     var clone = Clone(hero);
@@ -115,6 +141,7 @@ namespace RPGGame.Tuning
                     if (!TryEquip(clone, item))
                         continue;
                     double score = await ScoreAsync(clone, StripOf(clone)).ConfigureAwait(false);
+                    scores[$"{PlaythroughGearPolicy.SlotOf(item)}: {item.Name} #{index}"] = score;
                     if (score > best)
                     {
                         best = score;
@@ -122,11 +149,14 @@ namespace RPGGame.Tuning
                     }
                 }
 
+                if (scores.Count > 1)
+                    AddChoice(GearDecisions, hero, bestIndex < 0 ? "keep" : $"{PlaythroughGearPolicy.SlotOf(hero.Inventory[bestIndex])}: {hero.Inventory[bestIndex].Name} #{bestIndex}", scores);
                 if (bestIndex < 0)
                     return;
                 var chosen = hero.Inventory[bestIndex];
                 if (!TryEquip(hero, chosen))
                     return;
+                _milestone?.GearEquipped.Add(chosen.Name);
                 GearChanges++;
                 _trace?.Invoke($"    smart: equipped {chosen.Name} ({chosen.Material}) score {current:F3} -> {best:F3}");
             }
@@ -204,6 +234,14 @@ namespace RPGGame.Tuning
 
             var strip = StripOf(hero);
             double current = await ScoreAsync(Clone(hero), strip).ConfigureAwait(false);
+            // Best score of any evaluated strip holding each action: how close an action came to making the cut.
+            var bestWith = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+            void Note(IEnumerable<string> v, double score)
+            {
+                foreach (string a in v)
+                    bestWith[a] = Math.Max(bestWith.GetValueOrDefault(a), score);
+            }
+            Note(strip, current);
 
             // Screen every unused action once (front of the sequence), keep the most promising few.
             var screened = new List<(string action, double score)>();
@@ -215,7 +253,9 @@ namespace RPGGame.Tuning
                     v.RemoveAt(v.FindLastIndex(x => required == null || !string.Equals(x, required, StringComparison.OrdinalIgnoreCase)));
                 if (!Valid(v))
                     continue;
-                screened.Add((a, await ScoreAsync(Clone(hero), v).ConfigureAwait(false)));
+                double screenScore = await ScoreAsync(Clone(hero), v).ConfigureAwait(false);
+                screened.Add((a, screenScore));
+                Note(v, screenScore);
             }
             var shortlist = screened.OrderByDescending(x => x.score).Take(ShortlistSize).Select(x => x.action).ToList();
 
@@ -246,6 +286,7 @@ namespace RPGGame.Tuning
                 foreach (var v in variants.Where(Valid))
                 {
                     double score = await ScoreAsync(Clone(hero), v).ConfigureAwait(false);
+                    Note(v, score);
                     if (score > best)
                     {
                         best = score;
@@ -267,6 +308,32 @@ namespace RPGGame.Tuning
                 SequenceChanges++;
                 _trace?.Invoke($"    smart: sequence {string.Join(" > ", StripOf(hero))} (score {current:F3})");
             }
+
+            if (_milestone != null)
+                _milestone.ScoreFinal = Math.Round(current, 4);
+            double top = bestWith.Count > 0 ? bestWith.Values.Max() : 0;
+            if (top > 0)
+                SequenceDecisions.Add(new PlaythroughSequenceDecision
+                {
+                    HeroLevel = hero.Level,
+                    SlotMax = max,
+                    Required = required ?? "",
+                    Strip = StripOf(hero),
+                    ScoreVsBest = owned.ToDictionary(a => a, a => Math.Round(bestWith.GetValueOrDefault(a) / top, 3), StringComparer.OrdinalIgnoreCase)
+                });
+        }
+
+        private static void AddChoice(List<PlaythroughChoiceDecision> list, Character hero, string chosen, Dictionary<string, double> scores)
+        {
+            double top = scores.Values.DefaultIfEmpty(0).Max();
+            if (top <= 0)
+                return;
+            list.Add(new PlaythroughChoiceDecision
+            {
+                HeroLevel = hero.Level,
+                Chosen = chosen,
+                ScoreVsBest = scores.ToDictionary(kv => kv.Key, kv => Math.Round(kv.Value / top, 3), StringComparer.OrdinalIgnoreCase)
+            });
         }
 
         /// <summary>Unused actions kept after screening for the full sequence search.</summary>

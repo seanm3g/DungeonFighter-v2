@@ -46,6 +46,24 @@ What the scan rows mean:
   `perEnemyTurnsTolerance`), not against 11 turns. A level-wide gap belongs to the bot-vs-median row. FAIL needs ≥ 3 ×
   `--min-fights` fights from ≥ 4 heroes; anything less reads LIKELY.
 - **class spread**: per-class clear over all scanned levels vs the all-class mean (per-hero interval).
+- **action variety** (2026-10-26): DUNGEONSIM fights carry the hero's `Strip` and `ActionUses`, and each smart-bot
+  sequence search writes a `Decisions` row (`ScoreVsBest`: every owned action's best evaluated strip over the best strip).
+  The scan prints per class and level *eff* (1/Σp² over action uses), *breadth* (effective actions over all heroes'
+  strips ÷ mean strip length; 1 = every hero runs the same actions) and *viable* (owned actions within
+  `--viable-within`, default 3%, of the best strip). Findings: **viable actions** (viable ≤ slot max: the strip is not a
+  choice), **dominant action** (a non-required action in more than `--dominant-share`, default 75%, of a class's strips,
+  pooled over levels; FAIL from 6 heroes) and **dead actions** (owned in ≥ 3 searches, never slotted, never within 6%).
+  The bot's score is win rate × kill speed × HP kept against Wolf and Goblin, so "viable" means viable for that goal.
+- **pacing** (2026-10-26, per level over all classes): fight length CV (`--min-length-cv` 0.25) and p90/p50
+  (`--max-length-p90` 2.5), **close calls** (won fights where the hero fell under 25% HP, band `--close-call-band` 5,15),
+  fights with a 4+ hero miss streak (`--max-miss-streak-share` 10%), one-shot fights (won in ≤ 2 hero actions,
+  `--max-one-shot-share` 25%), lead changes per fight (metric only). FAIL from 6 heroes at the level.
+- **identity** (2026-10-26): a fingerprint per class over every scanned level (won fights): damage shares (dot,
+  retrigger, reflect; crit / combo / convert parts of hit), miss rate, HP lost per fight, kill speed and enemy swings per
+  kill (log vs level mean), action spread. **class distance** flags the closest pair under `--min-class-distance`
+  (0.15, uncalibrated). **signature share** flags a class that doesn't lead the roster on its signature feature
+  (`experience.classSignatures` in balance-targets.json; default Barbarian convert, Rogue crit, Wizard dot, Warrior
+  open). Bands are proposals from `EXPERIENCE_HARNESS_DESIGN.md` until the designer sets them.
 
 First scan (overnight-v2, 2026-10-13): median turns L35 9.1 (FAIL), Goblin at L50 16.4 turns for the median build. The bot
 kills ×1.67 faster than the median build at L10 and ×0.72 slower at L35: `STEP[10]` (two-piece + convert) undershoots

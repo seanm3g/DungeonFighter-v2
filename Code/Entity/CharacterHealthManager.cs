@@ -123,6 +123,17 @@ namespace RPGGame
         /// <returns>List of notification messages</returns>
         public List<string> TakeDamageWithNotifications(int amount)
         {
+            var report = Combat.Analytics.DamageLedger.Report;
+            if (report == null)
+                return TakeDamageCore(amount);
+            int before = CurrentHealth;
+            var notes = TakeDamageCore(amount);
+            report(character, before - CurrentHealth, Combat.Analytics.DamageLedger.CurrentSource);
+            return notes;
+        }
+
+        private List<string> TakeDamageCore(int amount)
+        {
             int originalAmount = amount;
             bool shieldUsed = false;
             character.Effects.LastArmorAbsorbed = 0;
