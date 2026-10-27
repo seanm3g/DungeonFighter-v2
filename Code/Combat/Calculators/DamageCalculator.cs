@@ -228,6 +228,7 @@ namespace RPGGame.Combat.Calculators
                 totalDamage *= curvedEnemy.Identity is { } identity
                     ? identity.HitDamage * identity.Calibration
                     : curvedEnemy.GetArchetypeDamageMultiplier();
+                totalDamage *= curvedEnemy.EncounterDamageMultiplier;
             }
 
             // Get combat configuration

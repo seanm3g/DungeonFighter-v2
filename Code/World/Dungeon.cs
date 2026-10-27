@@ -221,8 +221,25 @@ namespace RPGGame
                 }
             }
 
+            if (Rooms.Count > 1 && GameConfiguration.Instance.DungeonScaling?.BossMergesRoom == true)
+                MergeBossRoom(Rooms[^1]);
+
             if (Rooms.Count > 0)
                 TraversalState = DungeonMapGenerator.Generate(Rooms, random, trainingGround: false);
+        }
+
+        /// <summary>
+        /// The final (Boss) room's enemies become one boss that runs all their mechanics in one sequence
+        /// (<see cref="Enemy.AbsorbAsBoss"/>). The highest-level enemy leads; the room keeps one enemy.
+        /// </summary>
+        private static void MergeBossRoom(Environment room)
+        {
+            var enemies = room.GetEnemies();
+            if (enemies.Count < 2)
+                return;
+            var boss = enemies.OrderByDescending(e => e.Level).First();
+            boss.AbsorbAsBoss(enemies, GameConfiguration.Instance.DungeonScaling?.BossDamageMultiplier ?? 1.0);
+            enemies.RemoveAll(e => !ReferenceEquals(e, boss));
         }
 
         /// <summary>

@@ -115,6 +115,22 @@ they are not the same.
 - **Reuse:** `FunMomentAnalyzer` already defines CloseCall, Comeback, HealthLeadChange, HealthSwing and DominantStreak.
   Feed it the recorder's events instead of the old BattleStatistics path.
 - **Levers:** per-enemy HP / bodies, damage curve shape, `maxEnemiesPerRoom`, room count, retreat and heal rules.
+- **Close calls (2026-10-26):** about 1-2% of won fights at every level (target 5-15%). Fights start near 86% HP and
+  lose 7% (p90 20%), so the cause is smooth enemy damage, not the retreat rule. Seeded L20 arms: no retreat 2.7%,
+  retreat 25% 3.4%, enemy damage x1.3 4.5% (clear 68 -> 60%), x1.6 5.7% (clear 32%). A flat damage raise buys danger
+  only with clears. Designer direction: the boss combines an average room's mechanics and runs the most complex
+  sequence. `dungeonScaling.bossMergesRoom` merges the final room's enemies into one boss (every action once, in
+  room order; summed HP and rewards; one body) and `bossDamageMultiplier` scales its swings. At 1 the boss is cheaper
+  than the room (the hero's combo keeps running). L20, 12 heroes x 4 dungeons per class, 50% retreat:
+
+  | arm | close (all) | clear | death/dungeon | boss fights | boss close | boss death |
+  |---|---|---|---|---|---|---|
+  | off | 2.1% | 52% | 3.8% | - | - | - |
+  | boss x2.5 | 3.4% | 48% | 8.1% | 68 | 14.5% | 8.8% |
+  | boss x3 | 4.2% | 46% | 9.4% | 67 | 25.9% | 13.4% |
+
+  Only about a third of dungeons reach the boss (44% retreat first), so a boss climax alone can't lift the all-fight rate
+  into the band. Both flags are off by default.
 
 ## Layer 5 — Progression
 

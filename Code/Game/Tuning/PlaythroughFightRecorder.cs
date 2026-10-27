@@ -36,6 +36,8 @@ namespace RPGGame.Tuning
         public int HeroMisses { get; set; }
         public int LongestMissStreak { get; set; }
         /// <summary>Hero hits, and the combo ones among them (hit size and combo lift reads).</summary>
+        /// <summary>The final-room boss (dungeonScaling.bossMergesRoom).</summary>
+        public bool BossFight { get; set; }
         public int HeroHits { get; set; }
         public int ComboHits { get; set; }
         /// <summary>HP the enemy lost by source: hit, dot, retrigger, reflect (during an enemy action), environment.</summary>
@@ -145,6 +147,7 @@ namespace RPGGame.Tuning
                     HeroLevel = hero.Level,
                     EnemyName = enemy.Name,
                     EnemyLevel = enemy.Level,
+                    BossFight = enemy is Enemy { IsBoss: true },
                     EnemyMaxHealth = enemy.MaxHealth,
                     HeroHpStart = hero.CurrentHealth,
                     HeroMaxHp = hero.GetEffectiveMaxHealth(),

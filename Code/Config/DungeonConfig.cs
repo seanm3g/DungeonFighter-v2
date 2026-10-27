@@ -21,6 +21,14 @@ namespace RPGGame
         public double PostFightHealPercent { get; set; }
         public int EnemyCountPerRoom { get; set; } = 2;
         public double BossRoomChance { get; set; } = 0.1;
+        /// <summary>
+        /// When true, the final room's enemies merge into one boss: every enemy's actions in one sequence (the dungeon's
+        /// longest), the room's summed HP and rewards. Off = the final room fights like any other (legacy).
+        /// </summary>
+        public bool BossMergesRoom { get; set; }
+        /// <summary>Damage scale on the merged boss's swings (1 = one room enemy's hit; the merged fight keeps the
+        /// hero's combo running, so a boss at 1 costs less HP than the room it replaced).</summary>
+        public double BossDamageMultiplier { get; set; } = 1.0;
         public double TrapRoomChance { get; set; } = 0.2;
         public double TreasureRoomChance { get; set; } = 0.15;
         public string Description { get; set; } = "";

@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestCombatLogText(ref run, ref passed, ref failed);
             TestAuthoredPackSizesFromData(ref run, ref passed, ref failed);
             TestPackSizeCurveShrinksEarlyPacks(ref run, ref passed, ref failed);
+            TestBossAbsorbsRoom(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("Pack Enemy Tests", run, passed, failed);
         }
@@ -41,6 +42,30 @@ namespace RPGGame.Tests.Unit.Combat
                 .Build();
             enemy.InitializePack(packSize);
             return enemy;
+        }
+
+        private static void TestBossAbsorbsRoom(ref int run, ref int passed, ref int failed)
+        {
+            var lead = CreatePack("Lead", 40, 1);
+            var pack = CreatePack("Rats", 30, 3);
+            lead.ActionPool.Clear();
+            pack.ActionPool.Clear();
+            lead.AddAction(new RPGGame.Action(name: "BITE", isComboAction: true), 0.5);
+            lead.AddAction(new RPGGame.Action(name: "SHARED", isComboAction: true), 0.5);
+            pack.AddAction(new RPGGame.Action(name: "SHARED", isComboAction: true), 0.5);
+            pack.AddAction(new RPGGame.Action(name: "VENOM", isComboAction: true), 0.5);
+            lead.InitializeActionSequence();
+
+            lead.AbsorbAsBoss(new[] { lead, pack }, 1.5);
+
+            TestBase.AssertTrue(lead.IsBoss, "boss flag set", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("BITE,SHARED,VENOM", string.Join(",", lead.GetComboActions().Select(a => a.Name)),
+                "sequence is every room action once, in room order", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(70, lead.MaxHealth, "boss takes the room's HP", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(70, lead.CurrentHealth, "boss starts full", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!lead.IsPack, "boss is one body even when it absorbs a pack", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1.5, lead.EncounterDamageMultiplier, "boss damage scale", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1.0, pack.EncounterDamageMultiplier, "absorbed enemy unchanged", ref run, ref passed, ref failed);
         }
 
         private static void TestPackSizeCurveShrinksEarlyPacks(ref int run, ref int passed, ref int failed)

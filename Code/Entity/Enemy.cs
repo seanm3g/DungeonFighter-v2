@@ -476,6 +476,41 @@ namespace RPGGame
         public void InitializeActionSequence() =>
             Facade.SetComboSequenceInOrder(ActionPool.Select(entry => entry.action));
 
+        /// <summary>True for a final-room boss built by <see cref="AbsorbAsBoss"/>.</summary>
+        public bool IsBoss { get; private set; }
+
+        /// <summary>Damage scale on this enemy's swings (dungeonScaling.bossDamageMultiplier for a boss; 1 otherwise).</summary>
+        public double EncounterDamageMultiplier { get; private set; } = 1.0;
+
+        /// <summary>
+        /// Turns this enemy into the room's boss (dungeonScaling.bossMergesRoom): the other enemies' actions join its
+        /// sequence in room order (names already held are skipped), and it takes the room's summed HP, gold and XP as one
+        /// body. Keeps its own stats and level, so each swing hits like one enemy while the sequence runs longest.
+        /// </summary>
+        public void AbsorbAsBoss(IReadOnlyList<Enemy> others, double damageMultiplier = 1.0)
+        {
+            EncounterDamageMultiplier = damageMultiplier > 0 ? damageMultiplier : 1.0;
+            int health = MaxHealth;
+            foreach (var other in others)
+            {
+                if (ReferenceEquals(other, this))
+                    continue;
+                foreach (var (action, probability) in other.ActionPool)
+                {
+                    if (!ActionPool.Any(entry => string.Equals(entry.action.Name, action.Name, StringComparison.OrdinalIgnoreCase)))
+                        ActionPool.Add((action, probability));
+                }
+                health += other.MaxHealth;
+                GoldReward += other.GoldReward;
+                XPReward += other.XPReward;
+            }
+            MaxHealth = health;
+            CurrentHealth = health;
+            InitializePack(1);
+            InitializeActionSequence();
+            IsBoss = true;
+        }
+
         public override string GetDescription()
         {
             string primaryAttr = PrimaryAttribute.ToString();
