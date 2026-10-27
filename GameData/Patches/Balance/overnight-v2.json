@@ -185,6 +185,7 @@
     "statusExposeDefensePerStack": 0.15,
     "statusFortifyDefensePerStack": 0.15,
     "dotDamagePerLevel": 0.1,
+    "enemyDotFollowsDamageCurve": true,
     "statusMaxStacks": 3
   },
   "combatBalance": {
@@ -441,7 +442,7 @@
         },
         {
           "level": 10,
-          "multiplier": 0.27
+          "multiplier": 0.3028
         },
         {
           "level": 15,
@@ -449,15 +450,15 @@
         },
         {
           "level": 20,
-          "multiplier": 0.29
+          "multiplier": 0.38
         },
         {
           "level": 35,
-          "multiplier": 0.405
+          "multiplier": 0.4727
         },
         {
           "level": 50,
-          "multiplier": 0.4
+          "multiplier": 0.4669
         },
         {
           "level": 75,
