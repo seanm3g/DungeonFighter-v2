@@ -48,6 +48,14 @@ namespace RPGGame.Tuning
         public int CritDamage { get; set; }
         public int ComboDamage { get; set; }
         public int ConvertDamage { get; set; }
+        /// <summary>Worn loadout at fight start: slot → "Name|Material|T{tier}|Rarity" (empty slots left out).</summary>
+        public Dictionary<string, string> Gear { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Material → equipped pieces counting toward it (wildcards included), for materials worn 2+ times.</summary>
+        public Dictionary<string, int> Sets { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Learned skill node → rank at fight start.</summary>
+        public Dictionary<string, int> Skills { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        public int HeroStrength { get; set; }
+        public int HeroAgility { get; set; }
     }
 
     /// <summary>
@@ -155,8 +163,11 @@ namespace RPGGame.Tuning
                     HeroMaxHp = hero.GetEffectiveMaxHealth(),
                     FightInDungeon = _fightInDungeon,
                     RoomsClearedInDungeon = _roomsCleared,
-                    Strip = hero.GetComboActions().Select(a => a.Name).ToList()
+                    Strip = hero.GetComboActions().Select(a => a.Name).ToList(),
+                    HeroStrength = hero.GetEffectiveStrength(),
+                    HeroAgility = hero.GetEffectiveAgility()
                 };
+                RecordLoadout(_current, hero);
                 _missStreak = 0;
                 _lead = 0;
                 UpdatePacing();
@@ -241,6 +252,33 @@ namespace RPGGame.Tuning
                 _current.LeadChanges++;
             if (sign != 0)
                 _lead = sign;
+        }
+
+        private static void RecordLoadout(PlaythroughFightRecord record, Character hero)
+        {
+            var eq = hero.Equipment;
+            if (eq != null)
+            {
+                foreach (var (slot, item) in new[] { ("Head", eq.Head), ("Body", eq.Body), ("Legs", eq.Legs), ("Feet", eq.Feet), ("Weapon", eq.Weapon), ("Charm", eq.Charm) })
+                {
+                    if (item != null)
+                        record.Gear[slot] = $"{item.Name}|{item.Material}|T{item.Tier}|{item.Rarity}";
+                }
+            }
+            foreach (var material in MaterialSetController.EnumerateEquipped(hero)
+                         .Where(i => i != null && !string.IsNullOrWhiteSpace(i.Material))
+                         .Select(i => ItemMaterialRules.RemapLegacyMaterial(i!.Material))
+                         .Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                int n = MaterialSetController.CountEquipped(hero, material);
+                if (n >= 2)
+                    record.Sets[material] = n;
+            }
+            foreach (var (id, rank) in hero.Progression.LearnedSkillRanks)
+            {
+                if (rank > 0)
+                    record.Skills[id] = rank;
+            }
         }
 
         private static bool IsConvert(string? name)
