@@ -48,6 +48,7 @@ namespace RPGGame.Tuning
 
             ClassPlaythroughRunner.StartAtLevel = level;
             ClassPlaythroughRunner.StartLootPerLevel = TuningCliArgs.GetIntFlag(args, "--start-loot-per-level") ?? ClassPlaythroughRunner.StartLootPerLevel;
+            PlaythroughSmartPolicy.ScreenFightsPerEnemy = TuningCliArgs.GetIntFlag(args, "--screen-fights") ?? PlaythroughSmartPolicy.ScreenFightsPerEnemy;
             ClassPlaythroughRunner.HoldLevel = true;
             ClassPlaythroughRunner.MaxDungeons = dungeons;
             ClassPlaythroughRunner.StopAtLevel = 0;

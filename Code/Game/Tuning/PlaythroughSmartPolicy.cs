@@ -20,6 +20,17 @@ namespace RPGGame.Tuning
         public static int FightsPerEnemy { get; set; } = 6;
         /// <summary>A candidate must beat the current setup by this factor to be adopted (noise guard).</summary>
         public static double ImprovementThreshold { get; set; } = 1.02;
+        /// <summary>
+        /// Skill and gear picks with more than <see cref="ScreenKeep"/> candidates screen them at this many fights per
+        /// enemy first; only the top <see cref="ScreenKeep"/> are scored in full and can be picked. The sequence search's
+        /// one-pass action screen uses it too (its shortlist is re-scored in full). 0 = all in full. Checked 2026-10-27:
+        /// first-hub setup score 0.995 of full scoring [0.968-1.022] over 48 paired heroes, ~28% less sim time.
+        /// </summary>
+        public static int ScreenFightsPerEnemy { get; set; } = 2;
+        public static int ScreenKeep { get; set; } = 3;
+        // Scores within one hub re-optimization by fights + strip + serialized hero: the setup a gear pass equips is
+        // re-scored as the next pass's baseline and as the sequence search's starting strip.
+        private readonly Dictionary<string, double> _scoreCache = new(StringComparer.Ordinal);
 
         private string _lastSignature = "";
         private readonly Action<string>? _trace;
@@ -54,6 +65,7 @@ namespace RPGGame.Tuning
 
             PlaythroughFightRecorder.Suspended = true;
             ProfOptimize.Start();
+            _scoreCache.Clear();
             _milestone = new PlaythroughMilestone
             {
                 HeroLevel = hero.Level,
@@ -93,20 +105,22 @@ namespace RPGGame.Tuning
                 if (available.Count == 0)
                     return;
 
-                string? bestId = null;
-                double best = double.MinValue;
-                var scores = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+                var candidates = new List<(string Key, Character Clone)>();
                 foreach (var node in available)
                 {
                     var clone = Clone(hero);
-                    if (SkillTreeService.TryLearn(clone, node.Id) != CharacterProgression.LearnSkillResult.Success)
-                        continue;
-                    double score = await ScoreAsync(clone, StripOf(clone)).ConfigureAwait(false);
-                    scores[node.Id] = score;
-                    if (score > best)
+                    if (SkillTreeService.TryLearn(clone, node.Id) == CharacterProgression.LearnSkillResult.Success)
+                        candidates.Add((node.Id, clone));
+                }
+                var (scores, finalists) = await ScoreCandidatesAsync(candidates).ConfigureAwait(false);
+                string? bestId = null;
+                double best = double.MinValue;
+                foreach (string id in finalists)
+                {
+                    if (scores[id] > best)
                     {
-                        best = score;
-                        bestId = node.Id;
+                        best = scores[id];
+                        bestId = id;
                     }
                 }
 
@@ -131,7 +145,8 @@ namespace RPGGame.Tuning
                 var candidates = GearCandidates(hero, weaponType);
                 int bestIndex = -1;
                 double best = current * ImprovementThreshold;
-                var scores = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase) { ["keep"] = current };
+                var tried = new List<(string Key, Character Clone)>();
+                var indexOf = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
                 foreach (int index in candidates)
                 {
                     var clone = Clone(hero);
@@ -140,12 +155,20 @@ namespace RPGGame.Tuning
                     var item = clone.Inventory[index];
                     if (!TryEquip(clone, item))
                         continue;
-                    double score = await ScoreAsync(clone, StripOf(clone)).ConfigureAwait(false);
-                    scores[$"{PlaythroughGearPolicy.SlotOf(item)}: {item.Name} #{index}"] = score;
-                    if (score > best)
+                    string key = $"{PlaythroughGearPolicy.SlotOf(item)}: {item.Name} #{index}";
+                    tried.Add((key, clone));
+                    indexOf[key] = index;
+                }
+                var (candidateScores, finalists) = await ScoreCandidatesAsync(tried).ConfigureAwait(false);
+                var scores = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase) { ["keep"] = current };
+                foreach (var (key, score) in candidateScores)
+                    scores[key] = score;
+                foreach (string key in finalists)
+                {
+                    if (candidateScores[key] > best)
                     {
-                        best = score;
-                        bestIndex = index;
+                        best = candidateScores[key];
+                        bestIndex = indexOf[key];
                     }
                 }
 
@@ -253,7 +276,8 @@ namespace RPGGame.Tuning
                     v.RemoveAt(v.FindLastIndex(x => required == null || !string.Equals(x, required, StringComparison.OrdinalIgnoreCase)));
                 if (!Valid(v))
                     continue;
-                double screenScore = await ScoreAsync(Clone(hero), v).ConfigureAwait(false);
+                double screenScore = await ScoreAsync(Clone(hero), v,
+                    ScreenFightsPerEnemy > 0 && ScreenFightsPerEnemy < FightsPerEnemy ? ScreenFightsPerEnemy : 0).ConfigureAwait(false);
                 screened.Add((a, screenScore));
                 Note(v, screenScore);
             }
@@ -342,16 +366,44 @@ namespace RPGGame.Tuning
         // ---------------------------------------------------------------- scoring
 
         /// <summary>
+        /// Scores every candidate (key → score). Above <see cref="ScreenKeep"/> candidates, a quick screen at
+        /// <see cref="ScreenFightsPerEnemy"/> fights per enemy picks the finalists, which are re-scored in full; screened-out
+        /// candidates keep their screen score (decision records) but are not finalists, so they can't be picked.
+        /// Finalists keep the candidates' order, so ties break as before.
+        /// </summary>
+        private async Task<(Dictionary<string, double> Scores, List<string> Finalists)> ScoreCandidatesAsync(
+            List<(string Key, Character Clone)> candidates)
+        {
+            var scores = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+            var finalists = candidates.Select(c => c.Key).ToList();
+            if (ScreenFightsPerEnemy > 0 && ScreenFightsPerEnemy < FightsPerEnemy && candidates.Count > ScreenKeep)
+            {
+                foreach (var (key, clone) in candidates)
+                    scores[key] = await ScoreAsync(clone, StripOf(clone), ScreenFightsPerEnemy).ConfigureAwait(false);
+                var keep = candidates.Select(c => c.Key).OrderByDescending(k => scores[k]).Take(ScreenKeep)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                finalists = finalists.Where(keep.Contains).ToList();
+            }
+            foreach (var (key, clone) in candidates.Where(c => finalists.Contains(c.Key, StringComparer.OrdinalIgnoreCase)))
+                scores[key] = await ScoreAsync(clone, StripOf(clone)).ConfigureAwait(false);
+            return (scores, finalists);
+        }
+
+        /// <summary>
         /// Short seeded fights at the hero's level with real combo routing. Score = win rate × kill speed × HP kept:
         /// winRate / (heroTurns × (netHpLostPerFight / maxHp + 0.05)).
         /// </summary>
-        private async Task<double> ScoreAsync(Character candidate, IReadOnlyList<string> strip)
+        private async Task<double> ScoreAsync(Character candidate, IReadOnlyList<string> strip, int fightsPerEnemy = 0)
         {
-            Evaluations++;
-            ProfEvaluations++;
+            int perEnemy = fightsPerEnemy > 0 ? fightsPerEnemy : FightsPerEnemy;
             ProfSerialize.Start();
             string json = new CharacterSerializer().Serialize(candidate);
             ProfSerialize.Stop();
+            string cacheKey = $"{perEnemy}|{string.Join(",", strip)}|{json}";
+            if (_scoreCache.TryGetValue(cacheKey, out double cached))
+                return cached;
+            Evaluations++;
+            ProfEvaluations++;
             double wins = 0, turns = 0, hpLost = 0;
             int fights = 0;
             ActionLabEncounterSimulator.UseNaturalComboRouting = true;
@@ -369,7 +421,7 @@ namespace RPGGame.Tuning
                     if (ActionLabEncounterSimulator.ValidateSnapshot(snapshot) != null)
                         continue;
                     ProfSim.Start();
-                    var report = await ActionLabEncounterSimulator.RunBatchAsync(snapshot, FightsPerEnemy, new Random(17), maxDegreeOfParallelism: 1)
+                    var report = await ActionLabEncounterSimulator.RunBatchAsync(snapshot, perEnemy, new Random(17), maxDegreeOfParallelism: 1)
                         .ConfigureAwait(false);
                     ProfSim.Stop();
                     foreach (var e in report.Encounters.Where(e => string.IsNullOrEmpty(e.ErrorMessage)))
@@ -386,10 +438,9 @@ namespace RPGGame.Tuning
                 ActionLabEncounterSimulator.UseNaturalComboRouting = false;
             }
 
-            if (fights == 0)
-                return 0;
-            double winRate = wins / fights;
-            return winRate / ((turns / fights) * (hpLost / fights + 0.05));
+            double result = fights == 0 ? 0 : wins / fights / ((turns / fights) * (hpLost / fights + 0.05));
+            _scoreCache[cacheKey] = result;
+            return result;
         }
 
         private static Character Clone(Character hero)
