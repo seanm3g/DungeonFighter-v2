@@ -55,8 +55,8 @@ def main(tag):
     pts=max(1,node.get('cost',1))*max(1,node.get('maxRank',1))
     tier=node.get('tier',0)
     rank=max(1,node.get('maxRank',1))
-    if tier==9: target=1.08
-    elif tier==7: target=1.06
+    if node.get('branch')=='Confluence': target=1.08
+    elif tier==17: target=1.06  # convert masteries (crown tier 7, above the 10-node trunk)
     elif rank==1: target=1.04
     else: target=(1+PER_POINT)**pts
     p=node.get('power',1.0)

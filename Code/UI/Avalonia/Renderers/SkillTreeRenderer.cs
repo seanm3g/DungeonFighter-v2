@@ -10,10 +10,11 @@ using RPGGame.UI.Avalonia.Managers;
 namespace RPGGame.UI.Avalonia.Renderers
 {
     /// <summary>
-    /// Skill-tree screen as a flow of unlockable boxes, read top-down: the Core trunk runs left-to-right and wraps
-    /// row by row, forks into one column per branch, and the branch tips join into the Confluence box at the bottom.
-    /// A hybrid rail column sits on the right when the character has one. Each skill is a pixel box (name, then
-    /// status and rank pips) colored by its state, and the connector out of a box lights up once that box is learned.
+    /// Skill-tree screen as a tree of unlockable boxes grown bottom-up: the Core trunk rises from tier 0 at the bottom,
+    /// forks into one column per branch, and the branch tips gather into the Confluence box at the top. Each tier is
+    /// one band of rows, labeled down the left edge. A hybrid rail column sits on the right when the character has one.
+    /// Each skill is a pixel box (name, then status and rank pips) colored by its state, and the connector out of a
+    /// box lights up once that box is learned. Scrolls by row (wheel, drag, PgUp/PgDn) and opens at the roots.
     /// The details panel sits on the right when wide, below when narrow.
     /// </summary>
     public class SkillTreeRenderer
@@ -28,6 +29,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private const int FooterRows = 3;          // legend, keys, back
         private const int BottomDetailRows = 9;    // details block when the panel can't sit on the right
         private const int PanelPad = 2;            // columns between the panel edge and the first box
+        private const int TierGutter = 5;          // tier labels ("T12") left of the first column
         private const int LaneGap = 3;             // columns between branch columns (room for a connector)
         private const int RailGap = 5;             // columns before the rail column (divider runs down the middle)
         private const int MinBoxWidth = 14;
@@ -79,8 +81,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         // ─────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Where every display node's box sits. Rows are content rows (row 0 holds section titles); columns are lane
-        /// units, fractional when a box is centered (a short trunk, the Confluence). The rail column is <see cref="LaneCount"/>.
+        /// Where every display node's box sits. Rows are content rows (row 0 is the top of the canopy); columns are
+        /// lane units, fractional when a box is centered (the trunk, the Confluence). The rail column is <see cref="LaneCount"/>.
         /// </summary>
         public sealed class BoxLayout
         {
@@ -95,16 +97,27 @@ namespace RPGGame.UI.Avalonia.Renderers
             /// <summary>One root-to-tip sequence per entry of <see cref="Branches"/>.</summary>
             public List<List<int>> BranchSeqs { get; init; } = new();
             public List<int> Confluence { get; init; } = new();
-            /// <summary>Row with the branch names, or -1 when the tree has no branches.</summary>
+            /// <summary>Row with the branch names, just above the fork, or -1 when the trunk doesn't fork.</summary>
             public int TitleRow { get; init; } = -1;
+            /// <summary>Row the trunk tip's wire fans out along into the branches, or -1.</summary>
+            public int ForkRow { get; init; } = -1;
+            /// <summary>Tier → content row of the lowest box in that tier's band (where the tier label sits).</summary>
+            public IReadOnlyDictionary<int, int> TierRows { get; init; } = new Dictionary<int, int>();
+            public int RailBaseTop { get; init; }
+            public int RailTitleRow { get; init; }
             public int ContentHeight { get; init; }
-            public const int RailBaseTop = 1;
         }
 
         private static readonly ConditionalWeakTable<SkillTreeDisplayModel, BoxLayout> LayoutCache = new();
 
         public static BoxLayout GetLayout(SkillTreeDisplayModel model) => LayoutCache.GetValue(model, ComputeBoxLayout);
 
+        /// <summary>
+        /// Grows the tree bottom-up: the Core trunk is a centered stack with tier 0 at the bottom, it forks into one
+        /// column per branch, and the Confluence crowns the top. Every tier is one band of rows across all columns,
+        /// so a skill sits at its tier's height and gaps in a branch show as a longer stem.
+        /// Built in rows counted from the bottom, then flipped into content rows.
+        /// </summary>
         private static BoxLayout ComputeBoxLayout(SkillTreeDisplayModel model)
         {
             var primary = model.PrimaryNodes;
@@ -119,56 +132,79 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             var branches = BuildBranchOrder(primary).Where(b => !IsCenterBranch(b)).ToList();
             int lanes = Math.Max(1, branches.Count);
+            double center = (lanes - 1) / 2.0;
             var colPos = new double[model.AllNodes.Count];
-            var top = new int[model.AllNodes.Count];
+            var bottom = new int[model.AllNodes.Count]; // rows from the content bottom to the box's lower edge
 
-            // Trunk: left-to-right, one lane per box, wrapping onto the next row. A single short row is centered.
             var trunk = Seq("Core");
-            int trunkRows = (trunk.Count + lanes - 1) / lanes;
-            for (int k = 0; k < trunk.Count; k++)
-            {
-                int r = k / lanes;
-                int inRow = Math.Min(lanes, trunk.Count - r * lanes);
-                colPos[trunk[k]] = (trunkRows == 1 ? (lanes - inRow) / 2.0 : 0) + k % lanes;
-                top[trunk[k]] = 1 + r * SlotStride;
-            }
-
-            // Branches: titles under the trunk's fork row, then each branch packed down its own column.
-            int y = 1 + trunkRows * SlotStride;
-            int titleRow = branches.Count > 0 ? y : -1;
-            int branchTop = branches.Count > 0 ? y + 1 : y;
             var seqs = branches.Select(Seq).ToList();
+            var confluence = Seq("Confluence");
+            var seqIndex = new Dictionary<int, int>();
+            foreach (var seq in seqs.Append(trunk).Append(confluence))
+            {
+                for (int k = 0; k < seq.Count; k++)
+                    seqIndex[seq[k]] = k;
+            }
+            foreach (int i in trunk.Concat(confluence))
+                colPos[i] = center;
             for (int lane = 0; lane < seqs.Count; lane++)
             {
-                for (int k = 0; k < seqs[lane].Count; k++)
-                {
-                    colPos[seqs[lane][k]] = lane;
-                    top[seqs[lane][k]] = branchTop + k * SlotStride;
-                }
+                foreach (int i in seqs[lane])
+                    colPos[i] = lane;
             }
-            int maxLen = seqs.Count == 0 ? 0 : seqs.Max(s => s.Count);
 
-            // Confluence: centered under the columns, after the row the branch tips join on.
-            var confluence = Seq("Confluence");
-            int confTop = branchTop + maxLen * SlotStride;
-            for (int k = 0; k < confluence.Count; k++)
+            // Each box owns a slot: the box, then the connector row above it.
+            int f = 1;
+            int forkF = -1, titleF = -1;
+            var tierF = new Dictionary<int, int>();
+            foreach (var band in Enumerable.Range(0, primary.Count).GroupBy(i => primary[i].Tier).OrderBy(g => g.Key))
             {
-                colPos[confluence[k]] = (lanes - 1) / 2.0;
-                top[confluence[k]] = confTop + k * SlotStride;
+                if (forkF < 0 && trunk.Count > 0 && band.Any(i => !IsCenterBranch(primary[i].Branch)))
+                {
+                    // Fork: the fan-out wire row, then the branch names above it, then a spacer.
+                    forkF = f;
+                    titleF = f + 1;
+                    f += 3;
+                }
+                int stack = 1;
+                foreach (var cell in band.GroupBy(i => colPos[i]).ToList())
+                {
+                    var list = cell.OrderBy(i => seqIndex.TryGetValue(i, out int k) ? k : 0).ToList();
+                    if (list.Count > 1 && cell.Key == center && list.Count <= lanes)
+                    {
+                        // A Core fork: same-tier choices side by side, centered on the trunk.
+                        for (int k = 0; k < list.Count; k++)
+                        {
+                            colPos[list[k]] = center + k - (list.Count - 1) / 2.0;
+                            bottom[list[k]] = f;
+                        }
+                        continue;
+                    }
+                    for (int k = 0; k < list.Count; k++)
+                        bottom[list[k]] = f + k * SlotStride;
+                    stack = Math.Max(stack, list.Count);
+                }
+                tierF[band.Key] = f;
+                f += stack * SlotStride;
             }
 
-            int height = 0;
-            for (int i = 0; i < primary.Count; i++)
-                height = Math.Max(height, top[i] + NodeHeight);
-
-            // Rail: the base box (what opens the hybrid tree) on top, its skills below.
+            // Rail: the base box (what opens the hybrid tree) level with the roots, its skills stacked above.
+            int railTitleF = 0;
             for (int i = 0; i < model.RailNodes.Count; i++)
             {
                 int all = model.PrimaryCount + i;
                 colPos[all] = lanes;
-                top[all] = BoxLayout.RailBaseTop + (i + 1) * SlotStride;
-                height = Math.Max(height, top[all] + NodeHeight);
+                bottom[all] = 1 + (i + 1) * SlotStride;
             }
+            if (model.HasRail)
+            {
+                railTitleF = 1 + model.RailNodes.Count * SlotStride + NodeHeight;
+                f = Math.Max(f, railTitleF + 1);
+            }
+
+            int height = f;
+            int Row(int fromBottom) => fromBottom < 0 ? -1 : height - 1 - fromBottom;
+            var top = bottom.Select(b => height - b - NodeHeight).ToArray();
 
             return new BoxLayout
             {
@@ -179,7 +215,11 @@ namespace RPGGame.UI.Avalonia.Renderers
                 Trunk = trunk,
                 BranchSeqs = seqs,
                 Confluence = confluence,
-                TitleRow = titleRow,
+                TitleRow = Row(titleF),
+                ForkRow = Row(forkF),
+                TierRows = tierF.ToDictionary(kv => kv.Key, kv => height - kv.Value - NodeHeight),
+                RailBaseTop = height - 1 - NodeHeight,
+                RailTitleRow = Row(railTitleF),
                 ContentHeight = height
             };
         }
@@ -191,8 +231,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         public static int GetNodeBottomForDisplay(SkillTreeDisplayModel model, int allIndex) =>
             GetNodeTopForDisplay(model, allIndex) + NodeHeight;
 
-        public static int GetColumnForDisplay(SkillTreeDisplayModel model, int allIndex) =>
-            (int)Math.Round(GetLayout(model).ColPos[allIndex]);
+        /// <summary>Column in lane units; the trunk and Confluence sit between lanes (e.g. 1.5).</summary>
+        public static double GetColumnForDisplay(SkillTreeDisplayModel model, int allIndex) =>
+            GetLayout(model).ColPos[allIndex];
 
         // ─────────────────────────────────────────────────────────────
         // Content order (tier bands) — SkillTreePrerequisites sequences branches from this
@@ -268,41 +309,30 @@ namespace RPGGame.UI.Avalonia.Renderers
         // Scrolling
         // ─────────────────────────────────────────────────────────────
 
-        public static int ClampScrollOffset(int scrollOffset, int contentHeight, int viewportHeight)
+        /// <summary>Row-precise so wheel and drag move the tree smoothly; 0 is the canopy, max is the roots.</summary>
+        public static int NormalizeScrollOffset(int scrollOffset, int contentHeight, int viewportHeight)
         {
             int max = Math.Max(0, contentHeight - viewportHeight);
             return Math.Clamp(scrollOffset, 0, max);
         }
 
-        /// <summary>Snap scroll to box-row boundaries so boxes never straddle the viewport edge.</summary>
-        public static int AlignScrollToTiers(int scrollOffset) =>
-            Math.Max(0, (scrollOffset / ScrollStep) * ScrollStep);
-
-        /// <summary>
-        /// Clamp into range, then row-align — but keep absolute top (0) and bottom (max) so tall trees
-        /// remain reachable when max scroll is not a multiple of <see cref="ScrollStep"/>.
-        /// </summary>
-        public static int NormalizeScrollOffset(int scrollOffset, int contentHeight, int viewportHeight)
-        {
-            int max = Math.Max(0, contentHeight - viewportHeight);
-            if (max == 0)
-                return 0;
-            int clamped = Math.Clamp(scrollOffset, 0, max);
-            if (clamped >= max)
-                return max;
-            if (clamped <= 0)
-                return 0;
-            return Math.Min(AlignScrollToTiers(clamped), max);
-        }
-
+        /// <summary>Scroll just far enough to show the box, keeping its connector row in view too.</summary>
         public static int EnsureNodeVisible(int scrollOffset, int nodeTop, int nodeBottom, int viewportHeight)
         {
-            if (nodeTop < scrollOffset)
-                return AlignScrollToTiers(nodeTop);
-            if (nodeBottom > scrollOffset + viewportHeight)
-                return AlignScrollToTiers(Math.Max(0, nodeBottom - viewportHeight + ScrollStep - 1));
-            // Already fully on-screen — leave scroll alone (don't re-align the bottom pin).
+            if (nodeTop - 1 < scrollOffset)
+                return Math.Max(0, nodeTop - 1);
+            if (nodeBottom + 1 > scrollOffset + viewportHeight)
+                return Math.Max(0, nodeBottom + 1 - viewportHeight);
             return scrollOffset;
+        }
+
+        /// <summary>Screen cells of the tree viewport from the last render, for wheel and drag hit-tests.</summary>
+        public static (int X, int Y, int Width, int Height) LastTreeBounds { get; private set; }
+
+        public static bool TreeBoundsContain(int gridX, int gridY)
+        {
+            var b = LastTreeBounds;
+            return b.Width > 0 && gridX >= b.X && gridX < b.X + b.Width && gridY >= b.Y && gridY < b.Y + b.Height;
         }
 
         // ─────────────────────────────────────────────────────────────
@@ -349,6 +379,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 LastViewportHeight = 0;
                 LastContentHeight = 0;
                 LastAppliedScrollOffset = 0;
+                LastTreeBounds = default;
                 return ey - y + 1;
             }
 
@@ -368,12 +399,12 @@ namespace RPGGame.UI.Avalonia.Renderers
             bool detailOnRight = contentWidth - rightDetailWidth - 2 >= MinTreeWidthForRightDetail;
             int treeAreaWidth = detailOnRight ? contentWidth - rightDetailWidth - 2 : contentWidth;
 
-            int fixedCols = 2 * PanelPad + (lanes - 1) * LaneGap + (showRail ? RailGap : 0);
+            int fixedCols = 2 * PanelPad + TierGutter + (lanes - 1) * LaneGap + (showRail ? RailGap : 0);
             int boxW = Math.Clamp((treeAreaWidth - fixedCols) / (lanes + (showRail ? 1 : 0)), MinBoxWidth, MaxBoxWidth);
             int lanesWidth = lanes * boxW + (lanes - 1) * LaneGap;
-            int panelWidth = 2 * PanelPad + lanesWidth + (showRail ? RailGap + boxW : 0);
+            int panelWidth = 2 * PanelPad + TierGutter + lanesWidth + (showRail ? RailGap + boxW : 0);
             int panelLeft = left;
-            int treeLeft = panelLeft + PanelPad;
+            int treeLeft = panelLeft + PanelPad + TierGutter;
             int railX = treeLeft + lanesWidth + RailGap;
 
             int panelTop = headerY + HeaderRows;
@@ -390,6 +421,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             var view = new Viewport(panelTop + 1, panelTop + 1 + viewportHeight, scrollOffset);
             int panelHeight = viewportHeight + 2;
             canvas.AddBox(panelLeft, panelTop, panelWidth, panelHeight, PanelBorder, Backdrop);
+            LastTreeBounds = (panelLeft, panelTop, panelWidth, panelHeight);
 
             // Cards draw their border a few pixels outside their two text rows; wires meet that border.
             double charW = canvas.GetCharWidth(), charH = canvas.GetCharHeight();
@@ -400,6 +432,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             padY = geo.PadY;
 
             // ── Titles, wires, boxes ─────────────────────────────────
+            DrawTierGutter(layout, view, panelLeft + PanelPad, depth);
             DrawSectionTitles(model, layout, geo, view, showRail);
             if (showRail)
                 Wire(view, false, RailDivider, 1.0, (railX - RailGap / 2.0, view.Scroll), (railX - RailGap / 2.0, view.Scroll + viewportHeight));
@@ -528,7 +561,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             Key(ClosedLook, "needs more class pts");
 
             canvas.AddText(left + 1, y + 1,
-                Truncate("Arrows move · L / Enter learn · T switch tree · Wheel / PgUp PgDn scroll · Click select", width - 1),
+                Truncate("Arrows move · L / Enter learn · T switch tree · Wheel / drag / PgUp PgDn scroll · Click select", width - 1),
                 Dim);
             AddBackOption(left, y + 2, width);
         }
@@ -546,65 +579,85 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         private void DrawSectionTitles(SkillTreeDisplayModel model, BoxLayout layout, Geometry geo, Viewport view, bool showRail)
         {
-            int top = view.ToScreen(0);
-            if (view.Contains(top))
+            if (showRail)
             {
-                if (layout.Trunk.Count > 0)
-                    canvas.AddText(geo.TreeLeft, top, "CORE", TitleColor);
-                if (showRail)
-                    canvas.AddText(geo.RailX, top, Truncate((model.RailTitle ?? model.DuoName ?? "SHARED").ToUpperInvariant(), geo.BoxW), AsciiArtAssets.Colors.Magenta);
+                int ry = view.ToScreen(layout.RailTitleRow);
+                if (view.Contains(ry))
+                    canvas.AddText(geo.RailX, ry, Truncate((model.RailTitle ?? model.DuoName ?? "SHARED").ToUpperInvariant(), geo.BoxW), AsciiArtAssets.Colors.Magenta);
             }
             if (layout.TitleRow < 0)
                 return;
             int ty = view.ToScreen(layout.TitleRow);
             if (!view.Contains(ty))
                 return;
-            // Left-aligned and short so the fork wire dropping into the column's center stays clear.
+            // Left-aligned and short so the fork wire rising into the column's center stays clear.
             for (int lane = 0; lane < layout.Branches.Count; lane++)
                 canvas.AddText(geo.LaneX(lane), ty, Truncate(layout.Branches[lane].ToUpperInvariant(), geo.BoxW / 2 - 1), TitleColor);
         }
 
+        /// <summary>Tier numbers down the left edge: open tiers gray, the next tier to open yellow, later ones dim.</summary>
+        private void DrawTierGutter(BoxLayout layout, Viewport view, int x, DepthInfo depth)
+        {
+            foreach (var (tier, row) in layout.TierRows)
+            {
+                int sy = view.ToScreen(row);
+                if (!view.Contains(sy))
+                    continue;
+                Color color = depth.IsOpen(tier) ? AsciiArtAssets.Colors.Gray
+                    : tier == depth.NextTier ? AsciiArtAssets.Colors.Yellow
+                    : Dim;
+                canvas.AddText(x, sy, $"T{tier}", color);
+            }
+        }
+
         /// <summary>
-        /// Trunk links box to box (an elbow under the row where it wraps), the trunk tip forks into every branch,
-        /// each branch links straight down, and the Confluence joins its requirements (or every branch tip).
+        /// Wires run upward: the trunk links box to box, the trunk tip fans out along the fork row into every branch,
+        /// each branch climbs its column, and the Confluence gathers its requirements (or every branch tip) from below.
         /// A wire is lit once the box it leaves from is learned.
         /// </summary>
         private void DrawWires(Character player, SkillTreeDisplayModel model, BoxLayout layout, Geometry geo, Viewport view)
         {
             var primary = model.PrimaryNodes;
             bool Learned(int i) => player.Progression.GetSkillRank(primary[i].Id) > 0;
+            double Under(int i) => layout.Top[i] + NodeHeight + 0.5;
 
             var trunk = layout.Trunk;
-            for (int k = 1; k < trunk.Count; k++)
+            int IndexOf(string id) => Enumerable.Range(0, primary.Count)
+                .FirstOrDefault(i => string.Equals(primary[i].Id, id, StringComparison.OrdinalIgnoreCase), -1);
+            // Every Core skill is fed by each skill on the Core tier below: forks split out and join back together.
+            foreach (int c in trunk)
             {
-                int a = trunk[k - 1], b = trunk[k];
-                if (layout.Top[a] == layout.Top[b])
-                    Wire(view, Learned(a), (geo.Right(a), layout.Top[a] + 1), (geo.Left(b), layout.Top[b] + 1));
-                else
-                    Elbow(view, Learned(a), geo, a, b, layout.Top[a] + NodeHeight + 0.5);
+                if (model.PrimaryTree == null)
+                    break;
+                foreach (var option in SkillTreePrerequisites.GetCorePredecessorOptions(model.PrimaryTree, primary[c]))
+                {
+                    int p = IndexOf(option.Id);
+                    if (p >= 0)
+                        Elbow(view, Learned(p), geo, p, c, Under(c));
+                }
             }
 
             if (trunk.Count > 0)
             {
                 int tip = trunk[^1];
                 foreach (var seq in layout.BranchSeqs.Where(s => s.Count > 0))
-                    Elbow(view, Learned(tip), geo, tip, seq[0], layout.Top[tip] + NodeHeight + 0.5);
+                    Elbow(view, Learned(tip), geo, tip, seq[0], layout.ForkRow >= 0 ? layout.ForkRow + 0.5 : Under(seq[0]));
             }
 
             foreach (var seq in layout.BranchSeqs)
             {
                 for (int k = 1; k < seq.Count; k++)
-                    Wire(view, Learned(seq[k - 1]), (geo.CenterX(seq[k - 1]), geo.BottomEdge(seq[k - 1])), (geo.CenterX(seq[k]), geo.TopEdge(seq[k])));
+                    Elbow(view, Learned(seq[k - 1]), geo, seq[k - 1], seq[k], Under(seq[k]));
             }
 
             var conf = layout.Confluence;
             for (int k = 0; k < conf.Count; k++)
             {
                 int c = conf[k];
-                double joinY = layout.Top[c] - 0.5;
+                double joinY = Under(c);
                 if (k > 0)
                 {
-                    Wire(view, Learned(conf[k - 1]), (geo.CenterX(conf[k - 1]), geo.BottomEdge(conf[k - 1])), (geo.CenterX(c), geo.TopEdge(c)));
+                    Elbow(view, Learned(conf[k - 1]), geo, conf[k - 1], c, joinY);
                     continue;
                 }
                 var sources = (primary[c].Requires ?? new List<string>())
@@ -618,12 +671,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                 foreach (int s in sources)
                 {
                     bool lit = Learned(s);
-                    var below = layout.BranchSeqs.FirstOrDefault(seq => seq.Contains(s));
-                    if (below != null && below[^1] != s)
+                    var column = layout.BranchSeqs.FirstOrDefault(seq => seq.Contains(s));
+                    if (column != null && column[^1] != s)
                     {
-                        // Not its column's tip: leave from the side and run down the gutter so the wire skips the boxes under it.
+                        // Not its column's tip: leave from the side and climb the gutter so the wire skips the boxes above it.
                         double gutter = geo.X(s) + geo.BoxW + LaneGap / 2.0;
-                        Wire(view, lit, (geo.Right(s), layout.Top[s] + 1), (gutter, layout.Top[s] + 1), (gutter, joinY), (geo.CenterX(c), joinY), (geo.CenterX(c), geo.TopEdge(c)));
+                        Wire(view, lit, (geo.Right(s), layout.Top[s] + 1), (gutter, layout.Top[s] + 1), (gutter, joinY), (geo.CenterX(c), joinY), (geo.CenterX(c), geo.BottomEdge(c)));
                     }
                     else
                     {
@@ -633,13 +686,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
         }
 
-        /// <summary>Down from <paramref name="from"/>'s bottom to <paramref name="midY"/>, across, then down into <paramref name="to"/>'s top.</summary>
+        /// <summary>Up from <paramref name="from"/>'s top to <paramref name="midY"/>, across, then up into <paramref name="to"/>'s bottom.</summary>
         private void Elbow(Viewport view, bool lit, Geometry geo, int from, int to, double midY) =>
             Wire(view, lit,
-                (geo.CenterX(from), geo.BottomEdge(from)),
+                (geo.CenterX(from), geo.TopEdge(from)),
                 (geo.CenterX(from), midY),
                 (geo.CenterX(to), midY),
-                (geo.CenterX(to), geo.TopEdge(to)));
+                (geo.CenterX(to), geo.BottomEdge(to)));
 
         private void Wire(Viewport view, bool lit, params (double x, double y)[] points) =>
             Wire(view, lit, lit ? LitWire : DimWire, lit ? 2.0 : 1.2, points);
@@ -652,6 +705,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 double x1 = points[i - 1].x, x2 = points[i].x;
                 double y1 = view.Top + points[i - 1].y - view.Scroll;
                 double y2 = view.Top + points[i].y - view.Scroll;
+                if (Math.Abs(x1 - x2) < 0.001 && Math.Abs(y1 - y2) < 0.001)
+                    continue; // straight elbows collapse their crossbar
                 if (Math.Abs(y1 - y2) < 0.001)
                 {
                     if (y1 < view.Top || y1 > view.Bottom)
@@ -682,8 +737,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 ? DepthInfo.For(player.Progression, hybrid.Value.tree, hybrid.Value.info.ParentA)
                 : null;
 
-            // Base box on top of the column: what opens the hybrid tree.
-            int baseY = view.ToScreen(BoxLayout.RailBaseTop);
+            // Base box at the foot of the column: what opens the hybrid tree.
+            int baseY = view.ToScreen(layout.RailBaseTop);
             if (hybrid != null && baseY >= view.Top && baseY + NodeHeight <= view.Bottom)
             {
                 var h = hybrid.Value.info;
@@ -833,8 +888,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                     if (explicitReq != null && SkillTreeService.Trees.Trees.SelectMany(t => t.Nodes)
                             .FirstOrDefault(n => string.Equals(n.Id, explicitReq, StringComparison.OrdinalIgnoreCase)) is SkillTreeNodeDefinition req)
                         return $"after {req.Name}";
-                    var pred = tree != null ? SkillTreePrerequisites.GetImmediatePredecessor(tree, node) : null;
-                    return pred != null ? $"after {pred.Name}" : isRail ? "after base" : "after Core";
+                    var preds = tree != null ? SkillTreePrerequisites.GetPredecessorOptions(tree, node) : Array.Empty<SkillTreeNodeDefinition>();
+                    return preds.Count > 0 ? $"after {string.Join(" or ", preds.Select(p => p.Name))}" : isRail ? "after base" : "after Core";
                 default:
                     return "other path";
             }

@@ -157,15 +157,21 @@ namespace RPGGame
             Render(ensureSelectionVisible: false);
         }
 
+        /// <summary>Wheel and drag send <c>scrollby:N</c> (rows, negative = toward the canopy); PgUp/PgDn page by most of a screen.</summary>
+        public const string ScrollByPrefix = "scrollby:";
+
         private bool TryScroll(string input, SkillTreeDisplayModel model)
         {
             string key = input.ToLowerInvariant();
-            int step = SkillTreeRenderer.ScrollStep;
+            if (key.StartsWith(ScrollByPrefix, StringComparison.Ordinal))
+                return int.TryParse(key.Substring(ScrollByPrefix.Length), out int rows) && TryScrollBy(rows, model);
+
             int viewport = Math.Max(SkillTreeRenderer.NodeHeight, lastViewportHeight);
+            int page = Math.Max(SkillTreeRenderer.ScrollStep, viewport - SkillTreeRenderer.ScrollStep);
             int delta = key switch
             {
-                "pageup" => -Math.Max(step, (viewport / step) * step),
-                "pagedown" => Math.Max(step, (viewport / step) * step),
+                "pageup" => -page,
+                "pagedown" => page,
                 _ => 0
             };
             if (delta == 0)
@@ -188,19 +194,22 @@ namespace RPGGame
             var nodes = model.AllNodes;
             if (nodes.Count == 0) return false;
 
-            int ColOf(int index) => SkillTreeRenderer.GetColumnForDisplay(model, index);
+            double ColOf(int index) => SkillTreeRenderer.GetColumnForDisplay(model, index);
             int TopOf(int index) => SkillTreeRenderer.GetNodeTopForDisplay(model, index);
 
             selectedIndex = Math.Clamp(selectedIndex, 0, nodes.Count - 1);
-            int curCol = ColOf(selectedIndex);
+            double curCol = ColOf(selectedIndex);
             int curTop = TopOf(selectedIndex);
             int curTier = nodes[selectedIndex].Tier;
+            // Up/down climb the current column first (the trunk counts as both lanes beside it), then the nearest row.
+            bool OffColumn(int i) => Math.Abs(ColOf(i) - curCol) >= 1;
 
             if (key is "up" or "w")
             {
                 var candidates = Enumerable.Range(0, nodes.Count)
                     .Where(i => TopOf(i) < curTop)
-                    .OrderByDescending(TopOf)
+                    .OrderBy(OffColumn)
+                    .ThenByDescending(TopOf)
                     .ThenBy(i => Math.Abs(ColOf(i) - curCol))
                     .ToList();
                 if (candidates.Count > 0)
@@ -215,7 +224,8 @@ namespace RPGGame
             {
                 var candidates = Enumerable.Range(0, nodes.Count)
                     .Where(i => TopOf(i) > curTop)
-                    .OrderBy(TopOf)
+                    .OrderBy(OffColumn)
+                    .ThenBy(TopOf)
                     .ThenBy(i => Math.Abs(ColOf(i) - curCol))
                     .ToList();
                 if (candidates.Count > 0)

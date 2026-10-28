@@ -12,6 +12,7 @@ using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.Avalonia.Renderers.Inventory;
 using RPGGame.UI.Avalonia.Settings;
 
@@ -32,6 +33,13 @@ namespace RPGGame.UI.Avalonia.Handlers
         private List<RPGGame.Action>? _comboStripSnapshot;
 
         private Point _inventoryDragPressPosition;
+
+        // Skill tree: press in the tree panel arms a drag; moving past a few pixels pans the tree by rows.
+        private const double SkillTreeDragThresholdPx = 4;
+        private bool _skillTreeDragArmed;
+        private bool _skillTreeDragging;
+        private Point _skillTreeDragPress;
+        private int _skillTreeDragRowsSent;
 
         public MouseInteractionHandler(
             GameCanvasControl gameCanvas,
@@ -95,6 +103,8 @@ namespace RPGGame.UI.Avalonia.Handlers
                     return;
                 if (TryArmInventoryDrag(e, point.Position))
                     return;
+                if (TryArmSkillTreeDrag(e, point.Position))
+                    return;
                 HandleMouseClick(point.Position);
             }
         }
@@ -131,6 +141,16 @@ namespace RPGGame.UI.Avalonia.Handlers
                 }
                 return;
             }
+            if (_skillTreeDragArmed)
+            {
+                if (!point.Properties.IsLeftButtonPressed)
+                    _skillTreeDragArmed = false; // release never arrived (capture lost)
+                else
+                {
+                    DragSkillTree(point.Position);
+                    return;
+                }
+            }
             HandleMouseHover(point.Position, forceTooltipRefresh: altChanged);
         }
 
@@ -151,6 +171,16 @@ namespace RPGGame.UI.Avalonia.Handlers
             if (InventoryDragState.IsArmed)
             {
                 FinishInventoryDrag(e.GetCurrentPoint(gameCanvas).Position);
+                return;
+            }
+
+            if (_skillTreeDragArmed)
+            {
+                _skillTreeDragArmed = false;
+                // Press and release in place is a normal click (select a box, learn, back).
+                if (!_skillTreeDragging)
+                    HandleMouseClick(_skillTreeDragPress);
+                _skillTreeDragging = false;
                 return;
             }
 
@@ -240,8 +270,7 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             if (skillTree)
             {
-                // Skill tree uses pageup/pagedown for tier-aligned vertical scroll.
-                _ = gameRef!.HandleInput(delta > 0 ? "pageup" : "pagedown");
+                _ = gameRef!.HandleInput(SkillTreeMenuHandler.ScrollByPrefix + (delta > 0 ? -lines : lines));
                 e.Handled = true;
                 return;
             }
@@ -763,6 +792,47 @@ namespace RPGGame.UI.Avalonia.Handlers
             e.Pointer.Capture(gameCanvas);
             e.Handled = true;
             return true;
+        }
+
+        /// <summary>
+        /// Skill tree: a press inside the tree panel arms a pan. The click is deferred to release so a press-and-release
+        /// in place still selects the box under the pointer.
+        /// </summary>
+        private bool TryArmSkillTreeDrag(PointerPressedEventArgs e, Point position)
+        {
+            if (game?.StateManager?.CurrentState != GameState.SkillTree)
+                return false;
+            var grid = ScreenToGrid(position);
+            if (!SkillTreeRenderer.TreeBoundsContain(grid.X, grid.Y))
+                return false;
+
+            _skillTreeDragArmed = true;
+            _skillTreeDragging = false;
+            _skillTreeDragPress = position;
+            _skillTreeDragRowsSent = 0;
+            e.Pointer.Capture(gameCanvas);
+            e.Handled = true;
+            return true;
+        }
+
+        /// <summary>Grab-and-pull: dragging down reveals the canopy above, dragging up the roots below.</summary>
+        private void DragSkillTree(Point position)
+        {
+            if (game == null)
+                return;
+            if (!_skillTreeDragging)
+            {
+                if (Math.Abs(position.Y - _skillTreeDragPress.Y) < SkillTreeDragThresholdPx)
+                    return;
+                _skillTreeDragging = true;
+                canvasUI?.ClearHoverStates();
+            }
+            int rows = ScreenToGrid(_skillTreeDragPress).Y - ScreenToGrid(position).Y;
+            int step = rows - _skillTreeDragRowsSent;
+            if (step == 0)
+                return;
+            _skillTreeDragRowsSent = rows;
+            _ = game.HandleInput(SkillTreeMenuHandler.ScrollByPrefix + step);
         }
 
         /// <summary>

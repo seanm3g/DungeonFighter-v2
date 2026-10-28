@@ -3,6 +3,31 @@
 Status: **proposal** (2026-10-12). Builds on the current 44-node trees, the August 104-node design
 (`git show 62499fe6:GameData/SkillTrees.json`) and the material sets in `GameData/MaterialBuilds.json`.
 
+## Trunk (2026-10-25, from the class-skill board)
+
+Every class tree now opens with a single-file **trunk** of 10 nodes on the Core lane (tiers 1–10, in this order),
+and the branches below form the crown above it (old tier *t* → tier *t* + 10). The first node on each branch needs
+the trunk tip; crown tiers keep their old point gates, floored at 10. The non-combat steps (#3 loot bias, #5 Rite of
+Passage) are `"free": true`: they cost no point, so early points go to combat nodes. Wizard's Slot Mind (max rank 2)
+and Pure Prefer (max rank 1) are capped so trunk ranks do not crowd out Arcane Kinship and Focus Lens (Wizard L35
+DUNGEONSIM: 5-rank trunk 81% clear, capped 84%, old tree 97%).
+
+| # | Board row | Barbarian | Warrior | Rogue | Wizard |
+|---|---|---|---|---|---|
+| 1 | ACTION: +stat | Might | Cunning | Concentrate | Read Book |
+| 2 | +8% per class item | First Steel Age | First Formation | First Cut | First Glyph |
+| 3 | Class-tag loot +50% | Blood Market | Muster Hall | Black Market | Reagent Market |
+| 4 | Natural roll → stat next turn | armor (Level 2) | speed (Level 2) | damage (Level 2) | AMP (Level 2) |
+| 5 | Rite of Passage | Puberty | Commission | Initiation | Apprenticeship |
+| 6 | Class action | Bludgeon | Avenge | Precision | Concentrated Chaos |
+| 7 | +1 Combo per 2 class tags | Heavy Cadence | Drill Cadence | Soft Cadence | Soft Cadence |
+| 8 | Weapon trigger | Concussive Crit | Swift Strike | Second Chance | Wand Focus |
+| 9 | Stacking stat | Empty Fury | Unbroken Stride | Steady Hand | Slot Mind |
+| 10 | Piece-condition bonus | Scrap Prefer | Parade Dress | Fragile Prefer | Pure Prefer |
+
+Not built yet from the board: a Rite of Passage *quest* (the node keeps its stat effect), "<stat> is now your primary
+attribute" on the root, and Damascus as a Barbarian material (Iron stays).
+
 ## Shape (all four classes)
 
 - **Budget:** 1 class point per level with that weapon equipped, so ~99 points by L100 for a pure build.
@@ -32,7 +57,7 @@ Ranks in brackets.
 | Tier | Core / Rite (STR) | Bone — RAGE (hit taken) | Iron — CRISIS (enemy low HP) | Steel — TRIUMPH (combo end) |
 |---|---|---|---|---|
 | 0 | Tribe Metal (cur) | | | |
-| 1 | Rite of Passage — +1 STR / 10 levels [1] (cur) · Blood Market [1] (cur) | Iron Hide Roll [1] (cur) | Crushing Lesson — BLUDGEON [1] (cur) | First Steel Age — dmg per Barbarian item [5] (cur) |
+| 1 | Rite of Passage — +10 STR [1] (cur) · Blood Market [1] (cur) | Iron Hide Roll [1] (cur) | Crushing Lesson — BLUDGEON [1] (cur) | First Steel Age — dmg per Barbarian item [5] (cur) |
 | 2 | Might — MIGHT action [1] (cur) | Bone Skin — first hit → Harden [1] (aug `bronze_skin`) | Concussive Crit [1] (cur) | Heavy Cadence [1] (cur) |
 | 3 | Tribal Kinship [5] (new) | Bone Temper — armor while Harden [5] (aug) | Venom Mace [1] (aug) | Second Steel Age — slot 2 extra hit [5] (aug) |
 | 4 | | Blood Price — heal on hit [5] (aug) | Empty Fury [5] (cur) | Scrap Prefer [5] (cur) |
@@ -47,7 +72,7 @@ Ranks in brackets.
 | Tier | Core / Rite (AGI) | Bronze — BEAT (each turn) | Gold — DRAG (slow) | Mithril — STREAK (consecutive attacks) |
 |---|---|---|---|---|
 | 0 | Iron Lineage (cur) | | | |
-| 1 | Commission — +6 AGI [1] (cur) · Muster Hall [1] (cur) | First Formation — speed per Warrior item [5] (cur) | Riposte — Pierce after taking a hit [5] (aug) | Sword Hit AGI [5] (cur) |
+| 1 | Commission — +10 AGI [1] (cur) · Muster Hall [1] (cur) | First Formation — speed per Warrior item [5] (cur) | Riposte — Pierce after taking a hit [5] (aug) | Sword Hit AGI [5] (cur) |
 | 2 | Cunning — CUNNING action [1] (cur) | Roll Speed [1] (cur) | Guard Duty — dmg after armor absorbs [5] (aug) | Avenge — finisher [1] (cur) |
 | 3 | Martial Kinship [5] (new) | Drill Cadence [1] (cur) | Shield Geometry [1] (aug) | Commander's Opening [1] (aug) |
 | 4 | Steady March — Sword +AGI [5] (aug) | Metronome — slot 2 speed [5] (aug) | Phalanx — dmg while Fortify [5] (aug) | Unbroken Stride [5] (cur) |

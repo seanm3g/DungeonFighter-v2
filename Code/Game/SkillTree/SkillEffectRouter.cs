@@ -53,7 +53,7 @@ namespace RPGGame
         private int _gutInstinctApplied;
         private int _focusLensApplied;
 
-        private const int RiteOfPassageAttributeBonus = 15;
+        private const int RiteOfPassageAttributeBonus = 10;
 
         private static readonly string[] BarbarianMaterialTags =
             { "bone", "steel", "iron", "barbarian" };
@@ -169,8 +169,8 @@ namespace RPGGame
 
         /// <summary>
         /// Standing attribute from rite-of-passage passives.
-        /// Puberty adds the hero's level to Strength (level 5 → +5 STR).
-        /// Commission / Initiation / Apprenticeship stay a flat +15 to AGI / TEC / INT.
+        /// Puberty / Commission / Initiation / Apprenticeship: a flat +10 to STR / AGI / TEC / INT
+        /// (times node power, per rank).
         /// Folded into <see cref="Character.GetEffectiveStrength"/> and the other effective getters.
         /// </summary>
         public int GetSkillAttributeBonus(Character? c, string? statCode)
@@ -178,20 +178,12 @@ namespace RPGGame
             if (c == null || string.IsNullOrWhiteSpace(statCode)) return 0;
             return statCode.Trim().ToUpperInvariant() switch
             {
-                "STR" => PubertyStrengthBonus(c) + KinshipBonus(c, "STR"),
+                "STR" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "puberty")) + KinshipBonus(c, "STR"),
                 "AGI" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "commission")) + KinshipBonus(c, "AGI"),
                 "TEC" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "initiation")) + KinshipBonus(c, "TEC"),
                 "INT" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "apprenticeship")) + KinshipBonus(c, "INT"),
                 _ => 0
             };
-        }
-
-        /// <summary>Learned Puberty: +1 Strength per hero level, once per rank.</summary>
-        private int PubertyStrengthBonus(Character c)
-        {
-            double power = GetPower(c, "puberty");
-            if (power <= 0) return 0;
-            return (int)Math.Round(Math.Max(0, c.Level) * power);
         }
 
         private Character? AsBoundHero(Actor? source)

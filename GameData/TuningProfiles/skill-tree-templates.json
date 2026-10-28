@@ -33,9 +33,9 @@
       true
     ],
     "b-puberty": [
-      0.1,
-      "Rite of passage: +{1} Strength per level.",
-      true
+      1.0,
+      "Rite of passage: +{10} Strength.",
+      false
     ],
     "b-kin": [
       0.2,
@@ -103,9 +103,9 @@
       true
     ],
     "w-puberty": [
-      0.1,
-      "Rite of passage: +{15} Agility.",
-      true
+      1.0,
+      "Rite of passage: +{10} Agility.",
+      false
     ],
     "w-kin": [
       0.1,
@@ -163,9 +163,9 @@
       true
     ],
     "r-puberty": [
-      0.24999,
-      "Rite of passage: +{15} Technique.",
-      true
+      1.0,
+      "Rite of passage: +{10} Technique.",
+      false
     ],
     "r-kin": [
       0.2,
@@ -254,8 +254,8 @@
     ],
     "z-puberty": [
       1.0,
-      "Rite of passage: +{15} Intelligence.",
-      true
+      "Rite of passage: +{10} Intelligence.",
+      false
     ],
     "z-kin": [
       0.2,

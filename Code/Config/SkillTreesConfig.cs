@@ -83,6 +83,10 @@ namespace RPGGame
         [JsonPropertyName("healOnHitPerRank")]
         public int HealOnHitPerRank { get; set; }
 
+        /// <summary>Costs no skill point (non-combat trunk steps: loot bias, Rite of Passage). Overrides <see cref="Cost"/>.</summary>
+        [JsonPropertyName("free")]
+        public bool Free { get; set; }
+
         /// <summary>
         /// Weapon or class keys (e.g. Sword, Warrior) that may see this node on the hybrid side rail
         /// when this node's tree is the secondary path. Empty = primary-tree only.
@@ -143,11 +147,19 @@ namespace RPGGame
             PropertyNameCaseInsensitive = true
         };
 
-        /// <summary>Tier index 0..9 → default Skill Point cost when a node omits/zeros cost (roots stay 0).</summary>
+        /// <summary>Tier index → default Skill Point cost when a node omits/zeros cost (roots stay 0; deeper tiers use the last value).</summary>
         public static readonly int[] TierCosts = { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
-        /// <summary>Class points earned (in the owning class) needed before a tier opens. Index = tier; deeper tiers use the last value.</summary>
-        public static readonly int[] TierPointGates = { 0, 0, 2, 5, 10, 18, 28, 40, 55, 70 };
+        /// <summary>
+        /// Class points earned (in the owning class) needed before a tier opens. Index = tier; deeper tiers use the last value.
+        /// Class trees open with a single-file trunk on the Core lane (tiers 1..10), gated only by its own order;
+        /// the branches above it keep their old gates, floored at the trunk's 10 points.
+        /// </summary>
+        public static readonly int[] TierPointGates =
+        {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            10, 10, 10, 10, 18, 28, 40, 55, 70
+        };
 
         /// <summary>Deepest tier a node may sit on (last entry of <see cref="TierPointGates"/>).</summary>
         public static int MaxTier => TierPointGates.Length - 1;
@@ -240,6 +252,9 @@ namespace RPGGame
                         node.Cost = 1;
                         node.MaxRank = 1;
                     }
+
+                    if (node.Free)
+                        node.Cost = 0;
                 }
             }
 
