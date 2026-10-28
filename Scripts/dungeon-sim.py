@@ -37,6 +37,7 @@ ap.add_argument('--seed', type=int, default=1, help='base seed; each shard deriv
 ap.add_argument('--parallel', type=int, default=os.cpu_count() or 8,
                 help='shards at once; all levels share one pool, so no level waits on the slowest shard of another')
 ap.add_argument('--classes', default=','.join(CLASSES), help='comma list of classes to run')
+ap.add_argument('--overlay', default='', help='folder of GameData files copied over the scratch GameData (test data edits without touching the repo)')
 ap.add_argument('--keep', default='', help='copy the raw shard JSON (fight rows) into this folder')
 ap.add_argument('--shard-timeout', type=int, default=1800, help='seconds before a shard is killed and dropped (a stuck fight)')
 A = ap.parse_args()
@@ -62,6 +63,8 @@ def copy_gamedata():
     def ignore(d, names):
         return [n for n in names if (n in skip_dirs and os.path.isdir(os.path.join(d, n))) or n.startswith('character_')]
     shutil.copytree(os.path.join(ROOT, 'GameData'), DATA, ignore=ignore)
+    if A.overlay:
+        shutil.copytree(A.overlay, DATA, dirs_exist_ok=True)
 
 
 def write_variant(anchors, tag):
