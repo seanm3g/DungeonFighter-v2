@@ -93,6 +93,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
 
             foreach (var c in contributions)
             {
+                // Quality only scales damage/armor/speed, which already show their final values as rows.
+                if (c.Label == "Quality")
+                    continue;
+
                 if (TryParseValue(c.ValueText, out double n, out string unit))
                 {
                     var key = new RowKey(c.Label, unit);

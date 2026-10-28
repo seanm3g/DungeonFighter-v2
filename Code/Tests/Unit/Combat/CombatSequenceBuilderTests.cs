@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestUnnamedHitLeavesActionBlank();
             TestUnnamedMissShowsMiss();
             TestEnvironmentalActionAndDamage();
+            TestEnvironmentalStrikeRollPlaysAsSwing();
             TestSnapshotHealthHoldBeforeDamage();
             TestEmptyWhenNoAction();
 
@@ -258,6 +259,40 @@ namespace RPGGame.Tests.Unit.Combat
                 "Necrotic Aura", 0, null, hero, hasStatusEffects: true);
             TestBase.AssertTrue(withEffects.Any(s => s.Kind == CombatSequenceStepKind.Effect),
                 "env with status apps includes EFFECTS", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestEnvironmentalStrikeRollPlaysAsSwing()
+        {
+            Console.WriteLine("--- Environmental strike roll: ROLL + OUTCOME with swing info ---");
+            var room = new Environment("haunted crypt", "bones", true, "crypt");
+            bool acted = room.ShouldEnvironmentAct();
+            int roll = room.LastStrikeRoll;
+            TestBase.AssertTrue(roll >= 1 && roll <= 20, "hostile room rolls a d20 face", ref _run, ref _passed, ref _failed);
+
+            var hazard = new Action { Name = "ROOM COLLAPSE", Type = ActionType.Attack };
+            var steps = acted
+                ? CombatSequenceBuilder.FromEnvironmental(hazard.Name, 4, null, DummyHero(), room: room, action: hazard)
+                : CombatSequenceBuilder.FromEnvironmentalQuiet(room);
+            AssertKinds(steps.Take(4).ToList(), CombatSequenceStepKind.Attacker, CombatSequenceStepKind.Roll,
+                CombatSequenceStepKind.Outcome, CombatSequenceStepKind.Action);
+            TestBase.AssertEqual(roll.ToString(), Plain(steps[1]), "ROLL shows the room's face", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(Plain(steps[2]).Contains(acted ? "strikes" : "quiet", StringComparison.Ordinal),
+                "OUTCOME names strike vs quiet", ref _run, ref _passed, ref _failed);
+            var swing = steps[0].Swing;
+            TestBase.AssertTrue(swing != null && steps.All(s => ReferenceEquals(s.Swing, swing)),
+                "every step carries the room's swing", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(swing != null && ReferenceEquals(swing.Source, room) && swing.Roll == roll
+                    && swing.Outcome == (acted ? CombatSequenceSwingOutcome.Hit : CombatSequenceSwingOutcome.Miss)
+                    && swing.Thresholds?.MinHit == room.LastStrikeRollThreshold,
+                "swing is the room's roll against its strike threshold", ref _run, ref _passed, ref _failed);
+
+            var quiet = CombatSequenceBuilder.FromEnvironmentalQuiet(room);
+            TestBase.AssertTrue(ReferenceEquals(quiet[0].Swing?.Action, CombatSequenceBuilder.QuietRoomAction),
+                "quiet roll fires the stand-in Quiet action", ref _run, ref _passed, ref _failed);
+
+            var unrolled = CombatSequenceBuilder.FromEnvironmental("Necrotic Aura", 0, null, DummyHero(), hasStatusEffects: true);
+            TestBase.AssertTrue(unrolled.All(s => s.Kind != CombatSequenceStepKind.Roll && s.Swing == null),
+                "env steps without a room have no ROLL or swing", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestSnapshotHealthHoldBeforeDamage()

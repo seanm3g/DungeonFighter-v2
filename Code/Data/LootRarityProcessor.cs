@@ -61,14 +61,14 @@ namespace RPGGame
                 }
             }
 
-            double totalWeight = availableRarities.Sum(r => r.Weight);
+            double totalWeight = availableRarities.Sum(RollWeight);
             double roll = _random.NextDouble() * totalWeight;
             double cumulative = 0;
 
             RarityData initialRarity = availableRarities[0];
             foreach (var rarity in availableRarities)
             {
-                cumulative += rarity.Weight;
+                cumulative += RollWeight(rarity);
                 if (roll < cumulative)
                 {
                     initialRarity = rarity;
@@ -79,6 +79,10 @@ namespace RPGGame
             // Upgrades: MF does not affect base rarity path (affix-only MF design)
             return ApplyRarityUpgrades(initialRarity, 0.0, playerLevel);
         }
+
+        /// <summary>Base roll weight: the balance patch's <see cref="ItemAffixByRaritySettings.RarityWeights"/> when set, else <c>RarityTable.json</c>.</summary>
+        private static double RollWeight(RarityData rarity) =>
+            GameConfiguration.Instance?.ItemAffixByRarity?.ResolveRarityWeight(rarity) ?? rarity.Weight;
 
         /// <summary>
         /// Applies cascading rarity upgrades after initial rarity roll
@@ -194,12 +198,12 @@ namespace RPGGame
                 return Array.Empty<(string, double, double)>();
 
             var available = cache.RarityData.Where(r => IsRarityUnlockedAtPlayerLevel(r.Name, playerLevel)).ToList();
-            double total = available.Sum(r => r.Weight);
+            double total = available.Sum(RollWeight);
             if (total <= 0)
                 return Array.Empty<(string, double, double)>();
 
             return available
-                .Select(r => (r.Name, r.Weight, 100.0 * r.Weight / total))
+                .Select(r => (r.Name, RollWeight(r), 100.0 * RollWeight(r) / total))
                 .ToList();
         }
 

@@ -86,6 +86,9 @@ namespace RPGGame
             // If no targets were affected, show no effect message
             if (affectedTargets.Count == 0)
             {
+                // The strike roll still plays on the board; the hazard just lands on nobody.
+                TryQueueEnvironmentalSequence(source, action, action.Name, damage: 0, defenseFace: null, target: null,
+                    healthHolds: envHealthHolds, statusEffects: null, affectedActors: null);
                 var noEffectBuilder = new ColoredTextBuilder();
                 noEffectBuilder.Add(source.Name, ColorPalette.Green);
                 noEffectBuilder.Add("'s", Colors.White);
@@ -164,7 +167,8 @@ namespace RPGGame
         {
             bool hasEffects = statusEffects != null && statusEffects.Count > 0;
             var steps = CombatSequenceBuilder.FromEnvironmental(
-                actionName, damage, defenseFace, target, hasStatusEffects: hasEffects);
+                actionName, damage, defenseFace, target, hasStatusEffects: hasEffects,
+                room: source as Environment, action: action);
 
             var tokens = CombatSequenceFlavorTokens.FromEnvironmental(
                 source, action, statusEffects, damage, target, affectedActors);

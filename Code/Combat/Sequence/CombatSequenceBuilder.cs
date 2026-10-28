@@ -34,8 +34,13 @@ namespace RPGGame.Combat.Sequence
             return steps;
         }
 
+        /// <summary>Stand-in action for a room turn that rolls under its strike threshold (it advances one length).</summary>
+        public static readonly Action QuietRoomAction = new() { Name = "Quiet", Length = 1.0, IsComboAction = false };
+
         /// <summary>
         /// Environment hazards: Setup + Action + optional Defense + Damage / Effects (or a no-effect Action).
+        /// With <paramref name="room"/> and <paramref name="action"/>, the room's d20 strike roll plays as ROLL + OUTCOME
+        /// and the steps carry swing info, so the combat board tumbles the die like an actor's swing.
         /// </summary>
         public static List<CombatSequenceStep> FromEnvironmental(
             string actionName,
@@ -43,7 +48,9 @@ namespace RPGGame.Combat.Sequence
             int? defenseFace,
             Actor? target,
             int? attackFace = null,
-            bool hasStatusEffects = false)
+            bool hasStatusEffects = false,
+            Environment? room = null,
+            Action? action = null)
         {
             var steps = new List<CombatSequenceStep>();
             string name = string.IsNullOrWhiteSpace(actionName) ? "hazard" : actionName;
@@ -51,6 +58,9 @@ namespace RPGGame.Combat.Sequence
                 CombatSequenceStepKind.Attacker,
                 "ATTACKER",
                 Plain("Hazard", ColorPalette.Info)));
+            bool rolled = room != null && action != null && room.LastStrikeRoll > 0;
+            if (rolled)
+                AppendStrikeRoll(steps, room!, struck: true);
             steps.Add(new CombatSequenceStep(
                 CombatSequenceStepKind.Action,
                 "ACTION",
@@ -82,7 +92,47 @@ namespace RPGGame.Combat.Sequence
                     Plain("status", ColorPalette.Info)));
             }
 
+            if (rolled)
+                AttachStrikeSwing(steps, room!, action!, struck: true, damage);
             return steps;
+        }
+
+        /// <summary>
+        /// A room turn whose d20 strike roll came up short: ATTACKER, ROLL, OUTCOME (quiet), ACTION (nothing happens).
+        /// </summary>
+        public static List<CombatSequenceStep> FromEnvironmentalQuiet(Environment room)
+        {
+            var steps = new List<CombatSequenceStep>
+            {
+                new(CombatSequenceStepKind.Attacker, "ATTACKER", Plain("Hazard", ColorPalette.Info))
+            };
+            AppendStrikeRoll(steps, room, struck: false);
+            steps.Add(new CombatSequenceStep(CombatSequenceStepKind.Action, "ACTION", Plain("quiet", ColorPalette.Gray)));
+            AttachStrikeSwing(steps, room, QuietRoomAction, struck: false, damage: 0);
+            return steps;
+        }
+
+        private static void AppendStrikeRoll(List<CombatSequenceStep> steps, Environment room, bool struck)
+        {
+            int need = room.LastStrikeRollThreshold;
+            steps.Add(new CombatSequenceStep(
+                CombatSequenceStepKind.Roll,
+                "ROLL",
+                Plain(room.LastStrikeRoll.ToString(), ColorPalette.White)));
+            steps.Add(new CombatSequenceStep(
+                CombatSequenceStepKind.Outcome,
+                "OUTCOME",
+                struck ? Plain($"strikes ({need}+)", ColorPalette.Success) : Plain($"quiet ({need}+)", ColorPalette.Gray)));
+        }
+
+        /// <summary>Room rolls hit on <c>LastStrikeRollThreshold</c>+ with no crit or combo bands.</summary>
+        private static void AttachStrikeSwing(List<CombatSequenceStep> steps, Environment room, Action action, bool struck, int damage)
+        {
+            var thresholds = new CombatSequenceThresholds(21, 21, room.LastStrikeRollThreshold, 0);
+            var swing = new CombatSequenceSwingInfo(room, action, room.LastStrikeRoll,
+                struck ? CombatSequenceSwingOutcome.Hit : CombatSequenceSwingOutcome.Miss, isCritical: false, damage, thresholds);
+            foreach (var step in steps)
+                step.Swing = swing;
         }
 
         private static void AppendSwing(

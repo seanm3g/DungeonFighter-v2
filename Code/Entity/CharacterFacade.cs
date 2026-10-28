@@ -114,7 +114,7 @@ namespace RPGGame
         public int GetEffectiveIntelligence() => _character.Stats.GetEffectiveIntelligence(ExtraAttributeBonus("INT"));
 
         /// <summary>
-        /// Gear, consumable/cadence buffs, and standing skill-tree attribute (e.g. Puberty adds level to STR).
+        /// Gear, consumable/cadence buffs, and standing skill-tree attribute (e.g. Puberty +10 STR).
         /// </summary>
         private int ExtraAttributeBonus(string code)
         {
@@ -323,6 +323,7 @@ namespace RPGGame
         public int GetModificationMagicFind() => _character.Equipment.GetModificationMagicFind();
         public int GetModificationRollBonus() => _character.Equipment.GetModificationRollBonus();
         public int GetModificationDamageBonus() => _character.Equipment.GetModificationDamageBonus();
+        public int GetModificationMultiHitBonus() => _character.Equipment.GetModificationMultiHitBonus();
         public double GetModificationSpeedMultiplier() => _character.Equipment.GetModificationSpeedMultiplier();
         public double GetModificationDamageMultiplier() => _character.Equipment.GetModificationDamageMultiplier();
         public double GetModificationLifesteal() => _character.Equipment.GetModificationLifesteal();

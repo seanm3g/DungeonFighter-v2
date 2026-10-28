@@ -413,6 +413,7 @@ namespace RPGGame.Actions.RollModification
             }
             var combo = ActionUtilities.GetComboActions(source) ?? new List<Action>();
             n = Math.Max(1, n + ChainPositionBonusApplier.GetMultiHitDelta(source, action, combo, chainPositionComboStep));
+            n += ActionUtilities.GetGearMultiHitBonus(source, action);
             return n;
         }
 

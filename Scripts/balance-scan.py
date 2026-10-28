@@ -472,6 +472,92 @@ def analyze_pacing(results, dungeon_levels):
                     f'python Scripts/median-curve-solve.py {tools_arg()} --only health --levels {l}', 'the enemy never got to matter')
 
 
+TEC_ADVANCE = {}
+BREAK_CAUSES = ['normal hit', 'miss', 'enemy', 'environment', 'routing', 'other', 'strip change']
+TEC_BREAKS = {}
+
+
+def break_rates(fs):
+    """Strip breaks per 100 hero swings by cause, completions per 100 swings and the carried-in share (None: no data)."""
+    fs = [f for f in fs if 'StripBreaks' in f]
+    swings = sum(f['HeroActions'] for f in fs)
+    if not swings:
+        return None
+    per = {k: 100 * sum((f['StripBreaks'] or {}).get(k, 0) for f in fs) / swings for k in BREAK_CAUSES}
+    return per, 100 * sum(f['StripCompletions'] for f in fs) / swings, share(sum(1 for f in fs if f['CarriedInStrip']), len(fs))
+
+
+def strip_advance(fs):
+    """Per-step advance rate: swings from slots 1.. over swings from slots ..n-2 (each later swing needs the step before
+    it to land as a combo). Completion = last-slot swings over first-slot swings."""
+    up = down = first = last = 0
+    for f in fs:
+        if f.get('CarriedInStrip'):
+            continue   # started mid-strip (pack: the strip carries from the previous body), inflates later slots
+        s = f['SlotSwings']
+        up += sum(s[1:]); down += sum(s[:-1]); first += s[0]; last += s[-1]
+    return (up / down if down else None), (last / first if first else None)
+
+
+def analyze_strips(results, dungeon_levels):
+    """INT / TEC / Wizard reads (designer, 2026-10-27): INT amplifies later strip slots, Wizard runs the most slots but
+    is throttled by reliability, TEC drives reliability toward a sequence that almost always completes.
+    Per class and level: slots used / slot max, strip completion (last-slot swings over first-slot swings, strips of 2+),
+    per-step advance rate, late-slot damage (share of strip hit damage from slot 2 on), mean TEC and INT. Pooled over all
+    classes: advance rate by TEC band. Older scans lack SlotSwings and are skipped."""
+    pooled = []
+    for l in dungeon_levels:
+        docs = level_docs(results, l)
+        heroes = {c: sum(1 for d in docs if any(o['Class'] == c for o in d['Outcomes'])) for c in CLASSES}
+        used = {}
+        for c in CLASSES:
+            fs = [f for d in docs for f in d.get('Fights', []) if f['Class'] == c and f.get('SlotSwings')]
+            if len(fs) < A.min_fights:
+                continue
+            used[c] = statistics.mean(len(f['Strip']) for f in fs)
+            METRICS[f'slots used L{l} {c}'] = round(used[c], 2)
+            METRICS[f'slot max L{l} {c}'] = round(statistics.mean(f['SlotMax'] for f in fs), 2)
+            METRICS[f'hero tec L{l} {c}'] = round(statistics.mean(f['HeroTechnique'] for f in fs), 1)
+            METRICS[f'hero int L{l} {c}'] = round(statistics.mean(f['HeroIntelligence'] for f in fs), 1)
+            multi = [f for f in fs if len(f['SlotSwings']) >= 2]
+            pooled += multi
+            adv, comp = strip_advance(multi)
+            if adv is not None:
+                METRICS[f'step advance L{l} {c}'] = round(100 * adv, 1)
+            if comp is not None:
+                METRICS[f'strip completion L{l} {c}'] = round(100 * comp, 1)
+            br = break_rates(multi)
+            if br:
+                per, done, carried = br
+                for k, v in per.items():
+                    if v:
+                        METRICS[f'breaks {k} L{l} {c}'] = round(v, 1)
+                METRICS[f'strip completions L{l} {c}'] = round(done, 1)
+                METRICS[f'carried-in fights L{l} {c}'] = round(carried, 1)
+            dmg = [sum(f['SlotHitDamage']) for f in fs]
+            late = [sum(f['SlotHitDamage'][1:]) for f in fs]
+            if sum(dmg):
+                METRICS[f'late slot damage L{l} {c}'] = round(100 * sum(late) / sum(dmg), 1)
+        others = [used[c] for c in used if c != 'Wizard']
+        if 'Wizard' in used and others and used['Wizard'] < max(others):
+            top = max((c for c in used if c != 'Wizard'), key=lambda c: used[c])
+            finding('identity: wizard slots', l, 'Wizard', f"{used['Wizard']:.1f} slots used vs {top} {used[top]:.1f}",
+                    'Wizard runs the most slots', (max(others) - used['Wizard']) / max(others), 'FAIL' if heroes.get('Wizard', 0) >= 6 else 'LIKELY',
+                    'lootSystem.comboSlotCapByLevel / classPresentation.wandEquippedComboSlotBonus (the Wand slot sits under the level cap)',
+                    'designer 2026-10-27: Wizard uses the most action slots')
+    bands = {}
+    for f in pooled:
+        bands.setdefault(10 * (f['HeroTechnique'] // 10), []).append(f)
+    for b, fs in sorted(bands.items()):
+        adv, _ = strip_advance(fs)
+        if adv is not None and len(fs) >= A.min_fights:
+            TEC_ADVANCE[b] = (round(100 * adv, 1), len(fs))
+            METRICS[f'step advance TEC {b}-{b + 9}'] = round(100 * adv, 1)
+        br = break_rates(fs)
+        if br and len(fs) >= A.min_fights:
+            TEC_BREAKS[b] = br
+
+
 # Each class plays to its primary attribute (designer, 2026-10-26): Mace/STR damage, Sword/AGI swing speed, Dagger/TEC
 # hit/combo/crit thresholds, Wand/INT combo amplifier. balance-targets.json experience.classSignatures overrides.
 SIGNATURE_DEFAULT = {'Barbarian': 'hit size', 'Warrior': 'tempo', 'Rogue': 'crit', 'Wizard': 'combo lift'}
@@ -607,6 +693,32 @@ def print_report(provenance, elapsed, median_levels, dungeon_levels):
             g = lambda key, fmt: (fmt.format(METRICS[key]) if key in METRICS else '-')
             print(f"{l:>6}{g(f'fight length cv L{l}', '{:.2f}'):>7}{g(f'fight length p90/p50 L{l}', '{:.1f}'):>8}{g(f'close calls L{l}', '{:.0f}%'):>8}"
                   f"{g(f'miss streak 4+ L{l}', '{:.0f}%'):>8}{g(f'one-shot fights L{l}', '{:.0f}%'):>8}{g(f'lead changes L{l}', '{:.2f}'):>7}")
+    if any(k.startswith('slots used') for k in METRICS):
+        print('\nStrips per class: used/max slots, completion %, step advance %, late-slot damage %, TEC, INT')
+        print(f"{'level':>6}" + ''.join(f'{c:>30}' for c in CLASSES))
+        for l in dungeon_levels:
+            def cell(c):
+                if f'slots used L{l} {c}' not in METRICS:
+                    return '-'
+                g = lambda key, fmt: fmt.format(METRICS[key]) if key in METRICS else '-'
+                return (f"{g(f'slots used L{l} {c}', '{:.1f}')}/{g(f'slot max L{l} {c}', '{:.1f}')} {g(f'strip completion L{l} {c}', '{:.0f}')}"
+                        f" {g(f'step advance L{l} {c}', '{:.0f}')} {g(f'late slot damage L{l} {c}', '{:.0f}')}"
+                        f" T{g(f'hero tec L{l} {c}', '{:.0f}')} I{g(f'hero int L{l} {c}', '{:.0f}')}")
+            print(f'{l:>6}' + ''.join(f'{cell(c):>30}' for c in CLASSES))
+        if TEC_ADVANCE:
+            print('Step advance by TEC band (all classes): ' + ', '.join(f'{b}-{b + 9}: {a:.0f}% (n={n})' for b, (a, n) in sorted(TEC_ADVANCE.items())))
+    if TEC_BREAKS or any(k.startswith('breaks ') for k in METRICS):
+        short = {'normal hit': 'hit', 'miss': 'miss', 'enemy': 'enemy', 'environment': 'env', 'routing': 'route', 'other': 'other', 'strip change': 'strip'}
+        print('\nStrip breaks per 100 hero swings by cause (completions per 100 swings, carried-in fight share)')
+        print(f"{'':12}" + ''.join(f'{short[k]:>7}' for k in BREAK_CAUSES) + f"{'done':>7}{'carry%':>8}")
+        for l in dungeon_levels:
+            for c in CLASSES:
+                if f'strip completions L{l} {c}' not in METRICS:
+                    continue
+                print(f'{f"L{l} {c}":12}' + ''.join(f"{METRICS.get(f'breaks {k} L{l} {c}', 0):>7.1f}" for k in BREAK_CAUSES)
+                      + f"{METRICS[f'strip completions L{l} {c}']:>7.1f}{METRICS[f'carried-in fights L{l} {c}']:>8.0f}")
+        for b, (per, done, carried) in sorted(TEC_BREAKS.items()):
+            print(f'{f"TEC {b}-{b + 9}":12}' + ''.join(f'{per[k]:>7.1f}' for k in BREAK_CAUSES) + f'{done:>7.1f}{carried:>8.0f}')
     if IDENTITY:
         print('\nClass fingerprints (all scanned levels; shares of enemy HP lost, kill speed / enemy swings = log vs level mean)')
         print(f"{'':16}" + ''.join(f'{c:>11}' for c in CLASSES))
@@ -679,6 +791,7 @@ def analyze_and_report(results, median_levels, dungeon_levels, t0):
         analyze_variety(results, dungeon_levels)
         analyze_pacing(results, dungeon_levels)
         analyze_identity(results, dungeon_levels)
+        analyze_strips(results, dungeon_levels)
     ranked = print_report(provenance, time.time() - t0, median_levels, dungeon_levels)
     if A.compare:
         print_compare(A.compare)

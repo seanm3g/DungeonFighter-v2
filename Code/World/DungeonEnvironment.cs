@@ -161,6 +161,10 @@ namespace RPGGame
         /// <summary>Lowest d20 face on which the environment's next turn acts (21 = won't act), for the combat board.</summary>
         public int StrikeThreshold => combatStateManager.GetStrikeThreshold(IsHostile);
 
+        /// <summary>Face and threshold of the room's last act roll, for the combat board's quiet card.</summary>
+        public int LastStrikeRoll => combatStateManager.LastRoll;
+        public int LastStrikeRollThreshold => combatStateManager.LastThreshold;
+
         public override string GetDescription()
         {
             var allEnemies = enemyGenerator.Enemies;

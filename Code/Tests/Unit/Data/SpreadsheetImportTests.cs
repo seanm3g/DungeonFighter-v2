@@ -228,7 +228,7 @@ namespace RPGGame.Tests.Unit.Data
             // Test specific actions that should have been converted correctly
             var testActions = new[]
             {
-                ("JAB", 0.33, 0.5), // Damage: 33%, Speed: 0.50
+                ("JAB", 0.35, 0.4), // Damage: 35%, Speed: 0.40
                 ("PUNCH HARD", 1.0, 1.0), // Damage: 100%, Speed: 1.00
                 ("PUNCH HARDER", 1.3, 1.0), // Damage: 130%, Speed: 1.00
             };

@@ -31,7 +31,8 @@ namespace RPGGame.UI.Avalonia.Layout
             double heightScale = CombatStripHeightScale,
             double verticalOffsetScale = 0.0,
             RPGGame.Combat.Sequence.CombatSequenceThresholds? thresholds = null,
-            System.Func<int?>? rollMarker = null)
+            System.Func<int?>? rollMarker = null,
+            bool rollMarkerBelow = false)
         {
             var bands = thresholds ?? CurrentThresholds(actor);
             var segments = ThresholdDisplayFormatting.BuildD20OutcomeSegments(
@@ -54,7 +55,8 @@ namespace RPGGame.UI.Avalonia.Layout
                 heightScale: heightScale,
                 verticalOffsetScale: verticalOffsetScale,
                 rollMarkerRoll: rollMarker ?? (() =>
-                    ThresholdBarFeedback.TryGetRollMarker(panel, out int roll) ? roll : null));
+                    ThresholdBarFeedback.TryGetRollMarker(panel, out int roll) ? roll : null),
+                rollMarkerBelow: rollMarkerBelow);
             return segments;
         }
 

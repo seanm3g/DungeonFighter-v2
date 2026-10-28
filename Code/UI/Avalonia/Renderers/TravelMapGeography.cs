@@ -158,13 +158,14 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <param name="regions">All regions in level order; pin numbers follow this order.</param>
         /// <param name="landWidth">Fine columns available for land (left of the log slip).</param>
         public static TravelMapGeographyResult Build(int width, int height, int landWidth, IReadOnlyList<TravelRegion> regions) =>
-            Build(width, height, regions, new WorldView(landWidth / WorldWidth, height / WorldHeight, 0, 0), focusIndex: -1, siteCount: 0);
+            Build(width, height, regions, new WorldView(landWidth / WorldWidth, height / WorldHeight, 0, 0), focusIndex: -1, siteCount: 0, siteSeed: 0);
 
         /// <summary>
         /// A zoomed view centred on one region's island, with <paramref name="siteCount"/> dungeon sites placed on
-        /// that region's land around its town (numbered 1..siteCount in order).
+        /// that region's land around its town (numbered 1..siteCount in order). <paramref name="siteSeed"/> picks
+        /// where they fall, so each new set of dungeons can sit somewhere else on the island.
         /// </summary>
-        public static TravelMapGeographyResult BuildRegionView(int width, int height, IReadOnlyList<TravelRegion> regions, string focusRegionId, int siteCount)
+        public static TravelMapGeographyResult BuildRegionView(int width, int height, IReadOnlyList<TravelRegion> regions, string focusRegionId, int siteCount, int siteSeed = 0)
         {
             int focusIndex = -1;
             for (int i = 0; i < regions.Count; i++)
@@ -176,10 +177,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             double windowW = width / scale;
             double ox = Math.Clamp(fx - windowW / 2, -2, Math.Max(-2, WorldWidth + 2 - windowW));
             double oy = Math.Clamp(fy - RegionViewWorldHeight / 2, -2, Math.Max(-2, WorldHeight + 2 - RegionViewWorldHeight));
-            return Build(width, height, regions, new WorldView(scale, scale, ox, oy), focusIndex, siteCount);
+            return Build(width, height, regions, new WorldView(scale, scale, ox, oy), focusIndex, siteCount, siteSeed);
         }
 
-        private static TravelMapGeographyResult Build(int width, int height, IReadOnlyList<TravelRegion> regions, WorldView view, int focusIndex, int siteCount)
+        private static TravelMapGeographyResult Build(int width, int height, IReadOnlyList<TravelRegion> regions, WorldView view, int focusIndex, int siteCount, int siteSeed)
         {
             var pins = PlacePins(regions, view, width, height);
             var (land, theme) = BuildLandmasses(width, height, view, regions);
@@ -188,7 +189,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             var focusPin = pins.FirstOrDefault(p => p.Number == focusIndex + 1);
             var sites = focusPin.Region != null && siteCount > 0
-                ? PlaceSites(land, theme, landDist, pins, focusPin, siteCount, view, width, height)
+                ? PlaceSites(land, theme, landDist, pins, focusPin, siteCount, siteSeed, view, width, height)
                 : new List<TravelMapSite>();
             var markers = pins.Select(p => (p.FineX, p.FineY)).Concat(sites.Select(s => (s.FineX, s.FineY))).ToList();
 
@@ -250,20 +251,23 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         /// <summary>
         /// Dungeon sites ring the region's town a few world units out, each nudged to the nearest open land of
-        /// the region's own biome and kept clear of the other markers.
+        /// the region's own biome and kept clear of the other markers. The seed turns the ring and jitters each
+        /// site's bearing and distance; seed 0 is the even ring.
         /// </summary>
-        private static List<TravelMapSite> PlaceSites(bool[,] land, string[,] theme, int[,] landDist, IReadOnlyList<TravelMapPin> pins, TravelMapPin focus, int count, WorldView view, int width, int height)
+        private static List<TravelMapSite> PlaceSites(bool[,] land, string[,] theme, int[,] landDist, IReadOnlyList<TravelMapPin> pins, TravelMapPin focus, int count, int seed, WorldView view, int width, int height)
         {
             var sites = new List<TravelMapSite>(count);
             var taken = pins.Select(p => (X: p.FineX, Y: p.FineY)).ToList();
             string focusTheme = ThemeKey(focus.Region.Theme);
-            double turn = Hash(focus.FineX, focus.FineY, 80) * Math.PI * 2;
+            double turn = Hash(focus.FineX + seed, focus.FineY, 80) * Math.PI * 2;
             int keepX = Math.Max(6, (int)(view.Sx * 7)), keepY = Math.Max(3, (int)(view.Sy * 3));
 
             for (int i = 0; i < count; i++)
             {
-                double angle = turn + Math.PI * 2 * i / count;
-                double radius = (3.5 + 2 * Hash(i, focus.Number, 81)) * view.Sy;
+                double jitter = seed == 0 ? 0 : (Hash(i, seed, 82) - 0.5) * 0.7;
+                double angle = turn + Math.PI * 2 * (i + jitter) / count;
+                double reach = seed == 0 ? 2 : 4;
+                double radius = (3 + reach * Hash(i + seed, focus.Number, 81)) * view.Sy;
                 double tx = focus.FineX + Math.Cos(angle) * radius * CellAspect;
                 double ty = focus.FineY + Math.Sin(angle) * radius;
 

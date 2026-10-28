@@ -119,6 +119,8 @@ namespace RPGGame
         public int GetModificationMagicFind() => modificationCalculator.GetMagicFind();
         public int GetModificationRollBonus() => modificationCalculator.GetRollBonus();
         public int GetModificationDamageBonus() => modificationCalculator.GetDamageBonus();
+        public int GetModificationMultiHitBonus() => modificationCalculator.GetMultiHitBonus();
+        public double GetModificationAmpBonus() => modificationCalculator.GetAmpBonus();
         public double GetModificationSpeedMultiplier() => modificationCalculator.GetSpeedMultiplier();
         public double GetModificationDamageMultiplier() => modificationCalculator.GetDamageMultiplier();
         public double GetModificationLifesteal() => modificationCalculator.GetLifesteal();

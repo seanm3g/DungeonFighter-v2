@@ -25,6 +25,7 @@ namespace RPGGame.Tests.Unit.UI
             TestEqualStatShowsEquals();
             TestAttackTimeLowerIsBetter();
             TestActionDiff();
+            TestQualityRowOmitted();
 
             TestBase.PrintSummary("ItemComparisonTable Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -86,6 +87,14 @@ namespace RPGGame.Tests.Unit.UI
                 new[] { "RETRIGGER NEXT", "AFTER MISS HEAL", "jab" });
             Check(gained.SequenceEqual(new[] { "REPLACE ROLL" }) && lost.SequenceEqual(new[] { "RETRIGGER NEXT", "AFTER MISS HEAL" }),
                 $"Action diff: +[{string.Join(",", gained)}] -[{string.Join(",", lost)}]");
+        }
+
+        private static void TestQualityRowOmitted()
+        {
+            var a = new List<ItemStatContribution> { new("Damage", "7") };
+            var b = new List<ItemStatContribution> { new("Damage", "10"), new("Quality", "−5% armor, damage, speed", null, isDebuff: true) };
+            var rows = ItemComparisonTable.Build(a, b);
+            Check(rows.Count == 1 && rows[0].Label == "Damage", $"Quality omitted: got [{string.Join(",", rows.Select(r => r.Label))}]");
         }
     }
 }

@@ -482,6 +482,7 @@ namespace RPGGame
         public int GetModificationMagicFind() => Facade.GetModificationMagicFind();
         public int GetModificationRollBonus() => Facade.GetModificationRollBonus();
         public int GetModificationDamageBonus() => Facade.GetModificationDamageBonus();
+        public int GetModificationMultiHitBonus() => Facade.GetModificationMultiHitBonus();
         public double GetModificationSpeedMultiplier() => Facade.GetModificationSpeedMultiplier();
         public double GetModificationDamageMultiplier() => Facade.GetModificationDamageMultiplier();
         public double GetModificationLifesteal() => Facade.GetModificationLifesteal();

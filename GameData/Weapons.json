@@ -3165,16 +3165,15 @@
   {
     "type": "Wand",
     "name": "Stick",
-    "baseDamage": 1,
+    "baseDamage": 2,
     "attackSpeed": 1.14,
-    "damageBonusMin": 0,
-    "damageBonusMax": 1,
+    "damageBonusMin": 1,
+    "damageBonusMax": 4,
     "tier": 1,
     "attributeRequirements": null,
     "tags": [
       "wand",
-      "wizard",
-      "starter"
+      "wizard"
     ],
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,

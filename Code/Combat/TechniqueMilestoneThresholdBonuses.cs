@@ -2,6 +2,15 @@ using RPGGame.Combat;
 
 namespace RPGGame
 {
+    /// <summary>One TECH milestone row (<see cref="CombatConfig.TechniqueMilestones"/>).</summary>
+    public sealed class TechniqueMilestoneRow
+    {
+        public int Technique { get; set; }
+        public int Hit { get; set; }
+        public int Combo { get; set; }
+        public int Crit { get; set; }
+    }
+
     /// <summary>
     /// Converts effective TECH into per-row HIT/COMBO/CRIT threshold improvements based on the tuning table.
     /// Applies these as threshold shifts (not roll bonus) so they affect hit/combo/crit bands correctly.
@@ -38,6 +47,20 @@ namespace RPGGame
         public static (int HitSteps, int ComboSteps, int CritSteps) GetSteps(int effectiveTechnique)
         {
             int hit = 0, combo = 0, crit = 0;
+            var rows = GameConfiguration.Instance.Combat?.TechniqueMilestones;
+            if (rows is { Count: > 0 })
+            {
+                // Rows are cumulative like the built-in table; order doesn't matter.
+                foreach (var row in rows)
+                {
+                    if (row == null || effectiveTechnique < row.Technique)
+                        continue;
+                    hit += row.Hit;
+                    combo += row.Combo;
+                    crit += row.Crit;
+                }
+                return (hit, combo, crit);
+            }
             for (int i = 0; i < Table.Length; i++)
             {
                 if (effectiveTechnique < Table[i].TechniqueThreshold)

@@ -140,12 +140,12 @@ namespace RPGGame.Tests.Unit.UI
                 GameConfiguration.Instance.SkillTrees = trees;
                 c.Level = 30;
                 c.Progression.LearnedSkillRanks["b-puberty"] = 1;
-                int puberty = (int)Math.Round(30 * (trees.GetNode("b-puberty")?.Power ?? 1.0));
+                int puberty = (int)Math.Round(10 * (trees.GetNode("b-puberty")?.Power ?? 1.0));
                 var strSkill = StatTooltipFormatter.TryBuild(c, "stat:str", 24)!;
                 string strSkillFlat = string.Join("\n", strSkill.Select(ColoredTextRenderer.RenderAsPlainText));
                 TestBase.AssertTrue(strSkillFlat.Contains("Skill tree", StringComparison.Ordinal)
                         && strSkillFlat.Contains("+" + puberty, StringComparison.Ordinal),
-                    "STR tooltip lists Puberty skill bonus (level x power)",
+                    "STR tooltip lists Puberty skill bonus (10 x power)",
                     ref run, ref passed, ref failed);
             }
 

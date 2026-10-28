@@ -627,9 +627,8 @@ namespace RPGGame.UI.Avalonia
             // Don't call base.Render() to prevent any default Control rendering
             renderer.SetInteractiveHitRegions(InteractiveHitRegionsProvider?.Invoke());
             var textElements = elementManager.TextElements.ToList();
-            var sceneUnderlay = MenuSceneBackdropActive?.Invoke() == true
-                ? menuScene.BuildFrame(GridWidth, GridHeight, textElements)
-                : null;
+            var sceneUnderlay = menuScene.BuildFrame(GridWidth, GridHeight, textElements,
+                MenuSceneProvider?.Invoke() ?? RPGGame.UI.TitleScreen.MenuScene.None);
             UpdateMenuSceneTimer(sceneUnderlay != null);
             using (context.PushTransform(Matrix.CreateTranslation(origin.X, origin.Y)))
             {
@@ -728,10 +727,10 @@ namespace RPGGame.UI.Avalonia
         public Func<CanvasBackdrop?>? BackdropProvider { get; set; }
 
         /// <summary>
-        /// True while the current screen should show the title's animated cave behind it (menus outside a run).
-        /// Asked at paint time; the cave keeps repainting itself until a paint finds this false.
+        /// Which animated inn scene the current screen shows behind it (screens outside a run).
+        /// Asked at paint time; the scene keeps repainting itself until a paint finds <see cref="RPGGame.UI.TitleScreen.MenuScene.None"/>.
         /// </summary>
-        public Func<bool>? MenuSceneBackdropActive { get; set; }
+        public Func<RPGGame.UI.TitleScreen.MenuScene>? MenuSceneProvider { get; set; }
 
         private void UpdateMenuSceneTimer(bool shown)
         {
@@ -964,9 +963,10 @@ namespace RPGGame.UI.Avalonia
             System.Func<int, Color, Color>? segmentHighlight = null,
             double heightScale = 1.0,
             double verticalOffsetScale = 0.0,
-            System.Func<int?>? rollMarkerRoll = null)
+            System.Func<int?>? rollMarkerRoll = null,
+            bool rollMarkerBelow = false)
         {
-            elementBuilder.AddSegmentedBar(x, y, width, segments, borderColor, dividerColor, totalFaces, segmentHighlight, heightScale, verticalOffsetScale, rollMarkerRoll);
+            elementBuilder.AddSegmentedBar(x, y, width, segments, borderColor, dividerColor, totalFaces, segmentHighlight, heightScale, verticalOffsetScale, rollMarkerRoll, rollMarkerBelow);
         }
 
         /// <summary>

@@ -97,11 +97,16 @@ namespace RPGGame.Tuning
 
         private async Task SpendSkillPointsAsync(Character hero, WeaponType weaponType)
         {
+            LearnFreeNodes(hero);
             for (int guard = 0; guard < 20 && hero.Progression.GetAvailableSkillPoints(weaponType) > 0; guard++)
             {
+                LearnFreeNodes(hero);
                 var available = SkillTreeService.BuildDisplayModel(hero.Progression).AllNodes
                     .Where(n => SkillTreeService.GetNodeState(hero.Progression, n) == SkillTreeService.NodeViewState.Available)
                     .ToList();
+                // One-step scoring never credits a trunk step for the branches it opens, so it sank points into trunk
+                // ranks behind a weak tip. Walk the trunk at rank 1 first; ranks compete with branches once it is done.
+                available = available.Where(n => !IsTrunkRankUpBeforeTip(hero, n)).ToList();
                 if (available.Count == 0)
                     return;
 
@@ -130,6 +135,37 @@ namespace RPGGame.Tuning
                 _milestone?.SkillsLearned.Add(bestId);
                 SkillsLearned++;
                 _trace?.Invoke($"    smart: learned skill {bestId}");
+                if (System.Environment.GetEnvironmentVariable("DF_SKILLTRACE") == "1")
+                    Console.Error.WriteLine($"[skilltrace] L{hero.Level} {bestId}");
+            }
+            LearnFreeNodes(hero);
+        }
+
+        /// <summary>An extra rank on a learned Core trunk node while its tree's trunk tip is still unlearned.</summary>
+        private static bool IsTrunkRankUpBeforeTip(Character hero, SkillTreeNodeDefinition node)
+        {
+            if (node.Tier <= 0 || hero.Progression.GetSkillRank(node.Id) < 1
+                || !string.Equals(node.Branch, "Core", StringComparison.OrdinalIgnoreCase))
+                return false;
+            var tree = SkillTreePrerequisites.FindOwnerTree(node);
+            var tip = tree != null ? SkillTreePrerequisites.GetTrunkTip(tree) : null;
+            return tip != null && tip.Tier > 0 && hero.Progression.GetSkillRank(tip.Id) < 1;
+        }
+
+        /// <summary>Free nodes (cost 0) cost nothing, so take every available one before weighing paid picks.</summary>
+        private void LearnFreeNodes(Character hero)
+        {
+            for (int guard = 0; guard < 20; guard++)
+            {
+                var free = SkillTreeService.BuildDisplayModel(hero.Progression).AllNodes
+                    .FirstOrDefault(n => n.Cost == 0 && n.Tier > 0
+                        && SkillTreeService.GetNodeState(hero.Progression, n) == SkillTreeService.NodeViewState.Available);
+                if (free == null || SkillTreeService.TryLearn(hero, free.Id) != CharacterProgression.LearnSkillResult.Success)
+                    return;
+                SkillsLearned++;
+                _trace?.Invoke($"    smart: learned free skill {free.Id}");
+                if (System.Environment.GetEnvironmentVariable("DF_SKILLTRACE") == "1")
+                    Console.Error.WriteLine($"[skilltrace] L{hero.Level} {free.Id}");
             }
         }
 

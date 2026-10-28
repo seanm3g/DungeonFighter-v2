@@ -174,6 +174,8 @@ namespace RPGGame.UI.Avalonia.Canvas
         public System.Func<int, Color, Color>? SegmentHighlight { get; set; }
         /// <summary>When set, returns the d20 face (1–20) to mark with a pixel caret under the bar.</summary>
         public System.Func<int?>? RollMarkerRoll { get; set; }
+        /// <summary>Draw the roll caret under the bar pointing up (top bar of a pair) instead of above it pointing down.</summary>
+        public bool RollMarkerBelow { get; set; }
     }
 }
 

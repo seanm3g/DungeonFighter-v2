@@ -39,6 +39,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CharacterCombatCalculatorTests.RunAllTests();
             Console.WriteLine();
+            GearModEffectTests.RunAllTests();
+            Console.WriteLine();
             CharacterBuilderTests.RunAllTests();
             Console.WriteLine();
             ActorClearTempEffectsTests.RunAllTests();

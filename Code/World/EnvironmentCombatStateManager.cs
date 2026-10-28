@@ -64,10 +64,15 @@ namespace RPGGame
         {
             int threshold = GetStrikeThreshold(isHostile);
             if (threshold > 20)
+            {
+                LastRoll = 0;
                 return false;
+            }
 
             // Unforced so scripted/lab d20 queues meant for actors aren't consumed by the room.
-            if (Dice.RollUnforced(20) >= threshold)
+            LastRoll = Dice.RollUnforced(20);
+            LastThreshold = threshold;
+            if (LastRoll >= threshold)
             {
                 environmentActionCount++;
                 failedAttempts = 0;
@@ -77,6 +82,10 @@ namespace RPGGame
             failedAttempts++;
             return false;
         }
+
+        /// <summary>Face and strike threshold of the last <see cref="ShouldEnvironmentAct"/> roll (0 before any roll).</summary>
+        public int LastRoll { get; private set; }
+        public int LastThreshold { get; private set; }
 
         public int GetActionCount() => environmentActionCount;
         public int GetMaxActions() => maxEnvironmentActions;

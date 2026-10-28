@@ -73,7 +73,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.regionTravelRenderer = new RegionTravelRenderer(canvas, new Renderers.ColoredTextWriter(canvas), interactionManager.ClickableElements);
             this.skillTreeRenderer = new SkillTreeRenderer(canvas, interactionManager.ClickableElements);
             canvas.BackdropProvider = ResolveDungeonBackdrop;
-            canvas.MenuSceneBackdropActive = IsMenuSceneBackdropState;
+            canvas.MenuSceneProvider = ResolveMenuScene;
         }
 
         public void RenderDisplayBuffer(CanvasContext context)
@@ -165,19 +165,28 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>
-        /// Menus outside a run show the title screen's animated cave behind them (<see cref="RPGGame.UI.TitleScreen.MenuSceneBackdrop"/>).
+        /// Menus outside a run show the animated inn from outside; the hub menu and the character, inventory and skill tree screens go inside to its
+        /// common room (<see cref="RPGGame.UI.TitleScreen.MenuSceneBackdrop"/>).
         /// </summary>
-        private bool IsMenuSceneBackdropState() =>
-            gameStateManager?.CurrentState is RPGGame.GameState.MainMenu
-                or RPGGame.GameState.CharacterSelection
-                or RPGGame.GameState.LoadCharacterSelection
-                or RPGGame.GameState.WeaponSelection
-                or RPGGame.GameState.TrainingGroundOffer
-                or RPGGame.GameState.CharacterCreation
-                or RPGGame.GameState.PreWeaponPathIntro
-                or RPGGame.GameState.Settings
-                or RPGGame.GameState.DeveloperMenu
-                or RPGGame.GameState.Testing;
+        private RPGGame.UI.TitleScreen.MenuScene ResolveMenuScene() =>
+            gameStateManager?.CurrentState switch
+            {
+                RPGGame.GameState.MainMenu
+                    or RPGGame.GameState.CharacterSelection
+                    or RPGGame.GameState.LoadCharacterSelection
+                    or RPGGame.GameState.WeaponSelection
+                    or RPGGame.GameState.TrainingGroundOffer
+                    or RPGGame.GameState.CharacterCreation
+                    or RPGGame.GameState.PreWeaponPathIntro
+                    or RPGGame.GameState.Settings
+                    or RPGGame.GameState.DeveloperMenu
+                    or RPGGame.GameState.Testing => RPGGame.UI.TitleScreen.MenuScene.Cave,
+                RPGGame.GameState.GameLoop
+                    or RPGGame.GameState.Inventory
+                    or RPGGame.GameState.CharacterInfo
+                    or RPGGame.GameState.SkillTree => RPGGame.UI.TitleScreen.MenuScene.InnInterior,
+                _ => RPGGame.UI.TitleScreen.MenuScene.None
+            };
 
         /// <summary>
         /// From the moment a dungeon is chosen until the run ends, the center panel shows the current room's 50 ft

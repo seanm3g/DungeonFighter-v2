@@ -44,6 +44,7 @@ namespace RPGGame.Actions.Execution
             if (source is Character character && character.Effects.ConsumedMultiHitMod != 0)
                 multiHitCount = Math.Max(1, multiHitCount + (int)Math.Max(0, character.Effects.ConsumedMultiHitMod));
             multiHitCount = Math.Max(1, multiHitCount + ChainPositionBonusApplier.GetMultiHitDelta(source, action, ActionUtilities.GetComboActions(source), ActionUtilities.GetComboStep(source)));
+            multiHitCount += ActionUtilities.GetGearMultiHitBonus(source, action);
             damageMultiplier *= PackCombat.GetPerBodyDamageScale(source, multiHitCount);
             multiHitCount = PackCombat.ResolveOutgoingHitCount(source, multiHitCount);
             int totalDamage = 0;

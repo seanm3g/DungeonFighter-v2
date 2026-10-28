@@ -38,6 +38,7 @@ namespace RPGGame.Tests.Unit
             TestMultiHitWithSelfAndTarget();
             TestMultiHitAppliesRollPenaltyPerDamageTick();
             TestMultiHitModAppliesToNextAction();
+            TestGearMultiHitModAddsHitsToAttacks();
             TestActionCadenceMultiHitSurvivesMissUntilCombo();
             TestActionCadenceMultiHitNotDoubleAppliedFromSheetAndBonuses();
             TestActionCadenceMultiHitDoesNotApplyToGrantingAction();
@@ -450,6 +451,84 @@ namespace RPGGame.Tests.Unit
         /// Regression: Spreadsheet-style next-action modifier MULTIHIT_MOD should increase the following action's hit count.
         /// Example: Action A has MultiHitMod "2" (raw extra hits) → next executed action should have +2 hits.
         /// </summary>
+        /// <summary>
+        /// Regression: MULTI-HIT gear mods (Light, Acrobatic) add hits to every attack. They used to be display-only.
+        /// </summary>
+        private static void TestGearMultiHitModAddsHitsToAttacks()
+        {
+            Console.WriteLine("\n--- Regression: MULTI-HIT gear mod adds hits to attacks ---");
+
+            var lastUsed = new System.Collections.Generic.Dictionary<Actor, Action>();
+            var lastCritMiss = new System.Collections.Generic.Dictionary<Actor, bool>();
+
+            var hero = TestDataBuilders.Character()
+                .WithName("GearMultiHitHero")
+                .WithLevel(1)
+                .WithStats(12, 10, 10, 10)
+                .Build();
+            hero.Effects.ClearAllTempEffects();
+
+            var enemy = TestDataBuilders.Enemy()
+                .WithName("PunchingBag")
+                .WithLevel(1)
+                .WithHealth(500)
+                .WithStats(5, 5, 5, 5)
+                .Build();
+
+            var strike = new Action
+            {
+                Name = "PlainStrike",
+                Type = ActionType.Attack,
+                DamageMultiplier = 1.0,
+                Advanced = new AdvancedMechanicsProperties { MultiHitCount = 1 }
+            };
+
+            TestBase.AssertEqual(0, ActionUtilities.GetGearMultiHitBonus(hero, strike),
+                "No gear: no extra hits", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var boots = new FeetItem("Acrobatic Boots", 1, 1);
+            boots.Modifications.Add(new Modification { Name = "Acrobatic", PrefixCategory = "ADJECTIVE", Effect = "MULTI-HIT", RolledValue = 1 });
+            hero.EquipItem(boots, "feet");
+
+            TestBase.AssertEqual(1, ActionUtilities.GetGearMultiHitBonus(hero, strike),
+                "Acrobatic boots: +1 extra hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(strike, hero, 0, includeConsumedMods: false),
+                "Strip preview counts the gear hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var buff = new Action { Name = "Buff", Type = ActionType.Buff, Advanced = new AdvancedMechanicsProperties { MultiHitCount = 1 } };
+            TestBase.AssertEqual(0, ActionUtilities.GetGearMultiHitBonus(hero, buff),
+                "Non-attack actions get no gear hits", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+                int enemyHealthBefore = enemy.CurrentHealth;
+                Dice.SetTestRoll(18);
+                var r = ActionExecutionFlow.Execute(hero, enemy, null, null, strike, null, lastUsed, lastCritMiss);
+
+                TestBase.AssertTrue(r.Hit, "Strike should hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(2, r.ResolvedMultiHitCount,
+                    "Single-hit strike resolves 2 hits with +1 gear MULTI-HIT", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                double dmgMult = ActionUtilities.CalculateDamageMultiplier(hero, strike);
+                int expected = 0;
+                using (RPGGame.Combat.Calculators.DamageCalculator.BeginMultiHitSwing())
+                {
+                    for (int tick = 0; tick < 2; tick++)
+                        expected += CombatCalculator.CalculateDamage(hero, enemy, strike, dmgMult, 1.0, 0, 18, true, null, null, tick);
+                }
+                if (expected > 0)
+                    expected = Math.Max(expected, RPGGame.Combat.Calculators.DamageCalculator.SwingMinimumDamage);
+                TestBase.AssertEqual(expected, enemyHealthBefore - enemy.CurrentHealth,
+                    "Strike deals 2-hit damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
         private static void TestMultiHitModAppliesToNextAction()
         {
             Console.WriteLine("\n--- Regression: MULTIHIT_MOD applies to next action ---");

@@ -18,6 +18,7 @@ namespace RPGGame.Tests.Unit.Entity
             TestEffectiveMaxBasePlusEquippedExtraSlots();
             TestEffectiveMaxIncludesClassUpgradeSlots();
             TestEffectiveMaxWandWeaponGrantsOneSlot();
+            TestLevelCapHoldsWandSlotButNotItemSlots();
             TestEffectiveMaxIncludesActionLabBonus();
             TestTrimRemovesNonRequiredWhenOverCap();
 
@@ -131,6 +132,35 @@ namespace RPGGame.Tests.Unit.Entity
                 c.Equipment.Weapon = new WeaponItem("Sword", 1, 5, 0.5, WeaponType.Sword);
                 TestBase.AssertEqual(2, ComboSequenceMaxHelper.GetEffectiveMax(c),
                     "non-Wand weapon does not add class slot", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.LootSystem = backupLoot;
+            }
+        }
+
+        private static void TestLevelCapHoldsWandSlotButNotItemSlots()
+        {
+            Console.WriteLine("\n--- Testing comboSlotCapByLevel caps Wand slot, item slots add on top ---");
+            var cfg = GameConfiguration.Instance;
+            var backupLoot = cfg.LootSystem;
+            try
+            {
+                cfg.LootSystem = new LootSystemConfig
+                {
+                    ComboSequenceBaseMax = 1,
+                    ComboSequenceAbsoluteMax = 8,
+                    ComboSlotCapByLevel = new() { new[] { 1, 1 }, new[] { 10, 3 } }
+                };
+
+                var c = TestDataBuilders.Character().WithName("LevelCapTest").Build();
+                c.Equipment.Weapon = new WeaponItem("Stick", 1, 5, 0.5, WeaponType.Wand);
+                TestBase.AssertEqual(1, ComboSequenceMaxHelper.GetEffectiveMax(c),
+                    "L1 Wand capped to 1 slot", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                c.Equipment.Body = new ChestItem("Vest", 1, 1) { ExtraActionSlots = 1 };
+                TestBase.AssertEqual(2, ComboSequenceMaxHelper.GetEffectiveMax(c),
+                    "item slot adds past the level cap", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {

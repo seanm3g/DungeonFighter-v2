@@ -55,7 +55,7 @@ namespace RPGGame
 
         /// <summary>
         /// Level cap on combo strip slots as [level, slots] anchors (e.g. [[1,1],[10,3]]): the highest anchor at or below the
-        /// hero's level caps base + gear + class slots. Empty = no level cap (legacy). Action Lab sandbox slots bypass it.
+        /// hero's level caps base + class slots. Gear and Action Lab sandbox slots are added on top. Empty = no level cap (legacy). Action Lab sandbox slots bypass it.
         /// </summary>
         public System.Collections.Generic.List<int[]> ComboSlotCapByLevel { get; set; } = new();
 

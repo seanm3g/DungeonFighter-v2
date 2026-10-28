@@ -345,7 +345,7 @@ namespace RPGGame.Tests.Unit.Game
 
             var expected = new Dictionary<WeaponType, string[]>
             {
-                [WeaponType.Mace] = new[] { "SLAM", "POUND" },
+                [WeaponType.Mace] = new[] { "SLAM", "WIND UP" },
                 [WeaponType.Sword] = new[] { "STRIKE", "SLASH" },
                 [WeaponType.Dagger] = new[] { "STAB", "CUT" },
                 [WeaponType.Wand] = new[] { "MAGIC MISSLE", "BOLT" }
@@ -381,7 +381,7 @@ namespace RPGGame.Tests.Unit.Game
 
             var expectedSecond = new Dictionary<WeaponType, string>
             {
-                [WeaponType.Mace] = "POUND",
+                [WeaponType.Mace] = "WIND UP",
                 [WeaponType.Sword] = "SLASH",
                 [WeaponType.Dagger] = "CUT",
                 [WeaponType.Wand] = "BOLT"
@@ -412,15 +412,22 @@ namespace RPGGame.Tests.Unit.Game
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 var poolNames = player.ActionPool.Select(e => e.action?.Name).Where(n => n != null).ToList();
-                int max = ComboSequenceMaxHelper.GetEffectiveMax(player);
-                var combo = player.GetComboActions();
+                int max = ComboSequenceMaxHelper.GetEffectiveMax(player);                var combo = player.GetComboActions();
                 TestBase.AssertTrue(
-                    combo.Any(a => a != null && string.Equals(a.Name, secondName, StringComparison.OrdinalIgnoreCase)),
-                    $"{weaponType} default combo should include {secondName}; got [{string.Join(", ", combo.Select(a => a?.Name))}] (max={max}, pool=[{string.Join(", ", poolNames)}])",
+                    poolNames.Any(n => string.Equals(n, secondName, StringComparison.OrdinalIgnoreCase)),
+                    $"{weaponType} action pool should include {secondName}; got [{string.Join(", ", poolNames)}]",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertTrue(combo.Count >= 2,
-                    $"{weaponType} default combo should include both starter actions (count >= 2); got {combo.Count} (max={max})",
+                // The strip fills up to the level-1 slot cap (starter gear grants no extra slots).
+                TestBase.AssertEqual(Math.Min(2, max), combo.Count,
+                    $"{weaponType} default combo should fill to the slot max; got [{string.Join(", ", combo.Select(a => a?.Name))}] (max={max})",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
+                if (max >= 2)
+                {
+                    TestBase.AssertTrue(
+                        combo.Any(a => a != null && string.Equals(a.Name, secondName, StringComparison.OrdinalIgnoreCase)),
+                        $"{weaponType} default combo should include {secondName} when 2+ slots; got [{string.Join(", ", combo.Select(a => a?.Name))}] (max={max})",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                }
             }
         }
 

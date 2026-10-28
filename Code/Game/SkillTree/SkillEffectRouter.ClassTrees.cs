@@ -250,7 +250,8 @@ namespace RPGGame
             double power = GetPower(hero, "dagger_mastery");
             if (power <= 0 || evt.Target == null || evt.Action == null) return;
             if (hero.Equipment.Weapon is not WeaponItem w || w.WeaponType != WeaponType.Dagger) return;
-            int extraHits = Math.Max(0, evt.Action.Advanced.MultiHitCount - 1) + (int)hero.Effects.ConsumedMultiHitMod;
+            int extraHits = Math.Max(0, evt.Action.Advanced.MultiHitCount - 1) + (int)hero.Effects.ConsumedMultiHitMod
+                + ActionUtilities.GetGearMultiHitBonus(hero, evt.Action);
             int bleed = (int)Math.Round(extraHits * power);
             if (bleed > 0)
                 evt.Target.QueueBleedFromHit(bleed);

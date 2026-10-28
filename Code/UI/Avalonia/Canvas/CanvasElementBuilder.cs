@@ -170,7 +170,8 @@ namespace RPGGame.UI.Avalonia.Canvas
             System.Func<int, Color, Color>? segmentHighlight = null,
             double heightScale = 1.0,
             double verticalOffsetScale = 0.0,
-            System.Func<int?>? rollMarkerRoll = null)
+            System.Func<int?>? rollMarkerRoll = null,
+            bool rollMarkerBelow = false)
         {
             var bar = new CanvasSegmentedBar
             {
@@ -183,7 +184,8 @@ namespace RPGGame.UI.Avalonia.Canvas
                 SegmentHighlight = segmentHighlight,
                 HeightScale = heightScale,
                 VerticalOffsetScale = verticalOffsetScale,
-                RollMarkerRoll = rollMarkerRoll
+                RollMarkerRoll = rollMarkerRoll,
+                RollMarkerBelow = rollMarkerBelow
             };
             for (int i = 0; i < segments.Length; i++)
             {

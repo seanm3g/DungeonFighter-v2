@@ -176,11 +176,14 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             var live = D20ThresholdBarRenderer.CurrentThresholds(actor);
             var swing = LiveSwingFor(actor);
+            // Enemy bar sits on top, hero bar below: each caret faces the space between them.
+            bool caretBelow = panel == ThresholdBarPanel.Enemy;
             if (swing == null)
             {
                 _settledBands[panel] = live;
                 D20ThresholdBarRenderer.RenderBar(canvas, barX, barY, barW, actor, panel,
-                    heightScale: D20ThresholdBarRenderer.CombatBoardStripHeightScale, verticalOffsetScale: verticalOffsetScale);
+                    heightScale: D20ThresholdBarRenderer.CombatBoardStripHeightScale, verticalOffsetScale: verticalOffsetScale,
+                    rollMarkerBelow: caretBelow);
                 return;
             }
 
@@ -206,7 +209,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             };
             D20ThresholdBarRenderer.RenderBar(canvas, barX, barY, barW, actor, panel,
                 heightScale: D20ThresholdBarRenderer.CombatBoardStripHeightScale,
-                verticalOffsetScale: verticalOffsetScale, thresholds: bands, rollMarker: marker);
+                verticalOffsetScale: verticalOffsetScale, thresholds: bands, rollMarker: marker, rollMarkerBelow: caretBelow);
         }
 
         /// <summary>Fraction of the ROLL beat the caret tumbles before it lands on the roll.</summary>
@@ -281,10 +284,16 @@ namespace RPGGame.UI.Avalonia.Renderers
             _ => AsciiArtAssets.Colors.Red
         };
 
+        /// <summary>Outcome color of a swing; a room's strike roll wears the hazard color, or gray when it rolls quiet.</summary>
+        private static Color SwingColor(CombatSequenceSwingInfo swing) => swing.Source is Environment
+            ? swing.Outcome == CombatSequenceSwingOutcome.Miss ? AsciiArtAssets.Colors.Gray : BoardHazardColor
+            : OutcomeColor(swing.Outcome);
+
         /// <summary>Border of a settled act still on NOW: its outcome, the room's color for a hazard, dim when empty.</summary>
         private static Color BoardRestBorder(BoardAct? act) => act switch
         {
-            { Swing: { } s } => OutcomeColor(s.Outcome),
+            { Quiet: true } => BoardDimBorder,
+            { Swing: { } s } => SwingColor(s),
             { Actor: Environment } => BoardHazardColor,
             _ => BoardDimBorder
         };
@@ -435,7 +444,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         private const int BoardQueueLength = 1;
 
         /// <summary>One resolved action as the board shows it on NOW / PREV (a swing, or a room hazard with no swing).</summary>
-        private sealed record BoardAct(Actor Actor, Action Action, CombatSequenceSwingInfo? Swing);
+        private sealed record BoardAct(Actor Actor, Action Action, CombatSequenceSwingInfo? Swing, int QuietRoll = 0, int QuietNeed = 0)
+        {
+            /// <summary>A room turn that rolled under its strike threshold: shown as a QUIET card, nothing happens.</summary>
+            public bool Quiet => QuietRoll > 0;
+        }
 
         /// <summary>The newest act and the two before it. Pushed once per swing / hazard turn; the newest only reaches NOW
         /// once it lands, so until then NOW still holds the previous act and PREV the one before that.</summary>
@@ -489,7 +502,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 _boardRegisteredSwing = last;
             }
 
-            v.LiveSwing = LiveSwingFor(player) ?? LiveSwingFor(enemy);
+            v.LiveSwing = LiveSwingFor(player) ?? LiveSwingFor(enemy) ?? (last?.Source is Environment r ? LiveSwingFor(r) : null);
             if (v.LiveSwing != null)
                 (v.Stage, v.P, v.Raw) = LiveStage();
 
@@ -501,17 +514,30 @@ namespace RPGGame.UI.Avalonia.Renderers
                 _boardRegisteredSwing = swing;
                 if (ReferenceEquals(swing.Source, acting))
                     _boardSwingTurn = turn;
-                PushBoardAct(new BoardAct(swing.Source, swing.Action, swing));
+                // A room roll that comes up short lands on NOW as a QUIET card.
+                PushBoardAct(swing.Source is Environment && swing.Outcome == CombatSequenceSwingOutcome.Miss
+                    ? new BoardAct(swing.Source, swing.Action, swing, swing.Roll, swing.Thresholds?.MinHit ?? 0)
+                    : new BoardAct(swing.Source, swing.Action, swing));
             }
 
-            if (v.LiveSwing == null && acting is Environment room && CombatTurnQueue.ActingAction is { } hazard)
+            // A room turn lands on NOW whether it strikes or rolls quiet, so a miss still takes its place in the sequence.
+            // When the room's roll plays as a sequence (the die tumbles like a swing) the swing above registers it;
+            // this places it directly only when no sequence plays (instant log).
+            if (v.LiveSwing == null && acting is Environment room && _boardSwingTurn != turn)
             {
-                if (_boardHazardTurn != turn)
+                var hazard = CombatTurnQueue.ActingAction;
+                bool rollPlays = CombatSequencePresenter.ShouldPlay() || CombatSequenceFlavorPresenter.ShouldPlay();
+                if ((hazard != null && !rollPlays) || CombatTurnQueue.ActingQuiet)
                 {
-                    _boardHazardTurn = turn;
-                    PushBoardAct(new BoardAct(room, hazard, null));
+                    if (_boardHazardTurn != turn)
+                    {
+                        _boardHazardTurn = turn;
+                        PushBoardAct(hazard != null
+                            ? new BoardAct(room, hazard, null)
+                            : new BoardAct(room, CombatSequenceBuilder.QuietRoomAction, null, room.LastStrikeRoll, room.LastStrikeRollThreshold));
+                    }
+                    v.HazardAct = _boardNowAct;
                 }
-                v.HazardAct = _boardNowAct;
             }
 
             // Turn handlers advance the actor's timeline only after the swing displays, so once ACTION fires
@@ -535,7 +561,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// ATTACKER pulses the branches, ROLL tumbles the die, OUTCOME applies the thresholds (the branch taken lights up),
         /// ACTION flies its card into NOW while the act NOW held slides into PREV, and the branches move on to whoever acts
         /// after, then DEFENSE / DAMAGE / EFFECTS write the result under NOW. NOW keeps that act through the next swing's
-        /// setup. Room hazards have no roll and land on NOW directly.
+        /// setup. Room turns have no swing and land on NOW directly - a hazard, or a QUIET card when the room's roll misses.
         /// </summary>
         private void RenderBoardComboFlow(Character player, BoardTurnView turn, int x, int y, int w, int h, ActionStripDamageLineMode mode)
         {
@@ -591,7 +617,12 @@ namespace RPGGame.UI.Avalonia.Renderers
             var swing = turn.LiveSwing;
             int stage = turn.Stage;
             double p = turn.P, rawP = turn.Raw;
-            Color strikeColor = swing?.Source is Enemy ? AsciiArtAssets.Colors.Red : BoardConnectorColor;
+            Color strikeColor = swing?.Source switch
+            {
+                Enemy => AsciiArtAssets.Colors.Red,
+                Environment => BoardHazardColor,
+                _ => BoardConnectorColor
+            };
 
             // The branch the roll picked waits on OUTCOME, then on ACTION its card leaves the column and slides into NOW
             // while the act NOW held slides into PREV - one move, both cards together.
@@ -635,13 +666,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             int nowThickness = 1;
             if (swing != null && landed)
             {
-                nowBorder = LerpColor(AsciiArtAssets.Colors.White, OutcomeColor(swing.Outcome), stage > 2 ? 1.0 : CombatBoardAnimation.EaseOut(rawP));
+                nowBorder = LerpColor(AsciiArtAssets.Colors.White, SwingColor(swing), stage > 2 ? 1.0 : CombatBoardAnimation.EaseOut(rawP));
                 nowThickness = 3;
                 (nowBorder, nowFill, nowThickness) = AccentForBeat(swing, stage, rawP, nowBorder, nowThickness);
             }
             else if (turn.HazardAct != null)
             {
-                nowBorder = BoardHazardColor;
+                nowBorder = turn.HazardAct.Quiet ? AsciiArtAssets.Colors.Gray : BoardHazardColor;
                 nowThickness = 3;
             }
             if (cardInFlight)
@@ -686,16 +717,20 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             // Roll line: the face on the actor's d20 bar -> the center of NOW (hero bar below, enemy bar above). Lines sit
             // above boxes, so it stops at NOW's border and skips the other panels it crosses (queue cards, their label,
-            // PREV, the die) to read as running under them. Gone at rest.
-            if (swing != null && RollKnown(stage))
+            // PREV, the die) to read as running under them. Gone at rest. It waits for the new act to settle on NOW,
+            // then grows over one beat. The room has no d20 bar, so its roll draws no line.
+            if (swing != null && swing.Source is not Environment && RollKnown(stage) && landed && !shifting)
             {
+                double grow = CombatBoardAnimation.Progress(_boardShiftStartUtc.AddMilliseconds(CombatBoardAnimation.SlideMs), CombatBoardAnimation.BeatMs);
+                if (grow < 1.0)
+                    CombatBoardAnimation.RequestFrame();
                 var rollPoint = RollPoint(swing.Roll, hero: swing.Source is not Enemy);
                 var under = new List<BoardRect>(queueR) { prevR, new BoardRect(prevR.X, prevR.Y - 1, prevR.W, 1) };
                 if (slots > 0)
                     under.Add(new BoardRect(nextX, queueR[0].Y - 1, nextW, 1));
                 if (dieVisible)
                     under.Add(dieR);
-                AddGrowingLineUnder(rollPoint, EntryPoint(rollPoint, nowR), OutcomeHalf(stage, rawP, second: false), strikeColor, 2.0, under);
+                AddGrowingLineUnder(rollPoint, EntryPoint(rollPoint, nowR), CombatBoardAnimation.EaseOut(grow), strikeColor, 2.0, under);
             }
             (double X, double Y) junctionIn = dieVisible ? (dieR.X, junction.Y) : junction;
             (double X, double Y) junctionOut = dieVisible ? (dieR.Right, junction.Y) : junction;
@@ -725,11 +760,12 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
 
             if (cardInFlight)
-                DrawBoardAct(_boardNowAct, BoardRect.Lerp(_boardLandFrom, nowR, shift), OutcomeColor(swing!.Outcome), 3, mode);
+                DrawBoardAct(_boardNowAct, BoardRect.Lerp(_boardLandFrom, nowR, shift), SwingColor(swing!), 3, mode);
         }
 
         /// <summary>One possible result of the next roll: its odds (faces or percent), what it does, and any detail lines.</summary>
-        private sealed record BoardBranch(string Odds, string Text, Color Color, CombatSequenceSwingOutcome? Outcome, List<string> Detail, bool Critical = false);
+        private sealed record BoardBranch(string Odds, string Text, Color Color, CombatSequenceSwingOutcome? Outcome, List<string> Detail,
+            bool Critical = false, bool OwnColor = false);
 
         /// <summary>
         /// One outcome box of the next roll. While that roll plays, OUTCOME lights the branch taken and fades the rest.
@@ -746,7 +782,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             if (resolved)
             {
-                border = chosen ? (b.Critical ? b.Color : OutcomeColor(b.Outcome!.Value)) : LerpColor(BoardDimBorder, BoardFadedBorder, fade);
+                border = chosen ? (b.Critical || b.OwnColor ? b.Color : OutcomeColor(b.Outcome!.Value)) : LerpColor(BoardDimBorder, BoardFadedBorder, fade);
                 thickness = chosen ? 3 : 1;
                 if (!chosen)
                     color = LerpColor(color, BoardFadedBorder, fade * 0.85);
@@ -774,8 +810,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             var list = new List<BoardBranch>();
             if (actor is Environment room)
             {
-                // The room rolls a d20 to act (strikes on a high face), then picks a hazard from its pool.
-                int strikeAt = room.StrikeThreshold;
+                // The room rolls a d20 to act (strikes on a high face), then picks a hazard from its pool. While that
+                // roll plays, keep the threshold it rolled against (a quiet roll lowers the next one).
+                int strikeAt = rolling?.Thresholds?.MinHit ?? room.StrikeThreshold;
                 if (strikeAt > 20)
                 {
                     list.Add(new BoardBranch("", "won't act", AsciiArtAssets.Colors.Gray, null, new()));
@@ -786,8 +823,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                     hazards.Add(hazard.Name ?? "?");
                 string strikeFaces = strikeAt == 20 ? "20" : $"{strikeAt}-20";
                 string quietFaces = strikeAt - 1 == 1 ? "1" : $"1-{strikeAt - 1}";
-                list.Add(new BoardBranch(strikeFaces, "strikes:", BoardHazardColor, null, hazards));
-                list.Add(new BoardBranch(quietFaces, "quiet", AsciiArtAssets.Colors.Gray, null, new()));
+                list.Add(new BoardBranch(strikeFaces, "strikes:", BoardHazardColor, CombatSequenceSwingOutcome.Hit, hazards, OwnColor: true));
+                list.Add(new BoardBranch(quietFaces, "quiet", AsciiArtAssets.Colors.Gray, CombatSequenceSwingOutcome.Miss, new(), OwnColor: true));
                 return list;
             }
 
@@ -850,7 +887,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 canvas.AddText(r.X + 1, r.Y + 1, "-", AsciiArtAssets.Colors.Gray);
         }
 
-        /// <summary>A strip action gets its full card; a normal hit, a miss or a room hazard gets a short title card.</summary>
+        /// <summary>A strip action gets its full card; a normal hit, a miss, a room hazard or a quiet room roll gets a short title card.</summary>
         private void DrawBoardActContent(BoardAct act, BoardRect r, ActionStripDamageLineMode mode)
         {
             bool miss = act.Swing?.Outcome == CombatSequenceSwingOutcome.Miss;
@@ -868,7 +905,13 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             string title, sub;
             Color color;
-            if (act.Actor is Environment)
+            if (act.Quiet)
+            {
+                title = "QUIET";
+                sub = $"rolled {act.QuietRoll}, needed {act.QuietNeed}+";
+                color = AsciiArtAssets.Colors.Gray;
+            }
+            else if (act.Actor is Environment)
             {
                 title = act.Action.Name ?? "?";
                 sub = "room hazard";
@@ -938,13 +981,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             else
             {
                 face = swing.Roll.ToString();
-                border = OutcomeColor(swing.Outcome);
+                border = SwingColor(swing);
                 thickness = stage == 2 && raw < 0.5 ? 4 : 2;
                 if (stage == 2)
                 {
                     // Outcome word stamps above the die.
                     string word = swing.Outcome switch
                     {
+                        _ when swing.Source is Environment => swing.Outcome == CombatSequenceSwingOutcome.Miss ? "QUIET" : "STRIKES!",
                         CombatSequenceSwingOutcome.Combo => "ACTION!",
                         CombatSequenceSwingOutcome.Hit => "HIT",
                         _ => "MISS"
@@ -976,6 +1020,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static (Color Border, Color Fill, int Thickness) AccentForBeat(CombatSequenceSwingInfo swing, int stage, double raw, Color border, int thickness)
         {
             bool miss = swing.Outcome == CombatSequenceSwingOutcome.Miss;
+            if (miss && swing.Source is Environment)
+                return (border, BoardCardBackground, thickness); // a quiet room roll is nothing happening, not a failed swing
             if (miss && stage >= 3)
                 return (AsciiArtAssets.Colors.DarkRed, BoardCardBackground, thickness);
 

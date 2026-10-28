@@ -19,14 +19,19 @@ namespace RPGGame
                 absMax = baseMax;
 
             int gearSlots = character?.Equipment?.GetEquipmentStatBonus("ExtraActionSlots", character) ?? 0;
+            // The equipped weapon type's intrinsic slot (e.g. Wand) rides in the gear total but is a class slot: keep it under the level cap.
+            int weaponTypeSlots = character?.Equipment != null
+                ? ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(character.Equipment.Weapon is WeaponItem w ? w.WeaponType : null)
+                : 0;
+            gearSlots -= Math.Max(0, Math.Min(gearSlots, weaponTypeSlots));
             int classSlots = character?.Progression?.GetClassUpgradeActionSlotBonus() ?? 0;
             int labSlots = character?.ActionLabActionSlotBonus ?? 0;
-            int earned = baseMax + Math.Max(0, gearSlots) + Math.Max(0, classSlots);
-            // lootSystem.comboSlotCapByLevel: gear / class slots only count up to what the hero's level allows.
+            int earned = baseMax + Math.Max(0, classSlots) + Math.Max(0, weaponTypeSlots);
+            // lootSystem.comboSlotCapByLevel: base / class / weapon-type slots only count up to what the hero's level allows; item slots bypass it.
             int levelCap = character != null && character is not Enemy ? loot?.GetComboSlotCapForLevel(character.Level) ?? 0 : 0;
             if (levelCap > 0)
                 earned = Math.Min(earned, Math.Max(1, levelCap));
-            return Math.Min(absMax, earned + Math.Max(0, labSlots));
+            return Math.Min(absMax, earned + Math.Max(0, gearSlots) + Math.Max(0, labSlots));
         }
 
         /// <summary>

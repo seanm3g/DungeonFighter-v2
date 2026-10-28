@@ -65,6 +65,17 @@ What the scan rows mean:
   the closest pair under `--min-class-distance` (0.25, just under the 2026-10-26 baseline's Barbarian ~ Wizard 0.27). **signature share** flags a class that doesn't
   lead the roster on its primary attribute's read: Barbarian hit size (STR), Warrior tempo (AGI), Rogue crit (TEC),
   Wizard combo lift (INT).
+- **strips** (2026-10-27, designer: INT amplifies later slots, Wizard runs the most slots throttled by reliability, TEC
+  drives the sequence toward always completing): DUNGEONSIM fights carry `SlotSwings` / `SlotHitDamage` (by the slot
+  the AMP exponent uses), `SlotMax`, `HeroTechnique`, `HeroIntelligence`. Per class and level the scan prints slots
+  used / max, **strip completion** (last-slot over first-slot swings), **step advance** (chance a swing moves the strip
+  on), **late-slot damage** (share of strip hit damage from slot 2 on), TEC and INT, plus step advance by TEC band over
+  all classes. Finding: **wizard slots** (Wizard doesn't use the most slots at a level). Completion and advance are
+  metrics only until the designer sets bands. **Strip breaks** (`StripBreaks`, `StripCompletions`, `CarriedInStrip`):
+  per 100 hero swings, why a strip under way fell back to slot 1 — the hero's normal hit, miss, combo routing, an
+  enemy action in between (Disrupt kits and the like), environment, or the strip itself changing — by class / level
+  and by TEC band. Fights that start mid-strip (pack bodies inherit the strip) are left out of step advance; step
+  advance still runs above 100% where a wrap restarts on slot 2, so read breaks and completions first.
 - Experience bands default to `experience` in balance-targets.json (designer answers 2026-10-26; the flags override).
   A class's rare class actions (e.g. Warrior AVENGE) may dominate its strips: tracked as `signature action share`, not
   flagged.
@@ -268,7 +279,7 @@ Treat new failures against that baseline as regressions.
   in 2–4 hero actions from L6 (Barbarian / Wizard). Cause: magnitudes written for the old stat scale (+25 STR per
   empty slot, +8–10% per matching item per rank, level as STR) plus a bug where any skill AMP lifted openers to the
   full TEC combo amp. Fixes: per-node `power` (gear passives 0.5% per item per rank, Empty Fury +1 STR per empty slot
-  per rank, Puberty +1 STR per 10 levels, Commission +6 AGI, AGI-per-hit skills +1 per rank); skill AMP is its own
+  per rank, Puberty +10 STR, Commission +10 AGI, AGI-per-hit skills +1 per rank); skill AMP is its own
   multiplier (`ConsumedSkillAmpPercent`). Whole tree at max rank (SKILLVALUE ALL): Barbarian 125–133, Warrior 122–149,
   Rogue 108–114, Wizard 99–112. Smart bot L16–21: Barbarian 4.5, Warrior 8.3, Rogue 6.5, Wizard 7.8 hero actions per
   fight, about 1.3–1.6× the basic bot on the same weapon (target 30–40% faster kills).

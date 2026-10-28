@@ -132,6 +132,8 @@ namespace RPGGame.Tuning
                         HpLost = f.HeroMaxHp > 0 ? Math.Round(Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp, 3) : 0,
                         f.Strip, f.ActionUses, HpMinPct = Math.Round(f.HpMinPct, 3), f.LeadChanges, f.HeroMisses, f.LongestMissStreak, f.HeroHits, f.ComboHits, f.BossFight,
                         f.DamageBySource, f.HeroDamageBySource, f.CritDamage, f.ComboDamage, f.ConvertDamage,
+                        f.SlotSwings, f.SlotHitDamage, f.SlotMax, f.HeroTechnique, f.HeroIntelligence,
+                        f.StripBreaks, f.StripCompletions, f.CarriedInStrip,
                         f.Gear, f.Sets, f.Skills, f.HeroStrength, f.HeroAgility
                     }))).ToList(),
                     // Smart bot sequence searches at the level (viable-set reads in Scripts/balance-scan.py).

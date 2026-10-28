@@ -35,6 +35,10 @@ namespace RPGGame.UI.Avalonia.Renderers
         private TravelMapGeographyResult? mapGeography;
         private string mapKey = "";
 
+        /// <summary>The dungeons the sites were last laid out for; a freshly rolled list gets a new layout seed.</summary>
+        private List<Dungeon> siteDungeons = new();
+        private int siteSeed;
+
         /// <summary>Dungeon (list number) under the pointer, on its map tile or its list row; -1 for none.</summary>
         private int hoveredDungeon = -1;
 
@@ -233,10 +237,18 @@ namespace RPGGame.UI.Avalonia.Renderers
                 .Where(e => e.Dungeon.Name != RPGGame.GameConstants.DungeonCustomLevelMenuName)
                 .ToList();
 
-            string key = $"{width}x{height}:{region.Id}:{placed.Count}:" + string.Join(";", regions.Select(r => $"{r.Id}@{r.MapX},{r.MapY}"));
+            // Each reshuffle of the list moves the markers, so the region reads as a new set of places.
+            var placedDungeons = placed.Select(e => e.Dungeon).ToList();
+            if (!placedDungeons.SequenceEqual(siteDungeons, ReferenceEqualityComparer.Instance))
+            {
+                siteDungeons = placedDungeons;
+                siteSeed = Random.Shared.Next(1, 1 << 20);
+            }
+
+            string key = $"{width}x{height}:{region.Id}:{placed.Count}:{siteSeed}:" + string.Join(";", regions.Select(r => $"{r.Id}@{r.MapX},{r.MapY}"));
             if (mapGeography == null || key != mapKey)
             {
-                mapGeography = TravelMapGeography.BuildRegionView(width * 2, height * 2, regions, region.Id, placed.Count);
+                mapGeography = TravelMapGeography.BuildRegionView(width * 2, height * 2, regions, region.Id, placed.Count, siteSeed);
                 mapKey = key;
             }
 

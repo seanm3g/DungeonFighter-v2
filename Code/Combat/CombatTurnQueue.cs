@@ -19,6 +19,7 @@ namespace RPGGame
         private static ActionSpeedSystem? _speed;
         private static Actor? _acting;
         private static Action? _actingAction;
+        private static bool _actingQuiet;
         private static long _turnSerial;
 
         /// <summary>Entity whose turn the combat loop is processing, or null between turns.</summary>
@@ -26,6 +27,9 @@ namespace RPGGame
 
         /// <summary>Action the acting entity resolved this turn when it has no swing sequence (environment hazards).</summary>
         public static Action? ActingAction { get { lock (Gate) return _actingAction; } }
+
+        /// <summary>The acting environment rolled under its strike threshold this turn and does nothing.</summary>
+        public static bool ActingQuiet { get { lock (Gate) return _actingQuiet; } }
 
         /// <summary>Bumped by every <see cref="BeginTurn"/>, so the board can tell one turn from the next.</summary>
         public static long TurnSerial { get { lock (Gate) return _turnSerial; } }
@@ -41,6 +45,7 @@ namespace RPGGame
                 _speed = speed;
                 _acting = null;
                 _actingAction = null;
+                _actingQuiet = false;
             }
         }
 
@@ -51,6 +56,7 @@ namespace RPGGame
                 _speed = null;
                 _acting = null;
                 _actingAction = null;
+                _actingQuiet = false;
             }
         }
 
@@ -62,6 +68,7 @@ namespace RPGGame
                     return;
                 _acting = actor;
                 _actingAction = null;
+                _actingQuiet = false;
                 _turnSerial++;
             }
         }
@@ -75,12 +82,22 @@ namespace RPGGame
             }
         }
 
+        public static void SetActingQuiet()
+        {
+            lock (Gate)
+            {
+                if (_speed != null)
+                    _actingQuiet = true;
+            }
+        }
+
         public static void EndTurn()
         {
             lock (Gate)
             {
                 _acting = null;
                 _actingAction = null;
+                _actingQuiet = false;
             }
         }
 

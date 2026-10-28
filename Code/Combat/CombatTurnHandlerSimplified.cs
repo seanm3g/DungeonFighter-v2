@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Combat;
 using RPGGame.Combat.Narrative;
+using RPGGame.Combat.Sequence;
 using RPGGame.Combat.Turn;
 using RPGGame.UI.ColorSystem;
 
@@ -142,6 +143,9 @@ namespace RPGGame
             return true;
         }
 
+        /// <summary>Sequence beats the board shows a room's quiet roll (card slide plus a read) before moving on.</summary>
+        private const int QuietRoomBoardBeats = 3;
+
         /// <summary>
         /// Processes a single environment turn and awaits combat log display completion.
         /// </summary>
@@ -210,6 +214,23 @@ namespace RPGGame
             }
             else
             {
+                // On-screen fights: the quiet roll plays the same d20 sequence as a swing (the die tumbles to the room's
+                // face, the quiet branch lights, its card slides into NOW). Without the HUD, hold the quiet card a moment.
+                // A room that won't act this fight rolls nothing and just passes.
+                bool rolled = room.LastStrikeRoll > 0;
+                if (rolled && CombatTurnQueue.IsBound && CombatSequencePresenter.ShouldPlay())
+                {
+                    CombatSequencePresenter.SetPending(CombatSequenceBuilder.FromEnvironmentalQuiet(room));
+                    await CombatSequencePresenter.PlayPendingAsync();
+                }
+                else if (rolled && CombatTurnQueue.IsBound)
+                {
+                    CombatTurnQueue.SetActingQuiet();
+                    UI.Avalonia.Layout.CombatBoardAnimation.RequestFrame();
+                    for (int i = 0; i < QuietRoomBoardBeats; i++)
+                        await CombatDelayManager.DelayAfterSequenceHudBeatAsync();
+                }
+
                 // Environment doesn't want to act, but we still need to advance its turn
                 // to prevent it from getting stuck in the action speed system
                 var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();

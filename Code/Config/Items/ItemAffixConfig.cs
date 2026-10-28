@@ -45,6 +45,28 @@ namespace RPGGame
 
         /// <summary>Per-step chance (0–1) to add one more extra combo slot while below max.</summary>
         public double ExtraComboSlotsExtraChance { get; set; }
+
+        /// <summary>
+        /// Affix rolls: when set, the item gets this many chances at an affix line; each succeeds at
+        /// <see cref="AffixRollChance"/> (so a roll can yield nothing) and lands in a pool from
+        /// <see cref="ItemAffixByRaritySettings.AffixPoolWeights"/>. Replaces the prefix/stat mins and extras (and the action
+        /// axis too when its pool weight is above 0). Null = legacy per-axis counts.
+        /// </summary>
+        public int? AffixRolls { get; set; }
+
+        /// <summary>Per-roll success chance (0–1) for this row; null = <see cref="ItemAffixByRaritySettings.AffixRollChance"/>.</summary>
+        public double? AffixRollChance { get; set; }
+    }
+
+    /// <summary>
+    /// Where a successful affix roll lands (relative weights; 0 keeps that axis out of the rolls). Prefix lines are capped at 2
+    /// (Quality + Adjective). With <see cref="Action"/> at 0, gear actions keep their own per-axis min/max/chance rules.
+    /// </summary>
+    public sealed class AffixPoolWeights
+    {
+        public double Prefix { get; set; } = 1.0;
+        public double Stat { get; set; } = 1.0;
+        public double Action { get; set; }
     }
 
     /// <summary>
@@ -64,8 +86,16 @@ namespace RPGGame
             double actionExtraChance,
             int extraComboSlotsMin = 0,
             int extraComboSlotsMax = 0,
-            double extraComboSlotsExtraChance = 0)
+            double extraComboSlotsExtraChance = 0,
+            int affixRolls = -1,
+            double affixRollChance = 1.0,
+            AffixPoolWeights? poolWeights = null)
         {
+            AffixRolls = affixRolls;
+            AffixRollChance = Math.Clamp(affixRollChance, 0, 1);
+            PoolPrefixWeight = Math.Max(0, poolWeights?.Prefix ?? 1.0);
+            PoolStatWeight = Math.Max(0, poolWeights?.Stat ?? 1.0);
+            PoolActionWeight = Math.Max(0, poolWeights?.Action ?? 0.0);
             PrefixMin = prefixMin;
             PrefixMax = prefixMax;
             PrefixExtraChance = prefixExtraChance;
@@ -92,6 +122,15 @@ namespace RPGGame
         public int ExtraComboSlotsMin { get; }
         public int ExtraComboSlotsMax { get; }
         public double ExtraComboSlotsExtraChance { get; }
+
+        /// <summary>Affix chances (see <see cref="ItemAffixPerRarityEntry.AffixRolls"/>); -1 = legacy per-axis counts.</summary>
+        public int AffixRolls { get; }
+        /// <summary>Success chance per affix roll, before magic find.</summary>
+        public double AffixRollChance { get; }
+        public double PoolPrefixWeight { get; }
+        public double PoolStatWeight { get; }
+        public double PoolActionWeight { get; }
+        public bool UsesAffixRolls => AffixRolls >= 0;
     }
 
     /// <summary>
@@ -110,6 +149,33 @@ namespace RPGGame
 
         /// <summary>Keys are rarity names, e.g. Common, Rare (matched case-insensitively).</summary>
         public Dictionary<string, ItemAffixPerRarityEntry> PerRarity { get; set; } = new();
+
+        /// <summary>Pool split for rarities that use <see cref="ItemAffixPerRarityEntry.AffixRolls"/>.</summary>
+        public AffixPoolWeights AffixPoolWeights { get; set; } = new();
+
+        /// <summary>Default per-roll success chance (0–1) for <see cref="ItemAffixPerRarityEntry.AffixRolls"/>.</summary>
+        public double AffixRollChance { get; set; } = 0.5;
+
+        /// <summary>
+        /// Optional base rarity roll weights (rarity name → weight) that replace <c>RarityTable.json</c> weights, so a balance
+        /// patch can carry its own rarity curve. Rarities missing here keep their table weight. Empty = table weights.
+        /// </summary>
+        public Dictionary<string, double> RarityWeights { get; set; } = new();
+
+        /// <summary>Weight for <paramref name="row"/>: <see cref="RarityWeights"/> override when present, else the table weight.</summary>
+        public double ResolveRarityWeight(RarityData row)
+        {
+            if (RarityWeights != null && row?.Name != null)
+            {
+                foreach (var kv in RarityWeights)
+                {
+                    if (kv.Key.Equals(row.Name.Trim(), StringComparison.OrdinalIgnoreCase))
+                        return Math.Max(0, kv.Value);
+                }
+            }
+
+            return row?.Weight ?? 0;
+        }
 
         /// <summary>
         /// Optional per–item-category overrides (keys: Head, Chest, Legs, Feet, Weapon — case-insensitive).
@@ -151,10 +217,10 @@ namespace RPGGame
             string name = rarityName?.Trim() ?? "Common";
             if (tuning != null && itemType.HasValue &&
                 tuning.TryGetForItemTypeAndRarity(itemType.Value, name, out var typedEntry))
-                return BuildRuleFromTuningEntry(typedEntry, rarityTableRow);
+                return BuildRuleFromTuningEntry(typedEntry, rarityTableRow, tuning);
 
             if (tuning != null && tuning.TryGetForRarity(name, out var entry))
-                return BuildRuleFromTuningEntry(entry, rarityTableRow);
+                return BuildRuleFromTuningEntry(entry, rarityTableRow, tuning);
 
             int p = DefaultPrefixSlotsForRarity(name);
             int s = Math.Max(0, rarityTableRow?.StatBonuses ?? 0);
@@ -167,7 +233,8 @@ namespace RPGGame
         /// </summary>
         public static ItemAffixRollRule BuildRuleFromTuningEntry(
             ItemAffixPerRarityEntry entry,
-            RarityData? rarityTableRow)
+            RarityData? rarityTableRow,
+            ItemAffixByRaritySettings? tuning = null)
         {
             int pMin = Math.Clamp(entry.PrefixSlots, 0, 2);
             double pCh = Clamp01(entry.PrefixExtraChance);
@@ -204,7 +271,45 @@ namespace RPGGame
                 ? Math.Max(eMin, entry.ExtraComboSlotsMax.Value)
                 : (eCh <= 0 ? eMin : eDefaultCeiling);
 
-            return new ItemAffixRollRule(pMin, pMax, pCh, sMin, sMax, sCh, aMin, aMax, aCh, eMin, eMax, eCh);
+            int rolls = entry.AffixRolls.HasValue ? Math.Max(0, entry.AffixRolls.Value) : -1;
+            double rollChance = entry.AffixRollChance ?? tuning?.AffixRollChance ?? 0.5;
+            return new ItemAffixRollRule(pMin, pMax, pCh, sMin, sMax, sCh, aMin, aMax, aCh, eMin, eMax, eCh,
+                rolls, rollChance, tuning?.AffixPoolWeights);
+        }
+
+        /// <summary>Most Quality/Adjective prefix lines one item can hold.</summary>
+        public const int MaxPrefixLines = 2;
+
+        /// <summary>
+        /// Takes <see cref="ItemAffixRollRule.AffixRolls"/> chances at <paramref name="rollChance"/> each; every hit lands in a
+        /// weighted pool (prefix capped at <see cref="MaxPrefixLines"/>). Misses, and hits that fit no pool, add nothing.
+        /// Actions are only counted here when their pool weight is above 0.
+        /// </summary>
+        public static void RollAffixLines(Random random, in ItemAffixRollRule rule, double rollChance, out int prefixSlots, out int statSuffixes, out int actionBonuses)
+        {
+            prefixSlots = 0;
+            statSuffixes = 0;
+            actionBonuses = 0;
+            for (int i = 0; i < rule.AffixRolls; i++)
+            {
+                if (random.NextDouble() >= rollChance)
+                    continue;
+
+                double wp = prefixSlots < MaxPrefixLines ? rule.PoolPrefixWeight : 0;
+                double ws = rule.PoolStatWeight;
+                double wa = rule.PoolActionWeight;
+                double total = wp + ws + wa;
+                if (total <= 0)
+                    return;
+
+                double roll = random.NextDouble() * total;
+                if (roll < wp)
+                    prefixSlots++;
+                else if (roll < wp + ws)
+                    statSuffixes++;
+                else
+                    actionBonuses++;
+            }
         }
 
         /// <summary>
@@ -239,9 +344,21 @@ namespace RPGGame
             double aCh = Clamp01(rule.ActionExtraChance * chanceMult);
             double eCh = Clamp01(rule.ExtraComboSlotsExtraChance * chanceMult);
 
-            prefixSlots = RollAxis(random, rule.PrefixMin, rule.PrefixMax, pCh);
-            statSuffixes = RollAxis(random, rule.StatMin, rule.StatMax, sCh);
-            actionBonuses = RollAxis(random, rule.ActionMin, rule.ActionMax, aCh);
+            if (rule.UsesAffixRolls)
+            {
+                // Rarity sets how many chances; magic find raises the odds of each one landing.
+                RollAffixLines(random, rule, Clamp01(rule.AffixRollChance * chanceMult), out prefixSlots, out statSuffixes, out int rolledActions);
+                actionBonuses = rule.PoolActionWeight > 0
+                    ? rolledActions
+                    : RollAxis(random, rule.ActionMin, rule.ActionMax, aCh);
+            }
+            else
+            {
+                prefixSlots = RollAxis(random, rule.PrefixMin, rule.PrefixMax, pCh);
+                statSuffixes = RollAxis(random, rule.StatMin, rule.StatMax, sCh);
+                actionBonuses = RollAxis(random, rule.ActionMin, rule.ActionMax, aCh);
+            }
+
             extraComboSlots = RollAxis(random, rule.ExtraComboSlotsMin, rule.ExtraComboSlotsMax, eCh);
         }
 

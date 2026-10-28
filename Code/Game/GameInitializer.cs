@@ -186,7 +186,7 @@ namespace RPGGame
                 // If single starting action, set as GearAction
                 if (startingActions.Count > 1)
                 {
-                    // Multiple actions: add all as ActionBonuses (like mace with SLAM, POUND, BLUDGEON)
+                    // Multiple actions: add all as ActionBonuses (e.g. mace SLAM + WIND UP)
                     foreach (var actionName in startingActions)
                     {
                         starterWeapon.ActionBonuses.Add(new ActionBonus { Name = actionName });

@@ -639,19 +639,19 @@ namespace RPGGame.UI.Avalonia.Settings
                 }
                 else if (_item is HeadItem h)
                 {
-                    lines.Add($"Armor: {h.GetTotalArmor()}");
+                    lines.Add($"Defense: {h.GetTotalArmor()}");
                 }
                 else if (_item is ChestItem c)
                 {
-                    lines.Add($"Armor: {c.GetTotalArmor()}");
+                    lines.Add($"Defense: {c.GetTotalArmor()}");
                 }
                 else if (_item is LegsItem l)
                 {
-                    lines.Add($"Armor: {l.GetTotalArmor()}");
+                    lines.Add($"Defense: {l.GetTotalArmor()}");
                 }
                 else if (_item is FeetItem f)
                 {
-                    lines.Add($"Armor: {f.GetTotalArmor()}");
+                    lines.Add($"Defense: {f.GetTotalArmor()}");
                 }
 
                 if (_item.ExtraActionSlots > 0)

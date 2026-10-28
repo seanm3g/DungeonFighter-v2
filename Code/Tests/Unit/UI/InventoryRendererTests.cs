@@ -546,6 +546,10 @@ namespace RPGGame.Tests.Unit.UI
                 "material without art falls back to the plain base", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("(Bronze, Kukri)", ItemArtAtlas.ResolveName("Bronze Kukri", "")?.ToString(),
                 "old saves without a material read it from the name", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("(Crystal, Galoshs)", ItemArtAtlas.ResolveName("Worn Crystal Galoshs", "Crystal")?.ToString(),
+                "material word does not resolve to the same-named Crystal weapon", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("(Crystal, Crystal Stiletto)", ItemArtAtlas.ResolveName("Keen Crystal Stiletto", "Crystal")?.ToString(),
+                "base containing the material word still wins", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(ItemArtAtlas.ResolveName("Mystery Thing", "Steel") == null,
                 "unknown base has no icon", ref _testsRun, ref _testsPassed, ref _testsFailed);
 

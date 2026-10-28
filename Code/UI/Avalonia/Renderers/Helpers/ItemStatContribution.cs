@@ -161,7 +161,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             {
                 int v = (int)Math.Round(mod.RolledValue);
                 if (v != 0)
-                    list.Add(new ItemStatContribution("Armor", $"+{v}", mod.Name, isDebuff: v < 0));
+                    list.Add(new ItemStatContribution("Defense", $"+{v}", mod.Name, isDebuff: v < 0));
                 return;
             }
 
@@ -220,12 +220,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
 
             if (string.Equals(e, "SPEED", StringComparison.OrdinalIgnoreCase))
             {
-                if (Math.Abs(rolled) < 1e-9)
+                if (rolled <= 0)
                     return null;
-                if (rolled < 1.0)
-                    return $"{(1.0 - rolled) * 100:F0}% faster";
-                return $"{(rolled - 1.0) * 100:F0}% slower";
+                return $"+{rolled * 100:F0}%";
             }
+
+            if (string.Equals(e, "AMP", StringComparison.OrdinalIgnoreCase))
+                return rolled > 0 ? $"+{rolled * 100:0.#}%" : null;
 
             if (string.Equals(e, "damageMultiplier", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(e, "speedMultiplier", StringComparison.OrdinalIgnoreCase))

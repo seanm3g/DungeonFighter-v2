@@ -91,6 +91,7 @@ namespace RPGGame
                 "HIT" => $"+{(int)Math.Round(modification.RolledValue)} hit threshold",
                 "SPEED" => DescribeSpeedModification(modification.RolledValue),
                 "MULTI-HIT" => $"+{(int)Math.Round(modification.RolledValue)} extra hit(s) on attacks",
+                "AMP" => $"+{modification.RolledValue * 100:0.#}% combo amp",
                 "STR" or "equipmentStr" => $"+{(int)Math.Round(modification.RolledValue)} Strength",
                 "AGI" or "equipmentAgi" => $"+{(int)Math.Round(modification.RolledValue)} Agility",
                 "TEC" or "equipmentTec" => $"+{(int)Math.Round(modification.RolledValue)} Technique",
@@ -108,13 +109,12 @@ namespace RPGGame
             return $"{(1.0 - rolled) * 100:F0}% weaker damage, armor, and weapon speed";
         }
 
+        /// <summary>SPEED mods are percent faster: 0.5 ⇒ +50% attack speed (attack time ÷ 1.5).</summary>
         private static string DescribeSpeedModification(double rolled)
         {
             if (rolled <= 0)
                 return "no attack-speed change";
-            if (rolled < 1.0)
-                return $"{(1.0 - rolled) * 100:F0}% faster attacks (lower time multiplier)";
-            return $"{(rolled - 1.0) * 100:F0}% slower attacks";
+            return $"+{rolled * 100:F0}% attack speed";
         }
 
         /// <summary>

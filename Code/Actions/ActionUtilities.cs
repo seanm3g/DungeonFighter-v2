@@ -240,6 +240,18 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Extra hits per attack from the hero's equipped MULTI-HIT gear mods (Light, Acrobatic). Attacks and spells only; 0 for enemies.
+        /// </summary>
+        public static int GetGearMultiHitBonus(Actor source, Action action)
+        {
+            if (source is not Character character || character is Enemy || action == null)
+                return 0;
+            if (action.Type != ActionType.Attack && action.Type != ActionType.Spell)
+                return 0;
+            return character.GetModificationMultiHitBonus();
+        }
+
+        /// <summary>
         /// Calculates damage multiplier based on entity type and action
         /// Uses amplification from the action's combo-strip slot index (first slot 1.0×, then baseline^1, baseline^2, …).
         /// </summary>

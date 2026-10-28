@@ -44,6 +44,9 @@ namespace RPGGame.Tests.Unit.Data
             TestProbabilisticAffixTuningHitsMax();
             TestLootAffixRollsExtraComboSlotsOntoItem();
             TestAffixMagicFindBoostsOptionalExtraChances();
+            TestAffixRollsCanMissAndNeverExceedRollCount();
+            TestAffixRollsCapPrefixesAndKeepActionAxis();
+            TestRarityWeightsOverrideTable();
 
             TestBase.PrintSummary("LootBonusApplier Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -613,6 +616,74 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(sum100 > sum0,
                 $"MF=100 should roll more optional affix steps on average (MF100 sum {sum100} vs MF0 {sum0})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestAffixRollsCanMissAndNeverExceedRollCount()
+        {
+            Console.WriteLine("\n--- Testing affix rolls: misses and cap ---");
+            TestBase.SetCurrentTestName(nameof(TestAffixRollsCanMissAndNeverExceedRollCount));
+
+            var tuning = new ItemAffixByRaritySettings { AffixRollChance = 0.5 };
+            tuning.PerRarity["Rare"] = new ItemAffixPerRarityEntry { PrefixSlots = 2, StatSuffixes = 3, AffixRolls = 3 };
+            var rule = ItemAffixByRaritySettings.GetResolvedAffixRule("Rare", null, tuning);
+            int zero = 0, full = 0, over = 0, lines = 0;
+            const int n = 4000;
+            for (int i = 0; i < n; i++)
+            {
+                ItemAffixByRaritySettings.RollAffixCounts(new Random(i), rule, 0, null, out int p, out int s, out int a, out _);
+                int c = p + s;
+                lines += c;
+                if (c == 0) zero++;
+                if (c == 3) full++;
+                if (c > 3 || a != 0) over++;
+            }
+
+            TestBase.AssertTrue(rule.UsesAffixRolls && over == 0,
+                "3 affix rolls never give more than 3 prefix+suffix lines", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(zero > 0 && full > 0,
+                $"rolls at 50% can yield none or all (none {zero}, all {full} of {n})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Math.Abs(lines / (double)n - 1.5) < 0.1,
+                $"3 rolls at 50% average about 1.5 lines (got {lines / (double)n:F2})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            tuning.PerRarity["Rare"].AffixRollChance = 1.0;
+            var sure = ItemAffixByRaritySettings.GetResolvedAffixRule("Rare", null, tuning);
+            ItemAffixByRaritySettings.RollAffixCounts(new Random(3), sure, 0, null, out int sp, out int ss, out _, out _);
+            TestBase.AssertEqual(3, sp + ss, "row chance 1.0 overrides the default and lands every roll",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestAffixRollsCapPrefixesAndKeepActionAxis()
+        {
+            Console.WriteLine("\n--- Testing affix rolls prefix cap and action axis ---");
+            TestBase.SetCurrentTestName(nameof(TestAffixRollsCapPrefixesAndKeepActionAxis));
+
+            var prefixOnly = new ItemAffixRollRule(0, 0, 0, 0, 0, 0, 1, 1, 0,
+                affixRolls: 5, affixRollChance: 1.0, poolWeights: new AffixPoolWeights { Prefix = 1, Stat = 0, Action = 0 });
+            ItemAffixByRaritySettings.RollAffixCounts(new Random(1), prefixOnly, 0, null, out int p, out int s, out int a, out _);
+            TestBase.AssertTrue(p == ItemAffixByRaritySettings.MaxPrefixLines && s == 0,
+                $"prefix-only rolls cap at {ItemAffixByRaritySettings.MaxPrefixLines} prefixes (got {p}p/{s}s)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, a, "action weight 0 keeps the action axis min",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var withActions = new ItemAffixRollRule(0, 0, 0, 0, 0, 0, 3, 3, 0,
+                affixRolls: 3, affixRollChance: 1.0, poolWeights: new AffixPoolWeights { Prefix = 0, Stat = 0, Action = 1 });
+            ItemAffixByRaritySettings.RollAffixCounts(new Random(1), withActions, 0, null, out _, out _, out int a2, out _);
+            TestBase.AssertEqual(3, a2, "action weight > 0 draws actions from the rolls",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRarityWeightsOverrideTable()
+        {
+            Console.WriteLine("\n--- Testing patch rarity weights ---");
+            TestBase.SetCurrentTestName(nameof(TestRarityWeightsOverrideTable));
+
+            var tuning = new ItemAffixByRaritySettings();
+            tuning.RarityWeights["rare"] = 13;
+            TestBase.AssertEqual(13.0, tuning.ResolveRarityWeight(new RarityData { Name = "Rare", Weight = 1200 }),
+                "patch weight replaces table weight (case-insensitive)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(45.0, tuning.ResolveRarityWeight(new RarityData { Name = "Legendary", Weight = 45 }),
+                "rarity missing from patch keeps table weight", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestApplyModifications()

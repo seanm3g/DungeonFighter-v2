@@ -77,6 +77,7 @@ namespace RPGGame.Actions.Execution
                 if (source is Character multiHitCharacter && multiHitCharacter.Effects.ConsumedMultiHitMod != 0)
                     multiHitCount = Math.Max(1, multiHitCount + (int)Math.Max(0, multiHitCharacter.Effects.ConsumedMultiHitMod));
                 multiHitCount = Math.Max(1, multiHitCount + ChainPositionBonusApplier.GetMultiHitDelta(source, selected, ActionUtilities.GetComboActions(source), ActionUtilities.GetComboStep(source)));
+                multiHitCount += ActionUtilities.GetGearMultiHitBonus(source, selected);
                 multiHitCount = PackCombat.ResolveOutgoingHitCount(source, multiHitCount);
                 // Capture before ACTION cadence deposits next-action Multihit (must not inflate this swing's log / deferred layers).
                 result.ResolvedMultiHitCount = multiHitCount;

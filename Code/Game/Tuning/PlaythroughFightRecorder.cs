@@ -48,6 +48,25 @@ namespace RPGGame.Tuning
         public int CritDamage { get; set; }
         public int ComboDamage { get; set; }
         public int ConvertDamage { get; set; }
+        /// <summary>Hero swings fired from each strip slot (0-based, the AMP exponent). Completion = last / first.</summary>
+        public List<int> SlotSwings { get; set; } = new();
+        /// <summary>Enemy HP lost to hero hits, by the strip slot that dealt them (retrigger, DoT and reflect excluded).</summary>
+        public List<int> SlotHitDamage { get; set; } = new();
+        /// <summary>Hero strip slot max, effective TECH and INT when the fight started.</summary>
+        public int SlotMax { get; set; }
+        public int HeroTechnique { get; set; }
+        public int HeroIntelligence { get; set; }
+        /// <summary>
+        /// Times a strip under way (step past slot 1) dropped back to slot 1, by cause: "normal hit" / "miss" (the hero's
+        /// own swing), "routing" (a combo hit whose routing stopped the chain), "enemy" / "environment" (reset between hero
+        /// swings while that side acted, e.g. Disrupt), "other" (reset between hero swings with no action in between).
+        /// "strip change" counts swings the recorded strip no longer matches. Finishing the last slot is not a break.
+        /// </summary>
+        public Dictionary<string, int> StripBreaks { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Strips run through the last slot on a combo hit.</summary>
+        public int StripCompletions { get; set; }
+        /// <summary>The hero's first swing of the fight was past slot 1 (strip carried in from the previous enemy).</summary>
+        public bool CarriedInStrip { get; set; }
         /// <summary>Worn loadout at fight start: slot → "Name|Material|T{tier}|Rarity" (empty slots left out).</summary>
         public Dictionary<string, string> Gear { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         /// <summary>Material → equipped pieces counting toward it (wildcards included), for materials worn 2+ times.</summary>
@@ -76,6 +95,12 @@ namespace RPGGame.Tuning
         private Role _lastRole;
         private bool _hitCrit, _hitCombo, _hitConvert;
         private int _missStreak, _lead;
+        private int _slot = -1;
+        // Strip-break tracking: the hero's step before its swing, the swing's outcome, the step seen after it, and who
+        // acted between hero swings.
+        private bool _pendingHero, _heroMissed, _heroHit, _heroCombo;
+        private int _heroStepBefore, _heroSlotCount, _stepAfterHero = -1;
+        private Role? _between;
         private static readonly Dictionary<string, bool> ConvertActions = new(StringComparer.OrdinalIgnoreCase);
 
         public List<PlaythroughFightRecord> Fights { get; } = new();
@@ -141,9 +166,16 @@ namespace RPGGame.Tuning
                 return;
             _lastRole = evt.Source is not Character ? Role.Other : evt.Source is Enemy ? Role.Enemy : Role.Hero;
             _hitCrit = _hitCombo = _hitConvert = false;
+            _slot = -1;
             var (hero, enemy) = Resolve(evt.Source, evt.Target);
             if (hero == null || enemy == null)
                 return;
+            if (_current != null && ReferenceEquals(hero, _hero))
+            {
+                ResolveHeroSwing();
+                if (_lastRole != Role.Hero && _stepAfterHero > 0)
+                    _between ??= _lastRole;
+            }
 
             if (!ReferenceEquals(enemy, _currentEnemy))
             {
@@ -164,12 +196,20 @@ namespace RPGGame.Tuning
                     FightInDungeon = _fightInDungeon,
                     RoomsClearedInDungeon = _roomsCleared,
                     Strip = hero.GetComboActions().Select(a => a.Name).ToList(),
+                    SlotMax = ComboSequenceMaxHelper.GetEffectiveMax(hero),
+                    HeroTechnique = hero.GetEffectiveTechnique(),
+                    HeroIntelligence = hero.GetEffectiveIntelligence(),
                     HeroStrength = hero.GetEffectiveStrength(),
                     HeroAgility = hero.GetEffectiveAgility()
                 };
                 RecordLoadout(_current, hero);
+                _current.SlotSwings = new List<int>(new int[_current.Strip.Count]);
+                _current.SlotHitDamage = new List<int>(new int[_current.Strip.Count]);
                 _missStreak = 0;
                 _lead = 0;
+                _pendingHero = false;
+                _stepAfterHero = -1;
+                _between = null;
                 UpdatePacing();
             }
 
@@ -179,6 +219,30 @@ namespace RPGGame.Tuning
                 string? name = evt.Action?.Name;
                 if (!string.IsNullOrWhiteSpace(name))
                     _current.ActionUses[name] = _current.ActionUses.GetValueOrDefault(name) + 1;
+                // Slot as the AMP exponent sees it (strip changed mid-fight: outside the recorded strip, skipped).
+                var strip = hero.GetComboActions();
+                if (evt.Action != null)
+                {
+                    int slot = ActionUtilities.TryGetComboActionSlotIndex(evt.Action, strip);
+                    if (slot >= 0 && slot < _current.SlotSwings.Count)
+                    {
+                        _slot = slot;
+                        _current.SlotSwings[slot]++;
+                    }
+                }
+                int count = strip.Count;
+                if (count != _current.Strip.Count || !strip.Select(a => a.Name).SequenceEqual(_current.Strip))
+                    Count(_current.StripBreaks, "strip change");
+                if (_current.HeroActions == 1 && count > 0 && hero.ComboStep % count != 0)
+                    _current.CarriedInStrip = true;
+                // Reset between hero swings (the step seen after the last swing is gone before this one).
+                if (_stepAfterHero > 0 && hero.ComboStep == 0)
+                    Count(_current.StripBreaks, _between == Role.Enemy ? "enemy" : _between == Role.Other ? "environment" : "other");
+                _heroStepBefore = hero.ComboStep;
+                _heroSlotCount = count;
+                _heroMissed = _heroHit = _heroCombo = false;
+                _between = null;
+                _pendingHero = true;
             }
             else
                 _current!.EnemyActions++;
@@ -194,6 +258,8 @@ namespace RPGGame.Tuning
             _current.HeroHits++;
             if (evt.IsCombo)
                 _current.ComboHits++;
+            _heroHit = true;
+            _heroCombo = evt.IsCombo;
             _hitCrit = evt.IsCritical;
             _hitCombo = evt.IsCombo;
             _hitConvert = IsConvert(evt.Action?.Name);
@@ -205,7 +271,58 @@ namespace RPGGame.Tuning
                 return;
             _current.HeroMisses++;
             _current.LongestMissStreak = Math.Max(_current.LongestMissStreak, ++_missStreak);
+            _heroMissed = true;
         }
+
+        private static void RecordLoadout(PlaythroughFightRecord record, Character hero)
+        {
+            var eq = hero.Equipment;
+            if (eq != null)
+            {
+                foreach (var (slot, item) in new[] { ("Head", eq.Head), ("Body", eq.Body), ("Legs", eq.Legs), ("Feet", eq.Feet), ("Weapon", eq.Weapon), ("Charm", eq.Charm) })
+                {
+                    if (item != null)
+                        record.Gear[slot] = $"{item.Name}|{item.Material}|T{item.Tier}|{item.Rarity}";
+                }
+            }
+            foreach (var material in MaterialSetController.EnumerateEquipped(hero)
+                         .Where(i => i != null && !string.IsNullOrWhiteSpace(i.Material))
+                         .Select(i => ItemMaterialRules.RemapLegacyMaterial(i!.Material))
+                         .Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                int n = MaterialSetController.CountEquipped(hero, material);
+                if (n >= 2)
+                    record.Sets[material] = n;
+            }
+            foreach (var (id, rank) in hero.Progression.LearnedSkillRanks)
+            {
+                if (rank > 0)
+                    record.Skills[id] = rank;
+            }
+        }
+
+        /// <summary>
+        /// First event after a hero swing: its outcome has resolved, so read where the strip went. A drop to step 0 from a
+        /// strip under way is a break (by the swing's outcome) unless the swing was the last slot landing as a combo, which
+        /// wraps the strip.
+        /// </summary>
+        private void ResolveHeroSwing()
+        {
+            if (!_pendingHero || _current == null || _hero == null)
+                return;
+            _pendingHero = false;
+            int after = _hero.ComboStep;
+            int count = _heroSlotCount;
+            bool lastSlot = count > 0 && _heroStepBefore % count == count - 1;
+            if (lastSlot && _heroHit && _heroCombo && count > 1)
+                _current.StripCompletions++;
+            else if (_heroStepBefore > 0 && after == 0)
+                Count(_current.StripBreaks, _heroMissed ? "miss" : !_heroHit ? "other" : _heroCombo ? "routing" : "normal hit");
+            _stepAfterHero = after;
+        }
+
+        private static void Count(Dictionary<string, int> counts, string key) =>
+            counts[key] = counts.GetValueOrDefault(key) + 1;
 
         /// <summary>HP actually lost by any actor (<see cref="DamageLedger"/>); attributes enemy HP loss to a source.</summary>
         private void OnDamage(Actor target, int lost, string source)
@@ -224,6 +341,7 @@ namespace RPGGame.Tuning
                     if (_hitCrit) _current.CritDamage += lost;
                     if (_hitCombo) _current.ComboDamage += lost;
                     if (_hitConvert) _current.ConvertDamage += lost;
+                    if (_lastRole == Role.Hero && _slot >= 0) _current.SlotHitDamage[_slot] += lost;
                 }
             }
             else if (lost > 0 && ReferenceEquals(target, _hero))
@@ -252,33 +370,6 @@ namespace RPGGame.Tuning
                 _current.LeadChanges++;
             if (sign != 0)
                 _lead = sign;
-        }
-
-        private static void RecordLoadout(PlaythroughFightRecord record, Character hero)
-        {
-            var eq = hero.Equipment;
-            if (eq != null)
-            {
-                foreach (var (slot, item) in new[] { ("Head", eq.Head), ("Body", eq.Body), ("Legs", eq.Legs), ("Feet", eq.Feet), ("Weapon", eq.Weapon), ("Charm", eq.Charm) })
-                {
-                    if (item != null)
-                        record.Gear[slot] = $"{item.Name}|{item.Material}|T{item.Tier}|{item.Rarity}";
-                }
-            }
-            foreach (var material in MaterialSetController.EnumerateEquipped(hero)
-                         .Where(i => i != null && !string.IsNullOrWhiteSpace(i.Material))
-                         .Select(i => ItemMaterialRules.RemapLegacyMaterial(i!.Material))
-                         .Distinct(StringComparer.OrdinalIgnoreCase))
-            {
-                int n = MaterialSetController.CountEquipped(hero, material);
-                if (n >= 2)
-                    record.Sets[material] = n;
-            }
-            foreach (var (id, rank) in hero.Progression.LearnedSkillRanks)
-            {
-                if (rank > 0)
-                    record.Skills[id] = rank;
-            }
         }
 
         private static bool IsConvert(string? name)
@@ -311,6 +402,7 @@ namespace RPGGame.Tuning
         {
             if (_current == null)
                 return;
+            ResolveHeroSwing();
             _current.HeroHpEnd = _hero?.CurrentHealth ?? 0;
             Fights.Add(_current);
             _trace?.Invoke(

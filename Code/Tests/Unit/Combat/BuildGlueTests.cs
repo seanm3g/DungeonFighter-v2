@@ -245,14 +245,14 @@ namespace RPGGame.Tests.Unit.Combat
                 TestBase.AssertEqual(3, loot.GetComboSlotCapForLevel(40), "L40 uses the L10 anchor", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 var hero = TestDataBuilders.Character().WithName("CapHero").WithLevel(1).Build();
                 hero.Equipment.Feet = new FeetItem("SlotBoots", 1, 1) { ExtraActionSlots = 3 };
-                TestBase.AssertEqual(1, ComboSequenceMaxHelper.GetEffectiveMax(hero), "gear slots wait for the level cap",
+                TestBase.AssertEqual(4, ComboSequenceMaxHelper.GetEffectiveMax(hero), "gear slots bypass the level cap",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 hero.ActionLabActionSlotBonus = 2;
-                TestBase.AssertEqual(3, ComboSequenceMaxHelper.GetEffectiveMax(hero), "lab sandbox slots bypass the cap",
+                TestBase.AssertEqual(6, ComboSequenceMaxHelper.GetEffectiveMax(hero), "lab sandbox slots bypass the cap",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                loot.ComboSlotCapByLevel = new System.Collections.Generic.List<int[]>();
+                hero.Equipment.Feet = null;
                 hero.ActionLabActionSlotBonus = 0;
-                TestBase.AssertTrue(ComboSequenceMaxHelper.GetEffectiveMax(hero) > 1, "no cap = legacy gear slots",
+                TestBase.AssertEqual(1, ComboSequenceMaxHelper.GetEffectiveMax(hero), "base slots respect the level cap",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally

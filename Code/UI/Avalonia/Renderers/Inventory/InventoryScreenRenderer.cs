@@ -146,6 +146,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int startY = y;
             LastPaperDollBounds = default;
             LastBagGridBounds = default;
+            LastBagGridFreeTopY = 0;
+            LastDetailPaneBounds = default;
 
             // Null check for inventory
             if (inventory == null)
@@ -796,6 +798,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 }
             }
             currentLineCount += visibleRows * stepY;
+            int usedTileRows = (lastExclusive - firstIndex + perRow - 1) / perRow;
+            LastBagGridFreeTopY = topY + Math.Max(0, usedTileRows) * stepY;
 
             string status = totalRows > visibleRows
                 ? $"rows {firstRow + 1}-{Math.Min(totalRows, firstRow + visibleRows)} of {totalRows} ({displayEntries.Count} items)"
@@ -814,6 +818,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int detailBottomY = ResolveDetailBottomY(x, separatorX, bottomY, detailExtendedBottomY);
             for (int sepY = topY; sepY < detailBottomY; sepY++)
                 canvas.AddText(separatorX, sepY, "│", AsciiArtAssets.Colors.DarkGray);
+            LastDetailPaneBounds = (separatorX + 1, topY, x + width - 1 - separatorX, detailBottomY - topY);
 
             var paneItem = selectedEquippedItem ?? selected.Item;
             if (paneItem == null)
@@ -865,6 +870,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// <summary>Last frame's paper doll and bag grid areas (grid cells) for drop hit-testing; empty when not drawn.</summary>
         public static (int X, int Y, int Width, int Height) LastPaperDollBounds { get; private set; }
         public static (int X, int Y, int Width, int Height) LastBagGridBounds { get; private set; }
+
+        /// <summary>Last frame's first grid row below the drawn bag tiles (their number labels included); 0 when not drawn.</summary>
+        public static int LastBagGridFreeTopY { get; private set; }
+
+        /// <summary>Last frame's description pane right of the bag grid; item hover tooltips dock here so they never cover tiles.</summary>
+        public static (int X, int Y, int Width, int Height) LastDetailPaneBounds { get; private set; }
 
         public static bool BoundsContain((int X, int Y, int Width, int Height) bounds, int gridX, int gridY) =>
             bounds.Width > 0 && gridX >= bounds.X && gridX < bounds.X + bounds.Width && gridY >= bounds.Y && gridY < bounds.Y + bounds.Height;

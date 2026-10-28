@@ -86,6 +86,12 @@ namespace RPGGame
         public double OverkillDamagePercent { get; set; }
         public int AttributeSoftCap { get; set; } = 50;
         public double TechniqueMilestoneRollShift { get; set; } = 1.0;
+        /// <summary>
+        /// TECH milestone rows (cumulative: each reached row's hit / combo / crit steps lower that threshold by 1).
+        /// Empty = the built-in table in <see cref="TechniqueMilestoneThresholdBonuses"/>. Combo threshold 1 makes every
+        /// landed strip step a combo, so the sequence can't break on a normal hit.
+        /// </summary>
+        public List<TechniqueMilestoneRow> TechniqueMilestones { get; set; } = new();
         public double BaseAttackTime { get; set; }
         public double AgilitySpeedReduction { get; set; }
         public double MinimumAttackTime { get; set; }

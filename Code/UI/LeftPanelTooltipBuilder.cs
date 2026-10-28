@@ -719,12 +719,13 @@ namespace RPGGame
             int gear = Math.Max(0, c.Equipment.GetEquipmentStatBonus("ExtraActionSlots", c));
             int cls = Math.Max(0, c.Progression.GetClassUpgradeActionSlotBonus());
             int levelCap = loot?.GetComboSlotCapForLevel(c.Level) ?? 0;
-            int earned = baseMax + gear + cls;
-            addWrapped($"Equation: base {baseMax} + gear {gear} + class tiers {cls} = {earned}" +
+            int earned = baseMax + cls;
+            addWrapped($"Equation: base {baseMax} + class tiers {cls} = {earned}" +
                 (levelCap > 0 && earned > levelCap ? $", capped at {levelCap} for level {c.Level}" : "") +
+                $", + gear {gear}" +
                 (c.ActionLabActionSlotBonus > 0 ? $", + lab {c.ActionLabActionSlotBonus}" : "") +
                 $"; never above {absMax}.");
-            addWrapped("Gear: ExtraActionSlots on items and affixes. Class tiers: +1 per tier reached on each class path.");
+            addWrapped("Gear: ExtraActionSlots on items and affixes (not limited by the level cap). Class tiers: +1 per tier reached on each class path.");
             addWrapped("Tuning: LootSystem.ComboSequenceBaseMax / ComboSequenceAbsoluteMax / comboSlotCapByLevel.");
         }
 

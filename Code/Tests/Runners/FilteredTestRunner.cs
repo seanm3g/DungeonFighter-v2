@@ -257,6 +257,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "StatusEffects", () => RPGGame.Tests.Unit.StatusEffectsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("entity", "ActorClearTempEffects", () => RPGGame.Tests.Unit.Entity.ActorClearTempEffectsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("entity", "CharacterHealthManager", () => RPGGame.Tests.Unit.Entity.CharacterHealthManagerTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("entity", "GearModEffect", () => RPGGame.Tests.Unit.Entity.GearModEffectTests.RunAllTests()));
             list.Add(new TestSuiteEntry("entity", "EnemyAttributeGrowth", () => RPGGame.Tests.Unit.Entity.EnemyAttributeGrowthTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "DeveloperSimMode", () => RPGGame.Tests.Unit.Tuning.DeveloperSimModeTests.RunAllTests()));
             list.Add(new TestSuiteEntry("game", "LabBalance", () => RPGGame.Tests.Unit.Tuning.LabBalanceTests.RunAllTests()));

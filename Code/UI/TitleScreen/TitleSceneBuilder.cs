@@ -242,7 +242,7 @@ namespace RPGGame.UI.TitleScreen
 
         // ───────────────────────────── Lighting / wall ─────────────────────────────
 
-        private static double TorchFlicker(double t, int i)
+        internal static double TorchFlicker(double t, int i)
         {
             double s = i * 17.3;
             return 0.86
@@ -796,7 +796,7 @@ namespace RPGGame.UI.TitleScreen
 
         // ───────────────────────────── Cell buffer ─────────────────────────────
 
-        private sealed class Cells
+        internal sealed class Cells
         {
             private readonly int _w, _h;
             private readonly char[] _ch;
@@ -879,7 +879,7 @@ namespace RPGGame.UI.TitleScreen
 
         // ───────────────────────────── Math helpers ─────────────────────────────
 
-        private static int Hash(int seed, int x, int y)
+        internal static int Hash(int seed, int x, int y)
         {
             unchecked
             {
@@ -890,9 +890,9 @@ namespace RPGGame.UI.TitleScreen
             }
         }
 
-        private static double Rand(int seed, int i, int salt) => (Hash(seed, i, salt * 7919) & 0xFFFFFF) / 16777216.0;
+        internal static double Rand(int seed, int i, int salt) => (Hash(seed, i, salt * 7919) & 0xFFFFFF) / 16777216.0;
 
-        private static double Noise(double x, double y, int seed)
+        internal static double Noise(double x, double y, int seed)
         {
             int xi = (int)Math.Floor(x), yi = (int)Math.Floor(y);
             double fx = x - xi, fy = y - yi;
@@ -902,7 +902,7 @@ namespace RPGGame.UI.TitleScreen
             return (a + (b - a) * sx) + ((c + (d - c) * sx) - (a + (b - a) * sx)) * sy;
         }
 
-        private static Color Lerp(Color a, Color b, double t)
+        internal static Color Lerp(Color a, Color b, double t)
         {
             t = Math.Clamp(t, 0, 1);
             return Color.FromRgb(
@@ -911,7 +911,7 @@ namespace RPGGame.UI.TitleScreen
                 (byte)Math.Round(a.B + (b.B - a.B) * t));
         }
 
-        private static Color Scale(Color c, double m) =>
+        internal static Color Scale(Color c, double m) =>
             Color.FromRgb(
                 (byte)Math.Clamp(Math.Round(c.R * m), 0, 255),
                 (byte)Math.Clamp(Math.Round(c.G * m), 0, 255),

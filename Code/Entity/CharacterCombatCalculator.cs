@@ -27,7 +27,11 @@ namespace RPGGame
             double amp = ComboAmplifierCurve.Compute(character.GetEffectiveIntelligence(), tuning.ComboSystem);
             // Mythic animal set: +% on the base per-step AMP.
             double mythicPct = AnimalSetController.GetAmpBonusPct(character);
-            return mythicPct > 0 ? amp * (1.0 + mythicPct / 100.0) : amp;
+            if (mythicPct > 0)
+                amp *= 1.0 + mythicPct / 100.0;
+            // AMP gear mods (Keen, refined): +% on the base per-step AMP, like the mythic set.
+            double modAmp = character.Equipment.GetModificationAmpBonus();
+            return modAmp > 0 ? amp * (1.0 + modAmp) : amp;
         }
 
         /// <summary>

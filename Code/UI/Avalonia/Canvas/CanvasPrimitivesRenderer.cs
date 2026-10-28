@@ -349,7 +349,7 @@ namespace RPGGame.UI.Avalonia.Canvas
         }
 
         /// <summary>
-        /// Menu-screen cave (<see cref="RPGGame.UI.TitleScreen.MenuSceneBackdrop"/>): plain grid runs under every
+        /// Menu-screen inn (<see cref="RPGGame.UI.TitleScreen.MenuSceneBackdrop"/>): plain grid runs under every
         /// element, with no wind sway, click burst or interactive highlight.
         /// </summary>
         private void RenderSceneUnderlay(DrawingContext context, RPGGame.UI.TitleScreen.TitleSceneFrame scene, double charWidth, double charHeight)
@@ -585,10 +585,13 @@ namespace RPGGame.UI.Avalonia.Canvas
 
             int? rollMarker = bar.RollMarkerRoll?.Invoke();
             if (rollMarker.HasValue && rollMarker.Value >= 1 && rollMarker.Value <= totalFaces)
-                RenderRollCaret(context, x, y, width, height, totalFaces, rollMarker.Value);
+                RenderRollCaret(context, x, y, width, height, totalFaces, rollMarker.Value, bar.RollMarkerBelow);
         }
 
-        /// <summary>Upward-pointing pixel caret centered on the rolled d20 face, just below the bar.</summary>
+        /// <summary>
+        /// Pixel caret centered on the rolled d20 face: above the bar pointing down, or below it pointing up when
+        /// <paramref name="below"/> (the top bar of a pair, so both carets face the space between the bars).
+        /// </summary>
         private static void RenderRollCaret(
             DrawingContext context,
             double barLeftX,
@@ -596,20 +599,22 @@ namespace RPGGame.UI.Avalonia.Canvas
             double barWidthPx,
             double barHeightPx,
             int totalFaces,
-            int roll)
+            int roll,
+            bool below)
         {
             double faceWidth = barWidthPx / totalFaces;
             double centerX = barLeftX + (roll - 0.5) * faceWidth;
-            double tipY = barTopY + barHeightPx;
+            double tipY = below ? barTopY + barHeightPx : barTopY;
             double caretHeight = System.Math.Clamp(barHeightPx * 0.85, 3, 6);
+            double baseY = below ? tipY + caretHeight : tipY - caretHeight;
             double halfWidth = System.Math.Clamp(faceWidth * 0.22, 2, 4);
 
             var geometry = new StreamGeometry();
             using (var figure = geometry.Open())
             {
                 figure.BeginFigure(new Point(centerX, tipY), true);
-                figure.LineTo(new Point(centerX - halfWidth, tipY + caretHeight));
-                figure.LineTo(new Point(centerX + halfWidth, tipY + caretHeight));
+                figure.LineTo(new Point(centerX - halfWidth, baseY));
+                figure.LineTo(new Point(centerX + halfWidth, baseY));
                 figure.EndFigure(true);
             }
 

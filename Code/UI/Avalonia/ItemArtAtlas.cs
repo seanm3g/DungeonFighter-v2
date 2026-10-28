@@ -123,13 +123,18 @@ namespace RPGGame.UI.Avalonia
             }
 
             string padded = " " + name.ToLowerInvariant() + " ";
-            string? baseName = _bases.FirstOrDefault(b => padded.Contains(b.Padded, StringComparison.Ordinal)).Name;            (string, string)? result = null;
+            string? mat = !string.IsNullOrWhiteSpace(material)
+                ? material.Trim()
+                : Sheets.Keys.FirstOrDefault(m => !m.Equals(Plain, StringComparison.OrdinalIgnoreCase)
+                    && padded.Contains(" " + m.ToLowerInvariant() + " ", StringComparison.Ordinal));
+            // A base named like the material (the "Crystal" weapon) only counts when no other base matches,
+            // so "Worn Crystal Galoshs" resolves to Galoshs rather than the Crystal weapon.
+            var matches = _bases.Where(b => padded.Contains(b.Padded, StringComparison.Ordinal)).Select(b => b.Name).ToList();
+            string? baseName = matches.FirstOrDefault(n => mat == null || !n.Equals(mat, StringComparison.OrdinalIgnoreCase))
+                ?? matches.FirstOrDefault();
+            (string, string)? result = null;
             if (baseName != null)
             {
-                string? mat = !string.IsNullOrWhiteSpace(material)
-                    ? material.Trim()
-                    : Sheets.Keys.FirstOrDefault(m => !m.Equals(Plain, StringComparison.OrdinalIgnoreCase)
-                        && padded.Contains(" " + m.ToLowerInvariant() + " ", StringComparison.Ordinal));
                 if (mat != null && Sheets.TryGetValue(mat, out var s) && s.Slots.ContainsKey(baseName))
                     result = (s.Name, baseName);
                 else if (Sheets.TryGetValue(Plain, out var p) && p.Slots.ContainsKey(baseName))

@@ -280,6 +280,48 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>
+        /// When the hovered item is a bag tile or paper-doll slot, returns where its tooltip docks so it never covers
+        /// item tiles or the description pane: the empty bag space below the last tile row (down to the panel bottom,
+        /// over the actions list), or the description pane when that space is too short for <paramref name="boxH"/> rows.
+        /// </summary>
+        private static bool TryGetInventoryTooltipDock(int innerLeft, int innerRight, int maxBoxBottom,
+            Func<int, int> boxHeightForWidth, out int dockX, out int dockY, out int dockW)
+        {
+            dockX = 0;
+            dockY = 0;
+            dockW = 0;
+            if (!LeftPanelHoverState.TryGetTargetBounds(out int tx, out int ty, out _, out _))
+                return false;
+            var grid = Inventory.InventoryScreenRenderer.LastBagGridBounds;
+            if (!Inventory.InventoryScreenRenderer.BoundsContain(grid, tx, ty)
+                && !Inventory.InventoryScreenRenderer.BoundsContain(Inventory.InventoryScreenRenderer.LastPaperDollBounds, tx, ty))
+                return false;
+
+            int freeTop = Inventory.InventoryScreenRenderer.LastBagGridFreeTopY;
+            if (grid.Width >= 12 && freeTop > 0)
+            {
+                int x = Math.Max(innerLeft, grid.X);
+                int w = Math.Min(52, Math.Min(innerRight, grid.X + grid.Width - 1) - x + 1);
+                if (w >= 12 && freeTop + boxHeightForWidth(w) - 1 <= maxBoxBottom)
+                {
+                    dockX = x;
+                    dockY = freeTop;
+                    dockW = w;
+                    return true;
+                }
+            }
+
+            var pane = Inventory.InventoryScreenRenderer.LastDetailPaneBounds;
+            if (pane.Width < 12 || pane.Height <= 0)
+                return false;
+            dockX = Math.Max(innerLeft, pane.X);
+            int right = Math.Min(innerRight, pane.X + pane.Width - 1);
+            dockW = Math.Min(52, right - dockX + 1);
+            dockY = -1;
+            return dockW >= 12;
+        }
+
+        /// <summary>
         /// Draws a text box in the top of the framed center panel when the pointer hovers an action strip card.
         /// Clears a band of the combat log area first so text remains readable.
         /// </summary>
@@ -417,18 +459,29 @@ namespace RPGGame.UI.Avalonia.Renderers
                     targetX,
                     targetWidth);
             }
+            int maxBoxBottom = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT - 2;
+            int BoxHeightForWidth(int w) => 2 + (hasColoredItemTooltip
+                ? HoverTooltipColoredDrawing.CountDisplayRows(coloredItemLines!, Math.Max(4, w - 2), maxTooltipLines)
+                : tipLines!.Count);
+            // Inventory grid / paper doll hover: dock below the bag tiles (else the description pane) so the tip never covers item tiles.
+            int? dockedY = null;
+            if (leftPanelTooltipActive
+                && TryGetInventoryTooltipDock(innerLeft, innerRight, maxBoxBottom, BoxHeightForWidth, out int dockX, out int dockY, out int dockW))
+            {
+                boxWFinal = dockW;
+                idealX = dockX;
+                if (dockY >= 0)
+                    dockedY = dockY;
+            }
             int boxX = Math.Max(innerLeft, Math.Min(idealX, innerRight - boxWFinal + 1));
             int innerTextWDraw = Math.Max(4, boxWFinal - 2);
 
-            int contentRows = hasColoredItemTooltip
-                ? HoverTooltipColoredDrawing.CountDisplayRows(coloredItemLines!, innerTextWDraw, maxTooltipLines)
-                : tipLines!.Count;
-            int boxH = contentRows + 2;
-            int maxBoxBottom = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT - 2;
-            int boxY = hoverTargetY.HasValue
-                ? HoverTooltipDrawing.GetVerticalPositionNearTarget(
-                    hoverTargetY.Value, boxH, innerTop, maxBoxBottom)
-                : innerTop;
+            int boxH = BoxHeightForWidth(boxWFinal);
+            int boxY = dockedY
+                ?? (hoverTargetY.HasValue
+                    ? HoverTooltipDrawing.GetVerticalPositionNearTarget(
+                        hoverTargetY.Value, boxH, innerTop, maxBoxBottom)
+                    : innerTop);
             if (boxY + boxH - 1 > maxBoxBottom)
                 boxY = Math.Max(innerTop, maxBoxBottom - boxH + 1);
 

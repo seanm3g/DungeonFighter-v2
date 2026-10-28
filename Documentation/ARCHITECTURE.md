@@ -71,7 +71,7 @@ DungeonFighter/
 - **`Code/Data/SkillTreesSheetConverter.cs`** - Class Upgrades sheet (gid `829575756`) ↔ `SkillTrees.json` flatten/nest for Sheets pull/push (includes `SharedWith`)
 - **`Code/Data/VariablesSheetConverter.cs`** - VARIABLES sheet (gid `1650964207`) ↔ active balance-patch scalar leaves (`property`/`value`; skips `classPresentation`)
 - **`Code/Game/SkillTree/SkillTreeService.cs`** - Learn API, node view state, action unlock names, Concept A shared-rail display model (`BuildDisplayModel` / `GetSharedRailNodes`)
-- **`Code/Game/SkillTree/SkillEffectRouter.cs`** - CombatEventBus passive/rule/mastery runtime; `GetSkillAttributeBonus` standing rite attributes (Puberty adds hero level to STR, Commission +15 AGI, Initiation +15 TEC, Apprenticeship +15 INT) folded into effective stats; `CollectActionCardBonuses` previews standing swing bonuses for action cards
+- **`Code/Game/SkillTree/SkillEffectRouter.cs`** - CombatEventBus passive/rule/mastery runtime; `GetSkillAttributeBonus` standing rite attributes (Puberty +10 STR, Commission +10 AGI, Initiation +10 TEC, Apprenticeship +10 INT) folded into effective stats; `CollectActionCardBonuses` previews standing swing bonuses for action cards
 - **`Code/Game/SkillTreeMenuHandler.cs`** - GameLoop hub (`GameState.SkillTree`) learn UI (no respec); primary tree + optional shared secondary rail
 
 ### **Character Actions System (Phase 1 Refactoring ✅ COMPLETE)**

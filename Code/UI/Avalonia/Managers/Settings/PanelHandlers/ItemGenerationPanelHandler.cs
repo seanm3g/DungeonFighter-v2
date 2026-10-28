@@ -237,6 +237,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             {
                 if (!TryReadRow(p, rarity, out var row, out _))
                     return;
+                // The panel has no affix-roll fields: keep the authored ones instead of dropping them on save.
+                if (_affixScratch.TryGetValue(slotKey, out var prev) && prev != null && prev.TryGetValue(rarity, out var prevRow) && prevRow != null)
+                {
+                    row.AffixRolls = prevRow.AffixRolls;
+                    row.AffixRollChance = prevRow.AffixRollChance;
+                }
                 dict[rarity] = row;
             }
 

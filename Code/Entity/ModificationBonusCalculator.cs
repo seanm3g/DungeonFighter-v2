@@ -20,24 +20,51 @@ namespace RPGGame
         /// <summary>
         /// Gets magic find bonus from modifications.
         /// </summary>
-        public int GetMagicFind() => GetModificationBonusInt("magicFind");
+        public int GetMagicFind() => GetModificationBonusInt("MAGICFIND");
 
         /// <summary>
         /// Gets roll bonus from modifications.
         /// </summary>
-        public int GetRollBonus() => GetModificationBonusInt("rollBonus");
+        public int GetRollBonus() => GetModificationBonusInt("ROLLBONUS");
 
         /// <summary>
-        /// Gets damage bonus from modifications.
+        /// Gets flat damage bonus from modifications (Heavy, Brutal).
         /// </summary>
-        public int GetDamageBonus() => GetModificationBonusInt("damage");
+        public int GetDamageBonus() => GetModificationBonusInt("DAMAGE");
 
         /// <summary>
-        /// Gets speed multiplier from modifications (multiplicative).
+        /// Gets extra hits per attack from MULTI-HIT modifications (Light, Acrobatic).
+        /// </summary>
+        public int GetMultiHitBonus() => Math.Max(0, GetModificationBonusInt("MULTIHIT"));
+
+        /// <summary>
+        /// Gets the AMP bonus from modifications (Keen 0.05, refined 0.1) as a fraction: 0.1 = +10% on the base per-step AMP. Additive across items.
+        /// </summary>
+        public double GetAmpBonus()
+        {
+            double total = 0;
+            foreach (var item in slots.GetEquippedItems())
+            {
+                if (item == null)
+                    continue;
+                foreach (var modification in item.Modifications)
+                {
+                    if (EffectKey(modification.Effect) == "AMP")
+                        total += modification.RolledValue;
+                }
+            }
+
+            return Math.Max(0, total);
+        }
+
+        /// <summary>
+        /// Gets speed multiplier from modifications (multiplicative; above 1 is faster).
+        /// SPEED mods (Featherweight 0.5, Nimble 0.25) are percent faster: 0.5 ⇒ ×1.5, i.e. attack time ÷ 1.5.
         /// </summary>
         public double GetSpeedMultiplier()
         {
             double totalMultiplier = 1.0;
+            double speedPct = 0;
 
             var equippedItems = slots.GetEquippedItems();
             foreach (var item in equippedItems)
@@ -50,12 +77,23 @@ namespace RPGGame
                         {
                             totalMultiplier *= modification.RolledValue;
                         }
+                        else if (EffectKey(modification.Effect) == "SPEED")
+                        {
+                            speedPct += modification.RolledValue;
+                        }
                     }
                 }
             }
 
-            return totalMultiplier;
+            return totalMultiplier * (1.0 + Math.Max(0, speedPct));
         }
+
+        /// <summary>
+        /// Effect name as a match key: upper case without spaces, dashes or underscores ("MAGIC FIND" / "magicFind" ⇒ "MAGICFIND").
+        /// </summary>
+        private static string EffectKey(string? effect) =>
+            (effect ?? "").Replace(" ", "", StringComparison.Ordinal).Replace("-", "", StringComparison.Ordinal)
+                .Replace("_", "", StringComparison.Ordinal).ToUpperInvariant();
 
         /// <summary>
         /// Gets damage multiplier from modifications (multiplicative).
@@ -110,7 +148,7 @@ namespace RPGGame
         /// <summary>
         /// Gets godlike bonus from modifications.
         /// </summary>
-        public int GetGodlikeBonus() => GetModificationBonusInt("godlike");
+        public int GetGodlikeBonus() => GetModificationBonusInt("GODLIKE");
 
         /// <summary>Total bleed intensity added per successful weapon hit (weapon slot only).</summary>
         public int GetWeaponBleedPerHit()
@@ -301,7 +339,8 @@ namespace RPGGame
         /// <summary>
         /// Gets a modification bonus as an integer (additive).
         /// </summary>
-        private int GetModificationBonusInt(string effectType)
+        /// <param name="effectKey">Match key as built by <see cref="EffectKey"/> (e.g. "MAGICFIND").</param>
+        private int GetModificationBonusInt(string effectKey)
         {
             int totalBonus = 0;
 
@@ -312,9 +351,9 @@ namespace RPGGame
                 {
                     foreach (var modification in item.Modifications)
                     {
-                        if (modification.Effect == effectType)
+                        if (EffectKey(modification.Effect) == effectKey)
                         {
-                            totalBonus += (int)modification.RolledValue;
+                            totalBonus += (int)Math.Round(modification.RolledValue);
                         }
                     }
                 }

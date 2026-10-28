@@ -215,7 +215,7 @@ namespace RPGGame
                 "hero_action_damage" => "This swing damage",
                 "hero_action_speed" => "This swing speed",
                 "hero_action_amp" => "This swing amp",
-                "armor" or "hero_armor" => "Armor",
+                "armor" or "hero_armor" => "Defense",
                 "grant_action_tag" => "Grant action tag",
                 "grant_action" => "Grant action",
                 "expose" => "Expose",

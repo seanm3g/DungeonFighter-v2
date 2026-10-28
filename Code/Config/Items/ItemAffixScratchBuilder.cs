@@ -99,7 +99,9 @@ namespace RPGGame
                 ActionBonusesMax = e.ActionBonusesMax,
                 ExtraComboSlots = e.ExtraComboSlots,
                 ExtraComboSlotsExtraChance = e.ExtraComboSlotsExtraChance,
-                ExtraComboSlotsMax = e.ExtraComboSlotsMax
+                ExtraComboSlotsMax = e.ExtraComboSlotsMax,
+                AffixRolls = e.AffixRolls,
+                AffixRollChance = e.AffixRollChance
             };
 
         /// <summary>
