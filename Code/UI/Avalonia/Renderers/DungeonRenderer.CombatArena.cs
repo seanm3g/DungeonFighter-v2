@@ -209,9 +209,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.AddText(dx + (dw - face.Length) / 2, dy + dh / 2, face, color);
         }
 
-        /// <summary>Active status effects as short colored tags, one per row, under the portrait.</summary>
+        /// <summary>Active status effects as short colored tags, one per row, under the portrait; each tag follows its
+        /// status icon (GameData/StatusArt) in a square 2x1 cell when the effect has one.</summary>
         private void RenderArenaStatus(Actor actor, (int X, int Y, int W, int H) r, bool alignRight)
         {
+            const int iconCols = 2;
             var chips = ArenaStatusChips(actor);
             if (chips.Count == 0)
                 return;
@@ -219,50 +221,56 @@ namespace RPGGame.UI.Avalonia.Renderers
             AddBoardBox(r.X, r.Y, r.W, rows + 2, BoardDimBorder, ArenaStatusFill);
             for (int i = 0; i < rows; i++)
             {
-                var (text, color) = chips[i];
+                var (text, color, effect) = chips[i];
                 if (i == rows - 1 && chips.Count > rows)
-                    (text, color) = ($"+{chips.Count - rows} more", AsciiArtAssets.Colors.Gray);
-                text = Truncate(text, r.W - 2);
-                canvas.AddText(alignRight ? r.X + r.W - 1 - text.Length : r.X + 1, r.Y + 1 + i, text, color);
+                    (text, color, effect) = ($"+{chips.Count - rows} more", AsciiArtAssets.Colors.Gray, null);
+                bool hasIcon = StatusIconArt.TryGetIcon(effect, out var icon, out var iconRect);
+                int lead = hasIcon ? iconCols + 1 : 0;
+                text = Truncate(text, r.W - 2 - lead);
+                int textX = alignRight ? r.X + r.W - 1 - text.Length : r.X + 1 + lead;
+                if (hasIcon)
+                    canvas.AddImage(textX - lead, r.Y + 1 + i, iconCols, 1, icon, iconRect, paddingPixels: 1);
+                canvas.AddText(textX, r.Y + 1 + i, text, color);
             }
         }
 
-        private static List<(string Text, Color Color)> ArenaStatusChips(Actor a)
+        private static List<(string Text, Color Color, string? Effect)> ArenaStatusChips(Actor a)
         {
-            var chips = new List<(string, Color)>();
-            void Add(bool on, string text, Color color)
+            var chips = new List<(string, Color, string?)>();
+            void Add(bool on, string text, Color color, string? effect = null)
             {
                 if (on)
-                    chips.Add((text, color));
+                    chips.Add((text, color, effect));
             }
-            Add(a.PoisonPercentOfMaxHealth > 0, $"PSN {a.PoisonPercentOfMaxHealth:0.#}%", Color.FromRgb(90, 220, 60));
+            Add(a.PoisonPercentOfMaxHealth > 0, $"PSN {a.PoisonPercentOfMaxHealth:0.#}%", Color.FromRgb(90, 220, 60), "poison");
             int bleed = a.BleedIntensity + a.PendingBleedFromHits;
-            Add(bleed > 0, $"BLD {bleed}", AsciiArtAssets.Colors.Red);
+            Add(bleed > 0, $"BLD {bleed}", AsciiArtAssets.Colors.Red, "bleed");
             int burn = a.BurnIntensity + a.PendingBurnFromHits;
-            Add(burn > 0, $"BRN {burn}", AsciiArtAssets.Colors.Orange);
+            Add(burn > 0, $"BRN {burn}", AsciiArtAssets.Colors.Orange, "burn");
             int acid = a.AcidIntensity + a.PendingAcidFromHits;
-            Add(acid > 0 || a.AcidArmorReduction > 0, acid > 0 ? $"ACD {acid}" : $"ACD -{a.AcidArmorReduction}AR", Color.FromRgb(200, 230, 60));
-            Add(a.IsStunned && a.StunTurnsRemaining > 0, $"STN {a.StunTurnsRemaining}t", AsciiArtAssets.Colors.Yellow);
-            Add(a.IsWeakened && a.WeakenTurns > 0, $"WEAK {a.WeakenTurns}t", AsciiArtAssets.Colors.Gray);
+            Add(acid > 0 || a.AcidArmorReduction > 0, acid > 0 ? $"ACD {acid}" : $"ACD -{a.AcidArmorReduction}AR", Color.FromRgb(200, 230, 60), "acid");
+            Add(a.IsStunned && a.StunTurnsRemaining > 0, $"STN {a.StunTurnsRemaining}t", AsciiArtAssets.Colors.Yellow, "stun");
+            Add(a.IsWeakened && a.WeakenTurns > 0, $"WEAK {a.WeakenTurns}t", AsciiArtAssets.Colors.Gray, "weaken");
             Add(a.RollPenalty != 0 && a.RollPenaltyTurns > 0, $"ACC -{a.RollPenalty}", AsciiArtAssets.Colors.Gray);
-            Add(a.VulnerabilityStacks > 0 && a.VulnerabilityTurns > 0, $"VULN x{a.VulnerabilityStacks}", AsciiArtAssets.Colors.Magenta);
-            Add(a.ExposeStacks > 0 && a.ExposeTurns > 0, $"EXPO x{a.ExposeStacks}", AsciiArtAssets.Colors.Magenta);
-            Add(a.ArmorBreakStacks > 0 && a.ArmorBreakTurns > 0, $"ABRK x{a.ArmorBreakStacks}", AsciiArtAssets.Colors.Orange);
-            Add(a.IsMarked && a.MarkTurns > 0, $"MARK {a.MarkTurns}t", AsciiArtAssets.Colors.Red);
-            Add(a.IsConfused && a.ConfusionTurns > 0, $"CONF {a.ConfusionTurns}t", AsciiArtAssets.Colors.Purple);
-            Add(a.IsSilenced && a.SilenceTurns > 0, $"SIL {a.SilenceTurns}t", AsciiArtAssets.Colors.Purple);
+            Add(a.VulnerabilityStacks > 0 && a.VulnerabilityTurns > 0, $"VULN x{a.VulnerabilityStacks}", AsciiArtAssets.Colors.Magenta, "vulnerability");
+            Add(a.ExposeStacks > 0 && a.ExposeTurns > 0, $"EXPO x{a.ExposeStacks}", AsciiArtAssets.Colors.Magenta, "expose");
+            Add(a.ArmorBreakStacks > 0 && a.ArmorBreakTurns > 0, $"ABRK x{a.ArmorBreakStacks}", AsciiArtAssets.Colors.Orange, "armorbreak");
+            Add(a.StatDrainStacks > 0 && a.StatDrainTurns > 0, $"DRAN x{a.StatDrainStacks}", AsciiArtAssets.Colors.Purple, "statdrain");
+            Add(a.IsMarked && a.MarkTurns > 0, $"MARK {a.MarkTurns}t", AsciiArtAssets.Colors.Red, "mark");
+            Add(a.IsConfused && a.ConfusionTurns > 0, $"CONF {a.ConfusionTurns}t", AsciiArtAssets.Colors.Purple, "confusion");
+            Add(a.IsSilenced && a.SilenceTurns > 0, $"SIL {a.SilenceTurns}t", AsciiArtAssets.Colors.Purple, "silence");
             Add(a.HasCriticalMissPenalty && a.CriticalMissPenaltyTurns > 0, $"FUMBLE {a.CriticalMissPenaltyTurns}t", AsciiArtAssets.Colors.Gray);
-            Add(a.HardenStacks > 0 && a.HardenTurns > 0, $"HARD x{a.HardenStacks}", AsciiArtAssets.Colors.Cyan);
-            Add(a.FortifyStacks > 0 && a.FortifyTurns > 0, $"FORT x{a.FortifyStacks}", AsciiArtAssets.Colors.Cyan);
-            Add(a.FocusStacks > 0 && a.FocusTurns > 0, $"FOCS x{a.FocusStacks}", AsciiArtAssets.Colors.Cyan);
+            Add(a.HardenStacks > 0 && a.HardenTurns > 0, $"HARD x{a.HardenStacks}", AsciiArtAssets.Colors.Cyan, "harden");
+            Add(a.FortifyStacks > 0 && a.FortifyTurns > 0, $"FORT x{a.FortifyStacks}", AsciiArtAssets.Colors.Cyan, "fortify");
+            Add(a.FocusStacks > 0 && a.FocusTurns > 0, $"FOCS x{a.FocusStacks}", AsciiArtAssets.Colors.Cyan, "focus");
             Add(a.ReflectStacks > 0 && a.ReflectTurns > 0, $"REFL x{a.ReflectStacks}", AsciiArtAssets.Colors.Cyan);
-            Add(a.HasPierce && a.PierceTurns > 0, $"PIRC {a.PierceTurns}t", AsciiArtAssets.Colors.Cyan);
-            Add(a.HasAbsorb && a.AbsorbTurns > 0, $"ABSB {a.AbsorbTurns}t", AsciiArtAssets.Colors.Cyan);
-            Add(a.TemporaryHP > 0 && a.TemporaryHPTurns > 0, $"THP {a.TemporaryHP}", AsciiArtAssets.Colors.Green);
-            Add(a.HPRegenStacks > 0 && a.HPRegenTurns > 0, $"REGN x{a.HPRegenStacks}", AsciiArtAssets.Colors.Green);
+            Add(a.HasPierce && a.PierceTurns > 0, $"PIRC {a.PierceTurns}t", AsciiArtAssets.Colors.Cyan, "pierce");
+            Add(a.HasAbsorb && a.AbsorbTurns > 0, $"ABSB {a.AbsorbTurns}t", AsciiArtAssets.Colors.Cyan, "absorb");
+            Add(a.TemporaryHP > 0 && a.TemporaryHPTurns > 0, $"THP {a.TemporaryHP}", AsciiArtAssets.Colors.Green, "temporaryhp");
+            Add(a.HPRegenStacks > 0 && a.HPRegenTurns > 0, $"REGN x{a.HPRegenStacks}", AsciiArtAssets.Colors.Green, "hpregen");
             if (a is Character ch)
             {
-                Add(ch.Effects.SlowTurns > 0, $"SLOW {ch.Effects.SlowTurns}t", AsciiArtAssets.Colors.Blue);
+                Add(ch.Effects.SlowTurns > 0, $"SLOW {ch.Effects.SlowTurns}t", AsciiArtAssets.Colors.Blue, "slow");
                 Add(ch.Effects.HasShield, "SHIELD", AsciiArtAssets.Colors.Cyan);
                 Add(ch.Effects.SkipNextTurn, "SKIP", AsciiArtAssets.Colors.Gray);
                 Add(ch.Effects.GuaranteeNextSuccess, "SURE HIT", AsciiArtAssets.Colors.Gold);

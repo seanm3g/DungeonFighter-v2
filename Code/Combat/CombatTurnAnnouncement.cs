@@ -4,19 +4,13 @@ using System.Threading.Tasks;
 namespace RPGGame
 {
     /// <summary>
-    /// Full-screen "whose turn" callout for on-screen fights. The combat loop calls <see cref="AnnounceAsync"/> as each
-    /// turn begins; when the turn passes to a different actor it raises the callout and holds the loop while it plays,
-    /// so nothing happens underneath it. The canvas paints it from <see cref="Current"/>. Turn numbers count handovers
-    /// and restart with each fight (<see cref="CombatTurnQueue.Bind"/>). <see cref="AnnounceDefeatAsync"/> raises the same
-    /// callout as a kill when the enemy falls.
+    /// Full-screen kill callout for on-screen fights: <see cref="AnnounceDefeatAsync"/> raises it when the enemy falls
+    /// and holds the loop while it plays; the canvas paints it from <see cref="Current"/>. The combat loop also calls
+    /// <see cref="AnnounceAsync"/> as each turn begins, which only counts handovers (restarting with each fight,
+    /// <see cref="CombatTurnQueue.Bind"/>); turns no longer get a callout.
     /// </summary>
     public static class CombatTurnAnnouncement
     {
-        /// <summary>Pacing input, scaled by the combat speed setting: about 1.1s on screen at 1x.</summary>
-        public const int BaseDurationMs = 550;
-
-        private const int MinDurationMs = 1000;
-
         private static readonly object Gate = new();
         private static Actor? _lastActor;
         private static Actor? _showing;
@@ -26,7 +20,7 @@ namespace RPGGame
         private static int _durationMs;
         private static System.Action? _requestInvalidate;
 
-        /// <summary>Pacing input for the kill callout, scaled like <see cref="BaseDurationMs"/>: about 1.8s at 1x.</summary>
+        /// <summary>Pacing input for the kill callout, scaled by the combat speed setting: about 1.8s at 1x.</summary>
         public const int DefeatBaseDurationMs = 900;
 
         private const int MinDefeatDurationMs = 1600;
@@ -58,23 +52,23 @@ namespace RPGGame
             }
         }
 
-        /// <summary>Raises the callout when <paramref name="actor"/> takes over from someone else, and waits it out.</summary>
-        public static async Task AnnounceAsync(Actor actor)
+        /// <summary>
+        /// Counts a handover when <paramref name="actor"/> takes over from someone else. The turn itself no longer gets a
+        /// callout (the views show whose turn it is), so nothing holds the loop here.
+        /// </summary>
+        public static Task AnnounceAsync(Actor actor)
         {
             if (!CombatTurnQueue.IsBound || CombatManager.DisableCombatUIOutput || UIManager.GetCustomUIManager() == null)
-                return;
-            int ms = DeveloperModeState.ScaleDelayMs(BaseDurationMs);
+                return Task.CompletedTask;
             lock (Gate)
             {
-                if (ReferenceEquals(actor, _lastActor))
-                    return;
-                _lastActor = actor;
-                _turnNumber++;
-                if (ms <= 0)
-                    return;
-                ms = Math.Max(MinDurationMs, ms);
+                if (!ReferenceEquals(actor, _lastActor))
+                {
+                    _lastActor = actor;
+                    _turnNumber++;
+                }
             }
-            await ShowAsync(actor, ms, defeated: false);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -86,10 +80,13 @@ namespace RPGGame
             if (!CombatTurnQueue.IsBound || CombatManager.DisableCombatUIOutput || UIManager.GetCustomUIManager() == null)
                 return;
             int ms = DeveloperModeState.ScaleDelayMs(DefeatBaseDurationMs);
-            if (ms <= 0)
+            if (ms <= 0 || ArenaHidesCallouts)
                 return;
             await ShowAsync(enemy, Math.Max(MinDefeatDurationMs, ms), defeated: true);
         }
+
+        /// <summary>The arena view skips the kill callout (and its hold); its plates already show the fall.</summary>
+        private static bool ArenaHidesCallouts => RPGGame.UI.Avalonia.Layout.CombatBoardLayout.ShouldBeArena(GameState.Combat);
 
         private static async Task ShowAsync(Actor actor, int ms, bool defeated)
         {

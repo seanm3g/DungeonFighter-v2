@@ -63,6 +63,8 @@ namespace RPGGame.UI.Avalonia.Layout
                 lines.Add($"HP Regen x{actor.HPRegenStacks} ({actor.HPRegenTurns}t)");
             if (actor.ArmorBreakStacks > 0 && actor.ArmorBreakTurns > 0)
                 lines.Add($"Armor brk x{actor.ArmorBreakStacks} ({actor.ArmorBreakTurns}t)");
+            if (actor.StatDrainStacks > 0 && actor.StatDrainTurns > 0)
+                lines.Add($"Stat drain x{actor.StatDrainStacks} ({actor.StatDrainTurns}t)");
             if (actor.HasPierce && actor.PierceTurns > 0)
                 lines.Add($"Pierce ({actor.PierceTurns} turn{(actor.PierceTurns != 1 ? "s" : "")})");
             if (actor.ReflectStacks > 0 && actor.ReflectTurns > 0)

@@ -118,12 +118,21 @@ namespace RPGGame.UI.Avalonia.Renderers
             int stripY = LayoutConstants.ACTION_INFO_Y;
             int stripW = LayoutConstants.ACTION_INFO_WIDTH;
             int stripH = LayoutConstants.ACTION_INFO_HEIGHT;
+
+            // Between fights the log box runs down through the strip band (completion footer menu included), so the
+            // band is the log's to paint — clearing it here would erase the bottom of that box. The hero strip only
+            // returns for the next fight.
+            if (CombatBoardLayout.IsBetweenFights)
+            {
+                ComboTension.Track(null);
+                return;
+            }
+
             canvas.ClearTextInArea(stripX, stripY, stripW, stripH);
             canvas.ClearBoxesInArea(stripX, stripY, stripW, stripH);
 
-            // Between fights the log box runs down through the strip band; the hero strip only returns for the next fight.
             // The arena brings the strip up at the end of its entrance.
-            if (player == null || CombatBoardLayout.IsBetweenFights || (CombatBoardLayout.IsArena && !CombatArenaIntro.ShowsBelowPlates))
+            if (player == null || (CombatBoardLayout.IsArena && !CombatArenaIntro.ShowsBelowPlates))
             {
                 ComboTension.Track(null);
                 return;

@@ -599,9 +599,13 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (enemyEffects.Count > 0)
                 {
                     int toShow = Math.Min(enemyEffects.Count, maxEnemyEffectLines);
+                    // each line follows its status icon (GameData/StatusArt): a square 2x1 cell after the indent
+                    const int iconCols = 2;
                     for (int i = 0; i < toShow; i++)
                     {
-                        string line = "  " + enemyEffects[i];
+                        if (StatusIconArt.TryGetIconForLine(enemyEffects[i], out var icon, out var iconRect))
+                            canvas.AddImage(x + 2, y, iconCols, 1, icon, iconRect, paddingPixels: 1);
+                        string line = "  " + new string(' ', iconCols + 1) + enemyEffects[i];
                         if (line.Length > maxLineLen)
                             line = line.Substring(0, maxLineLen - 3) + "...";
                         canvas.AddText(x, y, line, AsciiArtAssets.Colors.White);

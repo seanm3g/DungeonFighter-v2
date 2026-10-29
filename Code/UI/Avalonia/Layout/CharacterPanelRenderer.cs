@@ -355,7 +355,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 PanelText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.StatusEffects), AsciiArtAssets.Colors.Gold);
                 y += 2;
                 const int maxHeroEffectLines = 5;
-                const int maxHeroLineLen = 29;
+                // each line follows its status icon (GameData/StatusArt): a square 2x1 cell, then a space
+                const int iconCols = 2;
+                const int maxHeroLineLen = 29 - iconCols - 1;
                 var heroEffects = StatusEffectDisplayLines.Build(character, character);
                 if (heroEffects.Count > 0)
                 {
@@ -363,9 +365,11 @@ namespace RPGGame.UI.Avalonia.Layout
                     {
                         int effectRowY = y;
                         string line = heroEffects[i];
+                        if (LeftPanelViewport.IsRowVisible(y) && StatusIconArt.TryGetIconForLine(line, out var icon, out var iconRect))
+                            canvas.AddImage(x, y, iconCols, 1, icon, iconRect, paddingPixels: 1);
                         if (line.Length > maxHeroLineLen)
                             line = line.Substring(0, maxHeroLineLen - 3) + "...";
-                        PanelText(x, y, line, AsciiArtAssets.Colors.White);
+                        PanelText(x + iconCols + 1, y, line, AsciiArtAssets.Colors.White);
                         if (interactionManager != null && stateManager != null)
                             RegisterLeftPanelHoverRow(x, effectRowY, headerClickWidth, 1, "status:" + i);
                         y++;
