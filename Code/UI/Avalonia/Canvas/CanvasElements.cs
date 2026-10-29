@@ -146,6 +146,8 @@ namespace RPGGame.UI.Avalonia.Canvas
         public System.Collections.Generic.IReadOnlyList<double>? DividerFractions { get; set; }
         /// <summary>Health bar (from AddHealthBar); the combat turn scrim never dims these.</summary>
         public bool IsHealthBar { get; set; }
+        /// <summary>Drawn mirrored: the fill is anchored at the right edge and drains toward the left.</summary>
+        public bool FillFromRight { get; set; }
     }
 
     public class CanvasBarSegment

@@ -57,7 +57,7 @@ namespace RPGGame.UI.Avalonia.Help
 
             new("Page Up / Page Down", "Combat speed ladder (1x → 2x → 5x → 20x)", "Combat"),
             new("F7", "Cycle combat mode: board (default) → combat log → narrative log", "Combat"),
-            new("F9", "Toggle combat board: enemy strip top, combo flow center, your strip bottom (default on)", "Combat"),
+            new("F9", "Cycle combat view: arena (both plates and strips on top, log center) → board (combo flow) → log", "Combat"),
             new("F5", "Toggle narrative video feed overlay (default off); on title/main menu replays the intro", "Combat"),
             new("F10", "Toggle dev mode: skip combat, room, and travel delays (default off)", "Combat"),
             new("Ctrl+C / Cmd+C", "Copy the full combat/dungeon text log as plain text", "Combat"),

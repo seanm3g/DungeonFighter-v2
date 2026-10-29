@@ -442,8 +442,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 int cw = cardW;
                 bool isSel = i == selected;
-                Color border = isSel ? AsciiArtAssets.Colors.White : BoardDimBorder;
-                int thickness = isSel ? 2 : 1;
+                bool played = CombatBoardLayout.IsArena && selected >= 0 && i < selected;
+                Color border = isSel ? AsciiArtAssets.Colors.White : played ? ArenaEnemyPlayedBorder : BoardDimBorder;
+                int thickness = isSel || played ? 2 : 1;
                 if (isSel && swing != null)
                 {
                     // The firing card flares red on ATTACKER's result beat, holds through the roll, then wears its outcome.

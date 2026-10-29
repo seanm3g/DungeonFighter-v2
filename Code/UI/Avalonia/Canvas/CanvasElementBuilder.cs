@@ -311,7 +311,8 @@ namespace RPGGame.UI.Avalonia.Canvas
             string? entityId = null,
             double heightScale = 1.0,
             double verticalOffsetScale = 0.0,
-            System.Collections.Generic.IReadOnlyList<double>? dividerFractions = null)
+            System.Collections.Generic.IReadOnlyList<double>? dividerFractions = null,
+            bool fillFromRight = false)
         {
             if (healthColor == default) healthColor = Colors.Red;
             if (backgroundColor == default) backgroundColor = Colors.DarkRed;
@@ -371,7 +372,8 @@ namespace RPGGame.UI.Avalonia.Canvas
                 HeightScale = heightScale,
                 VerticalOffsetScale = verticalOffsetScale,
                 DividerFractions = dividerFractions,
-                IsHealthBar = true
+                IsHealthBar = true,
+                FillFromRight = fillFromRight
             };
 
             if (!string.IsNullOrEmpty(entityId))

@@ -199,6 +199,12 @@ namespace RPGGame.UI.Avalonia.Display.Render
                         layoutCharacter,
                         (x, y, w, h) =>
                         {
+                            if (RPGGame.UI.Avalonia.Layout.CombatBoardLayout.IsArena)
+                            {
+                                if (layoutCharacter != null && enemyToRender != null)
+                                    dungeonRenderer.RenderCombatArena(layoutCharacter, enemyToRender, buffer, contextManager.GetCombatLogEnemyAlignmentNames());
+                                return;
+                            }
                             if (RPGGame.UI.Avalonia.Layout.CombatBoardLayout.IsActive)
                             {
                                 if (layoutCharacter != null && enemyToRender != null)

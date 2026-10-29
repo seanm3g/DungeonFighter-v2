@@ -41,7 +41,7 @@ namespace RPGGame.UI.Avalonia.Display
         public void Render(DisplayBuffer buffer, int contentX, int contentY, int contentWidth, int contentHeight, bool clearContent = true, IReadOnlyList<string>? combatEnemyNamesForPrimaryLineRightAlign = null, string? combatHeroNameForLineAlignment = null)
         {
             // The combat board owns the center column; the log would clear its cards.
-            if (CombatBoardLayout.IsActive && !CombatBoardLayout.IsPaintingBoardLog)
+            if ((CombatBoardLayout.IsActive || CombatBoardLayout.IsArena) && !CombatBoardLayout.IsPaintingBoardLog)
                 return;
 
             var rows = buffer.GetLast(buffer.MaxLines);

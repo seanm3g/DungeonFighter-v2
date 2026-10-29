@@ -173,6 +173,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "DeathScreenRenderer", () => RPGGame.Tests.Unit.UI.DeathScreenRendererTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "DisplayTiming", () => RPGGame.Tests.Unit.UI.DisplayTimingTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ColorSystemApplication", () => RPGGame.Tests.Unit.ColorSystemApplicationTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ColorSystemCore", () => RPGGame.Tests.Unit.ColorSystemCoreTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "DungeonCompletionHandler", () => RPGGame.Tests.Unit.Game.Handlers.DungeonCompletionHandlerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("actions", "ActionMechanics", () => RPGGame.Tests.Unit.Data.ActionMechanicsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("actions", "ActionSequence", () => RPGGame.Tests.Unit.ActionSequenceTests.RunAllTests()));

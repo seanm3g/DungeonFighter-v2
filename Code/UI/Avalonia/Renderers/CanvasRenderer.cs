@@ -215,6 +215,22 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             // Runs to the bottom of the grid: on the combat board the center column starts at row 0 and the hero strip
             // (and the interlude frame) reach the bottom, which CENTER_PANEL_HEIGHT leaves out.
+            if (Avalonia.Layout.CombatBoardLayout.IsArena)
+            {
+                // The arena has no side panels: the room runs behind the whole screen.
+                var screen = Avalonia.Layout.CombatArenaLayout.Screen();
+                return new Canvas.CanvasBackdrop
+                {
+                    X = 0,
+                    Y = 0,
+                    Width = screen.X * 2 + screen.W,
+                    Height = Math.Max(1, Avalonia.Layout.LayoutConstants.SCREEN_HEIGHT + 1),
+                    Source = bitmap,
+                    Look = look,
+                    InsetPixels = 0
+                };
+            }
+
             int y = Avalonia.Layout.LayoutConstants.CENTER_PANEL_Y;
             return new Canvas.CanvasBackdrop
             {

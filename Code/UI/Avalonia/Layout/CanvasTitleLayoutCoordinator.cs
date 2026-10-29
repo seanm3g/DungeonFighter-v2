@@ -52,6 +52,17 @@ namespace RPGGame.UI.Avalonia.Layout
             GameState? gameState = null,
             bool inDungeonRun = false)
         {
+            if (usePersistentChrome && CombatBoardLayout.IsArena)
+            {
+                // The arena paints the whole screen itself (plates, strips, log panel): no side panels or frames.
+                if (clearCanvas)
+                    canvas.Clear();
+                var log = CombatArenaLayout.Log();
+                renderCenterContent?.Invoke(log.X + 1, log.Y + 1, Math.Max(1, log.W - 2), Math.Max(1, log.H - 2));
+                RPGGame.UI.Avalonia.Help.HelpFooterHintRenderer.Render(canvas);
+                return;
+            }
+
             if (usePersistentChrome)
             {
                 if (clearCanvas)

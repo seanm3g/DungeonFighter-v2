@@ -1073,9 +1073,10 @@ namespace RPGGame.UI.Avalonia
             string? entityId = null,
             double heightScale = 1.0,
             double verticalOffsetScale = 0.0,
-            System.Collections.Generic.IReadOnlyList<double>? dividerFractions = null)
+            System.Collections.Generic.IReadOnlyList<double>? dividerFractions = null,
+            bool fillFromRight = false)
         {
-            elementBuilder.AddHealthBar(x, y, width, currentHealth, maxHealth, healthColor, backgroundColor, entityId, heightScale, verticalOffsetScale, dividerFractions);
+            elementBuilder.AddHealthBar(x, y, width, currentHealth, maxHealth, healthColor, backgroundColor, entityId, heightScale, verticalOffsetScale, dividerFractions, fillFromRight);
             
             // Start animation timer if damage delta is active
             if (!string.IsNullOrEmpty(entityId))

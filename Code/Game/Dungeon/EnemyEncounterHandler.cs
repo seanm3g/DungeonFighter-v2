@@ -137,6 +137,15 @@ namespace RPGGame
             {
                 stateManager.TransitionToState(GameState.Combat);
                 transitionedToCombatForReorder = true;
+
+                // Arena view: play its entrance and hold a beat before the first turn.
+                if (customUIManager is CanvasUICoordinator arenaUI
+                    && RPGGame.UI.Avalonia.Layout.CombatBoardLayout.ShouldBeArena(GameState.Combat))
+                {
+                    RPGGame.UI.Avalonia.Layout.CombatArenaIntro.Begin();
+                    arenaUI.RenderCombat(player, enemy, displayManager.CombatLog);
+                    await SimulationPacing.DelayForCombatSpeedAsync(RPGGame.UI.Avalonia.Layout.CombatArenaIntro.TotalMs);
+                }
             }
 
             bool playerWon = false;

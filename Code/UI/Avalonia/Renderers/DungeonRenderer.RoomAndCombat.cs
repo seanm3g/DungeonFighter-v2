@@ -60,6 +60,13 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void RenderCombatScreen(int x, int y, int width, int height, Dungeon? dungeon, Environment? room, Enemy enemy, ICanvasTextManager textManager, Character? player = null, List<string>? dungeonContext = null, IReadOnlyList<string>? combatEnemyNamesForLogAlignment = null)
         {
+            if (CombatBoardLayout.IsArena && player != null)
+            {
+                var arenaLog = (textManager as CanvasTextManager)?.GetDisplayManagerForCharacter(player).Buffer;
+                RenderCombatArena(player, enemy, arenaLog, combatEnemyNamesForLogAlignment);
+                return;
+            }
+
             if (CombatBoardLayout.IsActive && player != null)
             {
                 var boardLog = (textManager as CanvasTextManager)?.GetDisplayManagerForCharacter(player).Buffer;
@@ -115,7 +122,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.ClearBoxesInArea(stripX, stripY, stripW, stripH);
 
             // Between fights the log box runs down through the strip band; the hero strip only returns for the next fight.
-            if (player == null || CombatBoardLayout.IsBetweenFights)
+            // The arena brings the strip up at the end of its entrance.
+            if (player == null || CombatBoardLayout.IsBetweenFights || (CombatBoardLayout.IsArena && !CombatArenaIntro.ShowsBelowPlates))
             {
                 ComboTension.Track(null);
                 return;
@@ -149,6 +157,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 bool isFinisherSlot = !isEmptySlot && i < effectiveMaxSlots && ComboTension.IsFinisherNext(i, filled);
                 if (isFinisherSlot)
                     baseBorder = i == selectedIndex ? ComboTension.FinisherGold : ActionInfoStripLayout.DarkenRgb(ComboTension.FinisherGold, 0.45);
+                else if (isSpent && CombatBoardLayout.IsArena)
+                    baseBorder = ArenaHeroColor; // the arena keeps played cards outlined so the run so far reads at a glance
                 else if (isSpent)
                     baseBorder = ActionInfoStripLayout.DarkenRgb(AsciiArtAssets.Colors.NeutralGray70, 0.25);
                 bool flashActive = HeroActionStripFeedback.TryGetBorderOverride(i, out var flashColor);
@@ -173,7 +183,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     : 1;
                 // On the board the room backdrop runs behind the strip: fill the card so it stays solid when the
                 // turn scrim lifts (hover, or the hero's own turn), matching the enemy strip cards.
-                if (CombatBoardLayout.IsActive)
+                if (CombatBoardLayout.IsActive || CombatBoardLayout.IsArena)
                     AddBoardBox(px, py, pw, panelH, borderColor, BoardCardBackground, borderThick);
                 else
                     canvas.AddBorder(px, py, pw, panelH, borderColor, borderThick);
@@ -189,7 +199,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     continue;
 
                 DrawActionCardContent(player, panelData[i], comboForStrip[i], i, px, py, pw, panelH, damageLineMode,
-                    textBrightness: isSpent ? SpentCardTextBrightness : 1.0);
+                    textBrightness: isSpent && !CombatBoardLayout.IsArena ? SpentCardTextBrightness : 1.0);
             }
 
             if (anyBonusShimmer)

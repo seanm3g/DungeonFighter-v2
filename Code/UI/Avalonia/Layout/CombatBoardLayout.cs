@@ -14,8 +14,17 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>User preference (F9). When false, Combat keeps the classic strip + log layout.</summary>
         public static bool Enabled { get; private set; } = true;
 
-        /// <summary>True while the board owns the center column (Enabled and in Combat).</summary>
+        /// <summary>Which board paints combat while <see cref="Enabled"/>: the arena (default) or the combo-flow board.</summary>
+        public static CombatBoardStyle Style { get; private set; } = CombatBoardStyle.Arena;
+
+        /// <summary>True while the combo-flow board owns the center column (Enabled, Board style, in Combat).</summary>
         public static bool IsActive { get; private set; }
+
+        /// <summary>
+        /// True while the arena owns the whole screen in Combat (<see cref="CombatArenaLayout"/>): hero and enemy plates
+        /// across the top, both combo strips under them, the log in a centered panel. The side panels are not drawn.
+        /// </summary>
+        public static bool IsArena { get; private set; }
 
         /// <summary>
         /// Between fights of a dungeon run (room text, next-room choice) and on the completion / death screens while
@@ -31,7 +40,7 @@ namespace RPGGame.UI.Avalonia.Layout
         public static bool IsBetweenFights { get; private set; }
 
         /// <summary>Board geometry owns the center column: hero strip at the bottom, no sequence HUD band.</summary>
-        public static bool OwnsCenterColumn => IsActive || IsInterlude;
+        public static bool OwnsCenterColumn => IsActive || IsArena || IsInterlude;
 
         /// <summary>Middle view: false = previous / current / next combo cards, true = framed combat log. Click toggles.</summary>
         public static bool ShowLog { get; private set; }
@@ -70,13 +79,40 @@ namespace RPGGame.UI.Avalonia.Layout
             Enabled = !Enabled;
             if (OwnsCenterColumn && !Enabled)
                 _pendingTeardown = true;
+            if (IsArena && !Enabled)
+                _pendingArenaTeardown = true;
             IsActive = Enabled && IsActive;
+            IsArena = Enabled && IsArena;
             IsInterlude = Enabled && IsInterlude;
             IsBetweenFights = IsInterlude && IsBetweenFights;
             return Enabled;
         }
 
-        public static bool ShouldBeActive(GameState? state) => Enabled && state == GameState.Combat;
+        /// <summary>
+        /// F9: arena → board → log view → arena. Takes effect on the next <see cref="Sync"/>. Returns the label to show.
+        /// </summary>
+        public static string CycleView()
+        {
+            if (!Enabled)
+            {
+                Style = CombatBoardStyle.Arena;
+                Toggle();
+                return "Combat view: Arena";
+            }
+            if (Style == CombatBoardStyle.Arena)
+            {
+                Style = CombatBoardStyle.Board;
+                if (IsArena)
+                    _pendingArenaTeardown = true;
+                return "Combat view: Board";
+            }
+            Toggle();
+            return "Combat view: Log";
+        }
+
+        public static bool ShouldBeActive(GameState? state) => Enabled && Style == CombatBoardStyle.Board && state == GameState.Combat;
+
+        public static bool ShouldBeArena(GameState? state) => Enabled && Style == CombatBoardStyle.Arena && state == GameState.Combat;
 
         public static bool ShouldBeInterlude(GameState? state, bool inDungeonRun) =>
             Enabled && ((state == GameState.Dungeon && inDungeonRun)
@@ -89,10 +125,14 @@ namespace RPGGame.UI.Avalonia.Layout
             if (state == null)
                 return;
             bool next = ShouldBeActive(state);
-            bool nextInterlude = !next && ShouldBeInterlude(state, inDungeonRun);
+            bool nextArena = ShouldBeArena(state);
+            bool nextInterlude = !next && !nextArena && ShouldBeInterlude(state, inDungeonRun);
             if ((IsActive && !next) || (IsInterlude && !nextInterlude))
                 _pendingTeardown = true;
+            if (IsArena && !nextArena)
+                _pendingArenaTeardown = true;
             IsActive = next;
+            IsArena = nextArena;
             IsInterlude = nextInterlude;
             IsBetweenFights = nextInterlude && (state == GameState.Dungeon || state == GameState.DungeonCompletion);
         }
@@ -119,6 +159,7 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         private static bool _pendingTeardown;
+        private static bool _pendingArenaTeardown;
 
         /// <summary>
         /// After the board switches off or between fight and interlude (fight over, F9), removes what only the board paints in the center column:
@@ -127,6 +168,19 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         public static void TeardownIfNeeded(GameCanvasControl canvas)
         {
+            if (_pendingArenaTeardown && canvas != null)
+            {
+                // The arena paints across the whole grid, side panels included.
+                _pendingArenaTeardown = false;
+                _pendingTeardown = false;
+                int sw = LayoutConstants.SCREEN_WIDTH + 1, sh = LayoutConstants.SCREEN_HEIGHT + 1;
+                canvas.ClearTextInArea(0, 0, sw, sh);
+                canvas.ClearBoxesInArea(0, 0, sw, sh);
+                canvas.ClearProgressBarsInArea(0, 0, sw, sh);
+                canvas.ClearSegmentedBarsInArea(0, 0, sw, sh);
+                canvas.ClearLinesInArea(0, 0, sw, sh);
+                return;
+            }
             if (!_pendingTeardown || canvas == null)
                 return;
             _pendingTeardown = false;
@@ -139,5 +193,12 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.ClearSegmentedBarsInArea(x, 0, w, h);
             canvas.ClearLinesInArea(x, 0, w, h);
         }
+    }
+
+    /// <summary>Combat layouts the board setting (F9) switches between.</summary>
+    public enum CombatBoardStyle
+    {
+        Arena,
+        Board
     }
 }

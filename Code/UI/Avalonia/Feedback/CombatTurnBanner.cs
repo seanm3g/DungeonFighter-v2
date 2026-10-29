@@ -96,8 +96,11 @@ namespace RPGGame.UI.Avalonia.Feedback
             if (CombatTurnAnnouncement.Current is not { } call || charWidth <= 0 || charHeight <= 0)
                 return;
             int panelX = LayoutConstants.CENTER_PANEL_X;
+            int panelY = 0;
             int panelW = LayoutConstants.CENTER_PANEL_WIDTH;
             int panelH = LayoutConstants.ACTION_INFO_Y > 0 ? LayoutConstants.ACTION_INFO_Y : (int)(contentHeight / charHeight);
+            if (CombatBoardLayout.IsArena)
+                (panelX, panelY, panelW, panelH) = CombatArenaLayout.Log();
             if (panelW < 12 || panelH < 5)
                 return;
 
@@ -136,7 +139,7 @@ namespace RPGGame.UI.Avalonia.Feedback
             int innerH = big ? BlockFont.Height + 4 : 5;
             int boxW = innerW + 2, boxH = innerH + 2;
             int bx = panelX + (panelW - boxW) / 2;
-            int by = Math.Max(0, (panelH - boxH) / 2);
+            int by = panelY + Math.Max(0, (panelH - boxH) / 2);
 
             // Opening and closing, only the middle rows show, whole rows at a time, as if the box unrolls from its
             // center line; a one-row slit in the actor's color stands in for the box before it has room.

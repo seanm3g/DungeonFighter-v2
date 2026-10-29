@@ -448,13 +448,11 @@ namespace RPGGame.UI.Avalonia
             if (key != Key.F9)
                 return false;
 
-            bool enabled = RPGGame.UI.Avalonia.Layout.CombatBoardLayout.Toggle();
+            string label = RPGGame.UI.Avalonia.Layout.CombatBoardLayout.CycleView();
             if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
                 canvasUI.RefreshCombatBoardLayout();
 
-            ShowCombatSpeedNotification(
-                enabled ? "Combat board: ON" : "Combat board: OFF (log view)",
-                forceAutoDismiss: true);
+            ShowCombatSpeedNotification(label, forceAutoDismiss: true);
             return true;
         }
 

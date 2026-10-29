@@ -425,7 +425,16 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             foreach (var progressBar in progressBars)
             {
-                RenderProgressBar(context, progressBar);
+                if (!progressBar.FillFromRight)
+                {
+                    RenderProgressBar(context, progressBar);
+                    continue;
+                }
+                // Mirror around the bar's center so the fill (and damage delta) anchors on the right.
+                double cx = (progressBar.X + progressBar.Width / 2.0) * coordinateConverter.GetCharWidth();
+                var mirror = Matrix.CreateTranslation(-cx, 0) * Matrix.CreateScale(-1, 1) * Matrix.CreateTranslation(cx, 0);
+                using (context.PushTransform(mirror))
+                    RenderProgressBar(context, progressBar);
             }
         }
         

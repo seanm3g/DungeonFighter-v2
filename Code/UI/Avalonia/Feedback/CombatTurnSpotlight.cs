@@ -97,7 +97,7 @@ namespace RPGGame.UI.Avalonia.Feedback
         public static void Paint(DrawingContext context, double contentWidth, double contentHeight, double charWidth, double charHeight,
             IEnumerable<CanvasProgressBar> healthBars)
         {
-            if (!CombatBoardLayout.IsActive)
+            if (!CombatBoardLayout.IsActive && !CombatBoardLayout.IsArena)
                 return;
 
             if (CombatBoardAnimation.Progress(_changedUtc, FadeMs) < 1.0)
@@ -174,7 +174,8 @@ namespace RPGGame.UI.Avalonia.Feedback
             int stripY = LayoutConstants.ACTION_INFO_Y;
             return region switch
             {
-                Region.HeroStrip => (LayoutConstants.ACTION_INFO_X, stripY, LayoutConstants.ACTION_INFO_WIDTH, rows - stripY),
+                Region.HeroStrip => (LayoutConstants.ACTION_INFO_X, stripY, LayoutConstants.ACTION_INFO_WIDTH,
+                    CombatBoardLayout.IsArena ? LayoutConstants.ACTION_INFO_HEIGHT : rows - stripY),
                 Region.EnemyStrip => (_enemyStrip.X, _enemyStrip.Y, _enemyStrip.W, _enemyStrip.H),
                 _ => (0, 0, 0, 0)
             };
@@ -187,7 +188,7 @@ namespace RPGGame.UI.Avalonia.Feedback
         public static bool TrackPointer(double gridX, double gridY)
         {
             var next = Region.None;
-            if (CombatBoardLayout.IsActive)
+            if (CombatBoardLayout.IsActive || CombatBoardLayout.IsArena)
             {
                 foreach (Region region in Enum.GetValues<Region>())
                 {

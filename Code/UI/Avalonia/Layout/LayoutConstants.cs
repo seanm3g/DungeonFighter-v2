@@ -148,7 +148,8 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int ACTION_INFO_STRIP_HEIGHT => _actionInfoStripHeight;
         /// <summary>First row of the action-info strip (top of center column, aligned with side panels).</summary>
         /// <remarks>Board combat (<see cref="CombatBoardLayout"/>) moves the hero strip to the bottom of the column.</remarks>
-        public static int ACTION_INFO_Y => CombatBoardLayout.OwnsCenterColumn ? Math.Max(0, _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT) : 0;
+        public static int ACTION_INFO_Y => CombatBoardLayout.IsArena ? CombatArenaLayout.StripY
+            : CombatBoardLayout.OwnsCenterColumn ? Math.Max(0, _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT) : 0;
         /// <summary>
         /// Combat log frame. In Combat this sits below the two-row sequence HUD panel and a one-row gap;
         /// otherwise it sits directly under the action-info strip.
@@ -199,9 +200,10 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int CenterPanelTextColumnWidth => Math.Max(1, CENTER_PANEL_WIDTH - 4);
 
         // Action info strip - center column band for combo action cards and modifiers during combat (and related UI)
-        public static int ACTION_INFO_X => CENTER_PANEL_X;
-        public static int ACTION_INFO_WIDTH => CENTER_PANEL_WIDTH;
-        public static int ACTION_INFO_HEIGHT => ACTION_INFO_STRIP_HEIGHT;
+        // The arena (CombatBoardLayout.IsArena) moves the hero strip under the hero plate, top left.
+        public static int ACTION_INFO_X => CombatBoardLayout.IsArena ? CombatArenaLayout.HeroStrip().X : CENTER_PANEL_X;
+        public static int ACTION_INFO_WIDTH => CombatBoardLayout.IsArena ? CombatArenaLayout.HeroStrip().W : CENTER_PANEL_WIDTH;
+        public static int ACTION_INFO_HEIGHT => CombatBoardLayout.IsArena ? CombatArenaLayout.StripH : ACTION_INFO_STRIP_HEIGHT;
         /// <summary>Horizontal gap in character columns between per-action panels in the action-info strip.</summary>
         public const int ACTION_INFO_PANEL_GAP = 1;
         /// <summary>
