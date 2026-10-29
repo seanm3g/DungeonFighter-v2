@@ -60,10 +60,17 @@ namespace RPGGame.UI.TitleScreen
     public class CanvasTitleRenderer : ITitleRenderer, ITitleSceneRenderer
     {
         private readonly CanvasUICoordinator _canvasUI;
+        private readonly System.Threading.CancellationToken _idleToken;
 
-        public CanvasTitleRenderer(CanvasUICoordinator canvasUI)
+        /// <param name="idleToken">
+        /// Title idle token. Frames are painted from a background loop via a blocking UI-thread Invoke;
+        /// a keypress can cancel (and queue the main menu) between the loop's cancellation check and the
+        /// paint. Re-checking on the UI thread drops that stale frame so it cannot wipe the menu.
+        /// </param>
+        public CanvasTitleRenderer(CanvasUICoordinator canvasUI, System.Threading.CancellationToken idleToken = default)
         {
             _canvasUI = canvasUI ?? throw new ArgumentNullException(nameof(canvasUI));
+            _idleToken = idleToken;
         }
 
         public void RenderFrame(TitleFrame frame, bool includePressKey = false, Color? backgroundColor = null)
@@ -77,6 +84,9 @@ namespace RPGGame.UI.TitleScreen
             // This blocks until the UI thread has processed the render
             Dispatcher.UIThread.Invoke(() =>
             {
+                if (_idleToken.IsCancellationRequested)
+                    return;
+
                 if (backgroundColor.HasValue)
                     _canvasUI.SetClearBackgroundColor(backgroundColor.Value);
 
@@ -128,6 +138,9 @@ namespace RPGGame.UI.TitleScreen
 
             Dispatcher.UIThread.Invoke(() =>
             {
+                if (_idleToken.IsCancellationRequested)
+                    return;
+
                 _canvasUI.SetClearBackgroundColor(scene.Background);
                 _canvasUI.Clear();
 

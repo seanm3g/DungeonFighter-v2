@@ -43,6 +43,23 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Colored tip for combo slot <paramref name="panelIndex"/> (action strip / sequence hover).
+        /// </summary>
+        public static List<List<ColoredText>> BuildColoredActionTooltipLinesForSlot(
+            Character? character,
+            int panelIndex,
+            int maxLines = 28,
+            ActionStripDamageLineMode swingLineMode = ActionStripDamageLineMode.EffectiveWithComboAmp,
+            bool includeExtendedDetails = false)
+        {
+            var combo = character?.GetComboActions();
+            if (combo == null || panelIndex < 0 || panelIndex >= combo.Count || combo[panelIndex] == null || maxLines < 1)
+                return new List<List<ColoredText>>();
+            return BuildColoredActionTooltipLinesCore(
+                character, combo[panelIndex], panelIndex, maxLines, swingLineMode, includeExtendedDetails);
+        }
+
+        /// <summary>
         /// Resolves an action by catalog name (combo match first, then <see cref="ActionLoader"/>).
         /// </summary>
         public static Action? ResolveActionForTooltip(Character? character, string? actionName)
@@ -133,15 +150,17 @@ namespace RPGGame
             }
             if (lines.Count >= maxLines) return TrimColored(lines, maxLines);
 
-            var stats = BuildPrimaryStatSegments(character, action, panelIndex, swingLineMode);
+            var stats = BuildPrimaryStatEntries(character, action, panelIndex, swingLineMode);
             if (stats.Count > 0)
             {
                 AddColoredBlank(lines);
                 AddColoredLine(lines, ActionSectionHeader("Stats"));
-                foreach (string segment in stats)
+                foreach (var (segment, dim) in stats)
                 {
                     if (lines.Count >= maxLines) break;
-                    AddColoredLine(lines, BuildActionBodyLine(segment, character, action, panelIndex));
+                    AddColoredLine(lines, dim
+                        ? DimLine(segment)
+                        : BuildActionBodyLine(segment, character, action, panelIndex));
                 }
             }
 
@@ -222,6 +241,13 @@ namespace RPGGame
         {
             var b = new ColoredTextBuilder();
             b.Add(text ?? "", Colors.LightGray);
+            return b.Build();
+        }
+
+        private static List<ColoredText> DimLine(string text)
+        {
+            var b = new ColoredTextBuilder();
+            b.Add(text ?? "", Colors.Gray);
             return b.Build();
         }
 

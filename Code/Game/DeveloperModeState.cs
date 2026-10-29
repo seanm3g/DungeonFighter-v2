@@ -20,8 +20,8 @@ namespace RPGGame
         /// <summary>Page Down walks left to slow motion and then pause (0); Page Up walks right to fast-forward.</summary>
         private static readonly double[] CombatSpeedSteps = { 0, 0.25, 0.5, 1, 2, 5, 20 };
         private const int DefaultCombatSpeedStepIndex = 3;
-        /// <summary>Baseline pacing: 1x plays at what used to be the 2x step.</summary>
-        private const int BaseCombatSpeedFactor = 2;
+        /// <summary>Baseline pacing: 1x plays at the configured delays (half the earlier 2x baseline).</summary>
+        private const double BaseCombatSpeedFactor = 1.0;
         private static readonly object SpeedLock = new object();
         private static int _combatSpeedStepIndex = DefaultCombatSpeedStepIndex;
         private static int _combatLogInstant;

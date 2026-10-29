@@ -232,7 +232,7 @@ namespace RPGGame
                     addWrappedAnimal(animalKey.Substring("animal:".Length));
                     break;
                 case string est when est.StartsWith("estatus:", StringComparison.Ordinal):
-                    AppendEnemyStatusLine(est, AddWrapped);
+                    AppendEnemyStatusLine(character, est, AddWrapped);
                     break;
                 case string eaff when eaff.StartsWith("eaff:", StringComparison.Ordinal):
                     AppendEnemyAffinityLine(eaff, AddWrapped);
@@ -555,7 +555,7 @@ namespace RPGGame
         }
 
         /// <summary>Right-panel enemy status row (<c>estatus:N</c>) for <see cref="StatusEffectHoverDetails.CurrentEnemy"/>.</summary>
-        private static void AppendEnemyStatusLine(string key, Action<string> addWrapped)
+        private static void AppendEnemyStatusLine(Character hero, string key, Action<string> addWrapped)
         {
             var enemy = StatusEffectHoverDetails.CurrentEnemy;
             if (enemy == null || !int.TryParse(key.AsSpan("estatus:".Length), out int lineIdx))
@@ -564,7 +564,7 @@ namespace RPGGame
             if (lineIdx < 0 || lineIdx >= lines.Count)
                 return;
             addWrapped($"{enemy.Name}: {lines[lineIdx]}");
-            foreach (string detail in HoverEffectCopy.ExplainActorStatusLine(enemy, lines[lineIdx]))
+            foreach (string detail in HoverEffectCopy.ExplainActorStatusLine(enemy, lines[lineIdx], hero))
                 addWrapped(detail);
         }
 

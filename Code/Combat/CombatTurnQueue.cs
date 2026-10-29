@@ -40,6 +40,7 @@ namespace RPGGame
         {
             if (CombatUiMuteScope.IsMuted)
                 return;
+            CombatTurnAnnouncement.Reset();
             lock (Gate)
             {
                 _speed = speed;

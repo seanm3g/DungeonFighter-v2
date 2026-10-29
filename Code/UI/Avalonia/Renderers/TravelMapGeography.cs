@@ -95,8 +95,11 @@ namespace RPGGame.UI.Avalonia.Renderers
     /// <summary>A region's map marker, in fine-grid cells. Number is the region's travel key (shown on the slip only).</summary>
     public readonly record struct TravelMapPin(TravelRegion Region, int Number, int FineX, int FineY);
 
-    /// <summary>A dungeon marked on a zoomed region view, in fine-grid cells. Number is its option on the selection list.</summary>
-    public readonly record struct TravelMapSite(int Number, int FineX, int FineY);
+    /// <summary>
+    /// A dungeon marked on a zoomed region view, in fine-grid cells. Number is its option on the selection list;
+    /// Theme (the dungeon's theme) picks the marker's glyph and colour.
+    /// </summary>
+    public readonly record struct TravelMapSite(int Number, int FineX, int FineY, string? Theme = null);
 
     public sealed class TravelMapGeographyResult
     {

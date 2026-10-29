@@ -183,7 +183,7 @@ namespace RPGGame.UI.Avalonia.Builders
             _ctx.Factory.AddFormField(stack, "MULTIHIT MOD [hero]", action.MultiHitMod ?? "", (value) => action.MultiHitMod = value ?? "", description: "Column AL. e.g. 2 extra hits on next");
             _ctx.Factory.AddFormField(stack, "AMP_MOD [hero] (%)", action.AmpMod ?? "", (value) => action.AmpMod = value ?? "", description: "Column AM. e.g. 10 for 10% combo amp on next");
             _ctx.Factory.AddFormField(stack, "WEAPON SPEED [hero]", action.WeaponSpeedMod ?? "", (value) => action.WeaponSpeedMod = value ?? "", description: "HERO BASE → WEAPON SPEED. Flat points (each ≈ −0.1 weapon time). Cadence-scoped.");
-            _ctx.Factory.AddFormField(stack, "WEAPON DAMAGE [hero]", action.WeaponDamageMod ?? "", (value) => action.WeaponDamageMod = value ?? "", description: "HERO BASE → WEAPON DAMAGE. Flat damage added to weapon. Cadence-scoped.");
+            _ctx.Factory.AddFormField(stack, "WEAPON DAMAGE [hero]", action.WeaponDamageMod ?? "", (value) => action.WeaponDamageMod = value ?? "", description: "HERO BASE → WEAPON DAMAGE. Flat damage added to weapon, × weapon tier. Cadence-scoped.");
         }
 
         private void BuildEnemyModifiersSection(Panel parent, ActionData action)
@@ -203,7 +203,7 @@ namespace RPGGame.UI.Avalonia.Builders
             _ctx.Factory.AddFormField(stack, "MULTIHIT MOD [enemy]", action.EnemyMultiHitMod ?? "", (value) => action.EnemyMultiHitMod = value ?? "", description: "Column AF. e.g. 2 extra hits on enemy next");
             _ctx.Factory.AddFormField(stack, "AMP_MOD [enemy] (%)", action.EnemyAmpMod ?? "", (value) => action.EnemyAmpMod = value ?? "", description: "Column AG. e.g. 10 for 10% combo amp on enemy next");
             _ctx.Factory.AddFormField(stack, "WEAPON SPEED [enemy]", action.EnemyWeaponSpeedMod ?? "", (value) => action.EnemyWeaponSpeedMod = value ?? "", description: "ENEMY BASE → WEAPON SPEED. Flat points; cadence-scoped.");
-            _ctx.Factory.AddFormField(stack, "WEAPON DAMAGE [enemy]", action.EnemyWeaponDamageMod ?? "", (value) => action.EnemyWeaponDamageMod = value ?? "", description: "ENEMY BASE → WEAPON DAMAGE. Flat damage; cadence-scoped.");
+            _ctx.Factory.AddFormField(stack, "WEAPON DAMAGE [enemy]", action.EnemyWeaponDamageMod ?? "", (value) => action.EnemyWeaponDamageMod = value ?? "", description: "ENEMY BASE → WEAPON DAMAGE. Flat damage × weapon tier; cadence-scoped.");
         }
 
         public void BuildComboAndPositionSection(Panel parent, ActionData action)

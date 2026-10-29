@@ -356,6 +356,7 @@ namespace RPGGame.UI.Avalonia
         private void OnStateChanged(object? sender, StateChangedEventArgs e)
         {
             RPGGame.Combat.Sequence.CombatSequenceHudState.SyncReservation(e.NewState);
+            RPGGame.UI.Avalonia.Feedback.CombatTransitionWipe.OnStateChanged(e.PreviousState, e.NewState);
             // Victory/death keep HasCurrentDungeon until leave — refresh so the video stops immediately.
             GetMainWindow()?.NotifyNarrativeVideoContextChanged();
             // Don't close settings window on state changes - it should stay open independently

@@ -114,7 +114,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.ClearTextInArea(stripX, stripY, stripW, stripH);
             canvas.ClearBoxesInArea(stripX, stripY, stripW, stripH);
 
-            if (player == null)
+            // Between fights the log box runs down through the strip band; the hero strip only returns for the next fight.
+            if (player == null || CombatBoardLayout.IsBetweenFights)
             {
                 ComboTension.Track(null);
                 return;
@@ -170,7 +171,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                 int borderThick = HeroActionStripFeedback.IsFlashEmphasisActive(i)
                     ? HeroActionStripFeedback.FlashBorderThicknessPixels
                     : 1;
-                canvas.AddBorder(px, py, pw, panelH, borderColor, borderThick);
+                // On the board the room backdrop runs behind the strip: fill the card so it stays solid when the
+                // turn scrim lifts (hover, or the hero's own turn), matching the enemy strip cards.
+                if (CombatBoardLayout.IsActive)
+                    AddBoardBox(px, py, pw, panelH, borderColor, BoardCardBackground, borderThick);
+                else
+                    canvas.AddBorder(px, py, pw, panelH, borderColor, borderThick);
 
                 if (bonusCue && !flashActive)
                 {
@@ -194,7 +200,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>
-        /// Draws one action card's text (name, role, swing, description, bonuses, modifiers, threshold) inside the
+        /// Draws one action card's text (name, role, swing, description, modifiers, threshold) inside the
         /// bordered rect. Shared by the action strip and the combat board (<see cref="CombatBoardRenderer"/>).
         /// </summary>
         /// <param name="textBrightness">RGB scale for every line (below 1 dims a combo slot that already fired this run).</param>
@@ -260,13 +266,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             foreach (var descLine in CombatActionStripBuilder.BuildActionStripDescriptionLines(action, contentW, descBudget))
                 drawLine(descLine, AsciiArtAssets.Colors.Gray);
 
-            foreach (var bonus in ActionCardExternalBonusCollector.BuildLines(player, action, slotIndex))
-            {
-                if (string.IsNullOrWhiteSpace(bonus.Text))
-                    continue;
-                drawLine(bonus.Text, bonus.Beneficial ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red);
-            }
-
+            // External bonuses (skills / material / equipped) are already folded into the swing line;
+            // their per-source breakdown lives in the hover tooltip only.
             int tailBudget = Math.Max(0, panelBottomExclusive - contentY - reserveBottomRows);
             var tailLines = CombatActionStripBuilder.BuildActionStripModifierTailLines(action, contentW, tailBudget, player, slotIndex);
             foreach (var tl in tailLines)
@@ -386,8 +387,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     ActionInfoStripLayout.GetPanelRect(hiStrip, displaySlotCount, out int px, out _, out int pw, out _);
                     anchorCenterX = px + pw / 2;
-                    tipLines = CombatActionStripBuilder.BuildActionTooltipLines(
-                        player, hiStrip, innerTextW, maxTooltipLines + 2, damageLineMode,
+                    coloredItemLines = CombatActionStripBuilder.BuildColoredActionTooltipLinesForSlot(
+                        player, hiStrip, maxTooltipLines + 2, damageLineMode,
                         HoverTooltipDetailState.IsAltDetailActive);
                 }
                 else if (rpSeq >= 0)
@@ -395,8 +396,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                     var combo = player.GetComboActions();
                     if (rpSeq < combo.Count)
                     {
-                        tipLines = CombatActionStripBuilder.BuildActionTooltipLines(
-                            player, rpSeq, innerTextW, maxTooltipLines + 2, damageLineMode,
+                        coloredItemLines = CombatActionStripBuilder.BuildColoredActionTooltipLinesForSlot(
+                            player, rpSeq, maxTooltipLines + 2, damageLineMode,
                             HoverTooltipDetailState.IsAltDetailActive);
                         if (filledPanelCount > 0 && displaySlotCount > 0 && rpSeq < filledPanelCount)
                         {

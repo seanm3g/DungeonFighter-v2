@@ -53,7 +53,8 @@ namespace RPGGame
         }
 
         /// <summary>Status row hover for any actor (enemy right-panel rows); hero-only lines fall back to the short copy.</summary>
-        public static List<string> ExplainActorStatusLine(Actor? actor, string? displayLine)
+        /// <param name="observer">The player, so enemy rows can list which of the hero's actions inflict the status.</param>
+        public static List<string> ExplainActorStatusLine(Actor? actor, string? displayLine, Character? observer = null)
         {
             if (actor is Character hero && actor is not Enemy)
                 return ExplainStatusLine(hero, displayLine);
@@ -61,7 +62,7 @@ namespace RPGGame
             string line = (displayLine ?? "").Trim();
             string effectId = EffectIdFromHudLine(line);
             if (!string.IsNullOrEmpty(effectId))
-                lines.AddRange(StatusEffectHoverDetails.Describe(actor, effectId));
+                lines.AddRange(StatusEffectHoverDetails.Describe(actor, effectId, observer));
             else
                 AppendLooseLine(lines, line);
             return lines;
@@ -92,14 +93,12 @@ namespace RPGGame
 
         private static void AppendKeywordExplanation(List<string> lines, Character? hero, MaterialBuildData build)
         {
-            string when = MaterialBuildData.FormatWhenLabel(build.Synthesis);
-            if (string.IsNullOrWhiteSpace(when))
-                when = "its set trigger";
+            lines.Add($"Gained from your {build.Material} set (2+ pieces): {MaterialBuildData.DescribeWhen(build.WhenToken)}.");
+            if (hero != null)
+                lines.Add($"Each trigger now gives +{MaterialSetController.ComputeMintPerTrigger(hero, build)} (more with 3 and 5 pieces).");
             string source = hero?.Effects.GetMaterialKeywordSource(build.Keyword) ?? "";
             if (!string.IsNullOrEmpty(source))
-                lines.Add($"Last trigger: {source} ({build.Material} set).");
-            else
-                lines.Add($"Trigger: {when} ({build.Material} set, 2+ pieces).");
+                lines.Add($"Last trigger: {source}.");
             lines.Add(FormatKeywordPayoff(build, hero));
             lines.Add("Lasts until you leave the dungeon.");
             string rider = SkillEffectRouter.DescribeEquippedConvertMastery(hero, build.ConvertAction);
@@ -193,7 +192,7 @@ namespace RPGGame
                 lines.Add(have);
         }
 
-        private static bool IsSelfTarget(Action action, string effectId)
+        internal static bool IsSelfTarget(Action action, string effectId)
         {
             if (action.Target == TargetType.Self)
                 return true;

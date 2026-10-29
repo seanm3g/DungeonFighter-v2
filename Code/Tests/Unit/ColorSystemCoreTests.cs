@@ -191,8 +191,28 @@ namespace RPGGame.Tests.Unit
             var emptyList = new List<ColoredText>();
             var mergedWithEmpty = ColoredTextMerger.MergeAdjacentSegments(emptyList);
             
-            TestBase.AssertTrue(mergedWithEmpty.Count == 0, 
-                "Merger should handle empty lists", 
+            TestBase.AssertTrue(mergedWithEmpty.Count == 0,
+                "Merger should handle empty lists",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Gold prefix + templated name whose first color is also gold: "Dungeon: G" must not merge,
+            // or the whitespace in it reads as a word boundary and a space lands after the first glyph.
+            var gold = Color.FromRgb(207, 192, 65);
+            var themed = new List<ColoredText>
+            {
+                new ColoredText("Dungeon: ", gold),
+                new ColoredText("G", gold, "desert"),
+                new ColoredText("l", Colors.Orange, "desert"),
+                new ColoredText("ass", Colors.Cyan, "desert")
+            };
+            string mergedPlain = ColoredTextRenderer.RenderAsPlainText(ColoredTextMerger.MergeAdjacentSegments(themed));
+            TestBase.AssertEqual("Dungeon: Glass", mergedPlain,
+                "Merger must not space a templated name after a same-color prefix",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string builtPlain = ColoredTextRenderer.RenderAsPlainText(new ColoredTextBuilder().AddRange(themed).Build());
+            TestBase.AssertEqual("Dungeon: Glass", builtPlain,
+                "Builder must not space a templated name after a same-color prefix",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

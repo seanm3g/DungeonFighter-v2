@@ -43,13 +43,19 @@ namespace RPGGame.Tests.Unit
         private static void TestWeaponClassLadder()
         {
             TestBase.SetCurrentTestName(nameof(TestWeaponClassLadder));
-            TestBase.AssertEqual("Bone", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Mace, "Common"), "mace common", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("Steel", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Mace, "Uncommon"), "mace uncommon", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("Iron", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Mace, "Epic"), "mace epic→rare Iron", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("Bronze", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Sword, "Common"), "sword", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("Glass", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Dagger, "Common"), "dagger", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("Willow", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Wand, "Common"), "wand", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("Crystal", ItemMaterialRules.ResolveWeaponMaterial(WeaponType.Wand, "Mythic"), "wand mythic", ref _run, ref _passed, ref _failed);
+            AssertPicksWholeLadder(WeaponType.Mace, "Bone,Iron,Steel");
+            AssertPicksWholeLadder(WeaponType.Sword, "Bronze,Gold,Mithril");
+            AssertPicksWholeLadder(WeaponType.Dagger, "Glass,Obsidian,Shadow");
+            AssertPicksWholeLadder(WeaponType.Wand, "Crystal,Silver,Willow");
+        }
+
+        private static void AssertPicksWholeLadder(WeaponType weaponType, string expected)
+        {
+            var random = new Random(7);
+            var seen = new HashSet<string>();
+            for (int i = 0; i < 200; i++)
+                seen.Add(ItemMaterialRules.PickClassMaterial(weaponType, random));
+            TestBase.AssertEqual(expected, string.Join(",", seen.OrderBy(m => m)), $"{weaponType} picks all three class materials", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestEnsureMaterialWeaponForced()
@@ -59,11 +65,11 @@ namespace RPGGame.Tests.Unit
             var applier = new LootBonusApplier(cache, new Random(1));
             var weapon = new WeaponItem("Test Mace", 1, 5, 1.0, WeaponType.Mace) { Rarity = "Uncommon" };
             applier.EnsureMaterial(weapon, "Uncommon");
-            TestBase.AssertEqual("Steel", weapon.Material, "weapon material", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(new[] { "Bone", "Steel", "Iron" }.Contains(weapon.Material), "weapon material from mace ladder", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(weapon.Modifications.Any(m =>
                     m.GetPrefixCategory() == ModificationPrefixCategory.Material
-                    && string.Equals(m.Name, "Steel", StringComparison.OrdinalIgnoreCase)),
-                "steel mod present", ref _run, ref _passed, ref _failed);
+                    && string.Equals(m.Name, weapon.Material, StringComparison.OrdinalIgnoreCase)),
+                "material mod present", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestEnsureMaterialArmorAlways()
@@ -88,7 +94,7 @@ namespace RPGGame.Tests.Unit
             var applier = new LootBonusApplier(cache, new Random(42));
             var weapon = new WeaponItem("Bone Club", 1, 5, 1.0, WeaponType.Mace) { Rarity = "Common" };
             applier.ApplyAlwaysMaterialAndTrigger(weapon, "Common");
-            TestBase.AssertEqual("Bone", weapon.Material, "material set", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(new[] { "Bone", "Steel", "Iron" }.Contains(weapon.Material), "material set", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, weapon.TriggerBundles?.Count ?? 0, "no combat stamp", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, weapon.EquipEffects?.Count ?? 0, "no equip stamp", ref _run, ref _passed, ref _failed);
         }

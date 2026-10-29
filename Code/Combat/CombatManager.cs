@@ -294,7 +294,11 @@ namespace RPGGame
                 {
                     CombatTurnQueue.BeginTurn(player);
                     bool combatContinues;
-                    try { combatContinues = await turnHandler.ProcessPlayerTurnAsync(player, currentEnemy, room, forcedAction, tutorialScript); }
+                    try
+                    {
+                        await CombatTurnAnnouncement.AnnounceAsync(player);
+                        combatContinues = await turnHandler.ProcessPlayerTurnAsync(player, currentEnemy, room, forcedAction, tutorialScript);
+                    }
                     finally { CombatTurnQueue.EndTurn(); }
                     await CombatDelayManager.DelayAfterActionAsync();
                     if (!player.IsAlive)
@@ -310,7 +314,11 @@ namespace RPGGame
                 {
                     CombatTurnQueue.BeginTurn(currentEnemy);
                     bool combatContinues;
-                    try { combatContinues = await turnHandler.ProcessEnemyTurnAsync(player, currentEnemy, room, forcedAction: null, tutorialScript); }
+                    try
+                    {
+                        await CombatTurnAnnouncement.AnnounceAsync(currentEnemy);
+                        combatContinues = await turnHandler.ProcessEnemyTurnAsync(player, currentEnemy, room, forcedAction: null, tutorialScript);
+                    }
                     finally { CombatTurnQueue.EndTurn(); }
                     await CombatDelayManager.DelayAfterActionAsync();
                     if (!player.IsAlive)
@@ -326,7 +334,11 @@ namespace RPGGame
                 {
                     CombatTurnQueue.BeginTurn(room);
                     bool environmentContinues;
-                    try { environmentContinues = await turnHandler.ProcessEnvironmentTurnAsync(player, currentEnemy, room); }
+                    try
+                    {
+                        await CombatTurnAnnouncement.AnnounceAsync(room);
+                        environmentContinues = await turnHandler.ProcessEnvironmentTurnAsync(player, currentEnemy, room);
+                    }
                     finally { CombatTurnQueue.EndTurn(); }
                     if (!environmentContinues)
                     {
@@ -410,6 +422,10 @@ namespace RPGGame
                     break;
                 }
                 
+                // A kill gets its moment on the board before the fight hands back to the log.
+                if (player.IsAlive && !currentEnemy.IsAlive && !CombatUiMuteScope.IsMuted)
+                    await CombatTurnAnnouncement.AnnounceDefeatAsync(currentEnemy);
+
                 // End the battle narrative with final health values
                 EndBattleNarrative(player, currentEnemy);
 

@@ -398,11 +398,11 @@ namespace RPGGame.Tests.Unit.Combat
             var titles = CombatSequenceHudLayout.ColumnTitles;
             TestBase.AssertEqual(7, titles.Length, "seven dungeon HUD columns", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(titles[0] == "ATTACKER" && titles[1] == "ROLL" && titles[2] == "OUTCOME"
-                && titles[3] == "ACTION" && titles[4] == "DEFENSE" && titles[5] == "DAMAGE"
-                && titles[6] == "EFFECTS",
-                "column order is ATTACKER, ROLL, OUTCOME, ACTION, DEFENSE, DAMAGE, EFFECTS",
+                && titles[3] == "ACTION" && titles[4] == "DEFENSE" && titles[5] == "EFFECTS"
+                && titles[6] == "DAMAGE",
+                "column order is ATTACKER, ROLL, OUTCOME, ACTION, DEFENSE, EFFECTS, DAMAGE",
                 ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(5, CombatSequenceHudLayout.ColumnIndexFor(CombatSequenceStepKind.Heal),
+            TestBase.AssertEqual(6, CombatSequenceHudLayout.ColumnIndexFor(CombatSequenceStepKind.Heal),
                 "HEAL occupies the DAMAGE column", ref _run, ref _passed, ref _failed);
         }
 

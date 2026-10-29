@@ -119,7 +119,8 @@ namespace RPGGame.UI.Avalonia.Layout
         public static bool TryGetPanelIndex(int gridX, int gridY, int panelCount, out int index)
         {
             index = -1;
-            if (panelCount <= 0)
+            // Strip is hidden between fights: no hover, click or drag targets.
+            if (panelCount <= 0 || CombatBoardLayout.IsBetweenFights)
                 return false;
 
             GetStripLayout(panelCount, out int stripX, out _, out int stripW, out _,

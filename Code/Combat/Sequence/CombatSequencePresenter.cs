@@ -6,6 +6,7 @@ using RPGGame.Combat.UI;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.UI.BlockDisplay;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Combat.Sequence
 {
@@ -128,6 +129,10 @@ namespace RPGGame.Combat.Sequence
                 HealthBarDisplayHold.SetFrom(healthHolds);
         }
 
+        /// <summary>Gives the pending swing its combat-log action block, for the board's box above NOW.</summary>
+        public static void AttachLogBlock(List<List<ColoredText>> block) =>
+            CombatSequenceSwingInfo.AttachLogBlock(_pending, block);
+
         public static void ClearPending()
         {
             _pending = null;
@@ -205,7 +210,7 @@ namespace RPGGame.Combat.Sequence
                     {
                         CombatSequenceHudState.SetActive(i, resultRevealed: false);
                         Invalidate();
-                        if (!await WaitForBeatAsync(step.Kind == CombatSequenceStepKind.Roll ? RollTumbleBeats : 1))
+                        if (!await WaitForBeatAsync(TitleBeats(step.Kind)))
                             return;
                     }
 
@@ -244,10 +249,26 @@ namespace RPGGame.Combat.Sequence
         /// Timed delay in Swing/live play; Piece mode waits for <see cref="TryAdvanceManualBeat"/>.
         /// </summary>
         /// <returns><c>false</c> when playback was cancelled.</returns>
-        /// <summary>Beats the d20 tumbles (faces shuffling) before the ROLL column reveals the kept die.</summary>
-        public const int RollTumbleBeats = 3;
+        /// <summary>
+        /// Beats the d20 tumbles (faces shuffling) before the ROLL column reveals the kept die. Under a beat, but long
+        /// enough to watch the faces shuffle.
+        /// </summary>
+        public const double RollTumbleBeats = 0.75;
 
-        private static async Task<bool> WaitForBeatAsync(int beats = 1)
+        /// <summary>
+        /// Beats ATTACKER holds before the die rolls: the turn lights up and the odds pulse, then the blank die appears.
+        /// </summary>
+        public const int AttackerBeats = 2;
+
+        /// <summary>Beats a column shows its title before its result reveals.</summary>
+        public static double TitleBeats(CombatSequenceStepKind kind) => kind switch
+        {
+            CombatSequenceStepKind.Roll => RollTumbleBeats,
+            CombatSequenceStepKind.Attacker => AttackerBeats,
+            _ => 1
+        };
+
+        private static async Task<bool> WaitForBeatAsync(double beats = 1)
         {
             if (UseManualPlayback)
             {
@@ -279,8 +300,11 @@ namespace RPGGame.Combat.Sequence
 
             if (SkipDelaysForTests)
                 return true;
-            for (int i = 0; i < beats; i++)
+            int whole = (int)beats;
+            for (int i = 0; i < whole; i++)
                 await CombatDelayManager.DelayAfterSequenceHudBeatAsync();
+            if (beats > whole)
+                await CombatDelayManager.DelayAfterSequenceHudBeatAsync(beats - whole);
             return true;
         }
 

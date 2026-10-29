@@ -168,7 +168,7 @@ namespace RPGGame
                 bool gainedFocus = (heroSynth.FocusStacks ?? 0) > focusBefore;
                 bool appliedSlow = slowTarget != null && !ReferenceEquals(slowTarget, heroSynth)
                     && (slowTarget.Effects.SlowTurns > slowTurnsBefore || slowTarget.Effects.SlowMultiplier < slowMultBefore);
-                MaterialSetController.TryMintFromEvent(heroSynth, combatEvent, action, results, gainedFocus, appliedSlow);
+                MaterialSetController.TryMintFromEvent(heroSynth, combatEvent, action, gainedFocus: gainedFocus, appliedSlow: appliedSlow);
             }
             
             return effectsApplied;

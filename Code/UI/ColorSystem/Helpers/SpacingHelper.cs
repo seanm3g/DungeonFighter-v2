@@ -113,7 +113,8 @@ namespace RPGGame.UI.ColorSystem.Helpers
                     currentSegment = WithText(segment, processedText);
                     previousWasSpace = false;
                 }
-                else if (ColorValidator.AreColorsEqual(currentSegment.Color, segment.Color))
+                else if (ColorValidator.AreColorsEqual(currentSegment.Color, segment.Color)
+                         && ColoredTextMerger.IsSameTemplateRun(currentSegment, segment))
                 {
                     // Same color - merge segments, but check if we need a space between them
                     // IMPORTANT: Don't add space if current segment already ends with whitespace or next starts with whitespace

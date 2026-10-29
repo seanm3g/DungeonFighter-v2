@@ -24,6 +24,12 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         public static bool IsInterlude { get; private set; }
 
+        /// <summary>
+        /// <see cref="IsInterlude"/> mid-run (room text, next-room choice) and on the completion screen, not death: the log
+        /// box takes the whole column over the last room's backdrop, with no hero health bar or hero strip below it.
+        /// </summary>
+        public static bool IsBetweenFights { get; private set; }
+
         /// <summary>Board geometry owns the center column: hero strip at the bottom, no sequence HUD band.</summary>
         public static bool OwnsCenterColumn => IsActive || IsInterlude;
 
@@ -32,6 +38,15 @@ namespace RPGGame.UI.Avalonia.Layout
 
         /// <summary>Clickable middle region between the health bars, recorded by the last board paint.</summary>
         public static (int X, int Y, int Width, int Height) MiddleRect { get; set; }
+
+        /// <summary>The NOW card on the grid from the last board paint, or null when the cards aren't showing.</summary>
+        public static (int X, int Y, int W, int H)? NowRect { get; set; }
+
+        /// <summary>
+        /// The LAST, NOW and NEXT cards together (with the label row above them) from the last board paint, or null when
+        /// the cards aren't showing. The turn callout opens out of NOW to fill it.
+        /// </summary>
+        public static (int X, int Y, int W, int H)? FlowCardsRect { get; set; }
 
         /// <summary>True while the board itself paints the log box, letting the display renderer through.</summary>
         public static bool IsPaintingBoardLog { get; set; }
@@ -57,6 +72,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 _pendingTeardown = true;
             IsActive = Enabled && IsActive;
             IsInterlude = Enabled && IsInterlude;
+            IsBetweenFights = IsInterlude && IsBetweenFights;
             return Enabled;
         }
 
@@ -78,6 +94,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 _pendingTeardown = true;
             IsActive = next;
             IsInterlude = nextInterlude;
+            IsBetweenFights = nextInterlude && (state == GameState.Dungeon || state == GameState.DungeonCompletion);
         }
 
         /// <summary>Width of the board's health bars and log box, centered in a <paramref name="columnWidth"/> column.</summary>
@@ -89,7 +106,7 @@ namespace RPGGame.UI.Avalonia.Layout
 
         /// <summary>
         /// Framed log box for <see cref="IsInterlude"/>: same width as the board's log view, from the top of the column
-        /// down to just above the hero health bar.
+        /// down to just above the hero health bar (to the bottom of the column <see cref="IsBetweenFights"/>).
         /// </summary>
         public static (int X, int Y, int W, int H) InterludeBoxRect()
         {
@@ -97,7 +114,8 @@ namespace RPGGame.UI.Avalonia.Layout
             int w = BarWidth(colW);
             int x = LayoutConstants.CENTER_PANEL_X + (colW - w) / 2;
             const int y = 1;
-            return (x, y, w, Math.Max(4, HeroBarY - 1 - y));
+            int bottom = IsBetweenFights ? LayoutConstants.SCREEN_HEIGHT - 1 : HeroBarY - 1;
+            return (x, y, w, Math.Max(4, bottom - y));
         }
 
         private static bool _pendingTeardown;

@@ -137,6 +137,30 @@ namespace RPGGame.Data
             return raw.Replace('_', ' ').Replace('-', ' ');
         }
 
+        /// <summary>
+        /// Plain-English "what makes this happen" for a synthesis WHEN token (normalized or raw), matching
+        /// <c>MaterialSetController.WhenMatches</c> / <c>ActionTriggerGate.MatchesConditionToken</c>.
+        /// </summary>
+        public static string DescribeWhen(string? whenToken) => NormalizeWhenToken(whenToken) switch
+        {
+            "ONTURN" => "at the start of each of your turns",
+            "ONATTACK" => "each attack you make, hit or miss",
+            "ONCONSECUTIVEATTACK" => "each hit that lands while you have 2+ hits in a row (a miss resets the run)",
+            "ONCONNECT" or "ONANYHIT" => "each of your attacks that connects (normal, action or crit)",
+            "ONHIT" or "ONNORMALHIT" => "each normal hit (not an action roll or crit)",
+            "ONCOMBO" or "ONCOMBOHIT" => "each action roll that lands",
+            "ONCOMBOEND" or "ONCOMBOENDED" => "each time your combo sequence ends",
+            "ONCRITICAL" or "ONCRITICALHIT" => "each critical hit",
+            "ONKILL" => "each enemy you kill",
+            "ONHEALTHTHRESHOLD" or "ONENEMYHEALTHTHRESHOLD" => "each time your hit pushes an enemy past a health milestone",
+            "ONTAKEHIT" or "ONHEROHURT" or "ONRECEIVEHIT" => "each time an enemy hits you",
+            "ONSLOW" => "each hit that slows the target",
+            "ONFOCUS" => "each hit that gains you Focus",
+            "ONMISS" => "each attack you miss",
+            "" => "its set trigger",
+            string other => other
+        };
+
         /// <summary>Strip spaces/underscores so sheet <c>ON_HIT</c> matches gate tokens.</summary>
         public static string NormalizeWhenToken(string? raw)
         {

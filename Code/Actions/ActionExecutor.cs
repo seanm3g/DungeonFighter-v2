@@ -287,7 +287,7 @@ namespace RPGGame
             if (result.SelectedAction != null)
             {
                 ActionStatusEffectApplier.AppendColoredStatusEffectMessages(
-                    result.StatusEffectMessages, coloredStatusEffects, includeNonFeedMessages: result.Hit);
+                    result.StatusEffectMessages, coloredStatusEffects, includeMessages: result.Hit);
                 if (result.Hit)
                 {
                     ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
@@ -393,7 +393,7 @@ namespace RPGGame
                     coloredStatusEffects.Add(nestedStructure);
                 if (nested.StatusEffectMessages.Count > 0)
                     ActionStatusEffectApplier.AppendColoredStatusEffectMessages(
-                        nested.StatusEffectMessages, coloredStatusEffects, includeNonFeedMessages: nested.Hit);
+                        nested.StatusEffectMessages, coloredStatusEffects, includeMessages: nested.Hit);
             }
         }
         
@@ -407,7 +407,7 @@ namespace RPGGame
             if (result.SelectedAction != null)
             {
                 ActionStatusEffectApplier.AppendColoredStatusEffectMessages(
-                    result.StatusEffectMessages, coloredStatusEffects, includeNonFeedMessages: result.Hit);
+                    result.StatusEffectMessages, coloredStatusEffects, includeMessages: result.Hit);
                 if (result.Hit)
                 {
                     ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);

@@ -62,6 +62,8 @@ namespace RPGGame.UI.Avalonia.Handlers
                 ThresholdBarFeedback.SetRequestInvalidate(() => gameCanvas.Refresh());
                 ActionBonusBorderShimmer.SetRequestInvalidate(() => gameCanvas.Refresh());
                 ComboTension.SetRequestInvalidate(() => gameCanvas.Refresh());
+                CombatTurnBanner.SetRefresh(() => gameCanvas.Refresh());
+                CombatTransitionWipe.SetRefresh(() => gameCanvas.Refresh());
                 // HUD text is drawn during RenderLayout, so a visual invalidate is not enough.
                 // CombatSequencePresenter posts this to the UI thread before invoking it.
                 RPGGame.Combat.Sequence.CombatSequencePresenter.SetRequestInvalidate(() =>

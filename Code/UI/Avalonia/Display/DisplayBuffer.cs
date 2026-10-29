@@ -155,6 +155,24 @@ namespace RPGGame.UI.Avalonia.Display
         }
         
         /// <summary>
+        /// Drops lines before the last one whose plain text contains <paramref name="marker"/>; no-op when none does.
+        /// </summary>
+        /// <returns>True when lines were removed.</returns>
+        public bool TrimBeforeLastLineContaining(string marker)
+        {
+            var messages = storage.Messages;
+            for (int i = messages.Count - 1; i > 0; i--)
+            {
+                if (ColoredTextRenderer.RenderAsPlainText(messages[i]).Contains(marker, StringComparison.Ordinal))
+                {
+                    storage.RemoveOldest(i, scrollManager);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Gets the last N messages as structured ColoredText segments with the message type used when each line was stored.
         /// </summary>
         public List<(List<ColoredText> Segments, UIMessageType MessageType, List<List<ColoredText>>? HoverInfoLines)> GetLast(int count)

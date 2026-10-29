@@ -49,19 +49,19 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Weapons always use their class ladder. Item rarity Common→common, Uncommon→uncommon, Rare+→rare.
+        /// Weapons always use their class's three materials, picked evenly regardless of item rarity.
         /// </summary>
-        public static string ResolveWeaponMaterial(WeaponType weaponType, string? itemRarity)
+        public static string PickClassMaterial(WeaponType weaponType, Random random)
         {
             if (!TryGetWeaponClassLadder(weaponType, out string common, out string uncommon, out string rare))
                 return "Bone";
 
-            string r = itemRarity?.Trim() ?? "Common";
-            if (r.Equals("Common", StringComparison.OrdinalIgnoreCase))
-                return common;
-            if (r.Equals("Uncommon", StringComparison.OrdinalIgnoreCase))
-                return uncommon;
-            return rare;
+            return random.Next(3) switch
+            {
+                0 => common,
+                1 => uncommon,
+                _ => rare
+            };
         }
 
         public static int RarityLadderIndex(string? rarity)

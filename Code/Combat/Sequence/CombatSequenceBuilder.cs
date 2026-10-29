@@ -75,6 +75,15 @@ namespace RPGGame.Combat.Sequence
                     action: null));
             }
 
+            // Status effects land on the target, then the damage number.
+            if (hasStatusEffects)
+            {
+                steps.Add(new CombatSequenceStep(
+                    CombatSequenceStepKind.Effect,
+                    "EFFECTS",
+                    Plain("status", ColorPalette.Info)));
+            }
+
             if (damage > 0)
             {
                 steps.Add(new CombatSequenceStep(
@@ -82,14 +91,6 @@ namespace RPGGame.Combat.Sequence
                     "DAMAGE",
                     Plain(damage.ToString(), ColorPalette.Damage),
                     CombatSequenceCue.HealthBar));
-            }
-
-            if (hasStatusEffects)
-            {
-                steps.Add(new CombatSequenceStep(
-                    CombatSequenceStepKind.Effect,
-                    "EFFECTS",
-                    Plain("status", ColorPalette.Info)));
             }
 
             if (rolled)
@@ -155,6 +156,24 @@ namespace RPGGame.Combat.Sequence
                 steps.Add(BuildDefenseStep(result.DefenseFace ?? 0, result.ModifiedBaseRoll, target, selected));
             }
 
+            // Status effects land on the target before the damage number (the board's beat order).
+            if (result.StatusEffectMessages != null && result.StatusEffectMessages.Count > 0)
+            {
+                string first = result.StatusEffectMessages[0];
+                if (!string.IsNullOrWhiteSpace(first))
+                {
+                    // Status lines carry color markup; parse it like the combat log does instead of printing raw codes.
+                    var segments = TrimSegments(ColoredTextParser.Parse(first.Trim()));
+                    if (segments.Count > 0)
+                    {
+                        steps.Add(new CombatSequenceStep(
+                            CombatSequenceStepKind.Effect,
+                            "EFFECTS",
+                            segments));
+                    }
+                }
+            }
+
             if (result.Hit && selected.Type == ActionType.Heal)
             {
                 var healBeats = CombatSequenceMathBeats.ForHeal(result.HealAmount);
@@ -176,23 +195,6 @@ namespace RPGGame.Combat.Sequence
                     Last(damageBeats),
                     CombatSequenceCue.HealthBar,
                     damageBeats));
-            }
-
-            if (result.StatusEffectMessages != null && result.StatusEffectMessages.Count > 0)
-            {
-                string first = result.StatusEffectMessages[0];
-                if (!string.IsNullOrWhiteSpace(first))
-                {
-                    // Status lines carry color markup; parse it like the combat log does instead of printing raw codes.
-                    var segments = TrimSegments(ColoredTextParser.Parse(first.Trim()));
-                    if (segments.Count > 0)
-                    {
-                        steps.Add(new CombatSequenceStep(
-                            CombatSequenceStepKind.Effect,
-                            "EFFECTS",
-                            segments));
-                    }
-                }
             }
 
             var outcome = result.IsCombo && result.Hit

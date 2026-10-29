@@ -173,19 +173,19 @@ namespace RPGGame
             hero?.Effects.ClearMaterialKeywordBank();
         }
 
-        public static void NotifyHeroTurnStart(Character? hero, List<string>? messages = null)
+        public static void NotifyHeroTurnStart(Character? hero)
         {
             if (hero == null || hero is Enemy)
                 return;
             var evt = new CombatEvent(CombatEventType.TurnStarted, hero) { Target = hero };
-            TryMintFromEvent(hero, evt, action: null, messages);
+            TryMintFromEvent(hero, evt, action: null);
         }
 
         /// <param name="gainedFocus">The hero gained Focus from any source in this resolution (feeds ON_FOCUS).</param>
         /// <param name="appliedSlow">The hero slowed the target from any source in this resolution (feeds ON_SLOW).</param>
         /// <param name="takeHitOnly">The event is a foe's hit on the hero: only take-hit WHENs (Bone RAGE) may mint. Without
         /// this, a foe's connect also matched the hero's ON CONNECT / ON HIT / ON ATTACK sets.</param>
-        public static bool TryMintFromEvent(Character? hero, CombatEvent? combatEvent, Action? action = null, List<string>? messages = null,
+        public static bool TryMintFromEvent(Character? hero, CombatEvent? combatEvent, Action? action = null,
             bool gainedFocus = false, bool appliedSlow = false, bool takeHitOnly = false)
         {
             if (hero == null || hero is Enemy || combatEvent == null)
@@ -205,58 +205,30 @@ namespace RPGGame
                 if (!WhenMatches(build.WhenToken, subject, combatEvent, hero, gainedFocus, appliedSlow))
                     continue;
 
-                int feedCount = CountEquipped(hero, build.FeedMaterial);
-                int amount = MaterialBuildData.ComputeMintAmount(unlock, feedCount);
+                int amount = ComputeMintPerTrigger(hero, build);
                 if (amount <= 0)
                     continue;
-                amount = Math.Max(1, (int)Math.Round(amount * CharmBonusController.GetMintMultiplier(hero)));
-                amount += SkillEffectRouter.SynthesisFeedBonus(hero, build.Material);
                 hero.Effects.AddMaterialKeyword(build.Keyword, amount);
-                int total = hero.Effects.GetMaterialKeyword(build.Keyword);
                 string whenLabel = MaterialBuildData.FormatWhenLabel(build.Synthesis);
                 string cause = string.IsNullOrWhiteSpace(subject.Name) || subject.Name == "MaterialSynth"
                     ? whenLabel
                     : $"{subject.Name} · {whenLabel}";
                 hero.Effects.SetMaterialKeywordSource(build.Keyword, cause);
-                messages?.Add(FormatFeedCombatLine(build.Synthesis, build.Keyword, amount, total));
                 any = true;
             }
             return any;
         }
 
-        /// <summary>True when <paramref name="line"/> is a material-feed combat-block follow-up.</summary>
-        public static bool IsFeedCombatLine(string? line)
+        /// <summary>Keyword minted each time the set's WHEN fires with the hero's current gear, charm and skills (0 below 2 pieces).</summary>
+        public static int ComputeMintPerTrigger(Character? hero, MaterialBuildData build)
         {
-            if (string.IsNullOrEmpty(line))
-                return false;
-            return line.IndexOf(" feeds ", StringComparison.OrdinalIgnoreCase) >= 0
-                && line.IndexOf("+", StringComparison.Ordinal) >= 0;
-        }
-
-        /// <summary>Parenthetical combat-block line: <c>(ON HIT feeds +1 GRAZE → 2)</c>.</summary>
-        public static string FormatFeedCombatLine(string? synthesis, string keyword, int amount, int total)
-        {
-            string whenLabel = MaterialBuildData.FormatWhenLabel(synthesis);
-            if (string.IsNullOrWhiteSpace(whenLabel))
-                whenLabel = "WHEN";
-            string key = (keyword ?? "").Trim().ToUpperInvariant();
-            if (key.Length == 0)
-                key = "CURRENCY";
-
-            var builder = new ColoredTextBuilder();
-            builder.Add("     (", Colors.Gray);
-            builder.Add(whenLabel, ColorPalette.Info);
-            builder.Add(" feeds ", Colors.White);
-            builder.Add($"+{amount}", ColorPalette.Success);
-            builder.Add(" ", Colors.White);
-            builder.Add(key, ColorPalette.Gold);
-            if (total > 0)
-            {
-                builder.Add(" → ", Colors.Gray);
-                builder.Add(total.ToString(), ColorPalette.Success);
-            }
-            builder.Add(")", Colors.Gray);
-            return ColoredTextRenderer.RenderAsMarkup(builder.Build());
+            if (hero == null)
+                return 0;
+            int amount = MaterialBuildData.ComputeMintAmount(CountEquipped(hero, build.Material), CountEquipped(hero, build.FeedMaterial));
+            if (amount <= 0)
+                return 0;
+            amount = Math.Max(1, (int)Math.Round(amount * CharmBonusController.GetMintMultiplier(hero)));
+            return amount + SkillEffectRouter.SynthesisFeedBonus(hero, build.Material);
         }
 
         /// <summary>
@@ -533,13 +505,43 @@ namespace RPGGame
 
             int n = hero != null ? CountEquipped(hero, build.Material) : 0;
             yield return FormatFormingSetHudLine(build.Material, n);
-            yield return "2 synth+convert, 3 +feed, 5 xfeed";
-            yield return $"WHEN {build.Synthesis}";
-            if (!string.IsNullOrWhiteSpace(build.ConvertAction))
-                yield return $"Convert: {build.ConvertAction}" + (n >= 2 ? " (unlocked)" : " (needs 2)");
-            if (hero != null && !string.IsNullOrWhiteSpace(build.Keyword))
-                yield return $"{build.Keyword}: {GetKeyword(hero, build.Keyword)}";
+            foreach (var line in DescribeSetGeneration(hero, build, n))
+                yield return line;
         }
+
+        /// <summary>How the set's keyword is generated (trigger, per-trigger amount by piece count) and how it is spent.</summary>
+        private static IEnumerable<string> DescribeSetGeneration(Character? hero, MaterialBuildData build, int n)
+        {
+            string keyword = string.IsNullOrWhiteSpace(build.Keyword) ? "its keyword" : build.Keyword;
+            string feed = string.IsNullOrWhiteSpace(build.FeedMaterial) ? build.Material : build.FeedMaterial;
+            yield return $"Gain {keyword}: {MaterialBuildData.DescribeWhen(build.WhenToken)}.";
+
+            if (n < MaterialBuildData.StackUnlockCount)
+                yield return $"Now: nothing yet. Wear {MaterialBuildData.StackUnlockCount} {build.Material} pieces to start.";
+            else if (hero != null)
+                yield return $"Now: +{ComputeMintPerTrigger(hero, build)} {keyword} each time.";
+
+            string convert = string.IsNullOrWhiteSpace(build.ConvertAction) ? "" : $", unlocks {build.ConvertAction}";
+            int five = GameConfiguration.Instance.Combat?.MaterialFiveStackMintMultiplier ?? 0;
+            string fiveText = five > 0 ? $"1 per {feed} piece × {five}" : $"{feed} pieces × {feed} pieces";
+            yield return $"{Mark(n, MaterialBuildData.StackUnlockCount)}2 pieces: +1 each time{convert}.";
+            yield return $"{Mark(n, MaterialBuildData.StackAdditiveCount)}3 pieces: +1 per {feed} piece worn.";
+            yield return $"{Mark(n, MaterialBuildData.StackMultiplyCount)}5 pieces: {fiveText}.";
+
+            if (!string.IsNullOrWhiteSpace(build.ConvertAction) && !string.IsNullOrWhiteSpace(build.Keyword))
+            {
+                yield return "Spend: " + HoverEffectCopy.FormatKeywordPayoff(build, hero)
+                    + (n >= MaterialBuildData.StackUnlockCount ? "" : $" (needs {MaterialBuildData.StackUnlockCount} pieces)");
+            }
+            if (hero != null && !string.IsNullOrWhiteSpace(build.Keyword))
+            {
+                string last = hero.Effects.GetMaterialKeywordSource(build.Keyword);
+                yield return $"Banked: {GetKeyword(hero, build.Keyword)} {keyword} (kept until you leave the dungeon)."
+                    + (string.IsNullOrEmpty(last) ? "" : $" Last from: {last}.");
+            }
+        }
+
+        private static string Mark(int have, int need) => have >= need ? "> " : "  ";
 
         private static bool IsTakeHitToken(string whenToken) =>
             ActionTriggerGate.NormalizeToken(whenToken) is "ONTAKEHIT" or "ONHEROHURT" or "ONRECEIVEHIT";

@@ -14,6 +14,11 @@ namespace RPGGame.UI.Avalonia.Canvas
         public Color Color { get; set; } = Colors.White;
 
         /// <summary>
+        /// Sub-cell horizontal shift in cells (e.g. 0.5 centers odd-length text in an even-width box).
+        /// </summary>
+        public double NudgeCellsX { get; set; }
+
+        /// <summary>
         /// When true, drawn after normal text so opaque panels (e.g. hover tooltips) stay under this text only, not under body copy.
         /// </summary>
         public bool IsOverlay { get; set; }
@@ -100,6 +105,8 @@ namespace RPGGame.UI.Avalonia.Canvas
         public RPGGame.UI.Avalonia.Effects.RoomBackdropConfig Look { get; set; } = new();
         /// <summary>Device pixels kept clear inside the rectangle so the panel border stays visible.</summary>
         public double InsetPixels { get; set; } = 2;
+        /// <summary>Whole-plate opacity on top of <see cref="Look"/> (the location crossfade, <see cref="LocationCrossfade"/>).</summary>
+        public double Opacity { get; set; } = 1;
     }
 
     /// <summary>
@@ -137,6 +144,8 @@ namespace RPGGame.UI.Avalonia.Canvas
 
         /// <summary>Vertical black dividers as fractions of bar width (0–1), used by pack-enemy body boundaries.</summary>
         public System.Collections.Generic.IReadOnlyList<double>? DividerFractions { get; set; }
+        /// <summary>Health bar (from AddHealthBar); the combat turn scrim never dims these.</summary>
+        public bool IsHealthBar { get; set; }
     }
 
     public class CanvasBarSegment

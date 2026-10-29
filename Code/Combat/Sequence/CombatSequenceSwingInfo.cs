@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using RPGGame.UI.ColorSystem;
+
 namespace RPGGame.Combat.Sequence
 {
     /// <summary>Which d20 band a swing landed in, as the combat board draws its branches.</summary>
@@ -44,5 +47,18 @@ namespace RPGGame.Combat.Sequence
 
         /// <summary>Thresholds in force for this roll (null when execution did not record them).</summary>
         public CombatSequenceThresholds? Thresholds { get; }
+
+        /// <summary>The combat log's action block for this swing (action, roll and status lines), once the log has built it.</summary>
+        public List<List<ColoredText>>? LogBlock { get; set; }
+
+        /// <summary>Hands <paramref name="block"/> to every swing in <paramref name="steps"/>.</summary>
+        internal static void AttachLogBlock(IEnumerable<CombatSequenceStep>? steps, List<List<ColoredText>> block)
+        {
+            if (steps == null)
+                return;
+            foreach (var step in steps)
+                if (step.Swing != null)
+                    step.Swing.LogBlock = block;
+        }
     }
 }

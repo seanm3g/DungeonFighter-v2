@@ -137,8 +137,7 @@ namespace RPGGame.Actions.Execution
                         {
                             EquippedItemTriggerApplicator.ApplyFromDefender(
                                 hurtHero, source, hitEvent, result.StatusEffectMessages);
-                            MaterialSetController.TryMintFromEvent(hurtHero, hitEvent, selected, result.StatusEffectMessages,
-                                takeHitOnly: true);
+                            MaterialSetController.TryMintFromEvent(hurtHero, hitEvent, selected, takeHitOnly: true);
                         }
                         if (result.Damage > 0
                             && selected.Target == TargetType.SelfAndTarget

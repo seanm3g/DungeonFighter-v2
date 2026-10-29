@@ -76,6 +76,7 @@ namespace RPGGame.Tests.Runners
             ActionBonusBorderShimmerTests.RunAllTests();
             Console.WriteLine();
             ComboTensionTests.RunAllTests();
+            CombatTransitionWipeTests.RunAllTests();
             Console.WriteLine();
             ThresholdBarFeedbackTests.RunAllTests();
             Console.WriteLine();

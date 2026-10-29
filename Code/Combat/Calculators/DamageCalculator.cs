@@ -113,6 +113,18 @@ namespace RPGGame.Combat.Calculators
             return m;
         }
 
+        /// <summary>
+        /// Consumed WEAPON_DAMAGE flat × equipped weapon tier (no weapon counts as tier 1), so "+1 WPN DMG"
+        /// keeps pace with weapon damage instead of fading as gear improves.
+        /// </summary>
+        public static int GetScaledWeaponDamageFlat(Character character)
+        {
+            double flat = character.Effects.ConsumedWeaponDamageFlat;
+            if (flat == 0) return 0;
+            int tier = character.Weapon is WeaponItem weapon ? Math.Max(1, weapon.Tier) : 1;
+            return (int)Math.Round(flat * tier);
+        }
+
         /// <param name="roll">Total attack roll (modified d20 + roll bonuses) used for combo/normal damage bands.</param>
         /// <param name="rollBonusForCritEval">Same roll bonus as combat resolution; crit damage uses
         /// <see cref="CombatCalculator.GetCritThresholdEvaluationRoll"/> so accuracy does not inflate crits.</param>
@@ -129,8 +141,7 @@ namespace RPGGame.Combat.Calculators
                 if (enemy.Weapon is WeaponItem weapon)
                     baseDamage += weapon.GetTotalDamage();
 
-                if (enemy.Effects.ConsumedWeaponDamageFlat != 0)
-                    baseDamage += (int)Math.Round(enemy.Effects.ConsumedWeaponDamageFlat);
+                baseDamage += GetScaledWeaponDamageFlat(enemy);
             }
             else if (attacker is Character character)
             {
@@ -142,9 +153,8 @@ namespace RPGGame.Combat.Calculators
                     baseDamage += weapon.GetTotalDamage();
                 }
 
-                // Flat WEAPON_DAMAGE from cadence (HERO BASE → WEAPON DAMAGE)
-                if (character.Effects.ConsumedWeaponDamageFlat != 0)
-                    baseDamage += (int)Math.Round(character.Effects.ConsumedWeaponDamageFlat);
+                // Flat WEAPON_DAMAGE from cadence (HERO BASE → WEAPON DAMAGE), scaled by weapon tier
+                baseDamage += GetScaledWeaponDamageFlat(character);
 
                 // Add equipment damage bonus
                 baseDamage += character.GetEquipmentDamageBonus();

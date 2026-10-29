@@ -114,11 +114,12 @@ namespace RPGGame.UI.Avalonia.Layout
         internal static List<string> BuildTurnBonusStatusLines(Character c)
         {
             var lines = new List<string>();
-            bool hasTurnGroups = c.Effects.TurnBonuses.Any(g => g.Count > 0 && g.Bonuses?.Count > 0);
+            var turnGroups = c.Effects.SnapshotTurnBonuses();
+            bool hasTurnGroups = turnGroups.Any(g => g != null && g.Count > 0 && g.Bonuses?.Count > 0);
 
-            foreach (var group in c.Effects.TurnBonuses)
+            foreach (var group in turnGroups)
             {
-                if (group.Count <= 0 || group.Bonuses == null || group.Bonuses.Count == 0)
+                if (group == null || group.Count <= 0 || group.Bonuses == null || group.Bonuses.Count == 0)
                     continue;
                 string items = CadenceBonusDisplayFormatter.FormatBonusItemsShort(group.Bonuses);
                 if (string.IsNullOrEmpty(items))

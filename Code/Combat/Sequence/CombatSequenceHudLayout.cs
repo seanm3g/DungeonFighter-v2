@@ -13,10 +13,11 @@ namespace RPGGame.Combat.Sequence
 
         /// <summary>
         /// Fixed dungeon HUD columns. DEFENSE and EFFECTS stay visible even when a swing has no value there.
+        /// Status effects land on the target before the damage number, matching the combat board's beat order.
         /// </summary>
         public static readonly string[] ColumnTitles =
         {
-            "ATTACKER", "ROLL", "OUTCOME", "ACTION", "DEFENSE", "DAMAGE", "EFFECTS"
+            "ATTACKER", "ROLL", "OUTCOME", "ACTION", "DEFENSE", "EFFECTS", "DAMAGE"
         };
 
         public static int ColumnIndexFor(CombatSequenceStepKind kind) =>
@@ -27,9 +28,9 @@ namespace RPGGame.Combat.Sequence
                 CombatSequenceStepKind.Outcome => 2,
                 CombatSequenceStepKind.Action => 3,
                 CombatSequenceStepKind.Defense => 4,
-                CombatSequenceStepKind.Damage => 5,
-                CombatSequenceStepKind.Heal => 5,
-                CombatSequenceStepKind.Effect => 6,
+                CombatSequenceStepKind.Effect => 5,
+                CombatSequenceStepKind.Damage => 6,
+                CombatSequenceStepKind.Heal => 6,
                 _ => -1
             };
 

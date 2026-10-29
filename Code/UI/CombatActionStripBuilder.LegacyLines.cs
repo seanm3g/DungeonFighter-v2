@@ -103,9 +103,9 @@ namespace RPGGame
             }
 
             // TURN cadence bonuses (e.g. "Next 3 turns: +1 HIT")
-            foreach (var group in character.Effects.TurnBonuses ?? new List<ActionAttackBonusGroup>())
+            foreach (var group in character.Effects.SnapshotTurnBonuses())
             {
-                if (group.Bonuses == null || group.Bonuses.Count == 0) continue;
+                if (group?.Bonuses == null || group.Bonuses.Count == 0) continue;
                 string desc = FormatBonusItemsShort(group.Bonuses);
                 if (string.IsNullOrEmpty(desc)) continue;
                 string label = group.Count > 1 ? $"Next {group.Count} turns" : "Next turn";

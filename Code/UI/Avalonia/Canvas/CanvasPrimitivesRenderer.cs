@@ -104,7 +104,11 @@ namespace RPGGame.UI.Avalonia.Canvas
             bool fillBackground = true,
             List<CanvasImage>? images = null,
             CanvasBackdrop? backdrop = null,
-            RPGGame.UI.TitleScreen.TitleSceneFrame? sceneUnderlay = null)
+            RPGGame.UI.TitleScreen.TitleSceneFrame? sceneUnderlay = null,
+            double sceneUnderlayOpacity = 1,
+            CanvasBackdrop? outgoingBackdrop = null,
+            RPGGame.UI.TitleScreen.TitleSceneFrame? outgoingSceneUnderlay = null,
+            double outgoingSceneUnderlayOpacity = 0)
         {
             // default(Color) / transparent → solid black (normal game backdrop)
             if (fillBackground)
@@ -137,9 +141,14 @@ namespace RPGGame.UI.Avalonia.Canvas
 
             try
             {
+                // Location crossfade (LocationCrossfade): the outgoing picture goes under the incoming one in each slot.
+                if (outgoingSceneUnderlay != null)
+                    RenderSceneUnderlay(context, outgoingSceneUnderlay, charWidth, charHeight, outgoingSceneUnderlayOpacity);
                 if (sceneUnderlay != null)
-                    RenderSceneUnderlay(context, sceneUnderlay, charWidth, charHeight);
+                    RenderSceneUnderlay(context, sceneUnderlay, charWidth, charHeight, sceneUnderlayOpacity);
                 RenderBoxes(context, boxElements, overlayPass: false);
+                if (outgoingBackdrop != null)
+                    RenderBackdrop(context, outgoingBackdrop, charWidth, charHeight);
                 if (backdrop != null)
                     RenderBackdrop(context, backdrop, charWidth, charHeight);
                 if (images != null)
@@ -352,8 +361,11 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// Menu-screen inn (<see cref="RPGGame.UI.TitleScreen.MenuSceneBackdrop"/>): plain grid runs under every
         /// element, with no wind sway, click burst or interactive highlight.
         /// </summary>
-        private void RenderSceneUnderlay(DrawingContext context, RPGGame.UI.TitleScreen.TitleSceneFrame scene, double charWidth, double charHeight)
+        private void RenderSceneUnderlay(DrawingContext context, RPGGame.UI.TitleScreen.TitleSceneFrame scene, double charWidth, double charHeight, double opacity = 1)
         {
+            if (opacity <= 0)
+                return;
+            using var fade = opacity < 1 ? context.PushOpacity(opacity) : (IDisposable?)null;
             foreach (var block in scene.Blocks)
                 context.FillRectangle(GetCachedBrush(block.Color),
                     new Rect(block.X * charWidth, block.Y * charHeight, block.Width * charWidth, block.Height * charHeight));
@@ -381,7 +393,7 @@ namespace RPGGame.UI.Avalonia.Canvas
 
             // Skia draw op: cover crop, color filters, blur and blend mode (Ascii style: glyphs on the grid cells).
             var grid = new Rect(backdrop.X * charWidth, backdrop.Y * charHeight, backdrop.Width * charWidth, backdrop.Height * charHeight);
-            context.Custom(new RoomBackdropDrawOperation(dest, backdrop.Source, backdrop.Look, grid, charWidth, charHeight, coordinateConverter.GetFontSize()));
+            context.Custom(new RoomBackdropDrawOperation(dest, backdrop.Source, backdrop.Look, grid, charWidth, charHeight, coordinateConverter.GetFontSize(), backdrop.Opacity));
         }
 
         private void RenderBox(DrawingContext context, CanvasBox box)
@@ -659,7 +671,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             var drawText = ResolveInteractiveHighlight(text, content.Length, charWidth, charHeight);
 
             bool forceMonospace = ShouldForceMonospaceGlyphPlacement(GameFonts.UsesPixelGrid);
-            double baseX = text.X * charWidth;
+            double baseX = (text.X + text.NudgeCellsX) * charWidth;
             double baseY = text.Y * charHeight;
 
             using (PushCenterColumnClip(context, text, charWidth, charHeight))
@@ -1076,7 +1088,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             double fontSize)
         {
             var pose = SampleDistortionPose(text.X, text.Y, 0, charWidth, charHeight);
-            double baseX = text.X * charWidth;
+            double baseX = (text.X + text.NudgeCellsX) * charWidth;
             double baseY = text.Y * charHeight;
             bool moving = Math.Abs(pose.OffsetX) > WindSwayChromatic.IdleEpsilon
                 || Math.Abs(pose.OffsetY) > WindSwayChromatic.IdleEpsilon

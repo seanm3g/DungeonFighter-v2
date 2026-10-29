@@ -113,9 +113,10 @@ namespace RPGGame
             return (int)Math.Ceiling(messageMs * multiplier);
         }
 
-        public static async Task DelayAfterSequenceHudBeatAsync()
+        /// <summary>Waits <paramref name="share"/> of one sequence HUD beat (1 = a whole beat).</summary>
+        public static async Task DelayAfterSequenceHudBeatAsync(double share = 1.0)
         {
-            await DelayAsync(GetSequenceHudBeatDelayMs());
+            await DelayAsync((int)Math.Ceiling(GetSequenceHudBeatDelayMs() * share));
         }
 
         /// <summary>

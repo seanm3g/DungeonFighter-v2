@@ -41,6 +41,30 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static readonly Color Walker = Color.FromRgb(255, 255, 255);
         private static readonly Color SiteFill = Color.FromRgb(214, 52, 40);
         private static readonly Color SiteHover = Color.FromRgb(255, 214, 64);
+        private static readonly Color SitePlate = Color.FromArgb(215, 12, 10, 8);
+
+        /// <summary>
+        /// Dungeon marker per theme: a roguelike glyph that hints at the place, in the place's colour. Mostly
+        /// characters the default VT323 face has; the rest fall back to a system font like the terrain's clubs.
+        /// </summary>
+        private static readonly Dictionary<string, (string Glyph, Color Color)> SiteLooks = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Forest"] = ("♠", Color.FromRgb(96, 220, 84)),
+            ["Den"] = ("Ω", Color.FromRgb(210, 150, 84)),
+            ["Labyrinth"] = ("#", Color.FromRgb(150, 214, 96)),
+            ["Dense Brush"] = ("%", Color.FromRgb(70, 186, 64)),
+            ["Mirror Pond"] = ("◊", Color.FromRgb(200, 236, 255)),
+            ["Spring"] = ("≈", Color.FromRgb(96, 200, 255)),
+            ["Water Temple"] = ("∏", Color.FromRgb(64, 200, 190)),
+            ["Ashen Land"] = ("&", Color.FromRgb(176, 160, 150)),
+            ["Fire Temple"] = ("¥", Color.FromRgb(255, 120, 48)),
+            ["Lava"] = ("Ω", Color.FromRgb(255, 84, 32)),
+            ["Lava Cave"] = ("Ω", Color.FromRgb(255, 84, 32)),
+            ["Desert"] = ("*", Color.FromRgb(170, 236, 236)),
+            ["Pyramids"] = ("Δ", Color.FromRgb(240, 200, 100)),
+            ["Mountains"] = ("^", Color.FromRgb(236, 240, 248)),
+            ["Crypt"] = ("†", Color.FromRgb(190, 110, 230)),
+        };
         private static readonly Color LabelText = Color.FromRgb(255, 236, 170);
         private static readonly Color LabelBack = Color.FromArgb(225, 10, 8, 6);
 
@@ -214,16 +238,35 @@ namespace RPGGame.UI.Avalonia.Renderers
         public static Point SiteCenter(TravelMapSite site, double cellWidth, double cellHeight) =>
             new((site.FineX / 2 + 0.5) * cellWidth, (site.FineY / 2 + 0.5) * cellHeight);
 
-        /// <summary>A Mario-style level tile: a plain dark-edged rounded square, yellow and ringed when hovered.</summary>
-        private static void PaintSite(DrawingContext ctx, TravelMapSite site, bool hovered, double cellWidth, double cellHeight)
+        /// <summary>
+        /// The dungeon's theme glyph on a small dark plate edged in the theme colour, so each place reads as what
+        /// it is (cave, temple, maze, pond...). Yellow and ringed when hovered. Unknown themes keep the red tile.
+        /// </summary>
+        private void PaintSite(DrawingContext ctx, TravelMapSite site, bool hovered, double cellWidth, double cellHeight)
         {
             var c = SiteCenter(site, cellWidth, cellHeight);
-            double half = Math.Max(3, Math.Min(cellWidth, cellHeight) * (hovered ? 0.8 : 0.65));
-            var tile = new Rect(c.X - half, c.Y - half, half * 2, half * 2);
-            ctx.DrawRectangle(Solid(DotRing), null, tile.Inflate(2).Translate(new Vector(1.5, 1.5)), 3, 3);
-            ctx.DrawRectangle(Solid(hovered ? SiteHover : SiteFill), new Pen(Solid(DotRing), 1.5), tile, 2, 2);
+            if (site.Theme == null || !SiteLooks.TryGetValue(site.Theme, out var look))
+            {
+                double half = Math.Max(3, Math.Min(cellWidth, cellHeight) * (hovered ? 0.8 : 0.65));
+                var tile = new Rect(c.X - half, c.Y - half, half * 2, half * 2);
+                ctx.DrawRectangle(Solid(DotRing), null, tile.Inflate(2).Translate(new Vector(1.5, 1.5)), 3, 3);
+                ctx.DrawRectangle(Solid(hovered ? SiteHover : SiteFill), new Pen(Solid(DotRing), 1.5), tile, 2, 2);
+                if (hovered)
+                    ctx.DrawRectangle(null, new Pen(Solid(SiteHover), 1.2), tile.Inflate(4), 4, 4);
+                return;
+            }
+
+            var color = hovered ? SiteHover : look.Color;
+            double halfW = Math.Max(4, cellWidth * (hovered ? 1.15 : 0.95));
+            double halfH = Math.Max(4, cellHeight * (hovered ? 0.8 : 0.68));
+            var plate = new Rect(c.X - halfW, c.Y - halfH, halfW * 2, halfH * 2);
+            ctx.DrawRectangle(Solid(DotRing), null, plate.Translate(new Vector(1.5, 1.5)), 3, 3);
+            ctx.DrawRectangle(Solid(SitePlate), new Pen(Solid(color), 1.2), plate, 3, 3);
+            double scale = hovered ? 2.6 : 2.2;
+            glyphs!.Draw(ctx, look.Glyph, DotRing, scale, new Point(c.X + 1.5, c.Y + 1.5));
+            glyphs.Draw(ctx, look.Glyph, color, scale, c);
             if (hovered)
-                ctx.DrawRectangle(null, new Pen(Solid(SiteHover), 1.2), tile.Inflate(4), 4, 4);
+                ctx.DrawRectangle(null, new Pen(Solid(SiteHover), 1.2), plate.Inflate(4), 5, 5);
         }
 
         /// <summary>The hovered dungeon's name on a dark slip just above its tile, kept inside the map.</summary>

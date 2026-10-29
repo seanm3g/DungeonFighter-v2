@@ -62,6 +62,15 @@ namespace RPGGame.UI.Avalonia.Canvas
         }
 
         /// <summary>
+        /// Adds text shifted right by a fraction of a cell, replacing any text at (x, y). Never merges with neighbors.
+        /// </summary>
+        public void AddTextNudged(int x, int y, string text, Color color, double nudgeCellsX)
+        {
+            elementManager.RemoveText(t => t.X == x && t.Y == y);
+            elementManager.AddText(new CanvasText { X = x, Y = y, Content = text, Color = color, NudgeCellsX = nudgeCellsX });
+        }
+
+        /// <summary>
         /// Adds text to the canvas at the specified position without removing existing text
         /// This is used for rendering multi-segment colored text where segments may round to the same position
         /// </summary>
@@ -361,7 +370,8 @@ namespace RPGGame.UI.Avalonia.Canvas
                 DamageDeltaStartTime = damageDeltaStartTime,
                 HeightScale = heightScale,
                 VerticalOffsetScale = verticalOffsetScale,
-                DividerFractions = dividerFractions
+                DividerFractions = dividerFractions,
+                IsHealthBar = true
             };
 
             if (!string.IsNullOrEmpty(entityId))

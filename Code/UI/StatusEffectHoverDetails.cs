@@ -44,7 +44,8 @@ namespace RPGGame
         /// Detail lines for one active status on <paramref name="actor"/>. <paramref name="effectId"/> is the canonical id
         /// (poison, burn, bleed, acid, stun, weaken, …).
         /// </summary>
-        public static List<string> Describe(Actor? actor, string effectId)
+        /// <param name="hero">The player, so an enemy row can list the hero actions that inflict it (hero rows use the actor).</param>
+        public static List<string> Describe(Actor? actor, string effectId, Character? hero = null)
         {
             var lines = new List<string>();
             string id = (effectId ?? "").Trim().ToLowerInvariant();
@@ -70,6 +71,10 @@ namespace RPGGame
             if (!string.IsNullOrWhiteSpace(source))
                 lines.Add($"Applied by: {source}.");
 
+            string comesFrom = DescribeSources(actor, id, hero);
+            if (!string.IsNullOrEmpty(comesFrom))
+                lines.Add(comesFrom);
+
             string ends = HowItEnds(id);
             if (!string.IsNullOrEmpty(ends))
                 lines.Add("Ends: " + ends);
@@ -81,6 +86,63 @@ namespace RPGGame
                     lines.Add(affinity);
             }
             return lines;
+        }
+
+        /// <summary>
+        /// "Comes from:" line naming what can put <paramref name="id"/> on <paramref name="bearer"/> this fight: the bearer's
+        /// own self-target actions, the other side's actions that hit with it, and the hero's weapon DoT mods.
+        /// </summary>
+        private static string DescribeSources(Actor? bearer, string id, Character? hero)
+        {
+            if (bearer == null)
+                return "";
+            bool bearerIsHero = bearer is Character && bearer is not Enemy;
+            Character? player = bearerIsHero ? (Character)bearer : hero;
+            Enemy? foe = bearer as Enemy ?? CurrentEnemy;
+
+            var parts = new List<string>();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            void Scan(IEnumerable<Action> actions, bool wantSelf, string owner)
+            {
+                foreach (var action in actions)
+                {
+                    if (action == null || string.IsNullOrWhiteSpace(action.Name) || !seen.Add(owner + action.Name))
+                        continue;
+                    if (!StatusEffectActionResolver.GetEffectTypesFromAction(action)
+                            .Any(e => string.Equals(e, id, StringComparison.OrdinalIgnoreCase)))
+                        continue;
+                    if (HoverEffectCopy.IsSelfTarget(action, id) == wantSelf)
+                        parts.Add($"{owner} {action.Name}");
+                }
+            }
+
+            if (player != null)
+            {
+                var heroActions = player.GetComboActions().Concat(player.ActionPool.Select(e => e.action));
+                Scan(heroActions, wantSelf: bearerIsHero, owner: "your");
+            }
+            if (foe != null)
+                Scan(foe.ActionPool.Select(e => e.action), wantSelf: !bearerIsHero, owner: bearerIsHero ? "enemy's" : "its");
+
+            if (!bearerIsHero && player != null)
+            {
+                string weapon = id switch
+                {
+                    "bleed" when player.GetWeaponBleedPerHit() > 0 => $"your weapon mods (+{player.GetWeaponBleedPerHit()} on crit)",
+                    "burn" when player.GetWeaponBurnPerHit() > 0 => $"your weapon mods (+{player.GetWeaponBurnPerHit()} on crit)",
+                    "acid" when player.GetWeaponAcidPerHit() > 0 => $"your weapon mods (+{player.GetWeaponAcidPerHit()} on crit)",
+                    "poison" when player.GetWeaponPoisonPercentPerHit() > 0 => $"your weapon mods (+{Fmt(player.GetWeaponPoisonPercentPerHit())}% max HP on crit)",
+                    _ => ""
+                };
+                if (weapon.Length > 0)
+                    parts.Add(weapon);
+            }
+
+            if (parts.Count == 0)
+                return "Comes from: no action in your kit or this enemy's applies it (gear proc, skill, room or dungeon effect).";
+            const int maxShown = 4;
+            string list = string.Join(", ", parts.Take(maxShown));
+            return parts.Count > maxShown ? $"Comes from: {list} +{parts.Count - maxShown} more." : $"Comes from: {list}.";
         }
 
         /// <summary>One-line affinity note for an enemy and status ("Weak to Burn ×2 — Wood and leaf burn readily (plant)").</summary>

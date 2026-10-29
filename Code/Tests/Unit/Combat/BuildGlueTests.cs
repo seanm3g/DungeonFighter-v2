@@ -136,11 +136,11 @@ namespace RPGGame.Tests.Unit.Combat
                 return;
             }
             var foeHit = new CombatEvent(CombatEventType.ActionHit, foe) { Target = hero, Action = new Action { Name = "JAB", Type = ActionType.Attack } };
-            MaterialSetController.TryMintFromEvent(hero, foeHit, foeHit.Action, null, takeHitOnly: true);
+            MaterialSetController.TryMintFromEvent(hero, foeHit, foeHit.Action, takeHitOnly: true);
             TestBase.AssertEqual(0, MaterialSetController.GetKeyword(hero, "CONTACT"), "a foe's hit does not mint ON CONNECT currency",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             var heroHit = new CombatEvent(CombatEventType.ActionHit, hero) { Target = foe, Action = new Action { Name = "SLAM", Type = ActionType.Attack } };
-            MaterialSetController.TryMintFromEvent(hero, heroHit, heroHit.Action, null);
+            MaterialSetController.TryMintFromEvent(hero, heroHit, heroHit.Action);
             TestBase.AssertTrue(MaterialSetController.GetKeyword(hero, "CONTACT") > 0, "the hero's own connect mints CONTACT",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }

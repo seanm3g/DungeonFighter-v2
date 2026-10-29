@@ -111,6 +111,8 @@ namespace RPGGame.Combat.Sequence
         /// </summary>
         public static void SetPendingHoverInfo(List<List<ColoredText>>? infoLines)
         {
+            if (CombatLogProseHoverInfo.CloneLines(infoLines) is { Count: > 0 } block)
+                CombatSequenceSwingInfo.AttachLogBlock(_pendingSteps, block);
             _pendingHoverInfo = _pendingMathInfo is { Count: > 0 }
                 ? CombatLogProseHoverInfo.AppendBlocks(infoLines, _pendingMathInfo)
                 : CombatLogProseHoverInfo.CloneLines(infoLines);

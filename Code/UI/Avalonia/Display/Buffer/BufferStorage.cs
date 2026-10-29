@@ -286,6 +286,22 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
         }
 
         /// <summary>
+        /// Drops the oldest <paramref name="count"/> lines (between-fights screen starts at the defeat line).
+        /// </summary>
+        public void RemoveOldest(int count, ScrollStateManager scrollState)
+        {
+            count = Math.Min(count, messages.Count);
+            if (count <= 0)
+                return;
+            messages.RemoveRange(0, count);
+            lineMessageTypes.RemoveRange(0, count);
+            lineHoverInfoLines.RemoveRange(0, count);
+            lineDualSpans.RemoveRange(0, count);
+            scrollState.Reset();
+            scrollState.UpdateAfterAdd(wasAtTop: false, wasAtBottom: true, messages.Count);
+        }
+
+        /// <summary>
         /// Snapshot of every line including F7 dual-view alternate / span (for swap).
         /// </summary>
         public List<CombatLogDualView.Line> GetAllDualViewLines()

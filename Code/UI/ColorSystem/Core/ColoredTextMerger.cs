@@ -61,7 +61,8 @@ namespace RPGGame.UI.ColorSystem
                     // First segment - normalize and store
                     currentSegment = WithText(segment, normalizedText);
                 }
-                else if (ColorValidator.AreColorsEqual(currentSegment.Color, segment.Color))
+                else if (ColorValidator.AreColorsEqual(currentSegment.Color, segment.Color)
+                         && IsSameTemplateRun(currentSegment, segment))
                 {
                     // Same color - but preserve whitespace segments separately to maintain spacing
                     // This is critical for room names like "Cpt Pae" where the space must be preserved
@@ -173,6 +174,14 @@ namespace RPGGame.UI.ColorSystem
         }
         
         /// <summary>
+        /// Same-color segments merge only within one template run. A gold "Dungeon: " prefix must not
+        /// swallow a gold first glyph of a templated name ("Dungeon: G"): the whitespace in the merged
+        /// segment then reads as a word boundary and a space lands before the second glyph ("G lass").
+        /// </summary>
+        internal static bool IsSameTemplateRun(ColoredText left, ColoredText right) =>
+            string.Equals(left.SourceTemplate, right.SourceTemplate, StringComparison.Ordinal);
+
+        /// <summary>
         /// Merges only segments with the same color, preserving space segments separately.
         /// This is used by ColoredTextBuilder which handles spacing differently.
         /// IMPORTANT: Space segments are ALWAYS preserved as separate segments to ensure proper spacing.
@@ -219,7 +228,7 @@ namespace RPGGame.UI.ColorSystem
                     merged.Add(segment);
                     current = null; // Reset current so next segment starts fresh
                 }
-                else if (ColorValidator.AreColorsEqual(current.Color, segment.Color))
+                else if (ColorValidator.AreColorsEqual(current.Color, segment.Color) && IsSameTemplateRun(current, segment))
                 {
                     // Same color and both are non-space segments - merge them
                     // Note: Space segments are handled above, so we know both are non-space here

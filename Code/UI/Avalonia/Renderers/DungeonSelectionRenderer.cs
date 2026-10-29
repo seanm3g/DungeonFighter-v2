@@ -252,9 +252,11 @@ namespace RPGGame.UI.Avalonia.Renderers
                 mapKey = key;
             }
 
-            // Sites are numbered 1..n in placement order; relabel them with each dungeon's list number.
+            // Sites are numbered 1..n in placement order; relabel them with each dungeon's list number and theme.
             var sites = mapGeography.Sites
-                .Select(s => s with { Number = s.Number - 1 < placed.Count ? placed[s.Number - 1].Number : s.Number })
+                .Select(s => s.Number - 1 < placed.Count
+                    ? s with { Number = placed[s.Number - 1].Number, Theme = placed[s.Number - 1].Dungeon.Theme }
+                    : s)
                 .ToList();
 
             canvas.AddBox(left, top, width, height, MapEdge, MapSea);

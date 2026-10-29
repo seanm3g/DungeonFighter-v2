@@ -1,18 +1,15 @@
 using System;
-using Avalonia.Media;
 using RPGGame;
 
 namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
     /// Center column for <see cref="CombatBoardLayout.IsInterlude"/>: between fights the board keeps its shape, so the
-    /// dungeon log (room text, next-room choice, completion / death summary) sits in a framed box like the board's log
-    /// view, with the hero health bar and name below it and the hero strip along the bottom.
+    /// dungeon log (room text, next-room choice, completion / death summary) floats over the backdrop in the board's
+    /// log rect, with the hero health bar and name below it and the hero strip along the bottom.
     /// </summary>
     public static class CombatBoardInterludeRenderer
     {
-        private static readonly Color BoxBackground = Color.FromRgb(10, 10, 10);
-
         /// <summary>Clears the column above the hero strip before the log repaints (leftover fight board, old text).</summary>
         public static void ClearColumn(GameCanvasControl canvas)
         {
@@ -26,18 +23,18 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.ClearLinesInArea(x, 0, w, h);
         }
 
-        /// <summary>Box frame, its label, and the hero health bar; call after the log has painted inside the box.</summary>
+        /// <summary>The log's label and the hero health bar; call after the log has painted. No frame or fill: the
+        /// log floats over the room backdrop.</summary>
         public static void RenderChrome(GameCanvasControl canvas, Character? character, string label)
         {
             var (x, y, w, h) = CombatBoardLayout.InterludeBoxRect();
-            canvas.AddBox(x, y, w, h, AsciiArtAssets.Colors.Cyan, BoxBackground, aboveBackdrop: true);
             string text = $" {label} ";
             if (text.Length > w - 4)
                 text = text.Substring(0, Math.Max(0, w - 4));
             if (text.Length > 0)
                 canvas.AddText(x + 2, y, text, AsciiArtAssets.Colors.Cyan);
 
-            if (character == null)
+            if (character == null || CombatBoardLayout.IsBetweenFights)
                 return;
             int barY = CombatBoardLayout.HeroBarY;
             if (barY <= y + h)

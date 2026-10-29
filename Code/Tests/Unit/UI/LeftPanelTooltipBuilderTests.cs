@@ -217,11 +217,11 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(setTip.Any(l => l.Contains("IRON CULL", StringComparison.OrdinalIgnoreCase)),
                 "forming-set tooltip names convert action",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(setTip.Any(l => l.Contains("synth+convert", StringComparison.Ordinal)),
+            TestBase.AssertTrue(setTip.Any(l => l.Contains("2 pieces:", StringComparison.Ordinal)),
                 "forming-set tooltip lists stack unlocks",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(setTip.Any(l => l.StartsWith("WHEN ", StringComparison.Ordinal)),
-                "forming-set tooltip lists WHEN",
+            TestBase.AssertTrue(setTip.Any(l => l.StartsWith("Gain ", StringComparison.Ordinal)),
+                "forming-set tooltip explains how the keyword is gained",
                 ref run, ref passed, ref failed);
             var setColored = LeftPanelTooltipBuilder.BuildColoredItemLines(c, LeftPanelHoverState.Prefix + "set:Iron", 20);
             TestBase.AssertTrue(setColored.Count > 0, "forming-set colored tooltip has lines", ref run, ref passed, ref failed);

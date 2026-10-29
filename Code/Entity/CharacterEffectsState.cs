@@ -60,7 +60,7 @@ namespace RPGGame
         public List<(string Keyword, int Count)> GetMaterialKeywordCounts()
         {
             var list = new List<(string, int)>();
-            foreach (var kv in MaterialKeywordBank)
+            foreach (var kv in MaterialKeywordBank.ToArray())
             {
                 if (kv.Value > 0)
                     list.Add((kv.Key, kv.Value));
@@ -403,14 +403,20 @@ namespace RPGGame
         {
             var result = new List<ActionAttackBonusItem>();
             var toRemove = new List<ActionAttackBonusGroup>();
-            foreach (var group in TurnBonuses)
+            foreach (var group in TurnBonuses.ToArray())
             {
                 if (group.Count > 0 && group.Bonuses != null) { result.AddRange(group.Bonuses); group.Count--; if (group.Count <= 0) toRemove.Add(group); }
             }
             foreach (var g in toRemove) TurnBonuses.Remove(g);
             return result;
         }
-        public List<ActionAttackBonusItem> PeekTurnBonuses() { var r = new List<ActionAttackBonusItem>(); foreach (var g in TurnBonuses) { if (g.Bonuses != null) r.AddRange(g.Bonuses); } return r; }
+        public List<ActionAttackBonusItem> PeekTurnBonuses() { var r = new List<ActionAttackBonusItem>(); foreach (var g in SnapshotTurnBonuses()) { if (g?.Bonuses != null) r.AddRange(g.Bonuses); } return r; }
+
+        /// <summary>
+        /// Copy of the TURN groups for readers. Combat mutates <see cref="TurnBonuses"/> off the UI thread;
+        /// List.ToArray copies without an enumerator, so a concurrent add/remove can't throw mid-read.
+        /// </summary>
+        public ActionAttackBonusGroup[] SnapshotTurnBonuses() => TurnBonuses.ToArray();
         public void ClearActionBonus()
         {
             TurnBonuses.Clear();
@@ -443,7 +449,8 @@ namespace RPGGame
         {
             return PendingActionBonusesBySlot.TryGetValue(slot, out var list) ? new List<ActionAttackBonusItem>(list) : new List<ActionAttackBonusItem>();
         }
-        public IEnumerable<int> GetPendingActionBonusSlots() => PendingActionBonusesBySlot.Keys;
+        /// <summary>Snapshot of slot keys (not the live key view) so HUD reads can't race combat writes.</summary>
+        public IEnumerable<int> GetPendingActionBonusSlots() => PendingActionBonusesBySlot.Keys.ToArray();
         public void ClearPendingActionBonuses()
         {
             PendingActionBonusesBySlot.Clear();

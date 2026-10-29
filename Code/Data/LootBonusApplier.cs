@@ -120,11 +120,8 @@ namespace RPGGame
             item.RecomputeAttributeRequirementsIncludingModifications();
         }
 
-        /// <summary>
-        /// Ensures exactly one Material prefix. Weapons use the class ladder; non-weapons pick any material.
-        /// </summary>
-        /// <summary>Market skill rules: a non-weapon drop may take the hero's class material for its rarity.</summary>
-        private string ApplyClassMaterialBias(string materialName, string rarityName, LootContext? context)
+        /// <summary>Market skill rules: a non-weapon drop may take one of the hero's three class materials.</summary>
+        private string ApplyClassMaterialBias(string materialName, LootContext? context)
         {
             if (context?.ClassMaterialChance == null || context.ClassMaterialChance.Count == 0)
                 return materialName;
@@ -133,11 +130,14 @@ namespace RPGGame
                 if (kv.Value <= 0 || _random.NextDouble() >= kv.Value)
                     continue;
                 if (ClassTags.WeaponOf(kv.Key) is WeaponType wt)
-                    return ItemMaterialRules.ResolveWeaponMaterial(wt, rarityName);
+                    return ItemMaterialRules.PickClassMaterial(wt, _random);
             }
             return materialName;
         }
 
+        /// <summary>
+        /// Ensures exactly one Material prefix. Weapons pick one of their class's three materials; non-weapons pick any material.
+        /// </summary>
         public void EnsureMaterial(Item item, string? itemRarity = null, LootContext? context = null)
         {
             if (item == null)
@@ -153,14 +153,14 @@ namespace RPGGame
             string materialName;
             if (item.Type == ItemType.Weapon)
             {
-                materialName = ItemMaterialRules.ResolveWeaponMaterial(item.WeaponType, rarityName);
+                materialName = ItemMaterialRules.PickClassMaterial(item.WeaponType, _random);
             }
             else
             {
                 var materialMods = (_dataCache.Modifications ?? new List<Modification>())
                     .Where(m => m.GetPrefixCategory() == ModificationPrefixCategory.Material);
                 materialName = ItemMaterialRules.PickNonWeaponMaterial(materialMods, rarityName, _random);
-                materialName = ApplyClassMaterialBias(materialName, rarityName, context);
+                materialName = ApplyClassMaterialBias(materialName, context);
             }
 
             var template = (_dataCache.Modifications ?? new List<Modification>())

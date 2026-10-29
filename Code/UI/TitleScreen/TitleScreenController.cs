@@ -359,7 +359,7 @@ namespace RPGGame.UI.TitleScreen
             bool firstFrameAlreadyRendered = false)
         {
             var preload = Preload();
-            var renderer = CreateRenderer();
+            var renderer = CreateRenderer(idleCancellationToken);
 
             if (renderer != null)
             {
@@ -417,13 +417,13 @@ namespace RPGGame.UI.TitleScreen
             }
         }
 
-        private static ITitleRenderer? CreateRenderer()
+        private static ITitleRenderer? CreateRenderer(CancellationToken idleToken = default)
         {
             var uiManager = UIManager.GetCustomUIManager();
 
             if (uiManager is CanvasUICoordinator canvasUI)
             {
-                return new CanvasTitleRenderer(canvasUI);
+                return new CanvasTitleRenderer(canvasUI, idleToken);
             }
             else if (uiManager == null)
             {

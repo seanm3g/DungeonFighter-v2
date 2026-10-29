@@ -456,43 +456,56 @@ namespace RPGGame
         /// Primary tooltip segments: combo roles, swing % damage/speed, amp calc.
         /// </summary>
         private static List<string> BuildPrimaryStatSegments(Character? character, Action action, int panelIndex, ActionStripDamageLineMode swingLineMode)
+            => BuildPrimaryStatEntries(character, action, panelIndex, swingLineMode).Select(e => e.Text).ToList();
+
+        /// <summary>
+        /// Stat lines with a <c>Dim</c> flag: results (roles, %, hit/time, bonuses) read first; derivations
+        /// (AMP formula, card math, what combat adds) are dimmed in the colored tooltip.
+        /// </summary>
+        private static List<(string Text, bool Dim)> BuildPrimaryStatEntries(Character? character, Action action, int panelIndex, ActionStripDamageLineMode swingLineMode)
         {
             var segments = new List<string>();
             AppendComboRoleAndWeaponRequirementNotation(segments, character, action);
             segments.Add(BuildTooltipSwingModsLine(character, action, panelIndex, swingLineMode));
             AddSegment(segments, HeroDefenseHudFormatter.FormatActionBlockTooltip(action));
-            if (character != null)
+            var entries = segments.Select(s => (s, false)).ToList();
+            if (character == null)
+                return entries;
+
+            var math = BuildCardMathLines(character, action, panelIndex, swingLineMode);
+            if (!string.IsNullOrEmpty(math.Summary))
+                entries.Add((math.Summary, false));
+            foreach (var bonus in ActionCardExternalBonusCollector.BuildLines(character, action, panelIndex))
             {
-                string ampCalc = FormatSwingAmpCalculationLine(character, action, panelIndex);
-                if (!string.IsNullOrEmpty(ampCalc))
-                    segments.Add(ampCalc);
-                foreach (var bonus in ActionCardExternalBonusCollector.BuildLines(character, action, panelIndex))
-                {
-                    if (!string.IsNullOrWhiteSpace(bonus.Text))
-                        segments.Add(bonus.Text);
-                }
-                foreach (string line in BuildCardMathLines(character, action, panelIndex, swingLineMode))
-                    segments.Add(line);
+                if (!string.IsNullOrWhiteSpace(bonus.Text))
+                    entries.Add((bonus.Text, false));
             }
-            return segments;
+            foreach (string line in math.Derivation)
+                entries.Add((line, true));
+            string ampCalc = FormatSwingAmpCalculationLine(character, action, panelIndex);
+            if (!string.IsNullOrEmpty(ampCalc))
+                entries.Add((ampCalc, true));
+            return entries;
         }
 
         /// <summary>
         /// How the strip card's flat damage and seconds are derived (<see cref="ConvertDamagePercentToFlat"/>,
         /// <see cref="GetStripSwingDisplayValues"/>) and what combat stacks on top.
+        /// <c>Summary</c> is the card's numbers; <c>Derivation</c> is the short math behind them.
         /// </summary>
-        private static List<string> BuildCardMathLines(Character character, Action action, int panelIndex, ActionStripDamageLineMode mode)
+        private static (string Summary, List<string> Derivation) BuildCardMathLines(Character character, Action action, int panelIndex, ActionStripDamageLineMode mode)
         {
-            var lines = new List<string>();
+            var derivation = new List<string>();
             int baseAttack = Math.Max(1, character.Combat.GetTotalDamage());
             double damagePct;
+            double speedPct = 100;
             int damage;
             double seconds = -1;
             var panels = panelIndex >= 0 ? BuildPanelData(character) : null;
             if (panels != null && panelIndex < panels.Count)
             {
                 var info = panels[panelIndex];
-                GetStripSwingDisplayPercents(in info, character, action, mode, out damagePct, out _, panelIndex);
+                GetStripSwingDisplayPercents(in info, character, action, mode, out damagePct, out speedPct, panelIndex);
                 GetStripSwingDisplayValues(in info, character, action, mode, out damage, out seconds, panelIndex);
             }
             else
@@ -503,18 +516,28 @@ namespace RPGGame
                 damage = ConvertDamagePercentToFlat(character, action, damagePct);
             }
 
+            var summary = new List<string>();
             if (action.DamageMultiplier > 0)
             {
+                summary.Add($"Hit ≈ {damage}");
                 double starting = EarlyGameBalanceHelper.GetStartingActionDamageMultiplier(character, action);
                 double classMult = character.Weapon is WeaponItem w ? ClassBalanceHelper.GetDamageMultiplier(w.WeaponType) : 1.0;
                 string extra = (Math.Abs(starting - 1.0) > 0.0001 ? $" × starting {starting:0.##}" : "")
                     + (Math.Abs(classMult - 1.0) > 0.0001 ? $" × class {classMult:0.##}" : "");
-                double critMult = GameConfiguration.Instance.CombatBalance.CriticalHitDamageMultiplier;
-                lines.Add($"Card damage: base attack {baseAttack} × {damagePct:0.#}%{extra} ≈ {damage} per hit; combat then applies the roll band (crit ×{(critMult > 0 ? critMult : 2.0):0.##}) and enemy armor.");
+                derivation.Add($"Hit = {baseAttack} attack × {damagePct:0.#}%{extra}");
             }
             if (seconds > 0)
-                lines.Add($"Card time: attack time {character.GetTotalAttackSpeed():0.00}s × length {action.Length:0.##}, scaled by pending speed % ≈ {seconds:0.0}s (hover Speed for attack time).");
-            return lines;
+            {
+                summary.Add($"Time ≈ {seconds:0.0}s");
+                string speedNote = Math.Abs(speedPct - 100) > 0.5 ? $" at {speedPct:0}% speed" : "";
+                derivation.Add($"Time = {character.GetTotalAttackSpeed():0.00}s attack × length {action.Length:0.##}{speedNote}");
+            }
+            if (action.DamageMultiplier > 0)
+            {
+                double critMult = GameConfiguration.Instance.CombatBalance.CriticalHitDamageMultiplier;
+                derivation.Add($"In combat: roll band (crit ×{(critMult > 0 ? critMult : 2.0):0.##}), then enemy armor.");
+            }
+            return (string.Join(" | ", summary), derivation);
         }
 
         /// <summary>

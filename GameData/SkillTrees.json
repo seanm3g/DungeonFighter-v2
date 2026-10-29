@@ -78,7 +78,7 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "Gain armor equal to your natural dice roll x {1} until you next act.",
+          "effect": "Gain Defense equal to your natural dice roll x {1} until you next act.",
           "payoff": "Aggressive rolls still buy defense.",
           "customEffectId": "iron_hide_roll",
           "power": 1.0,

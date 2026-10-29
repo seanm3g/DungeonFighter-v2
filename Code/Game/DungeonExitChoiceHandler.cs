@@ -5,6 +5,7 @@ namespace RPGGame
     using System.Threading.Tasks;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Managers;
     using RPGGame.UI.ColorSystem;
 
     /// <summary>
@@ -81,9 +82,16 @@ namespace RPGGame
             // Display the menu
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                // Scouting report for the next room (the roll itself is never shown).
+                // The fight's blow-by-blow is done: the choice screen opens on the last "{Enemy} has been defeated!".
+                if (canvasUI.GetTextManager() is CanvasTextManager ctm)
+                    ctm.DisplayManager.Buffer.TrimBeforeLastLineContaining(" has been defeated!");
+
+                // Scouting report for the next room (the roll itself is never shown), under its own heading.
                 if (scoutingReport != null)
                 {
+                    canvasUI.WriteLineColoredSegments(new List<ColoredText>(), UIMessageType.Environmental);
+                    canvasUI.WriteLineColoredSegments(new List<ColoredText>(), UIMessageType.Environmental);
+                    canvasUI.WriteLineColoredSegments(new ColoredTextBuilder().Add(WayAheadHeading, ColorPalette.Gold).Build(), UIMessageType.Title);
                     canvasUI.WriteLineColoredSegments(new List<ColoredText>(), UIMessageType.Environmental);
                     foreach (var line in scoutingReport)
                         canvasUI.WriteLineColoredSegments(line, UIMessageType.Environmental);
@@ -111,6 +119,8 @@ namespace RPGGame
             
             return shouldExit;
         }
+
+        private const string WayAheadHeading = "~ THE WAY AHEAD ~";
 
         public static IReadOnlyList<List<ColoredText>> BuildExitChoiceMenuLines()
         {

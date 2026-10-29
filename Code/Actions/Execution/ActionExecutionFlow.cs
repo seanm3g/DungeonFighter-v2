@@ -158,7 +158,7 @@ namespace RPGGame.Actions.Execution
 
             var result = new ActionExecutionResult();
             if (source is Character heroTurn && heroTurn is not Enemy && RetriggerDepth == 0)
-                { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); MaterialSetController.NotifyHeroTurnStart(heroTurn, result.StatusEffectMessages); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.TurnStart", pf); }
+                { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); MaterialSetController.NotifyHeroTurnStart(heroTurn); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.TurnStart", pf); }
             if (source is Character tempDecayCharacter)
                 { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); tempDecayCharacter.UpdateTempEffects(Character.DEFAULT_ACTION_LENGTH); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.UpdateTempEffects", pf); }
             { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); ApplyPreRollBonuses(source); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.PreRoll", pf); }

@@ -48,7 +48,6 @@ namespace RPGGame.Tests.Unit.Combat
             TestCrossFedSetWithoutPartnerStillMints();
             TestFocusAndSlowFromAnySourceMint();
             TestTwoRageAddsTenConvertDamage();
-            TestMintWritesFeedCombatLine();
             TestFormatWhenLabel();
             TestKeywordBankSurvivesCombatInitAndClearsOnDungeonEnd();
             TestFormingSetHudRequiresTwoPieces();
@@ -386,27 +385,6 @@ namespace RPGGame.Tests.Unit.Combat
             }
         }
 
-        private static void TestMintWritesFeedCombatLine()
-        {
-            TestBase.SetCurrentTestName(nameof(TestMintWritesFeedCombatLine));
-            var hero = EquipIron(2);
-            var messages = new List<string>();
-            var evt = new CombatEvent(CombatEventType.EnemyHealthThreshold, hero) { Target = hero, HealthPercentage = 0.2 };
-            MaterialSetController.TryMintFromEvent(hero, evt, action: null, messages);
-            TestBase.AssertEqual(1, messages.Count, "one feed combat line", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(messages.Count > 0 && MaterialSetController.IsFeedCombatLine(messages[0]),
-                "line is tagged as a feed combat line", ref _run, ref _passed, ref _failed);
-            string plain = messages.Count == 0
-                ? ""
-                : ColoredTextRenderer.RenderAsPlainText(ColoredTextParser.Parse(messages[0]));
-            TestBase.AssertTrue(plain.IndexOf("CRISIS", StringComparison.OrdinalIgnoreCase) >= 0,
-                "line names CRISIS", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(plain.IndexOf("feeds", StringComparison.OrdinalIgnoreCase) >= 0,
-                "line says feeds", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(plain.IndexOf("+1", StringComparison.Ordinal) >= 0,
-                "line shows +1", ref _run, ref _passed, ref _failed);
-        }
-
         private static void TestFormatWhenLabel()
         {
             TestBase.SetCurrentTestName(nameof(TestFormatWhenLabel));
@@ -469,12 +447,14 @@ namespace RPGGame.Tests.Unit.Combat
             var hover = MaterialSetController.FormatSetStatusLines(two, two.Equipment.Head).ToList();
             TestBase.AssertTrue(hover.Count > 0 && hover[0] == "Iron 2/5",
                 "hover quantity line is Iron 2/5", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(hover.Any(l => l.Contains("synth+convert", StringComparison.Ordinal)
-                    && l.Contains("+feed", StringComparison.Ordinal)
-                    && l.Contains("xfeed", StringComparison.Ordinal)),
+            TestBase.AssertTrue(hover.Any(l => l.Contains("2 pieces:", StringComparison.Ordinal))
+                    && hover.Any(l => l.Contains("3 pieces:", StringComparison.Ordinal))
+                    && hover.Any(l => l.Contains("5 pieces:", StringComparison.Ordinal)),
                 "hover lists stack unlocks", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(hover.Any(l => l.StartsWith("WHEN ", StringComparison.Ordinal)),
-                "hover lists WHEN", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(hover.Any(l => l.StartsWith("Gain ", StringComparison.Ordinal)),
+                "hover explains how the keyword is gained", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(hover.Any(l => l.StartsWith("Now: +1 ", StringComparison.Ordinal)),
+                "hover shows the 2-piece mint per trigger", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(hover.Any(l => l.Contains("IRON CULL", StringComparison.OrdinalIgnoreCase)),
                 "hover names convert action", ref _run, ref _passed, ref _failed);
 

@@ -202,6 +202,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun, CanvasContext context)
         {
             EnsureDisplayManagerForPlayer(player);
+            // Strip is hidden on the completion screen; drop any hover card it left in the left panel.
+            ActionStripHoverState.Clear();
+            LeftPanelHoverState.Clear();
             if (textManager is CanvasTextManager ctm)
             {
                 ctm.DisplayManager.SetMode(new StandardDisplayMode());

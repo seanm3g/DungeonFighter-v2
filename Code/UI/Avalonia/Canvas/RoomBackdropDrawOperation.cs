@@ -14,17 +14,20 @@ namespace RPGGame.UI.Avalonia.Canvas
     /// Porter-Duff only) and color filters. The filtered + blurred plate is cached at device size and rebuilt only when
     /// the plate, size or filter knobs change; blend mode, base color and opacity apply per frame. In Ascii style the
     /// filtered plate is averaged per text-grid cell and redrawn as glyphs in the game font (cached the same way).
+    /// Each cache keeps two entries so a crossfade between two rooms' plates does not rebuild them every frame.
     /// </summary>
     internal sealed class RoomBackdropDrawOperation : ICustomDrawOperation
     {
         private const int MaxCacheSide = 4096;
 
         private static readonly object CacheGate = new();
-        private static SKImage? cachedImage;
-        private static (SKImage Source, int W, int H, double Brightness, double Contrast, double Saturation, double Blur) cachedKey;
+        private static readonly SKImage?[] cachedImages = new SKImage?[2];
+        private static readonly (SKImage Source, int W, int H, double Brightness, double Contrast, double Saturation, double Blur)[] cachedKeys = new (SKImage, int, int, double, double, double, double)[2];
+        private static int lastImageSlot;
 
-        private static SKImage? cachedAscii;
-        private static (SKImage Plate, int Cols, int Rows, double CellW, double CellH, double FontSize, string Family, string Ramp, double Background, double Gain, double Underlay) cachedAsciiKey;
+        private static readonly SKImage?[] cachedAsciis = new SKImage?[2];
+        private static readonly (SKImage Plate, int Cols, int Rows, double CellW, double CellH, double FontSize, string Family, string Ramp, double Background, double Gain, double Underlay)[] cachedAsciiKeys = new (SKImage, int, int, double, double, double, string, string, double, double, double)[2];
+        private static int lastAsciiSlot;
 
         private readonly SKImage source;
         private readonly RoomBackdropConfig config;
@@ -32,9 +35,11 @@ namespace RPGGame.UI.Avalonia.Canvas
         private readonly double cellWidth;
         private readonly double cellHeight;
         private readonly double fontSize;
+        private readonly double opacity;
 
         /// <param name="grid">The whole cell rectangle the plate belongs to (<paramref name="bounds"/> is it minus the border inset); Ascii glyphs sit on its cells.</param>
-        public RoomBackdropDrawOperation(Rect bounds, SKImage source, RoomBackdropConfig config, Rect grid, double cellWidth, double cellHeight, double fontSize)
+        /// <param name="opacity">Whole-result opacity (base fill and plate together), for the location crossfade.</param>
+        public RoomBackdropDrawOperation(Rect bounds, SKImage source, RoomBackdropConfig config, Rect grid, double cellWidth, double cellHeight, double fontSize, double opacity = 1)
         {
             Bounds = bounds;
             this.source = source;
@@ -43,6 +48,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             this.cellWidth = cellWidth;
             this.cellHeight = cellHeight;
             this.fontSize = fontSize;
+            this.opacity = Math.Clamp(opacity, 0, 1);
         }
 
         public Rect Bounds { get; }
@@ -55,6 +61,8 @@ namespace RPGGame.UI.Avalonia.Canvas
 
         public void Render(ImmediateDrawingContext context)
         {
+            if (opacity <= 0)
+                return;
             var leaseFeature = context.TryGetFeature<ISkiaSharpApiLeaseFeature>();
             if (leaseFeature == null)
                 return;
@@ -85,8 +93,14 @@ namespace RPGGame.UI.Avalonia.Canvas
                 if (plate == null)
                     return;
 
-                canvas.Save();
+                int saveCount = canvas.Save();
                 canvas.ClipRect(dest);
+                if (opacity < 1)
+                {
+                    // Base fill and blended plate composite together, then fade as one over what is beneath.
+                    using var layerPaint = new SKPaint { Color = SKColors.White.WithAlpha((byte)Math.Round(opacity * 255)) };
+                    canvas.SaveLayer(dest, layerPaint);
+                }
                 using (var basePaint = new SKPaint { Color = config.ResolveBaseColor(), IsAntialias = false })
                     canvas.DrawRect(dest, basePaint);
 
@@ -98,7 +112,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                     FilterQuality = SKFilterQuality.Medium
                 };
                 canvas.DrawImage(plate, target, paint);
-                canvas.Restore();
+                canvas.RestoreToCount(saveCount);
             }
         }
 
@@ -110,8 +124,14 @@ namespace RPGGame.UI.Avalonia.Canvas
             double saturation = Math.Clamp(config.Saturation, 0, RoomBackdropConfig.MaxSaturation);
             double blur = Math.Clamp(config.Blur, 0, RoomBackdropConfig.MaxBlur);
             var key = (source, w, h, brightness, contrast, saturation, blur);
-            if (cachedImage != null && cachedKey.Equals(key))
-                return cachedImage;
+            for (int i = 0; i < cachedImages.Length; i++)
+            {
+                if (cachedImages[i] != null && cachedKeys[i].Equals(key))
+                {
+                    lastImageSlot = i;
+                    return cachedImages[i];
+                }
+            }
 
             using var surface = SKSurface.Create(new SKImageInfo(w, h, SKColorType.Rgba8888, SKAlphaType.Premul));
             if (surface == null)
@@ -145,10 +165,12 @@ namespace RPGGame.UI.Avalonia.Canvas
             surface.Canvas.Clear(SKColors.Black);
             surface.Canvas.DrawRect(new SKRect(-pad, -pad, w + pad, h + pad), paint);
 
-            cachedImage?.Dispose();
-            cachedImage = surface.Snapshot();
-            cachedKey = key;
-            return cachedImage;
+            int slot = 1 - lastImageSlot;
+            cachedImages[slot]?.Dispose();
+            cachedImages[slot] = surface.Snapshot();
+            cachedKeys[slot] = key;
+            lastImageSlot = slot;
+            return cachedImages[slot];
         }
 
         /// <summary>The processed plate redrawn as glyphs on the grid cells (<see cref="AsciiGlyphRaster"/>). Caller holds <see cref="CacheGate"/>.</summary>
@@ -167,8 +189,14 @@ namespace RPGGame.UI.Avalonia.Canvas
             double gain = Math.Clamp(config.AsciiGlyphGain, 0, RoomBackdropConfig.MaxAsciiGlyphGain);
             double underlay = Math.Clamp(config.AsciiImageUnderlay, 0, 1);
             var key = (plate, cols, rows, glyphCellWidth * scale, glyphCellHeight * scale, glyphFontSize * scale, family, ramp, background, gain, underlay);
-            if (cachedAscii != null && cachedAsciiKey.Equals(key))
-                return cachedAscii;
+            for (int i = 0; i < cachedAsciis.Length; i++)
+            {
+                if (cachedAsciis[i] != null && cachedAsciiKeys[i].Equals(key))
+                {
+                    lastAsciiSlot = i;
+                    return cachedAsciis[i];
+                }
+            }
 
             var ascii = AsciiGlyphRaster.Render(plate, w, h, cols, rows, (float)(glyphCellWidth * scale), (float)(glyphCellHeight * scale),
                 (float)(glyphFontSize * scale), family, ramp, background, gain, underlay > 0 ? SKColors.Transparent : SKColors.Black);
@@ -190,10 +218,12 @@ namespace RPGGame.UI.Avalonia.Canvas
                 }
             }
 
-            cachedAscii?.Dispose();
-            cachedAscii = ascii;
-            cachedAsciiKey = key;
-            return cachedAscii;
+            int slot = 1 - lastAsciiSlot;
+            cachedAsciis[slot]?.Dispose();
+            cachedAsciis[slot] = ascii;
+            cachedAsciiKeys[slot] = key;
+            lastAsciiSlot = slot;
+            return ascii;
         }
 
         private static float[] ScaleOffsetMatrix(float scale, float offset) => new[]

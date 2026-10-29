@@ -16,6 +16,7 @@ namespace RPGGame.Tests.Unit.Combat
             Console.WriteLine("=== Weapon Base Mod Cadence Tests ===\n");
             int run = 0, passed = 0, failed = 0;
             TestWeaponDamageFlat_AddsToBaseDamage(ref run, ref passed, ref failed);
+            TestWeaponDamageFlat_ScalesWithWeaponTier(ref run, ref passed, ref failed);
             TestWeaponSpeedFlat_ShortensAttackTime(ref run, ref passed, ref failed);
             TestBuildModifierBonuses_FromWeaponFields(ref run, ref passed, ref failed);
             TestBase.PrintSummary("Weapon Base Mod Cadence Tests", run, passed, failed);
@@ -39,6 +40,30 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(delta >= 9 && delta <= 11,
                 $"+10 WEAPON_DAMAGE raises damage by ~10 ({without} → {withMod}, delta={delta})",
                 ref run, ref passed, ref failed);
+        }
+
+        private static void TestWeaponDamageFlat_ScalesWithWeaponTier(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestWeaponDamageFlat_ScalesWithWeaponTier));
+            var hero = new Character("WpnTierHero", 1);
+            hero.Weapon = new WeaponItem("TierBlade", tier: 3, baseDamage: 10, baseAttackSpeed: 1.0);
+            var target = new Character("Dummy", 1);
+
+            hero.Effects.ConsumedWeaponDamageFlat = 2;
+            TestBase.AssertEqual(6, DamageCalculator.GetScaledWeaponDamageFlat(hero),
+                "+2 WEAPON_DAMAGE on a tier-3 weapon adds 6 base damage", ref run, ref passed, ref failed);
+
+            DamageCalculator.ClearAllCaches();
+            int tier3 = DamageCalculator.CalculateDamage(hero, target, action: null, comboAmplifier: 1.0, damageMultiplier: 1.0, rollBonus: 0, roll: 10);
+
+            hero.Weapon = new WeaponItem("TierBlade", tier: 1, baseDamage: 10, baseAttackSpeed: 1.0);
+            hero.Effects.ConsumedWeaponDamageFlat = 6;
+            DamageCalculator.ClearAllCaches();
+            int tier1 = DamageCalculator.CalculateDamage(hero, target, action: null, comboAmplifier: 1.0, damageMultiplier: 1.0, rollBonus: 0, roll: 10);
+            hero.Effects.ConsumedWeaponDamageFlat = 0;
+
+            TestBase.AssertEqual(tier1, tier3,
+                "tier-3 +2 WEAPON_DAMAGE hits like tier-1 +6", ref run, ref passed, ref failed);
         }
 
         private static void TestWeaponSpeedFlat_ShortensAttackTime(ref int run, ref int passed, ref int failed)

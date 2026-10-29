@@ -35,6 +35,7 @@ namespace RPGGame.UI.Avalonia
         private DispatcherTimer? windSwaySettleTimer;
         private DispatcherTimer? menuSceneTimer;
         private readonly RPGGame.UI.TitleScreen.MenuSceneBackdrop menuScene = new();
+        private readonly LocationCrossfade locationFade = new();
         /// <summary>TickCount64 of last pointer-driven Refresh; used to throttle highlight/wind moves.</summary>
         private long _lastPointerRefreshTickMs = -1;
         /// <summary>True when a throttled pointer move still needs one catch-up paint.</summary>
@@ -258,6 +259,10 @@ namespace RPGGame.UI.Avalonia
 
             // Always track for debug circle / proximity highlight, even when sway is disabled / F6 off.
             windSwayField.TrackMousePosition(content.X, content.Y);
+
+            // Hovering a dimmed combat-board half lights it up; repaint as the pointer crosses between areas.
+            if (!IsAuxiliaryLayoutCanvas && CombatTurnSpotlight.TrackPointer(content.X / charWidth, content.Y / charHeight))
+                Refresh();
 
             bool highlight = windSwayField.Config.InteractiveHighlightEnabled;
             bool windOn = windSwayField.Config.Enabled && DeveloperModeState.AreDistortionEffectsEnabled;
@@ -627,9 +632,24 @@ namespace RPGGame.UI.Avalonia
             // Don't call base.Render() to prevent any default Control rendering
             renderer.SetInteractiveHitRegions(InteractiveHitRegionsProvider?.Invoke());
             var textElements = elementManager.TextElements.ToList();
-            var sceneUnderlay = menuScene.BuildFrame(GridWidth, GridHeight, textElements,
-                MenuSceneProvider?.Invoke() ?? RPGGame.UI.TitleScreen.MenuScene.None);
-            UpdateMenuSceneTimer(sceneUnderlay != null);
+            var location = new LocationCrossfade.Location(
+                MenuSceneProvider?.Invoke() ?? RPGGame.UI.TitleScreen.MenuScene.None, BackdropProvider?.Invoke());
+            var (incomingOpacity, outgoingOpacity) = locationFade.Update(location);
+            var outgoing = locationFade.Outgoing;
+
+            var sceneUnderlay = menuScene.BuildFrame(GridWidth, GridHeight, textElements, location.Scene);
+            var outgoingSceneUnderlay = outgoing.Scene != location.Scene
+                ? menuScene.BuildFrame(GridWidth, GridHeight, textElements, outgoing.Scene)
+                : null;
+            var backdrop = location.Backdrop;
+            if (backdrop != null)
+                backdrop.Opacity = incomingOpacity;
+            var outgoingBackdrop = outgoing.Backdrop != null && !ReferenceEquals(outgoing.Backdrop.Source, backdrop?.Source)
+                ? outgoing.Backdrop
+                : null;
+            if (outgoingBackdrop != null)
+                outgoingBackdrop.Opacity = outgoingOpacity;
+            UpdateMenuSceneTimer(sceneUnderlay != null || locationFade.IsActive);
             using (context.PushTransform(Matrix.CreateTranslation(origin.X, origin.Y)))
             {
                 renderer.Render(
@@ -643,14 +663,27 @@ namespace RPGGame.UI.Avalonia
                     Colors.Transparent,
                     fillBackground: false,
                     images: elementManager.Images.ToList(),
-                    backdrop: BackdropProvider?.Invoke(),
-                    sceneUnderlay: sceneUnderlay);
+                    backdrop: backdrop,
+                    sceneUnderlay: sceneUnderlay,
+                    sceneUnderlayOpacity: locationFade.IsActive ? incomingOpacity : 1,
+                    outgoingBackdrop: outgoingBackdrop,
+                    outgoingSceneUnderlay: outgoingSceneUnderlay,
+                    outgoingSceneUnderlayOpacity: outgoingOpacity);
 
+                if (!IsAuxiliaryLayoutCanvas)
+                    CombatTurnSpotlight.Paint(context, content.Width, content.Height,
+                        coordinateConverter.GetCharWidth(), coordinateConverter.GetCharHeight(),
+                        elementManager.ProgressBars.Where(b => b.IsHealthBar));
                 DrawConnectorLines(context);
                 if (!IsAuxiliaryLayoutCanvas)
                     ComboTension.Paint(context, content.Width, content.Height,
                         coordinateConverter.GetCharWidth(), coordinateConverter.GetCharHeight());
                 DrawWakeRadiusDebugOverlay(context);
+                if (!IsAuxiliaryLayoutCanvas)
+                    CombatTurnBanner.Paint(context, content.Height,
+                        coordinateConverter.GetCharWidth(), coordinateConverter.GetCharHeight(), coordinateConverter.GetFontSize());
+                if (!IsAuxiliaryLayoutCanvas)
+                    CombatTransitionWipe.Paint(context, content.Height, coordinateConverter.GetCharWidth());
             }
         }
 
@@ -728,7 +761,8 @@ namespace RPGGame.UI.Avalonia
 
         /// <summary>
         /// Which animated inn scene the current screen shows behind it (screens outside a run).
-        /// Asked at paint time; the scene keeps repainting itself until a paint finds <see cref="RPGGame.UI.TitleScreen.MenuScene.None"/>.
+        /// Asked at paint time; the scene keeps repainting itself until a paint finds <see cref="RPGGame.UI.TitleScreen.MenuScene.None"/>
+        /// (and while a location change is still crossfading, <see cref="LocationCrossfade"/>).
         /// </summary>
         public Func<RPGGame.UI.TitleScreen.MenuScene>? MenuSceneProvider { get; set; }
 
@@ -850,6 +884,14 @@ namespace RPGGame.UI.Avalonia
         public void AddText(int x, int y, string text, Color color)
         {
             elementBuilder.AddText(x, y, text, color);
+        }
+
+        /// <summary>
+        /// Adds text shifted right by a fraction of a cell (sub-cell centering)
+        /// </summary>
+        public void AddTextNudged(int x, int y, string text, Color color, double nudgeCellsX)
+        {
+            elementBuilder.AddTextNudged(x, y, text, color, nudgeCellsX);
         }
 
         /// <summary>

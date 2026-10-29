@@ -133,6 +133,7 @@ namespace RPGGame
                 // Only render if we have messages to display
                 if (messageGroups != null && messageGroups.Count > 0)
                 {
+                    CombatSequencePresenter.AttachLogBlock(CombatLogProseHoverInfo.FromMessageGroups(messageGroups));
                     int delayAfterBatchMs = BlockDelayManager.CalculateActionBlockDelay();
                     var renderer = BlockRendererFactory.GetRenderer();
                     renderer.RenderMessageGroups(messageGroups, delayAfterBatchMs, character);
@@ -248,6 +249,7 @@ namespace RPGGame
                 // Only render if we have messages to display
                 if (messageGroups != null && messageGroups.Count > 0)
                 {
+                    CombatSequencePresenter.AttachLogBlock(CombatLogProseHoverInfo.FromMessageGroups(messageGroups));
                     int delayAfterBatchMs = BlockDelayManager.CalculateActionBlockDelay();
                     int halfDelayMs = BlockDelayManager.CalculateActionBlockHalfDelay();
                     var renderer = BlockRendererFactory.GetRenderer();

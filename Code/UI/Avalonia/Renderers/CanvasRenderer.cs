@@ -213,12 +213,15 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (!RoomBackdropArt.TryGetBackdrop(roomName, out var bitmap))
                 return null;
 
+            // Runs to the bottom of the grid: on the combat board the center column starts at row 0 and the hero strip
+            // (and the interlude frame) reach the bottom, which CENTER_PANEL_HEIGHT leaves out.
+            int y = Avalonia.Layout.LayoutConstants.CENTER_PANEL_Y;
             return new Canvas.CanvasBackdrop
             {
                 X = Avalonia.Layout.LayoutConstants.CENTER_PANEL_X,
-                Y = Avalonia.Layout.LayoutConstants.CENTER_PANEL_Y,
+                Y = y,
                 Width = Avalonia.Layout.LayoutConstants.CENTER_PANEL_WIDTH,
-                Height = Avalonia.Layout.LayoutConstants.CENTER_PANEL_HEIGHT,
+                Height = Math.Max(1, Avalonia.Layout.LayoutConstants.SCREEN_HEIGHT + 1 - y),
                 Source = bitmap,
                 Look = look
             };

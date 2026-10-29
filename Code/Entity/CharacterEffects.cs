@@ -180,6 +180,7 @@ namespace RPGGame
         public void AddModifierBonusesFromAction(Action? action, int? nextComboSlot = null, bool useEnemySpreadsheetMods = false, Character? owner = null) => _state.AddModifierBonusesFromAction(action, nextComboSlot, useEnemySpreadsheetMods, owner);
         public List<ActionAttackBonusItem> GetAndConsumeTurnBonuses() => _state.GetAndConsumeTurnBonuses();
         public List<ActionAttackBonusItem> PeekTurnBonuses() => _state.PeekTurnBonuses();
+        public ActionAttackBonusGroup[] SnapshotTurnBonuses() => _state.SnapshotTurnBonuses();
         public void AddPendingActionBonuses(int slot, List<ActionAttackBonusItem> bonuses) => _state.AddPendingActionBonuses(slot, bonuses);
         public List<ActionAttackBonusItem> ConsumePendingActionBonusesForSlot(int slot) => _state.ConsumePendingActionBonusesForSlot(slot);
         public List<ActionAttackBonusItem> GetPendingActionBonusesForSlot(int slot) => _state.GetPendingActionBonusesForSlot(slot);
