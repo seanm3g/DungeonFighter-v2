@@ -118,7 +118,7 @@ namespace RPGGame.UI.Avalonia.Layout
             renderCenterContent?.Invoke(contentX, contentY, contentW, contentH);
 
             if (interlude)
-                CombatBoardInterludeRenderer.RenderChrome(canvas, character, CombatBoardInterludeRenderer.ResolveLabel(title, dungeonName));
+                CombatBoardInterludeRenderer.RenderChrome(canvas, character, CombatBoardInterludeRenderer.ResolveLabel(title));
 
             if (usePersistentChrome)
             {

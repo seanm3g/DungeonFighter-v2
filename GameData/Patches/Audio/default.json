@@ -125,6 +125,16 @@
       "volume": 1,
       "rateLimitMs": null
     },
+    "Combat_ComboStep6": {
+      "file": "SFX/combo_step6.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_ComboStep7": {
+      "file": "SFX/combo_step7.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
     "Combat_ComboComplete": {
       "file": "SFX/combo_finish.wav",
       "volume": 1,

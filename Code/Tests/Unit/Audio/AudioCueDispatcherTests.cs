@@ -29,6 +29,8 @@ namespace RPGGame.Tests.Unit.Audio
             TestClearQueuedDropsCombatCueWithoutPlaying(ref run, ref passed, ref failed);
             TestPublisherRoutesComboHitToComboCue(ref run, ref passed, ref failed);
             TestPublisherRoutesComboStripSlotsToStepCues(ref run, ref passed, ref failed);
+            TestComboStepCuesCoverSevenSlots(ref run, ref passed, ref failed);
+            TestActivePatchPlaysSevenStepPitchesThenFinisher(ref run, ref passed, ref failed);
             TestSwingCuePlaysOnlyBeforeQueuedOutcome(ref run, ref passed, ref failed);
             TestUnboundCueFallsBackToParentCue(ref run, ref passed, ref failed);
             TestPublisherRoutesCriticalHitToCriticalHitCue(ref run, ref passed, ref failed);
@@ -245,6 +247,83 @@ namespace RPGGame.Tests.Unit.Audio
                 AudioCues.SetDispatcher(null);
                 CombatEventBus.Reset();
                 TryDelete(stub);
+            }
+        }
+
+        private static void TestComboStepCuesCoverSevenSlots(ref int run, ref int passed, ref int failed)
+        {
+            var expected = new[]
+            {
+                AudioCue.Combat_ComboStep1, AudioCue.Combat_ComboStep2, AudioCue.Combat_ComboStep3, AudioCue.Combat_ComboStep4,
+                AudioCue.Combat_ComboStep5, AudioCue.Combat_ComboStep6, AudioCue.Combat_ComboStep7
+            };
+            bool distinct = true;
+            for (int slot = 0; slot < expected.Length; slot++)
+                distinct &= AudioCueExtensions.ComboStepCueForSlot(slot) == expected[slot];
+            TestBase.AssertTrue(distinct, "Combo slots 1..7 each get their own step cue", ref run, ref passed, ref failed);
+            TestBase.AssertEqualEnum(AudioCue.Combat_ComboStep7, AudioCueExtensions.ComboStepCueForSlot(9),
+                "Slots past 7 reuse step 7", ref run, ref passed, ref failed);
+            TestBase.AssertEqualEnum(AudioCue.Combat_ComboComplete, AudioCue.Combat_ComboStep7.GetFallback(),
+                "Unbound step 7 falls back to the finisher", ref run, ref passed, ref failed);
+        }
+
+        /// <summary>
+        /// End to end on the shipped data: the active audio patch binds a distinct existing file to every step cue, and an
+        /// 8-slot strip plays steps 1..7 in order then the finisher through the real publisher → dispatcher path.
+        /// </summary>
+        private static void TestActivePatchPlaysSevenStepPitchesThenFinisher(ref int run, ref int passed, ref int failed)
+        {
+            try
+            {
+                AudioConfig.ReloadFromFile();
+                var cfg = AudioConfig.Instance;
+                var expected = new List<string>();
+                for (int slot = 0; slot < 7; slot++)
+                    expected.Add(AudioConfig.ResolveAssetPath(cfg.GetBinding(AudioCueExtensions.ComboStepCueForSlot(slot))?.File ?? ""));
+                expected.Add(AudioConfig.ResolveAssetPath(cfg.GetBinding(AudioCue.Combat_ComboComplete)?.File ?? ""));
+
+                TestBase.AssertTrue(expected.All(f => f.Length > 0 && File.Exists(f)),
+                    "Active audio patch binds an existing file to step cues 1..7 and the finisher", ref run, ref passed, ref failed);
+                TestBase.AssertEqual(8, expected.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+                    "Step cues 1..7 and the finisher are eight distinct sounds", ref run, ref passed, ref failed);
+
+                CombatEventBus.Reset();
+                var engine = new NullAudioEngine { RecordCalls = true };
+                using var dispatcher = new AudioCueDispatcher(engine,
+                    configResolver: () => cfg,
+                    globalEnabledResolver: () => true);
+                AudioCues.SetDispatcher(dispatcher);
+
+                var hero = new Character("ScaleHero", 1);
+                foreach (var existing in hero.GetComboActions().ToList())
+                    hero.Actions.RemoveFromCombo(existing);
+                for (int i = 0; i < 8; i++)
+                {
+                    var strip = new RPGGame.Action(name: $"Scale{i}") { IsComboAction = true };
+                    hero.AddAction(strip, 1.0);
+                    hero.Actions.AddToCombo(strip);
+                }
+                var enemy = new Enemy(name: "Goblin", level: 1, maxHealth: 100, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0);
+
+                var played = new List<string>();
+                for (int slot = 0; slot < 8; slot++)
+                {
+                    hero.ComboStep = slot;
+                    engine.PlayCalls.Clear();
+                    ActionEventPublisher.PublishActionHit(hero, enemy, hero.GetComboActions()[slot],
+                        rollValue: 15, isCombo: true, isCritical: false);
+                    AudioCues.CommitQueued();
+                    played.Add(engine.PlayCalls.Count > 0 ? engine.PlayCalls[0].file : "");
+                }
+
+                TestBase.AssertEqual(8, hero.GetComboActions().Count, "Scale test hero has an eight-slot strip", ref run, ref passed, ref failed);
+                TestBase.AssertTrue(played.SequenceEqual(expected, StringComparer.OrdinalIgnoreCase),
+                    "Eight-slot combo plays step 1..7 pitches in order, then the finisher", ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                AudioCues.SetDispatcher(null);
+                CombatEventBus.Reset();
             }
         }
 

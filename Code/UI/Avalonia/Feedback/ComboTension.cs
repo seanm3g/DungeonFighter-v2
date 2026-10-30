@@ -88,6 +88,46 @@ namespace RPGGame.UI.Avalonia.Feedback
         /// <summary>Slots before the next one have already fired this run of the combo.</summary>
         public static bool IsSpent(int panelIndex, int nextIndex) => nextIndex > 0 && panelIndex < nextIndex;
 
+        /// <summary>Per-roll cap for strip odds: a natural 1 never lands a combo, so one roll is at most 19 in 20.</summary>
+        internal const int MaxActionRollChancePercent = 95;
+
+        /// <summary>
+        /// Chance (0..100) that the combo lands <paramref name="panelIndex"/>: one Action-threshold roll per slot from the
+        /// next one through this one, so the next card shows <paramref name="actionChancePercent"/>, the one after its square,
+        /// and so on. Rises as the combo advances (fewer rolls left). 0 for spent slots or when nothing is next.
+        /// Each roll is capped at <see cref="MaxActionRollChancePercent"/> so no card ever reads a sure thing.
+        /// </summary>
+        public static double GetReachChancePercent(int panelIndex, int nextIndex, int actionChancePercent)
+        {
+            if (nextIndex < 0 || panelIndex < nextIndex)
+                return 0.0;
+            double p = Math.Clamp(actionChancePercent, 0, MaxActionRollChancePercent) / 100.0;
+            return Math.Pow(p, panelIndex - nextIndex + 1) * 100.0;
+        }
+
+        private static WeakReference<Character>? _oddsOwner;
+        private static int _oddsChancePercent = -1;
+
+        /// <summary>
+        /// Per-roll Action chance the strip odds use for this run of the combo: taken on the opener (no card firing)
+        /// and held until the combo resets, so a landed roll only drops its own factor instead of mid-combo
+        /// threshold bonuses re-pricing every later card.
+        /// </summary>
+        public static int ResolveComboOddsChance(Character player, int liveNextIndex, bool anyCardFiring, int liveChancePercent)
+        {
+            bool sameOwner = _oddsOwner != null && _oddsOwner.TryGetTarget(out var owner) && ReferenceEquals(owner, player);
+            if (!sameOwner || _oddsChancePercent < 0 || (liveNextIndex <= 0 && !anyCardFiring))
+            {
+                _oddsOwner = new WeakReference<Character>(player);
+                _oddsChancePercent = liveChancePercent;
+            }
+            return _oddsChancePercent;
+        }
+
+        /// <summary>Card label for <see cref="GetReachChancePercent"/>: whole percent, <c>&lt;1%</c> for small non-zero chances.</summary>
+        public static string FormatReachChance(double percent) =>
+            percent <= 0.0 ? "0%" : percent < 1.0 ? "<1%" : $"{Math.Round(percent, MidpointRounding.AwayFromZero):0}%";
+
         /// <summary>Live next-slot index for <paramref name="player"/>, honoring the held white border after a combo hit.</summary>
         public static int ResolveNextIndex(Character player, int filled)
         {
@@ -267,6 +307,8 @@ namespace RPGGame.UI.Avalonia.Feedback
         internal static void ResetForTests()
         {
             _tracked = null;
+            _oddsOwner = null;
+            _oddsChancePercent = -1;
             UtcNowProviderForTests = null;
             _timer?.Stop();
         }

@@ -19,6 +19,7 @@ namespace RPGGame.Tests.Unit.UI
             TestNoChargeForSingleSlotCombo(ref run, ref passed, ref failed);
             TestFinisherNextOnlyOnLastSlot(ref run, ref passed, ref failed);
             TestSpentSlotsAreBeforeNext(ref run, ref passed, ref failed);
+            TestReachChanceCompoundsPerSlot(ref run, ref passed, ref failed);
             TestPulseSpeedsUpWithCharge(ref run, ref passed, ref failed);
             TestPulseInUnitInterval(ref run, ref passed, ref failed);
             TestLowHealthVignetteOnlyForHero(ref run, ref passed, ref failed);
@@ -62,6 +63,32 @@ namespace RPGGame.Tests.Unit.UI
                 "Slots before next are spent", ref run, ref passed, ref failed);
             TestBase.AssertTrue(!ComboTension.IsSpent(0, 0),
                 "Nothing is spent on the opener (miss reset)", ref run, ref passed, ref failed);
+        }
+
+        private static void TestReachChanceCompoundsPerSlot(ref int run, ref int passed, ref int failed)
+        {
+            // 50% Action chance on the opener: 50%, 25%, 12.5% ...
+            TestBase.AssertTrue(Math.Abs(ComboTension.GetReachChancePercent(0, 0, 50) - 50.0) < 1e-9
+                    && Math.Abs(ComboTension.GetReachChancePercent(1, 0, 50) - 25.0) < 1e-9
+                    && Math.Abs(ComboTension.GetReachChancePercent(2, 0, 50) - 12.5) < 1e-9,
+                "Each slot past next adds one Action roll", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ComboTension.GetReachChancePercent(2, 1, 50) > ComboTension.GetReachChancePercent(2, 0, 50)
+                    && ComboTension.GetReachChancePercent(0, 1, 50) == 0.0,
+                "Chances rise as the combo advances; spent slots read 0", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(Math.Abs(ComboTension.GetReachChancePercent(1, 1, 100) - 95.0) < 1e-9
+                    && ComboTension.GetReachChancePercent(2, 1, 100) < 95.0,
+                "A 100% Action chance is capped so no card reads 100%", ref run, ref passed, ref failed);
+
+            ComboTension.ResetForTests();
+            var hero = new Character("OddsHero", 1);
+            int atOpener = ComboTension.ResolveComboOddsChance(hero, 0, false, 45);
+            int midCombo = ComboTension.ResolveComboOddsChance(hero, 1, true, 100);
+            int afterReset = ComboTension.ResolveComboOddsChance(hero, 0, false, 60);
+            TestBase.AssertTrue(atOpener == 45 && midCombo == 45 && afterReset == 60,
+                "Odds keep the opener's chance mid-combo and re-read it after a reset", ref run, ref passed, ref failed);
+            ComboTension.ResetForTests();
+            TestBase.AssertTrue(ComboTension.FormatReachChance(12.5) == "13%" && ComboTension.FormatReachChance(0.4) == "<1%",
+                "Reach chance label rounds, tiny values read <1%", ref run, ref passed, ref failed);
         }
 
         private static void TestPulseSpeedsUpWithCharge(ref int run, ref int passed, ref int failed)

@@ -38,12 +38,14 @@ namespace RPGGame.Audio
         Combat_CriticalMiss,
         Combat_Miss,
         Combat_Hit,
-        /// <summary>Hero combo hit on strip slot 1..5 (slots past 5 reuse step 5). Unbound steps fall back to <see cref="Combat_ComboComplete"/>.</summary>
+        /// <summary>Hero combo hit on strip slot 1..7, rising a major scale (slots past 7 reuse step 7). Unbound steps fall back to <see cref="Combat_ComboComplete"/>.</summary>
         Combat_ComboStep1,
         Combat_ComboStep2,
         Combat_ComboStep3,
         Combat_ComboStep4,
         Combat_ComboStep5,
+        Combat_ComboStep6,
+        Combat_ComboStep7,
         /// <summary>Combo hit on the last strip slot (sequence finisher); also any combo hit when the slot is unknown.</summary>
         Combat_ComboComplete,
         Combat_CriticalHit,
@@ -93,20 +95,23 @@ namespace RPGGame.Audio
         public static AudioCue GetFallback(this AudioCue cue) => cue switch
         {
             AudioCue.Combat_ComboStep1 or AudioCue.Combat_ComboStep2 or AudioCue.Combat_ComboStep3
-                or AudioCue.Combat_ComboStep4 or AudioCue.Combat_ComboStep5 => AudioCue.Combat_ComboComplete,
+                or AudioCue.Combat_ComboStep4 or AudioCue.Combat_ComboStep5
+                or AudioCue.Combat_ComboStep6 or AudioCue.Combat_ComboStep7 => AudioCue.Combat_ComboComplete,
             AudioCue.Combat_ComboComplete => AudioCue.Combat_Hit,
             AudioCue.Combat_CriticalHit => AudioCue.Combat_Hit,
             _ => AudioCue.None
         };
 
-        /// <summary>Step cue for a 0-based combo strip slot (slots past the fifth share step 5).</summary>
+        /// <summary>Step cue for a 0-based combo strip slot (slots past the seventh share step 7).</summary>
         public static AudioCue ComboStepCueForSlot(int slotIndex) => slotIndex switch
         {
             <= 0 => AudioCue.Combat_ComboStep1,
             1 => AudioCue.Combat_ComboStep2,
             2 => AudioCue.Combat_ComboStep3,
             3 => AudioCue.Combat_ComboStep4,
-            _ => AudioCue.Combat_ComboStep5
+            4 => AudioCue.Combat_ComboStep5,
+            5 => AudioCue.Combat_ComboStep6,
+            _ => AudioCue.Combat_ComboStep7
         };
     }
 }

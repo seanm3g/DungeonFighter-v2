@@ -28,11 +28,14 @@ namespace RPGGame.UI.Avalonia.Layout
         public static void RenderChrome(GameCanvasControl canvas, Character? character, string label)
         {
             var (x, y, w, h) = CombatBoardLayout.InterludeBoxRect();
-            string text = $" {label} ";
-            if (text.Length > w - 4)
-                text = text.Substring(0, Math.Max(0, w - 4));
-            if (text.Length > 0)
-                canvas.AddText(x + 2, y, text, AsciiArtAssets.Colors.Cyan);
+            if (!string.IsNullOrEmpty(label))
+            {
+                string text = $" {label} ";
+                if (text.Length > w - 4)
+                    text = text.Substring(0, Math.Max(0, w - 4));
+                if (text.Length > 0)
+                    canvas.AddText(x + 2, y, text, AsciiArtAssets.Colors.Cyan);
+            }
 
             if (character == null || CombatBoardLayout.IsBetweenFights)
                 return;
@@ -49,13 +52,12 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.AddText(x + Math.Max(0, (w - name.Length) / 2), barY + 1, name, AsciiArtAssets.Colors.Gold);
         }
 
-        /// <summary>Box label: the screen title when it says something (ROOM CLEARED, YOU DIED…), else the dungeon name.</summary>
-        public static string ResolveLabel(string title, string? dungeonName)
+        /// <summary>Box label: the screen title when it says something (ROOM CLEARED, YOU DIED…), else none — the log
+        /// already announces the dungeon.</summary>
+        public static string ResolveLabel(string title)
         {
             bool generic = string.IsNullOrWhiteSpace(title) || title == "DUNGEON FIGHTERS" || title == "COMBAT" || title == "COMBAT RESULT";
-            if (!generic)
-                return title;
-            return string.IsNullOrWhiteSpace(dungeonName) ? "LOG" : dungeonName.ToUpperInvariant();
+            return generic ? "" : title;
         }
     }
 }
