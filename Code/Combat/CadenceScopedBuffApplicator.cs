@@ -25,7 +25,7 @@ namespace RPGGame
             ThresholdManager thresholdManager)
         {
             if (!scope.HasAny) return;
-            RollModificationManager.ApplyDeferredThresholdPackageSetPhase(hero, scope.CopyBonuses());
+            RollModificationManager.ApplyDeferredThresholdPackageSetPhase(thresholdManager, hero, scope.CopyBonuses());
         }
 
         public static void AccumulateModifiers(Character? hero, ref double damageMod, ref double speedMod, ref double multiHitMod, ref double ampMod)

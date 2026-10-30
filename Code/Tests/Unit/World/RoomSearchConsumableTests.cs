@@ -24,6 +24,7 @@ namespace RPGGame.Tests.Unit.World
             TestFoodHealPositive();
             TestPotionApplyImmediatelyBuffsStats();
             TestComboPotionReflectedInThresholdHud();
+            TestThresholdHudCountsTechStepsOnceAfterSwing();
 
             TestBase.PrintSummary("RoomSearchConsumable Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -111,6 +112,28 @@ namespace RPGGame.Tests.Unit.World
             TestBase.AssertEqual(defaultCombo - 3, snapshot.EffectiveCombo,
                 "HUD combo threshold should include dungeon potion (+3 easier)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.ClearCurrentTestName();
+        }
+
+        /// <summary>A swing leaves its TECH steps on the live manager until the next swing resets it; the HUD must not add them again.</summary>
+        private static void TestThresholdHudCountsTechStepsOnceAfterSwing()
+        {
+            Console.WriteLine("\n--- Testing threshold HUD counts TECH steps once after a swing ---");
+            TestBase.SetCurrentTestName(nameof(TestThresholdHudCountsTechStepsOnceAfterSwing));
+            var tm = RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager();
+            var hero = TestDataBuilders.Character().WithName("TecHudHero").WithStats(10, 10, 35, 10).Build();
+            tm.ResetThresholds(hero);
+            var before = DiceRollThresholdResolver.Resolve(hero);
+
+            TechniqueMilestoneThresholdBonuses.Apply(tm, hero);
+            var after = DiceRollThresholdResolver.Resolve(hero);
+            tm.ResetThresholds(hero);
+
+            TestBase.AssertEqual(before.EffectiveHit, after.EffectiveHit, "HUD hit unchanged by last swing's TECH steps", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(before.EffectiveCombo, after.EffectiveCombo, "HUD combo unchanged by last swing's TECH steps", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(before.EffectiveCrit, after.EffectiveCrit, "HUD crit unchanged by last swing's TECH steps", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(before.DefaultCrit - TechniqueMilestoneThresholdBonuses.GetSteps(35).CritSteps, before.EffectiveCrit,
+                "HUD crit includes TECH 35's crit steps once", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.ClearCurrentTestName();
         }
     }

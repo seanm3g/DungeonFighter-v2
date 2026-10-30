@@ -64,11 +64,15 @@ namespace RPGGame.UI.Avalonia.Renderers
             int barW = CombatBoardLayout.BarWidth(colW);
             int barX = colX + (colW - barW) / 2;
             int top = enemyStripH + 1;
-            int enemyBandY = top;
             int heroBandY = boardH - 1;
 
-            // --- Sequence (left edge, between the strips) ---
-            int seqW = RenderBoardSequencePanel(colX, top, colW, barW, boardH - top);
+            // The turn timeline takes the full column under the enemy strip; it paints after the combo flow so its
+            // current card can line up with NOW and cards can fly between the two.
+            int timelineH = TimelineBandHeight(heroBandY - top);
+            int enemyBandY = top + timelineH;
+
+            // --- Sequence (left edge, between the timeline and the hero strip) ---
+            int seqW = RenderBoardSequencePanel(colX, enemyBandY, colW, barW, boardH - enemyBandY);
             int flowX = colX + seqW;
             int flowW = colW - seqW;
 
@@ -83,6 +87,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 RenderBoardLog(player, log, barX, midTop, barW, midBottom - midTop, enemyNamesForLogAlignment);
             else
                 RenderBoardComboFlow(player, enemy, turn, flowX, midTop, flowW, midBottom - midTop, enemyBandY, heroBandY, mode);
+            if (timelineH > 0)
+                RenderBoardTimeline(player, turn, colX, top, colW, heroBandY - top, mode);
+            else
+                _timelineSlides.Clear();
 
             // --- Turn orbs: enemy above the die, hero below it (log view: enemy top-right, hero bottom-left) ---
             var side = CombatTurnSpotlight.ActiveSide;
@@ -121,7 +129,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         /// <summary>
         /// The hero's lined-up card in the bottom strip: the card that fired while the hero swings (the card it was lined up
-        /// on when the roll lands outside the action band), the next combo step at rest.
+        /// on when the roll misses; none on a plain HIT, which fires no strip card), the next combo step at rest.
         /// </summary>
         private static BoardRect? HeroCardRect(Character player, CombatSequenceSwingInfo? swing)
         {
@@ -133,7 +141,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (swing == null)
                 _boardRestSlot[player] = slot = player.ComboStep % filled;
             else if (slot < 0 || slot >= filled)
+            {
+                if (swing.Outcome != CombatSequenceSwingOutcome.Miss)
+                    return null;
                 slot = _boardRestSlot.TryGetValue(player, out int held) && held < filled ? held : player.ComboStep % filled;
+            }
             ActionInfoStripLayout.GetPanelRect(slot, ActionInfoStripLayout.GetDisplayPanelCount(filled), out int px, out int py, out int pw, out int ph);
             return new BoardRect(px, py, pw, ph);
         }
@@ -255,7 +267,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static readonly Color BoardIdleLine = Color.FromRgb(120, 52, 20);
         private static readonly Color BoardHealLine = Color.FromRgb(80, 220, 120);
 
-        /// <summary>Board stage per sequence column: 0 attacker, 1 roll, 2 outcome, 3 action, 4 defense, 5 effects, 6 damage/heal.</summary>
+        /// <summary>Board stage per sequence column: 0 attacker, 1 roll, 2 outcome, 3 action, 4 defense, 5 target/effects, 6 damage/heal.</summary>
         private static int BoardStageOf(CombatSequenceStepKind kind) => kind switch
         {
             CombatSequenceStepKind.Attacker => 0,
@@ -263,6 +275,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             CombatSequenceStepKind.Outcome => 2,
             CombatSequenceStepKind.Action => 3,
             CombatSequenceStepKind.Defense => 4,
+            CombatSequenceStepKind.Target => 5,
             CombatSequenceStepKind.Effect => 5,
             CombatSequenceStepKind.Damage => 6,
             CombatSequenceStepKind.Heal => 6,
@@ -420,11 +433,18 @@ namespace RPGGame.UI.Avalonia.Renderers
             var swing = LiveSwingFor(enemy);
             int stage = -1;
             double p = 1.0;
+            // A plain HIT fires a basic attack, not a strip card: nothing flashes. A miss still dulls the card it was lined up on.
+            bool cardFires = false;
             if (swing != null)
             {
                 int slot = FindSlot(actions, swing.Action);
                 if (slot >= 0 && slot < filled)
+                {
                     selected = slot;
+                    cardFires = true;
+                }
+                else
+                    cardFires = swing.Outcome == CombatSequenceSwingOutcome.Miss;
                 (stage, p, _) = LiveStage();
             }
 
@@ -444,7 +464,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 bool isSel = i == selected;
                 Color border = isSel ? AsciiArtAssets.Colors.White : BoardDimBorder;
                 int thickness = isSel ? 2 : 1;
-                if (isSel && swing != null)
+                if (isSel && cardFires && swing != null)
                 {
                     // The firing card flares red on ATTACKER's result beat, holds through the roll, then wears its outcome.
                     border = stage >= 2 ? OutcomeColor(swing.Outcome)
@@ -452,12 +472,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                     thickness = CardFocused(stage) ? 4 : 3;
                 }
                 Color fill = BoardCardBackground;
-                if (isSel && swing != null)
+                if (isSel && cardFires && swing != null)
                     (border, fill, thickness) = AccentForBeat(swing, stage, CombatBoardAnimation.PhaseProgress(CombatBoardAnimation.BeatMs), border, thickness);
                 AddBoardBox(cx, y, cw, cardH, border, fill, borderThicknessPixels: thickness);
                 DrawActionCardContent(enemy, panelData[i], actions[i], i, cx, y, cw, cardH, mode);
                 cardRects.Add((cx, y, cw, cardH));
-                if (isSel)
+                if (isSel && (swing == null || cardFires))
                     selectedRect = new BoardRect(cx, y, cw, cardH);
                 cx += cw + gap;
             }
@@ -467,33 +487,28 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static readonly Color BoardHazardColor = Color.FromRgb(90, 210, 160);
         private const int BoardQueueLength = 1;
 
-        /// <summary>One resolved action as the board shows it on NOW / PREV (a swing, or a room hazard with no swing).</summary>
+        /// <summary>One resolved action as the board shows it on NOW and the timeline (a swing, or a room hazard with no swing).</summary>
         private sealed record BoardAct(Actor Actor, Action Action, CombatSequenceSwingInfo? Swing, int QuietRoll = 0, int QuietNeed = 0)
         {
             /// <summary>A room turn that rolled under its strike threshold: shown as a QUIET card, nothing happens.</summary>
             public bool Quiet => QuietRoll > 0;
         }
 
-        /// <summary>The newest act and the two before it. Pushed once per swing / hazard turn; the newest only reaches NOW
-        /// once it lands, so until then NOW still holds the previous act and PREV the one before that.</summary>
-        private static BoardAct? _boardNowAct, _boardPrevAct, _boardPrev2Act;
+        /// <summary>The newest act, pushed once per swing / hazard turn.</summary>
+        private static BoardAct? _boardNowAct;
         private static CombatSequenceSwingInfo? _boardRegisteredSwing;
         private static long _boardSwingTurn = -1, _boardHazardTurn = -1;
         private static Enemy? _boardEnemy;
 
-        /// <summary>The branch box OUTCOME picked for the live swing; on ACTION its card slides from there into NOW.</summary>
+        /// <summary>The branch box OUTCOME picked for the live swing; on ACTION its card slides from there into NOW,
+        /// unless NOW already holds that action (<see cref="_boardLandKeep"/>).</summary>
         private static CombatSequenceSwingInfo? _boardLandSwing;
         private static BoardRect _boardLandFrom;
+        private static bool _boardLandKeep;
 
-        /// <summary>The act whose landing started the NOW -> PREV shift, and when (the incoming card and the outgoing one move together).</summary>
-        private static BoardAct? _boardShiftAct;
-        private static DateTimeOffset _boardShiftStartUtc;
-
-        /// <summary>The act pushed while NOW stood empty (the turn callout cleared it): it lands with nothing sliding out.</summary>
-        private static BoardAct? _boardIntoEmptyAct;
-
-        /// <summary>Start of the turn callout that last moved NOW into PREV, so each callout clears NOW once.</summary>
-        private static DateTimeOffset _boardClearedForCallout;
+        /// <summary>The swing whose card is flying from its branch into NOW, and when it left.</summary>
+        private static CombatSequenceSwingInfo? _boardLandStartedFor;
+        private static DateTimeOffset _boardLandStartUtc;
 
         /// <summary>Combo action each actor was lined up on at rest; a rolling entry keeps it after ComboStep moves on.</summary>
         private static readonly Dictionary<Actor, string> _boardRestComboName = new(ReferenceEqualityComparer.Instance);
@@ -507,42 +522,38 @@ namespace RPGGame.UI.Avalonia.Renderers
             public BoardAct? HazardAct;
             public List<CombatTurnQueueEntry> Queue = new();
 
+            /// <summary>The acting entity's turn counts as spent in <see cref="Queue"/>, and the length it is pushed out by.</summary>
+            public bool Spent;
+            public double ActingLength = 1.0;
+
+            /// <summary>The acting entity while its turn hasn't fired: its combo step is held where it stood before the turn.</summary>
+            public Actor? HoldActor;
+
+            /// <summary>The acting turn has come down from the timeline into NOW (after its callout), and how far its card
+            /// has flown (1 once it sits on NOW).</summary>
+            public bool TurnInNow;
+            public double DownT = 1.0;
+
+            /// <summary>When the acting turn's card settled on NOW (the end of its fly-down).</summary>
+            public DateTimeOffset DownLandedUtc;
+
+            /// <summary>Who holds NOW, the act its turn has pushed (null before the swing registers), and the action it
+            /// is lined up on (null for the room).</summary>
+            public Actor? NowActor;
+            public TimelineAct? NowTurnAct;
+            public Action? NowProjected;
+
+            /// <summary>An act still playing out after its turn ended (shown on NOW until it completes).</summary>
+            public BoardAct? LingeringAct;
+
             /// <summary>ACTION has fired, so the queue moves on to whoever acts after this turn.</summary>
             public bool Triggered => LiveSwing != null ? Stage >= 3 : HazardAct != null;
         }
 
         private static void PushBoardAct(BoardAct act)
         {
-            if (_boardNowAct == null)
-            {
-                _boardNowAct = _boardIntoEmptyAct = act;
-                return;
-            }
-            _boardPrev2Act = _boardPrevAct;
-            _boardPrevAct = _boardNowAct;
+            RecordTimelineAct(act);
             _boardNowAct = act;
-            _boardIntoEmptyAct = null;
-        }
-
-        /// <summary>
-        /// Behind a turn callout, once it covers the cards, the act on NOW moves to PREV, so the callout lifts on an empty
-        /// NOW waiting for the new turn's act.
-        /// </summary>
-        private static void ClearBoardNowBehindCallout(BoardTurnView v)
-        {
-            if (_boardNowAct == null || v.LiveSwing != null
-                || CombatTurnAnnouncement.Current is not { Defeated: false } call || call.StartedUtc == _boardClearedForCallout)
-                return;
-            if (!CombatTurnBanner.CoversBoard(call))
-            {
-                CombatBoardAnimation.RequestFrame();
-                return;
-            }
-            _boardClearedForCallout = call.StartedUtc;
-            _boardPrev2Act = _boardPrevAct;
-            _boardPrevAct = _boardNowAct;
-            _boardNowAct = _boardIntoEmptyAct = null;
-            _boardShiftAct = null;
         }
 
         private static BoardTurnView BuildBoardTurnView(Character player, Enemy enemy)
@@ -554,9 +565,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 // New fight: drop the last fight's cards and don't replay its final swing.
                 _boardEnemy = enemy;
-                _boardNowAct = _boardPrevAct = _boardPrev2Act = _boardIntoEmptyAct = null;
-                _boardShiftAct = null;
+                _boardNowAct = null;
                 _boardRegisteredSwing = last;
+                ResetBoardTimeline();
             }
 
             v.LiveSwing = LiveSwingFor(player) ?? LiveSwingFor(enemy) ?? (last?.Source is Environment r ? LiveSwingFor(r) : null);
@@ -576,7 +587,6 @@ namespace RPGGame.UI.Avalonia.Renderers
                     ? new BoardAct(swing.Source, swing.Action, swing, swing.Roll, swing.Thresholds?.MinHit ?? 0)
                     : new BoardAct(swing.Source, swing.Action, swing));
             }
-            ClearBoardNowBehindCallout(v);
 
             // A room turn lands on NOW whether it strikes or rolls quiet, so a miss still takes its place in the sequence.
             // When the room's roll plays as a sequence (the die tumbles like a swing) the swing above registers it;
@@ -602,7 +612,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             // (or the swing has finished inside the same turn) the queue projects the actor past this turn.
             bool spent = acting != null && (v.Triggered || (v.LiveSwing == null && _boardSwingTurn == turn));
             double length = (v.LiveSwing?.Action ?? v.HazardAct?.Action ?? _boardNowAct?.Action)?.Length ?? 1.0;
+            v.Spent = spent;
+            v.ActingLength = length;
             v.Queue = CombatTurnQueue.GetUpcoming(BoardQueueLength, spent, length);
+            UpdateBoardTimeline(v, player, enemy);
             return v;
         }
 
@@ -613,15 +626,34 @@ namespace RPGGame.UI.Avalonia.Renderers
             _ => AsciiArtAssets.Colors.Gold
         };
 
+        /// <summary>NOW and the gap to the branch column, centered in the combo flow's area.</summary>
+        private static (BoardRect Now, int LineGap, int NextW) BoardFlowLayout(int x, int y, int w, int h)
+        {
+            int curW = Math.Clamp(w * 26 / 100, 22, 40);
+            int nextW = Math.Clamp(w * 24 / 100, 20, 34);
+            int lineGap = Math.Clamp(w * 9 / 100, 10, 16);
+            int total = curW + lineGap + nextW;
+            if (total > w - 2)
+            {
+                double s = (double)(w - 2) / total;
+                curW = Math.Max(14, (int)(curW * s));
+                nextW = Math.Max(12, (int)(nextW * s));
+                lineGap = Math.Max(8, (int)(lineGap * s));
+                total = curW + lineGap + nextW;
+            }
+            int left = x + Math.Max(1, (w - total) / 2);
+            int curH = Math.Clamp(h * 6 / 10, 8, Math.Max(8, h));
+            return (new BoardRect(left, y + (h - curH) / 2, curW, curH), lineGap, nextW);
+        }
+
         /// <summary>
-        /// Middle of the board, read right to left: the next roll's outcome branches (one box each), the d20, NOW, PREV.
-        /// Only the next actor is shown - nothing further ahead. A swing plays in sequence-column order:
-        /// ATTACKER lights the attacker's half and their odds, then the blank die appears and their lined-up card
-        /// flares; ROLL tumbles the die and lands it; OUTCOME stamps the result and lights the branch taken; ACTION flies
-        /// its card into NOW while the act NOW held slides into PREV, and the branches move on to whoever acts after; EFFECTS
-        /// and DAMAGE land on the target's band (under the enemy strip, or over the hero strip); once the swing finishes,
-        /// what it set up for the attacker's next action shows on their band. NOW keeps that act through the next swing's
-        /// setup, unless the turn changes hands: then it moves to PREV behind the turn callout and NOW waits empty. Room turns have no swing and land on NOW directly - a hazard, or a QUIET card when the room's roll misses.
+        /// Middle of the board, read right to left: the next roll's outcome branches (one box each), the d20, NOW.
+        /// A turn plays as: the turn callout; the actor's lined-up card flies down from the timeline into NOW; the
+        /// branches fill in with their odds; ROLL tumbles the die; OUTCOME stamps the result and lights the branch taken;
+        /// ACTION flies that branch's card into NOW (NOW keeps its card when the roll landed the action it was lined up on);
+        /// EFFECTS and DAMAGE land on the target's band (under the timeline, or over the hero strip); once the swing
+        /// finishes, its card flies up into the timeline's current slot and what it set up for the attacker's next action
+        /// shows on their band. Room turns with no swing land on NOW directly - a hazard, or a QUIET card.
         /// </summary>
         private void RenderBoardComboFlow(Character player, Enemy enemy, BoardTurnView turn,
             int x, int y, int w, int h, int enemyBandY, int heroBandY, ActionStripDamageLineMode mode)
@@ -630,28 +662,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 return;
 
             // --- Layout (rest positions) ---
-            int curW = Math.Clamp(w * 26 / 100, 22, 40);
-            int prevW = Math.Clamp(curW * 2 / 3, 16, 28);
-            int nextW = Math.Clamp(w * 24 / 100, 20, 34);
-            int lineGap = Math.Clamp(w * 9 / 100, 10, 16);
-            int prevGap = 2;
-            int total = prevW + prevGap + curW + lineGap + nextW;
-            if (total > w - 2)
-            {
-                double s = (double)(w - 2) / total;
-                prevW = Math.Max(10, (int)(prevW * s));
-                curW = Math.Max(14, (int)(curW * s));
-                nextW = Math.Max(12, (int)(nextW * s));
-                lineGap = Math.Max(8, (int)(lineGap * s));
-                total = prevW + prevGap + curW + lineGap + nextW;
-            }
-
-            int left = x + Math.Max(1, (w - total) / 2);
-            int curH = Math.Clamp(h * 6 / 10, 8, Math.Max(8, h));
-            int prevH = Math.Max(5, curH * 2 / 3);
-            var curR = new BoardRect(left + prevW + prevGap, y + (h - curH) / 2, curW, curH);
-            var prevR = new BoardRect(left, curR.Y + (curH - prevH) / 2, prevW, prevH);
-            int nextX = curR.X + curW + lineGap;
+            var (curR, lineGap, nextW) = BoardFlowLayout(x, y, w, h);
+            int nextX = curR.X + curR.W + lineGap;
 
             // The next actor's roll branches stack down the right column, one box per possible outcome.
             bool hasNext = turn.Queue.Count > 0;
@@ -686,8 +698,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 _ => BoardConnectorColor
             };
 
-            // The branch the roll picked waits on OUTCOME, then on ACTION its card leaves the column and slides into NOW
-            // while the act NOW held slides into PREV - one move, both cards together.
+            // The branch the roll picked waits on OUTCOME, then on ACTION its card leaves the column and flies into NOW -
+            // unless the roll landed the action NOW was already lined up on, which stays put.
             if (nextRolling && stage == 2)
             {
                 int pick = TakenBranch(branches, swing!);
@@ -695,38 +707,55 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     _boardLandSwing = swing;
                     _boardLandFrom = queueR[pick];
+                    _boardLandKeep = swing!.Outcome == CombatSequenceSwingOutcome.Combo && turn.NowProjected != null
+                        && string.Equals(turn.NowProjected.Name, swing.Action.Name, StringComparison.Ordinal);
                 }
             }
-            bool flies = swing != null && ReferenceEquals(_boardLandSwing, swing);
+            bool picked = swing != null && ReferenceEquals(_boardLandSwing, swing);
+            bool flies = picked && !_boardLandKeep;
 
-            // The newest act reaches NOW on ACTION (OUTCOME if it has no branch to fly from); a hazard or a finished
-            // swing is already there. Until then NOW keeps the previous act - the setup never plays in the center.
-            bool landed = swing == null || stage >= (flies ? 3 : 2);
+            // The act reaches NOW on ACTION (OUTCOME if it has no branch to come from); until then NOW shows the card
+            // the actor is lined up on.
+            bool landed = swing == null || stage >= (picked ? 3 : 2);
             double shift = 1.0;
-            if (landed && _boardNowAct != null)
+            if (flies && landed)
             {
-                if (!ReferenceEquals(_boardShiftAct, _boardNowAct))
+                if (!ReferenceEquals(_boardLandStartedFor, swing))
                 {
-                    _boardShiftAct = _boardNowAct;
-                    _boardShiftStartUtc = DateTimeOffset.UtcNow;
+                    _boardLandStartedFor = swing;
+                    _boardLandStartUtc = DateTimeOffset.UtcNow;
                 }
-                double raw = CombatBoardAnimation.Progress(_boardShiftStartUtc, CombatBoardAnimation.SlideMs);
+                double raw = CombatBoardAnimation.Progress(_boardLandStartUtc, CombatBoardAnimation.SlideMs);
                 if (raw < 1.0)
                 {
                     shift = CombatBoardAnimation.EaseOut(raw);
                     CombatBoardAnimation.RequestFrame();
                 }
             }
-            bool shifting = landed && shift < 1.0;
-            bool cardInFlight = flies && shifting;
-            // NOW emptied behind the turn callout: it stays empty until the new act lands, and PREV already holds the old one.
-            bool intoEmpty = _boardNowAct == null || ReferenceEquals(_boardIntoEmptyAct, _boardNowAct);
-            var nowAct = landed ? _boardNowAct : intoEmpty ? null : _boardPrevAct;
+            bool cardInFlight = flies && landed && shift < 1.0;
+
+            // What NOW holds: the lined-up card once it has flown down from the timeline, the act once it lands, nothing
+            // once the act has flown back up to the timeline.
+            BoardAct? nowAct = null;
+            bool nowProjected = false;
+            if (turn.TurnInNow)
+            {
+                if (turn.DownT >= 1.0)
+                {
+                    var act = turn.NowTurnAct;
+                    if (act == null || (act.Act.Swing != null && ReferenceEquals(act.Act.Swing, swing) && !landed))
+                        nowProjected = true;
+                    else if (act.CompletedUtc == null)
+                        nowAct = act.Act;
+                }
+            }
+            else
+                nowAct = turn.LingeringAct;
 
             // --- NOW ---
             var nowR = curR;
             CombatBoardLayout.NowRect = (nowR.X, nowR.Y, nowR.W, nowR.H);
-            int flowTop = Math.Min(prevR.Y, curR.Y), flowBottom = (int)curR.Bottom;
+            int flowTop = curR.Y, flowBottom = (int)curR.Bottom;
             if (slots > 0)
             {
                 flowTop = Math.Min(flowTop, queueR[0].Y);
@@ -734,20 +763,25 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             flowTop = Math.Max(y, flowTop - 1); // the cards' labels sit one row above them
             int flowRight = Math.Max((int)curR.Right, nextX + nextW);
-            CombatBoardLayout.FlowCardsRect = (prevR.X, flowTop, flowRight - prevR.X, flowBottom - flowTop);
+            CombatBoardLayout.FlowCardsRect = (curR.X, flowTop, flowRight - curR.X, flowBottom - flowTop);
             Color nowBorder = BoardRestBorder(nowAct);
             Color nowFill = BoardCardBackground;
             int nowThickness = 1;
-            if (swing != null && landed)
+            if (swing != null && landed && nowAct != null && ReferenceEquals(nowAct.Swing, swing))
             {
                 nowBorder = LerpColor(AsciiArtAssets.Colors.White, SwingColor(swing), stage > 2 ? 1.0 : CombatBoardAnimation.EaseOut(rawP));
                 nowThickness = 3;
                 (nowBorder, nowFill, nowThickness) = AccentForBeat(swing, stage, rawP, nowBorder, nowThickness);
             }
-            else if (turn.HazardAct != null)
+            else if (turn.HazardAct != null && nowAct != null)
             {
                 nowBorder = turn.HazardAct.Quiet ? AsciiArtAssets.Colors.Gray : BoardHazardColor;
                 nowThickness = 3;
+            }
+            else if (nowProjected)
+            {
+                nowBorder = BoardActorColor(turn.NowActor!);
+                nowThickness = 2;
             }
             if (cardInFlight)
                 (nowBorder, nowThickness) = (BoardDimBorder, 1);
@@ -757,35 +791,34 @@ namespace RPGGame.UI.Avalonia.Renderers
                 canvas.AddText(nowR.X + 1, nowR.Y - 1, Truncate($"NOW  {nowAct.Actor.Name}", nowR.W), BoardActorColor(nowAct.Actor));
                 DrawBoardActContent(nowAct, nowR, mode);
             }
+            else if (nowProjected)
+            {
+                canvas.AddText(nowR.X + 1, nowR.Y - 1, Truncate($"NOW  {turn.NowActor!.Name}", nowR.W), BoardActorColor(turn.NowActor));
+                DrawBoardProjectedContent(turn.NowActor, turn.NowProjected, nowR, mode);
+            }
             else
                 canvas.AddText(nowR.X + 1, nowR.Y - 1, "NOW", AsciiArtAssets.Colors.White);
 
-            // --- PREV (and, while the new act lands, the old NOW sliding into it) ---
-            BoardAct? prevAct;
-            if (shifting && _boardPrevAct != null && !intoEmpty)
+            // Once the turn's card settles on NOW the branches wait a beat, then the die another; ROLL holds for the die.
+            var now = DateTimeOffset.UtcNow;
+            bool settled = turn.TurnInNow && turn.DownT >= 1.0;
+            var branchesAt = turn.DownLandedUtc.AddMilliseconds(CombatBoardAnimation.BranchRevealDelayMs);
+            var dieAt = branchesAt.AddMilliseconds(CombatBoardAnimation.DieRevealDelayMs);
+            bool pastAttacker = swing != null && (stage > 0 || CombatSequenceHudState.ResultRevealed);
+            bool branchesDue = pastAttacker || (settled && now >= branchesAt);
+            bool dieDue = pastAttacker || (settled && now >= dieAt);
+            if (swing != null && !pastAttacker)
             {
-                if (shift < 0.5)
-                    DrawBoardAct(_boardPrev2Act, prevR, LerpColor(BoardDimBorder, BoardFadedBorder, shift * 2), 1, mode);
-                DrawBoardAct(_boardPrevAct, BoardRect.Lerp(curR, prevR, shift),
-                    LerpColor(BoardRestBorder(_boardPrevAct), BoardDimBorder, shift), 1, mode);
-                prevAct = shift < 0.5 ? _boardPrev2Act : _boardPrevAct; // the label follows whichever card holds the slot
+                bool ownsNow = settled && ReferenceEquals(turn.NowActor, swing.Source);
+                CombatSequencePresenter.ReportRollGate(swing, ownsNow ? dieAt : null);
+                CombatBoardAnimation.RequestFrame();
             }
-            else
-            {
-                prevAct = landed || intoEmpty ? _boardPrevAct : _boardPrev2Act;
-                if (prevAct == null && CombatSequenceHudState.Steps.Count == 0 && player.LastAction != null)
-                    prevAct = new BoardAct(player, player.LastAction, null); // instant log: no swings to track
-                DrawBoardAct(prevAct, prevR, BoardDimBorder, 1, mode);
-            }
-            if (prevAct != null)
-                canvas.AddText(prevR.X + 1, prevR.Y - 1, Truncate($"PREV  {prevAct.Actor.Name}", prevR.W),
-                    LerpColor(BoardActorColor(prevAct.Actor), AsciiArtAssets.Colors.Gray, 0.35));
-            else
-                canvas.AddText(prevR.X + 1, prevR.Y - 1, "PREV", AsciiArtAssets.Colors.Gray);
+            else if (turn.TurnInNow && !dieDue)
+                CombatBoardAnimation.RequestFrame();
 
             // --- Die between NOW and the queue ---
             // The die belongs to the roll: it leaves as ACTION sends the card to NOW, so it never reads as the next roll.
-            bool dieVisible = swing != null && stage <= 2 && DieShown(stage, rawP);
+            bool dieVisible = swing != null && stage <= 2 && dieDue && (pastAttacker || DieShown(stage, rawP));
             BoardRect dieR = default;
             if (dieVisible)
                 dieR = DrawBoardDie(junction, swing!, stage, rawP, x, w);
@@ -798,7 +831,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             // --- Next roll: one branch per outcome ---
             // The next actor's branches wait until the flying card has cleared the column (text draws above every box),
             // and stay hidden until that actor's turn has started and its callout has played.
-            bool branchesRevealed = nextEntry.IsActing
+            bool branchesRevealed = nextEntry.IsActing && settled && branchesDue
                 && !(CombatTurnAnnouncement.Current is { } callout && ReferenceEquals(callout.Actor, nextEntry.Actor));
             if (hasNext && slots > 0 && !(cardInFlight && shift < 0.5))
             {
@@ -825,7 +858,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
 
             if (cardInFlight)
-                DrawBoardAct(_boardNowAct, BoardRect.Lerp(_boardLandFrom, nowR, shift), SwingColor(swing!), 3, mode);
+                DrawBoardAct(turn.NowTurnAct?.Act ?? _boardNowAct, BoardRect.Lerp(_boardLandFrom, nowR, shift), SwingColor(swing!), 3, mode);
 
             // The act on NOW reads as its combat-log action block in a small box above it. A swing still playing shows
             // it once its effects or damage land, the same beat the target's band would.

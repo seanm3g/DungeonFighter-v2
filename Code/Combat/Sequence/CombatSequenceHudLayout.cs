@@ -12,12 +12,13 @@ namespace RPGGame.Combat.Sequence
         public const int SeparatorWidth = 1;
 
         /// <summary>
-        /// Fixed dungeon HUD columns. DEFENSE and EFFECTS stay visible even when a swing has no value there.
+        /// Fixed dungeon HUD columns. DEFENSE, TARGET and EFFECTS stay visible even when a swing has no value there.
         /// Status effects land on the target before the damage number, matching the combat board's beat order.
+        /// TARGET names who the next EFFECTS lands on; a swing with several effects plays several TARGET/EFFECTS pairs.
         /// </summary>
         public static readonly string[] ColumnTitles =
         {
-            "ATTACKER", "ROLL", "OUTCOME", "ACTION", "DEFENSE", "EFFECTS", "DAMAGE"
+            "ATTACKER", "ROLL", "OUTCOME", "ACTION", "DEFENSE", "TARGET", "EFFECTS", "DAMAGE"
         };
 
         public static int ColumnIndexFor(CombatSequenceStepKind kind) =>
@@ -28,11 +29,33 @@ namespace RPGGame.Combat.Sequence
                 CombatSequenceStepKind.Outcome => 2,
                 CombatSequenceStepKind.Action => 3,
                 CombatSequenceStepKind.Defense => 4,
-                CombatSequenceStepKind.Effect => 5,
-                CombatSequenceStepKind.Damage => 6,
-                CombatSequenceStepKind.Heal => 6,
+                CombatSequenceStepKind.Target => 5,
+                CombatSequenceStepKind.Effect => 6,
+                CombatSequenceStepKind.Damage => 7,
+                CombatSequenceStepKind.Heal => 7,
                 _ => -1
             };
+
+        /// <summary>
+        /// Step a column shows: the latest one of that column that has played (so repeated TARGET/EFFECTS pairs
+        /// cycle through the cell), else the first one still pending.
+        /// </summary>
+        public static int FindDisplayStepIndex(IReadOnlyList<CombatSequenceStep> steps, int columnIndex, Func<int, Phase> phaseOf)
+        {
+            if (steps == null)
+                return -1;
+            int first = -1, latest = -1;
+            for (int i = 0; i < steps.Count; i++)
+            {
+                if (ColumnIndexFor(steps[i].Kind) != columnIndex)
+                    continue;
+                if (first < 0)
+                    first = i;
+                if (phaseOf(i) != Phase.Pending)
+                    latest = i;
+            }
+            return latest >= 0 ? latest : first;
+        }
 
         public static int FindStepIndex(IReadOnlyList<CombatSequenceStep> steps, int columnIndex)
         {

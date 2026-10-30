@@ -31,6 +31,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestHealStep();
             TestUnnamedHitLeavesActionBlank();
             TestUnnamedMissShowsMiss();
+            TestEffectsPairWithTheirTargets();
             TestEnvironmentalActionAndDamage();
             TestEnvironmentalStrikeRollPlaysAsSwing();
             TestSnapshotHealthHoldBeforeDamage();
@@ -238,6 +239,27 @@ namespace RPGGame.Tests.Unit.Combat
             var missAction = missSteps.First(s => s.Kind == CombatSequenceStepKind.Action);
             TestBase.AssertTrue(Plain(missAction) == "miss",
                 "unnamed miss ACTION is miss", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestEffectsPairWithTheirTargets()
+        {
+            Console.WriteLine("--- Each status line plays as TARGET then EFFECTS ---");
+            var result = HitResult("STRIKE", damage: 12);
+            result.StatusEffectMessages.Add("     SeqFoe is weakened!");
+            result.StatusEffectMessages.Add("[SeqHero] gains focus!");
+            var steps = CombatSequenceBuilder.From(result, DummyHero(), DummyEnemy());
+            var pairs = steps.Where(s => s.Kind is CombatSequenceStepKind.Target or CombatSequenceStepKind.Effect).ToList();
+            TestBase.AssertEqual(4, pairs.Count, "two TARGET + EFFECTS pairs", ref _run, ref _passed, ref _failed);
+            if (pairs.Count != 4)
+                return;
+            TestBase.AssertTrue(pairs[0].Kind == CombatSequenceStepKind.Target && Plain(pairs[0]).Contains("SeqFoe")
+                && pairs[1].Kind == CombatSequenceStepKind.Effect && Plain(pairs[1]) == "weakened",
+                "first pair: SeqFoe / weakened", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(pairs[2].Kind == CombatSequenceStepKind.Target && Plain(pairs[2]).Contains("SeqHero")
+                && pairs[3].Kind == CombatSequenceStepKind.Effect && Plain(pairs[3]) == "gains focus",
+                "second pair: SeqHero / gains focus", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(steps.FindIndex(s => s.Kind == CombatSequenceStepKind.Damage) > steps.IndexOf(pairs[3]),
+                "DAMAGE follows the effects", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestEnvironmentalActionAndDamage()

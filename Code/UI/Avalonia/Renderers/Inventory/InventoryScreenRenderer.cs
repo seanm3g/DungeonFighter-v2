@@ -969,8 +969,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         }
 
         /// <summary>
-        /// The dragged item's icon just below-right of the pointer (so the green/red drop slot under the pointer stays visible),
-        /// kept inside the center panel.
+        /// The dragged item's icon centered on the pointer, kept inside the center panel.
         /// </summary>
         private void RenderDragGhost(int x, int width, int topY, int bottomY, int tileCols, int tileRows, bool haveArt)
         {
@@ -978,8 +977,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (!InventoryDragState.IsActive || item == null)
                 return;
 
-            int gx = Math.Clamp(InventoryDragState.PointerX + 1, x + 1, Math.Max(x + 1, x + width - 1 - tileCols));
-            int gy = Math.Clamp(InventoryDragState.PointerY + 1, topY, Math.Max(topY, bottomY - tileRows));
+            int gx = Math.Clamp(InventoryDragState.PointerX - tileCols / 2, x + 1, Math.Max(x + 1, x + width - 1 - tileCols));
+            int gy = Math.Clamp(InventoryDragState.PointerY - tileRows / 2, topY, Math.Max(topY, bottomY - tileRows));
             canvas.AddBox(gx, gy, tileCols, tileRows, AsciiArtAssets.Colors.Gold, AsciiArtAssets.Colors.Black, borderThicknessPixels: 2);
             if (haveArt && ItemArtAtlas.TryGetIcon(item, out var bitmap, out var sourceRect))
                 canvas.AddImage(gx, gy, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3, followsAsciiStyle: true);

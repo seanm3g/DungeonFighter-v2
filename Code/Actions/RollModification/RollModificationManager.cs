@@ -167,7 +167,11 @@ namespace RPGGame.Actions.RollModification
         /// <summary>
         /// Applies SET_* deferred override items (must run before CRIT_MISS / CRIT / COMBO / HIT deltas for this roll).
         /// </summary>
-        public static void ApplyDeferredThresholdPackageSetPhase(Actor actor, List<ActionAttackBonusItem>? items)
+        public static void ApplyDeferredThresholdPackageSetPhase(Actor actor, List<ActionAttackBonusItem>? items) =>
+            ApplyDeferredThresholdPackageSetPhase(_thresholdManager, actor, items);
+
+        /// <summary>Same SET_* pass against <paramref name="thresholdManager"/> (the HUD previews the next roll on a scratch manager).</summary>
+        public static void ApplyDeferredThresholdPackageSetPhase(ThresholdManager thresholdManager, Actor actor, List<ActionAttackBonusItem>? items)
         {
             if (items == null || items.Count == 0) return;
             foreach (var bonus in items)
@@ -176,19 +180,19 @@ namespace RPGGame.Actions.RollModification
                 {
                     case SetCriticalMissThresholdType:
                         if ((int)bonus.Value > 0)
-                            _thresholdManager.SetCriticalMissThreshold(actor, (int)bonus.Value);
+                            thresholdManager.SetCriticalMissThreshold(actor, (int)bonus.Value);
                         break;
                     case SetCriticalHitThresholdType:
                         if ((int)bonus.Value > 0)
-                            _thresholdManager.SetCriticalHitThreshold(actor, (int)bonus.Value);
+                            thresholdManager.SetCriticalHitThreshold(actor, (int)bonus.Value);
                         break;
                     case SetComboThresholdType:
                         if ((int)bonus.Value > 0)
-                            _thresholdManager.SetComboThreshold(actor, (int)bonus.Value);
+                            thresholdManager.SetComboThreshold(actor, (int)bonus.Value);
                         break;
                     case SetHitThresholdType:
                         if ((int)bonus.Value > 0)
-                            _thresholdManager.SetHitThreshold(actor, (int)bonus.Value);
+                            thresholdManager.SetHitThreshold(actor, (int)bonus.Value);
                         break;
                 }
             }

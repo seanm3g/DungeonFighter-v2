@@ -17,6 +17,12 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>Card slide (next → now → prev) after a swing finishes.</summary>
         public const int SlideMs = 420;
 
+        /// <summary>Pause after the acting card lands on NOW before the next roll's branches appear.</summary>
+        public const int BranchRevealDelayMs = 500;
+
+        /// <summary>Pause after the branches appear before the die shows and starts rolling.</summary>
+        public const int DieRevealDelayMs = 500;
+
         private static System.Action? _requestRender;
         private static DispatcherTimer? _timer;
 

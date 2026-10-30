@@ -212,6 +212,8 @@ namespace RPGGame.Combat.Sequence
                         Invalidate();
                         if (!await WaitForBeatAsync(TitleBeats(step.Kind)))
                             return;
+                        if (step.Kind == CombatSequenceStepKind.Attacker)
+                            await WaitForRollGateAsync();
                     }
 
                     var beats = step.MathBeats;
@@ -267,6 +269,43 @@ namespace RPGGame.Combat.Sequence
             CombatSequenceStepKind.Attacker => AttackerBeats,
             _ => 1
         };
+
+        /// <summary>Longest ATTACKER is held past its beats waiting on the combat board's die.</summary>
+        private const int RollGateMaxWaitMs = 1500;
+
+        private static CombatSequenceSwingInfo? _rollGateSwing;
+        private static DateTimeOffset _rollGateReadyUtc;
+        private static DateTimeOffset _rollGateSeenUtc;
+
+        /// <summary>
+        /// The combat board reports (every frame it paints) when <paramref name="swing"/>'s die is on screen, so ROLL
+        /// doesn't tumble a die the board hasn't shown yet. <paramref name="readyUtc"/> is null while the board is
+        /// still bringing the turn in.
+        /// </summary>
+        public static void ReportRollGate(CombatSequenceSwingInfo? swing, DateTimeOffset? readyUtc)
+        {
+            _rollGateSeenUtc = DateTimeOffset.UtcNow;
+            _rollGateSwing = readyUtc != null ? swing : null;
+            _rollGateReadyUtc = readyUtc ?? default;
+        }
+
+        /// <summary>Holds ATTACKER until the board's die is up (no wait when the board isn't painting).</summary>
+        private static async Task WaitForRollGateAsync()
+        {
+            if (SkipDelaysForTests || UseManualPlayback)
+                return;
+            var swing = CombatSequenceHudState.ActiveSwing;
+            var giveUp = DateTimeOffset.UtcNow.AddMilliseconds(RollGateMaxWaitMs);
+            while (swing != null && DateTimeOffset.UtcNow < giveUp)
+            {
+                var now = DateTimeOffset.UtcNow;
+                if ((now - _rollGateSeenUtc).TotalMilliseconds > 250)
+                    return; // board not on screen
+                if (ReferenceEquals(_rollGateSwing, swing) && now >= _rollGateReadyUtc)
+                    return;
+                await Task.Delay(30);
+            }
+        }
 
         private static async Task<bool> WaitForBeatAsync(double beats = 1)
         {

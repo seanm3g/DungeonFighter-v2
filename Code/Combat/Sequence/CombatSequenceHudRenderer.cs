@@ -40,7 +40,7 @@ namespace RPGGame.Combat.Sequence
                     continue;
 
                 string header = CombatSequenceHudLayout.ColumnTitles[i];
-                int stepIndex = CombatSequenceHudLayout.FindStepIndex(steps, i);
+                int stepIndex = CombatSequenceHudLayout.FindDisplayStepIndex(steps, i, CombatSequenceHudState.GetStepPhase);
                 CombatSequenceHudLayout.Phase phase;
                 if (idle)
                     phase = CombatSequenceHudLayout.Phase.Pending;
@@ -113,7 +113,7 @@ namespace RPGGame.Combat.Sequence
                 if (rowY >= y + h)
                     break;
 
-                int stepIndex = idle ? -1 : CombatSequenceHudLayout.FindStepIndex(steps, i);
+                int stepIndex = idle ? -1 : CombatSequenceHudLayout.FindDisplayStepIndex(steps, i, CombatSequenceHudState.GetStepPhase);
                 var phase = stepIndex >= 0 ? CombatSequenceHudState.GetStepPhase(stepIndex) : CombatSequenceHudLayout.Phase.Pending;
                 string title = CombatSequenceHudLayout.FormatTitle(titles[i], phase, w);
                 Color titleColor = idle ? ColorPalette.Cyan.GetColor() : CombatSequenceHudLayout.TitlePalette(phase).GetColor();

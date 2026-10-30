@@ -96,7 +96,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         /// <summary>
         /// Renders the action-info strip at the top of the center column (combat, inventory, etc.), above the combat log.
-        /// Shows at least <see cref="LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT"/> panels (empty placeholders when the combo is shorter or empty);
+        /// Shows at least <see cref="LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT"/> panels (empty placeholders when the combo is shorter or empty, except on the combat board, which hides them);
         /// selected (next combo step) panel border is white when the sequence is non-empty; slots already fired this run of the combo stay solid white (dimmed text); other filled slots use neutral gray darkened 50%; a miss pulses red and a combo-action hit pulses gold via <see cref="RPGGame.UI.Avalonia.Feedback.HeroActionStripFeedback"/> (thicker stroke while that pulse runs). A normal hit leaves the selected card solid white.
         /// After a successful combo, the white next-border stays on the firing card until that action block finishes (<see cref="HeroActionStripFeedback.TryGetHeldSelectedIndex"/>), while the gold pulse may run on the same card.
         /// Cards with pending ACTION-cadence buffs (slot queue / bank on current step) shimmer via <see cref="RPGGame.UI.Avalonia.Feedback.ActionBonusBorderShimmer"/> (flash still overrides). Granting actions alone do not shimmer.
@@ -111,11 +111,19 @@ namespace RPGGame.UI.Avalonia.Renderers
             int stripY = LayoutConstants.ACTION_INFO_Y;
             int stripW = LayoutConstants.ACTION_INFO_WIDTH;
             int stripH = LayoutConstants.ACTION_INFO_HEIGHT;
-            canvas.ClearTextInArea(stripX, stripY, stripW, stripH);
-            canvas.ClearBoxesInArea(stripX, stripY, stripW, stripH);
 
             // Between fights the log box runs down through the strip band; the hero strip only returns for the next fight.
-            if (player == null || CombatBoardLayout.IsBetweenFights)
+            // Don't clear the band then: it holds the log's last rows (completion menu options). The interlude column
+            // clear already removed the old strip.
+            if (CombatBoardLayout.IsBetweenFights)
+            {
+                ComboTension.Track(null);
+                return;
+            }
+
+            canvas.ClearTextInArea(stripX, stripY, stripW, stripH);
+            canvas.ClearBoxesInArea(stripX, stripY, stripW, stripH);
+            if (player == null)
             {
                 ComboTension.Track(null);
                 return;
@@ -155,6 +163,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 ActionInfoStripLayout.GetPanelRect(i, displayCount, out int px, out int py, out int pw, out int panelH);
                 bool isEmptySlot = i >= filled;
+                // In combat the sequence can't be edited, so empty / locked slots are just noise over the backdrop: skip them.
+                if (CombatBoardLayout.IsActive && (isEmptySlot || i >= effectiveMaxSlots))
+                    continue;
                 var baseBorder = ActionInfoStripLayout.GetPanelBorderColor(i, filled, selectedIndex, effectiveMaxSlots);
                 // Combo anticipation: fired slots keep a solid white border (text dims) so the run so far reads as one chain;
                 // the finisher always reads gold so the goal is visible from the opener.

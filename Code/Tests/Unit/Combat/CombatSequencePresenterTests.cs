@@ -396,13 +396,13 @@ namespace RPGGame.Tests.Unit.Combat
         {
             Console.WriteLine("--- Idle HUD headers are ATTACKER through EFFECTS ---");
             var titles = CombatSequenceHudLayout.ColumnTitles;
-            TestBase.AssertEqual(7, titles.Length, "seven dungeon HUD columns", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(8, titles.Length, "eight dungeon HUD columns", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(titles[0] == "ATTACKER" && titles[1] == "ROLL" && titles[2] == "OUTCOME"
-                && titles[3] == "ACTION" && titles[4] == "DEFENSE" && titles[5] == "EFFECTS"
-                && titles[6] == "DAMAGE",
-                "column order is ATTACKER, ROLL, OUTCOME, ACTION, DEFENSE, EFFECTS, DAMAGE",
+                && titles[3] == "ACTION" && titles[4] == "DEFENSE" && titles[5] == "TARGET"
+                && titles[6] == "EFFECTS" && titles[7] == "DAMAGE",
+                "column order is ATTACKER, ROLL, OUTCOME, ACTION, DEFENSE, TARGET, EFFECTS, DAMAGE",
                 ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(6, CombatSequenceHudLayout.ColumnIndexFor(CombatSequenceStepKind.Heal),
+            TestBase.AssertEqual(7, CombatSequenceHudLayout.ColumnIndexFor(CombatSequenceStepKind.Heal),
                 "HEAL occupies the DAMAGE column", ref _run, ref _passed, ref _failed);
         }
 
@@ -446,7 +446,7 @@ namespace RPGGame.Tests.Unit.Combat
         {
             Console.WriteLine("--- Horizontal HUD shows every step title ---");
             var columns = CombatSequenceHudLayout.MeasureColumns(0, 80, CombatSequenceHudLayout.ColumnTitles.Length);
-            TestBase.AssertTrue(columns.Length == 7,
+            TestBase.AssertTrue(columns.Length == 8,
                 "one column per dungeon HUD header", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(columns[0].X == 0, "first column starts at origin", ref _run, ref _passed, ref _failed);
             for (int i = 1; i < columns.Length; i++)
@@ -466,6 +466,7 @@ namespace RPGGame.Tests.Unit.Combat
                 && joined.Contains("ACTION", StringComparison.Ordinal)
                 && joined.Contains("DEFENSE", StringComparison.Ordinal)
                 && joined.Contains("DAMAGE", StringComparison.Ordinal)
+                && joined.Contains("TARGET", StringComparison.Ordinal)
                 && joined.Contains("EFFECTS", StringComparison.Ordinal),
                 "all dungeon HUD headers are laid out horizontally", ref _run, ref _passed, ref _failed);
         }

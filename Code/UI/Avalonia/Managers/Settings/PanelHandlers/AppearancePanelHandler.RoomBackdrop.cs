@@ -26,6 +26,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             new("AsciiImageUnderlay", 1, c => c.AsciiImageUnderlay, (c, v) => c.AsciiImageUnderlay = v),
             new("AsciiBackground", 1, c => c.AsciiBackground, (c, v) => c.AsciiBackground = v),
             new("AsciiGlyphGain", RoomBackdropConfig.MaxAsciiGlyphGain, c => c.AsciiGlyphGain, (c, v) => c.AsciiGlyphGain = v),
+            new("AsciiVariety", 1, c => c.AsciiVariety, (c, v) => c.AsciiVariety = v),
             new("AsciiDensity", RoomBackdropConfig.MaxAsciiDensity, c => c.AsciiDensity, (c, v) => c.AsciiDensity = Math.Max(1, Math.Round(v))),
             new("ItemAsciiDensity", RoomBackdropConfig.MaxItemAsciiDensity, c => c.ItemAsciiDensity, (c, v) => c.ItemAsciiDensity = Math.Max(1, Math.Round(v))),
             new("ItemAsciiGlyphGain", RoomBackdropConfig.MaxAsciiGlyphGain, c => c.ItemAsciiGlyphGain, (c, v) => c.ItemAsciiGlyphGain = v),

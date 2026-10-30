@@ -1,4 +1,5 @@
 using RPGGame;
+using RPGGame.Actions.Conditional;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
 
@@ -77,7 +78,7 @@ namespace RPGGame.UI.Avalonia.Layout
     {
         public static DiceRollThresholdSnapshot Resolve(Actor actor)
         {
-            var tm = RollModificationManager.GetThresholdManager();
+            var tm = NextSwingBase(actor);
             var config = GameConfiguration.Instance;
             int hit = tm.GetHitThreshold(actor);
             int combo = tm.GetComboThreshold(actor);
@@ -108,9 +109,23 @@ namespace RPGGame.UI.Avalonia.Layout
                 effectiveCritMiss);
         }
 
+        /// <summary>
+        /// The ladder the next swing starts from before the row shifts: combat resets the manager at the start of each
+        /// swing (ActionExecutionFlow), so the live manager still holds the last swing's TECH/gear/dungeon shifts and
+        /// adding the shifts on top of it counted them twice.
+        /// </summary>
+        private static ThresholdManager NextSwingBase(Actor actor)
+        {
+            var tm = new ThresholdManager();
+            CadenceScopedBuffApplicator.ApplyThresholds(actor as Character, tm);
+            if (CombatTriggerContext.TryGetCritFaceMin(actor, out int critFaceMin))
+                tm.SetCriticalHitThreshold(actor, critFaceMin);
+            return tm;
+        }
+
         public static ThresholdShiftParts ResolveShiftParts(Actor actor)
         {
-            var tm = RollModificationManager.GetThresholdManager();
+            var tm = NextSwingBase(actor);
             return ResolveShiftParts(
                 actor,
                 tm.GetHitThreshold(actor),

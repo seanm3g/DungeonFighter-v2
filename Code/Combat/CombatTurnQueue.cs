@@ -105,10 +105,12 @@ namespace RPGGame
         /// <summary>
         /// Next <paramref name="count"/> turns in order. When <paramref name="pastActingTurn"/> is set, the acting entity's
         /// current turn is treated as spent (its readiness pushed out by <paramref name="actingLength"/>), so the list
-        /// starts with whoever acts after it. Later turns assume a 1.0-length swing; environment turns may still be skipped
-        /// on their roll.
+        /// starts with whoever acts after it. Later turns assume a 1.0-length swing unless <paramref name="lengthOf"/> gives
+        /// one per (actor, how many of that actor's turns come before it in the list); environment turns may still be
+        /// skipped on their roll.
         /// </summary>
-        public static List<CombatTurnQueueEntry> GetUpcoming(int count, bool pastActingTurn, double actingLength = 1.0)
+        public static List<CombatTurnQueueEntry> GetUpcoming(int count, bool pastActingTurn, double actingLength = 1.0,
+            Func<Actor, int, double>? lengthOf = null)
         {
             ActionSpeedSystem? speed;
             Actor? acting;
@@ -145,6 +147,7 @@ namespace RPGGame
                 actingPending = false;
             }
 
+            var seen = new Dictionary<Actor, int>(ReferenceEqualityComparer.Instance);
             for (int n = 0; n < count; n++)
             {
                 CombatEntity? best = null;
@@ -158,7 +161,9 @@ namespace RPGGame
                     break;
                 bool isActing = actingPending && n == 0 && ReferenceEquals(best.Entity, acting);
                 result.Add(new CombatTurnQueueEntry(best.Entity, isActing));
-                best.NextActionTime += EstimateDuration(best, 1.0);
+                seen.TryGetValue(best.Entity, out int ordinal);
+                seen[best.Entity] = ordinal + 1;
+                best.NextActionTime += EstimateDuration(best, lengthOf?.Invoke(best.Entity, ordinal) ?? 1.0);
             }
             return result;
         }

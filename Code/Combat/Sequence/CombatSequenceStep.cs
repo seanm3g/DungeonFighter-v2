@@ -12,6 +12,8 @@ namespace RPGGame.Combat.Sequence
         Defense,
         Damage,
         Heal,
+        /// <summary>Who the following EFFECTS step lands on (one TARGET + EFFECTS pair per status line).</summary>
+        Target,
         Effect,
         /// <summary>F7 narrative-only: critical-hit consequence (precision). Not a HUD column.</summary>
         Critical,

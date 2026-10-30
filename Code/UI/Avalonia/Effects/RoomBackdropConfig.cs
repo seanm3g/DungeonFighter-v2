@@ -45,7 +45,10 @@ namespace RPGGame.UI.Avalonia.Effects
         /// <summary>How the plate is drawn: one of <see cref="StyleNames"/>. "Ascii" redraws it as glyphs on the text grid. Default: Image.</summary>
         public string Style { get; set; } = "Image";
 
-        /// <summary>Ascii style: glyphs from darkest to brightest cell. Default: " .:-=+*#%@".</summary>
+        /// <summary>
+        /// Ascii style: glyphs to draw cells with, roughly darkest to brightest; they are re-sorted by measured ink in the
+        /// game font, so the written order does not have to be exact. Default: <see cref="DefaultAsciiRamp"/>.
+        /// </summary>
         public string AsciiRamp { get; set; } = DefaultAsciiRamp;
 
         /// <summary>Ascii style: how much of each cell's color fills the cell behind its glyph (0 = glyphs only). Default: 0.15.</summary>
@@ -56,6 +59,12 @@ namespace RPGGame.UI.Avalonia.Effects
 
         /// <summary>Ascii style: glyph color multiplier; glyphs cover a fraction of the cell, so they read darker than the plate. Default: 1.6.</summary>
         public double AsciiGlyphGain { get; set; } = 1.6;
+
+        /// <summary>
+        /// Ascii style: per-cell brightness noise (0–1) so flat areas mix neighbouring glyphs instead of repeating one
+        /// (1 ≈ ±3 glyphs on the default ramp). Default: 0.5.
+        /// </summary>
+        public double AsciiVariety { get; set; } = 0.5;
 
         /// <summary>
         /// Ascii style: glyphs per text-grid cell along each axis (1 = one glyph per cell, on the text grid; 2 = a 2×2 block
@@ -81,7 +90,8 @@ namespace RPGGame.UI.Avalonia.Effects
         /// </summary>
         public double ItemAsciiCutoff { get; set; } = 0.25;
 
-        public const string DefaultAsciiRamp = " .:-=+*#%@";
+        /// <summary>70 printable ASCII glyphs, light to dense.</summary>
+        public const string DefaultAsciiRamp = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
         public const double MaxAsciiGlyphGain = 4;
         public const double MaxAsciiDensity = 4;
         public const double MaxItemAsciiDensity = 8;

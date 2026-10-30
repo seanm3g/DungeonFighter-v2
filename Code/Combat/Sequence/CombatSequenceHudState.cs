@@ -152,6 +152,9 @@ namespace RPGGame.Combat.Sequence
                     continue;
                 if (!_selectivelyRevealed.Add(i))
                     continue;
+                // TARGET has no prose line of its own; it fills in with the EFFECTS it names.
+                if (kind == CombatSequenceStepKind.Effect && i > 0 && Steps[i - 1].Kind == CombatSequenceStepKind.Target)
+                    _selectivelyRevealed.Add(i - 1);
 
                 StampPhase(i);
                 CurrentIndex = i;

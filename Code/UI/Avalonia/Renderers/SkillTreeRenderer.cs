@@ -37,6 +37,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         private const int MinRightDetailWidth = 30;
         private const int MaxRightDetailWidth = 42;
         private const int MinTreeWidthForRightDetail = 64;
+        private const int BigButtonHeight = 4;           // rows in the details panel's learn button
+        private const int BigButtonMinPanelHeight = 16;  // shorter panels fall back to a one-row action line
 
         private const string LearnedGlyph = "◆";
 
@@ -59,6 +61,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static readonly BoxLook NeedSpLook = new(Color.FromRgb(190, 160, 60), Color.FromRgb(36, 32, 16), Color.FromRgb(220, 220, 220), AsciiArtAssets.Colors.Yellow, 1);
         private static readonly BoxLook LockedLook = new(Color.FromRgb(84, 84, 98), Color.FromRgb(22, 22, 28), Color.FromRgb(150, 150, 160), Color.FromRgb(110, 110, 120), 1);
         private static readonly BoxLook ClosedLook = new(Color.FromRgb(50, 50, 60), Color.FromRgb(17, 17, 21), Color.FromRgb(92, 92, 102), Color.FromRgb(128, 112, 64), 1);
+        private static readonly BoxLook LearnButtonLook = new(AsciiArtAssets.Colors.Gold, Color.FromRgb(58, 46, 12), AsciiArtAssets.Colors.Yellow, Color.FromRgb(220, 200, 140), 3);
         private static readonly BoxLook RailBaseLook = new(AsciiArtAssets.Colors.Magenta, Color.FromRgb(30, 18, 34), AsciiArtAssets.Colors.Magenta, Color.FromRgb(170, 130, 180), 1);
 
         private readonly GameCanvasControl canvas;
@@ -932,13 +935,15 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.AddText(x + 2, y, Truncate(node.Name.ToUpperInvariant(), inner), AsciiArtAssets.Colors.White);
             canvas.AddLine(x + 1, y + 1, x + width - 1, y + 1, Color.FromArgb(120, border.R, border.G, border.B), 1.0);
 
-            // Action row is the last row, under a divider.
-            int actionRow = bottom;
-            canvas.AddLine(x + 1, actionRow, x + width - 1, actionRow, Color.FromArgb(120, border.R, border.G, border.B), 1.0);
+            // Action: a big button card across the bottom when the panel is tall enough, else the last row under a divider.
+            bool bigButton = height >= BigButtonMinPanelHeight;
+            int actionRow = bigButton ? bottom - BigButtonHeight : bottom;
+            if (!bigButton)
+                canvas.AddLine(x + 1, actionRow, x + width - 1, actionRow, Color.FromArgb(120, border.R, border.G, border.B), 1.0);
             var statusLines = string.IsNullOrWhiteSpace(statusMessage)
                 ? new List<string>()
                 : TextWrapper.WrapText(statusMessage, inner).Take(2).ToList();
-            int maxRow = actionRow - statusLines.Count;
+            int maxRow = actionRow - (bigButton ? 1 : 0) - statusLines.Count;
 
             int ty = y + 1;
             void Line(string text, Color color)
@@ -1046,6 +1051,12 @@ namespace RPGGame.UI.Avalonia.Renderers
             foreach (var line in statusLines)
                 canvas.AddText(x + 2, sy++, Truncate(line, inner), AsciiArtAssets.Colors.Yellow);
 
+            if (bigButton)
+            {
+                DrawLearnButton(state, rank, node.Cost, spName, x + 2, actionRow, inner);
+                return;
+            }
+
             string action = state switch
             {
                 SkillTreeService.NodeViewState.Maxed => "Fully ranked",
@@ -1072,6 +1083,58 @@ namespace RPGGame.UI.Avalonia.Renderers
                     Type = ElementType.Button,
                     Value = "l",
                     DisplayText = action
+                });
+            }
+        }
+
+        /// <summary>Full-width learn button at the foot of the details panel; greyed out with the reason when it can't be pressed.</summary>
+        private void DrawLearnButton(SkillTreeService.NodeViewState state, int rank, int cost, string spName, int x, int y, int w)
+        {
+            bool canLearn = state == SkillTreeService.NodeViewState.Available;
+            string label = state switch
+            {
+                SkillTreeService.NodeViewState.Maxed => $"{LearnedGlyph} FULLY RANKED",
+                SkillTreeService.NodeViewState.Available => $"{(rank > 0 ? "RAISE RANK" : "LEARN SKILL")}  [L]",
+                SkillTreeService.NodeViewState.Unaffordable => "NEED MORE SP",
+                SkillTreeService.NodeViewState.Locked => "LOCKED",
+                _ => "OTHER PATH"
+            };
+            string sub = state switch
+            {
+                SkillTreeService.NodeViewState.Maxed => "",
+                SkillTreeService.NodeViewState.Locked => "learn its prerequisites first",
+                SkillTreeService.NodeViewState.WrongPath => "earn points on this path first",
+                _ => cost <= 0 ? "free" : $"costs {cost} {spName} SP"
+            };
+            var look = state switch
+            {
+                SkillTreeService.NodeViewState.Available => LearnButtonLook,
+                SkillTreeService.NodeViewState.Maxed => LearnedLook,
+                SkillTreeService.NodeViewState.Unaffordable => NeedSpLook,
+                _ => ClosedLook
+            };
+
+            DrawCard(x, y, w, look.Border, look.Fill, canLearn ? 3 : look.Thickness, BigButtonHeight);
+            void Centered(int row, string text, Color color)
+            {
+                text = Truncate(text, w - 2);
+                if (text.Length > 0)
+                    canvas.AddText(x + (w - text.Length) / 2, row, text, color);
+            }
+            Centered(y + 1, label, look.Name);
+            Centered(y + 2, sub, look.Status);
+
+            if (canLearn)
+            {
+                clickableElements.Add(new ClickableElement
+                {
+                    X = x,
+                    Y = y,
+                    Width = w,
+                    Height = BigButtonHeight,
+                    Type = ElementType.Button,
+                    Value = "l",
+                    DisplayText = label
                 });
             }
         }

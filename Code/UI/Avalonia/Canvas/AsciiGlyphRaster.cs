@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Platform;
 using SkiaSharp;
 
@@ -8,21 +9,27 @@ namespace RPGGame.UI.Avalonia.Canvas
     /// <summary>
     /// The Ascii style shared by room plates and item art: a picture averaged per glyph cell and redrawn as glyphs in
     /// the game font, picked from a ramp by the cell's auto-levelled brightness and colored by its average color.
+    /// The ramp is re-sorted by each glyph's measured ink in the font, so long ramps stay in order whatever the font.
     /// </summary>
     internal static class AsciiGlyphRaster
     {
         private static readonly object TypefaceGate = new();
         private static readonly Dictionary<string, SKTypeface> Typefaces = new(StringComparer.Ordinal);
+        private static readonly Dictionary<(string Family, string Ramp), string> OrderedRamps = new();
 
         /// <summary>
         /// Redraws <paramref name="plate"/> (stretched over the whole <paramref name="w"/>×<paramref name="h"/> surface) as
         /// <paramref name="cols"/>×<paramref name="rows"/> glyphs of <paramref name="cellW"/>×<paramref name="cellH"/> device
         /// pixels on a <paramref name="clear"/> surface. Fully transparent cells stay empty and are left out of the auto-level.
         /// Cells below <paramref name="cutoff"/> of the levelled range stay blank; the rest spread over the ramp's visible glyphs.
+        /// <paramref name="variety"/> (0–1) nudges each cell's level by a fixed per-cell noise so flat areas mix neighbouring
+        /// glyphs instead of repeating one.
         /// </summary>
         public static SKImage? Render(SKImage plate, int w, int h, int cols, int rows, float cellW, float cellH, float fontSize,
-            string family, string ramp, double background, double gain, SKColor clear, double cutoff = 0)
+            string family, string ramp, double background, double gain, SKColor clear, double cutoff = 0, double variety = 0)
         {
+            ramp = OrderByInk(family, ramp);
+            float jitter = (float)(Math.Clamp(variety, 0, 1) * MaxVarietyLevelShift);
             // Average each cell: draw the plate down to one pixel per cell with mipmapped sampling.
             using var cellBitmap = new SKBitmap(new SKImageInfo(cols, rows, SKColorType.Rgba8888, SKAlphaType.Unpremul));
             using (var cellCanvas = new SKCanvas(cellBitmap))
@@ -83,6 +90,8 @@ namespace RPGGame.UI.Avalonia.Canvas
                         fill.Color = Scale(c, background);
                         canvas.DrawRect(x, y, cellW, cellH, fill);
                     }
+                    if (jitter > 0)
+                        level += CellNoise(col, row) * jitter;
                     int index = cutoff > 0
                         ? Math.Clamp(1 + (int)Math.Round((level - cutoff) / (1 - cutoff) * (ramp.Length - 2)), 1, ramp.Length - 1)
                         : Math.Clamp((int)Math.Round(level * (ramp.Length - 1)), 0, ramp.Length - 1);
@@ -94,6 +103,61 @@ namespace RPGGame.UI.Avalonia.Canvas
             }
 
             return surface.Snapshot();
+        }
+
+        /// <summary>Level shift at variety 1: ±5% of the levelled range (about ±3 glyphs on the default ramp).</summary>
+        private const float MaxVarietyLevelShift = 0.1f;
+
+        /// <summary>Fixed noise in [-0.5, 0.5) per cell, so the pattern holds still between frames and rebuilds.</summary>
+        private static float CellNoise(int col, int row)
+        {
+            uint hash = (uint)(col * 73856093) ^ (uint)(row * 19349663);
+            hash ^= hash >> 13;
+            hash *= 0x5bd1e995;
+            hash ^= hash >> 15;
+            return (hash & 0xFFFF) / 65536f - 0.5f;
+        }
+
+        /// <summary>
+        /// <paramref name="ramp"/> without repeats, sorted from least to most ink as drawn in <paramref name="family"/>
+        /// (ties keep their written order). Cached per font and ramp.
+        /// </summary>
+        private static string OrderByInk(string family, string ramp)
+        {
+            lock (TypefaceGate)
+            {
+                if (OrderedRamps.TryGetValue((family, ramp), out var cached))
+                    return cached;
+            }
+
+            const int size = 64;
+            var distinct = ramp.Distinct().ToList();
+            var ink = new Dictionary<char, long>();
+            using (var bitmap = new SKBitmap(new SKImageInfo(size, size, SKColorType.Alpha8, SKAlphaType.Premul)))
+            using (var canvas = new SKCanvas(bitmap))
+            using (var font = new SKFont(ResolveTypeface(family), size * 0.75f) { Edging = SKFontEdging.Antialias })
+            using (var paint = new SKPaint { IsAntialias = true, Color = SKColors.Black })
+            {
+                foreach (char ch in distinct)
+                {
+                    long sum = 0;
+                    if (!char.IsWhiteSpace(ch))
+                    {
+                        canvas.Clear(SKColors.Transparent);
+                        canvas.DrawText(ch.ToString(), size * 0.1f, size * 0.8f, font, paint);
+                        canvas.Flush();
+                        foreach (byte b in bitmap.GetPixelSpan())
+                            sum += b;
+                    }
+                    ink[ch] = sum;
+                }
+            }
+
+            // OrderBy is stable, so equal-ink glyphs keep the order they were written in.
+            var ordered = new string(distinct.OrderBy(ch => ink[ch]).ToArray());
+            lock (TypefaceGate)
+                OrderedRamps[(family, ramp)] = ordered;
+            return ordered;
         }
 
         private static float Luma(SKColor c) => 0.2126f * c.Red + 0.7152f * c.Green + 0.0722f * c.Blue;

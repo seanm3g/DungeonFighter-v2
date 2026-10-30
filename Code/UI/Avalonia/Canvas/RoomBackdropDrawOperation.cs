@@ -26,7 +26,7 @@ namespace RPGGame.UI.Avalonia.Canvas
         private static int lastImageSlot;
 
         private static readonly SKImage?[] cachedAsciis = new SKImage?[2];
-        private static readonly (SKImage Plate, int Cols, int Rows, double CellW, double CellH, double FontSize, string Family, string Ramp, double Background, double Gain, double Underlay)[] cachedAsciiKeys = new (SKImage, int, int, double, double, double, string, string, double, double, double)[2];
+        private static readonly (SKImage Plate, int Cols, int Rows, double CellW, double CellH, double FontSize, string Family, string Ramp, double Background, double Gain, double Underlay, double Variety)[] cachedAsciiKeys = new (SKImage, int, int, double, double, double, string, string, double, double, double, double)[2];
         private static int lastAsciiSlot;
 
         private readonly SKImage source;
@@ -188,7 +188,8 @@ namespace RPGGame.UI.Avalonia.Canvas
             double background = Math.Clamp(config.AsciiBackground, 0, 1);
             double gain = Math.Clamp(config.AsciiGlyphGain, 0, RoomBackdropConfig.MaxAsciiGlyphGain);
             double underlay = Math.Clamp(config.AsciiImageUnderlay, 0, 1);
-            var key = (plate, cols, rows, glyphCellWidth * scale, glyphCellHeight * scale, glyphFontSize * scale, family, ramp, background, gain, underlay);
+            double variety = Math.Clamp(config.AsciiVariety, 0, 1);
+            var key = (plate, cols, rows, glyphCellWidth * scale, glyphCellHeight * scale, glyphFontSize * scale, family, ramp, background, gain, underlay, variety);
             for (int i = 0; i < cachedAsciis.Length; i++)
             {
                 if (cachedAsciis[i] != null && cachedAsciiKeys[i].Equals(key))
@@ -199,7 +200,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             }
 
             var ascii = AsciiGlyphRaster.Render(plate, w, h, cols, rows, (float)(glyphCellWidth * scale), (float)(glyphCellHeight * scale),
-                (float)(glyphFontSize * scale), family, ramp, background, gain, underlay > 0 ? SKColors.Transparent : SKColors.Black);
+                (float)(glyphFontSize * scale), family, ramp, background, gain, underlay > 0 ? SKColors.Transparent : SKColors.Black, variety: variety);
             if (ascii == null)
                 return null;
 

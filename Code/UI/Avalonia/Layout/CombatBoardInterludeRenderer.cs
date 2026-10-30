@@ -10,12 +10,15 @@ namespace RPGGame.UI.Avalonia.Layout
     /// </summary>
     public static class CombatBoardInterludeRenderer
     {
-        /// <summary>Clears the column above the hero strip before the log repaints (leftover fight board, old text).</summary>
+        /// <summary>Clears the column above the hero strip before the log repaints (leftover fight board, old text);
+        /// between fights the log owns the strip band too, so that goes as well.</summary>
         public static void ClearColumn(GameCanvasControl canvas)
         {
             int x = LayoutConstants.CENTER_PANEL_X;
             int w = LayoutConstants.CENTER_PANEL_WIDTH;
-            int h = LayoutConstants.ACTION_INFO_Y;
+            int h = CombatBoardLayout.IsBetweenFights
+                ? LayoutConstants.ACTION_INFO_Y + LayoutConstants.ACTION_INFO_HEIGHT
+                : LayoutConstants.ACTION_INFO_Y;
             canvas.ClearTextInArea(x, 0, w, h);
             canvas.ClearBoxesInArea(x, 0, w, h);
             canvas.ClearProgressBarsInArea(x, 0, w, h);
@@ -56,7 +59,8 @@ namespace RPGGame.UI.Avalonia.Layout
         /// already announces the dungeon.</summary>
         public static string ResolveLabel(string title)
         {
-            bool generic = string.IsNullOrWhiteSpace(title) || title == "DUNGEON FIGHTERS" || title == "COMBAT" || title == "COMBAT RESULT";
+            bool generic = string.IsNullOrWhiteSpace(title) || title == "DUNGEON FIGHTERS" || title == "COMBAT" || title == "COMBAT RESULT"
+                || title.StartsWith("DUNGEON COMPLETED", StringComparison.Ordinal);
             return generic ? "" : title;
         }
     }

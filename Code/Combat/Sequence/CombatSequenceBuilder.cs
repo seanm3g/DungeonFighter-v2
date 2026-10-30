@@ -78,6 +78,8 @@ namespace RPGGame.Combat.Sequence
             // Status effects land on the target, then the damage number.
             if (hasStatusEffects)
             {
+                if (target != null)
+                    steps.Add(BuildTargetStep(target));
                 steps.Add(new CombatSequenceStep(
                     CombatSequenceStepKind.Effect,
                     "EFFECTS",
@@ -156,22 +158,12 @@ namespace RPGGame.Combat.Sequence
                 steps.Add(BuildDefenseStep(result.DefenseFace ?? 0, result.ModifiedBaseRoll, target, selected));
             }
 
-            // Status effects land on the target before the damage number (the board's beat order).
-            if (result.StatusEffectMessages != null && result.StatusEffectMessages.Count > 0)
+            // Status effects land before the damage number (the board's beat order): a TARGET + EFFECTS pair per line.
+            if (result.StatusEffectMessages != null)
             {
-                string first = result.StatusEffectMessages[0];
-                if (!string.IsNullOrWhiteSpace(first))
-                {
-                    // Status lines carry color markup; parse it like the combat log does instead of printing raw codes.
-                    var segments = TrimSegments(ColoredTextParser.Parse(first.Trim()));
-                    if (segments.Count > 0)
-                    {
-                        steps.Add(new CombatSequenceStep(
-                            CombatSequenceStepKind.Effect,
-                            "EFFECTS",
-                            segments));
-                    }
-                }
+                Actor? fallback = selected.Target == TargetType.Self ? source : target ?? source;
+                foreach (string message in result.StatusEffectMessages)
+                    AppendEffect(steps, message, source, target, fallback);
             }
 
             if (result.Hit && selected.Type == ActionType.Heal)
@@ -216,6 +208,88 @@ namespace RPGGame.Combat.Sequence
             var builder = new ColoredTextBuilder();
             EntityColorHelper.AppendActorNameColored(builder, source);
             return new CombatSequenceStep(CombatSequenceStepKind.Attacker, "ATTACKER", builder.Build());
+        }
+
+        private static CombatSequenceStep BuildTargetStep(Actor who)
+        {
+            var builder = new ColoredTextBuilder();
+            EntityColorHelper.AppendActorNameColored(builder, who);
+            return new CombatSequenceStep(CombatSequenceStepKind.Target, "TARGET", builder.Build());
+        }
+
+        /// <summary>
+        /// One status line as TARGET (the actor it names, else <paramref name="fallback"/>) then EFFECTS (the line with
+        /// that name and its "is" / "'s" joiner taken off, e.g. "Goblin is weakened!" → Goblin / weakened).
+        /// </summary>
+        private static void AppendEffect(List<CombatSequenceStep> steps, string? message, Actor source, Actor? target, Actor? fallback)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+                return;
+            // Status lines carry color markup; parse it like the combat log does instead of printing raw codes.
+            var segments = TrimSegments(ColoredTextParser.Parse(message.Trim()));
+            if (segments.Count == 0)
+                return;
+
+            string text = string.Concat(segments.ConvertAll(s => s.Text));
+            Actor? who = null;
+            foreach (var candidate in new[] { target, source })
+            {
+                string? name = candidate?.Name;
+                if (string.IsNullOrEmpty(name))
+                    continue;
+                int at = text.StartsWith("[", System.StringComparison.Ordinal) ? 1 : 0;
+                if (string.CompareOrdinal(text, at, name, 0, name.Length) != 0)
+                    continue;
+                who = candidate;
+                int cut = at + name.Length;
+                string rest = text.Substring(cut);
+                if (at == 1 && rest.StartsWith("]", System.StringComparison.Ordinal))
+                    rest = rest.Substring(1);
+                string joined = rest.TrimStart();
+                foreach (string joiner in new[] { "'s ", "is " })
+                {
+                    if (joined.StartsWith(joiner, System.StringComparison.Ordinal))
+                    {
+                        joined = joined.Substring(joiner.Length);
+                        break;
+                    }
+                }
+                segments = TrimSegments(DropLeading(segments, text.Length - joined.Length));
+                break;
+            }
+
+            who ??= fallback;
+            if (segments.Count > 0 && segments[^1].Text.EndsWith("!", System.StringComparison.Ordinal))
+            {
+                segments[^1].Text = segments[^1].Text.TrimEnd('!');
+                segments = TrimSegments(segments);
+            }
+            if (segments.Count == 0)
+                return;
+
+            if (who != null)
+                steps.Add(BuildTargetStep(who));
+            steps.Add(new CombatSequenceStep(CombatSequenceStepKind.Effect, "EFFECTS", segments));
+        }
+
+        /// <summary>Removes the first <paramref name="count"/> characters across <paramref name="segments"/>.</summary>
+        private static List<ColoredText> DropLeading(List<ColoredText> segments, int count)
+        {
+            while (count > 0 && segments.Count > 0)
+            {
+                var first = segments[0];
+                if (first.Text.Length <= count)
+                {
+                    count -= first.Text.Length;
+                    segments.RemoveAt(0);
+                }
+                else
+                {
+                    first.Text = first.Text.Substring(count);
+                    count = 0;
+                }
+            }
+            return segments;
         }
 
         private static CombatSequenceStep BuildActionStep(Action selected, bool hit)
