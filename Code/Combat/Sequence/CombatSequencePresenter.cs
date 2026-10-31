@@ -223,6 +223,9 @@ namespace RPGGame.Combat.Sequence
                         if (b == beats.Count - 1)
                             FireCue(step.Cue);
                         Invalidate();
+                        // Training Ground: hold on the revealed column while its coach popup is up.
+                        if (b == beats.Count - 1 && !UseManualPlayback)
+                            await TutorialCoach.OnStepRevealedAsync(step);
                         if (!await WaitForBeatAsync())
                             return;
                     }

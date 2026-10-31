@@ -70,6 +70,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             // current card can line up with NOW and cards can fly between the two.
             int timelineH = TimelineBandHeight(heroBandY - top);
             int enemyBandY = top + timelineH;
+            TutorialCoachTargets.Set(TutorialCoachFocus.EnemyStrip, (colX, 0, colW, enemyStripH));
+            TutorialCoachTargets.Set(TutorialCoachFocus.Timeline, timelineH > 0 ? (colX, top, colW, timelineH) : null);
+            TutorialCoachTargets.Set(TutorialCoachFocus.Sequence, null);
+            TutorialCoachTargets.Set(TutorialCoachFocus.TurnOrb, null);
+            TutorialCoachTargets.Set(TutorialCoachFocus.Die, null);
+            TutorialCoachTargets.Set(TutorialCoachFocus.Branches, null);
+            TutorialCoachTargets.Set(TutorialCoachFocus.ChosenBranch, null);
 
             // --- Sequence (left edge, between the timeline and the hero strip) ---
             int seqW = RenderBoardSequencePanel(colX, enemyBandY, colW, barW, boardH - enemyBandY);
@@ -107,6 +114,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             RenderBoardTurnOrb(heroOrbX, heroOrbY, AsciiArtAssets.Colors.Green, side == CombatTurnSpotlight.Side.Hero);
             RenderBoardTurnOrb(enemyOrbX, enemyOrbY, AsciiArtAssets.Colors.Red, side == CombatTurnSpotlight.Side.Enemy);
+            if (side == CombatTurnSpotlight.Side.Hero)
+                TutorialCoachTargets.Set(TutorialCoachFocus.TurnOrb, (heroOrbX - 1, heroOrbY - 1, orbW + 2, orbH + 2));
+            else if (side == CombatTurnSpotlight.Side.Enemy)
+                TutorialCoachTargets.Set(TutorialCoachFocus.TurnOrb, (enemyOrbX - 1, enemyOrbY - 1, orbW + 2, orbH + 2));
         }
 
         /// <summary>Where the die sits between NOW and the queue in the last combo-flow paint (null in log view).</summary>
@@ -211,6 +222,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             int h = innerH + 2;
             int y = top + (availH - h) / 2;
             AddBoardBox(colX, y, w, h, BoardDimBorder, BoardCardBackground);
+            TutorialCoachTargets.Set(TutorialCoachFocus.Sequence, (colX, y, w, h));
             canvas.AddText(colX + 1, y, " SEQUENCE ", AsciiArtAssets.Colors.Cyan);
             CombatSequenceHudRenderer.RenderVertical(canvas, colX + 1, y + 1, w - 2, innerH);
             return w + 1;
@@ -357,6 +369,35 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (t <= 0.0)
                 return;
             canvas.AddLine(a.X, a.Y, CombatBoardAnimation.Lerp(a.X, b.X, t), CombatBoardAnimation.Lerp(a.Y, b.Y, t), color, thickness);
+        }
+
+        /// <summary>
+        /// Short dim stubs from the junction toward the gaps between branch targets, plus one above the first and one
+        /// below the last, each tapering into the background so they read as roads not taken rather than real branches.
+        /// </summary>
+        private void DrawGhostBranches((double X, double Y) junction, IReadOnlyList<BoardRect> targets, int slots)
+        {
+            if (slots <= 0)
+                return;
+            var aims = new List<(double X, double Y)>();
+            double spread = slots > 1 ? (targets[slots - 1].CenterY - targets[0].CenterY) / (slots - 1) : targets[0].H;
+            aims.Add((targets[0].X, targets[0].CenterY - spread * 0.6));
+            for (int i = 0; i + 1 < slots; i++)
+                aims.Add((Math.Min(targets[i].X, targets[i + 1].X), (targets[i].CenterY + targets[i + 1].CenterY) / 2));
+            aims.Add((targets[slots - 1].X, targets[slots - 1].CenterY + spread * 0.6));
+
+            const int Steps = 4;
+            const double Reach = 0.55;
+            foreach (var aim in aims)
+            {
+                double dx = (aim.X - junction.X) * Reach / Steps, dy = (aim.Y - junction.Y) * Reach / Steps;
+                for (int s = 0; s < Steps; s++)
+                {
+                    double fadeTo = 0.45 + 0.5 * (s + 1) / Steps;
+                    canvas.AddLine(junction.X + dx * s, junction.Y + dy * s, junction.X + dx * (s + 1), junction.Y + dy * (s + 1),
+                        LerpColor(BoardIdleLine, BoardCardBackground, fadeTo), 2.0 - 1.2 * s / Steps);
+                }
+            }
         }
 
         /// <summary>
@@ -627,6 +668,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         };
 
         /// <summary>NOW and the gap to the branch column, centered in the combo flow's area.</summary>
+        /// <summary>Extra cells (~75px) between the die and the next roll's branch column.</summary>
+        private const int BoardBranchColumnShift = 9;
+
         private static (BoardRect Now, int LineGap, int NextW) BoardFlowLayout(int x, int y, int w, int h)
         {
             int curW = Math.Clamp(w * 26 / 100, 22, 40);
@@ -663,7 +707,9 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             // --- Layout (rest positions) ---
             var (curR, lineGap, nextW) = BoardFlowLayout(x, y, w, h);
+            // The branch column sits a little further right so NOW's log block line doesn't run over it.
             int nextX = curR.X + curR.W + lineGap;
+            nextX += Math.Clamp(x + w - 1 - (nextX + nextW), 0, BoardBranchColumnShift);
 
             // The next actor's roll branches stack down the right column, one box per possible outcome.
             bool hasNext = turn.Queue.Count > 0;
@@ -671,20 +717,29 @@ namespace RPGGame.UI.Avalonia.Renderers
             bool nextRolling = hasNext && turn.LiveSwing != null && nextEntry.IsActing
                 && ReferenceEquals(turn.LiveSwing.Source, nextEntry.Actor);
             var branches = hasNext ? BoardBranches(nextEntry.Actor, nextRolling ? turn.LiveSwing : null) : new List<BoardBranch>();
-            const int branchGap = 1;
+            int branchGap = 1;
             int slots = branches.Count;
             var branchH = new int[slots];
             for (int i = 0; i < slots; i++)
                 branchH[i] = 2 + Math.Max(1, branches[i].Detail.Count + 1);
-            int stackH() { int s = Math.Max(0, slots - 1) * branchGap; foreach (var bh in branchH) s += bh; return s; }
+            // The room-trigger box sits a row clear of the d20 ladder: it's a side effect of a face, not an outcome band.
+            int GapBefore(int i) => i == 0 ? 0 : branchGap + (branches[i].RoomTrigger ? 1 : 0);
+            int stackH() { int s = 0; for (int i = 0; i < slots; i++) s += branchH[i] + GapBefore(i); return s; }
             for (int i = slots - 1; i >= 0 && stackH() > h - 1; i--)
                 branchH[i] = 3; // squeeze detail lines (hazard lists) before dropping boxes
+            bool stacked = stackH() > h - 1;
+            if (stacked)
+                branchGap = -1; // then stack the boxes on shared borders, so every outcome still shows
             while (slots > 1 && stackH() > h - 1)
                 slots--;
             int queueTop = y + 1 + Math.Max(0, (h - 1 - stackH()) / 2);
             var queueR = new BoardRect[slots];
-            for (int i = 0, by = queueTop; i < slots; by += branchH[i] + branchGap, i++)
+            for (int i = 0, by = queueTop; i < slots; i++)
+            {
+                by += GapBefore(i);
                 queueR[i] = new BoardRect(nextX, by, nextW, branchH[i]);
+                by += branchH[i];
+            }
             (double X, double Y) junction = (curR.Right + lineGap / 2.0, curR.CenterY);
             _boardDieCenter = junction;
 
@@ -821,12 +876,16 @@ namespace RPGGame.UI.Avalonia.Renderers
             bool dieVisible = swing != null && stage <= 2 && dieDue && (pastAttacker || DieShown(stage, rawP));
             BoardRect dieR = default;
             if (dieVisible)
+            {
                 dieR = DrawBoardDie(junction, swing!, stage, rawP, x, w);
+                // The outcome word sits on the row above the die and the math caption on the row below.
+                TutorialCoachTargets.Set(TutorialCoachFocus.Die, (dieR.X - 2, dieR.Y - 2, dieR.W + 4, dieR.H + 4));
+            }
 
             (double X, double Y) junctionIn = dieVisible ? (dieR.X, junction.Y) : junction;
             (double X, double Y) junctionOut = dieVisible ? (dieR.Right, junction.Y) : junction;
             canvas.AddLine(nowR.Right, nowR.CenterY, junctionIn.X, junctionIn.Y,
-                dieVisible ? strikeColor : BoardIdleLine, dieVisible ? 2.0 : 1.5);
+                dieVisible ? strikeColor : BoardIdleLine, dieVisible ? 4.0 : 3.0);
 
             // --- Next roll: one branch per outcome ---
             // The next actor's branches wait until the flying card has cleared the column (text draws above every box),
@@ -844,27 +903,45 @@ namespace RPGGame.UI.Avalonia.Renderers
                 double oddsEmphasis = !nextRolling || stage > 1 ? 0.0
                     : stage == 1 || CombatSequenceHudState.ResultRevealed ? 1.0
                     : CombatBoardAnimation.EaseOut(Math.Clamp(rawP / (DieAppearsAt * 0.6), 0.0, 1.0));
-                for (int i = 0; i < slots; i++)
+                // Until the roll lands, faint stubs fan out between and around the real branches: other ways it could go.
+                if (!(nextRolling && stage >= 2))
+                    DrawGhostBranches(junctionOut, queueR, slots);
+                // The taken box draws last so its border sits over any neighbour it shares a border with.
+                var order = Enumerable.Range(0, slots).OrderBy(i => i == taken ? 1 : 0);
+                foreach (int i in order)
                 {
                     var b = branches[i];
-                    bool resolved = nextRolling && stage >= 2 && b.Outcome != null;
-                    bool chosen = resolved && i == taken;
+                    // The room-trigger box resolves alongside the outcome: lit when this roll landed the face, faded otherwise.
+                    bool resolved = nextRolling && stage >= 2 && (b.Outcome != null || b.RoomTrigger);
+                    bool chosen = resolved && (b.RoomTrigger ? CombatTurnQueue.Room?.HasPendingRollTrigger == true : i == taken);
                     canvas.AddLine(junctionOut.X, junctionOut.Y, queueR[i].X, queueR[i].CenterY,
-                        resolved && !chosen ? BoardFadedBorder : BoardIdleLine, 1.0);
+                        resolved && !chosen ? BoardFadedBorder : BoardIdleLine, 2.5);
                     if (chosen)
-                        AddGrowingLine(junctionOut, (queueR[i].X, queueR[i].CenterY), OutcomeHalf(stage, rawP, second: true), strikeColor, 2.0);
-                    DrawBoardBranch(b, queueR[i], resolved, chosen, fade, oddsEmphasis, BoardActorColor(actor), branchesRevealed);
+                        AddGrowingLine(junctionOut, (queueR[i].X, queueR[i].CenterY), OutcomeHalf(stage, rawP, second: true), strikeColor, 4.0);
+                    DrawBoardBranch(b, queueR[i], resolved, chosen, fade, oddsEmphasis, BoardActorColor(actor), branchesRevealed, stacked);
+                    if (chosen)
+                        TutorialCoachTargets.Set(TutorialCoachFocus.ChosenBranch, (queueR[i].X, queueR[i].Y, queueR[i].W, queueR[i].H));
                 }
+                // The label row above the boxes ("ROLLING  name") belongs to the column too.
+                TutorialCoachTargets.Set(TutorialCoachFocus.Branches,
+                    (nextX, queueR[0].Y - 1, nextW, (int)queueR[slots - 1].Bottom - queueR[0].Y + 1));
             }
 
             if (cardInFlight)
                 DrawBoardAct(turn.NowTurnAct?.Act ?? _boardNowAct, BoardRect.Lerp(_boardLandFrom, nowR, shift), SwingColor(swing!), 3, mode);
 
             // The act on NOW reads as its combat-log action block in a small box above it. A swing still playing shows
-            // it once its effects or damage land, the same beat the target's band would.
+            // its setup ("Hero attacks the Goblin ...") as the branches reveal, then the whole block as the picked
+            // action moves into NOW.
             bool blockShown = false;
-            if (!cardInFlight && nowAct?.Swing is { LogBlock: { Count: > 0 } block } nowSwing
-                && (!ReferenceEquals(nowSwing, swing) || ImpactLanded(nowSwing, stage)))
+            if (swing is { LogBlock: { Count: > 0 } liveBlock } && branchesDue)
+            {
+                var shown = landed ? liveBlock : SetupOnlyBlock(liveBlock);
+                if (shown != null)
+                    blockShown = DrawBoardLogBlock(shown, swing.Source, nowR, x, w, enemyBandY) && ImpactLanded(swing, stage);
+            }
+            else if (!cardInFlight && nowAct?.Swing is { LogBlock: { Count: > 0 } block } nowSwing
+                && !ReferenceEquals(nowSwing, swing))
                 blockShown = DrawBoardLogBlock(block, nowAct.Actor, nowR, x, w, enemyBandY);
 
             // What the swing is doing to its target while it plays; once it ends, what it set up for the attacker's next action.
@@ -969,6 +1046,12 @@ namespace RPGGame.UI.Avalonia.Renderers
             var (effectAt, amountAt) = ImpactSteps(swing);
             return effectAt < 0 && amountAt < 0 ? stage >= 3 : ImpactStepShown(effectAt) || ImpactStepShown(amountAt);
         }
+
+        /// <summary>The headline's setup (up to its <c>...</c>) alone; null when the headline has no setup split.</summary>
+        private static List<List<ColoredText>>? SetupOnlyBlock(List<List<ColoredText>> block) =>
+            RPGGame.Combat.Formatting.ActionHeadlineFormatter.TrySplit(block[0], out var setup, out _) && setup.Count > 0
+                ? new List<List<ColoredText>> { setup }
+                : null;
 
         /// <summary>
         /// The act's combat-log action block in a small black box centered above NOW, a few rows clear of NOW's label
@@ -1093,14 +1176,15 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         /// <summary>One possible result of the next roll: its odds (faces or percent), what it does, and any detail lines.</summary>
         private sealed record BoardBranch(string Odds, string Text, Color Color, CombatSequenceSwingOutcome? Outcome, List<string> Detail,
-            bool Critical = false, bool OwnColor = false);
+            bool Critical = false, bool OwnColor = false, bool RoomTrigger = false);
 
         /// <summary>
         /// One outcome box of the next roll. While that roll plays, OUTCOME lights the branch taken and fades the rest.
-        /// Until the actor's turn starts the box stays empty.
+        /// Until the actor's turn starts the box stays empty. A <paramref name="stacked"/> box overlaps its neighbours by a
+        /// row, so its border runs through the middle of those shared rows (a cell-edge border would sit off-center).
         /// </summary>
         private void DrawBoardBranch(BoardBranch b, BoardRect r, bool resolved, bool chosen, double fade, double oddsEmphasis, Color actorColor,
-            bool filled)
+            bool filled, bool stacked = false)
         {
             Color border = BoardDimBorder;
             int thickness = 1;
@@ -1117,7 +1201,18 @@ namespace RPGGame.UI.Avalonia.Renderers
                 if (!chosen)
                     color = LerpColor(color, BoardFadedBorder, fade * 0.85);
             }
-            AddBoardBox(r.X, r.Y, r.W, r.H, border, BoardCardBackground, borderThicknessPixels: thickness);
+            if (stacked)
+            {
+                // Lines draw above every box, so the taken box (drawn last) keeps its border over a neighbour's.
+                AddBoardBox(r.X, r.Y, r.W, r.H, BoardCardBackground, BoardCardBackground);
+                double top = r.Y + 0.5, bot = r.Bottom - 0.5;
+                canvas.AddLine(r.X, top, r.Right, top, border, thickness);
+                canvas.AddLine(r.X, bot, r.Right, bot, border, thickness);
+                canvas.AddLine(r.X, top, r.X, bot, border, thickness);
+                canvas.AddLine(r.Right, top, r.Right, bot, border, thickness);
+            }
+            else
+                AddBoardBox(r.X, r.Y, r.W, r.H, border, BoardCardBackground, borderThicknessPixels: thickness);
             if (!filled)
                 return;
 
@@ -1187,13 +1282,18 @@ namespace RPGGame.UI.Avalonia.Renderers
             int comboAt = Math.Clamp(t.Combo, 1, critAt);
             int hitAt = Math.Clamp(t.MinHit, 1, comboAt);
             int critMissTop = Math.Clamp(t.CritMiss, 0, hitAt - 1);
+            void AddBand(int lo, int hi, string text, Color color, CombatSequenceSwingOutcome outcome, bool critical = false) =>
+                list.Add(new BoardBranch(Faces(lo, hi), text, color, outcome, new(), Critical: critical));
             if (critAt <= 20)
-                list.Add(new BoardBranch(Faces(critAt, 20), $"CRIT {combo}", ThresholdDisplayFormatting.D20ThresholdBarColors.Crit, CombatSequenceSwingOutcome.Combo, new(), Critical: true));
-            list.Add(new BoardBranch(Faces(comboAt, critAt - 1), combo, BoardComboBorder, CombatSequenceSwingOutcome.Combo, new()));
-            list.Add(new BoardBranch(Faces(hitAt, comboAt - 1), "hit", AsciiArtAssets.Colors.White, CombatSequenceSwingOutcome.Hit, new()));
-            list.Add(new BoardBranch(Faces(critMissTop + 1, hitAt - 1), "miss", AsciiArtAssets.Colors.Red, CombatSequenceSwingOutcome.Miss, new()));
+                AddBand(critAt, 20, $"CRIT {combo}", ThresholdDisplayFormatting.D20ThresholdBarColors.Crit, CombatSequenceSwingOutcome.Combo, critical: true);
+            AddBand(comboAt, critAt - 1, combo, BoardComboBorder, CombatSequenceSwingOutcome.Combo);
+            AddBand(hitAt, comboAt - 1, "hit", AsciiArtAssets.Colors.White, CombatSequenceSwingOutcome.Hit);
+            AddBand(critMissTop + 1, hitAt - 1, "miss", AsciiArtAssets.Colors.Red, CombatSequenceSwingOutcome.Miss);
             if (critMissTop >= 1)
-                list.Add(new BoardBranch(Faces(1, critMissTop), "CRIT MISS", ThresholdDisplayFormatting.D20ThresholdBarColors.CritMiss, CombatSequenceSwingOutcome.Miss, new(), Critical: true));
+                AddBand(1, critMissTop, "CRIT MISS", ThresholdDisplayFormatting.D20ThresholdBarColors.CritMiss, CombatSequenceSwingOutcome.Miss, critical: true);
+            // The room's trigger face (any fighter's die sets it off) overlaps the bands, so it gets its own box below them.
+            if (CombatTurnQueue.Room is { TriggerRoll: > 0 } triggerRoom)
+                list.Add(new BoardBranch($"{triggerRoom.TriggerRoll}", $"ROOM: {triggerRoom.Name}", BoardHazardColor, null, new(), OwnColor: true, RoomTrigger: true));
             return list;
         }
 

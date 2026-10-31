@@ -248,6 +248,12 @@ namespace RPGGame.UI.Avalonia
                 return;
             }
 
+            if (TryHandleTutorialCoachKey(e.Key))
+            {
+                e.Handled = true;
+                return;
+            }
+
             if (e.Key == Key.H)
             {
                 e.Handled = true;
@@ -368,6 +374,30 @@ namespace RPGGame.UI.Avalonia
             catch (Exception ex)
             {
                 UpdateStatus($"Error handling input: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// While a Training Ground coach popup is up: Enter / Space / Right / N press NEXT, Esc skips the rest of the
+        /// tutorial. Other keys fall through (F-keys, combat speed).
+        /// </summary>
+        private static bool TryHandleTutorialCoachKey(Key key)
+        {
+            if (!TutorialCoach.IsWaiting)
+                return false;
+            switch (key)
+            {
+                case Key.Enter:
+                case Key.Space:
+                case Key.Right:
+                case Key.N:
+                    TutorialCoach.Advance();
+                    return true;
+                case Key.Escape:
+                    TutorialCoach.SkipAll();
+                    return true;
+                default:
+                    return false;
             }
         }
 

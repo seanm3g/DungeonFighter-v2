@@ -264,6 +264,23 @@ namespace RPGGame
         }
         
         /// <summary>
+        /// Lead-in line when a swing rolls the room's trigger face, e.g. "Kara rolled a 13 - the Flooded Vault answers!".
+        /// </summary>
+        public static List<ColoredText> FormatRoomRollTriggerColored(string rollerName, string roomName, int triggerRoll)
+        {
+            var builder = new ColoredTextBuilder();
+            builder.Add(rollerName, ColorPalette.Cyan);
+            builder.Add("rolled a", Colors.White);
+            builder.AddSpace();
+            builder.Add(triggerRoll.ToString(), ColorPalette.Gold);
+            builder.Add(" - the", Colors.White);
+            builder.AddSpace();
+            builder.Add(roomName, ColorPalette.Green);
+            builder.Add(" answers!", Colors.White);
+            return builder.Build();
+        }
+
+        /// <summary>
         /// Formats environmental action notification with the new ColoredText system
         /// </summary>
         public static List<ColoredText> FormatEnvironmentalActionNotificationColored(

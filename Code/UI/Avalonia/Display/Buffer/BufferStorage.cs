@@ -24,6 +24,10 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
         /// Narrative prose anchors use 1; mechanical block anchors use N (line count); 0 = not an anchor.
         /// </summary>
         private readonly List<int> lineDualSpans;
+        /// <summary>Parallel to messages: character reveal still typing (null = shown in full).</summary>
+        private readonly List<LineReveal?> lineReveals = new List<LineReveal?>();
+        /// <summary>When the last queued reveal finishes; the next new line starts typing then.</summary>
+        private DateTimeOffset revealQueueEnd;
         private readonly int maxLines;
         private readonly int maxLineWidth;
         private readonly MessageValidator validator;
@@ -82,7 +86,8 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             lineMessageTypes.Add(messageType);
             lineHoverInfoLines.Add(null);
             lineDualSpans.Add(0);
-            
+            lineReveals.Add(QueueReveal(segments));
+
             // Keep only the last maxLines
             if (messages.Count > maxLines)
             {
@@ -90,10 +95,38 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                 lineMessageTypes.RemoveAt(0);
                 lineHoverInfoLines.RemoveAt(0);
                 lineDualSpans.RemoveAt(0);
+                lineReveals.RemoveAt(0);
             }
-            
+
             // Update scroll state with new message count
             scrollState.UpdateAfterAdd(wasAtTop, wasAtBottom, messages.Count);
+        }
+
+        /// <summary>Queues a new line's character reveal after any line still typing; null when reveals are off.</summary>
+        private LineReveal? QueueReveal(List<ColoredText> segments)
+        {
+            if (!LineReveal.IsEnabled)
+                return null;
+            var now = DateTimeOffset.UtcNow;
+            var reveal = LineReveal.Create(segments, revealQueueEnd > now ? revealQueueEnd : now);
+            if (reveal != null)
+                revealQueueEnd = reveal.End;
+            return reveal;
+        }
+
+        /// <summary>True while any line is still typing in (the display keeps repainting until it is done).</summary>
+        public bool HasActiveReveal
+        {
+            get
+            {
+                var now = DateTimeOffset.UtcNow;
+                for (int i = lineReveals.Count - 1; i >= 0; i--)
+                {
+                    if (lineReveals[i] is { } reveal && !reveal.IsDone(now))
+                        return true;
+                }
+                return false;
+            }
         }
 
         /// <summary>
@@ -154,6 +187,9 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             if (index < 0 || index >= messages.Count)
                 return;
 
+            // In-place writers (combat typewriter, narrative prose) do their own reveal.
+            lineReveals[index] = null;
+
             if (segments == null || segments.Count == 0)
             {
                 messages[index] = new List<ColoredText>();
@@ -198,10 +234,11 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             lineMessageTypes.Add(messageType);
             lineHoverInfoLines.Add(null);
             lineDualSpans.Add(0);
-            
+            lineReveals.Add(null);
+
             bool wasAtBottom = scrollState.WasAtBottom();
             bool wasAtTop = scrollState.WasAtTop();
-            
+
             // Keep only the last maxLines
             if (messages.Count > maxLines)
             {
@@ -209,6 +246,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                 lineMessageTypes.RemoveAt(0);
                 lineHoverInfoLines.RemoveAt(0);
                 lineDualSpans.RemoveAt(0);
+                lineReveals.RemoveAt(0);
             }
             
             // Update scroll state
@@ -241,6 +279,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                     lineMessageTypes.Add(messageType);
                     lineHoverInfoLines.Add(null);
                     lineDualSpans.Add(0);
+                    lineReveals.Add(null);
                     continue;
                 }
                 
@@ -257,8 +296,9 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                 lineMessageTypes.Add(messageType);
                 lineHoverInfoLines.Add(null);
                 lineDualSpans.Add(0);
+                lineReveals.Add(QueueReveal(processedSegments));
             }
-            
+
             // Keep only the last maxLines (batch removal)
             if (messages.Count > maxLines)
             {
@@ -267,6 +307,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                 lineMessageTypes.RemoveRange(0, removeCount);
                 lineHoverInfoLines.RemoveRange(0, removeCount);
                 lineDualSpans.RemoveRange(0, removeCount);
+                lineReveals.RemoveRange(0, removeCount);
             }
             
             // Update scroll state with new message count
@@ -282,6 +323,8 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             lineMessageTypes.Clear();
             lineHoverInfoLines.Clear();
             lineDualSpans.Clear();
+            lineReveals.Clear();
+            revealQueueEnd = default;
             scrollState.Reset();
         }
 
@@ -297,6 +340,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             lineMessageTypes.RemoveRange(0, count);
             lineHoverInfoLines.RemoveRange(0, count);
             lineDualSpans.RemoveRange(0, count);
+            lineReveals.RemoveRange(0, count);
             scrollState.Reset();
             scrollState.UpdateAfterAdd(wasAtTop: false, wasAtBottom: true, messages.Count);
         }
@@ -335,6 +379,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             lineMessageTypes.Clear();
             lineHoverInfoLines.Clear();
             lineDualSpans.Clear();
+            lineReveals.Clear();
 
             if (lines != null)
             {
@@ -347,6 +392,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                     lineMessageTypes.Add(line.MessageType);
                     lineHoverInfoLines.Add(CombatLogProseHoverInfo.CloneLines(line.AlternateLines));
                     lineDualSpans.Add(Math.Max(0, line.DualSpan));
+                    lineReveals.Add(null);
                 }
             }
 
@@ -358,6 +404,7 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
                 lineMessageTypes.RemoveRange(0, removeCount);
                 lineHoverInfoLines.RemoveRange(0, removeCount);
                 lineDualSpans.RemoveRange(0, removeCount);
+                lineReveals.RemoveRange(0, removeCount);
             }
 
             scrollState.Reset();
@@ -367,7 +414,8 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
         /// <summary>
         /// Gets the last N messages with the <see cref="UIMessageType"/> stored when each line was appended.
         /// </summary>
-        public List<(List<ColoredText> Segments, UIMessageType MessageType, List<List<ColoredText>>? HoverInfoLines)> GetLastWithMessageTypes(int count)
+        /// <param name="asRevealed">True for painting: lines still typing come back as their visible slice.</param>
+        public List<(List<ColoredText> Segments, UIMessageType MessageType, List<List<ColoredText>>? HoverInfoLines)> GetLastWithMessageTypes(int count, bool asRevealed = false)
         {
             int n = System.Math.Min(count, messages.Count);
             if (n <= 0)
@@ -376,9 +424,16 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             var sliceMessages = messages.TakeLast(n).ToList();
             var sliceTypes = lineMessageTypes.TakeLast(n).ToList();
             var sliceHover = lineHoverInfoLines.TakeLast(n).ToList();
+            var sliceReveals = lineReveals.TakeLast(n).ToList();
+            var now = DateTimeOffset.UtcNow;
             var result = new List<(List<ColoredText>, UIMessageType, List<List<ColoredText>>?)>(n);
             for (int i = 0; i < n; i++)
-                result.Add((new List<ColoredText>(sliceMessages[i]), sliceTypes[i], CombatLogProseHoverInfo.CloneLines(sliceHover[i])));
+            {
+                var segments = new List<ColoredText>(sliceMessages[i]);
+                if (asRevealed && sliceReveals[i] is { } reveal)
+                    segments = reveal.ApplyTo(segments, now);
+                result.Add((segments, sliceTypes[i], CombatLogProseHoverInfo.CloneLines(sliceHover[i])));
+            }
             return result;
         }
 

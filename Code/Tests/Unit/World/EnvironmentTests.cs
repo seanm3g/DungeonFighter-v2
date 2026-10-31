@@ -33,6 +33,7 @@ namespace RPGGame.Tests.Unit.World
             TestGetEnemies();
             TestHasLivingEnemies();
             TestResetForNewFight();
+            TestRoomRollTrigger();
 
             TestBase.PrintSummary("Environment Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -167,6 +168,45 @@ namespace RPGGame.Tests.Unit.World
             // Reset should not crash
             TestBase.AssertTrue(true,
                 "ResetForNewFight should complete without errors",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRoomRollTrigger()
+        {
+            Console.WriteLine("\n--- Testing room roll trigger ---");
+
+            var environment = new Environment("Test Room", "A test room", true, "Forest");
+            if (environment.ActionPool.Count > 0)
+                TestBase.AssertTrue(environment.TriggerRoll is >= 1 and <= 20,
+                    $"Room with actions gets a trigger face 1-20, got {environment.TriggerRoll}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            environment.SetTriggerRoll(13);
+            var hero = new Character("Tester");
+
+            environment.NotifyCombatRoll(hero, 12);
+            TestBase.AssertFalse(environment.HasPendingRollTrigger,
+                "A different face does not arm the trigger",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            environment.NotifyCombatRoll(environment, 13);
+            TestBase.AssertFalse(environment.HasPendingRollTrigger,
+                "The room's own roll does not arm its trigger",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            environment.NotifyCombatRoll(hero, 13);
+            bool consumed = environment.TryConsumeRollTrigger(out var rolledBy);
+            TestBase.AssertTrue(consumed && ReferenceEquals(rolledBy, hero),
+                "Rolling the trigger face arms it, credited to the roller",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(environment.TryConsumeRollTrigger(out _),
+                "Consuming the trigger clears it",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            environment.NotifyCombatRoll(hero, 13);
+            environment.ResetForNewFight();
+            TestBase.AssertFalse(environment.HasPendingRollTrigger,
+                "A new fight clears an unanswered trigger",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -239,6 +239,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 critMiss * 5);
         }
 
+        /// <summary>Chance a single d20 lands on the room's one trigger face.</summary>
+        public const int RoomTriggerChancePercent = 5;
+
         public static string FormatD20ChancePercent(int percent) => $"{Math.Clamp(percent, 0, 100)}%";
 
         /// <summary>

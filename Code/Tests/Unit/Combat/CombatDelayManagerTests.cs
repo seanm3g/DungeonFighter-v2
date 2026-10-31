@@ -173,7 +173,7 @@ namespace RPGGame.Tests.Unit.Combat
                 DeveloperModeState.SetCombatLogInstant(false);
                 int messageMs = DeveloperModeState.ScaleDelayMs(CombatDelayManager.Config.MessageDelayMs);
                 double multiplier = TextDelayConfiguration.GetSequenceHudDelayMultiplier();
-                int expected = (int)Math.Ceiling(messageMs * multiplier);
+                int expected = (int)Math.Ceiling(messageMs * multiplier / GameConstants.ActionBoardSpeed);
                 int hudMs = CombatDelayManager.GetSequenceHudBeatDelayMs();
                 TestBase.AssertTrue(Math.Abs(multiplier - GameConstants.SequenceHudDelayMultiplier) < 0.001,
                     $"SequenceHudDelayMultiplier should be 1.5 (got {multiplier})",

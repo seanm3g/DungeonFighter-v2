@@ -146,6 +146,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "StatsPanelStateManager", () => RPGGame.Tests.Unit.UI.StatsPanelStateManagerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "HoverTooltipDetailState", () => RPGGame.Tests.Unit.UI.HoverTooltipDetailStateTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "HoverTooltipDrawing", () => RPGGame.Tests.Unit.UI.HoverTooltipDrawingTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "StatusEffectDisplayLines", () => RPGGame.Tests.Unit.UI.StatusEffectDisplayLinesTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "InventoryRightPanelLayout", () => RPGGame.Tests.Unit.UI.InventoryRightPanelLayoutTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatActionStripBuilder", () => RPGGame.Tests.Unit.UI.CombatActionStripBuilderTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatLogProseHover", () => RPGGame.Tests.Unit.UI.CombatLogProseHoverTests.RunAllTests()));
@@ -202,8 +203,10 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "HotkeyHelpCatalog", () => RPGGame.Tests.Unit.UI.HotkeyHelpCatalogTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "MenuMouseScrollHint", () => RPGGame.Tests.Unit.UI.MenuMouseScrollHintTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "DungeonCompletionRenderer", () => RPGGame.Tests.Unit.UI.DungeonCompletionRendererTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("world", "Dungeon", () => RPGGame.Tests.Unit.World.DungeonTests.RunAllTests()));
             list.Add(new TestSuiteEntry("world", "DungeonMapGenerator", () => RPGGame.Tests.Unit.World.DungeonMapGeneratorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("world", "DungeonTraversalStrategy", () => RPGGame.Tests.Unit.World.DungeonTraversalStrategyTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("world", "Environment", () => RPGGame.Tests.Unit.World.EnvironmentTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionBonusBorderShimmer", () => RPGGame.Tests.Unit.UI.ActionBonusBorderShimmerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ComboTension", () => RPGGame.Tests.Unit.UI.ComboTensionTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatTransitionWipe", () => RPGGame.Tests.Unit.UI.CombatTransitionWipeTests.RunAllTests()));

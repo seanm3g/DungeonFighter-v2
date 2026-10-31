@@ -44,6 +44,8 @@ namespace RPGGame
         public bool FoundLoot { get; set; }
         public Item? LootItem { get; set; }
         public int Roll { get; set; }
+        /// <summary>Lead-in shown before the outcome (e.g. "You search the area..."), so the reveal lands as a beat.</summary>
+        public string SetupMessage { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
     }
 }

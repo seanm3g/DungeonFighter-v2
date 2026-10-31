@@ -169,6 +169,18 @@ namespace RPGGame
         /// <summary>Live sequence HUD beat gap vs combat-log <c>MessageDelayMs</c> (1.5 = 50% slower).</summary>
         public const double SequenceHudDelayMultiplier = 1.5;
 
+        /// <summary>
+        /// Action board playback speed relative to the combat speed setting (0.5 = half speed at 1x).
+        /// Scales HUD beats and board animations only; combat-log text pacing is unchanged.
+        /// </summary>
+        public const double ActionBoardSpeed = 1.0;
+
+        /// <summary>
+        /// Center-panel lines (room entry, exploration, prompts, status lines) type in at about this many ms per
+        /// character at 1x, split sentence → word → character like the F7 narrative log.
+        /// </summary>
+        public const int TextRevealMsPerChar = 12;
+
         /// <summary>F7 narrative combat-log typewriter delay per character at battle start (ms).</summary>
         public const int NarrativeCharRevealMs = 3;
 

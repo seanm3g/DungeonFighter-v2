@@ -177,8 +177,11 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public List<(List<ColoredText> Segments, UIMessageType MessageType, List<List<ColoredText>>? HoverInfoLines)> GetLast(int count)
         {
-            return storage.GetLastWithMessageTypes(count);
+            return storage.GetLastWithMessageTypes(count, asRevealed: true);
         }
+
+        /// <summary>True while a new line is still typing in character by character.</summary>
+        public bool HasActiveReveal => storage.HasActiveReveal;
 
         /// <summary>
         /// Gets every buffered line with its stored <see cref="UIMessageType"/> (for Action Lab undo snapshots).

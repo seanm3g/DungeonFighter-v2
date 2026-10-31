@@ -64,34 +64,37 @@ namespace RPGGame.UI.BlockDisplay.Renderers
             try
             {
                 var reserved = SetupPunchlineReservation.NonNullFollowUps(followUps);
-                var dump = SetupPunchlineReservation.BuildInitialDump(setup, headlineType, reserved);
-                // Sync dump: setup + blank placeholders in one pass so one scroll happens up front.
+                // Sync dump: blank headline + blank placeholders in one pass so one scroll happens up front.
+                var dump = SetupPunchlineReservation.BuildInitialDump(new List<ColoredText>(), headlineType, reserved);
                 coordinator.WriteColoredSegmentsBatch(dump, 0, character);
+
+                int n = reserved.Count;
+                int headlineOffset = SetupPunchlineReservation.HeadlineOffsetFromEnd(n);
+                await CombatLogLineTypewriter.TypeLineFromEndAsync(
+                    coordinator, headlineOffset, setup, 0, character, headlineType);
 
                 if (betweenBeats != null)
                     await betweenBeats();
                 else if (halfDelayMs > 0)
                     await Task.Delay(halfDelayMs);
 
-                int n = reserved.Count;
-                coordinator.ReplaceColoredSegmentsFromEnd(
-                    SetupPunchlineReservation.HeadlineOffsetFromEnd(n),
-                    completeHeadline,
-                    character,
-                    headlineType);
+                // Setup is a prefix of the complete headline: the punchline types on after it.
+                int setupLength = ColoredTextRenderer.RenderAsPlainText(setup).Length;
+                await CombatLogLineTypewriter.TypeLineFromEndAsync(
+                    coordinator, headlineOffset, completeHeadline, setupLength, character, headlineType);
                 PunchlineRevealFeedback.CommitQueued();
 
+                // Typing each line takes one MessageDelayMs, standing in for the old gap between lines.
                 for (int i = 0; i < n; i++)
                 {
                     var (segments, messageType) = reserved[i];
-                    coordinator.ReplaceColoredSegmentsFromEnd(
+                    await CombatLogLineTypewriter.TypeLineFromEndAsync(
+                        coordinator,
                         SetupPunchlineReservation.FollowUpOffsetFromEnd(n, i),
                         segments,
+                        0,
                         character,
                         messageType);
-
-                    if (i < n - 1)
-                        await CombatDelayManager.DelayAfterMessageAsync();
                 }
 
                 if (halfDelayMs > 0)

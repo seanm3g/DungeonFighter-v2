@@ -136,28 +136,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             // Live ComboStep may already point at the next slot after a successful combo;
             // hold the white next-border on the firing panel until that action block finishes.
             int selectedIndex = filled > 0 ? player.ComboStep % filled : -1;
-            int liveNextIndex = selectedIndex;
-            int heldFiringIndex = -1;
             if (HeroActionStripFeedback.TryGetHeldSelectedIndex(out int heldSelected)
                 && heldSelected >= 0
                 && heldSelected < filled)
-            {
                 selectedIndex = heldSelected;
-                heldFiringIndex = heldSelected;
-            }
             int effectiveMaxSlots = ComboSequenceMaxHelper.GetEffectiveMax(player);
             ComboTension.Track(player);
             bool anyBonusShimmer = false;
             var shimmerNow = DateTimeOffset.UtcNow;
-            // Per-roll Action chance (combo or crit) from the same thresholds as the CHANCES panel, held from the opener
-            // for the whole run so a landed roll only removes its own factor.
-            var thresholds = DiceRollThresholdResolver.Resolve(player);
-            int liveActionChancePercent = ThresholdDisplayFormatting.CalculateExclusiveD20OutcomeChances(
-                thresholds.EffectiveCrit, thresholds.EffectiveCombo, thresholds.EffectiveHit, thresholds.EffectiveCritMiss).ComboOrCritPercent;
-            bool anyCardFiring = heldFiringIndex >= 0;
-            for (int f = 0; f < filled && !anyCardFiring; f++)
-                anyCardFiring = HeroActionStripFeedback.IsFlashEmphasisActive(f);
-            int actionChancePercent = ComboTension.ResolveComboOddsChance(player, liveNextIndex, anyCardFiring, liveActionChancePercent);
 
             for (int i = 0; i < displayCount; i++)
             {
@@ -212,13 +198,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 if (isEmptySlot || i >= effectiveMaxSlots)
                     continue;
 
-                // Odds count from the live next slot; the card that is firing (held border or flash) and fired cards drop them.
-                bool isFiring = (heldFiringIndex == i) || HeroActionStripFeedback.IsFlashEmphasisActive(i);
-                string? reachChance = !isSpent && !isFiring && liveNextIndex >= 0 && i >= liveNextIndex
-                    ? ComboTension.FormatReachChance(ComboTension.GetReachChancePercent(i, liveNextIndex, actionChancePercent))
-                    : null;
                 DrawActionCardContent(player, panelData[i], comboForStrip[i], i, px, py, pw, panelH, damageLineMode,
-                    textBrightness: isSpent ? SpentCardTextBrightness : 1.0, reachChanceText: reachChance);
+                    textBrightness: isSpent ? SpentCardTextBrightness : 1.0);
             }
 
             if (anyBonusShimmer)
@@ -233,26 +214,21 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// bordered rect. Shared by the action strip and the combat board (<see cref="CombatBoardRenderer"/>).
         /// </summary>
         /// <param name="textBrightness">RGB scale for every line (below 1 dims a combo slot that already fired this run).</param>
-        /// <param name="reachChanceText">Chance the combo lands this slot (<see cref="ComboTension.GetReachChancePercent"/>), right-aligned on the name row; null hides it.</param>
         internal void DrawActionCardContent(Character player, ActionPanelInfo info, Action action, int slotIndex,
-            int px, int py, int pw, int panelH, ActionStripDamageLineMode damageLineMode, double textBrightness = 1.0,
-            string? reachChanceText = null)
+            int px, int py, int pw, int panelH, ActionStripDamageLineMode damageLineMode, double textBrightness = 1.0)
         {
             Color Shade(Color c) => textBrightness >= 1.0 ? c : ActionInfoStripLayout.DarkenRgb(c, textBrightness);
             int contentX = px + 1;
             int contentY = py + 1;
             int contentW = Math.Max(0, pw - 2);
             int panelBottomExclusive = py + panelH;
-            bool showReach = !string.IsNullOrEmpty(reachChanceText) && contentW >= reachChanceText.Length + 5;
-            int nameW = showReach ? contentW - reachChanceText!.Length - 1 : contentW;
+            int nameW = contentW;
             string name = string.IsNullOrEmpty(info.Name) ? "?" : (info.Name.Length > nameW ? info.Name.Substring(0, Math.Max(1, nameW - 3)) + "..." : info.Name);
             // Required weapon basic stays red; other titles carry their class / rarity color.
             var nameColor = WeaponRequiredComboAction.IsRequiredBasicForEquippedWeapon(player, action)
                 ? AsciiArtAssets.Colors.Red
                 : ActionNameColors.Resolve(action);
             canvas.AddText(contentX, contentY, name, Shade(nameColor));
-            if (showReach)
-                canvas.AddText(contentX + contentW - reachChanceText!.Length, contentY, reachChanceText, Shade(AsciiArtAssets.Colors.Cyan));
             contentY++;
 
             bool hasThreshold = !string.IsNullOrEmpty(info.ThresholdText);

@@ -14,14 +14,17 @@ namespace RPGGame.UI.Avalonia.Layout
     {
         private static readonly TimeSpan FrameInterval = TimeSpan.FromMilliseconds(33);
 
+        /// <summary>Board motion durations are written at 1x and stretched by <see cref="GameConstants.ActionBoardSpeed"/>.</summary>
+        private static int Board(int ms) => (int)Math.Ceiling(ms / GameConstants.ActionBoardSpeed);
+
         /// <summary>Card slide (next → now → prev) after a swing finishes.</summary>
-        public const int SlideMs = 420;
+        public static readonly int SlideMs = Board(420);
 
         /// <summary>Pause after the acting card lands on NOW before the next roll's branches appear.</summary>
-        public const int BranchRevealDelayMs = 500;
+        public static readonly int BranchRevealDelayMs = Board(500);
 
         /// <summary>Pause after the branches appear before the die shows and starts rolling.</summary>
-        public const int DieRevealDelayMs = 500;
+        public static readonly int DieRevealDelayMs = Board(500);
 
         private static System.Action? _requestRender;
         private static DispatcherTimer? _timer;
@@ -32,7 +35,7 @@ namespace RPGGame.UI.Avalonia.Layout
         /// Length of one sequence beat on screen; motions finish inside it so the next column starts from rest.
         /// Clamped so a very fast or very slow combat speed still reads as motion.
         /// </summary>
-        public static int BeatMs => Math.Clamp(CombatDelayManager.GetSequenceHudBeatDelayMs(), 120, 900);
+        public static int BeatMs => Math.Clamp(CombatDelayManager.GetSequenceHudBeatDelayMs(), Board(120), Board(900));
 
         /// <summary>0..1 progress of the active column's motion (1 when there is no live swing).</summary>
         public static double PhaseProgress(int durationMs) =>

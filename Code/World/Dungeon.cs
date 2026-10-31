@@ -57,6 +57,7 @@ namespace RPGGame
                     isLiving: true,
                     EnemyArchetype.Knight,
                     useDirectStats: true);
+                PreWeaponTrainingFlow.SetTrainingDummyActions(dummy);
                 room.GetEnemies().Add(dummy);
                 Rooms.Add(room);
                 TraversalState = DungeonMapGenerator.Generate(Rooms, random, trainingGround: true);

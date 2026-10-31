@@ -72,7 +72,7 @@ namespace RPGGame
             }
             else
             {
-                var tutorialApplied = ApplyTrainingGroundTutorialEvent(currentEnemy, tutorialScript);
+                var tutorialApplied = ApplyTrainingGroundTutorialEvent(currentEnemy, tutorialScript, player);
                 try
                 {
                     // Use the new ActionExecutor system for consistent action handling with ColoredText
@@ -125,7 +125,11 @@ namespace RPGGame
                 finally
                 {
                     if (tutorialApplied)
+                    {
                         Dice.ClearAsyncForcedD20Rolls();
+                        Dice.ClearAsyncForcedLuckD20Rolls();
+                        TutorialCoach.DisarmSwing();
+                    }
                 }
             }
 
@@ -156,55 +160,15 @@ namespace RPGGame
                 var envAction = room.SelectAction();
                 if (envAction != null)
                 {
-                    CombatTurnQueue.SetActingAction(envAction);
-                    // Create list of all characters in the room (player and current enemy)
-                    var allTargets = new List<Actor> { player, currentEnemy };
-                    
-                    // Use structured environmental action execution
-                    var ((actionText, rollInfo), statusEffects) = EnvironmentalActionHandler.ExecuteEnvironmentalActionStructured(room, allTargets, envAction, room);
-                    bool textDisplayed = actionText != null && actionText.Count > 0;
-                    
-                    // Add environmental action to narrative system (convert to string for backward compatibility)
-                    var battleNarrative = stateManager.GetCurrentBattleNarrative();
-                    if (battleNarrative != null && textDisplayed && actionText != null)
-                    {
-                        string resultString = UI.ColorSystem.ColoredTextRenderer.RenderAsPlainText(actionText);
-                        if (rollInfo != null && rollInfo.Count > 0)
-                        {
-                            resultString += "\n" + UI.ColorSystem.ColoredTextRenderer.RenderAsPlainText(rollInfo);
-                        }
-                        foreach (var effect in statusEffects)
-                        {
-                            if (effect != null && effect.Count > 0)
-                            {
-                                resultString += "\n" + UI.ColorSystem.ColoredTextRenderer.RenderAsPlainText(effect);
-                            }
-                        }
-                        battleNarrative.AddEnvironmentalAction(resultString);
-                    }
-                    
-                    // Record the environmental action for turn counting
-                    bool newTurn = stateManager.RecordAction(room.Name, envAction.Name);
-                    if (newTurn && !CombatManager.DisableCombatUIOutput)
-                    {
-                        // Turn separator line removed for cleaner combat logs
-                    }
-                    
-                    // Display environmental action result using unified action block system (await so next turn waits)
-                    if (textDisplayed && actionText != null)
-                    {
-                        // Use empty list if rollInfo is null (DisplayActionBlock expects non-nullable rollInfo)
-                        var rollInfoToDisplay = rollInfo ?? new List<UI.ColorSystem.ColoredText>();
-                        await BlockDisplayManager.DisplayActionBlockAsync(actionText, rollInfoToDisplay, statusEffects, null, null, null, TextSpacingSystem.BlockType.EnvironmentalAction);
-                    }
-                    
+                    await RunEnvironmentActionAsync(player, currentEnemy, room, envAction);
+
                     // Update environment's action timing in the action speed system
                     var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
                     if (actionSpeedSystem != null)
                     {
                         actionSpeedSystem.ExecuteAction(room, envAction);
                     }
-                    
+
                     // Return false if player is dead (combat should end)
                     if (!player.IsAlive)
                     {
@@ -245,6 +209,70 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// When the swing that just finished rolled the room's <see cref="Environment.TriggerRoll"/>, the room takes a
+        /// bonus environmental action now. It doesn't use the room's turn, its action limit, or its speed timing.
+        /// </summary>
+        /// <returns>True when a bonus action ran.</returns>
+        public async System.Threading.Tasks.Task<bool> ProcessRoomRollTriggerAsync(Character player, Enemy currentEnemy, Environment room)
+        {
+            if (!room.TryConsumeRollTrigger(out var rolledBy) || rolledBy == null)
+                return false;
+            if (!player.IsAlive || !currentEnemy.IsAlive)
+                return false;
+            var envAction = room.SelectAction();
+            if (envAction == null)
+                return false;
+
+            if (!CombatManager.DisableCombatUIOutput)
+                BlockDisplayManager.DisplaySystemBlock(
+                    CombatFlowColoredText.FormatRoomRollTriggerColored(rolledBy.Name, room.Name, room.TriggerRoll));
+            await RunEnvironmentActionAsync(player, currentEnemy, room, envAction);
+            return true;
+        }
+
+        /// <summary>Runs <paramref name="envAction"/> on everyone in the room, records it, and awaits its combat log block.</summary>
+        private async System.Threading.Tasks.Task RunEnvironmentActionAsync(Character player, Enemy currentEnemy, Environment room, Action envAction)
+        {
+            CombatTurnQueue.SetActingAction(envAction);
+            // Create list of all characters in the room (player and current enemy)
+            var allTargets = new List<Actor> { player, currentEnemy };
+
+            // Use structured environmental action execution
+            var ((actionText, rollInfo), statusEffects) = EnvironmentalActionHandler.ExecuteEnvironmentalActionStructured(room, allTargets, envAction, room);
+            bool textDisplayed = actionText != null && actionText.Count > 0;
+
+            // Add environmental action to narrative system (convert to string for backward compatibility)
+            var battleNarrative = stateManager.GetCurrentBattleNarrative();
+            if (battleNarrative != null && textDisplayed && actionText != null)
+            {
+                string resultString = UI.ColorSystem.ColoredTextRenderer.RenderAsPlainText(actionText);
+                if (rollInfo != null && rollInfo.Count > 0)
+                {
+                    resultString += "\n" + UI.ColorSystem.ColoredTextRenderer.RenderAsPlainText(rollInfo);
+                }
+                foreach (var effect in statusEffects)
+                {
+                    if (effect != null && effect.Count > 0)
+                    {
+                        resultString += "\n" + UI.ColorSystem.ColoredTextRenderer.RenderAsPlainText(effect);
+                    }
+                }
+                battleNarrative.AddEnvironmentalAction(resultString);
+            }
+
+            // Record the environmental action for turn counting
+            stateManager.RecordAction(room.Name, envAction.Name);
+
+            // Display environmental action result using unified action block system (await so next turn waits)
+            if (textDisplayed && actionText != null)
+            {
+                // Use empty list if rollInfo is null (DisplayActionBlock expects non-nullable rollInfo)
+                var rollInfoToDisplay = rollInfo ?? new List<UI.ColorSystem.ColoredText>();
+                await BlockDisplayManager.DisplayActionBlockAsync(actionText, rollInfoToDisplay, statusEffects, null, null, null, TextSpacingSystem.BlockType.EnvironmentalAction);
+            }
+        }
+
+        /// <summary>
         /// Synchronous wrapper kept for callers that cannot await. Prefer <see cref="ProcessEnvironmentTurnAsync"/>.
         /// </summary>
         public bool ProcessEnvironmentTurn(Character player, Enemy currentEnemy, Environment room)
@@ -262,7 +290,7 @@ namespace RPGGame
             Action? forcedAction = null,
             TrainingGroundTutorialScript? tutorialScript = null)
         {
-            var tutorialApplied = ApplyTrainingGroundTutorialEvent(player, tutorialScript);
+            var tutorialApplied = ApplyTrainingGroundTutorialEvent(player, tutorialScript, player);
             try
             {
                 // Use the new ColoredText system to execute the action
@@ -327,17 +355,22 @@ namespace RPGGame
             finally
             {
                 if (tutorialApplied)
+                {
                     Dice.ClearAsyncForcedD20Rolls();
+                    Dice.ClearAsyncForcedLuckD20Rolls();
+                    TutorialCoach.DisarmSwing();
+                }
             }
         }
 
         /// <summary>
-        /// Queues the next Training Ground forced d20 for <paramref name="actor"/>.
-        /// Tutorial copy is not written under the mechanical action block (overview is action-blocks only).
+        /// Queues the next Training Ground forced d20 (and Lucky's second die) for <paramref name="actor"/>, and arms the
+        /// beat's coach popups. Tutorial copy is not written under the mechanical action block (overview is action-blocks only).
         /// </summary>
         private static bool ApplyTrainingGroundTutorialEvent(
             Actor actor,
-            TrainingGroundTutorialScript? tutorialScript)
+            TrainingGroundTutorialScript? tutorialScript,
+            Character hero)
         {
             if (tutorialScript == null)
                 return false;
@@ -346,6 +379,9 @@ namespace RPGGame
                 return false;
 
             Dice.QueueAsyncForcedD20Rolls(tutorialEvent.Roll);
+            if (tutorialEvent.LuckRoll is int luckRoll)
+                Dice.QueueAsyncForcedLuckD20Rolls(luckRoll);
+            TutorialCoach.ArmSwing(tutorialEvent.Notes, TutorialCoach.BuildTokens(hero, tutorialEvent, heroRolls: ReferenceEquals(actor, hero)));
             return true;
         }
 

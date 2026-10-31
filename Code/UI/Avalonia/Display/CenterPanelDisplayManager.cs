@@ -208,11 +208,56 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         internal void TriggerRender()
         {
+            EnsureRevealClock();
             if (imperativeRenderDepth > 0)
                 return;
 
             renderCoordinator.SetExternalRenderCallback(externalRenderCallback);
             renderCoordinator.TriggerRender(modeManager.Timing);
+        }
+
+        private global::Avalonia.Threading.DispatcherTimer? revealTimer;
+
+        /// <summary>
+        /// While a buffered line types in character by character, repaints about once a frame; stops once every
+        /// line is shown in full.
+        /// </summary>
+        private void EnsureRevealClock()
+        {
+            if (!buffer.HasActiveReveal)
+                return;
+            if (!global::Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+            {
+                global::Avalonia.Threading.Dispatcher.UIThread.Post(EnsureRevealClock);
+                return;
+            }
+
+            if (revealTimer == null)
+            {
+                revealTimer = new global::Avalonia.Threading.DispatcherTimer(global::Avalonia.Threading.DispatcherPriority.Render)
+                {
+                    Interval = TimeSpan.FromMilliseconds(33)
+                };
+                revealTimer.Tick += (_, _) =>
+                {
+                    bool active = buffer.HasActiveReveal;
+                    if (!active)
+                        revealTimer!.Stop();
+                    if (imperativeRenderDepth > 0)
+                        return;
+                    // One more paint after the last character so the line ends whole.
+                    if (externalRenderCallback != null)
+                    {
+                        renderCoordinator.SetExternalRenderCallback(externalRenderCallback);
+                        renderCoordinator.TriggerRender(modeManager.Timing);
+                    }
+                    else
+                        ForceRender();
+                };
+            }
+
+            if (!revealTimer.IsEnabled)
+                revealTimer.Start();
         }
         
         /// <summary>

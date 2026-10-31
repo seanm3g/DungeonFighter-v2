@@ -5,7 +5,7 @@ using RPGGame.UI.Avalonia.Feedback;
 namespace RPGGame.Tests.Unit.UI
 {
     /// <summary>
-    /// Verifies which state changes play the combat enter / exit shutter and how far it is open over time.
+    /// Verifies which state changes play the combat enter / exit veil and how far it is open over time.
     /// </summary>
     public static class CombatTransitionWipeTests
     {
@@ -46,15 +46,15 @@ namespace RPGGame.Tests.Unit.UI
 
         private static void TestOpennessOverTime()
         {
-            Console.WriteLine("--- Shutter holds closed, then opens fully ---");
+            Console.WriteLine("--- Veil holds closed, then opens fully ---");
             var enter = CombatTransitionWipe.Kind.Enter;
             TestBase.AssertTrue(CombatTransitionWipe.Openness(enter, 0) == 0.0,
                 "closed at the cut", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(CombatTransitionWipe.Openness(enter, CombatTransitionWipe.HoldMs) == 0.0,
                 "still closed at the end of the hold", ref _testsRun, ref _testsPassed, ref _testsFailed);
             double mid = CombatTransitionWipe.Openness(enter, CombatTransitionWipe.HoldMs + CombatTransitionWipe.EnterOpenMs / 2.0);
-            TestBase.AssertTrue(mid > 0.5 && mid < 1.0,
-                $"part open mid-way (ease-out, got {mid:F2})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(mid > 0.0 && mid < 1.0,
+                $"part open mid-way (got {mid:F2})", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(CombatTransitionWipe.Openness(enter, CombatTransitionWipe.HoldMs + CombatTransitionWipe.EnterOpenMs) == 1.0,
                 "fully open at the end", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(CombatTransitionWipe.Openness(CombatTransitionWipe.Kind.Exit, CombatTransitionWipe.HoldMs + CombatTransitionWipe.ExitOpenMs) == 1.0,

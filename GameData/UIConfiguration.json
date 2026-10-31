@@ -47,7 +47,7 @@
   },
   "whiteTemperatureIntensity": 1.1,
   "subsequentLineDarkening": 0.7000000000000001,
-  "combatLogSidePaddingPercent": 20,
+  "combatLogSidePaddingPercent": 0,
   "undulationTimerMs": 1000,
   "brightnessMask": {
     "enabled": false,

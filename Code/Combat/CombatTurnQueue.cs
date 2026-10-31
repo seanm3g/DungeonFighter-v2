@@ -21,6 +21,7 @@ namespace RPGGame
         private static Action? _actingAction;
         private static bool _actingQuiet;
         private static long _turnSerial;
+        private static Environment? _room;
 
         /// <summary>Entity whose turn the combat loop is processing, or null between turns.</summary>
         public static Actor? ActingEntity { get { lock (Gate) return _acting; } }
@@ -36,7 +37,10 @@ namespace RPGGame
 
         public static bool IsBound { get { lock (Gate) return _speed != null; } }
 
-        public static void Bind(ActionSpeedSystem speed)
+        /// <summary>Room of the on-screen fight (hostile or not), for HUD reads such as its trigger face.</summary>
+        public static Environment? Room { get { lock (Gate) return _speed != null ? _room : null; } }
+
+        public static void Bind(ActionSpeedSystem speed, Environment? room = null)
         {
             if (CombatUiMuteScope.IsMuted)
                 return;
@@ -44,6 +48,7 @@ namespace RPGGame
             lock (Gate)
             {
                 _speed = speed;
+                _room = room;
                 _acting = null;
                 _actingAction = null;
                 _actingQuiet = false;
@@ -55,6 +60,7 @@ namespace RPGGame
             lock (Gate)
             {
                 _speed = null;
+                _room = null;
                 _acting = null;
                 _actingAction = null;
                 _actingQuiet = false;

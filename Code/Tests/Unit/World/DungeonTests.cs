@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.World
@@ -159,67 +160,78 @@ namespace RPGGame.Tests.Unit.World
             Console.WriteLine("\n--- Testing Training Ground Tutorial Script ---");
 
             var script = PreWeaponTrainingFlow.CreateTrainingGroundTutorialScript();
-            TestBase.AssertEqual(5, script.Events.Count,
-                "Training Ground tutorial should cover hit, miss, combo, crit miss, and crit combo",
+            var heroBeats = script.Events.Where(e => e.Actor == TrainingGroundTutorialActor.Hero).ToList();
+            var dummyBeats = script.Events.Where(e => e.Actor == TrainingGroundTutorialActor.Dummy).ToList();
+            TestBase.AssertEqual(6, script.Events.Count,
+                "Training Ground tutorial covers every result in six rolls",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(10, script.Events[0].Roll,
-                "First tutorial beat should force the normal-hit lesson roll",
+            TestBase.AssertTrue(heroBeats.Select(e => e.Roll).SequenceEqual(new[] { 10, 3, 1, 20 }),
+                "Hero beats: hit, Lucky rescue, critical miss, critical",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(4, script.Events[1].Roll,
-                "Second tutorial beat should force the miss lesson roll",
+            TestBase.AssertTrue(heroBeats[1].LuckRoll is int rescue && rescue >= 14 && heroBeats[2].LuckRoll == 1,
+                "Lucky die rescues the third beat into a combo and stays 1 on the critical miss",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(14, script.Events[2].Roll,
-                "Third tutorial beat should force the combo lesson roll",
+            TestBase.AssertTrue(dummyBeats.Select(e => e.Roll).SequenceEqual(new[] { 15, 4 }) && dummyBeats.All(e => e.LuckRoll == null),
+                "Dummy beats: a combo that fires SWAY, then a miss",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, script.Events[3].Roll,
-                "Fourth tutorial beat should force the critical miss lesson roll",
+            TestBase.AssertTrue(script.IntroNotes.Count == 0 && script.OutroNotes.Count > 0
+                    && script.Events.All(e => e.Notes.Count > 0 && !string.IsNullOrWhiteSpace(e.NarrativeLine)),
+                "Tutorial opens on the first roll, has an outro, and narrative plus coach popups on every beat",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(20, script.Events[4].Roll,
-                "Final tutorial beat should force the killing crit-combo roll",
+            var firstRollFoci = heroBeats[0].Notes.Select(n => n.Focus).ToList();
+            TestBase.AssertTrue(firstRollFoci.SequenceEqual(new[]
+                {
+                    TutorialCoachFocus.None, TutorialCoachFocus.Timeline, TutorialCoachFocus.TurnOrb, TutorialCoachFocus.Board,
+                    TutorialCoachFocus.Branches, TutorialCoachFocus.Die, TutorialCoachFocus.Die, TutorialCoachFocus.ChosenBranch,
+                    TutorialCoachFocus.HeroStrip, TutorialCoachFocus.Board
+                }),
+                "First roll walks the board: timeline, turn, middle, odds, roll, result, box taken, strip, damage",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(script.Events[0].NarrativeLine.Contains(GameConstants.TrainingGroundTutorialActionName),
-                "Tutorial narrative should name PUNCH HARD as the tutorial action",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(!string.IsNullOrWhiteSpace(script.Events[0].NarrativeLine),
-                "Tutorial beat should include narrative copy",
+            TestBase.AssertTrue(dummyBeats[0].Notes[0].Focus == TutorialCoachFocus.EnemyStrip
+                    && script.Events.SelectMany(e => e.Notes).Any(n => n.Focus == TutorialCoachFocus.StatusEffects && n.RequiresLucky)
+                    && !script.Events.SelectMany(e => e.Notes).Any(n => n.Focus == TutorialCoachFocus.Sequence && n.Step == RPGGame.Combat.Sequence.CombatSequenceStepKind.Damage),
+                "Enemy strip opens the dummy's turn, Lucky is pointed out, and no note walks the damage math",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
+            var stripDummy = new Enemy(GameConstants.TrainingDummyEnemyName, 1, GameConstants.TrainingDummyMaxHealth,
+                GameConstants.TrainingDummyDamage, 0, GameConstants.TrainingDummyBaseAttackSpeedSeconds);
+            PreWeaponTrainingFlow.SetTrainingDummyActions(stripDummy);
+            var dummyStrip = stripDummy.GetComboActions();
+            TestBase.AssertTrue(dummyStrip.Count == 2
+                    && dummyStrip.Select(a => a.Name).SequenceEqual(PreWeaponTrainingFlow.TrainingDummyActionNames),
+                "Training dummy shows SWAY and REBOUND on its action strip",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            Dice.QueueAsyncForcedLuckD20Rolls(16);
+            int luckDie = Dice.RollLuckDie(20);
+            Dice.ClearAsyncForcedLuckD20Rolls();
+            TestBase.AssertEqual(16, luckDie, "RollLuckDie consumes the queued Lucky face",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("rolled 3 and 16",
+                TutorialCoach.Fill("rolled {die1} and {die2}", new Dictionary<string, string> { ["die1"] = "3", ["die2"] = "16" }),
+                "Coach text fills its tokens", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Each side takes its own beats in order, whichever acts first.
             var hero = new Character("TutorialHero", 1);
-            var dummy = new Enemy(
-                name: GameConstants.TrainingDummyEnemyName,
-                level: 1,
-                maxHealth: GameConstants.TrainingDummyMaxHealth,
-                damage: GameConstants.TrainingDummyDamage,
-                armor: 0,
-                attackSpeed: GameConstants.TrainingDummyBaseAttackSpeedSeconds,
-                PrimaryAttribute.Strength,
-                isLiving: true,
-                EnemyArchetype.Knight,
-                useDirectStats: true);
-
-            TestBase.AssertTrue(script.TryConsumeForActor(hero, out var firstBeat) && firstBeat != null,
-                "Hero should consume the first tutorial beat",
+            TestBase.AssertTrue(script.TryConsumeForActor(stripDummy, out var dummyFirst) && dummyFirst?.Roll == 15,
+                "Dummy acting first takes its own first beat, not the hero's",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(10, firstBeat!.Roll,
-                "Consumed first beat should preserve the forced roll",
+            TestBase.AssertTrue(script.TryConsumeForActor(hero, out var heroFirst) && heroFirst?.Roll == 10,
+                "Hero still gets its first beat",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertFalse(script.TryConsumeForActor(dummy, out _),
-                "Dummy should not consume the next hero-targeted beat",
+            TestBase.AssertTrue(script.TryConsumeForActor(hero, out var heroSecond) && heroSecond?.Roll == 3,
+                "Hero acting twice in a row takes its next beat",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, script.NextIndex,
-                "Mismatched actors should leave the tutorial sequence position unchanged",
+            TestBase.AssertTrue(script.TryConsumeForActor(stripDummy, out var dummySecond) && dummySecond?.Roll == 4
+                    && !script.TryConsumeForActor(stripDummy, out _),
+                "Dummy runs out after its two beats",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            TestBase.AssertTrue(script.TryConsumeForActor(hero, out var secondBeat) && secondBeat != null,
-                "Hero should consume the next matching tutorial beat",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(4, secondBeat!.Roll,
-                "Second tutorial beat should force the miss lesson roll",
+            TestBase.AssertEqual(4, script.ConsumedCount, "Four beats taken",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             script.Reset();
-            TestBase.AssertEqual(0, script.NextIndex,
-                "Tutorial script reset should rewind to the first beat",
+            TestBase.AssertEqual(0, script.ConsumedCount,
+                "Tutorial script reset should rewind every beat",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

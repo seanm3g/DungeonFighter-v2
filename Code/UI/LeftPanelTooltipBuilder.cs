@@ -221,6 +221,9 @@ namespace RPGGame
                 case "thresh:miss":
                     AppendThresholdMiss(character, AddWrapped);
                     break;
+                case "thresh:room":
+                    AppendThresholdRoomTrigger(AddWrapped);
+                    break;
                 case "status:overflow":
                     AddWrapped("More status effects");
                     AddWrapped("Additional effects are active; the list is truncated in the panel.");
@@ -465,6 +468,21 @@ namespace RPGGame
             addWrapped($"Miss faces sit between crit miss (≤ {snapshot.EffectiveCritMiss}) and the minimum hit ({snapshot.EffectiveHit}).");
             AppendLadderExplainer(snapshot, addWrapped);
             AppendThresholdOutcomePercent(c, "Miss", addWrapped);
+        }
+
+        private static void AppendThresholdRoomTrigger(Action<string> addWrapped)
+        {
+            var room = CombatTurnQueue.Room;
+            int face = room?.TriggerRoll ?? 0;
+            addWrapped("Room trigger");
+            if (room == null || face <= 0)
+            {
+                addWrapped("This room has no trigger number.");
+                return;
+            }
+            addWrapped($"If anyone's d20 lands on {face}, {room.Name} takes an environmental action right after that swing.");
+            addWrapped("It's a bonus action: the room still gets its own turns. Uses the die face after advantage and room shifts, before accuracy.");
+            addWrapped($"Chance per swing: {ThresholdDisplayFormatting.RoomTriggerChancePercent}%.");
         }
 
         /// <summary>The order a swing's d20 is checked in, with the panel's effective numbers.</summary>

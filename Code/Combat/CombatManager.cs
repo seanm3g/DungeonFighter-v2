@@ -301,6 +301,7 @@ namespace RPGGame
                     }
                     finally { CombatTurnQueue.EndTurn(); }
                     await CombatDelayManager.DelayAfterActionAsync();
+                    await RunRoomRollTriggerAsync(player, currentEnemy, room);
                     if (!player.IsAlive)
                         return CombatSingleTurnResult.PlayerDefeated;
                     if (!currentEnemy.IsAlive)
@@ -321,6 +322,7 @@ namespace RPGGame
                     }
                     finally { CombatTurnQueue.EndTurn(); }
                     await CombatDelayManager.DelayAfterActionAsync();
+                    await RunRoomRollTriggerAsync(player, currentEnemy, room);
                     if (!player.IsAlive)
                         return CombatSingleTurnResult.PlayerDefeated;
                     if (!currentEnemy.IsAlive)
@@ -375,6 +377,25 @@ namespace RPGGame
             return CombatSingleTurnResult.Advanced;
         }
 
+        /// <summary>
+        /// After a hero or enemy swing has fully played: if it rolled the room's trigger face, the room acts now
+        /// (a bonus action on top of its own turns).
+        /// </summary>
+        private async Task RunRoomRollTriggerAsync(Character player, Enemy currentEnemy, Environment room)
+        {
+            if (!room.HasPendingRollTrigger)
+                return;
+            CombatTurnQueue.BeginTurn(room);
+            bool acted;
+            try
+            {
+                acted = await turnHandler.ProcessRoomRollTriggerAsync(player, currentEnemy, room);
+            }
+            finally { CombatTurnQueue.EndTurn(); }
+            if (acted)
+                await CombatDelayManager.DelayAfterActionAsync();
+        }
+
         public async Task<bool> RunCombat(
             Character player,
             Enemy currentEnemy,
@@ -411,6 +432,12 @@ namespace RPGGame
 
             try
             {
+                if (tutorialScript != null)
+                {
+                    TutorialCoach.BeginSession();
+                    await TutorialCoach.ShowAllAsync(tutorialScript.IntroNotes, TutorialCoach.BuildTokens(player), cancellationToken);
+                }
+
                 while (player.IsAlive && currentEnemy.IsAlive)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -425,6 +452,8 @@ namespace RPGGame
                 // A kill gets its moment on the board before the fight hands back to the log.
                 if (player.IsAlive && !currentEnemy.IsAlive && !CombatUiMuteScope.IsMuted)
                     await CombatTurnAnnouncement.AnnounceDefeatAsync(currentEnemy);
+                if (tutorialScript != null && player.IsAlive && !currentEnemy.IsAlive)
+                    await TutorialCoach.ShowAllAsync(tutorialScript.OutroNotes, TutorialCoach.BuildTokens(player), cancellationToken);
 
                 // End the battle narrative with final health values
                 EndBattleNarrative(player, currentEnemy);

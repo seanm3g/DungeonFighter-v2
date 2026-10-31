@@ -10,9 +10,9 @@ namespace RPGGame.UI.Avalonia.Layout
     {
         /// <summary>
         /// Rows below the bottom border to scrub after body paint.
-        /// Covers a full CHANCES block (5) when the first row sits on the last visible body line.
+        /// Covers a full CHANCES block (5, plus the fight's Room row) when the first row sits on the last visible body line.
         /// </summary>
-        public const int BottomSpillScrubRows = 5;
+        public const int BottomSpillScrubRows = 6;
 
         /// <summary>First row where left-panel body text may paint (below the top border).</summary>
         public static int ContentTop => LayoutConstants.LEFT_PANEL_Y + 1;

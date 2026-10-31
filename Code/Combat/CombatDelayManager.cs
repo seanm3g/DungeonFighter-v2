@@ -102,7 +102,8 @@ namespace RPGGame
 
         /// <summary>
         /// Delay between sequence HUD column/math beats. 50% slower than the combat-log
-        /// inter-line gap (<see cref="TextDelayConfiguration.GetSequenceHudDelayMultiplier"/>).
+        /// inter-line gap (<see cref="TextDelayConfiguration.GetSequenceHudDelayMultiplier"/>),
+        /// then slowed by <see cref="GameConstants.ActionBoardSpeed"/>.
         /// </summary>
         public static int GetSequenceHudBeatDelayMs()
         {
@@ -110,7 +111,7 @@ namespace RPGGame
             double multiplier = TextDelayConfiguration.GetSequenceHudDelayMultiplier();
             if (multiplier <= 0)
                 multiplier = GameConstants.SequenceHudDelayMultiplier;
-            return (int)Math.Ceiling(messageMs * multiplier);
+            return (int)Math.Ceiling(messageMs * multiplier / GameConstants.ActionBoardSpeed);
         }
 
         /// <summary>Waits <paramref name="share"/> of one sequence HUD beat (1 = a whole beat).</summary>

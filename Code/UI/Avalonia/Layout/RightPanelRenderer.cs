@@ -385,6 +385,39 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>
         /// Renders location and enemy information panel
         /// </summary>
+        /// <summary>
+        /// An affinity row ("Weak: Burn ×2, Acid ×2") with each status's icon in place of its name; a status with no
+        /// icon keeps its name. Items that don't fit in <paramref name="maxLen"/> columns end in "...".
+        /// </summary>
+        private void DrawEnemyAffinityLine(int x, int y, string line, int maxLen, global::Avalonia.Media.Color color)
+        {
+            var (label, items) = StatusEffectDisplayLines.SplitAffinityLine(line);
+            int right = x + maxLen;
+            int cx = x + 2;
+            canvas.AddText(cx, y, label, color);
+            cx += label.Length + 1;
+            for (int i = 0; i < items.Count; i++)
+            {
+                var (status, name, suffix) = items[i];
+                string sep = i < items.Count - 1 ? "," : "";
+                bool hasIcon = StatusArt.TryGetIcon(status, out var icon, out var iconRect);
+                string text = (hasIcon ? suffix : suffix.Length > 0 ? name + " " + suffix : name) + sep;
+                int width = (hasIcon ? 2 : 0) + text.Length;
+                if (cx + width > right)
+                {
+                    canvas.AddText(cx, y, "...", color);
+                    return;
+                }
+                if (hasIcon)
+                {
+                    canvas.AddImage(cx, y, 2, 1, icon, iconRect, paddingPixels: 1);
+                    cx += 2;
+                }
+                canvas.AddText(cx, y, text, color);
+                cx += text.Length + 1;
+            }
+        }
+
         /// <summary>Hover target for an enemy status / affinity row; the tooltip explains the effect in full.</summary>
         private void RegisterEnemyStatusHoverRow(int x, int y, string idSuffix)
         {
@@ -583,15 +616,12 @@ namespace RPGGame.UI.Avalonia.Layout
                 {
                     RegisterEnemyStatusHoverRow(x, y, "eaff:" + affinityIndex);
                     affinityIndex++;
-                    string imm = "  " + affinityLine;
-                    if (imm.Length > maxLineLen)
-                        imm = imm.Substring(0, maxLineLen - 3) + "...";
                     var affinityColor = affinityLine.StartsWith("Weak", StringComparison.Ordinal)
                         ? AsciiArtAssets.Colors.Orange
                         : affinityLine.StartsWith("Resists", StringComparison.Ordinal)
                             ? AsciiArtAssets.Colors.Gray
                             : AsciiArtAssets.Colors.Cyan;
-                    canvas.AddText(x, y, imm, affinityColor);
+                    DrawEnemyAffinityLine(x, y, affinityLine, maxLineLen, affinityColor);
                     y++;
                 }
                 const int maxEnemyEffectLines = 3;
@@ -601,9 +631,14 @@ namespace RPGGame.UI.Avalonia.Layout
                     int toShow = Math.Min(enemyEffects.Count, maxEnemyEffectLines);
                     for (int i = 0; i < toShow; i++)
                     {
-                        string line = "  " + enemyEffects[i];
+                        // The icon sits in the two-space indent and stands in for the effect's name.
+                        var (iconKey, afterIcon) = StatusEffectDisplayLines.SplitIcon(enemyEffects[i]);
+                        bool hasIcon = StatusArt.TryGetIcon(iconKey, out var icon, out var iconRect);
+                        string line = "  " + (hasIcon ? afterIcon : enemyEffects[i]);
                         if (line.Length > maxLineLen)
                             line = line.Substring(0, maxLineLen - 3) + "...";
+                        if (hasIcon)
+                            canvas.AddImage(x, y, 2, 1, icon, iconRect, paddingPixels: 1);
                         canvas.AddText(x, y, line, AsciiArtAssets.Colors.White);
                         RegisterEnemyStatusHoverRow(x, y, "estatus:" + i);
                         y++;

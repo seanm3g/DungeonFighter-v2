@@ -12,6 +12,7 @@ namespace RPGGame
         /// </summary>
         private static readonly AsyncLocal<int?> AsyncLabEncounterTestRoll = new();
         private static readonly AsyncLocal<Queue<int>?> AsyncForcedD20RollQueue = new();
+        private static readonly AsyncLocal<Queue<int>?> AsyncForcedLuckD20RollQueue = new();
 
         // Test mode support - allows setting specific roll values for testing
         private static int? _testRollValue = null;
@@ -98,6 +99,48 @@ namespace RPGGame
 
         public static void ClearAsyncForcedD20Rolls() =>
             AsyncForcedD20RollQueue.Value = null;
+
+        /// <summary>
+        /// Queues the second die of 2d20 luck/unluck (<see cref="RollLuckDie"/>) in the current async context, so a scripted
+        /// beat (Training Ground) can show both faces of a Lucky roll.
+        /// </summary>
+        public static void QueueAsyncForcedLuckD20Rolls(params int[] rollValues)
+        {
+            if (rollValues == null || rollValues.Length == 0)
+            {
+                ClearAsyncForcedLuckD20Rolls();
+                return;
+            }
+
+            foreach (int rollValue in rollValues)
+            {
+                if (rollValue < 1 || rollValue > 20)
+                    throw new ArgumentOutOfRangeException(nameof(rollValues), "Forced d20 rolls must be between 1 and 20.");
+            }
+
+            AsyncForcedLuckD20RollQueue.Value = new Queue<int>(rollValues);
+        }
+
+        public static void ClearAsyncForcedLuckD20Rolls() =>
+            AsyncForcedLuckD20RollQueue.Value = null;
+
+        /// <summary>
+        /// Second die of a 2d20 luck/unluck roll: a queued <see cref="QueueAsyncForcedLuckD20Rolls"/> face first, otherwise
+        /// <see cref="RollUnforced"/>.
+        /// </summary>
+        public static int RollLuckDie(int sides)
+        {
+            var queue = AsyncForcedLuckD20RollQueue.Value;
+            if (sides == 20 && queue != null && queue.Count > 0)
+            {
+                int forced = queue.Dequeue();
+                if (queue.Count == 0)
+                    AsyncForcedLuckD20RollQueue.Value = null;
+                return forced;
+            }
+
+            return RollUnforced(sides);
+        }
 
         /// <summary>
         /// Checks if test mode is currently enabled

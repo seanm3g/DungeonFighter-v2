@@ -279,7 +279,10 @@ namespace RPGGame
                     {
                         await CombatSequencePresenter.PlayPendingAsync();
                         PunchlineRevealFeedback.CommitQueued();
-                        await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs, character);
+                        if (renderer is RPGGame.UI.BlockDisplay.Renderers.CanvasUIRenderer &&UIManager.GetCustomUIManager() is CanvasUICoordinator typingCanvas)
+                            await CombatLogLineTypewriter.TypeMessageGroupsAsync(typingCanvas, messageGroups, delayAfterBatchMs, character);
+                        else
+                            await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs, character);
                     }
 
                     // Bind silent narrative so F7 can convert this mechanical block to prose.

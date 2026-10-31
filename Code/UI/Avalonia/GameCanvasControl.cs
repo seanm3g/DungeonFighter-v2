@@ -684,6 +684,9 @@ namespace RPGGame.UI.Avalonia
                         coordinateConverter.GetCharWidth(), coordinateConverter.GetCharHeight(), coordinateConverter.GetFontSize());
                 if (!IsAuxiliaryLayoutCanvas)
                     CombatTransitionWipe.Paint(context, content.Height, coordinateConverter.GetCharWidth());
+                if (!IsAuxiliaryLayoutCanvas)
+                    TutorialCoachPopup.Paint(context, content.Width, content.Height,
+                        coordinateConverter.GetCharWidth(), coordinateConverter.GetCharHeight(), coordinateConverter.GetFontSize());
             }
         }
 

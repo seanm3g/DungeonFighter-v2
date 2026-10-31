@@ -102,6 +102,33 @@ namespace RPGGame.Tests.Unit.UI
             var enemyOnly = StatusEffectDisplayLines.Build(enemy, null);
             TestBase.AssertTrue(enemyOnly.Any(l => l.Contains("Bleed 4")), "enemy without Character extras", ref run, ref passed, ref failed);
 
+            var iconHero = TestDataBuilders.Character().WithName("IconHero").WithStats(10, 10, 10, 0).Build();
+            iconHero.BleedIntensity = 2;
+            iconHero.PoisonPercentOfMaxHealth = 1;
+            iconHero.BurnIntensity = 1;
+            iconHero.Effects.SetTempRollBonus(2, 3);
+            var iconLines = StatusEffectDisplayLines.Build(iconHero, iconHero);
+            TestBase.AssertEqual("bleed", StatusEffectDisplayLines.IconKeyFor(iconLines.First(l => l.StartsWith("Bleed"))), "bleed line maps to bleed icon", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("poison", StatusEffectDisplayLines.IconKeyFor(iconLines.First(l => l.StartsWith("Poison"))), "poison line maps to poison icon", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("burn", StatusEffectDisplayLines.IconKeyFor(iconLines.First(l => l.StartsWith("Burn"))), "burn line maps to burn icon", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("accuracy", StatusEffectDisplayLines.IconKeyFor(iconLines.First(l => l.StartsWith("Accuracy"))), "accuracy line maps to accuracy icon", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("2", StatusEffectDisplayLines.SplitIcon("Bleed 2").Text, "icon replaces bleed's name", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("x2 (3t)", StatusEffectDisplayLines.SplitIcon("HP Regen x2 (3t)").Text, "icon replaces a two-word name", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(("shield", "Shield"), StatusEffectDisplayLines.SplitIcon("Shield"), "a bare name keeps its words beside its icon", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(("lucky", "Lucky"), StatusEffectDisplayLines.SplitIcon(LeatherSetBonus.LuckyStatusName), "lucky has an icon", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(("crisis", "CRISIS x3"), StatusEffectDisplayLines.SplitIcon("CRISIS x3"), "a material keyword bank keeps its name", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(StatusEffectDisplayLines.IconKeyFor("Mystery 2") == null, "unknown line has no icon", ref run, ref passed, ref failed);
+            var (affLabel, affItems) = StatusEffectDisplayLines.SplitAffinityLine("Weak: Burn ×2, Acid ×2");
+            TestBase.AssertEqual("Weak:", affLabel, "affinity label", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(affItems.Count == 2 && affItems[0].Status == "burn" && affItems[0].Suffix == "×2" && affItems[1].Status == "acid",
+                "affinity items split to status + multiplier", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(StatusEffectDisplayLines.SplitAffinityLine("Immune: Bleed, Poison").Items.All(it => it.Suffix == ""),
+                "immune items have no multiplier", ref run, ref passed, ref failed);
+            string statusArtDir = GameConstants.ResolveGameDataPath("StatusArt");
+            foreach (var key in new[] { "weaken", "stun", "poison", "bleed", "burn", "acid", "vulnerability", "harden", "fortify", "focus",
+                         "expose", "hpregen", "armorbreak", "pierce", "silence", "absorb", "temporaryhp", "confusion", "mark", "slow" })
+                TestBase.AssertTrue(System.IO.File.Exists(System.IO.Path.Combine(statusArtDir, key + ".png")), $"StatusArt/{key}.png shipped", ref run, ref passed, ref failed);
+
             TestBase.AssertTrue(StatusEffectDisplayLines.GetNonLivingEnemyImmunityLine(enemy) == null,
                 "living enemy (default isLiving): no template immunity line", ref run, ref passed, ref failed);
             var skeleton = new Enemy(name: "Skeleton", level: 1, maxHealth: 20, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0,

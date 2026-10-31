@@ -173,6 +173,10 @@ namespace RPGGame.Actions.Execution
                 return result;
             }
 
+            // Room trigger face: any fighter's die (after adv/env, before flat bonus) arms a bonus room action.
+            if (source is not RPGGame.Environment)
+                (environment ?? RPGGame.Combat.CombatEnvironmentContext.CurrentRoom)?.NotifyCombatRoll(source, result.ModifiedBaseRoll);
+
             Actor combatTarget = target;
             if (target != null)
             {

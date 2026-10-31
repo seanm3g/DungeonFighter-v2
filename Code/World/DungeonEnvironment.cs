@@ -28,7 +28,35 @@ namespace RPGGame
         /// <summary>Flat threshold shift from unstable room field (+4, -2, 2, 0).</summary>
         public int UnstableThresholdMod { get; private set; }
 
+        /// <summary>
+        /// The room's trigger face (1-20): when any fighter's d20 lands on it, the room takes a bonus environmental
+        /// action right after that swing. 0 when the room has no environmental actions.
+        /// </summary>
+        public int TriggerRoll { get; private set; }
+
+        /// <summary>Who rolled <see cref="TriggerRoll"/> on the swing that hasn't been answered yet (null when none).</summary>
+        private Actor? _pendingRollTriggerBy;
+
         private readonly List<string> _tags = new List<string>();
+
+        internal void SetTriggerRoll(int face) => TriggerRoll = face is >= 1 and <= 20 ? face : 0;
+
+        /// <summary>Called with each swing's resolved d20 face; arms the room's bonus action when it hits <see cref="TriggerRoll"/>.</summary>
+        public void NotifyCombatRoll(Actor roller, int face)
+        {
+            if (TriggerRoll > 0 && face == TriggerRoll && roller != null && !ReferenceEquals(roller, this))
+                _pendingRollTriggerBy ??= roller;
+        }
+
+        public bool HasPendingRollTrigger => _pendingRollTriggerBy != null;
+
+        /// <summary>Takes the pending trigger (if a swing rolled <see cref="TriggerRoll"/>) and clears it.</summary>
+        public bool TryConsumeRollTrigger(out Actor? rolledBy)
+        {
+            rolledBy = _pendingRollTriggerBy;
+            _pendingRollTriggerBy = null;
+            return rolledBy != null;
+        }
 
         internal void SetUnstableThresholdMod(int mod) => UnstableThresholdMod = mod;
 
@@ -79,6 +107,8 @@ namespace RPGGame
             effectManager = new EnvironmentEffectManager();
 
             InitializeActions();
+            if (ActionPool.Count > 0)
+                TriggerRoll = (random ?? RandomUtility.Current).Next(1, 21);
         }
 
         private void InitializeActions()
@@ -148,6 +178,7 @@ namespace RPGGame
         {
             combatStateManager.ConfigureActivityFromTags(_tags);
             combatStateManager.ResetForNewFight();
+            _pendingRollTriggerBy = null;
         }
 
         /// <summary>

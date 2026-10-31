@@ -69,7 +69,7 @@ namespace RPGGame.Actions.RollModification
             }
             else if (advantage)
             {
-                int die2 = Dice.RollUnforced(20);
+                int die2 = Dice.RollLuckDie(20);
                 int high = Math.Max(baseRoll, die2);
                 int low = Math.Min(baseRoll, die2);
                 modifiedRoll = high;
@@ -77,7 +77,7 @@ namespace RPGGame.Actions.RollModification
             }
             else if (disadvantage)
             {
-                int die2 = Dice.RollUnforced(20);
+                int die2 = Dice.RollLuckDie(20);
                 int high = Math.Max(baseRoll, die2);
                 int low = Math.Min(baseRoll, die2);
                 modifiedRoll = low;

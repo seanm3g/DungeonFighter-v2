@@ -196,7 +196,7 @@ namespace RPGGame
                 actionSpeedSystem.SetEntityActionTime(player, 1.0);
             }
             // Otherwise, use normal speed-based turn order (both start at currentTime)
-            CombatTurnQueue.Bind(actionSpeedSystem);
+            CombatTurnQueue.Bind(actionSpeedSystem, environment);
             
             // New encounter clock: DoT tick stamps must not carry wall-clock values from prior sessions or
             // pre-Reset() ticker state, or poison/burn intervals never elapse (currentTime - lastTick stays negative).

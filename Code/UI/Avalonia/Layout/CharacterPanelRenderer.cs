@@ -352,10 +352,11 @@ namespace RPGGame.UI.Avalonia.Layout
             // --- STATUS EFFECTS --- (hero; above thresholds; dungeon run + Action Lab; enemy effects are on the right panel)
             if (LeftPanelSectionVisibility.ShowStatusEffects(gameState, inDungeonRun))
             {
+                int statusHeaderY = y;
                 PanelText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.StatusEffects), AsciiArtAssets.Colors.Gold);
                 y += 2;
                 const int maxHeroEffectLines = 5;
-                const int maxHeroLineLen = 29;
+                const int maxHeroLineLen = 27; // after the 2-column icon gutter
                 var heroEffects = StatusEffectDisplayLines.Build(character, character);
                 if (heroEffects.Count > 0)
                 {
@@ -363,9 +364,17 @@ namespace RPGGame.UI.Avalonia.Layout
                     {
                         int effectRowY = y;
                         string line = heroEffects[i];
+                        // The icon stands in for the effect's name; its numbers follow.
+                        var (iconKey, afterIcon) = StatusEffectDisplayLines.SplitIcon(line);
+                        if (StatusArt.TryGetIcon(iconKey, out var icon, out var iconRect))
+                        {
+                            line = afterIcon;
+                            if (LeftPanelViewport.IsRowVisible(y))
+                                canvas.AddImage(x, y, 2, 1, icon, iconRect, paddingPixels: 1);
+                        }
                         if (line.Length > maxHeroLineLen)
                             line = line.Substring(0, maxHeroLineLen - 3) + "...";
-                        PanelText(x, y, line, AsciiArtAssets.Colors.White);
+                        PanelText(x + 2, y, line, AsciiArtAssets.Colors.White);
                         if (interactionManager != null && stateManager != null)
                             RegisterLeftPanelHoverRow(x, effectRowY, headerClickWidth, 1, "status:" + i);
                         y++;
@@ -379,8 +388,11 @@ namespace RPGGame.UI.Avalonia.Layout
                         y++;
                     }
                 }
+                TutorialCoachTargets.Set(TutorialCoachFocus.StatusEffects, (x - 1, statusHeaderY - 1, headerClickWidth + 2, y - statusHeaderY + 2));
                 y += 1;
             }
+            else
+                TutorialCoachTargets.Set(TutorialCoachFocus.StatusEffects, null);
 
             // --- THRESHOLDS / CHANCES --- (ladder numbers or exclusive d20 %; bar is under health)
             var thresholdsHudMode = stateManager?.ThresholdsHudMode ?? ThresholdsHudMode.Ladder;
@@ -438,9 +450,12 @@ namespace RPGGame.UI.Avalonia.Layout
                         RegisterLeftPanelHoverRow(x, thresholdsContentY + 1, headerClickWidth, 1, "thresh:combo");
                         RegisterLeftPanelHoverRow(x, thresholdsContentY + 2, headerClickWidth, 1, "thresh:hit");
                         RegisterLeftPanelHoverRow(x, thresholdsContentY + 3, headerClickWidth, 1, "thresh:critmiss");
+                        if (DiceRollThresholdRowsRenderer.CurrentRoomTriggerRoll() > 0)
+                            RegisterLeftPanelHoverRow(x, thresholdsContentY + 4, headerClickWidth, 1, "thresh:room");
                     }
                 }
             }
+            TutorialCoachTargets.Set(TutorialCoachFocus.Thresholds, (x - 1, thresholdsHeaderY - 1, headerClickWidth + 2, y - thresholdsHeaderY + 1));
             if (thresholdsOpen)
                 y += 1;
 
@@ -476,6 +491,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 "Hit" => "thresh:hit",
                 "Miss" => "thresh:miss",
                 "Crit Miss" => "thresh:critmiss",
+                DiceRollThresholdRowsRenderer.RoomTriggerLabel => "thresh:room",
                 _ => "thresh:hit"
             };
 

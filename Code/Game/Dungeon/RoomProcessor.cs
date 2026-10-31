@@ -263,7 +263,19 @@ namespace RPGGame
                 
                 // Display search result with colors (roll number hidden, only flavor text shown)
                 displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line before search message
-                
+
+                // Setup beat ("You search the area...") before revealing the outcome.
+                if (!string.IsNullOrWhiteSpace(searchResult.SetupMessage))
+                {
+                    string setupMarkup = ColoredTextRenderer.RenderAsMarkup(KeywordColorSystem.Colorize(searchResult.SetupMessage));
+                    displayManager.AddCombatEvent(setupMarkup, stateManager.CurrentPlayer, UIMessageType.Environmental);
+                    if (customUIManager is CanvasUICoordinator canvasUISearchSetup)
+                    {
+                        canvasUISearchSetup.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
+                        await SimulationPacing.DelayForCombatSpeedAsync(1200);
+                    }
+                }
+
                 // Preserve structured item-name colors when the search result includes loot.
                 var searchMessageColored = DungeonNarrativeColoredText.FormatSearchResult(searchResult);
                 string searchMessageMarkup = ColoredTextRenderer.RenderAsMarkup(searchMessageColored);

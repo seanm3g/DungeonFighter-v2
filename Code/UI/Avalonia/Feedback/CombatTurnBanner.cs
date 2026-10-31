@@ -11,7 +11,7 @@ namespace RPGGame.UI.Avalonia.Feedback
 {
     /// <summary>
     /// Paints <see cref="CombatTurnAnnouncement"/> as a box centered on the center panel, on the character grid: a
-    /// double-line frame holds the actor's name in block letters ("PIP'S TURN", "THE ROOM ACTS") with the turn number
+    /// double-line frame holds whose turn it is in block letters ("YOUR TURN", "ENEMY'S TURN", "ROOM'S TURN") with the turn number
     /// under it. The box unrolls from its center line as the turn changes hands and rolls back up just before the
     /// announcement ends. A name too wide for block
     /// letters is written in plain text instead. On the combat board the box instead grows out of the NOW card to cover
@@ -75,13 +75,12 @@ namespace RPGGame.UI.Avalonia.Feedback
         internal static string Headline(CombatTurnAnnouncement.Callout call) =>
             call.Defeated ? "VICTORY" : Headline(call.Actor);
 
-        internal static string Headline(Actor actor)
+        internal static string Headline(Actor actor) => actor switch
         {
-            if (actor is Environment)
-                return "THE ROOM ACTS";
-            string name = actor.Name.ToUpperInvariant();
-            return name.EndsWith('S') ? $"{name}' TURN" : $"{name}'S TURN";
-        }
+            Environment => "ROOM'S TURN",
+            Enemy => "ENEMY'S TURN",
+            _ => "YOUR TURN"
+        };
 
         private static Color ActorColor(Actor actor) => actor switch
         {

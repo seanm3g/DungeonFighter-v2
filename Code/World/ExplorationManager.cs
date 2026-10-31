@@ -133,23 +133,34 @@ namespace RPGGame
         {
             int roll = Dice.Roll(20);
 
+            var setupMessages = new[]
+            {
+                "You search the area...",
+                "You comb through the room...",
+                "You sift through the debris...",
+                "You check every corner...",
+                "You take a moment to search around..."
+            };
+            string setup = setupMessages[random.Next(setupMessages.Length)];
+            const string nothingFallback = "...but find nothing of value.";
+
             if (roll <= 18)
             {
                 var nothingMessages = new[]
                 {
-                    "You search thoroughly but find nothing of value.",
-                    "Your search reveals only dust and debris.",
-                    "After a careful examination, you find nothing useful.",
-                    "The area has been picked clean - nothing remains.",
-                    "You search every corner but come up empty-handed.",
-                    "Nothing of interest catches your eye.",
-                    "The search yields no results."
+                    nothingFallback,
+                    "...only dust and debris.",
+                    "...nothing useful turns up.",
+                    "...the area has been picked clean.",
+                    "...but come up empty-handed.",
+                    "...nothing of interest catches your eye."
                 };
                 return new SearchResult
                 {
                     FoundLoot = false,
                     LootItem = null,
                     Roll = roll,
+                    SetupMessage = setup,
                     Message = nothingMessages[random.Next(nothingMessages.Length)]
                 };
             }
@@ -157,21 +168,21 @@ namespace RPGGame
             Item? loot = RoomSearchConsumableGenerator.Generate(random, player, dungeonLevel);
             var foundMessages = new[]
             {
-                $"You search the area and find: {loot?.Name ?? "nothing"}",
-                $"Hidden among the remains, you discover: {loot?.Name ?? "nothing"}",
-                $"Your search uncovers: {loot?.Name ?? "nothing"}",
-                $"After rummaging through the area, you find: {loot?.Name ?? "nothing"}",
-                $"You spot something valuable: {loot?.Name ?? "nothing"}"
+                $"...and find: {loot?.Name ?? "nothing"}",
+                $"...hidden among the remains: {loot?.Name ?? "nothing"}",
+                $"...and uncover: {loot?.Name ?? "nothing"}",
+                $"...something catches your eye: {loot?.Name ?? "nothing"}"
             };
             string message = loot != null
                 ? foundMessages[random.Next(foundMessages.Length)]
-                : "You search thoroughly but find nothing of value.";
+                : nothingFallback;
 
             return new SearchResult
             {
                 FoundLoot = loot != null,
                 LootItem = loot,
                 Roll = roll,
+                SetupMessage = setup,
                 Message = message
             };
         }

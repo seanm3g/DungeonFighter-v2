@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.ActionInteractionLab;
 using RPGGame.Handlers.Inventory;
 using RPGGame.UI;
@@ -292,6 +293,10 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             // Convert screen coordinates to character grid coordinates
             var gridPos = ScreenToGrid(position);
+
+            // Training Ground coach popup: its box is the NEXT control, and it owns clicks while up.
+            if (TutorialCoachPopup.TryHandleClick(gridPos.X, gridPos.Y))
+                return;
 
             // Combat board: clicking between the health bars swaps combo cards <-> combat log.
             if (CombatBoardLayout.ContainsMiddle(gridPos.X, gridPos.Y))

@@ -11,6 +11,75 @@ namespace RPGGame.UI.Avalonia.Layout
     /// </summary>
     public static class StatusEffectDisplayLines
     {
+        /// <summary>Line prefix (as written by <see cref="Build"/>) → <c>GameData/StatusArt</c> icon. Keep in step with the strings below.</summary>
+        private static readonly (string Prefix, string Icon)[] IconPrefixes =
+        {
+            ("Weakened (", "weaken"), ("Stunned (", "stun"), ("Poison ", "poison"), ("Bleed ", "bleed"),
+            ("Burn ", "burn"), ("Acid ", "acid"), ("Vuln x", "vulnerability"), ("Harden x", "harden"),
+            ("Fortify x", "fortify"), ("Focus x", "focus"), ("Expose x", "expose"), ("HP Regen x", "hpregen"),
+            ("Armor brk x", "armorbreak"), ("Pierce (", "pierce"), ("Silence (", "silence"), ("Absorb (", "absorb"),
+            ("Temp HP (", "temporaryhp"), ("Confused (", "confusion"), ("Marked (", "mark"), ("Slow (", "slow"),
+            ("Stat drain x", "statdrain"), ("Accuracy ", "accuracy"), ("Advantage ", "advantage"),
+            ("Disadvantage ", "disadvantage"), ("Crit miss (", "critmiss"), ("Reflect x", "reflect"),
+            ("Extra atk x", "extraattack"), ("Reroll x", "reroll"),
+        };
+
+        /// <summary>
+        /// Lines whose words stay beside their icon (a bare name, a bonus list or a keyword bank would read as nothing
+        /// with the name cut off). Material keywords (MaterialBuilds.json's synthesis banks) match as "KEYWORD x".
+        /// </summary>
+        private static readonly (string Prefix, string Icon)[] IconKeepTextPrefixes =
+        {
+            (LeatherSetBonus.LuckyStatusName, "lucky"), ("Shield", "shield"), ("Skip turn", "skipturn"),
+            ("Guarantee hit", "surehit"), ("Combo mode", "combomode"), ("Next action", "nextaction"), ("Action ", "nextaction"),
+            ("TURN", "turnbonus"), ("Fight:", "fightbonus"), ("Dungeon:", "dungeonbonus"),
+            ("CRISIS x", "crisis"), ("TRIUMPH x", "triumph"), ("RAGE x", "rage"), ("BEAT x", "beat"), ("DRAG x", "drag"),
+            ("STREAK x", "streak"), ("GRAZE x", "graze"), ("SWING x", "swing"), ("TROPHY x", "trophy"),
+            ("CHAIN x", "chain"), ("LENS x", "lens"), ("CONTACT x", "contact"),
+        };
+
+        /// <summary>The <see cref="StatusArt"/> icon for a <see cref="Build"/> line; null for lines with no icon.</summary>
+        public static string? IconKeyFor(string line) => SplitIcon(line).Icon;
+
+        /// <summary>
+        /// A <see cref="Build"/> line's icon and the text left once the icon stands in for the effect's name
+        /// ("Bleed 4" → bleed, "4"; "Vuln x2 (3t)" → vulnerability, "x2 (3t)"). Lines in <see cref="IconKeepTextPrefixes"/>
+        /// keep their words ("Shield" → shield, "Shield"); lines with no icon come back whole.
+        /// </summary>
+        public static (string? Icon, string Text) SplitIcon(string line)
+        {
+            foreach (var (prefix, icon) in IconPrefixes)
+            {
+                if (line.StartsWith(prefix, StringComparison.Ordinal))
+                    return (icon, line.Substring(prefix.LastIndexOf(' ') + 1));
+            }
+            foreach (var (prefix, icon) in IconKeepTextPrefixes)
+            {
+                if (line.StartsWith(prefix, StringComparison.Ordinal))
+                    return (icon, line);
+            }
+            return (null, line);
+        }
+
+        /// <summary>
+        /// An enemy affinity line ("Weak: Burn ×2, Acid ×2") as its label and one item per status: the status key
+        /// (the <see cref="StatusArt"/> icon), its shown name and what follows it (the multiplier; empty for Immune).
+        /// </summary>
+        public static (string Label, List<(string Status, string Name, string Suffix)> Items) SplitAffinityLine(string line)
+        {
+            var items = new List<(string, string, string)>();
+            int colon = line.IndexOf(':');
+            if (colon < 0)
+                return (line, items);
+            foreach (var part in line.Substring(colon + 1).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                int space = part.IndexOf(' ');
+                string name = space < 0 ? part : part.Substring(0, space);
+                items.Add((RPGGame.Combat.StatusAffinity.NormalizeStatus(name), name, space < 0 ? "" : part.Substring(space + 1)));
+            }
+            return (line.Substring(0, colon + 1), items);
+        }
+
         /// <summary>
         /// Builds display strings for an actor. Pass <paramref name="asCharacter"/> when <paramref name="actor"/> is a <see cref="Character"/> to include character-only effects.
         /// </summary>
@@ -63,6 +132,8 @@ namespace RPGGame.UI.Avalonia.Layout
                 lines.Add($"HP Regen x{actor.HPRegenStacks} ({actor.HPRegenTurns}t)");
             if (actor.ArmorBreakStacks > 0 && actor.ArmorBreakTurns > 0)
                 lines.Add($"Armor brk x{actor.ArmorBreakStacks} ({actor.ArmorBreakTurns}t)");
+            if (actor.StatDrainStacks > 0 && actor.StatDrainTurns > 0)
+                lines.Add($"Stat drain x{actor.StatDrainStacks} ({actor.StatDrainTurns}t)");
             if (actor.HasPierce && actor.PierceTurns > 0)
                 lines.Add($"Pierce ({actor.PierceTurns} turn{(actor.PierceTurns != 1 ? "s" : "")})");
             if (actor.ReflectStacks > 0 && actor.ReflectTurns > 0)

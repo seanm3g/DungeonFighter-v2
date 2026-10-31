@@ -12,6 +12,12 @@ namespace RPGGame.UI.Avalonia.Layout
     {
         private const int ThresholdLabelWidth = 11;
 
+        /// <summary>Row label (and CHANCES hover key) for the room's trigger face.</summary>
+        public const string RoomTriggerLabel = "Room";
+
+        /// <summary>The on-screen fight's room trigger face, or 0 outside a fight / for a room with none.</summary>
+        public static int CurrentRoomTriggerRoll() => RPGGame.CombatTurnQueue.Room?.TriggerRoll ?? 0;
+
         /// <summary>
         /// Draws threshold ladder rows (enemy / default path).
         /// </summary>
@@ -20,7 +26,8 @@ namespace RPGGame.UI.Avalonia.Layout
             RenderRows(canvas, x, y, actor, false, false, out _, null, null);
 
         /// <summary>
-        /// Draws four threshold rows or five CHANCES rows starting at <paramref name="y"/>.
+        /// Draws four threshold rows or five CHANCES rows starting at <paramref name="y"/>, plus a Room row during a fight
+        /// whose room has a trigger face.
         /// </summary>
         /// <param name="chanceHoverOrder">When <paramref name="showChances"/> is true, rows in on-screen order (for hover ids).</param>
         /// <param name="minYInclusive">When set, skip painting rows above this Y (scroll clip).</param>
@@ -88,6 +95,17 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x + ThresholdLabelWidth, rowY, ThresholdDisplayFormatting.FormatD20ChancePercent(percent), valueColor);
             }
 
+            // Exact face (any fighter's die) that sets off the room; shown on every panel during an on-screen fight.
+            void RenderRoomTriggerRow(int rowY, string value)
+            {
+                if (!CanDraw(rowY))
+                    return;
+                bool flash = chancesFlashHighlight && showChances;
+                canvas.AddText(x, rowY, $"{RoomTriggerLabel}:".PadRight(ThresholdLabelWidth), flash ? AsciiArtAssets.Colors.Gold : AsciiArtAssets.Colors.Cyan);
+                canvas.AddText(x + ThresholdLabelWidth, rowY, value, flash ? AsciiArtAssets.Colors.Gold : AsciiArtAssets.Colors.Green);
+            }
+
+            int roomTriggerRoll = CurrentRoomTriggerRoll();
             int cy = y;
 
             if (showChances)
@@ -106,9 +124,17 @@ namespace RPGGame.UI.Avalonia.Layout
                 var defaultCanonical = ThresholdDisplayFormatting.GetExclusiveD20ChanceRows(defaultChances);
                 var defaultByLabel = ThresholdDisplayFormatting.BuildChancePercentByLabel(defaultCanonical);
                 var chanceRows = ThresholdDisplayFormatting.SortChanceRowsByPercentDescending(canonicalRows);
+                // The room's trigger face overlaps the outcome bands, so it sits last instead of joining the sort.
+                if (roomTriggerRoll > 0)
+                    chanceRows = [.. chanceRows, new ThresholdDisplayFormatting.D20ChanceDisplayRow(RoomTriggerLabel, ThresholdDisplayFormatting.RoomTriggerChancePercent)];
                 chanceHoverOrder = chanceRows;
                 for (int i = 0; i < chanceRows.Length; i++)
                 {
+                    if (chanceRows[i].Label == RoomTriggerLabel)
+                    {
+                        RenderRoomTriggerRow(cy++, ThresholdDisplayFormatting.FormatD20ChancePercent(chanceRows[i].Percent));
+                        continue;
+                    }
                     defaultByLabel.TryGetValue(chanceRows[i].Label, out int defaultPct);
                     RenderChanceRow(cy++, chanceRows[i].Label, chanceRows[i].Percent, defaultPct);
                 }
@@ -119,6 +145,8 @@ namespace RPGGame.UI.Avalonia.Layout
                 RenderThresholdRow(cy++, "Action", snapshot.Combo, snapshot.DefaultCombo, snapshot.EffectiveCombo, snapshot.DefaultCombo);
                 RenderThresholdRow(cy++, "Hit", snapshot.Hit, snapshot.DefaultHit, snapshot.EffectiveHit, snapshot.DefaultMinRollToHit);
                 RenderThresholdRow(cy++, "Crit Miss", snapshot.CritMiss, DiceRollThresholdSnapshot.DefaultCritMiss, snapshot.EffectiveCritMiss, DiceRollThresholdSnapshot.DefaultCritMiss);
+                if (roomTriggerRoll > 0)
+                    RenderRoomTriggerRow(cy++, roomTriggerRoll.ToString());
             }
             return cy;
         }
