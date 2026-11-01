@@ -68,7 +68,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             // The turn timeline takes the full column under the enemy strip; it paints after the combo flow so its
             // current card can line up with NOW and cards can fly between the two.
-            int timelineH = TimelineBandHeight(heroBandY - top);
+            int timelineH = TimelineBandHeight(heroBandY - top, TimelineLanes(player, enemy, heroBandY - top).Count);
             int enemyBandY = top + timelineH;
             TutorialCoachTargets.Set(TutorialCoachFocus.EnemyStrip, (colX, 0, colW, enemyStripH));
             TutorialCoachTargets.Set(TutorialCoachFocus.Timeline, timelineH > 0 ? (colX, top, colW, timelineH) : null);
@@ -95,7 +95,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             else
                 RenderBoardComboFlow(player, enemy, turn, flowX, midTop, flowW, midBottom - midTop, enemyBandY, heroBandY, mode);
             if (timelineH > 0)
-                RenderBoardTimeline(player, turn, colX, top, colW, heroBandY - top, mode);
+                RenderBoardTimeline(player, enemy, turn, colX, top, colW, heroBandY - top, mode);
             else
                 _timelineSlides.Clear();
 

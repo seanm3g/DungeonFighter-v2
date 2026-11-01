@@ -4,8 +4,9 @@ using RPGGame.Combat;
 
 namespace RPGGame
 {
-    /// <summary>One upcoming turn in <see cref="CombatTurnQueue.GetUpcoming"/>.</summary>
-    public readonly record struct CombatTurnQueueEntry(Actor Actor, bool IsActing);
+    /// <summary>One upcoming turn in <see cref="CombatTurnQueue.GetUpcoming"/>: who, whether it is the turn now playing,
+    /// and when it starts and how long it runs on the schedule clock.</summary>
+    public readonly record struct CombatTurnQueueEntry(Actor Actor, bool IsActing, double Start = 0, double Duration = 0);
 
     /// <summary>
     /// Live fight's turn order for the combat board: who is acting now and who acts after, projected from the
@@ -21,6 +22,7 @@ namespace RPGGame
         private static Action? _actingAction;
         private static bool _actingQuiet;
         private static long _turnSerial;
+        private static double? _turnStart;
         private static Environment? _room;
 
         /// <summary>Entity whose turn the combat loop is processing, or null between turns.</summary>
@@ -34,6 +36,9 @@ namespace RPGGame
 
         /// <summary>Bumped by every <see cref="BeginTurn"/>, so the board can tell one turn from the next.</summary>
         public static long TurnSerial { get { lock (Gate) return _turnSerial; } }
+
+        /// <summary>Schedule time the latest turn began at (the earliest readiness when it began), or null before the fight's first turn.</summary>
+        public static double? TurnStart { get { lock (Gate) return _turnStart; } }
 
         public static bool IsBound { get { lock (Gate) return _speed != null; } }
 
@@ -49,6 +54,7 @@ namespace RPGGame
             {
                 _speed = speed;
                 _room = room;
+                _turnStart = null;
                 _acting = null;
                 _actingAction = null;
                 _actingQuiet = false;
@@ -61,6 +67,7 @@ namespace RPGGame
             {
                 _speed = null;
                 _room = null;
+                _turnStart = null;
                 _acting = null;
                 _actingAction = null;
                 _actingQuiet = false;
@@ -69,10 +76,13 @@ namespace RPGGame
 
         public static void BeginTurn(Actor actor)
         {
+            double? start = EarliestReadiness();
             lock (Gate)
             {
                 if (_speed == null)
                     return;
+                if (start != null)
+                    _turnStart = start;
                 _acting = actor;
                 _actingAction = null;
                 _actingQuiet = false;
@@ -166,12 +176,37 @@ namespace RPGGame
                 if (best == null)
                     break;
                 bool isActing = actingPending && n == 0 && ReferenceEquals(best.Entity, acting);
-                result.Add(new CombatTurnQueueEntry(best.Entity, isActing));
                 seen.TryGetValue(best.Entity, out int ordinal);
                 seen[best.Entity] = ordinal + 1;
-                best.NextActionTime += EstimateDuration(best, lengthOf?.Invoke(best.Entity, ordinal) ?? 1.0);
+                double duration = EstimateDuration(best, lengthOf?.Invoke(best.Entity, ordinal) ?? 1.0);
+                result.Add(new CombatTurnQueueEntry(best.Entity, isActing, best.NextActionTime, duration));
+                best.NextActionTime += duration;
             }
             return result;
+        }
+
+        /// <summary>Lowest readiness on the schedule (the turn about to begin), or null when unbound or mid roster change.</summary>
+        private static double? EarliestReadiness()
+        {
+            ActionSpeedSystem? speed;
+            lock (Gate)
+                speed = _speed;
+            if (speed == null)
+                return null;
+            try
+            {
+                double? min = null;
+                foreach (var e in speed.GetScheduleSnapshot())
+                {
+                    if (min == null || e.NextActionTime < min)
+                        min = e.NextActionTime;
+                }
+                return min;
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
         }
 
         private static double EstimateDuration(CombatEntity e, double length)

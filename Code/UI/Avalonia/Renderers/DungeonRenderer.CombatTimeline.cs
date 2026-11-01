@@ -11,36 +11,47 @@ using System.Runtime.CompilerServices;
 namespace RPGGame.UI.Avalonia.Renderers
 {
     /// <summary>
-    /// The board's turn timeline, a row of small cards under the enemy strip: the two turns played before the last
-    /// (grayed, behind a divider), the current slot (lined up over NOW: empty while a turn plays, then holding its act once
-    /// it flies back up), and the next turns as they would go if every roll landed its combo action. The projection is
-    /// rebuilt each paint from the live schedule, so a miss (combo reset), a speed change or a reordered turn reshuffles
-    /// it; each card slides from where it was to its new slot. A change an act makes to the row is held until that act has
-    /// played out and flown up, then plays as its own beat (the changed cards lit) before the next turn comes down.
+    /// The board's turn timeline under the enemy strip: one lane each for the hero, the enemy and a hostile room, every
+    /// card on one schedule clock and as wide as its turn runs. NOW sits at the divider: each lane's last two played turns
+    /// run up to it (what has happened shows only behind NOW, its cooldown past NOW left blank; a turn playing on NOW is an empty box), and its turns ahead follow
+    /// as they would go if every roll landed its combo action, so the earliest card ahead (lit) is whoever acts next. The
+    /// scale is fitted each paint and every card slides to its new place and size, so they keep their true proportions as
+    /// the clock advances. The projection is rebuilt each paint from the live schedule, so a miss (combo reset), a speed
+    /// change or a long action moves cards along their lane. A change an act makes to the cards ahead is held until that
+    /// act has played out and flown up, then plays as its own beat (the changed cards lit) before the next turn comes down.
     /// </summary>
     public partial class DungeonRenderer
     {
         private const int TimelinePast = 2;
-        private const int TimelineAhead = 4;
-        private const int TimelineGap = 1, TimelineDividerGap = 3;
+        /// <summary>Turns projected per paint; the lanes show those that start before the axis runs out.</summary>
+        private const int TimelineAhead = 16;
+        private const int TimelineGap = 1;
+        private const int TimelineLabelW = 6;
+        /// <summary>The scale never zooms in past this many of the slowest fighter's plain (length 1.0) swings across the
+        /// axis ahead of NOW.</summary>
+        private const double TimelineMinHorizonSwings = 2.0;
+        /// <summary>Turns ahead per lane the scale always fits (more show while they fit whole).</summary>
+        private const int TimelineFitAhead = 2;
         /// <summary>Pause after an act settles before the row ahead it changed reshuffles.</summary>
         private const int TimelineShuffleDelayMs = 500;
 
-        /// <summary>A played act: which of its actor's turns (0-based, this fight) it was, the turn it played in, and when
-        /// it finished playing out on NOW (null while it still plays).</summary>
+        /// <summary>A played act: which of its actor's turns (0-based, this fight) it was, the turn it played in, when that
+        /// turn began on the schedule clock, and when it finished playing out on NOW (null while it still plays).</summary>
         private sealed class TimelineAct
         {
-            public TimelineAct(BoardAct act, int ordinal, long serial)
+            public TimelineAct(BoardAct act, int ordinal, long serial, double start)
             {
                 Act = act;
                 Ordinal = ordinal;
                 Serial = serial;
+                Start = start;
                 PushedUtc = DateTimeOffset.UtcNow;
             }
 
             public BoardAct Act { get; }
             public int Ordinal { get; }
             public long Serial { get; }
+            public double Start { get; }
             public DateTimeOffset PushedUtc { get; }
             public DateTimeOffset? CompletedUtc { get; set; }
         }
@@ -51,8 +62,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static readonly Dictionary<Actor, int> _timelineRestStep = new(ReferenceEqualityComparer.Instance);
         private static readonly Dictionary<(int Actor, int Ordinal), (BoardRect From, BoardRect To, DateTimeOffset Start)> _timelineSlides = new();
 
-        /// <summary>A card in the row ahead, with the content it shows.</summary>
-        private readonly record struct TimelineAheadCard((int, int) Key, Actor Actor, string Title, string Detail);
+        /// <summary>A card ahead, with the content it shows and when its turn starts and how long it runs.</summary>
+        private readonly record struct TimelineAheadCard((int, int) Key, Actor Actor, string Title, string Detail, double Start, double Duration);
 
         /// <summary>The row ahead as last shown; held while the act that changed it still plays.</summary>
         private static List<TimelineAheadCard>? _timelineAheadShown;
@@ -87,8 +98,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 h.CompletedUtc ??= now; // a newer act took the stage
             _timelineTurnsPlayed.TryGetValue(act.Actor, out int ordinal);
             _timelineTurnsPlayed[act.Actor] = ordinal + 1;
-            _timelineHistory.Add(new TimelineAct(act, ordinal, CombatTurnQueue.TurnSerial));
-            if (_timelineHistory.Count > TimelinePast + 4)
+            _timelineHistory.Add(new TimelineAct(act, ordinal, CombatTurnQueue.TurnSerial, CombatTurnQueue.TurnStart ?? 0.0));
+            if (_timelineHistory.Count > 3 * (TimelinePast + 1) + 2)
                 _timelineHistory.RemoveAt(0);
         }
 
@@ -175,126 +186,208 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
         }
 
-        /// <summary>Rows the timeline takes under the enemy strip (0 when the board is too short to spare them).</summary>
-        private static int TimelineBandHeight(int availH)
+        /// <summary>Lanes the timeline shows: the hero, the enemy, and a hostile room (dropped when the board can't spare it a lane).</summary>
+        private static List<Actor> TimelineLanes(Character player, Enemy enemy, int availH)
         {
-            int bandH = 1 + TimelineCardH(availH) + 1 + 1; // labels, cards (the current one a row taller), one clear row
-            return availH - bandH >= 18 ? bandH : 0;
+            var lanes = new List<Actor> { player, enemy };
+            if (CombatTurnQueue.Room is { IsHostile: true } room && TimelineLaneH(availH, 3) > 0)
+                lanes.Add(room);
+            return lanes;
         }
 
-        private static int TimelineCardH(int availH) => Math.Clamp(availH / 7, 3, 5);
+        /// <summary>Rows each lane's cards take (0 when the board is too short to spare the band).</summary>
+        private static int TimelineLaneH(int availH, int lanes)
+        {
+            int laneH = Math.Min(4, (availH - 18 - 2 - (lanes - 1)) / lanes);
+            return laneH >= 3 ? laneH : 0;
+        }
+
+        /// <summary>Rows the timeline takes under the enemy strip: a caption row, the lanes one row apart, one clear row.</summary>
+        private static int TimelineBandHeight(int availH, int lanes)
+        {
+            int laneH = TimelineLaneH(availH, lanes);
+            return laneH > 0 ? 1 + lanes * laneH + (lanes - 1) + 1 : 0;
+        }
 
         /// <summary>
-        /// Slot rects left to right (past, current, ahead), with the current slot's left edge on <paramref name="anchorX"/>
-        /// (NOW's) when given, else centered. Cards narrow until the row fits; null when it can't.
+        /// Columns the lanes share: the lane names, the clock behind NOW (from <paramref name="pastX"/>) and ahead of it,
+        /// with NOW at <paramref name="anchorX"/> (NOW's left edge; a third of the way in without one). Null when either
+        /// side would be too short to read.
         /// </summary>
-        private static BoardRect[]? TimelineSlots(int x, int y, int w, int cardH, int? anchorX)
+        private static (int PastX, int AxisX, int AxisEnd)? TimelineColumns(int x, int w, int? anchorX)
         {
-            for (int cw = 18; cw >= 8; cw--)
-            {
-                int nw = cw * 3 / 2;
-                int leftNeed = TimelinePast * cw + (TimelinePast - 1) * TimelineGap + TimelineDividerGap;
-                int rightNeed = nw + TimelineAhead * (TimelineGap + cw);
-                int curX;
-                if (anchorX is int ax)
-                {
-                    if (ax - leftNeed < x + 1 || ax + rightNeed > x + w - 1)
-                        continue;
-                    curX = ax;
-                }
-                else
-                {
-                    if (leftNeed + rightNeed > w - 2)
-                        continue;
-                    curX = x + (w - leftNeed - rightNeed) / 2 + leftNeed;
-                }
-
-                var slots = new BoardRect[TimelinePast + 1 + TimelineAhead];
-                int px = curX - TimelineDividerGap;
-                for (int i = TimelinePast - 1; i >= 0; i--)
-                {
-                    px -= cw;
-                    slots[i] = new BoardRect(px, y, cw, cardH);
-                    px -= TimelineGap;
-                }
-                slots[TimelinePast] = new BoardRect(curX, y, nw, cardH + 1);
-                int ax2 = curX + nw;
-                for (int i = 0; i < TimelineAhead; i++)
-                {
-                    ax2 += TimelineGap;
-                    slots[TimelinePast + 1 + i] = new BoardRect(ax2, y, cw, cardH);
-                    ax2 += cw;
-                }
-                return slots;
-            }
-            return null;
+            int axisX = anchorX ?? x + w / 3;
+            int axisEnd = x + w - 1;
+            int pastX = x + 1 + TimelineLabelW;
+            if (axisEnd - axisX < 24 || axisX - pastX < 8)
+                return null;
+            return (pastX, axisX, axisEnd);
         }
 
-        /// <summary>Paints the timeline across (<paramref name="x"/>, <paramref name="y"/>, <paramref name="w"/>). Call after
-        /// the combo flow, so the current slot lines up with NOW and cards fly over both.</summary>
-        private void RenderBoardTimeline(Character player, BoardTurnView v, int x, int y, int w, int availH, ActionStripDamageLineMode mode)
+        /// <summary>One card in a lane: a played act, a turn ahead, or the open gap of a turn playing on NOW before its
+        /// swing registers; it runs from <see cref="Start"/> to where the lane's next card starts.</summary>
+        private readonly record struct TimelineBlock((int, int) Key, double Start, double End, TimelineAct? Act, TimelineAheadCard? Card);
+
+        /// <summary>
+        /// Paints the timeline across (<paramref name="x"/>, <paramref name="y"/>, <paramref name="w"/>): one lane per
+        /// actor, every card on one clock and as wide as its turn runs, so cards keep their true sizes against each other.
+        /// NOW sits at the divider: each lane's last two played turns run up to it (the one still recovering runs across
+        /// it), and its turns ahead follow, so whichever lane's next card starts furthest left acts next. The scale is fitted
+        /// each paint so those played turns and the next two ahead in each fighter's lane fit; when they no longer would,
+        /// every card shrinks together (each slides to its new size). Call after the combo flow, so the divider lines up with
+        /// NOW and cards fly over both.
+        /// </summary>
+        private void RenderBoardTimeline(Character player, Enemy enemy, BoardTurnView v, int x, int y, int w, int availH, ActionStripDamageLineMode mode)
         {
+            var lanes = TimelineLanes(player, enemy, availH);
+            int laneH = TimelineLaneH(availH, lanes.Count);
             BoardRect? nowR = CombatBoardLayout.NowRect is { } n ? new BoardRect(n.X, n.Y, n.W, n.H) : null;
-            var slots = TimelineSlots(x, y + 1, w, TimelineCardH(availH), nowR?.X);
-            if (slots == null)
+            var cols = TimelineColumns(x, w, nowR?.X);
+            if (laneH == 0 || cols is not { } c)
             {
                 _timelineSlides.Clear();
                 return;
             }
             var seen = new HashSet<(int, int)>();
             long serial = CombatTurnQueue.TurnSerial;
-            var curSlot = slots[TimelinePast];
+            var acting = CombatTurnQueue.ActingEntity;
+            bool pastActing = v.TurnInNow || v.Spent;
+            var now = DateTimeOffset.UtcNow;
 
-            // Divider between the grayed past and the current slot.
-            double divX = curSlot.X - TimelineDividerGap / 2.0;
-            canvas.AddLine(divX, y, divX, curSlot.Bottom, BoardDimBorder, 1.5);
-
-            // --- Played turns: the newest sits in the current slot until the next turn comes down into NOW ---
-            var done = _timelineHistory.FindAll(h => h.CompletedUtc != null);
-            TimelineAct? current = null;
-            if (done.Count > 0 && !(v.TurnInNow && done[^1].Serial != serial))
-                current = done[^1];
-            var past = new List<TimelineAct>(TimelinePast);
-            for (int i = done.Count - 1; i >= 0 && past.Count < TimelinePast; i--)
-            {
-                if (!ReferenceEquals(done[i], current))
-                    past.Insert(0, done[i]);
-            }
-            for (int i = 0; i < TimelinePast; i++)
-            {
-                int pi = i - (TimelinePast - past.Count);
-                if (pi < 0)
-                {
-                    AddBoardBox(slots[i].X, slots[i].Y, slots[i].W, slots[i].H, BoardFadedBorder, BoardCardBackground);
-                    continue;
-                }
-                var r = PlaceTimelineCard(TimelineKey(past[pi].Act.Actor, past[pi].Ordinal), slots[i], seen, null);
-                DrawTimelineAct(past[pi].Act, r, player, grayed: true);
-            }
-
-            // --- Turns ahead (not yet in NOW) ---
             var ahead = ShowTimelineAhead(ProjectTimelineAhead(v, serial), v, serial);
-            bool swapBeat = DateTimeOffset.UtcNow < _timelineSwapEndUtc;
+            double t0 = CombatTurnQueue.TurnStart ?? (ahead.Count > 0 ? ahead.Min(a => a.Start) : 0.0);
+            double unit = 0.01;
+            foreach (var lane in lanes)
+            {
+                if (lane is Character ch && lane is not Environment)
+                    unit = Math.Max(unit, ch.GetTotalAttackSpeed());
+            }
+
+            // --- Each lane's cards in clock order, each running until the lane's next one starts ---
+            var byStart = ahead.OrderBy(a => a.Start).ToList();
+            TimelineAheadCard? first = byStart.Count > 0 ? byStart[0] : null;
+            var laneBlocks = new List<List<TimelineBlock>>(lanes.Count);
+            foreach (var actor in lanes)
+            {
+                var starts = new List<(double Start, (int, int) Key, TimelineAct? Act, TimelineAheadCard? Card)>();
+                var acts = new List<TimelineAct>(TimelinePast);
+                for (int i = _timelineHistory.Count - 1; i >= 0 && acts.Count < TimelinePast; i--)
+                {
+                    if (ReferenceEquals(_timelineHistory[i].Act.Actor, actor))
+                        acts.Insert(0, _timelineHistory[i]);
+                }
+                foreach (var h in acts)
+                    starts.Add((h.Start, TimelineKey(actor, h.Ordinal), h, null));
+                if (pastActing && ReferenceEquals(actor, acting) && (acts.Count == 0 || acts[^1].Serial != serial))
+                {
+                    _timelineTurnsPlayed.TryGetValue(actor, out int played);
+                    starts.Add((t0, TimelineKey(actor, played), null, null));
+                }
+                double lastEnd = 0;
+                foreach (var card in byStart)
+                {
+                    if (!ReferenceEquals(card.Actor, actor))
+                        continue;
+                    starts.Add((card.Start, card.Key, null, card));
+                    lastEnd = card.Start + card.Duration;
+                }
+                starts.Sort((p, q) => p.Start.CompareTo(q.Start));
+                var blocks = new List<TimelineBlock>(starts.Count);
+                for (int i = 0; i < starts.Count; i++)
+                {
+                    var s0 = starts[i];
+                    double end = i + 1 < starts.Count ? starts[i + 1].Start
+                        : s0.Card != null ? lastEnd
+                        : s0.Start + (actor is Character ch ? ch.GetTotalAttackSpeed() : unit);
+                    if (end > s0.Start + 1e-6)
+                        blocks.Add(new TimelineBlock(s0.Key, s0.Start, end, s0.Act, s0.Card));
+                }
+                laneBlocks.Add(blocks);
+            }
+
+            // --- The scale: the fighters' played cards fit behind NOW and their next turns ahead of it ---
+            double pastSpan = 1e-6, futureSpan = 1e-6;
+            for (int li = 0; li < lanes.Count; li++)
+            {
+                if (lanes[li] is Environment)
+                    continue; // the room's slow clock would squash the fighters; its cards show where they fit
+                int aheadCount = 0;
+                foreach (var b in laneBlocks[li])
+                {
+                    if (b.Start < t0)
+                        pastSpan = Math.Max(pastSpan, t0 - b.Start);
+                    if (b.Card == null || aheadCount++ < TimelineFitAhead)
+                        futureSpan = Math.Max(futureSpan, b.End - t0);
+                }
+            }
+            int pastCols = c.AxisX - c.PastX, aheadCols = c.AxisEnd - c.AxisX;
+            double scale = Math.Min(aheadCols / (TimelineMinHorizonSwings * unit), Math.Min(pastCols / pastSpan, aheadCols / futureSpan));
+            int At(double t) => c.AxisX + (int)Math.Round((t - t0) * scale);
+
+            double divX = c.AxisX - 0.5;
+            int bandBottom = y + 1 + lanes.Count * (laneH + 1) - 1;
+            canvas.AddLine(divX, y + 1, divX, bandBottom, BoardDimBorder, 1.5);
+
+            // The newest played act keeps its outcome colors; older ones gray out.
+            var newestDone = _timelineHistory.FindLast(h => h.CompletedUtc != null);
+            bool swapBeat = now < _timelineSwapEndUtc;
             if (swapBeat)
                 CombatBoardAnimation.RequestFrame();
-            for (int i = 0; i < ahead.Count; i++)
+            BoardRect? actingSpan = null;
+
+            for (int li = 0; li < lanes.Count; li++)
             {
-                var r = PlaceTimelineCard(ahead[i].Key, slots[TimelinePast + 1 + i], seen, null);
-                DrawTimelineAhead(r, ahead[i], player, lit: swapBeat && _timelineSwapChanged.Contains(ahead[i].Key));
+                var actor = lanes[li];
+                int ly = y + 1 + li * (laneH + 1);
+                canvas.AddText(x + 1, ly + (laneH - 1) / 2, TimelineLabel(actor, player), BoardActorColor(actor));
+                bool actingHere = pastActing && ReferenceEquals(actor, acting);
+                Color gapBorder = LerpColor(BoardActorColor(actor), BoardFadedBorder, 0.6);
+
+                foreach (var b in laneBlocks[li])
+                {
+                    int bx = At(b.Start), right = At(b.End);
+                    if (bx < c.PastX || bx >= c.AxisEnd - 2)
+                        continue;
+                    if (right > c.AxisEnd + 1)
+                    {
+                        if (b.Start >= t0)
+                            break; // a turn ahead shows whole or not at all
+                        right = c.AxisEnd + 1; // a turn already under way runs off the edge
+                    }
+                    int bw = right - bx - TimelineGap;
+                    if (bw < 2)
+                        continue;
+                    var target = new BoardRect(bx, ly, bw, laneH);
+
+                    if (b.Card is { } card)
+                    {
+                        var r = PlaceTimelineCard(card.Key, target, seen, null);
+                        DrawTimelineAhead(r, card, player, lit: swapBeat && _timelineSwapChanged.Contains(card.Key), next: card == first);
+                    }
+                    else
+                    {
+                        // What has happened shows behind NOW, its card growing out of the divider as NOW passes; the
+                        // cooldown it still runs past NOW is blank, as is a turn still playing on NOW.
+                        var played = b.Act is { CompletedUtc: not null } a ? a : null;
+                        int lw = Math.Min(right, c.AxisX) - bx - TimelineGap;
+                        if (played != null && lw >= 2)
+                        {
+                            var left = target with { W = lw };
+                            var r = PlaceTimelineCard(b.Key, left, seen, (left with { X = c.AxisX - TimelineGap, W = 0 }, now));
+                            DrawTimelineAct(played.Act, r, grayed: !ReferenceEquals(played, newestDone));
+                        }
+                        int rx = Math.Max(bx, c.AxisX);
+                        int rw = right - rx - TimelineGap;
+                        if (played == null && actingHere && rw >= 2)
+                            actingSpan = new BoardRect(rx, ly, rw, laneH); // where its card flies down into NOW from
+                    }
+                }
             }
 
-            // --- Current slot: an open gap while a turn plays (NOW shows it); its act flies up from NOW once it has played out ---
-            if (current != null)
+            // --- The acting turn's card flying down from its lane into NOW ---
+            if (v.TurnInNow && v.DownT < 1.0 && nowR is { } to && v.NowActor != null && actingSpan is { } fromSpan)
             {
-                (BoardRect, DateTimeOffset)? fromNow = nowR is { } nr ? (nr, current.CompletedUtc!.Value) : null;
-                var r = PlaceTimelineCard(TimelineKey(current.Act.Actor, current.Ordinal), curSlot, seen, fromNow);
-                DrawTimelineAct(current.Act, r, player, grayed: false);
-            }
-
-            // --- The acting turn's card flying down from the row into NOW ---
-            if (v.TurnInNow && v.DownT < 1.0 && nowR is { } to && v.NowActor != null)
-            {
-                var r = BoardRect.Lerp(slots[TimelinePast + 1], to, v.DownT);
+                var r = BoardRect.Lerp(fromSpan, to, v.DownT);
                 AddBoardBox(r.X, r.Y, r.W, r.H, BoardActorColor(v.NowActor), BoardCardBackground, borderThicknessPixels: 2);
                 DrawBoardProjectedContent(v.NowActor, v.NowProjected, r, mode);
             }
@@ -308,14 +401,16 @@ namespace RPGGame.UI.Avalonia.Renderers
             foreach (var key in stale)
                 _timelineSlides.Remove(key);
 
-            // What the row ahead assumes: every roll lands its combo action.
-            var last = slots[^1];
+            // What the cards ahead assume: every roll lands its combo action.
             const string caption = "IF ALL ROLLS LAND";
-            if (last.Right + 2 + caption.Length <= x + w)
-                canvas.AddText((int)last.Right + 2, last.Y + 1, caption, AsciiArtAssets.Colors.Gray);
+            if (c.AxisEnd - caption.Length > c.AxisX)
+                canvas.AddText(c.AxisEnd - caption.Length, y, caption, AsciiArtAssets.Colors.Gray);
         }
 
         private static (int, int) TimelineKey(Actor actor, int ordinal) => (RuntimeHelpers.GetHashCode(actor), ordinal);
+
+        /// <summary>Key of the empty box for the part of a turn still to run past NOW.</summary>
+        private static (int, int) TimelineRestKey((int, int) key) => (key.Item1, ~key.Item2);
 
         /// <summary>The row ahead as the live schedule has it now.</summary>
         private static List<TimelineAheadCard> ProjectTimelineAhead(BoardTurnView v, long serial)
@@ -345,7 +440,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                     title = action?.Name ?? "ATTACK";
                     detail = action != null ? $"step {slot + 1}/{count}" : "";
                 }
-                cards.Add(new TimelineAheadCard(TimelineKey(actor, FirstUnplayedOrdinal(actor, v, serial) + kk), actor, title, detail));
+                cards.Add(new TimelineAheadCard(TimelineKey(actor, FirstUnplayedOrdinal(actor, v, serial) + kk), actor, title, detail,
+                    upcoming[i].Start, upcoming[i].Duration));
             }
             return cards;
         }
@@ -465,52 +561,48 @@ namespace RPGGame.UI.Avalonia.Renderers
                 canvas.AddText(r.X + 1, r.Y + 2, Truncate(room.StrikeThreshold > 20 ? "won't act" : $"strikes {room.StrikeThreshold}+", tw), AsciiArtAssets.Colors.Gray);
         }
 
-        /// <summary>A card ahead; <paramref name="lit"/> while the swap beat that changed it plays.</summary>
-        private void DrawTimelineAhead(BoardRect r, TimelineAheadCard card, Character player, bool lit)
+        /// <summary>A card ahead; <paramref name="lit"/> while the swap beat that changed it plays, <paramref name="next"/> on
+        /// the earliest one (whoever acts next).</summary>
+        private void DrawTimelineAhead(BoardRect r, TimelineAheadCard card, Character player, bool lit, bool next)
         {
             var actor = card.Actor;
             Color actorColor = BoardActorColor(actor);
             Color titleColor = actor is Environment ? BoardHazardColor
                 : ReferenceEquals(actor, player) ? BoardComboBorder : AsciiArtAssets.Colors.White;
-            Color border = lit ? actorColor : LerpColor(actorColor, BoardDimBorder, 0.7);
-            Color label = LerpColor(actorColor, AsciiArtAssets.Colors.Gray, 0.3);
-            DrawTimelineCard(r, TimelineLabel(actor, player), label, border, lit ? 2 : 1,
-                lit ? titleColor : LerpColor(titleColor, AsciiArtAssets.Colors.Gray, 0.25), card.Title, card.Detail);
+            Color border = lit || next ? actorColor : LerpColor(actorColor, BoardDimBorder, 0.7);
+            DrawTimelineCard(r, border, lit ? 2 : 1,
+                lit || next ? titleColor : LerpColor(titleColor, AsciiArtAssets.Colors.Gray, 0.25), card.Title, card.Detail);
         }
 
-        /// <summary>A played turn's card: grayed in the past, in its outcome's colors in the current slot.</summary>
-        private void DrawTimelineAct(BoardAct act, BoardRect r, Character player, bool grayed)
+        /// <summary>A played turn's card: grayed once a newer act has played, in its outcome's colors while it is the newest.</summary>
+        private void DrawTimelineAct(BoardAct act, BoardRect r, bool grayed)
         {
             var (title, color) = TimelineActTitle(act);
-            Color actorColor = BoardActorColor(act.Actor);
             if (grayed)
             {
-                DrawTimelineCard(r, TimelineLabel(act.Actor, player), LerpColor(actorColor, AsciiArtAssets.Colors.Gray, 0.6),
-                    LerpColor(color, BoardFadedBorder, 0.6), 1, LerpColor(color, AsciiArtAssets.Colors.Gray, 0.6), title, TimelineActDetail(act));
+                DrawTimelineCard(r, LerpColor(color, BoardFadedBorder, 0.6), 1, LerpColor(color, AsciiArtAssets.Colors.Gray, 0.6), title, TimelineActDetail(act));
                 return;
             }
-            DrawTimelineCard(r, TimelineLabel(act.Actor, player), actorColor, color, 2, color, title, TimelineActDetail(act));
+            DrawTimelineCard(r, color, 2, color, title, TimelineActDetail(act));
         }
 
-        private void DrawTimelineCard(BoardRect r, string label, Color labelColor, Color border, int thickness,
-            Color titleColor, string title, string detail)
+        private void DrawTimelineCard(BoardRect r, Color border, int thickness, Color titleColor, string title, string detail)
         {
             AddBoardBox(r.X, r.Y, r.W, r.H, border, BoardCardBackground, borderThicknessPixels: thickness);
-            DrawTimelineLabel(r, label, labelColor);
             int tw = r.W - 2;
+            if (tw <= 0)
+                return;
             int bottom = (int)r.Bottom - 1;
             int ty = r.Y + 1;
             if (ty < bottom)
-                canvas.AddText(r.X + 1, ty++, Truncate(title, tw), titleColor);
+                canvas.AddText(r.X + 1, ty++, ClipTimelineText(title, tw), titleColor);
             if (detail.Length > 0 && ty < bottom)
-                canvas.AddText(r.X + 1, ty, Truncate(detail, tw), AsciiArtAssets.Colors.Gray);
+                canvas.AddText(r.X + 1, ty, ClipTimelineText(detail, tw), AsciiArtAssets.Colors.Gray);
         }
 
-        private void DrawTimelineLabel(BoardRect r, string label, Color color)
-        {
-            label = Truncate(label, r.W);
-            canvas.AddText(r.X + Math.Max(0, (r.W - label.Length) / 2), r.Y - 1, label, color);
-        }
+        /// <summary><see cref="Truncate"/>, but hard-clipped on cards too narrow for an ellipsis.</summary>
+        private static string ClipTimelineText(string text, int max) =>
+            max <= 3 ? text.Substring(0, Math.Min(max, text.Length)) : Truncate(text, max);
 
         private static string TimelineLabel(Actor actor, Character player) => actor switch
         {
