@@ -142,6 +142,7 @@ namespace RPGGame.Tests.Runners
             RunSuiteSafely("ConditionalTriggersTests", () => ConditionalTriggersTests.RunAllTests());
             RunSuiteSafely("ActionTriggerGateTests", () => ActionTriggerGateTests.RunAllTests());
             RunSuiteSafely("RPGGame.Tests.Unit.Combat.MaterialSetControllerTests", () => RPGGame.Tests.Unit.Combat.MaterialSetControllerTests.RunAllTests());
+            RunSuiteSafely("RPGGame.Tests.Unit.Combat.MaterialSetTempoTests", () => RPGGame.Tests.Unit.Combat.MaterialSetTempoTests.RunAllTests());
             RunSuiteSafely("RPGGame.Tests.Unit.Combat.LeatherSetBonusTests", () => RPGGame.Tests.Unit.Combat.LeatherSetBonusTests.RunAllTests());
             RunSuiteSafely("RPGGame.Tests.Unit.Combat.CharmAndAnimalLadderTests", () => RPGGame.Tests.Unit.Combat.CharmAndAnimalLadderTests.RunAllTests());
             RunSuiteSafely("RPGGame.Tests.Unit.FeatureScenarioTests", () => RPGGame.Tests.Unit.FeatureScenarioTests.RunAllTests());

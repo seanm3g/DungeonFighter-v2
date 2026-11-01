@@ -482,7 +482,8 @@ namespace RPGGame.Combat.Calculators
         private static int ApplyIncomingStatus(Actor target, int damage)
         {
             double incoming = StatusCombatModifiers.IncomingDamageMultiplier(target)
-                * AnimalSetController.GetIncomingDamageMultiplier(target);
+                * AnimalSetController.GetIncomingDamageMultiplier(target)
+                * MaterialSetController.GetIncomingDamageMultiplier(target);
             return incoming == 1.0 ? damage : (int)Math.Round(damage * incoming);
         }
 

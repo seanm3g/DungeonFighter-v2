@@ -174,11 +174,86 @@ namespace RPGGame
             return hero.Effects.GetMaterialKeyword(keyword);
         }
 
-        /// <summary>Zeros consecutive-connect tracking for a new fight. Does not clear keyword currency.</summary>
+        /// <summary>
+        /// Standing swing speed % from material sets: worn pieces of unlocked sets
+        /// (<see cref="CombatConfig.MaterialSetSpeedPercentPerPiece"/>) plus currency minted this fight
+        /// (<see cref="CombatConfig.MaterialFightMintSpeedPercentPerUnit"/>, capped). Heroes only; 0 when off.
+        /// </summary>
+        public static double GetSetSpeedPercent(Actor? actor)
+        {
+            if (actor is not Character hero || hero is Enemy)
+                return 0;
+            var combat = GameConfiguration.Instance.Combat;
+            double pct = 0;
+            if (combat.MaterialSetSpeedPercentPerPiece is { Count: > 0 } perPiece)
+                foreach (var (material, perPct) in perPiece)
+                {
+                    int worn = CountEquipped(hero, material);
+                    if (worn >= MaterialBuildData.StackUnlockCount)
+                        pct += worn * perPct;
+                }
+            if (combat.MaterialFightMintSpeedPercentPerUnit is { Count: > 0 } perUnit)
+            {
+                double bank = 0;
+                foreach (var (keyword, perPct) in perUnit)
+                    bank += GetFightMinted(hero, keyword) * perPct;
+                if (combat.MaterialFightMintSpeedMaxPercent > 0)
+                    bank = Math.Min(bank, combat.MaterialFightMintSpeedMaxPercent);
+                pct += bank;
+            }
+            return Math.Max(0, pct);
+        }
+
+        /// <summary>
+        /// Incoming damage multiplier from currency minted this fight (<see cref="CombatConfig.MaterialFightMintDamageReductionPercentPerUnit"/>,
+        /// capped at <see cref="CombatConfig.MaterialFightMintDamageReductionMaxPercent"/>, default 90). Heroes only; 1 when off.
+        /// </summary>
+        public static double GetIncomingDamageMultiplier(Actor? actor)
+        {
+            if (actor is not Character hero || hero is Enemy)
+                return 1.0;
+            var combat = GameConfiguration.Instance.Combat;
+            if (combat.MaterialFightMintDamageReductionPercentPerUnit is not { Count: > 0 } perUnit)
+                return 1.0;
+            double pct = 0;
+            foreach (var (keyword, perPct) in perUnit)
+                pct += GetFightMinted(hero, keyword) * perPct;
+            double cap = combat.MaterialFightMintDamageReductionMaxPercent > 0 ? combat.MaterialFightMintDamageReductionMaxPercent : 90;
+            pct = Math.Clamp(pct, 0, cap);
+            return 1.0 - pct / 100.0;
+        }
+
+        // Currency minted in the current fight, by keyword: drives the fight-mint speed/defense knobs, which must not drop
+        // when a convert spends the bank.
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Character, Dictionary<string, int>> _fightMinted = new();
+
+        /// <summary>Adds to this fight's minted tally for <paramref name="keyword"/> (the mint path calls it).</summary>
+        public static void RecordFightMint(Character? hero, string? keyword, int amount)
+        {
+            if (hero == null || string.IsNullOrWhiteSpace(keyword) || amount <= 0)
+                return;
+            var tally = _fightMinted.GetOrCreateValue(hero);
+            tally[keyword] = tally.GetValueOrDefault(keyword) + amount;
+        }
+
+        /// <summary>Currency of <paramref name="keyword"/> minted since the fight started (spending does not lower it).</summary>
+        public static int GetFightMinted(Character? hero, string? keyword)
+        {
+            if (hero == null || string.IsNullOrWhiteSpace(keyword) || !_fightMinted.TryGetValue(hero, out var tally))
+                return 0;
+            foreach (var (k, v) in tally)
+                if (string.Equals(k, keyword, StringComparison.OrdinalIgnoreCase))
+                    return v;
+            return 0;
+        }
+
+        /// <summary>Zeros consecutive-connect tracking and this fight's minted tally for a new fight. Does not clear keyword currency.</summary>
         public static void ResetFightConnects(Character? hero)
         {
-            if (hero != null)
-                hero.Effects.MaterialConsecutiveConnects = 0;
+            if (hero == null)
+                return;
+            hero.Effects.MaterialConsecutiveConnects = 0;
+            _fightMinted.Remove(hero);
         }
 
         /// <summary>Clears dungeon-run keyword currency (CRISIS, DRAG, …) and consecutive-connect tracking.</summary>
@@ -223,6 +298,7 @@ namespace RPGGame
                 if (amount <= 0)
                     continue;
                 hero.Effects.AddMaterialKeyword(build.Keyword, amount);
+                RecordFightMint(hero, build.Keyword, amount);
                 string whenLabel = MaterialBuildData.FormatWhenLabel(build.Synthesis);
                 string cause = string.IsNullOrWhiteSpace(subject.Name) || subject.Name == "MaterialSynth"
                     ? whenLabel
