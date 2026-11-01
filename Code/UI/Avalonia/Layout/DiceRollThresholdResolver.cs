@@ -95,6 +95,16 @@ namespace RPGGame.UI.Avalonia.Layout
             int effectiveHit = ResolveEffectiveThreshold(hit + 1, parts.HitRowShift);
             int effectiveCritMiss = ResolveEffectiveThreshold(critMiss, parts.CritMissRowShift);
 
+            // While this actor's swing plays, show the ladder it actually rolled against (the combat board's branches use
+            // it too). The preview above is the next swing's, and pending shifts have already moved on by then.
+            if (LiveSwingThresholds(actor) is { } live)
+            {
+                effectiveCrit = ThresholdDisplayFormatting.ClampDiceLadderDisplayValue(live.Crit);
+                effectiveCombo = ThresholdDisplayFormatting.ClampDiceLadderDisplayValue(live.Combo);
+                effectiveHit = ThresholdDisplayFormatting.ClampDiceLadderDisplayValue(live.MinHit);
+                effectiveCritMiss = System.Math.Max(0, live.CritMiss);
+            }
+
             return new DiceRollThresholdSnapshot(
                 crit,
                 combo,
@@ -107,6 +117,15 @@ namespace RPGGame.UI.Avalonia.Layout
                 effectiveCombo,
                 effectiveHit,
                 effectiveCritMiss);
+        }
+
+        /// <summary>Resolved thresholds of <paramref name="actor"/>'s unfinished swing, or null when none is playing.</summary>
+        private static RPGGame.Combat.Sequence.CombatSequenceThresholds? LiveSwingThresholds(Actor actor)
+        {
+            var swing = RPGGame.Combat.Sequence.CombatSequenceHudState.ActiveSwing;
+            return swing != null && !RPGGame.Combat.Sequence.CombatSequenceHudState.IsFinished && ReferenceEquals(swing.Source, actor)
+                ? swing.Thresholds
+                : null;
         }
 
         /// <summary>

@@ -62,7 +62,9 @@ namespace RPGGame.UI.Avalonia.Display
             var linesToRender = rows.ConvertAll(r => r.Segments);
             var messageTypes = rows.ConvertAll(r => r.MessageType);
             var hoverInfoLines = rows.ConvertAll(r => r.HoverInfoLines);
-            
+            // A row still typing in aligns as its finished line (partial "A pollen wra" is not yet a centered headline).
+            var alignmentLines = rows.ConvertAll(r => r.FullSegments ?? r.Segments);
+
             // Center-column UI zoom: wrap sooner and reserve ceil(zoom) grid rows per visual line
             // so larger glyphs do not overlap. Side panels stay at window-fit 100%.
             // Side padding insets both edges (chat-thread look: hero hugs the left, enemy the right).
@@ -78,9 +80,9 @@ namespace RPGGame.UI.Avalonia.Display
             bool applyEnemyRightAlign = CombatCenterPanelEnemyLineAlignment.IsEnemyRightAlignEnabled
                 && (hasEnemyNames || !string.IsNullOrEmpty(combatHeroNameForLineAlignment));
             if (applyEnemyRightAlign)
-                rightAlignPerRow = CombatCenterPanelEnemyLineAlignment.ResolveRightAlignFlags(linesToRender, combatEnemyNamesForPrimaryLineRightAlign, combatHeroNameForLineAlignment);
+                rightAlignPerRow = CombatCenterPanelEnemyLineAlignment.ResolveRightAlignFlags(alignmentLines, combatEnemyNamesForPrimaryLineRightAlign, combatHeroNameForLineAlignment);
 
-            bool[] centerAlignPerRow = CombatCenterPanelContentAlignment.ResolveCenterAlignFlags(linesToRender, messageTypes);
+            bool[] centerAlignPerRow = CombatCenterPanelContentAlignment.ResolveCenterAlignFlags(alignmentLines, messageTypes);
             
             // Calculate total height needed for all lines (accounting for text wrapping)
             int totalHeight = 0;
@@ -167,7 +169,9 @@ namespace RPGGame.UI.Avalonia.Display
                     // A row mid-typewriter aligns as its finished line will (no left-start then snap to center).
                     int? alignLength = null;
                     bool center = centerAlignPerRow[i];
-                    if (CombatLogTypingLine.TryGetFinalLayout(segments, out int finalLength, out bool finalCenter))
+                    if (rows[i].FullSegments is { } fullLine)
+                        alignLength = ColoredTextRenderer.GetDisplayLength(fullLine);
+                    else if (CombatLogTypingLine.TryGetFinalLayout(segments, out int finalLength, out bool finalCenter))
                     {
                         center = finalCenter;
                         alignLength = finalLength;

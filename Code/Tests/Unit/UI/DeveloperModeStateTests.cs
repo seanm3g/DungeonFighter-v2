@@ -168,17 +168,38 @@ namespace RPGGame.Tests.Unit.UI
                 TestBase.AssertEqual(2, DeveloperModeState.IncreaseCombatSpeed(),
                     "Page Up step moves 1x to 2x",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(3, DeveloperModeState.IncreaseCombatSpeed(),
+                    "Page Up step moves 2x to 3x",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(4, DeveloperModeState.IncreaseCombatSpeed(),
+                    "Page Up step moves 3x to 4x",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(5, DeveloperModeState.IncreaseCombatSpeed(),
-                    "Page Up step moves 2x to 5x",
+                    "Page Up step moves 4x to 5x",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(10, DeveloperModeState.IncreaseCombatSpeed(),
+                    "Page Up step moves 5x to 10x",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(20, DeveloperModeState.IncreaseCombatSpeed(),
-                    "Page Up step moves 5x to 20x",
+                    "Page Up step moves 10x to 20x",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(20, DeveloperModeState.IncreaseCombatSpeed(),
-                    "Page Up stays capped at 20x",
+                TestBase.AssertTrue(double.IsPositiveInfinity(DeveloperModeState.IncreaseCombatSpeed()),
+                    "Page Up step moves 20x to no delay",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(5, DeveloperModeState.DecreaseCombatSpeed(),
-                    "Page Down step moves 20x to 5x",
+                TestBase.AssertTrue(DeveloperModeState.IsCombatLogInstant && DeveloperModeState.ScaleDelayMs(1000) == 0,
+                    "no delay step skips pacing delays",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual("no delay", DeveloperModeState.CombatSpeedLabel,
+                    "no delay step label",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(double.IsPositiveInfinity(DeveloperModeState.IncreaseCombatSpeed()),
+                    "Page Up stays capped at no delay",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(20, DeveloperModeState.DecreaseCombatSpeed(),
+                    "Page Down step moves no delay to 20x",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(10, DeveloperModeState.DecreaseCombatSpeed(),
+                    "Page Down step moves 20x to 10x",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 DeveloperModeState.SetCombatSpeedMultiplier(1);

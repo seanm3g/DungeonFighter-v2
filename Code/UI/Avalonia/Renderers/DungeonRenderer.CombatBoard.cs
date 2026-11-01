@@ -177,9 +177,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                 _ => CombatTurnSpotlight.Side.Hero
             };
             // Only the cards dim, so the room plate between them stays as bright as the rest of the board.
-            int heroCount = ActionInfoStripLayout.GetDisplayPanelCount(player.GetComboActions().Count);
-            var heroCards = new List<(int X, int Y, int W, int H)>(heroCount);
-            for (int i = 0; i < heroCount; i++)
+            // Empty / locked slots aren't drawn on the board (RenderActionInfoStrip), so don't scrim their rects either.
+            int heroFilled = player.GetComboActions().Count;
+            int heroCount = ActionInfoStripLayout.GetDisplayPanelCount(heroFilled);
+            int heroDrawn = Math.Min(heroFilled, ComboSequenceMaxHelper.GetEffectiveMax(player));
+            var heroCards = new List<(int X, int Y, int W, int H)>(heroDrawn);
+            for (int i = 0; i < heroDrawn; i++)
             {
                 ActionInfoStripLayout.GetPanelRect(i, heroCount, out int px, out int py, out int pw, out int ph);
                 heroCards.Add((px, py, pw, ph));

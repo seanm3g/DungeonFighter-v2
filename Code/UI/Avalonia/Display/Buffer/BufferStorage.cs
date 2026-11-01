@@ -114,6 +114,14 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
             return reveal;
         }
 
+        /// <summary>Drops every pending reveal so all lines paint in full (static screens that paint once).</summary>
+        public void FinishReveals()
+        {
+            for (int i = 0; i < lineReveals.Count; i++)
+                lineReveals[i] = null;
+            revealQueueEnd = default;
+        }
+
         /// <summary>True while any line is still typing in (the display keeps repainting until it is done).</summary>
         public bool HasActiveReveal
         {
@@ -414,25 +422,30 @@ namespace RPGGame.UI.Avalonia.Display.Buffer
         /// <summary>
         /// Gets the last N messages with the <see cref="UIMessageType"/> stored when each line was appended.
         /// </summary>
-        /// <param name="asRevealed">True for painting: lines still typing come back as their visible slice.</param>
-        public List<(List<ColoredText> Segments, UIMessageType MessageType, List<List<ColoredText>>? HoverInfoLines)> GetLastWithMessageTypes(int count, bool asRevealed = false)
+        /// <param name="asRevealed">True for painting: lines still typing come back as their visible slice,
+        /// with the finished line in <c>FullSegments</c> so alignment matches it (null once shown in full).</param>
+        public List<(List<ColoredText> Segments, UIMessageType MessageType, List<List<ColoredText>>? HoverInfoLines, List<ColoredText>? FullSegments)> GetLastWithMessageTypes(int count, bool asRevealed = false)
         {
             int n = System.Math.Min(count, messages.Count);
             if (n <= 0)
-                return new List<(List<ColoredText>, UIMessageType, List<List<ColoredText>>?)>();
+                return new List<(List<ColoredText>, UIMessageType, List<List<ColoredText>>?, List<ColoredText>?)>();
 
             var sliceMessages = messages.TakeLast(n).ToList();
             var sliceTypes = lineMessageTypes.TakeLast(n).ToList();
             var sliceHover = lineHoverInfoLines.TakeLast(n).ToList();
             var sliceReveals = lineReveals.TakeLast(n).ToList();
             var now = DateTimeOffset.UtcNow;
-            var result = new List<(List<ColoredText>, UIMessageType, List<List<ColoredText>>?)>(n);
+            var result = new List<(List<ColoredText>, UIMessageType, List<List<ColoredText>>?, List<ColoredText>?)>(n);
             for (int i = 0; i < n; i++)
             {
                 var segments = new List<ColoredText>(sliceMessages[i]);
-                if (asRevealed && sliceReveals[i] is { } reveal)
+                List<ColoredText>? full = null;
+                if (asRevealed && sliceReveals[i] is { } reveal && !reveal.IsDone(now))
+                {
+                    full = segments;
                     segments = reveal.ApplyTo(segments, now);
-                result.Add((segments, sliceTypes[i], CombatLogProseHoverInfo.CloneLines(sliceHover[i])));
+                }
+                result.Add((segments, sliceTypes[i], CombatLogProseHoverInfo.CloneLines(sliceHover[i]), full));
             }
             return result;
         }

@@ -332,6 +332,8 @@ namespace RPGGame.UI.Avalonia
                 levelUpInfos,
                 itemsFoundDuringRun),
                 UIMessageType.OutcomeSummary);
+            // The completion screen paints once (no reveal clock): typed-in lines would stay blank.
+            dm.Buffer.FinishReveals();
         }
 
         /// <summary>
@@ -366,6 +368,7 @@ namespace RPGGame.UI.Avalonia
             dm.Buffer.Add(
                 new List<ColoredText> { new ColoredText(artist, ColorPalette.Info.GetColor()) },
                 UIMessageType.OutcomeSummary);
+            dm.Buffer.FinishReveals();
 
             RerenderCompletionOrDeathScreenAfterScroll();
         }
@@ -387,6 +390,8 @@ namespace RPGGame.UI.Avalonia
                 : LayoutConstants.CENTER_PANEL_WIDTH - 2;
             int summaryWidth = Math.Max(1, DisplayRenderer.ResolveTextColumnWidth(logWidth));
             dm.Buffer.AddRange(DeathScreenRenderer.BuildDeathSummaryLines(defeatSummary, summaryWidth));
+            // The death screen paints once (no reveal clock): typed-in lines would stay blank.
+            dm.Buffer.FinishReveals();
         }
 
         /// <summary>

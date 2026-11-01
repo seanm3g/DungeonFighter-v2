@@ -37,6 +37,10 @@ namespace RPGGame.UI.Avalonia.Canvas
         private WindSwayConfig? windFrameConfig;
         private TextClickBurstConfig? burstFrameConfig;
         private TextEmphasisPulseConfig? pulseFrameConfig;
+        /// <summary>True while <see cref="RenderText(DrawingContext, CanvasText)"/> paints text that takes a drop shadow.</summary>
+        private bool textShadowActive;
+        private const double TextShadowOpacity = 0.45;
+        private const double TextShadowOffsetPerFontSize = 0.06;
 
         // Per-paint FormattedText / brush reuse (cleared at Render start).
         private readonly Dictionary<(string Text, uint ColorArgb, double FontSize), FormattedText> _formattedTextCache = new();
@@ -674,6 +678,34 @@ namespace RPGGame.UI.Avalonia.Canvas
             double baseX = (text.X + text.NudgeCellsX) * charWidth;
             double baseY = text.Y * charHeight;
 
+            textShadowActive = HasDropShadow(text);
+            try
+            {
+                RenderTextBody(context, text, drawText, content, distort, baseX, baseY, charWidth, charHeight, fontSize, glyphAdvance, forceMonospace);
+            }
+            finally
+            {
+                textShadowActive = false;
+            }
+        }
+
+        /// <summary>Side-panel body text (outside the center combat board) gets a faint drop shadow.</summary>
+        internal static bool HasDropShadow(CanvasText text) => !text.IsOverlay && IsInSidePanel(text.X);
+
+        private void RenderTextBody(
+            DrawingContext context,
+            CanvasText text,
+            CanvasText drawText,
+            string content,
+            bool distort,
+            double baseX,
+            double baseY,
+            double charWidth,
+            double charHeight,
+            double fontSize,
+            double glyphAdvance,
+            bool forceMonospace)
+        {
             using (PushCenterColumnClip(context, text, charWidth, charHeight))
             {
                 // Outside the wake/burst AABB: idle paint. Pixel fonts still use grid advances so
@@ -893,6 +925,13 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             var formatted = GetCachedFormattedText(content, text.Color, fontSize);
             Point origin = SnapDrawPoint(x, y);
+
+            if (textShadowActive && text.Color.A > 0)
+            {
+                double offset = Math.Max(1, Math.Round(fontSize * TextShadowOffsetPerFontSize));
+                var shadowColor = Color.FromArgb((byte)(text.Color.A * TextShadowOpacity), 0, 0, 0);
+                context.DrawText(GetCachedFormattedText(content, shadowColor, fontSize), new Point(origin.X + offset, origin.Y + offset));
+            }
 
             if (text.HasGlow)
             {

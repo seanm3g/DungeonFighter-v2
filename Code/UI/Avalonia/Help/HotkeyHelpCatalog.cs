@@ -55,7 +55,7 @@ namespace RPGGame.UI.Avalonia.Help
             new("F6", "Toggle glyph distortion: mouse wind + click burst (default on)", "General"),
             new("F8", "Toggle ASCII style for room backdrops and item art (outside main menu)", "General"),
 
-            new("Page Up / Page Down", "Combat speed ladder (1x → 2x → 5x → 20x)", "Combat"),
+            new("Page Up / Page Down", "Combat speed ladder (1x → 2x → 3x → 4x → 5x → 10x → 20x → no delay)", "Combat"),
             new("F7", "Cycle combat mode: board (default) → combat log → narrative log", "Combat"),
             new("F9", "Toggle combat board: enemy strip top, combo flow center, your strip bottom (default on)", "Combat"),
             new("F5", "Toggle narrative video feed overlay (default off); on title/main menu replays the intro", "Combat"),

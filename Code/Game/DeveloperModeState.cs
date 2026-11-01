@@ -6,7 +6,7 @@ namespace RPGGame
 {
     /// <summary>
     /// Runtime-only combat pacing / display state (not persisted). Page Up/Page Down move through
-    /// the speed ladder (pause, 0.25x, 0.5x, 1x, 2x, 5x, 20x), scaling combat log / action-block pacing, message-type delays,
+    /// the speed ladder (pause, 0.25x, 0.5x, 1x, 2x, 3x, 4x, 5x, 10x, 20x, no delay), scaling combat log / action-block pacing, message-type delays,
     /// progressive menu line delays, and chunked text reveal delays.
     /// F10 toggles zero-delay dev mode (<see cref="IsZeroDelayDevMode"/>): combat, room, travel,
     /// and reward pauses are skipped. F7 toggles the narrative combat log (sequence beats as flavor
@@ -17,8 +17,10 @@ namespace RPGGame
     /// </summary>
     public static class DeveloperModeState
     {
+        /// <summary>Top Page Up step: pacing delays are skipped, as with F10 (sound effects still play).</summary>
+        private const double NoDelaySpeed = double.PositiveInfinity;
         /// <summary>Page Down walks left to slow motion and then pause (0); Page Up walks right to fast-forward.</summary>
-        private static readonly double[] CombatSpeedSteps = { 0, 0.25, 0.5, 1, 2, 5, 20 };
+        private static readonly double[] CombatSpeedSteps = { 0, 0.25, 0.5, 1, 2, 3, 4, 5, 10, 20, NoDelaySpeed };
         private const int DefaultCombatSpeedStepIndex = 3;
         /// <summary>Baseline pacing: 1x plays at the configured delays (half the earlier 2x baseline).</summary>
         private const double BaseCombatSpeedFactor = 1.0;
@@ -36,10 +38,13 @@ namespace RPGGame
 
         /// <summary>
         /// True when combat/UI pacing should dump instantly. Includes the legacy instant latch and
-        /// F10 zero-delay dev mode so every existing skip site honors the hotkey.
+        /// F10 zero-delay dev mode and the top "no delay" speed step so every existing skip site honors them.
         /// </summary>
         public static bool IsCombatLogInstant =>
-            Volatile.Read(ref _combatLogInstant) != 0 || IsZeroDelayDevMode;
+            Volatile.Read(ref _combatLogInstant) != 0 || IsZeroDelayDevMode || IsNoDelaySpeed;
+
+        /// <summary>True on the top Page Up step past 20x.</summary>
+        public static bool IsNoDelaySpeed => double.IsPositiveInfinity(CombatSpeedMultiplier);
 
         /// <summary>
         /// F10 runtime toggle (not persisted). When on, gameplay delays are skipped: combat log,
@@ -67,7 +72,7 @@ namespace RPGGame
         /// </summary>
         public static bool AreDistortionEffectsEnabled => Volatile.Read(ref _distortionEffects) != 0;
 
-        /// <summary>Current runtime combat speed multiplier: 0 (paused), 0.25x, 0.5x, 1x, 2x, 5x, or 20x.</summary>
+        /// <summary>Current runtime combat speed multiplier: 0 (paused), 0.25x, 0.5x, 1x, 2x, 3x, 4x, 5x, 10x, 20x, or no delay (infinity).</summary>
         public static double CombatSpeedMultiplier
         {
             get
@@ -87,7 +92,9 @@ namespace RPGGame
         public static string CombatSpeedLabel => FormatCombatSpeed(CombatSpeedMultiplier);
 
         public static string FormatCombatSpeed(double speed) =>
-            speed <= 0 ? "paused" : $"{speed.ToString(System.Globalization.CultureInfo.InvariantCulture)}x";
+            speed <= 0 ? "paused"
+            : double.IsPositiveInfinity(speed) ? "no delay"
+            : $"{speed.ToString(System.Globalization.CultureInfo.InvariantCulture)}x";
 
         /// <summary>
         /// Waits while combat is paused (Page Down past 0.25x). Returns at once when not paused; polls so a Page Up
