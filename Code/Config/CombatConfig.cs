@@ -83,6 +83,14 @@ namespace RPGGame
         public double GetRetriggerDamageMultiplier() => RetriggerDamageMultiplier > 0 ? RetriggerDamageMultiplier : 1.0;
         /// <summary>Overflow: each hero AGI above <see cref="AgilityMax"/> makes the raw swing this much faster (0.01 = 1%). 0 = AGI stops at the max.</summary>
         public double AgilityOverflowSpeedPerPoint { get; set; }
+        /// <summary>
+        /// Hero-only soft cap on AGI's swing speed: AGI above this counts at <see cref="HeroAgilitySpeedOverCapEfficiency"/>
+        /// for the speed curve (enemies use their reference AGI and are unaffected). 0 = off. Keeps +3 AGI/level classes
+        /// from outpacing enemies late while early levels sit under the cap.
+        /// </summary>
+        public int HeroAgilitySpeedSoftCap { get; set; }
+        /// <summary>Share of hero AGI above <see cref="HeroAgilitySpeedSoftCap"/> that still speeds the swing (0.5 = half).</summary>
+        public double HeroAgilitySpeedOverCapEfficiency { get; set; }
         /// <summary>Overflow: hero STR above the STR damage cap still counts at this share (0.5 = half value). 0 = off.</summary>
         public double StrengthOverflowEfficiency { get; set; }
 

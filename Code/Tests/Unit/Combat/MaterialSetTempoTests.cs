@@ -37,6 +37,7 @@ namespace RPGGame.Tests.Unit.Combat
                 TestBankSpeedIsCapped();
                 TestBankDamageReductionIsCapped();
                 TestOffWhenConfigEmpty();
+                TestHeroAgilitySoftCap();
             }
             finally
             {
@@ -121,6 +122,28 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertEqual(0.8, Math.Round(MaterialSetController.GetIncomingDamageMultiplier(hero), 4), "5 RAGE x 4% = 20% less", ref _run, ref _passed, ref _failed);
             MaterialSetController.RecordFightMint(hero, "RAGE", 20);
             TestBase.AssertEqual(0.7, Math.Round(MaterialSetController.GetIncomingDamageMultiplier(hero), 4), "25 RAGE capped at 30%", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestHeroAgilitySoftCap()
+        {
+            TestBase.SetCurrentTestName(nameof(TestHeroAgilitySoftCap));
+            var combat = GameConfiguration.Instance.Combat;
+            int oldCap = combat.HeroAgilitySpeedSoftCap;
+            double oldEff = combat.HeroAgilitySpeedOverCapEfficiency;
+            try
+            {
+                combat.HeroAgilitySpeedSoftCap = 0;
+                TestBase.AssertEqual(235, SpeedCalculator.GetHeroSpeedAgility(235), "cap off: AGI unchanged", ref _run, ref _passed, ref _failed);
+                combat.HeroAgilitySpeedSoftCap = 120;
+                combat.HeroAgilitySpeedOverCapEfficiency = 0.5;
+                TestBase.AssertEqual(100, SpeedCalculator.GetHeroSpeedAgility(100), "under the cap: unchanged", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(178, SpeedCalculator.GetHeroSpeedAgility(235), "over the cap: 120 + 115 x 0.5", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                combat.HeroAgilitySpeedSoftCap = oldCap;
+                combat.HeroAgilitySpeedOverCapEfficiency = oldEff;
+            }
         }
 
         private static void TestOffWhenConfigEmpty()
