@@ -61,6 +61,8 @@ namespace RPGGame.UI.Avalonia.Layout
         public int TechHitSteps { get; init; }
         public int TechComboSteps { get; init; }
         public int TechCritSteps { get; init; }
+        /// <summary>Class cadence rules (skill tree): class tags lower the combo threshold.</summary>
+        public int CadenceComboSteps { get; init; }
         public int EqHit { get; init; }
         public int EqCombo { get; init; }
         public int EqCrit { get; init; }
@@ -94,6 +96,11 @@ namespace RPGGame.UI.Avalonia.Layout
             int effectiveCombo = ResolveEffectiveThreshold(combo, parts.ComboRowShift);
             int effectiveHit = ResolveEffectiveThreshold(hit + 1, parts.HitRowShift);
             int effectiveCritMiss = ResolveEffectiveThreshold(critMiss, parts.CritMissRowShift);
+
+            // Combat applies these shifts through ThresholdManager's clamps; keep the preview inside the same bands.
+            int clampedHit = effectiveHit - 1;
+            ThresholdManager.ClampLadder(ref effectiveCombo, ref clampedHit, ref effectiveCritMiss);
+            effectiveHit = clampedHit + 1;
 
             // While this actor's swing plays, show the ladder it actually rolled against (the combat board's branches use
             // it too). The preview above is the next swing's, and pending shifts have already moved on by then.
@@ -173,7 +180,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 dungeonCritMiss = dungeonBuffs.CritMissThresholdAdjustment;
             }
 
-            int comboRowShift = pendingHud.SharedAccuracy + pendingHud.ComboDelta + techMilestoneSteps.ComboSteps + eqCombo + dungeonCombo;
+            int cadenceCombo = ClassCadence.RuleSteps(actor as Character);
+
+            int comboRowShift = pendingHud.SharedAccuracy + pendingHud.ComboDelta + techMilestoneSteps.ComboSteps + cadenceCombo + eqCombo + dungeonCombo;
             int hitRowShift = pendingHud.SharedAccuracy + pendingHud.HitDelta + techMilestoneSteps.HitSteps + eqHit + dungeonHit;
             int critRowShift = pendingHud.CritDelta + techMilestoneSteps.CritSteps + eqCrit + dungeonCrit;
             // Crit-miss potions store the same delta passed to AdjustCriticalMissThreshold (add, not subtract).
@@ -185,6 +194,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 TechHitSteps = techMilestoneSteps.HitSteps,
                 TechComboSteps = techMilestoneSteps.ComboSteps,
                 TechCritSteps = techMilestoneSteps.CritSteps,
+                CadenceComboSteps = cadenceCombo,
                 EqHit = eqHit,
                 EqCombo = eqCombo,
                 EqCrit = eqCrit,

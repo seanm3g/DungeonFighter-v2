@@ -39,7 +39,7 @@ namespace RPGGame.UI.Avalonia.Canvas
         private TextEmphasisPulseConfig? pulseFrameConfig;
         /// <summary>True while <see cref="RenderText(DrawingContext, CanvasText)"/> paints text that takes a drop shadow.</summary>
         private bool textShadowActive;
-        private const double TextShadowOpacity = 0.45;
+        private const double TextShadowOpacity = 0.55;
         private const double TextShadowOffsetPerFontSize = 0.06;
 
         // Per-paint FormattedText / brush reuse (cleared at Render start).
@@ -689,8 +689,12 @@ namespace RPGGame.UI.Avalonia.Canvas
             }
         }
 
-        /// <summary>Side-panel body text (outside the center combat board) gets a faint drop shadow.</summary>
-        internal static bool HasDropShadow(CanvasText text) => !text.IsOverlay && IsInSidePanel(text.X);
+        /// <summary>
+        /// Body text gets a faint drop shadow so it reads over room backdrops, except the center column while the
+        /// combat board owns it (its cards and bars sit on their own fills).
+        /// </summary>
+        internal static bool HasDropShadow(CanvasText text) =>
+            !text.IsOverlay && (!CombatBoardLayout.IsActive || IsInSidePanel(text.X));
 
         private void RenderTextBody(
             DrawingContext context,

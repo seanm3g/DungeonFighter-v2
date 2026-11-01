@@ -49,8 +49,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             // --- Enemy strip (top) ---
             int enemyStripH = Math.Clamp(boardH / 4, 5, 10);
             var enemyCards = new List<(int X, int Y, int W, int H)>();
-            var enemyCard = RenderBoardEnemyStrip(enemy, colX, 0, colW, enemyStripH, mode, enemyCards);
             var turn = BuildBoardTurnView(player, enemy);
+            var enemyCard = RenderBoardEnemyStrip(enemy, colX, 0, colW, enemyStripH, mode, enemyCards);
             // The enemy's lined-up card reads NEXT when it acts after the turn now playing (or at rest).
             if (enemyCard is { } nextCard && nextCard.W > 9 && turn.Queue.Count > 0
                 && ReferenceEquals(turn.Queue[0].Actor, enemy) && !turn.Queue[0].IsActing)
@@ -150,7 +150,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 return null;
             int slot = swing != null ? FindSlot(actions, swing.Action) : -1;
             if (swing == null)
-                _boardRestSlot[player] = slot = player.ComboStep % filled;
+                _boardRestSlot[player] = slot = LinedUpComboStep(player) % filled;
             else if (slot < 0 || slot >= filled)
             {
                 if (swing.Outcome != CombatSequenceSwingOutcome.Miss)
@@ -471,7 +471,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             var panelData = CombatActionStripBuilder.BuildPanelData(enemy);
             int filled = Math.Min(actions.Count, panelData.Count);
             int count = Math.Max(filled, EnemyStripMinSlots);
-            int selected = filled > 0 ? enemy.ComboStep % filled : -1;
+            int selected = filled > 0 ? LinedUpComboStep(enemy) % filled : -1;
 
             // While the enemy swings, its firing card stays selected (ComboStep has already moved on).
             var swing = LiveSwingFor(enemy);
@@ -941,24 +941,16 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 var shown = landed ? liveBlock : SetupOnlyBlock(liveBlock);
                 if (shown != null)
-                    blockShown = DrawBoardLogBlock(shown, swing.Source, nowR, x, w, enemyBandY) && ImpactLanded(swing, stage);
+                    blockShown = DrawBoardLogBlock(shown, swing.Source, nowR, x, w, enemyBandY, critical: landed && swing.IsCritical)
+                        && ImpactLanded(swing, stage);
             }
             else if (!cardInFlight && nowAct?.Swing is { LogBlock: { Count: > 0 } block } nowSwing
                 && !ReferenceEquals(nowSwing, swing))
-                blockShown = DrawBoardLogBlock(block, nowAct.Actor, nowR, x, w, enemyBandY);
+                blockShown = DrawBoardLogBlock(block, nowAct.Actor, nowR, x, w, enemyBandY, critical: nowSwing.IsCritical);
 
-            // What the swing is doing to its target while it plays; once it ends, what it set up for the attacker's next action.
-            var resultSwing = swing ?? (CombatSequenceHudState.IsFinished ? CombatSequenceHudState.ActiveSwing : null);
-            if (resultSwing != null && !cardInFlight)
-            {
-                if (swing != null)
-                {
-                    if (!blockShown)
-                        DrawBoardImpact(resultSwing, player, enemy, nowR, x, w, enemyBandY, heroBandY);
-                }
-                else
-                    DrawBoardNextBonus(resultSwing, x, w, enemyBandY, heroBandY);
-            }
+            // What the swing is doing to its target while it plays.
+            if (swing != null && !cardInFlight && !blockShown)
+                DrawBoardImpact(swing, player, enemy, nowR, x, w, enemyBandY, heroBandY);
         }
 
         /// <summary>
@@ -1059,9 +1051,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// The headline of the act's combat-log action block in a small black box centered above NOW, a few rows clear of NOW's label
         /// and no higher than <paramref name="topY"/>, with a red line dropping from it to NOW. Lines wrap; rows that
-        /// don't fit are dropped from the bottom. Returns false when there is no room for it.
+        /// don't fit are dropped from the bottom. A <paramref name="critical"/> act leads with a gold CRITICAL HIT! row.
+        /// Returns false when there is no room for it.
         /// </summary>
-        private bool DrawBoardLogBlock(List<List<ColoredText>> block, Actor actor, BoardRect nowR, int x, int w, int topY)
+        private bool DrawBoardLogBlock(List<List<ColoredText>> block, Actor actor, BoardRect nowR, int x, int w, int topY,
+            bool critical = false)
         {
             const int idealGap = 2; // rows between the box and NOW's label, for the line
             // Centered on NOW: as wide as the narrower side of the column allows on both sides.
@@ -1079,8 +1073,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (rows.Count == 0)
                 return false;
             int keep = maxRows > 1 ? maxRows - 1 : maxRows; // leave the line at least one row
+            if (critical && keep > 1)
+                keep--;
+            else
+                critical = false;
             if (rows.Count > keep)
                 rows.RemoveRange(keep, rows.Count - keep);
+            if (critical)
+                rows.Insert(0, "CRITICAL HIT!".Select(c => (c, AsciiArtAssets.Colors.Gold)).ToList());
 
             int inner = rows.Max(r => r.Count);
             int bw = inner + 4, bh = rows.Count + 2;
@@ -1141,37 +1141,6 @@ namespace RPGGame.UI.Avalonia.Renderers
                 while (i < end && chars[i].C == ' ')
                     i++;
             }
-        }
-
-        /// <summary>
-        /// After a hero's swing lands: what the action set up for the hero's next action / turns (cadence bonuses, a
-        /// defensive stance), fading in on the hero's band at the right. Stays until the next swing starts.
-        /// </summary>
-        private void DrawBoardNextBonus(CombatSequenceSwingInfo swing, int x, int w, int enemyBandY, int heroBandY)
-        {
-            if (swing.Outcome == CombatSequenceSwingOutcome.Miss || swing.Source is not Character || swing.Source is Enemy)
-                return;
-            var parts = new List<string>();
-            string stance = HeroDefenseHudFormatter.FormatActionBlockSuffix(swing.Action);
-            if (!string.IsNullOrWhiteSpace(stance))
-                parts.Add(stance.Trim());
-            foreach (var group in swing.Action.ActionAttackBonuses?.BonusGroups ?? new List<ActionAttackBonusGroup>())
-            {
-                if (group?.Bonuses == null || group.Bonuses.Count == 0)
-                    continue;
-                int count = ActionCadenceDurationResolver.GetDisplayCount(swing.Action, group);
-                parts.AddRange(CadenceCardLineFormatter.FormatGroupLines(group, count).Where(l => !string.IsNullOrWhiteSpace(l)).Select(l => l.Trim()));
-            }
-            if (parts.Count == 0)
-                return;
-
-            double fade = CombatBoardAnimation.EaseOut(CombatBoardAnimation.Progress(CombatSequenceHudState.FinishedUtc, CombatBoardAnimation.BeatMs));
-            if (fade < 1.0)
-                CombatBoardAnimation.RequestFrame();
-            string text = Truncate("NEXT: " + string.Join("  ", parts), Math.Max(8, w / 2 - 2));
-            int tx = x + w - text.Length - 1;
-            Color c = LerpColor(BoardCardBackground, AsciiArtAssets.Colors.Green, fade);
-            canvas.AddText(tx, heroBandY, text, c, c, 0.5 * fade, 3);
         }
 
         /// <summary>One possible result of the next roll: its odds (faces or percent), what it does, and any detail lines.</summary>
@@ -1270,7 +1239,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     var actions = ch.GetComboActions();
                     if (actions.Count > 0)
-                        combo = actions[ch.ComboStep % actions.Count].Name ?? "-";
+                        combo = actions[LinedUpComboStep(ch) % actions.Count].Name ?? "-";
                 }
                 _boardRestComboName[actor] = combo;
             }

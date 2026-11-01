@@ -238,11 +238,11 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(12, tm.GetCriticalHitThreshold(attacker), "CRIT should be 12", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(comboBaseline, tm.GetComboThreshold(attacker), "COMBO should stay at baseline when only CRIT is lowered", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // COMBO 14→4 cascades HIT to 3
+            // COMBO 14→5 cascades HIT to 3 (min roll to hit 4 stays below COMBO)
             tm.ResetThresholds(attacker);
-            tm.SetComboThreshold(attacker, 4);
-            TestBase.AssertEqual(4, tm.GetComboThreshold(attacker), "COMBO should be 4", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(3, tm.GetHitThreshold(attacker), "HIT should cascade to 3 when COMBO goes to 4", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            tm.SetComboThreshold(attacker, 5);
+            TestBase.AssertEqual(5, tm.GetComboThreshold(attacker), "COMBO should be 5", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, tm.GetHitThreshold(attacker), "HIT should cascade to 3 when COMBO goes to 5", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             tm.ResetThresholds(attacker);
         }

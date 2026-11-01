@@ -31,7 +31,8 @@ namespace RPGGame
 
         /// <summary>
         /// Equipped pieces of <paramref name="material"/>. <see cref="WildcardMaterial"/> pieces join the count once
-        /// at least one real piece of that material is worn (wildcards alone never form a set).
+        /// at least one real piece of that material is worn (wildcards alone never form a set). Hybrid material nodes
+        /// (e.g. Ragecaller Material) let the partner class's material pieces join a class material's count the same way.
         /// </summary>
         public static int CountEquipped(Character? hero, string? material)
         {
@@ -39,8 +40,9 @@ namespace RPGGame
             if (key.Length == 0 || hero == null)
                 return 0;
             bool keyIsWildcard = string.Equals(key, WildcardMaterial, StringComparison.OrdinalIgnoreCase);
+            var partnerMaterials = keyIsWildcard ? new List<string>() : HybridPartnerMaterials(hero, key);
             int count = 0;
-            int wildcards = 0;
+            int joiners = 0;
             foreach (var item in EnumerateEquipped(hero))
             {
                 if (item == null)
@@ -49,9 +51,21 @@ namespace RPGGame
                 if (string.Equals(itemMat, key, StringComparison.OrdinalIgnoreCase))
                     count++;
                 else if (!keyIsWildcard && string.Equals(itemMat, WildcardMaterial, StringComparison.OrdinalIgnoreCase))
-                    wildcards++;
+                    joiners++;
+                else if (partnerMaterials.Any(m => string.Equals(m, itemMat, StringComparison.OrdinalIgnoreCase)))
+                    joiners++;
             }
-            return count > 0 ? count + wildcards : 0;
+            return count > 0 ? count + joiners : 0;
+        }
+
+        /// <summary>Materials of the hybrid partner classes of <paramref name="material"/>'s class (learned hybrid material nodes).</summary>
+        private static List<string> HybridPartnerMaterials(Character hero, string material)
+        {
+            string? classTag = ClassTags.All.FirstOrDefault(t =>
+                ClassTags.MaterialsOf(t).Any(m => string.Equals(m, material, StringComparison.OrdinalIgnoreCase)));
+            if (classTag == null)
+                return new List<string>();
+            return HybridTrees.MergedPartners(hero, classTag).SelectMany(ClassTags.MaterialsOf).ToList();
         }
 
         public static IReadOnlyList<string> GetGrantedConvertActionNames(Character? hero)

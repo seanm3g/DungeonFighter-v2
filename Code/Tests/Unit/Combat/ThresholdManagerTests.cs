@@ -192,7 +192,7 @@ namespace RPGGame.Tests.Unit.Combat
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        /// <summary>Each band keeps at least one face: crit miss 1, miss down to 2, combo down to 3.</summary>
+        /// <summary>Each band keeps at least one face: crit miss 1, miss down to 2, hit face 3, combo down to 4.</summary>
         private static void TestThresholdFloors()
         {
             Console.WriteLine("\n--- Testing ThresholdFloors ---");
@@ -206,8 +206,8 @@ namespace RPGGame.Tests.Unit.Combat
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             manager.SetComboThreshold(actor, -10);
-            TestBase.AssertEqual(3, manager.GetComboThreshold(actor),
-                "Combo threshold floors at 3",
+            TestBase.AssertEqual(4, manager.GetComboThreshold(actor),
+                "Combo threshold floors at 4",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(2, manager.GetHitThreshold(actor),
                 "Lowered combo pulls hit threshold to 2",

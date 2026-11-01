@@ -135,7 +135,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             int displayCount = ActionInfoStripLayout.GetDisplayPanelCount(filled);
             // Live ComboStep may already point at the next slot after a successful combo;
             // hold the white next-border on the firing panel until that action block finishes.
-            int selectedIndex = filled > 0 ? player.ComboStep % filled : -1;
+            int selectedIndex = filled > 0 ? (CombatBoardLayout.IsActive ? LinedUpComboStep(player) : player.ComboStep) % filled : -1;
             if (HeroActionStripFeedback.TryGetHeldSelectedIndex(out int heldSelected)
                 && heldSelected >= 0
                 && heldSelected < filled)

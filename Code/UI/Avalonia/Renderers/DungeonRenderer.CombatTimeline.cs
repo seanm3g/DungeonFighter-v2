@@ -49,6 +49,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static readonly Dictionary<Actor, int> _timelineTurnsPlayed = new(ReferenceEqualityComparer.Instance);
         /// <summary>Combo step each actor stood on before its turn began; ComboStep moves on before the swing plays out.</summary>
         private static readonly Dictionary<Actor, int> _timelineRestStep = new(ReferenceEqualityComparer.Instance);
+        /// <summary>Actors whose rest step is held this paint: the one whose turn hasn't fired, and one whose swing still plays.</summary>
+        private static readonly HashSet<Actor> _timelineHeld = new(ReferenceEqualityComparer.Instance);
         private static readonly Dictionary<(int Actor, int Ordinal), (BoardRect From, BoardRect To, DateTimeOffset Start)> _timelineSlides = new();
 
         /// <summary>A card in the row ahead, with the content it shows.</summary>
@@ -72,6 +74,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             _timelineHistory.Clear();
             _timelineTurnsPlayed.Clear();
             _timelineRestStep.Clear();
+            _timelineHeld.Clear();
             _timelineSlides.Clear();
             _timelineEnteredSerial = -1;
             _timelineAheadShown = null;
@@ -120,9 +123,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
 
             v.HoldActor = acting != null && !v.Spent ? acting : null;
+            _timelineHeld.Clear();
             foreach (var actor in new Actor[] { player, enemy })
             {
-                if (!ReferenceEquals(actor, v.HoldActor) && actor is Character ch)
+                // The swing keeps the step it was lined up on until it finishes, so NOW, the strips and the branches agree.
+                if (ReferenceEquals(actor, v.HoldActor) || LiveSwingFor(actor) != null)
+                    _timelineHeld.Add(actor);
+                else if (actor is Character ch)
                     _timelineRestStep[actor] = ch.ComboStep;
             }
 
@@ -450,6 +457,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             int slot = ((step + k) % count + count) % count;
             return (actions[slot], slot, count);
         }
+
+        /// <summary>
+        /// The combo step <paramref name="ch"/> is lined up on as the board shows it: held where it stood before its turn
+        /// while that turn hasn't fired or its swing still plays (ComboStep moves on first), else its live ComboStep.
+        /// </summary>
+        private static int LinedUpComboStep(Character ch) =>
+            _timelineHeld.Contains(ch) && _timelineRestStep.TryGetValue(ch, out int held) ? held : ch.ComboStep;
 
         /// <summary>NOW's content for a turn whose roll hasn't landed: the strip card the actor is lined up on, or the room's roll.</summary>
         private void DrawBoardProjectedContent(Actor actor, Action? action, BoardRect r, ActionStripDamageLineMode mode)

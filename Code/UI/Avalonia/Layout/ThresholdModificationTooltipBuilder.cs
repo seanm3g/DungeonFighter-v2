@@ -40,6 +40,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     AppendShiftLine(lines, parts.Pending.SharedAccuracy, "Queued accuracy");
                     AppendShiftLine(lines, parts.Pending.ComboDelta, "Queued ACTION");
                     AppendShiftLine(lines, parts.TechComboSteps, "TECH milestones");
+                    AppendShiftLine(lines, parts.CadenceComboSteps, "Class cadence");
                     AppendShiftLine(lines, parts.EqCombo, "Gear ACTION");
                     AppendShiftLine(lines, parts.DungeonCombo, "Dungeon buff (combo)");
                     AppendFloorNoteIfNeeded(lines, snapshot.EffectiveCombo, snapshot.Combo, parts.ComboRowShift);

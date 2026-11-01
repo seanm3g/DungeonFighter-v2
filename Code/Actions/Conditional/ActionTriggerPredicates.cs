@@ -205,7 +205,7 @@ namespace RPGGame.Actions.Conditional
             // Class tag on filter matches if any equipped item carries that tag (item class identity),
             // or the hero's equipped weapon path class display name matches.
             string want = arg.Trim();
-            if (GearHasTag(source, want))
+            if (GearHasTag(source, want) || ClassTags.CountOnGear(source as Character, want) > 0)
                 return true;
             if (source is Character hero && hero.Weapon is WeaponItem w)
             {

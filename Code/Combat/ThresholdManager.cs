@@ -9,14 +9,14 @@ namespace RPGGame.Combat
     /// Allows actions to modify critical hit, combo, and hit thresholds.
     /// Crit uses crit-eval roll; combo uses full attack roll — they are stored independently so a lowered
     /// crit threshold does not force the combo threshold down (you can crit without meeting combo).
-    /// COMBO and HIT still cascade: lowering COMBO pulls HIT to at most COMBO - 1; HIT caps CRIT_MISS at HIT - 1.
-    /// Each band keeps at least one face: CRIT_MISS >= 1 (natural 1), HIT (max miss) >= 2, COMBO >= 3.
+    /// COMBO and HIT still cascade: lowering COMBO pulls HIT to at most COMBO - 2; HIT caps CRIT_MISS at HIT - 1.
+    /// Each band keeps at least one face: CRIT_MISS >= 1 (natural 1), plain miss (HIT >= 2), hit (HIT + 1 &lt; COMBO), so COMBO >= 4.
     /// </summary>
     public class ThresholdManager
     {
         public const int MinCriticalMissThreshold = 1;
         public const int MinHitThreshold = MinCriticalMissThreshold + 1;
-        public const int MinComboThreshold = MinHitThreshold + 1;
+        public const int MinComboThreshold = MinHitThreshold + 2;
 
         private readonly ConcurrentDictionary<Actor, ThresholdModifiers> _actorThresholds = new ConcurrentDictionary<Actor, ThresholdModifiers>();
 
@@ -160,14 +160,14 @@ namespace RPGGame.Combat
         /// <summary>
         /// Sets the combo threshold for an actor (attack roll vs this value).
         /// Not capped by crit threshold — crit and combo use different roll totals.
-        /// Floor is 3. When COMBO goes lower, HIT moves to at most COMBO - 1.
+        /// Floor is 4. When COMBO goes lower, HIT moves to at most COMBO - 2.
         /// </summary>
         public void SetComboThreshold(Actor actor, int threshold)
         {
             var mod = GetOrCreateModifiers(actor);
             mod.ComboThreshold = Math.Max(MinComboThreshold, threshold);
-            // Cascade: when COMBO goes lower, HIT moves with it (HIT = COMBO - 1)
-            int newHit = mod.ComboThreshold.Value - 1;
+            // Cascade: when COMBO goes lower, HIT moves with it (HIT = COMBO - 2 keeps one hit face)
+            int newHit = mod.ComboThreshold.Value - 2;
             int hit = GetHitThreshold(actor);
             if (hit > newHit)
             {
@@ -192,13 +192,13 @@ namespace RPGGame.Combat
 
         /// <summary>
         /// Sets the hit threshold for an actor.
-        /// Clamped to [2, COMBO - 1]; when HIT goes lower, CRIT_MISS moves with it (stays at most HIT - 1).
+        /// Clamped to [2, COMBO - 2]; when HIT goes lower, CRIT_MISS moves with it (stays at most HIT - 1).
         /// </summary>
         public void SetHitThreshold(Actor actor, int threshold)
         {
             var mod = GetOrCreateModifiers(actor);
             int combo = GetComboThreshold(actor);
-            mod.HitThreshold = Math.Max(MinHitThreshold, Math.Min(threshold, combo - 1));
+            mod.HitThreshold = Math.Max(MinHitThreshold, Math.Min(threshold, combo - 2));
             // Cascade: CRIT_MISS stays below HIT; when HIT goes lower, CRIT_MISS moves with it
             int critMiss = GetCriticalMissThreshold(actor);
             if (critMiss > mod.HitThreshold - 1)
@@ -214,6 +214,17 @@ namespace RPGGame.Combat
         {
             int current = GetHitThreshold(actor);
             SetHitThreshold(actor, current - adjustment);
+        }
+
+        /// <summary>
+        /// Applies the same band rules as the setters to a finished ladder (stored terms: HIT is the max miss face).
+        /// Crit is exempt — it uses its own roll and may sit below COMBO.
+        /// </summary>
+        public static void ClampLadder(ref int combo, ref int hit, ref int critMiss)
+        {
+            combo = Math.Max(MinComboThreshold, combo);
+            hit = Math.Max(MinHitThreshold, Math.Min(hit, combo - 2));
+            critMiss = Math.Max(MinCriticalMissThreshold, Math.Min(critMiss, hit - 1));
         }
 
         /// <summary>

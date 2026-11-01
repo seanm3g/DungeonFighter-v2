@@ -53,6 +53,11 @@ namespace RPGGame.Tests.Unit
             hero.Progression.LearnedSkillRanks["wb-attr"] = 1;
             TestBase.AssertEqual(body, hero.Facade.GetEffectivePrimaryAttributeValue(), "learned Body becomes the primary attribute",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var rows = RPGGame.UI.Avalonia.Layout.LeftPanelAttributeOrder.Build(hero, sortByValue: false);
+            TestBase.AssertEqual("BODY,TECH,INT", string.Join(",", rows.ConvertAll(r => r.Label)),
+                "stats panel collapses STR + AGI into one BODY row", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(body, rows[0].Value, "BODY row shows STR + AGI",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestMaterialMergesTags()

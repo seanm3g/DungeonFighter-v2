@@ -40,6 +40,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestGoldCrossFeedsMithril();
             TestClasslessMaterialHasNoBuild();
             TestUnknownIsWildcardForWornMaterials();
+            TestHybridMaterialNodeMergesPartnerMaterials();
             TestConvertDamageScaleFromBankAndStacks();
             TestDsDtDuOverrides();
             TestStaleScaleColumnsStillPayFromSetBank();
@@ -188,6 +189,25 @@ namespace RPGGame.Tests.Unit.Combat
                 (new ChestItem("Mail", 1, 1), "Unknown"));
             TestBase.AssertEqual(0, MaterialSetController.GetGrantedConvertActionNames(onlyUnknown).Count,
                 "unknown alone forms no set", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestHybridMaterialNodeMergesPartnerMaterials()
+        {
+            TestBase.SetCurrentTestName(nameof(TestHybridMaterialNodeMergesPartnerMaterials));
+            var hero = EquipPieces(
+                (new HeadItem("Skull", 1, 1), "Bone"),
+                (new ChestItem("Robe", 1, 1), "Willow"),
+                (new FeetItem("Sandals", 1, 1), "Willow"),
+                (new LegsItem("Wraps", 1, 1), "Iron"));
+            TestBase.AssertEqual(1, MaterialSetController.CountEquipped(hero, "Bone"),
+                "Willow does not count toward Bone without Ragecaller Material", ref _run, ref _passed, ref _failed);
+            hero.Progression.LearnedSkillRanks["rc-material"] = 1;
+            TestBase.AssertEqual(3, MaterialSetController.CountEquipped(hero, "Bone"),
+                "Ragecaller Material: Willow pieces join the Bone count", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(4, MaterialSetController.CountEquipped(hero, "Willow"),
+                "Ragecaller Material: Bone and Iron pieces join the Willow count", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, MaterialSetController.CountEquipped(hero, "Silver"),
+                "partner pieces alone form no set", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestClasslessMaterialHasNoBuild()

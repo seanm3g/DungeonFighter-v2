@@ -59,17 +59,44 @@ namespace RPGGame
             RootEffect.TryGetValue(classTag, out string? effect) && SkillRanks.GetRank(hero, effect) > 0;
 
         /// <summary>Does <paramref name="item"/> carry <paramref name="classTag"/> (directly, or via its material)?</summary>
-        public static int CountOnItem(Character? hero, Item? item, string classTag)
+        public static int CountOnItem(Character? hero, Item? item, string classTag) =>
+            (ItemHasTag(item, classTag) ? 1 : 0) + (MaterialCounts(hero, item, classTag) ? 1 : 0);
+
+        private static bool ItemHasTag(Item? item, string classTag) =>
+            item?.Tags != null && item.Tags.Any(t => string.Equals(t, classTag, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>True when <paramref name="item"/>'s material is one of the class's and the Core root is learned.</summary>
+        private static bool MaterialCounts(Character? hero, Item? item, string classTag)
         {
-            if (item == null)
+            if (item == null || string.IsNullOrWhiteSpace(item.Material) || !MaterialsCountAsClass(hero, classTag))
+                return false;
+            string material = ItemMaterialRules.RemapLegacyMaterial(item.Material);
+            return MaterialsOf(classTag).Any(m => string.Equals(m, material, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>Gear class tags (direct tag or counted material) only, no strip actions.</summary>
+        public static int CountOnGear(Character? hero, string classTag)
+        {
+            if (hero == null || string.IsNullOrWhiteSpace(classTag))
                 return 0;
             int count = 0;
-            if (item.Tags != null && item.Tags.Any(t => string.Equals(t, classTag, StringComparison.OrdinalIgnoreCase)))
-                count++;
-            if (!string.IsNullOrWhiteSpace(item.Material) && MaterialsCountAsClass(hero, classTag) &&
-                MaterialsOf(classTag).Any(m => string.Equals(m, item.Material, StringComparison.OrdinalIgnoreCase)))
-                count++;
+            foreach (var item in new Item?[] { hero.Weapon, hero.Head, hero.Body, hero.Legs, hero.Feet })
+                count += CountOnItem(hero, item, classTag);
             return count;
+        }
+
+        /// <summary>Where <see cref="CountOwn"/> comes from: gear tags, gear materials (after the root), strip actions.</summary>
+        public static (int GearTags, int Materials, int Strip) Breakdown(Character? hero, string classTag)
+        {
+            if (hero == null || string.IsNullOrWhiteSpace(classTag))
+                return (0, 0, 0);
+            int gearTags = 0, materials = 0;
+            foreach (var item in new Item?[] { hero.Weapon, hero.Head, hero.Body, hero.Legs, hero.Feet })
+            {
+                if (ItemHasTag(item, classTag)) gearTags++;
+                if (MaterialCounts(hero, item, classTag)) materials++;
+            }
+            return (gearTags, materials, CountOwn(hero, classTag) - gearTags - materials);
         }
 
         public static bool ActionHas(Action? action, string classTag) =>
@@ -96,9 +123,7 @@ namespace RPGGame
         {
             if (hero == null || string.IsNullOrWhiteSpace(classTag))
                 return 0;
-            int count = 0;
-            foreach (var item in new Item?[] { hero.Weapon, hero.Head, hero.Body, hero.Legs, hero.Feet })
-                count += CountOnItem(hero, item, classTag);
+            int count = CountOnGear(hero, classTag);
             bool wandMastery = string.Equals(classTag, Wizard, StringComparison.OrdinalIgnoreCase)
                 && SkillEffectRouter.WandMasteryTagsStrip(hero);
             foreach (var action in hero.GetComboActions())
@@ -238,7 +263,16 @@ namespace RPGGame
             ("soft_cadence_wiz", ClassTags.Wizard)
         };
 
+        /// <summary>Steps for the swing being resolved: the rules plus Spellblade's banked steps, which this spends.</summary>
         public static int ComboSteps(Character? hero)
+        {
+            if (hero == null || hero is Enemy)
+                return 0;
+            return RuleSteps(hero) + SkillEffectRouter.Instance.ConsumePendingComboSteps(hero);
+        }
+
+        /// <summary>Steps from the learned cadence rules alone; read-only, safe for HUD previews.</summary>
+        public static int RuleSteps(Character? hero)
         {
             if (hero == null || hero is Enemy)
                 return 0;
@@ -249,7 +283,18 @@ namespace RPGGame
                 if (power > 0)
                     steps += (int)Math.Floor(ClassTags.Count(hero, classTag) / 2.0 * power);
             }
-            return steps + SkillEffectRouter.Instance.ConsumePendingComboSteps(hero);
+            return steps;
+        }
+
+        /// <summary>Has <paramref name="hero"/> learned the cadence rule for <paramref name="classTag"/>?</summary>
+        public static bool HasRule(Character? hero, string classTag)
+        {
+            if (hero == null || hero is Enemy)
+                return false;
+            foreach (var (effect, tag) in Rules)
+                if (string.Equals(tag, classTag, StringComparison.OrdinalIgnoreCase) && SkillRanks.GetPower(hero, effect) > 0)
+                    return true;
+            return false;
         }
     }
 }

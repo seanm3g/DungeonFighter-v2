@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Media;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
@@ -279,7 +280,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 {
                     attributeRowYs.Add((y, row.HoverId));
                     PanelCharacterStat(x, y, row.Label, row.Value, 0,
-                        primaryStat == row.PrimaryName ? primaryStatHighlight : AsciiArtAssets.Colors.White);
+                        row.IsHybrid || primaryStat == row.PrimaryName ? primaryStatHighlight : AsciiArtAssets.Colors.White);
                     y++;
                 }
 
@@ -599,7 +600,15 @@ namespace RPGGame.UI.Avalonia.Layout
         private void RenderFormingSets(Character character, int x, ref int y, int hoverWidth)
         {
             var sets = MaterialSetController.GetFormingSets(character);
-            if (sets.Count == 0)
+            // A learned hybrid material node merges its parents' tags, so the hybrid row replaces both parent rows.
+            var mergedHybrids = HybridTrees.All.Where(h => SkillRanks.GetRank(character, h.MaterialEffect) > 0).ToList();
+            var classTags = ClassTags.All
+                .Where(tag => !mergedHybrids.Any(h => h.ClassA == tag || h.ClassB == tag))
+                .Concat(mergedHybrids.Select(h => h.Tag))
+                .Select(tag => (Tag: tag, Count: ClassTags.Count(character, tag)))
+                .Where(e => e.Count > 0)
+                .ToList();
+            if (sets.Count == 0 && classTags.Count == 0)
                 return;
 
             PanelText(x, y, "Sets:", AsciiArtAssets.Colors.Gray);
@@ -615,6 +624,15 @@ namespace RPGGame.UI.Avalonia.Layout
                 PanelText(x, y, line, AsciiArtAssets.Colors.Cyan);
                 y++;
                 RegisterLeftPanelHoverRow(x, rowY, hoverWidth, 1, "set:" + material);
+            }
+
+            // Class tag totals (gear tags + class materials after the Core root + strip actions), as the cadence rules count them.
+            foreach (var (tag, count) in classTags)
+            {
+                int rowY = y;
+                PanelText(x, y, $"{char.ToUpperInvariant(tag[0])}{tag.Substring(1)} tags {count}", AsciiArtAssets.Colors.Gold);
+                y++;
+                RegisterLeftPanelHoverRow(x, rowY, hoverWidth, 1, "classtag:" + tag);
             }
 
             y++;

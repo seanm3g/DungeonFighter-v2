@@ -78,6 +78,10 @@ namespace RPGGame.UI.Avalonia.Display
                 return true;
             if (t.StartsWith("Gained ", StringComparison.OrdinalIgnoreCase) && t.Contains("action slot", StringComparison.OrdinalIgnoreCase))
                 return true;
+            if (t.StartsWith("Gained ", StringComparison.OrdinalIgnoreCase) && t.Contains("Skill Point", StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (t.StartsWith("Unspent Skill Points", StringComparison.OrdinalIgnoreCase))
+                return true;
             if (t.StartsWith("Stats increased:", StringComparison.OrdinalIgnoreCase))
                 return true;
             if (t.StartsWith("Current class:", StringComparison.OrdinalIgnoreCase))

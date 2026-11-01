@@ -164,6 +164,10 @@ namespace RPGGame
                     AppendSimpleStat(character, "POISON", $"+{character.GetWeaponPoisonPercentPerHit():0.#}% max HP on critical hit from weapon mods.", result, AddWrapped, maxLines);
                     AppendWeaponDotSource(AddWrapped, "weaponPoison", "% of the target's max HP per poison tick");
                     break;
+                case string hybridKey when RPGGame.UI.Avalonia.Layout.LeftPanelAttributeOrder.HybridForHoverKey(hybridKey) is HybridInfo hybrid:
+                    AppendRequirementAttribute(character, hybrid.Attribute.ToLowerInvariant(), result, AddWrapped, maxLines);
+                    AddWrapped($"{hybrid.Attribute} is your primary attribute, shown in place of {hybrid.StatA} and {hybrid.StatB}.");
+                    break;
                 case string attrKey when attrKey.StartsWith("attr:", StringComparison.Ordinal):
                     AppendRequirementAttribute(character, attrKey.Substring("attr:".Length), result, AddWrapped, maxLines);
                     break;
@@ -187,6 +191,9 @@ namespace RPGGame
                     break;
                 case string setKey when setKey.StartsWith("set:", StringComparison.Ordinal):
                     AppendSet(character, setKey.Substring(4), result, AddWrapped, maxLines);
+                    break;
+                case string classTagKey when classTagKey.StartsWith("classtag:", StringComparison.Ordinal):
+                    AppendClassTags(character, classTagKey.Substring("classtag:".Length), AddWrapped);
                     break;
                 case string invKey when invKey.StartsWith("inv:", StringComparison.Ordinal):
                     AppendInventoryListItem(character, invKey, result, AddWrapped, maxLines);
@@ -421,9 +428,6 @@ namespace RPGGame
             addWrapped("Named combo-strip swings require meeting this on the modified die (panel ACC shifts hit and post-roll combo outcomes, not which strip action is chosen).");
             addWrapped($"Equation: stored {snapshot.Combo} − shifts {parts.ComboRowShift} = {snapshot.Combo - parts.ComboRowShift}{FloorSuffix(snapshot.EffectiveCombo, snapshot.Combo - parts.ComboRowShift)}.");
             ThresholdModificationTooltipBuilder.AppendLines(c, ThresholdModificationTooltipBuilder.Kind.Combo, addWrapped);
-            int cadence = ClassCadence.ComboSteps(c);
-            if (cadence > 0)
-                addWrapped($"  Class cadence (+{cadence}): applied when the swing resolves; not in the panel number.");
             double comboMult = GameConfiguration.Instance.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier;
             addWrapped($"Action roll damage: ×{(comboMult > 0 ? comboMult : 1.0):0.##} (CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier).");
             AppendLadderExplainer(snapshot, addWrapped);
@@ -781,6 +785,41 @@ namespace RPGGame
                     return;
                 addWrapped(line);
             }
+        }
+
+        private static void AppendClassTags(Character c, string classTag, Action<string> addWrapped)
+        {
+            string name = classTag.Length > 0 ? char.ToUpperInvariant(classTag[0]) + classTag.Substring(1) : classTag;
+            int total = ClassTags.Count(c, classTag);
+            if (HybridTrees.All.FirstOrDefault(h => string.Equals(h.Tag, classTag, StringComparison.OrdinalIgnoreCase)) is HybridInfo hybrid)
+            {
+                addWrapped($"{hybrid.Key.ToUpperInvariant()} TAGS: {total}");
+                foreach (string parent in new[] { hybrid.ClassA, hybrid.ClassB })
+                {
+                    string parentName = char.ToUpperInvariant(parent[0]) + parent.Substring(1);
+                    addWrapped($"{parentName} tags (materials included): {ClassTags.CountOwn(c, parent)}");
+                }
+                int accumulated = total - ClassTags.CountOwn(c, hybrid.ClassA) - ClassTags.CountOwn(c, hybrid.ClassB);
+                if (accumulated > 0)
+                    addWrapped($"Gained this fight: {accumulated}");
+                addWrapped($"{char.ToUpperInvariant(hybrid.ClassA[0])}{hybrid.ClassA.Substring(1)} and {char.ToUpperInvariant(hybrid.ClassB[0])}{hybrid.ClassB.Substring(1)} bonuses each count both classes' tags.");
+                return;
+            }
+            var (gearTags, materials, strip) = ClassTags.Breakdown(c, classTag);
+            addWrapped($"{name.ToUpperInvariant()} TAGS: {total}");
+            addWrapped($"Gear tagged {name}: {gearTags}");
+            string mats = string.Join(" / ", ClassTags.MaterialsOf(classTag));
+            addWrapped(ClassTags.MaterialsCountAsClass(c, classTag)
+                ? $"{mats} gear: {materials}"
+                : $"{mats} gear: not counted (needs the {name} Core root)");
+            addWrapped($"Strip actions tagged {name}: {strip}");
+            int partners = total - gearTags - materials - strip;
+            if (partners > 0)
+                addWrapped($"Hybrid partner tags: {partners}");
+            if (ClassCadence.HasRule(c, classTag))
+                addWrapped($"Cadence rule: +1 Combo per 2 tags (Action threshold -{ClassCadence.RuleSteps(c)} from all cadence rules).");
+            else
+                addWrapped($"Not lowering your Action threshold: learn the {name} cadence rule (+1 Combo per 2 tags).");
         }
 
         private static void AppendGear(Character c, Item? item, string slot, List<string> result, Action<string> addWrapped, int maxLines)
