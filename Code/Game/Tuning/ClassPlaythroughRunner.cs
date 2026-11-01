@@ -15,6 +15,8 @@ namespace RPGGame.Tuning
 
         /// <summary>When true, the bot uses <see cref="PlaythroughSmartPolicy"/> (skills, gear and sequence chosen by simulation).</summary>
         public static bool SmartPolicy { get; set; }
+        /// <summary>When true (and <see cref="SmartPolicy"/> is off), the bot uses <see cref="PlaythroughRulesPolicy"/>: rule-based picks, no simulation.</summary>
+        public static bool RulesPolicy { get; set; }
 
         /// <summary>When &gt; 0, a run stops successfully once the hero reaches this level.</summary>
         public static int StopAtLevel { get; set; }
@@ -86,6 +88,7 @@ namespace RPGGame.Tuning
             GamePlaySession? session = null;
             using var recorder = new PlaythroughFightRecorder(trace);
             var smart = SmartPolicy ? new PlaythroughSmartPolicy(trace) : null;
+            var rules = !SmartPolicy && RulesPolicy ? new PlaythroughRulesPolicy(trace) : null;
             try
             {
                 // DUNGEONSIM measures one level: offer its dungeons at exactly that level, not anywhere in the region band.
@@ -164,6 +167,8 @@ namespace RPGGame.Tuning
                         int n = 0;
                         if (smart != null)
                             await smart.OptimizeAsync(session.Player, weaponType);
+                        else if (rules != null)
+                            rules.Optimize(session.Player, weaponType);
                         else
                             n = PlaythroughGearPolicy.EquipUpgrades(session.Player, weaponType);
                         result.UpgradesEquipped += n;
@@ -234,6 +239,13 @@ namespace RPGGame.Tuning
                     result.SkillDecisions = smart.SkillDecisions;
                     result.GearDecisions = smart.GearDecisions;
                     result.Milestones = smart.Milestones;
+                }
+                else if (rules != null)
+                {
+                    result.UpgradesEquipped = rules.GearChanges;
+                    result.SmartSkillsLearned = rules.SkillsLearned;
+                    result.SmartSequenceChanges = rules.SequenceChanges;
+                    result.Milestones = rules.Milestones;
                 }
                 trace?.Invoke(result.ReachedDeath
                     ? $"DIED at L{death.Level} in room {death.RoomNumber} vs {death.EnemyName} L{death.EnemyLevel} | fight #{death.FightsInDungeon} in this dungeon | entered dungeon at {death.HpAtDungeonEntry}/{death.MaxHpAtDungeonEntry} HP"

@@ -52,6 +52,26 @@ namespace RPGGame
         public int MaterialFiveStackMintMultiplier { get; set; }
 
         /// <summary>
+        /// Hero swing speed % per worn piece of a material, once its set is unlocked (2+ pieces), e.g. Iron 6 → +30% at
+        /// 5 pieces. Applied with the set-bonus speed % (swing time ÷ (1 + % / 100)). Empty = off.
+        /// </summary>
+        public Dictionary<string, double> MaterialSetSpeedPercentPerPiece { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>
+        /// Hero swing speed % per unit of a currency minted this fight (e.g. TRIUMPH on combo end). Counts what was earned,
+        /// so a convert spending the bank keeps it. Empty = off.
+        /// </summary>
+        public Dictionary<string, double> MaterialFightMintSpeedPercentPerUnit { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Cap on the total speed % from <see cref="MaterialFightMintSpeedPercentPerUnit"/> (0 = no cap).</summary>
+        public double MaterialFightMintSpeedMaxPercent { get; set; }
+        /// <summary>
+        /// Incoming damage reduction % per unit of a currency minted this fight (e.g. RAGE, minted when hit), so it grows
+        /// with the attacks taken; a convert spending the bank keeps it. Empty = off.
+        /// </summary>
+        public Dictionary<string, double> MaterialFightMintDamageReductionPercentPerUnit { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Cap on the total reduction % from <see cref="MaterialFightMintDamageReductionPercentPerUnit"/> (0 = 90).</summary>
+        public double MaterialFightMintDamageReductionMaxPercent { get; set; }
+
+        /// <summary>
         /// Overflow: a hero whose swing would be faster than <see cref="MinimumAttackTime"/> turns the excess into damage,
         /// damage × (1 + this × (minimum / raw time − 1)). 0 = off (speed past the floor is wasted).
         /// </summary>

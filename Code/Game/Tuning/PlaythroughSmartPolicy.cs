@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using RPGGame.ActionInteractionLab;
+using RPGGame.Data;
 using RPGGame.Entity.Services;
 using RPGGame.Tuning.Profiles;
 
@@ -20,6 +21,12 @@ namespace RPGGame.Tuning
         public static int FightsPerEnemy { get; set; } = 6;
         /// <summary>A candidate must beat the current setup by this factor to be adopted (noise guard).</summary>
         public static double ImprovementThreshold { get; set; } = 1.02;
+        /// <summary>
+        /// Gear moves into the hero's own class sets (a whole-set package, or a piece that grows a worn class set) are
+        /// adopted at this factor of the current score instead of <see cref="ImprovementThreshold"/>: class sets are how
+        /// heroes scale, and their payoff (convert banks, stack 3/5 feeds) grows past what short eval fights see.
+        /// </summary>
+        public static double ClassSetThreshold { get; set; } = 0.97;
         /// <summary>Hero turns a lost eval fight counts as (well above the slowest wins, ~25 turns).</summary>
         public static int LostFightTurns { get; set; } = 50;
         /// <summary>
@@ -62,6 +69,8 @@ namespace RPGGame.Tuning
             if (hero == null)
                 return;
             // weaponType is the starting class; the hero may switch weapons (and so classes) whenever gear is better.
+            // Set preference stays with the starting class, so a Barbarian on a found dagger still builds Bone/Iron/Steel.
+            string homeClass = ClassKeyOf(weaponType);
             weaponType = CurrentWeaponType(hero, weaponType);
             string signature = Signature(hero, weaponType);
             if (signature == _lastSignature)
@@ -80,7 +89,7 @@ namespace RPGGame.Tuning
             try
             {
                 await SpendSkillPointsAsync(hero, weaponType).ConfigureAwait(false);
-                await OptimizeGearAsync(hero).ConfigureAwait(false);
+                await OptimizeGearAsync(hero, homeClass).ConfigureAwait(false);
                 weaponType = CurrentWeaponType(hero, weaponType);
                 await OptimizeSequenceAsync(hero, weaponType).ConfigureAwait(false);
             }
@@ -179,7 +188,7 @@ namespace RPGGame.Tuning
         private static WeaponType CurrentWeaponType(Character hero, WeaponType fallback) =>
             hero.Weapon is WeaponItem w ? w.WeaponType : fallback;
 
-        private async Task OptimizeGearAsync(Character hero)
+        private async Task OptimizeGearAsync(Character hero, string heroClass)
         {
             for (int pass = 0; pass < 5; pass++)
             {
@@ -187,10 +196,8 @@ namespace RPGGame.Tuning
                 if (pass == 0 && _milestone != null)
                     _milestone.ScoreAfterSkills = Math.Round(current, 4);
                 var candidates = GearCandidates(hero);
-                int bestIndex = -1;
-                double best = current * ImprovementThreshold;
                 var tried = new List<(string Key, Character Clone)>();
-                var indexOf = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                var moves = new Dictionary<string, (List<int> Indices, double Threshold)>(StringComparer.OrdinalIgnoreCase);
                 foreach (int index in candidates)
                 {
                     var clone = Clone(hero);
@@ -201,32 +208,145 @@ namespace RPGGame.Tuning
                         continue;
                     string key = $"{PlaythroughGearPolicy.SlotOf(item)}: {item.Name} #{index}";
                     tried.Add((key, clone));
-                    indexOf[key] = index;
+                    // A piece that grows a class set already worn counts as a class-set move.
+                    bool growsClassSet = IsClassMaterial(item.Material, heroClass) && MaterialSetController.CountEquipped(hero, item.Material) > 0;
+                    moves[key] = (new List<int> { index }, growsClassSet ? ClassSetThreshold : ImprovementThreshold);
+                }
+                // Whole-set packages: one piece at a time never crosses the gap where the first piece breaks the
+                // worn set before the new one reaches its stack-2 unlock, so sets were never assembled.
+                foreach (var (material, indices) in SetPackages(hero))
+                {
+                    var clone = Clone(hero);
+                    if (!TryEquipAll(clone, indices))
+                        continue;
+                    PutConvertInStrip(clone, material);
+                    string key = $"set: {material} x{MaterialSetController.CountEquipped(clone, material)}";
+                    tried.Add((key, clone));
+                    moves[key] = (indices, IsClassMaterial(material, heroClass) ? ClassSetThreshold : ImprovementThreshold);
                 }
                 var (candidateScores, finalists) = await ScoreCandidatesAsync(tried).ConfigureAwait(false);
                 var scores = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase) { ["keep"] = current };
                 foreach (var (key, score) in candidateScores)
                     scores[key] = score;
+                // Each move is judged against its own adoption bar (score / threshold), so a class set wins near-ties.
+                string? bestKey = null;
+                double bestRatio = 1.0;
                 foreach (string key in finalists)
                 {
-                    if (candidateScores[key] > best)
+                    // A setup that loses every eval fight scores 0: then any positive score is adopted, best first.
+                    double ratio = current > 0 ? candidateScores[key] / (current * moves[key].Threshold) : 1.0 + candidateScores[key];
+                    if (candidateScores[key] > 0 && ratio > bestRatio)
                     {
-                        best = candidateScores[key];
-                        bestIndex = indexOf[key];
+                        bestRatio = ratio;
+                        bestKey = key;
                     }
                 }
 
                 if (scores.Count > 1)
-                    AddChoice(GearDecisions, hero, bestIndex < 0 ? "keep" : $"{PlaythroughGearPolicy.SlotOf(hero.Inventory[bestIndex])}: {hero.Inventory[bestIndex].Name} #{bestIndex}", scores);
-                if (bestIndex < 0)
+                    AddChoice(GearDecisions, hero, bestKey ?? "keep", scores);
+                if (bestKey == null)
                     return;
-                var chosen = hero.Inventory[bestIndex];
-                if (!TryEquip(hero, chosen))
+                var chosenItems = moves[bestKey].Indices.Where(i => i < hero.Inventory.Count).Select(i => hero.Inventory[i]).ToList();
+                if (!TryEquipAll(hero, moves[bestKey].Indices))
                     return;
-                _milestone?.GearEquipped.Add(chosen.Name);
+                if (bestKey.StartsWith("set: ", StringComparison.Ordinal))
+                    PutConvertInStrip(hero, chosenItems[0].Material);
+                foreach (var chosen in chosenItems)
+                    _milestone?.GearEquipped.Add(chosen.Name);
                 GearChanges++;
-                _trace?.Invoke($"    smart: equipped {chosen.Name} ({chosen.Material}) score {current:F3} -> {best:F3}");
+                _trace?.Invoke($"    smart: equipped {bestKey} score {current:F3} -> {candidateScores[bestKey]:F3}");
             }
+        }
+
+        internal static string ClassKeyOf(WeaponType weaponType) => weaponType switch
+        {
+            WeaponType.Mace => "BARBARIAN",
+            WeaponType.Sword => "WARRIOR",
+            WeaponType.Dagger => "ROGUE",
+            WeaponType.Wand => "WIZARD",
+            _ => ""
+        };
+
+        private static bool IsClassMaterial(string? material, string heroClass)
+        {
+            var build = MaterialBuildsLoader.FindByMaterial(ItemMaterialRules.RemapLegacyMaterial(material));
+            return build != null && heroClass.Length > 0 && string.Equals(build.AssociatedClass, heroClass, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Per set material in the bag: the best wearable piece for each slot not already that material, when wearing
+        /// them reaches the stack-2 unlock (or grows a set already unlocked by two or more pieces). Weapons only of the
+        /// current type, so a package never switches class.
+        /// </summary>
+        private static List<(string Material, List<int> Indices)> SetPackages(Character hero)
+        {
+            var packages = new List<(string, List<int>)>();
+            var currentType = hero.Weapon is WeaponItem w ? w.WeaponType : (WeaponType?)null;
+            var wearable = hero.Inventory
+                .Select((item, index) => (item, index, material: ItemMaterialRules.RemapLegacyMaterial(item.Material)))
+                .Where(x => PlaythroughGearPolicy.SlotOf(x.item) != "")
+                .Where(x => x.item.GetEquipBlockedReason(hero) == null)
+                .Where(x => x.item is not WeaponItem wi || wi.WeaponType == currentType)
+                .Where(x => !string.IsNullOrWhiteSpace(x.material) && MaterialBuildsLoader.FindByMaterial(x.material) != null)
+                .ToList();
+            foreach (var group in wearable.GroupBy(x => x.material, StringComparer.OrdinalIgnoreCase))
+            {
+                var indices = new List<int>();
+                foreach (var slot in group.GroupBy(x => PlaythroughGearPolicy.SlotOf(x.item)))
+                {
+                    var worn = slot.Key switch
+                    {
+                        "weapon" => hero.Weapon, "head" => hero.Head, "body" => hero.Body, "legs" => hero.Legs, _ => hero.Feet
+                    };
+                    if (worn != null && string.Equals(ItemMaterialRules.RemapLegacyMaterial(worn.Material), group.Key, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    indices.Add(slot.OrderByDescending(x => ItemValueModel.Score(x.item)).First().index);
+                }
+                int worn2 = MaterialSetController.CountEquipped(hero, group.Key);
+                if (indices.Count >= 2 || (indices.Count == 1 && worn2 == 1))
+                    packages.Add((group.Key, indices));
+            }
+            return packages;
+        }
+
+        /// <summary>Equips the bag items at <paramref name="indices"/> (resolved before any equip shifts the bag).</summary>
+        private static bool TryEquipAll(Character hero, List<int> indices)
+        {
+            var items = indices.Where(i => i < hero.Inventory.Count).Select(i => hero.Inventory[i]).ToList();
+            bool any = false;
+            foreach (var item in items)
+                any |= TryEquip(hero, item);
+            return any;
+        }
+
+        /// <summary>Puts the set's convert action at the front of the strip once the set unlocks it (it only reaches the pool).</summary>
+        private static void PutConvertInStrip(Character hero, string? material)
+        {
+            var build = MaterialBuildsLoader.FindByMaterial(ItemMaterialRules.RemapLegacyMaterial(material));
+            string? convert = build?.ConvertAction?.Trim();
+            if (string.IsNullOrEmpty(convert)
+                || !MaterialSetController.GetGrantedConvertActionNames(hero).Contains(convert, StringComparer.OrdinalIgnoreCase))
+                return;
+            var strip = StripOf(hero);
+            if (strip.Contains(convert, StringComparer.OrdinalIgnoreCase))
+                return;
+            var weaponType = CurrentWeaponType(hero, WeaponType.Mace);
+            string? required = WeaponRequiredComboAction.IsRequirementActiveForWeaponPath(hero, weaponType)
+                ? WeaponRequiredComboAction.TryGetRequiredBasicActionName(weaponType)
+                : null;
+            strip.Insert(0, convert);
+            int max = ComboSequenceMaxHelper.GetEffectiveMax(hero);
+            while (strip.Count > max)
+            {
+                int drop = strip.FindLastIndex(x => !string.Equals(x, convert, StringComparison.OrdinalIgnoreCase)
+                    && (required == null || !string.Equals(x, required, StringComparison.OrdinalIgnoreCase)));
+                if (drop < 0)
+                    return;
+                strip.RemoveAt(drop);
+            }
+            hero.RestoreComboFromActionNames(strip);
+            WeaponRequiredComboAction.EnsureRequiredBasicInCombo(hero);
+            hero.ComboStep = 0;
         }
 
         /// <summary>
@@ -256,6 +376,8 @@ namespace RPGGame.Tuning
                 picks.Add(x.index);
             return picks.ToList();
         }
+
+        internal static bool TryEquipItem(Character hero, Item item) => TryEquip(hero, item);
 
         private static bool TryEquip(Character hero, Item item)
         {

@@ -41,7 +41,10 @@ namespace RPGGame.Tuning
             int runs = Math.Max(1, TuningCliArgs.GetIntFlag(args, "--runs") ?? 6);
             int dungeons = Math.Max(1, TuningCliArgs.GetIntFlag(args, "--dungeons") ?? 8);
             int retreat = TuningCliArgs.GetIntFlag(args, "--retreat-below") ?? 50;
-            bool basic = TuningCliArgs.HasFlag(args, "--basic");
+            // --bot rules (default, no simulated picks) | smart | basic; --basic is the old spelling of --bot basic.
+            string bot = (TuningCliArgs.GetFlagValue(args, "--bot") ?? (TuningCliArgs.HasFlag(args, "--basic") ? "basic" : "rules")).ToLowerInvariant();
+            if (bot is not ("smart" or "rules" or "basic"))
+                throw new ArgumentException("DUNGEONSIM --bot must be smart, rules or basic.");
             string? classes = TuningCliArgs.GetFlagValue(args, "--classes");
             string? jsonPath = TuningCliArgs.GetFlagValue(args, "--json");
             int? seed = TuningCliArgs.GetIntFlag(args, "--seed");
@@ -54,11 +57,12 @@ namespace RPGGame.Tuning
             ClassPlaythroughRunner.HoldLevel = true;
             ClassPlaythroughRunner.MaxDungeons = dungeons;
             ClassPlaythroughRunner.StopAtLevel = 0;
-            ClassPlaythroughRunner.SmartPolicy = !basic;
+            ClassPlaythroughRunner.SmartPolicy = bot == "smart";
+            ClassPlaythroughRunner.RulesPolicy = bot == "rules";
             ClassPlaythroughRunner.RetreatBelowHpPercent = retreat;
 
             Console.WriteLine($"Balance patch: {FundamentalsMatrixRunner.ActiveBalancePatchPath()}");
-            Console.WriteLine($"=== DUNGEONSIM L{level} | {runs} run(s) x {dungeons} dungeon(s) per class | {(basic ? "basic" : "smart")} bot | retreat below {retreat}% HP | start loot {ClassPlaythroughRunner.ResolveStartLootPerLevel(level)}/level{(level > 15 ? " (bag calibrated to L10-L15 only)" : "")} | seed {(seed?.ToString() ?? "none")} ===");
+            Console.WriteLine($"=== DUNGEONSIM L{level} | {runs} run(s) x {dungeons} dungeon(s) per class | {bot} bot | retreat below {retreat}% HP | start loot {ClassPlaythroughRunner.ResolveStartLootPerLevel(level)}/level{(level > 15 ? " (bag calibrated to L10-L15 only)" : "")} | seed {(seed?.ToString() ?? "none")} ===");
 
             var batch = await ClassPlaythroughBatchRunner.RunAsync(runs, classes, maxActionsPerRun: 60 * dungeons + 300, seed: seed);
 
@@ -125,7 +129,7 @@ namespace RPGGame.Tuning
                     RunsPerClass = runs,
                     DungeonsPerRun = dungeons,
                     RetreatBelowHpPercent = retreat,
-                    Bot = basic ? "basic" : "smart",
+                    Bot = bot,
                     Outcomes = outcomes.Append(all).ToList(),
                     // Every real fight at the level (per-enemy reads in Scripts/balance-scan.py).
                     Fights = batch.ClassAggregates.SelectMany(a => a.Runs.SelectMany(r => r.Fights.Where(f => f.HeroLevel >= level).Select(f => new

@@ -3,7 +3,8 @@
 
 Tier 1 of scan -> focus -> gate (Documentation/BALANCE_PROCESS.md). One pool runs, in parallel:
   - the median catalog build grid (BUILDLAB, same jobs as median-curve-solve.py --check) at every matrix level,
-  - DUNGEONSIM with one hero per class and several dungeons at a few levels (HP carried, retreat rule, smart bot).
+  - DUNGEONSIM with one hero per class and several dungeons at a few levels (HP carried, retreat rule, rules bot;
+    --bot smart for the simulating bot, which also feeds the viable-action and bot/median kill-speed reads).
 Then ranks findings against GameData/TuningProfiles/balance-targets.json, each with a focus command to run next:
   median turns per level / per enemy, real dungeon clear per level, smart bot vs median build kill speed (is the
   median build's stepping stone what real play hands out?), per-enemy turns and HP cost in real dungeons, class spread,
@@ -67,6 +68,7 @@ ap.add_argument('--dungeons', type=int, default=4, help='dungeons per hero (hero
 ap.add_argument('--encounters', type=int, default=8, help='BUILDLAB fights per enemy')
 ap.add_argument('--builds', default='', help='comma list of catalog builds (default: all)')
 ap.add_argument('--min-fights', type=int, default=6, help='real fights an enemy needs at a level to be judged')
+ap.add_argument('--bot', default='rules', choices=['rules', 'smart', 'basic'], help='DUNGEONSIM bot (rules = fast)')
 ap.add_argument('--seed', type=int, default=1, help='base DUNGEONSIM seed so --compare scans replay the same heroes (0 = unseeded)')
 ap.add_argument('--bot-ratio', type=float, default=1.33, help='flag bot/median kill-speed ratios outside 1/x .. x')
 ap.add_argument('--viable-within', type=float, default=EXP.get('viableWithin', 0.03), help='an action is viable when its best strip scores within this share of the best strip')
@@ -184,7 +186,7 @@ def dungeonsim(level, cls, data_dir):
     log = open(os.path.join(WORK, f'ds-L{level}-{cls}-{hero}.log'), 'w', encoding='utf-8')
     try:
         subprocess.run(['dotnet', DLL, 'DUNGEONSIM', '--patch', PATCH, '--level', str(level), '--runs', '1',
-                        '--dungeons', str(A.dungeons), '--classes', cls, '--retreat-below', str(RETREAT), '--json', out]
+                        '--dungeons', str(A.dungeons), '--classes', cls, '--retreat-below', str(RETREAT), '--json', out, '--bot', A.bot]
                        + (['--seed', str(A.seed * 1_000_000 + level * 1000 + int(hero))] if A.seed else []),
                        cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, env=dict(os.environ, DF_GAMEDATA_DIR=data_dir), timeout=1800)
         return json.load(open(out, encoding='utf-8-sig'))

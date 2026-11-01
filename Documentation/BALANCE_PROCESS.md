@@ -107,6 +107,18 @@ The per-fight win-rate rows then print as `INFO` (full-HP reference only); hero 
 Win-rate anchors are **dungeon clear rates** (`winRateMeaning: dungeonClear`); the matrix checks the matching single-fight
 rate (clear^(1/fightsPerDungeon)) and the playthrough batch checks the real clear rate at `realClearCheckLevel`.
 
+**Rules bot (2026-11-01, default).** DUNGEONSIM, `dungeon-sim.py` and `balance-scan.py` use it unless given
+`--bot smart`. It skips the smart bot's simulated picks (~98% of a shard):
+skills in a mined order, the home class's best-covered material set, a full strip from the class's most-run actions at
+the closest mined level, no weapon/class switching. 4 levels × 48 heroes take ~40 s instead of ~25 min. Priorities and
+rule knobs live in `GameData/TuningProfiles/rules-bot.json`; re-mine with `Scripts/rules-bot-mine.py <smart --keep dirs>`
+after skill or action changes. Overall clear reads within 3–8 points of the smart bot at L20/35/50/75. Per class it
+differs more (Wizard up to −36, Barbarian L35 −33): smart heroes switch to daggers (switched Wizards lose ~40% less HP
+per fight) and stop at 20 skill picks per hub, so the rules bot is the in-class reading. Use `--bot smart` to see the
+weapon-switching optimum (what is overpowered) or to re-mine; the smart-only scan reads (viable actions, bot/median
+kill speed) are empty under the rules bot. Playthrough survival in `balance-check.ps1` (PLAYTODEATHBATCH) still uses
+the smart bot.
+
 **Per-enemy checks (2026-10-13).** A playtest's first L1 fight (rat pack) took 21 hero turns while every averaged row
 passed: pack turns jump between levels (bodies × swings per body, overkill wasted), and one slow enemy hides in a mean.
 Two gates now look per enemy, both against `heroTurnsTarget` ± `perEnemyTurnsTolerance` (balance-targets.json):

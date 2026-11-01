@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Real dungeon clear / retreat / death rates at fixed hero levels (DUNGEONSIM, sharded), and a damage-anchor solver.
 
-Each shard is one DUNGEONSIM process (one class): fresh heroes raised to the level with collected loot, the smart bot
+Each shard is one DUNGEONSIM process (one class): fresh heroes raised to the level with collected loot, the bot (rules by default, --bot smart)
 choosing gear / skills / sequence, then several dungeons through the real game loop with HP carried between fights and
 the retreat rule. Shards run in parallel on a scratch copy of GameData (death screens write saves).
 
@@ -36,6 +36,8 @@ ap.add_argument('--json', default='', help='write results here')
 ap.add_argument('--seed', type=int, default=1, help='base seed; each shard derives its own, so reruns replay the same heroes (0 = unseeded)')
 ap.add_argument('--parallel', type=int, default=os.cpu_count() or 8,
                 help='shards at once; all levels share one pool, so no level waits on the slowest shard of another')
+ap.add_argument('--bot', default='rules', choices=['smart', 'rules', 'basic'],
+                help='rules (default) = fast rule-based picks (GameData/TuningProfiles/rules-bot.json); smart = picks by simulation, ~40x slower')
 ap.add_argument('--classes', default=','.join(CLASSES), help='comma list of classes to run')
 ap.add_argument('--screen-fights', type=int, default=-1, help='bot screen fights per enemy for skill/gear picks (0 = score every candidate in full, -1 = tool default)')
 ap.add_argument('--eval-enemies', default='', help='comma list of enemies the bot scores skill/gear/strip picks against (empty = tool default)')
@@ -97,7 +99,8 @@ def damage_anchor_at(level, overrides):
 def shard(patch, level, cls, i, tag):
     out = os.path.join(WORK, f'{tag}-L{level}-{cls}-{i}.json')
     args = ['dotnet', DLL, 'DUNGEONSIM', '--patch', patch, '--level', str(level), '--runs', str(A.runs),
-            '--dungeons', str(A.dungeons), '--classes', cls, '--retreat-below', str(A.retreat), '--json', out]
+            '--dungeons', str(A.dungeons), '--classes', cls, '--retreat-below', str(A.retreat), '--json', out,
+            '--bot', A.bot]
     if A.start_loot_per_level > 0:
         args += ['--start-loot-per-level', str(A.start_loot_per_level)]
     if A.screen_fights >= 0:
