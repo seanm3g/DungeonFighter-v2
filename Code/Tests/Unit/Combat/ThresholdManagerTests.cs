@@ -35,6 +35,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestSetCriticalHitThreshold();
             TestSetComboThreshold();
             TestSetHitThreshold();
+            TestThresholdFloors();
             TestClearThresholds();
             TestDefaultThresholds();
             TestCombatEndResetPattern();
@@ -188,6 +189,42 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertEqual(10, threshold,
                 "Hit threshold should be set correctly",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>Each band keeps at least one face: crit miss 1, miss down to 2, combo down to 3.</summary>
+        private static void TestThresholdFloors()
+        {
+            Console.WriteLine("\n--- Testing ThresholdFloors ---");
+
+            var manager = new ThresholdManager();
+            var actor = TestDataBuilders.Character().WithName("Actor").Build();
+
+            manager.AdjustCriticalMissThreshold(actor, -5);
+            TestBase.AssertEqual(1, manager.GetCriticalMissThreshold(actor),
+                "Crit miss threshold never drops below 1",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            manager.SetComboThreshold(actor, -10);
+            TestBase.AssertEqual(3, manager.GetComboThreshold(actor),
+                "Combo threshold floors at 3",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, manager.GetHitThreshold(actor),
+                "Lowered combo pulls hit threshold to 2",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, manager.GetCriticalMissThreshold(actor),
+                "Crit miss threshold stays 1 after cascade",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            manager.ResetThresholds(actor);
+            manager.SetHitThreshold(actor, 0);
+            TestBase.AssertEqual(2, manager.GetHitThreshold(actor),
+                "Hit threshold floors at 2",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            manager.SetCriticalMissThreshold(actor, 10);
+            TestBase.AssertEqual(1, manager.GetCriticalMissThreshold(actor),
+                "Crit miss threshold stays below hit threshold",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -43,7 +43,8 @@ namespace RPGGame
 
         /// <summary>
         /// F10 runtime toggle (not persisted). When on, gameplay delays are skipped: combat log,
-        /// action blocks, room intros, travel steps, and dungeon leave/reward pauses.
+        /// action blocks, room intros, travel steps, and dungeon leave/reward pauses. Sound effects
+        /// are muted too (music keeps playing).
         /// </summary>
         public static bool IsZeroDelayDevMode => Volatile.Read(ref _zeroDelayDevMode) != 0;
 

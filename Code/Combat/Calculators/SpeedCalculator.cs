@@ -122,6 +122,63 @@ namespace RPGGame.Combat.Calculators
             return HeroBreakdown(hero, combat.BaseAttackTime, Math.Max(0.01, combat.MinimumAttackTime), weapon, overrideWeapon: true);
         }
 
+        /// <summary>
+        /// <paramref name="hero"/>'s swing with <paramref name="item"/> worn (swapped into its slot when it is not)
+        /// and the same swing without that item's weapon speed points. Both are floored seconds; null when the item has none.
+        /// </summary>
+        public static (double WithoutSeconds, double WithSeconds)? GetItemSpeedPointSwing(Character hero, Item item)
+        {
+            double p = EquipmentBonusCalculator.GetItemWeaponSpeedPoints(item);
+            if (hero == null || Math.Abs(p) < 1e-9)
+                return null;
+
+            SpeedBreakdown b;
+            if (item is WeaponItem w)
+                b = GetBreakdownWithWeapon(hero, w);
+            else
+            {
+                b = GetBreakdown(hero);
+                Item? replaced = item switch
+                {
+                    HeadItem => hero.Head,
+                    ChestItem => hero.Body,
+                    LegsItem => hero.Legs,
+                    FeetItem => hero.Feet,
+                    _ => null
+                };
+                bool worn = ReferenceEquals(item, hero.Head) || ReferenceEquals(item, hero.Body) ||
+                            ReferenceEquals(item, hero.Legs) || ReferenceEquals(item, hero.Feet);
+                if (!worn)
+                {
+                    double swapped = b.WeaponSpeedPoints + p - EquipmentBonusCalculator.GetItemWeaponSpeedPoints(replaced!);
+                    b = Rescale(b, b.WeaponSpeedPoints, swapped);
+                }
+            }
+
+            var without = Rescale(b, b.WeaponSpeedPoints, b.WeaponSpeedPoints - p);
+            return (without.FinalSeconds, b.FinalSeconds);
+        }
+
+        /// <summary>Same breakdown with weapon speed points moved from <paramref name="from"/> to <paramref name="to"/>.</summary>
+        private static SpeedBreakdown Rescale(SpeedBreakdown b, double from, double to)
+        {
+            double ratio = GetWeaponSpeedPointDivisor(from) / GetWeaponSpeedPointDivisor(to);
+            return new SpeedBreakdown
+            {
+                BaseSeconds = b.BaseSeconds,
+                Agility = b.Agility,
+                AgilityFactor = b.AgilityFactor,
+                WeaponBaseFactor = b.WeaponBaseFactor,
+                WeaponSpeedPoints = to,
+                WeaponFactor = b.WeaponFactor * ratio,
+                ArchetypeFactor = b.ArchetypeFactor,
+                SlowFactor = b.SlowFactor,
+                SetSpeedPercent = b.SetSpeedPercent,
+                RawSeconds = Math.Max(0.001, b.RawSeconds * ratio),
+                FloorSeconds = b.FloorSeconds
+            };
+        }
+
         /// <summary>Resolves every swing-time input for <paramref name="actor"/>.</summary>
         public static SpeedBreakdown GetBreakdown(Actor actor)
         {

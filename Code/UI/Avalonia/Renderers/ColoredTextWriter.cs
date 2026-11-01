@@ -157,6 +157,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <param name="lineAlignment">Horizontal placement of each wrapped row within the column of width <paramref name="maxWidth"/> starting at <paramref name="x"/>.</param>
         /// <param name="maxYExclusive">When set, stops before writing any row at or below this Y (clips soft-wrapped overflow to the viewport).</param>
         /// <param name="lineStride">Grid rows reserved per wrapped visual line (center-column UI zoom uses ceil(zoom)).</param>
+        /// <param name="alignLength">When set and the text fits on one row, center/right placement uses this width
+        /// instead of the row's own (a typewriter prefix aligned as its finished line).</param>
         /// <returns>Number of visual lines actually written (may be less than the wrap count when clipped)</returns>
         public int WriteLineColoredWrapped(
             List<ColoredText> segments,
@@ -165,7 +167,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             int maxWidth,
             ColoredLineAlignment lineAlignment = ColoredLineAlignment.Left,
             int? maxYExclusive = null,
-            int lineStride = 1)
+            int lineStride = 1,
+            int? alignLength = null)
         {
             int stride = Math.Max(1, lineStride);
 
@@ -209,6 +212,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                         if (lineAlignment != ColoredLineAlignment.Left)
                         {
                             int len = ColoredTextRenderer.GetDisplayLength(segmentsToRender);
+                            if (alignLength.HasValue && wrappedLines.Count == 1 && alignLength.Value <= maxWidth)
+                                len = Math.Max(len, alignLength.Value);
                             if (len < maxWidth)
                             {
                                 if (lineAlignment == ColoredLineAlignment.Right)

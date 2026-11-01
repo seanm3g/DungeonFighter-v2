@@ -164,7 +164,16 @@ namespace RPGGame.UI.Avalonia.Display
                     
                     bool rightAlign = rightAlignPerRow != null && rightAlignPerRow[i];
                     ColoredLineAlignment lineAlignment = ColoredLineAlignment.Left;
-                    if (centerAlignPerRow[i])
+                    // A row mid-typewriter aligns as its finished line will (no left-start then snap to center).
+                    int? alignLength = null;
+                    bool center = centerAlignPerRow[i];
+                    if (CombatLogTypingLine.TryGetFinalLayout(segments, out int finalLength, out bool finalCenter))
+                    {
+                        center = finalCenter;
+                        alignLength = finalLength;
+                    }
+
+                    if (center)
                         lineAlignment = ColoredLineAlignment.Center;
                     else if (rightAlign)
                         lineAlignment = ColoredLineAlignment.Right;
@@ -177,7 +186,8 @@ namespace RPGGame.UI.Avalonia.Display
                         availableWidth,
                         lineAlignment,
                         maxYExclusive: viewportBottomExclusive,
-                        lineStride: lineStride);
+                        lineStride: lineStride,
+                        alignLength: alignLength);
 
                     var hoverInfo = hoverInfoLines[i];
                     if (hoverInfo != null && hoverInfo.Count > 0 && linesRendered > 0)

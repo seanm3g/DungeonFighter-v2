@@ -52,6 +52,7 @@ namespace RPGGame.Tests.Unit.UI
 
             TestCatalogAttributesCollected();
             TestContributionLineHighlightsValue();
+            TestSpeedPointsShowPercentAndSwingTime();
 
             TestStatLinesUseTwoSpaceIndentMatchingActions();
             TestAttributeStyleStatLineKeepsTwoSpaceIndent();
@@ -362,6 +363,28 @@ namespace RPGGame.Tests.Unit.UI
             {
                 _testsFailed++;
                 Console.WriteLine("  FAIL: catalog STR/AGI/TEC should appear in contributions");
+            }
+        }
+
+        private static void TestSpeedPointsShowPercentAndSwingTime()
+        {
+            _testsRun++;
+            Console.WriteLine("--- TestSpeedPointsShowPercentAndSwingTime ---");
+            var hero = new Character("Stats", 1);
+            var feet = new FeetItem("Fleet", tier: 1, armor: 0) { CatalogAttackSpeed = 1 };
+            double pct = GameConfiguration.Instance.Combat.GetWeaponSpeedPercentPerPoint();
+            var contribs = ItemStatContributionCollector.Collect(feet, hero);
+            bool hasPct = contribs.Exists(c => c.Label == "Weapon speed" && c.ValueText == $"+1 (+{pct:0.#}% speed)");
+            var swing = contribs.FirstOrDefault(c => c.Label == "Swing time");
+            var expected = RPGGame.Combat.Calculators.SpeedCalculator.GetItemSpeedPointSwing(hero, feet);
+            bool hasSwing = expected != null && expected.Value.WithSeconds < expected.Value.WithoutSeconds &&
+                            swing.ValueText.Contains("s → ", StringComparison.Ordinal) && !swing.IsDebuff;
+            bool bareHasNoSwing = !ItemStatContributionCollector.Collect(feet).Exists(c => c.Label == "Swing time");
+            if (hasPct && hasSwing && bareHasNoSwing) _testsPassed++;
+            else
+            {
+                _testsFailed++;
+                Console.WriteLine($"  FAIL: speed points should read as % and swing seconds (pct={hasPct}, swing='{swing.ValueText}', bare={bareHasNoSwing})");
             }
         }
 

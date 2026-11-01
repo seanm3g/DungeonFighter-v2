@@ -20,6 +20,8 @@ namespace RPGGame.Tuning
         public static int FightsPerEnemy { get; set; } = 6;
         /// <summary>A candidate must beat the current setup by this factor to be adopted (noise guard).</summary>
         public static double ImprovementThreshold { get; set; } = 1.02;
+        /// <summary>Hero turns a lost eval fight counts as (well above the slowest wins, ~25 turns).</summary>
+        public static int LostFightTurns { get; set; } = 50;
         /// <summary>
         /// Skill and gear picks with more than <see cref="ScreenKeep"/> candidates screen them at this many fights per
         /// enemy first; only the top <see cref="ScreenKeep"/> are scored in full and can be picked. The sequence search's
@@ -59,6 +61,8 @@ namespace RPGGame.Tuning
         {
             if (hero == null)
                 return;
+            // weaponType is the starting class; the hero may switch weapons (and so classes) whenever gear is better.
+            weaponType = CurrentWeaponType(hero, weaponType);
             string signature = Signature(hero, weaponType);
             if (signature == _lastSignature)
                 return;
@@ -76,7 +80,8 @@ namespace RPGGame.Tuning
             try
             {
                 await SpendSkillPointsAsync(hero, weaponType).ConfigureAwait(false);
-                await OptimizeGearAsync(hero, weaponType).ConfigureAwait(false);
+                await OptimizeGearAsync(hero).ConfigureAwait(false);
+                weaponType = CurrentWeaponType(hero, weaponType);
                 await OptimizeSequenceAsync(hero, weaponType).ConfigureAwait(false);
             }
             finally
@@ -171,14 +176,17 @@ namespace RPGGame.Tuning
 
         // ---------------------------------------------------------------- gear
 
-        private async Task OptimizeGearAsync(Character hero, WeaponType weaponType)
+        private static WeaponType CurrentWeaponType(Character hero, WeaponType fallback) =>
+            hero.Weapon is WeaponItem w ? w.WeaponType : fallback;
+
+        private async Task OptimizeGearAsync(Character hero)
         {
             for (int pass = 0; pass < 5; pass++)
             {
                 double current = await ScoreAsync(Clone(hero), StripOf(hero)).ConfigureAwait(false);
                 if (pass == 0 && _milestone != null)
                     _milestone.ScoreAfterSkills = Math.Round(current, 4);
-                var candidates = GearCandidates(hero, weaponType);
+                var candidates = GearCandidates(hero);
                 int bestIndex = -1;
                 double best = current * ImprovementThreshold;
                 var tried = new List<(string Key, Character Clone)>();
@@ -223,9 +231,10 @@ namespace RPGGame.Tuning
 
         /// <summary>
         /// Bag indices worth simulating: the top two per slot by static value, plus any item whose material matches
-        /// equipped gear (set pieces can be worth more than their raw stats).
+        /// equipped gear (set pieces can be worth more than their raw stats). Weapons of any type count: switching
+        /// weapons switches class, which a player may do at any point.
         /// </summary>
-        private static List<int> GearCandidates(Character hero, WeaponType weaponType)
+        private static List<int> GearCandidates(Character hero)
         {
             var equippedMaterials = new[] { hero.Weapon, hero.Head, hero.Body, hero.Legs, hero.Feet }
                 .Where(i => i != null && !string.IsNullOrWhiteSpace(i!.Material))
@@ -235,7 +244,6 @@ namespace RPGGame.Tuning
             var indexed = hero.Inventory
                 .Select((item, index) => (item, index))
                 .Where(x => PlaythroughGearPolicy.SlotOf(x.item) != "")
-                .Where(x => x.item is not WeaponItem w || w.WeaponType == weaponType)
                 // Only gear the hero can wear: the top-2-per-slot cut below must not be spent on items equip refuses.
                 .Where(x => x.item.GetEquipBlockedReason(hero) == null)
                 .ToList();
@@ -427,7 +435,7 @@ namespace RPGGame.Tuning
 
         /// <summary>
         /// Short seeded fights at the hero's level with real combo routing. Score = win rate × kill speed × HP kept:
-        /// winRate / (heroTurns × (netHpLostPerFight / maxHp + 0.05)).
+        /// winRate / (heroTurns × (netHpLostPerFight / maxHp + 0.05)); a lost fight counts <see cref="LostFightTurns"/> turns.
         /// </summary>
         private async Task<double> ScoreAsync(Character candidate, IReadOnlyList<string> strip, int fightsPerEnemy = 0)
         {
@@ -464,7 +472,8 @@ namespace RPGGame.Tuning
                     {
                         fights++;
                         wins += e.PlayerWon ? 1 : 0;
-                        turns += Math.Max(1, e.PlayerTurns);
+                        // A loss counts as the slowest fight: a quick death must not read as a quick kill.
+                        turns += e.PlayerWon ? Math.Max(1, e.PlayerTurns) : LostFightTurns;
                         hpLost += e.PlayerMaxHealth > 0 ? Math.Max(0, e.PlayerMaxHealth - e.PlayerFinalHealth) / (double)e.PlayerMaxHealth : 1;
                     }
                 }

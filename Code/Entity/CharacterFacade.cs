@@ -181,14 +181,20 @@ namespace RPGGame
             return Math.Max(0, (int)Math.Floor(sum * scale));
         }
 
-        /// <summary>Hero damage multiplier from STR (1.0 for enemies and in legacy flat mode). See <see cref="CombatConfig.StrengthDamagePerPoint"/>.</summary>
+        /// <summary>
+        /// Stat that drives hero damage: STR + the primary, so every class's damage grows with its level points.
+        /// A STR-primary hero (Barbarian) counts STR twice.
+        /// </summary>
+        public int GetDamageAttributeValue() => GetEffectiveStrength() + GetEffectivePrimaryAttributeValue();
+
+        /// <summary>Hero damage multiplier from STR + primary (1.0 for enemies and in legacy flat mode). See <see cref="CombatConfig.StrengthDamagePerPoint"/>.</summary>
         public double GetStrengthDamageMultiplier()
         {
             var combat = GameConfiguration.Instance.Combat;
             if (_character is Enemy || combat.StrengthDamagePerPoint <= 0)
                 return 1.0;
             int cap = combat.StrengthDamageMaxStat > 0 ? combat.StrengthDamageMaxStat + SkillEffectRouter.StrengthCapBonus(_character) : int.MaxValue;
-            int str = Math.Max(0, GetEffectiveStrength());
+            int str = Math.Max(0, GetDamageAttributeValue());
             double counted = Math.Min(str, cap);
             // Overflow: STR past the cap still counts at a reduced share, so STR stays worth collecting late.
             if (str > cap && combat.StrengthOverflowEfficiency > 0)

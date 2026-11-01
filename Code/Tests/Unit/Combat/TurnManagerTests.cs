@@ -167,6 +167,19 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertEqual(newTurnNumber, sameTurnNumber,
                 "Turn number should not change after enemy action",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Generated hero names match none of the name patterns; the battle's hero name must still count.
+            var namedTurns = new TurnManager();
+            namedTurns.InitializeBattle("Bran Oathsworn");
+            TestBase.AssertTrue(namedTurns.RecordAction("Bran Oathsworn", "STAB"),
+                "Named hero action should start a new turn",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(namedTurns.RecordAction("Goblin", "ATTACK"),
+                "Enemy action should not start a new turn for a named hero",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, namedTurns.GetCurrentTurn(),
+                "Named hero: one hero action is one turn",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestGetCurrentTurn()

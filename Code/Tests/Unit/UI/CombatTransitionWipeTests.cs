@@ -52,13 +52,15 @@ namespace RPGGame.Tests.Unit.UI
                 "closed at the cut", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(CombatTransitionWipe.Openness(enter, CombatTransitionWipe.HoldMs) == 0.0,
                 "still closed at the end of the hold", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            double mid = CombatTransitionWipe.Openness(enter, CombatTransitionWipe.HoldMs + CombatTransitionWipe.EnterOpenMs / 2.0);
+            double mid = CombatTransitionWipe.Openness(enter, CombatTransitionWipe.HoldMs + CombatTransitionWipe.OpenMs / 2.0);
             TestBase.AssertTrue(mid > 0.0 && mid < 1.0,
                 $"part open mid-way (got {mid:F2})", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(CombatTransitionWipe.Openness(enter, CombatTransitionWipe.HoldMs + CombatTransitionWipe.EnterOpenMs) == 1.0,
+            TestBase.AssertTrue(CombatTransitionWipe.Openness(enter, CombatTransitionWipe.HoldMs + CombatTransitionWipe.OpenMs) == 1.0,
                 "fully open at the end", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(CombatTransitionWipe.Openness(CombatTransitionWipe.Kind.Exit, CombatTransitionWipe.HoldMs + CombatTransitionWipe.ExitOpenMs) == 1.0,
-                "exit fully open at its end", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(CombatTransitionWipe.Openness(CombatTransitionWipe.Kind.Exit, CombatTransitionWipe.HoldMs + CombatTransitionWipe.OpenMs / 2.0) == mid,
+                "exit opens on the same curve as enter", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(CombatTransitionWipe.RemainingMs == 0,
+                "nothing to wait for when no veil plays", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

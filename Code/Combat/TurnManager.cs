@@ -24,17 +24,20 @@ namespace RPGGame
         // Turn counter system - increments with every action
         private int actionCount = 0;
         private int turnNumber = 0;
+        private string? playerName;
 
         /// <summary>
         /// Initializes the turn manager for a new battle
         /// </summary>
-        public void InitializeBattle()
+        /// <param name="heroName">The hero's name, so their actions count as turns whatever the name is.</param>
+        public void InitializeBattle(string? heroName = null)
         {
             actionSpeedSystem = new ActionSpeedSystem();
             healthTracker = new BattleHealthTracker();
             lastPlayerAction = null;
             actionCount = 0;
             turnNumber = 0;
+            playerName = string.IsNullOrWhiteSpace(heroName) ? null : heroName;
         }
 
         /// <summary>
@@ -275,6 +278,10 @@ namespace RPGGame
         /// </summary>
         private bool IsPlayerAction(string entityName)
         {
+            // Generated hero names ("Bran Oathsworn") match none of the patterns below, so check the battle's hero first.
+            if (playerName != null)
+                return string.Equals(entityName, playerName, StringComparison.Ordinal);
+
             // Enemy names typically contain keywords like "Enemy", and monster type names
             // Environment names are room/area names
             // Player names are character names, typically stored as "Character" or custom names

@@ -37,7 +37,7 @@ namespace RPGGame
         /// <summary>Maps a d20 face to a band; TECH milestone steps lower the miss / hit / combo ceilings.</summary>
         public static Outcome Resolve(int roll, int hitSteps = 0, int comboSteps = 0, int critSteps = 0)
         {
-            int missCeiling = Math.Max(1, 5 - hitSteps);
+            int missCeiling = Math.Max(2, 5 - hitSteps);
             int hitCeiling = Math.Max(missCeiling, 13 - comboSteps);
             int comboCeiling = Math.Max(hitCeiling, 19 - critSteps);
             if (roll <= 1) return Outcome.CriticalMiss;

@@ -122,6 +122,8 @@ namespace RPGGame.Audio
             {
                 if (bus == AudioBusKind.Music && !config.MusicEnabled) return;
                 if (bus == AudioBusKind.Sfx && !config.SfxEnabled) return;
+                // F10 zero-delay dev mode fires cues back to back; keep music, drop SFX.
+                if (bus == AudioBusKind.Sfx && DeveloperModeState.IsZeroDelayDevMode) return;
             }
 
             if (!settingsPreview && !PassesRateLimit(cue, binding)) return;

@@ -48,6 +48,7 @@ namespace RPGGame.Tests.Unit
             TestNonComboActionRejection();
             TestComboOrdering();
             TestRestoreComboFromActionNamesPreservesSavedNameOrder();
+            TestRestoreComboFromActionNamesKeepsDuplicateNames();
 
             TestBase.PrintSummary("ComboSequenceManager Tests", _testsRun, _testsPassed, _testsFailed);
             }
@@ -554,7 +555,37 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        /// <summary>
+        /// A strip with the same name twice (gear + class copy) must restore both instances, not collapse to the tail.
+        /// </summary>
+        private static void TestRestoreComboFromActionNamesKeepsDuplicateNames()
+        {
+            Console.WriteLine("\n--- Testing RestoreComboFromActionNames keeps duplicate names ---");
+
+            var character = TestDataBuilders.Character().WithName("RestoreDupTest").Build();
+
+            var slamGear = TestDataBuilders.CreateMockAction("DUP_SLAM");
+            var might = TestDataBuilders.CreateMockAction("DUP_MIGHT");
+            var slamClass = TestDataBuilders.CreateMockAction("DUP_SLAM");
+            foreach (var a in new[] { slamGear, might, slamClass })
+            {
+                a.IsComboAction = true;
+                character.AddActionAllowDuplicates(a, 1.0);
+            }
+
+            var savedOrder = new List<string> { "DUP_SLAM", "DUP_MIGHT", "DUP_SLAM" };
+            character.RestoreComboFromActionNames(savedOrder);
+
+            var combo = character.GetComboActions();
+            var names = combo.Select(a => a.Name).ToList();
+            TestBase.AssertTrue(names.SequenceEqual(savedOrder),
+                $"Combo should restore DUP_SLAM, DUP_MIGHT, DUP_SLAM; got [{string.Join(", ", names)}]",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(combo.Count == 3 && !ReferenceEquals(combo[0], combo[2]),
+                "Duplicate names should map to distinct pool instances",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         #endregion
     }
 }
-

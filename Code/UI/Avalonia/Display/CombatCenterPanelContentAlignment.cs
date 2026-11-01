@@ -104,6 +104,8 @@ namespace RPGGame.UI.Avalonia.Display
 
             if (t.StartsWith("It appears you are safe", StringComparison.OrdinalIgnoreCase))
                 return true;
+            if (t.StartsWith("You have been fully healed", StringComparison.OrdinalIgnoreCase))
+                return true;
 
             // Enemy encounter headline from EnemyInfoBuilder: "A {name} appears." / "A {name} with {weapon} appears."
             if (t.StartsWith("A ", StringComparison.Ordinal) && t.EndsWith(" appears.", StringComparison.Ordinal))

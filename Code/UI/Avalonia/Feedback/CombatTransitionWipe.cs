@@ -8,11 +8,10 @@ namespace RPGGame.UI.Avalonia.Feedback
 {
     /// <summary>
     /// Veil over the center column when a fight starts or ends, so the swap between the dungeon log and the combat
-    /// board reads as a transition instead of a cut. Muted on purpose: near-black with a faint steel outline, no hot
-    /// colors. Entering combat the darkness closes in on the middle of the column, its edges drawing toward the
-    /// center until it vanishes there (the view narrowing onto the fight); leaving combat it lifts off the top with a
-    /// soft lower edge and thins as it goes (the weight coming off).
-    /// Driven by <see cref="GameStateManager.StateChanged"/>; the canvas paints it after everything else.
+    /// board reads as a transition instead of a cut. Muted on purpose: near-black, no hot colors. Entering and leaving
+    /// combat alike, it lifts off the top with a soft lower edge and thins as it goes.
+    /// Driven by <see cref="GameStateManager.StateChanged"/>; the canvas paints it after everything else. The first
+    /// turn callout of a fight waits for it (<see cref="RemainingMs"/>).
     /// </summary>
     public static class CombatTransitionWipe
     {
@@ -20,20 +19,29 @@ namespace RPGGame.UI.Avalonia.Feedback
 
         /// <summary>Time the column stays dark before the veil moves, so the cut registers.</summary>
         internal const int HoldMs = 60;
-        internal const int EnterOpenMs = 520;
-        internal const int ExitOpenMs = 640;
+        internal const int OpenMs = 640;
 
         private static readonly TimeSpan FrameInterval = TimeSpan.FromMilliseconds(16);
         private static DispatcherTimer? _timer;
         private static System.Action? _refresh;
 
         private static readonly Color VeilColor = Color.FromRgb(8, 8, 10);
-        private static readonly Color OutlineColor = Color.FromRgb(120, 124, 132);
 
         private static Kind _kind;
         private static DateTimeOffset _startedUtc;
 
         public static Kind Current => _kind;
+
+        /// <summary>Milliseconds until the veil is gone; 0 when none is playing.</summary>
+        public static int RemainingMs
+        {
+            get
+            {
+                if (_kind == Kind.None)
+                    return 0;
+                return (int)Math.Ceiling(Math.Max(0, HoldMs + OpenMs - ElapsedMs));
+            }
+        }
 
         /// <summary>Repaints the canvas; called on the UI thread.</summary>
         public static void SetRefresh(System.Action? refresh) => _refresh = refresh;
@@ -66,8 +74,7 @@ namespace RPGGame.UI.Avalonia.Feedback
         {
             if (kind == Kind.None)
                 return 1.0;
-            int openMs = kind == Kind.Enter ? EnterOpenMs : ExitOpenMs;
-            return EaseInOut((elapsedMs - HoldMs) / openMs);
+            return EaseInOut((elapsedMs - HoldMs) / OpenMs);
         }
 
         /// <summary>Smoothstep: gentle start and landing, no snap.</summary>
@@ -117,22 +124,6 @@ namespace RPGGame.UI.Avalonia.Feedback
             // The veil thins as it moves so its edge never reads as a hard flash line.
             byte alpha = (byte)Math.Round(255 * (1.0 - 0.45 * open));
             var veil = new SolidColorBrush(Color.FromArgb(alpha, VeilColor.R, VeilColor.G, VeilColor.B));
-
-            if (kind == Kind.Enter)
-            {
-                // Closing in: a dark rect shrinking onto the column's center, the board showing from the edges inward.
-                double s = 1.0 - open;
-                double rw = w * s, rh = h * s;
-                var rect = new Rect(x + (w - rw) / 2, (h - rh) / 2, rw, rh);
-                context.FillRectangle(veil, rect);
-                byte outlineAlpha = (byte)Math.Round(110 * (1.0 - open));
-                if (open > 0 && outlineAlpha > 0 && rw > 2 && rh > 2)
-                {
-                    var pen = new Pen(new SolidColorBrush(Color.FromArgb(outlineAlpha, OutlineColor.R, OutlineColor.G, OutlineColor.B)), 1);
-                    context.DrawRectangle(null, pen, rect.Deflate(0.5));
-                }
-                return;
-            }
 
             // Lifting: the veil rises off the top, its lower edge a soft gradient rather than a line.
             double feather = Math.Max(8, h * 0.2);

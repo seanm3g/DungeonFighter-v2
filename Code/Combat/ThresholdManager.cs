@@ -9,10 +9,15 @@ namespace RPGGame.Combat
     /// Allows actions to modify critical hit, combo, and hit thresholds.
     /// Crit uses crit-eval roll; combo uses full attack roll — they are stored independently so a lowered
     /// crit threshold does not force the combo threshold down (you can crit without meeting combo).
-    /// COMBO and HIT still cascade: lowering COMBO pulls HIT to at most COMBO - 1; HIT caps CRIT_MISS.
+    /// COMBO and HIT still cascade: lowering COMBO pulls HIT to at most COMBO - 1; HIT caps CRIT_MISS at HIT - 1.
+    /// Each band keeps at least one face: CRIT_MISS >= 1 (natural 1), HIT (max miss) >= 2, COMBO >= 3.
     /// </summary>
     public class ThresholdManager
     {
+        public const int MinCriticalMissThreshold = 1;
+        public const int MinHitThreshold = MinCriticalMissThreshold + 1;
+        public const int MinComboThreshold = MinHitThreshold + 1;
+
         private readonly ConcurrentDictionary<Actor, ThresholdModifiers> _actorThresholds = new ConcurrentDictionary<Actor, ThresholdModifiers>();
 
         /// <summary>
@@ -111,13 +116,13 @@ namespace RPGGame.Combat
 
         /// <summary>
         /// Sets the critical miss threshold for an actor.
-        /// Cascades: CRIT_MISS is capped by HIT (cannot exceed max miss value).
+        /// Clamped to [1, HIT - 1]: natural 1 always crit-misses and at least one plain-miss face remains.
         /// </summary>
         public void SetCriticalMissThreshold(Actor actor, int threshold)
         {
             var mod = GetOrCreateModifiers(actor);
             int hit = GetHitThreshold(actor);
-            mod.CriticalMissThreshold = Math.Min(threshold, hit);
+            mod.CriticalMissThreshold = Math.Max(MinCriticalMissThreshold, Math.Min(threshold, hit - 1));
         }
 
         /// <summary>
@@ -155,22 +160,22 @@ namespace RPGGame.Combat
         /// <summary>
         /// Sets the combo threshold for an actor (attack roll vs this value).
         /// Not capped by crit threshold — crit and combo use different roll totals.
-        /// When COMBO goes lower, HIT moves to at most COMBO - 1.
+        /// Floor is 3. When COMBO goes lower, HIT moves to at most COMBO - 1.
         /// </summary>
         public void SetComboThreshold(Actor actor, int threshold)
         {
             var mod = GetOrCreateModifiers(actor);
-            mod.ComboThreshold = threshold;
+            mod.ComboThreshold = Math.Max(MinComboThreshold, threshold);
             // Cascade: when COMBO goes lower, HIT moves with it (HIT = COMBO - 1)
-            int newHit = Math.Max(0, mod.ComboThreshold.Value - 1);
+            int newHit = mod.ComboThreshold.Value - 1;
             int hit = GetHitThreshold(actor);
             if (hit > newHit)
             {
                 mod.HitThreshold = newHit;
-                // Cascade CRIT_MISS: cannot exceed HIT
+                // Cascade CRIT_MISS: stays below HIT
                 int critMiss = GetCriticalMissThreshold(actor);
-                if (critMiss > newHit)
-                    mod.CriticalMissThreshold = newHit;
+                if (critMiss > newHit - 1)
+                    mod.CriticalMissThreshold = newHit - 1;
             }
         }
 
@@ -187,18 +192,17 @@ namespace RPGGame.Combat
 
         /// <summary>
         /// Sets the hit threshold for an actor.
-        /// Cascades: HIT is capped by COMBO - 1; when HIT goes lower, CRIT_MISS moves with it.
+        /// Clamped to [2, COMBO - 1]; when HIT goes lower, CRIT_MISS moves with it (stays at most HIT - 1).
         /// </summary>
         public void SetHitThreshold(Actor actor, int threshold)
         {
             var mod = GetOrCreateModifiers(actor);
             int combo = GetComboThreshold(actor);
-            int maxHit = Math.Max(0, combo - 1);
-            mod.HitThreshold = Math.Min(threshold, maxHit);
-            // Cascade: CRIT_MISS cannot exceed HIT; when HIT goes lower, CRIT_MISS moves with it
+            mod.HitThreshold = Math.Max(MinHitThreshold, Math.Min(threshold, combo - 1));
+            // Cascade: CRIT_MISS stays below HIT; when HIT goes lower, CRIT_MISS moves with it
             int critMiss = GetCriticalMissThreshold(actor);
-            if (critMiss > mod.HitThreshold)
-                mod.CriticalMissThreshold = mod.HitThreshold.Value;
+            if (critMiss > mod.HitThreshold - 1)
+                mod.CriticalMissThreshold = mod.HitThreshold.Value - 1;
         }
 
         /// <summary>

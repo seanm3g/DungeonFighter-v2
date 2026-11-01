@@ -74,6 +74,10 @@ namespace RPGGame
                     return;
                 ms = Math.Max(MinDurationMs, ms);
             }
+            // The fight's first callout would otherwise play under the combat-entry veil.
+            int wipeMs = RPGGame.UI.Avalonia.Feedback.CombatTransitionWipe.RemainingMs;
+            if (wipeMs > 0)
+                await Task.Delay(wipeMs);
             await ShowAsync(actor, ms, defeated: false);
         }
 

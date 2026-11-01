@@ -67,7 +67,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 else
                     list.Add(new ItemStatContribution("Attack speed", $"{weapon.GetTotalAttackSpeed().ToString("F2", CultureInfo.InvariantCulture)}×"));
                 if (weapon.BonusAttackSpeed != 0)
-                    list.Add(new ItemStatContribution("Weapon speed", $"{weapon.BonusAttackSpeed:+0;-0}"));
+                    list.Add(new ItemStatContribution("Weapon speed", FormatSpeedPoints(weapon.BonusAttackSpeed)));
             }
             else
             {
@@ -92,7 +92,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             AddCatalogAttribute(list, item, item.BaseCrit, "Crit threshold");
 
             if (Math.Abs(item.CatalogAttackSpeed) > 1e-9)
-                list.Add(new ItemStatContribution("Weapon speed", $"{item.CatalogAttackSpeed:+0.##;-0.##}"));
+                list.Add(new ItemStatContribution("Weapon speed", FormatSpeedPoints(item.CatalogAttackSpeed)));
 
             int actionSlots = ItemStatFormatter.GetActionSlotDisplayTotalPublic(item);
             if (item is FeetItem || actionSlots > 0)
@@ -137,7 +137,40 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 }
             }
 
+            if (wielder != null)
+                AddSwingTimeLine(list, item, wielder);
+
             return list;
+        }
+
+        /// <summary>Weapon speed points read as "+1 (+10% speed)": each point is <see cref="CombatConfig.WeaponSpeedPercentPerPoint"/> %.</summary>
+        internal static string FormatSpeedPoints(double points)
+        {
+            double pct = points * GameConfiguration.Instance.Combat.GetWeaponSpeedPercentPerPoint();
+            return $"{points.ToString("+0.##;-0.##", CultureInfo.InvariantCulture)} ({pct.ToString("+0.#;-0.#", CultureInfo.InvariantCulture)}% speed)";
+        }
+
+        /// <summary>
+        /// What the item's weapon speed points do to <paramref name="wielder"/>'s swing, in seconds and actions per enemy action.
+        /// Past the swing floor the speed becomes damage instead, so the line says that.
+        /// </summary>
+        private static void AddSwingTimeLine(List<ItemStatContribution> list, Item item, Character wielder)
+        {
+            var swing = SpeedCalculator.GetItemSpeedPointSwing(wielder, item);
+            if (swing == null || swing.Value.WithSeconds <= 0)
+                return;
+            var (without, with) = swing.Value;
+            bool slower = with > without + 1e-6;
+            string value;
+            if (Math.Abs(with - without) < 0.005)
+                value = $"at {with.ToString("F2", CultureInfo.InvariantCulture)}s floor (extra speed adds damage)";
+            else
+            {
+                double actionsPct = (without / with - 1.0) * 100.0;
+                value = $"{without.ToString("F2", CultureInfo.InvariantCulture)}s → {with.ToString("F2", CultureInfo.InvariantCulture)}s " +
+                        $"({actionsPct.ToString("+0;-0", CultureInfo.InvariantCulture)}% actions)";
+            }
+            list.Add(new ItemStatContribution("Swing time", value, sourceTag: null, isDebuff: slower));
         }
 
         private static void AddCatalogAttribute(List<ItemStatContribution> list, Item item, int value, string label)
@@ -258,6 +291,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         private static string FormatSuffixValue(string contribType, double value)
         {
             string norm = NormalizeContribType(contribType);
+            if (string.Equals(norm, "AttackSpeed", StringComparison.OrdinalIgnoreCase))
+                return FormatSpeedPoints(value);
             bool literal = IsLiteralSuffixStat(norm);
             if (literal)
             {

@@ -1054,7 +1054,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 : null;
 
         /// <summary>
-        /// The act's combat-log action block in a small black box centered above NOW, a few rows clear of NOW's label
+        /// The headline of the act's combat-log action block in a small black box centered above NOW, a few rows clear of NOW's label
         /// and no higher than <paramref name="topY"/>, with a red line dropping from it to NOW. Lines wrap; rows that
         /// don't fit are dropped from the bottom. Returns false when there is no room for it.
         /// </summary>
@@ -1068,14 +1068,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (maxInner < 12 || maxRows < 1)
                 return false;
 
+            // Only the headline; the block's indented sub-lines stay in the combat log.
             var rows = new List<List<(char C, Color Color)>>();
-            bool first = true;
-            foreach (var line in block)
-            {
-                int before = rows.Count;
-                WrapLogLine(line, maxInner, first ? 0 : 2, rows);
-                first &= rows.Count == before;
-            }
+            var headline = block.FirstOrDefault(l => l.Any(s => !string.IsNullOrWhiteSpace(s.Text)));
+            if (headline != null)
+                WrapLogLine(headline, maxInner, 0, rows);
             if (rows.Count == 0)
                 return false;
             int keep = maxRows > 1 ? maxRows - 1 : maxRows; // leave the line at least one row

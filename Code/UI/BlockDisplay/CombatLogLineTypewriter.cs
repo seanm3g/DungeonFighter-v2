@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using RPGGame.Config.TextDelay;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.BlockDisplay
@@ -40,18 +41,27 @@ namespace RPGGame.UI.BlockDisplay
             int[] schedule = CharacterRevealRhythmCalculator.BuildParagraphSchedule(
                 plain, CombatDelayManager.Config.MessageDelayMs);
 
-            int pendingMs = 0;
-            for (int len = from + 1; len <= plain.Length; len++)
+            // Partial rows align as the finished line will, so centered headlines type in place.
+            CombatLogTypingLine.Begin(line, messageType);
+            try
             {
-                pendingMs += schedule.Length >= len ? schedule[len - 1] : 0;
-                if (len < plain.Length && pendingMs < MinPaintStepMs)
-                    continue;
+                int pendingMs = 0;
+                for (int len = from + 1; len <= plain.Length; len++)
+                {
+                    pendingMs += schedule.Length >= len ? schedule[len - 1] : 0;
+                    if (len < plain.Length && pendingMs < MinPaintStepMs)
+                        continue;
 
-                coordinator.ReplaceColoredSegmentsFromEnd(
-                    offsetFromEnd, ColoredTextRenderer.Truncate(line, len), character, messageType);
-                if (len < plain.Length && pendingMs > 0)
-                    await CombatDelayManager.DelayAfterNarrativeScheduledMsAsync(pendingMs);
-                pendingMs = 0;
+                    coordinator.ReplaceColoredSegmentsFromEnd(
+                        offsetFromEnd, ColoredTextRenderer.Truncate(line, len), character, messageType);
+                    if (len < plain.Length && pendingMs > 0)
+                        await CombatDelayManager.DelayAfterNarrativeScheduledMsAsync(pendingMs);
+                    pendingMs = 0;
+                }
+            }
+            finally
+            {
+                CombatLogTypingLine.End(line);
             }
         }
 

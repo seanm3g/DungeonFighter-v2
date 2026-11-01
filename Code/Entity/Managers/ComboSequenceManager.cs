@@ -259,8 +259,12 @@ namespace RPGGame
                 if (string.IsNullOrWhiteSpace(actionName))
                     continue;
 
+                // Skip instances already restored so a name listed twice (gear + class copy) maps to the second instance
+                // instead of re-stamping the first one's ComboOrder and dropping the slot.
                 var actionEntry = entity.ActionPool.FirstOrDefault(item =>
-                    string.Equals(item.action.Name, actionName, StringComparison.OrdinalIgnoreCase));
+                    item.action != null &&
+                    string.Equals(item.action.Name, actionName, StringComparison.OrdinalIgnoreCase) &&
+                    !ComboSequence.Contains(item.action));
 
                 if (actionEntry.action != null && actionEntry.action.IsComboAction)
                 {
