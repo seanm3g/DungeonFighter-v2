@@ -105,6 +105,11 @@ namespace RPGGame
         public int HeroAgilitySpeedSoftCap { get; set; }
         /// <summary>Share of hero AGI above <see cref="HeroAgilitySpeedSoftCap"/> that still speeds the swing (0.5 = half).</summary>
         public double HeroAgilitySpeedOverCapEfficiency { get; set; }
+        /// <summary>
+        /// When true the soft cap only throttles level-up / gear AGI: AGI from class material sets and convert grants
+        /// (<see cref="MaterialSetController.GetSetAndConvertAgility"/>) always counts in full, so Warrior scales through its sets.
+        /// </summary>
+        public bool HeroAgilitySoftCapExemptsSets { get; set; }
         /// <summary>Overflow: hero STR above the STR damage cap still counts at this share (0.5 = half value). 0 = off.</summary>
         public double StrengthOverflowEfficiency { get; set; }
 

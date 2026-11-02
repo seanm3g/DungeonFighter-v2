@@ -207,14 +207,16 @@ namespace RPGGame.Combat.Calculators
         /// Hero AGI as the speed curve counts it: above <see cref="CombatConfig.HeroAgilitySpeedSoftCap"/> only
         /// <see cref="CombatConfig.HeroAgilitySpeedOverCapEfficiency"/> of each point counts. Unchanged when the cap is off.
         /// </summary>
-        public static int GetHeroSpeedAgility(int agility)
+        public static int GetHeroSpeedAgility(int agility, int uncappedAgility = 0)
         {
             var combat = GameConfiguration.Instance.Combat;
             int cap = combat.HeroAgilitySpeedSoftCap;
-            if (cap <= 0 || agility <= cap)
+            int exempt = combat.HeroAgilitySoftCapExemptsSets ? Math.Clamp(uncappedAgility, 0, Math.Max(0, agility)) : 0;
+            int capped = agility - exempt;
+            if (cap <= 0 || capped <= cap)
                 return agility;
             double share = Math.Clamp(combat.HeroAgilitySpeedOverCapEfficiency, 0.0, 1.0);
-            return cap + (int)Math.Round((agility - cap) * share);
+            return cap + (int)Math.Round((capped - cap) * share) + exempt;
         }
 
         private static SpeedBreakdown HeroBreakdown(Character hero, double baseSeconds, double floor, WeaponItem? weaponOverride, bool overrideWeapon)
@@ -222,7 +224,7 @@ namespace RPGGame.Combat.Calculators
             var combat = GameConfiguration.Instance.Combat;
 
             // Agility: curve, then overflow past the max keeps making the raw swing faster (feeds overflow damage).
-            int agi = GetHeroSpeedAgility(hero.GetEffectiveAgility());
+            int agi = GetHeroSpeedAgility(hero.GetEffectiveAgility(), MaterialSetController.GetSetAndConvertAgility(hero));
             double agilityFactor = GetAgilitySpeedMultiplier(agi);
             double perPoint = combat.AgilityOverflowSpeedPerPoint;
             if (perPoint > 0 && agi > combat.AgilityMax)

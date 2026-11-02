@@ -140,11 +140,16 @@ namespace RPGGame.Tests.Unit.Combat
                 combat.HeroAgilitySpeedOverCapEfficiency = 0.5;
                 TestBase.AssertEqual(100, SpeedCalculator.GetHeroSpeedAgility(100), "under the cap: unchanged", ref _run, ref _passed, ref _failed);
                 TestBase.AssertEqual(178, SpeedCalculator.GetHeroSpeedAgility(235), "over the cap: 120 + 115 x 0.5", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(178, SpeedCalculator.GetHeroSpeedAgility(235, 40), "exemption off: set AGI still capped", ref _run, ref _passed, ref _failed);
+                combat.HeroAgilitySoftCapExemptsSets = true;
+                TestBase.AssertEqual(198, SpeedCalculator.GetHeroSpeedAgility(235, 40), "exempt: 120 + 75 x 0.5 + 40 set AGI", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(140, SpeedCalculator.GetHeroSpeedAgility(140, 40), "exempt: under the cap without set AGI", ref _run, ref _passed, ref _failed);
             }
             finally
             {
                 combat.HeroAgilitySpeedSoftCap = oldCap;
                 combat.HeroAgilitySpeedOverCapEfficiency = oldEff;
+                combat.HeroAgilitySoftCapExemptsSets = false;
             }
         }
 

@@ -269,6 +269,17 @@ namespace RPGGame
 
         // Primary attribute converts granted this fight (capped by MaterialConvertPrimaryStatMaxPerFight).
         private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Character, StrongBox<int>> _fightConvertStat = new();
+        // The AGI share of those grants, which the hero AGI soft cap can exempt (see GetSetAndConvertAgility).
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Character, StrongBox<int>> _fightConvertAgility = new();
+
+        /// <summary>AGI the hero has from class sets (always-on per piece) plus this fight's convert grants.</summary>
+        public static int GetSetAndConvertAgility(Character? hero)
+        {
+            if (hero == null || hero is Enemy)
+                return 0;
+            int convert = _fightConvertAgility.TryGetValue(hero, out var box) ? box.Value : 0;
+            return GetSetAttributeBonus(hero, "AGI") + convert;
+        }
 
         /// <summary>
         /// Convert payoff in stats: <paramref name="unitsSpent"/> × <see cref="CombatConfig.MaterialConvertPrimaryStatPerUnit"/>
@@ -290,6 +301,8 @@ namespace RPGGame
             granted.Value += points;
             string code = DynamicAttributeCategoryResolver.GetRankedAttributeCodes(hero)[0];
             hero.FightCadenceBuffs.MergeAdditively(new[] { new ActionAttackBonusItem { Type = code, Value = points } });
+            if (string.Equals(code, "AGI", StringComparison.OrdinalIgnoreCase))
+                _fightConvertAgility.GetOrCreateValue(hero).Value += points;
             return points;
         }
 
@@ -325,6 +338,7 @@ namespace RPGGame
             hero.Effects.MaterialConsecutiveConnects = 0;
             _fightMinted.Remove(hero);
             _fightConvertStat.Remove(hero);
+            _fightConvertAgility.Remove(hero);
         }
 
         /// <summary>Clears dungeon-run keyword currency (CRISIS, DRAG, …) and consecutive-connect tracking.</summary>
