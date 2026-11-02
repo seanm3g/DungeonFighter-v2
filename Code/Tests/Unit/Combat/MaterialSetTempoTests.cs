@@ -132,8 +132,10 @@ namespace RPGGame.Tests.Unit.Combat
             var combat = GameConfiguration.Instance.Combat;
             int oldCap = combat.HeroAgilitySpeedSoftCap;
             double oldEff = combat.HeroAgilitySpeedOverCapEfficiency;
+            bool oldExempt = combat.HeroAgilitySoftCapExemptsSets;
             try
             {
+                combat.HeroAgilitySoftCapExemptsSets = false;
                 combat.HeroAgilitySpeedSoftCap = 0;
                 TestBase.AssertEqual(235, SpeedCalculator.GetHeroSpeedAgility(235), "cap off: AGI unchanged", ref _run, ref _passed, ref _failed);
                 combat.HeroAgilitySpeedSoftCap = 120;
@@ -149,7 +151,7 @@ namespace RPGGame.Tests.Unit.Combat
             {
                 combat.HeroAgilitySpeedSoftCap = oldCap;
                 combat.HeroAgilitySpeedOverCapEfficiency = oldEff;
-                combat.HeroAgilitySoftCapExemptsSets = false;
+                combat.HeroAgilitySoftCapExemptsSets = oldExempt;
             }
         }
 

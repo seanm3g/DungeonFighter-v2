@@ -202,6 +202,15 @@ namespace RPGGame.Tuning
             foreach (string a in Data.ActionPriority.GetValueOrDefault(cls) ?? new List<string>())
                 if (picks.Count < length && owned.Contains(a) && !picks.Contains(a, StringComparer.OrdinalIgnoreCase))
                     picks.Add(a);
+            // A level list mined while heroes swapped weapons can name almost nothing this class owns (L75 Barbarian ran
+            // BONE WRATH alone). Below two actions, top up from the class's other lists, nearest level first. Topping up to the
+            // slot cap read worse (diluted Warrior/Rogue at L75; Wizard owns too few actions to gain).
+            int floor = Math.Min(2, length);
+            if (picks.Count < floor)
+                foreach (string key in FallbackKeys(cls, hero.Level).Skip(1))
+                    foreach (string a in Data.ActionPriority.GetValueOrDefault(key) ?? new List<string>())
+                        if (picks.Count < floor && owned.Contains(a) && !picks.Contains(a, StringComparer.OrdinalIgnoreCase))
+                            picks.Add(a);
             if (picks.Count == 0)
                 return;
             var position = Data.ActionOrder.GetValueOrDefault(cls) ?? new Dictionary<string, double>();
@@ -224,6 +233,23 @@ namespace RPGGame.Tuning
                 .Select(k => int.Parse(k[prefix.Length..]))
                 .ToList();
             return levels.Count == 0 ? cls : prefix + levels.OrderBy(l => Math.Abs(l - level)).First();
+        }
+
+        /// <summary><paramref name="key"/> itself, then the same class's other "Class@Level" lists nearest first, then the class key.</summary>
+        private static IEnumerable<string> FallbackKeys(string key, int level)
+        {
+            int at = key.IndexOf('@');
+            string cls = at < 0 ? key : key[..at];
+            string prefix = cls + "@";
+            yield return key;
+            var others = Data.ActionPriority.Keys
+                .Where(k => k.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && int.TryParse(k[prefix.Length..], out _))
+                .Where(k => !string.Equals(k, key, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(k => Math.Abs(int.Parse(k[prefix.Length..]) - level));
+            foreach (string k in others)
+                yield return k;
+            if (!string.Equals(cls, key, StringComparison.OrdinalIgnoreCase))
+                yield return cls;
         }
 
         private static string ClassName(WeaponType weaponType) => weaponType switch
