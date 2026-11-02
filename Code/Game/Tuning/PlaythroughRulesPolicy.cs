@@ -22,21 +22,6 @@ namespace RPGGame.Tuning
             public Dictionary<string, List<string>> SkillOrder { get; set; } = new(StringComparer.OrdinalIgnoreCase);
             public Dictionary<string, List<string>> ActionPriority { get; set; } = new(StringComparer.OrdinalIgnoreCase);
             public Dictionary<string, Dictionary<string, double>> ActionOrder { get; set; } = new(StringComparer.OrdinalIgnoreCase);
-            public Dictionary<string, double> StripFill { get; set; } = new(StringComparer.OrdinalIgnoreCase);
-            /// <summary>Set materials the smart bot wore most, per class (home materials are still tried first).</summary>
-            public Dictionary<string, List<string>> SetPreference { get; set; } = new(StringComparer.OrdinalIgnoreCase);
-            /// <summary>When above 0, replaces every class's mined strip fill (share of the slot cap).</summary>
-            public double StripFillOverride { get; set; }
-            /// <summary>1 = rank home sets by <see cref="SetPreference"/> before piece count.</summary>
-            public double UseSetPreference { get; set; }
-            /// <summary>1 = fill strip slots the mined list can't with any other owned action.</summary>
-            public double FillUnlisted { get; set; }
-            /// <summary>1 = home-class sets outrank other sets; 0 = any class's set, by piece count then value.</summary>
-            public double HomeSetFirst { get; set; } = 1;
-            /// <summary>Wear the chosen set only when its pieces keep this share of the best-value items in those slots.</summary>
-            public double SetMinValueShare { get; set; }
-            /// <summary>1 = strip picks from the closest mined "Class@Level" key when there is one.</summary>
-            public double PerLevelStrips { get; set; } = 1;
         }
 
         private static RulesData? _data;
@@ -83,7 +68,7 @@ namespace RPGGame.Tuning
             try
             {
                 LearnSkills(hero, homeType, cls, milestone);
-                EquipGear(hero, homeType, cls, milestone);
+                EquipGear(hero, homeType, milestone);
                 BuildStrip(hero, homeType, StripKey(cls, hero.Level));
             }
             finally
@@ -142,14 +127,8 @@ namespace RPGGame.Tuning
         /// pieces). Its best piece per slot is worn; other slots take the best-value wearable item. A set weapon is
         /// used only while it keeps 75% of the best weapon's value.
         /// </summary>
-        private void EquipGear(Character hero, WeaponType homeType, string cls, PlaythroughMilestone milestone)
+        private void EquipGear(Character hero, WeaponType homeType, PlaythroughMilestone milestone)
         {
-            var preference = Data.SetPreference.GetValueOrDefault(cls) ?? new List<string>();
-            int PrefRank(string material)
-            {
-                int i = preference.FindIndex(m => string.Equals(m, material, StringComparison.OrdinalIgnoreCase));
-                return i < 0 ? int.MaxValue : i;
-            }
             string home = PlaythroughSmartPolicy.ClassKeyOf(homeType);
             var slots = new[] { "weapon", "head", "body", "legs", "feet" };
             var pool = hero.Inventory
@@ -176,10 +155,7 @@ namespace RPGGame.Tuning
                     return (material: g.Key, pieces, isHome);
                 })
                 .Where(s => s.pieces.Count >= MaterialBuildData.StackUnlockCount)
-                .Where(s => s.pieces.Sum(ItemValueModel.Score) >= Data.SetMinValueShare
-                    * s.pieces.Sum(p => ItemValueModel.Score(bestBySlot[PlaythroughGearPolicy.SlotOf(p)]!)))
-                .OrderByDescending(s => Data.HomeSetFirst > 0 && s.isHome)
-                .ThenBy(s => Data.UseSetPreference > 0 ? PrefRank(s.material) : 0)
+                .OrderByDescending(s => s.isHome)
                 .ThenByDescending(s => s.pieces.Count)
                 .ThenByDescending(s => s.pieces.Sum(ItemValueModel.Score))
                 .ToList();
@@ -212,23 +188,19 @@ namespace RPGGame.Tuning
         // ---------------------------------------------------------------- strip
 
         /// <summary>
-        /// Granted convert actions plus the class's most-run actions the hero owns, up to the mined share of the slot
-        /// cap, ordered by where the smart bot tends to place them.
+        /// Granted convert actions plus the class's most-run actions the hero owns (at the closest mined level), up to
+        /// the slot cap, ordered by where the smart bot tends to place them. Checked 2026-11-01: full strips matched the
+        /// smart bot best; mined set preference and filling with unlisted actions read worse.
         /// </summary>
         private void BuildStrip(Character hero, WeaponType homeType, string cls)
         {
             int max = ComboSequenceMaxHelper.GetEffectiveMax(hero);
             var owned = hero.GetActionPool().Select(a => a.Name).Where(n => !string.IsNullOrWhiteSpace(n))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
-            double fill = Data.StripFillOverride > 0 ? Data.StripFillOverride : Data.StripFill.GetValueOrDefault(cls, 1.0);
-            int length = Math.Clamp((int)Math.Round(fill * max), 1, max);
+            int length = Math.Max(1, max);
             var picks = MaterialSetController.GetGrantedConvertActionNames(hero).Where(owned.Contains).ToList();
             foreach (string a in Data.ActionPriority.GetValueOrDefault(cls) ?? new List<string>())
                 if (picks.Count < length && owned.Contains(a) && !picks.Contains(a, StringComparer.OrdinalIgnoreCase))
-                    picks.Add(a);
-            // Owned actions the mined list never saw still beat an empty slot.
-            foreach (string a in owned.OrderBy(a => a, StringComparer.OrdinalIgnoreCase))
-                if (Data.FillUnlisted > 0 && picks.Count < length && !picks.Contains(a, StringComparer.OrdinalIgnoreCase))
                     picks.Add(a);
             if (picks.Count == 0)
                 return;
@@ -246,8 +218,6 @@ namespace RPGGame.Tuning
         /// <summary>The mined "Class@Level" strip key closest to <paramref name="level"/>, else the class key.</summary>
         private static string StripKey(string cls, int level)
         {
-            if (Data.PerLevelStrips <= 0)
-                return cls;
             string prefix = cls + "@";
             var levels = Data.ActionPriority.Keys
                 .Where(k => k.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && int.TryParse(k[prefix.Length..], out _))

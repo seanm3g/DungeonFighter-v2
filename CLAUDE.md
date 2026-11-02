@@ -28,6 +28,7 @@ GameData/           Runtime data (JSON)
   FlavorText.json           Name/narrative text generation
   EnvironmentalActions.json Room hazard actions
   EnemyActions.json         Enemy mechanic kits (templates + flavor-name aliases; enemySystem.actionKits)
+  EnemyPrefixes.json        Spawn prefixes (Undead, Giant, ...) rolled per room enemy + the final boss's Demon; tags only (Enemy.PrefixTags)
   ColorCodes.json / ColorTemplates.json  UI color definitions
   CombatDelayConfig.json / TitleAnimationConfig.json  Timing
   BalancePatches/           Versioned balance iteration snapshots

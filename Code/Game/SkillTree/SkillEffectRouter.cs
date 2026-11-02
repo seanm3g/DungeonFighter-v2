@@ -555,12 +555,9 @@ namespace RPGGame
             return count;
         }
 
-        private static int CountEmptyActionSlots(Character hero)
-        {
-            int max = ComboSequenceMaxHelper.GetEffectiveMax(hero);
-            int filled = hero.GetComboActions()?.Count ?? 0;
-            return Math.Max(0, max - filled);
-        }
+        /// <summary>Strip slots filled beyond the first (Empty Fury, Concentrated Chaos reward long strips).</summary>
+        private static int CountExtraFilledActionSlots(Character hero) =>
+            Math.Max(0, (hero.GetComboActions()?.Count ?? 0) - 1);
 
         private void AddDamageMod(Character hero, double value)
         {
@@ -652,9 +649,9 @@ namespace RPGGame
         {
             double power = GetPower(hero, "empty_fury");
             if (power <= 0) return;
-            int empty = CountEmptyActionSlots(hero);
-            if (empty <= 0) return;
-            int bonus = (int)Math.Round(25 * empty * power);
+            int filled = CountExtraFilledActionSlots(hero);
+            if (filled <= 0) return;
+            int bonus = (int)Math.Round(25 * filled * power);
             hero.Stats.TempStrengthBonus = Math.Max(hero.Stats.TempStrengthBonus, bonus);
             hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
         }

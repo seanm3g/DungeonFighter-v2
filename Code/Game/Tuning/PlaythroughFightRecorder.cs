@@ -44,6 +44,12 @@ namespace RPGGame.Tuning
         public Dictionary<string, int> DamageBySource { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         /// <summary>HP the hero lost by source: hit (enemy swing), dot, retrigger, self (during its own action), environment.</summary>
         public Dictionary<string, int> HeroDamageBySource { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Enemy actions fired in the fight (action name → count).</summary>
+        /// <summary>Spawn prefix of the enemy (Giant, Undead, Demon for the final boss), empty when none.</summary>
+        public string EnemyPrefix { get; set; } = "";
+        public Dictionary<string, int> EnemyActionUses { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>HP the hero lost to enemy swings, by the enemy action that dealt it ("hit" only; DoT stays in HeroDamageBySource).</summary>
+        public Dictionary<string, int> HeroDamageByEnemyAction { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         /// <summary>Parts of hit damage from crits, combo hits and convert actions (subsets of "hit"; they overlap).</summary>
         public int CritDamage { get; set; }
         public int ComboDamage { get; set; }
@@ -160,6 +166,8 @@ namespace RPGGame.Tuning
             return Fights[^1];
         }
 
+        private string _lastEnemyAction = "(none)";
+
         private void OnAction(CombatEvent evt)
         {
             if (Suspended)
@@ -187,7 +195,8 @@ namespace RPGGame.Tuning
                 _current = new PlaythroughFightRecord
                 {
                     HeroLevel = hero.Level,
-                    EnemyName = enemy.Name,
+                    EnemyName = enemy.BaseName,
+                    EnemyPrefix = enemy.Prefix ?? "",
                     EnemyLevel = enemy.Level,
                     BossFight = enemy is Enemy { IsBoss: true },
                     EnemyMaxHealth = enemy.MaxHealth,
@@ -245,7 +254,12 @@ namespace RPGGame.Tuning
                 _pendingHero = true;
             }
             else
+            {
                 _current!.EnemyActions++;
+                _lastEnemyAction = string.IsNullOrWhiteSpace(evt.Action?.Name) ? "(none)" : evt.Action!.Name;
+                if (ReferenceEquals(evt.Source, enemy))
+                    Count(_current.EnemyActionUses, _lastEnemyAction);
+            }
             if (Verbose)
                 _trace?.Invoke($"      {evt.Source?.Name,-14} {evt.Action?.Name,-16} roll {evt.RollValue,2}{(evt.IsCombo ? " combo" : "")}{(evt.IsCritical ? " crit" : "")} | hero {hero.CurrentHealth}/{hero.GetEffectiveMaxHealth()} enemy {enemy.CurrentHealth}/{enemy.MaxHealth} | swing hero {hero.GetTotalAttackSpeed():F2}s enemy {enemy.GetTotalAttackSpeed():F2}s AGI {enemy.GetEffectiveAgility()} lvl {enemy.Level} | heroPenalty {hero.RollPenalty} hitThr {RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetHitThreshold(hero)} comboThr {RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetComboThreshold(hero)}");
         }
@@ -321,8 +335,8 @@ namespace RPGGame.Tuning
             _stepAfterHero = after;
         }
 
-        private static void Count(Dictionary<string, int> counts, string key) =>
-            counts[key] = counts.GetValueOrDefault(key) + 1;
+        private static void Count(Dictionary<string, int> counts, string key, int amount = 1) =>
+            counts[key] = counts.GetValueOrDefault(key) + amount;
 
         /// <summary>HP actually lost by any actor (<see cref="DamageLedger"/>); attributes enemy HP loss to a source.</summary>
         private void OnDamage(Actor target, int lost, string source)
@@ -352,6 +366,8 @@ namespace RPGGame.Tuning
                     : _lastRole == Role.Hero ? "self"
                     : DamageLedger.Hit;
                 _current.HeroDamageBySource[key] = _current.HeroDamageBySource.GetValueOrDefault(key) + lost;
+                if (key == DamageLedger.Hit && _lastRole == Role.Enemy)
+                    Count(_current.HeroDamageByEnemyAction, _lastEnemyAction, lost);
             }
             UpdatePacing();
         }

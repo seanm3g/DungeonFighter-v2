@@ -86,7 +86,6 @@ namespace RPGGame
                 // New room: combo strip and routing always start from the opener (matches new-enemy encounter reset)
                 stateManager.CurrentPlayer.ResetCombo();
                 StandingBlock.Reset(stateManager.CurrentPlayer);
-                ClassDefenseCalculator.RefillWizardShield(stateManager.CurrentPlayer);
             }
             
             // Pre-combat exploration

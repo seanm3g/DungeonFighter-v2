@@ -9,9 +9,9 @@
     },
     "tags": null,
     "strength": 0,
-    "agility": 5,
+    "agility": 1,
     "technique": 0,
-    "intelligence": 1,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -30,13 +30,13 @@
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "intelligence": 5
+      "strength": 5
     },
     "tags": null,
-    "strength": 0,
+    "strength": 3,
     "agility": 0,
     "technique": 0,
-    "intelligence": 3,
+    "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -52,7 +52,7 @@
   {
     "slot": "head",
     "name": "Cowl",
-    "armor": 0,
+    "armor": 2,
     "tier": 1,
     "attributeRequirements": {
       "intelligence": 13
@@ -60,8 +60,8 @@
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 5,
-    "intelligence": 2,
+    "technique": 2,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -85,8 +85,8 @@
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 5,
-    "intelligence": 2,
+    "technique": 2,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -127,7 +127,7 @@
   {
     "slot": "head",
     "name": "Hood",
-    "armor": 0,
+    "armor": 1,
     "tier": 1,
     "attributeRequirements": {
       "intelligence": 5
@@ -152,10 +152,10 @@
   {
     "slot": "head",
     "name": "Scraps",
-    "armor": 0,
+    "armor": 2,
     "tier": 1,
     "attributeRequirements": {
-      "intelligence": 14
+      "agility": 14
     },
     "tags": null,
     "strength": 0,
@@ -177,7 +177,7 @@
   {
     "slot": "head",
     "name": "Skullcap",
-    "armor": 0,
+    "armor": 2,
     "tier": 1,
     "attributeRequirements": {
       "intelligence": 13
@@ -202,7 +202,7 @@
   {
     "slot": "head",
     "name": "Toque",
-    "armor": 0,
+    "armor": 1,
     "tier": 1,
     "attributeRequirements": {
       "intelligence": 10
@@ -227,16 +227,16 @@
   {
     "slot": "head",
     "name": "Veil",
-    "armor": 0,
+    "armor": 2,
     "tier": 1,
     "attributeRequirements": {
       "intelligence": 10
     },
     "tags": null,
-    "strength": 5,
+    "strength": 1,
     "agility": 0,
     "technique": 0,
-    "intelligence": 1,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -252,15 +252,15 @@
   {
     "slot": "head",
     "name": "Wrap",
-    "armor": 0,
+    "armor": 1,
     "tier": 1,
     "attributeRequirements": {
-      "intelligence": 5
+      "technique": 5
     },
     "tags": null,
-    "strength": 5,
+    "strength": 0,
     "agility": 0,
-    "technique": 0,
+    "technique": 5,
     "intelligence": 2,
     "hit": 0,
     "combo": 0,
@@ -302,7 +302,7 @@
   {
     "slot": "head",
     "name": "Circlet",
-    "armor": 0,
+    "armor": 5,
     "tier": 2,
     "attributeRequirements": {
       "intelligence": 29
@@ -327,15 +327,15 @@
   {
     "slot": "head",
     "name": "Face Helm",
-    "armor": 0,
+    "armor": 4,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 20
+      "agility": 20
     },
     "tags": null,
     "strength": 0,
-    "agility": 0,
-    "technique": 5,
+    "agility": 5,
+    "technique": 0,
     "intelligence": 3,
     "hit": 0,
     "combo": 0,
@@ -352,15 +352,15 @@
   {
     "slot": "head",
     "name": "Faceplate",
-    "armor": 1,
+    "armor": 5,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 53
+      "strength": 53
     },
     "tags": null,
-    "strength": 0,
+    "strength": 5,
     "agility": 0,
-    "technique": 5,
+    "technique": 0,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -402,7 +402,7 @@
   {
     "slot": "head",
     "name": "Kerfcheif",
-    "armor": 0,
+    "armor": 3,
     "tier": 2,
     "attributeRequirements": {
       "intelligence": 11
@@ -427,15 +427,15 @@
   {
     "slot": "head",
     "name": "Nasal Helm",
-    "armor": 0,
+    "armor": 3,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 19
+      "technique": 19
     },
     "tags": null,
     "strength": 0,
-    "agility": 5,
-    "technique": 0,
+    "agility": 0,
+    "technique": 5,
     "intelligence": 3,
     "hit": 0,
     "combo": 0,
@@ -452,16 +452,16 @@
   {
     "slot": "head",
     "name": "Pointed Helm",
-    "armor": 0,
+    "armor": 5,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 28
+      "agility": 28
     },
     "tags": null,
     "strength": 0,
-    "agility": 5,
+    "agility": 6,
     "technique": 0,
-    "intelligence": 6,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -502,10 +502,10 @@
   {
     "slot": "head",
     "name": "War Cap",
-    "armor": 0,
+    "armor": 4,
     "tier": 2,
     "attributeRequirements": {
-      "intelligence": 23
+      "strength": 23
     },
     "tags": null,
     "strength": 5,
@@ -527,16 +527,16 @@
   {
     "slot": "head",
     "name": "Forg-Mouth Helm",
-    "armor": 1,
+    "armor": 8,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 64
+      "agility": 64
     },
     "tags": null,
     "strength": 0,
-    "agility": 0,
+    "agility": 10,
     "technique": 5,
-    "intelligence": 10,
+    "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -552,16 +552,16 @@
   {
     "slot": "head",
     "name": "Greathelm",
-    "armor": 1,
+    "armor": 7,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 61
+      "strength": 61
     },
     "tags": null,
-    "strength": 0,
+    "strength": 9,
     "agility": 0,
     "technique": 0,
-    "intelligence": 9,
+    "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -602,16 +602,16 @@
   {
     "slot": "head",
     "name": "Ironhood",
-    "armor": 1,
+    "armor": 6,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 54
+      "strength": 54
     },
     "tags": null,
-    "strength": 5,
+    "strength": 9,
     "agility": 0,
     "technique": 0,
-    "intelligence": 9,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -627,16 +627,16 @@
   {
     "slot": "head",
     "name": "Sealed Helm",
-    "armor": 1,
+    "armor": 10,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 65
+      "technique": 65
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 0,
-    "intelligence": 9,
+    "technique": 9,
+    "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -652,7 +652,7 @@
   {
     "slot": "head",
     "name": "Throat Guard",
-    "armor": 1,
+    "armor": 9,
     "tier": 3,
     "attributeRequirements": {
       "intelligence": 64
@@ -702,16 +702,16 @@
   {
     "slot": "head",
     "name": "Visored Helm",
-    "armor": 1,
+    "armor": 8,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 63
+      "technique": 63
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
-    "technique": 0,
-    "intelligence": 7,
+    "technique": 7,
+    "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -727,16 +727,16 @@
   {
     "slot": "head",
     "name": "Visored Helm",
-    "armor": 1,
+    "armor": 8,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 63
+      "technique": 63
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
-    "technique": 0,
-    "intelligence": 7,
+    "technique": 7,
+    "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -752,16 +752,16 @@
   {
     "slot": "head",
     "name": "Warhelf",
-    "armor": 1,
+    "armor": 6,
     "tier": 3,
     "attributeRequirements": {
-      "intelligence": 55
+      "strength": 55
     },
     "tags": null,
-    "strength": 0,
+    "strength": 6,
     "agility": 5,
     "technique": 0,
-    "intelligence": 6,
+    "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -802,10 +802,10 @@
   {
     "slot": "head",
     "name": "Face Guard",
-    "armor": 1,
+    "armor": 18,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 83
+      "technique": 83
     },
     "tags": null,
     "strength": 0,
@@ -827,16 +827,16 @@
   {
     "slot": "head",
     "name": "Godhelm",
-    "armor": 1,
+    "armor": 16,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 76
+      "strength": 76
     },
     "tags": null,
-    "strength": 5,
+    "strength": 14,
     "agility": 0,
     "technique": 0,
-    "intelligence": 14,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -852,7 +852,7 @@
   {
     "slot": "head",
     "name": "Headdress",
-    "armor": 1,
+    "armor": 17,
     "tier": 4,
     "attributeRequirements": {
       "intelligence": 77
@@ -902,16 +902,16 @@
   {
     "slot": "head",
     "name": "Mask",
-    "armor": 1,
+    "armor": 13,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 70
+      "agility": 70
     },
     "tags": null,
     "strength": 0,
-    "agility": 0,
+    "agility": 11,
     "technique": 0,
-    "intelligence": 11,
+    "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -927,16 +927,16 @@
   {
     "slot": "head",
     "name": "Siegehelm",
-    "armor": 1,
+    "armor": 13,
     "tier": 4,
     "attributeRequirements": {
-      "intelligence": 74
+      "strength": 74
     },
     "tags": null,
-    "strength": 5,
+    "strength": 13,
     "agility": 0,
     "technique": 0,
-    "intelligence": 13,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -1002,7 +1002,7 @@
   {
     "slot": "head",
     "name": "Worldcrown",
-    "armor": 1,
+    "armor": 10,
     "tier": 4,
     "attributeRequirements": {
       "intelligence": 66
@@ -1027,16 +1027,16 @@
   {
     "slot": "head",
     "name": "Corinthian",
-    "armor": 2,
+    "armor": 16,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 82
+      "agility": 82
     },
     "tags": null,
     "strength": 5,
-    "agility": 0,
+    "agility": 10,
     "technique": 0,
-    "intelligence": 10,
+    "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -1052,7 +1052,7 @@
   {
     "slot": "head",
     "name": "Death Mask",
-    "armor": 2,
+    "armor": 15,
     "tier": 5,
     "attributeRequirements": {
       "intelligence": 79
@@ -1102,16 +1102,16 @@
   {
     "slot": "head",
     "name": "Full Plate Helmet",
-    "armor": 2,
+    "armor": 14,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 76
+      "strength": 76
     },
     "tags": null,
-    "strength": 0,
+    "strength": 15,
     "agility": 0,
     "technique": 0,
-    "intelligence": 15,
+    "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -1127,16 +1127,16 @@
   {
     "slot": "head",
     "name": "Jawplate",
-    "armor": 2,
+    "armor": 23,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 99
+      "strength": 99
     },
     "tags": null,
-    "strength": 0,
+    "strength": 6,
     "agility": 5,
     "technique": 0,
-    "intelligence": 6,
+    "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -1152,7 +1152,7 @@
   {
     "slot": "head",
     "name": "Kabuto",
-    "armor": 2,
+    "armor": 20,
     "tier": 5,
     "attributeRequirements": {
       "intelligence": 90
@@ -1202,16 +1202,16 @@
   {
     "slot": "head",
     "name": "Plated Hood",
-    "armor": 2,
+    "armor": 23,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 92
+      "strength": 92
     },
     "tags": null,
-    "strength": 5,
+    "strength": 21,
     "agility": 0,
     "technique": 0,
-    "intelligence": 21,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -1227,7 +1227,7 @@
   {
     "slot": "head",
     "name": "Plumed Helm",
-    "armor": 2,
+    "armor": 19,
     "tier": 5,
     "attributeRequirements": {
       "intelligence": 86
@@ -1252,16 +1252,41 @@
   {
     "slot": "head",
     "name": "Skull Plate",
-    "armor": 2,
+    "armor": 12,
     "tier": 5,
     "attributeRequirements": {
-      "intelligence": 57
+      "strength": 57
+    },
+    "tags": null,
+    "strength": 9,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 3,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "head",
+    "name": "Exalted Visor",
+    "armor": 20,
+    "tier": 5,
+    "attributeRequirements": {
+      "technique": 86
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 0,
-    "intelligence": 9,
+    "technique": 18,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -1308,10 +1333,10 @@
       "strength": 9
     },
     "tags": null,
-    "strength": 3,
+    "strength": 5,
     "agility": 0,
     "technique": 0,
-    "intelligence": 5,
+    "intelligence": 3,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -1330,12 +1355,12 @@
     "armor": 3,
     "tier": 1,
     "attributeRequirements": {
-      "strength": 15
+      "technique": 15
     },
     "tags": null,
-    "strength": 2,
+    "strength": 0,
     "agility": 0,
-    "technique": 0,
+    "technique": 2,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -1380,12 +1405,12 @@
     "armor": 1,
     "tier": 1,
     "attributeRequirements": {
-      "strength": 15
+      "agility": 15
     },
     "tags": null,
     "strength": 3,
-    "agility": 0,
-    "technique": 5,
+    "agility": 5,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -1408,9 +1433,9 @@
       "strength": 5
     },
     "tags": null,
-    "strength": 1,
+    "strength": 5,
     "agility": 0,
-    "technique": 5,
+    "technique": 1,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -1430,7 +1455,7 @@
     "armor": 3,
     "tier": 1,
     "attributeRequirements": {
-      "strength": 14
+      "agility": 14
     },
     "tags": null,
     "strength": 2,
@@ -1455,13 +1480,13 @@
     "armor": 2,
     "tier": 1,
     "attributeRequirements": {
-      "strength": 5
+      "intelligence": 5
     },
     "tags": null,
-    "strength": 2,
+    "strength": 0,
     "agility": 0,
     "technique": 0,
-    "intelligence": 0,
+    "intelligence": 2,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -1480,32 +1505,7 @@
     "armor": 2,
     "tier": 1,
     "attributeRequirements": {
-      "strength": 11
-    },
-    "tags": null,
-    "strength": 2,
-    "agility": 5,
-    "technique": 0,
-    "intelligence": 0,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "attackSpeed": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0,
-    "triggerName": null,
-    "triggerBundles": null,
-    "equipEffects": null
-  },
-  {
-    "slot": "chest",
-    "name": "Thick Wrap",
-    "armor": 1,
-    "tier": 1,
-    "attributeRequirements": {
-      "strength": 5
+      "intelligence": 11
     },
     "tags": null,
     "strength": 2,
@@ -1526,15 +1526,40 @@
   },
   {
     "slot": "chest",
+    "name": "Thick Wrap",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": {
+      "technique": 5
+    },
+    "tags": null,
+    "strength": 2,
+    "agility": 0,
+    "technique": 5,
+    "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "chest",
     "name": "Vest",
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "strength": 5
+      "agility": 5
     },
     "tags": null,
-    "strength": 3,
-    "agility": 0,
+    "strength": 0,
+    "agility": 3,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
@@ -1580,12 +1605,12 @@
     "armor": 5,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 18
+      "technique": 18
     },
     "tags": null,
-    "strength": 5,
+    "strength": 0,
     "agility": 0,
-    "technique": 0,
+    "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -1608,9 +1633,9 @@
       "strength": 11
     },
     "tags": null,
-    "strength": 3,
+    "strength": 5,
     "agility": 0,
-    "technique": 5,
+    "technique": 3,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -1680,11 +1705,11 @@
     "armor": 6,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 26
+      "agility": 26
     },
     "tags": null,
-    "strength": 5,
-    "agility": 0,
+    "strength": 0,
+    "agility": 5,
     "technique": 0,
     "intelligence": 5,
     "hit": 0,
@@ -1701,11 +1726,11 @@
   },
   {
     "slot": "chest",
-    "name": "Stalker\u0027s Mantle",
+    "name": "Stalker's Mantle",
     "armor": 6,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 17
+      "agility": 17
     },
     "tags": null,
     "strength": 3,
@@ -1730,7 +1755,7 @@
     "armor": 8,
     "tier": 2,
     "attributeRequirements": {
-      "strength": 11
+      "technique": 11
     },
     "tags": null,
     "strength": 4,
@@ -1787,6 +1812,31 @@
     "agility": 0,
     "technique": 0,
     "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "chest",
+    "name": "Journeyman Robe",
+    "armor": 5,
+    "tier": 2,
+    "attributeRequirements": {
+      "intelligence": 18
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2005,11 +2055,11 @@
     "armor": 14,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 35
+      "agility": 35
     },
     "tags": null,
-    "strength": 6,
-    "agility": 0,
+    "strength": 0,
+    "agility": 6,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
@@ -2030,13 +2080,38 @@
     "armor": 10,
     "tier": 3,
     "attributeRequirements": {
-      "strength": 56
+      "technique": 56
     },
     "tags": null,
-    "strength": 6,
+    "strength": 5,
     "agility": 0,
-    "technique": 5,
+    "technique": 6,
     "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "chest",
+    "name": "Veteran Robe",
+    "armor": 16,
+    "tier": 3,
+    "attributeRequirements": {
+      "intelligence": 50
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 7,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2180,12 +2255,12 @@
     "armor": 21,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 69
+      "technique": 69
     },
     "tags": null,
-    "strength": 7,
+    "strength": 5,
     "agility": 0,
-    "technique": 5,
+    "technique": 7,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2205,12 +2280,12 @@
     "armor": 29,
     "tier": 4,
     "attributeRequirements": {
-      "strength": 57
+      "technique": 57
     },
     "tags": null,
-    "strength": 7,
+    "strength": 0,
     "agility": 5,
-    "technique": 0,
+    "technique": 7,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2301,17 +2376,67 @@
   },
   {
     "slot": "chest",
+    "name": "Elite Tunic",
+    "armor": 21,
+    "tier": 4,
+    "attributeRequirements": {
+      "agility": 69
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 7,
+    "technique": 5,
+    "intelligence": 0,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "chest",
+    "name": "Elite Robe",
+    "armor": 21,
+    "tier": 4,
+    "attributeRequirements": {
+      "intelligence": 69
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 0,
+    "technique": 5,
+    "intelligence": 7,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "chest",
     "name": "Champion",
     "armor": 20,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 88
+      "intelligence": 88
     },
     "tags": null,
-    "strength": 23,
+    "strength": 0,
     "agility": 0,
     "technique": 0,
-    "intelligence": 0,
+    "intelligence": 23,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2380,11 +2505,11 @@
     "armor": 39,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 97
+      "agility": 97
     },
     "tags": null,
-    "strength": 8,
-    "agility": 5,
+    "strength": 5,
+    "agility": 8,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
@@ -2405,12 +2530,12 @@
     "armor": 25,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 76
+      "technique": 76
     },
     "tags": null,
-    "strength": 24,
+    "strength": 0,
     "agility": 0,
-    "technique": 0,
+    "technique": 24,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2480,12 +2605,12 @@
     "armor": 34,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 103
+      "technique": 103
     },
     "tags": null,
-    "strength": 13,
+    "strength": 5,
     "agility": 0,
-    "technique": 5,
+    "technique": 13,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2530,11 +2655,11 @@
     "armor": 26,
     "tier": 5,
     "attributeRequirements": {
-      "strength": 69
+      "agility": 69
     },
     "tags": null,
-    "strength": 21,
-    "agility": 0,
+    "strength": 0,
+    "agility": 21,
     "technique": 5,
     "intelligence": 0,
     "hit": 0,
@@ -2580,12 +2705,12 @@
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 5
+      "strength": 5
     },
     "tags": null,
-    "strength": 0,
+    "strength": 5,
     "agility": 3,
-    "technique": 5,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2605,13 +2730,13 @@
     "armor": 3,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 12
+      "intelligence": 12
     },
     "tags": null,
     "strength": 0,
-    "agility": 3,
+    "agility": 0,
     "technique": 0,
-    "intelligence": 0,
+    "intelligence": 3,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2633,8 +2758,8 @@
       "agility": 5
     },
     "tags": null,
-    "strength": 5,
-    "agility": 2,
+    "strength": 2,
+    "agility": 5,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
@@ -2655,13 +2780,13 @@
     "armor": 3,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 5
+      "intelligence": 5
     },
     "tags": null,
     "strength": 0,
-    "agility": 2,
+    "agility": 0,
     "technique": 0,
-    "intelligence": 0,
+    "intelligence": 2,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2676,16 +2801,16 @@
   },
   {
     "slot": "legs",
-    "name": "Squire\u0027s Greaves",
+    "name": "Squire's Greaves",
     "armor": 3,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 9
+      "strength": 9
     },
     "tags": null,
-    "strength": 0,
+    "strength": 5,
     "agility": 2,
-    "technique": 5,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2705,12 +2830,12 @@
     "armor": 2,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 15
+      "technique": 15
     },
     "tags": null,
-    "strength": 5,
+    "strength": 0,
     "agility": 3,
-    "technique": 0,
+    "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2730,12 +2855,12 @@
     "armor": 1,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 6
+      "technique": 6
     },
     "tags": null,
     "strength": 0,
-    "agility": 1,
-    "technique": 0,
+    "agility": 0,
+    "technique": 1,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2759,9 +2884,9 @@
     },
     "tags": null,
     "strength": 0,
-    "agility": 3,
+    "agility": 5,
     "technique": 0,
-    "intelligence": 5,
+    "intelligence": 3,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2776,17 +2901,17 @@
   },
   {
     "slot": "legs",
-    "name": "Villager\u0027s Tassets",
+    "name": "Villager's Tassets",
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 6
+      "technique": 6
     },
     "tags": null,
     "strength": 0,
     "agility": 2,
-    "technique": 0,
-    "intelligence": 5,
+    "technique": 5,
+    "intelligence": 0,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -2805,12 +2930,12 @@
     "armor": 2,
     "tier": 1,
     "attributeRequirements": {
-      "agility": 5
+      "technique": 5
     },
     "tags": null,
     "strength": 0,
-    "agility": 2,
-    "technique": 0,
+    "agility": 0,
+    "technique": 2,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -2855,7 +2980,7 @@
     "armor": 7,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 14
+      "strength": 14
     },
     "tags": null,
     "strength": 5,
@@ -2880,11 +3005,11 @@
     "armor": 9,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 20
+      "strength": 20
     },
     "tags": null,
-    "strength": 0,
-    "agility": 5,
+    "strength": 5,
+    "agility": 0,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
@@ -2926,7 +3051,7 @@
   },
   {
     "slot": "legs",
-    "name": "Ranger\u0027s Breeches",
+    "name": "Ranger's Breeches",
     "armor": 8,
     "tier": 2,
     "attributeRequirements": {
@@ -2955,7 +3080,7 @@
     "armor": 7,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 21
+      "technique": 21
     },
     "tags": null,
     "strength": 0,
@@ -2976,7 +3101,7 @@
   },
   {
     "slot": "legs",
-    "name": "Scout\u0027s Breeches",
+    "name": "Scout's Breeches",
     "armor": 6,
     "tier": 2,
     "attributeRequirements": {
@@ -3005,13 +3130,13 @@
     "armor": 5,
     "tier": 2,
     "attributeRequirements": {
-      "agility": 17
+      "intelligence": 17
     },
     "tags": null,
-    "strength": 5,
+    "strength": 0,
     "agility": 2,
     "technique": 0,
-    "intelligence": 0,
+    "intelligence": 5,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3026,7 +3151,7 @@
   },
   {
     "slot": "legs",
-    "name": "Strider\u0027s Wraps",
+    "name": "Strider's Wraps",
     "armor": 9,
     "tier": 2,
     "attributeRequirements": {
@@ -3051,7 +3176,7 @@
   },
   {
     "slot": "legs",
-    "name": "Traveler\u0027s Breeches",
+    "name": "Traveler's Breeches",
     "armor": 8,
     "tier": 2,
     "attributeRequirements": {
@@ -3059,9 +3184,9 @@
     },
     "tags": null,
     "strength": 0,
-    "agility": 4,
+    "agility": 5,
     "technique": 0,
-    "intelligence": 5,
+    "intelligence": 4,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3080,13 +3205,13 @@
     "armor": 14,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 48
+      "intelligence": 48
     },
     "tags": null,
     "strength": 0,
-    "agility": 6,
+    "agility": 0,
     "technique": 5,
-    "intelligence": 0,
+    "intelligence": 6,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3101,7 +3226,7 @@
   },
   {
     "slot": "legs",
-    "name": "Footman\u0027s Greaves",
+    "name": "Footman's Greaves",
     "armor": 10,
     "tier": 3,
     "attributeRequirements": {
@@ -3155,12 +3280,12 @@
     "armor": 13,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 63
+      "technique": 63
     },
     "tags": null,
     "strength": 0,
-    "agility": 6,
-    "technique": 5,
+    "agility": 5,
+    "technique": 6,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3180,11 +3305,11 @@
     "armor": 12,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 63
+      "strength": 63
     },
     "tags": null,
-    "strength": 0,
-    "agility": 5,
+    "strength": 5,
+    "agility": 0,
     "technique": 0,
     "intelligence": 5,
     "hit": 0,
@@ -3205,11 +3330,11 @@
     "armor": 12,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 63
+      "strength": 63
     },
     "tags": null,
-    "strength": 0,
-    "agility": 5,
+    "strength": 5,
+    "agility": 0,
     "technique": 0,
     "intelligence": 5,
     "hit": 0,
@@ -3255,12 +3380,12 @@
     "armor": 15,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 46
+      "technique": 46
     },
     "tags": null,
     "strength": 0,
-    "agility": 8,
-    "technique": 0,
+    "agility": 0,
+    "technique": 8,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3276,7 +3401,7 @@
   },
   {
     "slot": "legs",
-    "name": "Soldier\u0027s Breeches",
+    "name": "Soldier's Breeches",
     "armor": 14,
     "tier": 3,
     "attributeRequirements": {
@@ -3305,11 +3430,11 @@
     "armor": 15,
     "tier": 3,
     "attributeRequirements": {
-      "agility": 49
+      "strength": 49
     },
     "tags": null,
-    "strength": 0,
-    "agility": 8,
+    "strength": 8,
+    "agility": 0,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
@@ -3351,15 +3476,15 @@
   },
   {
     "slot": "legs",
-    "name": "Champion\u0027s Greaves",
+    "name": "Champion's Greaves",
     "armor": 21,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 75
+      "strength": 75
     },
     "tags": null,
-    "strength": 0,
-    "agility": 12,
+    "strength": 12,
+    "agility": 0,
     "technique": 0,
     "intelligence": 5,
     "hit": 0,
@@ -3376,16 +3501,16 @@
   },
   {
     "slot": "legs",
-    "name": "Crusader\u0027s Greaves",
+    "name": "Crusader's Greaves",
     "armor": 22,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 80
+      "technique": 80
     },
     "tags": null,
     "strength": 0,
-    "agility": 13,
-    "technique": 0,
+    "agility": 0,
+    "technique": 13,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3401,16 +3526,16 @@
   },
   {
     "slot": "legs",
-    "name": "Defender\u0027s Greaves",
+    "name": "Defender's Greaves",
     "armor": 29,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 62
+      "technique": 62
     },
     "tags": null,
     "strength": 5,
-    "agility": 8,
-    "technique": 0,
+    "agility": 0,
+    "technique": 8,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3455,13 +3580,13 @@
     "armor": 29,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 67
+      "intelligence": 67
     },
     "tags": null,
     "strength": 0,
-    "agility": 14,
+    "agility": 0,
     "technique": 5,
-    "intelligence": 0,
+    "intelligence": 14,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3476,7 +3601,7 @@
   },
   {
     "slot": "legs",
-    "name": "Knight\u0027s Greaves",
+    "name": "Knight's Greaves",
     "armor": 25,
     "tier": 4,
     "attributeRequirements": {
@@ -3555,11 +3680,11 @@
     "armor": 30,
     "tier": 4,
     "attributeRequirements": {
-      "agility": 40
+      "strength": 40
     },
     "tags": null,
-    "strength": 5,
-    "agility": 10,
+    "strength": 10,
+    "agility": 5,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
@@ -3580,12 +3705,12 @@
     "armor": 33,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 95
+      "technique": 95
     },
     "tags": null,
     "strength": 0,
-    "agility": 6,
-    "technique": 0,
+    "agility": 0,
+    "technique": 6,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3601,16 +3726,16 @@
   },
   {
     "slot": "legs",
-    "name": "Conqueror\u0027s Greaves",
+    "name": "Conqueror's Greaves",
     "armor": 38,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 76
+      "technique": 76
     },
     "tags": null,
     "strength": 5,
-    "agility": 14,
-    "technique": 0,
+    "agility": 0,
+    "technique": 14,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -3655,13 +3780,13 @@
     "armor": 24,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 82
+      "intelligence": 82
     },
     "tags": null,
     "strength": 0,
-    "agility": 7,
+    "agility": 0,
     "technique": 0,
-    "intelligence": 0,
+    "intelligence": 7,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3680,11 +3805,11 @@
     "armor": 24,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 105
+      "strength": 105
     },
     "tags": null,
-    "strength": 0,
-    "agility": 15,
+    "strength": 15,
+    "agility": 0,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
@@ -3701,7 +3826,7 @@
   },
   {
     "slot": "legs",
-    "name": "Overlord\u0027s Greaves",
+    "name": "Overlord's Greaves",
     "armor": 33,
     "tier": 5,
     "attributeRequirements": {
@@ -3776,15 +3901,15 @@
   },
   {
     "slot": "legs",
-    "name": "Warden\u0027s Greaves",
+    "name": "Warden's Greaves",
     "armor": 36,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 81
+      "strength": 81
     },
     "tags": null,
-    "strength": 0,
-    "agility": 11,
+    "strength": 11,
+    "agility": 0,
     "technique": 5,
     "intelligence": 0,
     "hit": 0,
@@ -3805,11 +3930,11 @@
     "armor": 32,
     "tier": 5,
     "attributeRequirements": {
-      "agility": 87
+      "strength": 87
     },
     "tags": null,
-    "strength": 0,
-    "agility": 8,
+    "strength": 8,
+    "agility": 0,
     "technique": 0,
     "intelligence": 0,
     "hit": 0,
@@ -3827,7 +3952,7 @@
   {
     "slot": "feet",
     "name": "Bindings",
-    "armor": 0,
+    "armor": 2,
     "tier": 1,
     "attributeRequirements": {
       "technique": 11
@@ -3835,8 +3960,8 @@
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 3,
-    "intelligence": 5,
+    "technique": 5,
+    "intelligence": 3,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3877,7 +4002,7 @@
   {
     "slot": "feet",
     "name": "Brogues",
-    "armor": 0,
+    "armor": 2,
     "tier": 1,
     "attributeRequirements": {
       "technique": 12
@@ -3902,10 +4027,10 @@
   {
     "slot": "feet",
     "name": "Galoshs",
-    "armor": 0,
+    "armor": 1,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 6
+      "strength": 6
     },
     "tags": null,
     "strength": 5,
@@ -3927,16 +4052,16 @@
   {
     "slot": "feet",
     "name": "High Boots",
-    "armor": 0,
+    "armor": 2,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 15
+      "intelligence": 15
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 1,
-    "intelligence": 0,
+    "technique": 0,
+    "intelligence": 1,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -3955,7 +4080,7 @@
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 5
+      "agility": 5
     },
     "tags": null,
     "strength": 0,
@@ -3977,40 +4102,15 @@
   {
     "slot": "feet",
     "name": "Sandals",
-    "armor": 0,
+    "armor": 1,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 5
+      "agility": 5
     },
     "tags": null,
     "strength": 0,
-    "agility": 0,
+    "agility": 5,
     "technique": 3,
-    "intelligence": 5,
-    "hit": 0,
-    "combo": 0,
-    "crit": 0,
-    "attackSpeed": 0,
-    "extraActionSlots": 0,
-    "extraActionSlotsMin": 0,
-    "extraActionSlotsMax": 0,
-    "minActionBonuses": 0,
-    "triggerName": null,
-    "triggerBundles": null,
-    "equipEffects": null
-  },
-  {
-    "slot": "feet",
-    "name": "Shoes",
-    "armor": 0,
-    "tier": 1,
-    "attributeRequirements": {
-      "technique": 5
-    },
-    "tags": null,
-    "strength": 0,
-    "agility": 0,
-    "technique": 1,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4026,11 +4126,36 @@
   },
   {
     "slot": "feet",
-    "name": "Sneakers",
-    "armor": 0,
+    "name": "Shoes",
+    "armor": 1,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 5
+      "intelligence": 5
+    },
+    "tags": null,
+    "strength": 0,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 1,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "feet",
+    "name": "Sneakers",
+    "armor": 1,
+    "tier": 1,
+    "attributeRequirements": {
+      "agility": 5
     },
     "tags": null,
     "strength": 5,
@@ -4051,15 +4176,15 @@
   },
   {
     "slot": "feet",
-    "name": "Titan\u0027s Greaves",
+    "name": "Titan's Greaves",
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
-      "technique": 3
+      "strength": 3
     },
     "tags": null,
-    "strength": 0,
-    "agility": 7,
+    "strength": 7,
+    "agility": 0,
     "technique": 0,
     "intelligence": 5,
     "hit": 0,
@@ -4102,10 +4227,10 @@
   {
     "slot": "feet",
     "name": "Courtly Shoes",
-    "armor": 1,
+    "armor": 5,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 26
+      "intelligence": 26
     },
     "tags": null,
     "strength": 0,
@@ -4127,16 +4252,16 @@
   {
     "slot": "feet",
     "name": "Duskwalker",
-    "armor": 1,
+    "armor": 5,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 21
+      "intelligence": 21
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 3,
-    "intelligence": 0,
+    "technique": 0,
+    "intelligence": 3,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -4152,7 +4277,7 @@
   {
     "slot": "feet",
     "name": "Greaves",
-    "armor": 1,
+    "armor": 4,
     "tier": 2,
     "attributeRequirements": {
       "technique": 17
@@ -4160,8 +4285,8 @@
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 4,
-    "intelligence": 5,
+    "technique": 5,
+    "intelligence": 4,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -4202,14 +4327,14 @@
   {
     "slot": "feet",
     "name": "Legguard",
-    "armor": 1,
+    "armor": 4,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 19
+      "strength": 19
     },
     "tags": null,
-    "strength": 0,
-    "agility": 5,
+    "strength": 5,
+    "agility": 0,
     "technique": 3,
     "intelligence": 0,
     "hit": 0,
@@ -4227,15 +4352,15 @@
   {
     "slot": "feet",
     "name": "Pelt Boots",
-    "armor": 1,
+    "armor": 3,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 14
+      "agility": 14
     },
     "tags": null,
     "strength": 0,
-    "agility": 0,
-    "technique": 4,
+    "agility": 4,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4251,16 +4376,16 @@
   },
   {
     "slot": "feet",
-    "name": "Ranger\u0027s Boots",
-    "armor": 1,
+    "name": "Ranger's Boots",
+    "armor": 5,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 19
+      "agility": 19
     },
     "tags": null,
     "strength": 0,
-    "agility": 0,
-    "technique": 5,
+    "agility": 5,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4302,10 +4427,10 @@
   {
     "slot": "feet",
     "name": "Treads",
-    "armor": 0,
+    "armor": 3,
     "tier": 2,
     "attributeRequirements": {
-      "technique": 12
+      "strength": 12
     },
     "tags": null,
     "strength": 5,
@@ -4327,15 +4452,15 @@
   {
     "slot": "feet",
     "name": "Crushers",
-    "armor": 2,
+    "armor": 8,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 46
+      "strength": 46
     },
     "tags": null,
-    "strength": 0,
+    "strength": 7,
     "agility": 5,
-    "technique": 7,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4352,15 +4477,15 @@
   {
     "slot": "feet",
     "name": "Ironshod Greaves",
-    "armor": 2,
+    "armor": 10,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 58
+      "strength": 58
     },
     "tags": null,
-    "strength": 0,
+    "strength": 6,
     "agility": 0,
-    "technique": 6,
+    "technique": 0,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -4402,16 +4527,16 @@
   {
     "slot": "feet",
     "name": "Marchers",
-    "armor": 2,
+    "armor": 8,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 49
+      "intelligence": 49
     },
     "tags": null,
     "strength": 0,
     "agility": 0,
-    "technique": 6,
-    "intelligence": 0,
+    "technique": 0,
+    "intelligence": 6,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -4427,15 +4552,15 @@
   {
     "slot": "feet",
     "name": "Plate Boots",
-    "armor": 2,
+    "armor": 9,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 57
+      "strength": 57
     },
     "tags": null,
-    "strength": 0,
+    "strength": 9,
     "agility": 0,
-    "technique": 9,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4452,7 +4577,7 @@
   {
     "slot": "feet",
     "name": "Shin Guards",
-    "armor": 1,
+    "armor": 6,
     "tier": 3,
     "attributeRequirements": {
       "technique": 21
@@ -4502,15 +4627,15 @@
   {
     "slot": "feet",
     "name": "Striders",
-    "armor": 2,
+    "armor": 8,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 55
+      "agility": 55
     },
     "tags": null,
     "strength": 0,
-    "agility": 0,
-    "technique": 8,
+    "agility": 8,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4527,15 +4652,15 @@
   {
     "slot": "feet",
     "name": "Tramplers",
-    "armor": 2,
+    "armor": 7,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 39
+      "strength": 39
     },
     "tags": null,
-    "strength": 5,
+    "strength": 9,
     "agility": 0,
-    "technique": 9,
+    "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4552,15 +4677,15 @@
   {
     "slot": "feet",
     "name": "Warboots",
-    "armor": 2,
+    "armor": 6,
     "tier": 3,
     "attributeRequirements": {
-      "technique": 38
+      "strength": 38
     },
     "tags": null,
-    "strength": 0,
+    "strength": 7,
     "agility": 0,
-    "technique": 7,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4602,15 +4727,15 @@
   {
     "slot": "feet",
     "name": "Battlestriders",
-    "armor": 2,
+    "armor": 11,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 56
+      "agility": 56
     },
     "tags": null,
     "strength": 0,
-    "agility": 0,
-    "technique": 7,
+    "agility": 7,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4627,15 +4752,15 @@
   {
     "slot": "feet",
     "name": "Doomtreads",
-    "armor": 2,
+    "armor": 17,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 85
+      "strength": 85
     },
     "tags": null,
-    "strength": 0,
+    "strength": 10,
     "agility": 0,
-    "technique": 10,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4652,15 +4777,15 @@
   {
     "slot": "feet",
     "name": "Irontrods",
-    "armor": 2,
+    "armor": 17,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 79
+      "strength": 79
     },
     "tags": null,
-    "strength": 0,
+    "strength": 9,
     "agility": 0,
-    "technique": 9,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4702,15 +4827,15 @@
   {
     "slot": "feet",
     "name": "Legplates",
-    "armor": 2,
+    "armor": 15,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 64
+      "strength": 64
     },
     "tags": null,
-    "strength": 5,
+    "strength": 15,
     "agility": 0,
-    "technique": 15,
+    "technique": 5,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4727,16 +4852,16 @@
   {
     "slot": "feet",
     "name": "Oathbound Boots",
-    "armor": 2,
+    "armor": 18,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 85
+      "intelligence": 85
     },
     "tags": null,
     "strength": 0,
     "agility": 5,
-    "technique": 10,
-    "intelligence": 0,
+    "technique": 0,
+    "intelligence": 10,
     "hit": 0,
     "combo": 0,
     "crit": 0,
@@ -4752,15 +4877,15 @@
   {
     "slot": "feet",
     "name": "Shadowstep",
-    "armor": 2,
+    "armor": 13,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 57
+      "agility": 57
     },
     "tags": null,
     "strength": 0,
-    "agility": 0,
-    "technique": 10,
+    "agility": 10,
+    "technique": 0,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -4802,15 +4927,15 @@
   {
     "slot": "feet",
     "name": "Warstriders",
-    "armor": 2,
+    "armor": 10,
     "tier": 4,
     "attributeRequirements": {
-      "technique": 55
+      "strength": 55
     },
     "tags": null,
-    "strength": 0,
+    "strength": 9,
     "agility": 0,
-    "technique": 9,
+    "technique": 0,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -4826,16 +4951,16 @@
   },
   {
     "slot": "feet",
-    "name": "Battlecharges",
-    "armor": 3,
-    "tier": 5,
+    "name": "Elite Spurs",
+    "armor": 16,
+    "tier": 4,
     "attributeRequirements": {
-      "technique": 92
+      "technique": 64
     },
     "tags": null,
     "strength": 5,
     "agility": 0,
-    "technique": 19,
+    "technique": 15,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4851,8 +4976,33 @@
   },
   {
     "slot": "feet",
+    "name": "Battlecharges",
+    "armor": 20,
+    "tier": 5,
+    "attributeRequirements": {
+      "intelligence": 92
+    },
+    "tags": null,
+    "strength": 5,
+    "agility": 0,
+    "technique": 0,
+    "intelligence": 19,
+    "hit": 0,
+    "combo": 0,
+    "crit": 0,
+    "attackSpeed": 0,
+    "extraActionSlots": 0,
+    "extraActionSlotsMin": 0,
+    "extraActionSlotsMax": 0,
+    "minActionBonuses": 0,
+    "triggerName": null,
+    "triggerBundles": null,
+    "equipEffects": null
+  },
+  {
+    "slot": "feet",
     "name": "Dragon Scale Boots",
-    "armor": 3,
+    "armor": 16,
     "tier": 5,
     "attributeRequirements": {
       "technique": 82
@@ -4902,15 +5052,15 @@
   {
     "slot": "feet",
     "name": "Ironsteps",
-    "armor": 3,
+    "armor": 20,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 85
+      "strength": 85
     },
     "tags": null,
-    "strength": 0,
+    "strength": 19,
     "agility": 5,
-    "technique": 19,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -4927,15 +5077,15 @@
   {
     "slot": "feet",
     "name": "Plate Mail Boots",
-    "armor": 3,
+    "armor": 23,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 100
+      "strength": 100
     },
     "tags": null,
-    "strength": 0,
+    "strength": 25,
     "agility": 0,
-    "technique": 25,
+    "technique": 0,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -4952,15 +5102,15 @@
   {
     "slot": "feet",
     "name": "Siegetreads",
-    "armor": 3,
+    "armor": 12,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 68
+      "strength": 68
     },
     "tags": null,
-    "strength": 0,
+    "strength": 13,
     "agility": 0,
-    "technique": 13,
+    "technique": 0,
     "intelligence": 5,
     "hit": 0,
     "combo": 0,
@@ -5002,15 +5152,15 @@
   {
     "slot": "feet",
     "name": "Warsteps",
-    "armor": 3,
+    "armor": 23,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 94
+      "strength": 94
     },
     "tags": null,
-    "strength": 0,
+    "strength": 17,
     "agility": 5,
-    "technique": 17,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -5027,15 +5177,15 @@
   {
     "slot": "feet",
     "name": "Wayfarer",
-    "armor": 3,
+    "armor": 14,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 75
+      "agility": 75
     },
     "tags": null,
     "strength": 0,
-    "agility": 0,
-    "technique": 10,
+    "agility": 10,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,
@@ -5052,15 +5202,15 @@
   {
     "slot": "feet",
     "name": "Worldstriders",
-    "armor": 3,
+    "armor": 15,
     "tier": 5,
     "attributeRequirements": {
-      "technique": 78
+      "agility": 78
     },
     "tags": null,
     "strength": 5,
-    "agility": 0,
-    "technique": 17,
+    "agility": 17,
+    "technique": 0,
     "intelligence": 0,
     "hit": 0,
     "combo": 0,

@@ -240,6 +240,22 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Strip slot multiplier from the base AMP: AMP^slot, or 1 + (AMP − 1) × slot with
+        /// <see cref="ComboSystemConfig.ComboAmplifierLinearSlots"/>; heroes add
+        /// <see cref="ComboSystemConfig.ComboSlotDamagePercentPerStep"/> per slot.
+        /// </summary>
+        public static double SlotMultiplier(double baseAmp, int slot, bool hero)
+        {
+            if (slot <= 0)
+                return 1.0;
+            var combo = GameConfiguration.Instance.ComboSystem;
+            double mult = combo.ComboAmplifierLinearSlots ? 1.0 + (baseAmp - 1.0) * slot : Math.Pow(baseAmp, slot);
+            if (hero && combo.ComboSlotDamagePercentPerStep > 0)
+                mult *= 1.0 + slot * combo.ComboSlotDamagePercentPerStep / 100.0;
+            return mult;
+        }
+
+        /// <summary>
         /// Extra hits per attack from the hero's equipped MULTI-HIT gear mods (Light, Acrobatic). Attacks and spells only; 0 for enemies.
         /// </summary>
         public static int GetGearMultiHitBonus(Actor source, Action action)
@@ -279,7 +295,7 @@ namespace RPGGame
                     {
                         double baseAmp = character.GetComboAmplifier();
                         int exponent = GetComboAmplificationExponent(source, action, comboActions);
-                        double mult = Math.Pow(baseAmp, exponent);
+                        double mult = SlotMultiplier(baseAmp, exponent, hero: character is not Enemy);
                         int comboStep = character.ComboStep;
                         return ChainPositionBonusApplier.AdjustComboDamageMultiplier(mult, source, action, comboActions, comboStep);
                     }
@@ -295,7 +311,7 @@ namespace RPGGame
                     {
                         double baseAmp = enemy.GetComboAmplifier();
                         int exponent = GetComboAmplificationExponent(source, action, comboActions);
-                        double mult = Math.Pow(baseAmp, exponent);
+                        double mult = SlotMultiplier(baseAmp, exponent, hero: false);
                         int comboStep = enemy.ComboStep;
                         return ChainPositionBonusApplier.AdjustComboDamageMultiplier(mult, source, action, comboActions, comboStep);
                     }

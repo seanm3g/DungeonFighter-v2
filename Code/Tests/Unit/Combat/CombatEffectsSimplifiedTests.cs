@@ -39,7 +39,6 @@ namespace RPGGame.Tests.Unit.Combat
             TestBleedOnActionWithoutGameTimeTick();
             TestCanEntityAct_NotStunned_ReturnsTrue();
             TestCanEntityAct_Stunned_ReturnsFalse();
-            TestCalculateEffectDuration_RespectsMinimumOneTurn();
             TestNonLivingEnemyBurnTicksViaStatusEffectProcessor();
             TestNonLivingEnemyAcidTicksAndShredsArmor();
             TestWeaponDoTModsRequireCriticalHitEvent();
@@ -470,19 +469,6 @@ namespace RPGGame.Tests.Unit.Combat
                 && nameSegment.Color.B == expectedRgb.B;
             TestBase.AssertTrue(rgbMatch,
                 $"Name color should match EntityColorHelper (expected {expectedRgb}, got {nameSegment.Color})",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestCalculateEffectDuration_RespectsMinimumOneTurn()
-        {
-            Console.WriteLine("--- CalculateEffectDuration: minimum 1 turn ---");
-
-            var attacker = TestDataBuilders.Character().WithName("Caster").Build();
-            var target = TestDataBuilders.Enemy().WithName("Victim").Build();
-
-            int d = CombatEffectsSimplified.CalculateEffectDuration(1, attacker, target);
-
-            TestBase.AssertTrue(d >= 1, $"Duration should be at least 1, got {d}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

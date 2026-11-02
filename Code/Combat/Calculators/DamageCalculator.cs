@@ -183,14 +183,6 @@ namespace RPGGame.Combat.Calculators
             if (attacker is Character damageModCharacter && damageModCharacter.Effects.ConsumedDamageModPercent != 0)
                 actionMultiplier *= (1.0 + damageModCharacter.Effects.ConsumedDamageModPercent / 100.0);
 
-            // Rogue DEFENSE Counter: one-shot DAMAGE_MOD % from last take-hit
-            if (attacker is Character counterHero && counterHero is not Enemy)
-            {
-                double counterPct = counterHero.Effects.ConsumePendingDefenseCounterDamagePct();
-                if (counterPct != 0)
-                    actionMultiplier *= (1.0 + counterPct / 100.0);
-            }
-
             // Apply consumed AMP_MOD from ACTION/ABILITY keyword (next action/ability only; % bonus, multiply).
             // Combo: sheet amp applies on top of technique baseline when slot mult is 1.0 (opener tier), matching HUD + combat log.
             if (attacker is Character ampModCharacter && ampModCharacter.Effects.ConsumedAmpModPercent != 0)

@@ -147,13 +147,12 @@ namespace RPGGame
                     lengthMultiplier *= 2.0;
                 }
 
-                // Warrior DEFENSE Tempo + any consumed SPEED_MOD: faster = shorter duration
+                // Consumed SPEED_MOD: faster = shorter duration
                 double speedModPct = 0;
                 if (character is not Enemy)
                 {
                     speedModPct += character.Effects.ConsumedSpeedModPercent;
                     speedModPct += character.Effects.TakeLastSwingSpeedModPercent();
-                    speedModPct += character.Effects.ConsumePendingDefenseTempoSpeedPct();
                 }
                 if (speedModPct != 0)
                     lengthMultiplier = lengthMultiplier / (1.0 + speedModPct / 100.0);

@@ -234,14 +234,14 @@ namespace RPGGame
             AddAmpMod(hero, Math.Floor(hero.GetEffectiveIntelligence() / 10.0) * 2.0 * power);
         }
 
-        /// <summary>Concentrated Chaos: combo actions gain +7% AMP per empty strip slot (× power).</summary>
+        /// <summary>Concentrated Chaos: combo actions gain +7% AMP per strip slot filled beyond the first (× power).</summary>
         private void ApplyConcentratedChaos(Character hero, CombatEvent evt)
         {
             double power = GetPower(hero, "concentrated_chaos");
             if (power <= 0 || evt.Action?.IsComboAction != true) return;
-            int empty = CountEmptyActionSlots(hero);
-            if (empty > 0)
-                AddAmpMod(hero, 7.0 * empty * power);
+            int filled = CountExtraFilledActionSlots(hero);
+            if (filled > 0)
+                AddAmpMod(hero, 7.0 * filled * power);
         }
 
         /// <summary>Dagger Mastery: multihit Dagger actions add +1 Bleed per extra hit (× power).</summary>

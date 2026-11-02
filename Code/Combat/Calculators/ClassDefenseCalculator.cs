@@ -6,7 +6,6 @@ namespace RPGGame.Combat.Calculators
 {
     /// <summary>
     /// Result of WoW-style Defense DR applied to one incoming hit.
-    /// Class Tempo/Counter/Shield/Grit fields stay 0 on the live path (unused for this test).
     /// </summary>
     public readonly struct HeroMitigationResult
     {
@@ -16,10 +15,6 @@ namespace RPGGame.Combat.Calculators
         public double K { get; init; }
         public double DrPercent { get; init; }
         public int Rating { get; init; }
-        public int GritIgnored { get; init; }
-        public int ShieldAbsorbed { get; init; }
-        public int TempoPct { get; init; }
-        public int CounterPct { get; init; }
         public int Remaining { get; init; }
         public int ReducedAmount { get; init; }
     }
@@ -27,24 +22,11 @@ namespace RPGGame.Combat.Calculators
     /// <summary>
     /// Defense DR for heroes and enemies: remaining = incoming × (1 − effective / (effective + K)).
     /// effective = rating × actionMult. Tick 0 of an incoming multi-hit uses standing BLOCK;
-    /// later ticks use 1.0×. A live hit then resets standing to 100%. Class Tempo/Counter/Shield/Grit
-    /// helpers remain but are not applied here.
+    /// later ticks use 1.0×. A live hit then resets standing to 100%.
     /// </summary>
     public static class ClassDefenseCalculator
     {
-        public const double DefenseScaleK = 20.0;
-        public const int WarriorTempoCap = 25;
-        public const int RogueCounterCap = 30;
-        public const int BarbarianGritCap = 25;
-        public const int WizardShieldPerDefense = 2;
         public const double DefaultArmorReductionK = 100.0;
-
-        public static WeaponType? GetDefenseWeaponType(Character? hero)
-        {
-            if (hero?.Weapon is WeaponItem weapon)
-                return weapon.WeaponType;
-            return null;
-        }
 
         public static double GetBlockPercent(Character? hero) =>
             StandingBlock.ClampMultiplier(hero?.StandingBlockPercent ?? StandingBlock.DefaultBlockPercent);
@@ -87,73 +69,8 @@ namespace RPGGame.Combat.Calculators
             return GetBlockPercent(hero);
         }
 
-        /// <summary>Shared diminishing scale: round(cap * r / (r + K)). Unused by live DR.</summary>
-        public static int ScaleFromDefense(int defenseRating, int cap)
-        {
-            int r = Math.Max(0, defenseRating);
-            if (r <= 0 || cap <= 0)
-                return 0;
-            return (int)Math.Round(cap * r / (r + DefenseScaleK), MidpointRounding.AwayFromZero);
-        }
-
-        public static int GetWarriorTempoSpeedPct(int defenseRating) =>
-            ScaleFromDefense(defenseRating, WarriorTempoCap);
-
-        public static int GetRogueCounterDamagePct(int defenseRating) =>
-            ScaleFromDefense(defenseRating, RogueCounterCap);
-
-        public static int GetBarbarianGrit(int defenseRating) =>
-            ScaleFromDefense(defenseRating, BarbarianGritCap);
-
-        public static int GetWizardShieldPool(int defenseRating) =>
-            Math.Max(0, defenseRating * WizardShieldPerDefense);
-
-        public static void RefillWizardShield(Character? hero)
-        {
-            if (hero == null || hero is Enemy)
-                return;
-            if (GetDefenseWeaponType(hero) != WeaponType.Wand)
-            {
-                hero.EnergyShieldCurrent = 0;
-                hero.EnergyShieldMax = 0;
-                return;
-            }
-
-            int pool = GetWizardShieldPool(Math.Max(0, hero.GetMaxArmor()));
-            pool = Math.Max(0, (int)Math.Round(pool * CharmBonusController.GetClassDefenseMultiplier(hero)));
-            hero.EnergyShieldMax = pool;
-            hero.EnergyShieldCurrent = pool;
-        }
-
-        /// <summary>Absorbs damage into the wizard shield. Returns remaining damage. Unused by live DR.</summary>
-        public static int AbsorbWizardShield(Character hero, int damage)
-        {
-            if (damage <= 0 || hero.EnergyShieldCurrent <= 0)
-                return damage;
-            int absorbed = Math.Min(hero.EnergyShieldCurrent, damage);
-            hero.EnergyShieldCurrent -= absorbed;
-            return damage - absorbed;
-        }
-
-        public static void MintWarriorTempoFromDefense(Character hero)
-        {
-            var weapon = GetDefenseWeaponType(hero);
-            if (weapon != null && weapon != WeaponType.Sword)
-                return;
-            int pct = GetWarriorTempoSpeedPct(Math.Max(0, hero.GetMaxArmor()));
-            hero.Effects.PendingDefenseTempoSpeedPct = pct;
-        }
-
-        public static void MintRogueCounterFromDefense(Character hero)
-        {
-            if (GetDefenseWeaponType(hero) != WeaponType.Dagger)
-                return;
-            int pct = GetRogueCounterDamagePct(Math.Max(0, hero.GetMaxArmor()));
-            hero.Effects.PendingDefenseCounterDamagePct = pct;
-        }
-
         /// <summary>
-        /// WoW DR for a Character (hero or enemy). Pierce skips DR. Does not apply Grit/Shield or mint Tempo/Counter.
+        /// WoW DR for a Character (hero or enemy). Pierce skips DR.
         /// <paramref name="mitigationHitIndex"/> 0 uses standing BLOCK; later ticks use 1.0×.
         /// Does not consume standing BLOCK (live damage path calls <see cref="StandingBlock.ConsumeAfterHit"/>).
         /// </summary>

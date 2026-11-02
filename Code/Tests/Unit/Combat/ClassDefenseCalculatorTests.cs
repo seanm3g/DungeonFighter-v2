@@ -24,14 +24,10 @@ namespace RPGGame.Tests.Unit.Combat
             TestHitConsumesComboBonusToBase();
             TestDisplayedDefenseScalesWithStandingBlock();
             TestEnemyUsesWowDr();
-            TestDefenseScaleCurveHelpersRemain();
             TestWowDrTableAtK100();
             TestRatingZeroAlwaysZeroDr();
             TestPierceSkipsDr();
-            TestNoTempoGritShieldOnLivePath();
             TestMultiHitIndexUsesBaseAfterFirstTick();
-            TestTempoConsumeShortensActionLength();
-            TestCounterConsumeBoostsDamage();
             TestUnnamedSyntheticResolvesToOne();
 
             TestBase.PrintSummary("ClassDefenseCalculator / StandingBlock Tests", _run, _pass, _fail);
@@ -131,18 +127,11 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void TestResetOpensAtOneHundred()
         {
-            Console.WriteLine("--- Reset standing to 100% + shield + pending ---");
+            Console.WriteLine("--- Reset standing to 100% ---");
             var hero = TestDataBuilders.Character().WithName("ResetHero").WithLevel(1).Build();
             hero.StandingBlockPercent = 1.80;
-            hero.EnergyShieldCurrent = 9;
-            hero.EnergyShieldMax = 9;
-            hero.Effects.PendingDefenseTempoSpeedPct = 12;
-            hero.Effects.PendingDefenseCounterDamagePct = 15;
             StandingBlock.Reset(hero);
             TestBase.AssertEqual(1.0, hero.StandingBlockPercent, "reset standing 1.0", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(0, hero.EnergyShieldCurrent, "reset shield 0", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(0.0, hero.Effects.PendingDefenseTempoSpeedPct, "reset tempo 0", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(0.0, hero.Effects.PendingDefenseCounterDamagePct, "reset counter 0", ref _run, ref _pass, ref _fail);
         }
 
         private static void TestHitConsumesComboBonusToBase()
@@ -204,15 +193,6 @@ namespace RPGGame.Tests.Unit.Combat
             {
                 GameConfiguration.Instance.Combat.ArmorReductionFactor = kSnap;
             }
-        }
-
-        private static void TestDefenseScaleCurveHelpersRemain()
-        {
-            Console.WriteLine("--- unused class-layer helpers still scale ---");
-            TestBase.AssertEqual(0, ClassDefenseCalculator.GetWarriorTempoSpeedPct(0), "rating 0 tempo 0", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(13, ClassDefenseCalculator.GetWarriorTempoSpeedPct(20), "rating 20 tempo ≈ 13%", ref _run, ref _pass, ref _fail);
-            TestBase.AssertTrue(ClassDefenseCalculator.GetWarriorTempoSpeedPct(10000) <= ClassDefenseCalculator.WarriorTempoCap,
-                "tempo cap 25", ref _run, ref _pass, ref _fail);
         }
 
         private static void TestWowDrTableAtK100()
@@ -282,36 +262,6 @@ namespace RPGGame.Tests.Unit.Combat
             var mit = ClassDefenseCalculator.ApplyIncoming(hero, 100, pierce: true);
             TestBase.AssertEqual(100, mit.Remaining, "pierce full hit", ref _run, ref _pass, ref _fail);
             TestBase.AssertEqual(0.0, mit.DrPercent, "pierce DR 0", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(0.0, hero.Effects.PendingDefenseTempoSpeedPct, "no Tempo mint", ref _run, ref _pass, ref _fail);
-        }
-
-        private static void TestNoTempoGritShieldOnLivePath()
-        {
-            Console.WriteLine("--- live path does not mint Tempo / apply Grit / eat shield ---");
-            var hero = UnarmedHeroWithDefense(8);
-            hero.StandingBlockPercent = 1.0;
-            hero.Effects.PendingDefenseTempoSpeedPct = 0;
-            var mit = ClassDefenseCalculator.ApplyIncoming(hero, 100, pierce: false);
-            TestBase.AssertEqual(0, mit.TempoPct, "no Tempo field", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(0.0, hero.Effects.PendingDefenseTempoSpeedPct, "no Tempo pending", ref _run, ref _pass, ref _fail);
-
-            var barb = TestDataBuilders.Character().WithName("Barb").WithLevel(1).Build();
-            barb.EquipItem(new WeaponItem("Club", 1, 8, 0.05, WeaponType.Mace), "weapon");
-            barb.EquipItem(new ChestItem("Hide", 1, 16), "body");
-            barb.StandingBlockPercent = 0;
-            var grit = ClassDefenseCalculator.ApplyIncoming(barb, 50, pierce: false);
-            TestBase.AssertEqual(0, grit.GritIgnored, "no Grit on live path", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(50, grit.Remaining, "glass 0% = full", ref _run, ref _pass, ref _fail);
-
-            var wiz = TestDataBuilders.Character().WithName("Wizard").WithLevel(1).Build();
-            wiz.EquipItem(new WeaponItem("Staff", 1, 4, 0.05, WeaponType.Wand), "weapon");
-            wiz.EquipItem(new ChestItem("Robe", 1, 5), "body");
-            ClassDefenseCalculator.RefillWizardShield(wiz);
-            wiz.StandingBlockPercent = 0;
-            int shieldBefore = wiz.EnergyShieldCurrent;
-            var pad = ClassDefenseCalculator.ApplyIncoming(wiz, 6, pierce: false);
-            TestBase.AssertEqual(0, pad.ShieldAbsorbed, "no shield absorb on live path", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(shieldBefore, wiz.EnergyShieldCurrent, "shield unchanged", ref _run, ref _pass, ref _fail);
         }
 
         private static void TestMultiHitIndexUsesBaseAfterFirstTick()
@@ -341,38 +291,6 @@ namespace RPGGame.Tests.Unit.Combat
                 GameConfiguration.Instance.Combat.ArmorReductionFactor = kSnap;
                 GameConfiguration.Instance.Combat.PlayerBaseArmor = baseSnap;
             }
-        }
-
-        private static void TestTempoConsumeShortensActionLength()
-        {
-            Console.WriteLine("--- Tempo consume shortens display length ---");
-            var hero = UnarmedHeroWithDefense(20);
-            var action = TestDataBuilders.CreateMockAction("JAB");
-            action.Length = 1.0;
-            double baseSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(hero, action);
-            hero.Effects.PendingDefenseTempoSpeedPct = 25;
-            double withTempo = ActionSpeedCalculator.CalculateActualActionSpeed(hero, action);
-            TestBase.AssertTrue(withTempo < baseSpeed, "tempo shortens duration", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(25.0, hero.Effects.PendingDefenseTempoSpeedPct, "display does not consume", ref _run, ref _pass, ref _fail);
-            double consumed = hero.Effects.ConsumePendingDefenseTempoSpeedPct();
-            TestBase.AssertEqual(25.0, consumed, "consume returns pct", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(0.0, hero.Effects.PendingDefenseTempoSpeedPct, "cleared after consume", ref _run, ref _pass, ref _fail);
-        }
-
-        private static void TestCounterConsumeBoostsDamage()
-        {
-            Console.WriteLine("--- Counter consume boosts hero damage ---");
-            var hero = TestDataBuilders.Character().WithName("CounterHero").WithLevel(1).Build();
-            hero.EquipItem(new WeaponItem("Stiletto", 1, 10, 0.05, WeaponType.Dagger), "weapon");
-            var foe = TestDataBuilders.Enemy().WithName("Foe").WithHealth(500).Build();
-            var action = TestDataBuilders.CreateMockAction("STAB");
-            action.DamageMultiplier = 1.0;
-
-            int baseline = DamageCalculator.CalculateDamage(hero, foe, action, 1.0, 1.0, 0, 10);
-            hero.Effects.PendingDefenseCounterDamagePct = 30;
-            int boosted = DamageCalculator.CalculateDamage(hero, foe, action, 1.0, 1.0, 0, 10);
-            TestBase.AssertTrue(boosted > baseline, "counter boosts damage", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual(0.0, hero.Effects.PendingDefenseCounterDamagePct, "counter consumed", ref _run, ref _pass, ref _fail);
         }
 
         private static void TestUnnamedSyntheticResolvesToOne()

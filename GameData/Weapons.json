@@ -2170,7 +2170,9 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 24
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2190,7 +2192,9 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 25
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2210,7 +2214,9 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 23
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2230,7 +2236,9 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 30
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2250,7 +2258,9 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 29
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2270,7 +2280,9 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 21
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2290,7 +2302,9 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 27
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2310,7 +2324,9 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 22
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2330,7 +2346,9 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 20
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2350,7 +2368,9 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 28
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2370,7 +2390,9 @@
     "damageBonusMin": 2,
     "damageBonusMax": 4,
     "tier": 2,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 26
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2390,7 +2412,9 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 50
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2410,7 +2434,9 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 40
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2430,7 +2456,9 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 48
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2450,7 +2478,9 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 49
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2470,7 +2500,9 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 46
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2490,7 +2522,9 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 43
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2510,7 +2544,9 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 47
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2530,7 +2566,9 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 44
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2550,7 +2588,9 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 41
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2570,7 +2610,9 @@
     "damageBonusMin": 3,
     "damageBonusMax": 9,
     "tier": 3,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 42
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2590,7 +2632,9 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 77
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2610,7 +2654,9 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 73
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2630,7 +2676,9 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 71
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2650,7 +2698,9 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 78
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2670,7 +2720,9 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 74
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2690,7 +2742,9 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 80
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2710,7 +2764,9 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 79
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2730,7 +2786,9 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 70
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2750,7 +2808,9 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 72
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2770,7 +2830,9 @@
     "damageBonusMin": 4,
     "damageBonusMax": 16,
     "tier": 4,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 76
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2790,7 +2852,9 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 106
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2810,7 +2874,9 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 100
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2830,7 +2896,9 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 110
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2850,7 +2918,9 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 107
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2870,7 +2940,9 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 109
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2890,7 +2962,9 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 108
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2904,13 +2978,15 @@
   },
   {
     "type": "Dagger",
-    "name": "Eternity\u0027S Shiv",
+    "name": "Eternity'S Shiv",
     "baseDamage": 20,
     "attackSpeed": 0.78,
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 101
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2930,7 +3006,9 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 102
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2950,7 +3028,9 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 104
+    },
     "tags": [
       "dagger",
       "rogue"
@@ -2970,7 +3050,9 @@
     "damageBonusMin": 5,
     "damageBonusMax": 25,
     "tier": 5,
-    "attributeRequirements": null,
+    "attributeRequirements": {
+      "technique": 103
+    },
     "tags": [
       "dagger",
       "rogue"

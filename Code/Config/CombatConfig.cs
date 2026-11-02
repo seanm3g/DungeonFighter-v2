@@ -56,6 +56,20 @@ namespace RPGGame
         /// 5 pieces. Applied with the set-bonus speed % (swing time ÷ (1 + % / 100)). Empty = off.
         /// </summary>
         public Dictionary<string, double> MaterialSetSpeedPercentPerPiece { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Incoming damage reduction % per worn piece of a material once its set is unlocked (shares the fight-mint cap).</summary>
+        public Dictionary<string, double> MaterialSetDamageReductionPercentPerPiece { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>
+        /// Attribute points per worn piece of a material once its set is unlocked, in the material's class stat
+        /// (Barbarian materials STR, Warrior AGI, Rogue TEC, Wizard INT). Empty = off.
+        /// </summary>
+        public Dictionary<string, double> MaterialSetAttributePerPiece { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>
+        /// Converts also pay the hero's primary attribute: points per unit of currency the convert spends, for the rest of
+        /// the fight (fight cadence buff), so a payoff builds the hero and not only one hit. Empty = off.
+        /// </summary>
+        public Dictionary<string, double> MaterialConvertPrimaryStatPerUnit { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Most primary attribute converts can add in one fight (0 = no cap).</summary>
+        public int MaterialConvertPrimaryStatMaxPerFight { get; set; }
         /// <summary>
         /// Hero swing speed % per unit of a currency minted this fight (e.g. TRIUMPH on combo end). Counts what was earned,
         /// so a convert spending the bank keeps it. Empty = off.
@@ -369,6 +383,18 @@ namespace RPGGame
         /// </summary>
         public bool ResetChainOnNormalHit { get; set; } = true;
 
+        /// <summary>
+        /// True: strip slot k deals 1 + (AMP − 1) × k instead of AMP^k, so INT's AMP keeps paying across long strips
+        /// without exploding once later slots fire often. False (legacy): AMP^k.
+        /// </summary>
+        public bool ComboAmplifierLinearSlots { get; set; }
+
+        /// <summary>AMP added per effective INT above <see cref="ComboAmplifierMaxTech"/> (0 = AMP stops at the cap).</summary>
+        public double ComboAmplifierOverflowPerPoint { get; set; }
+
+        /// <summary>Hero damage % per strip slot index (slot k × this), independent of INT: a reason to run longer strips. 0 = off.</summary>
+        public double ComboSlotDamagePercentPerStep { get; set; }
+
         /// <summary>Legacy tuning field retained for old configs.</summary>
         public double ComboAmplifierAtTech5 { get; set; }
 
@@ -408,7 +434,8 @@ namespace RPGGame
             if (maxAmp <= 1.0)
                 return 1.0;
             if (clamped >= maxTech)
-                return maxAmp;
+                // Overflow: INT past the cap keeps adding AMP at a reduced rate instead of stopping dead.
+                return maxAmp + (clamped - maxTech) * Math.Max(0.0, combo.ComboAmplifierOverflowPerPoint);
             if (clamped <= 0)
                 return 1.0;
 

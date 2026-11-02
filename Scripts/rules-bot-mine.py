@@ -21,15 +21,8 @@ skill_pos = collections.defaultdict(lambda: collections.defaultdict(list))   # c
 skill_runs = collections.Counter()
 action_uses = collections.defaultdict(collections.Counter)                   # class -> action -> strips holding it
 action_pos = collections.defaultdict(lambda: collections.defaultdict(list))
-fill = collections.defaultdict(list)                                         # class -> strip length / slot max
-set_uses = collections.defaultdict(collections.Counter)                      # class -> worn set material (2+ pieces)
 sources = []
 def mine_strip(cls, r, strip):
-    if r.get('SlotMax'):
-        fill[cls].append(len(strip) / r['SlotMax'])
-    worn = {m: n for m, n in (r.get('Sets') or {}).items() if n >= 2}
-    if worn:
-        set_uses[cls][max(worn, key=worn.get)] += 1
     for i, a in enumerate(strip):
         action_uses[cls][a] += 1
         action_pos[cls][a].append(i / max(1, len(strip)))
@@ -59,13 +52,8 @@ for d in A.dirs:
             for cls in (r['Class'], f"{r['Class']}@{data.get('Level', 0)}"):
                 mine_strip(cls, r, strip)
 
-# Rule knobs, picked 2026-11-01 against smart-bot runs at L20/35/50/75 (overall clear within 8 points): full strips,
-# per-level strip lists, home-class sets first. Mined set preference and filling with unlisted actions made it worse.
-KNOBS = {'stripFillOverride': 1.0, 'perLevelStrips': 1, 'homeSetFirst': 1, 'useSetPreference': 0, 'fillUnlisted': 0,
-         'setMinValueShare': 0}
 out = {'description': 'Rules-bot priority lists mined from smart-bot DUNGEONSIM runs by Scripts/rules-bot-mine.py.',
-       'sources': len(sources), **KNOBS,
-       'skillOrder': {}, 'actionPriority': {}, 'actionOrder': {}, 'stripFill': {}, 'setPreference': {}}
+       'sources': len(sources), 'skillOrder': {}, 'actionPriority': {}, 'actionOrder': {}}
 for cls, tokens in skill_pos.items():
     runs = skill_runs[cls]
     common = [t for t, v in tokens.items() if len(v) >= A.min_share * runs]
@@ -75,9 +63,7 @@ for cls, tokens in skill_pos.items():
 for cls, uses in action_uses.items():
     out['actionPriority'][cls] = [a for a, _ in uses.most_common()]
     out['actionOrder'][cls] = {a: round(statistics.mean(v), 3) for a, v in action_pos[cls].items()}
-    out['setPreference'][cls] = [m for m, _ in set_uses[cls].most_common()]
-    out['stripFill'][cls] = round(statistics.median(fill[cls]), 3) if fill[cls] else 1.0
 json.dump(out, open(A.out, 'w', encoding='utf-8'), indent=2)
 print(f'{len(sources)} shard files -> {A.out}')
 for cls in sorted(out['skillOrder']):  # per-level strip keys (Class@L) are in actionPriority only
-    print(f"  {cls}: {len(out['skillOrder'][cls])} skill picks, top actions {out['actionPriority'].get(cls, [])[:6]}, fill {out['stripFill'].get(cls)}")
+    print(f"  {cls}: {len(out['skillOrder'][cls])} skill picks, top actions {out['actionPriority'].get(cls, [])[:6]}")

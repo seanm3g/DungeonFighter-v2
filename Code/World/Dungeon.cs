@@ -224,6 +224,9 @@ namespace RPGGame
 
             if (Rooms.Count > 1 && GameConfiguration.Instance.DungeonScaling?.BossMergesRoom == true)
                 MergeBossRoom(Rooms[^1]);
+            // The final room's lead enemy is the dungeon's boss and always carries the boss prefix (Demon).
+            if (Rooms.Count > 1)
+                EnemyPrefixRoller.ApplyBossPrefix(Rooms[^1].GetEnemies().OrderByDescending(e => e.Level).FirstOrDefault());
 
             if (Rooms.Count > 0)
                 TraversalState = DungeonMapGenerator.Generate(Rooms, random, trainingGround: false);

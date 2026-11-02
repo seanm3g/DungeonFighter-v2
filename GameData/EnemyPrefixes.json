@@ -1,0 +1,122 @@
+{
+  "description": "Enemy prefixes rolled when a room's enemy is created (and the final boss's Demon mark). Tags only for now: they are stored on Enemy.PrefixTags and the name, and drive no mechanics yet. 'idea' is the intended mechanic.",
+  "roomRoll": {
+    "chance": 0.12,
+    "chancePerLevel": 0.002,
+    "maxChance": 0.35
+  },
+  "bossPrefix": "Demon",
+  "prefixes": [
+    {
+      "name": "Demon",
+      "bossOnly": true,
+      "weight": 0,
+      "tags": [ "demon", "fiend", "infernal" ],
+      "idea": "Final-boss mark. A second phase at 50% HP that adds one action to its sequence; drains a little of the hero's material currency per hit; guaranteed rare drop."
+    },
+    {
+      "name": "Undead",
+      "weight": 3,
+      "requiresTags": [ "living" ],
+      "excludesTags": [ "undead", "elemental", "plant" ],
+      "tags": [ "undead", "risen" ],
+      "idea": "Rises once at 30% HP after its first death. Immune to bleed and poison, takes extra damage from fire and holy."
+    },
+    {
+      "name": "Skeleton",
+      "weight": 2,
+      "requiresTags": [ "living", "has_legs" ],
+      "excludesTags": [ "undead", "elemental", "plant", "tiny" ],
+      "tags": [ "undead", "skeleton", "brittle" ],
+      "idea": "Bones shrug off blades and piercing (dagger and sword hits reduced) but shatter under blunt hits (maces deal extra). A Barbarian-favoured matchup."
+    },
+    {
+      "name": "Ghost",
+      "weight": 2,
+      "requiresTags": [ "living" ],
+      "excludesTags": [ "undead", "elemental", "giant" ],
+      "tags": [ "undead", "ghost", "incorporeal" ],
+      "idea": "Physical hits have a chance to pass through; magic hits land normally. A Wizard-favoured matchup."
+    },
+    {
+      "name": "Giant",
+      "weight": 2,
+      "excludesTags": [ "giant", "tiny", "minion" ],
+      "tags": [ "giant", "huge" ],
+      "idea": "More HP and harder hits, slower swings. Staggers (loses its next action) on a critical hit."
+    },
+    {
+      "name": "Tiny",
+      "weight": 2,
+      "excludesTags": [ "tiny", "giant", "boss" ],
+      "tags": [ "tiny", "small" ],
+      "idea": "Less HP, faster swings, raises the hero's hit threshold by 1 (harder to hit)."
+    },
+    {
+      "name": "Feral",
+      "weight": 3,
+      "requiresTags": [ "living" ],
+      "excludesTags": [ "undead", "elemental", "plant" ],
+      "tags": [ "feral", "beast" ],
+      "idea": "Swings faster as it loses HP (enrage below 50%)."
+    },
+    {
+      "name": "Armored",
+      "weight": 2,
+      "excludesTags": [ "elemental", "plant", "incorporeal" ],
+      "tags": [ "armored", "plated" ],
+      "idea": "High Defense until sundered or exposed; rewards SUNDER, EXPOSE and pierce."
+    },
+    {
+      "name": "Ancient",
+      "weight": 1,
+      "minLevel": 35,
+      "excludesTags": [ "young", "minion" ],
+      "tags": [ "ancient", "elder" ],
+      "idea": "One extra action in its sequence; more XP and a better loot roll."
+    },
+    {
+      "name": "Corrupted",
+      "weight": 2,
+      "minLevel": 20,
+      "tags": [ "corrupted", "shadow" ],
+      "idea": "Applies a stacking curse that lowers the hero's healing; drops Shadow and Obsidian materials more often."
+    },
+    {
+      "name": "Blazing",
+      "weight": 2,
+      "excludesTags": [ "water", "plant" ],
+      "tags": [ "fire", "burning" ],
+      "idea": "Burns on hit and is immune to burn. More common in the Fire region."
+    },
+    {
+      "name": "Frozen",
+      "weight": 2,
+      "excludesTags": [ "fire" ],
+      "tags": [ "ice", "frozen" ],
+      "idea": "Slows the hero on hit; a critical hit shatters it for bonus damage."
+    },
+    {
+      "name": "Venomous",
+      "weight": 2,
+      "requiresTags": [ "living" ],
+      "excludesTags": [ "undead", "elemental" ],
+      "tags": [ "venomous", "poison" ],
+      "idea": "Poisons on hit; immune to poison."
+    },
+    {
+      "name": "Hallowed",
+      "weight": 1,
+      "excludesTags": [ "undead", "demon" ],
+      "tags": [ "celestial", "holy" ],
+      "idea": "Regenerates a little HP each turn; takes extra damage from shadow."
+    },
+    {
+      "name": "Cursed",
+      "weight": 1,
+      "minLevel": 10,
+      "tags": [ "cursed" ],
+      "idea": "Killing it applies a short debuff to the hero; drops items with a cursed affix more often."
+    }
+  ]
+}

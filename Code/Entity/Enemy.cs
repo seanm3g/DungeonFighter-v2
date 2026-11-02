@@ -25,6 +25,35 @@ namespace RPGGame
 
         private readonly List<string> _tags = new List<string>();
 
+        /// <summary>Spawn prefix (<c>EnemyPrefixes.json</c>: Undead, Giant, Demon, ...), or null.</summary>
+        public string? Prefix { get; private set; }
+
+        /// <summary>Name without the prefix (the template name lookups and colors key on).</summary>
+        public string BaseName => _baseName ?? Name;
+
+        private string? _baseName;
+
+        /// <summary>Tags the prefix added. Kept apart from <see cref="Tags"/> so they drive no mechanics yet.</summary>
+        public IReadOnlyList<string> PrefixTags => _prefixTags;
+
+        private readonly List<string> _prefixTags = new List<string>();
+
+        /// <summary>Sets the prefix ("Giant" → "Giant Wolf"), replacing any earlier one, and its tags.</summary>
+        public void ApplyPrefix(string prefix, IEnumerable<string>? tags)
+        {
+            if (string.IsNullOrWhiteSpace(prefix))
+                return;
+            _baseName ??= Name;
+            Prefix = prefix.Trim();
+            Name = $"{Prefix} {_baseName}";
+            _prefixTags.Clear();
+            foreach (var tag in tags ?? Array.Empty<string>())
+            {
+                if (!string.IsNullOrWhiteSpace(tag) && !_prefixTags.Contains(tag.Trim(), StringComparer.OrdinalIgnoreCase))
+                    _prefixTags.Add(tag.Trim());
+            }
+        }
+
         private int[]? _bodyMax;
         private int[]? _bodyCurrent;
         private int? _packHeadlineCount;

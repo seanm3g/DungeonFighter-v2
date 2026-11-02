@@ -1,3 +1,5 @@
+using System.Linq;
+using System.Collections.Generic;
 using System;
 using RPGGame.Combat.Events;
 using RPGGame.Tests;
@@ -136,25 +138,46 @@ namespace RPGGame.Tests.Unit
 
         private static void TestEmptyFuryScalesWithRank()
         {
-            Console.WriteLine("--- Empty Fury scales with rank ---");
+            Console.WriteLine("--- Empty Fury scales with rank and filled strip slots ---");
             var r1 = MakeHero("Fury1", WeaponType.Mace);
-            SetRank(r1, "b-empty", 1);
-            while (r1.GetComboActions().Count > 0)
-                r1.RemoveFromCombo(r1.GetComboActions()[^1]);
+            SetRank(r1, "b-empty", 2);
+            int filled = FillStrip(r1);
             PublishHit(r1);
             int str1 = r1.Stats.TempStrengthBonus;
 
             var r2 = MakeHero("Fury2", WeaponType.Mace);
-            SetRank(r2, "b-empty", 2);
-            while (r2.GetComboActions().Count > 0)
-                r2.RemoveFromCombo(r2.GetComboActions()[^1]);
+            SetRank(r2, "b-empty", 4);
+            FillStrip(r2);
             PublishHit(r2);
             int str2 = r2.Stats.TempStrengthBonus;
 
-            TestBase.AssertTrue(str1 > 0, "rank 1 Empty Fury grants STR",
+            var bare = MakeHero("Fury0", WeaponType.Mace);
+            SetRank(bare, "b-empty", 2);
+            while (bare.GetComboActions().Count > 1)
+                bare.RemoveFromCombo(bare.GetComboActions()[^1]);
+            PublishHit(bare);
+
+            TestBase.AssertTrue(filled >= 2, $"test strip holds 2+ actions (got {filled})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(str2 > str1, "rank 2 Empty Fury grants more STR than rank 1",
+            TestBase.AssertTrue(str1 > 0, "rank 2 Empty Fury grants STR for filled slots",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(str2 > str1, "rank 4 Empty Fury grants more STR than rank 2",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, bare.Stats.TempStrengthBonus, "a one-action strip grants no Fury STR",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>Raises the hero so the strip has room, then puts three catalog actions in it.</summary>
+        private static int FillStrip(Character hero)
+        {
+            hero.Level = 40;
+            foreach (string name in new[] { "SLAM", "BLUDGEON", "STRIKE" })
+            {
+                var action = ActionLoader.GetAction(name);
+                if (action != null)
+                    hero.AddToCombo(action);
+            }
+            return hero.GetComboActions().Count;
         }
 
         private static void TestScrapPreferScalesWithRank()

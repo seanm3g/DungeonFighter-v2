@@ -301,8 +301,9 @@ namespace RPGGame.Tests.Unit
                 var roomEnemyNames = new HashSet<string>((data?.Enemies ?? new List<RoomEnemyData>()).Select(e => e.Name), StringComparer.OrdinalIgnoreCase);
                 foreach (var enemy in room.GetEnemies())
                 {
-                    bool local = roomEnemyNames.Contains(enemy.Name);
-                    bool wanderer = allEnemies.TryGetValue(enemy.Name, out var ed)
+                    // Spawn prefixes (Giant, Undead, the boss's Demon) rename the enemy; the template is the base name.
+                    bool local = roomEnemyNames.Contains(enemy.BaseName);
+                    bool wanderer = allEnemies.TryGetValue(enemy.BaseName, out var ed)
                         && EnemySpawnFilter.IsPlacementWildcard(ed.Region)
                         && EnemyGenerationManager.WandererFitsRegion(ed, "Fire");
                     if (!local && !wanderer)

@@ -37,6 +37,9 @@ namespace RPGGame.Tests.Unit.Combat
                 TestBankSpeedIsCapped();
                 TestBankDamageReductionIsCapped();
                 TestOffWhenConfigEmpty();
+                TestHeroAgilitySoftCap();
+                TestSetDamageReductionAndAttributePerPiece();
+                TestConvertGrantsPrimaryStatCapped();
             }
             finally
             {
@@ -121,6 +124,81 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertEqual(0.8, Math.Round(MaterialSetController.GetIncomingDamageMultiplier(hero), 4), "5 RAGE x 4% = 20% less", ref _run, ref _passed, ref _failed);
             MaterialSetController.RecordFightMint(hero, "RAGE", 20);
             TestBase.AssertEqual(0.7, Math.Round(MaterialSetController.GetIncomingDamageMultiplier(hero), 4), "25 RAGE capped at 30%", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestHeroAgilitySoftCap()
+        {
+            TestBase.SetCurrentTestName(nameof(TestHeroAgilitySoftCap));
+            var combat = GameConfiguration.Instance.Combat;
+            int oldCap = combat.HeroAgilitySpeedSoftCap;
+            double oldEff = combat.HeroAgilitySpeedOverCapEfficiency;
+            try
+            {
+                combat.HeroAgilitySpeedSoftCap = 0;
+                TestBase.AssertEqual(235, SpeedCalculator.GetHeroSpeedAgility(235), "cap off: AGI unchanged", ref _run, ref _passed, ref _failed);
+                combat.HeroAgilitySpeedSoftCap = 120;
+                combat.HeroAgilitySpeedOverCapEfficiency = 0.5;
+                TestBase.AssertEqual(100, SpeedCalculator.GetHeroSpeedAgility(100), "under the cap: unchanged", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(178, SpeedCalculator.GetHeroSpeedAgility(235), "over the cap: 120 + 115 x 0.5", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                combat.HeroAgilitySpeedSoftCap = oldCap;
+                combat.HeroAgilitySpeedOverCapEfficiency = oldEff;
+            }
+        }
+
+        private static void TestSetDamageReductionAndAttributePerPiece()
+        {
+            TestBase.SetCurrentTestName(nameof(TestSetDamageReductionAndAttributePerPiece));
+            var combat = GameConfiguration.Instance.Combat;
+            var oldDr = combat.MaterialSetDamageReductionPercentPerPiece;
+            var oldAttr = combat.MaterialSetAttributePerPiece;
+            try
+            {
+                combat.MaterialSetDamageReductionPercentPerPiece = new(StringComparer.OrdinalIgnoreCase) { ["Bronze"] = 4 };
+                combat.MaterialSetAttributePerPiece = new(StringComparer.OrdinalIgnoreCase) { ["Bone"] = 5 };
+                TestBase.AssertEqual(1.0, MaterialSetController.GetIncomingDamageMultiplier(EquipMaterial("Bronze", 1)), "1 Bronze piece: set locked", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(0.88, Math.Round(MaterialSetController.GetIncomingDamageMultiplier(EquipMaterial("Bronze", 3)), 4), "3 Bronze x 4% DR", ref _run, ref _passed, ref _failed);
+
+                var bone = EquipMaterial("Bone", 3);
+                TestBase.AssertEqual(15, MaterialSetController.GetSetAttributeBonus(bone, "STR"), "3 Bone x 5 STR (Barbarian stat)", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(0, MaterialSetController.GetSetAttributeBonus(bone, "INT"), "Bone pays no INT", ref _run, ref _passed, ref _failed);
+                var plain = EquipMaterial("Leather", 3);
+                TestBase.AssertEqual(plain.GetEffectiveStrength() + 15, bone.GetEffectiveStrength(), "set STR reaches effective STR", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                combat.MaterialSetDamageReductionPercentPerPiece = oldDr;
+                combat.MaterialSetAttributePerPiece = oldAttr;
+            }
+        }
+
+        private static void TestConvertGrantsPrimaryStatCapped()
+        {
+            TestBase.SetCurrentTestName(nameof(TestConvertGrantsPrimaryStatCapped));
+            var combat = GameConfiguration.Instance.Combat;
+            var oldPer = combat.MaterialConvertPrimaryStatPerUnit;
+            int oldCap = combat.MaterialConvertPrimaryStatMaxPerFight;
+            try
+            {
+                combat.MaterialConvertPrimaryStatPerUnit = new(StringComparer.OrdinalIgnoreCase) { ["RAGE"] = 0.5 };
+                combat.MaterialConvertPrimaryStatMaxPerFight = 6;
+                var hero = EquipMaterial("Bone", 2);
+                int before = hero.GetEffectiveStrength() + hero.GetEffectiveAgility() + hero.GetEffectiveTechnique() + hero.GetEffectiveIntelligence();
+                TestBase.AssertEqual(4, MaterialSetController.GrantConvertPrimaryStat(hero, "RAGE", 8), "8 RAGE x 0.5 = 4 primary", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(2, MaterialSetController.GrantConvertPrimaryStat(hero, "RAGE", 8), "fight cap 6 leaves 2", ref _run, ref _passed, ref _failed);
+                int after = hero.GetEffectiveStrength() + hero.GetEffectiveAgility() + hero.GetEffectiveTechnique() + hero.GetEffectiveIntelligence();
+                TestBase.AssertEqual(before + 6, after, "granted points reach the hero's stats", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(0, MaterialSetController.GrantConvertPrimaryStat(hero, "CONTACT", 8), "unlisted currency grants nothing", ref _run, ref _passed, ref _failed);
+                MaterialSetController.ResetFightConnects(hero);
+                TestBase.AssertEqual(4, MaterialSetController.GrantConvertPrimaryStat(hero, "RAGE", 8), "new fight: cap resets", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                combat.MaterialConvertPrimaryStatPerUnit = oldPer;
+                combat.MaterialConvertPrimaryStatMaxPerFight = oldCap;
+            }
         }
 
         private static void TestOffWhenConfigEmpty()

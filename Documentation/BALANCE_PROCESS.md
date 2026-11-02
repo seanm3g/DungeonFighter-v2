@@ -110,8 +110,8 @@ rate (clear^(1/fightsPerDungeon)) and the playthrough batch checks the real clea
 **Rules bot (2026-11-01, default).** DUNGEONSIM, `dungeon-sim.py` and `balance-scan.py` use it unless given
 `--bot smart`. It skips the smart bot's simulated picks (~98% of a shard):
 skills in a mined order, the home class's best-covered material set, a full strip from the class's most-run actions at
-the closest mined level, no weapon/class switching. 4 levels × 48 heroes take ~40 s instead of ~25 min. Priorities and
-rule knobs live in `GameData/TuningProfiles/rules-bot.json`; re-mine with `Scripts/rules-bot-mine.py <smart --keep dirs>`
+the closest mined level, no weapon/class switching. 4 levels × 48 heroes take ~40 s instead of ~25 min. Priorities
+live in `GameData/TuningProfiles/rules-bot.json`; re-mine with `Scripts/rules-bot-mine.py <smart --keep dirs>`
 after skill or action changes. Overall clear reads within 3–8 points of the smart bot at L20/35/50/75. Per class it
 differs more (Wizard up to −36, Barbarian L35 −33): smart heroes switch to daggers (switched Wizards lose ~40% less HP
 per fight) and stop at 20 skill picks per hub, so the rules bot is the in-class reading. Use `--bot smart` to see the

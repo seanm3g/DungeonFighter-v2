@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Avalonia.Media;
 using RPGGame.Actions.Conditional;
 using RPGGame.Combat.Events;
@@ -205,7 +206,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Incoming damage multiplier from currency minted this fight (<see cref="CombatConfig.MaterialFightMintDamageReductionPercentPerUnit"/>,
+        /// Incoming damage multiplier from worn set pieces (<see cref="CombatConfig.MaterialSetDamageReductionPercentPerPiece"/>)
+        /// and currency minted this fight (<see cref="CombatConfig.MaterialFightMintDamageReductionPercentPerUnit"/>,
         /// capped at <see cref="CombatConfig.MaterialFightMintDamageReductionMaxPercent"/>, default 90). Heroes only; 1 when off.
         /// </summary>
         public static double GetIncomingDamageMultiplier(Actor? actor)
@@ -213,14 +215,82 @@ namespace RPGGame
             if (actor is not Character hero || hero is Enemy)
                 return 1.0;
             var combat = GameConfiguration.Instance.Combat;
-            if (combat.MaterialFightMintDamageReductionPercentPerUnit is not { Count: > 0 } perUnit)
-                return 1.0;
             double pct = 0;
-            foreach (var (keyword, perPct) in perUnit)
-                pct += GetFightMinted(hero, keyword) * perPct;
+            if (combat.MaterialFightMintDamageReductionPercentPerUnit is { Count: > 0 } perUnit)
+                foreach (var (keyword, perPct) in perUnit)
+                    pct += GetFightMinted(hero, keyword) * perPct;
+            if (combat.MaterialSetDamageReductionPercentPerPiece is { Count: > 0 } perPiece)
+                foreach (var (material, perPct) in perPiece)
+                {
+                    int worn = CountEquipped(hero, material);
+                    if (worn >= MaterialBuildData.StackUnlockCount)
+                        pct += worn * perPct;
+                }
+            if (pct <= 0)
+                return 1.0;
             double cap = combat.MaterialFightMintDamageReductionMaxPercent > 0 ? combat.MaterialFightMintDamageReductionMaxPercent : 90;
             pct = Math.Clamp(pct, 0, cap);
             return 1.0 - pct / 100.0;
+        }
+
+        /// <summary>
+        /// Attribute points from worn set pieces (<see cref="CombatConfig.MaterialSetAttributePerPiece"/>) for
+        /// <paramref name="statCode"/> (STR / AGI / TEC / INT): each unlocked set pays its class's stat. Heroes only.
+        /// </summary>
+        public static int GetSetAttributeBonus(Character? hero, string statCode)
+        {
+            if (hero == null || hero is Enemy)
+                return 0;
+            var perPiece = GameConfiguration.Instance.Combat.MaterialSetAttributePerPiece;
+            if (perPiece is not { Count: > 0 })
+                return 0;
+            double points = 0;
+            foreach (var (material, per) in perPiece)
+            {
+                var build = MaterialBuildsLoader.FindByMaterial(material);
+                if (build == null || !string.Equals(ClassStatCode(build.AssociatedClass), statCode, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                int worn = CountEquipped(hero, material);
+                if (worn >= MaterialBuildData.StackUnlockCount)
+                    points += worn * per;
+            }
+            return (int)Math.Round(points);
+        }
+
+        /// <summary>A class's primary stat as the attribute bonus code: BARBARIAN STR, WARRIOR AGI, ROGUE TEC, WIZARD INT.</summary>
+        public static string ClassStatCode(string? associatedClass) => (associatedClass ?? "").Trim().ToUpperInvariant() switch
+        {
+            "BARBARIAN" => "STR",
+            "WARRIOR" => "AGI",
+            "ROGUE" => "TEC",
+            "WIZARD" => "INT",
+            _ => ""
+        };
+
+        // Primary attribute converts granted this fight (capped by MaterialConvertPrimaryStatMaxPerFight).
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Character, StrongBox<int>> _fightConvertStat = new();
+
+        /// <summary>
+        /// Convert payoff in stats: <paramref name="unitsSpent"/> × <see cref="CombatConfig.MaterialConvertPrimaryStatPerUnit"/>
+        /// points of the hero's primary attribute for the rest of the fight. Returns the points granted.
+        /// </summary>
+        public static int GrantConvertPrimaryStat(Character? hero, string? keyword, int unitsSpent)
+        {
+            if (hero == null || hero is Enemy || unitsSpent <= 0 || string.IsNullOrWhiteSpace(keyword))
+                return 0;
+            var combat = GameConfiguration.Instance.Combat;
+            if (combat.MaterialConvertPrimaryStatPerUnit is not { Count: > 0 } perUnit || !perUnit.TryGetValue(keyword, out double per) || per <= 0)
+                return 0;
+            int points = (int)Math.Round(unitsSpent * per);
+            var granted = _fightConvertStat.GetOrCreateValue(hero);
+            if (combat.MaterialConvertPrimaryStatMaxPerFight > 0)
+                points = Math.Min(points, Math.Max(0, combat.MaterialConvertPrimaryStatMaxPerFight - granted.Value));
+            if (points <= 0)
+                return 0;
+            granted.Value += points;
+            string code = DynamicAttributeCategoryResolver.GetRankedAttributeCodes(hero)[0];
+            hero.FightCadenceBuffs.MergeAdditively(new[] { new ActionAttackBonusItem { Type = code, Value = points } });
+            return points;
         }
 
         // Currency minted in the current fight, by keyword: drives the fight-mint speed/defense knobs, which must not drop
@@ -254,6 +324,7 @@ namespace RPGGame
                 return;
             hero.Effects.MaterialConsecutiveConnects = 0;
             _fightMinted.Remove(hero);
+            _fightConvertStat.Remove(hero);
         }
 
         /// <summary>Clears dungeon-run keyword currency (CRISIS, DRAG, …) and consecutive-connect tracking.</summary>
@@ -417,7 +488,10 @@ namespace RPGGame
                 return 0;
             int bank = GetKeyword(hero, keyword);
             if (bank > 0)
+            {
                 hero.Effects.AddMaterialKeyword(keyword, -bank);
+                GrantConvertPrimaryStat(hero, keyword, bank);
+            }
             return bank;
         }
 

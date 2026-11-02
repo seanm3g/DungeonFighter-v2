@@ -225,6 +225,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "ActionTriggerGate", () => RPGGame.Tests.Unit.ActionTriggerGateTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "MaterialSet", () => RPGGame.Tests.Unit.Combat.MaterialSetControllerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "MaterialSetTempo", () => RPGGame.Tests.Unit.Combat.MaterialSetTempoTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("world", "EnemyPrefix", () => RPGGame.Tests.Unit.World.EnemyPrefixTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "LeatherSetBonus", () => RPGGame.Tests.Unit.Combat.LeatherSetBonusTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CharmAnimal", () => RPGGame.Tests.Unit.Combat.CharmAndAnimalLadderTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StatBonusAnimalSuffix", () => RPGGame.Tests.Unit.StatBonusAnimalSuffixTriggerTests.RunAllTests()));

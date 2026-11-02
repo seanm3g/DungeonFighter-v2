@@ -118,7 +118,8 @@ namespace RPGGame
         /// </summary>
         private int ExtraAttributeBonus(string code)
         {
-            int skill = SkillEffectRouter.Instance.GetSkillAttributeBonus(_character, code);
+            int skill = SkillEffectRouter.Instance.GetSkillAttributeBonus(_character, code)
+                + MaterialSetController.GetSetAttributeBonus(_character, code.ToUpperInvariant() == "TECH" ? "TEC" : code);
             return code.ToUpperInvariant() switch
             {
                 "STR" => _character.Equipment.GetEquipmentStatBonus("STR", _character)

@@ -184,6 +184,7 @@ namespace RPGGame
                 var enemy = EnemyLoader.CreateEnemy(enemyTemplate.Name, enemyLevel);
                 if (enemy != null)
                 {
+                    EnemyPrefixRoller.TryApplyRoomPrefix(enemy, random);
                     enemies.Add(enemy);
                 }
                 else
@@ -279,6 +280,7 @@ namespace RPGGame
                 var enemy = EnemyLoader.CreateEnemy(enemyTemplate.Name, enemyLevel);
                 if (enemy != null)
                 {
+                    EnemyPrefixRoller.TryApplyRoomPrefix(enemy, random);
                     enemies.Add(enemy);
                 }
                 else

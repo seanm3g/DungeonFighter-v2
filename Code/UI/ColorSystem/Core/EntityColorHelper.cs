@@ -33,7 +33,7 @@ namespace RPGGame.UI.ColorSystem
                 }
             }
             
-            return GetEnemyColorByName(enemy.Name);
+            return GetEnemyColorByName(enemy.BaseName);
         }
         
         /// <summary>
@@ -97,7 +97,7 @@ namespace RPGGame.UI.ColorSystem
             if (animal != null)
                 return AppendPackSuffix(enemy, animal);
 
-            return AppendPackSuffix(enemy, new List<ColoredText> { new ColoredText(enemy.Name, GetEnemyColorByName(enemy.Name)) });
+            return AppendPackSuffix(enemy, new List<ColoredText> { new ColoredText(enemy.Name, GetEnemyColorByName(enemy.BaseName)) });
         }
 
         /// <summary>Pack label such as <c>(3x)</c>, drawn after the creature-colored name so shading still matches the base name.</summary>

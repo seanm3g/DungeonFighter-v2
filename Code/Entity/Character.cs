@@ -73,12 +73,6 @@ namespace RPGGame
         /// <summary>Standing Defense multiplier (0–5) from the last named action; 1.0 = 100% of Defense. A hit resets to 1.0.</summary>
         public double StandingBlockPercent { get; set; } = 1.0;
 
-        /// <summary>Wizard energy shield remaining this fight (from DEFENSE rating).</summary>
-        public int EnergyShieldCurrent { get; set; }
-
-        /// <summary>Wizard energy shield max this fight.</summary>
-        public int EnergyShieldMax { get; set; }
-
         /// <summary>Action Interaction Lab only: added to <see cref="GetTotalArmor"/> for sandbox tuning (default 0).</summary>
         public int ActionLabArmorBonus { get; set; }
 

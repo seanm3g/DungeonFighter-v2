@@ -327,7 +327,6 @@ namespace RPGGame.Tests.Unit.Combat
             hero.StandingBlockPercent = 0;
             int open = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10);
             TestBase.AssertEqual(ExpectedWowRemaining(raw, hero, 0), open, "standing 0 = full hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0.0, hero.Effects.PendingDefenseTempoSpeedPct, "no Tempo mint on take-hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             hero.StandingBlockPercent = 1.80;
             int blocked = DamageCalculator.CalculateDamage(attacker, hero, action, 1.0, 1.0, 0, 10);

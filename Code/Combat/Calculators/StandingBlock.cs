@@ -158,13 +158,6 @@ namespace RPGGame.Combat.Calculators
                 return;
 
             defender.StandingBlockPercent = DefaultBlockPercent;
-            if (defender is Enemy)
-                return;
-
-            defender.EnergyShieldCurrent = 0;
-            defender.EnergyShieldMax = 0;
-            defender.Effects.PendingDefenseTempoSpeedPct = 0;
-            defender.Effects.PendingDefenseCounterDamagePct = 0;
         }
 
         /// <summary>

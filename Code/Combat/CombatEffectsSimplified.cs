@@ -591,34 +591,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Calculates effect duration based on attacker's stats
-        /// </summary>
-        /// <param name="baseDuration">Base duration of the effect</param>
-        /// <param name="attacker">The attacking Actor</param>
-        /// <param name="target">The target Actor</param>
-        /// <returns>Modified duration</returns>
-        public static int CalculateEffectDuration(int baseDuration, Actor attacker, Actor target)
-        {
-            // Intelligence increases effect duration
-            int intelligenceBonus = 0;
-            if (attacker is Character attackerCharacter)
-            {
-                intelligenceBonus = attackerCharacter.GetEffectiveIntelligence() / 10; // +1 turn per 10 intelligence
-                intelligenceBonus = (int)Math.Floor(intelligenceBonus * SkillEffectRouter.ArchmageDurationMultiplier(attackerCharacter));
-            }
-            
-            // Target's intelligence provides resistance
-            int resistance = 0;
-            if (target is Character targetCharacter)
-            {
-                resistance = targetCharacter.GetEffectiveIntelligence() / 15; // -1 turn per 15 intelligence
-            }
-            
-            int finalDuration = baseDuration + intelligenceBonus - resistance;
-            return Math.Max(1, finalDuration); // Minimum 1 turn
-        }
-
-        /// <summary>
         /// Clears all temporary effects from an Actor
         /// </summary>
         /// <param name="Actor">The Actor to clear effects from</param>
