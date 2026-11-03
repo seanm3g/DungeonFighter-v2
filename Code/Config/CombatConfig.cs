@@ -20,6 +20,8 @@ namespace RPGGame
         public int MinimumDamage { get; set; }
         public int PlayerBaseArmor { get; set; }
         public int MaximumDamageCap { get; set; } = 999;
+        /// <summary>Raw-damage cap for enemy attacks; 0 = use <see cref="MaximumDamageCap"/> (lets the late damage curve scale past the hero cap).</summary>
+        public int EnemyMaximumDamageCap { get; set; }
         /// <summary>
         /// Scales attribute damage: floor((STR + Primary) × scale). Default 0.05 so base-10 stats contribute 1.
         /// </summary>

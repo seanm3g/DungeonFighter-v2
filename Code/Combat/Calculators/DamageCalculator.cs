@@ -355,7 +355,9 @@ namespace RPGGame.Combat.Calculators
 
             int convertFlat = result - wholeDamage;
 
-            int maxCap = Math.Max(1, combatConfig.MaximumDamageCap);
+            int maxCap = Math.Max(1, attacker is Enemy && combatConfig.EnemyMaximumDamageCap > 0
+                ? combatConfig.EnemyMaximumDamageCap
+                : combatConfig.MaximumDamageCap);
             if (result > maxCap)
                 result = maxCap;
 
