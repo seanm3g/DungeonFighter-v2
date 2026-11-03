@@ -389,6 +389,18 @@ namespace RPGGame
         public bool ResetChainOnNormalHit { get; set; } = true;
 
         /// <summary>
+        /// True: a swing that succeeds on its combo roll gives a free action — the next strip slot rolls right away, without
+        /// spending speed time — until a roll fails or the strip ends. Applies to heroes and enemies.
+        /// </summary>
+        public bool FreeActionOnComboHit { get; set; } = true;
+
+        /// <summary>
+        /// True: mid-combo (strip step past slot 1) the plain-hit band goes away — a roll under the combo threshold misses,
+        /// so a chain ends on a miss rather than a normal hit. Applies to heroes and enemies.
+        /// </summary>
+        public bool MissBelowComboMidChain { get; set; } = true;
+
+        /// <summary>
         /// True: strip slot k deals 1 + (AMP − 1) × k instead of AMP^k, so INT's AMP keeps paying across long strips
         /// without exploding once later slots fire often. False (legacy): AMP^k.
         /// </summary>

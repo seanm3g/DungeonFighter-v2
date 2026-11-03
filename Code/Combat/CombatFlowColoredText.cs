@@ -266,6 +266,15 @@ namespace RPGGame
         /// <summary>
         /// Lead-in line when a swing rolls the room's trigger face, e.g. "Kara rolled a 13 - the Flooded Vault answers!".
         /// </summary>
+        /// <summary>Formats the notice before a free combo action (the last combo roll succeeded).</summary>
+        public static List<ColoredText> FormatFreeComboActionColored(string actorName)
+        {
+            var builder = new ColoredTextBuilder();
+            builder.Add(actorName, ColorPalette.Cyan);
+            builder.Add("keeps the combo going - free action!", Colors.White);
+            return builder.Build();
+        }
+
         public static List<ColoredText> FormatRoomRollTriggerColored(string rollerName, string roomName, int triggerRoll)
         {
             var builder = new ColoredTextBuilder();

@@ -103,6 +103,16 @@ namespace RPGGame.Combat
         /// </summary>
         public int GetHitThreshold(Actor actor)
         {
+            int hit = GetStoredHitThreshold(actor);
+            // Mid-combo there is no plain-hit band: a roll that doesn't keep the combo going misses.
+            if (actor is Character { ComboStep: > 0 } && (GameConfiguration.Instance.ComboSystem?.MissBelowComboMidChain ?? true))
+                hit = Math.Max(hit, GetComboThreshold(actor) - 1);
+            return hit;
+        }
+
+        /// <summary>Hit threshold without the mid-combo rule; the setters and cascades work in these stored terms.</summary>
+        private int GetStoredHitThreshold(Actor actor)
+        {
             if (_actorThresholds.TryGetValue(actor, out var modifiers) && modifiers.HitThreshold.HasValue)
             {
                 return modifiers.HitThreshold.Value;
@@ -121,7 +131,7 @@ namespace RPGGame.Combat
         public void SetCriticalMissThreshold(Actor actor, int threshold)
         {
             var mod = GetOrCreateModifiers(actor);
-            int hit = GetHitThreshold(actor);
+            int hit = GetStoredHitThreshold(actor);
             mod.CriticalMissThreshold = Math.Max(MinCriticalMissThreshold, Math.Min(threshold, hit - 1));
         }
 
@@ -168,7 +178,7 @@ namespace RPGGame.Combat
             mod.ComboThreshold = Math.Max(MinComboThreshold, threshold);
             // Cascade: when COMBO goes lower, HIT moves with it (HIT = COMBO - 2 keeps one hit face)
             int newHit = mod.ComboThreshold.Value - 2;
-            int hit = GetHitThreshold(actor);
+            int hit = GetStoredHitThreshold(actor);
             if (hit > newHit)
             {
                 mod.HitThreshold = newHit;
@@ -212,7 +222,7 @@ namespace RPGGame.Combat
         /// </summary>
         public void AdjustHitThreshold(Actor actor, int adjustment)
         {
-            int current = GetHitThreshold(actor);
+            int current = GetStoredHitThreshold(actor);
             SetHitThreshold(actor, current - adjustment);
         }
 

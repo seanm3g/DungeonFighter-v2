@@ -40,7 +40,10 @@ namespace RPGGame
             else
             {
                 // Use the new ActionSelector system for action selection and execution
+                int comboStepBefore = player.ComboStep;
                 await ProcessPlayerActionAsync(player, currentEnemy, room, forcedAction, tutorialScript);
+                await RunFreeComboActionsAsync(player, player, currentEnemy, comboStepBefore, tutorialScript,
+                    () => ProcessPlayerActionAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: null, freeAction: true));
             }
 
             StatusEffectProcessor.ProcessBleedAfterActorResolvedTurn(player);
@@ -71,6 +74,72 @@ namespace RPGGame
                 await StunProcessor.ProcessStunnedEntityAsync(currentEnemy, stateManager);
             }
             else
+            {
+                int comboStepBefore = currentEnemy.ComboStep;
+                await ProcessEnemyActionAsync(player, currentEnemy, room, forcedAction, tutorialScript);
+                await RunFreeComboActionsAsync(currentEnemy, player, currentEnemy, comboStepBefore, tutorialScript,
+                    () => ProcessEnemyActionAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: null, freeAction: true));
+            }
+
+            StatusEffectProcessor.ProcessBleedAfterActorResolvedTurn(currentEnemy);
+
+            // Return false if player is dead (combat should end)
+            if (!player.IsAlive)
+            {
+                return false;
+            }
+
+            // Process poison and burn damage after enemy's turn (bleed is per-actor on their own turn)
+            { long profT = RPGGame.Diagnostics.ToolProfiler.Start(); stateManager.ProcessDamageOverTimeEffects(player, currentEnemy); RPGGame.Diagnostics.ToolProfiler.Stop("Turn.DoT", profT); }
+
+            return true;
+        }
+
+        /// <summary>Safety cap on free swings in one turn; the strip-pass rule normally stops the chain sooner.</summary>
+        private const int MaxFreeComboActionsPerTurn = 20;
+
+        /// <summary>
+        /// A swing that succeeds on its combo roll advances the strip and earns a free action: the next slot rolls right away,
+        /// without spending speed time. The chain keeps going while each roll succeeds and stops on a failed roll, at the end of
+        /// the strip (the step wraps to slot 0), on a stun, or when either side falls. Training Ground scripts keep one swing per turn.
+        /// </summary>
+        private static async System.Threading.Tasks.Task RunFreeComboActionsAsync(
+            Character actor,
+            Character player,
+            Enemy currentEnemy,
+            int comboStepBefore,
+            TrainingGroundTutorialScript? tutorialScript,
+            Func<System.Threading.Tasks.Task> freeSwing)
+        {
+            if (tutorialScript != null || !(GameConfiguration.Instance.ComboSystem?.FreeActionOnComboHit ?? true))
+                return;
+            int stripLength = actor.GetComboActions().Count;
+            for (int free = 0; free < stripLength - 1 && free < MaxFreeComboActionsPerTurn; free++)
+            {
+                if (!EarnedFreeComboAction(actor, comboStepBefore, stripLength))
+                    return;
+                if (!player.IsAlive || !currentEnemy.IsAlive || actor.StunTurnsRemaining > 0)
+                    return;
+                if (!CombatManager.DisableCombatUIOutput)
+                    BlockDisplayManager.DisplaySystemBlock(CombatFlowColoredText.FormatFreeComboActionColored(actor.Name));
+                comboStepBefore = actor.ComboStep;
+                await freeSwing();
+            }
+        }
+
+        /// <summary>True when the last swing moved the strip forward without wrapping back to its first slot.</summary>
+        private static bool EarnedFreeComboAction(Character actor, int comboStepBefore, int stripLength)
+            => stripLength > 1 && actor.ComboStep > comboStepBefore && actor.ComboStep % stripLength != 0;
+
+        /// <summary>Runs one enemy swing; a <paramref name="freeAction"/> swing does not spend speed-system time.</summary>
+        private async System.Threading.Tasks.Task ProcessEnemyActionAsync(
+            Character player,
+            Enemy currentEnemy,
+            Environment room,
+            Action? forcedAction,
+            TrainingGroundTutorialScript? tutorialScript,
+            bool freeAction = false)
+        {
             {
                 var tutorialApplied = ApplyTrainingGroundTutorialEvent(currentEnemy, tutorialScript, player);
                 try
@@ -105,9 +174,9 @@ namespace RPGGame
                 
                     // Update enemy's action timing in the action speed system
                     // CRITICAL: Always update action speed system, even if no action was selected
-                    // This prevents infinite loops when ActionSelector returns null
+                    // This prevents infinite loops when ActionSelector returns null. Free combo actions spend no time.
                     var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
-                    if (actionSpeedSystem != null)
+                    if (actionSpeedSystem != null && !freeAction)
                     {
                         if (usedAction != null)
                         {
@@ -132,19 +201,6 @@ namespace RPGGame
                     }
                 }
             }
-
-            StatusEffectProcessor.ProcessBleedAfterActorResolvedTurn(currentEnemy);
-            
-            // Return false if player is dead (combat should end)
-            if (!player.IsAlive)
-            {
-                return false;
-            }
-            
-            // Process poison and burn damage after enemy's turn (bleed is per-actor on their own turn)
-            { long profT = RPGGame.Diagnostics.ToolProfiler.Start(); stateManager.ProcessDamageOverTimeEffects(player, currentEnemy); RPGGame.Diagnostics.ToolProfiler.Stop("Turn.DoT", profT); }
-            
-            return true;
         }
 
         /// <summary>Sequence beats the board shows a room's quiet roll (card slide plus a read) before moving on.</summary>
@@ -288,7 +344,8 @@ namespace RPGGame
             Enemy currentEnemy,
             Environment room,
             Action? forcedAction = null,
-            TrainingGroundTutorialScript? tutorialScript = null)
+            TrainingGroundTutorialScript? tutorialScript = null,
+            bool freeAction = false)
         {
             var tutorialApplied = ApplyTrainingGroundTutorialEvent(player, tutorialScript, player);
             try
@@ -335,9 +392,9 @@ namespace RPGGame
             
             // Update player's action timing in the action speed system
             // CRITICAL: Always update action speed system, even if no action was selected
-            // This prevents infinite loops when ActionSelector returns null
+            // This prevents infinite loops when ActionSelector returns null. Free combo actions spend no time.
                 var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
-                if (actionSpeedSystem != null)
+                if (actionSpeedSystem != null && !freeAction)
                 {
                     if (usedAction != null)
                     {
