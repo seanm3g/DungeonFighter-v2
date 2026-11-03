@@ -16,11 +16,15 @@ namespace RPGGame
             };
         }
 
-        public static double GetDamageMultiplier(WeaponType? weaponType)
+        /// <summary>Class damage multiplier; with <paramref name="level"/> &gt; 0 it includes the class's level damage curve.</summary>
+        public static double GetDamageMultiplier(WeaponType? weaponType, int level = 0)
         {
             if (weaponType == null) return 1.0;
-            var m = GetMultipliersForWeapon(weaponType.Value).DamageMultiplier;
-            return m > 0 ? m : 1.0;
+            var multipliers = GetMultipliersForWeapon(weaponType.Value);
+            double m = multipliers.DamageMultiplier > 0 ? multipliers.DamageMultiplier : 1.0;
+            if (level > 0 && multipliers.DamageCurve != null)
+                m *= multipliers.DamageCurve.MultiplierAt(level);
+            return m;
         }
 
         public static double GetSpeedMultiplier(WeaponType? weaponType)

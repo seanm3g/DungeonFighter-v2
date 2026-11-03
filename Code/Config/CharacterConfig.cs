@@ -199,6 +199,12 @@ namespace RPGGame
         public double DamageMultiplier { get; set; }
         public double SpeedMultiplier { get; set; }
 
+        /// <summary>
+        /// Optional hero-level curve on top of <see cref="DamageMultiplier"/> (anchors, log-interpolated, flat past the ends),
+        /// for class parity that changes with level. Disabled by default, so patches without it are unchanged.
+        /// </summary>
+        public EnemyDamageCurveConfig DamageCurve { get; set; } = new();
+
         public void EnsurePositiveMultipliersOrOne()
         {
             if (HealthMultiplier <= 0)

@@ -385,7 +385,7 @@ namespace RPGGame
         {
             if (!room.HasPendingRollTrigger)
                 return;
-            CombatTurnQueue.BeginTurn(room);
+            CombatTurnQueue.BeginBonusTurn(room);
             bool acted;
             try
             {

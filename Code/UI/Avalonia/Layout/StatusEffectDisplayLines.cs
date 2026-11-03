@@ -94,6 +94,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (LeatherSetBonus.HasLuckyStatus(charHud))
                     lines.Add(LeatherSetBonus.FormatLuckyStatusLine(charHud));
             }
+            // Room tags that change this fighter (Elegant / Dilapidated die shift, Unstable bands) while the fight's room has them.
+            foreach (var roomStatus in RPGGame.Combat.RoomStatusEffects.For(actor, RPGGame.Combat.RoomStatusEffects.ActiveRoom))
+                lines.Add(RPGGame.Combat.RoomStatusEffects.FormatLine(roomStatus));
             if (actor.IsWeakened && actor.WeakenTurns > 0)
                 lines.Add($"Weakened ({actor.WeakenTurns} turn{(actor.WeakenTurns != 1 ? "s" : "")})");
             if (actor.IsStunned && actor.StunTurnsRemaining > 0)

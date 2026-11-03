@@ -66,7 +66,14 @@ namespace RPGGame.UI.ColorSystem.Applications
             // Standing WHILE_EQUIPPED set status (Leather starter kit)
             { "LUCKY", "lucky" },
             { "LUCK", "lucky" },
-            
+
+            // Room statuses (RoomStatusEffects): structure tags and unstable bands
+            { "ELEGANT", "holy" },
+            { "DILAPIDATED", "corrupted" },
+            { "UNSTABLE", "arcane" },
+            { "DORMANT", "holy" },
+            { "ACTIVE", "corrupted" },
+
             // Generic fallback
             { "EFFECT", "corrupted" }
         };

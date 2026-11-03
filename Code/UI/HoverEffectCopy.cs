@@ -30,6 +30,10 @@ namespace RPGGame
                 return lines;
             }
 
+            string? roomStatus = RPGGame.Combat.RoomStatusEffects.NameFromLine(line);
+            if (roomStatus != null)
+                return RPGGame.Combat.RoomStatusEffects.Explain(hero, roomStatus);
+
             var keyword = Regex.Match(line, @"^([A-Z][A-Z0-9]*) x\d+$");
             if (keyword.Success)
             {
@@ -60,6 +64,9 @@ namespace RPGGame
                 return ExplainStatusLine(hero, displayLine);
             var lines = new List<string>();
             string line = (displayLine ?? "").Trim();
+            string? roomStatus = RPGGame.Combat.RoomStatusEffects.NameFromLine(line);
+            if (roomStatus != null)
+                return RPGGame.Combat.RoomStatusEffects.Explain(actor, roomStatus);
             string effectId = EffectIdFromHudLine(line);
             if (!string.IsNullOrEmpty(effectId))
                 lines.AddRange(StatusEffectHoverDetails.Describe(actor, effectId, observer));

@@ -18,8 +18,27 @@ namespace RPGGame.Combat
         /// </summary>
         public static StructureRollAdjustment ResolveStructureRollShift(Environment? room, Character? hero, int baseRoll)
         {
-            if (room == null || hero == null)
+            int shift = GetStructureShift(room, hero);
+            if (shift == 0)
                 return new StructureRollAdjustment(baseRoll, 0, null);
+
+            int shifted = Math.Clamp(baseRoll + shift, 1, 20);
+            int applied = shifted - baseRoll;
+            string? label = applied == 0
+                ? null
+                : applied > 0 ? RoomStatusEffects.ElegantName : RoomStatusEffects.DilapidatedName;
+            return new StructureRollAdjustment(shifted, applied, label);
+        }
+
+        /// <summary>
+        /// Signed die shift the room's structure tags give <paramref name="hero"/> before the 1–20 clamp:
+        /// +level for <c>elegant</c>, −level for <c>dilapidated</c> (both cancel), level capped by
+        /// <see cref="CombatConfig.RoomStructureRollShiftCap"/>.
+        /// </summary>
+        public static int GetStructureShift(Environment? room, Character? hero)
+        {
+            if (room == null || hero == null)
+                return 0;
 
             int dungeonLevel = Math.Max(1, hero.Progression?.Level ?? 1);
             int cap = GameConfiguration.Instance.Combat.RoomStructureRollShiftCap;
@@ -33,13 +52,7 @@ namespace RPGGame.Combat
                 shift += dungeonLevel;
             if (dilapidated)
                 shift -= dungeonLevel;
-
-            int shifted = Math.Clamp(baseRoll + shift, 1, 20);
-            int applied = shifted - baseRoll;
-            string? label = applied == 0
-                ? null
-                : applied > 0 ? "elegant" : "dilapidated";
-            return new StructureRollAdjustment(shifted, applied, label);
+            return shift;
         }
 
         public static void ApplyUnstableThresholdShift(Environment? room, Actor source)
@@ -68,7 +81,7 @@ namespace RPGGame.Combat
 
         public int Roll { get; }
         public int AppliedDelta { get; }
-        /// <summary><c>elegant</c> or <c>dilapidated</c> when <see cref="AppliedDelta"/> is non-zero.</summary>
+        /// <summary>The room status name (<c>Elegant</c> or <c>Dilapidated</c>) when <see cref="AppliedDelta"/> is non-zero.</summary>
         public string? Label { get; }
         public bool AffectsRoll => AppliedDelta != 0 && !string.IsNullOrEmpty(Label);
     }

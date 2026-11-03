@@ -34,6 +34,7 @@ namespace RPGGame.Tests.Unit.World
             TestHasLivingEnemies();
             TestResetForNewFight();
             TestRoomRollTrigger();
+            TestRoomTriggerQueuesBeforeItActs();
 
             TestBase.PrintSummary("Environment Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -208,6 +209,59 @@ namespace RPGGame.Tests.Unit.World
             TestBase.AssertFalse(environment.HasPendingRollTrigger,
                 "A new fight clears an unanswered trigger",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>A swing that rolls the trigger face puts the room's bonus action in the turn queue before it plays.</summary>
+        private static void TestRoomTriggerQueuesBeforeItActs()
+        {
+            Console.WriteLine("\n--- Testing room trigger in the turn queue ---");
+
+            var room = new Environment("Test Room", "A test room", true, "Forest");
+            room.SetTriggerRoll(13);
+            var hero = new Character("Tester");
+            var enemy = new Enemy("Dummy", 1, 50, 5, 5, 5, 5);
+            var speed = new ActionSpeedSystem();
+            speed.AddEntity(hero, 1.0);
+            speed.AddEntity(enemy, 1.5);
+            speed.AddEntity(room, 3.0);
+            double t0 = speed.GetScheduleSnapshot()[0].NextActionTime;
+            speed.SetEntityActionTime(enemy, t0 + 0.5); // the hero acts first; the room's regular turn is a few turns out
+            speed.SetEntityActionTime(room, t0 + 2.5);
+            using var unmuted = RPGGame.Combat.CombatUiMuteScope.Begin(muted: false); // the queue binds only for on-screen fights
+            CombatTurnQueue.Bind(speed, room);
+            try
+            {
+                CombatTurnQueue.BeginTurn(hero);
+                room.NotifyCombatRoll(hero, 13);
+                var during = CombatTurnQueue.GetUpcoming(4, pastActingTurn: false);
+                TestBase.AssertTrue(during.Count == 4 && ReferenceEquals(during[0].Actor, hero) && during[0].IsActing
+                    && ReferenceEquals(during[1].Actor, room) && during[1].IsRoomTrigger,
+                    "While the swing plays, the triggered room queues right behind it",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                CombatTurnQueue.EndTurn();
+
+                var between = CombatTurnQueue.GetUpcoming(12, pastActingTurn: false);
+                TestBase.AssertTrue(between.Count == 12 && ReferenceEquals(between[0].Actor, room) && between[0].IsRoomTrigger,
+                    "Between turns, the triggered room is next in the bar",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                CombatTurnQueue.BeginBonusTurn(room);
+                room.TryConsumeRollTrigger(out _);
+                var acting = CombatTurnQueue.GetUpcoming(4, pastActingTurn: false);
+                TestBase.AssertTrue(acting.Count == 4 && ReferenceEquals(acting[0].Actor, room) && acting[0].IsActing && acting[0].IsRoomTrigger,
+                    "The bonus turn holds the front of the queue while it plays",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                var spent = CombatTurnQueue.GetUpcoming(12, pastActingTurn: true, actingLength: 5.0);
+                int regular = spent.FindIndex(e => ReferenceEquals(e.Actor, room));
+                int before = between.FindIndex(1, e => ReferenceEquals(e.Actor, room));
+                TestBase.AssertTrue(!spent.Exists(e => e.IsRoomTrigger) && before > 0 && regular == before - 1,
+                    $"The bonus turn doesn't push the room's regular turn back (at {regular}, expected {before - 1})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                CombatTurnQueue.Unbind();
+            }
         }
 
         #endregion

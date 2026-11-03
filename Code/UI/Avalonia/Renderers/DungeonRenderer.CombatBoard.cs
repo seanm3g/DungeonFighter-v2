@@ -658,7 +658,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             double length = (v.LiveSwing?.Action ?? v.HazardAct?.Action ?? _boardNowAct?.Action)?.Length ?? 1.0;
             v.Spent = spent;
             v.ActingLength = length;
-            v.Queue = CombatTurnQueue.GetUpcoming(BoardQueueLength, spent, length);
+            // Once the swing has fired, a free combo action it earned is the next roll.
+            v.Queue = CombatTurnQueue.GetUpcoming(BoardQueueLength, spent, length, showFreeAction: spent);
             UpdateBoardTimeline(v, player, enemy);
             return v;
         }
@@ -719,7 +720,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             var nextEntry = hasNext ? turn.Queue[0] : default;
             bool nextRolling = hasNext && turn.LiveSwing != null && nextEntry.IsActing
                 && ReferenceEquals(turn.LiveSwing.Source, nextEntry.Actor);
-            var branches = hasNext ? BoardBranches(nextEntry.Actor, nextRolling ? turn.LiveSwing : null) : new List<BoardBranch>();
+            var branches = hasNext
+                ? BoardBranches(nextEntry.Actor, nextRolling ? turn.LiveSwing : null, nextEntry.IsRoomTrigger, nextEntry.IsFreeAction)
+                : new List<BoardBranch>();
             int branchGap = 1;
             int slots = branches.Count;
             var branchH = new int[slots];
@@ -868,7 +871,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (swing != null && !pastAttacker)
             {
                 bool ownsNow = settled && ReferenceEquals(turn.NowActor, swing.Source);
-                CombatSequencePresenter.ReportRollGate(swing, ownsNow ? dieAt : null);
+                // The swing's own turn still on its way into NOW (callout, last act flying up, the row ahead reshuffling
+                // after an ACTION) holds the roll until it lands.
+                bool bringingIn = !ownsNow && ReferenceEquals(CombatTurnQueue.ActingEntity, swing.Source);
+                CombatSequencePresenter.ReportRollGate(swing, ownsNow ? dieAt : null, bringingIn);
                 CombatBoardAnimation.RequestFrame();
             }
             else if (turn.TurnInNow && !dieDue)
@@ -893,12 +899,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             // --- Next roll: one branch per outcome ---
             // The next actor's branches wait until the flying card has cleared the column (text draws above every box),
             // and stay hidden until that actor's turn has started and its callout has played.
-            bool branchesRevealed = nextEntry.IsActing && settled && branchesDue
+            // A free combo action is the same turn rolling again, so its branches show as soon as it is next.
+            bool branchesRevealed = (nextEntry.IsActing || nextEntry.IsFreeAction) && settled && branchesDue
                 && !(CombatTurnAnnouncement.Current is { } callout && ReferenceEquals(callout.Actor, nextEntry.Actor));
             if (hasNext && slots > 0 && !(cardInFlight && shift < 0.5))
             {
                 var actor = nextEntry.Actor;
-                string label = nextRolling ? "ROLLING" : nextEntry.IsActing ? "ACTING" : "NEXT";
+                string label = nextRolling ? "ROLLING" : nextEntry.IsActing ? "ACTING" : nextEntry.IsFreeAction ? "FREE ACTION" : "NEXT";
                 canvas.AddText(nextX + 1, queueR[0].Y - 1, Truncate($"{label}  {actor.Name}", nextW), BoardActorColor(actor));
                 double fade = stage > 2 ? 1.0 : CombatBoardAnimation.EaseOut(rawP);
                 int taken = nextRolling ? TakenBranch(branches, swing!) : -1;
@@ -1199,11 +1206,21 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         /// <summary>
         /// What the next roll could become: COMBO (the strip action the actor is lined up on), HIT (a normal attack) or
-        /// MISS, with the faces each needs - or, for the room, quiet vs. strikes (with the hazards it may throw).
+        /// MISS, with the faces each needs - or, for the room, quiet vs. strikes (with the hazards it may throw). A room
+        /// <paramref name="triggered"/> by a swing's trigger face doesn't roll: one box lists the hazards it picks from.
+        /// A <paramref name="freeAction"/> rolls for the slot the swing that earned it moved the strip to.
         /// </summary>
-        private static List<BoardBranch> BoardBranches(Actor actor, CombatSequenceSwingInfo? rolling)
+        private static List<BoardBranch> BoardBranches(Actor actor, CombatSequenceSwingInfo? rolling, bool triggered = false, bool freeAction = false)
         {
             var list = new List<BoardBranch>();
+            if (actor is Environment triggeredRoom && triggered)
+            {
+                var pool = new List<string>();
+                foreach (var (hazard, _) in triggeredRoom.ActionPool)
+                    pool.Add(hazard.Name ?? "?");
+                list.Add(new BoardBranch("", "triggered:", BoardHazardColor, CombatSequenceSwingOutcome.Hit, pool, OwnColor: true));
+                return list;
+            }
             if (actor is Environment room)
             {
                 // The room rolls a d20 to act (strikes on a high face), then picks a hazard from its pool. While that
@@ -1239,7 +1256,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     var actions = ch.GetComboActions();
                     if (actions.Count > 0)
-                        combo = actions[LinedUpComboStep(ch) % actions.Count].Name ?? "-";
+                        combo = actions[(freeAction ? ch.ComboStep : LinedUpComboStep(ch)) % actions.Count].Name ?? "-";
                 }
                 _boardRestComboName[actor] = combo;
             }

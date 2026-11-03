@@ -238,7 +238,7 @@ namespace RPGGame
             double critMult = balance.CriticalHitDamageMultiplier > 0 ? balance.CriticalHitDamageMultiplier : 2.0;
             double comboMult = balance.RollDamageMultipliers.ComboRollDamageMultiplier > 0 ? balance.RollDamageMultipliers.ComboRollDamageMultiplier : 1.0;
             double basicMult = balance.RollDamageMultipliers.BasicRollDamageMultiplier > 0 ? balance.RollDamageMultipliers.BasicRollDamageMultiplier : 1.0;
-            double classMult = c.Weapon is WeaponItem cw ? ClassBalanceHelper.GetDamageMultiplier(cw.WeaponType) : 1.0;
+            double classMult = c.Weapon is WeaponItem cw ? ClassBalanceHelper.GetDamageMultiplier(cw.WeaponType, c.Level) : 1.0;
             double overflowMult = SpeedCalculator.GetSpeedOverflowDamageMultiplier(c);
 
             AddBlank(lines);

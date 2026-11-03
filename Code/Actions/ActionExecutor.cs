@@ -29,7 +29,7 @@ namespace RPGGame
         public Actions.RollModification.MultiDiceRollDetail MultiDiceRollDetail { get; set; }
         /// <summary>Room structure delta that changed this die (0 when none, cancelled, or clamped away).</summary>
         public int StructureRollShift { get; set; }
-        /// <summary><c>elegant</c> or <c>dilapidated</c> when <see cref="StructureRollShift"/> is non-zero.</summary>
+        /// <summary>Room status name (<c>Elegant</c> or <c>Dilapidated</c>) when <see cref="StructureRollShift"/> is non-zero.</summary>
         public string? StructureRollLabel { get; set; }
         public int RollBonus { get; set; }
         public int AttackRoll { get; set; }

@@ -45,6 +45,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ClassDefenseCalculatorTests.RunAllTests();
             Console.WriteLine();
+            ClassDamageCurveTests.RunAllTests();
+            Console.WriteLine();
             TurnManagerTests.RunAllTests();
             Console.WriteLine();
             DamageCalculatorTests.RunAllTests();

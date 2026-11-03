@@ -521,7 +521,7 @@ namespace RPGGame
             {
                 summary.Add($"Hit ≈ {damage}");
                 double starting = EarlyGameBalanceHelper.GetStartingActionDamageMultiplier(character, action);
-                double classMult = character.Weapon is WeaponItem w ? ClassBalanceHelper.GetDamageMultiplier(w.WeaponType) : 1.0;
+                double classMult = character.Weapon is WeaponItem w ? ClassBalanceHelper.GetDamageMultiplier(w.WeaponType, character.Level) : 1.0;
                 string extra = (Math.Abs(starting - 1.0) > 0.0001 ? $" × starting {starting:0.##}" : "")
                     + (Math.Abs(classMult - 1.0) > 0.0001 ? $" × class {classMult:0.##}" : "");
                 derivation.Add($"Hit = {baseAttack} attack × {damagePct:0.#}%{extra}");

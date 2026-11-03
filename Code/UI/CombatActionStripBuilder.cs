@@ -104,7 +104,7 @@ namespace RPGGame
             double total = baseDamage * (damagePercentForDisplay / 100.0);
             total *= EarlyGameBalanceHelper.GetStartingActionDamageMultiplier(character, action);
             if (character.Weapon is WeaponItem classWeapon)
-                total *= ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType);
+                total *= ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType, character.Level);
 
             int result = (int)total + MaterialSetController.GetConvertDamageBonus(character, action, Math.Max(1, (int)total));
             int maxCap = Math.Max(1, GameConfiguration.Instance.Combat.MaximumDamageCap);

@@ -245,6 +245,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "DamageCalculator", () => RPGGame.Tests.Unit.Combat.DamageCalculatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "DefenseBlock", () => RPGGame.Tests.Unit.Combat.DefenseBlockCalculatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ClassDefense", () => RPGGame.Tests.Unit.Combat.ClassDefenseCalculatorTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "ClassDamageCurve", () => RPGGame.Tests.Unit.Combat.ClassDamageCurveTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatSequenceBuilder", () => RPGGame.Tests.Unit.Combat.CombatSequenceBuilderTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatSequencePresenter", () => RPGGame.Tests.Unit.Combat.CombatSequencePresenterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatSequenceFlavorPresenter", () => RPGGame.Tests.Unit.Combat.CombatSequenceFlavorPresenterTests.RunAllTests()));
@@ -261,6 +262,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "VictoryVerseAttribution", () => RPGGame.Tests.Unit.Combat.VictoryVerseAttributionTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "OpenAiChatClient", () => RPGGame.Tests.Unit.Services.OpenAiChatClientTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StatusEffects", () => RPGGame.Tests.Unit.StatusEffectsTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "EnvironmentRollModifier", RunEnvironmentRollModifier));
             list.Add(new TestSuiteEntry("entity", "ActorClearTempEffects", () => RPGGame.Tests.Unit.Entity.ActorClearTempEffectsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("entity", "CharacterHealthManager", () => RPGGame.Tests.Unit.Entity.CharacterHealthManagerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("entity", "GearModEffect", () => RPGGame.Tests.Unit.Entity.GearModEffectTests.RunAllTests()));
@@ -294,6 +296,13 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("persistence", "SaveLoad", () => RPGGame.Tests.Unit.SaveLoadSystemTests.RunAllTests()));
             list.Add(new TestSuiteEntry("comprehensive", "Comprehensive", () => ComprehensiveTestRunner.RunAllTests()));
             return list;
+        }
+
+        private static void RunEnvironmentRollModifier()
+        {
+            int run = 0, pass = 0, fail = 0;
+            RPGGame.Tests.Unit.Combat.EnvironmentRollModifierTests.RunAll(ref run, ref pass, ref fail);
+            Console.WriteLine($"EnvironmentRollModifier: {pass}/{run} passed");
         }
 
         private static void RunActionBonusMechanicsFlow()

@@ -124,11 +124,17 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             v.HoldActor = acting != null && !v.Spent ? acting : null;
             _timelineHeld.Clear();
+            int freeStep = CombatTurnQueue.ActingFreeStep;
             foreach (var actor in new Actor[] { player, enemy })
             {
                 // The swing keeps the step it was lined up on until it finishes, so NOW, the strips and the branches agree.
+                // A free combo action is lined up on the step the turn's earlier swing moved the strip to.
                 if (ReferenceEquals(actor, v.HoldActor) || LiveSwingFor(actor) != null)
+                {
                     _timelineHeld.Add(actor);
+                    if (freeStep >= 0 && ReferenceEquals(actor, acting))
+                        _timelineRestStep[actor] = freeStep;
+                }
                 else if (actor is Character ch)
                     _timelineRestStep[actor] = ch.ComboStep;
             }
@@ -331,7 +337,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             double actingLength = v.Spent ? v.ActingLength : v.NowProjected?.Length ?? 1.0;
             int Offset(Actor a) => pastActing && ReferenceEquals(a, v.HoldActor) ? 1 : 0;
             var upcoming = CombatTurnQueue.GetUpcoming(TimelineAhead, pastActing, actingLength,
-                (a, k) => ProjectTimelineTurn(a, k + Offset(a), v).Action?.Length ?? 1.0);
+                (a, k) => ProjectTimelineTurn(a, k + Offset(a), v).Action?.Length ?? 1.0, showFreeAction: v.Spent);
             var counts = new Dictionary<Actor, int>(ReferenceEqualityComparer.Instance);
             var cards = new List<TimelineAheadCard>(TimelineAhead);
             for (int i = 0; i < upcoming.Count && i < TimelineAhead; i++)
@@ -341,7 +347,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                 counts[actor] = k + 1;
                 int kk = k + Offset(actor);
                 string title, detail;
-                if (actor is Environment room)
+                if (actor is Environment triggered && upcoming[i].IsRoomTrigger)
+                {
+                    title = "TRIGGERED";
+                    detail = $"rolled {triggered.TriggerRoll}";
+                }
+                else if (actor is Environment room)
                 {
                     title = "ROOM ROLL";
                     detail = room.StrikeThreshold > 20 ? "won't act" : $"strikes {room.StrikeThreshold}+";
@@ -474,6 +485,13 @@ namespace RPGGame.UI.Avalonia.Renderers
                 return;
             }
             int tw = r.W - 2;
+            if (actor is Environment bonus && CombatTurnQueue.ActingBonus && ReferenceEquals(actor, CombatTurnQueue.ActingEntity))
+            {
+                canvas.AddText(r.X + 1, r.Y + 1, Truncate("TRIGGERED", tw), BoardHazardColor);
+                if (r.H > 3)
+                    canvas.AddText(r.X + 1, r.Y + 2, Truncate($"rolled {bonus.TriggerRoll}", tw), AsciiArtAssets.Colors.Gray);
+                return;
+            }
             canvas.AddText(r.X + 1, r.Y + 1, Truncate(actor is Environment ? "ROOM ROLL" : "ATTACK", tw), actor is Environment ? BoardHazardColor : AsciiArtAssets.Colors.White);
             if (actor is Environment room && r.H > 3)
                 canvas.AddText(r.X + 1, r.Y + 2, Truncate(room.StrikeThreshold > 20 ? "won't act" : $"strikes {room.StrikeThreshold}+", tw), AsciiArtAssets.Colors.Gray);

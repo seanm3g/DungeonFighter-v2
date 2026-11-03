@@ -276,20 +276,26 @@ namespace RPGGame.Combat.Sequence
         /// <summary>Longest ATTACKER is held past its beats waiting on the combat board's die.</summary>
         private const int RollGateMaxWaitMs = 1500;
 
+        /// <summary>Longer hold while the board is still bringing the swing's own turn in: after an ACTION lands the row
+        /// ahead reshuffles before the next card comes down, which outlasts <see cref="RollGateMaxWaitMs"/>.</summary>
+        private const int RollGateBringInMaxWaitMs = 5000;
+
         private static CombatSequenceSwingInfo? _rollGateSwing;
         private static DateTimeOffset _rollGateReadyUtc;
         private static DateTimeOffset _rollGateSeenUtc;
+        private static CombatSequenceSwingInfo? _rollGateBringingIn;
 
         /// <summary>
         /// The combat board reports (every frame it paints) when <paramref name="swing"/>'s die is on screen, so ROLL
         /// doesn't tumble a die the board hasn't shown yet. <paramref name="readyUtc"/> is null while the board is
-        /// still bringing the turn in.
+        /// still bringing the turn in; <paramref name="bringingIn"/> says that turn is the swing's own (wait longer).
         /// </summary>
-        public static void ReportRollGate(CombatSequenceSwingInfo? swing, DateTimeOffset? readyUtc)
+        public static void ReportRollGate(CombatSequenceSwingInfo? swing, DateTimeOffset? readyUtc, bool bringingIn = false)
         {
             _rollGateSeenUtc = DateTimeOffset.UtcNow;
             _rollGateSwing = readyUtc != null ? swing : null;
             _rollGateReadyUtc = readyUtc ?? default;
+            _rollGateBringingIn = readyUtc == null && bringingIn ? swing : null;
         }
 
         /// <summary>Holds ATTACKER until the board's die is up (no wait when the board isn't painting).</summary>
@@ -298,10 +304,13 @@ namespace RPGGame.Combat.Sequence
             if (SkipDelaysForTests || UseManualPlayback)
                 return;
             var swing = CombatSequenceHudState.ActiveSwing;
-            var giveUp = DateTimeOffset.UtcNow.AddMilliseconds(RollGateMaxWaitMs);
-            while (swing != null && DateTimeOffset.UtcNow < giveUp)
+            var start = DateTimeOffset.UtcNow;
+            while (swing != null)
             {
                 var now = DateTimeOffset.UtcNow;
+                int limit = ReferenceEquals(_rollGateBringingIn, swing) ? RollGateBringInMaxWaitMs : RollGateMaxWaitMs;
+                if ((now - start).TotalMilliseconds >= limit)
+                    return;
                 if ((now - _rollGateSeenUtc).TotalMilliseconds > 250)
                     return; // board not on screen
                 if (ReferenceEquals(_rollGateSwing, swing) && now >= _rollGateReadyUtc)

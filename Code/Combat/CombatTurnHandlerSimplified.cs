@@ -41,6 +41,7 @@ namespace RPGGame
             {
                 // Use the new ActionSelector system for action selection and execution
                 int comboStepBefore = player.ComboStep;
+                ArmFreeComboActions(player, tutorialScript);
                 await ProcessPlayerActionAsync(player, currentEnemy, room, forcedAction, tutorialScript);
                 await RunFreeComboActionsAsync(player, player, currentEnemy, comboStepBefore, tutorialScript,
                     () => ProcessPlayerActionAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: null, freeAction: true));
@@ -76,6 +77,7 @@ namespace RPGGame
             else
             {
                 int comboStepBefore = currentEnemy.ComboStep;
+                ArmFreeComboActions(currentEnemy, tutorialScript);
                 await ProcessEnemyActionAsync(player, currentEnemy, room, forcedAction, tutorialScript);
                 await RunFreeComboActionsAsync(currentEnemy, player, currentEnemy, comboStepBefore, tutorialScript,
                     () => ProcessEnemyActionAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: null, freeAction: true));
@@ -111,7 +113,7 @@ namespace RPGGame
             TrainingGroundTutorialScript? tutorialScript,
             Func<System.Threading.Tasks.Task> freeSwing)
         {
-            if (tutorialScript != null || !(GameConfiguration.Instance.ComboSystem?.FreeActionOnComboHit ?? true))
+            if (!FreeComboActionsAllowed(tutorialScript))
                 return;
             int stripLength = actor.GetComboActions().Count;
             for (int free = 0; free < stripLength - 1 && free < MaxFreeComboActionsPerTurn; free++)
@@ -123,8 +125,19 @@ namespace RPGGame
                 if (!CombatManager.DisableCombatUIOutput)
                     BlockDisplayManager.DisplaySystemBlock(CombatFlowColoredText.FormatFreeComboActionColored(actor.Name));
                 comboStepBefore = actor.ComboStep;
+                CombatTurnQueue.BeginFreeAction(actor);
                 await freeSwing();
             }
+        }
+
+        private static bool FreeComboActionsAllowed(TrainingGroundTutorialScript? tutorialScript)
+            => tutorialScript == null && (GameConfiguration.Instance.ComboSystem?.FreeActionOnComboHit ?? true);
+
+        /// <summary>Lets the combat board's turn queue list a free combo action once the turn's swing earns one.</summary>
+        private static void ArmFreeComboActions(Character actor, TrainingGroundTutorialScript? tutorialScript)
+        {
+            if (FreeComboActionsAllowed(tutorialScript))
+                CombatTurnQueue.ArmFreeActions(actor);
         }
 
         /// <summary>True when the last swing moved the strip forward without wrapping back to its first slot.</summary>

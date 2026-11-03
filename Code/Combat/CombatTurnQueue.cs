@@ -4,8 +4,10 @@ using RPGGame.Combat;
 
 namespace RPGGame
 {
-    /// <summary>One upcoming turn in <see cref="CombatTurnQueue.GetUpcoming"/>.</summary>
-    public readonly record struct CombatTurnQueueEntry(Actor Actor, bool IsActing);
+    /// <summary>One upcoming turn in <see cref="CombatTurnQueue.GetUpcoming"/>. <paramref name="IsRoomTrigger"/> marks the
+    /// room's bonus action set off by a swing landing its trigger face (off the speed schedule, no roll of its own).
+    /// <paramref name="IsFreeAction"/> marks the acting entity's free combo action, earned by the swing that just landed.</summary>
+    public readonly record struct CombatTurnQueueEntry(Actor Actor, bool IsActing, bool IsRoomTrigger = false, bool IsFreeAction = false);
 
     /// <summary>
     /// Live fight's turn order for the combat board: who is acting now and who acts after, projected from the
@@ -20,6 +22,9 @@ namespace RPGGame
         private static Actor? _acting;
         private static Action? _actingAction;
         private static bool _actingQuiet;
+        private static bool _actingBonus;
+        private static bool _actingFree;
+        private static int _freeBaseStep = -1, _freeActionsTaken;
         private static long _turnSerial;
         private static Environment? _room;
 
@@ -31,6 +36,13 @@ namespace RPGGame
 
         /// <summary>The acting environment rolled under its strike threshold this turn and does nothing.</summary>
         public static bool ActingQuiet { get { lock (Gate) return _actingQuiet; } }
+
+        /// <summary>The acting turn is the room's trigger bonus action (begun with <see cref="BeginBonusTurn"/>).</summary>
+        public static bool ActingBonus { get { lock (Gate) return _actingBonus; } }
+
+        /// <summary>Strip step the acting entity's free combo action is lined up on (its ComboStep when the action began),
+        /// or -1 when no free action plays.</summary>
+        public static int ActingFreeStep { get { lock (Gate) return _actingFree ? _freeBaseStep : -1; } }
 
         /// <summary>Bumped by every <see cref="BeginTurn"/>, so the board can tell one turn from the next.</summary>
         public static long TurnSerial { get { lock (Gate) return _turnSerial; } }
@@ -52,6 +64,8 @@ namespace RPGGame
                 _acting = null;
                 _actingAction = null;
                 _actingQuiet = false;
+                _actingBonus = false;
+                ResetFreeActions();
             }
         }
 
@@ -64,6 +78,8 @@ namespace RPGGame
                 _acting = null;
                 _actingAction = null;
                 _actingQuiet = false;
+                _actingBonus = false;
+                ResetFreeActions();
             }
         }
 
@@ -76,7 +92,68 @@ namespace RPGGame
                 _acting = actor;
                 _actingAction = null;
                 _actingQuiet = false;
+                _actingBonus = false;
+                ResetFreeActions();
                 _turnSerial++;
+            }
+        }
+
+        /// <summary>
+        /// The acting <paramref name="actor"/>'s turn can chain free combo actions (the turn handler allows them): a swing
+        /// that moves its strip forward from where it stands now earns one, which <see cref="GetUpcoming"/> then lists.
+        /// </summary>
+        public static void ArmFreeActions(Character actor)
+        {
+            lock (Gate)
+            {
+                if (_speed != null && ReferenceEquals(_acting, actor))
+                    _freeBaseStep = actor.ComboStep;
+            }
+        }
+
+        /// <summary>Starts a free combo action of the acting <paramref name="actor"/> (same turn, no speed time spent).</summary>
+        public static void BeginFreeAction(Character actor)
+        {
+            lock (Gate)
+            {
+                if (_speed == null || !ReferenceEquals(_acting, actor))
+                    return;
+                _actingFree = true;
+                _freeActionsTaken++;
+                _freeBaseStep = actor.ComboStep;
+            }
+        }
+
+        private static void ResetFreeActions()
+        {
+            _actingFree = false;
+            _freeBaseStep = -1;
+            _freeActionsTaken = 0;
+        }
+
+        /// <summary>
+        /// The acting entity's last swing earned a free combo action: it moved the strip forward without wrapping and the
+        /// chain hasn't run the strip's length (mirrors the turn handler's free-action loop).
+        /// </summary>
+        private static bool FreeActionEarned(Actor? acting, int baseStep, int taken)
+        {
+            if (acting is not Character ch || baseStep < 0 || !ch.IsAlive || ch.StunTurnsRemaining > 0)
+                return false;
+            int length = ch.GetComboActions().Count;
+            return length > 1 && taken < length - 1 && ch.ComboStep > baseStep && ch.ComboStep % length != 0;
+        }
+
+        /// <summary>
+        /// Starts the room's trigger bonus action: it acts now without spending its slot on the speed schedule, so
+        /// <see cref="GetUpcoming"/> leaves the room's regular turns where they are.
+        /// </summary>
+        public static void BeginBonusTurn(Environment room)
+        {
+            BeginTurn(room);
+            lock (Gate)
+            {
+                if (_speed != null)
+                    _actingBonus = true;
             }
         }
 
@@ -105,6 +182,8 @@ namespace RPGGame
                 _acting = null;
                 _actingAction = null;
                 _actingQuiet = false;
+                _actingBonus = false;
+                ResetFreeActions();
             }
         }
 
@@ -113,17 +192,29 @@ namespace RPGGame
         /// current turn is treated as spent (its readiness pushed out by <paramref name="actingLength"/>), so the list
         /// starts with whoever acts after it. Later turns assume a 1.0-length swing unless <paramref name="lengthOf"/> gives
         /// one per (actor, how many of that actor's turns come before it in the list); environment turns may still be
-        /// skipped on their roll.
+        /// skipped on their roll. A swing that rolled the room's trigger face queues the room's bonus action right after
+        /// that swing (ahead of the schedule), and the bonus action, while it plays, doesn't spend the room's slot.
+        /// With <paramref name="showFreeAction"/>, a spent swing that earned a free combo action lists that action first
+        /// (pass it only once the swing's result has shown). A free action spends no time: the actor's slot already moved
+        /// on with the turn's first swing.
         /// </summary>
         public static List<CombatTurnQueueEntry> GetUpcoming(int count, bool pastActingTurn, double actingLength = 1.0,
-            Func<Actor, int, double>? lengthOf = null)
+            Func<Actor, int, double>? lengthOf = null, bool showFreeAction = false)
         {
             ActionSpeedSystem? speed;
             Actor? acting;
+            Environment? room;
+            bool actingBonus, actingFree;
+            int freeBase, freeTaken;
             lock (Gate)
             {
                 speed = _speed;
                 acting = _acting;
+                room = _room;
+                actingBonus = _actingBonus;
+                actingFree = _actingFree;
+                freeBase = _freeBaseStep;
+                freeTaken = _freeActionsTaken;
             }
 
             var result = new List<CombatTurnQueueEntry>();
@@ -143,18 +234,34 @@ namespace RPGGame
                 return result;
 
             bool actingPending = acting != null;
-            if (pastActingTurn && acting != null)
+            if (actingBonus && acting != null)
             {
-                foreach (var e in schedule)
+                if (!pastActingTurn)
+                    result.Add(new CombatTurnQueueEntry(acting, true, IsRoomTrigger: true));
+                actingPending = false;
+            }
+            else if (acting != null && actingFree && !pastActingTurn)
+            {
+                result.Add(new CombatTurnQueueEntry(acting, true));
+                actingPending = false;
+            }
+            else if (pastActingTurn && acting != null)
+            {
+                if (!actingFree)
                 {
-                    if (ReferenceEquals(e.Entity, acting))
-                        e.NextActionTime += EstimateDuration(e, actingLength);
+                    foreach (var e in schedule)
+                    {
+                        if (ReferenceEquals(e.Entity, acting))
+                            e.NextActionTime += EstimateDuration(e, actingLength);
+                    }
                 }
+                if (showFreeAction && FreeActionEarned(acting, freeBase, freeTaken))
+                    result.Add(new CombatTurnQueueEntry(acting, false, IsFreeAction: true));
                 actingPending = false;
             }
 
             var seen = new Dictionary<Actor, int>(ReferenceEqualityComparer.Instance);
-            for (int n = 0; n < count; n++)
+            for (int n = 0; result.Count < count; n++)
             {
                 CombatEntity? best = null;
                 foreach (var e in schedule)
@@ -170,6 +277,16 @@ namespace RPGGame
                 seen.TryGetValue(best.Entity, out int ordinal);
                 seen[best.Entity] = ordinal + 1;
                 best.NextActionTime += EstimateDuration(best, lengthOf?.Invoke(best.Entity, ordinal) ?? 1.0);
+            }
+
+            // A pending trigger goes off once the turn that rolled it ends: behind that swing (and any free action it
+            // earned) while it still plays.
+            if (!actingBonus && room != null && room.HasPendingRollTrigger && count > 0)
+            {
+                int at = result.Count > 0 && (result[0].IsActing || result[0].IsFreeAction) ? 1 : 0;
+                result.Insert(Math.Min(at, result.Count), new CombatTurnQueueEntry(room, false, IsRoomTrigger: true));
+                if (result.Count > count)
+                    result.RemoveAt(result.Count - 1);
             }
             return result;
         }

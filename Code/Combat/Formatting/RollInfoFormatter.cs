@@ -33,8 +33,8 @@ namespace RPGGame.Combat.Formatting
         }
 
         /// <summary>
-        /// Indented action-block follow-up when a room structure tag changed the die.
-        /// Null when the shift is zero or clamped away. Example: <c>     (dilapidated: -1)</c>.
+        /// Indented action-block follow-up when a room status (Elegant / Dilapidated) changed the die.
+        /// Null when the shift is zero or clamped away. Example: <c>     (Dilapidated: -1)</c>.
         /// </summary>
         public static List<ColoredText>? FormatStructureRollLine(string? label, int appliedDelta)
         {
@@ -46,14 +46,9 @@ namespace RPGGame.Combat.Formatting
             builder.Add(label, ColorPalette.Info);
             builder.Add(": ", Colors.White);
             if (appliedDelta > 0)
-            {
-                builder.Add("+", ColorPalette.Success);
-                builder.Add(appliedDelta.ToString(), ColorPalette.Success);
-            }
+                builder.Add("+" + appliedDelta, ColorPalette.Success);
             else
-            {
                 builder.Add(appliedDelta.ToString(), ColorPalette.Error);
-            }
             builder.Add(")", Colors.Gray);
             return builder.Build();
         }

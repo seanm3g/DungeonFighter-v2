@@ -108,6 +108,20 @@ goes in a patch on the surrogate's word.
   `dungeon-sim.py`'s Wilson interval counts dungeons, not heroes, so it is too narrow). The real drop between the two L20
   rows was 24.6 points against 33.6 predicted. HP lost per fight reads 1–3 points low: `predict` assumes a normal
   room fight, and real dungeons include bosses.
+- **First use (2026-11-03, fastbot-v10)**: the level map said L16–20 and L56–75 were 5–10 points too hard and L21–30
+  6 too easy. A band-solve candidate (all seven bands) scored worse than v10 in real sims. The one band whose real read
+  missed its interval (L23 84%, 8 heroes/class) read 73% (CI 68–78) on a rerun with 16 heroes/class and a new seed, so
+  the one-band fix overshot to 56–64%. No change shipped: v10 is on target within noise where checked. Lessons: a
+  `dungeon-sim.py` read with 8 heroes/class moves ±10 between seeds, so confirm with ≥ 16. Don't act on surrogate gaps
+  under ~6 points (its bias is about +2 and per-level error about ±4). The model underfits L56–60 (raw shards 63%,
+  model 54%).
+- **Class parity by level (2026-11-03)**: the raw shards (about 150 heroes per class and band, ±6) showed Rogue −6.5 at
+  L11–25, Wizard +8.5 at L26–40 and −7.3 at L56–75. No global knob fixes a flip like that, so
+  `classBalance.<class>.damageCurve` was added. `classcurve-v1` (v10 + Rogue ×1.2→1.1→1.0 over L18/33/48, Wizard
+  ×0.92→0.85→1.0→1.2 over L18/33/48/65), paired against v10 on seed 606 with 16 heroes/class: Rogue L18 55→70%, Wizard
+  L33 82→72%, Wizard L63 36→46%, L48 identical (both curves 1.0 there), level means within 2 points, class spread down
+  at L18/33/63 (10.3→9.5, 5.7→4.1, 14.7→11.8). Gaps were sized from raw shards and sensitivity from the model, because
+  the model understates class×level effects by about half.
 - **Knob checks**: an A/B on the same seed confirmed each knob changes fights. `enemySystem.globalMultipliers.armorMultiplier`
   was dropped because enemy baseline armor is 0, so it scales nothing. `globalMultipliers.damageMultiplier` only scales
   enemy STR, so the enemy-damage knob scales `damageCurve` anchors instead. Raising `globalMultipliers.speedMultiplier`
@@ -256,6 +270,7 @@ game punishes heroes who skip them. The steps below still apply for fundamentals
 | `lootSystem.equippedWeaponTypeBias` | 0 | Chance a weapon drop matches the hero's equipped weapon type. |
 | `comboSystem.resetChainOnNormalHit` | true | false = only a miss breaks the combo chain, so later sequence slots matter. |
 | `enemySystem.damageCurve.anchors` | [] | Level → enemy damage multiplier table (log-interpolated). Solve entries with WRSOLVE. |
+| `classBalance.<class>.damageCurve` | off | Hero level → extra class damage multiplier on top of `damageMultiplier` (same anchor format), for class parity that changes with level. Added 2026-11-03; see `classcurve-v1`. |
 | `enemySystem.healthCurve` | off | Level → enemy max HP multiplier (same anchor format). Set from FUNDMATRIX "Enemy HP needed … (×k)" to hold ~11 hero turns. |
 | `combat.strengthDamagePerPoint` | 0 | Hero damage × (1 + STR × this), STR capped at `strengthDamageMaxStat` (100). 0.025 ≈ +1 STR worth +1 AGI. When set, the primary stat no longer adds damage. 0 = legacy floor((STR + primary) × `attributeDamageScale`). |
 | `combat.statusWeakenDamageMultiplier` | 0.5 | Weakened actor's damage on its next action. |

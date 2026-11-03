@@ -318,7 +318,7 @@ namespace RPGGame.Combat.Calculators
             // Apply class damage multiplier for hero attackers
             if (attacker is Character classChar && classChar.Weapon is WeaponItem classWeapon)
             {
-                double classMult = ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType);
+                double classMult = ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType, classChar.Level);
                 totalDamage *= classMult;
                 if (_sequenceTrace != null)
                     _sequenceTrace.ClassMultiplier = classMult;

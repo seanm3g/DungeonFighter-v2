@@ -17,28 +17,31 @@ namespace RPGGame
         private const int MaxStrikeFaces = 10;
         private double strikeFacesMultiplier = 1.0;
 
+        /// <summary>Default room activity (no tag, or <c>cycling</c>): strike faces ×1, at most 2 acts per fight.</summary>
+        public const int DefaultMaxActions = 2;
+
         public void ConfigureActivityFromTags(IEnumerable<string>? tags)
         {
-            strikeFacesMultiplier = 1.0;
-            maxEnvironmentActions = 2;
-            if (tags == null)
-                return;
+            var profile = GetActivityProfile(tags);
+            strikeFacesMultiplier = profile.StrikeFacesMultiplier;
+            maxEnvironmentActions = profile.MaxActions;
+        }
 
+        /// <summary>
+        /// Activity tag (<c>dormant</c> / <c>active</c> / <c>cycling</c>) → strike-face multiplier and acts per fight.
+        /// Tag is the winning activity tag, or null for the default.
+        /// </summary>
+        public static (string? Tag, double StrikeFacesMultiplier, int MaxActions) GetActivityProfile(IEnumerable<string>? tags)
+        {
+            if (tags == null)
+                return (null, 1.0, DefaultMaxActions);
             if (tags.Any(t => string.Equals(t, "dormant", StringComparison.OrdinalIgnoreCase)))
-            {
-                strikeFacesMultiplier = 0.25;
-                maxEnvironmentActions = 1;
-            }
-            else if (tags.Any(t => string.Equals(t, "active", StringComparison.OrdinalIgnoreCase)))
-            {
-                strikeFacesMultiplier = 2.0;
-                maxEnvironmentActions = 3;
-            }
-            else if (tags.Any(t => string.Equals(t, "cycling", StringComparison.OrdinalIgnoreCase)))
-            {
-                strikeFacesMultiplier = 1.0;
-                maxEnvironmentActions = 2;
-            }
+                return ("dormant", 0.25, 1);
+            if (tags.Any(t => string.Equals(t, "active", StringComparison.OrdinalIgnoreCase)))
+                return ("active", 2.0, 3);
+            if (tags.Any(t => string.Equals(t, "cycling", StringComparison.OrdinalIgnoreCase)))
+                return ("cycling", 1.0, DefaultMaxActions);
+            return (null, 1.0, DefaultMaxActions);
         }
 
         public void ResetForNewFight()
