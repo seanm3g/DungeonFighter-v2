@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using RPGGame.Data;
+using RPGGame.Utils;
 using RPGGame.Tuning.Profiles;
 
 namespace RPGGame.Tuning
@@ -22,7 +23,15 @@ namespace RPGGame.Tuning
             public Dictionary<string, List<string>> SkillOrder { get; set; } = new(StringComparer.OrdinalIgnoreCase);
             public Dictionary<string, List<string>> ActionPriority { get; set; } = new(StringComparer.OrdinalIgnoreCase);
             public Dictionary<string, Dictionary<string, double>> ActionOrder { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+            /// <summary>"Class@Level" → strip length the list tops up to (set by Scripts/rules-bot-climb.py); unset = 2.</summary>
+            public Dictionary<string, int> StripLength { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         }
+
+        /// <summary>
+        /// Explore mode (DUNGEONSIM --explore-strips): every dungeon gets a random strip (set converts plus a random
+        /// length of random owned actions); Scripts/rules-bot-climb.py --explore reads the owned actions from those fight rows.
+        /// </summary>
+        public static bool ExploreStrips { get; set; }
 
         private static RulesData? _data;
         private readonly Action<string>? _trace;
@@ -54,7 +63,7 @@ namespace RPGGame.Tuning
             if (hero == null)
                 return;
             string signature = Signature(hero, homeType);
-            if (signature == _lastSignature)
+            if (signature == _lastSignature && !ExploreStrips)
                 return;
             string cls = ClassName(homeType);
             var milestone = new PlaythroughMilestone
@@ -202,10 +211,16 @@ namespace RPGGame.Tuning
             foreach (string a in Data.ActionPriority.GetValueOrDefault(cls) ?? new List<string>())
                 if (picks.Count < length && owned.Contains(a) && !picks.Contains(a, StringComparer.OrdinalIgnoreCase))
                     picks.Add(a);
-            // A level list mined while heroes swapped weapons can name almost nothing this class owns (L75 Barbarian ran
-            // BONE WRATH alone). Below two actions, top up from the class's other lists, nearest level first. Topping up to the
-            // slot cap read worse (diluted Warrior/Rogue at L75; Wizard owns too few actions to gain).
-            int floor = Math.Min(2, length);
+            if (ExploreStrips)
+            {
+                var rest = owned.Where(a => !picks.Contains(a, StringComparer.OrdinalIgnoreCase)).OrderBy(_ => RandomUtility.NextDouble()).ToList();
+                int want = RandomUtility.Next(1, length + 1);
+                picks = picks.Take(want).Concat(rest).Take(want).OrderBy(_ => RandomUtility.NextDouble()).ToList();
+            }
+            // A level list can name too few owned actions (smart-mined lists hold other classes' actions: L75 Barbarian
+            // ran BONE WRATH alone). Top up to the self-mined StripLength (default 2) from the class's other lists,
+            // nearest level first.
+            int floor = ExploreStrips ? 0 : Math.Min(StripLengthFor(cls), length);
             if (picks.Count < floor)
                 foreach (string key in FallbackKeys(cls, hero.Level).Skip(1))
                     foreach (string a in Data.ActionPriority.GetValueOrDefault(key) ?? new List<string>())
@@ -214,7 +229,7 @@ namespace RPGGame.Tuning
             if (picks.Count == 0)
                 return;
             var position = Data.ActionOrder.GetValueOrDefault(cls) ?? new Dictionary<string, double>();
-            var strip = picks.Take(length).OrderBy(a => position.GetValueOrDefault(a, 0.5)).ToList();
+            var strip = ExploreStrips ? picks.Take(length).ToList() : picks.Take(length).OrderBy(a => position.GetValueOrDefault(a, 0.5)).ToList();
             if (strip.SequenceEqual(StripOf(hero), StringComparer.OrdinalIgnoreCase))
                 return;
             hero.RestoreComboFromActionNames(strip);
@@ -233,6 +248,15 @@ namespace RPGGame.Tuning
                 .Select(k => int.Parse(k[prefix.Length..]))
                 .ToList();
             return levels.Count == 0 ? cls : prefix + levels.OrderBy(l => Math.Abs(l - level)).First();
+        }
+
+        /// <summary>Self-mined strip length for the "Class@Level" key, else the class key, else 2.</summary>
+        private static int StripLengthFor(string key)
+        {
+            if (Data.StripLength.TryGetValue(key, out int n) && n > 0)
+                return n;
+            int at = key.IndexOf('@');
+            return at > 0 && Data.StripLength.TryGetValue(key[..at], out n) && n > 0 ? n : 2;
         }
 
         /// <summary><paramref name="key"/> itself, then the same class's other "Class@Level" lists nearest first, then the class key.</summary>

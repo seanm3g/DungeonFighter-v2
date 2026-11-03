@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using RPGGame.Game;
 using RPGGame.MCP.Models;
@@ -37,6 +38,16 @@ namespace RPGGame.Tuning
         /// <summary>When true, XP is reset at every dungeon entry so the hero stays at its level (DUNGEONSIM).</summary>
         public static bool HoldLevel { get; set; }
 
+        /// <summary>
+        /// When true (DUNGEONSIM --region-mix), runs start round-robin in the nearest region of each theme instead of only the
+        /// region whose band holds <see cref="StartAtLevel"/>, so one level is measured against every theme's enemies.
+        /// </summary>
+        public static bool RegionMix { get; set; }
+        private static int _regionMixRun;
+
+        /// <summary>When set (DUNGEONSIM --region-theme), runs start in the nearest region of this theme (Forest / Water / Fire / Air).</summary>
+        public static string? RegionTheme { get; set; }
+
         /// <summary>When &gt; 0, a run stops successfully after this many dungeons (DUNGEONSIM).</summary>
         public static int MaxDungeons { get; set; }
 
@@ -56,7 +67,22 @@ namespace RPGGame.Tuning
             if (hero.Level < StartAtLevel)
                 hero.ApplyActionLabLevelDelta(StartAtLevel - hero.Level);
             // A hero at this level would have travelled: use the region whose level band holds it (themes, enemy pools).
-            var region = new TravelRegionCatalog().GetAllRegions().FirstOrDefault(r => r.ContainsLevel(StartAtLevel));
+            var regions = new TravelRegionCatalog().GetAllRegions();
+            var region = regions.FirstOrDefault(r => r.ContainsLevel(StartAtLevel));
+            if (RegionMix)
+            {
+                var nearestByTheme = regions.Where(r => r.HasLevelRange)
+                    .GroupBy(r => r.Theme, StringComparer.OrdinalIgnoreCase)
+                    .Select(g => g.OrderBy(r => StartAtLevel < r.MinLevel ? r.MinLevel - StartAtLevel : Math.Max(0, StartAtLevel - r.MaxLevel)).First())
+                    .OrderBy(r => r.Theme, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+                if (nearestByTheme.Count > 0)
+                    region = nearestByTheme[_regionMixRun++ % nearestByTheme.Count];
+            }
+            if (!string.IsNullOrWhiteSpace(RegionTheme))
+                region = regions.Where(r => r.HasLevelRange && string.Equals(r.Theme, RegionTheme, StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(r => StartAtLevel < r.MinLevel ? r.MinLevel - StartAtLevel : Math.Max(0, StartAtLevel - r.MaxLevel))
+                    .FirstOrDefault() ?? region;
             if (region != null)
                 hero.CurrentRegionId = region.Id;
             for (int lvl = Math.Max(1, StartAtLevel - StartLootLevels); lvl < StartAtLevel; lvl++)

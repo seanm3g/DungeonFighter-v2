@@ -96,7 +96,7 @@
           "effect": "Rite of passage: +{10} Strength.",
           "payoff": "Marks the Mace path; a flat Strength boost.",
           "customEffectId": "puberty",
-          "power": 1.0,
+          "power": 0.6,
           "sharedWith": [],
           "free": true
         },
@@ -474,7 +474,7 @@
           "effect": "Rite of passage: +{10} Agility.",
           "payoff": "Marks the Sword path; baseline tempo before tag engines.",
           "customEffectId": "commission",
-          "power": 2.5,
+          "power": 3.0,
           "sharedWith": [],
           "free": true
         },
@@ -850,7 +850,7 @@
           "effect": "Rite of passage: +{10} Technique.",
           "payoff": "Marks the Dagger path; baseline precision before tag engines.",
           "customEffectId": "initiation",
-          "power": 1.0,
+          "power": 2.0,
           "sharedWith": [],
           "free": true
         },

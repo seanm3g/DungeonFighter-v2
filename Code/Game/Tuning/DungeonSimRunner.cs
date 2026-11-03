@@ -59,6 +59,9 @@ namespace RPGGame.Tuning
             ClassPlaythroughRunner.StopAtLevel = 0;
             ClassPlaythroughRunner.SmartPolicy = bot == "smart";
             ClassPlaythroughRunner.RulesPolicy = bot == "rules";
+            PlaythroughRulesPolicy.ExploreStrips = TuningCliArgs.HasFlag(args, "--explore-strips");
+            ClassPlaythroughRunner.RegionMix = TuningCliArgs.HasFlag(args, "--region-mix");
+            ClassPlaythroughRunner.RegionTheme = TuningCliArgs.GetFlagValue(args, "--region-theme");
             ClassPlaythroughRunner.RetreatBelowHpPercent = retreat;
 
             Console.WriteLine($"Balance patch: {FundamentalsMatrixRunner.ActiveBalancePatchPath()}");
@@ -136,7 +139,7 @@ namespace RPGGame.Tuning
                     {
                         Class = a.ClassDisplayName, Enemy = f.EnemyName, f.EnemyLevel, f.HeroActions, f.EnemyActions, f.FightInDungeon, f.HeroDied,
                         HpLost = f.HeroMaxHp > 0 ? Math.Round(Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp, 3) : 0,
-                        f.Strip, f.ActionUses, HpMinPct = Math.Round(f.HpMinPct, 3), f.LeadChanges, f.HeroMisses, f.LongestMissStreak, f.HeroHits, f.ComboHits, f.BossFight,
+                        f.Strip, f.OwnedActions, f.ActionUses, HpMinPct = Math.Round(f.HpMinPct, 3), f.LeadChanges, f.HeroMisses, f.LongestMissStreak, f.HeroHits, f.ComboHits, f.BossFight,
                         f.DamageBySource, f.HeroDamageBySource, f.CritDamage, f.ComboDamage, f.ConvertDamage,
                         f.SlotSwings, f.SlotHitDamage, f.SlotMax, f.HeroTechnique, f.HeroIntelligence,
                         f.StripBreaks, f.StripCompletions, f.CarriedInStrip,

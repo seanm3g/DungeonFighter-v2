@@ -109,15 +109,28 @@ rate (clear^(1/fightsPerDungeon)) and the playthrough batch checks the real clea
 
 **Rules bot (2026-11-01, default).** DUNGEONSIM, `dungeon-sim.py` and `balance-scan.py` use it unless given
 `--bot smart`. It skips the smart bot's simulated picks (~98% of a shard):
-skills in a mined order, the home class's best-covered material set, a full strip from the class's most-run actions at
-the closest mined level, no weapon/class switching. 4 levels × 48 heroes take ~40 s instead of ~25 min. Priorities
-live in `GameData/TuningProfiles/rules-bot.json`; re-mine with `Scripts/rules-bot-mine.py <smart --keep dirs>`
-after skill or action changes. Overall clear reads within 3–8 points of the smart bot at L20/35/50/75. Per class it
+skills in a mined order, the home class's best-covered material set, a strip of the class's listed actions it owns at
+the closest mined level (topped up to two from its other levels' lists), no weapon/class switching. 4 levels × 48
+heroes take ~40 s instead of ~25 min. Priorities live in `GameData/TuningProfiles/rules-bot.json`. After skill or action
+changes, tune it without the smart bot: `Scripts/rules-bot-climb.py --work <dir> --skills` hill-climbs skill orders on
+paired seeds (2026-11-02: +3 clear points per class, Warrior Cadence early); validate on the default seed with a full
+pass before copying `climb-best.json` over. Strip-list edits and regression mining from `--explore-strips` runs read as
+noise or worse; longer strips cost Warrior/Wizard clears at L75. `Scripts/rules-bot-mine.py <smart --keep dirs>` re-mines
+from the smart bot. Overall clear reads within 3–8 points of the smart bot at L20/35/50/75. Per class it
 differs more (Wizard up to −36, Barbarian L35 −33): smart heroes switch to daggers (switched Wizards lose ~40% less HP
 per fight) and stop at 20 skill picks per hub, so the rules bot is the in-class reading. Use `--bot smart` to see the
 weapon-switching optimum (what is overpowered) or to re-mine; the smart-only scan reads (viable actions, bot/median
 kill speed) are empty under the rules bot. Playthrough survival in `balance-check.ps1` (PLAYTODEATHBATCH) still uses
 the smart bot.
+
+**Region bands (2026-11-02).** A DUNGEONSIM hero plays in the region whose 5-level band holds its level, and regions
+cycle Forest / Water / Fire / Air every 5 levels (`Regions.json`), so L10 Water, L15 Fire, L20 Air, L35 Fire, L50 Water,
+L75 Fire: Forest is never measured and Fire three times. At equal damage Air clears ~35 points under Fire / Forest
+(control kits, 'dilapidated' rooms, carried room debuffs; FUNDMATRIX with a typical-gear hero sees no gap), so a curve
+fit at those six levels swung 22–97% between bands in play. Since fastbot-v8 the damage curve is one flat value per
+band (L11–75), each solved at its band midpoint (13, 18, …, 73; `Scripts/band-solve.py`), with two-level ramps where a band end jumps (L15, L20,
+L50, L75). Judge class parity across band midpoints, not the six levels. `dungeon-sim.py --region-mix` rotates runs
+through the nearest region of each theme; `--region-theme <Theme>` pins one.
 
 **Per-enemy checks (2026-10-13).** A playtest's first L1 fight (rat pack) took 21 hero turns while every averaged row
 passed: pack turns jump between levels (bodies × swings per body, overkill wasted), and one slow enemy hides in a mean.

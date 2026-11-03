@@ -38,6 +38,10 @@ ap.add_argument('--parallel', type=int, default=os.cpu_count() or 8,
                 help='shards at once; all levels share one pool, so no level waits on the slowest shard of another')
 ap.add_argument('--bot', default='rules', choices=['smart', 'rules', 'basic'],
                 help='rules (default) = fast rule-based picks (GameData/TuningProfiles/rules-bot.json); smart = picks by simulation, ~40x slower')
+ap.add_argument('--region-mix', action='store_true',
+                help='runs rotate through the nearest region of each theme (Forest/Water/Fire/Air) instead of only the region whose band holds the level')
+ap.add_argument('--region-theme', help='every run starts in the nearest region of this theme (Forest / Water / Fire / Air)')
+ap.add_argument('--explore-strips', action='store_true', help='rules bot plays random strips per dungeon (owned-action pool for Scripts/rules-bot-climb.py --explore)')
 ap.add_argument('--classes', default=','.join(CLASSES), help='comma list of classes to run')
 ap.add_argument('--screen-fights', type=int, default=-1, help='bot screen fights per enemy for skill/gear picks (0 = score every candidate in full, -1 = tool default)')
 ap.add_argument('--eval-enemies', default='', help='comma list of enemies the bot scores skill/gear/strip picks against (empty = tool default)')
@@ -101,6 +105,12 @@ def shard(patch, level, cls, i, tag):
     args = ['dotnet', DLL, 'DUNGEONSIM', '--patch', patch, '--level', str(level), '--runs', str(A.runs),
             '--dungeons', str(A.dungeons), '--classes', cls, '--retreat-below', str(A.retreat), '--json', out,
             '--bot', A.bot]
+    if A.explore_strips:
+        args += ['--explore-strips']
+    if A.region_mix:
+        args += ['--region-mix']
+    if A.region_theme:
+        args += ['--region-theme', A.region_theme]
     if A.start_loot_per_level > 0:
         args += ['--start-loot-per-level', str(A.start_loot_per_level)]
     if A.screen_fights >= 0:

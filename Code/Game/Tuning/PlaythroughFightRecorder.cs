@@ -27,6 +27,8 @@ namespace RPGGame.Tuning
         public bool RetreatedAfter { get; set; }
         /// <summary>Hero combo strip when the fight started.</summary>
         public List<string> Strip { get; set; } = new();
+        /// <summary>Actions the hero owned when the fight started (strip candidates).</summary>
+        public List<string> OwnedActions { get; set; } = new();
         /// <summary>Hero actions fired in the fight (action name → count).</summary>
         public Dictionary<string, int> ActionUses { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         /// <summary>Lowest hero HP during the fight, as a share of max HP.</summary>
@@ -205,6 +207,7 @@ namespace RPGGame.Tuning
                     FightInDungeon = _fightInDungeon,
                     RoomsClearedInDungeon = _roomsCleared,
                     Strip = hero.GetComboActions().Select(a => a.Name).ToList(),
+                    OwnedActions = hero.GetActionPool().Select(a => a.Name).Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
                     SlotMax = ComboSequenceMaxHelper.GetEffectiveMax(hero),
                     HeroTechnique = hero.GetEffectiveTechnique(),
                     HeroIntelligence = hero.GetEffectiveIntelligence(),
