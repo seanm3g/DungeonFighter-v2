@@ -93,10 +93,12 @@ namespace RPGGame
             if (regionDungeons.Count == 0)
                 regionDungeons = CreateFallbackDungeons();
 
-            // Level-banded region: one dungeon per linked biome, each at a random level inside the region's fixed band.
-            // Harder dungeons require travelling to a higher region (no custom-level / reset entries).
+            // Level-banded region: one dungeon per linked biome, each at hero level -1..+1 clamped into the region's band
+            // (a fresh L1 hero no longer draws L5 dungeons). Harder dungeons require travelling to a higher region.
             if (currentRegion.HasLevelRange)
             {
+                int bandLow = Math.Clamp(player.Level - 1, currentRegion.MinLevel, currentRegion.MaxLevel);
+                int bandHigh = Math.Clamp(player.Level + 1, currentRegion.MinLevel, currentRegion.MaxLevel);
                 foreach (var theme in themePool.Distinct(StringComparer.OrdinalIgnoreCase))
                 {
                     var candidates = regionDungeons
@@ -105,7 +107,7 @@ namespace RPGGame
                     if (candidates.Count == 0)
                         continue;
                     var data = candidates[random.Next(candidates.Count)];
-                    int level = random.Next(currentRegion.MinLevel, currentRegion.MaxLevel + 1);
+                    int level = random.Next(bandLow, bandHigh + 1);
                     if (HeadlessFixedDungeonLevel is int fixedLevel)
                         level = fixedLevel;
                     availableDungeons.Add(new Dungeon(
