@@ -44,7 +44,8 @@ namespace RPGGame
         /// or -1 when no free action plays.</summary>
         public static int ActingFreeStep { get { lock (Gate) return _actingFree ? _freeBaseStep : -1; } }
 
-        /// <summary>Bumped by every <see cref="BeginTurn"/>, so the board can tell one turn from the next.</summary>
+        /// <summary>Bumped by every <see cref="BeginTurn"/> and <see cref="BeginFreeAction"/>, so the board can tell one
+        /// turn (or free action) from the next.</summary>
         public static long TurnSerial { get { lock (Gate) return _turnSerial; } }
 
         public static bool IsBound { get { lock (Gate) return _speed != null; } }
@@ -111,7 +112,8 @@ namespace RPGGame
             }
         }
 
-        /// <summary>Starts a free combo action of the acting <paramref name="actor"/> (same turn, no speed time spent).</summary>
+        /// <summary>Starts a free combo action of the acting <paramref name="actor"/> (same turn, no speed time spent). It
+        /// gets its own <see cref="TurnSerial"/> so the board brings its card down into NOW like a new turn.</summary>
         public static void BeginFreeAction(Character actor)
         {
             lock (Gate)
@@ -121,6 +123,7 @@ namespace RPGGame
                 _actingFree = true;
                 _freeActionsTaken++;
                 _freeBaseStep = actor.ComboStep;
+                _turnSerial++;
             }
         }
 
