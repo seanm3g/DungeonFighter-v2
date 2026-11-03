@@ -80,6 +80,39 @@ What the scan rows mean:
   A class's rare class actions (e.g. Warrior AVENGE) may dominate its strips: tracked as `signature action share`, not
   flagged.
 
+### Surrogate (what-if screening, 2026-11-02)
+
+A learned stand-in for DUNGEONSIM: dungeon clear / death rate and fight shape (hero actions, enemy actions, HP lost per
+fight) for a level, class and a set of knob scales, in milliseconds. Use it between scan and focus to aim: sweep a knob,
+solve a knob for a clear target, compare two candidate changes. Then confirm the pick with `dungeon-sim.py`. Nothing
+goes in a patch on the surrogate's word.
+
+- **Data**: `python Scripts/surrogate-data.py --shards 3000` (~45 min with other sims running). Each shard is one
+  DUNGEONSIM hero × 8 dungeons at a random level (1–75) and class, on a patch copy whose knobs (`KNOBS` in the script)
+  are scaled at random. Each knob moves with probability 0.5, log-uniform in its range. It appends to
+  `GameData/TuningRuns/surrogate/dataset.jsonl` (resumable, replayable from `--seed` + shard index).
+- **Train**: `python Scripts/surrogate.py train` (~2 min). LightGBM, cross-validated by shard, with monotone constraints
+  where the design fixes the direction (more enemy damage never helps). It prints per-shard error against the binomial
+  floor and a level+class-only baseline, clear by level band, fight-shape R² and knob importance. The model is saved
+  per base patch (`model-<patch>.pkl`).
+- **Query**: `predict --level 20 --set enemyDamage=1.1 --class Rogue`, `sweep --knob enemyHealth --levels 10,20,35,50`,
+  `solve --knob enemyDamage --level 20 --target 75`, `check --level 20 --set ...` (the prediction next to a real
+  `dungeon-sim.py` run of the same knobs).
+- **Limits**: it only knows the knobs in `KNOBS`, inside their trained ranges, on the base patch it was trained on.
+  A code, item, bot or patch change makes it stale: regenerate shards and retrain. Single fights are mostly noise
+  (fight R² 0.25–0.47); read averages. Per-shard error (~26 pts) is mostly hero luck, since one hero per shard; that
+  is why the model pools shards.
+- **Validation (fastbot-v10, 2,972 shards)**: five `check` runs at knob combinations not in the data (L20 base, L20
+  damage ×1.3 + class health ×0.85, L45, L60, L33, 2–3 knobs each). 4 of 5 landed inside the real 95% interval; mean
+  error 3.9 clear points, a slight optimistic bias (+2.2). The one miss was L20 base (+6.8, just past the upper bound;
+  `dungeon-sim.py`'s Wilson interval counts dungeons, not heroes, so it is too narrow). The real drop between the two L20
+  rows was 24.6 points against 33.6 predicted. HP lost per fight reads 1–3 points low: `predict` assumes a normal
+  room fight, and real dungeons include bosses.
+- **Knob checks**: an A/B on the same seed confirmed each knob changes fights. `enemySystem.globalMultipliers.armorMultiplier`
+  was dropped because enemy baseline armor is 0, so it scales nothing. `globalMultipliers.damageMultiplier` only scales
+  enemy STR, so the enemy-damage knob scales `damageCurve` anchors instead. Raising `globalMultipliers.speedMultiplier`
+  (the identity reference AGI) *raised* clear rates; worth a look.
+
 First scan (overnight-v2, 2026-10-13): median turns L35 9.1 (FAIL), Goblin at L50 16.4 turns for the median build. The bot
 kills ×1.67 faster than the median build at L10 and ×0.72 slower at L35: `STEP[10]` (two-piece + convert) undershoots
 real play, `STEP[35]` (full set) overshoots it.

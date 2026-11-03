@@ -169,6 +169,7 @@ All in `Code/Game/`:
 - `Tuning/Profiles/BuildLadderRunner.cs` — `BUILDLAB` headless mode: prices build stepping stones, skill nodes and triggers (`GameData/TuningProfiles/build-ladders.json`; see `Documentation/BALANCE_PROCESS.md`)
 - `Tuning/DungeonSimRunner.cs` — `DUNGEONSIM` headless mode: real dungeons at a fixed level with HP carried between fights (start-level hero, retreat rule); shard with `Scripts/dungeon-sim.py` (`--solve L --target P` fits a damage anchor to a clear rate). Default bot is the fast rules bot (`PlaythroughRulesPolicy`, priorities in `GameData/TuningProfiles/rules-bot.json`); `--bot smart` picks by simulation, ~40× slower. Tools print a `Provenance:` line (`RunProvenance`)
 - `Scripts/balance-scan.py` — quick tier (~8 min): median build grid + small DUNGEONSIM sample, ranked problem areas with focus commands; `--compare` an earlier scan JSON. Loop: scan → focus → `balance-check.ps1` gate
+- `Scripts/surrogate-data.py` + `Scripts/surrogate.py` — balance surrogate: LightGBM trained on DUNGEONSIM shards under randomized knobs; `predict` / `sweep` / `solve` / `check` answer knob what-ifs in ms (screening only, confirm with `dungeon-sim.py`; retrain per patch)
 - `SimulationData.cs` — simulation result models
 - `Tuning/Suggesters/` — adjustment suggesters per domain (enemy, player, weapon, global, duration)
 - `Tuning/TuningSuggestionApplier.cs` / `TuningSummaryGenerator.cs` / `UndoRedoManager.cs`
