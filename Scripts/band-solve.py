@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Solve the enemy damage curve as one flat value per 5-level region band (L11-75), each band to its clear target.
+"""Solve the enemy damage (or --curve health) curve as one flat value per 5-level region band (L11-75), each band to its clear target.
 
 Regions cycle Forest/Water/Fire/Air every 5 levels, so a band is one region; a step curve absorbs region difficulty.
 Targets: linear between the clear targets L10 75, L15 65, L20 70, L35 70, L50 65, L75 30, read at the band midpoint.
@@ -22,15 +22,22 @@ ap.add_argument('--runs', type=int, default=8)
 ap.add_argument('--seed', type=int, default=101)
 ap.add_argument('--evals', type=int, default=5)
 ap.add_argument('--tol', type=float, default=2.5)
+ap.add_argument('--curve', default='damage', choices=['damage', 'health'], help='enemySystem curve to solve (health = region difficulty in enemy HP)')
+ap.add_argument('--targets', default='', help='clear targets L:pct,... (default L10 75 .. L75 30)')
+ap.add_argument('--tools', default='Code/bin/Debug/net8.0', help='folder holding the built DF.dll')
 A = ap.parse_args()
 SP = os.path.abspath(A.work)
 os.makedirs(os.path.join(SP, 'runs'), exist_ok=True)
 LOG = os.path.join(SP, 'band_solve.log')
 STATE = os.path.join(SP, 'band_values.json')
-TARGETS = [(10, 75), (15, 65), (20, 70), (35, 70), (50, 65), (75, 30)]
+TARGETS = ([tuple(float(x) for x in t.split(':')) for t in A.targets.split(',')] if A.targets
+           else [(10, 75), (15, 65), (20, 70), (35, 70), (50, 65), (75, 30)])
+CURVE = A.curve + 'Curve'
 
 
 def target_at(L):
+    if L <= TARGETS[0][0]:
+        return TARGETS[0][1]
     for (l0, t0), (l1, t1) in zip(TARGETS, TARGETS[1:]):
         if l0 <= L <= l1:
             return t0 + (t1 - t0) * (L - l0) / (l1 - l0)
@@ -44,7 +51,7 @@ def log(m):
 
 
 base = json.load(open(A.base, encoding='utf-8-sig'))
-old = sorted(base['enemySystem']['damageCurve']['anchors'], key=lambda a: a['level'])
+old = sorted(base['enemySystem'][CURVE]['anchors'], key=lambda a: a['level'])
 
 
 def interp(L):
@@ -57,12 +64,12 @@ def interp(L):
 
 def build(values, path):
     d = json.loads(json.dumps(base))
-    keep = [a for a in old if a['level'] <= 10 or a['level'] > 75]
+    keep = [a for a in old if not any(int(b) <= a['level'] <= int(b) + 4 for b in values)]
     steps = []
     for start, v in values.items():
         s = int(start)
         steps += [{'level': s, 'multiplier': round(v, 4)}, {'level': s + 4, 'multiplier': round(v, 4)}]
-    d['enemySystem']['damageCurve']['anchors'] = sorted(keep + steps, key=lambda a: a['level'])
+    d['enemySystem'][CURVE]['anchors'] = sorted(keep + steps, key=lambda a: a['level'])
     json.dump(d, open(path, 'w', encoding='utf-8'), indent=2)
 
 
@@ -70,7 +77,7 @@ def clear(values, L, tag):
     p = os.path.join(SP, f'bs-{tag}.json')
     build(values, p)
     out = os.path.join(SP, 'runs', f'bs-{tag}.json')
-    subprocess.run([sys.executable, 'Scripts/dungeon-sim.py', '--tools', 'Code/bin/Debug/net8.0', '--patch', p, '--levels', str(L),
+    subprocess.run([sys.executable, 'Scripts/dungeon-sim.py', '--tools', A.tools, '--patch', p, '--levels', str(L),
                     '--runs', str(A.runs), '--seed', str(A.seed), '--json', out],
                    cwd=REPO, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
     r = json.load(open(out))[0]

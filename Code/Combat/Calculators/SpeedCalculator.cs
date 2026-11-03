@@ -288,7 +288,8 @@ namespace RPGGame.Combat.Calculators
                 ?? ArchetypeManager.GetArchetypeAttackTimeMultiplier(enemy.AttackProfile);
             double slowFactor = enemy.SlowTurns > 0 ? 1.0 / Math.Max(0.1, enemy.SlowMultiplier) : 1.0;
 
-            double raw = baseSeconds * agilityFactor * weaponFactor * archetype * slowFactor;
+            double enemyTempo = GameConfiguration.Instance.Combat.EnemyAttackTimeMultiplier;
+            double raw = baseSeconds * agilityFactor * weaponFactor * archetype * slowFactor * (enemyTempo > 0 ? enemyTempo : 1.0);
             return new SpeedBreakdown
             {
                 BaseSeconds = baseSeconds,

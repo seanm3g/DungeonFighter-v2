@@ -144,6 +144,8 @@ namespace RPGGame
         public double BaseAttackTime { get; set; }
         public double AgilitySpeedReduction { get; set; }
         public double MinimumAttackTime { get; set; }
+        /// <summary>Scales every enemy swing time; 2 = enemies swing half as often (pair with a higher damage curve). 0 or less = 1.</summary>
+        public double EnemyAttackTimeMultiplier { get; set; } = 1.0;
 
         /// <summary>
         /// Replaces invalid combat timing fields (e.g. <c>baseAttackTime: 0</c> in TuningConfig.json) so attack speed and UI are not stuck at the hard floor.
