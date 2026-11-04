@@ -25,6 +25,9 @@ import argparse, ast, json, math, os, shutil, statistics, subprocess, sys, tempf
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from simpool import SimPool, add_args as add_pool_args
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TARGETS = json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balance-targets.json'), encoding='utf-8-sig'))
 CLASSES = ['Barbarian', 'Warrior', 'Rogue', 'Wizard']
@@ -82,6 +85,7 @@ ap.add_argument('--min-class-distance', type=float, default=EXP.get('minClassDis
 ap.add_argument('--from', dest='from_scan', default='', help='re-analyze the raw results saved in an earlier scan JSON (no sims)')
 ap.add_argument('--compare', default='', help='earlier balance-scan JSON: print level metrics side by side')
 ap.add_argument('--parallel', type=int, default=os.cpu_count() or 8)
+add_pool_args(ap)   # --spark N: DUNGEONSIM heroes run on the Spark, BUILDLAB stays local
 ap.add_argument('--json', default='', help='output path (default GameData/TuningRuns/balance-scan-<patch>-<time>.json)')
 A = ap.parse_args()
 
@@ -183,15 +187,38 @@ def buildlab(build_id, level):
 def dungeonsim(level, cls, data_dir):
     cls, hero = cls.split('#')
     out = os.path.join(WORK, f'ds-L{level}-{cls}-{hero}.json')
-    log = open(os.path.join(WORK, f'ds-L{level}-{cls}-{hero}.log'), 'w', encoding='utf-8')
+    log = os.path.join(WORK, f'ds-L{level}-{cls}-{hero}.log')
+    args = (['DUNGEONSIM', '--patch', ds_patch(), '--level', str(level), '--runs', '1', '--dungeons', str(A.dungeons), '--classes', cls,
+             '--retreat-below', str(RETREAT), '--json', out, '--bot', A.bot]
+            + (['--seed', str(A.seed * 1_000_000 + level * 1000 + int(hero))] if A.seed else []))
+    if POOL:
+        POOL.run(args, out, log, timeout=1800)
+    else:
+        with open(log, 'w', encoding='utf-8') as fh:
+            try:
+                subprocess.run(['dotnet', DLL] + args, cwd=ROOT, stdout=fh, stderr=subprocess.STDOUT,
+                               env=dict(os.environ, DF_GAMEDATA_DIR=data_dir), timeout=1800)
+            except subprocess.TimeoutExpired:
+                pass
     try:
-        subprocess.run(['dotnet', DLL, 'DUNGEONSIM', '--patch', PATCH, '--level', str(level), '--runs', '1',
-                        '--dungeons', str(A.dungeons), '--classes', cls, '--retreat-below', str(RETREAT), '--json', out, '--bot', A.bot]
-                       + (['--seed', str(A.seed * 1_000_000 + level * 1000 + int(hero))] if A.seed else []),
-                       cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, env=dict(os.environ, DF_GAMEDATA_DIR=data_dir), timeout=1800)
         return json.load(open(out, encoding='utf-8-sig'))
     except Exception:
         return None
+
+
+POOL = None
+_DS_PATCH = []
+
+
+def ds_patch():
+    """PATCH as DUNGEONSIM sees it. Spark shards only see files inside WORK, so a patch given as a file path is copied in."""
+    if not _DS_PATCH:
+        p = PATCH
+        if POOL and os.path.isfile(p):
+            p = os.path.join(WORK, 'patch-' + os.path.basename(p))
+            shutil.copy(PATCH, p)
+        _DS_PATCH.append(p)
+    return _DS_PATCH[0]
 
 
 def run_all(median_levels, dungeon_levels, builds):
@@ -203,6 +230,26 @@ def run_all(median_levels, dungeon_levels, builds):
         r = dungeonsim(j[1], j[2], data_dir) if j[0] == 'ds' else buildlab(j[2], j[1])
         SECONDS[j] = time.time() - t
         return j, r
+    global POOL
+    if A.spark and dungeon_levels:
+        # Spark only for dungeons: the local cores keep running BUILDLAB alongside instead of competing for slots.
+        POOL = SimPool(ROOT, WORK, data_dir, DLL, local_slots=0, spark_slots=A.spark, host=A.spark_host, log=lambda m: print(m, flush=True))
+        try:
+            POOL.start()
+        except SystemExit:
+            POOL = None
+            print('Spark unavailable; dungeons run locally', flush=True)
+    if POOL:
+        ds = [j for j in jobs if j[0] == 'ds']
+        bl = [j for j in jobs if j[0] == 'bl']
+        print(f'DUNGEONSIM on {POOL.describe()}, BUILDLAB on {A.parallel} local', flush=True)
+        try:
+            with ThreadPoolExecutor(POOL.slots) as ex_ds, ThreadPoolExecutor(max(1, min(A.parallel, len(bl)))) as ex_bl:
+                f_ds = ex_ds.map(go, ds)
+                f_bl = ex_bl.map(go, bl)
+                return list(f_ds) + list(f_bl)
+        finally:
+            POOL.close()
     with ThreadPoolExecutor(min(A.parallel, len(jobs))) as ex:
         return list(ex.map(go, jobs))
 
@@ -275,7 +322,7 @@ def analyze_dungeons(results, dungeon_levels, median):
             inside = hi >= target - CLEAR_TOL and lo <= target + CLEAR_TOL
             finding('dungeon clear', l, 'all classes', f'{clear:.0f}% [{lo:.0f}-{hi:.0f}] {len(outs)} heroes, n={n}', f'{target:.0f}% +/- {CLEAR_TOL:g}',
                     (abs(clear - target) - CLEAR_TOL) / CLEAR_TOL * (0.5 if inside else 1), 'LIKELY' if inside else 'FAIL',
-                    f'python Scripts/dungeon-sim.py {tools_arg()} --solve {l} --target {target:.0f}',
+                    f'python Scripts/bo-solve.py {tools_arg()} --level {l} --target {target:.0f}' + (f' --spark {A.spark}' if A.spark else ''),
                     ('too easy' if clear > target else 'too hard') + f', death {100 * died / n:.0f}%/dungeon, HP lost/fight {100 * hp:.1f}%')
         # Bot vs median build: if real play kills much faster or slower than the build the HP curve is solved for,
         # the median build's stepping stone (STEP) is not what players have, and the curve targets the wrong hero.

@@ -17,9 +17,9 @@ Checked 2026-11-04 on fastbot-v14 L10 (reference root 1.217 from a 2,879-dungeon
 (up to 27% off) at ~1,100. Clear rate is shallow in the anchor (~16 pts from scale 1.1 to 1.5), so +/-10% is about what
 ~800 dungeons buy; the point estimate is usually within 5%.
 
-  python Scripts/bo-solve.py --level 20 --target 75 --spark 18
-  python Scripts/bo-solve.py --level 50 --target 75 --tolerance 0.05 --max-rounds 20
-  python Scripts/bo-solve.py --level 20 --target 75 --prior surrogate     (centre the prior on Scripts/surrogate.py)
+  python Scripts/bo-solve.py --level 20 --spark 18                 (target from balance-targets.json realClearAnchors)
+  python Scripts/bo-solve.py --level 50 --target 65 --tolerance 0.05 --max-rounds 20
+  python Scripts/bo-solve.py --level 20 --prior surrogate     (centre the prior on Scripts/surrogate.py)
 
 Prints the solved scale and anchor with a 90% interval, the dungeons it used, and a Provenance line.
 """
@@ -31,7 +31,7 @@ TARGETS = json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balan
 
 ap = argparse.ArgumentParser()
 ap.add_argument('--level', type=int, required=True)
-ap.add_argument('--target', type=float, default=float(TARGETS.get('realClearTarget', 75)), help='target clear %%')
+ap.add_argument('--target', type=float, default=None, help='target clear %% (default: realClearAnchors in balance-targets.json at --level)')
 ap.add_argument('--patch', default='', help='balance patch name or path (default: active patch)')
 ap.add_argument('--anchor', action='append', default=[], help='other damage anchor overrides L=multiplier (repeatable)')
 ap.add_argument('--tools', default='Code/bin/BalanceTools', help='folder holding the built DF.dll')
@@ -50,7 +50,27 @@ ap.add_argument('--spark', type=int, default=0, help='Spark slots (see Scripts/s
 ap.add_argument('--bot', default='rules', choices=['smart', 'rules', 'basic'])
 ap.add_argument('--region-mix', action='store_true')
 ap.add_argument('--json', default='', help='write rounds and result here')
+ap.add_argument('--scope', default='band', choices=['band', 'level'],
+                help="band = scale every anchor in --level's 5-level region band together (the curve steps per band; solve at a band "
+                     "midpoint so the hero's +/-1 dungeon level roll stays inside it); level = only the anchor at --level")
 A = ap.parse_args()
+
+
+def target_at(level):
+    """Clear target at a level: linear between balance-targets.json realClearAnchors (as balance-scan.py reads them)."""
+    pts = sorted((a['level'], float(a['clear'])) for a in TARGETS.get('realClearAnchors', []))
+    if not pts:
+        return float(TARGETS.get('realClearTarget', 75))
+    if level <= pts[0][0]:
+        return pts[0][1]
+    for (l0, c0), (l1, c1) in zip(pts, pts[1:]):
+        if level <= l1:
+            return c0 + (level - l0) / (l1 - l0) * (c1 - c0)
+    return pts[-1][1]
+
+
+if A.target is None:
+    A.target = target_at(A.level)
 
 LO, HI = (math.log(float(x)) for x in A.scale_range.split(','))
 GRID_R = np.linspace(LO, HI, 401)                    # ln s*
@@ -66,6 +86,25 @@ def patch_path():
     if os.path.exists(name):
         return os.path.abspath(name)
     return os.path.join(ROOT, 'GameData', 'Patches', 'Balance', name if name.endswith('.json') else name + '.json')
+
+
+def band_levels(level):
+    """Levels of the 5-level region band holding `level` (1-5, 6-10, ...)."""
+    start = 5 * ((level - 1) // 5) + 1
+    return range(start, start + 5)
+
+
+def solve_anchors(overrides):
+    """Anchor level -> current multiplier for the anchors the solve scales together."""
+    d = json.load(open(patch_path(), encoding='utf-8-sig'))
+    cur = {a['level']: a['multiplier'] for a in d['enemySystem']['damageCurve']['anchors']}
+    cur.update(overrides)
+    if A.scope == 'level':
+        return {A.level: base_anchor(A.level, overrides)}
+    band = {lv: m for lv, m in cur.items() if lv in band_levels(A.level)}
+    if not band:
+        raise SystemExit(f'No damage anchors inside the L{A.level} band {band_levels(A.level)[0]}-{band_levels(A.level)[-1]}; use --scope level')
+    return band
 
 
 def base_anchor(level, overrides):
@@ -161,12 +200,12 @@ def next_point(w, n):
     return best
 
 
-def run_round(r, anchor_value, overrides, work):
+def run_round(r, scale, overrides, work):
     out = os.path.join(work, f'round{r}.json')
     args = [sys.executable, os.path.join(ROOT, 'Scripts', 'dungeon-sim.py'), '--levels', str(A.level), '--patch', patch_path(),
             '--tools', A.tools, '--shards', str(A.shards), '--runs', str(A.runs), '--dungeons', str(A.dungeons),
             '--seed', str(A.seed * 100 + r), '--parallel', str(A.parallel), '--spark', str(A.spark), '--bot', A.bot, '--json', out]
-    for lv, m in {**overrides, A.level: round(anchor_value, 4)}.items():
+    for lv, m in {**overrides, **{lv: round(m * scale, 4) for lv, m in solve_anchors(overrides).items()}}.items():
         args += ['--anchor', f'{lv}={m}']
     if A.region_mix:
         args.append('--region-mix')
@@ -180,7 +219,9 @@ def run_round(r, anchor_value, overrides, work):
 def main():
     overrides = {int(s.split('=')[0]): float(s.split('=')[1]) for s in A.anchor}
     base = base_anchor(A.level, overrides)
-    print(f'L{A.level}: solving the damage anchor (now x{base:.4f}) for {A.target:.0f}% clear | patch {patch_path()}')
+    scaled = solve_anchors(overrides)
+    what = f'anchors {sorted(scaled)}' if A.scope == 'band' else 'anchor'
+    print(f'L{A.level}: solving the damage {what} (L{A.level} now x{base:.4f}) for {A.target:.0f}% clear | patch {patch_path()}')
     work = tempfile.mkdtemp(prefix='bosolve-')
     obs, rounds, provenance = [], [], set()
     w = posterior(obs)
@@ -188,7 +229,7 @@ def main():
         # A round's size, from the rounds so far (retreats end runs early) or the nominal batch.
         n_round = sum(o[2] for o in obs) / len(obs) if obs else A.shards * 4 * A.runs * A.dungeons
         x = next_point(w, n_round)
-        res = run_round(r, base * math.exp(x), overrides, work)
+        res = run_round(r, math.exp(x), overrides, work)
         k, n = round(res['clear'] * res['dungeons']), res['dungeons']
         obs.append((x, k, n))
         # Each round's patch differs only in the anchor being solved, so its hash is dropped.
@@ -211,10 +252,13 @@ def main():
           f'for {A.target:.0f}% clear | {len(obs)} rounds, {used} dungeons')
     if math.exp(q50) < math.exp(LO) * 1.05 or math.exp(q50) > math.exp(HI) / 1.05:
         print('WARNING: the answer sits at the edge of --scale-range; the target may be out of reach there.')
+    if A.scope == 'band':
+        print('Band anchors: ' + ', '.join(f'{lv}={m * math.exp(q50):.4f}' for lv, m in sorted(scaled.items())))
     print(f'Provenance: {sorted(provenance)}')
     if A.json:
         json.dump({'level': A.level, 'target': A.target, 'baseAnchor': base, 'converged': converged, 'dungeons': used,
                    'scale': math.exp(q50), 'anchor': base * math.exp(q50), 'anchorCI90': [base * math.exp(q05), base * math.exp(q95)],
+                   'scope': A.scope, 'anchors': {str(lv): round(m * math.exp(q50), 4) for lv, m in scaled.items()},
                    'rounds': rounds, 'provenance': sorted(provenance)}, open(A.json, 'w', encoding='utf-8'), indent=2)
     shutil.rmtree(work, ignore_errors=True)
 

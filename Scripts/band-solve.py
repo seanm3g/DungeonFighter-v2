@@ -25,6 +25,7 @@ ap.add_argument('--tol', type=float, default=2.5)
 ap.add_argument('--curve', default='damage', choices=['damage', 'health'], help='enemySystem curve to solve (health = region difficulty in enemy HP)')
 ap.add_argument('--targets', default='', help='clear targets L:pct,... (default L10 75 .. L75 30)')
 ap.add_argument('--tools', default='Code/bin/Debug/net8.0', help='folder holding the built DF.dll')
+ap.add_argument('--spark', type=int, default=0, help='passed to dungeon-sim.py: also run this many shards on the DGX Spark')
 A = ap.parse_args()
 SP = os.path.abspath(A.work)
 os.makedirs(os.path.join(SP, 'runs'), exist_ok=True)
@@ -78,7 +79,7 @@ def clear(values, L, tag):
     build(values, p)
     out = os.path.join(SP, 'runs', f'bs-{tag}.json')
     subprocess.run([sys.executable, 'Scripts/dungeon-sim.py', '--tools', A.tools, '--patch', p, '--levels', str(L),
-                    '--runs', str(A.runs), '--seed', str(A.seed), '--json', out],
+                    '--runs', str(A.runs), '--seed', str(A.seed), '--json', out] + (['--spark', str(A.spark)] if A.spark else []),
                    cwd=REPO, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
     r = json.load(open(out))[0]
     return 100 * r['clear'], {k[:4]: round(100 * v) for k, v in r['perClassClear'].items()}

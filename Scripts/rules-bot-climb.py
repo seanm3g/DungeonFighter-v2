@@ -28,6 +28,7 @@ ap.add_argument('--skills', action='store_true', help='climb skill orders (score
 ap.add_argument('--skill-levels', default='20,50', help='levels that score skill-order moves (default 20,50)')
 ap.add_argument('--classes', default=','.join(CLASSES), help='classes to edit (default all)')
 ap.add_argument('--patch', help='balance patch JSON to run against (default: the active patch)')
+ap.add_argument('--spark', type=int, default=0, help='passed to dungeon-sim.py: also run this many shards on the DGX Spark')
 A = ap.parse_args()
 SP = os.path.abspath(A.work)
 os.makedirs(os.path.join(SP, 'runs'), exist_ok=True)
@@ -74,7 +75,7 @@ def evaluate(data, cls, level, seed):
     json.dump(data, open(os.path.join(ov, 'TuningProfiles', 'rules-bot.json'), 'w'), indent=1)
     out = os.path.join(SP, 'runs', 'climb-eval.json')
     subprocess.run([sys.executable, 'Scripts/dungeon-sim.py', '--tools', 'Code/bin/Debug/net8.0', '--levels', str(level),
-                    '--classes', cls, '--runs', '16', '--seed', str(seed), '--overlay', ov, '--json', out] + (['--patch', os.path.abspath(A.patch)] if A.patch else []),
+                    '--classes', cls, '--runs', '16', '--seed', str(seed), '--overlay', ov, '--json', out] + (['--spark', str(A.spark)] if A.spark else []) + (['--patch', os.path.abspath(A.patch)] if A.patch else []),
                    cwd=REPO, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
     S['evals'] += 1
     rows = json.load(open(out))
