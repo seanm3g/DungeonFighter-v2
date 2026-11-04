@@ -30,6 +30,8 @@ namespace RPGGame.Tests.Unit.Audio
             TestPublisherRoutesComboHitToComboCue(ref run, ref passed, ref failed);
             TestPublisherRoutesComboStripSlotsToStepCues(ref run, ref passed, ref failed);
             TestComboStepCuesCoverSevenSlots(ref run, ref passed, ref failed);
+            TestComboFinisherJingleStartsOnNextNote(ref run, ref passed, ref failed);
+            TestComboNotesFollowChainNotSlot(ref run, ref passed, ref failed);
             TestActivePatchPlaysSevenStepPitchesThenFinisher(ref run, ref passed, ref failed);
             TestSwingCuePlaysOnlyBeforeQueuedOutcome(ref run, ref passed, ref failed);
             TestUnboundCueFallsBackToParentCue(ref run, ref passed, ref failed);
@@ -265,6 +267,76 @@ namespace RPGGame.Tests.Unit.Audio
                 "Slots past 7 reuse step 7", ref run, ref passed, ref failed);
             TestBase.AssertEqualEnum(AudioCue.Combat_ComboComplete, AudioCue.Combat_ComboStep7.GetFallback(),
                 "Unbound step 7 falls back to the finisher", ref run, ref passed, ref failed);
+            TestBase.AssertEqualEnum(AudioCue.Combat_ComboFinish1, AudioCueExtensions.ComboFinishCueForNote(0),
+                "Note 1 jingle maps to finish cue 1", ref run, ref passed, ref failed);
+            TestBase.AssertEqualEnum(AudioCue.Combat_ComboFinish7, AudioCueExtensions.ComboFinishCueForNote(12),
+                "Notes past 7 reuse jingle 7", ref run, ref passed, ref failed);
+            TestBase.AssertEqualEnum(AudioCue.Combat_ComboComplete, AudioCue.Combat_ComboFinish4.GetFallback(),
+                "Unbound jingle falls back to the generic finisher", ref run, ref passed, ref failed);
+        }
+
+        private static Character CreateStripHero(string name, int slots)
+        {
+            var hero = new Character(name, 1);
+            foreach (var existing in hero.GetComboActions().ToList())
+                hero.Actions.RemoveFromCombo(existing);
+            for (int i = 0; i < slots; i++)
+            {
+                var strip = new RPGGame.Action(name: $"{name}{i}") { IsComboAction = true };
+                hero.AddAction(strip, 1.0);
+                hero.Actions.AddToCombo(strip);
+            }
+            return hero;
+        }
+
+        /// <summary>The strip's last action plays the jingle that starts on that hit's note, for every strip length.</summary>
+        private static void TestComboFinisherJingleStartsOnNextNote(ref int run, ref int passed, ref int failed)
+        {
+            foreach (int length in new[] { 1, 2, 3, 5, 7, 9 })
+            {
+                var hero = CreateStripHero($"Len{length}", length);
+                var cues = new List<AudioCue>();
+                for (int slot = 0; slot < length; slot++)
+                {
+                    hero.ComboStep = slot;
+                    cues.Add(ActionEventPublisher.ResolveComboStepCue(hero));
+                }
+                var expected = Enumerable.Range(0, length - 1).Select(AudioCueExtensions.ComboStepCueForSlot).ToList();
+                expected.Add(AudioCueExtensions.ComboFinishCueForNote(length - 1));
+                TestBase.AssertEqual(length, hero.GetComboActions().Count, $"Jingle test hero has a {length}-slot strip", ref run, ref passed, ref failed);
+                TestBase.AssertTrue(cues.SequenceEqual(expected),
+                    $"{length}-action strip climbs notes then plays the jingle starting on note {Math.Min(length, 7)}",
+                    ref run, ref passed, ref failed);
+            }
+        }
+
+        /// <summary>Routed jumps keep climbing one note per hit; a broken chain restarts on note 1; a wrapped strip restarts too.</summary>
+        private static void TestComboNotesFollowChainNotSlot(ref int run, ref int passed, ref int failed)
+        {
+            var hero = CreateStripHero("Route", 5);
+            AudioCue Swing(int step) { hero.ComboStep = step; return ActionEventPublisher.ResolveComboStepCue(hero); }
+
+            var jumped = new[] { Swing(0), Swing(3), Swing(4) };
+            TestBase.AssertTrue(jumped.SequenceEqual(new[]
+                { AudioCue.Combat_ComboStep1, AudioCue.Combat_ComboStep2, AudioCue.Combat_ComboFinish3 }),
+                "Jumping slot 1 -> 4 -> 5 plays notes 1, 2, then the note-3 jingle", ref run, ref passed, ref failed);
+
+            var broken = new[] { Swing(0), Swing(1), Swing(0), Swing(1) };
+            TestBase.AssertTrue(broken.SequenceEqual(new[]
+                { AudioCue.Combat_ComboStep1, AudioCue.Combat_ComboStep2, AudioCue.Combat_ComboStep1, AudioCue.Combat_ComboStep2 }),
+                "A chain reset back to the opener restarts the melody on note 1", ref run, ref passed, ref failed);
+
+            var wrapped = new[] { Swing(2), Swing(3), Swing(4), Swing(5), Swing(6) };
+            TestBase.AssertTrue(wrapped.SequenceEqual(new[]
+                { AudioCue.Combat_ComboStep3, AudioCue.Combat_ComboStep4, AudioCue.Combat_ComboFinish5, AudioCue.Combat_ComboStep1, AudioCue.Combat_ComboStep2 }),
+                "After the finisher the next strip cycle starts again on note 1", ref run, ref passed, ref failed);
+
+            hero.ComboStep = 1;
+            hero.ReplacedStripSlot = 4;
+            var replaced = ActionEventPublisher.ResolveComboStepCue(hero);
+            hero.ReplacedStripSlot = null;
+            TestBase.AssertEqualEnum(AudioCue.Combat_ComboFinish3, replaced,
+                "A strip replacement standing in for the last slot plays the finisher", ref run, ref passed, ref failed);
         }
 
         /// <summary>
@@ -280,12 +352,18 @@ namespace RPGGame.Tests.Unit.Audio
                 var expected = new List<string>();
                 for (int slot = 0; slot < 7; slot++)
                     expected.Add(AudioConfig.ResolveAssetPath(cfg.GetBinding(AudioCueExtensions.ComboStepCueForSlot(slot))?.File ?? ""));
-                expected.Add(AudioConfig.ResolveAssetPath(cfg.GetBinding(AudioCue.Combat_ComboComplete)?.File ?? ""));
+                expected.Add(AudioConfig.ResolveAssetPath(cfg.GetBinding(AudioCue.Combat_ComboFinish7)?.File ?? ""));
+                var jingles = Enumerable.Range(0, 7)
+                    .Select(n => AudioConfig.ResolveAssetPath(cfg.GetBinding(AudioCueExtensions.ComboFinishCueForNote(n))?.File ?? ""))
+                    .ToList();
 
                 TestBase.AssertTrue(expected.All(f => f.Length > 0 && File.Exists(f)),
-                    "Active audio patch binds an existing file to step cues 1..7 and the finisher", ref run, ref passed, ref failed);
+                    "Active audio patch binds an existing file to step cues 1..7 and the note-7 jingle", ref run, ref passed, ref failed);
                 TestBase.AssertEqual(8, expected.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
                     "Step cues 1..7 and the finisher are eight distinct sounds", ref run, ref passed, ref failed);
+                TestBase.AssertTrue(jingles.All(f => f.Length > 0 && File.Exists(f))
+                        && jingles.Distinct(StringComparer.OrdinalIgnoreCase).Count() == 7,
+                    "Active audio patch binds seven distinct existing finisher jingles", ref run, ref passed, ref failed);
 
                 CombatEventBus.Reset();
                 var engine = new NullAudioEngine { RecordCalls = true };
@@ -318,7 +396,7 @@ namespace RPGGame.Tests.Unit.Audio
 
                 TestBase.AssertEqual(8, hero.GetComboActions().Count, "Scale test hero has an eight-slot strip", ref run, ref passed, ref failed);
                 TestBase.AssertTrue(played.SequenceEqual(expected, StringComparer.OrdinalIgnoreCase),
-                    "Eight-slot combo plays step 1..7 pitches in order, then the finisher", ref run, ref passed, ref failed);
+                    "Eight-slot combo plays step 1..7 pitches in order, then the note-7 jingle", ref run, ref passed, ref failed);
             }
             finally
             {
@@ -339,7 +417,7 @@ namespace RPGGame.Tests.Unit.Audio
                 var cfg = CreateTestConfig(CreateStubFile());
                 cfg.CueMap[AudioCue.Combat_ComboStep1.ToString()].File = step1;
                 cfg.CueMap[AudioCue.Combat_ComboStep2.ToString()].File = step2;
-                cfg.CueMap[AudioCue.Combat_ComboComplete.ToString()].File = finish;
+                cfg.CueMap[AudioCue.Combat_ComboFinish3.ToString()].File = finish;
                 using var dispatcher = new AudioCueDispatcher(engine,
                     configResolver: () => cfg,
                     globalEnabledResolver: () => true);
@@ -370,7 +448,7 @@ namespace RPGGame.Tests.Unit.Audio
                 TestBase.AssertEqual(3, hero.GetComboActions().Count, "Step test hero has a three-slot strip", ref run, ref passed, ref failed);
                 TestBase.AssertEqual(step1, played[0], "Combo slot 1 plays step 1 cue", ref run, ref passed, ref failed);
                 TestBase.AssertEqual(step2, played[1], "Combo slot 2 plays step 2 cue", ref run, ref passed, ref failed);
-                TestBase.AssertEqual(finish, played[2], "Last combo slot plays the finisher cue", ref run, ref passed, ref failed);
+                TestBase.AssertEqual(finish, played[2], "Last slot of a 3-slot strip plays the jingle starting on note 3", ref run, ref passed, ref failed);
                 TestBase.AssertEqual(step1, played[3], "Wrapped combo step restarts at step 1 cue", ref run, ref passed, ref failed);
             }
             finally

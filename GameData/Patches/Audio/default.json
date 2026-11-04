@@ -140,6 +140,41 @@
       "volume": 1,
       "rateLimitMs": null
     },
+    "Combat_ComboFinish1": {
+      "file": "SFX/combo_finish1.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_ComboFinish2": {
+      "file": "SFX/combo_finish2.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_ComboFinish3": {
+      "file": "SFX/combo_finish3.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_ComboFinish4": {
+      "file": "SFX/combo_finish4.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_ComboFinish5": {
+      "file": "SFX/combo_finish5.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_ComboFinish6": {
+      "file": "SFX/combo_finish6.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
+    "Combat_ComboFinish7": {
+      "file": "SFX/combo_finish7.wav",
+      "volume": 1,
+      "rateLimitMs": null
+    },
     "Combat_CriticalHit": {
       "file": "SFX/crit.wav",
       "volume": 1,

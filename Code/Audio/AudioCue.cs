@@ -38,7 +38,7 @@ namespace RPGGame.Audio
         Combat_CriticalMiss,
         Combat_Miss,
         Combat_Hit,
-        /// <summary>Hero combo hit on strip slot 1..7, rising a major scale (slots past 7 reuse step 7). Unbound steps fall back to <see cref="Combat_ComboComplete"/>.</summary>
+        /// <summary>Hero combo hit N of the current chain, rising a major scale (hits past 7 reuse step 7). Unbound steps fall back to <see cref="Combat_ComboComplete"/>.</summary>
         Combat_ComboStep1,
         Combat_ComboStep2,
         Combat_ComboStep3,
@@ -46,7 +46,7 @@ namespace RPGGame.Audio
         Combat_ComboStep5,
         Combat_ComboStep6,
         Combat_ComboStep7,
-        /// <summary>Combo hit on the last strip slot (sequence finisher); also any combo hit when the slot is unknown.</summary>
+        /// <summary>Generic combo finisher: enemy combo hits, and the fallback for unbound step / finisher cues.</summary>
         Combat_ComboComplete,
         Combat_CriticalHit,
         Combat_EnemyDied,
@@ -65,6 +65,19 @@ namespace RPGGame.Audio
         Dungeon_Enter,
         Dungeon_Exit,
         Dungeon_RoomClear,
+
+        /// <summary>
+        /// Hero hit on the strip's last slot: a short jingle that starts on the note step N would play
+        /// (a 1-action strip starts on note 1, a 3-action strip on note 3; capped at 7). Unbound jingles fall back to
+        /// <see cref="Combat_ComboComplete"/>. Appended last so existing cue ordinals stay put.
+        /// </summary>
+        Combat_ComboFinish1,
+        Combat_ComboFinish2,
+        Combat_ComboFinish3,
+        Combat_ComboFinish4,
+        Combat_ComboFinish5,
+        Combat_ComboFinish6,
+        Combat_ComboFinish7,
     }
 
     /// <summary>
@@ -97,6 +110,9 @@ namespace RPGGame.Audio
             AudioCue.Combat_ComboStep1 or AudioCue.Combat_ComboStep2 or AudioCue.Combat_ComboStep3
                 or AudioCue.Combat_ComboStep4 or AudioCue.Combat_ComboStep5
                 or AudioCue.Combat_ComboStep6 or AudioCue.Combat_ComboStep7 => AudioCue.Combat_ComboComplete,
+            AudioCue.Combat_ComboFinish1 or AudioCue.Combat_ComboFinish2 or AudioCue.Combat_ComboFinish3
+                or AudioCue.Combat_ComboFinish4 or AudioCue.Combat_ComboFinish5
+                or AudioCue.Combat_ComboFinish6 or AudioCue.Combat_ComboFinish7 => AudioCue.Combat_ComboComplete,
             AudioCue.Combat_ComboComplete => AudioCue.Combat_Hit,
             AudioCue.Combat_CriticalHit => AudioCue.Combat_Hit,
             _ => AudioCue.None
@@ -112,6 +128,18 @@ namespace RPGGame.Audio
             4 => AudioCue.Combat_ComboStep5,
             5 => AudioCue.Combat_ComboStep6,
             _ => AudioCue.Combat_ComboStep7
+        };
+
+        /// <summary>Finisher jingle starting on the note of 0-based chain position <paramref name="noteIndex"/> (past the seventh share jingle 7).</summary>
+        public static AudioCue ComboFinishCueForNote(int noteIndex) => noteIndex switch
+        {
+            <= 0 => AudioCue.Combat_ComboFinish1,
+            1 => AudioCue.Combat_ComboFinish2,
+            2 => AudioCue.Combat_ComboFinish3,
+            3 => AudioCue.Combat_ComboFinish4,
+            4 => AudioCue.Combat_ComboFinish5,
+            5 => AudioCue.Combat_ComboFinish6,
+            _ => AudioCue.Combat_ComboFinish7
         };
     }
 }

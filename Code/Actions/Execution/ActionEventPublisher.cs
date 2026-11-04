@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using RPGGame.Audio;
 using RPGGame.Combat.Events;
 
@@ -62,18 +63,31 @@ namespace RPGGame.Actions.Execution
                 : AudioCue.Combat_ComboComplete;
         }
 
+        /// <summary>0-based note of each hero's last combo hit; the melody climbs one note per chained hit.</summary>
+        private static readonly ConditionalWeakTable<Character, StrongBox<int>> comboNoteByHero = new();
+
         /// <summary>
-        /// Combo hits climb through per-slot cues; the strip's last slot plays the finisher.
+        /// Combo hits climb one major-scale note per hit in the chain (capped at 7); the strip's last slot plays a
+        /// jingle that starts on the note that hit would have played. The note follows the chain, not the slot, so
+        /// routed jumps/skips and repeated slots never jump the pitch. A chain (re)starts on the strip's first slot.
         /// Read before the combo step advances, so <see cref="Character.ComboStep"/> is the slot being swung.
         /// </summary>
-        private static AudioCue ResolveComboStepCue(Character hero)
+        internal static AudioCue ResolveComboStepCue(Character hero)
         {
             int count = hero.GetComboActions().Count;
-            if (count <= 1) return AudioCue.Combat_ComboComplete;
-            int slot = ((hero.ComboStep % count) + count) % count;
+            if (count <= 0) return AudioCue.Combat_ComboComplete;
+            int slot = hero.ReplacedStripSlot is int replaced && replaced >= 0 && replaced < count
+                ? replaced
+                : ((hero.ComboStep % count) + count) % count;
+
+            var note = comboNoteByHero.GetValue(hero, _ => new StrongBox<int>(-1));
+            // A retriggered opener is an encore inside the chain, not a fresh chain.
+            bool chainStart = slot == 0 && !ActionExecutionFlow.IsResolvingRetrigger;
+            note.Value = chainStart || note.Value < 0 ? 0 : Math.Min(note.Value + 1, 6);
+
             return slot == count - 1
-                ? AudioCue.Combat_ComboComplete
-                : AudioCueExtensions.ComboStepCueForSlot(slot);
+                ? AudioCueExtensions.ComboFinishCueForNote(note.Value)
+                : AudioCueExtensions.ComboStepCueForSlot(note.Value);
         }
 
         /// <summary>
