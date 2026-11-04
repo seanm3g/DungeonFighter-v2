@@ -1261,22 +1261,24 @@ namespace RPGGame.UI.Avalonia.Renderers
                 _boardRestComboName[actor] = combo;
             }
 
-            // Same exclusive bands as the d20 bar: crit, combo, hit, miss, crit miss. Crit and crit miss only show when
-            // the actor can roll them.
-            static string Faces(int lo, int hi) => lo > hi ? "--" : lo == hi ? $"{lo}" : $"{lo}-{hi}";
+            // Same exclusive bands as the d20 bar: crit, combo, hit, miss, crit miss. A band no face can land in (e.g. no
+            // hit band when combo starts right where the miss band ends) is left off; the rest tile 1-20.
+            static string Faces(int lo, int hi) => lo == hi ? $"{lo}" : $"{lo}-{hi}";
             int critAt = Math.Clamp(t.Crit, 1, 21);
             int comboAt = Math.Clamp(t.Combo, 1, critAt);
             int hitAt = Math.Clamp(t.MinHit, 1, comboAt);
             int critMissTop = Math.Clamp(t.CritMiss, 0, hitAt - 1);
-            void AddBand(int lo, int hi, string text, Color color, CombatSequenceSwingOutcome outcome, bool critical = false) =>
+            void AddBand(int lo, int hi, string text, Color color, CombatSequenceSwingOutcome outcome, bool critical = false)
+            {
+                if (lo > hi)
+                    return;
                 list.Add(new BoardBranch(Faces(lo, hi), text, color, outcome, new(), Critical: critical));
-            if (critAt <= 20)
-                AddBand(critAt, 20, $"CRIT {combo}", ThresholdDisplayFormatting.D20ThresholdBarColors.Crit, CombatSequenceSwingOutcome.Combo, critical: true);
+            }
+            AddBand(critAt, 20, $"CRIT {combo}", ThresholdDisplayFormatting.D20ThresholdBarColors.Crit, CombatSequenceSwingOutcome.Combo, critical: true);
             AddBand(comboAt, critAt - 1, combo, BoardComboBorder, CombatSequenceSwingOutcome.Combo);
             AddBand(hitAt, comboAt - 1, "hit", AsciiArtAssets.Colors.White, CombatSequenceSwingOutcome.Hit);
             AddBand(critMissTop + 1, hitAt - 1, "miss", AsciiArtAssets.Colors.Red, CombatSequenceSwingOutcome.Miss);
-            if (critMissTop >= 1)
-                AddBand(1, critMissTop, "CRIT MISS", ThresholdDisplayFormatting.D20ThresholdBarColors.CritMiss, CombatSequenceSwingOutcome.Miss, critical: true);
+            AddBand(1, critMissTop, "CRIT MISS", ThresholdDisplayFormatting.D20ThresholdBarColors.CritMiss, CombatSequenceSwingOutcome.Miss, critical: true);
             // The room's trigger face (any fighter's die sets it off) overlaps the bands, so it gets its own box below them.
             if (CombatTurnQueue.Room is { TriggerRoll: > 0 } triggerRoom)
                 list.Add(new BoardBranch($"{triggerRoom.TriggerRoll}", $"ROOM: {triggerRoom.Name}", BoardHazardColor, null, new(), OwnColor: true, RoomTrigger: true));
