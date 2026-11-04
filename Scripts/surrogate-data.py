@@ -10,9 +10,13 @@ outcome (cleared / retreated / died of --dungeons) and the compact fight rows. A
   python Scripts/surrogate-data.py --shards 400                       (active patch, ~2-3 min per shard)
   python Scripts/surrogate-data.py --shards 200 --levels 15-30 --out GameData/TuningRuns/surrogate/mid.jsonl
   python Scripts/surrogate-data.py --shards 50 --move-chance 0         (baseline-only shards: the patch as it is)
+  python Scripts/surrogate-data.py --shards 2000 --spark 18           (also run 18 shards at once on the DGX Spark)
 """
 import argparse, json, math, os, random, shutil, subprocess, sys, tempfile, time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from simpool import SimPool, add_args as add_pool_args
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CLASSES = ['Barbarian', 'Warrior', 'Rogue', 'Wizard']
@@ -61,6 +65,7 @@ ap.add_argument('--move-chance', type=float, default=0.5, help='chance each knob
 ap.add_argument('--seed', type=int, default=7, help='base seed; shard i uses seed*1e6+i for both knobs and DUNGEONSIM')
 ap.add_argument('--parallel', type=int, default=max(1, (os.cpu_count() or 8) // 2))
 ap.add_argument('--shard-timeout', type=int, default=1800)
+add_pool_args(ap)
 A = ap.parse_args()
 
 OUT = os.path.join(ROOT, A.out) if not os.path.isabs(A.out) else A.out
@@ -69,6 +74,7 @@ DLL = os.path.join(ROOT, A.tools, 'DF.dll')
 LEVELS = (list(range(int(A.levels.split('-')[0]), int(A.levels.split('-')[1]) + 1)) if '-' in A.levels
           else [int(x) for x in A.levels.split(',')])
 SHARD_CLASSES = [c.strip() for c in A.classes.split(',') if c.strip()]
+POOL = None
 
 
 def base_patch_path():
@@ -148,29 +154,26 @@ def write_patch(cls, scales, tag):
     return path
 
 
-def shard(index, data_dir):
+def shard(index):
     seed, level, cls, scales = draw(index)
     tag = f's{index}'
     patch = write_patch(cls, scales, tag)
     out = os.path.join(WORK, f'{tag}.json')
     log_path = os.path.join(WORK, f'{tag}.log')
     t0 = time.time()
+    host = POOL.run(['DUNGEONSIM', '--patch', patch, '--level', str(level), '--runs', '1',
+                     '--dungeons', str(A.dungeons), '--classes', cls, '--retreat-below', str(A.retreat),
+                     '--json', out, '--bot', 'rules', '--seed', str(seed)], out, log_path, timeout=A.shard_timeout)
     try:
-        with open(log_path, 'w', encoding='utf-8') as log:
-            subprocess.run(['dotnet', DLL, 'DUNGEONSIM', '--patch', patch, '--level', str(level), '--runs', '1',
-                            '--dungeons', str(A.dungeons), '--classes', cls, '--retreat-below', str(A.retreat),
-                            '--json', out, '--bot', 'rules', '--seed', str(seed)],
-                           cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, env=dict(os.environ, DF_GAMEDATA_DIR=data_dir),
-                           timeout=A.shard_timeout)
         doc = json.load(open(out, encoding='utf-8-sig'))
     except Exception as e:
-        return index, None, f'{type(e).__name__}: see {log_path}'
+        return index, None, f'{type(e).__name__} on {host}: see {log_path}'
     o = next(x for x in doc['Outcomes'] if x['Class'] == cls)
     row = {
         'index': index, 'seed': seed, 'basePatch': PATCH_NAME, 'provenance': doc.get('Provenance'),
         'level': level, 'class': cls, 'knobs': scales, 'dungeons': o['Dungeons'], 'cleared': o['Cleared'],
         'retreated': o['Retreated'], 'died': o['Died'], 'fights': o['Fights'], 'levelDrift': o['LevelDrift'],
-        'seconds': round(time.time() - t0, 1),
+        'seconds': round(time.time() - t0, 1), 'host': host,
         'fightRows': [{k: f.get(k) for k in FIGHT_FIELDS} for f in doc.get('Fights', [])],
     }
     return index, row, None
@@ -187,13 +190,16 @@ def main():
             print(f'NOTE: {OUT} already holds shards from other base patches; surrogate.py trains per basePatch.')
     if not A.skip_build:
         build()
-    data_dir = copy_gamedata()
+    global POOL
+    POOL = SimPool(ROOT, WORK, copy_gamedata(), DLL, local_slots=A.parallel, spark_slots=A.spark, host=A.spark_host,
+                   log=lambda m: print(m, flush=True))
+    POOL.start()
     print(f'Base patch {PATCH_NAME} | shards {start}..{start + A.shards - 1} | levels {LEVELS[0]}-{LEVELS[-1]} | '
-          f'{A.dungeons} dungeons/shard | {A.parallel} at once | work {WORK}', flush=True)
+          f'{A.dungeons} dungeons/shard | {POOL.describe()} | work {WORK}', flush=True)
     ok = failed = 0
     t0 = time.time()
-    with ThreadPoolExecutor(A.parallel) as pool, open(OUT, 'a', encoding='utf-8') as sink:
-        futures = [pool.submit(shard, i, data_dir) for i in range(start, start + A.shards)]
+    with ThreadPoolExecutor(POOL.slots) as pool, open(OUT, 'a', encoding='utf-8') as sink:
+        futures = [pool.submit(shard, i) for i in range(start, start + A.shards)]
         for fut in as_completed(futures):
             index, row, err = fut.result()
             if row is None:
@@ -203,10 +209,11 @@ def main():
             sink.write(json.dumps(row) + '\n'); sink.flush()
             ok += 1
             el = time.time() - t0
-            print(f'  [{ok + failed}/{A.shards}] shard {index}: L{row["level"]} {row["class"]} cleared {row["cleared"]}/{row["dungeons"]}'
+            print(f'  [{ok + failed}/{A.shards}] shard {index} ({row["host"]}): L{row["level"]} {row["class"]} cleared {row["cleared"]}/{row["dungeons"]}'
                   f' died {row["died"]} fights {row["fights"]} ({row["seconds"]:.0f} s; eta {el / (ok + failed) * (A.shards - ok - failed) / 60:.0f} min)',
                   flush=True)
-    print(f'Done: {ok} shards added, {failed} failed -> {OUT}')
+    print(f'Done: {ok} shards added, {failed} failed -> {OUT}' + (f' | by host {POOL.counts}' if A.spark else ''))
+    POOL.close()
     shutil.rmtree(WORK, ignore_errors=True)
 
 

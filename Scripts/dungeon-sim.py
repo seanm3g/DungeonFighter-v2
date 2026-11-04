@@ -8,13 +8,16 @@ the retreat rule. Shards run in parallel on a scratch copy of GameData (death sc
   python Scripts/dungeon-sim.py --levels 10,20 --patch overnight-v2
   python Scripts/dungeon-sim.py --levels 20 --anchor 20=1.2 --anchor 15=0.7      (try a damage curve variant)
   python Scripts/dungeon-sim.py --solve 20 --target 70                           (bisect the L20 damage anchor to 70% clear)
+  python Scripts/dungeon-sim.py --levels 10,20 --spark 18                         (also run 18 shards at once on the DGX Spark)
 
 Rates carry 95% Wilson intervals; a result is only "on target" when the interval overlaps target +/- tolerance.
 """
-import argparse, json, math, os, shutil, subprocess, sys, tempfile
+import argparse, json, math, os, re, shutil, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, 'Scripts'))
+from simpool import SimPool, add_args as add_pool_args
 TARGETS = json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balance-targets.json'), encoding='utf-8'))
 CLASSES = ['Barbarian', 'Warrior', 'Rogue', 'Wizard']
 
@@ -48,12 +51,14 @@ ap.add_argument('--eval-enemies', default='', help='comma list of enemies the bo
 ap.add_argument('--overlay', default='', help='folder of GameData files copied over the scratch GameData (test data edits without touching the repo)')
 ap.add_argument('--keep', default='', help='copy the raw shard JSON (fight rows) into this folder')
 ap.add_argument('--shard-timeout', type=int, default=1800, help='seconds before a shard is killed and dropped (a stuck fight)')
+add_pool_args(ap)
 A = ap.parse_args()
 CLASSES = [c.strip() for c in A.classes.split(',') if c.strip()]
 
 DLL = os.path.join(ROOT, A.tools, 'DF.dll')
 WORK = tempfile.mkdtemp(prefix='dsim-')
 DATA = os.path.join(WORK, 'GameData')
+POOL = None
 
 
 def active_patch_path():
@@ -102,7 +107,7 @@ def damage_anchor_at(level, overrides):
 
 def shard(patch, level, cls, i, tag):
     out = os.path.join(WORK, f'{tag}-L{level}-{cls}-{i}.json')
-    args = ['dotnet', DLL, 'DUNGEONSIM', '--patch', patch, '--level', str(level), '--runs', str(A.runs),
+    args = ['DUNGEONSIM', '--patch', patch, '--level', str(level), '--runs', str(A.runs),
             '--dungeons', str(A.dungeons), '--classes', cls, '--retreat-below', str(A.retreat), '--json', out,
             '--bot', A.bot]
     if A.explore_strips:
@@ -119,17 +124,15 @@ def shard(patch, level, cls, i, tag):
         args += ['--eval-enemies', A.eval_enemies]
     if A.seed:
         args += ['--seed', str(A.seed * 1_000_000 + level * 1000 + i)]
-    env = dict(os.environ, DF_GAMEDATA_DIR=DATA)
-    log = open(os.path.join(WORK, f'{tag}-L{level}-{cls}-{i}.log'), 'w', encoding='utf-8')
+    log = os.path.join(WORK, f'{tag}-L{level}-{cls}-{i}.log')
+    host = POOL.run(args, out, log, timeout=A.shard_timeout)
     try:
-        subprocess.run(args, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, env=env, timeout=A.shard_timeout)
-    except subprocess.TimeoutExpired:
-        print(f'     WARNING: shard {cls}-{i} (L{level}, {tag}) passed {A.shard_timeout}s and was dropped', flush=True)
-        return None
-    try:
-        return json.load(open(out, encoding='utf-8'))
+        doc = json.load(open(out, encoding='utf-8'))
     except Exception:
+        print(f'     WARNING: shard {cls}-{i} (L{level}, {tag}) on {host} gave no result (timeout or crash) and was dropped; see {log}', flush=True)
         return None
+    doc['Host'] = host
+    return doc
 
 
 def wilson(k, n, z=1.96):
@@ -145,7 +148,7 @@ def wilson(k, n, z=1.96):
 def measure(level, anchors, tag):
     patch = write_variant(anchors, tag)
     jobs = [(c, i) for c in CLASSES for i in range(A.shards)]
-    with ThreadPoolExecutor(min(len(jobs), A.parallel)) as ex:
+    with ThreadPoolExecutor(min(len(jobs), POOL.slots)) as ex:
         docs = [d for d in ex.map(lambda j: shard(patch, level, j[0], j[1], tag), jobs) if d]
     return summarize(level, anchors, docs)
 
@@ -154,7 +157,7 @@ def measure_levels(levels, anchors):
     """All levels in one pool (no per-level barrier): returns results in level order."""
     patch = write_variant(anchors, 'm')
     jobs = [(l, c, i) for l in levels for c in CLASSES for i in range(A.shards)]
-    with ThreadPoolExecutor(min(len(jobs), A.parallel)) as ex:
+    with ThreadPoolExecutor(min(len(jobs), POOL.slots)) as ex:
         out = list(ex.map(lambda j: (j[0], shard(patch, j[0], j[1], j[2], f'm{j[0]}')), jobs))
     return [summarize(l, anchors, [d for lv, d in out if lv == l and d]) for l in levels]
 
@@ -162,7 +165,8 @@ def measure_levels(levels, anchors):
 def summarize(level, anchors, docs):
     if not docs:
         raise SystemExit(f'No DUNGEONSIM output for L{level}; see logs in {WORK}')
-    provs = {d['Provenance'] for d in docs}
+    # The DLL hash differs between the Windows and linux-arm64 builds of the same source (simpool keeps them in sync).
+    provs = {re.sub(r'build=\S+ ', '', d['Provenance']) for d in docs}
     tot = {'Runs': 0, 'Dungeons': 0, 'Cleared': 0, 'Retreated': 0, 'Died': 0, 'Fights': 0, 'HpLost': 0.0, 'HeroActions': 0.0, 'LevelDrift': 0}
     per_class = {}
     for d in docs:
@@ -207,8 +211,12 @@ def show(r):
 
 
 def main():
+    global POOL
     copy_gamedata()
-    print(f'Patch: {active_patch_path()}')
+    POOL = SimPool(ROOT, WORK, DATA, DLL, local_slots=A.parallel, spark_slots=A.spark, host=A.spark_host,
+                   log=lambda m: print(m, flush=True))
+    POOL.start()
+    print(f'Patch: {active_patch_path()} | shards on {POOL.describe()}')
     overrides = {int(s.split('=')[0]): float(s.split('=')[1]) for s in A.anchor}
     results = []
     if A.solve:
@@ -233,6 +241,8 @@ def main():
         for r in measure_levels([int(x) for x in A.levels.split(',') if x.strip()], overrides):
             show(r); results.append(r)
     print(f'Provenance: {sorted({p for r in results for p in r["provenance"]})}')
+    if A.spark:
+        print(f'Shards by host: {POOL.counts}')
     if A.json:
         json.dump(results, open(A.json, 'w', encoding='utf-8'), indent=2)
     if A.keep:
@@ -240,6 +250,7 @@ def main():
         for f in os.listdir(WORK):
             if f.endswith('.json') and not f.startswith('patch-'):
                 shutil.copy(os.path.join(WORK, f), A.keep)
+    POOL.close()
     shutil.rmtree(WORK, ignore_errors=True)
 
 
