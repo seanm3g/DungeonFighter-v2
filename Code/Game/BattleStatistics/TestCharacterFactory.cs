@@ -171,7 +171,7 @@ namespace RPGGame.BattleStatistics
             int attrPer = tuning.Attributes.EnemyAttributesPerLevel;
             if (attrPer <= 0)
                 attrPer = 2;
-            double armorPer = tuning.EnemyScaling?.EnemyArmorPerLevel ?? 1.0;
+            double armorPer = tuning.EnemySystem?.ScalingPerLevel?.Armor ?? 1.0;
 
             int lv = level - 1;
             int hp = Math.Max(1, config.EnemyHealth + lv * hpPer);

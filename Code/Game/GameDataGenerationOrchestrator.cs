@@ -84,19 +84,12 @@ namespace RPGGame
             
             Console.WriteLine("Current TuningConfig Status:");
             Console.WriteLine($"  ItemScaling configured: {tuning.ItemScaling != null}");
-            Console.WriteLine($"  EnemyScaling configured: {tuning.EnemyScaling != null}");
             
             if (tuning.ItemScaling != null)
             {
                 Console.WriteLine($"  StartingWeaponDamage: {tuning.ItemScaling.StartingWeaponDamage?.Count ?? 0}");
                 Console.WriteLine($"  TierDamageRanges: {tuning.ItemScaling.TierDamageRanges?.Count ?? 0}");
                 Console.WriteLine($"  GlobalDamageMultiplier: {tuning.ItemScaling.GlobalDamageMultiplier}");
-            }
-            
-            if (tuning.EnemyScaling != null)
-            {
-                Console.WriteLine($"  BaseDPSAtLevel1: {tuning.EnemyScaling.BaseDPSAtLevel1}");
-                Console.WriteLine($"  DPSPerLevel: {tuning.EnemyScaling.DPSPerLevel}");
             }
             
             Console.WriteLine("\nTesting JSON file generation...");

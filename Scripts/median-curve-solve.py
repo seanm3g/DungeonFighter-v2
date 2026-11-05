@@ -39,6 +39,13 @@ E = "Goblin,Rats,Wraith,Wolf,Bear,Lich,Fire Elemental,Zombie,Wight,Glass Shard G
 # Ladder step a typical player has by each anchor level (0 default, 1 class strip, 2 two-piece + convert,
 # 3 full set, 4 weapon mods, 5 catalog skills, 6 core & rite). Strips are trimmed to the level's slot cap.
 STEP = {1: 0, 3: 0, 5: 1, 7: 1, 9: 1, 10: 2, 11: 2, 20: 2, 35: 3, 50: 4, 75: 5, 100: 6}
+# Health pass levels (2026-11-05, band curves): every level 1-10 is its own band (the early ramp, 3 -> 11 hero actions,
+# moves inside a region), then one value per 5-level region band, solved at its midpoint.
+HEALTH_LEVELS = list(range(1, 11)) + list(range(13, 99, 5))
+
+def step_for(level):
+    """Ladder step a player has by `level`: the STEP entry at or below it."""
+    return STEP[max(l for l in STEP if l <= level)]
 # Legacy single-fight win-rate targets: used only by the deprecated damage pass; --check prints them for reference.
 WR = {10: 99.1, 20: 97.1, 35: 93.6, 50: 89.4, 75: 79.2, 100: 1.5}
 TARGETS = json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balance-targets.json'), encoding='utf-8'))
@@ -58,17 +65,19 @@ def turns_tolerance(level):
 BUILDS = [b['id'] for b in json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'build-ladders.json'), encoding='utf-8'))['builds']]
 TMP = tempfile.mkdtemp(prefix='mcs-')
 
-def load(): return json.load(open(PATCH, encoding='utf-8'))
-def save(d): json.dump(d, open(PATCH, 'w', encoding='utf-8'), indent=2, ensure_ascii=False)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import balancepatch as bp
+def load(): return bp.resolve(PATCH)
+def save(d): bp.write_patch(PATCH, d, base=bp.base_name(PATCH))   # an overlay patch stays an overlay
 
 def one(build, level, sets, tag):
     out = os.path.join(TMP, f'{tag}-{build}-L{level}.json')
-    args = ['dotnet', DLL, 'BUILDLAB', '--patch', ARGS.patch, '--builds', build, '--level', str(level), '--max-step', str(STEP[level]),
+    args = ['dotnet', DLL, 'BUILDLAB', '--patch', ARGS.patch, '--builds', build, '--level', str(level), '--max-step', str(step_for(level)),
             '--level-slots', '--encounters', str(ARGS.encounters), '--enemies', E, '--seed', '1', '--json', out]
     for s in sets: args += ['--set', s]
     subprocess.run(args, cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
-        rows = [r for r in json.load(open(out, encoding='utf-8')) if r['Step'] == STEP[level]]
+        rows = [r for r in json.load(open(out, encoding='utf-8')) if r['Step'] == step_for(level)]
         return rows[0] if rows else None
     except Exception:
         return None
@@ -83,18 +92,19 @@ def chosen(levels):
     return [l for l in sorted(levels) if not pick or l in pick]
 
 def health_pass():
-    d = load(); anchors = {a['level']: a for a in d['enemySystem']['healthCurve']['anchors']}
-    for l in chosen(l for l in STEP if l in anchors):
+    d = load(); curve = bp.get_curve(d, 'health'); curve['enabled'] = True
+    for l in chosen(HEALTH_LEVELS):
         rows = median_at(l, ['enemySystem.damageCurve.baseMultiplier=0.05'], f'h{l}')
         if not rows: print(f'health L{l}: no data', flush=True); continue
         turns = statistics.median(r['HeroTurns'] for r in rows)
-        old = anchors[l]['multiplier']; new = round(old * (turns_target(l) / max(0.5, turns)) ** 0.9, 3)
-        anchors[l]['multiplier'] = new
-        print(f'health L{l}: median build {turns:.1f} turns (target {turns_target(l):.1f}, {len(rows)} builds)  {old} -> {new}', flush=True)
+        old = bp.band_value(curve, l); new = round(old * (turns_target(l) / max(0.5, turns)) ** 0.9, 4)
+        lo, hi = (l, l) if l <= 10 else bp.region_band(l)
+        bp.set_range(curve, lo, hi, new)
+        print(f'health L{lo}-{hi}: median build {turns:.1f} turns (target {turns_target(l):.1f}, {len(rows)} builds)  {old:.4f} -> {new}', flush=True)
     save(d)
 
 def damage_pass():
-    d = load(); anchors = {a['level']: a for a in d['enemySystem']['damageCurve']['anchors']}
+    raise SystemExit("The single-fight win-rate damage pass was removed 2026-11-05 (curves are bands now): solve clear rate with Scripts/bo-solve.py.")
     for l in chosen(WR):
         target = WR[l] / 100.0
         def wr(f):
@@ -137,12 +147,12 @@ def check():
                 per[name] = {'heroTurns': round(statistics.median(x['HeroTurns'] for x in pe), 2),
                              'heroTurnsP90': round(statistics.median(x['HeroTurnsP90'] for x in pe), 2),
                              'winRate': round(statistics.median(x['WinRate'] for x in pe) * 100, 2)}
-        out.append({'level': l, 'step': STEP[l], 'builds': len(rows), 'heroTurns': round(t, 2), 'heroTurnsTarget': round(turns_target(l), 2), 'heroTurnsTolerance': round(turns_tolerance(l), 2), 'winRate': round(w, 2), 'perEnemy': per})
+        out.append({'level': l, 'step': step_for(l), 'builds': len(rows), 'heroTurns': round(t, 2), 'heroTurnsTarget': round(turns_target(l), 2), 'heroTurnsTolerance': round(turns_tolerance(l), 2), 'winRate': round(w, 2), 'perEnemy': per})
         spread = ''
         if per:
             slow = max(per, key=lambda k: per[k]['heroTurns']); fast = min(per, key=lambda k: per[k]['heroTurns'])
             spread = f"  slowest {slow} {per[slow]['heroTurns']:.1f} (p90 {per[slow]['heroTurnsP90']:.0f}), fastest {fast} {per[fast]['heroTurns']:.1f}"
-        print(f"L{l:<5}{STEP[l]:>5}{t:8.1f}{turns_target(l):8.1f}{w:8.1f}{WR.get(l, float('nan')):8.1f}  {'PASS' if good_t and good_w else 'FAIL'}{spread}")
+        print(f"L{l:<5}{step_for(l):>5}{t:8.1f}{turns_target(l):8.1f}{w:8.1f}{WR.get(l, float('nan')):8.1f}  {'PASS' if good_t and good_w else 'FAIL'}{spread}")
     print(f'{ok} of {n} levels on target (median of {len(BUILDS)} catalog builds)')
     if ARGS.json:
         json.dump(out, open(ARGS.json, 'w', encoding='utf-8'), indent=1)

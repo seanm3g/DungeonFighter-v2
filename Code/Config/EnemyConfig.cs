@@ -81,113 +81,16 @@ namespace RPGGame
         public int ArmorBonus { get; set; }
     }
 
-    /// <summary>
-    /// Stat conversion rates configuration
-    /// </summary>
-    public class StatConversionRatesConfig
-    {
-        public double StrengthPerPoint { get; set; }
-        public double AgilityPerPoint { get; set; }
-        public double TechniquePerPoint { get; set; }
-        public double IntelligencePerPoint { get; set; }
-        public double HealthPerPoint { get; set; }
-        public double ArmorPerPoint { get; set; }
-    }
 
-    /// <summary>
-    /// DPS balance validation configuration
-    /// </summary>
-    public class DPSBalanceValidationConfig
-    {
-    }
 
-    /// <summary>
-    /// Sustain balance configuration
-    /// </summary>
-    public class SustainBalanceConfig
-    {
-        public string Description { get; set; } = "";
-        public TargetActionsToKillConfig TargetActionsToKill { get; set; } = new();
-        public DPSToSustainRatioConfig DPSToSustainRatio { get; set; } = new();
-        public SpeedToDamageRatioConfig SpeedToDamageRatio { get; set; } = new();
-        public HealthToArmorRatioConfig HealthToArmorRatio { get; set; } = new();
-        public AttributeGainRatioConfig AttributeGainRatio { get; set; } = new();
-        public SustainScalingConfig SustainScaling { get; set; } = new();
-        public SustainBalanceValidationConfig BalanceValidation { get; set; } = new();
-    }
 
-    /// <summary>
-    /// Target actions to kill configuration
-    /// </summary>
-    public class TargetActionsToKillConfig
-    {
-        public string Formula { get; set; } = "";
-    }
 
-    /// <summary>
-    /// DPS to sustain ratio configuration
-    /// </summary>
-    public class DPSToSustainRatioConfig
-    {
-        public string Description { get; set; } = "";
-        public Dictionary<string, double> ArchetypeModifiers { get; set; } = new();
-    }
 
-    /// <summary>
-    /// Speed to damage ratio configuration
-    /// </summary>
-    public class SpeedToDamageRatioConfig
-    {
-        public string Description { get; set; } = "";
-        public Dictionary<string, double> ArchetypeModifiers { get; set; } = new();
-    }
 
-    /// <summary>
-    /// Health to armor ratio configuration
-    /// </summary>
-    public class HealthToArmorRatioConfig
-    {
-        public string Description { get; set; } = "";
-        public Dictionary<string, double> ArchetypeModifiers { get; set; } = new();
-    }
 
-    /// <summary>
-    /// Attribute gain ratio configuration
-    /// </summary>
-    public class AttributeGainRatioConfig
-    {
-        public string Description { get; set; } = "";
-        public Dictionary<string, double> ArchetypeModifiers { get; set; } = new();
-    }
 
-    /// <summary>
-    /// Sustain scaling configuration
-    /// </summary>
-    public class SustainScalingConfig
-    {
-        public double HealthPerLevel { get; set; }
-        public string Description { get; set; } = "";
-    }
 
-    /// <summary>
-    /// Sustain balance validation configuration
-    /// </summary>
-    public class SustainBalanceValidationConfig
-    {
-    }
 
-    /// <summary>
-    /// Base stats configuration
-    /// </summary>
-    public class BaseStatsConfig
-    {
-        public int Health { get; set; }
-        public int Strength { get; set; }
-        public int Agility { get; set; }
-        public int Technique { get; set; }
-        public int Intelligence { get; set; }
-        public int Armor { get; set; }
-    }
 
     /// <summary>
     /// Scaling per level configuration
@@ -199,27 +102,7 @@ namespace RPGGame
         public double Armor { get; set; }
     }
 
-    /// <summary>
-    /// Enemy archetype configuration
-    /// </summary>
-    public class EnemyArchetypeConfig
-    {
-        public StatMultipliersConfig StatMultipliers { get; set; } = new();
-        public string Description { get; set; } = "";
-    }
 
-    /// <summary>
-    /// Stat multipliers configuration
-    /// </summary>
-    public class StatMultipliersConfig
-    {
-        public double Health { get; set; } = 1.0;
-        public double Strength { get; set; } = 1.0;
-        public double Agility { get; set; } = 1.0;
-        public double Technique { get; set; } = 1.0;
-        public double Intelligence { get; set; } = 1.0;
-        public double Armor { get; set; } = 1.0;
-    }
 
 
     /// <summary>
@@ -433,15 +316,37 @@ namespace RPGGame
         /// </summary>
         public List<EnemyDamageCurveAnchor> Anchors { get; set; } = new();
 
+        /// <summary>
+        /// Step values by level range: the form balance solves use (one value per 5-level region band). When present it
+        /// replaces <see cref="Anchors"/>; a level outside every band takes the nearest band's value. × <see cref="BaseMultiplier"/>.
+        /// </summary>
+        public List<CurveBand> Bands { get; set; } = new();
+
         public double MultiplierAt(int level)
         {
             if (!Enabled)
                 return 1.0;
+            if (Bands != null && Bands.Count > 0)
+                return Math.Max(0.0, BaseMultiplier) * BandValueAt(level);
             if (Anchors != null && Anchors.Count > 0)
                 return Math.Max(0.0, BaseMultiplier) * InterpolateAnchors(level);
             double lv = Math.Max(0, level - 1);
             double exp = Exponent > 0 ? Exponent : 1.0;
             return Math.Max(0.0, BaseMultiplier) * (1.0 + GrowthPerLevel * Math.Pow(lv, exp));
+        }
+
+        private double BandValueAt(int level)
+        {
+            CurveBand? nearest = null;
+            int best = int.MaxValue;
+            foreach (var b in Bands)
+            {
+                if (level >= b.From && level <= b.To)
+                    return b.Multiplier;
+                int d = level < b.From ? b.From - level : level - b.To;
+                if (d < best) { best = d; nearest = b; }
+            }
+            return nearest?.Multiplier ?? 1.0;
         }
 
         private double InterpolateAnchors(int level)
@@ -466,6 +371,14 @@ namespace RPGGame
         }
     }
 
+    /// <summary>One step of a level curve: levels <see cref="From"/>..<see cref="To"/> (inclusive) take <see cref="Multiplier"/>.</summary>
+    public class CurveBand
+    {
+        public int From { get; set; }
+        public int To { get; set; }
+        public double Multiplier { get; set; } = 1.0;
+    }
+
     public class EnemyDamageCurveAnchor
     {
         public int Level { get; set; }
@@ -474,7 +387,20 @@ namespace RPGGame
 
     public class EnemySystemConfig
     {
-        public GlobalMultipliersConfig GlobalMultipliers { get; set; } = new();
+        /// <summary>
+        /// Scales enemy STR / TEC / INT after level growth (accuracy, combo strength, displayed strength). With identity
+        /// mode on, hit damage comes from the identity reference and the damage curve, not from STR. Was
+        /// <c>globalMultipliers.damageMultiplier</c>.
+        /// </summary>
+        public double AttributeScale { get; set; } = 1.0;
+        /// <summary>Scales enemy armor after level growth (the roll-feel setting writes it). Was <c>globalMultipliers.armorMultiplier</c>.</summary>
+        public double ArmorScale { get; set; } = 1.0;
+        /// <summary>
+        /// Legacy block, read from old patches only and migrated by <see cref="EnsureSanitizedDefaults"/>: damage → <see cref="AttributeScale"/>,
+        /// armor → <see cref="ArmorScale"/>, health → <see cref="HealthCurve"/> base multiplier; speed was 1.0 in every patch and is dropped.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+        public GlobalMultipliersConfig? GlobalMultipliers { get; set; }
         public EnemyProgressionScalesConfig ProgressionScales { get; set; } = new();
         public BaselineStatsConfig BaselineStats { get; set; } = new();
         /// <summary>Opt-in enemy outgoing damage curve by enemy level (shapes win rate across levels).</summary>
@@ -525,8 +451,22 @@ namespace RPGGame
 
         public void EnsureSanitizedDefaults()
         {
-            GlobalMultipliers ??= new GlobalMultipliersConfig();
-            GlobalMultipliers.EnsurePositiveMultipliers();
+            if (GlobalMultipliers != null)
+            {
+                var g = GlobalMultipliers;
+                g.EnsurePositiveMultipliers();
+                AttributeScale = g.DamageMultiplier;
+                ArmorScale = g.ArmorMultiplier;
+                if (Math.Abs(g.HealthMultiplier - 1.0) > 1e-9)
+                {
+                    HealthCurve ??= new EnemyDamageCurveConfig();
+                    if (!HealthCurve.Enabled) { HealthCurve.Enabled = true; HealthCurve.Anchors = new(); HealthCurve.Bands = new(); HealthCurve.GrowthPerLevel = 0; HealthCurve.BaseMultiplier = 1.0; }
+                    HealthCurve.BaseMultiplier *= g.HealthMultiplier;
+                }
+                GlobalMultipliers = null;
+            }
+            if (AttributeScale <= 0) AttributeScale = 1.0;
+            if (ArmorScale <= 0) ArmorScale = 1.0;
             ProgressionScales ??= new EnemyProgressionScalesConfig();
             ProgressionScales.EnsurePositiveScales();
             SpawnTierWeights ??= new EnemySpawnTierWeightsConfig();
@@ -593,6 +533,7 @@ namespace RPGGame
     /// <summary>
     /// Global multipliers applied to all enemies
     /// </summary>
+    /// <summary>Legacy (pre-2026-11-05 patches): see <see cref="EnemySystemConfig.GlobalMultipliers"/>.</summary>
     public class GlobalMultipliersConfig
     {
         public double HealthMultiplier { get; set; } = 1.0;
@@ -649,12 +590,6 @@ namespace RPGGame
         }
     }
 
-    /// <summary>
-    /// Alias for BaselineStatsConfig (legacy compatibility)
-    /// </summary>
-    public class EnemyBaselineConfig : BaselineStatsConfig
-    {
-    }
 
     /// <summary>
     /// Stat multipliers for each archetype

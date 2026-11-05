@@ -22,7 +22,6 @@ namespace RPGGame
         {
             var baseline = enemySystem.BaselineStats;
             var scaling = enemySystem.ScalingPerLevel;
-            var global = enemySystem.GlobalMultipliers;
 
             var archetype = enemySystem.Archetypes.GetValueOrDefault(enemyData.Archetype);
             if (archetype == null)
@@ -77,11 +76,11 @@ namespace RPGGame
                 runtimeHealthMult = 1.0;
             int finalHealth = EnemyProgressionCurveEvaluator.ApplyFinalHealthMultipliers(
                 levelScaledHealth, enemySystem, level);
-            int finalStrength = Math.Max(0, FloorToInt(levelScaledStrength * global.DamageMultiplier));
-            int finalAgility = Math.Max(0, FloorToInt(levelScaledAgility * global.SpeedMultiplier));
-            int finalTechnique = Math.Max(0, FloorToInt(levelScaledTechnique * global.DamageMultiplier));
-            int finalIntelligence = Math.Max(0, FloorToInt(levelScaledIntelligence * global.DamageMultiplier));
-            int finalArmor = Math.Max(0, FloorToInt(levelScaledArmor * global.ArmorMultiplier));
+            int finalStrength = Math.Max(0, FloorToInt(levelScaledStrength * enemySystem.AttributeScale));
+            int finalAgility = Math.Max(0, levelScaledAgility);
+            int finalTechnique = Math.Max(0, FloorToInt(levelScaledTechnique * enemySystem.AttributeScale));
+            int finalIntelligence = Math.Max(0, FloorToInt(levelScaledIntelligence * enemySystem.AttributeScale));
+            int finalArmor = Math.Max(0, FloorToInt(levelScaledArmor * enemySystem.ArmorScale));
 
             var primaryAttribute = DeterminePrimaryAttribute(finalStrength, finalAgility, finalTechnique, finalIntelligence);
 

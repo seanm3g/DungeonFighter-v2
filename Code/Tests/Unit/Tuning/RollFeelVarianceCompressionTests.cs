@@ -57,6 +57,7 @@ namespace RPGGame.Tests.Unit.Tuning
             SaveSnapshot(cfg, out var snap);
             try
             {
+                int snapBefore0 = cfg.Combat.MaximumDamageCap;
                 RollFeelVarianceCompression.Apply(0, cfg);
                 TestBase.AssertEqual(0, cfg.CombatBalance.RollFeelVarianceCompression,
                     "Stores compression value", ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -68,10 +69,10 @@ namespace RPGGame.Tests.Unit.Tuning
                     "Basic roll multiplier stays 1.0", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(0, cfg.Combat.PlayerBaseArmor,
                     "Chaotic player armor baseline", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(0.5, cfg.EnemySystem.GlobalMultipliers.ArmorMultiplier,
+                TestBase.AssertEqual(0.5, cfg.EnemySystem.ArmorScale,
                     "Chaotic enemy armor mult", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(1500, cfg.Combat.MaximumDamageCap,
-                    "Chaotic high damage cap", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(snapBefore0, cfg.Combat.MaximumDamageCap,
+                    "Roll feel leaves the hero damage cap alone", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(1, cfg.Combat.MinimumDamage,
                     "Chaotic low damage floor", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
@@ -88,6 +89,7 @@ namespace RPGGame.Tests.Unit.Tuning
             SaveSnapshot(cfg, out var snap);
             try
             {
+                int snapBefore1 = cfg.Combat.MaximumDamageCap;
                 RollFeelVarianceCompression.Apply(1, cfg);
                 TestBase.AssertEqual(1.2, cfg.CombatBalance.CriticalHitDamageMultiplier,
                     "Regular crit multiplier", ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -95,10 +97,10 @@ namespace RPGGame.Tests.Unit.Tuning
                     "Regular combo multiplier stays 1.0 (no raw band amplify)", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(12, cfg.Combat.PlayerBaseArmor,
                     "Regular player armor baseline", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(1.5, cfg.EnemySystem.GlobalMultipliers.ArmorMultiplier,
+                TestBase.AssertEqual(1.5, cfg.EnemySystem.ArmorScale,
                     "Regular enemy armor mult", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(400, cfg.Combat.MaximumDamageCap,
-                    "Regular lower damage cap", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(snapBefore1, cfg.Combat.MaximumDamageCap,
+                    "Roll feel leaves the hero damage cap alone", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(4, cfg.Combat.MinimumDamage,
                     "Regular higher damage floor", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
@@ -175,7 +177,7 @@ namespace RPGGame.Tests.Unit.Tuning
                 ComboMult = cfg.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier,
                 BasicMult = cfg.CombatBalance.RollDamageMultipliers.BasicRollDamageMultiplier,
                 PlayerArmor = cfg.Combat.PlayerBaseArmor,
-                EnemyArmorMult = cfg.EnemySystem.GlobalMultipliers.ArmorMultiplier,
+                EnemyArmorMult = cfg.EnemySystem.ArmorScale,
                 DamageCap = cfg.Combat.MaximumDamageCap,
                 MinDamage = cfg.Combat.MinimumDamage,
                 ArmorReductionFactor = cfg.Combat.ArmorReductionFactor
@@ -189,7 +191,7 @@ namespace RPGGame.Tests.Unit.Tuning
             cfg.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier = snap.ComboMult;
             cfg.CombatBalance.RollDamageMultipliers.BasicRollDamageMultiplier = snap.BasicMult;
             cfg.Combat.PlayerBaseArmor = snap.PlayerArmor;
-            cfg.EnemySystem.GlobalMultipliers.ArmorMultiplier = snap.EnemyArmorMult;
+            cfg.EnemySystem.ArmorScale = snap.EnemyArmorMult;
             cfg.Combat.MaximumDamageCap = snap.DamageCap;
             cfg.Combat.MinimumDamage = snap.MinDamage;
             cfg.Combat.ArmorReductionFactor = snap.ArmorReductionFactor;

@@ -47,7 +47,6 @@ namespace RPGGame
                 Console.WriteLine("Test 4: Configuration status");
                 var tuning = GameConfiguration.Instance;
                 Console.WriteLine($"ItemScaling configured: {tuning.ItemScaling != null}");
-                Console.WriteLine($"EnemyScaling configured: {tuning.EnemyScaling != null}");
                 Console.WriteLine();
 
                 Console.WriteLine("=== ALL TESTS COMPLETED ===");

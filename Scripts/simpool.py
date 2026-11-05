@@ -23,9 +23,37 @@ SIM_SKIP = {'Audio', 'Video', 'CombatLogs', 'LabSnapshots', 'TuningRuns', 'ItemA
 UPLOAD_SKIP = SIM_SKIP | {'secrets', 'SheetsOAuthToken'}
 
 
+SPARK_DEFAULT_SLOTS = 18
+
+
+def spark_slots_arg(value):
+    """--spark value: an int, or 'auto' (the default): SPARK_DEFAULT_SLOTS when `ssh <DF_SPARK_HOST or spark>` answers
+    within a few seconds, else 0. DF_SPARK=0 forces local; DF_SPARK=N forces N. The probe runs once per process."""
+    env = os.environ.get('DF_SPARK')
+    if str(value).lower() != 'auto':
+        return int(value)
+    if env not in (None, '', 'auto'):
+        return int(env)
+    global _SPARK_PROBE
+    if _SPARK_PROBE is None:
+        host = os.environ.get('DF_SPARK_HOST', 'spark')
+        try:
+            ok = subprocess.run(['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=4', host, 'true'],
+                                capture_output=True, timeout=10).returncode == 0
+        except Exception:
+            ok = False
+        _SPARK_PROBE = SPARK_DEFAULT_SLOTS if ok else 0
+        print(f'Spark: {"reachable, " + str(_SPARK_PROBE) + " slots" if ok else "not reachable, local only"} (--spark auto)', flush=True)
+    return _SPARK_PROBE
+
+
+_SPARK_PROBE = None
+
+
 def add_args(ap):
     """The pool's CLI flags, shared by every script that uses it."""
-    ap.add_argument('--spark', type=int, default=0, help='also run this many shards at once on the DGX Spark (0 = local only; ~18 fits its 20 cores)')
+    ap.add_argument('--spark', type=spark_slots_arg, default='auto',
+                    help="shards to run at once on the DGX Spark: auto (default: %d if `ssh spark` answers, else 0), 0 = local only, or N" % SPARK_DEFAULT_SLOTS)
     ap.add_argument('--spark-host', default='spark', help='ssh host of the Spark (an ~/.ssh/config alias)')
 
 

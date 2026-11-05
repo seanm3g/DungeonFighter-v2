@@ -48,8 +48,8 @@ param(
     [switch]$SkipDungeonSim,
     # 8 shards x 2 heroes = 16 heroes per class (fewer swing class reads by +/-10 pts).
     [int]$DungeonSimShards = 8,
-    # DGX Spark slots for the dungeon-sim rows (Scripts/simpool.py --spark).
-    [int]$Spark = 0
+    # DGX Spark slots for the dungeon-sim rows: -1 = auto (the Spark when `ssh spark` answers), 0 = local only, N.
+    [int]$Spark = -1
 )
 if ($Smart) { $Bot = "smart" }
 
@@ -131,7 +131,7 @@ if ($targets.realClearAnchors -and -not $SkipDungeonSim) {
         ForEach-Object { 5 * [math]::Floor(($_ - 1) / 5) + 3 } | Sort-Object -Unique)
     if ($dsimLevels.Count -gt 0) {
         $dsimArgs = @("`"$(Join-Path $repo 'Scripts/dungeon-sim.py')`"", "--levels", ($dsimLevels -join ","), "--patch", $Patch, "--tools", "`"$toolsDir`"", "--shards", $DungeonSimShards, "--json", "`"$dsimJson`"")
-        if ($Spark -gt 0) { $dsimArgs += @("--spark", $Spark) }
+        if ($Spark -ge 0) { $dsimArgs += @("--spark", $Spark) }   # -1 (default) = auto: the Spark when it answers
         $jobs += Start-Process python -ArgumentList $dsimArgs `
             -WorkingDirectory $repo -RedirectStandardOutput (Join-Path $work "dungeon-sim.log") -NoNewWindow -PassThru
     }
@@ -301,7 +301,8 @@ if (-not $SkipSurvival) {
     if ($smartBot.Dungeons -gt 0) {
         $clearReal = 100.0 * (1 - $smartBot.Losses / [double]$smartBot.Dungeons)
         # realClearTarget: retreat-aware playthrough target; the anchors stay per-fight solver targets.
-        $clearTarget = if ($null -ne $targets.realClearTarget) { [double]$targets.realClearTarget } else { Get-TargetWinRate $lvl }
+        $anchorAtLvl = $targets.realClearAnchors | Where-Object { [int]$_.level -eq $lvl } | Select-Object -First 1
+        $clearTarget = if ($anchorAtLvl) { [double]$anchorAtLvl.clear } elseif ($null -ne $targets.realClearTarget) { [double]$targets.realClearTarget } else { Get-TargetWinRate $lvl }
         $ci = Get-Wilson ($smartBot.Dungeons - $smartBot.Losses) $smartBot.Dungeons
         $lo = $clearTarget - $targets.realClearTolerance; $hi = $clearTarget + $targets.realClearTolerance
         Add-Check "L$lvl real dungeon clear" ("{0:N1}% [{1:N0}-{2:N0}] n={3}" -f $clearReal, $ci[0], $ci[1], $smartBot.Dungeons) ("{0:N1}% +/- {1}" -f $clearTarget, $targets.realClearTolerance) ([math]::Abs($clearReal - $clearTarget) -le $targets.realClearTolerance) ($ci[1] -ge $lo -and $ci[0] -le $hi)

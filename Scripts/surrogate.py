@@ -312,7 +312,9 @@ def cmd_check(A):
     knobs = parse_sets(A.set)
     pred = predict(b, A.level, CLASSES, knobs)
     patch_name = b['basePatch']
-    d = json.load(open(os.path.join(ROOT, 'GameData', 'Patches', 'Balance', patch_name + '.json'), encoding='utf-8-sig'))
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import balancepatch as bp
+    d = bp.resolve(patch_name)
     for k, s in knobs.items():
         for c in (CLASSES if '{class}' in KNOB_PATHS[k] else ['']):
             scale_path(d, KNOB_PATHS[k].replace('{class}', c.lower()), s, k in INT_KNOBS)
