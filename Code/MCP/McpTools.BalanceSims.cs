@@ -32,20 +32,33 @@ namespace RPGGame.MCP
             [Description("Folder with DF.dll (default: this server's build)")] string? toolsDir = null)
             => Tools.BalanceSimTools.StartDungeonSim(levels, patch, shards, runs, dungeons, seed, classes, bot, regionMix, regionTheme, anchors, toolsDir);
 
-        [McpServerTool(Name = "start_bo_solve", Title = "Start Bayesian Damage Solve")]
-        [Description("Background job: Scripts/bo-solve.py solves the enemy damage anchor (whole 5-level band by default) for a target dungeon clear rate. Run at a band midpoint (8, 13, 18, 33, 48...). Prints the band anchors to write into a NEW candidate patch; confirm with start_dungeon_sim on a fresh seed.")]
+        [McpServerTool(Name = "start_balance_loop", Title = "Start Balance Loop")]
+        [Description("Background job: Scripts/balance-loop.py, the main balance tool. measure = fresh-seed clear / hero actions / class spread per band vs targets (optionally against ref); solve = bo-solve every band (or class x band) off target for one knob, paired confirm on other fresh seeds, keep what beats noise, write an overlay patch named next; botcheck = rules bot vs median build kill speed. Results in GameData/TuningRuns/balance-loop/<run>/.")]
+        public static Task<string> StartBalanceLoop(
+            [Description("measure, solve or botcheck")] string command,
+            [Description("Balance patch name")] string patch,
+            [Description("solve: damage, health or class")] string? knob = null,
+            [Description("solve: name of the patch to write (an overlay of patch)")] string? next = null,
+            [Description("measure: reference patch to compare on the same seeds")] string? reference = null,
+            [Description("measure / botcheck: comma list of fresh seeds")] string? seeds = null,
+            [Description("Run folder name (default: today's date)")] string? run = null,
+            [Description("Folder with DF.dll (default: this server's build)")] string? toolsDir = null)
+            => Tools.BalanceSimTools.StartBalanceLoop(command, patch, knob, next, reference, seeds, run, toolsDir);
+
+        [McpServerTool(Name = "start_bo_solve", Title = "Start Bayesian Band Solve")]
+        [Description("Background job: Scripts/bo-solve.py solves one 5-level region band of a curve for a target. knob = damage (enemy damage, clear %), health (enemy health, hero actions per fight) or class:<Class> (that class's hero damage, its clear %). Run at a band midpoint (8, 13, 18, 33, 48...). Prefer start_balance_loop solve, which also confirms and writes the patch.")]
         public static Task<string> StartBoSolve(
             [Description("Hero level (band midpoint)")] int level,
-            [Description("Target clear % (default: realClearAnchors at this level)")] double? target = null,
+            [Description("Target (default from balance-targets.json at this level)")] double? target = null,
             [Description("Balance patch name (default: active patch)")] string? patch = null,
-            [Description("band (default) or level")] string? scope = null,
-            [Description("DGX Spark slots over ssh (0 = local only)")] int spark = 0,
+            [Description("damage (default), health or class:<Class>")] string? knob = null,
+            [Description("DGX Spark slots (-1 = auto: the Spark when it answers; 0 = local only)")] int spark = -1,
             [Description("Seed base; each round uses fresh heroes (default 11)")] int seed = 11,
             [Description("Stop when the 90% interval is within +/- this fraction (default 0.10)")] double tolerance = 0.10,
             [Description("Max rounds (default 12)")] int maxRounds = 12,
             [Description("Other damage anchor overrides 'L=multiplier,...'")] string? anchors = null,
             [Description("Folder with DF.dll (default: this server's build)")] string? toolsDir = null)
-            => Tools.BalanceSimTools.StartBoSolve(level, target, patch, scope, spark, seed, tolerance, maxRounds, anchors, toolsDir);
+            => Tools.BalanceSimTools.StartBoSolve(level, target, patch, knob, spark, seed, tolerance, maxRounds, anchors, toolsDir);
 
         [McpServerTool(Name = "start_balance_scan", Title = "Start Balance Scan")]
         [Description("Background job (~8 min): Scripts/balance-scan.py. Median catalog build grid (BUILDLAB) at every matrix level plus a small DUNGEONSIM sample; ranked problem areas with the focus command to run next. Dungeon rows are a few heroes: gross misses only.")]

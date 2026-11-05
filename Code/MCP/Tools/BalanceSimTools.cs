@@ -97,15 +97,27 @@ namespace RPGGame.MCP.Tools
             return Start("dungeon-sim", args, toolsDir, jsonFlag: "--json");
         }
 
-        public static Task<string> StartBoSolve(int level, double? target, string? patch, string? scope, int spark,
+        public static Task<string> StartBalanceLoop(string command, string patch, string? knob, string? next, string? reference,
+            string? seeds, string? run, string? toolsDir)
+        {
+            var args = new List<string> { "Scripts/balance-loop.py", command, "--patch", patch };
+            AddOpt(args, "--knob", knob);
+            AddOpt(args, "--next", next);
+            AddOpt(args, "--ref", reference);
+            AddOpt(args, "--seeds", seeds);
+            AddOpt(args, "--run", run);
+            return Start("balance-loop", args, toolsDir, jsonFlag: null);
+        }
+
+        public static Task<string> StartBoSolve(int level, double? target, string? patch, string? knob, int spark,
             int seed, double tolerance, int maxRounds, string? anchors, string? toolsDir)
         {
             var args = new List<string> { "Scripts/bo-solve.py", "--level", level.ToString(), "--seed", seed.ToString(),
                 "--tolerance", tolerance.ToString(System.Globalization.CultureInfo.InvariantCulture), "--max-rounds", maxRounds.ToString() };
             if (target is double t) { args.Add("--target"); args.Add(t.ToString(System.Globalization.CultureInfo.InvariantCulture)); }
             AddOpt(args, "--patch", patch);
-            AddOpt(args, "--scope", scope);
-            if (spark > 0) { args.Add("--spark"); args.Add(spark.ToString()); }
+            AddOpt(args, "--knob", knob);
+            if (spark >= 0) { args.Add("--spark"); args.Add(spark.ToString()); }
             AddAnchors(args, anchors);
             return Start("bo-solve", args, toolsDir, jsonFlag: "--json");
         }
@@ -193,7 +205,7 @@ namespace RPGGame.MCP.Tools
 
         // ---------- internals ----------
 
-        private static Task<string> Start(string kind, List<string> scriptArgs, string? toolsDir, string jsonFlag) =>
+        private static Task<string> Start(string kind, List<string> scriptArgs, string? toolsDir, string? jsonFlag) =>
             McpToolExecutor.ExecuteAsync(() =>
             {
                 var running = Jobs.Values.FirstOrDefault(j => j.Running);
@@ -214,7 +226,8 @@ namespace RPGGame.MCP.Tools
                 Directory.CreateDirectory(runsDir);
                 string jsonPath = Path.Combine(runsDir, $"mcp-{id}-{DateTime.Now:yyyyMMdd-HHmmss}.json");
 
-                var args = new List<string>(scriptArgs) { "--tools", tools, jsonFlag, jsonPath };
+                var args = new List<string>(scriptArgs) { "--tools", tools };
+                if (jsonFlag != null) { args.Add(jsonFlag); args.Add(jsonPath); }
                 string python = System.Environment.GetEnvironmentVariable("DF_PYTHON") is { Length: > 0 } p ? p : "python";
 
                 var psi = new ProcessStartInfo(python)
@@ -239,7 +252,7 @@ namespace RPGGame.MCP.Tools
                     Id = id,
                     Kind = kind,
                     CommandLine = python + " -u " + string.Join(" ", args.Select(a => a.Contains(' ') ? $"\"{a}\"" : a)),
-                    JsonPath = jsonPath,
+                    JsonPath = jsonFlag != null ? jsonPath : null,
                     StartedUtc = DateTime.UtcNow
                 };
 
