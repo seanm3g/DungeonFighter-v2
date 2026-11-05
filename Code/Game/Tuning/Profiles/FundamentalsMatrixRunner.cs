@@ -67,7 +67,7 @@ namespace RPGGame.Tuning.Profiles
             ApplyPatchFlag(args);
             int level = TuningCliArgs.GetIntFlag(args, "--level") ?? 1;
             int encounters = TuningCliArgs.GetIntFlag(args, "--encounters", "-e") ?? 200;
-            int seed = TuningCliArgs.GetIntFlag(args, "--seed") ?? 1;
+            int seed = TuningCliArgs.GetSeedFlag(args) ?? 1;
             double target = ParseDouble(TuningCliArgs.GetFlagValue(args, "--target-turns")) ?? 11.0;
             string label = TuningCliArgs.GetFlagValue(args, "--label") ?? "run";
             string gear = TuningCliArgs.GetFlagValue(args, "--gear") ?? "none";
@@ -202,7 +202,7 @@ namespace RPGGame.Tuning.Profiles
         {
             ApplyPatchFlag(args);
             int level = TuningCliArgs.GetIntFlag(args, "--level") ?? 1;
-            int seed = TuningCliArgs.GetIntFlag(args, "--seed") ?? 1;
+            int seed = TuningCliArgs.GetSeedFlag(args) ?? 1;
             int fights = TuningCliArgs.GetIntFlag(args, "--fights") ?? 1;
             ApplySetFlags(args);
 

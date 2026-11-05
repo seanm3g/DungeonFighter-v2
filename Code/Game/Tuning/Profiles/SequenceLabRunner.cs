@@ -124,7 +124,7 @@ namespace RPGGame.Tuning.Profiles
             string enemy = TuningCliArgs.GetFlagValue(args, "--enemy") ?? "Goblin";
             int level = TuningCliArgs.GetIntFlag(args, "--level") ?? 1;
             int encounters = TuningCliArgs.GetIntFlag(args, "--encounters", "-e") ?? 200;
-            int seed = TuningCliArgs.GetIntFlag(args, "--seed") ?? 1;
+            int seed = TuningCliArgs.GetSeedFlag(args) ?? 1;
 
             var sequences = new List<List<string>>();
             for (int i = 0; i < args.Length - 1; i++)
@@ -165,7 +165,7 @@ namespace RPGGame.Tuning.Profiles
             Gear = TuningCliArgs.GetFlagValue(args, "--gear") ?? "none";
             int level = TuningCliArgs.GetIntFlag(args, "--level") ?? 1;
             int encounters = TuningCliArgs.GetIntFlag(args, "--encounters", "-e") ?? 150;
-            int seed = TuningCliArgs.GetIntFlag(args, "--seed") ?? 1;
+            int seed = TuningCliArgs.GetSeedFlag(args) ?? 1;
             // Wolf only has plain attacks; Goblin's JAB resets the hero's chain and hides sequence value.
             string enemy = TuningCliArgs.GetFlagValue(args, "--enemy") ?? "Wolf";
             var weapons = (TuningCliArgs.GetFlagValue(args, "--weapons") ?? TuningCliArgs.GetFlagValue(args, "--weapon") ?? "Mace,Sword,Dagger,Wand")

@@ -47,7 +47,7 @@ namespace RPGGame.Tuning
                 throw new ArgumentException("DUNGEONSIM --bot must be smart, rules or basic.");
             string? classes = TuningCliArgs.GetFlagValue(args, "--classes");
             string? jsonPath = TuningCliArgs.GetFlagValue(args, "--json");
-            int? seed = TuningCliArgs.GetIntFlag(args, "--seed");
+            int? seed = TuningCliArgs.GetSeedFlag(args);
 
             ClassPlaythroughRunner.StartAtLevel = level;
             ClassPlaythroughRunner.StartLootPerLevel = TuningCliArgs.GetIntFlag(args, "--start-loot-per-level") ?? ClassPlaythroughRunner.StartLootPerLevel;

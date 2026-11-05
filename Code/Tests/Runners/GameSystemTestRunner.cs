@@ -61,6 +61,7 @@ namespace RPGGame.Tests.Runners
             ("LabBalance", () => RPGGame.Tests.Unit.Tuning.LabBalanceTests.RunAllTests()),
             ("LevelWinRateCurve", () => RPGGame.Tests.Unit.Tuning.LevelWinRateCurveTests.RunAllTests()),
             ("DeveloperSimMode", () => RPGGame.Tests.Unit.Tuning.DeveloperSimModeTests.RunAllTests()),
+            ("TuningCliArgsSeed", () => RPGGame.Tests.Unit.Tuning.TuningCliArgsSeedTests.RunAllTests()),
             ("FundamentalsSimulation", () => RPGGame.Tests.Unit.Tuning.FundamentalsSimulationTests.RunAllTests()),
             ("ClassPlaythrough", () => RPGGame.Tests.Unit.Tuning.ClassPlaythroughBatchTests.RunAllTests()),
             ("EnemyProgressionCurveEvaluator", () => RPGGame.Tests.Unit.Tuning.EnemyProgressionCurveEvaluatorTests.RunAllTests()),

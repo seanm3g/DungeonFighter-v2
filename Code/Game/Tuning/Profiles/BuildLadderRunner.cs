@@ -97,7 +97,7 @@ namespace RPGGame.Tuning.Profiles
         {
             FundamentalsMatrixRunner.ApplySetFlags(args);
             int encounters = TuningCliArgs.GetIntFlag(args, "--encounters", "-e") ?? 40;
-            int seed = TuningCliArgs.GetIntFlag(args, "--seed") ?? 1;
+            int seed = TuningCliArgs.GetSeedFlag(args) ?? 1;
             int? levelOverride = TuningCliArgs.GetIntFlag(args, "--level");
             _traceStep = TuningCliArgs.GetIntFlag(args, "--trace-step");
             _levelSlots = args.Any(a => string.Equals(a, "--level-slots", StringComparison.OrdinalIgnoreCase));

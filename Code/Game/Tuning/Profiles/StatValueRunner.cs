@@ -27,7 +27,7 @@ namespace RPGGame.Tuning.Profiles
             FundamentalsMatrixRunner.ApplySetFlags(args);
             int level = TuningCliArgs.GetIntFlag(args, "--level") ?? 10;
             int encounters = TuningCliArgs.GetIntFlag(args, "--encounters", "-e") ?? 150;
-            int seed = TuningCliArgs.GetIntFlag(args, "--seed") ?? 1;
+            int seed = TuningCliArgs.GetSeedFlag(args) ?? 1;
             string enemy = TuningCliArgs.GetFlagValue(args, "--enemy") ?? "Wolf";
             SequenceLabRunner.Gear = TuningCliArgs.GetFlagValue(args, "--gear") ?? "typical";
             var weapons = (TuningCliArgs.GetFlagValue(args, "--weapons") ?? "Mace,Sword,Dagger,Wand").Split(',', StringSplitOptions.TrimEntries);

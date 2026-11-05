@@ -45,7 +45,7 @@ namespace RPGGame.Tuning.Profiles
             FundamentalsMatrixRunner.ApplySetFlags(args);
             int level = TuningCliArgs.GetIntFlag(args, "--level") ?? 20;
             int encounters = TuningCliArgs.GetIntFlag(args, "--encounters", "-e") ?? 60;
-            int seed = TuningCliArgs.GetIntFlag(args, "--seed") ?? 1;
+            int seed = TuningCliArgs.GetSeedFlag(args) ?? 1;
             int extraSlots = TuningCliArgs.GetIntFlag(args, "--slots") ?? 2;
             var enemies = (TuningCliArgs.GetFlagValue(args, "--enemies") ?? "Wolf,Goblin")
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
