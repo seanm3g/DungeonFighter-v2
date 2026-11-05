@@ -395,7 +395,7 @@ Tools footer **[ Balance ]** opens a third aux window for the foundational balan
 
 **L1 micro-scale try:** active balance patch `l1-micro` shrinks L1 to ~45 HP, attrs 1, armor 0, weapon/min dmg 1 (hits typically ~2–4) while L1 TUNESIM stays near 12 swings / ~26 combined. Revert patch to `7-30-26` anytime. Higher levels not retuned yet.
 
-Tests: `LabBalanceTests`. Docs: `Documentation/LEVEL_BALANCE_TUNING.md`.
+Tests: `LabBalanceTests`. (The TUNESIM workflow and `LEVEL_BALANCE_TUNING.md` were removed 2026-11-04; see `Documentation/BALANCE_PROCESS.md`.)
 
 ### Combat — action Block % (no energy)
 

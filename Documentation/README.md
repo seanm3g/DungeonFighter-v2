@@ -31,12 +31,9 @@ Essential project documentation. For product overview and active tasks, see root
 
 | Document | Purpose |
 |----------|---------|
-| [LEVEL_BALANCE_TUNING.md](LEVEL_BALANCE_TUNING.md) | Profile-driven TUNESIM / TUNEANALYZE / TUNEAPPLY |
-| [BALANCE_TESTING_PHILOSOPHY.md](BALANCE_TESTING_PHILOSOPHY.md) | Balance testing approach |
-| [BALANCE_TUNING_STRATEGY.md](BALANCE_TUNING_STRATEGY.md) | Tuning methodology |
-| [TUNING_FACTORS_ANALYSIS.md](TUNING_FACTORS_ANALYSIS.md) | Which tuning knobs affect outcomes |
+| [BALANCE_PROCESS.md](BALANCE_PROCESS.md) | Scan → focus → confirm → gate with DUNGEONSIM, bo-solve and the median build |
 
-Also: [GameData/TuningProfiles/README.md](../GameData/TuningProfiles/README.md), [GameData/BalancePatches/README.md](../GameData/BalancePatches/README.md)
+Also: [GameData/TuningProfiles/README.md](../GameData/TuningProfiles/README.md)
 
 ## Systems
 
