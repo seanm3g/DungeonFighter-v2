@@ -238,8 +238,9 @@ namespace RPGGame.Tuning.LabBalance
                 return false;
 
             bool ok = TuningSuggestionApplier.Apply(PendingSuggestion);
+            // In-memory apply still drives the Lab sandbox; only the disk write is guarded.
             if (ok && saveConfig)
-                GameConfiguration.Instance.SaveToFile();
+                LegacyTuningWriteGuard.TrySave("Action Lab Balance Apply");
 
             ActionInteractionLabSession.ApplyTuningToActiveLabHeroIfAny(refreshUi: refreshLabUi);
             return ok;

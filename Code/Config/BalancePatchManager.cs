@@ -95,6 +95,11 @@ namespace RPGGame.Config
         {
             try
             {
+                // Legacy GameData/BalancePatches system: applying one overwrites the active
+                // GameData/Patches/Balance patch. Switch patches via PatchProfile.json instead.
+                if (!RPGGame.Tuning.LegacyTuningWriteGuard.Check("BalancePatchManager.ApplyPatch (load_patch)"))
+                    return false;
+
                 var validation = ValidatePatch(patch);
                 if (!validation.IsValid)
                 {

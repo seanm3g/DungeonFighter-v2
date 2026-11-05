@@ -149,6 +149,9 @@ namespace RPGGame.Config
                     return false;
                 }
 
+                if (!RPGGame.Tuning.LegacyTuningWriteGuard.Check("BalanceTuningExportManager.ApplyImportedSettings"))
+                    return false;
+
                 var config = GameConfiguration.Instance;
                 var data = export.Data;
 

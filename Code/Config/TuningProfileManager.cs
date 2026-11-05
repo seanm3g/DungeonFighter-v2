@@ -145,6 +145,9 @@ namespace RPGGame.Config
         {
             try
             {
+                if (!RPGGame.Tuning.LegacyTuningWriteGuard.Check("TuningProfileManager.ApplyProfile"))
+                    return false;
+
                 if (profile.TuningConfig == null)
                 {
                     ScrollDebugLogger.Log($"TuningProfileManager: Profile has no tuning configuration");

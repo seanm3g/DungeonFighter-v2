@@ -374,7 +374,9 @@ namespace RPGGame.Tuning.LabBalance
             if (LabBalanceStatsService.ApplyPendingSuggestion(saveConfig: true))
             {
                 RefreshKnobValues();
-                StatusText = "Suggestion applied and config saved";
+                StatusText = LegacyTuningWriteGuard.WritesAllowed
+                    ? "Suggestion applied and config saved"
+                    : "Suggestion applied in memory only (not saved: legacy tuning writes are blocked to protect the active patch)";
             }
             else
             {

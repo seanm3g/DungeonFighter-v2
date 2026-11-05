@@ -282,6 +282,12 @@ namespace RPGGame.Tuning
                 Impact = suggestion.Impact
             };
 
+            if (!LegacyTuningWriteGuard.Check("TUNEAPPLY"))
+            {
+                Write(sink, BalanceTuningLogLevel.Error, LegacyTuningWriteGuard.BlockedMessage("TUNEAPPLY"), iteration, maxIterations);
+                return Task.FromResult(4);
+            }
+
             bool applied = AutomatedTuningEngine.ApplySuggestion(tuningSuggestion);
             if (!applied)
             {

@@ -163,7 +163,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "save_configuration", Title = "Save Configuration")]
-        [Description("Saves the current game configuration to TuningConfig.json.")]
+        [Description("LEGACY, blocked by default: would overwrite the active balance patch (PatchProfile.json). Balance work uses Scripts/bo-solve.py + dungeon-sim.py and a new patch in GameData/Patches/Balance; set DF_ALLOW_LEGACY_TUNING_WRITES=1 to force.")]
         public static Task<string> SaveConfiguration()
         {
             return Tools.BalanceAdjustmentTools.SaveConfiguration();
@@ -191,7 +191,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "load_patch", Title = "Load Patch")]
-        [Description("Loads and applies a balance patch by patch ID or name.")]
+        [Description("LEGACY, blocked by default: applies a patch from the old GameData/BalancePatches system over the active patch. Switch patches by editing PatchProfile.json instead; set DF_ALLOW_LEGACY_TUNING_WRITES=1 to force.")]
         public static Task<string> LoadPatch(
             [Description("Patch ID or name")] string patchId)
         {

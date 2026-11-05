@@ -275,6 +275,14 @@ namespace RPGGame.MCP.Tools
         {
             return McpToolExecutor.ExecuteAsync(() =>
             {
+                if (!RPGGame.Tuning.LegacyTuningWriteGuard.WritesAllowed)
+                {
+                    return new
+                    {
+                        success = false,
+                        message = RPGGame.Tuning.LegacyTuningWriteGuard.BlockedMessage("save_configuration")
+                    };
+                }
                 var success = BalanceTuningConsole.SaveConfiguration();
                 return new
                 {

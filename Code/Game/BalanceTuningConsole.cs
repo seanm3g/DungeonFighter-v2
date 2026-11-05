@@ -215,7 +215,7 @@ namespace RPGGame
         {
             try
             {
-                return GameConfiguration.Instance.SaveToFile();
+                return LegacyTuningWriteGuard.TrySave("BalanceTuningConsole.SaveConfiguration");
             }
             catch (Exception ex)
             {
