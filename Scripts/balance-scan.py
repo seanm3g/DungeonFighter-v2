@@ -26,7 +26,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from simpool import SimPool, add_args as add_pool_args
+from simpool import SIM_SKIP, SimPool, add_args as add_pool_args
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TARGETS = json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balance-targets.json'), encoding='utf-8-sig'))
@@ -165,7 +165,7 @@ def build():
 
 
 def copy_gamedata():
-    skip = {'Audio', 'Video', 'CombatLogs', 'LabSnapshots', 'TuningRuns'}
+    skip = SIM_SKIP
     dst = os.path.join(WORK, 'GameData')
     shutil.copytree(os.path.join(ROOT, 'GameData'), dst, ignore=lambda d, names: [
         n for n in names if (n in skip and os.path.isdir(os.path.join(d, n))) or n.startswith('character_')])

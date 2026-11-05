@@ -17,7 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'Scripts'))
-from simpool import SimPool, add_args as add_pool_args
+from simpool import SIM_SKIP, SimPool, add_args as add_pool_args
 TARGETS = json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balance-targets.json'), encoding='utf-8'))
 CLASSES = ['Barbarian', 'Warrior', 'Rogue', 'Wizard']
 
@@ -72,7 +72,7 @@ def active_patch_path():
 
 
 def copy_gamedata():
-    skip_dirs = {'Audio', 'Video', 'CombatLogs', 'LabSnapshots', 'TuningRuns'}
+    skip_dirs = SIM_SKIP
     def ignore(d, names):
         return [n for n in names if (n in skip_dirs and os.path.isdir(os.path.join(d, n))) or n.startswith('character_')]
     shutil.copytree(os.path.join(ROOT, 'GameData'), DATA, ignore=ignore)
@@ -242,7 +242,7 @@ def main():
             show(r); results.append(r)
     print(f'Provenance: {sorted({p for r in results for p in r["provenance"]})}')
     if A.spark:
-        print(f'Shards by host: {POOL.counts}')
+        print(f'Shards by host: {POOL.counts}, ssh retries {POOL.retries}')
     if A.json:
         json.dump(results, open(A.json, 'w', encoding='utf-8'), indent=2)
     if A.keep:

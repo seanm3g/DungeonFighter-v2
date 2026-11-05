@@ -14,10 +14,13 @@ DF_GAMEDATA_DIR set, seeded shards are bit-identical across the two machines (ch
 Paths inside `work` (patch copies, the --json output) are mapped to the Spark session folder; inputs are uploaded once.
 Setup: `ssh spark` must work without a password (see ~/.ssh/config).
 """
-import hashlib, os, queue, shlex, subprocess, tarfile, threading, time
+import hashlib, os, queue, random, shlex, subprocess, tarfile, threading, time
 
-# Not needed by headless sims (art, audio, logs) or not to be copied off this PC (credentials).
-UPLOAD_SKIP = {'Audio', 'Video', 'CombatLogs', 'LabSnapshots', 'TuningRuns', 'ItemArt', 'RoomArt', 'secrets', 'SheetsOAuthToken'}
+# GameData folders headless sims never read (UI art, audio, logs): left out of every scratch GameData copy. ItemArt alone
+# is ~220 MB, and copying it was ~5 s of every dungeon-sim.py call.
+SIM_SKIP = {'Audio', 'Video', 'CombatLogs', 'LabSnapshots', 'TuningRuns', 'ItemArt', 'RoomArt', 'StatusArt'}
+# Also not to be copied off this PC (credentials).
+UPLOAD_SKIP = SIM_SKIP | {'secrets', 'SheetsOAuthToken'}
 
 
 def add_args(ap):
@@ -49,6 +52,7 @@ class SimPool:
         self.base = ''      # absolute ~/df on the Spark (paths go through shlex.quote, so no "~"); set by start()
         self.remote = ''    # this session's folder under base/runs
         self.counts = {'local': 0, 'spark': 0}
+        self.retries = 0   # ssh calls retried after a dropped connection
         self._slots = queue.Queue()
         self._uploaded = set()
         self._lock = threading.Lock()
@@ -62,8 +66,21 @@ class SimPool:
 
     # ------------------------------------------------------------------ setup
 
-    def _ssh(self, command, **kw):
-        return subprocess.run(['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10', self.host, command], **kw)
+    def _ssh(self, command, attempts=5, **kw):
+        """One ssh call, retried when ssh itself fails (exit 255). A round opens up to one connection per slot at once,
+        and sshd's default MaxStartups (10:30:100) drops some of those handshakes ("kex_exchange_identification",
+        "Connection closed by ... port 22"); before this retry those shards were silently dropped (2026-11-04)."""
+        stdin = kw.get('stdin')
+        for attempt in range(attempts):
+            r = subprocess.run(['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10', self.host, command], **kw)
+            if r.returncode != 255 or attempt == attempts - 1:
+                return r
+            with self._lock:
+                self.retries += 1
+            time.sleep(random.uniform(0.3, 1.5) * (attempt + 1))
+            if stdin is not None and hasattr(stdin, 'seek'):
+                stdin.seek(0)
+        return r
 
     def start(self):
         if self.spark_slots:
@@ -150,7 +167,9 @@ class SimPool:
                 return
             remote = self._remote_path(path)
             with open(path, 'rb') as fh:
-                self._ssh(f'mkdir -p {shlex.quote(os.path.dirname(remote))} && cat > {shlex.quote(remote)}', stdin=fh, check=True, timeout=60)
+                r = self._ssh(f'mkdir -p {shlex.quote(os.path.dirname(remote))} && cat > {shlex.quote(remote)}', stdin=fh, timeout=60)
+                if r.returncode != 0:
+                    raise RuntimeError(f'upload of {path} to {self.host} failed (exit {r.returncode})')
             self._uploaded.add(path)
 
     def run(self, args, out_path, log_path, timeout=1800):

@@ -16,7 +16,7 @@ import argparse, json, math, os, random, shutil, subprocess, sys, tempfile, time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from simpool import SimPool, add_args as add_pool_args
+from simpool import SIM_SKIP, SimPool, add_args as add_pool_args
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CLASSES = ['Barbarian', 'Warrior', 'Rogue', 'Wizard']
@@ -121,7 +121,7 @@ def build():
 
 
 def copy_gamedata():
-    skip = {'Audio', 'Video', 'CombatLogs', 'LabSnapshots', 'TuningRuns'}
+    skip = SIM_SKIP
     dst = os.path.join(WORK, 'GameData')
     shutil.copytree(os.path.join(ROOT, 'GameData'), dst, ignore=lambda d, names: [
         n for n in names if (n in skip and os.path.isdir(os.path.join(d, n))) or n.startswith('character_')])

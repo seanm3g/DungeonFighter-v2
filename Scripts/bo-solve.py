@@ -21,6 +21,10 @@ Checked 2026-11-04 on fastbot-v14 L10 (reference root 1.217 from a 2,879-dungeon
   python Scripts/bo-solve.py --level 50 --target 65 --tolerance 0.05 --max-rounds 20
   python Scripts/bo-solve.py --level 20 --prior surrogate     (centre the prior on Scripts/surrogate.py)
 
+Rounds run in this process on one dungeon-sim.py shard pool: GameData is copied and the Spark session uploaded once per
+solve, not once per round (that setup was ~8 s of a ~14 s round). With --spark the local slots default to 0 (a local
+shard is ~2x slower, so the round would wait on it) and --shards defaults to filling the slots.
+
 Prints the solved scale and anchor with a 90% interval, the dungeons it used, and a Provenance line.
 """
 import argparse, json, math, os, re, shutil, subprocess, sys, tempfile
@@ -35,7 +39,7 @@ ap.add_argument('--target', type=float, default=None, help='target clear %% (def
 ap.add_argument('--patch', default='', help='balance patch name or path (default: active patch)')
 ap.add_argument('--anchor', action='append', default=[], help='other damage anchor overrides L=multiplier (repeatable)')
 ap.add_argument('--tools', default='Code/bin/BalanceTools', help='folder holding the built DF.dll')
-ap.add_argument('--shards', type=int, default=3, help='dungeon-sim shards per class per round')
+ap.add_argument('--shards', type=int, default=0, help='dungeon-sim shards per class per round (0 = slots // 4, at least 3)')
 ap.add_argument('--runs', type=int, default=2, help='heroes per shard')
 ap.add_argument('--dungeons', type=int, default=4, help='dungeons per hero')
 ap.add_argument('--tolerance', type=float, default=0.10, help='stop when the 90%% interval on the scale is within +/- this fraction')
@@ -45,8 +49,9 @@ ap.add_argument('--deff', type=float, default=1.5, help='design effect: each dun
 ap.add_argument('--prior', default='flat', choices=['flat', 'surrogate'],
                 help='flat = log-uniform scale prior; surrogate = centred on Scripts/surrogate.py (needs a model trained on this patch)')
 ap.add_argument('--seed', type=int, default=11, help='round r runs dungeon-sim.py --seed seed*100+r (fresh heroes each round)')
-ap.add_argument('--parallel', type=int, default=max(1, (os.cpu_count() or 8) // 2))
+ap.add_argument('--parallel', type=int, default=None, help='local shard slots (default: 0 with --spark, else half the cores)')
 ap.add_argument('--spark', type=int, default=0, help='Spark slots (see Scripts/simpool.py)')
+ap.add_argument('--spark-host', default='spark')
 ap.add_argument('--bot', default='rules', choices=['smart', 'rules', 'basic'])
 ap.add_argument('--region-mix', action='store_true')
 ap.add_argument('--json', default='', help='write rounds and result here')
@@ -54,6 +59,9 @@ ap.add_argument('--scope', default='band', choices=['band', 'level'],
                 help="band = scale every anchor in --level's 5-level region band together (the curve steps per band; solve at a band "
                      "midpoint so the hero's +/-1 dungeon level roll stays inside it); level = only the anchor at --level")
 A = ap.parse_args()
+LOCAL_DEFAULT = max(1, (os.cpu_count() or 8) // 2)
+if A.parallel is None:
+    A.parallel = 0 if A.spark else LOCAL_DEFAULT
 
 
 def target_at(level):
@@ -200,20 +208,42 @@ def next_point(w, n):
     return best
 
 
-def run_round(r, scale, overrides, work):
-    out = os.path.join(work, f'round{r}.json')
-    args = [sys.executable, os.path.join(ROOT, 'Scripts', 'dungeon-sim.py'), '--levels', str(A.level), '--patch', patch_path(),
-            '--tools', A.tools, '--shards', str(A.shards), '--runs', str(A.runs), '--dungeons', str(A.dungeons),
-            '--seed', str(A.seed * 100 + r), '--parallel', str(A.parallel), '--spark', str(A.spark), '--bot', A.bot, '--json', out]
-    for lv, m in {**overrides, **{lv: round(m * scale, 4) for lv, m in solve_anchors(overrides).items()}}.items():
-        args += ['--anchor', f'{lv}={m}']
-    if A.region_mix:
-        args.append('--region-mix')
-    p = subprocess.run(args, cwd=ROOT, capture_output=True, text=True)
-    if p.returncode != 0 or not os.path.exists(out):
-        print(p.stdout[-2000:], p.stderr[-2000:])
-        raise SystemExit(f'dungeon-sim.py failed in round {r}')
-    return json.load(open(out, encoding='utf-8'))[0]
+def open_sim():
+    """dungeon-sim.py loaded as a module (its CLI parsed from these arguments) with GameData copied and the shard pool
+    started once; every round then calls its measure(), so rounds share the scratch GameData and the Spark session."""
+    import importlib.util
+    argv = ['dungeon-sim.py', '--levels', str(A.level), '--patch', patch_path(), '--tools', A.tools, '--shards', str(max(1, A.shards)),
+            '--runs', str(A.runs), '--dungeons', str(A.dungeons), '--seed', str(A.seed * 100), '--parallel', str(A.parallel),
+            '--spark', str(A.spark), '--spark-host', A.spark_host, '--bot', A.bot] + (['--region-mix'] if A.region_mix else [])
+    saved, sys.argv = sys.argv, argv
+    try:
+        spec = importlib.util.spec_from_file_location('dungeon_sim', os.path.join(ROOT, 'Scripts', 'dungeon-sim.py'))
+        ds = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(ds)
+    finally:
+        sys.argv = saved
+    ds.copy_gamedata()
+    log = lambda m: print(m, flush=True)
+    ds.POOL = ds.SimPool(ROOT, ds.WORK, ds.DATA, ds.DLL, local_slots=A.parallel, spark_slots=A.spark, host=A.spark_host, log=log)
+    try:
+        ds.POOL.start()
+    except SystemExit:
+        # Spark unreachable and no local slots asked for: fall back to local.
+        ds.POOL = ds.SimPool(ROOT, ds.WORK, ds.DATA, ds.DLL, local_slots=LOCAL_DEFAULT, log=log)
+        ds.POOL.start()
+    import atexit
+    # Also on a failed round or Ctrl+C: drop the Spark session folder and the scratch GameData.
+    atexit.register(lambda: (ds.POOL.close(), os.environ.get("BOSOLVE_KEEP") or shutil.rmtree(ds.WORK, ignore_errors=True)))
+    if A.shards <= 0:
+        ds.A.shards = max(3, ds.POOL.slots // len(ds.CLASSES))
+    print(f'Shards on {ds.POOL.describe()}: {ds.A.shards} per class per round', flush=True)
+    return ds
+
+
+def run_round(ds, r, scale, overrides):
+    ds.A.seed = A.seed * 100 + r          # fresh heroes each round (dungeon-sim.py --seed seed*100+r)
+    anchors = {**overrides, **{lv: round(m * scale, 4) for lv, m in solve_anchors(overrides).items()}}
+    return ds.measure(A.level, anchors, f'r{r}')
 
 
 def main():
@@ -222,14 +252,14 @@ def main():
     scaled = solve_anchors(overrides)
     what = f'anchors {sorted(scaled)}' if A.scope == 'band' else 'anchor'
     print(f'L{A.level}: solving the damage {what} (L{A.level} now x{base:.4f}) for {A.target:.0f}% clear | patch {patch_path()}')
-    work = tempfile.mkdtemp(prefix='bosolve-')
+    ds = open_sim()
     obs, rounds, provenance = [], [], set()
     w = posterior(obs)
     for r in range(A.max_rounds):
         # A round's size, from the rounds so far (retreats end runs early) or the nominal batch.
-        n_round = sum(o[2] for o in obs) / len(obs) if obs else A.shards * 4 * A.runs * A.dungeons
+        n_round = sum(o[2] for o in obs) / len(obs) if obs else ds.A.shards * len(ds.CLASSES) * A.runs * A.dungeons
         x = next_point(w, n_round)
-        res = run_round(r, math.exp(x), overrides, work)
+        res = run_round(ds, r, math.exp(x), overrides)
         k, n = round(res['clear'] * res['dungeons']), res['dungeons']
         obs.append((x, k, n))
         # Each round's patch differs only in the anchor being solved, so its hash is dropped.
@@ -260,7 +290,7 @@ def main():
                    'scale': math.exp(q50), 'anchor': base * math.exp(q50), 'anchorCI90': [base * math.exp(q05), base * math.exp(q95)],
                    'scope': A.scope, 'anchors': {str(lv): round(m * math.exp(q50), 4) for lv, m in scaled.items()},
                    'rounds': rounds, 'provenance': sorted(provenance)}, open(A.json, 'w', encoding='utf-8'), indent=2)
-    shutil.rmtree(work, ignore_errors=True)
+    print(f'Shards by host: {ds.POOL.counts}, ssh retries {ds.POOL.retries}')
 
 
 if __name__ == '__main__':
