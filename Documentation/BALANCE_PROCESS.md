@@ -21,7 +21,8 @@ dotnet <build>/DF.dll <MODE> [--patch <name|path>] [--set path=value ...] [--see
 Don't run the full check after every change. Run the tiers in order (`/balance` drives this loop; agents can also run
 it over MCP: `get_balance_context`, then `start_balance_scan` / `start_bo_solve` / `start_dungeon_sim` /
 `start_median_check`, polled with `get_balance_job`). Before any sim, check `GameData/GeneralSettings.json`
-`enemyHealthMultiplier`: sims inherit it, and anything but 1 scales every result.
+`enemyHealthMultiplier`: sims inherit it, and anything but 1 scales every result. (fastbot-v1..v15 were solved with
+it at 0.5; fastbot-v16 folds that 0.5 into `enemySystem.healthCurve`, so 1.0 is the calibrated value from v16 on.)
 
 1. **Scan** (`python Scripts/balance-scan.py`, ~7–8 min on 24 cores): the median catalog build grid at every matrix
    level plus 2 heroes × 4 dungeons per class at the band midpoints L8/18/33/48 (L10/20/35/50 before 2026-11-04; a
