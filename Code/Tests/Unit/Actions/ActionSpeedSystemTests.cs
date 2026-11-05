@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit.Actions
             TestAdvanceOwnTimeline();
             TestExecuteAction();
             TestFastActorGetsMultipleActionsDuringSlowRecovery();
+            TestChainCostsSlowestSwing();
 
             TestBase.PrintSummary("ActionSpeedSystem Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -257,6 +258,53 @@ namespace RPGGame.Tests.Unit.Actions
                     $"Fast actor should act at least twice before the slow actor's second swing; got {fastActionsBeforeSlowSecond}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        /// <summary>
+        /// A combo chain costs its slowest swing at blend 0 and the sum of its swings at blend 1, whatever the order.
+        /// </summary>
+        private static void TestChainCostsSlowestSwing()
+        {
+            Console.WriteLine("\n--- Testing combo chain cost (slowest swing / blend) ---");
+
+            var lengths = new[] { 1.0, 3.0, 2.0 };
+            double perLength = 0;
+            double ChainTime(double blend)
+            {
+                using (GameTicker.BeginIsolatedEncounterGameTime())
+                {
+                    GameTicker.Instance.Reset();
+                    var system = new ActionSpeedSystem();
+                    var foe = TestDataBuilders.Enemy().WithName("Chainer").WithLevel(1).Build();
+                    system.AddEntity(foe, 1.0);
+                    double total = 0;
+                    for (int i = 0; i < lengths.Length; i++)
+                    {
+                        var swing = TestDataBuilders.CreateMockAction($"Swing{i}", ActionType.Attack);
+                        swing.Length = lengths[i];
+                        total += i == 0
+                            ? system.ExecuteAction(foe, swing, isCriticalMiss: false)
+                            : system.ExecuteChainedAction(foe, swing, isCriticalMiss: false, blend);
+                    }
+                    perLength = foe.GetTotalAttackSpeed();
+                    return total;
+                }
+            }
+
+            double slowest = ChainTime(0.0);
+            TestBase.AssertTrue(Math.Abs(slowest - 3.0 * perLength) < 1e-9,
+                $"Blend 0 chain should cost its slowest swing (3 × {perLength:F3}); got {slowest:F3}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            double sum = ChainTime(1.0);
+            TestBase.AssertTrue(Math.Abs(sum - 6.0 * perLength) < 1e-9,
+                $"Blend 1 chain should cost every swing (6 × {perLength:F3}); got {sum:F3}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            double half = ChainTime(0.5);
+            TestBase.AssertTrue(Math.Abs(half - 4.5 * perLength) < 1e-9,
+                $"Blend 0.5 chain should cost slowest + half the rest (4.5 × {perLength:F3}); got {half:F3}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

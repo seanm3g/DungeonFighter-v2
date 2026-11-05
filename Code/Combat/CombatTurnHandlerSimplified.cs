@@ -101,8 +101,8 @@ namespace RPGGame
         private const int MaxFreeComboActionsPerTurn = 20;
 
         /// <summary>
-        /// A swing that succeeds on its combo roll advances the strip and earns a free action: the next slot rolls right away,
-        /// without spending speed time. The chain keeps going while each roll succeeds and stops on a failed roll, at the end of
+        /// A swing that succeeds on its combo roll advances the strip and earns a free action: the next slot rolls right away.
+        /// The whole chain costs as long as its slowest swing (plus ChainedSwingTimeBlend of the rest). The chain keeps going while each roll succeeds and stops on a failed roll, at the end of
         /// the strip (the step wraps to slot 0), on a stun, or when either side falls. Training Ground scripts keep one swing per turn.
         /// </summary>
         private static async System.Threading.Tasks.Task RunFreeComboActionsAsync(
@@ -130,6 +130,10 @@ namespace RPGGame
             }
         }
 
+        /// <summary>0 = a combo chain costs its slowest swing, 1 = the sum of its swings (see ComboSystemConfig).</summary>
+        private static double ChainedSwingTimeBlend
+            => GameConfiguration.Instance.ComboSystem?.ChainedSwingTimeBlend ?? 0.0;
+
         private static bool FreeComboActionsAllowed(TrainingGroundTutorialScript? tutorialScript)
             => tutorialScript == null && (GameConfiguration.Instance.ComboSystem?.FreeActionOnComboHit ?? true);
 
@@ -144,7 +148,7 @@ namespace RPGGame
         private static bool EarnedFreeComboAction(Character actor, int comboStepBefore, int stripLength)
             => stripLength > 1 && actor.ComboStep > comboStepBefore && actor.ComboStep % stripLength != 0;
 
-        /// <summary>Runs one enemy swing; a <paramref name="freeAction"/> swing does not spend speed-system time.</summary>
+        /// <summary>Runs one enemy swing; a <paramref name="freeAction"/> swing only adds what raises the chain's cost.</summary>
         private async System.Threading.Tasks.Task ProcessEnemyActionAsync(
             Character player,
             Enemy currentEnemy,
@@ -187,9 +191,15 @@ namespace RPGGame
                 
                     // Update enemy's action timing in the action speed system
                     // CRITICAL: Always update action speed system, even if no action was selected
-                    // This prevents infinite loops when ActionSelector returns null. Free combo actions spend no time.
+                    // This prevents infinite loops when ActionSelector returns null. Free combo actions extend the chain's cost.
                     var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
-                    if (actionSpeedSystem != null && !freeAction)
+                    if (actionSpeedSystem != null && freeAction)
+                    {
+                        if (usedAction != null)
+                            actionSpeedSystem.ExecuteChainedAction(currentEnemy, usedAction,
+                                ActionExecutor.GetLastCriticalMissStatus(currentEnemy), ChainedSwingTimeBlend);
+                    }
+                    else if (actionSpeedSystem != null)
                     {
                         if (usedAction != null)
                         {
@@ -405,9 +415,15 @@ namespace RPGGame
             
             // Update player's action timing in the action speed system
             // CRITICAL: Always update action speed system, even if no action was selected
-            // This prevents infinite loops when ActionSelector returns null. Free combo actions spend no time.
+            // This prevents infinite loops when ActionSelector returns null. Free combo actions extend the chain's cost.
                 var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
-                if (actionSpeedSystem != null && !freeAction)
+                if (actionSpeedSystem != null && freeAction)
+                {
+                    if (usedAction != null)
+                        actionSpeedSystem.ExecuteChainedAction(player, usedAction,
+                            ActionExecutor.GetLastCriticalMissStatus(player), ChainedSwingTimeBlend);
+                }
+                else if (actionSpeedSystem != null)
                 {
                     if (usedAction != null)
                     {

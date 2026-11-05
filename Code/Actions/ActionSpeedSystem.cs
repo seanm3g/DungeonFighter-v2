@@ -104,11 +104,60 @@ namespace RPGGame
                 GameTicker.Instance.AdvanceGameTime(duration);
         }
 
+        /// <summary>
+        /// Schedules a turn's opening swing and starts a new combo chain for <paramref name="entity"/>.
+        /// </summary>
         public double ExecuteAction(Actor entity, Action action, bool isCriticalMiss = false)
         {
             var combatEntity = entities.FirstOrDefault(e => e.Entity == entity);
             if (combatEntity == null) return 0.0;
 
+            double actionDuration = ComputeDuration(combatEntity, action, isCriticalMiss);
+            combatEntity.ChainCharged = combatEntity.ChainSlowest = combatEntity.ChainSum = actionDuration;
+            Spend(combatEntity, actionDuration);
+            return actionDuration;
+        }
+
+        /// <summary>
+        /// Prices a free combo swing that follows <see cref="ExecuteAction"/> in the same turn. The chain costs its slowest
+        /// swing plus <paramref name="blend"/> × the rest (0 = slowest only, 1 = sum); only the increase over what the chain
+        /// already paid is spent. Returns the extra time charged.
+        /// </summary>
+        public double ExecuteChainedAction(Actor entity, Action action, bool isCriticalMiss, double blend)
+        {
+            var combatEntity = entities.FirstOrDefault(e => e.Entity == entity);
+            if (combatEntity == null) return 0.0;
+
+            double swing = ComputeDuration(combatEntity, action, isCriticalMiss);
+            combatEntity.ChainSlowest = Math.Max(combatEntity.ChainSlowest, swing);
+            combatEntity.ChainSum += swing;
+            double b = Math.Clamp(blend, 0.0, 1.0);
+            double chainCost = combatEntity.ChainSlowest + b * (combatEntity.ChainSum - combatEntity.ChainSlowest);
+            double extra = Math.Max(0.0, chainCost - combatEntity.ChainCharged);
+            combatEntity.ChainCharged += extra;
+            Spend(combatEntity, extra);
+            return extra;
+        }
+
+        private static void Spend(CombatEntity combatEntity, double duration)
+        {
+            // Schedule the next action from this entity's own readiness time, not max(global, self).
+            // Using global game time here snapped fast fighters to the slow actor's timeline after
+            // AdvanceGameTime(longSlow), so a quick foe only got one swing during a long hero recovery.
+            combatEntity.NextActionTime += duration;
+
+            // Advance combat time by this action's duration so poison/burn global ticks can use the same clock
+            // as action speeds. The background ticker is always started from GameCoordinator, so we cannot
+            // gate on IsRunning: stepped combat (Action Lab) often calls GetCurrentGameTime rarely enough that
+            // wall-clock deltas never reach TickInterval between DoT checks.
+            if (duration > 0)
+                GameTicker.Instance.AdvanceGameTime(duration);
+        }
+
+        /// <summary>One swing's speed time; consumes that swing's per-swing speed mods and any critical-miss penalty.</summary>
+        private static double ComputeDuration(CombatEntity combatEntity, Action action, bool isCriticalMiss)
+        {
+            var entity = combatEntity.Entity;
             double actionDuration;
             
             // Enemy before Character: Enemy subclasses Character. Use Enemy.GetTotalAttackSpeed() (direct-stat lab
@@ -169,19 +218,6 @@ namespace RPGGame
                 // For any other entities: use a reasonable default
                 actionDuration = 1.0 * action.Length;
             }
-            
-            // Schedule the next action from this entity's own readiness time, not max(global, self).
-            // Using global game time here snapped fast fighters to the slow actor's timeline after
-            // AdvanceGameTime(longSlow), so a quick foe only got one swing during a long hero recovery.
-            double readyWhen = combatEntity.NextActionTime;
-            combatEntity.NextActionTime = readyWhen + actionDuration;
-
-            // Advance combat time by this action's duration so poison/burn global ticks can use the same clock
-            // as action speeds. The background ticker is always started from GameCoordinator, so we cannot
-            // gate on IsRunning: stepped combat (Action Lab) often calls GetCurrentGameTime rarely enough that
-            // wall-clock deltas never reach TickInterval between DoT checks.
-            if (actionDuration > 0)
-                GameTicker.Instance.AdvanceGameTime(actionDuration);
             
             // Clear critical miss penalty after action is executed
             if (entity.HasCriticalMissPenalty)
@@ -320,6 +356,9 @@ namespace RPGGame
         public Actor Entity { get; set; } = null!;
         public double BaseSpeed { get; set; }
         public double NextActionTime { get; set; }
+
+        /// <summary>Current combo chain: time already spent, slowest swing, and every swing's time summed.</summary>
+        internal double ChainCharged, ChainSlowest, ChainSum;
     }
 }
 
