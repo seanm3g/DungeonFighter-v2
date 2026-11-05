@@ -14,7 +14,7 @@ namespace RPGGame.MCP
         // ========== Simulation Tools ==========
 
         [McpServerTool(Name = "run_battle_simulation", Title = "Run Battle Simulation")]
-        [Description("Runs comprehensive battle simulations testing all weapon types against all enemy types. Returns detailed statistics.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Runs comprehensive battle simulations testing all weapon types against all enemy types. Returns detailed statistics.")]
         public static Task<string> RunBattleSimulation(
             [Description("Number of battles per weapon-enemy combination (default: 50)")] int battlesPerCombination = 50,
             [Description("Player level for testing (default: 1)")] int playerLevel = 1,
@@ -24,7 +24,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "run_parallel_battles", Title = "Run Parallel Battles")]
-        [Description("Runs parallel battles with custom player and enemy stats. Useful for testing specific stat combinations.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Runs parallel battles with custom player and enemy stats. Useful for testing specific stat combinations.")]
         public static Task<string> RunParallelBattles(
             [Description("Player damage stat")] int playerDamage,
             [Description("Player attack speed")] double playerAttackSpeed,
@@ -52,7 +52,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "validate_balance", Title = "Validate Balance")]
-        [Description("Validates balance based on the most recent battle simulation results. Returns validation report with errors and warnings. Run run_battle_simulation first.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Validates balance based on the most recent battle simulation results. Returns validation report with errors and warnings. Run run_battle_simulation first.")]
         public static Task<string> ValidateBalance()
         {
             return Tools.AnalysisTools.ValidateBalance();
@@ -75,7 +75,7 @@ namespace RPGGame.MCP
         // ========== Balance Adjustment Tools ==========
 
         [McpServerTool(Name = "adjust_global_enemy_multiplier", Title = "Adjust Global Enemy Multiplier")]
-        [Description("Adjusts global enemy multipliers (health, damage, armor, speed). Affects all enemies.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Adjusts global enemy multipliers (health, damage, armor, speed). Affects all enemies.")]
         public static Task<string> AdjustGlobalEnemyMultiplier(
             [Description("Multiplier name: 'health', 'damage', 'armor', or 'speed'")] string multiplierName,
             [Description("New multiplier value (e.g., 1.2 for 20% increase)")] double value)
@@ -84,7 +84,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "adjust_archetype", Title = "Adjust Archetype")]
-        [Description("Adjusts archetype stat multipliers (health, strength, agility, technique, intelligence, armor).")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Adjusts archetype stat multipliers (health, strength, agility, technique, intelligence, armor).")]
         public static Task<string> AdjustArchetype(
             [Description("Archetype name (e.g., 'Berserker', 'Tank', 'Assassin')")] string archetypeName,
             [Description("Stat name: 'health', 'strength', 'agility', 'technique', 'intelligence', or 'armor'")] string statName,
@@ -94,7 +94,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "adjust_player_base_attribute", Title = "Adjust Player Base Attribute")]
-        [Description("Adjusts player base attributes (strength, agility, technique, intelligence).")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Adjusts player base attributes (strength, agility, technique, intelligence).")]
         public static Task<string> AdjustPlayerBaseAttribute(
             [Description("Attribute name: 'strength', 'agility', 'technique', or 'intelligence'")] string attributeName,
             [Description("New base attribute value")] int value)
@@ -103,7 +103,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "adjust_player_base_health", Title = "Adjust Player Base Health")]
-        [Description("Adjusts player base health.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Adjusts player base health.")]
         public static Task<string> AdjustPlayerBaseHealth(
             [Description("New base health value")] int value)
         {
@@ -111,7 +111,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "adjust_player_attributes_per_level", Title = "Adjust Player Attributes Per Level")]
-        [Description("Adjusts how many attributes the player gains per level.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Adjusts how many attributes the player gains per level.")]
         public static Task<string> AdjustPlayerAttributesPerLevel(
             [Description("New attributes per level value")] int value)
         {
@@ -119,7 +119,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "adjust_player_health_per_level", Title = "Adjust Player Health Per Level")]
-        [Description("Adjusts how much health the player gains per level.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Adjusts how much health the player gains per level.")]
         public static Task<string> AdjustPlayerHealthPerLevel(
             [Description("New health per level value")] int value)
         {
@@ -127,7 +127,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "adjust_enemy_baseline_stat", Title = "Adjust Enemy Baseline Stat")]
-        [Description("Adjusts enemy baseline stats (health, strength, agility, technique, intelligence, armor). Affects all enemies.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Adjusts enemy baseline stats (health, strength, agility, technique, intelligence, armor). Affects all enemies.")]
         public static Task<string> AdjustEnemyBaselineStat(
             [Description("Stat name: 'health', 'strength', 'agility', 'technique', 'intelligence', or 'armor'")] string statName,
             [Description("New baseline stat value")] double value)
@@ -136,7 +136,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "adjust_enemy_scaling_per_level", Title = "Adjust Enemy Scaling Per Level")]
-        [Description("Adjusts how much enemy stats increase per level (health, attributes, armor).")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Adjusts how much enemy stats increase per level (health, attributes, armor).")]
         public static Task<string> AdjustEnemyScalingPerLevel(
             [Description("Scaling type: 'health', 'attributes', or 'armor'")] string statName,
             [Description("New scaling value")] double value)
@@ -145,7 +145,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "adjust_weapon_scaling", Title = "Adjust Weapon Scaling")]
-        [Description("Adjusts weapon scaling multipliers.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Adjusts weapon scaling multipliers.")]
         public static Task<string> AdjustWeaponScaling(
             [Description("Weapon type (e.g., 'Mace', 'Sword', 'Dagger', 'Wand') or 'global' for global multiplier")] string weaponType,
             [Description("Parameter name: 'damage' or 'damageMultiplier'")] string parameter,
@@ -155,7 +155,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "apply_preset", Title = "Apply Preset")]
-        [Description("Applies a quick preset configuration: 'aggressive_enemies', 'tanky_enemies', 'fast_enemies', or 'baseline'.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Applies a quick preset configuration: 'aggressive_enemies', 'tanky_enemies', 'fast_enemies', or 'baseline'.")]
         public static Task<string> ApplyPreset(
             [Description("Preset name: 'aggressive_enemies', 'tanky_enemies', 'fast_enemies', or 'baseline'")] string presetName)
         {
@@ -216,14 +216,14 @@ namespace RPGGame.MCP
         // ========== Automated Tuning Tools ==========
 
         [McpServerTool(Name = "suggest_tuning", Title = "Suggest Tuning Adjustments")]
-        [Description("Analyzes the most recent battle simulation results and suggests specific tuning adjustments with priorities. Run run_battle_simulation first.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Analyzes the most recent battle simulation results and suggests specific tuning adjustments with priorities. Run run_battle_simulation first.")]
         public static Task<string> SuggestTuning()
         {
             return Tools.AutomatedTuningTools.SuggestTuning();
         }
 
         [McpServerTool(Name = "apply_tuning_suggestion", Title = "Apply Tuning Suggestion")]
-        [Description("Applies a specific tuning suggestion by ID. Use suggest_tuning first to get suggestion IDs.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Applies a specific tuning suggestion by ID. Use suggest_tuning first to get suggestion IDs.")]
         public static Task<string> ApplyTuningSuggestion(
             [Description("Suggestion ID from suggest_tuning results")] string suggestionId)
         {
@@ -231,7 +231,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "get_balance_quality_score", Title = "Get Balance Quality Score")]
-        [Description("Gets the overall balance quality score (0-100) based on the most recent simulation results. Run run_battle_simulation first.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Gets the overall balance quality score (0-100) based on the most recent simulation results. Run run_battle_simulation first.")]
         public static Task<string> GetBalanceQualityScore()
         {
             return Tools.AutomatedTuningTools.GetBalanceQualityScore();
@@ -254,7 +254,7 @@ namespace RPGGame.MCP
         // ========== Enhanced Analysis Tools ==========
 
         [McpServerTool(Name = "analyze_parameter_sensitivity", Title = "Analyze Parameter Sensitivity")]
-        [Description("Analyzes how sensitive a parameter is to changes. Tests parameter across a range and identifies optimal value. Helps identify which parameters have the most impact on balance.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Analyzes how sensitive a parameter is to changes. Tests parameter across a range and identifies optimal value. Helps identify which parameters have the most impact on balance.")]
         public static Task<string> AnalyzeParameterSensitivity(
             [Description("Parameter name (e.g., 'enemy.globalmultipliers.health', 'player.baseattributes.strength')")] string parameter,
             [Description("Test range as percentage (e.g., '0.8,1.2' for 80%-120% of current value)")] string range = "0.8,1.2",
@@ -265,7 +265,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "test_what_if", Title = "Test What-If Scenario")]
-        [Description("Tests a hypothetical parameter change without applying it permanently. Compares current configuration with test value and provides risk assessment.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Tests a hypothetical parameter change without applying it permanently. Compares current configuration with test value and provides risk assessment.")]
         public static Task<string> TestWhatIf(
             [Description("Parameter name (e.g., 'enemy.globalmultipliers.health')")] string parameter,
             [Description("New value to test")] double value,
@@ -286,7 +286,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "run_multi_level_simulation", Title = "Run Multi-Level Battle Simulation")]
-        [Description("Runs comprehensive simulations at multiple same-level points vs the level win-rate curve.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Runs comprehensive simulations at multiple same-level points vs the level win-rate curve.")]
         public static Task<string> RunMultiLevelSimulation(
             [Description("Comma-separated levels (default: 1,5,10,25,50,75,100)")] string? levels = null,
             [Description("Battles per combination per level (default: 25)")] int battlesPerCombination = 25)

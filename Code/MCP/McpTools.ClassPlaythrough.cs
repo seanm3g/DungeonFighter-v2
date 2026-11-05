@@ -11,7 +11,7 @@ namespace RPGGame.MCP
     public static partial class McpTools
     {
         [McpServerTool(Name = "run_class_playthrough_batch", Title = "Run Class Playthrough Batch")]
-        [Description("Runs headless full-game playthroughs until Death for each class. Aggregates per-class metrics.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Runs headless full-game playthroughs until Death for each class. Aggregates per-class metrics.")]
         public static Task<string> RunClassPlaythroughBatch(
             [Description("Number of playthrough runs per class (default: 5)")] int runsPerClass = 5,
             [Description("Optional comma-separated classes or weapon paths")] string? classes = null,

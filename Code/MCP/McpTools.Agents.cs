@@ -67,7 +67,7 @@ namespace RPGGame.MCP
         // ========== Specialized Agent Tools ==========
 
         [McpServerTool(Name = "run_full_cycle", Title = "Run Full Automated Balance Cycle")]
-        [Description("Orchestrates complete multi-agent balance tuning cycle: Analysis → Tuning → Testing → Gameplay → Save. Coordinates all specialized agents to reach target balance.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Orchestrates complete multi-agent balance tuning cycle: Analysis → Tuning → Testing → Gameplay → Save. Coordinates all specialized agents to reach target balance.")]
         public static Task<string> RunFullCycle(
             [Description("Target win rate percentage (default: 90)")] double targetWinRate = 90.0,
             [Description("Maximum number of tuning iterations (default: 5)")] int maxIterations = 5)
@@ -105,7 +105,7 @@ namespace RPGGame.MCP
         }
 
         [McpServerTool(Name = "balance_tuner_agent_run", Title = "Balance Tuner Agent - Iterative Tuning")]
-        [Description("Launches Balance Tuner Agent to iteratively adjust balance toward target metrics.")]
+        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Launches Balance Tuner Agent to iteratively adjust balance toward target metrics.")]
         public static Task<string> BalanceTunerAgentRun(
             [Description("Target win rate percentage (default: 90)")] double targetWinRate = 90.0,
             [Description("Maximize enemy variance (default: true)")] bool maximizeVariance = true)

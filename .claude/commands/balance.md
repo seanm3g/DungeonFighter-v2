@@ -21,6 +21,12 @@ Full reference: `Documentation/BALANCE_PROCESS.md`. Targets: `GameData/TuningPro
   `classBalance.<class>.damageCurve`. Enemy tempo is `combat.enemyAttackTimeMultiplier`
   (`enemySystem.globalMultipliers.speedMultiplier` does nothing for tempo).
 
+## Running the tools
+Run the scripts from the repo root with Bash, or through the `dungeonfighter` MCP server: `get_balance_context` (active
+patch, targets, settings warnings), then background jobs `start_balance_scan`, `start_bo_solve`, `start_dungeon_sim`,
+`start_median_check`, polled with `get_balance_job` (one job at a time; they use every core). MCP jobs run the scripts
+below against the server's own DF.dll and write results to `GameData/TuningRuns/mcp-*.json`.
+
 ## Before any sim
 1. Check `GameData/GeneralSettings.json` `enemyHealthMultiplier`. Sims inherit it; anything but 1 silently scales every
    result. Report it and ask before changing the user's settings.
