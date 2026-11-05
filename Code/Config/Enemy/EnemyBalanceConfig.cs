@@ -10,7 +10,6 @@ namespace RPGGame
         public PoolConfig AttributePool { get; set; } = new();
         public PoolConfig SustainPool { get; set; } = new();
         public StatConversionRatesConfig StatConversionRates { get; set; } = new();
-        public Dictionary<string, BaseEnemyConfig> BaseEnemyConfigs { get; set; } = new();
         public Dictionary<string, ArchetypeConfig> ArchetypeConfigs { get; set; } = new();
     }
 }

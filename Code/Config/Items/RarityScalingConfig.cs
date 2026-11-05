@@ -18,7 +18,6 @@ namespace RPGGame
     /// </summary>
     public class RarityMagicFindConfig
     {
-        public double PerPointMultiplier { get; set; }
         public string Description { get; set; } = "";
     }
 

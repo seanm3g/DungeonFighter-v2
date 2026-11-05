@@ -99,9 +99,6 @@ namespace RPGGame
     /// </summary>
     public class DPSBalanceValidationConfig
     {
-        public double TolerancePercentage { get; set; }
-        public double MinimumDPS { get; set; }
-        public double MaximumDPSMultiplier { get; set; }
     }
 
     /// <summary>
@@ -124,10 +121,6 @@ namespace RPGGame
     /// </summary>
     public class TargetActionsToKillConfig
     {
-        public int Level1 { get; set; }
-        public int Level10 { get; set; }
-        public int Level20 { get; set; }
-        public int Level30 { get; set; }
         public string Formula { get; set; } = "";
     }
 
@@ -136,7 +129,6 @@ namespace RPGGame
     /// </summary>
     public class DPSToSustainRatioConfig
     {
-        public double BaseRatio { get; set; }
         public string Description { get; set; } = "";
         public Dictionary<string, double> ArchetypeModifiers { get; set; } = new();
     }
@@ -146,7 +138,6 @@ namespace RPGGame
     /// </summary>
     public class SpeedToDamageRatioConfig
     {
-        public double BaseRatio { get; set; }
         public string Description { get; set; } = "";
         public Dictionary<string, double> ArchetypeModifiers { get; set; } = new();
     }
@@ -156,7 +147,6 @@ namespace RPGGame
     /// </summary>
     public class HealthToArmorRatioConfig
     {
-        public double BaseRatio { get; set; }
         public string Description { get; set; } = "";
         public Dictionary<string, double> ArchetypeModifiers { get; set; } = new();
     }
@@ -166,10 +156,7 @@ namespace RPGGame
     /// </summary>
     public class AttributeGainRatioConfig
     {
-        public double BaseRatio { get; set; }
         public string Description { get; set; } = "";
-        public double PrimaryAttributeBonus { get; set; }
-        public double SecondaryAttributeBonus { get; set; }
         public Dictionary<string, double> ArchetypeModifiers { get; set; } = new();
     }
 
@@ -179,8 +166,6 @@ namespace RPGGame
     public class SustainScalingConfig
     {
         public double HealthPerLevel { get; set; }
-        public double ArmorPerLevel { get; set; }
-        public double RegenerationPerLevel { get; set; }
         public string Description { get; set; } = "";
     }
 
@@ -189,12 +174,6 @@ namespace RPGGame
     /// </summary>
     public class SustainBalanceValidationConfig
     {
-        public int MinActionsToKill { get; set; }
-        public int MaxActionsToKill { get; set; }
-        public double DPSRatioTolerance { get; set; }
-        public double SpeedRatioTolerance { get; set; }
-        public double HealthArmorRatioTolerance { get; set; }
-        public double AttributeRatioTolerance { get; set; }
     }
 
     /// <summary>

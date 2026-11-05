@@ -98,8 +98,6 @@ namespace RPGGame
     /// </summary>
     public class RollChanceFormulas
     {
-        public string ActionBonusChance { get; set; } = "";
-        public string StatBonusChance { get; set; } = "";
     }
 
     /// <summary>

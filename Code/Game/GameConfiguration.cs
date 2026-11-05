@@ -73,10 +73,8 @@ namespace RPGGame
         public GameDataConfig GameData { get; set; } = new();
         public DebugConfig Debug { get; set; } = new();
         public BalanceAnalysisConfig BalanceAnalysis { get; set; } = new();
-        public BalanceValidationConfig BalanceValidation { get; set; } = new();
         public BalanceTuningGoalsConfig BalanceTuningGoals { get; set; } = new();
         public DifficultySettingsConfig DifficultySettings { get; set; } = new();
-        public ProgressionCurvesConfig? ProgressionCurves { get; set; } = new();
 
         // UI-related configurations
         public UICustomizationConfig UICustomization { get; set; } = new();
@@ -200,9 +198,7 @@ namespace RPGGame
                         GameData = config.GameData;
                         Debug = config.Debug;
                         BalanceAnalysis = config.BalanceAnalysis;
-                        BalanceValidation = config.BalanceValidation;
                         DifficultySettings = config.DifficultySettings;
-                        ProgressionCurves = config.ProgressionCurves;
                         BalanceTuningGoals = config.BalanceTuningGoals ?? BalanceTuningGoals;
 
                         // UI-related configurations

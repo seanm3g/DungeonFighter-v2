@@ -142,7 +142,6 @@ namespace RPGGame
         public string BaseXPFormula { get; set; } = "";
         public Dictionary<string, LevelDifficultyMultiplier> LevelDifferenceMultipliers { get; set; } = new();
         public DungeonCompletionBonusConfig DungeonCompletionBonus { get; set; } = new();
-        public string GroupXPFormula { get; set; } = "";
         public int MinimumXP { get; set; }
         public double MaximumXPMultiplier { get; set; }
     }
@@ -162,9 +161,6 @@ namespace RPGGame
     /// </summary>
     public class DungeonCompletionBonusConfig
     {
-        public int BaseBonus { get; set; }
-        public int BonusPerRoom { get; set; }
-        public double LevelDifferenceMultiplier { get; set; }
     }
 
     /// <summary>
