@@ -16,20 +16,31 @@ dotnet <build>/DF.dll <MODE> [--patch <name|path>] [--set path=value ...] [--see
 - `DF_GAMEDATA_DIR=<folder>` points the game at another GameData folder. Use a scratch copy for playthroughs —
   the death screen writes character saves.
 
-## Scan → focus → gate
+## Scan → focus → confirm → gate
 
-Don't run the full check after every change. Run the three tiers in order:
+Don't run the full check after every change. Run the tiers in order (`/balance` drives this loop; agents can also run
+it over MCP: `get_balance_context`, then `start_balance_scan` / `start_bo_solve` / `start_dungeon_sim` /
+`start_median_check`, polled with `get_balance_job`). Before any sim, check `GameData/GeneralSettings.json`
+`enemyHealthMultiplier`: sims inherit it, and anything but 1 scales every result.
 
 1. **Scan** (`python Scripts/balance-scan.py`, ~7–8 min on 24 cores): the median catalog build grid at every matrix
-   level plus 2 heroes × 4 dungeons per class at L10/20/35/50, in one pool. It prints a level summary and a ranked list
+   level plus 2 heroes × 4 dungeons per class at the band midpoints L8/18/33/48 (L10/20/35/50 before 2026-11-04; a
+   band end straddles two bands under the ±1 level roll), in one pool. The bot-vs-median row compares each midpoint
+   with the median level in its band. It prints a level summary and a ranked list
    of problem areas, each with the **focus command** to run next. Each scan writes
    `GameData/TuningRuns/balance-scan-<patch>-<time>.json`. Pass it to the next scan with `--compare` to see every metric
    before/after, plus which findings were resolved and which are new. `--from <json>` re-analyzes a saved scan with no
    sims (use it after changing thresholds). Narrow it to one area with `--median-levels 20 --dungeon-levels 20`.
-2. **Focus**: run only the commands the scan printed. Examples: `dungeon-sim.py --solve L --target P` for a clear
-   rate, `median-curve-solve.py --only health --levels L` for one health anchor, BUILDLAB / FIGHTLOG for one enemy.
-   Re-scan with `--compare` to confirm the fix and catch side effects.
-3. **Gate**: `balance-check.ps1` once, before saving the patch.
+2. **Focus**: run only the commands the scan printed. Clear rate: `bo-solve.py --level <band midpoint>` (Bayesian,
+   whole band, fresh seeds each round; never `dungeon-sim.py --solve` or `band-solve.py`, which bisect on one seed set
+   and landed up to 27% off). Fight length: `median-curve-solve.py --levels L` (health pass). One enemy: BUILDLAB /
+   FIGHTLOG, or `dungeon-sim.py --keep <dir>` for its real fight rows. Write changes into a **new** patch copy in
+   `GameData/Patches/Balance` and test it with `--patch <name>`; never edit the active patch in place.
+3. **Confirm**: `dungeon-sim.py --levels <levels> --shards 8 --seed <new seed>` for the base and the candidate patch on
+   the same seed (paired). A solve that misses on the fresh seed is not done. Re-scan with `--compare` to catch side
+   effects.
+4. **Gate**: `balance-check.ps1 -Patch <candidate>` once, before proposing the patch. Ask before activating it in
+   `PatchProfile.json`; commit it with `git add -f` (the folder is gitignored).
 
 What the scan rows mean:
 - **median turns / per enemy**: the median catalog build (the hero the HP curve is solved for). These rows are nearly
@@ -139,18 +150,21 @@ real play, `STEP[35]` (full set) overshoots it.
 
 Uses the active patch (`GameData/PatchProfile.json`; `-Patch <name>` to override). Builds the tools into
 `Code/bin/BalanceTools`, then runs in parallel: the **median catalog build** at each target level
-(`Scripts/median-curve-solve.py --check`: fight win rate + hero turns, the hero enemies are calibrated to), smart-bot
-playthroughs to L10 on a scratch copy of GameData (survival + real L10 clear, 6 shards × 4 runs per class), and loot
+(`Scripts/median-curve-solve.py --check`: hero turns, plus fight win rate for reference, the hero enemies are
+calibrated to), rules-bot playthroughs to L10 on a scratch copy of GameData (survival + real L10 clear, 6 shards × 4
+runs per class; `-Bot smart` for the simulating bot, the gate bot before 2026-11-04), and loot
 stats. Prints a PASS/FAIL scorecard against `GameData/TuningProfiles/balance-targets.json` (exit code 0 = all pass).
 About 10–16 minutes on 24 cores (it was ~25–28 before 2026-10-12; see measurement notes). `-SkipSurvival` skips
 playthroughs (~5 min); `-SkipBuild` reuses the last build; `-ToolsDir <folder>` runs from another folder (use it when
 sims still hold `Code/bin/BalanceTools/DF.dll`); `-BasicBot` adds the non-optimizing bot as a reported floor;
 `-BareHero` adds the old typical-gear one-action matrix as reference rows (not counted).
-**Since 2026-10-13 (no post-fight heal):** the check also runs `Scripts/dungeon-sim.py` at every `realClearAnchors` /
-matrix level above `realClearCheckLevel` (below 100) and gates on real dungeon clear (HP carried between fights,
-bot retreats below `retreatBelowHpPercent`), interpolated from `realClearAnchors` (L10 75, L15–L50 65, L75 30, L100 0).
-The per-fight win-rate rows then print as `INFO` (full-HP reference only); hero turns stay gated. Adds ~8 min per level;
-`-SkipDungeonSim` skips it. Fit a level's damage anchor with `dungeon-sim.py --solve L --target P`, not WRSOLVE.
+**Since 2026-10-13 (no post-fight heal):** the check also runs `Scripts/dungeon-sim.py` and gates on real dungeon
+clear (HP carried between fights, bot retreats below `retreatBelowHpPercent`), interpolated from `realClearAnchors`
+(L10 75, L15 65, L20–L35 70, L50 65, L75 30, L100 0). Since 2026-11-04 it runs at the band midpoint of every
+`realClearAnchors` / matrix level above `realClearCheckLevel` (L13/18/33/48/73) with 8 shards (16 heroes per class),
+`-Spark N` adds Spark slots, and its UNSURE/PASS interval is over shards, not dungeons. The per-fight win-rate rows
+print as `INFO` (legacy reference only); hero turns stay gated. `-SkipDungeonSim` skips it. Fit a band's damage anchor
+with `bo-solve.py`, not WRSOLVE or `dungeon-sim.py --solve`.
 Win-rate anchors are **dungeon clear rates** (`winRateMeaning: dungeonClear`); the matrix checks the matching single-fight
 rate (clear^(1/fightsPerDungeon)) and the playthrough batch checks the real clear rate at `realClearCheckLevel`.
 
@@ -175,7 +189,7 @@ cycle Forest / Water / Fire / Air every 5 levels (`Regions.json`), so L10 Water,
 L75 Fire: Forest is never measured and Fire three times. At equal damage Air clears ~35 points under Fire / Forest
 (control kits, 'dilapidated' rooms, carried room debuffs; FUNDMATRIX with a typical-gear hero sees no gap), so a curve
 fit at those six levels swung 22–97% between bands in play. Since fastbot-v8 the damage curve is one flat value per
-band (L11–75), each solved at its band midpoint (13, 18, …, 73; `Scripts/band-solve.py`), with two-level ramps where a band end jumps (L15, L20,
+band (L11–75), each solved at its band midpoint (13, 18, …, 73; `Scripts/bo-solve.py` since fastbot-v15, `band-solve.py` before), with two-level ramps where a band end jumps (L15, L20,
 L50, L75). Judge class parity across band midpoints, not the six levels. `dungeon-sim.py --region-mix` rotates runs
 through the nearest region of each theme; `--region-theme <Theme>` pins one.
 
@@ -196,7 +210,7 @@ Two gates now look per enemy, both against `heroTurnsTarget` ± `perEnemyTurnsTo
 | ~11 hero turns per even-level fight, every level, for the **median catalog build** at the level's expected stepping stone (2026-10-12) | median hero turns over the 23 builds | `Scripts/median-curve-solve.py` (BUILDLAB `--level-slots`) |
 | Win-rate curve for the median build; the late game may punish builds that fall behind | median win rate | `Scripts/median-curve-solve.py` |
 | Action slots grow with level: 1 at L1 (`lootSystem.comboSlotCapByLevel`) | slot max | BUILDLAB `Slt` column |
-| Dungeon clear 100% at L1, 95% at L10, 0% at L100 (linear) | real clear rate + matrix fight win rate | PLAYTODEATHBATCH / FUNDMATRIX / WRSOLVE |
+| Real dungeon clear per `realClearAnchors` (L10 75, L15 65, L20–35 70, L50 65, L75 30, L100 0; superseded the 2026-10-10 "100% at L1, 95% at L10" win-rate line) | DUNGEONSIM clear rate at band midpoints | `dungeon-sim.py`, `bo-solve.py` |
 | Hero survives 100% of runs to L10 | % of playthroughs reaching L10 | PLAYTODEATHBATCH `--stop-at-level 10` |
 | All four weapons ~11 turns, differentiated by speed and variety | per-weapon turns, swing time | FUNDMATRIX, FIGHTLOG |
 | Starter swing 7–10 s, mastery ~2 s near L100 (2026-10-14: `agilityMax` 200, curve exponent 0.8, so a Warrior stops hitting the floor at L35) | swing time at AGI 10 / 200 | FIGHTLOG header |
@@ -210,7 +224,7 @@ Two gates now look per enemy, both against `heroTurnsTarget` ± `perEnemyTurnsTo
 | `FIGHTLOG --weapon W --enemy E [--strip A,B,C]` | One seeded fight, event by event (rolls, damage, HP, swing times). `--strip` runs the real combo routing through that sequence. |
 | `SEQLAB --weapon W --seq A,B --seq B,A` | Compares action sequences with real combo routing. |
 | `ACTIONVALUE [--shard i/n]` | Prices every hero action: slot 1 or slot 2 next to the weapon basic, vs basic alone. Value 100 = no change; offense = faster kills, defense = less net HP lost. Run 16 shards in parallel. |
-| `WRSOLVE --level L --target P` | Finds the enemy damage multiplier that gives win rate P at level L. Feed results into `enemySystem.damageCurve.anchors`. |
+| `WRSOLVE --level L --target P` | LEGACY: finds the enemy damage multiplier for a single-fight win rate P (full HP every fight). Not a clear-rate solve; use `bo-solve.py`. |
 | `ITEMSTATS --levels 1,10,50,100` | Real loot drops: rarity mix, affix counts, what sets each item's rarity, top prefixes/suffixes. |
 | `STATVALUE --level 10 --gear typical [--attr-amount 60]` | Exchange rates: what +1 of each item stat is worth in weapon-damage points. Feeds `ItemValueModel`. Use `--attr-amount 60` for STR/AGI/TEC/INT and one weapon at a time: the default step sits inside fight-to-fight noise. |
 | `SKILLVALUE --level L [--classes C] [--slots 2]` | Prices every skill-tree node at rank 1 and max rank on a typical-gear hero (value 100 = no change, plus value per skill point), and the whole tree at max rank (`ALL`). Gear-dependent passives are priced with typical gear only, so they read low next to a hero who collects matching pieces. |
@@ -222,9 +236,11 @@ Two gates now look per enemy, both against `heroTurnsTarget` ± `perEnemyTurnsTo
 | `DUNGEONSIM --level L [--runs N] [--dungeons D] [--retreat-below P] [--classes C] [--basic] [--json F]` | Real dungeons at a fixed hero level with HP carried between fights: start-level hero, XP held at 0, D dungeons per hero through the real game loop (rooms, room search, exit prompt, retreat rule). Clear / retreat / death per dungeon with 95% intervals. Use `Scripts/dungeon-sim.py` to shard it. |
 
 **`Scripts/dungeon-sim.py`** shards DUNGEONSIM across cores on a scratch GameData copy:
-`--levels 10,20` measures the active patch; `--anchor 20=1.2` tries a damage-curve variant; `--solve 20 --target 70`
-bisects the L20 damage anchor to a target clear rate. This is the multi-fight counterpart of WRSOLVE: WRSOLVE assumes
-every fight starts at full HP (clear^(1/fightsPerDungeon)), which stopped being true when the post-fight heal went to 0.
+`--levels 8,18` measures the active patch; `--anchor 20=1.2` tries a damage-curve variant; `--seed N` replays heroes
+(pair base and candidate on one seed, confirm on a new one). `--solve` (bisection) is deprecated: use `bo-solve.py`.
+Its intervals are t intervals over shards (each shard's dungeons share heroes), never narrower than the Wilson interval
+on the dungeon count (`clearCIDungeons` in the JSON); `perClassClearCI` gives the same per class. Read class gaps with
+`--shards 8` or more (16 heroes per class): 12-hero samples swung ±20 points.
 
 **Provenance.** Every headless tool prints `Provenance: build=<DF.dll hash> git=<commit>[+dirty] data=<GameData hash>
 patch=<name>@<hash>` first. Two results are comparable only when build, data and patch match; `balance-check.ps1` adds
@@ -234,11 +250,16 @@ more runs) instead of FAIL.
 
 ## Loop
 
+The current loop is **Scan → focus → confirm → gate** above. The rest of this section is the 2026-10 fundamentals loop:
+still the way to check L1 fundamentals, action values and items, but its single-fight steps (FUNDMATRIX turns as a
+target, WRSOLVE, `enemy-calibrate.py`) predate real-dungeon calibration. Don't fit curves with them.
+
 **Since 2026-10-12, enemy curves are calibrated to the median build.** `python Scripts/median-curve-solve.py --patch
 <patch> --tools <dir> --passes 2` runs all 23 catalog ladders in BUILDLAB at the stepping stone a player should have by
 each anchor level (L1 default strip, L5 class actions, L10–20 two-piece set + convert, L35 full set, L50 weapon mods,
 L75 catalog skills, L100 core & rite), with strips trimmed to the level's slot cap (`--level-slots`). Health anchors
-target ~11 hero turns for the median build (against near-harmless enemies), damage anchors the win-rate targets. A
+target ~11 hero turns for the median build (against near-harmless enemies); the damage pass (now `--only damage`,
+deprecated) fitted single-fight win rates, replaced by `bo-solve.py` for clear rate. A
 bare typical hero (FUNDMATRIX, the basic bot) now sits below the curve by design: builds are expected, and the late
 game punishes heroes who skip them. The steps below still apply for fundamentals and items.
 
@@ -269,9 +290,9 @@ game punishes heroes who skip them. The steps below still apply for fundamentals
 | `combat.roomStructureRollShiftCap` | 0 | Cap on the elegant/dilapidated room roll shift (0 = legacy ±hero level). |
 | `lootSystem.equippedWeaponTypeBias` | 0 | Chance a weapon drop matches the hero's equipped weapon type. |
 | `comboSystem.resetChainOnNormalHit` | true | false = only a miss breaks the combo chain, so later sequence slots matter. |
-| `enemySystem.damageCurve.anchors` | [] | Level → enemy damage multiplier table (log-interpolated). Solve entries with WRSOLVE. |
+| `enemySystem.damageCurve.anchors` | [] | Level → enemy damage multiplier table (log-interpolated). Flat per region band; solve with `bo-solve.py --level <band midpoint>`. |
 | `classBalance.<class>.damageCurve` | off | Hero level → extra class damage multiplier on top of `damageMultiplier` (same anchor format), for class parity that changes with level. Added 2026-11-03; see `classcurve-v1`. |
-| `enemySystem.healthCurve` | off | Level → enemy max HP multiplier (same anchor format). Set from FUNDMATRIX "Enemy HP needed … (×k)" to hold ~11 hero turns. |
+| `enemySystem.healthCurve` | off | Level → enemy max HP multiplier (same anchor format). Solve with `median-curve-solve.py` (health pass, median build) to hold ~11 hero turns. |
 | `combat.strengthDamagePerPoint` | 0 | Hero damage × (1 + STR × this), STR capped at `strengthDamageMaxStat` (100). 0.025 ≈ +1 STR worth +1 AGI. When set, the primary stat no longer adds damage. 0 = legacy floor((STR + primary) × `attributeDamageScale`). |
 | `combat.statusWeakenDamageMultiplier` | 0.5 | Weakened actor's damage on its next action. |
 | `combat.statusVulnerabilityDamagePerStack` | 0.15 | Extra damage taken per Vulnerability stack. |

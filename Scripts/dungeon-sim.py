@@ -5,12 +5,17 @@ Each shard is one DUNGEONSIM process (one class): fresh heroes raised to the lev
 choosing gear / skills / sequence, then several dungeons through the real game loop with HP carried between fights and
 the retreat rule. Shards run in parallel on a scratch copy of GameData (death screens write saves).
 
-  python Scripts/dungeon-sim.py --levels 10,20 --patch overnight-v2
-  python Scripts/dungeon-sim.py --levels 20 --anchor 20=1.2 --anchor 15=0.7      (try a damage curve variant)
-  python Scripts/dungeon-sim.py --solve 20 --target 70                           (bisect the L20 damage anchor to 70% clear)
-  python Scripts/dungeon-sim.py --levels 10,20 --spark 18                         (also run 18 shards at once on the DGX Spark)
+  python Scripts/dungeon-sim.py --levels 8,18 --patch my-candidate --seed 707 --shards 8
+  python Scripts/dungeon-sim.py --levels 18 --anchor 20=1.2 --anchor 15=0.7      (try a damage curve variant)
+  python Scripts/dungeon-sim.py --levels 8,18 --spark 18                          (also run 18 shards at once on the DGX Spark)
 
-Rates carry 95% Wilson intervals; a result is only "on target" when the interval overlaps target +/- tolerance.
+Solving an anchor: use Scripts/bo-solve.py. --solve (bisection) is deprecated: it reuses one seed set every step and
+landed up to 27% off at L10 (2026-11-04).
+
+Rate intervals are 95% intervals over shards: a shard's heroes and dungeons share builds, so dungeons are not
+independent. The interval is a t interval over per-shard clear rates, never narrower than the Wilson interval on the
+dungeon count ('clearCIDungeons' keeps that one). Use --shards 8+ (16 heroes per class) to read class gaps, and confirm
+a change on a fresh --seed, paired against the base patch on the same seed.
 """
 import argparse, json, math, os, re, shutil, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
@@ -31,7 +36,7 @@ ap.add_argument('--dungeons', type=int, default=6, help='dungeons per hero')
 ap.add_argument('--retreat', type=int, default=int(TARGETS.get('retreatBelowHpPercent', 50)))
 ap.add_argument('--start-loot-per-level', type=int, default=0, help='drops per level in the starting bag (0 = tool default)')
 ap.add_argument('--anchor', action='append', default=[], help='damage anchor override L=multiplier (repeatable)')
-ap.add_argument('--solve', type=int, default=0, help='bisect the damage anchor at this level to hit --target clear %%')
+ap.add_argument('--solve', type=int, default=0, help='DEPRECATED (use Scripts/bo-solve.py): bisect the damage anchor at this level to hit --target clear %%')
 ap.add_argument('--target', type=float, default=0, help='--solve: target clear %%')
 ap.add_argument('--iterations', type=int, default=5)
 ap.add_argument('--scale-range', default='0.25,4', help='--solve: bracket for the anchor scale, lo,hi')
@@ -145,6 +150,25 @@ def wilson(k, n, z=1.96):
     return max(0.0, c - h), min(1.0, c + h)
 
 
+T95 = {1: 12.71, 2: 4.30, 3: 3.18, 4: 2.78, 5: 2.57, 6: 2.45, 7: 2.36, 8: 2.31, 9: 2.26, 10: 2.23, 15: 2.13, 20: 2.09, 30: 2.04}
+
+
+def cluster_interval(units, z=1.96):
+    """95% interval for a rate from (hits, n) per shard: a t interval over shard rates (dungeons inside a shard are
+    correlated through its heroes' builds), widened to at least the Wilson interval on the pooled count."""
+    k = sum(c for c, _ in units); n = sum(d for _, d in units)
+    lo, hi = wilson(k, n, z)
+    rates = [c / d for c, d in units if d]
+    if len(rates) >= 2 and n:
+        df = len(rates) - 1
+        t = T95.get(df) or next((v for d, v in sorted(T95.items()) if d >= df), 1.96)
+        mean = k / n
+        sd = math.sqrt(sum((r - mean) ** 2 for r in rates) / df)
+        half = t * sd / math.sqrt(len(rates))
+        lo, hi = min(lo, max(0.0, mean - half)), max(hi, min(1.0, mean + half))
+    return lo, hi
+
+
 def measure(level, anchors, tag):
     patch = write_variant(anchors, tag)
     jobs = [(c, i) for c in CLASSES for i in range(A.shards)]
@@ -169,7 +193,10 @@ def summarize(level, anchors, docs):
     provs = {re.sub(r'build=\S+ ', '', d['Provenance']) for d in docs}
     tot = {'Runs': 0, 'Dungeons': 0, 'Cleared': 0, 'Retreated': 0, 'Died': 0, 'Fights': 0, 'HpLost': 0.0, 'HeroActions': 0.0, 'LevelDrift': 0}
     per_class = {}
+    shard_units = {'Cleared': [], 'Retreated': [], 'Died': []}
+    class_units = {}
     for d in docs:
+        sk = {'Cleared': 0, 'Retreated': 0, 'Died': 0, 'Dungeons': 0}
         for o in d['Outcomes']:
             if o['Class'] == 'all':
                 continue
@@ -178,19 +205,27 @@ def summarize(level, anchors, docs):
             pc['Fights'] += o['Fights']; pc['EnemyActions'] += o.get('EnemyActionsPerFight', 0) * o['Fights']
             for k in ('Runs', 'Dungeons', 'Cleared', 'Retreated', 'Died', 'Fights', 'LevelDrift'):
                 tot[k] += o[k]
+            for k in sk:
+                sk[k] += o[k]
+            class_units.setdefault(o['Class'], []).append((o['Cleared'], o['Dungeons']))
             tot['HpLost'] += o['HpLostPerFight'] * o['Fights']
             tot['HeroActions'] += o.get('HeroActionsPerFight', 0) * o['Fights']
+        if sk['Dungeons']:
+            for k in shard_units:
+                shard_units[k].append((sk[k], sk['Dungeons']))
     n = tot['Dungeons']
     res = {
         'level': level, 'anchors': anchors, 'damageMultiplier': round(damage_anchor_at(level, anchors), 4),
         'dungeons': n, 'runs': tot['Runs'],
-        'clear': tot['Cleared'] / n if n else 0, 'clearCI': wilson(tot['Cleared'], n),
-        'retreat': tot['Retreated'] / n if n else 0, 'retreatCI': wilson(tot['Retreated'], n),
-        'death': tot['Died'] / n if n else 0, 'deathCI': wilson(tot['Died'], n),
+        'clear': tot['Cleared'] / n if n else 0, 'clearCI': cluster_interval(shard_units['Cleared']),
+        'clearCIDungeons': wilson(tot['Cleared'], n), 'shards': len(shard_units['Cleared']),
+        'retreat': tot['Retreated'] / n if n else 0, 'retreatCI': cluster_interval(shard_units['Retreated']),
+        'death': tot['Died'] / n if n else 0, 'deathCI': cluster_interval(shard_units['Died']),
         'hpLostPerFight': tot['HpLost'] / tot['Fights'] if tot['Fights'] else 0,
         'heroActionsPerFight': tot['HeroActions'] / tot['Fights'] if tot['Fights'] else 0,
         'levelDrift': tot['LevelDrift'],
         'perClassClear': {c: round(v['Cleared'] / v['Dungeons'], 3) if v['Dungeons'] else None for c, v in per_class.items()},
+        'perClassClearCI': {c: [round(x, 3) for x in cluster_interval(u)] for c, u in class_units.items()},
         # Enemy attacks the hero takes per fight, by class (class-parity gauge).
         'perClassEnemyActs': {c: round(v['EnemyActions'] / v['Fights'], 2) if v['Fights'] else None for c, v in per_class.items()},
         'provenance': sorted(provs),
@@ -220,6 +255,8 @@ def main():
     overrides = {int(s.split('=')[0]): float(s.split('=')[1]) for s in A.anchor}
     results = []
     if A.solve:
+        print('WARNING: --solve (bisection on one seed set) is deprecated and was up to 27% off; use '
+              f'python Scripts/bo-solve.py --level {A.solve} instead.', flush=True)
         if not A.target:
             raise SystemExit('--solve needs --target')
         level, target = A.solve, A.target / 100.0

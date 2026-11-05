@@ -5,31 +5,41 @@ Every BUILD_CATALOG ladder (GameData/TuningProfiles/build-ladders.json) is run i
 is expected to have reached by that level (STEP below), with strips trimmed to the level's real slot max
 (--level-slots: lootSystem.comboSlotCapByLevel). Health pass: near-harmless enemies (damage x0.05) so hero turns measure
 kill speed; each health anchor is scaled so the median build needs the level's turns target (balance-targets.json
-heroTurnsAnchors: 2 at L1 rising to 11 at L11, then heroTurnsTarget). Damage pass: per level, bisect a
-damage scale so the median build's win rate hits the target, then fold it into the anchor.
+heroTurnsAnchors: 2 at L1 rising to 11 at L11, then heroTurnsTarget).
 
-  python Scripts/median-curve-solve.py --patch overnight-v2 --tools Code/bin/T1 --passes 1
-  python Scripts/median-curve-solve.py --patch overnight-v2 --tools Code/bin/T1 --check   (verify only)
-  python Scripts/median-curve-solve.py --patch overnight-v2 --only health --levels 35      (one health anchor)
+Damage pass (--only damage, DEPRECATED): bisects a damage scale so the median build's SINGLE-FIGHT win rate hits the
+WR table below. The damage curve is now solved for real dungeon clear (realClearAnchors) with Scripts/bo-solve.py, so
+the default run is the health pass only, and --check reports win rate without judging it.
+
+  python Scripts/median-curve-solve.py --check                                   (active patch, verify only)
+  python Scripts/median-curve-solve.py --patch my-candidate --tools Code/bin/T1 --passes 1
+  python Scripts/median-curve-solve.py --patch my-candidate --levels 35           (one health anchor)
 """
 import json, subprocess, os, sys, argparse, statistics, math, tempfile
 from concurrent.futures import ThreadPoolExecutor
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+def _active_patch():
+    try:
+        return json.load(open(os.path.join(ROOT, 'GameData', 'PatchProfile.json'), encoding='utf-8-sig')).get('activeBalancePatch') or 'default'
+    except Exception:
+        return 'default'
 ap = argparse.ArgumentParser()
-ap.add_argument('--patch', default='overnight-v2'); ap.add_argument('--tools', default='Code/bin/BalanceTools')
+ap.add_argument('--patch', default='', help='balance patch name (default: active patch in GameData/PatchProfile.json)'); ap.add_argument('--tools', default='Code/bin/BalanceTools')
 ap.add_argument('--passes', type=int, default=1); ap.add_argument('--encounters', type=int, default=8)
-ap.add_argument('--only', default='', help='health or damage')
+ap.add_argument('--only', default='health', help='health (default) or damage (deprecated single-fight win-rate pass; use bo-solve.py)')
 ap.add_argument('--check', action='store_true', help='report median build turns / win rate vs targets; change nothing')
 ap.add_argument('--json', default='', help='--check: also write per-level medians to this file (balance-check.ps1 reads it)')
 ap.add_argument('--levels', default='', help='comma list of levels to check / solve (default: every anchor level)')
 ap.add_argument('--parallel', type=int, default=12, help='BUILDLAB processes at once')
 ARGS = ap.parse_args()
+ARGS.patch = ARGS.patch or _active_patch()
 DLL = os.path.join(ROOT, ARGS.tools, 'DF.dll')
 PATCH = os.path.join(ROOT, 'GameData', 'Patches', 'Balance', ARGS.patch + '.json')
 E = "Goblin,Rats,Wraith,Wolf,Bear,Lich,Fire Elemental,Zombie,Wight,Glass Shard Golem,Guardian Scarab,Vigil Alpha"
 # Ladder step a typical player has by each anchor level (0 default, 1 class strip, 2 two-piece + convert,
 # 3 full set, 4 weapon mods, 5 catalog skills, 6 core & rite). Strips are trimmed to the level's slot cap.
 STEP = {1: 0, 3: 0, 5: 1, 7: 1, 9: 1, 10: 2, 11: 2, 20: 2, 35: 3, 50: 4, 75: 5, 100: 6}
+# Legacy single-fight win-rate targets: used only by the deprecated damage pass; --check prints them for reference.
 WR = {10: 99.1, 20: 97.1, 35: 93.6, 50: 89.4, 75: 79.2, 100: 1.5}
 TARGETS = json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balance-targets.json'), encoding='utf-8'))
 
@@ -117,7 +127,7 @@ def check():
         if not rows: print(f'L{l}: no data'); continue
         t = statistics.median(r['HeroTurns'] for r in rows); w = statistics.median(r['WinRate'] for r in rows) * 100
         good_t = abs(t - turns_target(l)) <= turns_tolerance(l) if l < 75 else True   # lethal levels: short losses, turns not a target
-        good_w = abs(w - WR[l]) <= 4 if l in WR else True
+        good_w = True   # single-fight win rate is reference only (clear rate is judged by dungeon-sim / bo-solve)
         n += 1; ok += good_t and good_w
         # Per enemy (median over builds): one slow enemy, e.g. a pack whose bodies each need two swings, hides in the mean.
         per = {}
@@ -141,5 +151,7 @@ if ARGS.check:
     check(); sys.exit(0)
 for it in range(ARGS.passes):
     print('== pass', it, flush=True)
-    if ARGS.only != 'damage': health_pass()
-    if ARGS.only != 'health': damage_pass()
+    if ARGS.only in ('', 'health'): health_pass()
+    if ARGS.only == 'damage':
+        print('WARNING: the damage pass fits a single-fight win-rate table (deprecated); use Scripts/bo-solve.py for clear rate.', flush=True)
+        damage_pass()

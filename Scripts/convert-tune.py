@@ -9,9 +9,14 @@ kill, LENS needs Focus procs) run away, so cap them by hand afterwards.
 import json,subprocess,sys,os,glob,statistics
 from concurrent.futures import ThreadPoolExecutor
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+def _active_patch():
+    try:
+        return json.load(open(os.path.join(ROOT, 'GameData', 'PatchProfile.json'), encoding='utf-8-sig')).get('activeBalancePatch') or 'default'
+    except Exception:
+        return 'default'
 SP=os.path.join(ROOT,'GameData','TuningRuns','convert-tune')
 DLL=os.path.join(ROOT,os.environ.get('TOOLS','Code/bin/BalanceTools'),'DF.dll')
-PATCH=os.path.join(ROOT,'GameData','Patches','Balance',os.environ.get('PATCH','overnight-v2')+'.json')
+PATCH=os.path.join(ROOT,'GameData','Patches','Balance',os.environ.get('PATCH') or _active_patch()+'.json')
 BUILDS={'B1':'RAGE','B3':'CRISIS','B5':'TRIUMPH','W1':'BEAT','W3':'DRAG','W5':'STREAK','R1':'GRAZE','R3':'TROPHY','R5':'SWING','Z1':'CHAIN','Z3':'LENS','Z5':'CONTACT'}
 LEVELS=[30,60,90]
 TARGET=float(sys.argv[2]) if len(sys.argv)>2 else 1.30

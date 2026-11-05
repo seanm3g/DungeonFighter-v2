@@ -102,7 +102,14 @@ namespace RPGGame
                         runsPerClass = Math.Max(1, parsedRuns);
                     // --stop-at-level N: a run succeeds when the hero reaches level N (survival target).
                     RPGGame.Tuning.ClassPlaythroughRunner.StopAtLevel = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--stop-at-level") ?? 0;
-                    RPGGame.Tuning.ClassPlaythroughRunner.SmartPolicy = args.Any(x => x.Equals("--smart", StringComparison.OrdinalIgnoreCase));
+                    // --bot rules | smart | basic (same bots as DUNGEONSIM); --smart is the old spelling of --bot smart.
+                    // Default stays basic for old command lines; balance-check passes --bot rules (the calibration bot).
+                    string pdBot = (RPGGame.Tuning.Profiles.TuningCliArgs.GetFlagValue(args, "--bot")
+                        ?? (args.Any(x => x.Equals("--smart", StringComparison.OrdinalIgnoreCase)) ? "smart" : "basic")).ToLowerInvariant();
+                    if (pdBot is not ("smart" or "rules" or "basic"))
+                        throw new ArgumentException("PLAYTODEATHBATCH --bot must be smart, rules or basic.");
+                    RPGGame.Tuning.ClassPlaythroughRunner.SmartPolicy = pdBot == "smart";
+                    RPGGame.Tuning.ClassPlaythroughRunner.RulesPolicy = pdBot == "rules";
                     // --retreat-below N: leave a dungeon between rooms when HP < N% of max (0 = never).
                     RPGGame.Tuning.ClassPlaythroughRunner.RetreatBelowHpPercent = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--retreat-below") ?? 0;
                     // --start-level N: raise the hero to level N with collected-loot bag at the first hub (mid-game probes).

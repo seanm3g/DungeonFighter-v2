@@ -11,6 +11,11 @@ integer effects round to 0, after which they never respond). Writes SkillTrees.j
 import json,subprocess,os,sys,glob,collections,math
 from concurrent.futures import ThreadPoolExecutor
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+def _active_patch():
+    try:
+        return json.load(open(os.path.join(ROOT, 'GameData', 'PatchProfile.json'), encoding='utf-8-sig')).get('activeBalancePatch') or 'default'
+    except Exception:
+        return 'default'
 SP=os.path.join(ROOT,'GameData','TuningRuns','skill-node-tune')
 DLL=os.path.join(ROOT,os.environ.get('TOOLS','Code/bin/BalanceTools'),'DF.dll')
 TREES=ROOT+'/GameData/SkillTrees.json'; TEMPL=ROOT+'/GameData/TuningProfiles/skill-tree-templates.json'
@@ -19,7 +24,7 @@ LEVELS=[int(x) for x in os.environ.get('LEVELS','30,60').split(',')]
 PER_POINT=float(os.environ.get('PER_POINT','0.008'))
 def run(b,l,mode,tag):
   out=f'{SP}/runs/st/{tag}-{mode}-{b}-{l}.json'
-  args=['dotnet',DLL,'BUILDLAB','--builds',b,'--level',str(l),'--encounters','24','--patch',os.environ.get('PATCH','overnight-v2'),'--aoo-base','4','--aoo-upto','6','--max-step','4','--json',out]
+  args=['dotnet',DLL,'BUILDLAB','--builds',b,'--level',str(l),'--encounters','24','--patch',os.environ.get('PATCH') or _active_patch(),'--aoo-base','4','--aoo-upto','6','--max-step','4','--json',out]
   if mode=='off': args+=['--long','4']
   subprocess.run(args,cwd=ROOT,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
   try: return json.load(open(out))

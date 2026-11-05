@@ -6,8 +6,10 @@
   Builds the headless tools, then runs (in parallel where possible):
     - Median catalog build at every target level (Scripts/median-curve-solve.py --check: win rate + hero turns);
       -BareHero adds the old FUNDMATRIX --gear typical one-action hero as reference rows
-    - PLAYTODEATHBATCH --smart --stop-at-level N on a scratch copy of GameData (survival, L10 clear; -BasicBot adds the
-      non-optimizing bot as a reported floor)
+    - PLAYTODEATHBATCH --bot rules --stop-at-level N on a scratch copy of GameData (survival, L10 clear; -Bot smart for
+      the simulating bot; -BasicBot adds the non-optimizing bot as a reported floor)
+    - Scripts/dungeon-sim.py real dungeon clear at the region-band midpoint of every realClearAnchors / matrix level above
+      realClearCheckLevel (bands are 5 levels and the hero level rolls +/-1, so band ends straddle two bands)
     - ITEMSTATS (Rare share of drops)
   Prints a PASS/FAIL scorecard and writes GameData/TuningRuns/balance-check-<time>.json.
   Exit code 0 = every check passed.
@@ -23,10 +25,12 @@ param(
     [int]$RunsPerClass = 25,
     [switch]$SkipSurvival,
     [switch]$SkipBuild,
-    # Also run the smart bot (skills, gear and sequence chosen by simulation), sharded across processes.
-    # Survival / L10 clear are measured with the smart bot (skills, gear and sequence chosen by simulation), the player
-    # enemies are calibrated for: 6 shards x 4 runs = 24 runs per class (~7 CPU-min per run), in parallel. -Smart is kept for old command lines.
+    # Old spelling of -Bot smart. Survival / L10 clear runs -SmartShardsPerClass x -SmartRunsPerShard runs per class
+    # with the -Bot bot, in parallel.
     [switch]$Smart,
+    # Survival / L10 clear bot: rules (default: the bot patches are calibrated with), smart (~40x slower), basic.
+    [ValidateSet("rules", "smart", "basic")]
+    [string]$Bot = "rules",
     [int]$SmartShardsPerClass = 6,
     [int]$SmartRunsPerShard = 4,
     # Also run the basic bot (never optimizes; floor check, reported only). -RunsPerClass sets its runs per class.
@@ -42,8 +46,12 @@ param(
     # Real dungeon clear above the survival level (Scripts/dungeon-sim.py: HP carried between fights, retreat rule)
     # at every realClearAnchors / matrix level between realClearCheckLevel and 100. ~8 min per level.
     [switch]$SkipDungeonSim,
-    [int]$DungeonSimShards = 6
+    # 8 shards x 2 heroes = 16 heroes per class (fewer swing class reads by +/-10 pts).
+    [int]$DungeonSimShards = 8,
+    # DGX Spark slots for the dungeon-sim rows (Scripts/simpool.py --spark).
+    [int]$Spark = 0
 )
+if ($Smart) { $Bot = "smart" }
 
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent $PSScriptRoot
@@ -117,10 +125,14 @@ $jobs += Start-Process python -ArgumentList @("`"$(Join-Path $repo 'Scripts/medi
 $dsimJson = Join-Path $work "dungeon-sim.json"
 $dsimLevels = @()
 if ($targets.realClearAnchors -and -not $SkipDungeonSim) {
+    # Each anchor level's region-band midpoint (L20 -> L18): enemy curves are flat per 5-level band.
     $dsimLevels = @(@($targets.realClearAnchors | ForEach-Object { [int]$_.level }) + @($targets.matrixLevels | ForEach-Object { [int]$_ }) |
-        Where-Object { $_ -gt [int]$targets.realClearCheckLevel -and $_ -lt 100 } | Sort-Object -Unique)
+        Where-Object { $_ -gt [int]$targets.realClearCheckLevel -and $_ -lt 100 } |
+        ForEach-Object { 5 * [math]::Floor(($_ - 1) / 5) + 3 } | Sort-Object -Unique)
     if ($dsimLevels.Count -gt 0) {
-        $jobs += Start-Process python -ArgumentList @("`"$(Join-Path $repo 'Scripts/dungeon-sim.py')`"", "--levels", ($dsimLevels -join ","), "--patch", $Patch, "--tools", "`"$toolsDir`"", "--shards", $DungeonSimShards, "--json", "`"$dsimJson`"") `
+        $dsimArgs = @("`"$(Join-Path $repo 'Scripts/dungeon-sim.py')`"", "--levels", ($dsimLevels -join ","), "--patch", $Patch, "--tools", "`"$toolsDir`"", "--shards", $DungeonSimShards, "--json", "`"$dsimJson`"")
+        if ($Spark -gt 0) { $dsimArgs += @("--spark", $Spark) }
+        $jobs += Start-Process python -ArgumentList $dsimArgs `
             -WorkingDirectory $repo -RedirectStandardOutput (Join-Path $work "dungeon-sim.log") -NoNewWindow -PassThru
     }
 }
@@ -154,7 +166,7 @@ if ($BasicBot -and -not $SkipSurvival) {
     Remove-Item Env:DF_GAMEDATA_DIR
 }
 
-# Smart bot: shards per class (each playthrough simulates its choices, ~7 CPU-min per run to L10).
+# Gate bot (-Bot, default rules): shards per class. Logs keep the smart-* names; the smart bot is ~7 CPU-min per run to L10.
 $classes = @("Barbarian", "Warrior", "Rogue", "Wizard")
 $smartProcs = @()
 if (-not $SkipSurvival) {
@@ -163,7 +175,7 @@ if (-not $SkipSurvival) {
         for ($shard = 1; $shard -le $SmartShardsPerClass; $shard++) {
             $log = Join-Path $work "smart-$class-$shard.log"
             $fightsJson = Join-Path $work "fights-$class-$shard.json"
-            $smartProcs += Start-Process dotnet -ArgumentList @("`"$dll`"", "PLAYTODEATHBATCH", $SmartRunsPerShard, "--classes", $class, "--smart", "--patch", $Patch, "--stop-at-level", ([int]$targets.realClearCheckLevel + 1), "--retreat-below", $retreatBelow, "--max-actions-per-run", "6000", "--fights-json", "`"$fightsJson`"") `
+            $smartProcs += Start-Process dotnet -ArgumentList @("`"$dll`"", "PLAYTODEATHBATCH", $SmartRunsPerShard, "--classes", $class, "--bot", $Bot, "--patch", $Patch, "--stop-at-level", ([int]$targets.realClearCheckLevel + 1), "--retreat-below", $retreatBelow, "--max-actions-per-run", "6000", "--fights-json", "`"$fightsJson`"") `
                 -WorkingDirectory $repo -RedirectStandardOutput $log -NoNewWindow -PassThru
         }
     }
@@ -230,7 +242,8 @@ foreach ($level in $targets.matrixLevels) {
     $target = Get-TargetFightWinRate $level
     if ($targets.realClearAnchors) {
         # Single fights from full HP: reference only once real dungeon clear (HP carried between fights) is the target.
-        $script:checks += [pscustomobject]@{ Check = "L$level fight win rate (full HP)"; Value = ("{0:N1}%" -f $row.winRate); Target = ("{0:N1}% ref" -f $target); Result = "INFO" }
+        # Legacy winRateAnchors reference; not a target since real dungeon clear (realClearAnchors) is.
+        $script:checks += [pscustomobject]@{ Check = "L$level fight win rate (full HP, legacy ref)"; Value = ("{0:N1}%" -f $row.winRate); Target = ("{0:N1}% ref" -f $target); Result = "INFO" }
     } else {
         Add-Check "L$level fight win rate" ("{0:N1}%" -f $row.winRate) ("{0:N1}% +/- {1}" -f $target, $targets.winRateTolerance) ([math]::Abs($row.winRate - $target) -le $targets.winRateTolerance)
     }
@@ -274,7 +287,7 @@ foreach ($level in $(if ($BareHero) { $targets.matrixLevels } else { @() })) {
 
 $survivalLogs = @(Get-ChildItem $work -Filter "survival-*.log" -ErrorAction SilentlyContinue | ForEach-Object FullName)
 if (-not $SkipSurvival) {
-    # Gate on the smart bot; the basic bot (-BasicBot) is reported in the table below only.
+    # Gate on the -Bot bot (default rules); the basic bot (-BasicBot) is reported in the table below only.
     $smartBot = Read-Playthroughs (Get-ChildItem $work -Filter "smart-*.log" | ForEach-Object FullName) $SmartRunsPerShard
     $basic = if ($BasicBot) { Read-Playthroughs $survivalLogs $basicRunsPerShard } else { $null }
     $totalRuns = ($smartBot.Runs.Values | Measure-Object -Sum).Sum
@@ -323,7 +336,7 @@ if (-not $SkipSurvival -and $null -ne $targets.perEnemyTurnsTolerance) {
 
 # Per-bot, per-class survival and the smart-vs-basic gap.
 if (-not $SkipSurvival) {
-    $botResults = [ordered]@{ "smart" = $smartBot }
+    $botResults = [ordered]@{ $Bot = $smartBot }
     if ($basic) { $botResults["basic"] = $basic }
     Write-Host ""
     Write-Host ("{0,-7} {1,-10} {2,-10} {3,-10} {4,-10} {5,-14}" -f "Bot", "Barbarian", "Warrior", "Rogue", "Wizard", "L$($targets.realClearCheckLevel) clear")
@@ -361,6 +374,7 @@ if ($dsimLevels.Count -gt 0) {
         $row = $dsim | Where-Object { $_.level -eq $level } | Select-Object -First 1
         if (-not $row) { Add-Check "L$level real dungeon clear (sim)" "missing results (see dungeon-sim.log)" "-" $false; continue }
         $target = Get-RealClearTarget $level
+        # clearCI is over shards (dungeons inside a shard share builds), not the narrower dungeon-count interval.
         $v = 100 * $row.clear; $lo = 100 * $row.clearCI[0]; $hi = 100 * $row.clearCI[1]
         $tol = $targets.realClearTolerance
         Add-Check "L$level real dungeon clear (sim)" ("{0:N1}% [{1:N0}-{2:N0}] n={3}, death {4:N1}%" -f $v, $lo, $hi, $row.dungeons, (100 * $row.death)) ("{0:N1}% +/- {1}" -f $target, $tol) ([math]::Abs($v - $target) -le $tol) ($hi -ge $target - $tol -and $lo -le $target + $tol)

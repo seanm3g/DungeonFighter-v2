@@ -6,7 +6,7 @@ Tier 1 of scan -> focus -> gate (Documentation/BALANCE_PROCESS.md). One pool run
   - DUNGEONSIM with one hero per class and several dungeons at a few levels (HP carried, retreat rule, rules bot;
     --bot smart for the simulating bot, which also feeds the viable-action and bot/median kill-speed reads).
 Then ranks findings against GameData/TuningProfiles/balance-targets.json, each with a focus command to run next:
-  median turns per level / per enemy, real dungeon clear per level, smart bot vs median build kill speed (is the
+  median turns per level / per enemy, real dungeon clear per level (band midpoints by default), smart bot vs median build kill speed (is the
   median build's stepping stone what real play hands out?), per-enemy turns and HP cost in real dungeons, class spread,
   action variety per class (effective actions, breadth across heroes, viable set, dominant and dead actions), pacing
   (fight length spread, close calls, miss streaks, one-shot fights) and class identity (fingerprints, closest class pair,
@@ -65,7 +65,9 @@ ap.add_argument('--patch', default='', help='balance patch name or path (default
 ap.add_argument('--tools', default='Code/bin/ScanTools', help='folder for the built DF.dll')
 ap.add_argument('--skip-build', action='store_true')
 ap.add_argument('--median-levels', default=','.join(str(l) for l in TARGETS['matrixLevels']))
-ap.add_argument('--dungeon-levels', default='10,20,35,50', help='DUNGEONSIM levels (empty = skip)')
+ap.add_argument('--dungeon-levels', default='8,18,33,48',
+                help='DUNGEONSIM levels (empty = skip). Default: region-band midpoints (bands are 5 levels and the hero level rolls '
+                     '+/-1, so a band end like L10 straddles two bands)')
 ap.add_argument('--heroes', type=int, default=2, help='heroes (DUNGEONSIM processes) per class per level')
 ap.add_argument('--dungeons', type=int, default=4, help='dungeons per hero (hero setup ~1 min, a dungeon ~10 s; heroes carry the variance)')
 ap.add_argument('--encounters', type=int, default=8, help='BUILDLAB fights per enemy')
@@ -106,6 +108,15 @@ def patch_name():
 
 
 PATCH = patch_name()
+
+
+def median_level_for(level, median):
+    """Median-build level for a DUNGEONSIM level: the same level, else a median level in the same 5-level region band
+    (enemy HP and damage are flat per band; dungeon levels default to band midpoints, the median grid to band ends)."""
+    if level in median:
+        return level
+    same = [m for m in median if (m - 1) // 5 == (level - 1) // 5]
+    return min(same, key=lambda m: abs(m - level)) if same else None
 
 
 def interp(anchors, level, key):
@@ -326,14 +337,15 @@ def analyze_dungeons(results, dungeon_levels, median):
                     ('too easy' if clear > target else 'too hard') + f', death {100 * died / n:.0f}%/dungeon, HP lost/fight {100 * hp:.1f}%')
         # Bot vs median build: if real play kills much faster or slower than the build the HP curve is solved for,
         # the median build's stepping stone (STEP) is not what players have, and the curve targets the wrong hero.
-        if l in median and acts > 0:
-            ratio = median[l]['turns'] / acts
+        ml = median_level_for(l, median)
+        if ml is not None and acts > 0:
+            ratio = median[ml]['turns'] / acts
             METRICS[f'median/bot kill speed L{l}'] = round(ratio, 2)
             if ratio > A.bot_ratio or ratio < 1 / A.bot_ratio:
-                finding('bot vs median build', l, 'kill speed', f'x{ratio:.2f} (bot {acts:.1f} acts, median {median[l]["turns"]:.1f} turns)',
+                finding('bot vs median build', l, 'kill speed', f'x{ratio:.2f} (bot {acts:.1f} acts, median L{ml} {median[ml]["turns"]:.1f} turns)',
                         f'1/{A.bot_ratio:g} .. {A.bot_ratio:g}', abs(math.log(ratio)) / math.log(A.bot_ratio) - 1, 'FAIL',
-                        f'compare BUILDLAB --level {l} --max-step {STEP[l] + (1 if ratio > 1 else -1)} --level-slots with the bot (RUNLOG); '
-                        f'then move STEP[{l}] in median-curve-solve.py or the health anchor',
+                        f'compare BUILDLAB --level {ml} --max-step {STEP[ml] + (1 if ratio > 1 else -1)} --level-slots with the bot (RUNLOG); '
+                        f'then move STEP[{ml}] in median-curve-solve.py or the health anchor',
                         'real play outpaces the median build' if ratio > 1 else 'median build outpaces real play')
         # Real fights per enemy at this level: turns and HP cost.
         fights = [dict(f, Hero=i) for i, (_, d) in enumerate(docs) for f in d.get('Fights', [])]
@@ -361,7 +373,8 @@ def analyze_dungeons(results, dungeon_levels, median):
                 if h > 2 * mean_hp and h > 0.05:
                     finding('real HP cost per enemy', l, name, f'{100 * h:.1f}% HP/fight (n={len(fs)}, {heroes} heroes, kills {kills})',
                             f'<= 2x level mean {100 * mean_hp:.1f}%', h / (2 * mean_hp) - 1, status,
-                            f'python Scripts/enemy-calibrate.py --patch {PATCH} --iterations 1   (identity calibration, whole roster)')
+                            f"check {name}'s kit (GameData/EnemyActions.json) and stats; confirm on a fresh seed with "
+                            f'python Scripts/dungeon-sim.py --patch {PATCH} --levels {l} --shards 8 --seed <new> --keep <dir> (fight rows per enemy)')
     # Class spread over every scanned level (more dungeons than any one level).
     tot_k = sum(c for v in by_class.values() for c, _ in v); tot_n = sum(d for v in by_class.values() for _, d in v)
     if tot_n:
