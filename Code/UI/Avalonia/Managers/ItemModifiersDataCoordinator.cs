@@ -25,14 +25,16 @@ namespace RPGGame.UI.Avalonia.Managers
         /// <summary>
         /// Loads modifiers from JSON and creates view models grouped by rarity
         /// </summary>
-        public (ObservableCollection<RarityGroupViewModel> rarityGroups, Dictionary<int, ItemModifiersDataService.ModificationData> originalModifications) LoadModifiersData()
+        public ObservableCollection<RarityGroupViewModel> LoadModifiersData()
         {
-            // Get available rarities from RarityTable.json
-            var availableRarities = dataService.GetAvailableRarities();
-            
-            // Load modifications from Modifications.json
-            var modifications = dataService.LoadModifications();
-            
+            return BuildRarityGroups(dataService.LoadModifications(), dataService.GetAvailableRarities());
+        }
+
+        /// <summary>View models grouped by rarity; each keeps a reference to its source row.</summary>
+        public static ObservableCollection<RarityGroupViewModel> BuildRarityGroups(
+            List<ItemModifiersDataService.ModificationData> modifications,
+            List<string> availableRarities)
+        {
             // Group modifiers by their current rarity
             var groupedByRarity = modifications
                 .GroupBy(m => m.ItemRank ?? "Common")
@@ -40,8 +42,7 @@ namespace RPGGame.UI.Avalonia.Managers
                 .ToList();
             
             var rarityGroups = new ObservableCollection<RarityGroupViewModel>();
-            var originalModifications = new Dictionary<int, ItemModifiersDataService.ModificationData>();
-            
+
             foreach (var group in groupedByRarity)
             {
                 var rarityGroup = new RarityGroupViewModel
@@ -51,11 +52,9 @@ namespace RPGGame.UI.Avalonia.Managers
                 
                 foreach (var mod in group.OrderBy(m => m.DiceResult))
                 {
-                    // Store original modification data
-                    originalModifications[mod.DiceResult] = mod;
-                    
                     var modifierVM = new ModifierViewModel
                     {
+                        Source = mod,
                         Name = mod.Name ?? "",
                         Description = mod.Description ?? "",
                         CurrentRarity = mod.ItemRank ?? "Common",
@@ -78,15 +77,13 @@ namespace RPGGame.UI.Avalonia.Managers
                 rarityGroups.Add(rarityGroup);
             }
             
-            return (rarityGroups, originalModifications);
+            return rarityGroups;
         }
         
         /// <summary>
         /// Saves modifiers back to JSON
         /// </summary>
-        public void SaveModifiers(
-            ObservableCollection<RarityGroupViewModel> rarityGroups,
-            Dictionary<int, ItemModifiersDataService.ModificationData> originalModifications)
+        public void SaveModifiers(ObservableCollection<RarityGroupViewModel> rarityGroups)
         {
             if (rarityGroups == null)
             {
@@ -96,19 +93,29 @@ namespace RPGGame.UI.Avalonia.Managers
             
             try
             {
-                // Collect all modifiers (existing and new)
-                var allModifiers = new List<ItemModifiersDataService.ModificationData>();
-                var existingDiceResults = new HashSet<int>();
-                
-                // Process modifiers from UI
+                dataService.SaveModifierRarities(CollectModifiers(rarityGroups));
+            }
+            catch (Exception ex)
+            {
+                showStatusMessage?.Invoke($"Error saving modifiers: {ex.Message}", false);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The rows to write, in UI order. Each view model updates its own source row: matching rows by DiceResult
+        /// collapsed every row into the last one (all sheet rows have DiceResult 0), as on 2026-10-28.
+        /// </summary>
+        public static List<ItemModifiersDataService.ModificationData> CollectModifiers(
+            ObservableCollection<RarityGroupViewModel> rarityGroups)
+        {
+            var allModifiers = new List<ItemModifiersDataService.ModificationData>();
+            {
                 foreach (var group in rarityGroups)
                 {
                     foreach (var modifier in group.Modifiers)
                     {
-                        existingDiceResults.Add(modifier.DiceResult);
-                        
-                        // Check if this is a new modifier or existing one
-                        if (originalModifications.TryGetValue(modifier.DiceResult, out var originalMod))
+                        if (modifier.Source is { } originalMod)
                         {
                             // Update existing modifier
                             originalMod.Name = modifier.Name;
@@ -135,15 +142,8 @@ namespace RPGGame.UI.Avalonia.Managers
                         }
                     }
                 }
-                
-                // Save back to Modifications.json using data service
-                dataService.SaveModifierRarities(allModifiers);
             }
-            catch (Exception ex)
-            {
-                showStatusMessage?.Invoke($"Error saving modifiers: {ex.Message}", false);
-                throw;
-            }
+            return allModifiers;
         }
         
         /// <summary>
@@ -181,7 +181,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// <summary>
         /// Get rarity order for sorting (lower = more common)
         /// </summary>
-        private int GetRarityOrder(string rarity)
+        private static int GetRarityOrder(string rarity)
         {
             return rarity.ToLower() switch
             {

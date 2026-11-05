@@ -26,7 +26,6 @@ namespace RPGGame.UI.Avalonia.Managers
         private ItemModifiersSettingsPanel? panel;
         private ModifierViewModel? selectedModifier;
         private HashSet<int> deletedDiceResults = new HashSet<int>();
-        private Dictionary<int, ItemModifiersDataService.ModificationData> originalModifications = new Dictionary<int, ItemModifiersDataService.ModificationData>();
 
         public ItemModifiersTabManager(Action<string, bool>? showStatusMessage = null)
         {
@@ -166,14 +165,11 @@ namespace RPGGame.UI.Avalonia.Managers
             // Remove from UI
             if (rarityGroups != null)
             {
+                // By reference: DiceResult is 0 on every row, so matching on it removed the wrong prefix.
                 foreach (var group in rarityGroups)
                 {
-                    var modifierToRemove = group.Modifiers.FirstOrDefault(m => m.DiceResult == selectedModifier.DiceResult);
-                    if (modifierToRemove != null)
-                    {
-                        group.Modifiers.Remove(modifierToRemove);
+                    if (group.Modifiers.Remove(selectedModifier))
                         break;
-                    }
                 }
             }
             
@@ -295,9 +291,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         private void LoadModifiersData(ItemModifiersSettingsPanel panel)
         {
-            var (loadedGroups, loadedOriginals) = dataCoordinator.LoadModifiersData();
-            rarityGroups = loadedGroups;
-            originalModifications = loadedOriginals;
+            rarityGroups = dataCoordinator.LoadModifiersData();
             
             // Bind to ItemsControl
             var itemsControl = panel.FindControl<ItemsControl>("RarityGroupsItemsControl");
@@ -339,7 +333,7 @@ namespace RPGGame.UI.Avalonia.Managers
 
             try
             {
-                dataCoordinator.SaveModifiers(rarityGroups, originalModifications);
+                dataCoordinator.SaveModifiers(rarityGroups);
                 
                 // Reload data to refresh UI
                 if (panel != null)
@@ -349,7 +343,6 @@ namespace RPGGame.UI.Avalonia.Managers
                 
                 // Clear deletion tracking
                 deletedDiceResults.Clear();
-                originalModifications.Clear();
             }
             catch (Exception ex)
             {

@@ -135,6 +135,10 @@ namespace RPGGame.UI.Avalonia.Managers
 
             [JsonPropertyName("MaxValue")]
             public double MaxValue { get; set; }
+
+            /// <summary>Every other column (prefixCategory, attributeRequirements, RolledValue, tags, ...) so a save keeps it.</summary>
+            [JsonExtensionData]
+            public Dictionary<string, JsonElement>? Extra { get; set; }
         }
 
         /// <summary>

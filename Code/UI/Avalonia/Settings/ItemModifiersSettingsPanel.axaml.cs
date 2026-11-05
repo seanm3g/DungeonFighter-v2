@@ -133,6 +133,10 @@ namespace RPGGame.UI.Avalonia.Settings
             set { _diceResult = value; OnPropertyChanged(); }
         }
 
+        /// <summary>The Modifications.json row this view model was loaded from (null for rows added in the UI).
+        /// Rows are matched by this reference on save: DiceResult is 0 on every sheet row, so it is not an id.</summary>
+        public RPGGame.UI.Avalonia.Managers.ItemModifiersDataService.ModificationData? Source { get; set; }
+
         public bool IsSelected
         {
             get => _isSelected;
