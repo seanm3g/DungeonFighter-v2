@@ -122,15 +122,13 @@ namespace RPGGame
                     return;
                 }
 
-                if (args.Length > 0 && args[0].Equals("PLAYTHROUGHTUNING", StringComparison.OrdinalIgnoreCase))
+                // Single-fight win-rate tuning modes, removed 2026-11-04 (Documentation/BALANCE_PROCESS.md).
+                if (args.Length > 0 && new[] { "PLAYTHROUGHTUNING", "TUNING", "TUNEPROFILES", "WRSOLVE", "TUNESIM", "TUNEANALYZE", "TUNEAPPLY", "LEVELSIM", "LEVELANALYZE", "LEVELAPPLY", "LEVELTUNING", "TUNETUNING" }
+                    .Contains(args[0], StringComparer.OrdinalIgnoreCase))
                 {
-                    executionMode = "PLAYTHROUGHTUNING";
-                    BuildExecutionMetrics.RecordLaunchTime("PLAYTHROUGHTUNING");
-                    int maxIter = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--max-iterations", "-n") ?? 8;
-                    int runsPerClass = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--runs-per-class", "-r") ?? 10;
-                    bool dryRun = args.Any(a => a.Equals("--dry-run", StringComparison.OrdinalIgnoreCase));
-                    bool stopWhenPass = !args.Any(a => a.Equals("--no-stop-when-pass", StringComparison.OrdinalIgnoreCase));
-                    await RPGGame.Tuning.PlaythroughTuningRunner.Run(maxIter, runsPerClass, stopWhenPass, dryRun, args);
+                    Console.Error.WriteLine($"{args[0]} was removed on 2026-11-04 with the single-fight win-rate tuning stack. " +
+                        "Use DUNGEONSIM (Scripts/dungeon-sim.py), Scripts/bo-solve.py and Scripts/balance-scan.py; see Documentation/BALANCE_PROCESS.md.");
+                    System.Environment.ExitCode = 2;
                     return;
                 }
 
@@ -155,35 +153,10 @@ namespace RPGGame
                 }
 
                 // Check if tuning mode is requested
-                if (args.Length > 0 && args[0] == "TUNING")
-                {
-                    executionMode = "TUNING";
-                    BuildExecutionMetrics.RecordLaunchTime("TUNING");
-                    // Run balance tuning runner
-                    int iterations = args.Length > 1 && int.TryParse(args[1], out int iter) ? iter : 5;
-                    await RPGGame.Tuning.TuningRunner.RunTuning(iterations);
-                    return;
-                }
-
-                if (args.Length > 0 && args[0] == "TUNEPROFILES")
-                {
-                    executionMode = "TUNEPROFILES";
-                    BuildExecutionMetrics.RecordLaunchTime("TUNEPROFILES");
-                    RPGGame.Tuning.BalanceTuningWorkflow.ListProfiles();
-                    return;
-                }
-
                 if (args.Length > 0 && args[0].Equals("STATVALUE", StringComparison.OrdinalIgnoreCase))
                 {
                     executionMode = "STATVALUE";
                     System.Environment.ExitCode = await RPGGame.Tuning.Profiles.StatValueRunner.RunAsync(args);
-                    return;
-                }
-
-                if (args.Length > 0 && args[0].Equals("WRSOLVE", StringComparison.OrdinalIgnoreCase))
-                {
-                    executionMode = "WRSOLVE";
-                    System.Environment.ExitCode = await RPGGame.Tuning.Profiles.WinRateSolver.RunAsync(args);
                     return;
                 }
 
@@ -242,84 +215,6 @@ namespace RPGGame
                     executionMode = "FUNDMATRIX";
                     BuildExecutionMetrics.RecordLaunchTime("FUNDMATRIX");
                     System.Environment.ExitCode = await RPGGame.Tuning.Profiles.FundamentalsMatrixRunner.RunAsync(args);
-                    return;
-                }
-
-                if (args.Length > 0 && args[0] == "TUNESIM")
-                {
-                    executionMode = "TUNESIM";
-                    BuildExecutionMetrics.RecordLaunchTime("TUNESIM");
-                    string profile = RPGGame.Tuning.Profiles.TuningCliArgs.GetProfileId(args);
-                    System.Environment.ExitCode = await RPGGame.Tuning.BalanceTuningWorkflow.RunSimAsync(profile, args);
-                    return;
-                }
-
-                if (args.Length > 0 && args[0] == "TUNEANALYZE")
-                {
-                    executionMode = "TUNEANALYZE";
-                    BuildExecutionMetrics.RecordLaunchTime("TUNEANALYZE");
-                    System.Environment.ExitCode = await RPGGame.Tuning.BalanceTuningWorkflow.RunAnalyzeAsync();
-                    return;
-                }
-
-                if (args.Length > 0 && args[0] == "TUNEAPPLY")
-                {
-                    executionMode = "TUNEAPPLY";
-                    BuildExecutionMetrics.RecordLaunchTime("TUNEAPPLY");
-                    bool dryRun = args.Any(a => a.Equals("--dry-run", StringComparison.OrdinalIgnoreCase));
-                    System.Environment.ExitCode = await RPGGame.Tuning.BalanceTuningWorkflow.RunApplyAsync(dryRun);
-                    return;
-                }
-
-                if (args.Length > 0 && args[0] == "LEVELSIM")
-                {
-                    executionMode = "LEVELSIM";
-                    BuildExecutionMetrics.RecordLaunchTime("LEVELSIM");
-                    int battles = args.Length > 1 && int.TryParse(args[1], out int bpcSim) ? bpcSim : 25;
-                    string? levels = args.Length > 2 ? args[2] : null;
-                    System.Environment.ExitCode = await RPGGame.Tuning.LevelTuningWorkflow.RunSimAsync(battles, levels);
-                    return;
-                }
-
-                if (args.Length > 0 && args[0] == "LEVELANALYZE")
-                {
-                    executionMode = "LEVELANALYZE";
-                    BuildExecutionMetrics.RecordLaunchTime("LEVELANALYZE");
-                    System.Environment.ExitCode = await RPGGame.Tuning.LevelTuningWorkflow.RunAnalyzeAsync();
-                    return;
-                }
-
-                if (args.Length > 0 && args[0] == "LEVELAPPLY")
-                {
-                    executionMode = "LEVELAPPLY";
-                    BuildExecutionMetrics.RecordLaunchTime("LEVELAPPLY");
-                    bool dryRun = args.Any(a => a.Equals("--dry-run", StringComparison.OrdinalIgnoreCase));
-                    System.Environment.ExitCode = await RPGGame.Tuning.LevelTuningWorkflow.RunApplyAsync(dryRun);
-                    return;
-                }
-
-                if (args.Length > 0 && args[0] == "LEVELTUNING")
-                {
-                    executionMode = "LEVELTUNING";
-                    BuildExecutionMetrics.RecordLaunchTime("LEVELTUNING");
-                    int maxIter = args.Length > 1 && int.TryParse(args[1], out int mi) ? mi : 10;
-                    int battles = args.Length > 2 && int.TryParse(args[2], out int bpc) ? bpc : 25;
-                    string profile = RPGGame.Tuning.Profiles.TuningCliArgs.GetProfileId(args, "level-curve");
-                    bool dryRun = args.Any(a => a.Equals("--dry-run", StringComparison.OrdinalIgnoreCase));
-                    bool stopWhenPass = !args.Any(a => a.Equals("--no-stop-when-pass", StringComparison.OrdinalIgnoreCase));
-                    await RPGGame.Tuning.LevelTuningRunner.Run(maxIter, battles, profile, stopWhenPass, dryRun, args);
-                    return;
-                }
-
-                if (args.Length > 0 && args[0] == "TUNETUNING")
-                {
-                    executionMode = "TUNETUNING";
-                    BuildExecutionMetrics.RecordLaunchTime("TUNETUNING");
-                    int maxIter = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--max-iterations", "-n") ?? 10;
-                    string profile = RPGGame.Tuning.Profiles.TuningCliArgs.GetProfileId(args, "combat-dials");
-                    bool dryRun = args.Any(a => a.Equals("--dry-run", StringComparison.OrdinalIgnoreCase));
-                    bool stopWhenPass = !args.Any(a => a.Equals("--no-stop-when-pass", StringComparison.OrdinalIgnoreCase));
-                    await RPGGame.Tuning.LevelTuningRunner.Run(maxIter, 25, profile, stopWhenPass, dryRun, args);
                     return;
                 }
 

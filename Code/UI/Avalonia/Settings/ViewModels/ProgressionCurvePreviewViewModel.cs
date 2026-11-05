@@ -25,10 +25,8 @@ namespace RPGGame.UI.Avalonia.Settings.ViewModels
             CombatTuningParameterRegistry.EnsureSanitizedDefaults();
             DecadeRows.Clear();
 
-            var session = LevelTuningSessionStore.Load();
-            var fundamentals = session.Fundamentals != null
-                ? ComprehensiveSimulationMapper.ToFundamentalsResult(session.Fundamentals)
-                : null;
+            // Sim columns came from the removed TUNESIM session file (2026-11-04); they read "—" now.
+            FundamentalsSimulationResult? fundamentals = null;
 
             foreach (int level in EnemyProgressionCurveEvaluator.GetDecadeAnchorLevels())
             {

@@ -4,7 +4,6 @@ using RPGGame;
 using RPGGame.Config;
 using RPGGame.Tests;
 using RPGGame.Tuning;
-using RPGGame.Tuning.Suggesters;
 
 namespace RPGGame.Tests.Unit.Tuning
 {
@@ -25,12 +24,7 @@ namespace RPGGame.Tests.Unit.Tuning
             TestClampHighLevel();
             TestConformanceOnTarget();
             TestDefaultAnchorLevels();
-            TestEstimateBattlesPerLevel();
-            TestLevelCurveAdjustmentSuggester_TooEasy();
-            TestLevelCurveAdjustmentSuggester_TooHard();
             TestIsWinRateInBandUsesCurve();
-            TestMultiLevelQualityScore();
-            TestBalanceValidatorMultiLevel();
 
             TestBase.PrintSummary("LevelWinRateCurve Tests", _run, _pass, _fail);
         }
@@ -85,72 +79,6 @@ namespace RPGGame.Tests.Unit.Tuning
                 "Default anchor count", ref _run, ref _pass, ref _fail);
         }
 
-        private static void TestEstimateBattlesPerLevel()
-        {
-            Console.WriteLine("--- Multi-level battle estimate ---");
-            int perLevel = MultiLevelSimulationRunner.EstimateBattlesPerLevel(1);
-            int enemyCount = Math.Max(1, EnemyLoader.GetAllEnemyTypes().Count);
-            TestBase.AssertEqual(4 * enemyCount, perLevel,
-                "Battles per level @ 1 battle/combo", ref _run, ref _pass, ref _fail);
-        }
-
-        private static void TestLevelCurveAdjustmentSuggester_TooEasy()
-        {
-            Console.WriteLine("--- Suggester buffs enemies when WR too high ---");
-            var multi = new MultiLevelSimulationResult
-            {
-                LevelSnapshots =
-                {
-                    new LevelSimulationSnapshot
-                    {
-                        Level = 10,
-                        TargetWinRate = 90,
-                        ActualWinRate = 98,
-                        AverageTurns = 10,
-                        WithinTolerance = false
-                    }
-                },
-                WorstLevel = 10,
-                WorstDeltaMagnitude = 8
-            };
-
-            var suggestions = LevelCurveAdjustmentSuggester.Suggest(multi);
-            TestBase.AssertTrue(suggestions.Count == 1,
-                "One suggestion", ref _run, ref _pass, ref _fail);
-            TestBase.AssertTrue(
-                suggestions[0].Category is "enemy_scaling" or "enemy_progression" or "global",
-                $"Enemy buff category ({suggestions[0].Category})", ref _run, ref _pass, ref _fail);
-            TestBase.AssertTrue(suggestions[0].SuggestedValue > suggestions[0].CurrentValue,
-                "Suggested value increases enemy power", ref _run, ref _pass, ref _fail);
-        }
-
-        private static void TestLevelCurveAdjustmentSuggester_TooHard()
-        {
-            Console.WriteLine("--- Suggester helps player when WR too low at low level ---");
-            var multi = new MultiLevelSimulationResult
-            {
-                LevelSnapshots =
-                {
-                    new LevelSimulationSnapshot
-                    {
-                        Level = 5,
-                        TargetWinRate = LevelWinRateCurve.GetTargetWinRate(5),
-                        ActualWinRate = 80,
-                        AverageTurns = 10,
-                        WithinTolerance = false
-                    }
-                },
-                WorstLevel = 5,
-                WorstDeltaMagnitude = 19
-            };
-
-            var suggestions = LevelCurveAdjustmentSuggester.Suggest(multi);
-            TestBase.AssertTrue(suggestions.Count == 1,
-                "One suggestion", ref _run, ref _pass, ref _fail);
-            TestBase.AssertEqual("player", suggestions[0].Category,
-                "Player buff category", ref _run, ref _pass, ref _fail);
-        }
-
         private static void TestIsWinRateInBandUsesCurve()
         {
             Console.WriteLine("--- In-band uses curve tolerance ---");
@@ -162,47 +90,5 @@ namespace RPGGame.Tests.Unit.Tuning
                 "L1 13% far below 100% target", ref _run, ref _pass, ref _fail);
         }
 
-        private static void TestMultiLevelQualityScore()
-        {
-            Console.WriteLine("--- Curve quality score averages anchor conformance ---");
-            var multi = new MultiLevelSimulationResult
-            {
-                LevelSnapshots =
-                {
-                    new LevelSimulationSnapshot { Level = 1, TargetWinRate = 100, ActualWinRate = 100, WithinTolerance = true },
-                    new LevelSimulationSnapshot { Level = 10, TargetWinRate = 90, ActualWinRate = 90, WithinTolerance = true }
-                }
-            };
-
-            double score = BalanceTuningGoals.CalculateLevelCurveQualityScore(multi);
-            TestBase.AssertTrue(score >= 99,
-                $"Perfect anchors score {score}", ref _run, ref _pass, ref _fail);
-        }
-
-        private static void TestBalanceValidatorMultiLevel()
-        {
-            Console.WriteLine("--- Validator passes when anchors on curve ---");
-            var multi = new MultiLevelSimulationResult
-            {
-                AllAnchorsWithinTolerance = true,
-                LevelSnapshots =
-                {
-                    new LevelSimulationSnapshot
-                    {
-                        Level = 1, TargetWinRate = 100, ActualWinRate = 100,
-                        AverageTurns = 10, WithinTolerance = true
-                    },
-                    new LevelSimulationSnapshot
-                    {
-                        Level = 10, TargetWinRate = 90, ActualWinRate = 91,
-                        AverageTurns = 10, WithinTolerance = true
-                    }
-                }
-            };
-
-            var validation = BalanceValidator.ValidateMultiLevel(multi);
-            TestBase.AssertTrue(validation.PassedChecks > 0,
-                "Some checks pass", ref _run, ref _pass, ref _fail);
-        }
     }
 }

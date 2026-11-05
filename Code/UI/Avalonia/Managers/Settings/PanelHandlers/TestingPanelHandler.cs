@@ -49,7 +49,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             WireUpTestButtons(testingPanel);
             WireUpActionLabButton(testingPanel);
             WireUpLabSnapshotsUi(testingPanel);
-            WireUpBalanceWorkbenchButton(testingPanel);
             WireUpScriptsSubsection(testingPanel);
         }
 
@@ -99,18 +98,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     ReloadList();
                 };
             }
-        }
-
-        private void WireUpBalanceWorkbenchButton(TestingSettingsPanel panel)
-        {
-            var btn = panel.FindControl<Button>("BalanceTuningWorkbenchButton");
-            if (btn == null) return;
-
-            btn.Click += (_, _) =>
-            {
-                var owner = (panel.GetVisualRoot() as Window) ?? canvasUI?.GetMainWindow();
-                RPGGame.UI.Avalonia.Tuning.BalanceTuningWorkbenchWindow.Open(owner);
-            };
         }
 
         private void WireUpActionLabButton(TestingSettingsPanel panel)

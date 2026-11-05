@@ -201,6 +201,9 @@ namespace RPGGame.MCP.Tools
         {
             return McpToolExecutor.ExecuteAsync(() =>
             {
+                // An agent saving here rewrites the active balance patch file in place; same guard as the removed tuning tools.
+                if (!RPGGame.Tuning.LegacyTuningWriteGuard.WritesAllowed)
+                    return new { success = false, message = RPGGame.Tuning.LegacyTuningWriteGuard.BlockedMessage("save_variable_changes") };
                 var editor = McpToolState.GetVariableEditor();
                 var success = editor.SaveChanges();
 

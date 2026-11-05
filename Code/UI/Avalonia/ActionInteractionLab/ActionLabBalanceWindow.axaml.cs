@@ -6,7 +6,6 @@ using RPGGame.ActionInteractionLab;
 using RPGGame.Tuning.LabBalance;
 using RPGGame.UI.Avalonia.Helpers;
 using RPGGame.UI.Avalonia.Settings;
-using RPGGame.UI.Avalonia.Tuning;
 
 namespace RPGGame.UI.Avalonia.ActionInteractionLab
 {
@@ -25,11 +24,7 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             var apply = this.FindControl<Button>("ApplyScenarioButton");
             var reapply = this.FindControl<Button>("ReapplyButton");
             var run = this.FindControl<Button>("RunStatsButton");
-            var suggest = this.FindControl<Button>("SuggestButton");
-            var applySug = this.FindControl<Button>("ApplySuggestionButton");
             var save = this.FindControl<Button>("SaveKnobsButton");
-            var auto = this.FindControl<Button>("AutoLoopButton");
-            var workbench = this.FindControl<Button>("OpenWorkbenchButton");
             var combatTuning = this.FindControl<Button>("OpenCombatTuningButton");
             var resetTargets = this.FindControl<Button>("ResetTargetsButton");
             var layerCombo = this.FindControl<ComboBox>("LayerComboBox");
@@ -37,24 +32,10 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
             if (apply != null) apply.Click += async (_, _) => await ApplyScenarioAsync();
             if (reapply != null) reapply.Click += async (_, _) => await ApplyScenarioAsync();
             if (run != null) run.Click += async (_, _) => await RunStatsAsync();
-            if (suggest != null) suggest.Click += (_, _) => Suggest();
-            if (applySug != null) applySug.Click += (_, _) => ApplySuggestion();
             if (save != null) save.Click += (_, _) => _vm.SaveKnobs();
-            if (auto != null) auto.Click += async (_, _) => await AutoLoopAsync();
-            if (workbench != null) workbench.Click += (_, _) => OpenWorkbench();
             if (combatTuning != null) combatTuning.Click += (_, _) => OpenCombatTuning();
             if (resetTargets != null) resetTargets.Click += (_, _) => _vm.ResetTargetsToDefaults();
 
-            var maxUpDown = this.FindControl<NumericUpDown>("AutoIterationsUpDown");
-            if (maxUpDown != null)
-            {
-                maxUpDown.Value = _vm.AutoIterations;
-                maxUpDown.ValueChanged += (_, e) =>
-                {
-                    if (e.NewValue.HasValue)
-                        _vm.AutoIterations = (int)e.NewValue.Value;
-                };
-            }
 
             if (layerCombo != null)
             {
@@ -190,47 +171,6 @@ namespace RPGGame.UI.Avalonia.ActionInteractionLab
 
             await _vm.RunStatsAsync(session).ConfigureAwait(true);
             ActionLabControlsWindow.RefreshIfOpen();
-        }
-
-        private void Suggest()
-        {
-            var session = ActionInteractionLabSession.Current;
-            if (session == null)
-            {
-                _vm.StatusText = "Action Lab session is not active";
-                return;
-            }
-
-            _vm.Suggest(session);
-        }
-
-        private void ApplySuggestion()
-        {
-            _vm.ApplySuggestion();
-            ActionLabControlsWindow.RefreshIfOpen();
-        }
-
-        private async System.Threading.Tasks.Task AutoLoopAsync()
-        {
-            var session = ActionInteractionLabSession.Current;
-            if (session == null)
-            {
-                _vm.StatusText = "Action Lab session is not active";
-                return;
-            }
-
-            var maxUpDown = this.FindControl<NumericUpDown>("AutoIterationsUpDown");
-            if (maxUpDown?.Value is { } maxVal)
-                _vm.AutoIterations = (int)maxVal;
-
-            await _vm.RunAutoAsync(session).ConfigureAwait(true);
-            ActionLabControlsWindow.RefreshIfOpen();
-        }
-
-        private void OpenWorkbench()
-        {
-            string? profile = _vm.SelectedLayerDefinition.WorkbenchProfileId;
-            BalanceTuningWorkbenchWindow.Open(this, profile);
         }
 
         private void OpenCombatTuning()

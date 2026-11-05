@@ -12,7 +12,6 @@ namespace RPGGame.MCP.Tools
         private static GameWrapper? _gameWrapper;
         private static BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult? _lastTestResult;
         private static BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult? _baselineTestResult;
-        private static MultiLevelSimulationResult? _lastMultiLevelResult;
         private static RPGGame.Editors.VariableEditor? _variableEditor;
         private static string? _agentDirective;
         private static DungeonRunSummary? _lastRunSummary;
@@ -56,11 +55,6 @@ namespace RPGGame.MCP.Tools
             set => _baselineTestResult = value;
         }
 
-        public static MultiLevelSimulationResult? LastMultiLevelResult
-        {
-            get => _lastMultiLevelResult;
-            set => _lastMultiLevelResult = value;
-        }
 
         /// <summary>Most recent four-class playthrough batch result.</summary>
         public static ClassPlaythroughBatchResult? LastPlaythroughBatchResult

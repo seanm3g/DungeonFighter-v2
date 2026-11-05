@@ -450,7 +450,7 @@ namespace RPGGame
         /// <summary>
         /// Optional level → multiplier table. When present it replaces the growth formula: multipliers are interpolated
         /// in log space between anchors and held flat past the ends (then × <see cref="BaseMultiplier"/>).
-        /// Solve anchors for a win-rate curve with the WRSOLVE tool.
+        /// Flat per 5-level region band; solve with Scripts/bo-solve.py for a dungeon clear rate.
         /// </summary>
         public List<EnemyDamageCurveAnchor> Anchors { get; set; } = new();
 

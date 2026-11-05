@@ -1,18 +1,20 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using RPGGame;
-using RPGGame.Config.BalancePatches;
 
 namespace RPGGame.UI.Avalonia.Settings
 {
     public partial class AboutSettingsPanel : UserControl
     {
+        /// <summary>Game data version (was BalancePatchMetadata.GameVersion in the removed legacy patch system).</summary>
+        private const string GameDataVersion = "6.2";
+
         public AboutSettingsPanel()
         {
             InitializeComponent();
             if (VersionSubtitleTextBlock != null)
                 VersionSubtitleTextBlock.Text =
-                    $"Game data version {BalancePatchMetadata.GetGameVersion()} · .NET 8 · Avalonia 11.2";
+                    $"Game data version {GameDataVersion} · .NET 8 · Avalonia 11.2";
             if (SettingsFilePathTextBlock != null)
                 SettingsFilePathTextBlock.Text = GameSettings.GetSettingsFilePathForDisplay();
         }

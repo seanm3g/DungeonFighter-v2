@@ -160,22 +160,18 @@ The game exposes itself as an MCP server for AI control:
 
 ### Balance / Tuning Tools
 
-All in `Code/Game/`:
-- `AutomatedTuningEngine.cs` — run simulations and auto-apply suggestions
-- `BalanceValidator.cs` + `BalanceTuningGoals.cs` — validate balance targets
-- `MatchupAnalyzer.cs` — character vs enemy matchup stats
-- `ParameterSensitivityAnalyzer.cs` — sensitivity sweeps
-- `WhatIfTester.cs` — hypothetical config testing
+Workflow: `Documentation/BALANCE_PROCESS.md` and `/balance` (scan → focus → paired fresh-seed confirm → gate). Balance is judged on real dungeon clear rate (`realClearAnchors`) and fight length (`heroTurnsAnchors`), never single-fight win rate; the old win-rate tuning stack (AutomatedTuningEngine, BalanceValidator, Suggesters, TUNESIM/TUNEAPPLY/WRSOLVE, Balance Tuning Workbench) was removed 2026-11-04. Agents can run the pipeline over MCP: `get_balance_context`, `start_dungeon_sim` / `start_bo_solve` / `start_balance_scan` / `start_median_check`, `get_balance_job`.
+
+In `Code/Game/` and `Scripts/`:
 - `Tuning/Profiles/BuildLadderRunner.cs` — `BUILDLAB` headless mode: prices build stepping stones, skill nodes and triggers (`GameData/TuningProfiles/build-ladders.json`; see `Documentation/BALANCE_PROCESS.md`)
-- `Tuning/DungeonSimRunner.cs` — `DUNGEONSIM` headless mode: real dungeons at a fixed level with HP carried between fights (start-level hero, retreat rule); shard with `Scripts/dungeon-sim.py` (`--solve L --target P` fits a damage anchor to a clear rate). Default bot is the fast rules bot (`PlaythroughRulesPolicy`, priorities in `GameData/TuningProfiles/rules-bot.json`); `--bot smart` picks by simulation, ~40× slower. Tools print a `Provenance:` line (`RunProvenance`)
+- `Tuning/DungeonSimRunner.cs` — `DUNGEONSIM` headless mode: real dungeons at a fixed level with HP carried between fights (start-level hero, retreat rule); shard with `Scripts/dungeon-sim.py` (intervals over shards; `--solve` is deprecated, use bo-solve). Default bot is the fast rules bot (`PlaythroughRulesPolicy`, priorities in `GameData/TuningProfiles/rules-bot.json`); `--bot smart` picks by simulation, ~40× slower. Tools print a `Provenance:` line (`RunProvenance`)
 - `Scripts/simpool.py` — shard runner behind `dungeon-sim.py` / `surrogate-data.py`: `--spark N` adds N slots on the DGX Spark over `ssh spark` (auto-republishes the linux-arm64 build when `Code/` changes, uploads the session's GameData). Seeded shards are bit-identical to local ones
 - `Scripts/bo-solve.py` — Bayesian damage-anchor solve (`--level L`, target defaults to `realClearAnchors` at L; scales the whole 5-level region band, so solve at a band midpoint like L8/L13; `--scope level` for one anchor; rounds share one shard pool, ~5 s/round with `--spark 18`): dose-response posterior, lookahead picks each round's scale, fresh seeds per round. Use instead of `dungeon-sim.py --solve` (bisection reuses one hero sample; up to 27% off at L10 vs ≤5.5% here, with fewer dungeons)
 - `Scripts/balance-scan.py` — quick tier (~8 min): median build grid + small DUNGEONSIM sample, ranked problem areas with focus commands; `--compare` an earlier scan JSON. Loop: scan → focus → `balance-check.ps1` gate
 - `Scripts/surrogate-data.py` + `Scripts/surrogate.py` — balance surrogate: LightGBM trained on DUNGEONSIM shards under randomized knobs; `predict` / `sweep` / `solve` / `check` answer knob what-ifs in ms (screening only, confirm with `dungeon-sim.py`; retrain per patch)
-- `SimulationData.cs` — simulation result models
-- `Tuning/Suggesters/` — adjustment suggesters per domain (enemy, player, weapon, global, duration)
-- `Tuning/TuningSuggestionApplier.cs` / `TuningSummaryGenerator.cs` / `UndoRedoManager.cs`
-- `BattleStatistics/BattleStatisticsCalculator.cs` / `BattleExecutor.cs` — aggregate battle stats
+- `Tuning/Profiles/Fundamentals*.cs` — FUNDMATRIX / FIGHTLOG / SEQLAB / *VALUE single-fight sims (bare or typical-gear hero): diagnostics and action/skill pricing, not curve targets
+- `Tuning/LegacyTuningWriteGuard.cs` — blocks automated writers (MCP `save_variable_changes`) from overwriting the active patch; `DF_ALLOW_LEGACY_TUNING_WRITES=1` overrides
+- `BattleStatistics/BattleStatisticsCalculator.cs` / `BattleExecutor.cs` — aggregate battle stats (Settings quick sims)
 - Google Sheets export via `Google.Apis.Sheets.v4`
 
 ### Action Interaction Lab

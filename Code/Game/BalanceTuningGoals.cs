@@ -47,39 +47,6 @@ namespace RPGGame
         public static double GetTargetWinRate(int level) =>
             LevelWinRateCurve.GetTargetWinRate(level);
 
-        /// <summary>
-        /// Average anchor conformance score (0–100) from a multi-level simulation result.
-        /// </summary>
-        public static double CalculateLevelCurveQualityScore(Tuning.MultiLevelSimulationResult result)
-        {
-            if (result?.LevelSnapshots == null || result.LevelSnapshots.Count == 0)
-                return 0.0;
-
-            var anchorLevels = new HashSet<int>(LevelWinRateCurve.GetCurveAnchorLevels());
-            var anchorSnapshots = result.LevelSnapshots
-                .Where(s => anchorLevels.Contains(s.Level))
-                .ToList();
-
-            if (anchorSnapshots.Count == 0)
-                anchorSnapshots = result.LevelSnapshots;
-
-            double sum = anchorSnapshots.Sum(s =>
-                LevelWinRateCurve.GetConformanceScore(s.ActualWinRate, s.Level));
-            return Math.Round(sum / anchorSnapshots.Count, 1);
-        }
-
-        /// <summary>
-        /// Average per-level combat duration score (0–100) from a multi-level simulation result.
-        /// </summary>
-        public static double CalculateMultiLevelDurationQualityScore(Tuning.MultiLevelSimulationResult result)
-        {
-            if (result?.LevelSnapshots == null || result.LevelSnapshots.Count == 0)
-                return 0.0;
-
-            double sum = result.LevelSnapshots.Sum(s => ScoreCombatDuration(s.AverageTurns));
-            return Math.Round(sum / result.LevelSnapshots.Count, 1);
-        }
-
         private static double ScoreCombatDuration(double averageCombatDuration)
         {
             var duration = CombatDurationTargets;

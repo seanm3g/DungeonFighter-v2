@@ -33,7 +33,7 @@
     <StackPanel Grid.Row="0" Spacing="4">
       <TextBlock Text="BALANCE LAYERS"
                  FontSize="18" FontWeight="Bold" Foreground="#FFD700"/>
-      <TextBlock Text="Manual: Run Stats → Suggest → Apply. RUN loop repeats that until every checklist line PASS or MAX iterations (also stops if checklist stops improving)."
+      <TextBlock Text="Run Stats checks the selected layer against its checklist. Knob suggestions and the RUN loop were removed (2026-11-04): they tuned single-fight win rate through the wrong knobs. Balance curves are fit with Scripts/bo-solve.py on real dungeons (Documentation/BALANCE_PROCESS.md)."
                  Foreground="#AAAAAA" TextWrapping="Wrap" FontSize="12"/>
     </StackPanel>
 
@@ -66,7 +66,7 @@
         <Expander IsVisible="{Binding ShowTargetEditor}" IsExpanded="True"
                   Header="Edit checklist targets" Foreground="#FFD700" FontWeight="SemiBold">
           <StackPanel Spacing="8" Margin="0,8,0,0">
-            <TextBlock Text="These bands drive PASS/FAIL, Suggest, and RUN loop for the selected layer (session-only until you change them again)."
+            <TextBlock Text="These bands drive PASS/FAIL for the selected layer (session-only until you change them again)."
                        Foreground="#888888" FontSize="11" TextWrapping="Wrap"/>
             <WrapPanel IsVisible="{Binding ShowDurationTargets}">
               <StackPanel Width="140" Margin="0,0,10,8" Spacing="2">
@@ -160,31 +160,10 @@
     <WrapPanel Grid.Row="2" Margin="0,10,0,0" Orientation="Horizontal">
       <Button x:Name="RunStatsButton" Content="Run Stats" Width="100" Height="34" Margin="0,0,8,8"
               Background="#FF0078D4" Foreground="White" FontWeight="SemiBold"/>
-      <Button x:Name="SuggestButton" Content="Suggest" Width="90" Height="34" Margin="0,0,8,8"/>
-      <Button x:Name="ApplySuggestionButton" Content="Apply suggestion" Width="130" Height="34" Margin="0,0,8,8"/>
       <Button x:Name="SaveKnobsButton" Content="Save knobs" Width="100" Height="34" Margin="0,0,8,8"/>
-      <Button x:Name="OpenWorkbenchButton" Content="Workbench" Width="100" Height="34" Margin="0,0,8,8"/>
       <Button x:Name="OpenCombatTuningButton" Content="Combat Tuning" Width="120" Height="34" Margin="0,0,8,8"/>
     </WrapPanel>
 
-    <Border Grid.Row="3" Background="#FF1E2A1E" CornerRadius="4" Padding="10,8" Margin="0,0,0,0"
-            BorderBrush="#FF2E7D32" BorderThickness="1">
-      <StackPanel Orientation="Horizontal" Spacing="10">
-        <TextBlock Text="MAX iterations" Foreground="#CCFFCC" FontSize="13" FontWeight="SemiBold"
-                   VerticalAlignment="Center"
-                   ToolTip.Tip="Stop RUN loop after this many Run Stats cycles if goals are not met"/>
-        <NumericUpDown x:Name="AutoIterationsUpDown"
-                       Minimum="1" Maximum="50" Increment="1" FormatString="0"
-                       Width="100" Height="34" VerticalAlignment="Center"
-                       Value="{Binding AutoIterationsDecimal, Mode=TwoWay}"
-                       ToolTip.Tip="Max RUN loop iterations (1–50)"/>
-        <Button x:Name="AutoLoopButton" Content="RUN loop" MinWidth="110" Height="34"
-                Background="#FF2E7D32" Foreground="White" FontWeight="SemiBold"
-                ToolTip.Tip="Run Stats → Suggest → Apply until PASS, MAX, or no improvement"/>
-        <TextBlock Text="{Binding AutoIterations, StringFormat=Timeout after {0} cycles}"
-                   Foreground="#88AA88" FontSize="12" VerticalAlignment="Center"/>
-      </StackPanel>
-    </Border>
 
     <Grid Grid.Row="4" ColumnDefinitions="*,*" Margin="0,10,0,0">
       <Border Grid.Column="0" Background="#FF222222" CornerRadius="4" Padding="8" Margin="0,0,6,0"

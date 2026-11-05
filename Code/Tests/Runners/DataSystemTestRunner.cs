@@ -24,7 +24,6 @@ namespace RPGGame.Tests.Runners
             ("SheetsPushConfig", () => SheetsPushConfigTests.RunAllTests()),
             ("FlavorTextSheetConverter", () => FlavorTextSheetConverterTests.RunAllTests()),
             ("PatchProfileService", () => PatchProfileServiceTests.RunAllTests()),
-            ("BalancePatchMetadata", () => BalancePatchMetadataTests.RunAllTests()),
             ("GeneralSettingsStore", () => GeneralSettingsStoreTests.RunAllTests()),
             ("SheetsPushUtilities", () => SheetsPushUtilitiesTests.RunAllTests()),
             ("ActionSheetsPushRowMerger", () => ActionSheetsPushRowMergerTests.RunAllTests()),

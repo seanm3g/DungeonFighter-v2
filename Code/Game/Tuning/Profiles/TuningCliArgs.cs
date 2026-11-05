@@ -6,7 +6,7 @@ namespace RPGGame.Tuning.Profiles
 {
     public static class TuningCliArgs
     {
-        public static string GetProfileId(string[] args, string defaultProfile = BalanceTuningProfileLoader.DefaultProfileId)
+        public static string GetProfileId(string[] args, string defaultProfile = "")
         {
             string? fromFlag = GetFlagValue(args, "--profile", "-p");
             if (!string.IsNullOrWhiteSpace(fromFlag))

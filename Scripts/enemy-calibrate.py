@@ -6,7 +6,8 @@ parallel, compares each enemy's mean hero HP lost with the level mean, and scale
 anchor by (mean / enemy) ** damping. Repeats for --iterations passes and writes the patch after each pass.
 
 Win rate is not used: it sits at 100% for most enemies at low levels and carries no signal there.
-Re-run WRSOLVE afterwards to put the overall damage curve back on the win-rate targets.
+Single-fight (FUNDMATRIX) based. Afterwards re-solve the damage bands for clear rate with Scripts/bo-solve.py and
+confirm with dungeon-sim.py on a fresh seed.
 
   python Scripts/enemy-calibrate.py --patch overnight-v1 --iterations 3
 """

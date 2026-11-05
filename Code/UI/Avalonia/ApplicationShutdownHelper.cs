@@ -8,7 +8,6 @@ using RPGGame.Audio;
 using RPGGame.Combat.Narrative;
 using RPGGame.UI.Avalonia.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Managers;
-using RPGGame.UI.Avalonia.Tuning;
 
 namespace RPGGame.UI.Avalonia
 {
@@ -66,7 +65,6 @@ namespace RPGGame.UI.Avalonia
                 }
 
                 ActionLabControlsWindow.CloseIfOpen();
-                BalanceTuningWorkbenchWindow.CloseForShutdown();
                 CloseVisibleWindows<SettingsWindow>();
 
                 try

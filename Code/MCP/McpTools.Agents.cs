@@ -66,53 +66,6 @@ namespace RPGGame.MCP
 
         // ========== Specialized Agent Tools ==========
 
-        [McpServerTool(Name = "run_full_cycle", Title = "Run Full Automated Balance Cycle")]
-        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Orchestrates complete multi-agent balance tuning cycle: Analysis → Tuning → Testing → Gameplay → Save. Coordinates all specialized agents to reach target balance.")]
-        public static Task<string> RunFullCycle(
-            [Description("Target win rate percentage (default: 90)")] double targetWinRate = 90.0,
-            [Description("Maximum number of tuning iterations (default: 5)")] int maxIterations = 5)
-        {
-            return Tools.AutomatedTuningLoop.RunFullCycle(targetWinRate, maxIterations);
-        }
-
-        [McpServerTool(Name = "tester_agent_run", Title = "Tester Agent - Run Tests")]
-        [Description("Launches Tester Agent to run comprehensive balance verification tests.")]
-        public static Task<string> TesterAgentRun(
-            [Description("Test mode: 'full' (all tests), 'quick' (core metrics), 'regression' (baseline comparison). Default: full")] string mode = "full")
-        {
-            var testMode = mode.ToLower() switch
-            {
-                "quick" => Tools.TesterAgent.TestMode.Quick,
-                "regression" => Tools.TesterAgent.TestMode.Regression,
-                _ => Tools.TesterAgent.TestMode.Full
-            };
-            return Tools.TesterAgent.RunTests(testMode);
-        }
-
-        [McpServerTool(Name = "analysis_agent_run", Title = "Analysis Agent - Deep Diagnostics")]
-        [Description("Launches Analysis Agent to run targeted diagnostics on specific balance aspects.")]
-        public static Task<string> AnalysisAgentRun(
-            [Description("Focus area: 'balance' (overall), 'weapons' (variance), 'enemies' (matchups), 'engagement' (fun moments). Default: balance")] string focus = "balance")
-        {
-            var focusArea = focus.ToLower() switch
-            {
-                "weapons" => Tools.AnalysisAgent.FocusArea.Weapons,
-                "enemies" => Tools.AnalysisAgent.FocusArea.Enemies,
-                "engagement" => Tools.AnalysisAgent.FocusArea.Engagement,
-                _ => Tools.AnalysisAgent.FocusArea.Balance
-            };
-            return Tools.AnalysisAgent.AnalyzeAndReport(focusArea);
-        }
-
-        [McpServerTool(Name = "balance_tuner_agent_run", Title = "Balance Tuner Agent - Iterative Tuning")]
-        [Description("LEGACY (single-fight win rate / bare hero; tune with get_balance_context + start_dungeon_sim / start_bo_solve instead): Launches Balance Tuner Agent to iteratively adjust balance toward target metrics.")]
-        public static Task<string> BalanceTunerAgentRun(
-            [Description("Target win rate percentage (default: 90)")] double targetWinRate = 90.0,
-            [Description("Maximize enemy variance (default: true)")] bool maximizeVariance = true)
-        {
-            return Tools.BalanceTunerAgent.TuneBalance(targetWinRate, maximizeVariance);
-        }
-
         // ========== Development Agent Tools ==========
 
         [McpServerTool(Name = "code_review_agent_file", Title = "Code Review Agent - Review File")]

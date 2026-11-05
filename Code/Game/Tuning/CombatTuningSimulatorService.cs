@@ -85,8 +85,6 @@ namespace RPGGame.Tuning
                 weaponVariance,
                 enemyVariance);
 
-            var validation = BalanceValidator.Validate(result);
-
             var offenders = result.CombinationResults
                 .Where(c => c.WinRate < BalanceTuningGoals.WinRateTargets.MinTarget
                             || c.WinRate > BalanceTuningGoals.WinRateTargets.MaxTarget
@@ -107,9 +105,6 @@ namespace RPGGame.Tuning
                 QualityScore = qualityScore,
                 WeaponWinRateVariance = weaponVariance,
                 EnemyWinRateVariance = enemyVariance,
-                ValidationPassedChecks = validation.PassedChecks,
-                ValidationTotalChecks = validation.TotalChecks,
-                ValidationWarnings = validation.Warnings.Concat(validation.Errors).ToList(),
                 TopOffenderMatchups = offenders
             };
 
