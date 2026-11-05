@@ -120,10 +120,51 @@ class SimPool:
         if r.returncode != 0:
             raise RuntimeError('linux-arm64 publish failed: ' + r.stdout[-1500:])
         # Swap the folder in whole: shards from other sessions keep their open files.
-        self._upload_tree(out, f'{self.base}/app.new')
+        t = time.time()
+        sent = self._stage_app(out)
+        self.log(f'  uploaded {sent} to {self.host} in {time.time() - t:.0f} s')
         self._ssh(f'chmod +x {self.base}/app.new/DF && echo {stamp} > {self.base}/app.new/.source-hash && '
                   f'rm -rf {self.base}/app.old && (mv {self.base}/app {self.base}/app.old 2>/dev/null; true) && '
                   f'mv {self.base}/app.new {self.base}/app && rm -rf {self.base}/app.old', check=True, timeout=120)
+
+    def _stage_app(self, out):
+        """Builds base/app.new from the publish folder `out`, sending only files whose content differs from base/app.
+        app.new starts as a hard-link copy of app; changed files are extracted with --unlink-first so the links break
+        and app's copies stay untouched for shards still running on it. A code change usually touches DF.dll and a
+        few files, not the ~340 MB the full upload sent (~3 min). Returns a short description of what was sent."""
+        local = {}
+        for d, _, files in os.walk(out):
+            for f in files:
+                p = os.path.join(d, f)
+                with open(p, 'rb') as fh:
+                    local[os.path.relpath(p, out).replace(os.sep, '/')] = hashlib.sha1(fh.read()).hexdigest()
+        app, new = f'{self.base}/app', f'{self.base}/app.new'
+        r = self._ssh(f'cd {app} 2>/dev/null && find . -type f ! -name .source-hash -print0 | xargs -0 -r sha1sum',
+                      capture_output=True, text=True, timeout=300)
+        remote = {}
+        for line in (r.stdout if r.returncode == 0 else '').splitlines():
+            h, _, rel = line.partition('  ')
+            remote[rel[2:] if rel.startswith('./') else rel] = h
+        if not remote:
+            self._upload_tree(out, new)
+            return f'all {len(local)} files (no previous build)'
+        changed = sorted(rel for rel, h in local.items() if remote.get(rel) != h)
+        removed = sorted(rel for rel in remote if rel not in local)
+        # Hard-link copy, then drop files the new build no longer has (names over stdin, NUL separated).
+        r = self._ssh(f'rm -rf {new} && cp -al {app} {new} && rm -f {new}/.source-hash && cd {new} && xargs -0 -r rm -f --',
+                      input=b'\0'.join(x.encode() for x in removed), capture_output=True, timeout=300)
+        if r.returncode != 0:
+            raise RuntimeError(f'staging {new} failed: {r.stderr.decode("utf-8", "replace")[-500:]}')
+        size = sum(os.path.getsize(os.path.join(out, rel)) for rel in changed)
+        if changed:
+            p = subprocess.Popen(['ssh', '-o', 'BatchMode=yes', self.host, f'tar -C {new} --unlink-first -xzf -'], stdin=subprocess.PIPE)
+            with tarfile.open(fileobj=p.stdin, mode='w|gz') as tar:
+                for rel in changed:
+                    tar.add(os.path.join(out, rel), arcname=rel)
+            p.stdin.close()
+            if p.wait() != 0:
+                raise RuntimeError(f'upload of changed files to {self.host}:{new} failed')
+        return f'{len(changed)} changed file(s), {size / 1e6:.1f} MB; {len(removed)} removed; {len(local) - len(changed)} reused'
 
     def _upload_tree(self, local_dir, remote_dir):
         p = subprocess.Popen(['ssh', '-o', 'BatchMode=yes', self.host, f'rm -rf {remote_dir} && mkdir -p {remote_dir} && tar -C {remote_dir} -xzf -'],
