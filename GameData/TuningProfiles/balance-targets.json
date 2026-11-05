@@ -17,8 +17,14 @@
   "winRateTolerance": 4,
   "heroTurnsTarget": 11,
   "heroTurnsAnchors": [
-    { "level": 1, "turns": 2 },
-    { "level": 11, "turns": 11 }
+    {
+      "level": 1,
+      "turns": 3
+    },
+    {
+      "level": 10,
+      "turns": 11
+    }
   ],
   "heroTurnsTolerance": 1.5,
   "heroTurnsCheckMaxLevel": 50,
@@ -43,13 +49,38 @@
   "realClearCheckLevel": 10,
   "realClearTarget": 75,
   "realClearAnchors": [
-    { "level": 10, "clear": 75 },
-    { "level": 15, "clear": 65 },
-    { "level": 20, "clear": 70 },
-    { "level": 35, "clear": 70 },
-    { "level": 50, "clear": 65 },
-    { "level": 75, "clear": 30 },
-    { "level": 100, "clear": 0 }
+    {
+      "level": 1,
+      "clear": 99
+    },
+    {
+      "level": 10,
+      "clear": 90
+    },
+    {
+      "level": 15,
+      "clear": 65
+    },
+    {
+      "level": 20,
+      "clear": 70
+    },
+    {
+      "level": 35,
+      "clear": 70
+    },
+    {
+      "level": 50,
+      "clear": 65
+    },
+    {
+      "level": 75,
+      "clear": 30
+    },
+    {
+      "level": 100,
+      "clear": 0
+    }
   ],
   "realClearTolerance": 4,
   "retreatBelowHpPercent": 50,
@@ -63,7 +94,10 @@
     },
     "classSignatureWhy": "Each class plays to its primary attribute: Mace/STR scales damage (hit size), Sword/AGI swing speed (tempo: hero swings per enemy swing), Dagger/TEC lowers hit/combo/crit thresholds (crit share), Wand/INT the combo amplifier (combo lift: combo hit damage over plain hit damage).",
     "signatureActionsMayDominate": true,
-    "closeCallBand": [5, 15],
+    "closeCallBand": [
+      5,
+      15
+    ],
     "maxDryLevels": 1,
     "minDistinctCounterShare": 50,
     "viableWithin": 0.03,
@@ -73,5 +107,7 @@
     "maxMissStreakShare": 10,
     "maxOneShotShare": 25,
     "minClassDistance": 0.25
-  }
+  },
+  "classParityMaxSpread": 10,
+  "targetNotes": "2026-11-05 (designer): L1-L10 clear 99% -> 90%, hero actions per fight 3 at L1 -> 11 by L10 (heroTurnsTarget after); class parity: best and worst class within classParityMaxSpread clear points at every band. Legacy fields kept for reference only, nothing tunes to them: winRateAnchors, winRateTolerance, winRateMeaning, fightsPerDungeon, realClearTarget, realClearCheckLevel (balance-check still uses realClearCheckLevel for its playthrough row)."
 }

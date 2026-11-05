@@ -315,8 +315,10 @@ namespace RPGGame.Combat.Calculators
                 }
             }
 
-            // Apply class damage multiplier for hero attackers
-            if (attacker is Character classChar && classChar.Weapon is WeaponItem classWeapon)
+            // Apply class damage multiplier for hero attackers. Enemies are Characters too and carry a random common weapon,
+            // so without the Enemy check every enemy took that weapon's class multiplier (x1.0-1.55) and any class curve
+            // (fixed 2026-11-05; patches before fastbot-v21 were calibrated with it).
+            if (attacker is Character classChar && classChar is not Enemy && classChar.Weapon is WeaponItem classWeapon)
             {
                 double classMult = ClassBalanceHelper.GetDamageMultiplier(classWeapon.WeaponType, classChar.Level);
                 totalDamage *= classMult;
