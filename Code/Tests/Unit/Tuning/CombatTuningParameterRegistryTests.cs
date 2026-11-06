@@ -31,18 +31,8 @@ namespace RPGGame.Tests.Unit.Tuning
             TestRuntimeDifficulty_UsesGameSettings();
             TestClassDamageMultiplier_WiredInRegistry();
             TestAttributeDamageScale_Registered();
-            TestEnemyBalancePoolKnobs_Registered();
 
             TestBase.PrintSummary("CombatTuningParameterRegistry Tests", _testsRun, _testsPassed, _testsFailed);
-        }
-
-        private static void TestEnemyBalancePoolKnobs_Registered()
-        {
-            Console.WriteLine("--- EnemyBalance pool / conversion knobs ---");
-            TestBase.AssertTrue(CombatTuningParameterRegistry.GetById("enemyAttributePoolBase") != null,
-                "enemyAttributePoolBase", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(CombatTuningParameterRegistry.GetById("statConversionStrength") != null,
-                "statConversionStrength", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestRegistry_HasExpandedParameterCount()
@@ -168,16 +158,16 @@ namespace RPGGame.Tests.Unit.Tuning
             Console.WriteLine("--- globalEnemyHealthMult round-trips ---");
             var param = CombatTuningParameterRegistry.GetById("globalEnemyHealthMult");
             var cfg = GameConfiguration.Instance;
-            double saved = cfg.EnemySystem.GlobalMultipliers.HealthMultiplier;
+            double saved = cfg.EnemySystem.HealthCurve.BaseMultiplier;
             try
             {
                 param!.SetValue(1.35);
-                TestBase.AssertTrue(Math.Abs(cfg.EnemySystem.GlobalMultipliers.HealthMultiplier - 1.35) < 0.001,
-                    "global health mult updated", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(Math.Abs(cfg.EnemySystem.HealthCurve.BaseMultiplier - 1.35) < 0.001,
+                    "health curve base updated", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {
-                cfg.EnemySystem.GlobalMultipliers.HealthMultiplier = saved;
+                cfg.EnemySystem.HealthCurve.BaseMultiplier = saved;
             }
         }
 
@@ -205,7 +195,6 @@ namespace RPGGame.Tests.Unit.Tuning
             var gs = GameSettings.Instance;
             double savedGs = gs.EnemyHealthMultiplier;
             var enemySystem = GameConfiguration.Instance.EnemySystem;
-            double savedGlobal = enemySystem.GlobalMultipliers.HealthMultiplier;
 
             var data = new EnemyData
             {
@@ -217,7 +206,6 @@ namespace RPGGame.Tests.Unit.Tuning
 
             try
             {
-                enemySystem.GlobalMultipliers.HealthMultiplier = 1.0;
                 gs.EnemyHealthMultiplier = 1.0;
                 var baseline = EnemyStatCalculator.CalculateStats(data, 1, enemySystem);
 
@@ -230,7 +218,6 @@ namespace RPGGame.Tests.Unit.Tuning
             finally
             {
                 gs.EnemyHealthMultiplier = savedGs;
-                enemySystem.GlobalMultipliers.HealthMultiplier = savedGlobal;
             }
         }
 

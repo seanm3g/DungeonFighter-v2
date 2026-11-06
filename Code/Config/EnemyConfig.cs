@@ -325,7 +325,7 @@ namespace RPGGame
         public double MultiplierAt(int level)
         {
             if (!Enabled)
-                return 1.0;
+                return Math.Max(0.0, BaseMultiplier); // the base is a global scale; Enabled only switches the per-level shape
             if (Bands != null && Bands.Count > 0)
                 return Math.Max(0.0, BaseMultiplier) * BandValueAt(level);
             if (Anchors != null && Anchors.Count > 0)

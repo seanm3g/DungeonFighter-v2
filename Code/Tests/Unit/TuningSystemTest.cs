@@ -187,7 +187,7 @@ namespace RPGGame
                 if (config.EnemySystem != null)
                 {
                     UIManager.WriteSystemLine($"EnemySystem configuration loaded:");
-                    UIManager.WriteSystemLine($"  Global Health Multiplier: {config.EnemySystem.GlobalMultipliers.HealthMultiplier}");
+                    UIManager.WriteSystemLine($"  Global Health Multiplier: {config.EnemySystem.HealthCurve.BaseMultiplier}");
                     UIManager.WriteSystemLine($"  Baseline Health: {config.EnemySystem.BaselineStats.Health}");
                     UIManager.WriteSystemLine($"  Health per Level: {config.EnemySystem.ScalingPerLevel.Health}");
                     UIManager.WriteSystemLine($"  Available Archetypes: {string.Join(", ", config.EnemySystem.Archetypes.Keys)}");

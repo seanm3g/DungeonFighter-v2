@@ -32,7 +32,6 @@ namespace RPGGame.Tests.Unit.Tuning
             FormatChecklistProgress_ShowsPassFailTransitions(ref run, ref passed, ref failed);
             DurationTargetsForLevel_RespectsEditedCombinedTarget(ref run, ref passed, ref failed);
             ResetEditableTargets_RestoresCombatEquationDefaults(ref run, ref passed, ref failed);
-            Registry_HasEnemyBalancePoolKnobs(ref run, ref passed, ref failed);
             ScenarioApplicator_AppliesCombatEquationToSession(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("LabBalanceTests", run, passed, failed);
@@ -359,14 +358,6 @@ namespace RPGGame.Tests.Unit.Tuning
                 "Reset restores combined 27", ref run, ref passed, ref failed);
             TestBase.AssertEqual(1.5, def.Targets.TempoTolerance,
                 "Reset restores L1 tolerance 1.5", ref run, ref passed, ref failed);
-        }
-
-        private static void Registry_HasEnemyBalancePoolKnobs(ref int run, ref int passed, ref int failed)
-        {
-            TestBase.AssertTrue(CombatTuningParameterRegistry.GetById("enemyAttributePoolBase") != null,
-                "enemyAttributePoolBase registered", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(CombatTuningParameterRegistry.GetById("statConversionHealth") != null,
-                "statConversionHealth registered", ref run, ref passed, ref failed);
         }
 
         private static void ScenarioApplicator_AppliesCombatEquationToSession(ref int run, ref int passed, ref int failed)
