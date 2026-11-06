@@ -1,0 +1,224 @@
+{
+  "base": "fastbot-v23",
+  "classBalance": {
+    "barbarian": {
+      "damageCurve": {
+        "enabled": true,
+        "bands": [
+          {
+            "from": 1,
+            "to": 15,
+            "multiplier": 1.0
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 0.846745
+          },
+          {
+            "from": 21,
+            "to": 35,
+            "multiplier": 1.0
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 0.747425
+          },
+          {
+            "from": 41,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    },
+    "warrior": {
+      "damageCurve": {
+        "enabled": true,
+        "bands": [
+          {
+            "from": 1,
+            "to": 10,
+            "multiplier": 1.0
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 1.613284
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 1.474269
+          },
+          {
+            "from": 21,
+            "to": 25,
+            "multiplier": 1.918528
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 1.474269
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 2.479415
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 1.624505
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 1.0
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 1.433955
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 1.0
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 1.22264
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 1.0
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 2.770219
+          },
+          {
+            "from": 71,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    },
+    "rogue": {
+      "damageCurve": {
+        "enabled": true,
+        "bands": [
+          {
+            "from": 1,
+            "to": 5,
+            "multiplier": 1.0
+          },
+          {
+            "from": 6,
+            "to": 10,
+            "multiplier": 0.664343
+          },
+          {
+            "from": 11,
+            "to": 40,
+            "multiplier": 1.0
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 1.580083
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 1.558329
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 2.8481
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 2.20381
+          },
+          {
+            "from": 61,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    },
+    "wizard": {
+      "damageCurve": {
+        "enabled": true,
+        "bands": [
+          {
+            "from": 1,
+            "to": 10,
+            "multiplier": 1.0
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 0.655197
+          },
+          {
+            "from": 16,
+            "to": 25,
+            "multiplier": 1.0
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 0.840896
+          },
+          {
+            "from": 31,
+            "to": 45,
+            "multiplier": 1.0
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 0.395021
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 1.0
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 0.353553
+          },
+          {
+            "from": 61,
+            "to": 70,
+            "multiplier": 1.0
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 0.420448
+          },
+          {
+            "from": 76,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    }
+  },
+  "description": "fastbot-v14 + damage bands re-solved with Scripts/bo-solve.py (band scope, realClearAnchors targets, rules bot) at band midpoints L8 L13 L18 L33 L48 L73: 6-10 x1.035, 11-15 x0.90, 16-20 x1.03, 31-35 x0.91, 46-50 x0.86; 71-75 kept at v14 (bo-solve said x0.84 but a fresh-seed check put v14 on target, 30% vs 33, and x0.84 at 40%); other bands unchanged. Fresh-seed check (seed 777, ~230 dungeons/level) v14 -> v15: L8 83->77, L13 65->72, L18 70->69, L33 67->73, L48 54->59. Previous: fastbot-v12 + heavy enemy swings: enemyAttackTimeMultiplier 2.5, hero HP 150+45/level, damage bands start at 3->7% hero HP per swing, enemy HP bands fit to clear targets then capped at ~10 hero actions/fight with damage re-solved there; targets L3 88 L8 80 L10 72 L15 62 L20/35 66 L50 60 L75 27 fastbot-v16 (2026-11-04): v15 with every enemySystem.healthCurve anchor x0.5, folding in the GameSettings EnemyHealthMultiplier 0.5 every fastbot patch had been solved under; play and sim with that slider at 1.0. fastbot-v17 (2026-11-05 overnight): v16 + bo-solve damage bands at L23,L28,L38,L68, each kept only where a paired confirm on seeds 1311/1733 moved mean |gap| to realClearAnchors down by > 1.5 pts. fastbot-v18 (2026-11-05 overnight it2): fastbot-v17 + bo-solve damage bands at L13, kept where a paired confirm on seeds [2201, 2202, 2203] beat noise. fastbot-v20 (2026-11-05): fastbot-v18 migrated to the current layout (bands, attributeScale/armorScale, no legacy enemy sections); same game behaviour. fastbot-v21 (2026-11-05): v20 with no hero damage cap (designer call) and the enemy class-multiplier fix in code; curves not yet re-solved. fastbot-v22: fastbot-v21 + health bands ['health@L28', 'health@L3', 'health@L38', 'health@L43', 'health@L48', 'health@L53', 'health@L58', 'health@L63', 'health@L73', 'health@L8'] (balance-loop, paired confirm on seeds [8101, 8102, 8103, 8104]). fastbot-v23: fastbot-v22 + damage bands ['damage@L13', 'damage@L18', 'damage@L23', 'damage@L28', 'damage@L33', 'damage@L43', 'damage@L53', 'damage@L58', 'damage@L63', 'damage@L68', 'damage@L73', 'damage@L8'] (balance-loop, paired confirm on seeds [8301, 8302, 8303, 8304]). fastbot-v24: fastbot-v23 + class bands ['class:Barbarian@L18', 'class:Barbarian@L38', 'class:Rogue@L43', 'class:Rogue@L48', 'class:Rogue@L53', 'class:Rogue@L58', 'class:Rogue@L8', 'class:Warrior@L13', 'class:Warrior@L18', 'class:Warrior@L23', 'class:Warrior@L28', 'class:Warrior@L33', 'class:Warrior@L38', 'class:Warrior@L48', 'class:Warrior@L58', 'class:Warrior@L68', 'class:Wizard@L13', 'class:Wizard@L28', 'class:Wizard@L48', 'class:Wizard@L58', 'class:Wizard@L73'] (balance-loop, paired confirm on seeds [8501, 8502, 8503, 8504])."
+}
