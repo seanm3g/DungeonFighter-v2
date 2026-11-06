@@ -141,7 +141,7 @@ def cmd_solve(A):
     diag = [int(s) for s in A.diag_seeds.split(',')]
     conf = [int(s) for s in A.confirm_seeds.split(',')]
     S = {'command': 'solve', 'knob': A.knob, 'patch': A.patch, 'next': A.next, 'diagSeeds': diag, 'confirmSeeds': conf,
-         'solves': {}, 'accepted': [], 'rejected': [], 'at': datetime.now(timezone.utc).isoformat()}
+         'solves': {}, 'accepted': [], 'rejected': [], 'railed': [], 'at': datetime.now(timezone.utc).isoformat()}
     raw = measure(run, A, A.patch, diag, 'diag')
     rows = table(raw); S['diagnose'] = rows; S['diagSummary'] = summary_line(rows)
     run.log(f'solve {A.knob} on {A.patch}: diagnose {S["diagSummary"]}')
@@ -165,13 +165,20 @@ def cmd_solve(A):
         js = os.path.join(run.dir, tag + '.json')
         if not os.path.exists(js):
             run.call(['Scripts/bo-solve.py', '--level', L, '--patch', A.patch, '--knob', curve, '--seed', A.solve_seed + i,
-                      '--tools', A.tools, '--spark', A.spark, '--tolerance', A.tolerance, '--max-rounds', A.max_rounds, '--json', js], tag + '.txt')
+                      '--tools', A.tools, '--spark', A.spark, '--tolerance', A.tolerance, '--max-rounds', A.max_rounds, '--scale-range', A.scale_range, '--json', js], tag + '.txt')
         if not os.path.exists(js):
             S['solves'][f'{curve}@L{L}'] = 'no result'; continue
         r = json.load(open(js, encoding='utf-8'))
         S['solves'][f'{curve}@L{L}'] = {k: r[k] for k in ('target', 'converged', 'scale', 'value', 'valueCI90', 'dungeons', 'band')}
         run.log(f'{curve}@L{L}: scale {r["scale"]:.3f} value {r["value"]:.4f} converged={r["converged"]} dungeons={r["dungeons"]}')
-        if 0.27 < r['scale'] < 3.7 and abs(r['scale'] - 1) > 0.005:
+        # A solve pinned at the edge of --scale-range means the target is further than one step can reach. Apply the edge
+        # value anyway (the paired confirm still decides) and report it, so the next run of the step can go further; these
+        # used to be dropped silently (2026-11-05: health@L68 at x4 and class:Wizard@L23/43/53 at x0.25 vanished).
+        lo, hi = (float(x) for x in A.scale_range.split(','))
+        if r['scale'] <= lo * 1.08 or r['scale'] >= hi * 0.925:
+            S['railed'].append(f'{curve}@L{L}')
+            run.log(f'   {curve}@L{L} railed at x{r["scale"]:.3f} (scale range {A.scale_range}): applying the edge value; run the step again to go further')
+        if abs(r['scale'] - 1) > 0.005:
             solved[(curve, L)] = r['value']
     if not solved:
         run.log('nothing to change'); run.save(f'solve-{A.knob}-{A.patch}.json', S); return
@@ -218,6 +225,8 @@ def cmd_solve(A):
         bp.write_patch(bp.patch_path(name), full, base=A.patch)
         S['newPatch'] = name
     run.log(f'kept {S["accepted"]} dropped {S["rejected"]} -> {S.get("newPatch", "no new patch")}')
+    if S['railed']:
+        run.log(f'railed (target beyond one step; run this step again): {S["railed"]}')
     run.save(f'solve-{A.knob}-{A.patch}.json', S)
 
 
@@ -298,6 +307,7 @@ def main():
     p.add_argument('--min-gain', type=float, default=1.0)
     p.add_argument('--tolerance', type=float, default=0.07); p.add_argument('--max-rounds', type=int, default=16)
     p.add_argument('--solve-seed', type=int, default=41)
+    p.add_argument('--scale-range', default='0.25,4', help='bo-solve scale range per cell, lo,hi (an edge hit is applied and reported)')
     p = sub.add_parser('botcheck'); common(p); p.add_argument('--seeds', default='9101,9102')
     p = sub.add_parser('export'); p.add_argument('--run', required=True); p.add_argument('--out', required=True)
     A = ap.parse_args()
