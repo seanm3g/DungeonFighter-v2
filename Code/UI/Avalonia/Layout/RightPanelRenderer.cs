@@ -12,6 +12,7 @@ namespace RPGGame.UI.Avalonia.Layout
     using RPGGame.UI.Avalonia.Managers;
     using RPGGame.UI.Avalonia.Renderers;
     using RPGGame.UI.Avalonia.Renderers.Inventory;
+    using Helpers = RPGGame.UI.Avalonia.Renderers.Helpers;
     using RPGGame.UI.ColorSystem;
 
     /// <summary>
@@ -79,7 +80,13 @@ namespace RPGGame.UI.Avalonia.Layout
                 || title == "INVENTORY"
                 || title == "COMBO MANAGEMENT"
                 || title == "ACTIONS");
-            if (useInventoryPanel)
+            // Inventory as the hub: the right column is navigation (Skill Tree, Trade Up, Dungeon Select / Main Menu,
+            // Settings). Sequence editing moved to the Action Sequence editor.
+            if (useInventoryPanel && title == "INVENTORY" && interactionManager != null && !RPGGame.MCP.MCPMode.IsActive)
+            {
+                RenderInventoryHubButtons(x, y);
+            }
+            else if (useInventoryPanel)
             {
                 // Render combo sequence and action pool for inventory page and combo management
                 RenderInventoryRightPanel(x, y, character!);
@@ -90,6 +97,26 @@ namespace RPGGame.UI.Avalonia.Layout
                 int? heroLevelForLabCaption = registerActionLabEnemyLevelHover ? character?.Level : null;
                 RenderLocationEnemyPanel(x, y, enemy, dungeonName, roomName, registerActionLabEnemyLevelHover, heroLevelForLabCaption);
             }
+        }
+
+        /// <summary>Hub navigation buttons down the right column of the inventory.</summary>
+        private void RenderInventoryHubButtons(int x, int y)
+        {
+            var buttons = new List<ClickableElement>();
+            int w = Math.Max(10, LayoutConstants.RIGHT_PANEL_WIDTH - 4);
+            int top = y + 1;
+            Helpers.BoxButton.Draw(canvas, buttons, x, top, w, 3, "Skill Tree", InventoryMenuHandler.HubSkillTree);
+            Helpers.BoxButton.Draw(canvas, buttons, x, top + 4, w, 3, "Item Trade Up", InventoryMenuHandler.HubTradeUp);
+            Helpers.BoxButton.Draw(canvas, buttons, x, top + 8, w, 3, "Dungeon Select", InventoryMenuHandler.HubDungeonSelect);
+
+            int bottom = LayoutConstants.RIGHT_PANEL_Y + LayoutConstants.RIGHT_PANEL_HEIGHT - 2;
+            Helpers.BoxButton.Draw(canvas, buttons, x, bottom - 7, w, 3, "Main Menu", InventoryMenuHandler.HubMainMenu);
+            Helpers.BoxButton.Draw(canvas, buttons, x, bottom - 3, w, 3, "Settings", InventoryMenuHandler.HubSettings);
+
+            canvas.AddText(x, top + 12, "D dungeons  K skills", AsciiArtAssets.Colors.DarkGray);
+            canvas.AddText(x, top + 13, "T trade up  0 menu", AsciiArtAssets.Colors.DarkGray);
+            foreach (var b in buttons)
+                interactionManager!.AddClickableElement(b);
         }
 
         /// <summary>

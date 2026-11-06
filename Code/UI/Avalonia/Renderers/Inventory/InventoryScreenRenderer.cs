@@ -49,6 +49,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
         /// <summary>Columns the bottom Actions buttons occupy from the panel's left edge (two 28-wide columns at +2 and +32).</summary>
         private const int ActionsBlockWidth = 61;
+        private const string MainMenuLabel = "Save & Main Menu";
 
         /// <summary>Separator column of a description pane that extended below the Actions header this frame; the shortcut hint stops short of it.</summary>
         private int? detailSeparatorXBesideActions;
@@ -373,32 +374,35 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 DisplayText = "Actions"
             });
             
-            // Create inventory action buttons
-            var equipButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, 1, "1", MenuOptionFormatter.Format(1, UIConstants.MenuOptions.EquipItem), Prefix + "menu:equip");
-            var unequipButton = InventoryButtonFactory.CreateButton(x + 32, y, 28, 1, "2", MenuOptionFormatter.Format(2, UIConstants.MenuOptions.UnequipItem), Prefix + "menu:unequip");
-            var discardButton = InventoryButtonFactory.CreateButton(x + 2, y + 1, 28, 1, "3", MenuOptionFormatter.Format(3, UIConstants.MenuOptions.DiscardItem), Prefix + "menu:discard");
-            var tradeUpButton = InventoryButtonFactory.CreateButton(x + 32, y + 1, 28, 1, "4", MenuOptionFormatter.Format(4, UIConstants.MenuOptions.TradeUpItems), Prefix + "menu:tradeup");
-            var snapshotButton = InventoryButtonFactory.CreateButton(x + 2, y + 2, 40, 1, "5", MenuOptionFormatter.Format(5, UIConstants.MenuOptions.SnapshotForActionLab), Prefix + "menu:snapshot");
-            var exitButton = InventoryButtonFactory.CreateButton(x + 2, y + 3, 28, 1, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.ReturnToGameMenu), Prefix + "menu:exit");
-            
-            clickableElements.AddRange(new[] { equipButton, unequipButton, discardButton, tradeUpButton, snapshotButton, exitButton });
-            
-            canvas.AddMenuOption(x + 2, y, 1, UIConstants.MenuOptions.EquipItem, AsciiArtAssets.Colors.White, equipButton.IsHovered);
-            canvas.AddMenuOption(x + 32, y, 2, UIConstants.MenuOptions.UnequipItem, AsciiArtAssets.Colors.White, unequipButton.IsHovered);
+            // Equip / unequip / discard happen on the items themselves (click, drag, right-click) and Trade Up is a hub
+            // button, so the list keeps only these. Keys 1-4 still work.
+            var snapshotButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, 1, "5", MenuOptionFormatter.Format(5, UIConstants.MenuOptions.SnapshotForActionLab), Prefix + "menu:snapshot");
+            var exitButton = InventoryButtonFactory.CreateButton(x + 2, y + 1, 28, 1, "0", MenuOptionFormatter.Format(0, MainMenuLabel), Prefix + "menu:exit");
+            clickableElements.AddRange(new[] { snapshotButton, exitButton });
+            canvas.AddMenuOption(x + 2, y, 5, UIConstants.MenuOptions.SnapshotForActionLab, AsciiArtAssets.Colors.White, snapshotButton.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(x + 2, y + 1, 3, UIConstants.MenuOptions.DiscardItem, AsciiArtAssets.Colors.White, discardButton.IsHovered);
-            canvas.AddMenuOption(x + 32, y + 1, 4, UIConstants.MenuOptions.TradeUpItems, AsciiArtAssets.Colors.White, tradeUpButton.IsHovered);
+            canvas.AddMenuOption(x + 2, y + 1, 0, MainMenuLabel, AsciiArtAssets.Colors.White, exitButton.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(x + 2, y + 2, 5, UIConstants.MenuOptions.SnapshotForActionLab, AsciiArtAssets.Colors.White, snapshotButton.IsHovered);
-            currentLineCount++;
-            canvas.AddMenuOption(x + 2, y + 3, 0, UIConstants.MenuOptions.ReturnToGameMenu, AsciiArtAssets.Colors.White, exitButton.IsHovered);
-            currentLineCount++;
+
+            // Opens the Action Sequence editor (E): beside the action strip along the bottom of the screen.
+            if (LayoutConstants.ActionStripAtBottom)
+            {
+                int bx = LayoutConstants.ACTION_INFO_X + LayoutConstants.ACTION_INFO_WIDTH + 1;
+                int by = LayoutConstants.ACTION_INFO_Y + Math.Max(0, (LayoutConstants.ACTION_INFO_HEIGHT - 3) / 2);
+                RPGGame.UI.Avalonia.Renderers.Helpers.BoxButton.Draw(canvas, clickableElements, bx, by,
+                    LayoutConstants.ActionStripSideButtonWidth, 3, "Edit Action Sequence", InventoryMenuHandler.HubEditSequence);
+            }
+            else
+            {
+                RPGGame.UI.Avalonia.Renderers.Helpers.BoxButton.Draw(canvas, clickableElements, x + 34, y - 1, 26, 3,
+                    "Edit Action Sequence", InventoryMenuHandler.HubEditSequence);
+            }
 
             int hintWidth = detailSeparatorXBesideActions is int sepX ? Math.Min(width - 4, sepX - 1 - (x + 2)) : width - 4;
             string shortcutHint = GetNumpadShortcutHint(hintWidth);
             if (!string.IsNullOrEmpty(shortcutHint))
             {
-                canvas.AddText(x + 2, y + 5, shortcutHint, AsciiArtAssets.Colors.DarkGray);
+                canvas.AddText(x + 2, y + 3, shortcutHint, AsciiArtAssets.Colors.DarkGray);
                 currentLineCount++;
             }
             

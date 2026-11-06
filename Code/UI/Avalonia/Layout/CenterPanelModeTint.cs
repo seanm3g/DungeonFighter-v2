@@ -67,7 +67,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (TryUpdateExistingFrame(canvas))
                 return;
 
-            int bandY = LayoutConstants.ACTION_INFO_STRIP_HEIGHT;
+            int bandY = LayoutConstants.ActionStripAtBottom ? 0 : LayoutConstants.ACTION_INFO_STRIP_HEIGHT;
             int bandH = LayoutConstants.CombatSequenceBandHeight + LayoutConstants.CENTER_PANEL_HEIGHT;
             canvas.ClearBoxesInArea(
                 LayoutConstants.CENTER_PANEL_X,

@@ -97,11 +97,11 @@ namespace RPGGame
                         canvasUI.WriteLineColoredSegments(line, UIMessageType.Environmental);
                 }
 
-                // Title lines center in the room-entry column so dividers and options align with narrative above.
-                foreach (var line in BuildExitChoiceMenuLines())
-                {
-                    canvasUI.WriteLineColoredSegments(line, UIMessageType.Title);
-                }
+                // The choice is two big buttons (CONTINUE / LEAVE) drawn along the bottom of the log box; blank rows keep
+                // the log's last lines clear of them. Keys 1 / 2 still work.
+                DungeonExitChoicePrompt.Open();
+                for (int i = 0; i < ExitChoiceButtonRows; i++)
+                    canvasUI.WriteLineColoredSegments(new List<ColoredText>(), UIMessageType.Environmental);
                 
                 // Render the menu
                 if (stateManager.CurrentPlayer != null && stateManager.CurrentRoom != null)
@@ -114,13 +114,24 @@ namespace RPGGame
             }
             
             // Wait for player choice
-            bool shouldExit = await exitChoiceTaskSource.Task;
+            bool shouldExit;
+            try
+            {
+                shouldExit = await exitChoiceTaskSource.Task;
+            }
+            finally
+            {
+                DungeonExitChoicePrompt.Close();
+            }
             exitChoiceTaskSource = null;
             
             return shouldExit;
         }
 
         private const string WayAheadHeading = "~ THE WAY AHEAD ~";
+
+        /// <summary>Blank log rows under the scouting report, the height of the CONTINUE / LEAVE buttons plus a margin.</summary>
+        private const int ExitChoiceButtonRows = 7;
 
         public static IReadOnlyList<List<ColoredText>> BuildExitChoiceMenuLines()
         {

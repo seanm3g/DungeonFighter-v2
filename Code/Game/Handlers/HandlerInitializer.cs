@@ -158,6 +158,28 @@ namespace RPGGame.Handlers
                 };
                 handlers.InventoryMenuHandler.ShowGameLoopEvent += () => showGameLoop();
                 handlers.InventoryMenuHandler.ShowMessageEvent += (msg) => showMessage(msg);
+                // Inventory is the hub: its side buttons reuse the old game-menu commands.
+                handlers.InventoryMenuHandler.HubCommandEvent += async (command) =>
+                {
+                    switch (command)
+                    {
+                        case InventoryMenuHandler.HubSettings:
+                            handlers.SettingsMenuHandler?.ShowSettings();
+                            return;
+                        case InventoryMenuHandler.HubDungeonSelect:
+                            await (showDungeonSelection?.Invoke() ?? Task.CompletedTask);
+                            return;
+                        case InventoryMenuHandler.HubSkillTree:
+                            showSkillTree();
+                            return;
+                        case InventoryMenuHandler.HubMainMenu:
+                            if (handlers.GameLoopInputHandler != null)
+                                await handlers.GameLoopInputHandler.HandleMenuInput("0");
+                            else
+                                showMainMenu();
+                            return;
+                    }
+                };
             }
 
             if (handlers.SkillTreeMenuHandler != null)
@@ -181,6 +203,7 @@ namespace RPGGame.Handlers
             if (handlers.RegionTravelHandler != null)
             {
                 handlers.RegionTravelHandler.ShowGameLoopEvent += () => showGameLoop();
+                handlers.RegionTravelHandler.ShowDungeonSelectionEvent += async () => await (showDungeonSelection?.Invoke() ?? Task.CompletedTask);
                 handlers.RegionTravelHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }
             
@@ -221,6 +244,7 @@ namespace RPGGame.Handlers
             if (handlers.DungeonSelectionHandler != null)
             {
                 handlers.DungeonSelectionHandler.ShowGameLoopEvent += () => showGameLoop();
+                handlers.DungeonSelectionHandler.ShowWorldMapEvent += () => handlers.RegionTravelHandler?.ShowRegionTravel();
                 handlers.DungeonSelectionHandler.ShowMessageEvent += (msg) => showMessage(msg);
                 
                 // Wire up dungeon start to the dungeon runner manager

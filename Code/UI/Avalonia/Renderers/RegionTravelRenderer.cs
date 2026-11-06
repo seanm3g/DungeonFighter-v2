@@ -110,7 +110,68 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             AddPinTargets(mapLeft, mapTop, pins, currentRegion);
             RenderSlip(slipX + 2, slipY + 1, slipWidth - 4, slipHeight - 2, player, regions, currentRegion, hovered, routeResult);
+            if (TravelConfirmPopupState.Current is { } popup)
+                RenderTravelPopup(x, y, width, height, popup);
             return height;
+        }
+
+        private static readonly Color PopupBackground = Color.FromRgb(28, 28, 28);
+
+        /// <summary>
+        /// "Travel to X?" confirmation over the map: travel time and danger, Confirm / Cancel. While it is up only its
+        /// buttons are clickable.
+        /// </summary>
+        private void RenderTravelPopup(int x, int y, int width, int height, TravelConfirmView popup)
+        {
+            clickableElements.Clear();
+            TravelMapHoverState.BeginTargets();
+
+            var gold = ColorPalette.Gold.GetColor();
+            const int popupW = 46;
+            const int popupH = 17;
+            int px = x + Math.Max(0, (width - popupW) / 2);
+            int py = y + Math.Max(0, (height - popupH) / 2);
+            canvas.AddOverlayBox(px, py, popupW, popupH, gold, PopupBackground);
+
+            string title = $"Travel to {popup.DestinationName}?";
+            if (title.Length > popupW - 4)
+                title = title.Substring(0, popupW - 5) + ".";
+            canvas.AddOverlayText(px + (popupW - title.Length) / 2, py + 1, title, gold);
+
+            // Inner panel with the journey details.
+            int ix = px + 3, iy = py + 3, iw = popupW - 6, ih = 9;
+            canvas.AddOverlayBox(ix, iy, iw, ih, gold, PopupBackground);
+            int row = iy + 1;
+            foreach (var line in TextWrapper.WrapText("[Fighters are unavailable for dungeons during travel time]", iw - 4))
+                canvas.AddOverlayText(ix + 2, row++, line, gold);
+            row = iy + ih - 4;
+            if (!string.IsNullOrEmpty(popup.DestinationLevels))
+                canvas.AddOverlayText(ix + 2, row, $"Region: {popup.DestinationLevels}", gold);
+            canvas.AddOverlayText(ix + 2, row + 1, $"Travel time: {popup.TravelTime}", gold);
+            canvas.AddOverlayText(ix + 2, row + 2, $"Chance of risk or danger: {popup.DangerPercent}%", gold);
+
+            int by = py + popupH - 4;
+            int bw = (popupW - 9) / 2;
+            PopupButton(px + 3, by, bw, "Confirm", TravelConfirmPopupState.ConfirmKey, gold);
+            PopupButton(px + popupW - 3 - bw, by, bw, "Cancel", TravelConfirmPopupState.CancelKey, gold);
+        }
+
+        private void PopupButton(int bx, int by, int bw, string label, string key, Color color)
+        {
+            var element = new ClickableElement
+            {
+                X = bx,
+                Y = by,
+                Width = bw,
+                Height = 3,
+                Type = ElementType.MenuOption,
+                Value = key,
+                DisplayText = label
+            };
+            clickableElements.Add(element);
+            var c = element.IsHovered ? ColorPalette.Yellow.GetColor() : color;
+            canvas.AddOverlayBox(bx, by, bw, 3, c, PopupBackground);
+            canvas.AddOverlayText(bx + Math.Max(1, (bw - label.Length) / 2), by + 1, label, c);
         }
 
         private void DrawTableTrim(int x, int y, int width, int height)
@@ -157,6 +218,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             });
         }
 
+        private const string BackLabel = "Back to dungeons";
+
         private void RenderSlip(
             int x,
             int y,
@@ -177,10 +240,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "0",
-                DisplayText = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.ReturnToGameMenu)
+                DisplayText = MenuOptionFormatter.Format(0, BackLabel)
             };
             clickableElements.Add(returnOption);
-            canvas.AddMenuOption(x, returnY, 0, UIConstants.MenuOptions.ReturnToGameMenu, AsciiArtAssets.Colors.White, returnOption.IsHovered);
+            canvas.AddMenuOption(x, returnY, 0, BackLabel, AsciiArtAssets.Colors.White, returnOption.IsHovered);
 
             int bottom = returnY - 1;
             if (route != null && !route.IsComplete)

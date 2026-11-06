@@ -54,6 +54,10 @@ namespace RPGGame.UI.Avalonia
         {
             interactionManager?.ClearClickableElements();
             CombatBoardLayout.Sync(gameState, inDungeonRun);
+            // The editor's renderer sets this back on while it paints; every other screen leaves it off.
+            ActionSequenceEditorLayout.IsOpen = false;
+            if (gameState.HasValue)
+                Layout.LayoutConstants.ActionStripAtBottom = gameState.Value == GameState.Inventory;
             CombatBoardLayout.TeardownIfNeeded(canvas);
             layoutCoordinator.CoordinateLayout(
                 character,

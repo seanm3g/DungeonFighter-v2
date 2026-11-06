@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Renderers;
 
@@ -27,6 +28,20 @@ namespace RPGGame
 
         public event OnShowGameLoop? ShowGameLoopEvent;
         public event OnShowMessage? ShowMessageEvent;
+        /// <summary>
+        /// When wired, the world map is opened from dungeon selection: Back returns there, and arriving somewhere
+        /// returns there automatically. Unwired (tests, headless) the old game-loop behavior stays.
+        /// </summary>
+        public event Func<Task>? ShowDungeonSelectionEvent;
+
+        /// <summary>Escape on the world map: closes the travel popup if open, else leaves the map.</summary>
+        public const string CancelKey = "escape";
+
+        /// <summary>Pause on the arrival summary before returning to dungeon selection.</summary>
+        private const int ArrivalPauseMs = 1600;
+
+        private TravelRegion? pendingDestination;
+        private TravelRouteResult? pendingRoute;
 
         public RegionTravelHandler(GameStateManager stateManager, IUIManager? customUIManager)
             : this(stateManager, customUIManager, new TravelRegionCatalog(), new TravelRouteGenerator())
@@ -56,6 +71,7 @@ namespace RPGGame
             }
 
             lastRouteResult = null;
+            ClearPendingTravel();
             stateManager.TransitionToState(GameState.RegionTravel);
             RenderTravelScreen();
         }
@@ -72,11 +88,31 @@ namespace RPGGame
                 return;
 
             string trimmedInput = (input ?? "").Trim();
-            if (trimmedInput == "0")
+
+            // Travel popup open: only confirm / cancel.
+            if (pendingDestination != null)
+            {
+                string key = trimmedInput.ToLowerInvariant();
+                if (key == TravelConfirmPopupState.ConfirmKey || key == "y" || key == "enter")
+                {
+                    var confirmed = pendingDestination;
+                    var route = pendingRoute;
+                    ClearPendingTravel();
+                    await RunRouteTravelAsync(confirmed, route);
+                    await ReturnToDungeonSelectionAfterArrivalAsync();
+                }
+                else if (key == TravelConfirmPopupState.CancelKey || key == "n" || key == "0" || key == CancelKey)
+                {
+                    ClearPendingTravel();
+                    RenderTravelScreen();
+                }
+                return;
+            }
+
+            if (trimmedInput == "0" || string.Equals(trimmedInput, CancelKey, StringComparison.OrdinalIgnoreCase))
             {
                 lastRouteResult = null;
-                stateManager.TransitionToState(GameState.GameLoop);
-                ShowGameLoopEvent?.Invoke();
+                await LeaveMapAsync();
                 return;
             }
 
@@ -101,10 +137,86 @@ namespace RPGGame
                 return;
             }
 
+            // With the canvas UI, ask first (travel time and danger); headless travels straight away.
+            if (customUIManager is CanvasUICoordinator)
+            {
+                OpenTravelPopup(destination);
+                return;
+            }
+
             await RunRouteTravelAsync(destination);
         }
 
-        private async Task RunRouteTravelAsync(TravelRegion destination)
+        /// <summary>True while the "Travel to X?" popup waits for confirm / cancel.</summary>
+        public bool IsTravelPopupOpen => pendingDestination != null;
+
+        private void OpenTravelPopup(TravelRegion destination)
+        {
+            var player = stateManager.CurrentPlayer;
+            if (player == null)
+                return;
+
+            // The road is rolled now so the popup's estimate is the journey that will actually play out.
+            pendingRoute = routeGenerator.CreateRouteResult(player, destination.Id);
+            pendingDestination = destination;
+            TravelConfirmPopupState.Current = BuildConfirmView(destination, pendingRoute.EventCount);
+            TravelMapHoverState.Clear();
+            RenderTravelScreen();
+        }
+
+        /// <summary>
+        /// Popup numbers: time is road events x the average minutes per stretch (over a d20); danger is the chance at
+        /// least one stretch rolls a natural 1 (the only travel events that deal damage).
+        /// </summary>
+        public static TravelConfirmView BuildConfirmView(TravelRegion destination, int eventCount)
+        {
+            int n = Math.Max(1, eventCount);
+            double avgMinutes = 0;
+            for (int roll = 1; roll <= 20; roll++)
+                avgMinutes += TravelPacing.GetSummaryTravelMinutesForRoll(roll) / 20.0;
+            int danger = (int)Math.Round((1.0 - Math.Pow(19.0 / 20.0, n)) * 100.0);
+            return new TravelConfirmView
+            {
+                DestinationName = destination.DisplayName,
+                DestinationLevels = destination.LevelRangeLabel,
+                TravelTime = TravelPacing.FormatTravelTime((int)Math.Round(avgMinutes * n)),
+                DangerPercent = Math.Clamp(danger, 0, 100),
+                RoadEvents = n
+            };
+        }
+
+        private void ClearPendingTravel()
+        {
+            pendingDestination = null;
+            pendingRoute = null;
+            TravelConfirmPopupState.Current = null;
+        }
+
+        private async Task LeaveMapAsync()
+        {
+            ClearPendingTravel();
+            if (ShowDungeonSelectionEvent != null)
+            {
+                await ShowDungeonSelectionEvent.Invoke();
+                return;
+            }
+            stateManager.TransitionToState(GameState.GameLoop);
+            ShowGameLoopEvent?.Invoke();
+        }
+
+        /// <summary>After arriving, hold the arrival summary briefly, then return to dungeon selection in the new region.</summary>
+        private async Task ReturnToDungeonSelectionAfterArrivalAsync()
+        {
+            if (ShowDungeonSelectionEvent == null || lastRouteResult == null || !lastRouteResult.IsComplete)
+                return;
+            await delayAsync(DeveloperModeState.ScaleDelayMs(ArrivalPauseMs));
+            if (stateManager.CurrentState != GameState.RegionTravel)
+                return;
+            lastRouteResult = null;
+            await ShowDungeonSelectionEvent.Invoke();
+        }
+
+        private async Task RunRouteTravelAsync(TravelRegion destination, TravelRouteResult? preRolledRoute = null)
         {
             var player = stateManager.CurrentPlayer;
             if (player == null)
@@ -112,10 +224,10 @@ namespace RPGGame
 
             isTravelInProgress = true;
             // The pointer may leave the window mid-walk; don't keep the clicked pin lit for the whole journey.
-            RPGGame.UI.TravelMapHoverState.Clear();
+            TravelMapHoverState.Clear();
             try
             {
-                lastRouteResult = routeGenerator.CreateRouteResult(player, destination.Id);
+                lastRouteResult = preRolledRoute ?? routeGenerator.CreateRouteResult(player, destination.Id);
                 RenderTravelScreen();
 
                 int eventCount = Math.Max(1, lastRouteResult.EventCount);

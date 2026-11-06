@@ -65,6 +65,12 @@ namespace RPGGame.UI.Avalonia.Layout
         /// True when grid X is in the flexible center column (not left/right chrome).
         /// Matches strip, sequence HUD, combat log, and menus drawn between the side panels.
         /// </summary>
+        /// <summary>
+        /// False while a full-screen (chromeless) screen is up: there is no right panel to protect, so center-column
+        /// text is not clipped at its edge. Set on every layout pass by <see cref="CanvasTitleLayoutCoordinator"/>.
+        /// </summary>
+        public static bool SidePanelsVisible { get; set; } = true;
+
         public static bool IsCenterColumnX(int gridX)
         {
             int leftEnd = LayoutConstants.LEFT_PANEL_X + LayoutConstants.LEFT_PANEL_WIDTH;

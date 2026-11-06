@@ -215,7 +215,8 @@ namespace RPGGame.Game.Services
                 ActionEditorHandler = result.ActionEditorHandler,
                 InventoryMenuHandler = result.InventoryMenuHandler,
                 DungeonSelectionHandler = result.DungeonSelectionHandler,
-                StableHandler = result.StableHandler
+                StableHandler = result.StableHandler,
+                RegionTravelHandler = result.RegionTravelHandler
             };
             
             // Create input router

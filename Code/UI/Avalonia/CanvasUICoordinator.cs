@@ -128,6 +128,8 @@ namespace RPGGame.UI.Avalonia
             this.contextManager = buildResult.ContextManager;
             this.layoutManager = buildResult.LayoutManager;
             this.interactionManager = buildResult.InteractionManager;
+            if (this.interactionManager is RPGGame.UI.Avalonia.Managers.CanvasInteractionManager cim)
+                RPGGame.UI.DungeonExitChoicePrompt.ClickTargets = cim.ClickableElements;
             this.textManager = buildResult.TextManager;
             this.renderer = buildResult.Renderer;
             this.animationManager = buildResult.AnimationManager;

@@ -114,6 +114,14 @@ namespace RPGGame
             // Trim whitespace to handle various input formats
             string trimmedInput = input?.Trim() ?? "";
             
+            // Fighter roster cards send "fighter:N" (1-based, most recently saved first).
+            if (trimmedInput.StartsWith(FighterCardPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                if (int.TryParse(trimmedInput.Substring(FighterCardPrefix.Length), out int fighterNumber))
+                    await LoadGame(fighterNumber - 1);
+                return;
+            }
+
             switch (trimmedInput)
             {
                 case "1":
@@ -147,7 +155,7 @@ namespace RPGGame
                     break;
                 default:
                     AudioCues.Trigger(AudioCue.Menu_Invalid);
-                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Stable), 4 (History), 5 (Settings), or 0 (Quit).");
+                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Click a fighter, or press 1 (New fighter), 2 (All saved fighters), 3 (Fighter Overview), 5 (Settings), or 0 (Quit).");
                     break;
             }
         }
@@ -239,10 +247,14 @@ namespace RPGGame
             await Task.CompletedTask;
         }
 
+        /// <summary>Main menu fighter card input prefix: <c>fighter:1</c> loads the most recently saved hero.</summary>
+        public const string FighterCardPrefix = "fighter:";
+
         /// <summary>
-        /// Load the most recently saved character (fallback when the Load Character menu is not wired)
+        /// Load a saved character by its position in the save list (most recent first). Index 0 is also the
+        /// fallback for Load when the Load Character menu is not wired.
         /// </summary>
-        private async Task LoadGame()
+        private async Task LoadGame(int saveIndex = 0)
         {
             try
             {
@@ -256,8 +268,13 @@ namespace RPGGame
                     return;
                 }
                 
-                // Get the most recently saved character (first in the sorted list)
-                var mostRecentCharacterInfo = savedCharacters[0];
+                if (saveIndex < 0 || saveIndex >= savedCharacters.Count)
+                {
+                    ShowMessageEvent?.Invoke("That fighter is no longer saved.");
+                    return;
+                }
+
+                var mostRecentCharacterInfo = savedCharacters[saveIndex];
                 
                 ShowMessageEvent?.Invoke($"Loading {mostRecentCharacterInfo.characterName}...");
                 

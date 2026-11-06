@@ -185,6 +185,14 @@ namespace RPGGame.UI.Avalonia.Renderers
                 currentLineCount++;
             }
             
+            // World Map: travel to another region (returns here on arrival).
+            y += 1;
+            const string worldMapLabel = "World Map";
+            RPGGame.UI.Avalonia.Renderers.Helpers.BoxButton.Draw(canvas, clickableElements, x + 4, y, Math.Min(Math.Max(16, width - 12), 26), 3,
+                worldMapLabel, RPGGame.DungeonSelectionHandler.WorldMapKey);
+            y += 3;
+            currentLineCount += 4;
+
             // Options section
             y += 1;
             currentLineCount += 1;

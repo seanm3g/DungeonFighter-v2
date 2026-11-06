@@ -5,6 +5,7 @@ using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Renderers.Helpers;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
 
@@ -33,186 +34,100 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         }
         
         /// <summary>
-        /// Renders the main menu content within the center panel (centered horizontally and vertically)
+        /// Main menu as a fighter roster: one card per saved fighter (most recently saved first, click to load), a "+"
+        /// card for a new fighter, "Fighter Overview (Stable)" top left, Settings / Quit bottom right.
+        /// Keys stay the same as the old list menu: 1 new, 2 all saved fighters, 3 stable, 5 settings, 0 quit.
         /// </summary>
         public int RenderMainMenuContent(int x, int y, int width, int height, bool hasSavedGame, int savedFighterCount, string? newGameConfirmPrompt = null)
         {
             clickableElements.Clear();
-            int currentLineCount = 0;
-            
-            string loadGameTextForWidth = hasSavedGame
-                ? UIConstants.Formats.LoadCharactersWithCount(savedFighterCount)
-                : UIConstants.MenuOptions.LoadGame;
-            
-            int maxOptionLength = Math.Max(
-                MenuOptionFormatter.Format(1, UIConstants.MenuOptions.NewGame).Length,
-                Math.Max(
-                    MenuOptionFormatter.Format(2, loadGameTextForWidth).Length,
-                    Math.Max(
-                        MenuOptionFormatter.Format(3, UIConstants.MenuOptions.Stable).Length,
-                        Math.Max(
-                            MenuOptionFormatter.Format(4, UIConstants.MenuOptions.History).Length,
-                            Math.Max(
-                                MenuOptionFormatter.Format(5, UIConstants.MenuOptions.Settings).Length,
-                                MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Quit).Length
-                            )
-                        )
-                    )
-                )
-            );
+            var gold = ColorPalette.Gold.GetColor();
 
-            const int menuLineCount = 7; // six options plus the blank row above Quit
-            const int footerReserve = 4;
-            var promptLines = WrapNewGameConfirmPrompt(newGameConfirmPrompt, width);
-            // Blank row plus the prompt, so the block stays centered with the options instead of
-            // sitting on the bottom rows that ClearLoadingStatus wipes after this paint.
-            int promptSlots = promptLines.Count == 0 ? 0 : promptLines.Count + 1;
-            int layoutHeight = Math.Max(height - footerReserve, menuLineCount + promptSlots + 2);
-            var (menuStartX, menuStartY) = MenuLayoutCalculator.CalculateCenteredMenu(x, y, width, layoutHeight, menuLineCount + promptSlots, maxOptionLength);
-            
-            // Color palette for menu items
-            var cyanColor = ColorPalette.Cyan.GetColor();
-            var goldColor = ColorPalette.Gold.GetColor();
-            var orangeColor = ColorPalette.Orange.GetColor();
-            var coolWhiteColor = ColorLayerSystem.GetWhite(WhiteTemperature.Cool);
-            
-            // Render [1] New Game - Cyan
-            int currentY = menuStartY;
-            int optionHitHeight = CenterColumnTextZoom.LineStride;
-            string newGameText = MenuOptionFormatter.Format(1, UIConstants.MenuOptions.NewGame);
-            var newGameOption = new ClickableElement
+            List<(string characterId, string characterName, int level)> saved;
+            try { saved = CharacterSaveManager.ListAllSavedCharacters() ?? new(); }
+            catch { saved = new(); }
+            saved = saved.FindAll(c => !string.IsNullOrWhiteSpace(c.characterName));
+
+            int left = x + Math.Max(2, width * 13 / 100);
+            int right = x + width - Math.Max(2, width * 8 / 100);
+
+            // Fighter Overview (Stable), top left
+            const string overviewLabel = "Fighter Overview (Stable)";
+            BoxButton.Draw(canvas, clickableElements, left, y + Math.Max(1, height * 6 / 100), overviewLabel.Length + 4, 3, overviewLabel, "3");
+
+            // Fighter cards + the add card in one row (wraps to a second row when there are many fighters).
+            const int cardW = 28;
+            const int cardH = 10;
+            const int gap = 3;
+            int perRow = Math.Max(2, (right - left + gap) / (cardW + gap));
+            int maxRows = height >= 40 ? 2 : 1;
+            int capacity = perRow * maxRows;
+            // Last slot is the "+" card; if fighters overflow, the one before it opens the full saved list.
+            bool overflow = saved.Count > capacity - 1;
+            int fighterCards = overflow ? capacity - 2 : saved.Count;
+
+            int cardsTop = y + Math.Max(5, height * 24 / 100);
+            int slot = 0;
+            void NextSlot(out int cx, out int cy)
             {
-                X = menuStartX,
-                Y = currentY,
-                Width = maxOptionLength,
-                Height = optionHitHeight,
-                Type = ElementType.MenuOption,
-                Value = "1",
-                DisplayText = newGameText
-            };
-            clickableElements.Add(newGameOption);
-            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 1, UIConstants.MenuOptions.NewGame, cyanColor, newGameOption.IsHovered);
-            currentLineCount++;
-            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
-            
-            // Render [2] Load Character(s) - with the saved fighter count highlighted
-            string loadGameText = loadGameTextForWidth;
-            
-            string loadGameDisplayText = MenuOptionFormatter.Format(2, loadGameText);
-            var loadGameOption = new ClickableElement
-            {
-                X = menuStartX,
-                Y = currentY,
-                Width = maxOptionLength,
-                Height = optionHitHeight,
-                Type = ElementType.MenuOption,
-                Value = "2",
-                DisplayText = loadGameDisplayText
-            };
-            clickableElements.Add(loadGameOption);
-            
-            if (hasSavedGame)
-            {
-                // Render with the fighter count highlighted
-                menuOptionRenderer.RenderColoredLoadGameOption(menuStartX, currentY, 2, savedFighterCount, orangeColor, loadGameOption.IsHovered);
+                cx = left + (slot % perRow) * (cardW + gap);
+                cy = cardsTop + (slot / perRow) * (cardH + 2);
+                slot++;
             }
-            else
+
+            for (int i = 0; i < fighterCards; i++)
             {
-                // Render plain load game option
-                menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 2, UIConstants.MenuOptions.LoadGame, goldColor, loadGameOption.IsHovered);
+                var (_, name, level) = saved[i];
+                NextSlot(out int cx, out int cy);
+                var lines = new List<string>();
+                lines.AddRange(WrapName(name, cardW - 4));
+                lines.Add("");
+                lines.Add($"Level {level}");
+                BoxButton.Draw(canvas, clickableElements, cx, cy, cardW, cardH, lines[0], MainMenuFighterKey(i + 1), gold, 1, lines.GetRange(1, lines.Count - 1));
             }
-            currentLineCount++;
-            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
-            
-            // Render [3] Stable - Gold (several heroes running side by side)
-            string stableText = MenuOptionFormatter.Format(3, UIConstants.MenuOptions.Stable);
-            var stableOption = new ClickableElement
+
+            if (overflow)
             {
-                X = menuStartX,
-                Y = currentY,
-                Width = maxOptionLength,
-                Height = optionHitHeight,
-                Type = ElementType.MenuOption,
-                Value = "3",
-                DisplayText = stableText
-            };
-            clickableElements.Add(stableOption);
-            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 3, UIConstants.MenuOptions.Stable, goldColor, stableOption.IsHovered);
-            currentLineCount++;
-            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
+                NextSlot(out int mx, out int my);
+                BoxButton.Draw(canvas, clickableElements, mx, my, cardW, cardH, $"+{saved.Count - fighterCards} more", "2", gold, 1,
+                    new[] { "", "all saved fighters" });
+            }
 
-            // Render [4] History - Cyan (fallen fighters and records; screen coming soon)
-            string historyText = MenuOptionFormatter.Format(4, UIConstants.MenuOptions.History);
-            var historyOption = new ClickableElement
-            {
-                X = menuStartX,
-                Y = currentY,
-                Width = maxOptionLength,
-                Height = optionHitHeight,
-                Type = ElementType.MenuOption,
-                Value = "4",
-                DisplayText = historyText
-            };
-            clickableElements.Add(historyOption);
-            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 4, UIConstants.MenuOptions.History, cyanColor, historyOption.IsHovered);
-            currentLineCount++;
-            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
+            NextSlot(out int ax, out int ay);
+            BoxButton.Draw(canvas, clickableElements, ax, ay, cardW, cardH, "+", "1", gold, 1, new[] { "", "new fighter" });
 
-            // Render [5] Settings - Orange
-            string settingsText = MenuOptionFormatter.Format(5, UIConstants.MenuOptions.Settings);
-            var settingsOption = new ClickableElement
-            {
-                X = menuStartX,
-                Y = currentY,
-                Width = maxOptionLength,
-                Height = optionHitHeight,
-                Type = ElementType.MenuOption,
-                Value = "5",
-                DisplayText = settingsText
-            };
-            clickableElements.Add(settingsOption);
-            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 5, UIConstants.MenuOptions.Settings, orangeColor, settingsOption.IsHovered);
-            currentLineCount++;
-            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
-            // Blank row between the options and Quit
-            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
+            // Settings / Quit, bottom right
+            const int sideW = 22;
+            int sideX = right - sideW;
+            int quitY = y + height - Math.Max(6, height * 14 / 100);
+            BoxButton.Draw(canvas, clickableElements, sideX, quitY - 4, sideW, 3, UIConstants.MenuOptions.Settings, "5");
+            BoxButton.Draw(canvas, clickableElements, sideX, quitY, sideW, 3, UIConstants.MenuOptions.Quit, "0");
 
-            // Note: Characters option (C) is hidden from UI but still accessible via keyboard
-
-            // Render [0] Quit - Cool white
-            string quitText = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Quit);
-            var quitOption = new ClickableElement
-            {
-                X = menuStartX,
-                Y = currentY,
-                Width = maxOptionLength,
-                Height = optionHitHeight,
-                Type = ElementType.MenuOption,
-                Value = "0",
-                DisplayText = quitText
-            };
-            clickableElements.Add(quitOption);
-            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 0, UIConstants.MenuOptions.Quit, coolWhiteColor, quitOption.IsHovered);
-            currentLineCount++;
-
+            int rowsUsed = (slot + perRow - 1) / perRow;
+            int belowCards = cardsTop + rowsUsed * (cardH + 2) + 1;
+            var promptLines = WrapNewGameConfirmPrompt(newGameConfirmPrompt, Math.Max(24, right - left));
             if (promptLines.Count > 0)
             {
-                var promptColor = AsciiArtAssets.Colors.Yellow;
-                currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
                 foreach (var line in promptLines)
-                {
-                    currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
-                    int lineX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(x, width, line.Length);
-                    canvas.AddText(lineX, currentY, line, promptColor);
-                    currentLineCount++;
-                }
+                    canvas.AddText(left, belowCards++, line, AsciiArtAssets.Colors.Yellow);
             }
-            else
+            else if (saved.Count == 0)
             {
-                RenderMenuFooter(x, y, width, height);
+                canvas.AddText(left, belowCards, "No fighters yet. Click + to create one.", AsciiArtAssets.Colors.Gray);
             }
-            
-            return currentLineCount;
+
+            return slot;
+        }
+
+        /// <summary>Input sent by the Nth fighter card (1-based, save list order).</summary>
+        public static string MainMenuFighterKey(int number) => MainMenuHandler.FighterCardPrefix + number;
+
+        private static List<string> WrapName(string name, int width)
+        {
+            var lines = TextWrapper.WrapText(name ?? "", Math.Max(4, width));
+            if (lines.Count > 2)
+                lines = lines.GetRange(0, 2);
+            return lines.Count == 0 ? new List<string> { "" } : lines;
         }
 
         /// <summary>

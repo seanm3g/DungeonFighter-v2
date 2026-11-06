@@ -8,6 +8,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Layout;
+    using RPGGame.UI.Avalonia.Managers;
+    using RPGGame.UI.Avalonia.Renderers.Helpers;
+    using RPGGame.UI.ColorSystem;
+    using RPGGame.Items.Helpers;
+    using RPGGame.Actions.RollModification;
 
     /// <summary>
     /// Renders the actions workspace: sequence slots (remove) + pool from gear (add). Order matches the strip above.
@@ -29,202 +34,195 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             this.clickableElements = clickableElements;
         }
 
+        private const int CardWidth = 28;
+        private const int CardHeight = 9;
+        private const int CardGap = 3;
+
         /// <summary>
-        /// Renders the pool-centric actions menu (sequence editing uses strip drag + row remove here).
+        /// Full-screen Action Sequence editor: the sequence as a row of cards (click one to take it out) and the
+        /// library of actions from equipped gear as a grid (click one to add it). F1 puts the sequence below the library
+        /// instead of above it. Back returns to the inventory.
         /// </summary>
         public int RenderComboManagement(int x, int y, int width, int height, Character character)
         {
             clickableElements.Clear();
-            int currentLineCount = 0;
+            var gold = ColorPalette.Gold.GetColor();
+            int left = x + 4;
+            int usableW = Math.Max(CardWidth, width - 8 - 26); // keep the right column for Settings
+            int perRow = Math.Max(1, (usableW + CardGap) / (CardWidth + CardGap));
 
-            canvas.ClearTextInArea(x, y, width, height);
-            canvas.ClearProgressBarsInArea(x, y, width, height);
+            // Back (top left), Settings (bottom right)
+            BoxButton.Draw(canvas, clickableElements, left, y + 1, 10, 3, "< Back", $"{ComboPointerInput.Prefix}back");
+            const int sideW = 20;
+            int sideX = x + width - sideW - 4;
+            BoxButton.Draw(canvas, clickableElements, sideX, y + height - 5, sideW, 3, "Settings", InventoryMenuHandler.HubSettings);
 
-            int startY = y;
-            int maxY = y + height - FooterLines;
+            var combo = character.GetComboActions();
+            var panels = CombatActionStripBuilder.BuildPanelData(character);
+            int cap = ComboSequenceMaxHelper.GetEffectiveMax(character);
+            var pool = character.GetActionPool();
+            var inSequence = new HashSet<RPGGame.Action>(combo);
 
-            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader("ACTIONS"), AsciiArtAssets.Colors.Gold);
-            y += 2;
-            currentLineCount += 2;
+            // Section heights: the sequence takes as many card rows as it needs (usually one); the library gets the rest.
+            // Empty slots up to the cap are drawn too, so the row shows how long the sequence can get.
+            int seqSlots = Math.Max(combo.Count, cap);
+            int seqRows = Math.Max(1, (Math.Max(seqSlots, 1) + perRow - 1) / perRow);
+            int seqBlockH = 2 + seqRows * (CardHeight + 2);
+            int top = y + 5;
+            int bottom = y + height - 2;
+            int libBlockH = Math.Max(2 + CardHeight + 1, bottom - top - seqBlockH - 1);
+            bool seqBelow = ActionSequenceEditorLayout.SequenceBelow;
+            int seqY = seqBelow ? top + libBlockH + 1 : top;
+            int libY = seqBelow ? top : top + seqBlockH + 1;
 
-            canvas.AddText(x + 2, y, "Sequence: drag the cards above to reorder (when allowed).", AsciiArtAssets.Colors.Gray);
-            y++;
-            currentLineCount++;
-            canvas.AddText(x + 2, y, "Pool: gear/class rows add to sequence; INVENTORY rows equip the item (swap) then add that action.", AsciiArtAssets.Colors.Gray);
-            y++;
-            currentLineCount++;
-            canvas.AddText(x + 2, y, "Keys: 1=add list  2=remove list  8=reorder  9=add all  0/5=back", AsciiArtAssets.Colors.DarkGray);
-            y += 2;
-            currentLineCount += 2;
+            ActionSequenceEditorLayout.IsOpen = true;
+            ActionSequenceEditorLayout.SequenceSlots.Clear();
+            int blockW = perRow * (CardWidth + CardGap);
+            ActionSequenceEditorLayout.SequenceArea = (left - 2, seqY, blockW + 2, seqBlockH);
+            ActionSequenceEditorLayout.LibraryArea = (left - 2, libY, blockW + 2, libBlockH);
+            bool dragging = ActionSequenceDragState.IsActive;
 
-            var comboActions = character.GetComboActions();
-            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader("SEQUENCE (remove)"), AsciiArtAssets.Colors.Gold);
-            y += 2;
-            currentLineCount += 2;
-
-            if (comboActions.Count > 0)
+            // --- Sequence ---
+            canvas.AddText(left, seqY, $"Action Sequence:  {combo.Count}/{cap} slots", gold);
+            canvas.AddText(left + 40, seqY, "drag to reorder, drag off to remove (or click)  |  F1: above/below library  |  Esc: back", AsciiArtAssets.Colors.DarkGray);
+            int nextStep = combo.Count > 0 ? character.ComboStep % combo.Count : -1;
+            for (int i = 0; i < combo.Count; i++)
             {
-                int showSeq = Math.Min(comboActions.Count, MaxSequenceRows);
-                for (int i = 0; i < showSeq && y <= maxY; i++)
-                {
-                    var action = comboActions[i];
-                    string step = character.ComboStep % comboActions.Count == i ? " <- next" : "";
-                    string label = $"{action.Name}{step}";
-                    string line = label + "  [click to remove]";
-                    if (line.Length > width - 8)
-                        line = line.Substring(0, Math.Max(0, width - 11)) + "...";
-
-                    string value = $"{ComboPointerInput.Prefix}rm:{i}";
-                    var removeBtn = InventoryButtonFactory.CreateButton(x + 2, y, Math.Max(8, width - 4), value, line);
-                    clickableElements.Add(removeBtn);
-                    var seqColor = removeBtn.IsHovered ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White;
-                    canvas.AddText(x + 2, y, line, seqColor);
-                    y++;
-                    currentLineCount++;
-                }
-
-                if (comboActions.Count > showSeq)
-                {
-                    canvas.AddText(x + 2, y, $"... +{comboActions.Count - showSeq} more in sequence (strip above)", AsciiArtAssets.Colors.Gray);
-                    y++;
-                    currentLineCount++;
-                }
-            }
-            else
-            {
-                canvas.AddText(x + 2, y, "(empty — add from pool below)", AsciiArtAssets.Colors.DarkGray);
-                y += 2;
-                currentLineCount += 2;
+                int cx = left + (i % perRow) * (CardWidth + CardGap);
+                int cy = seqY + 2 + (i / perRow) * (CardHeight + 2);
+                string swing = i < panels.Count
+                    ? CombatActionStripBuilder.FormatStripSwingLine(panels[i], character, combo[i], ActionStripDamageLineMode.EffectiveWithComboAmp, i)
+                    : "";
+                var border = i == nextStep ? AsciiArtAssets.Colors.White : AsciiArtAssets.Colors.Gray;
+                bool isDragSource = dragging && ActionSequenceDragState.FromSequenceIndex == i;
+                DrawActionCard(cx, cy, combo[i], swing, isDragSource ? AsciiArtAssets.Colors.DarkGray : border, $"{ComboPointerInput.Prefix}rm:{i}", dimmed: isDragSource);
+                ActionSequenceEditorLayout.SequenceSlots.Add((cx, cy, CardWidth, CardHeight));
+                string number = (i + 1).ToString();
+                canvas.AddText(cx + (CardWidth - number.Length) / 2, cy + CardHeight, number, AsciiArtAssets.Colors.Green);
             }
 
-            y++;
-            if (y > maxY)
-                y = maxY;
-
-            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader("POOL (from gear)"), AsciiArtAssets.Colors.Gold);
-            y += 2;
-            currentLineCount += 2;
-
-            var actionPool = character.GetActionPool();
-            var comboSet = new HashSet<RPGGame.Action>(comboActions);
-
-            if (actionPool.Count == 0)
+            for (int i = combo.Count; i < seqSlots; i++)
             {
-                canvas.AddText(x + 2, y, "(no actions — equip items that grant abilities)", AsciiArtAssets.Colors.DarkGray);
-                y += 2;
-                currentLineCount += 2;
-            }
-            else
-            {
-                int poolIdx = 0;
-                while (poolIdx < actionPool.Count && y + LinesPerPoolEntry - 1 <= maxY)
-                {
-                    var action = actionPool[poolIdx];
-                    bool inSeq = comboSet.Contains(action);
-                    string suffix = inSeq ? "  [in sequence]" : "";
-                    string nameLine = action.Name + suffix;
-                    if (nameLine.Length > width - 8)
-                        nameLine = nameLine.Substring(0, Math.Max(0, width - 11)) + "...";
-
-                    string poolValue = $"{ComboPointerInput.Prefix}pool:{poolIdx}";
-                    var addBtn = InventoryButtonFactory.CreateButton(x + 2, y, Math.Max(8, width - 4), poolValue, nameLine);
-                    clickableElements.Add(addBtn);
-                    var nameColor = inSeq ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Cyan;
-                    var poolDrawColor = addBtn.IsHovered ? AsciiArtAssets.Colors.Yellow : nameColor;
-                    canvas.AddText(x + 2, y, nameLine, poolDrawColor);
-                    y++;
-                    currentLineCount++;
-
-                    string mods = CombatActionStripBuilder.BuildActionMechanicalModSummary(character, action, -1);
-                    if (mods.Length > width - 8)
-                        mods = mods.Substring(0, Math.Max(0, width - 11)) + "...";
-                    canvas.AddText(x + 4, y, mods, AsciiArtAssets.Colors.Gray);
-                    y++;
-                    currentLineCount++;
-
-                    poolIdx++;
-                }
-
-                if (poolIdx < actionPool.Count)
-                {
-                    canvas.AddText(x + 2, y, $"... +{actionPool.Count - poolIdx} more — press 1 for full numbered list", AsciiArtAssets.Colors.Gray);
-                    y++;
-                    currentLineCount++;
-                }
+                int cx = left + (i % perRow) * (CardWidth + CardGap);
+                int cy = seqY + 2 + (i / perRow) * (CardHeight + 2);
+                canvas.AddBox(cx, cy, CardWidth, CardHeight, AsciiArtAssets.Colors.DarkGray, global::Avalonia.Media.Colors.Black);
+                const string emptyLabel = "empty slot";
+                canvas.AddText(cx + (CardWidth - emptyLabel.Length) / 2, cy + CardHeight / 2, emptyLabel, AsciiArtAssets.Colors.DarkGray);
+                string number = (i + 1).ToString();
+                canvas.AddText(cx + (CardWidth - number.Length) / 2, cy + CardHeight, number, AsciiArtAssets.Colors.DarkGray);
             }
 
-            y++;
-            if (y > maxY)
-                y = maxY;
-
-            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader("INVENTORY (from bag)"), AsciiArtAssets.Colors.Gold);
-            y += 2;
-            currentLineCount += 2;
-
-            var invEntries = InventoryActionPoolEntries.Build(character);
-            if (invEntries.Count == 0)
+            // Drop marker: a bar where the dragged card would land (needs this paint's slot rects, so after the cards).
+            int dropSlot = dragging ? ActionSequenceEditorLayout.DropSlotAt(ActionSequenceDragState.PointerX, ActionSequenceDragState.PointerY) : -1;
+            if (dropSlot >= 0)
             {
-                canvas.AddText(x + 2, y, "(no unequipped items with actions)", AsciiArtAssets.Colors.DarkGray);
-                y += 2;
-                currentLineCount += 2;
-            }
-            else
-            {
-                int invIdx = 0;
-                while (invIdx < invEntries.Count && y + LinesPerPoolEntry - 1 <= maxY)
-                {
-                    var invEntry = invEntries[invIdx];
-                    bool invInSeq = comboActions.Any(a =>
-                        string.Equals(a.Name, invEntry.ActionName, StringComparison.OrdinalIgnoreCase));
-                    string suffix = invInSeq ? "  [in sequence]" : "  [equip item → add]";
-                    string nameLine = invEntry.ActionName + suffix;
-                    if (nameLine.Length > width - 8)
-                        nameLine = nameLine.Substring(0, Math.Max(0, width - 11)) + "...";
-
-                    string invPoolValue = $"{ComboPointerInput.Prefix}invpool:{invIdx}";
-                    var invBtn = InventoryButtonFactory.CreateButton(x + 2, y, Math.Max(8, width - 4), invPoolValue, nameLine);
-                    clickableElements.Add(invBtn);
-                    var nameColor = invInSeq ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Magenta;
-                    var drawColor = invBtn.IsHovered ? AsciiArtAssets.Colors.Yellow : nameColor;
-                    canvas.AddText(x + 2, y, nameLine, drawColor);
-                    y++;
-                    currentLineCount++;
-
-                    RPGGame.Action? tipAction = ActionLoader.GetAction(invEntry.ActionName);
-                    string mods = CombatActionStripBuilder.BuildActionMechanicalModSummary(character, tipAction, -1);
-                    if (mods.Length > width - 8)
-                        mods = mods.Substring(0, Math.Max(0, width - 11)) + "...";
-                    canvas.AddText(x + 4, y, mods, AsciiArtAssets.Colors.Gray);
-                    y++;
-                    currentLineCount++;
-
-                    invIdx++;
-                }
-
-                if (invIdx < invEntries.Count)
-                {
-                    canvas.AddText(x + 2, y, $"... +{invEntries.Count - invIdx} more in bag", AsciiArtAssets.Colors.Gray);
-                    y++;
-                    currentLineCount++;
-                }
+                int mi = dropSlot;
+                int mx = left + (mi % perRow) * (CardWidth + CardGap) - 2;
+                int my = seqY + 2 + (mi / perRow) * (CardHeight + 2);
+                var yellow = ColorPalette.Yellow.GetColor();
+                for (int r = 0; r < CardHeight; r++)
+                    canvas.AddText(mx, my + r, "|", yellow);
             }
 
-            int footerY = startY + height - FooterLines;
-            canvas.AddText(x + 2, footerY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Actions), AsciiArtAssets.Colors.Gold);
-            footerY += 2;
+            // --- Library (actions on equipped gear) ---
+            canvas.AddText(left, libY, "Available Actions:", gold);
+            canvas.AddText(left + 40, libY, "actions on your equipped items  |  drag onto the sequence or click to add", AsciiArtAssets.Colors.DarkGray);
+            int libRowsFit = Math.Max(1, (libBlockH - 2) / (CardHeight + 1));
+            int libRows = (pool.Count + perRow - 1) / perRow;
+            int scroll = Math.Clamp(ActionSequenceEditorLayout.LibraryScrollRow, 0, Math.Max(0, libRows - libRowsFit));
+            ActionSequenceEditorLayout.LibraryScrollRow = scroll;
+            if (pool.Count == 0)
+                canvas.AddText(left, libY + 2, "(no actions: equip items that grant actions)", AsciiArtAssets.Colors.Gray);
+            for (int i = scroll * perRow; i < pool.Count; i++)
+            {
+                int row = i / perRow - scroll;
+                if (row >= libRowsFit)
+                    break;
+                int cx = left + (i % perRow) * (CardWidth + CardGap);
+                int cy = libY + 2 + row * (CardHeight + 1);
+                var action = pool[i];
+                bool used = inSequence.Contains(action);
+                DrawActionCard(cx, cy, action, PoolSwingLine(character, action), used ? AsciiArtAssets.Colors.DarkGray : gold,
+                    $"{ComboPointerInput.Prefix}pool:{i}", dimmed: used);
+                if (used)
+                    canvas.AddText(cx + 2, cy + CardHeight - 2, "in sequence", AsciiArtAssets.Colors.DarkGray);
+            }
+            if (scroll > 0)
+                canvas.AddText(left + 20, libY, "^ more above (Up)", AsciiArtAssets.Colors.Gray);
+            if (libRows - scroll > libRowsFit)
+                canvas.AddText(left, libY + 2 + libRowsFit * (CardHeight + 1) - 1, $"v {pool.Count - (scroll + libRowsFit) * perRow} more below (Down)", AsciiArtAssets.Colors.Gray);
 
-            var backBtn = InventoryButtonFactory.CreateButton(x + 2, footerY, 26, $"{ComboPointerInput.Prefix}back", "Back");
-            var reorderBtn = InventoryButtonFactory.CreateButton(x + 30, footerY, 28, $"{ComboPointerInput.Prefix}reorder", "Reorder");
-            var addAllBtn = InventoryButtonFactory.CreateButton(x + 2, footerY + 1, 26, $"{ComboPointerInput.Prefix}addall", "Add all");
-            clickableElements.AddRange(new[] { backBtn, reorderBtn, addAllBtn });
+            if (dragging)
+                DrawDragGhost(x, y, width, height);
 
-            canvas.AddMenuOption(x + 2, footerY, 0, "Back to inventory (0/5)", AsciiArtAssets.Colors.White, backBtn.IsHovered);
-            canvas.AddMenuOption(x + 30, footerY, 8, "Reorder (keys) (8)", AsciiArtAssets.Colors.White, reorderBtn.IsHovered);
-            currentLineCount++;
-            canvas.AddMenuOption(x + 2, footerY + 1, 9, "Add all from pool (9)", AsciiArtAssets.Colors.White, addAllBtn.IsHovered);
-            currentLineCount++;
+            return pool.Count + combo.Count;
+        }
 
-            return currentLineCount;
+        /// <summary>The dragged card follows the pointer (drawn on the overlay layer, above the cards).</summary>
+        private void DrawDragGhost(int x, int y, int width, int height)
+        {
+            const int gw = 22;
+            const int gh = 3;
+            int gx = Math.Clamp(ActionSequenceDragState.PointerX - gw / 2, x, Math.Max(x, x + width - gw));
+            int gy = Math.Clamp(ActionSequenceDragState.PointerY - 1, y, Math.Max(y, y + height - gh));
+            var yellow = ColorPalette.Yellow.GetColor();
+            canvas.AddOverlayBox(gx, gy, gw, gh, yellow, global::Avalonia.Media.Color.FromRgb(20, 20, 20));
+            string label = Truncate((ActionSequenceDragState.ActionName ?? "").ToUpperInvariant(), gw - 4);
+            canvas.AddOverlayText(gx + Math.Max(2, (gw - label.Length) / 2), gy + 1, label, yellow);
+        }
+
+        /// <summary>One action card: name, damage | speed, then the description wrapped into what is left.</summary>
+        private void DrawActionCard(int cx, int cy, RPGGame.Action action, string swing, global::Avalonia.Media.Color border, string key, bool dimmed)
+        {
+            var element = new ClickableElement
+            {
+                X = cx,
+                Y = cy,
+                Width = CardWidth,
+                Height = CardHeight,
+                Type = ElementType.MenuOption,
+                Value = key,
+                DisplayText = action.Name
+            };
+            clickableElements.Add(element);
+            var frame = element.IsHovered ? ColorPalette.Yellow.GetColor() : border;
+            canvas.AddBox(cx, cy, CardWidth, CardHeight, frame, global::Avalonia.Media.Colors.Black);
+
+            int innerW = CardWidth - 4;
+            int ty = cy + 1;
+            string name = (action.Name ?? "").ToUpperInvariant();
+            canvas.AddText(cx + 2, ty++, Truncate(name, innerW), dimmed ? AsciiArtAssets.Colors.Gray : AsciiArtAssets.Colors.White);
+            if (!string.IsNullOrEmpty(swing))
+                canvas.AddText(cx + 2, ty++, Truncate(swing, innerW), dimmed ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Green);
+            int linesLeft = cy + CardHeight - 1 - ty;
+            foreach (var line in CombatActionStripBuilder.BuildActionStripDescriptionLines(action, innerW, Math.Max(0, linesLeft)))
+                canvas.AddText(cx + 2, ty++, Truncate(line, innerW), AsciiArtAssets.Colors.Gray);
+        }
+
+        /// <summary>Damage | speed for a library card (no combo slot: base values plus gear bonuses).</summary>
+        private static string PoolSwingLine(Character character, RPGGame.Action action)
+        {
+            try
+            {
+                double dmgPct = action.DamageMultiplier * 100.0;
+                double spdPct = action.Length > 0 ? ActionDisplayFormatter.CalculateActionSpeedPercentage(action) : 0;
+                int hits;
+                try { hits = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(action, character, -1, includeConsumedMods: false); }
+                catch { hits = 1; }
+                var info = new ActionPanelInfo(action.Name ?? "", dmgPct, dmgPct, spdPct, spdPct, "", 0, hits);
+                return CombatActionStripBuilder.FormatStripSwingLine(info, character, action, ActionStripDamageLineMode.EffectiveWithComboAmp, -1);
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        private static string Truncate(string text, int max)
+        {
+            if (string.IsNullOrEmpty(text) || text.Length <= max)
+                return text ?? "";
+            return max > 1 ? text.Substring(0, max - 1) + "." : text.Substring(0, max);
         }
 
         /// <summary>

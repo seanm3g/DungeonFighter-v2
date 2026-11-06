@@ -78,7 +78,7 @@ namespace RPGGame.Handlers.Inventory
         {
             if (stateManager.CurrentPlayer == null) return;
 
-            if (!ComboPointerInput.TryParse(input, out var kind, out int index))
+            if (!ComboPointerInput.TryParse(input, out var kind, out int index, out int index2))
             {
                 ShowMessageEvent?.Invoke("Invalid action.");
                 return;
@@ -241,10 +241,67 @@ namespace RPGGame.Handlers.Inventory
                     return;
                 }
 
+                case ComboPointerInput.Kind.PoolInsert:
+                {
+                    var pool = player.GetActionPool();
+                    if (index < 0 || index >= pool.Count)
+                    {
+                        ShowMessageEvent?.Invoke("Invalid pool selection.");
+                        RefreshAfterPointer();
+                        return;
+                    }
+                    var action = pool[index];
+                    int before = player.GetComboActions().Count;
+                    player.AddToCombo(action);
+                    var after = player.GetComboActions();
+                    if (after.Count == before)
+                    {
+                        int cap = ComboSequenceMaxHelper.GetEffectiveMax(player);
+                        ShowMessageEvent?.Invoke($"Sequence is full ({cap} slots). Remove an action or use feet gear that adds capacity.");
+                    }
+                    else
+                    {
+                        // AddToCombo files the card by its ComboOrder, not always last: find it, then slide it to the drop slot
+                        // (the slot index counts the cards that were there before it).
+                        int added = after.FindIndex(a => ReferenceEquals(a, action));
+                        int target = Math.Clamp(index2, 0, after.Count - 1);
+                        if (added >= 0 && target != added)
+                            ComboReorderer.ApplyReorderMove(player, new List<RPGGame.Action>(after), added, target);
+                        ShowMessageEvent?.Invoke($"Added {action.Name} to sequence.");
+                    }
+                    RefreshAfterPointer();
+                    return;
+                }
+
+                case ComboPointerInput.Kind.SequenceMove:
+                {
+                    var combo = player.GetComboActions();
+                    if (index < 0 || index >= combo.Count)
+                    {
+                        RefreshAfterPointer();
+                        return;
+                    }
+                    // Dropping on a later slot inserts before it, so after removing the card the target shifts left by one.
+                    int target = index2 > index ? index2 - 1 : index2;
+                    target = Math.Clamp(target, 0, combo.Count - 1);
+                    if (target != index)
+                        ComboReorderer.ApplyReorderMove(player, new List<RPGGame.Action>(combo), index, target);
+                    RefreshAfterPointer();
+                    return;
+                }
+
                 default:
                     ShowMessageEvent?.Invoke("Invalid action.");
                     return;
             }
+        }
+
+        private void RefreshAfterPointer()
+        {
+            if (stateTracker.InComboManagement)
+                RenderComboManagementScreen();
+            else
+                ShowInventoryEvent?.Invoke();
         }
 
         /// <summary>

@@ -21,6 +21,7 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
             TestInvPool(ref run, ref passed, ref failed);
             TestRemove(ref run, ref passed, ref failed);
             TestInvalid(ref run, ref passed, ref failed);
+            TestInsertAndMove(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ComboPointerInput.TryParse Tests", run, passed, failed);
         }
@@ -75,6 +76,21 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
                 "non-prefix fails", ref run, ref passed, ref failed);
             TestBase.AssertTrue(!ComboPointerInput.TryParse($"{ComboPointerInput.Prefix}pool:abc", out _, out _),
                 "cpi:pool:abc fails", ref run, ref passed, ref failed);
+        }
+
+        private static void TestInsertAndMove(ref int run, ref int passed, ref int failed)
+        {
+            bool ins = ComboPointerInput.TryParse(ComboPointerInput.Insert(3, 1), out var k1, out int a1, out int b1);
+            TestBase.AssertTrue(ins && k1 == ComboPointerInput.Kind.PoolInsert && a1 == 3 && b1 == 1,
+                "cpi:insert:3:1 parses", ref run, ref passed, ref failed);
+            bool mv = ComboPointerInput.TryParse(ComboPointerInput.Move(0, 2), out var k2, out int a2, out int b2);
+            TestBase.AssertTrue(mv && k2 == ComboPointerInput.Kind.SequenceMove && a2 == 0 && b2 == 2,
+                "cpi:move:0:2 parses", ref run, ref passed, ref failed);
+            bool rm = ComboPointerInput.TryParse($"{ComboPointerInput.Prefix}rm:4", out var k3, out int a3, out int b3);
+            TestBase.AssertTrue(rm && k3 == ComboPointerInput.Kind.SequenceRemove && a3 == 4 && b3 == -1,
+                "4-arg parse keeps single-index tokens", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(!ComboPointerInput.TryParse($"{ComboPointerInput.Prefix}move:1", out _, out _, out _),
+                "cpi:move with one number fails", ref run, ref passed, ref failed);
         }
     }
 }

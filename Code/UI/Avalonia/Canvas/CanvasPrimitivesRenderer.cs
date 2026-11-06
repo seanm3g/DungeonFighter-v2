@@ -293,7 +293,7 @@ namespace RPGGame.UI.Avalonia.Canvas
 
         private IDisposable? PushCenterColumnClip(DrawingContext context, CanvasText text, double charWidth, double charHeight)
         {
-            if (text.IgnoresCenterColumn || !CenterColumnTextZoom.IsCenterColumnX(text.X))
+            if (text.IgnoresCenterColumn || !CenterColumnTextZoom.SidePanelsVisible || !CenterColumnTextZoom.IsCenterColumnX(text.X))
                 return null;
 
             int leftCol = LayoutConstants.LEFT_PANEL_X + LayoutConstants.LEFT_PANEL_WIDTH;

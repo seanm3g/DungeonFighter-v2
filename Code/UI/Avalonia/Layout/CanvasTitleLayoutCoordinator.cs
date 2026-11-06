@@ -52,6 +52,7 @@ namespace RPGGame.UI.Avalonia.Layout
             GameState? gameState = null,
             bool inDungeonRun = false)
         {
+            CenterColumnTextZoom.SidePanelsVisible = usePersistentChrome;
             if (usePersistentChrome)
             {
                 if (clearCanvas)

@@ -41,6 +41,33 @@
         public event OnShowInventory? ShowInventoryEvent;
         public event OnShowGameLoop? ShowGameLoopEvent;
 
+        /// <summary>
+        /// Inventory is the hub screen: its side buttons (Dungeon Select, Skill Tree, Main Menu, Settings) raise this with
+        /// one of the <c>Hub*</c> commands. When unwired (tests / headless) those buttons do nothing and 0 keeps returning
+        /// to the game loop.
+        /// </summary>
+        public event Func<string, Task>? HubCommandEvent;
+
+        public const string HubDungeonSelect = "hub:dungeon";
+        public const string HubSkillTree = "hub:skilltree";
+        public const string HubTradeUp = "hub:tradeup";
+        public const string HubEditSequence = "hub:sequence";
+        public const string HubMainMenu = "hub:mainmenu";
+        public const string HubSettings = "hub:settings";
+
+        /// <summary>
+        /// Keyboard shortcuts for the hub buttons (D dungeon, K skill tree, T trade up, E edit action sequence).
+        /// Number keys keep their old inventory meaning.
+        /// </summary>
+        private static string? HubCommandForKey(string input) => input.ToLowerInvariant() switch
+        {
+            "d" => HubDungeonSelect,
+            "k" => HubSkillTree,
+            "t" => HubTradeUp,
+            "e" => HubEditSequence,
+            _ => null
+        };
+
         public InventoryMenuHandler(GameStateManager stateManager, IUIManager? customUIManager)
         {
             this.stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
@@ -168,6 +195,24 @@
             if (string.IsNullOrEmpty(input))
                 return;
             if (stateManager.CurrentPlayer == null) return;
+
+            // Action Sequence editor: F1 flips the sequence above / below the action library.
+            if (stateTracker.InComboManagement && string.Equals(input, "f1", StringComparison.OrdinalIgnoreCase))
+            {
+                RPGGame.UI.ActionSequenceEditorLayout.ToggleSequenceBelow();
+                RefreshInventoryScreen();
+                return;
+            }
+            if (stateTracker.InComboManagement && TryGetInventoryItemScrollDelta(input, out int libraryDelta))
+            {
+                RPGGame.UI.ActionSequenceEditorLayout.LibraryScrollRow =
+                    Math.Max(0, RPGGame.UI.ActionSequenceEditorLayout.LibraryScrollRow + Math.Sign(libraryDelta) * (Math.Abs(libraryDelta) > 1 ? 2 : 1));
+                RefreshInventoryScreen();
+                return;
+            }
+
+            if (TryHandleHubCommand(input))
+                return;
 
             if (TryHandleInventoryViewShortcut(input))
                 return;
@@ -400,13 +445,63 @@
                     RequestLabSnapshotCapture();
                     break;
                 case "0":
+                    if (HubCommandEvent != null && IsHubLayout)
+                    {
+                        _ = HubCommandEvent.Invoke(HubMainMenu);
+                        break;
+                    }
                     stateManager.TransitionToState(GameState.GameLoop);
                     ShowGameLoopEvent?.Invoke();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-5, * (auto-equip), + (sort), - (requirements filter), / (cycle slot filter), M (cycle material filter), F1 (detail view), 0 (Return to game menu), or ESC to go back.");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-5, * (auto-equip), + (sort), - (requirements filter), / (cycle slot filter), M (cycle material filter), F1 (detail view), D (dungeons), K (skill tree), T (trade up), E (edit action sequence), or 0 (main menu).");
                     break;
             }
+        }
+
+        /// <summary>True when the inventory is the game hub (canvas UI, not an MCP agent session).</summary>
+        public bool IsHubLayout => customUIManager is CanvasUICoordinator && !RPGGame.MCP.MCPMode.IsActive;
+
+        /// <summary>
+        /// Hub buttons and their letter shortcuts. Only from the plain inventory (no equip / compare / trade prompt open,
+        /// not inside the Action Sequence editor).
+        /// </summary>
+        private bool TryHandleHubCommand(string input)
+        {
+            string? command = input.StartsWith("hub:", StringComparison.Ordinal) ? input : (IsHubLayout ? HubCommandForKey(input) : null);
+            if (command == null)
+                return false;
+            if (command == HubSettings)
+            {
+                _ = HubCommandEvent?.Invoke(command);
+                return true;
+            }
+            if (stateTracker.InComboManagement || stateTracker.IsAnySelectionActive()
+                || stateTracker.WaitingForMenuMutatingActionConfirmation || stateTracker.WaitingForComparisonChoice)
+                return input.StartsWith("hub:", StringComparison.Ordinal);
+
+            switch (command)
+            {
+                case HubTradeUp:
+                    tradeUpHandler.PromptTradeUp();
+                    return true;
+                case HubEditSequence:
+                    comboManager.ShowComboManagement();
+                    return true;
+                default:
+                    if (HubCommandEvent != null)
+                        _ = HubCommandEvent.Invoke(command);
+                    return true;
+            }
+        }
+
+        /// <summary>Closes the Action Sequence editor back to the inventory (Esc). False when it was not open.</summary>
+        public bool TryCloseActionSequenceEditor()
+        {
+            if (!stateTracker.InComboManagement)
+                return false;
+            comboManager.HandleComboPointerInput($"{Prefix}back");
+            return true;
         }
 
         private bool TryHandleInventoryViewShortcut(string input)

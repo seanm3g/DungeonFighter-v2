@@ -169,7 +169,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// common room (<see cref="RPGGame.UI.TitleScreen.MenuSceneBackdrop"/>).
         /// </summary>
         private RPGGame.UI.TitleScreen.MenuScene ResolveMenuScene() =>
-            gameStateManager?.CurrentState switch
+            ActionSequenceEditorLayout.IsOpen ? RPGGame.UI.TitleScreen.MenuScene.None // plain background behind the cards
+            : gameStateManager?.CurrentState switch
             {
                 RPGGame.GameState.MainMenu
                     or RPGGame.GameState.CharacterSelection

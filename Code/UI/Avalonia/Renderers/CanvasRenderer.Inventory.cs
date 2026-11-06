@@ -91,11 +91,11 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderComboManagement(Character character, CanvasContext context)
         {
+            // Full screen (no side panels or strip): the editor shows the sequence itself.
             RenderWithLayout(character, "ACTIONS", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderComboManagement(contentX, contentY, contentWidth, contentHeight, character);
-            }, context, null, null, null, inventoryComboRightPanel: true);
-            dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
+            }, context, null, null, null, clearCanvas: true, usePersistentChrome: false);
             canvas.Refresh();
         }
 

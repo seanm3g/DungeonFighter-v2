@@ -59,6 +59,9 @@ namespace RPGGame.GameCore.Input
                     {
                         return Task.CompletedTask;
                     }
+                    // The Action Sequence editor closes back to the inventory hub.
+                    if (handlers.InventoryMenuHandler != null && handlers.InventoryMenuHandler.TryCloseActionSequenceEditor())
+                        return Task.CompletedTask;
                     stateManager.TransitionToState(GameState.GameLoop);
                     showGameLoop();
                     break;
@@ -81,6 +84,9 @@ namespace RPGGame.GameCore.Input
                     showGameLoop();
                     break;
                 case GameState.RegionTravel:
+                    // Esc closes the travel popup first, then returns to dungeon selection.
+                    if (handlers.RegionTravelHandler != null)
+                        return handlers.RegionTravelHandler.HandleMenuInput(RegionTravelHandler.CancelKey);
                     stateManager.TransitionToState(GameState.GameLoop);
                     showGameLoop();
                     break;
@@ -143,6 +149,7 @@ namespace RPGGame.GameCore.Input
         public InventoryMenuHandler? InventoryMenuHandler { get; set; }
         public DungeonSelectionHandler? DungeonSelectionHandler { get; set; }
         public StableHandler? StableHandler { get; set; }
+        public RegionTravelHandler? RegionTravelHandler { get; set; }
     }
 }
 

@@ -456,6 +456,16 @@ namespace RPGGame
 
         public void ShowGameLoop()
         {
+            // The old "What would you like to do?" menu is gone from the windowed game: the inventory is the hub
+            // (Dungeon Select, Skill Tree, Trade Up, Main Menu buttons). MCP agents keep the game-loop menu.
+            if (customUIManager is CanvasUICoordinator && !RPGGame.MCP.MCPMode.IsActive && stateManager.CurrentPlayer != null)
+            {
+                if (stateManager.CurrentState != GameState.GameLoop)
+                    stateManager.TransitionToState(GameState.GameLoop);
+                ShowInventory();
+                return;
+            }
+
             // Delegate to centralized screen coordinator to keep
             // all GameLoop screen logic in one place.
             screenCoordinator.ShowGameLoop();

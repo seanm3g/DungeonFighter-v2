@@ -31,6 +31,11 @@ namespace RPGGame
         public event OnStartDungeon? StartDungeonEvent;
         public event OnShowGameLoop? ShowGameLoopEvent;
         public event OnShowMessage? ShowMessageEvent;
+        /// <summary>World Map button (W): opens region travel.</summary>
+        public event System.Action? ShowWorldMapEvent;
+
+        /// <summary>Dungeon selection input that opens the world map.</summary>
+        public const string WorldMapKey = "w";
 
         public DungeonSelectionHandler(
             GameStateManager stateManager,
@@ -114,6 +119,14 @@ namespace RPGGame
                 return;
             }
 
+            if (string.Equals(input.Trim(), WorldMapKey, StringComparison.OrdinalIgnoreCase) && ShowWorldMapEvent != null)
+            {
+                if (customUIManager is CanvasUICoordinator canvasMap)
+                    canvasMap.StopDungeonSelectionAnimation();
+                ShowWorldMapEvent.Invoke();
+                return;
+            }
+
             if (int.TryParse(input.Trim(), out int choice))
             {
                 if (choice >= 1 && choice <= stateManager.AvailableDungeons.Count)
@@ -159,7 +172,7 @@ namespace RPGGame
             }
             else
             {
-                ShowMessageEvent?.Invoke("Invalid input. Please enter a number.");
+                ShowMessageEvent?.Invoke("Invalid input. Pick a dungeon number, W for the world map, or 0 to return.");
             }
         }
 

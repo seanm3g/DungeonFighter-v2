@@ -100,6 +100,8 @@ namespace RPGGame.UI.Avalonia.Handlers
             {
                 // Visual click-burst is additive; never blocks or steals UI clicks.
                 gameCanvas.NotifyPointerClick(point.Position);
+                if (TryArmActionSequenceDrag(e, point.Position))
+                    return;
                 if (TryBeginComboStripDrag(e, point.Position))
                     return;
                 if (TryArmInventoryDrag(e, point.Position))
@@ -118,6 +120,24 @@ namespace RPGGame.UI.Avalonia.Handlers
             bool altChanged = HoverTooltipDetailState.SetFromModifiers(e.KeyModifiers);
             var point = e.GetCurrentPoint(gameCanvas);
             gameCanvas.NotifyPointerWind(point.Position);
+            if (ActionSequenceDragState.IsArmed)
+            {
+                if (!point.Properties.IsLeftButtonPressed)
+                {
+                    // Release never arrived (capture lost): cancel.
+                    bool wasDragging = ActionSequenceDragState.IsActive;
+                    ActionSequenceDragState.Clear();
+                    if (wasDragging)
+                        game?.RefreshPersistentChromeAfterStatsToggle();
+                }
+                else
+                {
+                    var dragGrid = ScreenToGrid(point.Position);
+                    if (ActionSequenceDragState.MoveTo(dragGrid.X, dragGrid.Y))
+                        game?.RefreshPersistentChromeAfterStatsToggle();
+                    return;
+                }
+            }
             if (InventoryDragState.IsArmed && !point.Properties.IsLeftButtonPressed)
             {
                 // Release never arrived (capture lost): cancel instead of leaving the ghost stuck to the pointer.
@@ -167,6 +187,12 @@ namespace RPGGame.UI.Avalonia.Handlers
             catch
             {
                 // ignore capture release failures
+            }
+
+            if (ActionSequenceDragState.IsArmed)
+            {
+                FinishActionSequenceDrag(e.GetCurrentPoint(gameCanvas).Position);
+                return;
             }
 
             if (InventoryDragState.IsArmed)
@@ -735,6 +761,7 @@ namespace RPGGame.UI.Avalonia.Handlers
         /// </summary>
         private bool TryBeginComboStripDrag(PointerPressedEventArgs e, Point position)
         {
+            if (ActionSequenceEditorLayout.IsOpen) return false;
             if (!CanReorderComboOnStrip()) return false;
             var player = GetCharacterForActionStrip();
             if (player == null) return false;
@@ -755,6 +782,83 @@ namespace RPGGame.UI.Avalonia.Handlers
             e.Pointer.Capture(gameCanvas);
             e.Handled = true;
             return true;
+        }
+
+        private Point _actionSequenceDragPress;
+
+        /// <summary>
+        /// Action Sequence editor: a press on a library card (<c>cpi:pool:N</c>) or a sequence card (<c>cpi:rm:N</c>) arms a
+        /// drag. The click is deferred to release so a press-and-release in place still adds / removes.
+        /// </summary>
+        private bool TryArmActionSequenceDrag(PointerPressedEventArgs e, Point position)
+        {
+            if (canvasUI == null || game?.StateManager?.CurrentState != GameState.Inventory || !ActionSequenceEditorLayout.IsOpen)
+                return false;
+            var player = game.CurrentPlayer;
+            if (player == null)
+                return false;
+            var grid = ScreenToGrid(position);
+            var el = canvasUI.GetElementAt(grid.X, grid.Y);
+            if (el == null || string.IsNullOrEmpty(el.Value) || !ComboPointerInput.TryParse(el.Value, out var kind, out int index))
+                return false;
+
+            if (kind == ComboPointerInput.Kind.PoolAdd)
+            {
+                var pool = player.GetActionPool();
+                if (index < 0 || index >= pool.Count)
+                    return false;
+                ActionSequenceDragState.ArmFromLibrary(index, pool[index].Name, grid.X, grid.Y);
+            }
+            else if (kind == ComboPointerInput.Kind.SequenceRemove)
+            {
+                var combo = player.GetComboActions();
+                if (index < 0 || index >= combo.Count)
+                    return false;
+                ActionSequenceDragState.ArmFromSequence(index, combo[index].Name, grid.X, grid.Y);
+            }
+            else
+                return false;
+
+            _actionSequenceDragPress = position;
+            e.Pointer.Capture(gameCanvas);
+            e.Handled = true;
+            return true;
+        }
+
+        /// <summary>
+        /// Release in the Action Sequence editor: no movement runs the deferred click; a library card dropped on the
+        /// sequence is added at that slot; a sequence card dropped on the sequence moves there, dropped anywhere else
+        /// it is taken out. A library card dropped elsewhere cancels.
+        /// </summary>
+        private void FinishActionSequenceDrag(Point releasePosition)
+        {
+            bool moved = ActionSequenceDragState.IsActive;
+            int fromLibrary = ActionSequenceDragState.FromLibraryIndex;
+            int fromSequence = ActionSequenceDragState.FromSequenceIndex;
+            ActionSequenceDragState.Clear();
+
+            if (!moved)
+            {
+                HandleMouseClick(_actionSequenceDragPress);
+                return;
+            }
+            if (game == null)
+                return;
+
+            var grid = ScreenToGrid(releasePosition);
+            int slot = ActionSequenceEditorLayout.DropSlotAt(grid.X, grid.Y);
+            string? token = null;
+            if (fromLibrary >= 0 && slot >= 0)
+                token = ComboPointerInput.Insert(fromLibrary, slot);
+            else if (fromSequence >= 0 && slot >= 0)
+                token = ComboPointerInput.Move(fromSequence, slot);
+            else if (fromSequence >= 0)
+                token = $"{ComboPointerInput.Prefix}rm:{fromSequence}";
+
+            if (token != null)
+                _ = game.HandleInput(token);
+            else
+                game.RefreshPersistentChromeAfterStatsToggle();
         }
 
         /// <summary>

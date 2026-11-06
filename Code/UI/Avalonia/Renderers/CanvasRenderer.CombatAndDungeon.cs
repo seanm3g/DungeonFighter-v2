@@ -33,8 +33,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(player, "DUNGEON SELECTION", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 dungeonRenderer.RenderDungeonSelection(contentX, contentY, contentWidth, contentHeight, dungeons, customDungeonLevelEntryBuffer, currentRegionDisplayName, currentRegionTheme);
-            }, context, null, null, null, clearCanvas: false);
-            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
+            }, context, null, null, null, clearCanvas: false, usePersistentChrome: false);
+            // Full screen: no hero / location panels, no action strip.
             canvas.Refresh();
         }
 
@@ -301,8 +301,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(player, "REGION TRAVEL", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 regionTravelRenderer.RenderRegionTravel(contentX, contentY, contentWidth, contentHeight, player, destinations, routeResult);
-            }, context, null, null, null, clearCanvas: false);
-            dungeonRenderer.RenderActionInfoStrip(player, damageLineMode: ResolveActionStripDamageLineMode(player));
+            }, context, null, null, null, clearCanvas: false, usePersistentChrome: false);
+            // Full screen: no hero / location panels, no action strip.
             canvas.Refresh();
         }
 
