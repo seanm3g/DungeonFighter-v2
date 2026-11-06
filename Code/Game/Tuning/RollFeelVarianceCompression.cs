@@ -19,8 +19,7 @@ namespace RPGGame.Tuning
             "comboRollDamageMult",
             "basicRollDamageMult",
             "playerArmorBaseline",
-            "globalEnemyArmorMult",
-            "maximumDamageCap",
+            "enemyArmorScale",
             "minimumDamage",
             "armorReductionFactor"
         };
@@ -36,8 +35,6 @@ namespace RPGGame.Tuning
         private const int RegularPlayerArmor = 12;
         private const double ChaoticEnemyArmorMult = 0.5;
         private const double RegularEnemyArmorMult = 1.5;
-        private const int ChaoticDamageCap = 1500;
-        private const int RegularDamageCap = 400;
         private const int ChaoticMinDamage = 1;
         private const int RegularMinDamage = 4;
         private const double ChaoticArmorReductionFactor = 500.0;
@@ -67,11 +64,10 @@ namespace RPGGame.Tuning
             config.Combat.PlayerBaseArmor = (int)Math.Round(Lerp(ChaoticPlayerArmor, RegularPlayerArmor, compression));
 
             config.EnemySystem ??= new EnemySystemConfig();
-            config.EnemySystem.GlobalMultipliers ??= new GlobalMultipliersConfig();
-            config.EnemySystem.GlobalMultipliers.ArmorMultiplier =
+            config.EnemySystem.ArmorScale =
                 Lerp(ChaoticEnemyArmorMult, RegularEnemyArmorMult, compression);
 
-            config.Combat.MaximumDamageCap = (int)Math.Round(Lerp(ChaoticDamageCap, RegularDamageCap, compression));
+            // The hero damage cap is no longer part of roll feel (removed by design 2026-11-05: no hero cap).
             config.Combat.MinimumDamage = (int)Math.Round(Lerp(ChaoticMinDamage, RegularMinDamage, compression));
             config.Combat.ArmorReductionFactor =
                 Lerp(ChaoticArmorReductionFactor, RegularArmorReductionFactor, compression);

@@ -87,7 +87,7 @@ namespace RPGGame
                 HitDamage = attackTime / health,
                 Calibration = calibration,
                 ReferenceAttributeDamage = (int)Math.Floor(2.0 * refAttr * scale),
-                ReferenceAgility = (int)Math.Round(refAttr * enemySystem.GlobalMultipliers.SpeedMultiplier)
+                ReferenceAgility = (int)Math.Round(refAttr)
             };
         }
     }

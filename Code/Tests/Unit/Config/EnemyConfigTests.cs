@@ -72,11 +72,14 @@ namespace RPGGame.Tests.Unit.Config
                 LevelVariance = 0
             };
             sys.EnsureSanitizedDefaults();
-            TestBase.AssertEqual(1.0, sys.GlobalMultipliers.HealthMultiplier,
-                "Health multiplier should become 1.0",
+            TestBase.AssertTrue(sys.GlobalMultipliers == null,
+                "Legacy globalMultipliers block should be migrated away",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1.0, sys.GlobalMultipliers.DamageMultiplier,
-                "Damage multiplier should become 1.0",
+            TestBase.AssertEqual(1.0, sys.AttributeScale,
+                "Zero legacy damage multiplier should become attribute scale 1.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.0, sys.ArmorScale,
+                "Armor scale should default to 1.0",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1.0, sys.ProgressionScales.BaseHealthScale,
                 "Base health scale should become 1.0",

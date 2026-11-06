@@ -1,0 +1,110 @@
+{
+  "base": "fastbot-v21",
+  "enemySystem": {
+    "healthCurve": {
+      "bands": [
+        {
+          "from": 1,
+          "to": 5,
+          "multiplier": 1.015486
+        },
+        {
+          "from": 6,
+          "to": 10,
+          "multiplier": 3.724499
+        },
+        {
+          "from": 11,
+          "to": 15,
+          "multiplier": 5.792750000000001
+        },
+        {
+          "from": 16,
+          "to": 20,
+          "multiplier": 5.446249999999999
+        },
+        {
+          "from": 21,
+          "to": 25,
+          "multiplier": 9.92415
+        },
+        {
+          "from": 26,
+          "to": 30,
+          "multiplier": 9.98457
+        },
+        {
+          "from": 31,
+          "to": 35,
+          "multiplier": 11.83915
+        },
+        {
+          "from": 36,
+          "to": 40,
+          "multiplier": 14.214506
+        },
+        {
+          "from": 41,
+          "to": 45,
+          "multiplier": 21.227857
+        },
+        {
+          "from": 46,
+          "to": 50,
+          "multiplier": 20.936642
+        },
+        {
+          "from": 51,
+          "to": 55,
+          "multiplier": 28.716628
+        },
+        {
+          "from": 56,
+          "to": 60,
+          "multiplier": 32.502193
+        },
+        {
+          "from": 61,
+          "to": 65,
+          "multiplier": 39.648242
+        },
+        {
+          "from": 66,
+          "to": 70,
+          "multiplier": 11.527449999999998
+        },
+        {
+          "from": 71,
+          "to": 75,
+          "multiplier": 52.63242
+        },
+        {
+          "from": 76,
+          "to": 80,
+          "multiplier": 15.174550000000002
+        },
+        {
+          "from": 81,
+          "to": 85,
+          "multiplier": 16.241449999999997
+        },
+        {
+          "from": 86,
+          "to": 90,
+          "multiplier": 16.489950000000004
+        },
+        {
+          "from": 91,
+          "to": 95,
+          "multiplier": 16.146999999999995
+        },
+        {
+          "from": 96,
+          "to": 100,
+          "multiplier": 16.075049999999997
+        }
+      ]
+    }
+  },
+  "description": "fastbot-v14 + damage bands re-solved with Scripts/bo-solve.py (band scope, realClearAnchors targets, rules bot) at band midpoints L8 L13 L18 L33 L48 L73: 6-10 x1.035, 11-15 x0.90, 16-20 x1.03, 31-35 x0.91, 46-50 x0.86; 71-75 kept at v14 (bo-solve said x0.84 but a fresh-seed check put v14 on target, 30% vs 33, and x0.84 at 40%); other bands unchanged. Fresh-seed check (seed 777, ~230 dungeons/level) v14 -> v15: L8 83->77, L13 65->72, L18 70->69, L33 67->73, L48 54->59. Previous: fastbot-v12 + heavy enemy swings: enemyAttackTimeMultiplier 2.5, hero HP 150+45/level, damage bands start at 3->7% hero HP per swing, enemy HP bands fit to clear targets then capped at ~10 hero actions/fight with damage re-solved there; targets L3 88 L8 80 L10 72 L15 62 L20/35 66 L50 60 L75 27 fastbot-v16 (2026-11-04): v15 with every enemySystem.healthCurve anchor x0.5, folding in the GameSettings EnemyHealthMultiplier 0.5 every fastbot patch had been solved under; play and sim with that slider at 1.0. fastbot-v17 (2026-11-05 overnight): v16 + bo-solve damage bands at L23,L28,L38,L68, each kept only where a paired confirm on seeds 1311/1733 moved mean |gap| to realClearAnchors down by > 1.5 pts. fastbot-v18 (2026-11-05 overnight it2): fastbot-v17 + bo-solve damage bands at L13, kept where a paired confirm on seeds [2201, 2202, 2203] beat noise. fastbot-v20 (2026-11-05): fastbot-v18 migrated to the current layout (bands, attributeScale/armorScale, no legacy enemy sections); same game behaviour. fastbot-v21 (2026-11-05): v20 with no hero damage cap (designer call) and the enemy class-multiplier fix in code; curves not yet re-solved. fastbot-v22: fastbot-v21 + health bands ['health@L28', 'health@L3', 'health@L38', 'health@L43', 'health@L48', 'health@L53', 'health@L58', 'health@L63', 'health@L73', 'health@L8'] (balance-loop, paired confirm on seeds [8101, 8102, 8103, 8104])."
+}

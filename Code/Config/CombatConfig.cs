@@ -125,16 +125,11 @@ namespace RPGGame
         public double WeaponAttackTimeClampMin { get; set; } = 0.5;
         public double WeaponAttackTimeClampMax { get; set; } = 1.5;
         public double TutorialCombatDelayMultiplier { get; set; } = 2.0;
-        public double LevelDifferenceDamageScaling { get; set; }
         public double EnemyEnrageThresholdPercent { get; set; } = 25.0;
         public double EnemyEnrageDamageMult { get; set; } = 1.25;
-        public double ComboBreakPenaltyPercent { get; set; } = 10.0;
         public double StatusEffectBaseProcChance { get; set; } = 1.0;
         public double GlobalHealEffectiveness { get; set; } = 1.0;
-        public double FirstStrikeBonusPercent { get; set; }
-        public double OverkillDamagePercent { get; set; }
         public int AttributeSoftCap { get; set; } = 50;
-        public double TechniqueMilestoneRollShift { get; set; } = 1.0;
         /// <summary>
         /// TECH milestone rows (cumulative: each reached row's hit / combo / crit steps lower that threshold by 1).
         /// Empty = the built-in table in <see cref="TechniqueMilestoneThresholdBonuses"/>. Combo threshold 1 makes every
@@ -142,7 +137,6 @@ namespace RPGGame
         /// </summary>
         public List<TechniqueMilestoneRow> TechniqueMilestones { get; set; } = new();
         public double BaseAttackTime { get; set; }
-        public double AgilitySpeedReduction { get; set; }
         public double MinimumAttackTime { get; set; }
         /// <summary>Scales every enemy swing time; 2 = enemies swing half as often (pair with a higher damage curve). 0 or less = 1.</summary>
         public double EnemyAttackTimeMultiplier { get; set; } = 1.0;
@@ -340,7 +334,6 @@ namespace RPGGame
         public bool EnableEnvironmentalEffects { get; set; }
         public double EnvironmentalDamageMultiplier { get; set; }
         public double EnvironmentalDebuffChance { get; set; }
-        public double EnvironmentalBuffChance { get; set; }
     }
 
     /// <summary>
@@ -424,8 +417,6 @@ namespace RPGGame
         /// <summary>Hero damage % per strip slot index (slot k × this), independent of INT: a reason to run longer strips. 0 = off.</summary>
         public double ComboSlotDamagePercentPerStep { get; set; }
 
-        /// <summary>Legacy tuning field retained for old configs.</summary>
-        public double ComboAmplifierAtTech5 { get; set; }
 
         /// <summary>Maximum base combo AMP multiplier at <see cref="ComboAmplifierMaxTech"/> effective INT (name kept for config compatibility).</summary>
         public double ComboAmplifierMax { get; set; }

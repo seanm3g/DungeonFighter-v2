@@ -27,6 +27,7 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from simpool import SIM_SKIP, SimPool, add_args as add_pool_args
+from simstats import wilson, cluster_interval as hero_interval   # dungeons in one hero share its build
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TARGETS = json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balance-targets.json'), encoding='utf-8-sig'))
@@ -138,30 +139,6 @@ def turns_tolerances(level):
     # Tolerances are set for heroTurnsTarget; shorter early fights get the same relative slack.
     k = turns_target(level) / TURNS
     return turns_target(level), max(0.5, TURNS_TOL * k), max(1.0, ENEMY_TOL * k)
-
-
-def wilson(k, n, z=1.96):
-    if n == 0:
-        return 0.0, 1.0
-    p = k / n; den = 1 + z * z / n
-    c = (p + z * z / (2 * n)) / den
-    h = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / den
-    return max(0.0, c - h), min(1.0, c + h)
-
-
-T95 = {1: 12.71, 2: 4.30, 3: 3.18, 4: 2.78, 5: 2.57, 6: 2.45, 7: 2.36, 8: 2.31, 9: 2.26, 10: 2.23}
-
-
-def hero_interval(heroes):
-    """95% interval for a clear rate from (cleared, dungeons) per hero: a t interval over hero clear rates (dungeons in one
-    hero are correlated through its build), widened to at least the Wilson interval on the pooled dungeon count."""
-    k = sum(c for c, _ in heroes); n = sum(d for _, d in heroes)
-    lo, hi = wilson(k, n)
-    rates = [c / d for c, d in heroes if d]
-    if len(rates) >= 2:
-        m = k / n; half = T95.get(len(rates) - 1, 1.96) * statistics.stdev(rates) / math.sqrt(len(rates))
-        lo, hi = min(lo, max(0.0, m - half)), max(hi, min(1.0, m + half))
-    return lo, hi
 
 
 # ---------------------------------------------------------------- jobs

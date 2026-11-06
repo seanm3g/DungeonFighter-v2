@@ -65,8 +65,7 @@ namespace RPGGame.Tests.Unit.Entity
             try
             {
                 config.EnemySystem.ScalingPerLevel.Attributes = 10.0;
-                config.EnemySystem.GlobalMultipliers.DamageMultiplier = 1.0;
-                config.EnemySystem.GlobalMultipliers.SpeedMultiplier = 1.0;
+                config.EnemySystem.AttributeScale = 1.0;
 
                 var data = new EnemyData
                 {
@@ -121,8 +120,7 @@ namespace RPGGame.Tests.Unit.Entity
             try
             {
                 config.EnemySystem.ScalingPerLevel.Attributes = 0.2;
-                config.EnemySystem.GlobalMultipliers.DamageMultiplier = 1.0;
-                config.EnemySystem.GlobalMultipliers.SpeedMultiplier = 1.0;
+                config.EnemySystem.AttributeScale = 1.0;
 
                 var data = new EnemyData
                 {

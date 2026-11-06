@@ -16,7 +16,43 @@ dotnet <build>/DF.dll <MODE> [--patch <name|path>] [--set path=value ...] [--see
 - `DF_GAMEDATA_DIR=<folder>` points the game at another GameData folder. Use a scratch copy for playthroughs —
   the death screen writes character saves.
 
-## Scan → focus → confirm → gate
+## The balance loop (2026-11-05)
+
+`Scripts/balance-loop.py` is the main tool; `/balance` drives it. One knob family at a time:
+
+```
+python Scripts/balance-loop.py measure  --patch <p> --ref <old>            # fresh seeds: clear, hero actions, class spread
+python Scripts/balance-loop.py solve    --patch <p> --knob damage --next <p2>   # or health / class
+python Scripts/balance-loop.py botcheck --patch <p>                         # rules bot vs median build kill speed
+python Scripts/balance-chain.py --start <p> --first <N> --steps health,damage,class,damage --ref <old>
+```
+
+A `solve` measures the patch on 4 fresh seeds (16 shards × 2 heroes per class each), picks the bands (or, for
+`class`, class × band cells) that are off by more than max(floor, 2 SE), runs `bo-solve.py --knob …` on each, writes a
+candidate overlay, measures base and candidate on 4 *other* fresh seeds (paired), and keeps a cell only when its gap
+to target shrinks by more than max(1 pt, 2 SE) (`simstats.beats_noise`). Bands no solve touched must read identically
+on both (determinism check). The result is an overlay patch (`"base": "<p>"`). Judge a finished chain with `measure`
+on seeds no step saw: the overnight runs showed a 4.0→2.85 gain on the confirm seeds was 3.14→2.96 held out.
+
+Knobs: **damage** (enemy damage band → `realClearAnchors`), **health** (enemy health band → `heroTurnsAnchors`, hero
+actions per fight in real dungeons with the rules bot), **class** (one class's hero damage band,
+`classBalance.<class>.damageCurve` → each class to the band's clear target, so classes end within
+`classParityMaxSpread`). Targets live in `GameData/TuningProfiles/balance-targets.json`: clear 99% at L1 → 90% at L10,
+then 65/70/70/65/30/0 at L15/20/35/50/75/100; hero actions 3 at L1 → 11 at L10, 11 after; class spread ≤ 10 points.
+
+Config shape (2026-11-05): curves are step **bands** (`{from, to, multiplier}`, one per 5-level region band; per level
+where needed), patches can be **overlays** of a base, `enemySystem` is the only enemy section, and
+`enemySystem.attributeScale` / `armorScale` replace `globalMultipliers` (whose "damage" multiplier only ever scaled
+enemy STR/TEC/INT). `Scripts/balancepatch.py` reads and writes all of this for the scripts. There is no hero damage
+cap, and enemies no longer take the hero class damage multiplier (a bug that made every enemy's damage ×1.0–1.55 by
+its random weapon; every patch before fastbot-v21 was calibrated with it).
+
+`--spark` defaults to `auto` in every script (18 Spark slots when `ssh spark` answers, else local; `DF_SPARK=0` forces
+local). `Scripts/simstats.py` holds the one interval model: cluster (shard / hero) t intervals, never narrower than
+Wilson, and paired per-seed differences. The surrogate prior (`bo-solve --prior surrogate`) is unvalidated (20–30%
+off on 2026-11-05) and the loop does not use it.
+
+## Scan → focus → confirm → gate (before 2026-11-05)
 
 Don't run the full check after every change. Run the tiers in order (`/balance` drives this loop; agents can also run
 it over MCP: `get_balance_context`, then `start_balance_scan` / `start_bo_solve` / `start_dungeon_sim` /

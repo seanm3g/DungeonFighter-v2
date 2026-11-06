@@ -45,9 +45,7 @@ namespace RPGGame
         public int SimulationsPerMatchup { get; set; } = 100;
         public int TargetWinRateMin { get; set; } = 85;
         public int TargetWinRateMax { get; set; } = 98;
-        public bool EnableDetailedLogging { get; set; } = false;
         public int MaxDetailedBattles { get; set; } = 5;
-        public bool HideCombatLogs { get; set; } = true;
         public Dictionary<string, PlayerStatsConfig> PlayerStats { get; set; } = new Dictionary<string, PlayerStatsConfig>();
         public DamageCalculationConfig DamageCalculation { get; set; } = new DamageCalculationConfig();
         public DifficultyThresholdsConfig DifficultyThresholds { get; set; } = new DifficultyThresholdsConfig();
@@ -180,21 +178,6 @@ namespace RPGGame
         public double EnemyDiffWeight { get; set; } = 0.15;
     }
 
-    /// <summary>
-    /// Balance validation configuration
-    /// </summary>
-    public class BalanceValidationConfig
-    {
-        public bool EnableBalanceChecks { get; set; }
-        public double MaxDamageVariance { get; set; }
-        public double MinCombatDuration { get; set; }
-        public double MaxCombatDuration { get; set; }
-        public List<double> TargetDPSRange { get; set; } = new();
-        public bool ValidateEnemyScaling { get; set; }
-        public bool ValidateLootRates { get; set; }
-        public bool ValidateXPProgression { get; set; }
-        public string Description { get; set; } = "";
-    }
 
     /// <summary>
     /// Difficulty settings configuration
@@ -234,7 +217,6 @@ namespace RPGGame
     /// </summary>
     public class DamageCalculationConfig
     {
-        public double AverageDamageMultiplier { get; set; } = 0.8;
         public int MinimumDamage { get; set; } = 1;
     }
 
@@ -243,7 +225,6 @@ namespace RPGGame
     /// </summary>
     public class DifficultyThresholdsConfig
     {
-        public double TooEasy { get; set; } = 0.98;
         public double Moderate { get; set; } = 0.6;
         public double Hard { get; set; } = 0.4;
     }
@@ -253,19 +234,6 @@ namespace RPGGame
     /// </summary>
     public class DPSCalculationConfig
     {
-        public double BaseDamageMultiplier { get; set; } = 0.5;
-        public double AttackSpeedMultiplier { get; set; } = 0.1;
     }
 
-    /// <summary>
-    /// Progression curves configuration
-    /// </summary>
-    public class ProgressionCurvesConfig
-    {
-        public string ExperienceFormula { get; set; } = "";
-        public string AttributeGrowth { get; set; } = "";
-        public double ExponentFactor { get; set; }
-        public double LinearGrowth { get; set; }
-        public double QuadraticGrowth { get; set; }
-    }
 }

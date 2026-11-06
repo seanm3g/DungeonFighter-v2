@@ -102,7 +102,7 @@ namespace RPGGame
                     Agility = enemyType.BaseAgility + (enemyLevel - 1) * tuning.Attributes.EnemyAttributesPerLevel,
                     Technique = enemyType.BaseTechnique + (enemyLevel - 1) * tuning.Attributes.EnemyAttributesPerLevel,
                     Intelligence = enemyType.BaseIntelligence + (enemyLevel - 1) * tuning.Attributes.EnemyAttributesPerLevel,
-                    Armor = (int)(0 + (enemyLevel - 1) * tuning.EnemyScaling.EnemyArmorPerLevel)
+                    Armor = (int)(0 + (enemyLevel - 1) * tuning.EnemySystem.ScalingPerLevel.Armor)
                 };
 
                 var enemy = new Enemy(

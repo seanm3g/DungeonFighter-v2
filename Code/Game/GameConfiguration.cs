@@ -45,11 +45,6 @@ namespace RPGGame
         public StatusEffectsConfig StatusEffects { get; set; } = new();
 
         // Enemy-related configurations (Legacy - kept for backward compatibility)
-        public EnemyScalingConfig EnemyScaling { get; set; } = new();
-        public EnemyBalanceConfig EnemyBalance { get; set; } = new();
-        public EnemyBaselineConfig EnemyBaseline { get; set; } = new();
-        public EnemyArchetypesConfig EnemyArchetypes { get; set; } = new();
-        public EnemyDPSConfig? EnemyDPS { get; set; } = new();
         
         // Unified enemy system configuration (New improved system)
         public EnemySystemConfig EnemySystem { get; set; } = new();
@@ -73,10 +68,8 @@ namespace RPGGame
         public GameDataConfig GameData { get; set; } = new();
         public DebugConfig Debug { get; set; } = new();
         public BalanceAnalysisConfig BalanceAnalysis { get; set; } = new();
-        public BalanceValidationConfig BalanceValidation { get; set; } = new();
         public BalanceTuningGoalsConfig BalanceTuningGoals { get; set; } = new();
         public DifficultySettingsConfig DifficultySettings { get; set; } = new();
-        public ProgressionCurvesConfig? ProgressionCurves { get; set; } = new();
 
         // UI-related configurations
         public UICustomizationConfig UICustomization { get; set; } = new();
@@ -141,7 +134,8 @@ namespace RPGGame
 
                 if (File.Exists(configPath))
                 {
-                    string jsonContent = File.ReadAllText(configPath);
+                    // Overlay patches ("base": "<patch>") resolve to their full config first.
+                    string jsonContent = RPGGame.Config.BalancePatchOverlay.ResolveJson(configPath);
                     var config = JsonSerializer.Deserialize<GameConfiguration>(jsonContent, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
@@ -173,11 +167,6 @@ namespace RPGGame
                         MigrateStatusEffects();
 
                         // Enemy-related configurations (Legacy)
-                        EnemyScaling = config.EnemyScaling;
-                        EnemyBalance = config.EnemyBalance;
-                        EnemyBaseline = config.EnemyBaseline;
-                        EnemyArchetypes = config.EnemyArchetypes;
-                        EnemyDPS = config.EnemyDPS;
                         
                         // Unified enemy system configuration (New improved system)
                         EnemySystem = config.EnemySystem;
@@ -200,9 +189,7 @@ namespace RPGGame
                         GameData = config.GameData;
                         Debug = config.Debug;
                         BalanceAnalysis = config.BalanceAnalysis;
-                        BalanceValidation = config.BalanceValidation;
                         DifficultySettings = config.DifficultySettings;
-                        ProgressionCurves = config.ProgressionCurves;
                         BalanceTuningGoals = config.BalanceTuningGoals ?? BalanceTuningGoals;
 
                         // UI-related configurations
@@ -314,7 +301,7 @@ namespace RPGGame
                     
                     if (configPath != null)
                     {
-                        string jsonContent = File.ReadAllText(configPath);
+                        string jsonContent = RPGGame.Config.BalancePatchOverlay.ResolveJson(configPath);
                         using (var doc = System.Text.Json.JsonDocument.Parse(jsonContent))
                         {
                             if (doc.RootElement.TryGetProperty("statusEffects", out var statusEffectsElement))
@@ -419,6 +406,9 @@ namespace RPGGame
                 };
                 
                 string json = JsonSerializer.Serialize(this, options);
+                // An overlay patch keeps only its differences from its base.
+                if (File.Exists(configPath))
+                    json = RPGGame.Config.BalancePatchOverlay.ToStoredJson(configPath, json, options);
                 File.WriteAllText(configPath, json);
                 
                 return true;

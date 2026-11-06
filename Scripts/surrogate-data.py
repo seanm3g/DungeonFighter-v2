@@ -24,10 +24,10 @@ CLASSES = ['Barbarian', 'Warrior', 'Rogue', 'Wizard']
 # name -> (patch path, low scale, high scale). Scales are drawn log-uniform; "{class}" is the shard's class, "[]" scales
 # every element of a list (curve anchors).
 KNOBS = {
-    'enemyDamage':     ('enemySystem.damageCurve.anchors[].multiplier', 0.6, 1.6),
-    'enemyHealth':     ('enemySystem.globalMultipliers.healthMultiplier', 0.6, 1.6),
-    # (globalMultipliers.armorMultiplier is left out: enemy baseline armor is 0, so it scales nothing)
-    'enemySpeed':      ('enemySystem.globalMultipliers.speedMultiplier', 0.8, 1.25),   # identity reference AGI
+    'enemyDamage':     ('enemySystem.damageCurve.bands[].multiplier', 0.6, 1.6),
+    'enemyHealth':     ('enemySystem.healthCurve.baseMultiplier', 0.6, 1.6),
+    # (enemySystem.armorScale is left out: enemy baseline armor is 0, so it scales nothing; the old speed knob did
+    #  nothing for tempo and is gone with globalMultipliers, 2026-11-05)
     'heroHpPerLevel':  ('character.healthPerLevel', 0.7, 1.4),
     'classHealth':     ('classBalance.{class}.healthMultiplier', 0.75, 1.33),
     'classDamage':     ('classBalance.{class}.damageMultiplier', 0.75, 1.33),
@@ -44,7 +44,7 @@ KNOBS = {
     'enrageDamage':    ('combat.enemyEnrageDamageMult', 0.8, 1.3),
 }
 # Knobs whose C# config field is an int: the scaled value is rounded and the recorded scale snapped to it. (JSON alone
-# cannot tell: enemySystem.globalMultipliers holds 1 for double fields.)
+# cannot tell: a double field may hold 1.)
 INT_KNOBS = {'heroHpPerLevel', 'agiSoftCap'}
 # Fight row fields kept in the dataset (DUNGEONSIM writes many more).
 FIGHT_FIELDS = ['Enemy', 'EnemyLevel', 'EnemyPrefix', 'BossFight', 'FightInDungeon', 'HeroActions', 'EnemyActions', 'HeroDied',
@@ -87,7 +87,8 @@ def base_patch_path():
     return os.path.join(ROOT, 'GameData', 'Patches', 'Balance', name if name.endswith('.json') else name + '.json')
 
 
-BASE = json.load(open(base_patch_path(), encoding='utf-8-sig'))
+import balancepatch as bp
+BASE = bp.resolve(base_patch_path())   # overlays resolved; written shard patches are full copies
 PATCH_NAME = os.path.splitext(os.path.basename(base_patch_path()))[0]
 
 

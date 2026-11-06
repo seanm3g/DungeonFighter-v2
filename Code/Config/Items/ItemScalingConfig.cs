@@ -135,11 +135,5 @@ namespace RPGGame
         public MagicFindScalingConfig MagicFindScaling { get; set; } = new();
         public LevelBasedRarityScalingConfig LevelBasedRarityScaling { get; set; } = new();
 
-        /// <summary>
-        /// Global strength for magic find on the <b>initial</b> rarity weight roll:
-        /// adjustedWeight = baseWeight * Exp(alpha * t * k_r) with t = clamp(MF,0,100)/100 and k_r from <see cref="MagicFindScaling"/> (or built-in defaults when all per-point values are zero).
-        /// Values &lt;= 0 disable MF tilt (weights unchanged).
-        /// </summary>
-        public double MagicFindDistributionAlpha { get; set; } = 0.5;
     }
 }

@@ -37,14 +37,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Applies scaling adjustments to existing enemies in Enemies.json based on TuningConfig archetype settings
-        /// </summary>
-        public static void GenerateEnemiesJson()
-        {
-            EnemyGenerator.GenerateEnemiesJson();
-        }
-
-        /// <summary>
         /// Generates Armor.json based on ItemScaling configurations with comprehensive safety checks
         /// </summary>
         public static FileGenerationResult GenerateArmorJson(bool forceOverwrite = false)
@@ -61,7 +53,6 @@ namespace RPGGame
         }
 
         // All private methods have been moved to specialized classes:
-        // - EnemyGenerator.GenerateEnemyFromConfig()
         // - ArmorGenerator.GenerateArmorFromConfig() and GetBaseArmorForTierAndSlot()
         // - WeaponGenerator.GenerateWeaponFromConfig()
         // - FileManager.SafeWriteJsonFile() and GetGameDataFilePath()

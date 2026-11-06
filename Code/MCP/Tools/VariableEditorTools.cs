@@ -76,7 +76,7 @@ namespace RPGGame.MCP.Tools
         [McpServerTool(Name = "get_variable", Title = "Get Variable Value")]
         [Description("Gets the current value of a specific variable by name.")]
         public static Task<string> GetVariable(
-            [Description("Variable name (e.g., 'EnemySystem.GlobalMultipliers.HealthMultiplier')")] string variableName)
+            [Description("Variable name (e.g., 'EnemySystem.AttributeScale')")] string variableName)
         {
             return McpToolExecutor.ExecuteAsync(() =>
             {
@@ -102,7 +102,7 @@ namespace RPGGame.MCP.Tools
         [McpServerTool(Name = "set_variable", Title = "Set Variable Value")]
         [Description("Sets the value of a specific variable. The value will be converted to the appropriate type (int, double, bool, string).")]
         public static Task<string> SetVariable(
-            [Description("Variable name (e.g., 'EnemySystem.GlobalMultipliers.HealthMultiplier')")] string variableName,
+            [Description("Variable name (e.g., 'EnemySystem.AttributeScale')")] string variableName,
             [Description("New value (will be converted to appropriate type)")] string value)
         {
             return McpToolExecutor.ExecuteAsync(() =>

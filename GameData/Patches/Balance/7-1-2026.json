@@ -29,12 +29,7 @@
   "xpRewards": {
     "baseXPFormula": "",
     "levelDifferenceMultipliers": {},
-    "dungeonCompletionBonus": {
-      "baseBonus": 0,
-      "bonusPerRoom": 0,
-      "levelDifferenceMultiplier": 0
-    },
-    "groupXPFormula": "",
+    "dungeonCompletionBonus": {},
     "minimumXP": 0,
     "maximumXPMultiplier": 0
   },
@@ -137,18 +132,12 @@
     "weaponAttackTimeClampMin": 0.5,
     "weaponAttackTimeClampMax": 1.5,
     "tutorialCombatDelayMultiplier": 2,
-    "levelDifferenceDamageScaling": 0,
     "enemyEnrageThresholdPercent": 25,
     "enemyEnrageDamageMult": 1.25,
-    "comboBreakPenaltyPercent": 10,
     "statusEffectBaseProcChance": 1,
     "globalHealEffectiveness": 1,
-    "firstStrikeBonusPercent": 0,
-    "overkillDamagePercent": 0,
     "attributeSoftCap": 50,
-    "techniqueMilestoneRollShift": 1,
     "baseAttackTime": 8,
-    "agilitySpeedReduction": 0,
     "minimumAttackTime": 0.1,
     "agilityMin": 1,
     "agilityMax": 100,
@@ -175,8 +164,7 @@
     "environmentalEffects": {
       "enableEnvironmentalEffects": false,
       "environmentalDamageMultiplier": 0,
-      "environmentalDebuffChance": 0,
-      "environmentalBuffChance": 0
+      "environmentalDebuffChance": 0
     },
     "actionMechanics": {
       "swiftSpeedPercent": 10,
@@ -202,7 +190,6 @@
     "criticalThreshold": 20
   },
   "comboSystem": {
-    "comboAmplifierAtTech5": 0,
     "comboAmplifierMax": 2,
     "comboAmplifierMaxTech": 110,
     "comboAmplifierCurveExponent": 1.1
@@ -268,7 +255,6 @@
     "enemyLevelVariance": 0,
     "baseDPSAtLevel1": 0,
     "dpsPerLevel": 0,
-    "enemyBaseArmorAtLevel1": 0,
     "enemyArmorPerLevel": 0
   },
   "enemyBalance": {
@@ -288,7 +274,6 @@
       "healthPerPoint": 0,
       "armorPerPoint": 0
     },
-    "baseEnemyConfigs": {},
     "archetypeConfigs": {}
   },
   "enemyBaseline": {
@@ -306,58 +291,34 @@
   "enemyDPS": {
     "baseDPSAtLevel1": 0,
     "dpsPerLevel": 0,
-    "dpsScalingFormula": "",
     "archetypes": {},
-    "balanceValidation": {
-      "tolerancePercentage": 0,
-      "minimumDPS": 0,
-      "maximumDPSMultiplier": 0
-    },
+    "balanceValidation": {},
     "sustainBalance": {
       "description": "",
       "targetActionsToKill": {
-        "level1": 0,
-        "level10": 0,
-        "level20": 0,
-        "level30": 0,
         "formula": ""
       },
       "dpsToSustainRatio": {
-        "baseRatio": 0,
         "description": "",
         "archetypeModifiers": {}
       },
       "speedToDamageRatio": {
-        "baseRatio": 0,
         "description": "",
         "archetypeModifiers": {}
       },
       "healthToArmorRatio": {
-        "baseRatio": 0,
         "description": "",
         "archetypeModifiers": {}
       },
       "attributeGainRatio": {
-        "baseRatio": 0,
         "description": "",
-        "primaryAttributeBonus": 0,
-        "secondaryAttributeBonus": 0,
         "archetypeModifiers": {}
       },
       "sustainScaling": {
         "healthPerLevel": 0,
-        "armorPerLevel": 0,
-        "regenerationPerLevel": 0,
         "description": ""
       },
-      "balanceValidation": {
-        "minActionsToKill": 0,
-        "maxActionsToKill": 0,
-        "dpsRatioTolerance": 0,
-        "speedRatioTolerance": 0,
-        "healthArmorRatioTolerance": 0,
-        "attributeRatioTolerance": 0
-      }
+      "balanceValidation": {}
     }
   },
   "enemySystem": {
@@ -543,13 +504,9 @@
       "epic": 0,
       "legendary": 0
     },
-    "rollChanceFormulas": {
-      "actionBonusChance": "",
-      "statBonusChance": ""
-    },
+    "rollChanceFormulas": {},
     "magicFindScaling": {
       "common": {
-        "perPointMultiplier": 0,
         "description": ""
       },
       "uncommon": {
@@ -605,8 +562,7 @@
         "levelBonus": 0,
         "description": ""
       }
-    },
-    "magicFindDistributionAlpha": 0.5
+    }
   },
   "equipmentScaling": {
     "weaponDamagePerTier": 3,
@@ -640,7 +596,7 @@
     "description": ""
   },
   "itemAffixByRarity": {
-    "description": "Per-rarity affix bounds. PrefixSlots/StatSuffixes/ActionBonuses/ExtraComboSlots = minimums; *Max and *ExtraChance = optional random extras up to max (extra combo slots add to Item.ExtraActionSlots in LootBonusApplier). Omit a rarity to use RarityTable \u002B built-in prefix rules for that tier.",
+    "description": "Per-rarity affix bounds. PrefixSlots/StatSuffixes/ActionBonuses/ExtraComboSlots = minimums; *Max and *ExtraChance = optional random extras up to max (extra combo slots add to Item.ExtraActionSlots in LootBonusApplier). Omit a rarity to use RarityTable + built-in prefix rules for that tier.",
     "perRarity": {
       "Common": {
         "prefixSlots": 1,
@@ -1223,34 +1179,16 @@
     "simulationsPerMatchup": 100,
     "targetWinRateMin": 85,
     "targetWinRateMax": 98,
-    "enableDetailedLogging": false,
     "maxDetailedBattles": 5,
-    "hideCombatLogs": true,
     "playerStats": {},
     "damageCalculation": {
-      "averageDamageMultiplier": 0.8,
       "minimumDamage": 1
     },
     "difficultyThresholds": {
-      "tooEasy": 0.98,
       "moderate": 0.6,
       "hard": 0.4
     },
-    "dpsCalculation": {
-      "baseDamageMultiplier": 0.5,
-      "attackSpeedMultiplier": 0.1
-    },
-    "description": ""
-  },
-  "balanceValidation": {
-    "enableBalanceChecks": false,
-    "maxDamageVariance": 0,
-    "minCombatDuration": 0,
-    "maxCombatDuration": 0,
-    "targetDPSRange": [],
-    "validateEnemyScaling": false,
-    "validateLootRates": false,
-    "validateXPProgression": false,
+    "dpsCalculation": {},
     "description": ""
   },
   "balanceTuningGoals": {
@@ -1329,13 +1267,6 @@
       "lootMultiplier": 0.25
     },
     "description": ""
-  },
-  "progressionCurves": {
-    "experienceFormula": "",
-    "attributeGrowth": "",
-    "exponentFactor": 0,
-    "linearGrowth": 0,
-    "quadraticGrowth": 0
   },
   "uiCustomization": {
     "menuSeparator": "",

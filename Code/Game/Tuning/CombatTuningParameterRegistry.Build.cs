@@ -74,14 +74,6 @@ namespace RPGGame.Tuning
             list.Add(IntParam("enemyBaselineArmor", tab, CombatTuningLayer.WinRate, "Enemy baselines",
                 "Enemy baseline armor", "Flat Defense on enemies", 0, 50,
                 () => cfg().EnemySystem.BaselineStats.Armor, v => cfg().EnemySystem.BaselineStats.Armor = v));
-            list.Add(IntParam("enemyAttributePoolBase", tab, CombatTuningLayer.Duration, "Enemy baselines",
-                "Attribute pool base (L1)", "Shared attribute budget at level 1", 1, 200,
-                () => cfg().EnemyBalance.AttributePool.BasePointsAtLevel1,
-                v => cfg().EnemyBalance.AttributePool.BasePointsAtLevel1 = (int)v));
-            list.Add(IntParam("enemySustainPoolBase", tab, CombatTuningLayer.Duration, "Enemy baselines",
-                "Sustain pool base (L1)", "Health/armor budget at level 1", 1, 500,
-                () => cfg().EnemyBalance.SustainPool.BasePointsAtLevel1,
-                v => cfg().EnemyBalance.SustainPool.BasePointsAtLevel1 = (int)v));
 
             // Tempo (L1)
             list.Add(DoubleParam("baseAttackTime", tab, CombatTuningLayer.RollFeel, "Tempo",
@@ -199,14 +191,6 @@ namespace RPGGame.Tuning
                 "Enemy attribute growth budget", "STR+AGI+TEC+INT growth sum per level", 1, 20, 0.5,
                 () => cfg().EnemySystem.AttributeGrowthBudgetPerLevel,
                 v => cfg().EnemySystem.AttributeGrowthBudgetPerLevel = v));
-            list.Add(IntParam("enemyAttributePoolPerLevel", tab, CombatTuningLayer.Duration, "Level growth",
-                "Attribute pool per level", "Attribute points added per level to the shared pool", 0, 50,
-                () => cfg().EnemyBalance.AttributePool.PointsPerLevel,
-                v => cfg().EnemyBalance.AttributePool.PointsPerLevel = (int)v));
-            list.Add(IntParam("enemySustainPoolPerLevel", tab, CombatTuningLayer.Duration, "Level growth",
-                "Sustain pool per level", "Sustain budget points per level", 0, 100,
-                () => cfg().EnemyBalance.SustainPool.PointsPerLevel,
-                v => cfg().EnemyBalance.SustainPool.PointsPerLevel = (int)v));
             list.Add(IntParam("enemyPrimaryAttributeBonus", tab, CombatTuningLayer.WinRate, "Level growth",
                 "Enemy primary attribute bonus", "Bonus to enemy primary stat", 0, 10,
                 () => cfg().Attributes.EnemyPrimaryAttributeBonus, v => cfg().Attributes.EnemyPrimaryAttributeBonus = v));
@@ -245,23 +229,20 @@ namespace RPGGame.Tuning
                 () => cfg().EnemySystem.ProgressionScales.AttributeGrowthScale,
                 v => cfg().EnemySystem.ProgressionScales.AttributeGrowthScale = v));
 
-            // Global multipliers (scale whole fight)
+            // Enemy-wide scales (the old globalMultipliers block, 2026-11-05: health folded into the health curve's base,
+            // damage was an attribute scale and is named as one, speed did nothing for tempo and is gone).
             list.Add(DoubleParam("globalEnemyHealthMult", tab, CombatTuningLayer.Duration, "Global multipliers",
-                "Global enemy health multiplier", "All spawned enemy max HP", 0.25, 3.0, 0.05,
-                () => cfg().EnemySystem.GlobalMultipliers.HealthMultiplier,
-                v => cfg().EnemySystem.GlobalMultipliers.HealthMultiplier = v));
-            list.Add(DoubleParam("globalEnemyDamageMult", tab, CombatTuningLayer.WinRate, "Global multipliers",
-                "Global enemy damage multiplier", "Enemy STR/TEC/INT scaling at spawn", 0.25, 3.0, 0.05,
-                () => cfg().EnemySystem.GlobalMultipliers.DamageMultiplier,
-                v => cfg().EnemySystem.GlobalMultipliers.DamageMultiplier = v));
-            list.Add(DoubleParam("globalEnemySpeedMult", tab, CombatTuningLayer.WinRate, "Global multipliers",
-                "Global enemy speed multiplier", "Enemy AGI scaling at spawn", 0.25, 3.0, 0.05,
-                () => cfg().EnemySystem.GlobalMultipliers.SpeedMultiplier,
-                v => cfg().EnemySystem.GlobalMultipliers.SpeedMultiplier = v));
-            list.Add(DoubleParam("globalEnemyArmorMult", tab, CombatTuningLayer.RollFeel, "Global multipliers",
-                "Global enemy armor multiplier", "Enemy armor at spawn", 0.25, 3.0, 0.05,
-                () => cfg().EnemySystem.GlobalMultipliers.ArmorMultiplier,
-                v => cfg().EnemySystem.GlobalMultipliers.ArmorMultiplier = v));
+                "Enemy health curve base", "Multiplies every health band (enemySystem.healthCurve.baseMultiplier)", 0.25, 3.0, 0.05,
+                () => cfg().EnemySystem.HealthCurve.BaseMultiplier,
+                v => cfg().EnemySystem.HealthCurve.BaseMultiplier = v));
+            list.Add(DoubleParam("enemyAttributeScale", tab, CombatTuningLayer.WinRate, "Global multipliers",
+                "Enemy attribute scale", "Enemy STR/TEC/INT after level growth (accuracy, combo strength); hit damage is the damage curve", 0.25, 3.0, 0.05,
+                () => cfg().EnemySystem.AttributeScale,
+                v => cfg().EnemySystem.AttributeScale = v));
+            list.Add(DoubleParam("enemyArmorScale", tab, CombatTuningLayer.RollFeel, "Global multipliers",
+                "Enemy armor scale", "Enemy armor after level growth", 0.25, 3.0, 0.05,
+                () => cfg().EnemySystem.ArmorScale,
+                v => cfg().EnemySystem.ArmorScale = v));
             list.Add(DoubleParam("globalWeaponDamageMult", tab, CombatTuningLayer.WinRate, "Global multipliers",
                 "Global weapon damage multiplier", "All weapon base damage scaling", 0.25, 3.0, 0.05,
                 () => cfg().WeaponScaling?.GlobalDamageMultiplier ?? 1.0,
@@ -396,30 +377,6 @@ namespace RPGGame.Tuning
                 () => cfg().EnemySystem.LevelVariance, v => cfg().EnemySystem.LevelVariance = v));
 
             // Enemy pool conversion (fine outfit of enemy generation)
-            list.Add(DoubleParam("statConversionStrength", tab, CombatTuningLayer.WinRate, "Enemy conversion",
-                "STR per point", "Enemy strength conversion from attribute pool", 0.1, 3.0, 0.05,
-                () => cfg().EnemyBalance.StatConversionRates.StrengthPerPoint,
-                v => cfg().EnemyBalance.StatConversionRates.StrengthPerPoint = v));
-            list.Add(DoubleParam("statConversionAgility", tab, CombatTuningLayer.Duration, "Enemy conversion",
-                "AGI per point", "Enemy agility conversion (attack speed)", 0.1, 3.0, 0.05,
-                () => cfg().EnemyBalance.StatConversionRates.AgilityPerPoint,
-                v => cfg().EnemyBalance.StatConversionRates.AgilityPerPoint = v));
-            list.Add(DoubleParam("statConversionTechnique", tab, CombatTuningLayer.RollFeel, "Enemy conversion",
-                "TEC per point", "Enemy technique conversion", 0.1, 3.0, 0.05,
-                () => cfg().EnemyBalance.StatConversionRates.TechniquePerPoint,
-                v => cfg().EnemyBalance.StatConversionRates.TechniquePerPoint = v));
-            list.Add(DoubleParam("statConversionIntelligence", tab, CombatTuningLayer.ComboAffordance, "Enemy conversion",
-                "INT per point", "Enemy intelligence conversion", 0.1, 3.0, 0.05,
-                () => cfg().EnemyBalance.StatConversionRates.IntelligencePerPoint,
-                v => cfg().EnemyBalance.StatConversionRates.IntelligencePerPoint = v));
-            list.Add(DoubleParam("statConversionHealth", tab, CombatTuningLayer.Duration, "Enemy conversion",
-                "Health per point", "Enemy health conversion from sustain pool", 0.1, 3.0, 0.05,
-                () => cfg().EnemyBalance.StatConversionRates.HealthPerPoint,
-                v => cfg().EnemyBalance.StatConversionRates.HealthPerPoint = v));
-            list.Add(DoubleParam("statConversionArmor", tab, CombatTuningLayer.WinRate, "Enemy conversion",
-                "Armor per point", "Enemy armor conversion from sustain pool", 0.1, 3.0, 0.05,
-                () => cfg().EnemyBalance.StatConversionRates.ArmorPerPoint,
-                v => cfg().EnemyBalance.StatConversionRates.ArmorPerPoint = v));
 
             // Rewards & loot
             list.Add(IntParam("enemyXPBase", tab, CombatTuningLayer.Duration, "Rewards & loot",

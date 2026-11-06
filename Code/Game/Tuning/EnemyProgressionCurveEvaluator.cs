@@ -39,7 +39,7 @@ namespace RPGGame.Tuning
             public string FormatCompactLine()
             {
                 int baseInt = (int)Math.Floor(BaseHealth);
-                return $"HP factors: base {baseInt} × scale {BaseHealthScale:F2} × global {GlobalMult:F2} × runtime {RuntimeMult:F2} = {FinalHealth}";
+                return $"HP factors: base {baseInt} × scale {BaseHealthScale:F2} × health curve {GlobalMult:F2} × runtime {RuntimeMult:F2} = {FinalHealth}";
             }
         }
 
@@ -67,7 +67,6 @@ namespace RPGGame.Tuning
             int levelScaled = ComputeLevelScaledHealth(baseHealth, growthHealth, level, prog);
             int finalHp = ApplyFinalHealthMultipliers(levelScaled, enemySystem, level);
 
-            var global = enemySystem.GlobalMultipliers;
             double runtime = GameSettings.Instance?.EnemyHealthMultiplier ?? 1.0;
             if (runtime <= 0)
                 runtime = 1.0;
@@ -81,7 +80,7 @@ namespace RPGGame.Tuning
                 ArchetypeFallbackUsed = archetypeFallbackUsed,
                 BaseHealthScale = prog.BaseHealthScale,
                 LevelScaledHealth = levelScaled,
-                GlobalMult = global.HealthMultiplier,
+                GlobalMult = enemySystem.HealthCurve?.MultiplierAt(level) ?? 1.0,
                 RuntimeMult = runtime,
                 CombatTempoScale = prog.CombatTempoScale,
                 FinalHealth = finalHp
@@ -114,7 +113,6 @@ namespace RPGGame.Tuning
 
         public static int ApplyFinalHealthMultipliers(int levelScaledHealth, EnemySystemConfig enemySystem, int? level = null)
         {
-            var global = enemySystem.GlobalMultipliers;
             var prog = enemySystem.ProgressionScales ?? new EnemyProgressionScalesConfig();
             prog.EnsurePositiveScales();
 
@@ -122,7 +120,7 @@ namespace RPGGame.Tuning
             if (runtime <= 0)
                 runtime = 1.0;
 
-            double scaled = levelScaledHealth * global.HealthMultiplier * runtime * prog.CombatTempoScale;
+            double scaled = levelScaledHealth * runtime * prog.CombatTempoScale;
             if (level.HasValue && enemySystem.HealthCurve != null)
                 scaled *= enemySystem.HealthCurve.MultiplierAt(level.Value);
             return Math.Max(1, FloorToInt(scaled));

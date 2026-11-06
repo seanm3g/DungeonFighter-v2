@@ -23,6 +23,8 @@ from concurrent.futures import ThreadPoolExecutor
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'Scripts'))
 from simpool import SIM_SKIP, SimPool, add_args as add_pool_args
+import balancepatch as bp
+from simstats import wilson, cluster_interval
 TARGETS = json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balance-targets.json'), encoding='utf-8'))
 CLASSES = ['Barbarian', 'Warrior', 'Rogue', 'Wizard']
 
@@ -35,7 +37,7 @@ ap.add_argument('--runs', type=int, default=2, help='heroes per shard')
 ap.add_argument('--dungeons', type=int, default=6, help='dungeons per hero')
 ap.add_argument('--retreat', type=int, default=int(TARGETS.get('retreatBelowHpPercent', 50)))
 ap.add_argument('--start-loot-per-level', type=int, default=0, help='drops per level in the starting bag (0 = tool default)')
-ap.add_argument('--anchor', action='append', default=[], help='damage anchor override L=multiplier (repeatable)')
+ap.add_argument('--anchor', action='append', default=[], help='enemy damage band override L=multiplier: sets the 5-level band holding L (repeatable)')
 ap.add_argument('--solve', type=int, default=0, help='DEPRECATED (use Scripts/bo-solve.py): bisect the damage anchor at this level to hit --target clear %%')
 ap.add_argument('--target', type=float, default=0, help='--solve: target clear %%')
 ap.add_argument('--iterations', type=int, default=5)
@@ -85,29 +87,29 @@ def copy_gamedata():
         shutil.copytree(A.overlay, DATA, dirs_exist_ok=True)
 
 
-def write_variant(anchors, tag):
-    """Patch copy with damage anchors overridden; returns its path."""
-    d = json.load(open(active_patch_path(), encoding='utf-8-sig'))
-    cur = {a['level']: a['multiplier'] for a in d['enemySystem']['damageCurve']['anchors']}
-    cur.update(anchors)
-    d['enemySystem']['damageCurve']['anchors'] = [{'level': k, 'multiplier': v} for k, v in sorted(cur.items())]
+def _apply(d, overrides):
+    """overrides: {level: value} sets the enemy damage band holding that level; {(curve, level): value} sets another
+    curve's band, curve = 'damage' | 'health' | 'class:<Class>' (hero damage curve of one class)."""
+    for k, v in overrides.items():
+        curve, level = k if isinstance(k, tuple) else ('damage', k)
+        c = bp.get_curve(d, None, curve.split(':', 1)[1].lower()) if curve.startswith('class:') else bp.get_curve(d, curve)
+        c['enabled'] = True
+        bp.set_band(c, int(level), float(v))
+    return d
+
+
+def write_variant(overrides, tag):
+    """Full (resolved) patch copy with curve bands overridden; returns its path."""
+    d = _apply(bp.resolve(active_patch_path()), overrides)
     path = os.path.join(WORK, f'patch-{tag}.json')
     json.dump(d, open(path, 'w', encoding='utf-8'), indent=2)
     return path
 
 
 def damage_anchor_at(level, overrides):
-    """Effective damage multiplier at a level (linear between anchors), after overrides."""
-    d = json.load(open(active_patch_path(), encoding='utf-8-sig'))
-    cur = {a['level']: a['multiplier'] for a in d['enemySystem']['damageCurve']['anchors']}
-    cur.update(overrides)
-    pts = sorted(cur.items())
-    if level <= pts[0][0]:
-        return pts[0][1]
-    for (l0, m0), (l1, m1) in zip(pts, pts[1:]):
-        if level <= l1:
-            return m0 + (level - l0) / (l1 - l0) * (m1 - m0)
-    return pts[-1][1]
+    """Effective enemy damage multiplier at a level (band value x base), after overrides."""
+    d = _apply(bp.resolve(active_patch_path()), {k: v for k, v in overrides.items() if not isinstance(k, tuple) or k[0] == 'damage'})
+    return bp.value_at(bp.get_curve(d, 'damage'), level)
 
 
 def shard(patch, level, cls, i, tag):
@@ -138,35 +140,6 @@ def shard(patch, level, cls, i, tag):
         return None
     doc['Host'] = host
     return doc
-
-
-def wilson(k, n, z=1.96):
-    if n == 0:
-        return 0.0, 1.0
-    p = k / n
-    den = 1 + z * z / n
-    c = (p + z * z / (2 * n)) / den
-    h = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / den
-    return max(0.0, c - h), min(1.0, c + h)
-
-
-T95 = {1: 12.71, 2: 4.30, 3: 3.18, 4: 2.78, 5: 2.57, 6: 2.45, 7: 2.36, 8: 2.31, 9: 2.26, 10: 2.23, 15: 2.13, 20: 2.09, 30: 2.04}
-
-
-def cluster_interval(units, z=1.96):
-    """95% interval for a rate from (hits, n) per shard: a t interval over shard rates (dungeons inside a shard are
-    correlated through its heroes' builds), widened to at least the Wilson interval on the pooled count."""
-    k = sum(c for c, _ in units); n = sum(d for _, d in units)
-    lo, hi = wilson(k, n, z)
-    rates = [c / d for c, d in units if d]
-    if len(rates) >= 2 and n:
-        df = len(rates) - 1
-        t = T95.get(df) or next((v for d, v in sorted(T95.items()) if d >= df), 1.96)
-        mean = k / n
-        sd = math.sqrt(sum((r - mean) ** 2 for r in rates) / df)
-        half = t * sd / math.sqrt(len(rates))
-        lo, hi = min(lo, max(0.0, mean - half)), max(hi, min(1.0, mean + half))
-    return lo, hi
 
 
 def measure(level, anchors, tag):
@@ -215,7 +188,7 @@ def summarize(level, anchors, docs):
                 shard_units[k].append((sk[k], sk['Dungeons']))
     n = tot['Dungeons']
     res = {
-        'level': level, 'anchors': anchors, 'damageMultiplier': round(damage_anchor_at(level, anchors), 4),
+        'level': level, 'anchors': {(f'{k[0]}@{k[1]}' if isinstance(k, tuple) else str(k)): v for k, v in anchors.items()}, 'damageMultiplier': round(damage_anchor_at(level, anchors), 4),
         'dungeons': n, 'runs': tot['Runs'],
         'clear': tot['Cleared'] / n if n else 0, 'clearCI': cluster_interval(shard_units['Cleared']),
         'clearCIDungeons': wilson(tot['Cleared'], n), 'shards': len(shard_units['Cleared']),

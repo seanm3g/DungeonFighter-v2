@@ -591,7 +591,7 @@ namespace RPGGame.Data
             ClassPresentationConfig pres;
             if (File.Exists(tuningPath))
             {
-                string tuningText = await File.ReadAllTextAsync(tuningPath, cancellationToken).ConfigureAwait(false);
+                string tuningText = RPGGame.Config.BalancePatchOverlay.ResolveJson(tuningPath);
                 using var doc = JsonDocument.Parse(tuningText);
                 if (doc.RootElement.TryGetProperty("classPresentation", out var cpEl))
                 {
@@ -636,7 +636,7 @@ namespace RPGGame.Data
             string tab = cfg.VariablesSheetTabName.Trim();
             string tuningPath = GameConfiguration.GetTuningConfigFilePathForWrite();
             string jsonText = File.Exists(tuningPath)
-                ? await File.ReadAllTextAsync(tuningPath, cancellationToken).ConfigureAwait(false)
+                ? RPGGame.Config.BalancePatchOverlay.ResolveJson(tuningPath)
                 : "{}";
 
             var rows = VariablesSheetConverter.BuildPushValueRowsFromJsonText(jsonText);

@@ -19,7 +19,7 @@ Full reference: `Documentation/BALANCE_PROCESS.md`. Targets: `GameData/TuningPro
   `balance-check.ps1` bare-hero fight rows fail at L20+ by design.
 - Class parity: compare per-class clear rates and enemy swings per kill; per-class knob is
   `classBalance.<class>.damageCurve`. Enemy tempo is `combat.enemyAttackTimeMultiplier`
-  (`enemySystem.globalMultipliers.speedMultiplier` does nothing for tempo).
+  (`enemySystem.attributeScale` scales enemy STR/TEC/INT, not hit damage; curves are step bands, see BALANCE_PROCESS).
 
 ## Running the tools
 Run the scripts from the repo root with Bash, or through the `dungeonfighter` MCP server: `get_balance_context` (active
@@ -37,26 +37,21 @@ below against the server's own DF.dll and write results to `GameData/TuningRuns/
 4. Start cheap: a ~20 s single-level `dungeon-sim.py --levels L --shards 2` probe answers most "is X broken?" questions.
 
 ## Loop
-1. **Scan** (~8 min): `python Scripts/balance-scan.py`, with `--compare <newest GameData/TuningRuns/balance-scan-*.json>`
-   when one exists. Its dungeon clear rows are a few heroes per level: treat them as gross-miss detectors only. Pass
-   `--dungeon-levels 8,18,33,48` (band midpoints; the default 10,20,35,50 sits on band edges).
-2. **Focus**: run only what the scan flagged.
-   - Clear rate off: `python Scripts/bo-solve.py --level <band midpoint> [--spark 18]` (target defaults to
-     `realClearAnchors` at that level; `--scope band` scales the whole band). It prints the band anchors to write.
-     Do not use `dungeon-sim.py --solve` or `band-solve.py` (bisection on one seed set, up to 27% off).
-   - Fight length off: `python Scripts/median-curve-solve.py --only health --levels L`, then `--check`.
-   - Many knobs / what-ifs: `Scripts/surrogate.py predict|sweep` for screening only (gaps under ~6 pts are noise).
-   - Write the change into a **new candidate patch**: copy the active patch to
-     `GameData/Patches/Balance/<name>.json` and edit the copy. Run every tool with `--patch <name>`. Never edit the active
-     patch file in place.
-3. **Confirm** on a fresh seed, paired against the base patch (same seed for both):
-   `python Scripts/dungeon-sim.py --levels <levels> --shards 8 --seed <new seed> --patch <base>` and again with
-   `--patch <candidate>`. Use ≥8 shards (16 heroes per class) to read class gaps; 12-hero samples swing ±20 pts, and
-   dungeon-sim's Wilson intervals count dungeons, so they read too narrow. A solve that misses on the fresh seed is not
-   done (bo-solve's L73 answer overshot to 40% vs a 30% target).
+Use `Scripts/balance-loop.py` (full reference: `Documentation/BALANCE_PROCESS.md`, "The balance loop").
+1. **Measure** where the patch stands, on seeds nothing was tuned on:
+   `python Scripts/balance-loop.py measure --patch <p> --ref <previous>` (clear vs target, hero actions vs target, class
+   spread vs `classParityMaxSpread`, per class and band). `balance-scan.py` is the wider quick look (per-enemy, pacing,
+   variety) when you need it.
+2. **Solve** one knob family at a time, health first (fight length), then damage (clear rate), then class (parity),
+   then damage again: `python Scripts/balance-loop.py solve --patch <p> --knob health|damage|class --next <p2>`, or the
+   whole sequence with `python Scripts/balance-chain.py --start <p> --first <N> --ref <previous>`. Each solve confirms
+   on other fresh seeds, paired, and keeps only what beats noise; it writes an overlay patch (`"base": "<p>"`).
+   Do not use `dungeon-sim.py --solve`, `band-solve.py` or `bo-solve --prior surrogate`.
+3. **Held-out check**: `measure` the result against the starting patch on new seeds. Check `botcheck` (bot vs median
+   build kill speed) when fight length moved.
 4. **Gate**: `powershell -File Scripts/balance-check.ps1 -Patch <candidate>` once, before proposing the patch. Read its
    dungeon rows; the bare-hero fight rows are diagnostic only.
-5. **Hand off**: report the before/after table (level × class clear %, hero actions per fight, swing size). Ask the user
+5. **Hand off**: report the before/after (level × class clear %, hero actions per fight, class spread). Ask the user
    before activating it in `PatchProfile.json` (see `/patch`). Patch JSONs are under a gitignored path: commit with
    `git add -f GameData/Patches/Balance/<name>.json`.
 
@@ -65,5 +60,5 @@ The legacy single-fight win-rate tooling: MCP `run_full_cycle`, `balance_tuner_a
 `apply_tuning_suggestion`, `validate_balance`, `get_balance_quality_score`, `test_what_if`,
 `analyze_parameter_sensitivity`, `adjust_*`, `apply_preset`, `save_configuration`, `load_patch`, and the
 TUNESIM / TUNEANALYZE / TUNEAPPLY / LEVEL* / TUNING / PLAYTHROUGHTUNING / WRSOLVE modes. They target an 85–98%
-per-fight win rate on a bare hero and adjust `globalMultipliers`. Their disk writes are blocked by
+per-fight win rate on a bare hero. Their disk writes are blocked by
 `LegacyTuningWriteGuard`; do not set `DF_ALLOW_LEGACY_TUNING_WRITES` to get around it.

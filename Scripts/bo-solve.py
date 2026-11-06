@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Bayesian damage-anchor solve: the enemy damage anchor at one level that gives a target dungeon clear rate.
+"""Bayesian band solve: the value of one 5-level region band of a level curve that hits a target.
+
+Knobs (--knob): damage (enemy damage band, default; target = clear %), class:<Class> (that class's hero damage band,
+only that class is simulated; target = clear %), health (enemy health band; target = hero actions per fight from
+heroTurnsAnchors, solved by a log-log fit instead of the dose-response model below).
 
 Same question as `dungeon-sim.py --solve`, answered with fewer sims. Bisection spends a fixed batch per step and
 keeps only the bracket; this keeps every result. Clear rate p falls as the anchor scale s rises, modelled as a
@@ -19,7 +23,8 @@ Checked 2026-11-04 on fastbot-v14 L10 (reference root 1.217 from a 2,879-dungeon
 
   python Scripts/bo-solve.py --level 20 --spark 18                 (target from balance-targets.json realClearAnchors)
   python Scripts/bo-solve.py --level 50 --target 65 --tolerance 0.05 --max-rounds 20
-  python Scripts/bo-solve.py --level 20 --prior surrogate     (centre the prior on Scripts/surrogate.py)
+  python Scripts/bo-solve.py --level 23 --knob class:Warrior --spark 18     (Warrior's hero damage band at L21-25)
+  python Scripts/bo-solve.py --level 18 --knob health --spark 18            (enemy health band for fight length)
 
 Rounds run in this process on one dungeon-sim.py shard pool: GameData is copied and the Spark session uploaded once per
 solve, not once per round (that setup was ~8 s of a ~14 s round). With --spark the local slots default to 0 (a local
@@ -29,6 +34,8 @@ Prints the solved scale and anchor with a 90% interval, the dungeons it used, an
 """
 import argparse, json, math, os, re, shutil, subprocess, sys, tempfile
 import numpy as np
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import balancepatch as bp
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TARGETS = json.load(open(os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balance-targets.json'), encoding='utf-8'))
@@ -37,28 +44,35 @@ ap = argparse.ArgumentParser()
 ap.add_argument('--level', type=int, required=True)
 ap.add_argument('--target', type=float, default=None, help='target clear %% (default: realClearAnchors in balance-targets.json at --level)')
 ap.add_argument('--patch', default='', help='balance patch name or path (default: active patch)')
-ap.add_argument('--anchor', action='append', default=[], help='other damage anchor overrides L=multiplier (repeatable)')
+ap.add_argument('--knob', default='damage', help="damage | health | class:<Class> (see the docstring)")
+ap.add_argument('--anchor', action='append', default=[], help='other enemy damage band overrides L=multiplier (repeatable)')
 ap.add_argument('--tools', default='Code/bin/BalanceTools', help='folder holding the built DF.dll')
 ap.add_argument('--shards', type=int, default=0, help='dungeon-sim shards per class per round (0 = slots // 4, at least 3)')
 ap.add_argument('--runs', type=int, default=2, help='heroes per shard')
-ap.add_argument('--dungeons', type=int, default=4, help='dungeons per hero')
+ap.add_argument('--dungeons', type=int, default=6, help='dungeons per hero (6 = dungeon-sim.py default, so solve and confirm measure the same thing)')
 ap.add_argument('--tolerance', type=float, default=0.10, help='stop when the 90%% interval on the scale is within +/- this fraction')
 ap.add_argument('--max-rounds', type=int, default=12)
 ap.add_argument('--scale-range', default='0.25,4', help='scales the solve may consider, lo,hi')
 ap.add_argument('--deff', type=float, default=1.5, help='design effect: each dungeon counts as 1/deff of an independent one')
 ap.add_argument('--prior', default='flat', choices=['flat', 'surrogate'],
-                help='flat = log-uniform scale prior; surrogate = centred on Scripts/surrogate.py (needs a model trained on this patch)')
+                help='flat = log-uniform scale prior; surrogate = centred on Scripts/surrogate.py. UNVALIDATED: on 2026-11-05 its '
+                     'guesses were 20-30%% off and slowed solves; damage knob only')
 ap.add_argument('--seed', type=int, default=11, help='round r runs dungeon-sim.py --seed seed*100+r (fresh heroes each round)')
 ap.add_argument('--parallel', type=int, default=None, help='local shard slots (default: 0 with --spark, else half the cores)')
-ap.add_argument('--spark', type=int, default=0, help='Spark slots (see Scripts/simpool.py)')
+from simpool import spark_slots_arg
+ap.add_argument('--spark', type=spark_slots_arg, default='auto', help='Spark slots: auto (default), 0 = local, or N (see Scripts/simpool.py)')
 ap.add_argument('--spark-host', default='spark')
 ap.add_argument('--bot', default='rules', choices=['smart', 'rules', 'basic'])
 ap.add_argument('--region-mix', action='store_true')
 ap.add_argument('--json', default='', help='write rounds and result here')
-ap.add_argument('--scope', default='band', choices=['band', 'level'],
-                help="band = scale every anchor in --level's 5-level region band together (the curve steps per band; solve at a band "
-                     "midpoint so the hero's +/-1 dungeon level roll stays inside it); level = only the anchor at --level")
 A = ap.parse_args()
+KNOB = A.knob.strip()
+CLASS = KNOB.split(':', 1)[1].strip().capitalize() if KNOB.lower().startswith('class:') else None
+CURVE = f'class:{CLASS}' if CLASS else KNOB.lower()
+if CURVE not in ('damage', 'health') and not CLASS:
+    raise SystemExit('--knob must be damage, health or class:<Class>')
+if A.prior == 'surrogate' and CURVE != 'damage':
+    raise SystemExit('--prior surrogate only covers the damage knob')
 LOCAL_DEFAULT = max(1, (os.cpu_count() or 8) // 2)
 if A.parallel is None:
     A.parallel = 0 if A.spark else LOCAL_DEFAULT
@@ -77,13 +91,29 @@ def target_at(level):
     return pts[-1][1]
 
 
+def turns_target_at(level):
+    """Hero actions per fight wanted at a level: heroTurnsAnchors (linear), else heroTurnsTarget."""
+    pts = sorted((a['level'], float(a['turns'])) for a in TARGETS.get('heroTurnsAnchors', []))
+    if not pts:
+        return float(TARGETS.get('heroTurnsTarget', 11))
+    if level <= pts[0][0]:
+        return pts[0][1]
+    for (l0, c0), (l1, c1) in zip(pts, pts[1:]):
+        if level <= l1:
+            return c0 + (level - l0) / (l1 - l0) * (c1 - c0)
+    return pts[-1][1]
+
+
 if A.target is None:
-    A.target = target_at(A.level)
+    A.target = turns_target_at(A.level) if CURVE == 'health' else target_at(A.level)
 
 LO, HI = (math.log(float(x)) for x in A.scale_range.split(','))
 GRID_R = np.linspace(LO, HI, 401)                    # ln s*
 GRID_B = -np.exp(np.linspace(math.log(0.3), math.log(25), 120))   # slope of logit p per ln s (negative: more damage, fewer clears)
-LOGIT_T = math.log(A.target / (100 - A.target))
+LOGIT_T = math.log(A.target / (100 - A.target)) if CURVE != 'health' else 0.0
+# The dose-response model has clear falling as the scale rises (enemy damage). For a class's hero damage clear rises
+# with the scale, so the model runs on 1/scale: SIGN maps model scale -> applied scale exponent.
+SIGN = -1 if CLASS else 1
 
 
 def patch_path():
@@ -98,35 +128,20 @@ def patch_path():
 
 def band_levels(level):
     """Levels of the 5-level region band holding `level` (1-5, 6-10, ...)."""
-    start = 5 * ((level - 1) // 5) + 1
-    return range(start, start + 5)
+    lo, hi = bp.region_band(level)
+    return range(lo, hi + 1)
 
 
-def solve_anchors(overrides):
-    """Anchor level -> current multiplier for the anchors the solve scales together."""
-    d = json.load(open(patch_path(), encoding='utf-8-sig'))
-    cur = {a['level']: a['multiplier'] for a in d['enemySystem']['damageCurve']['anchors']}
-    cur.update(overrides)
-    if A.scope == 'level':
-        return {A.level: base_anchor(A.level, overrides)}
-    band = {lv: m for lv, m in cur.items() if lv in band_levels(A.level)}
-    if not band:
-        raise SystemExit(f'No damage anchors inside the L{A.level} band {band_levels(A.level)[0]}-{band_levels(A.level)[-1]}; use --scope level')
-    return band
+def curve_of(d):
+    return bp.get_curve(d, None, CLASS.lower()) if CLASS else bp.get_curve(d, CURVE)
 
 
 def base_anchor(level, overrides):
-    """Damage multiplier at a level (linear between anchors), as dungeon-sim.py computes it."""
-    d = json.load(open(patch_path(), encoding='utf-8-sig'))
-    cur = {a['level']: a['multiplier'] for a in d['enemySystem']['damageCurve']['anchors']}
-    cur.update(overrides)
-    pts = sorted(cur.items())
-    if level <= pts[0][0]:
-        return pts[0][1]
-    for (l0, m0), (l1, m1) in zip(pts, pts[1:]):
-        if level <= l1:
-            return m0 + (level - l0) / (l1 - l0) * (m1 - m0)
-    return pts[-1][1]
+    """Current stored band value (without the curve's base multiplier) of the band being solved."""
+    d = bp.resolve(patch_path())
+    for L, v in overrides.items():
+        bp.set_band(bp.get_curve(d, 'damage'), L, v)
+    return bp.band_value(curve_of(d), level)
 
 
 def log_prior():
@@ -214,7 +229,8 @@ def open_sim():
     import importlib.util
     argv = ['dungeon-sim.py', '--levels', str(A.level), '--patch', patch_path(), '--tools', A.tools, '--shards', str(max(1, A.shards)),
             '--runs', str(A.runs), '--dungeons', str(A.dungeons), '--seed', str(A.seed * 100), '--parallel', str(A.parallel),
-            '--spark', str(A.spark), '--spark-host', A.spark_host, '--bot', A.bot] + (['--region-mix'] if A.region_mix else [])
+            '--spark', str(A.spark), '--spark-host', A.spark_host, '--bot', A.bot] + (['--region-mix'] if A.region_mix else []) \
+           + (['--classes', CLASS] if CLASS else [])
     saved, sys.argv = sys.argv, argv
     try:
         spec = importlib.util.spec_from_file_location('dungeon_sim', os.path.join(ROOT, 'Scripts', 'dungeon-sim.py'))
@@ -240,55 +256,93 @@ def open_sim():
     return ds
 
 
-def run_round(ds, r, scale, overrides):
-    ds.A.seed = A.seed * 100 + r          # fresh heroes each round (dungeon-sim.py --seed seed*100+r)
-    anchors = {**overrides, **{lv: round(m * scale, 4) for lv, m in solve_anchors(overrides).items()}}
-    return ds.measure(A.level, anchors, f'r{r}')
+def run_round(ds, r, scale, overrides, base):
+    """One batch at applied band value base*scale (fresh heroes: dungeon-sim.py --seed seed*100+r)."""
+    ds.A.seed = A.seed * 100 + r
+    key = A.level if CURVE == 'damage' else (CURVE, A.level)
+    return ds.measure(A.level, {**overrides, key: round(base * scale, 6)}, f'r{r}')
+
+
+def solve_health(ds, base, overrides):
+    """Fight length: ln(hero actions) is ~linear in ln(health scale) (slope ~0.85). Secant rounds on fresh seeds, then
+    a weighted log-log fit through every round; stops when the fit's step is under --tolerance."""
+    pts, rounds, prov = [], [], set()
+    scale, slope = 1.0, 0.85
+    for r in range(A.max_rounds):
+        res = run_round(ds, r, scale, overrides, base)
+        acts = res['heroActionsPerFight']
+        prov.update(re.sub(r'@\S+', '', p) for p in res['provenance'])
+        pts.append((math.log(scale), math.log(max(0.5, acts)), res['dungeons']))
+        if len(pts) >= 2:
+            xs = np.array([p[0] for p in pts]); ys = np.array([p[1] for p in pts]); ws = np.array([p[2] for p in pts], float)
+            if np.ptp(xs) > 0.02:
+                fit = np.polyfit(xs, ys, 1, w=np.sqrt(ws))
+                slope = float(min(1.5, max(0.4, fit[0])))
+        # Next scale: through the weighted centre of the points with the current slope.
+        w = np.array([p[2] for p in pts], float)
+        cx = float(np.average([p[0] for p in pts], weights=w)); cy = float(np.average([p[1] for p in pts], weights=w))
+        nxt = math.exp(cx + (math.log(A.target) - cy) / slope)
+        nxt = min(math.exp(HI), max(math.exp(LO), nxt))
+        rounds.append({'round': r, 'scale': scale, 'value': base * scale, 'heroActions': acts, 'dungeons': res['dungeons'],
+                       'clear': res['clear'], 'next': nxt, 'slope': slope})
+        print(f'  round {r}: scale {scale:.3f} (band x{base * scale:.4f})  hero acts {acts:5.2f} (target {A.target:.1f})  '
+              f'-> next {nxt:.3f}, slope {slope:.2f}', flush=True)
+        done = abs(math.log(nxt / scale)) <= A.tolerance and r >= 1
+        scale = nxt
+        if done:
+            break
+    return scale, rounds, prov, sum(p[2] for p in pts), abs(math.log(rounds[-1]['next'] / rounds[-1]['scale'])) <= A.tolerance
 
 
 def main():
-    overrides = {int(s.split('=')[0]): float(s.split('=')[1]) for s in A.anchor}
+    overrides = {int(x.split('=')[0]): float(x.split('=')[1]) for x in A.anchor}
     base = base_anchor(A.level, overrides)
-    scaled = solve_anchors(overrides)
-    what = f'anchors {sorted(scaled)}' if A.scope == 'band' else 'anchor'
-    print(f'L{A.level}: solving the damage {what} (L{A.level} now x{base:.4f}) for {A.target:.0f}% clear | patch {patch_path()}')
+    lo, hi = bp.region_band(A.level)
+    unit = 'hero actions' if CURVE == 'health' else '% clear'
+    print(f'L{A.level}: solving the {CURVE} band L{lo}-{hi} (now x{base:.4f}) for {A.target:.1f} {unit} | patch {patch_path()}')
     ds = open_sim()
-    obs, rounds, provenance = [], [], set()
-    w = posterior(obs)
-    for r in range(A.max_rounds):
-        # A round's size, from the rounds so far (retreats end runs early) or the nominal batch.
-        n_round = sum(o[2] for o in obs) / len(obs) if obs else ds.A.shards * len(ds.CLASSES) * A.runs * A.dungeons
-        x = next_point(w, n_round)
-        res = run_round(ds, r, math.exp(x), overrides)
-        k, n = round(res['clear'] * res['dungeons']), res['dungeons']
-        obs.append((x, k, n))
-        # Each round's patch differs only in the anchor being solved, so its hash is dropped.
-        provenance.update(re.sub(r'@\S+', '', p) for p in res['provenance'])
+    if CURVE == 'health':
+        scale, rounds, provenance, used, converged = solve_health(ds, base, overrides)
+        q05 = q95 = scale
+    else:
+        obs, rounds, provenance = [], [], set()
         w = posterior(obs)
+        for r in range(A.max_rounds):
+            # A round's size, from the rounds so far (retreats end runs early) or the nominal batch.
+            n_round = sum(o[2] for o in obs) / len(obs) if obs else ds.A.shards * len(ds.CLASSES) * A.runs * A.dungeons
+            x = next_point(w, n_round)
+            applied = math.exp(SIGN * x)
+            res = run_round(ds, r, applied, overrides, base)
+            pc = res['perClassClear'].get(CLASS) if CLASS else None
+            clear = pc if pc is not None else res['clear']
+            n = res['dungeons']; k = round(clear * n)
+            obs.append((x, k, n))
+            provenance.update(re.sub(r'@\S+', '', p) for p in res['provenance'])
+            w = posterior(obs)
+            q05, q50, q95 = root_quantiles(w, [0.05, 0.5, 0.95])
+            lo_s, hi_s = sorted((math.exp(SIGN * q05), math.exp(SIGN * q95)))
+            rounds.append({'round': r, 'scale': applied, 'value': base * applied, 'cleared': k, 'dungeons': n, 'clear': clear,
+                           'clearCI': res['clearCI'], 'perClassClear': res['perClassClear'], 'solved': math.exp(SIGN * q50),
+                           'solvedCI90': [lo_s, hi_s]})
+            print(f'  round {r}: scale {applied:.3f} (band x{base * applied:.4f})  clear {k}/{n} = {clear * 100:5.1f}%  '
+                  f'-> solved scale {math.exp(SIGN * q50):.3f}  90% [{lo_s:.3f}-{hi_s:.3f}]', flush=True)
+            if (math.exp(q95) / math.exp(q05)) ** 0.5 - 1 <= A.tolerance:
+                break
         q05, q50, q95 = root_quantiles(w, [0.05, 0.5, 0.95])
-        rounds.append({'round': r, 'scale': math.exp(x), 'anchor': base * math.exp(x), 'cleared': k, 'dungeons': n,
-                       'clear': res['clear'], 'clearCI': res['clearCI'], 'perClassClear': res['perClassClear'],
-                       'solved': math.exp(q50), 'solvedCI90': [math.exp(q05), math.exp(q95)]})
-        print(f'  round {r}: scale {math.exp(x):.3f} (anchor x{base * math.exp(x):.4f})  clear {k}/{n} = {res["clear"] * 100:5.1f}%  '
-              f'-> solved scale {math.exp(q50):.3f}  90% [{math.exp(q05):.3f}-{math.exp(q95):.3f}]', flush=True)
-        half_width = (math.exp(q95) / math.exp(q05)) ** 0.5 - 1
-        if half_width <= A.tolerance:
-            break
-    q05, q50, q95 = root_quantiles(w, [0.05, 0.5, 0.95])
-    used = sum(n for _, _, n in obs)
-    converged = (math.exp(q95) / math.exp(q05)) ** 0.5 - 1 <= A.tolerance
-    print(f'\n{"Solved" if converged else "NOT converged (raise --max-rounds or --tolerance)"}: L{A.level} damage anchor '
-          f'x{base * math.exp(q50):.4f} (scale {math.exp(q50):.3f}, 90% [{base * math.exp(q05):.4f}-{base * math.exp(q95):.4f}]) '
-          f'for {A.target:.0f}% clear | {len(obs)} rounds, {used} dungeons')
-    if math.exp(q50) < math.exp(LO) * 1.05 or math.exp(q50) > math.exp(HI) / 1.05:
+        used = sum(o[2] for o in obs)
+        converged = (math.exp(q95) / math.exp(q05)) ** 0.5 - 1 <= A.tolerance
+        scale = math.exp(SIGN * q50)
+        q05, q95 = sorted((math.exp(SIGN * q05), math.exp(SIGN * q95)))
+    value = base * scale
+    print(f'\n{"Solved" if converged else "NOT converged (raise --max-rounds or --tolerance)"}: {CURVE} band L{lo}-{hi} '
+          f'x{value:.4f} (scale {scale:.3f}, 90% [{base * q05:.4f}-{base * q95:.4f}]) for {A.target:.1f} {unit} | '
+          f'{len(rounds)} rounds, {used} dungeons')
+    if scale < math.exp(LO) * 1.05 or scale > math.exp(HI) / 1.05:
         print('WARNING: the answer sits at the edge of --scale-range; the target may be out of reach there.')
-    if A.scope == 'band':
-        print('Band anchors: ' + ', '.join(f'{lv}={m * math.exp(q50):.4f}' for lv, m in sorted(scaled.items())))
     print(f'Provenance: {sorted(provenance)}')
     if A.json:
-        json.dump({'level': A.level, 'target': A.target, 'baseAnchor': base, 'converged': converged, 'dungeons': used,
-                   'scale': math.exp(q50), 'anchor': base * math.exp(q50), 'anchorCI90': [base * math.exp(q05), base * math.exp(q95)],
-                   'scope': A.scope, 'anchors': {str(lv): round(m * math.exp(q50), 4) for lv, m in scaled.items()},
+        json.dump({'level': A.level, 'knob': CURVE, 'band': [lo, hi], 'target': A.target, 'baseValue': base, 'converged': converged,
+                   'dungeons': used, 'scale': scale, 'value': value, 'valueCI90': [base * q05, base * q95],
                    'rounds': rounds, 'provenance': sorted(provenance)}, open(A.json, 'w', encoding='utf-8'), indent=2)
     print(f'Shards by host: {ds.POOL.counts}, ssh retries {ds.POOL.retries}')
 
