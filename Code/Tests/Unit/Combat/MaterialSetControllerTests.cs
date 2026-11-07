@@ -37,7 +37,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestTwoStackMintsOne();
             TestThreeStackAddsFeedCount();
             TestFiveStackMultipliesFeed();
-            TestGoldCrossFeedsMithril();
+            TestGoldFeedsOwnPieces();
             TestClasslessMaterialHasNoBuild();
             TestUnknownIsWildcardForWornMaterials();
             TestHybridMaterialNodeMergesPartnerMaterials();
@@ -150,9 +150,9 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertEqual(25, hero.Effects.GetMaterialKeyword("CRISIS"), "5-stack mints ×Iron count", ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestGoldCrossFeedsMithril()
+        private static void TestGoldFeedsOwnPieces()
         {
-            TestBase.SetCurrentTestName(nameof(TestGoldCrossFeedsMithril));
+            TestBase.SetCurrentTestName(nameof(TestGoldFeedsOwnPieces));
             var hero = EquipPieces(
                 (new HeadItem("G1", 1, 1), "Gold"),
                 (new ChestItem("G2", 1, 1), "Gold"),
@@ -162,7 +162,7 @@ namespace RPGGame.Tests.Unit.Combat
             var swing = new Action { Name = "Anchor", Type = ActionType.Attack, CausesSlow = true };
             var hit = new CombatEvent(CombatEventType.ActionHit, hero) { Action = swing };
             MaterialSetController.TryMintFromEvent(hero, hit, swing);
-            TestBase.AssertEqual(2, hero.Effects.GetMaterialKeyword("DRAG"), "Gold 3+ feeds Mithril count", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(3, hero.Effects.GetMaterialKeyword("DRAG"), "Gold 3+ feeds off its own 3 pieces, not Mithril", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestUnknownIsWildcardForWornMaterials()

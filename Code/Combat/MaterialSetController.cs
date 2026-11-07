@@ -269,6 +269,8 @@ namespace RPGGame
 
         // Primary attribute converts granted this fight (capped by MaterialConvertPrimaryStatMaxPerFight).
         private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Character, StrongBox<int>> _fightConvertStat = new();
+        // Unrounded points earned this fight, so small banks at low per-unit rates (0.05 BEAT) still add up.
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Character, StrongBox<double>> _fightConvertStatRaw = new();
         // The AGI share of those grants, which the hero AGI soft cap can exempt (see GetSetAndConvertAgility).
         private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Character, StrongBox<int>> _fightConvertAgility = new();
 
@@ -283,28 +285,58 @@ namespace RPGGame
 
         /// <summary>
         /// Convert payoff in stats: <paramref name="unitsSpent"/> × <see cref="CombatConfig.MaterialConvertPrimaryStatPerUnit"/>
-        /// points of the hero's primary attribute for the rest of the fight. Returns the points granted.
+        /// points of the material class's primary attribute (Barbarian STR, Warrior AGI, Rogue TEC, Wizard INT; the hero's
+        /// top attribute when the currency has no set) for the rest of the fight. Fractions carry within the fight.
+        /// Returns the points granted.
         /// </summary>
         public static int GrantConvertPrimaryStat(Character? hero, string? keyword, int unitsSpent)
         {
             if (hero == null || hero is Enemy || unitsSpent <= 0 || string.IsNullOrWhiteSpace(keyword))
                 return 0;
-            var combat = GameConfiguration.Instance.Combat;
-            if (combat.MaterialConvertPrimaryStatPerUnit is not { Count: > 0 } perUnit || !perUnit.TryGetValue(keyword, out double per) || per <= 0)
+            double per = GetConvertPrimaryStatPerUnit(keyword);
+            if (per <= 0)
                 return 0;
-            int points = (int)Math.Round(unitsSpent * per);
+            // With damage off the charm's convert multiplier scales the stat payout instead.
+            if (!ConvertPaysDamage)
+                per *= CharmBonusController.GetConvertMultiplier(hero);
+            var combat = GameConfiguration.Instance.Combat;
+            var raw = _fightConvertStatRaw.GetOrCreateValue(hero);
+            double before = raw.Value;
+            raw.Value += unitsSpent * per;
+            int points = (int)Math.Floor(raw.Value + 1e-9) - (int)Math.Floor(before + 1e-9);
             var granted = _fightConvertStat.GetOrCreateValue(hero);
             if (combat.MaterialConvertPrimaryStatMaxPerFight > 0)
                 points = Math.Min(points, Math.Max(0, combat.MaterialConvertPrimaryStatMaxPerFight - granted.Value));
             if (points <= 0)
                 return 0;
             granted.Value += points;
-            string code = DynamicAttributeCategoryResolver.GetRankedAttributeCodes(hero)[0];
+            string code = GetConvertStatCode(hero, keyword);
             hero.FightCadenceBuffs.MergeAdditively(new[] { new ActionAttackBonusItem { Type = code, Value = points } });
             if (string.Equals(code, "AGI", StringComparison.OrdinalIgnoreCase))
                 _fightConvertAgility.GetOrCreateValue(hero).Value += points;
             return points;
         }
+
+        /// <summary>Primary attribute points per unit a convert of <paramref name="keyword"/> spends (0 = none).</summary>
+        public static double GetConvertPrimaryStatPerUnit(string? keyword)
+        {
+            var perUnit = GameConfiguration.Instance.Combat?.MaterialConvertPrimaryStatPerUnit;
+            if (string.IsNullOrWhiteSpace(keyword) || perUnit is not { Count: > 0 } || !perUnit.TryGetValue(keyword, out double per))
+                return 0;
+            return Math.Max(0, per);
+        }
+
+        /// <summary>Attribute code a convert of <paramref name="keyword"/> pays: its set's class stat, else the hero's top attribute.</summary>
+        public static string GetConvertStatCode(Character? hero, string? keyword)
+        {
+            string code = ClassStatCode(MaterialBuildsLoader.FindByKeyword(keyword)?.AssociatedClass);
+            if (code.Length > 0 || hero == null)
+                return code.Length > 0 ? code : "STR";
+            return DynamicAttributeCategoryResolver.GetRankedAttributeCodes(hero)[0];
+        }
+
+        /// <summary>Converts pay damage under the active rules (<see cref="CombatConfig.MaterialConvertPaysDamage"/>).</summary>
+        public static bool ConvertPaysDamage => GameConfiguration.Instance.Combat?.MaterialConvertPaysDamage ?? true;
 
         // Currency minted in the current fight, by keyword: drives the fight-mint speed/defense knobs, which must not drop
         // when a convert spends the bank.
@@ -338,6 +370,7 @@ namespace RPGGame
             hero.Effects.MaterialConsecutiveConnects = 0;
             _fightMinted.Remove(hero);
             _fightConvertStat.Remove(hero);
+            _fightConvertStatRaw.Remove(hero);
             _fightConvertAgility.Remove(hero);
         }
 
@@ -441,6 +474,8 @@ namespace RPGGame
 
         private static int ComputeConvertDamageBonus(Character hero, Action action, MaterialBuildData? build, int hitDamage)
         {
+            if (!ConvertPaysDamage)
+                return 0;
             if (!TryResolveConvertScale(action, build, out string material, out string keyword, out int perUnit, out bool useCount))
                 return 0;
 
@@ -567,9 +602,31 @@ namespace RPGGame
                     && combat.MaterialConvertPercentByKeyword.TryGetValue(keyword, out double byKeyword)
                     ? byKeyword
                     : perUnit * combat.MaterialConvertPercentPerUnit;
-                return $"+{pct.ToString("0.#", CultureInfo.InvariantCulture)}% damage per {keyword}";
+                return WithStatRate($"+{pct.ToString("0.#", CultureInfo.InvariantCulture)}% damage per {keyword}", keyword);
             }
-            return $"+{perUnit} damage per {keyword}";
+            return WithStatRate($"+{perUnit} damage per {keyword}", keyword);
+        }
+
+        /// <summary>Stat payout text, e.g. <c>+1 STR per 4 RAGE (rest of fight)</c>; empty when converts pay no stats.</summary>
+        public static string FormatConvertStatRate(string? keyword)
+        {
+            double per = GetConvertPrimaryStatPerUnit(keyword);
+            if (per <= 0)
+                return "";
+            string code = GetConvertStatCode(null, keyword);
+            string rate = per >= 1
+                ? $"+{per.ToString("0.##", CultureInfo.InvariantCulture)} {code} per {keyword}"
+                : $"+1 {code} per {(1 / per).ToString("0.#", CultureInfo.InvariantCulture)} {keyword}";
+            return rate + " (rest of fight)";
+        }
+
+        // Damage-off rules show only the stat payout; damage rules append it when the patch pays stats too.
+        private static string WithStatRate(string damageText, string keyword)
+        {
+            string stat = FormatConvertStatRate(keyword);
+            if (!ConvertPaysDamage)
+                return stat.Length > 0 ? stat : $"Spends {keyword}";
+            return stat.Length > 0 ? $"{damageText}, {stat}" : damageText;
         }
 
         /// <summary>

@@ -40,6 +40,7 @@ namespace RPGGame.Tests.Unit.Combat
                 TestHeroAgilitySoftCap();
                 TestSetDamageReductionAndAttributePerPiece();
                 TestConvertGrantsPrimaryStatCapped();
+                TestConvertPaysClassStatNotDamage();
             }
             finally
             {
@@ -205,6 +206,47 @@ namespace RPGGame.Tests.Unit.Combat
             {
                 combat.MaterialConvertPrimaryStatPerUnit = oldPer;
                 combat.MaterialConvertPrimaryStatMaxPerFight = oldCap;
+            }
+        }
+
+        private static void TestConvertPaysClassStatNotDamage()
+        {
+            TestBase.SetCurrentTestName(nameof(TestConvertPaysClassStatNotDamage));
+            var combat = GameConfiguration.Instance.Combat;
+            var oldPer = combat.MaterialConvertPrimaryStatPerUnit;
+            int oldCap = combat.MaterialConvertPrimaryStatMaxPerFight;
+            bool oldPays = combat.MaterialConvertPaysDamage;
+            var oldPct = combat.MaterialConvertPercentByKeyword;
+            double oldPctUnit = combat.MaterialConvertPercentPerUnit;
+            try
+            {
+                combat.MaterialConvertPrimaryStatPerUnit = new(StringComparer.OrdinalIgnoreCase) { ["RAGE"] = 0.4, ["GRAZE"] = 1 };
+                combat.MaterialConvertPrimaryStatMaxPerFight = 0;
+                combat.MaterialConvertPercentPerUnit = 1;
+                combat.MaterialConvertPercentByKeyword = new(StringComparer.OrdinalIgnoreCase) { ["RAGE"] = 5 };
+                TestBase.AssertEqual("STR", MaterialSetController.GetConvertStatCode(null, "RAGE"), "RAGE (Bone, Barbarian) pays STR", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual("TEC", MaterialSetController.GetConvertStatCode(null, "GRAZE"), "GRAZE (Glass, Rogue) pays TEC", ref _run, ref _passed, ref _failed);
+
+                var hero = EquipMaterial("Bone", 2);
+                hero.Effects.AddMaterialKeyword("RAGE", 4);
+                var convert = new RPGGame.Action { Name = "BONE WRATH" };
+                TestBase.AssertTrue(MaterialSetController.GetConvertDamageBonus(hero, convert, 100) > 0, "damage on: convert adds damage", ref _run, ref _passed, ref _failed);
+                combat.MaterialConvertPaysDamage = false;
+                TestBase.AssertEqual(0, MaterialSetController.GetConvertDamageBonus(hero, convert, 100), "damage off: convert adds no damage", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(MaterialSetController.FormatConvertRateText(convert)?.Contains("STR") == true, "damage off: card text names STR", ref _run, ref _passed, ref _failed);
+
+                int str = hero.GetEffectiveStrength();
+                TestBase.AssertEqual(1, MaterialSetController.GrantConvertPrimaryStat(hero, "RAGE", 3), "3 RAGE x 0.4 = 1.2 -> 1", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(1, MaterialSetController.GrantConvertPrimaryStat(hero, "RAGE", 2), "carried 0.2 + 0.8 -> 1 more", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(str + 2, hero.GetEffectiveStrength(), "grants land on STR", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                combat.MaterialConvertPrimaryStatPerUnit = oldPer;
+                combat.MaterialConvertPrimaryStatMaxPerFight = oldCap;
+                combat.MaterialConvertPaysDamage = oldPays;
+                combat.MaterialConvertPercentByKeyword = oldPct;
+                combat.MaterialConvertPercentPerUnit = oldPctUnit;
             }
         }
 

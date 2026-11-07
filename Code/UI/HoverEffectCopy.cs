@@ -142,7 +142,14 @@ namespace RPGGame
 
             string payoff;
             var combat = GameConfiguration.Instance?.Combat;
-            if (combat != null && combat.MaterialConvertPercentPerUnit > 0)
+            string statRate = MaterialSetController.FormatConvertStatRate(keyword);
+            if (!MaterialSetController.ConvertPaysDamage)
+            {
+                payoff = statRate.Length > 0
+                    ? $"{actionName} spends all {keyword} for {statRate}."
+                    : $"{actionName} spends all {keyword}.";
+            }
+            else if (combat != null && combat.MaterialConvertPercentPerUnit > 0)
             {
                 double pct = perUnit * combat.MaterialConvertPercentPerUnit;
                 if (combat.MaterialConvertPercentByKeyword != null
@@ -155,6 +162,8 @@ namespace RPGGame
                 payoff = $"{actionName} spends {keyword} for +{perUnit} damage per {keyword}.";
             }
 
+            if (MaterialSetController.ConvertPaysDamage && statRate.Length > 0)
+                payoff += $" Also {statRate}.";
             if (hero != null)
             {
                 double charm = CharmBonusController.GetConvertMultiplier(hero);

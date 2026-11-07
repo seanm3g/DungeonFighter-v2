@@ -49,6 +49,11 @@ namespace RPGGame
         /// <summary>Most banked currency a convert counts (0 = no cap). The convert still spends the whole bank.</summary>
         public int MaterialConvertMaxUnits { get; set; }
         /// <summary>
+        /// False = converts pay no damage: the spent bank becomes the material class's primary attribute only
+        /// (<see cref="MaterialConvertPrimaryStatPerUnit"/>). True (default) keeps the percent/flat damage payout.
+        /// </summary>
+        public bool MaterialConvertPaysDamage { get; set; } = true;
+        /// <summary>
         /// Mint per trigger at 5 pieces = feed count × this (0 = legacy feed × feed, i.e. 25 at 5 pieces).
         /// </summary>
         public int MaterialFiveStackMintMultiplier { get; set; }
