@@ -83,7 +83,7 @@ namespace RPGGame
         [JsonPropertyName("healOnHitPerRank")]
         public int HealOnHitPerRank { get; set; }
 
-        /// <summary>Costs no skill point (non-combat trunk steps: loot bias, Rite of Passage). Overrides <see cref="Cost"/>.</summary>
+        /// <summary>Costs no skill point. Overrides <see cref="Cost"/>. Class trees no longer use it: every unlock is paid.</summary>
         [JsonPropertyName("free")]
         public bool Free { get; set; }
 
@@ -282,6 +282,12 @@ namespace RPGGame
             level1 ??= tree.Nodes.FirstOrDefault(n =>
                 n.Name.StartsWith("Level 1 -", StringComparison.OrdinalIgnoreCase));
             if (level1 == null || string.IsNullOrWhiteSpace(level1.Id))
+                return;
+
+            // A paid Core root (the class stat action, e.g. Might) is the designed first unlock — keep it.
+            if (tree.Nodes.Any(n => n.Tier == 0 && n.Cost > 0 && n.Requires.Count == 0
+                    && !ReferenceEquals(n, level1)
+                    && string.Equals(n.Branch, "Core", StringComparison.OrdinalIgnoreCase)))
                 return;
 
             // Already the free Core root — leave graph alone (avoids re-promoting after save/load).

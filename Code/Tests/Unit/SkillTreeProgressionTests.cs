@@ -49,19 +49,36 @@ namespace RPGGame.Tests.Unit
 
         private static void TestRootAutoGrantOnAward()
         {
-            Console.WriteLine("--- Root auto-grant on AwardClassPoint ---");
+            Console.WriteLine("--- Class root is the first paid unlock ---");
             var p = new CharacterProgression();
             TestBase.AssertEqual(0, p.LearnedSkillRanks.Count, "no learned nodes before award",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             p.AwardClassPoint(WeaponType.Mace);
-            TestBase.AssertTrue(p.HasLearnedSkill("b-tribe"), "mace Level 1 root auto-granted",
+            TestBase.AssertEqual("b-might", SkillTreeService.Trees.GetRootNodeId(WeaponType.Mace) ?? "",
+                "Might is the mace tree root", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!p.HasLearnedSkill("b-might") && !p.HasLearnedSkill("b-tribe"),
+                "nothing is granted for free", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, p.GetAvailableSkillPoints(WeaponType.Mace), "first point is unspent",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, p.BarbarianPoints, "lifetime points still 1",
+            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.PrerequisitesMissing,
+                p.TryLearnSkillNode("b-tribe", requirePrimaryPath: false), "Level 1 waits on Might",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, p.GetAvailableSkillPoints(WeaponType.Mace),
-                "root costs 0 so available remains 1",
+            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success,
+                p.TryLearnSkillNode("b-might", requirePrimaryPath: false), "first point buys Might",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, p.GetAvailableSkillPoints(WeaponType.Mace), "Might costs the point",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var trees = SkillTreeService.Trees;
+            var free = trees.Trees.Where(t => t.Parents.Count == 0).SelectMany(t => t.Nodes)
+                .Where(n => n.Cost <= 0).Select(n => n.Id).ToList();
+            TestBase.AssertTrue(free.Count == 0, "no class-tree unlock is free: " + string.Join(",", free),
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            foreach (var (path, id) in new[] { (WeaponType.Mace, "b-might"), (WeaponType.Sword, "w-cunning"),
+                         (WeaponType.Dagger, "r-concentrate"), (WeaponType.Wand, "z-readbook") })
+                TestBase.AssertEqual(id, trees.GetRootNodeId(path) ?? "", $"{path} tree opens with its stat action",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestSpendDoesNotDropLifetimeRank()
@@ -105,7 +122,7 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Spent the only available point on Might — the next trunk node is unaffordable.
-            var unaffordable = p.TryLearnSkillNode("b-age1", requirePrimaryPath: false);
+            var unaffordable = p.TryLearnSkillNode("b-tribe", requirePrimaryPath: false);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.InsufficientPoints, unaffordable,
                 "not enough remaining points for another skill",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -119,11 +136,12 @@ namespace RPGGame.Tests.Unit
                 ?? new List<SkillTreeNodeDefinition>();
             TestBase.AssertEqual(10, trunk.Count, "mace tree opens with a 10-node trunk",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("b-might", trunk.FirstOrDefault()?.Id ?? "", "trunk starts with the stat action",
+            TestBase.AssertEqual("b-tribe", trunk.FirstOrDefault()?.Id ?? "", "Level 1 follows the stat action root",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var p = new CharacterProgression { BarbarianPoints = 30 };
             p.EnsureSkillTreeRootsGranted();
+            p.TryLearnSkillNode("b-might", requirePrimaryPath: false);
             foreach (var node in trunk.Take(trunk.Count - 1))
                 p.TryLearnSkillNode(node.Id, requirePrimaryPath: false);
 
@@ -132,15 +150,16 @@ namespace RPGGame.Tests.Unit
                 "branch locked until the trunk tip is learned",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            var lean = new CharacterProgression { BarbarianPoints = 2 };
+            var lean = new CharacterProgression { BarbarianPoints = 3 };
             lean.EnsureSkillTreeRootsGranted();
             lean.TryLearnSkillNode("b-might", requirePrimaryPath: false);
+            lean.TryLearnSkillNode("b-tribe", requirePrimaryPath: false);
             lean.TryLearnSkillNode("b-age1", requirePrimaryPath: false);
-            var freeLoot = lean.TryLearnSkillNode("b-loot", requirePrimaryPath: false);
-            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, freeLoot,
-                "free trunk step learns with no points left",
+            var paidLoot = lean.TryLearnSkillNode("b-loot", requirePrimaryPath: false);
+            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.InsufficientPoints, paidLoot,
+                "Blood Market needs a point like every other step",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(2, lean.GetSpentSkillPoints(WeaponType.Mace), "free trunk step costs no point",
+            TestBase.AssertEqual(3, lean.GetSpentSkillPoints(WeaponType.Mace), "Might, Level 1 and First Steel Age each cost a point",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             p.TryLearnSkillNode(trunk[^1].Id, requirePrimaryPath: false);
@@ -158,9 +177,10 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(maxRank >= 2, "age1 should allow multi-rank sink",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            var p = new CharacterProgression { BarbarianPoints = maxRank + 1 };
+            var p = new CharacterProgression { BarbarianPoints = maxRank + 2 };
             p.EnsureSkillTreeRootsGranted();
-            p.TryLearnSkillNode("b-might", requirePrimaryPath: false); // trunk step before age1
+            p.TryLearnSkillNode("b-might", requirePrimaryPath: false); // trunk steps before age1
+            p.TryLearnSkillNode("b-tribe", requirePrimaryPath: false);
 
             for (int i = 1; i <= maxRank; i++)
             {
@@ -303,20 +323,22 @@ namespace RPGGame.Tests.Unit
             var p = new CharacterProgression { BarbarianPoints = 10 };
             p.EnsureSkillTreeRootsGranted();
             var tree = SkillTreePrerequisites.FindOwnerTree(SkillTreeService.Trees.GetNode("b-might")!)!;
-            TestBase.AssertEqual(2, SkillTreePrerequisites.GetCorePredecessorOptions(tree, SkillTreeService.Trees.GetNode("b-loot")!).Count,
-                "Blood Market joins the Might / First Steel Age fork", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, SkillTreePrerequisites.GetCorePredecessorOptions(tree, SkillTreeService.Trees.GetNode("b-bludgeon")!).Count,
+                "Bludgeon joins the Level 2 / Puberty fork", ref _testsRun, ref _testsPassed, ref _testsFailed);
             var afterCadence = SkillTreePrerequisites.GetCorePredecessorOptions(tree, SkillTreeService.Trees.GetNode("b-stun")!);
             TestBase.AssertTrue(afterCadence.Count == 1 && afterCadence[0].Id == "b-combo",
                 "Cadence is a required step, not a fork option", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, p.TryLearnSkillNode("b-age1", requirePrimaryPath: true),
-                "either fork skill opens straight off the root", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, p.TryLearnSkillNode("b-loot", requirePrimaryPath: true),
-                "one side of the fork is enough to move on", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, p.TryLearnSkillNode("b-might", requirePrimaryPath: true),
-                "the other side stays learnable later", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            foreach (string id in new[] { "b-might", "b-tribe", "b-age1", "b-loot" })
+                p.TryLearnSkillNode(id, requirePrimaryPath: true);
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.PrerequisitesMissing, p.TryLearnSkillNode("b-bludgeon", requirePrimaryPath: true),
                 "a fork can't be skipped entirely", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, p.TryLearnSkillNode("b-puberty", requirePrimaryPath: true),
+                "either fork skill opens off the step below", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, p.TryLearnSkillNode("b-bludgeon", requirePrimaryPath: true),
+                "one side of the fork is enough to move on", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.Success, p.TryLearnSkillNode("b-lvl2", requirePrimaryPath: true),
+                "the other side stays learnable later", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestSharedRailRequiresSecondaryAndTag()

@@ -54,9 +54,9 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(body, hero.Facade.GetEffectivePrimaryAttributeValue(), "learned Body becomes the primary attribute",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             var rows = RPGGame.UI.Avalonia.Layout.LeftPanelAttributeOrder.Build(hero, sortByValue: false);
-            TestBase.AssertEqual("BODY,TECH,INT", string.Join(",", rows.ConvertAll(r => r.Label)),
-                "stats panel collapses STR + AGI into one BODY row", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(body, rows[0].Value, "BODY row shows STR + AGI",
+            TestBase.AssertEqual("STR,AGI,TECH,INT,BODY", string.Join(",", rows.ConvertAll(r => r.Label)),
+                "stats panel keeps the four base stats and lists BODY below them", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(body, rows[4].Value, "BODY row shows STR + AGI",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

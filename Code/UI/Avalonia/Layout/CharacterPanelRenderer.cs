@@ -278,6 +278,8 @@ namespace RPGGame.UI.Avalonia.Layout
                 var attributeRowYs = new List<(int rowY, string idSuffix)>();
                 foreach (var row in attributeRows)
                 {
+                    if (row.IsHybrid)
+                        y++; // blank line between the four base stats and the hybrid attribute
                     attributeRowYs.Add((y, row.HoverId));
                     PanelCharacterStat(x, y, row.Label, row.Value, 0,
                         row.IsHybrid || primaryStat == row.PrimaryName ? primaryStatHighlight : AsciiArtAssets.Colors.White);

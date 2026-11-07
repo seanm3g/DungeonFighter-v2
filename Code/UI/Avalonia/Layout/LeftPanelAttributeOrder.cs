@@ -7,7 +7,7 @@ namespace RPGGame.UI.Avalonia.Layout
     /// <summary>
     /// STR/AGI/TECH/INT row order for the left STATS panel. Default is the fixed order; clicking an attribute row
     /// toggles highest → lowest (ties keep the default order). Once a hybrid attribute node is learned (e.g. Will),
-    /// its two parent stats collapse into one hybrid row (WILL = STR + INT) where the first parent sat.
+    /// the four base stats stay as they are and the hybrid row (WILL = STR + INT) is appended after them (never sorted in).
     /// </summary>
     public static class LeftPanelAttributeOrder
     {
@@ -26,20 +26,17 @@ namespace RPGGame.UI.Avalonia.Layout
                 new Row("INT", HoverIds[3], "Intelligence", character.GetEffectiveIntelligence()),
             };
 
-            if (HybridTrees.PrimaryAttributeHybrid(character) is HybridInfo h)
+            if (sortByValue)
+                rows = rows.OrderByDescending(r => r.Value).ToList();
+
+            if (HybridTrees.PrimaryAttributeHybrid(character) is HybridInfo h
+                && Array.IndexOf(Codes, h.StatA) >= 0 && Array.IndexOf(Codes, h.StatB) >= 0)
             {
-                int a = Array.IndexOf(Codes, h.StatA);
-                int b = Array.IndexOf(Codes, h.StatB);
-                if (a >= 0 && b >= 0)
-                {
-                    var hybridRow = new Row(h.Attribute.ToUpperInvariant(), HybridHoverId(h), h.Attribute,
-                        HybridTrees.SecondaryAttribute(character, h), IsHybrid: true);
-                    rows.RemoveAt(Math.Max(a, b));
-                    rows[Math.Min(a, b)] = hybridRow;
-                }
+                rows.Add(new Row(h.Attribute.ToUpperInvariant(), HybridHoverId(h), h.Attribute,
+                    HybridTrees.SecondaryAttribute(character, h), IsHybrid: true));
             }
 
-            return sortByValue ? rows.OrderByDescending(r => r.Value).ToList() : rows;
+            return rows;
         }
 
         /// <summary>Hover id of a hybrid attribute row, e.g. <c>stat:will</c>.</summary>

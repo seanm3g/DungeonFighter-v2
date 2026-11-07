@@ -51,6 +51,7 @@ namespace RPGGame
 
         /// <summary>
         /// Auto-grants the path root when the character has any lifetime points on that path.
+        /// A root that costs points (class stat action such as Might) is the first purchase instead, not a grant.
         /// </summary>
         public void EnsureSkillTreeRootsGranted()
         {
@@ -64,6 +65,8 @@ namespace RPGGame
                     continue;
                 string? rootId = trees.GetRootNodeId(path);
                 if (string.IsNullOrWhiteSpace(rootId))
+                    continue;
+                if ((trees.GetNode(rootId!)?.Cost ?? 0) > 0)
                     continue;
                 if (GetSkillRank(rootId!) < 1)
                     LearnedSkillRanks[rootId!] = 1;

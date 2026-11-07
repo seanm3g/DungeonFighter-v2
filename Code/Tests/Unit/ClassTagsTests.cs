@@ -65,8 +65,13 @@ namespace RPGGame.Tests.Unit
 
             var rooted = MakeHero("Rooted", WeaponType.Mace, 5);
             rooted.Weapon!.Material = "Bone";
+            TestBase.AssertEqual(0, ClassTags.Count(rooted, ClassTags.Barbarian),
+                "Bone does not count before Level 1 is bought (no free unlocks)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            rooted.Progression.TryLearnSkillNode("b-might", requirePrimaryPath: false);
+            rooted.Progression.TryLearnSkillNode("b-tribe", requirePrimaryPath: false);
             TestBase.AssertEqual(1, ClassTags.Count(rooted, ClassTags.Barbarian),
-                "Bone counts as Barbarian once Tribe Metal (root) is learned",
+                "Bone counts as Barbarian once Tribe Metal (Level 1) is learned",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             rooted.Weapon!.Tags.Add("barbarian");
