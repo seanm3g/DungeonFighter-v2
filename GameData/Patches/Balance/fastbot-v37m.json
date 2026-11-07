@@ -528,9 +528,9 @@
     "enemyDotFollowsDamageCurve": true,
     "statusMaxStacks": 3,
     "materialSetSpeedPercentPerPiece": {
-      "Iron": 18.0,
-      "Bone": 3.0,
-      "Mithril": 3.8,
+      "Iron": 22.0,
+      "Bone": 1.5,
+      "Mithril": 6.0,
       "Glass": 9.0,
       "Willow": 3.0,
       "Crystal": 2.0,
