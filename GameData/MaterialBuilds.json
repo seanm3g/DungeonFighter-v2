@@ -44,7 +44,7 @@
     "material": "Gold",
     "synthesis": "ON_SLOW = DRAG",
     "convertAction": "GOLD ANCHOR",
-    "feed": "\u002B/x per MITHRIL",
+    "feed": "\u002B/x per GOLD",
     "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
     "stack3": "\u002B feed",
     "stack5": "x feed"
@@ -54,7 +54,7 @@
     "material": "Mithril",
     "synthesis": "ON_CONSECUTIVE_ATTACK = STREAK",
     "convertAction": "MITHRIL FLOW",
-    "feed": "\u002B/x per GOLD",
+    "feed": "\u002B/x per MITHRIL",
     "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
     "stack3": "\u002B feed",
     "stack5": "x feed"
@@ -62,7 +62,7 @@
   {
     "class": "ROGUE",
     "material": "Glass",
-    "synthesis": "ON_HIT = GRAZE",
+    "synthesis": "ON_CRITICAL = GRAZE",
     "convertAction": "GLASS NICK",
     "feed": "\u002B/x per GLASS",
     "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
