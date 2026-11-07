@@ -529,3 +529,6 @@ Network Trash Folder
 Temporary Items
 .apdisk 
 dist-test/DF.exe
+
+# Python virtual environments
+.venv*/

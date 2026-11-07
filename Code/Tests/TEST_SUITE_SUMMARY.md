@@ -143,7 +143,6 @@ This document summarizes the comprehensive test suite created for all systems in
 **Location:** `Code/Tests/Unit/Actions/`
 
 **Test Files:**
-- `ActionFactoryTests.cs` - Tests action creation and validation
 - `ActionSelectorTests.cs` - Tests action selection logic for different entity types
 - `ActionSpeedSystemTests.cs` - Tests action speed calculation, turn order, and entity management
 - `ActionUtilitiesTests.cs` - Tests action utilities, roll bonus calculation, and damage multiplier calculation
@@ -327,7 +326,6 @@ InventoryManagerTests.RunAllTests();
 ItemTests.RunAllTests();
 
 // Actions system
-ActionFactoryTests.RunAllTests();
 ActionSelectorTests.RunAllTests();
 
 // And so on for other systems...

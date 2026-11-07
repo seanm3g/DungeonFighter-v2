@@ -113,12 +113,8 @@ Status effect handlers live in `Code/Combat/Effects/` and `Code/Combat/Combat/Ef
 
 ### Menu System (`Code/Game/Menu/`)
 
-Command pattern:
-- `IMenuCommand` — interface for all menu commands
-- Concrete commands: `SelectOptionCommand`, `ConfirmCharacterCommand`, `DecreaseStatCommand`, `IncreaseStatCommand`, `CancelCommand`, `ToggleOptionCommand`, `SettingsCommand`, `LoadGameCommand`, `StartNewGameCommand`, `RandomizeCharacterCommand`
-- `IMenuHandler` / `MenuHandlerBase` — handler base with `MenuContext`
-- `MenuInputRouter` + `MenuInputValidator` — route and validate raw input
-- `MenuStateTransitionManager` — drive `GameStateManager` from menu events
+- `IMenuHandler` — per-state menu handler interface; `MenuInputResult` carries an optional `IMenuCommand` (only `StartNewGameCommand` remains)
+- `MenuInputRouter` + `MenuInputValidator` — route and validate raw input (set up by `MenuInputFrameworkInitializer`)
 - Validation rules per state: `CharacterCreationValidationRules`, `DungeonSelectionValidationRules`, `WeaponSelectionValidationRules`, `MainMenuValidationRules`, `SettingsValidationRules`, `InventoryValidationRules`
 
 ### Items (`Code/Items/`)
@@ -127,7 +123,6 @@ Command pattern:
 - `InventoryManager.cs` — add/remove/sort inventory
 - `InventoryOperations.cs` — equip/unequip business logic
 - `ComboManager.cs` — combo action management for items
-- `BasicGearConfig.cs` — gear slot definitions
 - `ItemPrefixHelper.cs` — rarity/tier name generation
 - `AttributeRequirement.cs` — stat thresholds for equipping
 
@@ -143,7 +138,7 @@ Environment/hazard actions from `GameData/EnvironmentalActions.json`.
 ### UI (`Code/UI/`)
 
 - **Avalonia layer** (`UI/Avalonia/`): `CanvasLayoutManager`, `DisplayModeManager`, segment renderers (`StandardSegmentRenderer`, `TemplateSegmentRenderer`), menu renderers, `TextWrapper`, scroll/buffer management
-- **Color system** (`UI/ColorSystem/`): `ColoredTextBuilder`, `ColorLayerSystem`, `CharacterColorProfile`, `ColorUtils`, `ItemComparisonFormatter`, `MenuDisplayColoredText`; rendered by `FormatRenderer` / `ConsoleColoredTextRenderer`
+- **Color system** (`UI/ColorSystem/`): `ColoredTextBuilder`, `ColorLayerSystem`, `CharacterColorProfile`, `ColorUtils`, `ItemComparisonFormatter`, `MenuDisplayColoredText`; rendered by `FormatRenderer`
 - **Block display** (`UI/BlockDisplay/`): `BlockRendererFactory`
 - **Spacing** (`UI/Spacing/`): `SpacingRules`, `SpacingValidator`, `CombatLogSpacingManager`
 - `IUIManager` — UI abstraction interface

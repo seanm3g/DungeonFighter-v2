@@ -28,8 +28,6 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             AttributeRequirementTests.RunAllTests();
             Console.WriteLine();
-            BasicGearConfigTests.RunAllTests();
-            Console.WriteLine();
             WeaponItemQualityMultiplierTests.RunAllTests();
         }
     }

@@ -18,8 +18,6 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine("  ACTIONS SYSTEM TEST SUITE");
             Console.WriteLine($"{GameConstants.StandardSeparator}\n");
 
-            ActionFactoryTests.RunAllTests();
-            Console.WriteLine();
             ActionSelectorTests.RunAllTests();
             Console.WriteLine();
             ActionSelectorRollBasedTests.RunAllTests();
