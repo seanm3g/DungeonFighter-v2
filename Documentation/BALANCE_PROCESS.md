@@ -103,7 +103,7 @@ What the scan rows mean:
   pooled over levels; FAIL from 6 heroes) and **dead actions** (owned in ≥ 3 searches, never slotted, never within 6%).
   The bot's score is win rate × kill speed × HP kept against Wolf and Goblin, so "viable" means viable for that goal.
 - **pacing** (2026-10-26, per level over all classes): fight length CV (`--min-length-cv` 0.25) and p90/p50
-  (`--max-length-p90` 2.5), **close calls** (won fights where the hero fell under 25% HP, band `--close-call-band` 5,15),
+  (`--max-length-p90` 2.5), **close calls** (survived dungeons where the hero fell under 25% HP in some fight, band `--close-call-band` 5,15; per won fight before 2026-11-07, still printed as info),
   fights with a 4+ hero miss streak (`--max-miss-streak-share` 10%), one-shot fights (won in ≤ 2 hero actions,
   `--max-one-shot-share` 25%), lead changes per fight (metric only). FAIL from 6 heroes at the level.
 - **identity** (2026-10-26): a fingerprint per class over every scanned level (won fights): damage shares (dot,

@@ -79,7 +79,7 @@ ap.add_argument('--seed', type=int, default=1, help='base DUNGEONSIM seed so --c
 ap.add_argument('--bot-ratio', type=float, default=1.33, help='flag bot/median kill-speed ratios outside 1/x .. x')
 ap.add_argument('--viable-within', type=float, default=EXP.get('viableWithin', 0.03), help='an action is viable when its best strip scores within this share of the best strip')
 ap.add_argument('--dominant-share', type=float, default=EXP.get('dominantShare', 0.75), help="flag a non-required action in more than this share of a class's strips")
-ap.add_argument('--close-call-band', default=','.join(str(x) for x in EXP.get('closeCallBand', [5, 15])), help='percent of won fights where the hero dropped below 25%% HP')
+ap.add_argument('--close-call-band', default=','.join(str(x) for x in EXP.get('closeCallBand', [5, 15])), help='percent of survived dungeons where the hero dropped below 25%% HP in some fight')
 ap.add_argument('--min-length-cv', type=float, default=EXP.get('minLengthCv', 0.25), help='flag levels whose fight lengths (hero actions) vary less than this (every fight alike)')
 ap.add_argument('--max-length-p90', type=float, default=EXP.get('maxLengthP90', 2.5), help='flag levels whose p90 fight is this many times the median (slogs)')
 ap.add_argument('--max-miss-streak-share', type=float, default=EXP.get('maxMissStreakShare', 10), help='percent of fights allowed a 4+ hero miss streak')
@@ -464,7 +464,7 @@ def share(k, n):
 
 def analyze_pacing(results, dungeon_levels):
     """Does a fight have shape? Per level over every class (phase 1 fields; older scans lack them and are skipped).
-    Rows: fight length spread (CV, p90/p50), close calls (won with the hero under 25% HP), 4+ miss streaks, one-shot
+    Rows: fight length spread (CV, p90/p50), close calls (survived dungeons where the hero fell under 25% HP), 4+ miss streaks, one-shot
     fights (<= 2 hero actions), lead changes. Bands are proposals (EXPERIENCE_HARNESS_DESIGN.md) until the designer sets them."""
     lo_cc, hi_cc = (float(x) for x in A.close_call_band.split(','))
     for l in dungeon_levels:
@@ -493,14 +493,33 @@ def analyze_pacing(results, dungeon_levels):
         if p50 and p90 / p50 > A.max_length_p90:
             finding('pacing: fight length', l, 'slogs', f'p90 {p90} vs median {p50:g} acts (n={len(fights)})', f'<= {A.max_length_p90:g}x',
                     p90 / p50 / A.max_length_p90 - 1, status, fightlog + '   (the slowest enemies in "real fights per enemy")')
-        cc_lo, cc_hi = (100 * x for x in wilson(close, len(won)))
-        cc = share(close, len(won))
-        if not lo_cc <= cc <= hi_cc:
+        # Close calls are judged per dungeon, not per fight (2026-11-07): enemies act ~2 times a fight and most fights start
+        # near full HP (retreat rule), so a single fight almost never takes a hero from >70% to <25% whatever the damage
+        # shape (mean-preserving spike test, 4 arms: 1-3.5% per fight). The danger players feel is attrition across rooms.
+        # A dungeon is a close call when the hero survived it (cleared or retreated) after dropping under 25% HP in some fight.
+        # The per-fight share stays as the 'close calls L' metric (info, for --compare with older scans).
+        units = []   # (close dungeons, survived dungeons) per hero: dungeons in one hero share its build
+        for d in docs:
+            dungeons, cur = [], None
+            for f in d.get('Fights', []):
+                if 'HpMinPct' not in f:
+                    continue
+                if cur is None or f.get('FightInDungeon', 1) == 1:
+                    cur = []; dungeons.append(cur)
+                cur.append(f)
+            survived = [g for g in dungeons if not any(f['HeroDied'] for f in g)]
+            units.append((sum(1 for g in survived if min(f['HpMinPct'] for f in g) < 0.25), len(survived)))
+        dk = sum(c for c, _ in units); dn = sum(n for _, n in units)
+        cc = share(dk, dn) if dn else 0
+        cc_lo, cc_hi = (100 * x for x in hero_interval(units)) if dn else (0, 100)
+        if dn:
+            METRICS[f'dungeon close calls L{l}'] = round(cc, 1)
+        if dn and not lo_cc <= cc <= hi_cc:
             inside = cc_hi >= lo_cc and cc_lo <= hi_cc
-            finding('pacing: close calls', l, 'won fights under 25% HP', f'{cc:.0f}% [{cc_lo:.0f}-{cc_hi:.0f}] (n={len(won)})', f'{lo_cc:g}-{hi_cc:g}%',
-                    abs(cc - (lo_cc if cc < lo_cc else hi_cc)) / max(1.0, hi_cc - lo_cc), 'LIKELY' if inside else status,
-                    f'python Scripts/dungeon-sim.py {tools_arg()} --levels {l} --anchor {l}=<damage x>   (enemy damage anchor)',
-                    'no fight feels dangerous' if cc < lo_cc else 'too many fights end on a knife edge')
+            finding('pacing: close calls', l, 'survived dungeons under 25% HP', f'{cc:.0f}% [{cc_lo:.0f}-{cc_hi:.0f}] (n={dn} dungeons, {heroes} heroes)',
+                    f'{lo_cc:g}-{hi_cc:g}%', abs(cc - (lo_cc if cc < lo_cc else hi_cc)) / max(1.0, hi_cc - lo_cc), 'LIKELY' if inside else status,
+                    f'python Scripts/dungeon-sim.py {tools_arg()} --levels {l} --anchor {l}=<damage x>   (enemy damage anchor; room count, retreat rule)',
+                    'no dungeon run gets dangerous' if cc < lo_cc else 'too many runs end on a knife edge')
         if share(streak, len(fights)) > A.max_miss_streak_share:
             finding('pacing: miss streaks', l, '4+ misses in a row', f'{share(streak, len(fights)):.0f}% of fights (n={len(fights)})',
                     f'<= {A.max_miss_streak_share:g}%', share(streak, len(fights)) / A.max_miss_streak_share - 1, status,
@@ -726,11 +745,12 @@ def print_report(provenance, elapsed, median_levels, dungeon_levels):
                                         (f'effective actions L{l} {c}', f'action breadth L{l} {c}', f'viable actions L{l} {c}'))
             print(f'{l:>6}' + ''.join(f'{cell(c):>16}' for c in CLASSES))
     if any(k.startswith('close calls') for k in METRICS):
-        print('\nPacing (all classes): length CV, p90/p50, close calls, 4+ miss streaks, one-shot fights, lead changes per fight')
-        print(f"{'level':>6}{'CV':>7}{'p90/50':>8}{'close':>8}{'streak':>8}{'1-shot':>8}{'leads':>7}")
+        print('\nPacing (all classes): length CV, p90/p50, close calls (per survived dungeon / per won fight), 4+ miss streaks, one-shot fights, lead changes per fight')
+        print(f"{'level':>6}{'CV':>7}{'p90/50':>8}{'close':>12}{'streak':>8}{'1-shot':>8}{'leads':>7}")
         for l in dungeon_levels:
             g = lambda key, fmt: (fmt.format(METRICS[key]) if key in METRICS else '-')
-            print(f"{l:>6}{g(f'fight length cv L{l}', '{:.2f}'):>7}{g(f'fight length p90/p50 L{l}', '{:.1f}'):>8}{g(f'close calls L{l}', '{:.0f}%'):>8}"
+            close = f"{g(f'dungeon close calls L{l}', '{:.0f}%')}/{g(f'close calls L{l}', '{:.0f}%')}"
+            print(f"{l:>6}{g(f'fight length cv L{l}', '{:.2f}'):>7}{g(f'fight length p90/p50 L{l}', '{:.1f}'):>8}{close:>12}"
                   f"{g(f'miss streak 4+ L{l}', '{:.0f}%'):>8}{g(f'one-shot fights L{l}', '{:.0f}%'):>8}{g(f'lead changes L{l}', '{:.2f}'):>7}")
     if any(k.startswith('slots used') for k in METRICS):
         print('\nStrips per class: used/max slots, completion %, step advance %, late-slot damage %, TEC, INT')

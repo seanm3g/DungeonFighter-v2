@@ -106,7 +106,8 @@ they are not the same.
 
 - **Fight rows (per level):**
   - fight length spread: coefficient of variation of hero actions and p90/p50. Too low = every fight the same; too high = slogs.
-  - *close calls*: won fights with `HpMinPct` < 25%. Proposed band 5–15% of fights.
+  - *close calls*: survived dungeons (cleared or retreated) where some fight took the hero under 25% HP (`HpMinPct`). Band 5–15% of
+    dungeons. Until 2026-11-07 this was per won fight; see the spike test below for why that unit could not move.
   - *lead changes* per fight (the hero's HP % vs the enemy's crosses).
   - *dead streaks*: share of fights with `LongestMissStreak` ≥ 4, and dead-action share. Lever: hit thresholds, TEC.
   - *one-shot share*: fights won in ≤ 2 hero actions (with paper enemies the encounter didn't matter).
@@ -131,6 +132,23 @@ they are not the same.
 
   Only about a third of dungeons reach the boss (44% retreat first), so a boss climax alone can't lift the all-fight rate
   into the band. Both flags are off by default.
+- **Spike test and the unit change (2026-11-07, fastbot-v37m):** mean-preserving enemy damage spikes
+  (`enemySystem.damageSpike`, branch `balance/enemy-damage-spikes-2026-11-07`), paired seed-1 scans at L18/L33 with 4 heroes per class:
+
+  | arm | close (per fight) L18 / L33 | clear L18 / L33 | close (per survived dungeon) L18 / L33 |
+  |---|---|---|---|
+  | off | 1.6 / 2.4% | 79 / 78% | 6 / 14% |
+  | 20% x2 | 2.5 / 2.3% | 67 / 73% | 12 / 14% |
+  | 15% x3 | 1.2 / 3.5% | 65 / 76% | 6 / 18% |
+  | 10% x5 | 1.7 / 2.0% | 72 / 73% | 7 / 9% |
+
+  The v37m baseline scan (8 heroes per level) reads 4 / 7 / 14 / 15% per survived dungeon at L8 / 18 / 33 / 48: in band
+  except the L1-10 tutorial band, where the 90%+ clear target means few runs should get dangerous anyway.
+
+  All differences are within noise. Enemies act ~2.2 times a fight and 83% of fights start at 70%+ HP (retreat at 50%), where the
+  per-fight close-call share is ~1% in every arm; fights starting under 70% already run 6–11%. The danger is attrition across rooms,
+  so the scan now judges close calls per survived dungeon (already inside 5–15%) and keeps the per-fight share as an info metric.
+  Within-fight danger would need more enemy actions per fight, which undoes the heavy-swing design.
 
 ## Layer 5 — Progression
 

@@ -98,6 +98,7 @@
       5,
       15
     ],
+    "closeCallUnit": "survived dungeon (cleared or retreated) where the hero fell under 25% HP in some fight; per won fight until 2026-11-07, unreachable with ~2 enemy actions a fight",
     "maxDryLevels": 1,
     "minDistinctCounterShare": 50,
     "viableWithin": 0.03,
