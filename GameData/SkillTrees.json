@@ -373,6 +373,21 @@
             "b-wrath"
           ],
           "sharedWith": []
+        },
+        {
+          "id": "b-frenzy",
+          "name": "Blood Frenzy",
+          "branch": "Bone",
+          "tier": 15,
+          "type": "Passive",
+          "cost": 1,
+          "maxRank": 5,
+          "requires": [],
+          "effect": "Each time you apply Bleed or Stun to an enemy, gain +{6} STR for the rest of the dungeon, per rank.",
+          "payoff": "Wounds and concussions feed your strength.",
+          "customEffectId": "blood_frenzy",
+          "sharedWith": [],
+          "power": 3.0
         }
       ]
     },
@@ -747,6 +762,21 @@
           "requires": [],
           "damageModPerRank": 1,
           "sharedWith": []
+        },
+        {
+          "id": "w-pin",
+          "name": "Pinning Drill",
+          "branch": "Gold",
+          "tier": 17,
+          "type": "Passive",
+          "cost": 1,
+          "maxRank": 5,
+          "requires": [],
+          "effect": "Each time you apply Slow or Weaken to an enemy, gain +{8} AGI for the rest of the dungeon, per rank.",
+          "payoff": "Every hindered foe makes you faster.",
+          "customEffectId": "pinning_drill",
+          "sharedWith": [],
+          "power": 4.0
         }
       ]
     },
@@ -1150,6 +1180,21 @@
           "requires": [],
           "damageModPerRank": 1,
           "sharedWith": []
+        },
+        {
+          "id": "r-insight",
+          "name": "Toxic Insight",
+          "branch": "Shadow",
+          "tier": 16,
+          "type": "Passive",
+          "cost": 1,
+          "maxRank": 5,
+          "requires": [],
+          "effect": "Each time you apply Poison or Expose to an enemy, gain +{1} TEC for the rest of the dungeon, per rank.",
+          "payoff": "Every opening you make sharpens the next.",
+          "customEffectId": "toxic_insight",
+          "sharedWith": [],
+          "power": 3.0
         }
       ]
     },
@@ -1603,6 +1648,21 @@
             "z-resonate"
           ],
           "sharedWith": []
+        },
+        {
+          "id": "z-kindle",
+          "name": "Kindled Mind",
+          "branch": "Crystal",
+          "tier": 15,
+          "type": "Passive",
+          "cost": 1,
+          "maxRank": 5,
+          "requires": [],
+          "effect": "Each time you apply Burn or Vulnerability to an enemy, gain +{1} INT for the rest of the dungeon, per rank.",
+          "payoff": "Every flame you set feeds the mind.",
+          "customEffectId": "kindled_mind",
+          "sharedWith": [],
+          "power": 3.0
         }
       ]
     },
