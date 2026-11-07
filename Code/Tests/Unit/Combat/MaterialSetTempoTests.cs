@@ -239,6 +239,11 @@ namespace RPGGame.Tests.Unit.Combat
                 TestBase.AssertEqual(1, MaterialSetController.GrantConvertPrimaryStat(hero, "RAGE", 3), "3 RAGE x 0.4 = 1.2 -> 1", ref _run, ref _passed, ref _failed);
                 TestBase.AssertEqual(1, MaterialSetController.GrantConvertPrimaryStat(hero, "RAGE", 2), "carried 0.2 + 0.8 -> 1 more", ref _run, ref _passed, ref _failed);
                 TestBase.AssertEqual(str + 2, hero.GetEffectiveStrength(), "grants land on STR", ref _run, ref _passed, ref _failed);
+
+                var rogue = EquipMaterial("Glass", 2);
+                int tec = rogue.GetEffectiveTechnique();
+                MaterialSetController.GrantConvertPrimaryStat(rogue, "GRAZE", 3);
+                TestBase.AssertEqual(tec + 3, rogue.GetEffectiveTechnique(), "GRAZE grants land on TEC", ref _run, ref _passed, ref _failed);
             }
             finally
             {

@@ -311,7 +311,10 @@ namespace RPGGame
                 return 0;
             granted.Value += points;
             string code = GetConvertStatCode(hero, keyword);
-            hero.FightCadenceBuffs.MergeAdditively(new[] { new ActionAttackBonusItem { Type = code, Value = points } });
+            // Cadence buffs spell Technique "TECH" (CadenceScopedBonusState.TechniqueBonus); a "TEC" buff is never read.
+            string buffType = string.Equals(code, "TEC", StringComparison.OrdinalIgnoreCase)
+                ? DynamicAttributeCategoryResolver.CodeTechnique : code;
+            hero.FightCadenceBuffs.MergeAdditively(new[] { new ActionAttackBonusItem { Type = buffType, Value = points } });
             if (string.Equals(code, "AGI", StringComparison.OrdinalIgnoreCase))
                 _fightConvertAgility.GetOrCreateValue(hero).Value += points;
             return points;
