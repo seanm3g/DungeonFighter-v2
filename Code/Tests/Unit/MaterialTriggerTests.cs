@@ -20,6 +20,7 @@ namespace RPGGame.Tests.Unit
             TestWeaponClassLadder();
             TestEnsureMaterialWeaponForced();
             TestEnsureMaterialArmorAlways();
+            TestToolForcedMaterialOverridesRolls();
             TestMaterialTriggerMergeDoesNotStampOnLoot();
             TestPrefixLotteryExcludesMaterial();
             TestItemTypeConverterClearsCatalogStampsAndRemapsDamascus();
@@ -70,6 +71,30 @@ namespace RPGGame.Tests.Unit
                     m.GetPrefixCategory() == ModificationPrefixCategory.Material
                     && string.Equals(m.Name, weapon.Material, StringComparison.OrdinalIgnoreCase)),
                 "material mod present", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestToolForcedMaterialOverridesRolls()
+        {
+            TestBase.SetCurrentTestName(nameof(TestToolForcedMaterialOverridesRolls));
+            var cache = LootDataCache.Load();
+            var applier = new LootBonusApplier(cache, new Random(3));
+            try
+            {
+                LootBonusApplier.ToolForcedMaterial = "Gold";
+                var weapon = new WeaponItem("Test Mace", 1, 5, 1.0, WeaponType.Mace) { Rarity = "Common" };
+                applier.EnsureMaterial(weapon, "Common");
+                TestBase.AssertEqual("Gold", weapon.Material, "forced material on a weapon", ref _run, ref _passed, ref _failed);
+                var armor = new HeadItem("Test Helm", 1, 2) { Rarity = "Common" };
+                applier.EnsureMaterial(armor, "Common");
+                TestBase.AssertEqual("Gold", armor.Material, "forced material on armor", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                LootBonusApplier.ToolForcedMaterial = null;
+            }
+            var after = new WeaponItem("Test Mace", 1, 5, 1.0, WeaponType.Mace) { Rarity = "Common" };
+            applier.EnsureMaterial(after, "Common");
+            TestBase.AssertTrue(new[] { "Bone", "Steel", "Iron" }.Contains(after.Material), "normal rolls once cleared", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestEnsureMaterialArmorAlways()

@@ -55,7 +55,8 @@ ap.add_argument('--explore-strips', action='store_true', help='rules bot plays r
 ap.add_argument('--classes', default=','.join(CLASSES), help='comma list of classes to run')
 ap.add_argument('--screen-fights', type=int, default=-1, help='bot screen fights per enemy for skill/gear picks (0 = score every candidate in full, -1 = tool default)')
 ap.add_argument('--eval-enemies', default='', help='comma list of enemies the bot scores skill/gear/strip picks against (empty = tool default)')
-ap.add_argument('--overlay', default='', help='folder of GameData files copied over the scratch GameData (test data edits without touching the repo)')
+ap.add_argument('--material', default='', help='every loot roll is this material (Bone, Iron, ...): the run tests that set as the dominant build')
+ap.add_argument('--overlay',default='', help='folder of GameData files copied over the scratch GameData (test data edits without touching the repo)')
 ap.add_argument('--keep', default='', help='copy the raw shard JSON (fight rows) into this folder')
 ap.add_argument('--shard-timeout', type=int, default=1800, help='seconds before a shard is killed and dropped (a stuck fight)')
 add_pool_args(ap)
@@ -129,6 +130,8 @@ def shard(patch, level, cls, i, tag):
         args += ['--screen-fights', str(A.screen_fights)]
     if A.eval_enemies:
         args += ['--eval-enemies', A.eval_enemies]
+    if A.material:
+        args += ['--material', A.material]
     if A.seed:
         args += ['--seed', str(A.seed * 1_000_000 + level * 1000 + i)]
     log = os.path.join(WORK, f'{tag}-L{level}-{cls}-{i}.log')

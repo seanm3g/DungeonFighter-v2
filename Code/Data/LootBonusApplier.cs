@@ -136,6 +136,12 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Tools only (DUNGEONSIM --material): every rolled item, weapon included, takes this material, so a run tests
+        /// one material set as the build's dominant set. Null = normal rolls.
+        /// </summary>
+        public static string? ToolForcedMaterial { get; set; }
+
+        /// <summary>
         /// Ensures exactly one Material prefix. Weapons pick one of their class's three materials; non-weapons pick any material.
         /// </summary>
         public void EnsureMaterial(Item item, string? itemRarity = null, LootContext? context = null)
@@ -162,6 +168,9 @@ namespace RPGGame
                 materialName = ItemMaterialRules.PickNonWeaponMaterial(materialMods, rarityName, _random);
                 materialName = ApplyClassMaterialBias(materialName, context);
             }
+            // Rolled first so the random stream matches an unforced run of the same seed.
+            if (!string.IsNullOrWhiteSpace(ToolForcedMaterial))
+                materialName = ToolForcedMaterial!;
 
             var template = (_dataCache.Modifications ?? new List<Modification>())
                 .FirstOrDefault(m =>
