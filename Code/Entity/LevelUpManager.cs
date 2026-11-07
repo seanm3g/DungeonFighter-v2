@@ -63,7 +63,7 @@ namespace RPGGame
             // Track level up statistics
             _character.RecordLevelUp(newLevel);
             
-            int healthIncrease = GetHealthIncreaseForLevelStep();
+            int healthIncrease = GetHealthIncreaseForLevelStep(newLevel);
             
             // Apply health increase
             _character.Health.MaxHealth += healthIncrease;
@@ -100,7 +100,7 @@ namespace RPGGame
                 return;
 
             var weapon = _character.Equipment.Weapon as WeaponItem;
-            int healthIncrease = GetHealthIncreaseForLevelStep();
+            int healthIncrease = GetHealthIncreaseForLevelStep(_character.Level);
 
             // Mirror LevelUpWithInfo in reverse order (last forward effect undone first).
             if (weapon != null)
@@ -126,8 +126,25 @@ namespace RPGGame
             DamageCalculator.InvalidateCache(_character);
         }
 
-        /// <summary>Health added for one level-up step; used when re-applying tuning to an existing character.</summary>
-        public int GetHealthIncreaseForLevelStep()
+        /// <summary>
+        /// Health added by the level-up step that reaches <paramref name="toLevel"/>; used when re-applying tuning to an existing
+        /// character. With <c>character.healthCurve</c> on, the step is the difference of the curve-scaled totals at
+        /// <paramref name="toLevel"/> and the level below, so the hero's max HP follows the curve exactly.
+        /// </summary>
+        public int GetHealthIncreaseForLevelStep(int toLevel)
+        {
+            int linearStep = GetLinearHealthIncreasePerLevel();
+            var curve = GameConfiguration.Instance.Character.HealthCurve;
+            if (curve == null || !curve.Enabled || toLevel <= 1)
+                return linearStep;
+
+            int baseHealth = GameConfiguration.Instance.Character.GetEffectivePlayerBaseHealth(CharacterConfig.RuntimeFallbackBaseHealth);
+            double Total(int level) => (baseHealth + (double)linearStep * (level - 1)) * curve.MultiplierAt(level);
+            int step = (int)Math.Round(Total(toLevel)) - (int)Math.Round(Total(toLevel - 1));
+            return Math.Max(1, step);
+        }
+
+        private int GetLinearHealthIncreasePerLevel()
         {
             var tuning = GameConfiguration.Instance;
 

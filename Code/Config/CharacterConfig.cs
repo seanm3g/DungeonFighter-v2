@@ -16,6 +16,14 @@ namespace RPGGame
         public int EnemyHealthPerLevel { get; set; }
 
         /// <summary>
+        /// Hero max-HP multiplier by level (same band/anchor form as the enemy curves). Off by default (×1).
+        /// Hero max HP at level L = base + Σ step(l), step(l) = T(l) − T(l−1), T(l) = (base + perLevel·class·(l−1)) × curve(l),
+        /// so saves, level-down and <see cref="Tuning.PlayerTuningApplier"/> stay consistent. Keep the multipliers non-decreasing.
+        /// Used to keep hero HP on the same growth as enemy HP (enemy damage bands then scale by the same ratio).
+        /// </summary>
+        public EnemyDamageCurveConfig HealthCurve { get; set; } = new();
+
+        /// <summary>
         /// When tuning JSON has non-positive values, <see cref="Character"/> uses <see cref="RuntimeFallbackBaseHealth"/> at runtime.
         /// Applying them after load keeps <see cref="GameConfiguration"/>, tools, and the variable editor aligned with gameplay.
         /// </summary>

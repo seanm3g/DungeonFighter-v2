@@ -21,6 +21,7 @@ namespace RPGGame.Tests.Unit.Tuning
             TestComputeMaxHealthFromTuning_UsesPlayerBaseHealthAtLevel1();
             TestApplyToCurrentPlayer_UpdatesMaxHealthAfterTuningChange();
             TestApplyToCurrentPlayer_UpdatesBaseAttributes();
+            TestHealthCurve_LevelUpFollowsCurveAndRoundTrips();
 
             TestBase.PrintSummary("PlayerTuningApplier Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -62,6 +63,40 @@ namespace RPGGame.Tests.Unit.Tuning
             finally
             {
                 cfg.Character.PlayerBaseHealth = savedBase;
+            }
+        }
+
+        private static void TestHealthCurve_LevelUpFollowsCurveAndRoundTrips()
+        {
+            Console.WriteLine("--- character.healthCurve scales hero max HP per level; level-down undoes it ---");
+            var cfg = GameConfiguration.Instance;
+            int savedBase = cfg.Character.PlayerBaseHealth;
+            int savedPer = cfg.Character.HealthPerLevel;
+            var savedCurve = cfg.Character.HealthCurve;
+            try
+            {
+                cfg.Character.PlayerBaseHealth = 100;
+                cfg.Character.HealthPerLevel = 10;
+                cfg.Character.HealthCurve = new EnemyDamageCurveConfig
+                {
+                    Enabled = true,
+                    Bands = new() { new CurveBand { From = 1, To = 2, Multiplier = 1.0 }, new CurveBand { From = 3, To = 5, Multiplier = 2.0 } }
+                };
+                var character = new Character("TestHero", level: 1); // no weapon → class multiplier 1
+                var levelUp = new LevelUpManager(character);
+                levelUp.LevelUpWithInfo();
+                levelUp.LevelUpWithInfo();
+                // T(3) = (100 + 10*2) * 2 = 240; T(2) = 110 → L3 max = 100 + 10 + 130
+                TestBase.AssertEqual(240, character.MaxHealth, "L3 max HP = (base + 2 steps) x curve 2.0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertEqual(240, PlayerTuningApplier.ComputeMaxHealthFromTuning(character), "recompute matches level-up path", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                levelUp.LevelDownWithInfo();
+                TestBase.AssertEqual(110, character.MaxHealth, "level-down returns to the L2 value", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.Character.PlayerBaseHealth = savedBase;
+                cfg.Character.HealthPerLevel = savedPer;
+                cfg.Character.HealthCurve = savedCurve;
             }
         }
 
