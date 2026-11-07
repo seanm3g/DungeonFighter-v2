@@ -101,7 +101,7 @@ namespace RPGGame.Tuning
             for (int guard = 0; guard < 200; guard++)
             {
                 var available = SkillTreeService.BuildDisplayModel(hero.Progression).AllNodes
-                    .Where(n => n.Tier > 0 && SkillTreeService.GetNodeState(hero.Progression, n) == SkillTreeService.NodeViewState.Available)
+                    .Where(n => SkillTreeService.GetNodeState(hero.Progression, n) == SkillTreeService.NodeViewState.Available)
                     .ToList();
                 var free = available.FirstOrDefault(n => n.Cost == 0);
                 SkillTreeNodeDefinition? pick = free;

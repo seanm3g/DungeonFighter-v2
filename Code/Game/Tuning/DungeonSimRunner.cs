@@ -142,7 +142,7 @@ namespace RPGGame.Tuning
                     {
                         Class = a.ClassDisplayName, Enemy = f.EnemyName, f.EnemyLevel, f.HeroActions, f.EnemyActions, f.FightInDungeon, f.HeroDied,
                         HpLost = f.HeroMaxHp > 0 ? Math.Round(Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp, 3) : 0,
-                        f.Strip, f.OwnedActions, f.ActionUses, HpMinPct = Math.Round(f.HpMinPct, 3), f.LeadChanges, f.HeroMisses, f.LongestMissStreak, f.HeroHits, f.ComboHits, f.BossFight,
+                        f.Strip, f.OwnedActions, f.ActionUses, HpMinPct = Math.Round(f.HpMinPct, 3), f.LeadChanges, f.HeroMisses, f.LongestMissStreak, f.HeroHits, f.ComboHits, f.BossFight, f.StatusApplied, f.StatusSkillStat, f.StatusSkillFirstAction,
                         f.DamageBySource, f.HeroDamageBySource, f.CritDamage, f.ComboDamage, f.ConvertDamage,
                         f.SlotSwings, f.SlotHitDamage, f.SlotMax, f.HeroTechnique, f.HeroIntelligence,
                         f.StripBreaks, f.StripCompletions, f.CarriedInStrip,

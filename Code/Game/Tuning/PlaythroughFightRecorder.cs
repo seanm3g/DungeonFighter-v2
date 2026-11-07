@@ -36,6 +36,12 @@ namespace RPGGame.Tuning
         /// <summary>Times the lead (hero HP % vs enemy HP %) changed hands.</summary>
         public int LeadChanges { get; set; }
         public int HeroMisses { get; set; }
+        /// <summary>Statuses the hero landed on the enemy (StatusEffectApplied, status name → count).</summary>
+        public Dictionary<string, int> StatusApplied { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Attribute points status-trigger skills (Blood Frenzy, ...) granted this fight.</summary>
+        public long StatusSkillStat { get; set; }
+        /// <summary>Hero action number on which the first status-trigger grant was seen (0 = none).</summary>
+        public int StatusSkillFirstAction { get; set; }
         public int LongestMissStreak { get; set; }
         /// <summary>Hero hits, and the combo ones among them (hit size and combo lift reads).</summary>
         /// <summary>The final-room boss (dungeonScaling.bossMergesRoom).</summary>
@@ -139,6 +145,7 @@ namespace RPGGame.Tuning
             _bus.Subscribe(CombatEventType.RoomCleared, OnRoomCleared);
             _bus.Subscribe(CombatEventType.ActionHit, OnHit);
             _bus.Subscribe(CombatEventType.ActionMiss, OnMiss);
+            _bus.Subscribe(CombatEventType.StatusEffectApplied, OnStatusApplied);
             DamageLedger.Report = _onDamage;
         }
 
@@ -194,6 +201,7 @@ namespace RPGGame.Tuning
                 _currentEnemy = enemy;
                 _hero = hero;
                 _fightInDungeon++;
+                _statusSkillAtStart = SkillEffectRouter.StatusSkillPointsGranted;
                 _current = new PlaythroughFightRecord
                 {
                     HeroLevel = hero.Level,
@@ -228,6 +236,8 @@ namespace RPGGame.Tuning
             if (ReferenceEquals(evt.Source, hero))
             {
                 _current!.HeroActions++;
+                if (_current.StatusSkillFirstAction == 0 && SkillEffectRouter.StatusSkillPointsGranted > _statusSkillAtStart)
+                    _current.StatusSkillFirstAction = _current.HeroActions;
                 string? name = evt.Action?.Name;
                 if (!string.IsNullOrWhiteSpace(name))
                     _current.ActionUses[name] = _current.ActionUses.GetValueOrDefault(name) + 1;
@@ -280,6 +290,13 @@ namespace RPGGame.Tuning
             _hitCrit = evt.IsCritical;
             _hitCombo = evt.IsCombo;
             _hitConvert = IsConvert(evt.Action?.Name);
+        }
+
+        private void OnStatusApplied(CombatEvent evt)
+        {
+            if (Suspended || _current == null || !ReferenceEquals(evt.Source, _hero) || string.IsNullOrEmpty(evt.StatusEffectType))
+                return;
+            Count(_current.StatusApplied, evt.StatusEffectType!);
         }
 
         private void OnMiss(CombatEvent evt)
@@ -417,11 +434,14 @@ namespace RPGGame.Tuning
                 _roomsCleared++;
         }
 
+        private long _statusSkillAtStart;
+
         private void Finish()
         {
             if (_current == null)
                 return;
             ResolveHeroSwing();
+            _current.StatusSkillStat = SkillEffectRouter.StatusSkillPointsGranted - _statusSkillAtStart;
             _current.HeroHpEnd = _hero?.CurrentHealth ?? 0;
             Fights.Add(_current);
             _trace?.Invoke(
@@ -449,6 +469,7 @@ namespace RPGGame.Tuning
             _bus.Unsubscribe(CombatEventType.RoomCleared, OnRoomCleared);
             _bus.Unsubscribe(CombatEventType.ActionHit, OnHit);
             _bus.Unsubscribe(CombatEventType.ActionMiss, OnMiss);
+            _bus.Unsubscribe(CombatEventType.StatusEffectApplied, OnStatusApplied);
             if (DamageLedger.Report == _onDamage)
                 DamageLedger.Report = null;
             _bus = null;

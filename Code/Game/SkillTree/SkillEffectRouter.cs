@@ -114,6 +114,7 @@ namespace RPGGame
             _gutInstinctApplied = 0;
             _focusLensApplied = 0;
             ResetHybridFightState();
+            ResetStatusTriggerFightState();
         }
 
         public void OnRoomCleared(Character hero)
@@ -136,12 +137,14 @@ namespace RPGGame
             bus.Unsubscribe(CombatEventType.EnemyDied, OnKill);
             bus.Unsubscribe(CombatEventType.ComboEnded, OnComboEnded);
             bus.Unsubscribe(CombatEventType.ActionExecuted, OnActionExecuted);
+            bus.Unsubscribe(CombatEventType.StatusEffectApplied, OnStatusApplied);
             bus.Subscribe(CombatEventType.ActionMiss, OnMiss);
             bus.Subscribe(CombatEventType.ActionHit, OnHit);
             bus.Subscribe(CombatEventType.ActionCritical, OnHit);
             bus.Subscribe(CombatEventType.EnemyDied, OnKill);
             bus.Subscribe(CombatEventType.ComboEnded, OnComboEnded);
             bus.Subscribe(CombatEventType.ActionExecuted, OnActionExecuted);
+            bus.Subscribe(CombatEventType.StatusEffectApplied, OnStatusApplied);
             _subscribed = true;
         }
 

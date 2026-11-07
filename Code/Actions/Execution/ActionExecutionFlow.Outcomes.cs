@@ -25,6 +25,8 @@ namespace RPGGame.Actions.Execution
 
             CombatSequenceBuilder.SnapshotHealthHolds(result, source, target);
             PackCombat.SnapshotHeadlines(result, source, target);
+            // Statuses this hit lands, from any path (same-swing items, on-hit skills, the action, gear, bundles).
+            var statusBefore = StatusApplySnapshot.Take(target);
 
             if (source is Character turnBonusCharacter && !(turnBonusCharacter is Enemy))
             {
@@ -313,6 +315,7 @@ namespace RPGGame.Actions.Execution
                 enemyModSource.Effects.AddModifierBonusesFromAction(selected, nextComboSlot, useEnemySpreadsheetMods: true);
             }
             CombatEffectsSimplified.ApplyStatusEffects(selected, source, target, result.StatusEffectMessages, hitEvent);
+            statusBefore.PublishGained(source, target, selected);
 
             if (source is Character mechanicHero && mechanicHero is not Enemy)
                 ActionMechanicTagProcessor.QueueNextActionBonuses(mechanicHero, selected);
