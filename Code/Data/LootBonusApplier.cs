@@ -120,19 +120,14 @@ namespace RPGGame
             item.RecomputeAttributeRequirementsIncludingModifications();
         }
 
-        /// <summary>Market skill rules: a non-weapon drop may take one of the hero's three class materials.</summary>
+        /// <summary>Market skill rules: a non-weapon drop may take one of the set materials the hero already wears.</summary>
         private string ApplyClassMaterialBias(string materialName, LootContext? context)
         {
-            if (context?.ClassMaterialChance == null || context.ClassMaterialChance.Count == 0)
+            if (context == null || context.WornMaterialChance <= 0 || context.WornMaterials.Count == 0)
                 return materialName;
-            foreach (var kv in context.ClassMaterialChance)
-            {
-                if (kv.Value <= 0 || _random.NextDouble() >= kv.Value)
-                    continue;
-                if (ClassTags.WeaponOf(kv.Key) is WeaponType wt)
-                    return ItemMaterialRules.PickClassMaterial(wt, _random);
-            }
-            return materialName;
+            if (_random.NextDouble() >= context.WornMaterialChance)
+                return materialName;
+            return context.WornMaterials[_random.Next(context.WornMaterials.Count)];
         }
 
         /// <summary>
@@ -142,7 +137,7 @@ namespace RPGGame
         public static string? ToolForcedMaterial { get; set; }
 
         /// <summary>
-        /// Ensures exactly one Material prefix. Weapons pick one of their class's three materials; non-weapons pick any material.
+        /// Ensures exactly one Material prefix. Weapons pick any of the twelve set materials; non-weapons pick any material.
         /// </summary>
         public void EnsureMaterial(Item item, string? itemRarity = null, LootContext? context = null)
         {

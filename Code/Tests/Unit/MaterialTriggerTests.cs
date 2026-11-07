@@ -44,10 +44,12 @@ namespace RPGGame.Tests.Unit
         private static void TestWeaponClassLadder()
         {
             TestBase.SetCurrentTestName(nameof(TestWeaponClassLadder));
-            AssertPicksWholeLadder(WeaponType.Mace, "Bone,Iron,Steel");
-            AssertPicksWholeLadder(WeaponType.Sword, "Bronze,Gold,Mithril");
-            AssertPicksWholeLadder(WeaponType.Dagger, "Glass,Obsidian,Shadow");
-            AssertPicksWholeLadder(WeaponType.Wand, "Crystal,Silver,Willow");
+            // Materials are shared by every class: any weapon type rolls all twelve set materials.
+            string all = string.Join(",", ItemMaterialRules.ClassMaterials.OrderBy(m => m));
+            AssertPicksWholeLadder(WeaponType.Mace, all);
+            AssertPicksWholeLadder(WeaponType.Sword, all);
+            AssertPicksWholeLadder(WeaponType.Dagger, all);
+            AssertPicksWholeLadder(WeaponType.Wand, all);
         }
 
         private static void AssertPicksWholeLadder(WeaponType weaponType, string expected)
@@ -56,7 +58,7 @@ namespace RPGGame.Tests.Unit
             var seen = new HashSet<string>();
             for (int i = 0; i < 200; i++)
                 seen.Add(ItemMaterialRules.PickClassMaterial(weaponType, random));
-            TestBase.AssertEqual(expected, string.Join(",", seen.OrderBy(m => m)), $"{weaponType} picks all three class materials", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(expected, string.Join(",", seen.OrderBy(m => m)), $"{weaponType} picks every set material", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestEnsureMaterialWeaponForced()
@@ -66,7 +68,7 @@ namespace RPGGame.Tests.Unit
             var applier = new LootBonusApplier(cache, new Random(1));
             var weapon = new WeaponItem("Test Mace", 1, 5, 1.0, WeaponType.Mace) { Rarity = "Uncommon" };
             applier.EnsureMaterial(weapon, "Uncommon");
-            TestBase.AssertTrue(new[] { "Bone", "Steel", "Iron" }.Contains(weapon.Material), "weapon material from mace ladder", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(ItemMaterialRules.IsSetMaterial(weapon.Material), "weapon material is a set material", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(weapon.Modifications.Any(m =>
                     m.GetPrefixCategory() == ModificationPrefixCategory.Material
                     && string.Equals(m.Name, weapon.Material, StringComparison.OrdinalIgnoreCase)),
@@ -94,7 +96,7 @@ namespace RPGGame.Tests.Unit
             }
             var after = new WeaponItem("Test Mace", 1, 5, 1.0, WeaponType.Mace) { Rarity = "Common" };
             applier.EnsureMaterial(after, "Common");
-            TestBase.AssertTrue(new[] { "Bone", "Steel", "Iron" }.Contains(after.Material), "normal rolls once cleared", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(ItemMaterialRules.IsSetMaterial(after.Material), "normal rolls once cleared", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestEnsureMaterialArmorAlways()
@@ -119,7 +121,7 @@ namespace RPGGame.Tests.Unit
             var applier = new LootBonusApplier(cache, new Random(42));
             var weapon = new WeaponItem("Bone Club", 1, 5, 1.0, WeaponType.Mace) { Rarity = "Common" };
             applier.ApplyAlwaysMaterialAndTrigger(weapon, "Common");
-            TestBase.AssertTrue(new[] { "Bone", "Steel", "Iron" }.Contains(weapon.Material), "material set", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(ItemMaterialRules.IsSetMaterial(weapon.Material), "material set", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, weapon.TriggerBundles?.Count ?? 0, "no combat stamp", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, weapon.EquipEffects?.Count ?? 0, "no equip stamp", ref _run, ref _passed, ref _failed);
         }

@@ -25,7 +25,10 @@ namespace RPGGame
         public static readonly string[] AllMaterials =
             ClassMaterials.Concat(ClassLessMaterials).ToArray();
 
-        /// <summary>Weapon type → Common / Uncommon / Rare+ class materials.</summary>
+        /// <summary>
+        /// Weapon type → the attribute family of materials (Mace: the STR materials Bone / Steel / Iron, ...). Families
+        /// group materials by the attribute they pay; any class can wear any of them.
+        /// </summary>
         public static bool TryGetWeaponClassLadder(WeaponType weaponType, out string common, out string uncommon, out string rare)
         {
             switch (weaponType)
@@ -49,19 +52,17 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Weapons always use their class's three materials, picked evenly regardless of item rarity.
+        /// Weapons take any of the twelve set materials, picked evenly regardless of weapon type or rarity:
+        /// materials are not owned by a class (a Wand can be Bone).
         /// </summary>
-        public static string PickClassMaterial(WeaponType weaponType, Random random)
-        {
-            if (!TryGetWeaponClassLadder(weaponType, out string common, out string uncommon, out string rare))
-                return "Bone";
+        public static string PickClassMaterial(WeaponType weaponType, Random random) =>
+            ClassMaterials[random.Next(ClassMaterials.Length)];
 
-            return random.Next(3) switch
-            {
-                0 => common,
-                1 => uncommon,
-                _ => rare
-            };
+        /// <summary>True for the twelve set materials (Bone ... Crystal), not the class-less pool.</summary>
+        public static bool IsSetMaterial(string? material)
+        {
+            string m = RemapLegacyMaterial(material);
+            return ClassMaterials.Any(c => string.Equals(c, m, StringComparison.OrdinalIgnoreCase));
         }
 
         public static int RarityLadderIndex(string? rarity)
