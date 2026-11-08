@@ -35,14 +35,10 @@ namespace RPGGame
         public string? WeaponType { get; set; }
 
         /// <summary>
-        /// Worn-material bias from the skill-tree market rules (Blood Market, Muster Hall, …): the chance that a
-        /// non-weapon drop takes one of the set materials the hero already wears (helps reach 2 / 3 / 5 pieces).
-        /// Market rules from several trees add up, capped at 100%.
+        /// Class-material bias from the skill-tree market rules (Blood Market, Muster Hall, …): class tag → chance that
+        /// a non-weapon drop takes that class's material for its rarity.
         /// </summary>
-        public double WornMaterialChance { get; set; }
-
-        /// <summary>Set materials the hero wore when the context was made (the market rules pick from these).</summary>
-        public List<string> WornMaterials { get; set; } = new();
+        public Dictionary<string, double> ClassMaterialChance { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
         private static readonly (string Effect, string ClassTag)[] MarketRules =
         {
@@ -71,16 +67,11 @@ namespace RPGGame
             };
             if (player != null)
             {
-                double chance = 0;
-                foreach (var (effect, _) in MarketRules)
-                    chance += MarketChancePerPower * Math.Max(0, SkillRanks.GetPower(player, effect));
-                context.WornMaterialChance = Math.Min(1.0, chance);
-                foreach (var item in new Item?[] { player.Weapon, player.Head, player.Body, player.Legs, player.Feet })
+                foreach (var (effect, classTag) in MarketRules)
                 {
-                    if (item == null || !ItemMaterialRules.IsSetMaterial(item.Material)) continue;
-                    string m = ItemMaterialRules.RemapLegacyMaterial(item.Material);
-                    if (!context.WornMaterials.Contains(m, StringComparer.OrdinalIgnoreCase))
-                        context.WornMaterials.Add(m);
+                    double power = SkillRanks.GetPower(player, effect);
+                    if (power > 0)
+                        context.ClassMaterialChance[classTag] = Math.Min(1.0, MarketChancePerPower * power);
                 }
             }
             return context;

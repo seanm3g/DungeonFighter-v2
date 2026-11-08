@@ -3,19 +3,17 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using RPGGame.Combat.Events;
-using RPGGame.Data;
 
 namespace RPGGame
 {
     /// <summary>
-    /// Class-tree effects for the level-100 trees (Documentation/SKILL_TREE_DESIGN.md): Kinship (set-material
-    /// pieces raise the class stat), Synthesis feed (class stat raises every material's mints), convert masteries
-    /// (each class adds its own rider to every convert, whatever the material),
+    /// Class-tree effects for the level-100 trees (Documentation/SKILL_TREE_DESIGN.md): Kinship (class material
+    /// pieces raise the class stat), Synthesis feed (class stat raises material resource mints), convert masteries,
     /// Arcane Weave, capstones, and the Mastery nodes. Magnitudes are per rank × node power.
     /// </summary>
     public sealed partial class SkillEffectRouter
     {
-        /// <summary>Kinship: +1 class stat per equipped set-material piece (any of the twelve), per rank.</summary>
+        /// <summary>Kinship: +1 class stat per equipped class-material piece, per rank.</summary>
         private static readonly (string Effect, string Stat, string ClassTag)[] KinshipRules =
         {
             ("tribal_kinship", "STR", ClassTags.Barbarian),
@@ -24,7 +22,7 @@ namespace RPGGame
             ("arcane_kinship", "INT", ClassTags.Wizard)
         };
 
-        /// <summary>Synthesis feed: every 20 class stat adds +1 to each mint of any material's resource, per rank.</summary>
+        /// <summary>Synthesis feed: every 20 class stat adds +1 to each mint of that class's material resources, per rank.</summary>
         private static readonly (string Effect, string Stat, string ClassTag)[] SynthesisRules =
         {
             ("blood_synthesis", "STR", ClassTags.Barbarian),
@@ -37,24 +35,21 @@ namespace RPGGame
 
         private enum ConvertRider { HealPctMaxHp, DamageVsLowHp, Fortify, Speed, Slow, Focus, Vulnerable, Expose, Damage, Amp }
 
-        /// <summary>
-        /// Convert masteries: a class's rider on every convert it casts (any material), per cast with a non-empty bank,
-        /// per rank x power. Materials are shared, so each class tree helps every convert in its own way.
-        /// </summary>
-        private static readonly (string Effect, ConvertRider Rider, double PerCast)[] ConvertMasteries =
+        /// <summary>Convert masteries: the convert action's second effect, per unit of its material resource.</summary>
+        private static readonly (string Action, string Effect, string Keyword, ConvertRider Rider, double PerUnit)[] ConvertMasteries =
         {
-            ("wrath_unbound", ConvertRider.HealPctMaxHp, 5.0),
-            ("iron_cull", ConvertRider.DamageVsLowHp, 20.0),
-            ("steel_crest", ConvertRider.Fortify, 2.0),
-            ("war_drum", ConvertRider.Speed, 15.0),
-            ("gold_anchor", ConvertRider.Slow, 0.15),
-            ("mithril_flow", ConvertRider.Focus, 3.0),
-            ("glass_shatter", ConvertRider.Vulnerable, 3.0),
-            ("umbral_step", ConvertRider.Expose, 2.0),
-            ("trophy_hunter", ConvertRider.Damage, 15.0),
-            ("willow_lash", ConvertRider.Amp, 20.0),
-            ("refraction", ConvertRider.Expose, 2.0),
-            ("resonance", ConvertRider.Damage, 15.0)
+            ("BONE WRATH", "wrath_unbound", "RAGE", ConvertRider.HealPctMaxHp, 1.0),
+            ("IRON CULL", "iron_cull", "CRISIS", ConvertRider.DamageVsLowHp, 4.0),
+            ("STEEL CREST", "steel_crest", "TRIUMPH", ConvertRider.Fortify, 0.5),
+            ("DRUM CUT", "war_drum", "BEAT", ConvertRider.Speed, 2.0),
+            ("GOLD ANCHOR", "gold_anchor", "DRAG", ConvertRider.Slow, 0.03),
+            ("MITHRIL FLOW", "mithril_flow", "STREAK", ConvertRider.Focus, 0.34),
+            ("GLASS NICK", "glass_shatter", "GRAZE", ConvertRider.Vulnerable, 0.34),
+            ("UMBRA", "umbral_step", "SWING", ConvertRider.Expose, 0.34),
+            ("HEADHUNT", "trophy_hunter", "TROPHY", ConvertRider.Damage, 3.0),
+            ("WILLOW LASH", "willow_lash", "CHAIN", ConvertRider.Amp, 3.0),
+            ("REFRACT", "refraction", "LENS", ConvertRider.Damage, 3.0),
+            ("RESONATE", "resonance", "CONTACT", ConvertRider.Damage, 2.0)
         };
 
         /// <summary>Standing stat from Kinship nodes (folded into the effective stat getters).</summary>
@@ -67,59 +62,66 @@ namespace RPGGame
                     continue;
                 double power = SkillRanks.GetPower(c, effect);
                 if (power > 0)
-                    total += (int)Math.Round(CountSetMaterialPieces(c) * power);
+                    total += (int)Math.Round(CountClassMaterialPieces(c, classTag) * power);
             }
             return total;
         }
 
-        /// <summary>Equipped pieces made of any of the twelve set materials.</summary>
-        public static int CountSetMaterialPieces(Character c) =>
-            new Item?[] { c.Weapon, c.Head, c.Body, c.Legs, c.Feet }
-                .Count(i => i != null && ItemMaterialRules.IsSetMaterial(i.Material));
+        /// <summary>Equipped pieces made of one of the class's materials.</summary>
+        public static int CountClassMaterialPieces(Character c, string classTag)
+        {
+            var materials = ClassTags.MaterialsOf(classTag)
+                .Concat(HybridTrees.MergedPartners(c, classTag).SelectMany(ClassTags.MaterialsOf))
+                .ToList();
+            return new Item?[] { c.Weapon, c.Head, c.Body, c.Legs, c.Feet }
+                .Count(i => i != null && !string.IsNullOrWhiteSpace(i.Material)
+                            && materials.Any(m => string.Equals(m, i.Material, StringComparison.OrdinalIgnoreCase)));
+        }
 
         /// <summary>
         /// Player line for a convert mastery the hero has actually ranked. Empty when the node is unranked.
         /// </summary>
         public static string DescribeEquippedConvertMastery(Character? hero, string? actionName)
         {
-            if (hero == null || hero is Enemy || string.IsNullOrWhiteSpace(actionName)
-                || MaterialBuildsLoader.FindByConvertAction(actionName) == null)
+            if (hero == null || hero is Enemy || string.IsNullOrWhiteSpace(actionName))
                 return "";
-            var lines = new List<string>();
             foreach (var mastery in ConvertMasteries)
             {
+                if (!string.Equals(mastery.Action, actionName, StringComparison.OrdinalIgnoreCase))
+                    continue;
                 double power = SkillRanks.GetPower(hero, mastery.Effect);
                 if (power <= 0)
-                    continue;
-                string per = (mastery.PerCast * power).ToString("0.##", CultureInfo.InvariantCulture);
-                lines.Add(mastery.Rider switch
+                    return "";
+                string per = mastery.PerUnit.ToString("0.##", CultureInfo.InvariantCulture);
+                string keyword = mastery.Keyword;
+                return mastery.Rider switch
                 {
-                    ConvertRider.HealPctMaxHp => $"Your mastery heals {per}% max HP.",
-                    ConvertRider.DamageVsLowHp => $"Your mastery adds +{per}% damage against foes at 25% HP or less.",
-                    ConvertRider.Fortify => $"Your mastery grants {per} Fortify.",
-                    ConvertRider.Speed => $"Your mastery adds +{per}% speed.",
-                    ConvertRider.Slow => "Your mastery slows the target.",
-                    ConvertRider.Focus => $"Your mastery grants {per} Focus.",
-                    ConvertRider.Vulnerable => $"Your mastery applies {per} Vulnerability.",
-                    ConvertRider.Expose => $"Your mastery applies {per} Expose.",
-                    ConvertRider.Damage => $"Your mastery adds +{per}% damage.",
-                    ConvertRider.Amp => $"Your mastery adds +{per}% AMP.",
+                    ConvertRider.HealPctMaxHp => $"Your mastery heals {per}% max HP per {keyword}, per rank.",
+                    ConvertRider.DamageVsLowHp => $"Your mastery adds +{per}% damage per {keyword} against foes at 25% HP or less, per rank.",
+                    ConvertRider.Fortify => $"Your mastery grants Fortify per {keyword}, per rank.",
+                    ConvertRider.Speed => $"Your mastery adds +{per}% speed per {keyword}, per rank.",
+                    ConvertRider.Slow => $"Your mastery slows the target per {keyword}, per rank.",
+                    ConvertRider.Focus => $"Your mastery grants Focus per {keyword}, per rank.",
+                    ConvertRider.Vulnerable => $"Your mastery applies Vulnerability per {keyword}, per rank.",
+                    ConvertRider.Expose => $"Your mastery applies Expose per {keyword}, per rank.",
+                    ConvertRider.Damage => $"Your mastery adds +{per}% damage per {keyword}, per rank.",
+                    ConvertRider.Amp => $"Your mastery adds +{per}% AMP per {keyword}, per rank.",
                     _ => ""
-                });
+                };
             }
-            return string.Join(" ", lines.Where(l => l.Length > 0));
+            return "";
         }
 
-        /// <summary>Extra units per mint of <paramref name="material"/>'s resource from every learned Synthesis node.</summary>
+        /// <summary>Extra units per mint of <paramref name="material"/>'s resource from the owning class's Synthesis node.</summary>
         public static int SynthesisFeedBonus(Character? hero, string? material)
         {
             if (hero == null || string.IsNullOrWhiteSpace(material))
                 return 0;
             int bonus = 0;
-            if (!ItemMaterialRules.IsSetMaterial(material))
-                return 0;
-            foreach (var (effect, stat, _) in SynthesisRules)
+            foreach (var (effect, stat, classTag) in SynthesisRules)
             {
+                if (!ClassTags.MaterialsOf(classTag).Any(m => string.Equals(m, material, StringComparison.OrdinalIgnoreCase)))
+                    continue;
                 double power = SkillRanks.GetPower(hero, effect);
                 if (power > 0)
                     bonus += (int)Math.Floor(EffectiveStat(hero, stat) / (double)SynthesisStatPerMint * power);
@@ -161,13 +163,15 @@ namespace RPGGame
 
         private void ApplyConvertMastery(Character hero, CombatEvent evt)
         {
-            var build = MaterialBuildsLoader.FindByConvertAction(evt.Action?.Name);
-            if (build == null || MaterialSetController.GetKeyword(hero, build.Keyword) <= 0) return;
+            string? name = evt.Action?.Name;
+            if (string.IsNullOrWhiteSpace(name)) return;
             foreach (var m in ConvertMasteries)
             {
+                if (!string.Equals(m.Action, name, StringComparison.OrdinalIgnoreCase)) continue;
                 double power = GetPower(hero, m.Effect);
-                if (power <= 0) continue;
-                double amount = m.PerCast * power;
+                int units = MaterialSetController.GetKeyword(hero, m.Keyword);
+                if (power <= 0 || units <= 0) return;
+                double amount = units * m.PerUnit * power;
                 var target = evt.Target;
                 switch (m.Rider)
                 {
@@ -217,6 +221,7 @@ namespace RPGGame
                         AddAmpMod(hero, amount);
                         break;
                 }
+                return;
             }
         }
 

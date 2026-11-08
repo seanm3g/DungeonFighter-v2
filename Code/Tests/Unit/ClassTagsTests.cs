@@ -93,16 +93,15 @@ namespace RPGGame.Tests.Unit
         private static void TestMarketChanceInLootContext()
         {
             var hero = MakeHero("Market", WeaponType.Sword, 20);
-            TestBase.AssertEqual(0.0, LootContext.Create(hero).WornMaterialChance, "no market rule, no material bias",
+            TestBase.AssertEqual(0, LootContext.Create(hero).ClassMaterialChance.Count, "no market rule, no material bias",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             hero.Progression.LearnedSkillRanks["w-loot"] = 1;
-            hero.Equipment.Weapon!.Material = "Glass";
             double power = GameConfiguration.Instance.SkillTrees.GetNode("w-loot")?.Power ?? 1.0;
             var ctx = LootContext.Create(hero);
-            TestBase.AssertTrue(Math.Abs(ctx.WornMaterialChance - Math.Min(1.0, LootContext.MarketChancePerPower * power)) < 1e-9,
-                "Muster Hall biases drops toward worn materials", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(ctx.WornMaterials.Count == 1 && ctx.WornMaterials[0] == "Glass",
-                "a Warrior wearing Glass is biased toward Glass, not Warrior materials", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ctx.ClassMaterialChance.TryGetValue(ClassTags.Warrior, out double chance)
+                    && Math.Abs(chance - Math.Min(1.0, LootContext.MarketChancePerPower * power)) < 1e-9,
+                "Muster Hall biases drops toward Warrior materials",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void Publish(Character hero, CombatEventType type, Actor? target, int naturalRoll, bool critical, Action? action = null)
