@@ -808,9 +808,10 @@ namespace RPGGame
             var (gearTags, materials, strip) = ClassTags.Breakdown(c, classTag);
             addWrapped($"{name.ToUpperInvariant()} TAGS: {total}");
             addWrapped($"Gear tagged {name}: {gearTags}");
+            string mats = string.Join(" / ", ClassTags.MaterialsOf(classTag));
             addWrapped(ClassTags.MaterialsCountAsClass(c, classTag)
-                ? $"Set-material gear (any material): {materials}"
-                : $"Set-material gear: not counted (needs the {name} Core root)");
+                ? $"{mats} gear: {materials}"
+                : $"{mats} gear: not counted (needs the {name} Core root)");
             addWrapped($"Strip actions tagged {name}: {strip}");
             int partners = total - gearTags - materials - strip;
             if (partners > 0)

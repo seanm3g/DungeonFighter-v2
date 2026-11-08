@@ -55,13 +55,14 @@ namespace RPGGame
 
         private const int RiteOfPassageAttributeBonus = 10;
 
-        // First Age nodes count every set-material piece (materials are shared) plus gear tagged with the class.
-        private static string[] SetMaterialTagsWith(string classTag) =>
-            ItemMaterialRules.ClassMaterials.Select(m => m.ToLowerInvariant()).Append(classTag).ToArray();
-        private static readonly string[] BarbarianMaterialTags = SetMaterialTagsWith("barbarian");
-        private static readonly string[] WarriorMaterialTags = SetMaterialTagsWith("warrior");
-        private static readonly string[] RogueMaterialTags = SetMaterialTagsWith("rogue");
-        private static readonly string[] WizardMaterialTags = SetMaterialTagsWith("wizard");
+        private static readonly string[] BarbarianMaterialTags =
+            { "bone", "steel", "iron", "barbarian" };
+        private static readonly string[] WarriorMaterialTags =
+            { "bronze", "gold", "mithril", "warrior" };
+        private static readonly string[] RogueMaterialTags =
+            { "glass", "obsidian", "shadow", "rogue" };
+        private static readonly string[] WizardMaterialTags =
+            { "willow", "silver", "crystal", "wizard" };
         private static readonly string[] ScrapPreferQualities =
             { "Battle Scarred", "New", "Masterwork" };
         private static readonly string[] ParadeDressQualities =
@@ -491,10 +492,10 @@ namespace RPGGame
                 evt.Target.QueueBleedFromHit(2);
         }
 
-        /// <summary>Second / Third Age item count: equipped set-material pieces (Living Alloy adds Harden/Fortify).</summary>
+        /// <summary>Second / Third Age item count: equipped Barbarian material pieces (Living Alloy adds Harden/Fortify).</summary>
         private int CountBronzeItems(Character hero)
         {
-            int count = CountSetMaterialPieces(hero);
+            int count = CountClassMaterialPieces(hero, ClassTags.Barbarian);
             if (Has(hero, "living_alloy"))
             {
                 count += hero.HardenStacks ?? 0;
@@ -590,7 +591,7 @@ namespace RPGGame
             if (evt.Action == null) return;
             int slot = hero.Effects.ComboStep;
 
-            // First Steel Age: +8% damage per set-material item, per skill rank (no slot gate).
+            // First Bronze Age: +8% damage per Barbarian-material item, per skill rank (no slot gate).
             int barbItems = CountEquippedMatchingTags(hero, BarbarianMaterialTags);
             if (barbItems > 0 && Has(hero, "first_bronze_age"))
             {

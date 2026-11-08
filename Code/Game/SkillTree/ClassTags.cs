@@ -5,8 +5,9 @@ using System.Linq;
 namespace RPGGame
 {
     /// <summary>
-    /// Class tags a hero "has": class tags on equipped gear and on the actions in the combo strip. Any set-material
-    /// piece (Bone ... Crystal) also counts once that class's Core root is learned: materials are shared by every class.
+    /// Class tags a hero "has": class tags on equipped gear and on the actions in the combo strip. A piece of a class
+    /// material (Bone / Steel / Iron for Barbarian, …) also counts once that class's Core root is learned
+    /// ("Bone, Steel, and Iron tags now count as a Barbarian tag").
     /// </summary>
     public static class ClassTags
     {
@@ -44,10 +45,7 @@ namespace RPGGame
             _ => null
         };
 
-        /// <summary>
-        /// The attribute family that pays this class's primary stat (Barbarian: Bone / Steel / Iron = STR), in
-        /// Common / Uncommon / Rare order. Used for set attributes and hybrid material joins, not for ownership.
-        /// </summary>
+        /// <summary>The class's three materials in Common / Uncommon / Rare order.</summary>
         public static IReadOnlyList<string> MaterialsOf(string classTag)
         {
             if (WeaponOf(classTag) is WeaponType wt &&
@@ -67,12 +65,13 @@ namespace RPGGame
         private static bool ItemHasTag(Item? item, string classTag) =>
             item?.Tags != null && item.Tags.Any(t => string.Equals(t, classTag, StringComparison.OrdinalIgnoreCase));
 
-        /// <summary>True when <paramref name="item"/> is any set material and the class's Core root is learned.</summary>
+        /// <summary>True when <paramref name="item"/>'s material is one of the class's and the Core root is learned.</summary>
         private static bool MaterialCounts(Character? hero, Item? item, string classTag)
         {
             if (item == null || string.IsNullOrWhiteSpace(item.Material) || !MaterialsCountAsClass(hero, classTag))
                 return false;
-            return ItemMaterialRules.IsSetMaterial(item.Material);
+            string material = ItemMaterialRules.RemapLegacyMaterial(item.Material);
+            return MaterialsOf(classTag).Any(m => string.Equals(m, material, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>Gear class tags (direct tag or counted material) only, no strip actions.</summary>

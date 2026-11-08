@@ -1,12 +1,11 @@
 using System;
-using RPGGame.Combat.Events;
 
 namespace RPGGame.Tests.Unit
 {
     /// <summary>
-    /// Materials are shared by every class: any set material counts as a class tag after the Core root, Kinship and
-    /// First Age count any set piece, Synthesis feeds every material's mints, convert masteries ride every convert,
-    /// and a material still pays its own attribute (Bone STR, Glass TEC) whoever wears it.
+    /// Any class can wear any material (weapons roll all twelve) and a material pays its own attribute (Bone STR,
+    /// Glass TEC) whoever wears it. Class skill trees still key off the class's own three materials: tags and Kinship
+    /// count only those.
     /// </summary>
     public static class MixedMaterialsTests
     {
@@ -20,12 +19,10 @@ namespace RPGGame.Tests.Unit
             if (trees != null)
                 GameConfiguration.Instance.SkillTrees = trees;
 
-            TestAnyMaterialCountsAsClassTag();
-            TestKinshipCountsAnySetPiece();
-            TestSynthesisFeedsEveryMaterial();
-            TestMasteryRidesAnyConvert();
+            TestWeaponsRollAnyMaterial();
             TestMaterialPaysItsOwnAttribute();
-            TestNoClassMaterialBranches();
+            TestClassTagsCountOnlyOwnMaterials();
+            TestKinshipCountsOnlyOwnMaterials();
 
             TestBase.PrintSummary("MixedMaterials Tests", _run, _passed, _failed);
         }
@@ -47,76 +44,15 @@ namespace RPGGame.Tests.Unit
             return hero;
         }
 
-        private static void TestAnyMaterialCountsAsClassTag()
+        private static void TestWeaponsRollAnyMaterial()
         {
-            TestBase.SetCurrentTestName(nameof(TestAnyMaterialCountsAsClassTag));
-            var hero = MakeHero("MixTag", WeaponType.Sword, 5);
-            hero.Weapon!.Material = "Willow";
-            hero.Progression.TryLearnSkillNode("w-cunning", requirePrimaryPath: false);
-            hero.Progression.TryLearnSkillNode("w-lineage", requirePrimaryPath: false);
-            TestBase.AssertEqual(1, ClassTags.Count(hero, ClassTags.Warrior), "a Willow sword counts as a Warrior tag after Level 1",
+            TestBase.SetCurrentTestName(nameof(TestWeaponsRollAnyMaterial));
+            var random = new Random(5);
+            var seen = new System.Collections.Generic.HashSet<string>();
+            for (int i = 0; i < 400; i++)
+                seen.Add(ItemMaterialRules.PickClassMaterial(WeaponType.Wand, random));
+            TestBase.AssertEqual(ItemMaterialRules.ClassMaterials.Length, seen.Count, "a Wand can roll every set material",
                 ref _run, ref _passed, ref _failed);
-            hero.Weapon!.Material = "Leather";
-            TestBase.AssertEqual(0, ClassTags.Count(hero, ClassTags.Warrior), "class-less Leather does not count",
-                ref _run, ref _passed, ref _failed);
-        }
-
-        private static void TestKinshipCountsAnySetPiece()
-        {
-            TestBase.SetCurrentTestName(nameof(TestKinshipCountsAnySetPiece));
-            var hero = MakeHero("MixKin", WeaponType.Mace, 50);
-            hero.Weapon!.Material = "Glass";
-            int before = SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR");
-            hero.Progression.LearnedSkillRanks["b-kin"] = 5;
-            int after = SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR");
-            TestBase.AssertEqual((int)Math.Round(1 * 5 * Power("b-kin")), after - before,
-                "Tribal Kinship counts a Glass piece for STR", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(1, SkillEffectRouter.CountSetMaterialPieces(hero), "one set piece worn", ref _run, ref _passed, ref _failed);
-        }
-
-        private static void TestSynthesisFeedsEveryMaterial()
-        {
-            TestBase.SetCurrentTestName(nameof(TestSynthesisFeedsEveryMaterial));
-            var hero = MakeHero("MixSynth", WeaponType.Dagger, 50);
-            hero.Progression.LearnedSkillRanks["r-synth"] = 5;
-            int expected = (int)Math.Floor(hero.GetEffectiveTechnique() / (double)SkillEffectRouter.SynthesisStatPerMint * 5 * Power("r-synth"));
-            TestBase.AssertEqual(expected, SkillEffectRouter.SynthesisFeedBonus(hero, "Bone"), "Edge Synthesis feeds Bone mints too",
-                ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(expected, SkillEffectRouter.SynthesisFeedBonus(hero, "Glass"), "and Glass mints",
-                ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(0, SkillEffectRouter.SynthesisFeedBonus(hero, "Leather"), "class-less materials have no mints",
-                ref _run, ref _passed, ref _failed);
-        }
-
-        private static void TestMasteryRidesAnyConvert()
-        {
-            TestBase.SetCurrentTestName(nameof(TestMasteryRidesAnyConvert));
-            var hero = MakeHero("MixWrath", WeaponType.Mace, 80);
-            hero.Progression.LearnedSkillRanks["b-wrath"] = 1;
-            SkillEffectRouter.Instance.RefreshForCharacter(hero);
-            hero.Effects.AddMaterialKeyword("CHAIN", 10);
-            hero.TakeDamage(hero.MaxHealth / 2);
-            int before = hero.CurrentHealth;
-            var foe = TestDataBuilders.Enemy().WithName("Dummy").Build();
-            CombatEventBus.Instance.Publish(new CombatEvent(CombatEventType.ActionHit, hero)
-            {
-                Target = foe,
-                Action = new Action { Name = "WILLOW LASH", Type = ActionType.Attack },
-                NaturalRollValue = 12
-            });
-            int expected = Math.Max(1, (int)Math.Round(hero.MaxHealth * 5.0 * Power("b-wrath") / 100.0));
-            TestBase.AssertEqual(expected, hero.CurrentHealth - before, "Wrath Unbound heals on a Willow convert",
-                ref _run, ref _passed, ref _failed);
-
-            int mid = hero.CurrentHealth;
-            hero.Effects.ClearMaterialKeywordBank();
-            CombatEventBus.Instance.Publish(new CombatEvent(CombatEventType.ActionHit, hero)
-            {
-                Target = foe,
-                Action = new Action { Name = "WILLOW LASH", Type = ActionType.Attack },
-                NaturalRollValue = 12
-            });
-            TestBase.AssertEqual(mid, hero.CurrentHealth, "no heal when the convert's bank is empty", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestMaterialPaysItsOwnAttribute()
@@ -129,13 +65,31 @@ namespace RPGGame.Tests.Unit
                 ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestNoClassMaterialBranches()
+        private static void TestClassTagsCountOnlyOwnMaterials()
         {
-            TestBase.SetCurrentTestName(nameof(TestNoClassMaterialBranches));
-            foreach (var tree in GameConfiguration.Instance.SkillTrees.Trees)
-                foreach (var node in tree.Nodes)
-                    TestBase.AssertTrue(!ItemMaterialRules.IsSetMaterial(node.Branch),
-                        $"{node.Id} branch '{node.Branch}' is not a material name", ref _run, ref _passed, ref _failed);
+            TestBase.SetCurrentTestName(nameof(TestClassTagsCountOnlyOwnMaterials));
+            var hero = MakeHero("MixTag", WeaponType.Sword, 5);
+            hero.Progression.TryLearnSkillNode("w-cunning", requirePrimaryPath: false);
+            hero.Progression.TryLearnSkillNode("w-lineage", requirePrimaryPath: false);
+            hero.Weapon!.Material = "Bronze";
+            int own = ClassTags.Count(hero, ClassTags.Warrior);
+            hero.Weapon!.Material = "Willow";
+            int other = ClassTags.Count(hero, ClassTags.Warrior);
+            TestBase.AssertTrue(own > other, $"a Bronze sword is a Warrior tag, a Willow one is not ({own} vs {other})",
+                ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestKinshipCountsOnlyOwnMaterials()
+        {
+            TestBase.SetCurrentTestName(nameof(TestKinshipCountsOnlyOwnMaterials));
+            var hero = MakeHero("MixKin", WeaponType.Mace, 50);
+            hero.Progression.LearnedSkillRanks["b-kin"] = 5;
+            hero.Weapon!.Material = "Glass";
+            int glass = SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR");
+            hero.Weapon!.Material = "Bone";
+            int bone = SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR");
+            TestBase.AssertEqual((int)Math.Round(1 * 5 * Power("b-kin")), bone - glass,
+                "Tribal Kinship counts a Bone piece, not a Glass one", ref _run, ref _passed, ref _failed);
         }
     }
 }
