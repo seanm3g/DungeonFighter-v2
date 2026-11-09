@@ -57,7 +57,7 @@ namespace RPGGame.Actions.Execution
                     if (eqHit > 0)
                         overflow += Math.Max(0, eqHit - (before - thresholdManager.GetHitThreshold(gearCharacter)));
                 }
-                int critShift = eqCrit + overflow / 2;
+                int critShift = eqCrit + overflow;
                 if (critShift != 0)
                     thresholdManager.AdjustCriticalHitThreshold(gearCharacter, critShift);
                 DungeonSearchBuffThresholdApplicator.Apply(gearCharacter, thresholdManager);
