@@ -91,13 +91,14 @@ Reading it honestly:
   levers (section 5), not set balance.
 - contest_share fell: gear slots are less often a near-tie now that prefixes carry value.
 
-### Curve (balance-loop measure, seeds 7101–7104, same as the syn47 measure last night)
+### Curve (balance-loop measure, 4 seeds × 32 heroes per class, L3–L73)
 
-| | mean clear gap | class spread | bands over parity |
-|---|---|---|---|
-| syn47 | 1.89 | 10.6 | 5 |
-| fastbot-div6 | 2.06 | 9.7 | 7 |
-| fastbot-div5 (fresh seeds 8501–8504) | 1.25 | 7.9 | 3 |
+| Seeds | syn47 gap / spread / bands over parity | fastbot-div6 |
+|---|---|---|
+| 9301–9304 (unseen by any solve) | 2.27 / 10.4 / 7 | **1.73 / 9.9 / 7** |
+| 8501–8504 (div6's last diagnose seeds) | 1.98 / 9.4 / 6 | 1.19 / 7.8 / 3 |
+
+Late game (L78–98, 2 seeds): unchanged (div6 vs syn47 within noise at every level: 25/24/11/9/3% vs 28/25/11/7/4%).
 
 Biggest misses on div6: L23 65 vs 70 (Wizard 57), L58 50 vs 54, L68 36 vs 40 (Barbarian 27).
 At L58 two enemies cause ~70% of deaths for every class: **Tomb Creeper** and **Poison Dart Sentinel**.
