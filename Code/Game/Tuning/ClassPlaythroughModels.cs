@@ -35,6 +35,10 @@ namespace RPGGame.Tuning
         /// <summary>Where and how the run died (null when it did not die).</summary>
         public PlaythroughDeathContext? Death { get; set; }
         public int UpgradesEquipped { get; set; }
+        /// <summary>Rules/synergy bot gear passes: item-passes offered / worn per "mat:X" and affix label, and slot contest ratios.</summary>
+        public Dictionary<string, int> GearOffered { get; set; } = new();
+        public Dictionary<string, int> GearWorn { get; set; } = new();
+        public List<double> SlotContest { get; set; } = new();
         /// <summary>Dungeons the bot left early (--retreat-below).</summary>
         public int DungeonsRetreated { get; set; }
         public int SmartSkillsLearned { get; set; }

@@ -9,7 +9,8 @@ namespace RPGGame.Tuning
         {
             return currentState switch
             {
-                "MainMenu" => "1",
+                // Digits on the main menu load fighter cards; the new-fighter key starts a fresh hero.
+                "MainMenu" => MainMenuHandler.NewFighterKey,
                 "TrainingGroundOffer" => "2",
                 "PreWeaponPathIntro" => "1",
                 "WeaponSelection" => weaponMenuSlot.ToString(),

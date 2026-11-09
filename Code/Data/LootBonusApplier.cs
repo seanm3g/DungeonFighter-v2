@@ -78,6 +78,8 @@ namespace RPGGame
                 MaterialTriggerMerge.RemapLegacyMaterialOnItem(item);
                 if (GameConfiguration.Instance?.LootSystem?.MaterialPieceTriggers == true)
                     MaterialTriggerMerge.ApplyMaterialTrigger(item, _random);
+                if (!string.IsNullOrWhiteSpace(ToolForcedAffix))
+                    ApplyToolForcedAffix(item, rarityName, ToolForcedAffix!);
                 SyncMaterialPrefixTags(item);
 
                 item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
@@ -140,6 +142,51 @@ namespace RPGGame
         /// one material set as the build's dominant set. Null = normal rolls.
         /// </summary>
         public static string? ToolForcedMaterial { get; set; }
+
+        /// <summary>
+        /// Tool-only (DUNGEONSIM --affix): every rolled item also carries this affix line. <c>mod:Heavy</c> replaces the
+        /// item's adjective prefix; <c>stat:CRIT</c> adds a stat suffix of that type (the item's tier when the pool has
+        /// one, else the lowest tier) unless the item already has that stat. Paired against an unforced run it prices
+        /// one extra affix line on every piece.
+        /// </summary>
+        public static string? ToolForcedAffix { get; set; }
+
+        private void ApplyToolForcedAffix(Item item, string rarityName, string forced)
+        {
+            int colon = forced.IndexOf(':');
+            if (colon <= 0)
+                return;
+            string kind = forced[..colon].Trim().ToLowerInvariant();
+            string key = forced[(colon + 1)..].Trim();
+            if (kind == "mod")
+            {
+                var template = (_dataCache.Modifications ?? new List<Modification>())
+                    .FirstOrDefault(m => m.GetPrefixCategory() == ModificationPrefixCategory.Adjective
+                                         && string.Equals(m.Name?.Trim(), key, StringComparison.OrdinalIgnoreCase));
+                if (template == null)
+                    return;
+                item.Modifications.RemoveAll(m => m != null && m.GetPrefixCategory() == ModificationPrefixCategory.Adjective);
+                var mod = CloneRolledModification(template, 0);
+                if (mod != null)
+                    item.Modifications.Add(mod);
+            }
+            else if (kind == "stat")
+            {
+                if (item.StatBonuses.Any(s => string.Equals(StatKey(s), key, StringComparison.OrdinalIgnoreCase)))
+                    return;
+                var pool = (_dataCache.StatBonuses ?? new List<StatBonus>())
+                    .Where(s => string.Equals(StatKey(s), key, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                if (pool.Count == 0)
+                    return;
+                var pick = pool.FirstOrDefault(s => string.Equals(s.Rarity?.Trim(), rarityName, StringComparison.OrdinalIgnoreCase))
+                           ?? pool.OrderBy(s => AffixTierOrderIndex(s.Rarity)).First();
+                item.StatBonuses.Add(pick.CloneForItemInstance());
+            }
+            else
+                return;
+            item.RecomputeAttributeRequirementsIncludingModifications();
+        }
 
         /// <summary>
         /// Ensures exactly one Material prefix. Weapons pick one of their class's three materials; non-weapons pick any material.
