@@ -13,6 +13,14 @@ GameData/TuningRuns/dash-<id>.*, so they outlive the server.
 balance-loop measure shows seeds done of total and an ETA, a dungeon-sim its shards done (counted in its dsim-* temp
 folder). The Spark card lists its running shards by level and class. "Results vs targets" reads a balance-loop run
 folder's per-seed sim JSONs (so a running measure fills in seed by seed) against balance-targets.json.
+
+"Balance layers" puts every layer the sims measure on one page, each from the newest result file of its kind under
+GameData/TuningRuns (pick another per tab): an overview scorecard; difficulty curve and class parity (balance-loop);
+class identity, action/combo use and scan findings incl. per-enemy (balance-scan JSON); material balance (forced-set
+grid, SD/range over each class's viable sets: own three materials + class-less, with natural worn share); affix
+balance (forced-affix clear delta vs a stripped reference, dead/dominant flags, natural adoption); build diversity
+and fight dynamics (diversity-report JSON, optionally vs a second report). The Fun report / Material grid / Affix
+grid jobs produce those files (a grid job is one sim per variant, run as a chain of steps).
 """
 import glob, json, os, re, subprocess, sys, tempfile, threading, time
 from datetime import datetime
@@ -376,6 +384,96 @@ def run_results(name):
             'clearTol': T['clearTol'] if T else None, 'finished': [os.path.basename(f) for f in final]}
 
 
+# ---------------------------------------------------------------- balance layers
+
+# Result files under GameData/TuningRuns, by what layer of balance they measure. Classified by file name (cheap: the
+# folder holds GBs of raw shards) and, for grids, by their variant names.
+_layer_cache = {'at': 0.0, 'data': None}
+_SKIP_DIRS = ('raw', 'dsim-', 'paired', 'surrogate', 'affix-sweep', 'material-sweep')
+
+
+def _classify(name):
+    n = name.lower()
+    if not n.endswith('.json') or re.search(r'-s\d+\.json$', n):
+        return None
+    if 'scan' in n:
+        return 'scan'
+    if 'report' in n:
+        return 'report'
+    if 'grid' in n:
+        return 'grid'
+    return None
+
+
+def layer_sources(force=False):
+    if not force and _layer_cache['data'] and time.time() - _layer_cache['at'] < 10:
+        return _layer_cache['data']
+    out = {'scan': [], 'report': [], 'materialGrid': [], 'affixGrid': []}
+    for dirpath, dirs, files in os.walk(RUNS):
+        depth = os.path.relpath(dirpath, RUNS).count(os.sep)
+        dirs[:] = [] if depth >= 2 else [d for d in dirs if not d.lower().startswith(_SKIP_DIRS)]
+        for f in files:
+            kind = _classify(f)
+            if not kind:
+                continue
+            path = os.path.join(dirpath, f)
+            rel = os.path.relpath(path, RUNS).replace(os.sep, '/')
+            if kind == 'grid':
+                try:
+                    with open(path, encoding='utf-8') as fh:
+                        g = json.load(fh)
+                    names = {v for lv in g.values() for v in (lv.get('variants') or {})}
+                except (OSError, ValueError, AttributeError):
+                    continue
+                kind = 'affixGrid' if any(v.startswith(('mod-', 'stat-')) for v in names) else 'materialGrid'
+            out[kind].append({'path': rel, 'mtime': os.path.getmtime(path),
+                              'when': datetime.fromtimestamp(os.path.getmtime(path)).strftime('%m-%d %H:%M')})
+    for v in out.values():
+        v.sort(key=lambda x: -x['mtime'])
+    _layer_cache.update(at=time.time(), data=out)
+    return out
+
+
+def layer_file(rel):
+    """One result file under TuningRuns, for the layer views. Scan JSON drops its raw rows (large, unused here)."""
+    path = os.path.realpath(os.path.join(RUNS, rel or ''))
+    if not path.startswith(os.path.realpath(RUNS) + os.sep) or not path.endswith('.json') or not os.path.isfile(path):
+        return {'error': 'no such result file'}
+    if os.path.getsize(path) > 25_000_000:
+        return {'error': 'file too large for the dashboard'}
+    with open(path, encoding='utf-8-sig') as fh:
+        data = json.load(fh)
+    if isinstance(data, dict):
+        data.pop('raw', None)
+    return {'path': rel, 'data': data}
+
+
+def material_info():
+    """Material -> owning class ('' = class-less), from MaterialBuilds.json."""
+    try:
+        with open(os.path.join(ROOT, 'GameData', 'MaterialBuilds.json'), encoding='utf-8-sig') as fh:
+            rows = json.load(fh)
+    except (OSError, ValueError):
+        return {}
+    return {r['material']: (r.get('class') or '').title() for r in rows if r.get('material')}
+
+
+def affix_names():
+    """Adjective prefixes and stat suffixes that can drop, for the affix grid form."""
+    mods, stats = [], []
+    try:
+        with open(os.path.join(ROOT, 'GameData', 'Modifications.json'), encoding='utf-8-sig') as fh:
+            mods = sorted({m['Name'] for m in json.load(fh) if m.get('Name') and m.get('prefixCategory') == 'ADJECTIVE'})
+    except (OSError, ValueError, AttributeError):
+        pass
+    try:
+        with open(os.path.join(ROOT, 'GameData', 'StatBonuses.json'), encoding='utf-8-sig') as fh:
+            stats = sorted({s.get('StatType') or s.get('statType') for s in json.load(fh) if (s.get('StatType') or s.get('statType'))})
+    except (OSError, ValueError, AttributeError):
+        pass
+    return {'mods': mods, 'stats': stats}
+
+
 def _probe():
     """One status call, retried once: while sims fan out 12-18 ssh connects, sshd's MaxStartups drops or stalls some
     (simpool retries for the same reason). Returns (result or None, short error)."""
@@ -436,7 +534,10 @@ class Job:
         _counter += 1
         stamp = datetime.now().strftime('%Y%m%d-%H%M%S')
         self.id = f'{kind}-{_counter}'
-        self.kind, self.args, self.json_path = kind, args, json_path
+        self.kind, self.json_path = kind, json_path
+        # A job is one command or a chain of them (a grid is one sim per variant, then the grid report).
+        self.steps = args if args and isinstance(args[0], list) else [args]
+        self.args, self.step = self.steps[0], 0
         self.log_path = os.path.join(RUNS, f'dash-{self.id}-{stamp}.log')
         self.lines, self.started, self.ended = [], time.time(), None
         self.exit_code, self.cancelled, self.proc = None, False, None
@@ -450,8 +551,9 @@ class Job:
         return 'done' if self.exit_code == 0 else 'failed'
 
     def summary(self):
-        return {'id': self.id, 'kind': self.kind, 'status': self.status, 'command': ' '.join(self.args),
+        return {'id': self.id, 'kind': self.kind, 'status': self.status, 'command': ' && '.join(' '.join(a) for a in self.steps),
                 'elapsed': round((self.ended or time.time()) - self.started), 'log': self.log_path,
+                'step': self.step, 'steps': len(self.steps),
                 'json': self.json_path if self.json_path and os.path.isfile(self.json_path) else None,
                 'started': datetime.fromtimestamp(self.started).strftime('%H:%M:%S')}
 
@@ -467,21 +569,31 @@ def start_job(kind, args, json_path=None, exclusive=True):
         JOBS[job.id] = job
     env = dict(os.environ, PYTHONIOENCODING='utf-8', PYTHONUNBUFFERED='1')
     flags = getattr(subprocess, 'CREATE_NEW_PROCESS_GROUP', 0) | getattr(subprocess, 'CREATE_NO_WINDOW', 0)
-    job.proc = subprocess.Popen(args, cwd=ROOT, env=env, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace',
-                                creationflags=flags)
-
     def pump():
         with open(job.log_path, 'w', encoding='utf-8') as log:
-            log.write('$ ' + ' '.join(args) + '\n')
-            for line in job.proc.stdout:
-                line = line.rstrip('\r\n')
-                job.lines.append(line)
-                if len(job.lines) > 20000:
-                    del job.lines[:5000]
-                log.write(line + '\n')
-                log.flush()
-        job.exit_code = job.proc.wait()
+            for i, step in enumerate(job.steps):
+                if job.cancelled:
+                    break
+                job.step, job.args = i + 1, step
+                head = '$ ' + ' '.join(step) + (f'   [step {i + 1} of {len(job.steps)}]' if len(job.steps) > 1 else '')
+                job.lines.append(head)
+                log.write(head + '\n')
+                job.proc = subprocess.Popen(step, cwd=ROOT, env=env, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                            stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace',
+                                            creationflags=flags)
+                for line in job.proc.stdout:
+                    line = line.rstrip('\r\n')
+                    job.lines.append(line)
+                    if len(job.lines) > 20000:
+                        del job.lines[:5000]
+                    log.write(line + '\n')
+                    log.flush()
+                code = job.proc.wait()
+                if code != 0:
+                    job.exit_code = code
+                    break
+        if job.exit_code is None:
+            job.exit_code = 0 if not job.cancelled else 1
         job.ended = time.time()
 
     threading.Thread(target=pump, daemon=True).start()
@@ -492,7 +604,9 @@ def cancel_job(job):
     if job.status != 'running':
         return 'already finished'
     job.cancelled = True
-    if os.name == 'nt':
+    if job.proc is None:
+        pass
+    elif os.name == 'nt':
         subprocess.run(['taskkill', '/PID', str(job.proc.pid), '/T', '/F'], capture_output=True)
     else:
         job.proc.kill()
@@ -517,9 +631,68 @@ def _str(p, key):
     return v or None
 
 
+_LAYER_KINDS = ('fun-report', 'material-grid', 'affix-grid')
+_NAME = re.compile(r'^[A-Za-z][A-Za-z0-9 _-]{0,40}$')
+
+
+def build_layer_command(kind, p, stamp):
+    """Jobs that fill the balance-layer views: a natural run kept raw + diversity report, or one forced-variant sim
+    per material / affix then the grid. Same sim flags as dungeon-sim."""
+    levels = _str(p, 'levels') or '18,38,58'
+    if not all(x.strip().isdigit() for x in levels.split(',') if x.strip()):
+        raise ValueError('levels must be a comma list of numbers')
+    patch = _str(p, 'patch')
+    if patch and patch not in patches():
+        raise ValueError(f'unknown patch {patch}')
+    tail = ['--levels', levels, '--shards', str(_int(p, 'shards', 4, 1, 200)), '--runs', str(_int(p, 'runs', 2, 1, 50)),
+            '--dungeons', str(_int(p, 'dungeons', 6, 1, 100)), '--seed', str(_int(p, 'seed', 1, 0, 10**9)), '--tools', TOOLS]
+    if patch:
+        tail += ['--patch', patch]
+    if p.get('spark') not in (None, ''):
+        tail += ['--spark', str(_int(p, 'spark', 0, 0, 40))]  # 0 = local only (the scripts default to auto)
+    if p.get('local') not in (None, ''):
+        tail += ['--parallel', str(_int(p, 'local', 0, 0, 64))]
+    sim = [PYTHON, '-u', 'Scripts/dungeon-sim.py']
+    rep = [PYTHON, '-u', 'Scripts/diversity-report.py']
+    if kind == 'fun-report':
+        raw = os.path.join(RUNS, f'dash-fun-raw-{stamp}')
+        out = os.path.join(RUNS, f'dash-fun-report-{stamp}.json')
+        return [sim + tail + ['--keep', raw, '--json', os.path.join(RUNS, f'dash-fun-sim-{stamp}.json')],
+                rep + ['report', raw, '--json', out]], out
+    folder = os.path.join(RUNS, f'dash-{kind}-{stamp}')
+    if kind == 'material-grid':
+        names = [n.strip() for n in (_str(p, 'variants') or ','.join(material_info())).split(',') if n.strip()]
+        variants = [('none', [])] + [(n, ['--material', n]) for n in names]
+    else:
+        names = [n.strip() for n in (_str(p, 'variants') or '').split(',') if n.strip()]
+        if not names:
+            raise ValueError('list the affixes to price, e.g. mod:Heavy, stat:CRIT')
+        variants = [('mod-strip', ['--affix', 'mod:-']), ('stat-strip', ['--affix', 'stat:-'])]
+        for n in names:
+            fam, _, name = n.partition(':')
+            if fam not in ('mod', 'stat') or not name:
+                raise ValueError(f'{n}: affixes are mod:Name or stat:TYPE')
+            # Priced against a stripped reference: mod:X replaces every adjective, stat:-X keeps only that suffix.
+            variants.append((f'{fam}-{name}', ['--affix', f'mod:{name}' if fam == 'mod' else f'stat:-{name}']))
+    for name, _ in variants:
+        if not _NAME.match(name.replace('-', '')):
+            raise ValueError(f'bad variant name {name}')
+    steps, pairs = [], []
+    for name, extra in variants:
+        path = os.path.join(folder, f'{name}.json')
+        steps.append(sim + tail + extra + ['--json', path])
+        pairs.append(f'{name}={path}')
+    out = os.path.join(RUNS, f'dash-{kind}-{stamp}.json')
+    steps.append(rep + ['grid', *pairs, '--json', out])
+    os.makedirs(folder, exist_ok=True)
+    return steps, out
+
+
 def build_command(kind, p):
     """Validated form fields -> (script args, json path). Values go to argv lists, never a shell."""
     stamp = datetime.now().strftime('%Y%m%d-%H%M%S')
+    if kind in _LAYER_KINDS:
+        return build_layer_command(kind, p, stamp)
     out = os.path.join(RUNS, f'dash-{kind}-{stamp}.json')
     a = [PYTHON, '-u']
     spark, local = _int(p, 'spark', 0, 0, 40), p.get('local')
@@ -600,6 +773,14 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, run_results((q.get('run') or [''])[0]))
         if u.path == '/api/spark':
             return self._send(200, spark_status(force='force' in q))
+        if u.path == '/api/layers/sources':
+            return self._send(200, {'sources': layer_sources(force='force' in q), 'materials': material_info(),
+                                    'affixes': affix_names()})
+        if u.path == '/api/layers/file':
+            try:
+                return self._send(200, layer_file((q.get('path') or [''])[0]))
+            except (OSError, ValueError) as ex:
+                return self._send(500, {'error': f'{type(ex).__name__}: {ex}'})
         if u.path.startswith('/api/jobs/'):
             job = JOBS.get(u.path.split('/')[3])
             if not job:
@@ -694,6 +875,16 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .good{color:var(--ok)} .near{color:var(--warn)} .off{color:var(--bad);font-weight:600}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .chip{border:1px solid var(--line);border-radius:999px;padding:2px 8px;font-size:12px;background:var(--code)}
+.layer-tabs button{font-size:13px}
+.lv-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.lv-row label{flex-direction:row;align-items:center;gap:6px}
+td.hm{text-align:right;font-variant-numeric:tabular-nums}
+td.dim{color:var(--muted);opacity:.55}
+.sev{display:inline-block;min-width:36px;text-align:right;font-variant-numeric:tabular-nums}
+.ov-status{font-weight:600}
+.legend{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:8px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+th[title],td[title]{cursor:help}
 </style></head><body><main>
 <h1>Balance runs</h1>
 <div class="sub">Starts the DUNGEONSIM scripts on this PC and the DGX Spark. Active patch <b id="patch">—</b></div>
@@ -740,8 +931,20 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 </section>
 
 <section class="card" style="margin-top:14px">
+ <div class="row" style="justify-content:space-between"><h2 style="margin:0">Balance layers</h2>
+  <button class="btn" id="lay-refresh">Rescan result files</button></div>
+ <div class="hint" style="margin-bottom:10px">Every layer the sims measure, each read from the newest result file of its kind in GameData/TuningRuns. Pick another file per tab; fill a missing layer with the Fun report / Material grid / Affix grid jobs below.</div>
+ <div class="tabs layer-tabs" id="lay-tabs">
+  <button data-l="overview" class="on">Overview</button><button data-l="classes">Classes</button><button data-l="materials">Materials</button>
+  <button data-l="affixes">Affixes</button><button data-l="builds">Build diversity</button><button data-l="fights">Fight dynamics</button><button data-l="findings">Scan findings</button>
+ </div>
+ <div id="lay-body"><div class="hint">Loading…</div></div>
+</section>
+
+<section class="card" style="margin-top:14px">
  <div class="tabs" id="tabs">
   <button data-k="dungeon-sim" class="on">Dungeon sim</button><button data-k="bo-solve">Bo-solve</button><button data-k="balance-scan">Balance scan</button>
+  <button data-k="fun-report">Fun report</button><button data-k="material-grid">Material grid</button><button data-k="affix-grid">Affix grid</button>
  </div>
  <form id="f-dungeon-sim" data-k="dungeon-sim">
   <label>Levels<input name="levels" value="8,13,18"></label>
@@ -764,6 +967,32 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
  <form id="f-balance-scan" data-k="balance-scan" hidden>
   <label>Heroes / class / level<input name="heroes" type="number" value="2" min="1"></label>
   <label>Dungeon levels<input name="dungeonLevels" value="8,18,33,48"></label>
+ </form>
+ <form id="f-fun-report" data-k="fun-report" hidden>
+  <label>Levels<input name="levels" value="18,38,58"></label>
+  <label>Shards / class<input name="shards" type="number" value="8" min="1"></label>
+  <label>Heroes / shard<input name="runs" type="number" value="2" min="1"></label>
+  <label>Dungeons / hero<input name="dungeons" type="number" value="6" min="1"></label>
+  <label>Seed<input name="seed" type="number" value="1" min="0"></label>
+  <div class="hint actions">Natural play with raw fight rows kept, then diversity-report: build diversity, adoption, choice and fight-dynamics layers. Compare two reports only at equal heroes and seeds (effective counts grow with sample size).</div>
+ </form>
+ <form id="f-material-grid" data-k="material-grid" hidden>
+  <label>Levels<input name="levels" value="18,38,58"></label>
+  <label>Shards / class<input name="shards" type="number" value="4" min="1"></label>
+  <label>Heroes / shard<input name="runs" type="number" value="2" min="1"></label>
+  <label>Dungeons / hero<input name="dungeons" type="number" value="6" min="1"></label>
+  <label>Seed<input name="seed" type="number" value="1" min="0"></label>
+  <label style="grid-column:span 2">Materials<input name="variants" placeholder="all (from MaterialBuilds.json)"></label>
+  <div class="hint actions">One forced-material sim per material plus an unforced one (none), same seed, then the grid. ~19 sims.</div>
+ </form>
+ <form id="f-affix-grid" data-k="affix-grid" hidden>
+  <label>Levels<input name="levels" value="18,38,58"></label>
+  <label>Shards / class<input name="shards" type="number" value="4" min="1"></label>
+  <label>Heroes / shard<input name="runs" type="number" value="2" min="1"></label>
+  <label>Dungeons / hero<input name="dungeons" type="number" value="6" min="1"></label>
+  <label>Seed<input name="seed" type="number" value="1" min="0"></label>
+  <label style="grid-column:1/-1">Affixes<input name="variants" id="affix-variants" placeholder="mod:Heavy, mod:Keen, stat:CRIT, …"></label>
+  <div class="hint actions" id="affix-hint">Each affix forced on every drop, priced against a stripped reference on the same seed (mod:- for prefixes, stat:- for suffixes). Two extra sims for the references.</div>
  </form>
  <form id="common" style="margin-top:10px">
   <label>Patch<select name="patch" id="patch-sel"></select></label>
@@ -811,6 +1040,7 @@ function slotHint() {
   let t = s ? `Shards go to ${s} Spark slots` : 'Local only';
   if (kind === 'bo-solve' && s) t += ' (bo-solve keeps 0 local slots with the Spark unless you set some: small rounds straggle on this PC)';
   if (kind === 'balance-scan' && s) t += '; BUILDLAB median builds still run here';
+  if (kind === 'material-grid' || kind === 'affix-grid') t += '. Runs one sim per variant in a row';
   if (s && spark && !spark.reachable) t += '. The Spark is not reachable right now.';
   else if (s && spark && spark.vllm && spark.vllm.startsWith('Up')) t += '. vLLM is holding the Spark\'s memory: stop it first for big batches.';
   $('#slot-hint').textContent = t + '.';
@@ -894,7 +1124,7 @@ async function pollLog() {
   if (!selected) return;
   const j = await api(`/api/jobs/${selected}?since=${logNext}`);
   if (j.error) return;
-  $('#log-title').textContent = `${j.id} · ${j.status} · ${fmtTime(j.elapsed)}`;
+  $('#log-title').textContent = `${j.id} · ${j.status}${j.steps > 1 ? ` · step ${j.step} of ${j.steps}` : ''} · ${fmtTime(j.elapsed)}`;
   $('#log-cmd').textContent = j.command;
   $('#cancel-btn').hidden = j.status !== 'running';
   if (j.lines.length) {
@@ -1008,6 +1238,403 @@ async function loadResults() {
     return h + '</tbody></table></div>';
   }).join('') + `<div class="hint" style="margin-top:8px">Green within ±${tol} pts of the clear target (realClearTolerance), amber within ±${2*tol}, red beyond. Spread is best minus worst class (limit ${par}). Hero acts amber/red past 1.5/3 actions off target.</div>`;
 }
+
+// ------------------------------------------------------------ balance layers
+const CLS = ['Barbarian', 'Warrior', 'Rogue', 'Wizard'];
+const CLS_SHORT = {Barbarian:'Barb', Warrior:'War', Rogue:'Rogue', Wizard:'Wiz', all:'All'};
+// Thresholds: balance-scan defaults (close-call band, one-shot cap, length CV floor, p90 cap, class distance floor).
+const LIM = {closeLo: 5, closeHi: 15, oneShot: 25, lengthCv: 0.25, p90: 2.5, classDist: 0.25, matGood: 10, matNear: 20,
+             affixDead: 2, affixStrong: 15};
+const PCT_KEYS = new Set(['clear','offclass_share','classless_share','set_rate','set4_rate','contest_share','close_call','one_shot',
+  'miss_streak','combo_share','crit_share','convert_share','strip_completion']);
+const METRIC = {
+  clear: ['Dungeon clear', 'share of dungeons cleared'],
+  material_eff: ['Material variety', 'effective number of materials worn (inverse Simpson): higher = more materials in use'],
+  offclass_share: ['Off-class material share', 'worn pieces of another class\'s material'],
+  classless_share: ['Class-less material share', 'worn pieces of a class-less material (Stone, Wood, Cloth, …)'],
+  set_rate: ['Set bonus active', 'heroes with at least a 2-piece set'],
+  set4_rate: ['4-piece set', 'heroes with a 4+ piece set'],
+  set_eff: ['Set variety', 'effective number of different sets heroes run'],
+  affix_eff: ['Affix variety', 'effective number of affix lines worn'],
+  stat_eff: ['Suffix variety', 'effective number of stat suffixes worn'],
+  mod_eff: ['Prefix variety', 'effective number of adjective prefixes worn'],
+  act_eff: ['Action-bonus variety', 'effective number of action bonus lines worn'],
+  affixes_per_piece: ['Affixes per piece', 'mean affix lines on a worn piece'],
+  strip_eff: ['Combo strip variety', 'effective number of distinct combo strips'],
+  skill_eff: ['Skill variety', 'effective number of skill picks'],
+  build_eff: ['Distinct builds', 'effective number of whole-build fingerprints (saturates: almost every hero is unique)'],
+  build_distance: ['Build distance', 'mean Jaccard distance between two heroes\' builds: 0 = clones, 1 = nothing shared'],
+  slot_contest: ['Slot contest', 'runner-up item value / best item value when gear is offered: near 1 = close calls'],
+  contest_share: ['Contested choices', 'gear choices where the runner-up is within 10%'],
+  upgrades_per_hero: ['Upgrades per hero', 'gear swaps per hero per run'],
+  fights: ['Fights', 'fights in the sample'],
+  close_call: ['Close calls', 'fights won under 15% HP (target band 5–15%)'],
+  lead_changes: ['Lead changes', 'times the HP lead flips per fight'],
+  length_cv: ['Length variation', 'fight-length coefficient of variation (floor 0.25: every fight the same length is dull)'],
+  p90_ratio: ['Long-fight tail', 'p90 / median fight length (cap 2.5)'],
+  one_shot: ['One-shot fights', 'fights won in one hero action (cap 25%)'],
+  miss_streak: ['Miss streaks', 'fights with 4+ misses in a row'],
+  action_eff: ['Action variety', 'effective number of hero actions used per fight'],
+  dot_mix: ['Damage-source mix', 'effective number of damage sources (direct, DoT, convert, …)'],
+  status_eff: ['Status variety', 'effective number of status effects applied'],
+  enemy_move_eff: ['Enemy move variety', 'effective number of enemy actions seen per fight'],
+  combo_share: ['Combo share', 'hero actions that advance a combo'],
+  crit_share: ['Crit share', 'hits that crit'],
+  convert_share: ['Convert share', 'damage from material convert actions'],
+  strip_completion: ['Strip completion', 'fights where the hero finished the whole combo strip'],
+};
+const BUILD_KEYS = ['material_eff','classless_share','offclass_share','set_rate','set4_rate','set_eff','affix_eff','stat_eff','mod_eff',
+  'act_eff','affixes_per_piece','strip_eff','skill_eff','build_eff','build_distance','slot_contest','contest_share','upgrades_per_hero'];
+const FIGHT_KEYS = ['close_call','lead_changes','length_cv','p90_ratio','one_shot','miss_streak','action_eff','dot_mix','status_eff',
+  'enemy_move_eff','combo_share','crit_share','convert_share','strip_completion','fights'];
+
+let layerTab = 'overview', layerSrc = null, layerMeta = null, layerPick = {}, layerLevel = {}, layerOpt = {viable: true, compare: ''};
+const fileCache = new Map();
+
+async function layerFile(path) {
+  if (!path) return null;
+  const key = path + '@' + ((layerSrc && Object.values(layerSrc).flat().find(x => x.path === path) || {}).mtime || '');
+  if (fileCache.has(key)) return fileCache.get(key);
+  const r = await api('/api/layers/file?path=' + encodeURIComponent(path));
+  const v = r.error ? {error: r.error} : r.data;
+  fileCache.set(key, v);
+  return v;
+}
+
+const fmtV = (k, v) => {
+  if (v == null || (typeof v === 'number' && isNaN(v))) return '—';
+  if (typeof v !== 'number') return esc(v);
+  if (PCT_KEYS.has(k)) return (100 * v).toFixed(1) + '%';
+  return Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2);
+};
+const mtitle = k => esc((METRIC[k] || [k, ''])[1]);
+const mname = k => esc((METRIC[k] || [k])[0]);
+const avg = a => { a = a.filter(x => x != null && !isNaN(x)); return a.length ? a.reduce((x, y) => x + y, 0) / a.length : null; };
+const sd = a => { a = a.filter(x => x != null); if (a.length < 2) return null; const m = avg(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / (a.length - 1)); };
+// Diverging cell tint: green above, red below, strength by |d| / scale.
+const tint = (d, scale) => {
+  if (d == null || isNaN(d)) return '';
+  const a = Math.min(1, Math.abs(d) / scale) * 0.55;
+  return `background:color-mix(in srgb, ${d >= 0 ? 'var(--ok)' : 'var(--bad)'} ${Math.round(a * 100)}%, transparent)`;
+};
+const status = (cls, text) => `<span class="ov-status ${cls}">${esc(text)}</span>`;
+
+function srcSelect(kind, label) {
+  const list = (layerSrc && layerSrc[kind]) || [];
+  if (!list.length) return `<span class="hint">No ${label} file yet.</span>`;
+  const cur = layerPick[kind] || list[0].path;
+  return `<label>${label} <select data-src="${kind}">` + list.map(x => `<option value="${esc(x.path)}"${x.path === cur ? ' selected' : ''}>${esc(x.path)} · ${esc(x.when)}</option>`).join('') + '</select></label>';
+}
+const picked = kind => layerPick[kind] || ((layerSrc && layerSrc[kind] && layerSrc[kind][0]) || {}).path;
+
+function levelChips(id, levels) {
+  if (!levels.length) return '';
+  const cur = layerLevel[id] && levels.includes(layerLevel[id]) ? layerLevel[id] : levels[0];
+  layerLevel[id] = cur;
+  return '<span class="tabs" style="margin:0">' + levels.map(L => `<button data-lvl="${id}:${L}" class="${L === cur ? 'on' : ''}">L${esc(L)}</button>`).join('') + '</span>';
+}
+
+// Viable sets for a class: its own three materials plus every class-less one.
+const viable = (mat, cls) => {
+  const owner = (layerMeta.materials || {})[mat];
+  return mat === 'none' || owner === '' || owner === undefined || owner === cls;
+};
+
+function materialStats(grid) {
+  // Per level: per class SD and range of clear over viable sets (pts), the number the material solve balanced.
+  const out = {};
+  for (const [L, lv] of Object.entries(grid || {})) {
+    const per = {};
+    for (const c of CLS) {
+      const vals = Object.entries(lv.variants || {}).filter(([m, r]) => m !== 'none' && viable(m, c) && r[c] != null).map(([, r]) => 100 * r[c]);
+      if (vals.length > 1) per[c] = {sd: sd(vals), range: Math.max(...vals) - Math.min(...vals), n: vals.length};
+    }
+    out[L] = per;
+  }
+  return out;
+}
+
+function affixDeltas(grid) {
+  // variant -> level -> {cls: delta pts} vs its family's stripped reference (or the unforced 'none' run).
+  const out = {};
+  for (const [L, lv] of Object.entries(grid || {})) {
+    const V = lv.variants || {};
+    for (const [name, r] of Object.entries(V)) {
+      if (name === 'none' || name.endsWith('-strip')) continue;
+      const fam = name.startsWith('mod-') ? 'mod' : name.startsWith('stat-') ? 'stat' : '';
+      const base = V[fam + '-strip'] || V.none;
+      if (!base) continue;
+      const d = {};
+      for (const c of [...CLS, 'all']) if (r[c] != null && base[c] != null) d[c] = 100 * (r[c] - base[c]);
+      (out[name] = out[name] || {})[L] = {d, ref: V[fam + '-strip'] ? fam + '-strip' : 'none'};
+    }
+  }
+  return out;
+}
+
+async function renderOverview(box) {
+  const rows = [];
+  // Curve: newest balance-loop run.
+  const runs = (await api('/api/loopruns')).runs || [];
+  if (runs.length) {
+    const r = await api('/api/results?run=' + encodeURIComponent(runs[0]));
+    const p = (r.patches || [])[0];
+    if (p) {
+      const s = p.summary, tol = r.clearTol || 4, par = r.parity || 10;
+      const st = s.meanClearGap == null ? ['hint', 'no data'] : s.meanClearGap <= tol / 2 ? ['good', 'on target'] : s.meanClearGap <= tol ? ['near', 'close'] : ['off', 'off target'];
+      rows.push(['Difficulty curve', `balance-loop/${runs[0]} · ${p.key}`, `mean |clear gap| <b>${s.meanClearGap ?? '—'}</b> pts · hero actions gap ${s.meanTurnsGap ?? '—'}`, st]);
+      const ss = s.meanClassSpread == null ? ['hint', '—'] : s.meanClassSpread <= par ? ['good', 'within parity'] : s.meanClassSpread <= 1.5 * par ? ['near', 'over parity'] : ['off', 'far over'];
+      rows.push(['Class parity (curve)', `same run`, `mean class spread <b>${s.meanClassSpread ?? '—'}</b> pts (limit ${par}) · ${s.bandsOverParity} of ${p.levels.length} levels over`, ss]);
+    }
+  } else rows.push(['Difficulty curve', '—', 'no balance-loop run yet', ['hint', 'missing']]);
+
+  const scan = await layerFile(picked('scan'));
+  if (scan && scan.metrics) {
+    const m = scan.metrics, cc = CLS.map(c => m['class clear ' + c]).filter(x => x != null);
+    const spread = cc.length ? Math.max(...cc) - Math.min(...cc) : null, dist = m['closest class pair distance'];
+    rows.push(['Class identity', picked('scan'), `scan class clear spread <b>${spread?.toFixed(1) ?? '—'}</b> pts · closest class pair distance <b>${dist ?? '—'}</b> (floor ${LIM.classDist})`,
+      dist == null ? ['hint', '—'] : dist >= LIM.classDist ? ['good', 'distinct'] : ['off', 'classes play alike']]);
+    const fails = (scan.findings || []).filter(f => f.status === 'FAIL'), en = fails.filter(f => /enemy/i.test(f.area));
+    rows.push(['Enemies & scan checks', picked('scan'), `<b>${fails.length}</b> failing checks, <b>${en.length}</b> of them per enemy` + (en[0] ? ` · worst ${esc(en[0].subject)} L${esc(en[0].level)}` : ''),
+      fails.length === 0 ? ['good', 'clean'] : fails.length <= 5 ? ['near', 'some'] : ['off', 'many']]);
+  } else rows.push(['Class identity / enemies', '—', 'no balance-scan file yet', ['hint', 'missing']]);
+
+  const mg = await layerFile(picked('materialGrid'));
+  if (mg && !mg.error) {
+    const st = materialStats(mg), sds = [], rgs = [];
+    for (const per of Object.values(st)) for (const v of Object.values(per)) { sds.push(v.sd); rgs.push(v.range); }
+    const msd = avg(sds), mr = avg(rgs);
+    rows.push(['Material balance', picked('materialGrid'), `forced-set clear, viable sets per class: mean SD <b>${msd?.toFixed(1) ?? '—'}</b> pts · mean range <b>${mr?.toFixed(1) ?? '—'}</b> pts`,
+      msd == null ? ['hint', '—'] : msd <= LIM.matGood ? ['good', 'level'] : msd <= LIM.matNear ? ['near', 'uneven'] : ['off', 'lopsided']]);
+  } else rows.push(['Material balance', '—', 'no material grid yet', ['hint', 'missing']]);
+
+  const ag = await layerFile(picked('affixGrid'));
+  if (ag && !ag.error) {
+    const D = affixDeltas(ag); let dead = 0, strong = 0, n = 0;
+    for (const lv of Object.values(D)) { const a = avg(Object.values(lv).map(x => x.d.all)); if (a == null) continue; n++; if (Math.abs(a) < LIM.affixDead) dead++; if (a > LIM.affixStrong) strong++; }
+    rows.push(['Affix balance', picked('affixGrid'), `${n} affixes priced · <b>${dead}</b> dead (|Δ| < ${LIM.affixDead} pts) · <b>${strong}</b> dominant (> +${LIM.affixStrong})`,
+      n === 0 ? ['hint', '—'] : dead + strong === 0 ? ['good', 'all pull weight'] : (dead + strong) / n <= 0.25 ? ['near', 'a few outliers'] : ['off', 'many outliers']]);
+  } else rows.push(['Affix balance', '—', 'no affix grid yet', ['hint', 'missing']]);
+
+  const rep = await layerFile(picked('report'));
+  if (rep && rep.levels) {
+    const L = Object.values(rep.levels).map(x => x.all);
+    const g = k => avg(L.map(x => x[k]));
+    const cl = g('classless_share');
+    rows.push(['Build diversity', picked('report'), `material variety <b>${fmtV('material_eff', g('material_eff'))}</b> · class-less wear <b>${fmtV('classless_share', cl)}</b> · skill variety <b>${fmtV('skill_eff', g('skill_eff'))}</b> · strip variety <b>${fmtV('strip_eff', g('strip_eff'))}</b>`,
+      cl == null ? ['hint', '—'] : cl >= 0.1 ? ['good', 'varied'] : cl >= 0.05 ? ['near', 'narrow'] : ['off', 'home sets only']]);
+    const cc = 100 * (g('close_call') || 0), os_ = 100 * (g('one_shot') || 0), cv = g('length_cv'), p9 = g('p90_ratio');
+    const bad = [cc < LIM.closeLo || cc > LIM.closeHi, os_ > LIM.oneShot, cv != null && cv < LIM.lengthCv, p9 != null && p9 > LIM.p90].filter(Boolean).length;
+    rows.push(['Fight dynamics', picked('report'), `close calls <b>${cc.toFixed(1)}%</b> (band ${LIM.closeLo}–${LIM.closeHi}) · one-shots <b>${os_.toFixed(1)}%</b> · length CV <b>${fmtV('length_cv', cv)}</b> · lead changes <b>${fmtV('lead_changes', g('lead_changes'))}</b>`,
+      bad === 0 ? ['good', 'lively'] : bad === 1 ? ['near', '1 check off'] : ['off', bad + ' checks off']]);
+  } else rows.push(['Build diversity / fights', '—', 'no diversity report yet (run Fun report)', ['hint', 'missing']]);
+
+  box.innerHTML = '<div class="tablewrap"><table><thead><tr><th>Layer</th><th>Status</th><th>Headline</th><th>Source</th></tr></thead><tbody>' +
+    rows.map(([n, src, h, [c, t]]) => `<tr><td><b>${esc(n)}</b></td><td>${status(c, t)}</td><td style="white-space:normal">${h}</td><td class="hint" style="white-space:normal">${esc(src)}</td></tr>`).join('') +
+    '</tbody></table></div><div class="hint" style="margin-top:8px">Each row reads the newest file of its kind (or the one picked on its tab). Values from different files can come from different patches and seeds: check the source column.</div>';
+}
+
+function renderMaterials(box, grid, rep) {
+  if (!grid || grid.error) { box.innerHTML = '<div class="lv-row">' + srcSelect('materialGrid', 'Grid') + '</div><div class="hint">Run a Material grid job to fill this layer.</div>'; return; }
+  const levels = Object.keys(grid), L = (levelChips('mat', levels), layerLevel.mat);
+  const V = grid[L].variants || {}, st = materialStats(grid)[L] || {}, none = V.none;
+  const owner = layerMeta.materials || {};
+  const adopt = rep && rep.levels && rep.levels[L] ? rep.levels[L].adoption || {} : {};
+  const mats = Object.keys(V).filter(m => m !== 'none').sort((a, b) => (owner[a] || 'zz').localeCompare(owner[b] || 'zz') || a.localeCompare(b));
+  let h = '<div class="lv-row">' + srcSelect('materialGrid', 'Grid') + levelChips('mat', levels) +
+    `<label class="chk"><input type="checkbox" id="opt-viable" ${layerOpt.viable ? 'checked' : ''}>Viable sets only</label></div>`;
+  h += '<div class="chips" style="margin-bottom:8px">' + CLS.map(c => { const s = st[c]; if (!s) return '';
+    const cl = s.sd <= LIM.matGood ? 'good' : s.sd <= LIM.matNear ? 'near' : 'off';
+    return `<span class="chip">${c}: SD <b class="${cl}">${s.sd.toFixed(1)}</b> · range ${s.range.toFixed(1)} pts over ${s.n} sets</span>`; }).join('') + '</div>';
+  h += '<div class="tablewrap"><table><thead><tr><th>Material</th><th>Class</th>' + CLS.map(c => `<th class="num" title="clear % with every piece forced to this material; tint = vs the class's viable mean">${CLS_SHORT[c]}</th>`).join('') +
+    '<th class="num">All</th><th class="num" title="hero actions per fight">Acts</th><th class="num" title="from the picked diversity report: worn / offered item passes in natural play">Worn share</th><th class="num">Offered</th></tr></thead><tbody>';
+  const mean = {}; for (const c of CLS) mean[c] = avg(mats.filter(m => viable(m, c)).map(m => V[m][c] != null ? 100 * V[m][c] : null));
+  for (const m of mats) {
+    const r = V[m], a = adopt['mat:' + m];
+    h += `<tr><td><b>${esc(m)}</b></td><td class="hint">${esc(owner[m] || 'class-less')}</td>` + CLS.map(c => {
+      const ok = viable(m, c), v = r[c];
+      if (v == null || (!ok && layerOpt.viable)) return '<td class="hm dim">·</td>';
+      return `<td class="hm ${ok ? '' : 'dim'}" style="${ok ? tint(100 * v - mean[c], 20) : ''}" title="${(100 * v - mean[c]).toFixed(1)} vs ${c} viable mean">${(100 * v).toFixed(0)}</td>`;
+    }).join('') + `<td class="hm">${r.all != null ? (100 * r.all).toFixed(0) : '—'}</td><td class="hm hint">${r.acts != null ? r.acts.toFixed(1) : '—'}</td>` +
+      `<td class="hm">${a ? (100 * a.worn_share).toFixed(0) + '%' : '—'}</td><td class="hm hint">${a ? a.offered : '—'}</td></tr>`;
+  }
+  if (none) h += `<tr><td><i>none (unforced)</i></td><td></td>` + CLS.map(c => `<td class="hm hint">${none[c] != null ? (100 * none[c]).toFixed(0) : '—'}</td>`).join('') +
+    `<td class="hm hint">${none.all != null ? (100 * none.all).toFixed(0) : '—'}</td><td class="hm hint">${none.acts != null ? none.acts.toFixed(1) : '—'}</td><td></td><td></td></tr>`;
+  h += '</tbody></table></div><div class="legend"><span><i class="sw" style="background:color-mix(in srgb,var(--ok) 55%,transparent)"></i>above the class\'s viable-set mean</span><span><i class="sw" style="background:color-mix(in srgb,var(--bad) 55%,transparent)"></i>below</span>' +
+    `<span>SD good ≤ ${LIM.matGood}, uneven ≤ ${LIM.matNear} pts</span><span>Worn share: from ${rep ? esc(picked('report')) : 'no report'}</span></div>`;
+  box.innerHTML = h;
+}
+
+function renderAffixes(box, grid, rep) {
+  if (!grid || grid.error) { box.innerHTML = '<div class="lv-row">' + srcSelect('affixGrid', 'Grid') + '</div><div class="hint">Run an Affix grid job to fill this layer.</div>'; return; }
+  const levels = Object.keys(grid); levelChips('aff', levels); const L = layerLevel.aff;
+  const D = affixDeltas(grid), adopt = rep && rep.levels && rep.levels[L] ? rep.levels[L].adoption || {} : {};
+  const names = Object.keys(D).filter(n => D[n][L]).sort((a, b) => (D[b][L].d.all ?? -99) - (D[a][L].d.all ?? -99));
+  let h = '<div class="lv-row">' + srcSelect('affixGrid', 'Grid') + levelChips('aff', levels) + '</div>';
+  h += '<div class="tablewrap"><table><thead><tr><th>Affix</th><th class="hint">vs</th>' + [...CLS, 'all'].map(c => `<th class="num" title="clear pts vs the stripped reference">Δ ${CLS_SHORT[c]}</th>`).join('') +
+    '<th>Verdict</th><th class="num" title="natural play, from the picked diversity report">Worn share</th><th class="num">Offered</th></tr></thead><tbody>';
+  for (const n of names) {
+    const {d, ref} = D[n][L], all = d.all, label = n.replace(/^mod-/, 'mod:').replace(/^stat-/, 'stat:');
+    const a = adopt[label];
+    const verdict = all == null ? '' : Math.abs(all) < LIM.affixDead ? status('off', 'dead') : all > LIM.affixStrong ? status('near', 'dominant') : all < 0 ? status('off', 'hurts') : status('good', 'pulls weight');
+    h += `<tr><td><b>${esc(label)}</b></td><td class="hint">${esc(ref)}</td>` + [...CLS, 'all'].map(c => d[c] == null ? '<td class="hm dim">·</td>' :
+      `<td class="hm" style="${tint(d[c], 20)}">${d[c] > 0 ? '+' : ''}${d[c].toFixed(0)}</td>`).join('') +
+      `<td>${verdict}</td><td class="hm">${a ? (100 * a.worn_share).toFixed(0) + '%' : '—'}</td><td class="hm hint">${a ? a.offered : '—'}</td></tr>`;
+  }
+  h += `</tbody></table></div><div class="legend"><span>Δ = clear pts with the affix on every drop minus the stripped reference on the same seed</span><span>dead: |Δ all| &lt; ${LIM.affixDead}</span><span>dominant: Δ all &gt; +${LIM.affixStrong}</span></div>`;
+  // Natural adoption of affixes the grid did not price.
+  const rows = Object.entries(adopt).filter(([k, r]) => /^(mod|stat|act):/.test(k) && r.offered >= 30).sort((a, b) => b[1].worn_share - a[1].worn_share);
+  if (rows.length) h += '<h2 style="margin-top:14px">Natural adoption (L' + esc(L) + ')</h2><div class="hint" style="margin-bottom:6px">How often the bot wears an affix when it is offered. Low worn share with plenty offered = players will see it and skip it.</div><div class="chips">' +
+    rows.map(([k, r]) => `<span class="chip" title="offered ${r.offered} item passes">${esc(k)} <b class="${r.worn_share < 0.05 ? 'off' : r.worn_share < 0.12 ? 'near' : 'good'}">${(100 * r.worn_share).toFixed(0)}%</b></span>`).join('') + '</div>';
+  box.innerHTML = h;
+}
+
+function metricTable(rep, cmp, keys, L) {
+  const lv = rep.levels[L], lc = cmp && cmp.levels ? cmp.levels[L] : null;
+  let h = '<div class="tablewrap"><table><thead><tr><th>Metric</th>' + [...CLS, 'all'].map(c => `<th class="num">${CLS_SHORT[c]}</th>`).join('') + (lc ? '<th class="num" title="all classes: this report minus the comparison">Δ all</th>' : '') + '</tr></thead><tbody>';
+  for (const k of keys) {
+    if (!lv.all || !(k in lv.all)) continue;
+    const vals = [...CLS, 'all'].map(c => lv[c] ? lv[c][k] : null);
+    let cell = (c, v) => `<td class="hm">${fmtV(k, v)}</td>`;
+    if (k === 'close_call') cell = (c, v) => `<td class="hm ${v == null ? '' : 100 * v < LIM.closeLo || 100 * v > LIM.closeHi ? 'off' : 'good'}">${fmtV(k, v)}</td>`;
+    if (k === 'one_shot') cell = (c, v) => `<td class="hm ${v != null && 100 * v > LIM.oneShot ? 'off' : ''}">${fmtV(k, v)}</td>`;
+    if (k === 'length_cv') cell = (c, v) => `<td class="hm ${v != null && v < LIM.lengthCv ? 'off' : ''}">${fmtV(k, v)}</td>`;
+    if (k === 'p90_ratio') cell = (c, v) => `<td class="hm ${v != null && v > LIM.p90 ? 'off' : ''}">${fmtV(k, v)}</td>`;
+    let d = '';
+    if (lc) { const a = lv.all[k], b = lc.all ? lc.all[k] : null;
+      d = typeof a === 'number' && typeof b === 'number' ? `<td class="hm ${a > b ? 'good' : a < b ? 'off' : ''}">${a - b > 0 ? '+' : ''}${PCT_KEYS.has(k) ? (100 * (a - b)).toFixed(1) : (a - b).toFixed(2)}</td>` : '<td class="hm dim">·</td>'; }
+    h += `<tr><td title="${mtitle(k)}">${mname(k)}</td>` + [...CLS, 'all'].map((c, i) => cell(c, vals[i])).join('') + d + '</tr>';
+  }
+  return h + '</tbody></table></div>';
+}
+
+function compareSelect() {
+  const list = (layerSrc && layerSrc.report) || [];
+  return `<label>Compare with <select id="cmp-sel"><option value="">—</option>` + list.filter(x => x.path !== picked('report')).map(x =>
+    `<option value="${esc(x.path)}"${x.path === layerOpt.compare ? ' selected' : ''}>${esc(x.path)}</option>`).join('') + '</select></label>';
+}
+
+function renderReportLayer(box, rep, cmp, keys, extra) {
+  if (!rep || !rep.levels) { box.innerHTML = '<div class="lv-row">' + srcSelect('report', 'Report') + '</div><div class="hint">Run a Fun report job to fill this layer.</div>'; return; }
+  const levels = Object.keys(rep.levels); levelChips('rep', levels); const L = layerLevel.rep;
+  let h = '<div class="lv-row">' + srcSelect('report', 'Report') + compareSelect() + levelChips('rep', levels) + '</div>';
+  if (cmp && cmp.levels) h += '<div class="hint" style="margin-bottom:6px">Δ is only meaningful at equal heroes per class and the same seeds: effective counts grow with sample size.</div>';
+  h += metricTable(rep, cmp, keys, L);
+  if (extra) h += extra(rep.levels[L], L);
+  box.innerHTML = h + '<div class="hint" style="margin-top:6px">Hover a metric for what it measures. Effective counts are inverse Simpson: N = N things used evenly.</div>';
+}
+
+function topSets(lv) {
+  return '<h2 style="margin-top:14px">Top sets by class</h2><div class="tablewrap"><table><tbody>' + CLS.map(c =>
+    `<tr><td><b>${c}</b></td><td style="white-space:normal">${((lv[c] || {}).top_sets || []).map(([m, n]) => `<span class="chip">${esc(m)} ${n}</span>`).join(' ')}</td></tr>`).join('') + '</tbody></table></div>';
+}
+
+function scanPacing(scan) {
+  if (!scan || !scan.metrics) return '';
+  const m = scan.metrics, lv = [...new Set(Object.keys(m).map(k => (k.match(/^close calls L(\d+)$/) || [])[1]).filter(Boolean))].sort((a, b) => a - b);
+  if (!lv.length) return '';
+  const keys = [['close calls', 'close calls', '%'], ['dungeon close calls', 'dungeon close calls', '%'], ['one-shot fights', 'one-shot fights', '%'], ['lead changes', 'lead changes', ''],
+                ['fight length cv', 'fight length cv', ''], ['fight length p90/p50', 'p90 / p50', ''], ['miss streak 4+', 'miss streak 4+', '%'], ['dungeon clear', 'dungeon clear', '%'], ['bot hero acts', 'hero actions / fight', '']];
+  return `<h2 style="margin-top:14px">Pacing from the balance scan</h2><div class="hint" style="margin-bottom:6px">${esc(picked('scan'))} · small sample, gross misses only</div><div class="tablewrap"><table><thead><tr><th>Metric</th>` +
+    lv.map(L => `<th class="num">L${L}</th>`).join('') + '</tr></thead><tbody>' + keys.map(([k, n, u]) => `<tr><td>${esc(n)}</td>` +
+    lv.map(L => { const v = m[`${k} L${L}`]; return `<td class="hm">${v == null ? '—' : v + u}</td>`; }).join('') + '</tr>').join('') + '</tbody></table></div>';
+}
+
+function renderClasses(box, scan) {
+  if (!scan || !scan.metrics) { box.innerHTML = '<div class="lv-row">' + srcSelect('scan', 'Scan') + '</div><div class="hint">Run a Balance scan to fill this layer.</div>'; return; }
+  const m = scan.metrics;
+  let h = '<div class="lv-row">' + srcSelect('scan', 'Scan') + `<span class="hint">patch ${esc(scan.patch)}</span></div>`;
+  const cc = CLS.map(c => m['class clear ' + c]);
+  h += '<div class="chips" style="margin-bottom:10px">' + CLS.map((c, i) => `<span class="chip">${c} clear <b>${cc[i] ?? '—'}%</b></span>`).join('') +
+    `<span class="chip">closest class pair distance <b class="${m['closest class pair distance'] >= LIM.classDist ? 'good' : 'off'}">${m['closest class pair distance'] ?? '—'}</b> (floor ${LIM.classDist})</span></div>`;
+  const ids = [...new Set(Object.keys(m).filter(k => k.startsWith('identity ')).map(k => k.split(' ').slice(2).join(' ')))];
+  if (ids.length) {
+    h += '<h2>Class identity</h2><div class="hint" style="margin-bottom:6px">How each class plays: share or z-like lean per trait. A distinct column per class is the goal.</div><div class="tablewrap"><table><thead><tr><th>Trait</th>' + CLS.map(c => `<th class="num">${CLS_SHORT[c]}</th>`).join('') + '</tr></thead><tbody>';
+    for (const t of ids) {
+      const vals = CLS.map(c => m[`identity ${c} ${t}`]), mu = avg(vals), s = sd(vals) || 1;
+      h += `<tr><td>${esc(t)}</td>` + vals.map(v => `<td class="hm" style="${v == null ? '' : tint((v - mu) / s, 2)}">${v ?? '—'}</td>`).join('') + '</tr>';
+    }
+    h += '</tbody></table></div>';
+  }
+  const lv = [...new Set(Object.keys(m).map(k => (k.match(/^effective actions L(\d+) /) || [])[1]).filter(Boolean))].sort((a, b) => a - b);
+  const rows = [['effective actions', 'Effective actions'], ['action breadth', 'Action breadth'], ['slots used', 'Combo slots used'], ['strip completion', 'Strip completion %'],
+                ['step advance', 'Step advance %'], ['late slot damage', 'Late-slot damage %'], ['breaks miss', 'Strip breaks on miss %'], ['hero tec', 'Hero TEC'], ['hero int', 'Hero INT']];
+  if (lv.length) {
+    h += '<h2 style="margin-top:14px">Action and combo use by class</h2><div class="tablewrap"><table><thead><tr><th>Metric</th><th>Level</th>' + CLS.map(c => `<th class="num">${CLS_SHORT[c]}</th>`).join('') + '</tr></thead><tbody>';
+    for (const [k, n] of rows) for (const L of lv) {
+      const vals = CLS.map(c => m[`${k} L${L} ${c}`]);
+      if (vals.every(v => v == null)) continue;
+      h += `<tr><td>${esc(n)}</td><td class="hint">L${L}</td>` + vals.map(v => `<td class="hm">${v ?? '—'}</td>`).join('') + '</tr>';
+    }
+    h += '</tbody></table></div>';
+  }
+  const sig = Object.keys(m).filter(k => k.startsWith('signature action share'));
+  if (sig.length) h += '<div class="chips" style="margin-top:8px">' + sig.map(k => `<span class="chip" title="one action's share of a class's actions: high = one-button class">${esc(k.replace('signature action share ', ''))} <b>${m[k]}</b></span>`).join('') + '</div>';
+  box.innerHTML = h;
+}
+
+function renderFindings(box, scan) {
+  if (!scan || !scan.findings) { box.innerHTML = '<div class="lv-row">' + srcSelect('scan', 'Scan') + '</div><div class="hint">Run a Balance scan to fill this layer.</div>'; return; }
+  const areas = [...new Set(scan.findings.map(f => f.area))];
+  const cur = layerOpt.area && areas.includes(layerOpt.area) ? layerOpt.area : '';
+  const rows = scan.findings.filter(f => !cur || f.area === cur);
+  let h = '<div class="lv-row">' + srcSelect('scan', 'Scan') + `<label>Area <select id="area-sel"><option value="">all (${scan.findings.length})</option>` +
+    areas.map(a => `<option${a === cur ? ' selected' : ''}>${esc(a)}</option>`).join('') + '</select></label></div>';
+  h += '<div class="tablewrap"><table><thead><tr><th class="num">Severity</th><th>Status</th><th>Area</th><th>Level</th><th>Subject</th><th>Value</th><th>Target</th><th>Detail</th></tr></thead><tbody>' +
+    rows.map(f => `<tr title="${esc(f.focus || '')}"><td class="num"><span class="sev">${f.severity != null ? (+f.severity).toFixed(1) : ''}</span></td><td class="${f.status === 'FAIL' ? 'off' : f.status === 'WARN' ? 'near' : 'good'}">${esc(f.status)}</td>` +
+      `<td>${esc(f.area)}</td><td>${f.level != null ? 'L' + esc(f.level) : ''}</td><td>${esc(f.subject)}</td><td>${esc(f.value)}</td><td class="hint">${esc(f.target)}</td><td class="hint" style="white-space:normal">${esc(f.detail)}</td></tr>`).join('') +
+    '</tbody></table></div><div class="hint" style="margin-top:6px">Hover a row for the command that focuses on it.</div>';
+  box.innerHTML = h;
+}
+
+async function renderLayers() {
+  const box = $('#lay-body');
+  if (!layerSrc) {
+    const r = await api('/api/layers/sources');
+    layerSrc = r.sources; layerMeta = r;
+    const aff = r.affixes || {};
+    $('#affix-hint').textContent += ` Prefixes: ${(aff.mods || []).join(', ')}. Suffixes: ${(aff.stats || []).join(', ')}.`;
+  }
+  const scrollY = window.scrollY;
+  try {
+    if (layerTab === 'overview') await renderOverview(box);
+    else if (layerTab === 'materials') renderMaterials(box, await layerFile(picked('materialGrid')), await layerFile(picked('report')));
+    else if (layerTab === 'affixes') renderAffixes(box, await layerFile(picked('affixGrid')), await layerFile(picked('report')));
+    else if (layerTab === 'builds') renderReportLayer(box, await layerFile(picked('report')), await layerFile(layerOpt.compare), BUILD_KEYS, topSets);
+    else if (layerTab === 'fights') { const scan = await layerFile(picked('scan')); renderReportLayer(box, await layerFile(picked('report')), await layerFile(layerOpt.compare), FIGHT_KEYS, () => scanPacing(scan)); }
+    else if (layerTab === 'classes') renderClasses(box, await layerFile(picked('scan')));
+    else if (layerTab === 'findings') renderFindings(box, await layerFile(picked('scan')));
+  } catch (ex) { box.innerHTML = `<div class="msg bad">Could not render this layer: ${esc(ex.message)}</div>`; }
+  window.scrollTo(0, scrollY);
+}
+
+document.querySelectorAll('#lay-tabs button').forEach(b => b.onclick = () => {
+  layerTab = b.dataset.l;
+  document.querySelectorAll('#lay-tabs button').forEach(x => x.classList.toggle('on', x === b));
+  renderLayers();
+});
+$('#lay-body').addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.src) layerPick[t.dataset.src] = t.value;
+  else if (t.id === 'opt-viable') layerOpt.viable = t.checked;
+  else if (t.id === 'cmp-sel') layerOpt.compare = t.value;
+  else if (t.id === 'area-sel') layerOpt.area = t.value;
+  renderLayers();
+});
+$('#lay-body').addEventListener('click', e => {
+  const b = e.target.closest('button[data-lvl]');
+  if (!b) return;
+  const [id, L] = b.dataset.lvl.split(':'); layerLevel[id] = L; renderLayers();
+});
+$('#lay-refresh').onclick = async () => { const r = await api('/api/layers/sources?force=1'); layerSrc = r.sources; layerMeta = r; fileCache.clear(); renderLayers(); };
+// New result files from finished jobs show up without a reload.
+setInterval(async () => {
+  const r = await api('/api/layers/sources');
+  if (!r.sources) return;
+  const sig = s => JSON.stringify(Object.values(s).map(v => v.map(x => x.path + x.mtime)));
+  if (!layerSrc || sig(r.sources) !== sig(layerSrc)) { layerSrc = r.sources; layerMeta = r; if (layerTab === 'overview' || !document.querySelector('#lay-body select:focus')) renderLayers(); }
+}, 20000);
+renderLayers();
 
 const _loadSpark = loadSpark;
 loadSpark = async f => { await _loadSpark(f); renderSparkShards(); };
