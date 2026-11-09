@@ -225,8 +225,8 @@
     "Name": "Poisonous",
     "Effect": "POISON",
     "DiceResult": 0,
-    "MinValue": 0,
-    "MaxValue": 0,
+    "MinValue": 2,
+    "MaxValue": 2,
     "RolledValue": 0
   },
   {
@@ -235,8 +235,8 @@
     "Name": "serrated",
     "Effect": "BLEED",
     "DiceResult": 0,
-    "MinValue": 10,
-    "MaxValue": 10,
+    "MinValue": 40,
+    "MaxValue": 40,
     "RolledValue": 0
   },
   {
