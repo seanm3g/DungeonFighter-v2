@@ -3,7 +3,7 @@
   "minScore": 0.5,
   "setPieceGrowth": 0.25,
   "maxRankScale": 3,
-  "branchBonus": 0.35,
+  "branchBonus": 1.0,
   "setNodeBonus": 0.25,
   "skillFromStripScale": 1.0,
   "setNodes": [
