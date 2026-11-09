@@ -111,15 +111,17 @@ At L58 two enemies cause ~70% of deaths for every class: **Tomb Creeper** and **
 | `proto/gear-dot-2026-11-09` (1cb659d1) | DoT prefixes count from every equipped piece and apply on any landed hit (was weapon-only, crit-only); serrated 40, Poisonous 2 | Flaming +7..+10, serrated +5, Poisonous +2 (were ~0 even at value 500); poison looks capped | unchanged within noise (DoT prefixes are rare on worn gear) |
 | `proto/hit-overflow-2026-11-09` (679250e2) | COMBO applied before HIT; HIT / COMBO a floored threshold can't use spill into CRIT at half rate | Balanced / Precise COMBO prefixes +9 (were ~0 past L20), COMBO suffix +8; HIT still +1..+4 (needs full-rate spill or a different payoff) | unchanged within noise |
 
-Both branch off the diversity branch; merge either on top of it.
+Both branch off the diversity branch; merge either on top of it. `proto/combined-2026-11-09` merges both:
+unseen seeds 9301–9304 give clear gap 1.44 / spread 10.2 (div6 1.73 / 9.9, syn47 2.27 / 10.4); natural play within noise,
+status variety +0.07.
 
 ## 6. Needs your call
 
 1. **DoT on gear** is dead weight. Prototype branch `proto/gear-dot-2026-11-09` makes it work (any piece, any hit) — merge it or pick another rule.
 2. **HIT / COMBO saturation**: past ~L20 every HIT / COMBO line is wasted. `ThresholdManager` clamps hit ≤ combo − 2 and combo ≥ `MinComboThreshold`; TEC milestones put combo on that floor by ~L20, so neither stat can move a threshold. Prototype `proto/hit-overflow-2026-11-09` revives COMBO lines; HIT still needs a different payoff (full-rate spill into CRIT only reaches +2..+5).
-3. **Defense is cheap by construction.** Armor is already % mitigation (DR = def / (def + 275)), and HEALTH works, yet ARMOR ×51 still bought only ~+5: enemies swing ~2–3 times per fight, so offense decides fights. Options: longer enemy turns / more enemy swings, or price armor lines low on purpose.
+3. **Fights give enemies too few swings for defense or drama.** Close calls stay ~4% even with the bot retreating at 25% HP instead of 50% (clear +10..+16 there), so the 5–15% close-call target is out of reach while enemies swing ~2–3 times per fight. **Defense is cheap by construction too.** Armor is already % mitigation (DR = def / (def + 275)), and HEALTH works, yet ARMOR ×51 still bought only ~+5: enemies swing ~2–3 times per fight, so offense decides fights. Options: longer enemy turns / more enemy swings, or price armor lines low on purpose.
 4. **Wood ON_ODD** (my pick, pairs with the old Gold ON_EVEN idea) — keep or choose another trigger. **Celestial** ON_AFTER_MISS works only through its knobs (×3.8).
-5. **L58 spike enemies**: Tomb Creeper and Poison Dart Sentinel cause ~70% of L58 deaths for every class. Wizard sets are weakest there (forced 17–66%).
+5. **L58 spike enemies**: Tomb Creeper and Poison Dart Sentinel (Air / Pyramids, fast-tempo Assassins) cause ~70% of L58 deaths for every class — the known Air-region difficulty, not materials. Wizard sets are weakest there (forced 17–66%).
 6. **Skill trees**: all Barbarians (and nearly all Wizards) learn identical nodes — point budget vs node count.
 7. **Class-less sets differ by class**: Cloth and Wood are weak for Barbarian (−22..−24 vs class median) but strong for Warrior / Wizard; one knob per material can't fix it (Cloth FRAY pays on taking hits, Wood on odd rolls).
 8. Stat suffix descriptions in StatBonuses.json still show the old numbers (values were scaled ×0.1–×20).
