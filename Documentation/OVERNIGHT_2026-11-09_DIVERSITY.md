@@ -116,7 +116,7 @@ Both branch off the diversity branch; merge either on top of it.
 ## 6. Needs your call
 
 1. **DoT on gear** is dead weight. Prototype branch `proto/gear-dot-2026-11-09` makes it work (any piece, any hit) — merge it or pick another rule.
-2. **HIT / COMBO saturation**: past ~L20 every HIT / COMBO line is wasted. `ThresholdManager` clamps hit ≤ combo − 2 and combo ≥ `MinComboThreshold`; TEC milestones put combo on that floor by ~L20, so neither stat can move a threshold. Prototype `proto/hit-overflow-2026-11-09` revives COMBO lines; HIT still needs a payoff (full-rate spill, or overflow into damage).
+2. **HIT / COMBO saturation**: past ~L20 every HIT / COMBO line is wasted. `ThresholdManager` clamps hit ≤ combo − 2 and combo ≥ `MinComboThreshold`; TEC milestones put combo on that floor by ~L20, so neither stat can move a threshold. Prototype `proto/hit-overflow-2026-11-09` revives COMBO lines; HIT still needs a different payoff (full-rate spill into CRIT only reaches +2..+5).
 3. **Defense is cheap by construction.** Armor is already % mitigation (DR = def / (def + 275)), and HEALTH works, yet ARMOR ×51 still bought only ~+5: enemies swing ~2–3 times per fight, so offense decides fights. Options: longer enemy turns / more enemy swings, or price armor lines low on purpose.
 4. **Wood ON_ODD** (my pick, pairs with the old Gold ON_EVEN idea) — keep or choose another trigger. **Celestial** ON_AFTER_MISS works only through its knobs (×3.8).
 5. **L58 spike enemies**: Tomb Creeper and Poison Dart Sentinel cause ~70% of L58 deaths for every class. Wizard sets are weakest there (forced 17–66%).
