@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RPGGame.Data;
 
@@ -38,7 +38,10 @@ namespace RPGGame
             string t = NormalizeEquipmentStatKey(statType);
             int flat = GetFlatEquipmentStatInteger(t);
             if (characterContext != null)
+            {
                 flat += ItemEquipEffectApplicator.GetEquippedStatBonus(characterContext, t);
+                flat += PrimaryMaterialStatBonus(characterContext, t);
+            }
 
             if (characterContext == null)
                 return flat + SumSuffixStatBonusFlatInteger(t);
@@ -533,6 +536,35 @@ namespace RPGGame
                 "Health" when string.Equals(statType, "Health", StringComparison.OrdinalIgnoreCase) => value,
                 _ => 0
             };
+        }
+
+        /// <summary>
+        /// Class-less materials (Stone, Unknown, Strange, Celestial) carry Effect <c>PRIMARY</c>: each piece adds its value to
+        /// the wearer's highest base attribute (ties STR, AGI, TEC, INT), so any class gets the same per-piece stat a class
+        /// material pays its own attribute. Ranked on base stats to keep gear bonuses out of the choice.
+        /// </summary>
+        private int PrimaryMaterialStatBonus(Character character, string statType)
+        {
+            if (statType is not ("STR" or "AGI" or "TEC" or "INT"))
+                return 0;
+            int total = 0;
+            foreach (var item in slots.GetEquippedItems())
+            {
+                if (item == null)
+                    continue;
+                foreach (var modification in item.Modifications)
+                {
+                    if (string.Equals(modification.Effect?.Trim(), "PRIMARY", StringComparison.OrdinalIgnoreCase))
+                        total += (int)Math.Round(modification.RolledValue);
+                }
+            }
+            if (total == 0)
+                return 0;
+            var s = character.Stats;
+            string top = DynamicAttributeCategoryResolver.GetRankedAttributeCodes(s.Strength, s.Agility, s.Technique, s.Intelligence)[0];
+            if (top == DynamicAttributeCategoryResolver.CodeTechnique)
+                top = "TEC";
+            return string.Equals(top, statType, StringComparison.OrdinalIgnoreCase) ? total : 0;
         }
 
         private static string NormalizeMaterialEffectKey(string? rawEffect)

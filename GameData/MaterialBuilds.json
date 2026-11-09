@@ -118,5 +118,65 @@
     "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
     "stack3": "\u002B feed",
     "stack5": "x feed"
+  },
+  {
+    "class": "",
+    "material": "Stone",
+    "synthesis": "ON_CONNECT = GRIT",
+    "convertAction": "LANDSLIDE",
+    "feed": "+/x per STONE",
+    "stack2": "SYNTHESIS + CONVERT UNLOCK",
+    "stack3": "+ feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "",
+    "material": "Unknown",
+    "synthesis": "ON_TURN = ENIGMA",
+    "convertAction": "REVEAL",
+    "feed": "+/x per UNKNOWN",
+    "stack2": "SYNTHESIS + CONVERT UNLOCK",
+    "stack3": "+ feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "",
+    "material": "Strange",
+    "synthesis": "ON_FIRST_HIT = ODDITY",
+    "convertAction": "QUIRK",
+    "feed": "+/x per STRANGE",
+    "stack2": "SYNTHESIS + CONVERT UNLOCK",
+    "stack3": "+ feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "",
+    "material": "Celestial",
+    "synthesis": "ON_AFTER_MISS = OMEN",
+    "convertAction": "STARFALL",
+    "feed": "+/x per CELESTIAL",
+    "stack2": "SYNTHESIS + CONVERT UNLOCK",
+    "stack3": "+ feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "",
+    "material": "Wood",
+    "synthesis": "ON_MISS = KINDLING",
+    "convertAction": "KINDLE",
+    "feed": "+/x per WOOD",
+    "stack2": "SYNTHESIS + CONVERT UNLOCK",
+    "stack3": "+ feed",
+    "stack5": "x feed"
+  },
+  {
+    "class": "",
+    "material": "Cloth",
+    "synthesis": "ON_TAKE_HIT = FRAY",
+    "convertAction": "UNRAVEL",
+    "feed": "+/x per CLOTH",
+    "stack2": "SYNTHESIS + CONVERT UNLOCK",
+    "stack3": "+ feed",
+    "stack5": "x feed"
   }
 ]

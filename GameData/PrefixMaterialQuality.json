@@ -293,9 +293,10 @@
     "prefixCategory": "MATERIAL",
     "Name": "Stone",
     "Description": "Stone-tagged",
+    "Effect": "PRIMARY",
     "DiceResult": 0,
-    "MinValue": 0,
-    "MaxValue": 0,
+    "MinValue": 2,
+    "MaxValue": 2,
     "RolledValue": 0
   },
   {
@@ -303,9 +304,10 @@
     "prefixCategory": "MATERIAL",
     "Name": "Unknown",
     "Description": "Mystery tag",
+    "Effect": "PRIMARY",
     "DiceResult": 0,
-    "MinValue": 0,
-    "MaxValue": 0,
+    "MinValue": 3,
+    "MaxValue": 3,
     "RolledValue": 0
   },
   {
@@ -313,9 +315,10 @@
     "prefixCategory": "MATERIAL",
     "Name": "Strange",
     "Description": "Strange essence",
+    "Effect": "PRIMARY",
     "DiceResult": 0,
-    "MinValue": 0,
-    "MaxValue": 0,
+    "MinValue": 3,
+    "MaxValue": 3,
     "RolledValue": 0
   },
   {
@@ -323,9 +326,10 @@
     "prefixCategory": "MATERIAL",
     "Name": "Celestial",
     "Description": "Celestial alloy",
+    "Effect": "PRIMARY",
     "DiceResult": 0,
-    "MinValue": 0,
-    "MaxValue": 0,
+    "MinValue": 4,
+    "MaxValue": 4,
     "RolledValue": 0
   }
 ]

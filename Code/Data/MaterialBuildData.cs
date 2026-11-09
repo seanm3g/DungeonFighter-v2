@@ -157,6 +157,8 @@ namespace RPGGame.Data
             "ONSLOW" => "each hit that slows the target",
             "ONFOCUS" => "each hit that gains you Focus",
             "ONMISS" => "each attack you miss",
+            "ONAFTERMISS" => "each hit that lands right after a miss",
+            "ONFIRSTHIT" or "ONFIRSTBLOOD" => "your first hit that lands each fight",
             "" => "its set trigger",
             string other => other
         };

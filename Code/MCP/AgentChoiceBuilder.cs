@@ -82,12 +82,12 @@ namespace RPGGame.MCP
             {
                 GameState.MainMenu => new List<AgentChoice>
                 {
-                    new() { Input = "1", Label = "New Game", Recommended = true },
-                    new() { Input = "2", Label = "Load Game" },
-                    new() { Input = "3", Label = "Stable" },
-                    new() { Input = "4", Label = "History" },
-                    new() { Input = "5", Label = "Settings" },
-                    new() { Input = "0", Label = "Exit" }
+                    new() { Input = MainMenuHandler.NewFighterKey, Label = "New Game", Recommended = true },
+                    new() { Input = "1", Label = "Load the most recently saved fighter (1-9 load roster cards in order)" },
+                    new() { Input = MainMenuHandler.AllFightersKey, Label = "All saved fighters" },
+                    new() { Input = MainMenuHandler.OverviewKey, Label = "Fighter Overview (Stable)" },
+                    new() { Input = MainMenuHandler.SettingsKey, Label = "Settings" },
+                    new() { Input = MainMenuHandler.QuitKey, Label = "Exit" }
                 },
                 GameState.TrainingGroundOffer => new List<AgentChoice>
                 {

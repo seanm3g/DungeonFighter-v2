@@ -8,8 +8,13 @@ whether its build matches Code/), the active balance patch and whether Code/bin/
 Jobs run the same scripts as the command line (Scripts/dungeon-sim.py, bo-solve.py, balance-scan.py) with
 --tools Code/bin/BalanceTools; one sim job at a time since each one fills every slot. Logs and result JSON go to
 GameData/TuningRuns/dash-<id>.*, so they outlive the server.
+
+"Running now" lists every balance script running on this PC, also ones started from a shell or another session: a
+balance-loop measure shows seeds done of total and an ETA, a dungeon-sim its shards done (counted in its dsim-* temp
+folder). The Spark card lists its running shards by level and class. "Results vs targets" reads a balance-loop run
+folder's per-seed sim JSONs (so a running measure fills in seed by seed) against balance-targets.json.
 """
-import json, os, subprocess, sys, tempfile, threading, time
+import glob, json, os, re, subprocess, sys, tempfile, threading, time
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
@@ -81,7 +86,294 @@ def ssh(command, timeout=15):
 SPARK_PROBE = ('nproc; cat /proc/loadavg; free -m | awk \'/^Mem:/{print $2, $7}\'; '
                'pgrep -fc "^./app/DF " || true; '
                f'printf "%s\\n" "$(docker ps --filter name={VLLM} --format "{{{{.Status}}}}" 2>/dev/null | head -1)"; '
-               'printf "%s\\n" "$(cat ~/df/app/.source-hash 2>/dev/null)"')
+               'printf "%s\\n" "$(cat ~/df/app/.source-hash 2>/dev/null)"; '
+               # One line per running shard: seconds running, then its DF arguments (level, class, bot, seed).
+               'ps -o etimes=,args= -C DF 2>/dev/null | grep DUNGEONSIM || true')
+
+TARGETS_PATH = os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balance-targets.json')
+LOOP_DIR = os.path.join(RUNS, 'balance-loop')
+SIM_SCRIPTS = ('balance-loop.py', 'balance-chain.py', 'dungeon-sim.py', 'bo-solve.py', 'balance-scan.py',
+               'surrogate-data.py', 'median-curve-solve.py')
+CLASSES = ['Barbarian', 'Warrior', 'Rogue', 'Wizard']
+MIDPOINTS = [3, 8, 13, 18, 23, 28, 33, 38, 43, 48, 53, 58, 63, 68, 73]
+
+
+def _arg(argv, flag, default=None):
+    """Value after `flag` in an argv list (also --flag=value)."""
+    for i, a in enumerate(argv):
+        if a == flag and i + 1 < len(argv):
+            return argv[i + 1]
+        if a.startswith(flag + '='):
+            return a.split('=', 1)[1]
+    return default
+
+
+def _shard_info(args):
+    """Level / class / bot from one DUNGEONSIM command line."""
+    argv = args.split()
+    return {'level': _arg(argv, '--level'), 'cls': _arg(argv, '--classes'), 'bot': _arg(argv, '--bot', 'rules')}
+
+
+def spark_shards(lines):
+    rows = []
+    for ln in lines:
+        ln = ln.strip()
+        if not ln or 'DUNGEONSIM' not in ln:
+            continue
+        secs, _, args = ln.partition(' ')
+        try:
+            rows.append({**_shard_info(args), 'secs': int(secs)})
+        except ValueError:
+            continue
+    groups = {}
+    for r in rows:
+        g = groups.setdefault((r['level'], r['cls']), {'level': r['level'], 'cls': r['cls'], 'n': 0, 'oldest': 0})
+        g['n'] += 1
+        g['oldest'] = max(g['oldest'], r['secs'])
+    out = sorted(groups.values(), key=lambda g: (int(g['level'] or 0), g['cls'] or ''))
+    return {'count': len(rows), 'groups': out, 'bots': sorted({r['bot'] for r in rows})}
+
+
+# ---------------------------------------------------------------- runs started anywhere (shell, other sessions)
+
+_proc_cache = {'at': 0.0, 'data': []}
+_proc_lock = threading.Lock()
+
+
+def _list_processes():
+    """(pid, ppid, started epoch, command line) for every python process running one of the balance scripts."""
+    out = []
+    if os.name == 'nt':
+        ps = ("Get-CimInstance Win32_Process -Filter \"Name like 'python%'\" | ForEach-Object { "
+              "@($_.ProcessId, $_.ParentProcessId, ([DateTimeOffset]$_.CreationDate).ToUnixTimeSeconds(), "
+              "$_.CommandLine) -join [char]9 }")
+        try:
+            r = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', ps], capture_output=True,
+                               text=True, timeout=20, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        except (subprocess.TimeoutExpired, OSError):
+            return out
+        for ln in r.stdout.splitlines():
+            parts = ln.split('\t', 3)
+            if len(parts) == 4 and parts[0].isdigit():
+                out.append((int(parts[0]), int(parts[1] or 0), int(parts[2] or 0), parts[3]))
+    else:
+        r = subprocess.run(['ps', '-eo', 'pid=,ppid=,etimes=,args='], capture_output=True, text=True)
+        now = time.time()
+        for ln in r.stdout.splitlines():
+            parts = ln.split(None, 3)
+            if len(parts) == 4 and 'python' in parts[3]:
+                out.append((int(parts[0]), int(parts[1]), int(now - int(parts[2])), parts[3]))
+    return [p for p in out if any(s in p[3] for s in SIM_SCRIPTS) and 'balance-dashboard' not in p[3]]
+
+
+def _dsim_dirs():
+    tmp = tempfile.gettempdir()
+    try:
+        names = [n for n in os.listdir(tmp) if n.startswith('dsim-')]
+    except OSError:
+        return []
+    dirs = []
+    for n in names:
+        d = os.path.join(tmp, n)
+        try:
+            dirs.append((os.path.getctime(d), d))
+        except OSError:
+            pass
+    return sorted(dirs)
+
+
+def _dsim_progress(proc_started, argv):
+    """Shard progress of one running dungeon-sim.py: its temp work folder (dsim-*, made right after start) holds a
+    .log per started shard and a .json per finished one."""
+    cands = [d for t, d in _dsim_dirs() if proc_started - 5 <= t <= proc_started + 120]
+    if not cands:
+        return None
+    d = cands[0]
+    try:
+        names = os.listdir(d)
+    except OSError:
+        return None
+    started = sum(1 for n in names if n.endswith('.log'))
+    done = sum(1 for n in names if n.endswith('.json') and not n.startswith('patch'))
+    levels = [x for x in (_arg(argv, '--levels', '10') or '').split(',') if x.strip()]
+    classes = [x for x in (_arg(argv, '--classes') or '').split(',') if x.strip()] or CLASSES
+    total = len(levels) * len(classes) * int(_arg(argv, '--shards', '6') or 6)
+    if '--solve' in argv or total <= 0:
+        total = None
+    # Rate from the first shard start, so the Spark publish (~35-50 s) before it doesn't skew the ETA.
+    firsts = [os.path.getmtime(os.path.join(d, n)) for n in names if n.endswith('.log')]
+    elapsed = time.time() - (min(firsts) if firsts else os.path.getctime(d))
+    eta =round(elapsed * (total - done) / done) if total and done else None
+    return {'done': done, 'running': max(0, started - done), 'total': total, 'eta': eta, 'workDir': d}
+
+
+def _loop_run_dir(argv, started):
+    name = _arg(argv, '--run') or datetime.fromtimestamp(started).strftime('%Y-%m-%d')
+    return os.path.join(LOOP_DIR, name)
+
+
+def _loop_progress(argv, started):
+    """balance-loop.py measure: seeds finished (one dungeon-sim JSON per seed and patch) and the time each took."""
+    d = _loop_run_dir(argv, started)
+    cmd = next((a for a in argv if a in ('measure', 'solve', 'botcheck', 'export')), None)
+    info = {'cmd': cmd, 'runDir': d, 'events': []}
+    log = os.path.join(d, 'log.txt')
+    if os.path.isfile(log):
+        with open(log, encoding='utf-8', errors='replace') as fh:
+            lines = fh.read().splitlines()
+        info['events'] = [ln[:220] for ln in lines[-8:]]
+        times = []
+        for ln in lines:
+            if '  exit ' in ln:
+                try:
+                    times.append(int(ln.split('  exit ', 1)[1].split()[1].rstrip('s')))
+                except (IndexError, ValueError):
+                    pass
+        info['simSeconds'] = times
+    if cmd == 'measure':
+        seeds = (_arg(argv, '--seeds') or '7101,7102,7103,7104').split(',')
+        patches = [p for p in (_arg(argv, '--patch'), _arg(argv, '--ref')) if p]
+        total = len(seeds) * len(patches)
+        done = sum(1 for p in patches for s in seeds if os.path.isfile(os.path.join(d, f'measure-{p}-s{s}.json')))
+        info.update(total=total, done=done)
+    return info
+
+
+def external_runs():
+    with _proc_lock:
+        if time.time() - _proc_cache['at'] < 4:
+            return _proc_cache['data']
+        procs = _list_processes()
+        with JOBS_LOCK:
+            dash_pids = {j.proc.pid for j in JOBS.values() if j.proc and j.status == 'running'}
+        pids = {p[0] for p in procs}
+        runs = []
+        for pid, ppid, started, cmdline in procs:
+            if ppid in pids:
+                continue  # a child of another listed script (balance-loop -> dungeon-sim): shown under its parent
+            argv = cmdline.replace('"', '').split()
+            script = next((s for s in SIM_SCRIPTS if s in cmdline), '?')
+            r = {'pid': pid, 'script': script, 'started': datetime.fromtimestamp(started).strftime('%H:%M:%S'),
+                 'elapsed': round(time.time() - started), 'command': cmdline[cmdline.find('Scripts'):][:400],
+                 'fromDashboard': pid in dash_pids or ppid in dash_pids, 'patch': _arg(argv, '--patch')}
+            if script in ('balance-loop.py',):
+                r['loop'] = _loop_progress(argv, started)
+            child = next((c for c in procs if c[1] == pid and 'dungeon-sim.py' in c[3]), None)
+            sim = (child[2], child[3]) if child else ((started, cmdline) if script == 'dungeon-sim.py' else None)
+            if sim:
+                sargv = sim[1].replace('"', '').split()
+                r['sim'] = {'seed': _arg(sargv, '--seed'), 'levels': _arg(sargv, '--levels'), 'bot': _arg(sargv, '--bot', 'synergy'),
+                            'shards': _arg(sargv, '--shards'), 'spark': _arg(sargv, '--spark'),
+                            'progress': _dsim_progress(sim[0], sargv)}
+            runs.append(r)
+        _proc_cache.update(at=time.time(), data=runs)
+        return runs
+
+
+# ---------------------------------------------------------------- results vs targets
+
+def _interp(pts, level):
+    pts = sorted(pts)
+    if level <= pts[0][0]:
+        return pts[0][1]
+    for (l0, c0), (l1, c1) in zip(pts, pts[1:]):
+        if level <= l1:
+            return c0 + (level - l0) / (l1 - l0) * (c1 - c0)
+    return pts[-1][1]
+
+
+def _targets():
+    try:
+        with open(TARGETS_PATH, encoding='utf-8-sig') as fh:
+            t = json.load(fh)
+    except (OSError, ValueError):
+        return None
+    clear = [(a['level'], float(a['clear'])) for a in t.get('realClearAnchors', [])]
+    turns = [(a['level'], float(a['turns'])) for a in t.get('heroTurnsAnchors', [])]
+    turns_max = max((p[0] for p in turns), default=0)
+    return {'clear': lambda L: _interp(clear, L) if clear else None,
+            'turns': lambda L: _interp(turns, L) if turns and L <= turns_max else float(t.get('heroTurnsTarget', 11)),
+            'parity': float(t.get('classParityMaxSpread', 10)), 'clearTol': float(t.get('realClearTolerance', 5) or 5)}
+
+
+def _mean(v):
+    v = [x for x in v if x is not None]
+    return sum(v) / len(v) if v else None
+
+
+def _se(v):
+    v = [x for x in v if x is not None]
+    if len(v) < 2:
+        return None
+    m = sum(v) / len(v)
+    return (sum((x - m) ** 2 for x in v) / (len(v) - 1)) ** 0.5 / len(v) ** 0.5
+
+
+def loop_runs():
+    """balance-loop run folders, newest first, with what each holds."""
+    try:
+        names = [n for n in os.listdir(LOOP_DIR) if os.path.isdir(os.path.join(LOOP_DIR, n))]
+    except OSError:
+        return []
+    names.sort(key=lambda n: os.path.getmtime(os.path.join(LOOP_DIR, n)), reverse=True)
+    return names[:30]
+
+
+def run_results(name):
+    """Per patch in a balance-loop run: level rows averaged over the seed JSONs present so far (a running measure
+    shows its finished seeds), vs the targets."""
+    d = os.path.join(LOOP_DIR, os.path.basename(name or ''))
+    if not name or not os.path.isdir(d):
+        return {'error': 'no such run'}
+    T = _targets()
+    by_patch = {}
+    for f in sorted(glob.glob(os.path.join(d, '*-s*.json'))):
+        base = os.path.basename(f)[:-5]
+        m = re.match(r'^(measure|diag|confirm|botcheck|check)-(.+)-s(\d+)$', base)
+        if not m:
+            continue
+        tag, patch, seed = m.groups()
+        try:
+            with open(f, encoding='utf-8') as fh:
+                rows = json.load(fh)
+        except (OSError, ValueError):
+            continue
+        key = f'{patch} ({tag})' if tag != 'measure' else patch
+        p = by_patch.setdefault(key, {'patch': patch, 'tag': tag, 'seeds': [], 'levels': {}})
+        p['seeds'].append(seed)
+        for r in rows if isinstance(rows, list) else []:
+            o = p['levels'].setdefault(r['level'], {'clear': [], 'acts': [], 'cls': {c: [] for c in CLASSES}, 'dungeons': 0})
+            o['clear'].append(100 * r['clear'])
+            o['acts'].append(r.get('heroActionsPerFight'))
+            o['dungeons'] += r.get('dungeons') or 0
+            for c, v in (r.get('perClassClear') or {}).items():
+                if v is not None and c in o['cls']:
+                    o['cls'][c].append(100 * v)
+    out = []
+    for key, p in by_patch.items():
+        levels = []
+        for L, o in sorted(p['levels'].items()):
+            cm = {c: round(_mean(v), 1) for c, v in o['cls'].items() if v}
+            tgt = T['clear'](L) if T else None
+            clear = _mean(o['clear'])
+            levels.append({'level': L, 'target': round(tgt, 1) if tgt is not None else None, 'clear': round(clear, 1),
+                           'clearSE': round(_se(o['clear']), 1) if _se(o['clear']) is not None else None,
+                           'gap': round(clear - tgt, 1) if tgt is not None else None,
+                           'heroActions': round(_mean(o['acts']), 2) if _mean(o['acts']) is not None else None,
+                           'turnsTarget': round(T['turns'](L), 1) if T else None, 'classes': cm,
+                           'spread': round(max(cm.values()) - min(cm.values()), 1) if len(cm) > 1 else None,
+                           'dungeons': o['dungeons']})
+        gaps = [abs(r['gap']) for r in levels if r['gap'] is not None]
+        spreads = [r['spread'] for r in levels if r['spread'] is not None]
+        tgaps = [abs(r['heroActions'] - r['turnsTarget']) for r in levels if r['heroActions'] is not None and r['turnsTarget']]
+        summary = {'meanClearGap': round(_mean(gaps), 2) if gaps else None,
+                   'meanClassSpread': round(_mean(spreads), 1) if spreads else None,
+                   'bandsOverParity': sum(1 for s in spreads if T and s > T['parity']),
+                   'meanTurnsGap': round(_mean(tgaps), 2) if tgaps else None}
+        out.append({'key': key, 'patch': p['patch'], 'seeds': p['seeds'], 'levels': levels, 'summary': summary})
+    final = [f for f in sorted(glob.glob(os.path.join(d, 'measure-*.json'))) if not re.search(r'-s\d+\.json$', f)]
+    return {'run': os.path.basename(d), 'patches': out, 'parity': T['parity'] if T else None,
+            'clearTol': T['clearTol'] if T else None, 'finished': [os.path.basename(f) for f in final]}
 
 
 def _probe():
@@ -131,7 +423,7 @@ def spark_status(force=False):
             data = {'reachable': True, 'cores': cores, 'load': load, 'memTotalMb': total, 'memAvailMb': avail,
                     'dfShards': int(lines[3] or 0), 'vllm': lines[4].strip() or None,
                     'buildHash': remote_hash or None, 'buildCurrent': remote_hash == source_hash(ROOT),
-                    'pingMs': round((time.time() - t0) * 1000)}
+                    'pingMs': round((time.time() - t0) * 1000), 'shards': spark_shards(lines[6:])}
         _spark_cache.update(at=time.time(), data=data, good={'at': time.time(), 'data': data})
         return data
 
@@ -297,6 +589,15 @@ class Handler(BaseHTTPRequestHandler):
                 jobs = [j.summary() for j in sorted(JOBS.values(), key=lambda j: -j.started)]
             return self._send(200, {'patch': active_patch(), 'patches': patches(), 'tools': tools_state(),
                                     'jobs': jobs, 'cores': os.cpu_count()})
+        if u.path == '/api/external':
+            try:
+                return self._send(200, {'runs': external_runs()})
+            except Exception as ex:  # a half-written run folder must not blank the page
+                return self._send(500, {'error': f'{type(ex).__name__}: {ex}'})
+        if u.path == '/api/loopruns':
+            return self._send(200, {'runs': loop_runs()})
+        if u.path == '/api/results':
+            return self._send(200, run_results((q.get('run') or [''])[0]))
         if u.path == '/api/spark':
             return self._send(200, spark_status(force='force' in q))
         if u.path.startswith('/api/jobs/'):
@@ -385,6 +686,14 @@ pre{background:var(--code);border:1px solid var(--line);border-radius:8px;paddin
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
 .cmd{font:12px ui-monospace,Consolas,monospace;color:var(--muted);word-break:break-all}
 .tablewrap{overflow-x:auto}
+.bar{height:8px;background:var(--code);border:1px solid var(--line);border-radius:999px;overflow:hidden;margin:6px 0 4px}
+.bar>i{display:block;height:100%;background:var(--accent)}
+.ext{border-top:1px solid var(--line);padding:10px 0} .ext:first-child{border-top:0;padding-top:0}
+.events{font:12px/1.4 ui-monospace,Consolas,monospace;color:var(--muted);white-space:pre-wrap;word-break:break-all;margin-top:6px}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.good{color:var(--ok)} .near{color:var(--warn)} .off{color:var(--bad);font-weight:600}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:2px 8px;font-size:12px;background:var(--code)}
 </style></head><body><main>
 <h1>Balance runs</h1>
 <div class="sub">Starts the DUNGEONSIM scripts on this PC and the DGX Spark. Active patch <b id="patch">—</b></div>
@@ -417,6 +726,18 @@ pre{background:var(--code);border:1px solid var(--line);border-radius:8px;paddin
    <span class="hint">dotnet build → Code/bin/BalanceTools</span></div>
  </section>
 </div>
+
+<section class="card" style="margin-top:14px">
+ <h2>Running now <span class="hint" style="font-weight:normal">every balance script on this PC, wherever it was started</span></h2>
+ <div id="ext"><div class="hint">Nothing running.</div></div>
+ <div id="spark-shards" class="hint" style="margin-top:8px"></div>
+</section>
+
+<section class="card" style="margin-top:14px">
+ <div class="row" style="justify-content:space-between"><h2 style="margin:0">Results vs targets</h2>
+  <label style="flex-direction:row;align-items:center;gap:6px">Run <select id="run-sel"></select></label></div>
+ <div id="res"><div class="hint">No balance-loop runs yet.</div></div>
+</section>
 
 <section class="card" style="margin-top:14px">
  <div class="tabs" id="tabs">
@@ -598,8 +919,101 @@ $('#build-btn').onclick = async () => {
   selected = null; await loadStatus(); selectJob(r.job.id);
 };
 
-loadStatus(); loadSpark(false);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pct = (a, b) => b ? Math.min(100, Math.round(100 * a / b)) : 0;
+
+function renderSparkShards() {
+  const box = $('#spark-shards');
+  const sh = spark && spark.reachable && spark.shards;
+  if (!sh || !sh.count) { box.textContent = spark && spark.reachable ? 'Spark: no shards running.' : ''; return; }
+  box.innerHTML = `Spark: <b>${sh.count}</b> shards running (bot ${esc(sh.bots.join(', '))})<div class="chips">` +
+    sh.groups.map(g => `<span class="chip">L${esc(g.level)} ${esc(g.cls)} ×${g.n} · ${fmtTime(g.oldest)}</span>`).join('') + '</div>';
+}
+
+async function loadExternal() {
+  const r = await api('/api/external');
+  const box = $('#ext');
+  if (r.error) { box.innerHTML = `<div class="msg bad">Could not list running scripts: ${esc(r.error)}</div>`; return; }
+  if (!r.runs || !r.runs.length) { box.innerHTML = '<div class="hint">Nothing running.</div>'; return; }
+  box.innerHTML = r.runs.map(x => {
+    let h = `<div class="ext"><div class="row" style="justify-content:space-between;margin:0"><b>${esc(x.script)}${x.loop && x.loop.cmd ? ' ' + esc(x.loop.cmd) : ''}</b>` +
+      `<span class="hint">${x.fromDashboard ? 'dashboard job · ' : 'started outside the dashboard · '}pid ${x.pid} · since ${esc(x.started)} · ${fmtTime(x.elapsed)}</span></div>`;
+    h += `<div class="cmd">${esc(x.command)}</div>`;
+    const L = x.loop, S = x.sim, P = S && S.progress;
+    if (L && L.total) {
+      // Whole measure: finished seed sims plus the running one's fraction.
+      const frac = P && P.total ? P.done / P.total : 0;
+      const t = L.simSeconds || [];
+      const per = t.length ? t.reduce((a, b) => a + b, 0) / t.length : null;
+      let eta = null;
+      if (P && P.eta != null) eta = P.eta + (per ? per * Math.max(0, L.total - L.done - 1) : 0);
+      else if (per) eta = per * (L.total - L.done);
+      h += `<div class="bar"><i style="width:${pct(L.done + frac, L.total)}%"></i></div>` +
+        `<div class="hint">Seed sims ${L.done} of ${L.total} done${S ? ` · now seed ${esc(S.seed)}` : ''}` +
+        (per ? ` · ${fmtTime(Math.round(per))} per seed` : '') + (eta != null ? ` · about <b>${fmtTime(Math.round(eta))}</b> left` : '') + '</div>';
+    }
+    if (S) {
+      h += `<div class="hint" style="margin-top:4px">dungeon-sim seed ${esc(S.seed)} · bot ${esc(S.bot)} · ${esc(S.shards)} shards/class · Spark slots ${esc(S.spark || 0)} · levels ${esc(S.levels)}</div>`;
+      if (P) h += `<div class="bar"><i style="width:${pct(P.done, P.total)}%"></i></div><div class="hint">Shards ${P.done}${P.total ? ' of ' + P.total : ''} done, ${P.running} running` +
+        (P.eta != null ? ` · this sim ends in about ${fmtTime(P.eta)}` : '') + '</div>';
+    }
+    if (L && L.events && L.events.length) h += `<div class="events">${esc(L.events.slice(-4).join('\n'))}</div>`;
+    return h + '</div>';
+  }).join('');
+}
+
+let resRun = null;
+async function loadRuns() {
+  const r = await api('/api/loopruns');
+  const sel = $('#run-sel');
+  if ((r.runs || []).join() !== [...sel.options].map(o => o.value).join()) {
+    const cur = sel.value; sel.innerHTML = '';
+    for (const n of r.runs || []) { const o = document.createElement('option'); o.value = o.textContent = n; sel.appendChild(o); }
+    sel.value = r.runs.includes(cur) ? cur : (r.runs[0] || '');
+  }
+  resRun = sel.value; loadResults();
+}
+$('#run-sel').onchange = () => { resRun = $('#run-sel').value; loadResults(); };
+
+function clsCell(v, tgt, tol) {
+  if (v == null) return '<td class="num hint">—</td>';
+  const g = v - tgt, c = Math.abs(g) <= tol ? 'good' : Math.abs(g) <= 2 * tol ? 'near' : 'off';
+  return `<td class="num ${c}" title="${g >= 0 ? '+' : ''}${g.toFixed(1)} vs target">${v.toFixed(1)}</td>`;
+}
+
+async function loadResults() {
+  if (!resRun) return;
+  const r = await api('/api/results?run=' + encodeURIComponent(resRun));
+  const box = $('#res');
+  if (r.error) { box.innerHTML = `<div class="hint">${esc(r.error)}</div>`; return; }
+  if (!r.patches.length) { box.innerHTML = '<div class="hint">No seed finished yet in this run. Rows appear as each seed\'s sim completes.</div>'; return; }
+  const tol = r.clearTol || 4, par = r.parity || 10;
+  box.innerHTML = r.patches.map(p => {
+    const s = p.summary;
+    let h = `<div style="margin-top:10px"><b>${esc(p.key)}</b> <span class="hint">· seeds ${esc(p.seeds.join(', '))}${r.finished.length ? '' : ' (partial: averages of the seeds done so far)'}</span></div>`;
+    h += `<div class="chips"><span class="chip">mean |clear gap| <b>${s.meanClearGap ?? '—'}</b> pts</span><span class="chip">mean class spread <b>${s.meanClassSpread ?? '—'}</b> (limit ${par})</span>` +
+      `<span class="chip">bands over parity <b>${s.bandsOverParity}</b> of ${p.levels.length}</span><span class="chip">mean |actions gap| <b>${s.meanTurnsGap ?? '—'}</b></span></div>`;
+    h += '<div class="tablewrap" style="margin-top:8px"><table><thead><tr><th>Level</th><th class="num">Target</th><th class="num">Clear</th><th class="num">Gap</th>' +
+      '<th class="num">Hero acts</th><th class="num">Acts target</th><th class="num">Barb</th><th class="num">War</th><th class="num">Rogue</th><th class="num">Wiz</th><th class="num">Spread</th><th class="num">Dungeons</th></tr></thead><tbody>';
+    for (const L of p.levels) {
+      const gc = Math.abs(L.gap) <= tol ? 'good' : Math.abs(L.gap) <= 2 * tol ? 'near' : 'off';
+      const ad = L.heroActions != null && L.turnsTarget ? Math.abs(L.heroActions - L.turnsTarget) : 0;
+      const ac = ad <= 1.5 ? '' : ad <= 3 ? 'near' : 'off';
+      const sc = L.spread == null ? '' : L.spread <= par ? 'good' : L.spread <= 1.5 * par ? 'near' : 'off';
+      h += `<tr><td>L${L.level}</td><td class="num">${L.target ?? '—'}</td><td class="num">${L.clear}${L.clearSE != null ? '<span class="hint"> ±' + L.clearSE + '</span>' : ''}</td>` +
+        `<td class="num ${gc}">${L.gap > 0 ? '+' : ''}${L.gap}</td><td class="num ${ac}">${L.heroActions ?? '—'}</td><td class="num">${L.turnsTarget ?? '—'}</td>` +
+        ['Barbarian','Warrior','Rogue','Wizard'].map(c => clsCell(L.classes[c], L.target, tol)).join('') +
+        `<td class="num ${sc}">${L.spread ?? '—'}</td><td class="num hint">${L.dungeons}</td></tr>`;
+    }
+    return h + '</tbody></table></div>';
+  }).join('') + `<div class="hint" style="margin-top:8px">Green within ±${tol} pts of the clear target (realClearTolerance), amber within ±${2*tol}, red beyond. Spread is best minus worst class (limit ${par}). Hero acts amber/red past 1.5/3 actions off target.</div>`;
+}
+
+const _loadSpark = loadSpark;
+loadSpark = async f => { await _loadSpark(f); renderSparkShards(); };
+loadStatus(); loadSpark(false); loadExternal(); loadRuns();
 setInterval(loadStatus, 3000); setInterval(pollLog, 1500); setInterval(() => loadSpark(false), 15000);
+setInterval(loadExternal, 5000); setInterval(loadRuns, 10000);
 </script></body></html>
 """
 

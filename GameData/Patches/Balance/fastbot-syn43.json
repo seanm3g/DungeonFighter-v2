@@ -1,0 +1,120 @@
+{
+  "base": "fastbot-syn42",
+  "enemySystem": {
+    "damageCurve": {
+      "bands": [
+        {
+          "from": 1,
+          "to": 1,
+          "multiplier": 1.5339
+        },
+        {
+          "from": 2,
+          "to": 2,
+          "multiplier": 1.90259
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "multiplier": 2.3599
+        },
+        {
+          "from": 6,
+          "to": 10,
+          "multiplier": 1.797657
+        },
+        {
+          "from": 11,
+          "to": 15,
+          "multiplier": 4.130907
+        },
+        {
+          "from": 16,
+          "to": 20,
+          "multiplier": 3.695843
+        },
+        {
+          "from": 21,
+          "to": 25,
+          "multiplier": 30.81251
+        },
+        {
+          "from": 26,
+          "to": 30,
+          "multiplier": 14.484723
+        },
+        {
+          "from": 31,
+          "to": 35,
+          "multiplier": 20.310523
+        },
+        {
+          "from": 36,
+          "to": 40,
+          "multiplier": 8.263767
+        },
+        {
+          "from": 41,
+          "to": 45,
+          "multiplier": 58.454025
+        },
+        {
+          "from": 46,
+          "to": 50,
+          "multiplier": 31.236893
+        },
+        {
+          "from": 51,
+          "to": 55,
+          "multiplier": 53.041646
+        },
+        {
+          "from": 56,
+          "to": 60,
+          "multiplier": 17.94369
+        },
+        {
+          "from": 61,
+          "to": 65,
+          "multiplier": 182.885662
+        },
+        {
+          "from": 66,
+          "to": 70,
+          "multiplier": 165.725968
+        },
+        {
+          "from": 71,
+          "to": 75,
+          "multiplier": 167.870895
+        },
+        {
+          "from": 76,
+          "to": 80,
+          "multiplier": 94.191328
+        },
+        {
+          "from": 81,
+          "to": 85,
+          "multiplier": 528.428179
+        },
+        {
+          "from": 86,
+          "to": 90,
+          "multiplier": 476.214998
+        },
+        {
+          "from": 91,
+          "to": 95,
+          "multiplier": 684.849517
+        },
+        {
+          "from": 96,
+          "to": 100,
+          "multiplier": 913.246476
+        }
+      ]
+    }
+  },
+  "description": "fastbot-v38c + hero HP curve: hero max HP tracks median enemy HP 1:1 from L8 (character.healthCurve anchors), enemy damage bands x the same band-mean ratio. 2026-11-07. fastbot-syn40: fastbot-v39hp + health bands ['health@L28', 'health@L3', 'health@L33', 'health@L38', 'health@L48', 'health@L53', 'health@L58', 'health@L63', 'health@L68', 'health@L73', 'health@L8'] (balance-loop, paired confirm on seeds [8101, 8102, 8103, 8104]). fastbot-syn41: fastbot-syn40 + damage bands ['damage@L13', 'damage@L18', 'damage@L28', 'damage@L33', 'damage@L38', 'damage@L48', 'damage@L58', 'damage@L63', 'damage@L68', 'damage@L73'] (balance-loop, paired confirm on seeds [8301, 8302, 8303, 8304]). fastbot-syn42: fastbot-syn41 + class bands ['class:Barbarian@L38', 'class:Barbarian@L73', 'class:Rogue@L13', 'class:Rogue@L28', 'class:Rogue@L63', 'class:Rogue@L68', 'class:Rogue@L73', 'class:Warrior@L13', 'class:Wizard@L13', 'class:Wizard@L38', 'class:Wizard@L63', 'class:Wizard@L68'] (balance-loop, paired confirm on seeds [8501, 8502, 8503, 8504]). fastbot-syn43: fastbot-syn42 + damage bands ['damage@L43'] (balance-loop, paired confirm on seeds [8701, 8702, 8703, 8704])."
+}

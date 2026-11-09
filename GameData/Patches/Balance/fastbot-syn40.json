@@ -1,0 +1,110 @@
+{
+  "base": "fastbot-v39hp",
+  "enemySystem": {
+    "healthCurve": {
+      "bands": [
+        {
+          "from": 1,
+          "to": 5,
+          "multiplier": 0.922319
+        },
+        {
+          "from": 6,
+          "to": 10,
+          "multiplier": 2.412555
+        },
+        {
+          "from": 11,
+          "to": 15,
+          "multiplier": 5.792750000000001
+        },
+        {
+          "from": 16,
+          "to": 20,
+          "multiplier": 5.446249999999999
+        },
+        {
+          "from": 21,
+          "to": 25,
+          "multiplier": 14.061657
+        },
+        {
+          "from": 26,
+          "to": 30,
+          "multiplier": 16.653326
+        },
+        {
+          "from": 31,
+          "to": 35,
+          "multiplier": 32.275001
+        },
+        {
+          "from": 36,
+          "to": 40,
+          "multiplier": 22.951484
+        },
+        {
+          "from": 41,
+          "to": 45,
+          "multiplier": 21.227857
+        },
+        {
+          "from": 46,
+          "to": 50,
+          "multiplier": 37.288536
+        },
+        {
+          "from": 51,
+          "to": 55,
+          "multiplier": 44.371195
+        },
+        {
+          "from": 56,
+          "to": 60,
+          "multiplier": 66.736316
+        },
+        {
+          "from": 61,
+          "to": 65,
+          "multiplier": 99.003272
+        },
+        {
+          "from": 66,
+          "to": 70,
+          "multiplier": 207.517463
+        },
+        {
+          "from": 71,
+          "to": 75,
+          "multiplier": 210.52968
+        },
+        {
+          "from": 76,
+          "to": 80,
+          "multiplier": 60.6982
+        },
+        {
+          "from": 81,
+          "to": 85,
+          "multiplier": 86.498244
+        },
+        {
+          "from": 86,
+          "to": 90,
+          "multiplier": 139.749185
+        },
+        {
+          "from": 91,
+          "to": 95,
+          "multiplier": 123.793232
+        },
+        {
+          "from": 96,
+          "to": 100,
+          "multiplier": 148.15367
+        }
+      ]
+    }
+  },
+  "description": "fastbot-v38c + hero HP curve: hero max HP tracks median enemy HP 1:1 from L8 (character.healthCurve anchors), enemy damage bands x the same band-mean ratio. 2026-11-07. fastbot-syn40: fastbot-v39hp + health bands ['health@L28', 'health@L3', 'health@L33', 'health@L38', 'health@L48', 'health@L53', 'health@L58', 'health@L63', 'health@L68', 'health@L73', 'health@L8'] (balance-loop, paired confirm on seeds [8101, 8102, 8103, 8104])."
+}

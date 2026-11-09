@@ -28,9 +28,9 @@ param(
     # Old spelling of -Bot smart. Survival / L10 clear runs -SmartShardsPerClass x -SmartRunsPerShard runs per class
     # with the -Bot bot, in parallel.
     [switch]$Smart,
-    # Survival / L10 clear bot: rules (default: the bot patches are calibrated with), smart (~40x slower), basic.
-    [ValidateSet("rules", "smart", "basic")]
-    [string]$Bot = "rules",
+    # Survival / L10 clear bot: synergy (default: the bot patches are calibrated with since fastbot-syn47), rules, smart (~40x slower), basic.
+    [ValidateSet("synergy", "rules", "smart", "basic")]
+    [string]$Bot = "synergy",
     [int]$SmartShardsPerClass = 6,
     [int]$SmartRunsPerShard = 4,
     # Also run the basic bot (never optimizes; floor check, reported only). -RunsPerClass sets its runs per class.

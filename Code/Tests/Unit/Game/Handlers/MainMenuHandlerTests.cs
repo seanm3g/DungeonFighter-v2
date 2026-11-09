@@ -93,7 +93,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             handler.ShowTrainingGroundOfferEvent += () => { };
             
             // Test new game input
-            Task.Run(async () => await handler.HandleMenuInput("1")).Wait();
+            Task.Run(async () => await handler.HandleMenuInput(MainMenuHandler.NewFighterKey)).Wait();
             
             TestBase.AssertTrue(true,
                 "HandleMenuInput for new game should complete",
@@ -112,7 +112,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             int offers = 0;
             handler.ShowTrainingGroundOfferEvent += () => offers++;
 
-            handler.HandleMenuInput("1").Wait();
+            handler.HandleMenuInput(MainMenuHandler.NewFighterKey).Wait();
 
             // Each new hero gets its own save file, so existing saves never block a new game.
             TestBase.AssertTrue(offers == 1,
@@ -133,7 +133,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             int loadMenuOpened = 0;
             handler.ShowLoadCharacterSelectionEvent += () => loadMenuOpened++;
 
-            Task.Run(async () => await handler.HandleMenuInput("2")).Wait();
+            Task.Run(async () => await handler.HandleMenuInput(MainMenuHandler.AllFightersKey)).Wait();
             
             TestBase.AssertTrue(loadMenuOpened == 1,
                 "Load Game should open the Load Character menu",
@@ -152,7 +152,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             handler.ShowSettingsEvent += () => { };
             
             // Test settings input
-            handler.HandleMenuInput("5").Wait();
+            handler.HandleMenuInput(MainMenuHandler.SettingsKey).Wait();
             
             TestBase.AssertTrue(true,
                 "HandleMenuInput for settings should complete",
@@ -170,12 +170,7 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             var handler = new MainMenuHandler(stateManager, initManager, null, gameInitializer);
             handler.ShowCharacterSelectionEvent += () => { };
             
-            // Test character selection input (both "4" and "C")
-            handler.HandleMenuInput("4").Wait();
-            TestBase.AssertTrue(true,
-                "HandleMenuInput for character selection (4) should complete",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            
+            // Test character selection input ("C"; digits now load fighter cards)
             handler.HandleMenuInput("C").Wait();
             TestBase.AssertTrue(true,
                 "HandleMenuInput for character selection (C) should complete",

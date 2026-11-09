@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Unit
             TestMaterialPaysItsOwnAttribute();
             TestClassTagsCountOnlyOwnMaterials();
             TestKinshipCountsOnlyOwnMaterials();
+            TestClasslessMaterialPaysTopAttribute();
 
             TestBase.PrintSummary("MixedMaterials Tests", _run, _passed, _failed);
         }
@@ -62,6 +63,22 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual("STR", MaterialSetController.GetConvertStatCode(wizard, "RAGE"), "a Wizard's BONE WRATH still pays STR",
                 ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("TEC", MaterialSetController.GetConvertStatCode(wizard, "GRAZE"), "and GLASS NICK pays TEC",
+                ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestClasslessMaterialPaysTopAttribute()
+        {
+            TestBase.SetCurrentTestName(nameof(TestClasslessMaterialPaysTopAttribute));
+            var hero = TestDataBuilders.Character().WithName("MixStone").WithStats(8, 14, 10, 6).Build();
+            int agi = hero.GetEffectiveAgility();
+            int str = hero.GetEffectiveStrength();
+            var stone = new Modification { Name = "Stone", PrefixCategory = "MATERIAL", Effect = "PRIMARY", MinValue = 2, MaxValue = 2, RolledValue = 2 };
+            var celestial = new Modification { Name = "Celestial", PrefixCategory = "MATERIAL", Effect = "PRIMARY", MinValue = 4, MaxValue = 4, RolledValue = 4 };
+            hero.EquipItem(TestDataBuilders.Armor().WithType(ItemType.Head).WithName("StoneHelm").WithModification(stone).Build(), "head");
+            hero.EquipItem(TestDataBuilders.Armor().WithType(ItemType.Feet).WithName("CelestialBoots").WithModification(celestial).Build(), "feet");
+            TestBase.AssertEqual(agi + 6, hero.GetEffectiveAgility(), "class-less pieces add their value to the top attribute (AGI)",
+                ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(str, hero.GetEffectiveStrength(), "and nothing to the other attributes",
                 ref _run, ref _passed, ref _failed);
         }
 

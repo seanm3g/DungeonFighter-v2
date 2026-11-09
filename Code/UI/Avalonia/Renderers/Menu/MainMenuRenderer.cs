@@ -36,7 +36,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// <summary>
         /// Main menu as a fighter roster: one card per saved fighter (most recently saved first, click to load), a "+"
         /// card for a new fighter, "Fighter Overview (Stable)" top left, Settings / Quit bottom right.
-        /// Keys stay the same as the old list menu: 1 new, 2 all saved fighters, 3 stable, 5 settings, 0 quit.
+        /// Keys: 1-9 load the fighter cards in order; N new, A all saved fighters, F overview, S settings, Q / 0 quit.
         /// </summary>
         public int RenderMainMenuContent(int x, int y, int width, int height, bool hasSavedGame, int savedFighterCount, string? newGameConfirmPrompt = null)
         {
@@ -52,8 +52,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             int right = x + width - Math.Max(2, width * 8 / 100);
 
             // Fighter Overview (Stable), top left
-            const string overviewLabel = "Fighter Overview (Stable)";
-            BoxButton.Draw(canvas, clickableElements, left, y + Math.Max(1, height * 6 / 100), overviewLabel.Length + 4, 3, overviewLabel, "3");
+            string overviewLabel = $"[{MainMenuHandler.OverviewKey.ToUpperInvariant()}] Fighter Overview (Stable)";
+            BoxButton.Draw(canvas, clickableElements, left, y + Math.Max(1, height * 6 / 100), overviewLabel.Length + 4, 3, overviewLabel, MainMenuHandler.OverviewKey);
 
             // Fighter cards + the add card in one row (wraps to a second row when there are many fighters).
             const int cardW = 28;
@@ -63,8 +63,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             int maxRows = height >= 40 ? 2 : 1;
             int capacity = perRow * maxRows;
             // Last slot is the "+" card; if fighters overflow, the one before it opens the full saved list.
-            bool overflow = saved.Count > capacity - 1;
-            int fighterCards = overflow ? capacity - 2 : saved.Count;
+            // Fighter cards are hotkeyed 1-9, so at most nine get a card of their own.
+            int fighterCapacity = Math.Min(capacity - 1, MainMenuHandler.MaxFighterHotkeys);
+            bool overflow = saved.Count > fighterCapacity;
+            int fighterCards = overflow ? Math.Min(capacity - 2, MainMenuHandler.MaxFighterHotkeys) : saved.Count;
 
             int cardsTop = y + Math.Max(5, height * 24 / 100);
             int slot = 0;
@@ -79,7 +81,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             {
                 var (_, name, level) = saved[i];
                 NextSlot(out int cx, out int cy);
-                var lines = new List<string>();
+                var lines = new List<string> { $"[{i + 1}]" };
                 lines.AddRange(WrapName(name, cardW - 4));
                 lines.Add("");
                 lines.Add($"Level {level}");
@@ -89,19 +91,22 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             if (overflow)
             {
                 NextSlot(out int mx, out int my);
-                BoxButton.Draw(canvas, clickableElements, mx, my, cardW, cardH, $"+{saved.Count - fighterCards} more", "2", gold, 1,
-                    new[] { "", "all saved fighters" });
+                BoxButton.Draw(canvas, clickableElements, mx, my, cardW, cardH, $"[{MainMenuHandler.AllFightersKey.ToUpperInvariant()}]", MainMenuHandler.AllFightersKey, gold, 1,
+                    new[] { $"+{saved.Count - fighterCards} more", "", "all saved fighters" });
             }
 
             NextSlot(out int ax, out int ay);
-            BoxButton.Draw(canvas, clickableElements, ax, ay, cardW, cardH, "+", "1", gold, 1, new[] { "", "new fighter" });
+            BoxButton.Draw(canvas, clickableElements, ax, ay, cardW, cardH, $"[{MainMenuHandler.NewFighterKey.ToUpperInvariant()}]", MainMenuHandler.NewFighterKey, gold, 1,
+                new[] { "+", "", "new fighter" });
 
             // Settings / Quit, bottom right
             const int sideW = 22;
             int sideX = right - sideW;
             int quitY = y + height - Math.Max(6, height * 14 / 100);
-            BoxButton.Draw(canvas, clickableElements, sideX, quitY - 4, sideW, 3, UIConstants.MenuOptions.Settings, "5");
-            BoxButton.Draw(canvas, clickableElements, sideX, quitY, sideW, 3, UIConstants.MenuOptions.Quit, "0");
+            BoxButton.Draw(canvas, clickableElements, sideX, quitY - 4, sideW, 3,
+                $"[{MainMenuHandler.SettingsKey.ToUpperInvariant()}] {UIConstants.MenuOptions.Settings}", MainMenuHandler.SettingsKey);
+            BoxButton.Draw(canvas, clickableElements, sideX, quitY, sideW, 3,
+                $"[{MainMenuHandler.QuitKey.ToUpperInvariant()}] {UIConstants.MenuOptions.Quit}", MainMenuHandler.QuitKey);
 
             int rowsUsed = (slot + perRow - 1) / perRow;
             int belowCards = cardsTop + rowsUsed * (cardH + 2) + 1;
@@ -113,7 +118,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             }
             else if (saved.Count == 0)
             {
-                canvas.AddText(left, belowCards, "No fighters yet. Click + to create one.", AsciiArtAssets.Colors.Gray);
+                canvas.AddText(left, belowCards, "No fighters yet. Click + or press N to create one.", AsciiArtAssets.Colors.Gray);
             }
 
             return slot;

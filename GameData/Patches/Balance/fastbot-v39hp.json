@@ -591,7 +591,13 @@
       "SWING": 1.77,
       "CHAIN": 3.5,
       "LENS": 19.4,
-      "CONTACT": 2.41
+      "CONTACT": 2.41,
+      "GRIT": 3.0,
+      "ENIGMA": 1.16,
+      "ODDITY": 10.5,
+      "OMEN": 7.08,
+      "KINDLING": 5.0,
+      "FRAY": 7.63
     },
     "materialConvertMaxUnits": 0,
     "materialFiveStackMintMultiplier": 2,
@@ -639,13 +645,21 @@
       "Willow": 3.0,
       "Crystal": 2.0,
       "Silver": 4.0,
-      "Gold": 3.0
+      "Gold": 3.0,
+      "Stone": 1.5,
+      "Unknown": 1.5,
+      "Strange": 1.5,
+      "Celestial": 1.5
     },
     "materialFightMintSpeedPercentPerUnit": {
       "TRIUMPH": 5.0,
       "SWING": 1.1,
       "RAGE": 1.5,
-      "CONTACT": 1.4
+      "CONTACT": 1.4,
+      "GRIT": 0.75,
+      "ENIGMA": 0.55,
+      "OMEN": 0.7,
+      "ODDITY": 2.5
     },
     "materialFightMintSpeedMaxPercent": 100.0,
     "materialFightMintDamageReductionPercentPerUnit": {
@@ -654,7 +668,11 @@
       "CHAIN": 2,
       "TRIUMPH": 4,
       "CRISIS": 4,
-      "LENS": 3
+      "LENS": 3,
+      "GRIT": 1.5,
+      "ENIGMA": 1.0,
+      "OMEN": 1.0,
+      "ODDITY": 2.0
     },
     "materialFightMintDamageReductionMaxPercent": 60.0,
     "heroAgilitySpeedSoftCap": 130,
@@ -680,7 +698,13 @@
       "SWING": 0.475,
       "CHAIN": 0.098,
       "LENS": 2.669,
-      "CONTACT": 0.211
+      "CONTACT": 0.211,
+      "GRIT": 0.3,
+      "ENIGMA": 0.946,
+      "ODDITY": 6.562,
+      "OMEN": 1.482,
+      "KINDLING": 1.0,
+      "FRAY": 3.04
     },
     "materialConvertPrimaryStatMaxPerFight": 0,
     "heroAgilitySoftCapExemptsSets": true,

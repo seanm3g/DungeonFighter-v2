@@ -17,25 +17,30 @@ ap.add_argument('--ref', default='', help='reference patch for the final held-ou
 ap.add_argument('--run', default='chain')
 ap.add_argument('--tools', default='Code/bin/BalanceTools')
 ap.add_argument('--prefix', default='fastbot-v')
+ap.add_argument('--seed-base', type=int, default=8000, help='diag/confirm seeds start here (+200 per step); change it for a second chain so no seed is reused')
+ap.add_argument('--levels', default='', help='band midpoints for every step (balance-loop.py --levels; default its midpoints)')
+ap.add_argument('--holdout-seeds', default='9901,9902,9903,9904')
+ap.add_argument('--bot', default='synergy', help='DUNGEONSIM bot for every step (balance-loop.py --bot)')
 A = ap.parse_args()
 
 cur, ver = A.start, A.first
 loop = [sys.executable, '-u', os.path.join(ROOT, 'Scripts', 'balance-loop.py')]
+lv = ['--levels', A.levels] if A.levels else []
 for i, knob in enumerate(A.steps.split(',')):
     nxt = f'{A.prefix}{ver}'
-    b = 8000 + 200 * i
+    b = A.seed_base + 200 * i
     diag = ','.join(str(b + k) for k in range(1, 5)); conf = ','.join(str(b + 100 + k) for k in range(1, 5))
     print(f'== step {i + 1}: {knob} on {cur} -> {nxt}', flush=True)
-    subprocess.run(loop + ['solve', '--patch', cur, '--knob', knob, '--next', nxt, '--run', A.run, '--tools', A.tools,
+    subprocess.run(loop + ['solve'] + lv + ['--patch', cur, '--knob', knob, '--next', nxt, '--run', A.run, '--tools', A.tools, '--bot', A.bot,
                            '--diag-seeds', diag, '--confirm-seeds', conf, '--solve-seed', str(40 + 20 * i)], cwd=ROOT)
     res = os.path.join(ROOT, 'GameData', 'TuningRuns', 'balance-loop', A.run, f'solve-{knob}-{cur}.json')
     made = os.path.exists(os.path.join(ROOT, 'GameData', 'Patches', 'Balance', nxt + '.json'))
     if made:
         cur, ver = nxt, ver + 1
     print(f'   -> {"new patch " + cur if made else "no change, staying on " + cur}', flush=True)
-args = loop + ['measure', '--patch', cur, '--seeds', '9901,9902,9903,9904', '--run', A.run, '--tools', A.tools]
+args = loop + ['measure'] + lv + ['--patch', cur, '--seeds', A.holdout_seeds, '--run', A.run, '--tools', A.tools, '--bot', A.bot]
 if A.ref:
     args += ['--ref', A.ref]
 subprocess.run(args, cwd=ROOT)
-subprocess.run(loop + ['botcheck', '--patch', cur, '--run', A.run, '--tools', A.tools, '--seeds', '9951,9952'], cwd=ROOT)
+subprocess.run(loop + ['botcheck'] + lv + ['--patch', cur, '--run', A.run, '--tools', A.tools, '--bot', A.bot, '--seeds', '9951,9952'], cwd=ROOT)
 print(f'== chain done: final patch {cur}', flush=True)

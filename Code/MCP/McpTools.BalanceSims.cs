@@ -25,7 +25,7 @@ namespace RPGGame.MCP
             [Description("Dungeons per hero (default 6)")] int dungeons = 6,
             [Description("Base seed; same seed replays the same heroes (default 1)")] int seed = 1,
             [Description("Optional comma list of classes")] string? classes = null,
-            [Description("Bot: rules (default, fast), smart (~40x slower), basic")] string? bot = null,
+            [Description("Bot: synergy (default, the calibration bot), rules (fast picks only), smart (~40x slower), basic")] string? bot = null,
             [Description("Spread runs across region themes")] bool regionMix = false,
             [Description("Start every run in this region theme: Forest, Water, Fire, Air")] string? regionTheme = null,
             [Description("Damage anchor overrides 'L=multiplier,...' for a quick what-if")] string? anchors = null,

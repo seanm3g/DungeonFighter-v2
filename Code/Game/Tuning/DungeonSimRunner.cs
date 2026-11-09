@@ -41,10 +41,10 @@ namespace RPGGame.Tuning
             int runs = Math.Max(1, TuningCliArgs.GetIntFlag(args, "--runs") ?? 6);
             int dungeons = Math.Max(1, TuningCliArgs.GetIntFlag(args, "--dungeons") ?? 8);
             int retreat = TuningCliArgs.GetIntFlag(args, "--retreat-below") ?? 50;
-            // --bot rules (default, no simulated picks) | smart | basic; --basic is the old spelling of --bot basic.
-            string bot = (TuningCliArgs.GetFlagValue(args, "--bot") ?? (TuningCliArgs.HasFlag(args, "--basic") ? "basic" : "rules")).ToLowerInvariant();
-            if (bot is not ("smart" or "rules" or "basic"))
-                throw new ArgumentException("DUNGEONSIM --bot must be smart, rules or basic.");
+            // --bot synergy (default, the calibration bot: rules + set/skill synergy) | rules (no simulated picks) | smart | basic; --basic is the old spelling of --bot basic.
+            string bot = (TuningCliArgs.GetFlagValue(args, "--bot") ?? (TuningCliArgs.HasFlag(args, "--basic") ? "basic" : "synergy")).ToLowerInvariant();
+            if (bot is not ("smart" or "rules" or "synergy" or "basic"))
+                throw new ArgumentException("DUNGEONSIM --bot must be smart, rules, synergy or basic.");
             string? classes = TuningCliArgs.GetFlagValue(args, "--classes");
             string? jsonPath = TuningCliArgs.GetFlagValue(args, "--json");
             int? seed = TuningCliArgs.GetSeedFlag(args);
@@ -58,7 +58,8 @@ namespace RPGGame.Tuning
             ClassPlaythroughRunner.MaxDungeons = dungeons;
             ClassPlaythroughRunner.StopAtLevel = 0;
             ClassPlaythroughRunner.SmartPolicy = bot == "smart";
-            ClassPlaythroughRunner.RulesPolicy = bot == "rules";
+            ClassPlaythroughRunner.RulesPolicy = bot is "rules" or "synergy";
+            PlaythroughRulesPolicy.Synergy = bot == "synergy";
             PlaythroughRulesPolicy.ExploreStrips = TuningCliArgs.HasFlag(args, "--explore-strips");
             ClassPlaythroughRunner.RegionMix = TuningCliArgs.HasFlag(args, "--region-mix");
             ClassPlaythroughRunner.RegionTheme = TuningCliArgs.GetFlagValue(args, "--region-theme");

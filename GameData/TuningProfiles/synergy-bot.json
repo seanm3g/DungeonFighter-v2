@@ -1,0 +1,67 @@
+{
+  "description": "Synergy weights for DUNGEONSIM --bot synergy (Code/Game/Tuning/RulesSynergy.cs). when:<WHEN> rules apply while a set of that material is formed (scaled up per piece past 2); node:<id> rules apply per learned rank (capped at maxRankScale). Feature names: tag:<tag>, hits, fast, slowAction, heavy, hit, crit, combo, slow, weaken, expose, vuln, harden, pierce, confuse, disrupt, finisher, opener, statbuff, heal, oncrit, onkill, fx:bleed|burn|poison|stun|fortify|focus. Mined priority spans 1.0 (top) to 0.5; first-guess weights 2026-11-07.",
+  "minScore": 0.5,
+  "setPieceGrowth": 0.25,
+  "maxRankScale": 3,
+  "branchBonus": 0.35,
+  "setNodeBonus": 0.25,
+  "skillFromStripScale": 1.0,
+  "setNodes": [
+    "b-tribe", "b-age1", "b-kin", "b-synth", "b-combo",
+    "w-lineage", "w-age1", "w-kin", "w-synth", "w-combo",
+    "r-veil", "r-age1", "r-kin", "r-synth", "r-combo",
+    "z-circle", "z-age1", "z-kin", "z-synth", "z-combo"
+  ],
+  "fillSlotNodes": ["b-empty", "z-chaos", "z-slotInt"],
+  "rules": {
+    "when:ONENEMYHEALTHTHRESHOLD": { "heavy": 0.4, "hits": 0.1 },
+    "when:ONCOMBOEND": { "fast": 0.4, "combo": 0.15 },
+    "when:ONRECEIVEHIT": { "harden": 0.15, "heal": 0.2 },
+    "when:ONTURN": { "fast": 0.6 },
+    "when:ONSLOW": { "slow": 0.8, "weaken": 0.1 },
+    "when:ONCONSECUTIVEATTACK": { "hit": 0.35, "hits": 0.2, "fast": 0.3 },
+    "when:ONCRITICAL": { "crit": 0.4, "oncrit": 0.2, "hits": 0.1 },
+    "when:ONATTACK": { "fast": 0.6, "hits": 0.05 },
+    "when:ONKILL": { "heavy": 0.35, "finisher": 0.3, "onkill": 0.2 },
+    "when:ONCOMBO": { "combo": 0.4, "hits": 0.1, "fast": 0.2 },
+    "when:ONFOCUS": { "fx:focus": 0.6, "tag:focus": 0.2 },
+    "when:ONCONNECT": { "hit": 0.35, "hits": 0.3 },
+
+    "node:b-combo": { "tag:barbarian": 0.25 },
+    "node:w-combo": { "tag:warrior": 0.25 },
+    "node:r-combo": { "tag:rogue": 0.25 },
+    "node:z-combo": { "tag:wizard": 0.25 },
+    "node:r-precision": { "tag:rogue": 0.3 },
+    "node:w-avenge": { "tag:warrior": 0.1 },
+
+    "node:b-stun": { "crit": 0.15, "tag:mace": 0.05 },
+    "node:b-blood": { "tag:mace": 0.06, "hits": 0.04 },
+    "node:b-knuckle": { "harden": 0.12 },
+    "node:b-frenzy": { "fx:bleed": 0.12, "fx:stun": 0.12, "disrupt": 0.08 },
+    "node:b-venom": { "fx:poison": 0.15 },
+
+    "node:w-hitagi": { "tag:sword": 0.05, "hit": 0.05 },
+    "node:w-streak": { "hit": 0.08, "hits": 0.04 },
+    "node:w-march": { "tag:sword": 0.05 },
+    "node:w-phalanx": { "fx:fortify": 0.1 },
+    "node:w-wind": { "fast": 0.06 },
+    "node:w-pin": { "slow": 0.15, "weaken": 0.15 },
+
+    "node:r-streak": { "hit": 0.08 },
+    "node:r-cut": { "hits": 0.08 },
+    "node:r-mastery": { "hits": 0.2 },
+    "node:r-toxin": { "fx:poison": 0.1 },
+    "node:r-edge": { "fx:poison": 0.1, "crit": 0.05 },
+    "node:r-insight": { "fx:poison": 0.1, "expose": 0.15 },
+    "node:r-aim": { "crit": 0.1 },
+
+    "node:z-comboInt": { "combo": 0.1, "tag:wand": 0.03 },
+    "node:z-soft": { "tag:wand": 0.04 },
+    "node:z-lens": { "tag:wand": 0.04 },
+    "node:z-weave": { "tag:wand": 0.05 },
+    "node:z-bleed": { "tag:wand": 0.06, "hits": 0.04 },
+    "node:z-sigil": { "fx:burn": 0.1 },
+    "node:z-kindle": { "fx:burn": 0.1, "vuln": 0.15 },
+    "node:z-shock": { "slow": 0.3, "fx:burn": 0.3 }
+  }
+}

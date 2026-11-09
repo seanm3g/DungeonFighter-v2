@@ -4,7 +4,7 @@ namespace DungeonFighter.Game.Menu.Core
 {
     /// <summary>
     /// Validation rules for the Main Menu.
-    /// Valid inputs: "1" (New Game), "2" (Load Game), "3" (Stable), "4" (History), "5" (Settings), "0" (Exit)
+    /// Valid inputs: "1"-"9" (fighter card), "N" (New Game), "A" (All saved), "F" (Fighter Overview), "S" (Settings), "Q"/"0" (Exit), "C" (Characters)
     /// </summary>
     public class MainMenuValidationRules : IValidationRules
     {
@@ -13,10 +13,10 @@ namespace DungeonFighter.Game.Menu.Core
             string cleaned = input.Trim();
 
             if (cleaned.Length != 1)
-                return ValidationResult.Invalid("Please enter a single digit (0-5)");
+                return ValidationResult.Invalid("Please enter a single key");
 
-            if (!"012345".Contains(cleaned))
-                return ValidationResult.Invalid("Invalid choice. Enter 1 (New Game), 2 (Load), 3 (Stable), 4 (History), 5 (Settings), or 0 (Exit)");
+            if (!"0123456789nafsqc".Contains(char.ToLowerInvariant(cleaned[0])))
+                return ValidationResult.Invalid("Invalid choice. Enter 1-9 (fighter), N (New Game), A (All saved), F (Fighter Overview), S (Settings), or Q (Exit)");
 
             return ValidationResult.Valid();
         }

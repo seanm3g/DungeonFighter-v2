@@ -1,6 +1,8 @@
 namespace RPGGame
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Avalonia.Threading;
     using RPGGame.Audio;
@@ -105,7 +107,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Handle main menu input (1=New, 2=Load, 3=Stable, 4=History, 5=Settings, 0=Quit)
+        /// Handle main menu input (1-9=load fighter card, N=New, A=All saved, F=Fighter Overview, S=Settings, Q/0=Quit)
         /// </summary>
         public async Task HandleMenuInput(string input)
         {
@@ -118,44 +120,59 @@ namespace RPGGame
             if (trimmedInput.StartsWith(FighterCardPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 if (int.TryParse(trimmedInput.Substring(FighterCardPrefix.Length), out int fighterNumber))
-                    await LoadGame(fighterNumber - 1);
+                {
+                    var saves = CharacterSaveManager.ListAllSavedCharacters();
+                    await LoadGame(saves == null ? fighterNumber - 1 : FighterNumberToSaveIndex(saves, fighterNumber));
+                }
                 return;
             }
 
-            switch (trimmedInput)
+            // Digits 1-9 load the matching fighter card (same order as the roster).
+            if (trimmedInput.Length == 1 && trimmedInput[0] >= '1' && trimmedInput[0] <= '9')
             {
-                case "1":
+                int fighterNumber = trimmedInput[0] - '0';
+                var saves = CharacterSaveManager.ListAllSavedCharacters();
+                int namedSaves = saves?.Count(c => !string.IsNullOrWhiteSpace(c.characterName)) ?? 0;
+                if (fighterNumber > namedSaves)
+                {
+                    AudioCues.Trigger(AudioCue.Menu_Invalid);
+                    ShowMessageEvent?.Invoke($"No fighter {fighterNumber}. Press N for a new fighter.");
+                    return;
+                }
+                await LoadGame(FighterNumberToSaveIndex(saves!, fighterNumber));
+                return;
+            }
+
+            switch (trimmedInput.ToLowerInvariant())
+            {
+                case NewFighterKey:
                     // Every new hero gets its own save file, so this never replaces an existing character.
                     await StartNewGame();
                     break;
-                case "2":
+                case AllFightersKey:
                     DebugLogger.Log("MainMenuHandler", "Load game option selected");
                     if (ShowLoadCharacterSelectionEvent != null)
                         ShowLoadCharacterSelectionEvent.Invoke();
                     else
                         await LoadGame();
                     break;
-                case "3":
+                case OverviewKey:
                     ShowStableEvent?.Invoke();
                     break;
-                case "4":
-                    // Deaths are already logged to FighterHistory; the History screen itself is not built yet.
-                    ShowMessageEvent?.Invoke("History: coming soon.");
-                    break;
-                case "5":
+                case SettingsKey:
                     HandleSettingsSelection();
                     break;
-                case "C":
                 case "c":
                     // Character Selection (multi-character support)
                     ShowCharacterSelectionEvent?.Invoke();
                     break;
+                case QuitKey:
                 case "0":
                     HandleQuitSelection();
                     break;
                 default:
                     AudioCues.Trigger(AudioCue.Menu_Invalid);
-                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Click a fighter, or press 1 (New fighter), 2 (All saved fighters), 3 (Fighter Overview), 5 (Settings), or 0 (Quit).");
+                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Press 1-9 for a fighter, N (New fighter), A (All saved fighters), F (Fighter Overview), S (Settings), or Q (Quit).");
                     break;
             }
         }
@@ -249,6 +266,31 @@ namespace RPGGame
 
         /// <summary>Main menu fighter card input prefix: <c>fighter:1</c> loads the most recently saved hero.</summary>
         public const string FighterCardPrefix = "fighter:";
+
+        /// <summary>Fighter cards are hotkeyed 1-9 in roster order.</summary>
+        public const int MaxFighterHotkeys = 9;
+        public const string NewFighterKey = "n";
+        public const string AllFightersKey = "a";
+        public const string OverviewKey = "f";
+        public const string SettingsKey = "s";
+        public const string QuitKey = "q";
+
+        /// <summary>
+        /// Maps the Nth roster card (1-based; the roster skips saves without a name) to its index in the full save list.
+        /// Returns -1 when there is no such card.
+        /// </summary>
+        private static int FighterNumberToSaveIndex(List<(string characterId, string characterName, int level)> saves, int fighterNumber)
+        {
+            int seen = 0;
+            for (int i = 0; i < saves.Count; i++)
+            {
+                if (string.IsNullOrWhiteSpace(saves[i].characterName))
+                    continue;
+                if (++seen == fighterNumber)
+                    return i;
+            }
+            return -1;
+        }
 
         /// <summary>
         /// Load a saved character by its position in the save list (most recent first). Index 0 is also the

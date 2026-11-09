@@ -33,6 +33,12 @@ namespace RPGGame.Tuning
         /// </summary>
         public static bool ExploreStrips { get; set; }
 
+        /// <summary>
+        /// Synergy mode (DUNGEONSIM --bot synergy): gear first, then skills and strip scored by <see cref="RulesSynergy"/>
+        /// against the worn sets' WHEN triggers and the learned nodes, on top of the mined priority lists.
+        /// </summary>
+        public static bool Synergy { get; set; }
+
         private static RulesData? _data;
         private readonly Action<string>? _trace;
         private string _lastSignature = "";
@@ -76,9 +82,21 @@ namespace RPGGame.Tuning
             PlaythroughFightRecorder.Suspended = true;
             try
             {
-                LearnSkills(hero, homeType, cls, milestone);
-                EquipGear(hero, homeType, milestone);
-                BuildStrip(hero, homeType, StripKey(cls, hero.Level));
+                if (Synergy)
+                {
+                    // Gear first so skills can follow the set; strip twice so node picks see the strip and the strip
+                    // sees the new nodes.
+                    EquipGear(hero, homeType, milestone);
+                    BuildStrip(hero, homeType, StripKey(cls, hero.Level));
+                    LearnSkills(hero, homeType, cls, milestone);
+                    BuildStrip(hero, homeType, StripKey(cls, hero.Level));
+                }
+                else
+                {
+                    LearnSkills(hero, homeType, cls, milestone);
+                    EquipGear(hero, homeType, milestone);
+                    BuildStrip(hero, homeType, StripKey(cls, hero.Level));
+                }
             }
             finally
             {
@@ -105,7 +123,9 @@ namespace RPGGame.Tuning
                     .ToList();
                 var free = available.FirstOrDefault(n => n.Cost == 0);
                 SkillTreeNodeDefinition? pick = free;
-                if (pick == null && hero.Progression.GetAvailableSkillPoints(homeType) > 0)
+                if (pick == null && Synergy && hero.Progression.GetAvailableSkillPoints(homeType) > 0)
+                    pick = SynergySkillPick(hero, homeType, order, available);
+                else if (pick == null && hero.Progression.GetAvailableSkillPoints(homeType) > 0)
                 {
                     var byId = available.ToDictionary(n => n.Id, StringComparer.OrdinalIgnoreCase);
                     var mentions = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -127,6 +147,55 @@ namespace RPGGame.Tuning
                 SkillsLearned++;
                 _trace?.Invoke($"    rules: learned skill {pick.Id}");
             }
+        }
+
+        /// <summary>
+        /// Synergy skill pick: the mined order's position (next mined pick scores 1, the end of the list 0, unlisted 0)
+        /// plus a bonus for the main worn set's branch, for set-scaling nodes while a home set is worn, and for nodes
+        /// whose "node:" weights match the current strip.
+        /// </summary>
+        private SkillTreeNodeDefinition? SynergySkillPick(Character hero, WeaponType homeType, List<string> order, List<SkillTreeNodeDefinition> available)
+        {
+            var sd = RulesSynergy.Data;
+            var sets = RulesSynergy.FormedSets(hero);
+            string home = PlaythroughSmartPolicy.ClassKeyOf(homeType);
+            string? mainMaterial = sets.Count > 0 ? sets[0].Material : null;
+            bool homeSet = sets.Any(s => string.Equals(MaterialBuildsLoader.FindByMaterial(s.Material)?.AssociatedClass, home, StringComparison.OrdinalIgnoreCase));
+            var strip = StripOf(hero);
+
+            var minedIndex = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var mentions = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < order.Count; i++)
+            {
+                string id = order[i];
+                int rank = mentions[id] = mentions.GetValueOrDefault(id) + 1;
+                if (rank == hero.Progression.GetSkillRank(id) + 1 && !minedIndex.ContainsKey(id))
+                    minedIndex[id] = i;
+            }
+            int first = minedIndex.Count > 0 ? minedIndex.Values.Min() : 0;
+            double span = Math.Max(1, order.Count - first);
+
+            SkillTreeNodeDefinition? best = null;
+            double bestScore = double.NegativeInfinity;
+            string bestWhy = "";
+            foreach (var node in available.Where(n => hero.Progression.GetSkillRank(n.Id) < n.MaxRank))
+            {
+                double mined = minedIndex.TryGetValue(node.Id, out int idx) ? 1 - (idx - first) / span : 0;
+                double branch = mainMaterial != null && string.Equals(node.Branch, mainMaterial, StringComparison.OrdinalIgnoreCase)
+                    && !node.Id.Contains("-sink-", StringComparison.OrdinalIgnoreCase) ? sd.BranchBonus : 0;
+                double setNode = homeSet && sd.SetNodes.Contains(node.Id, StringComparer.OrdinalIgnoreCase) ? sd.SetNodeBonus : 0;
+                double stripFit = sd.SkillFromStripScale * RulesSynergy.NodeStripSynergy(node.Id, strip);
+                double score = mined + branch + setNode + stripFit;
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = node;
+                    bestWhy = $"mined {mined:0.00} branch {branch:0.00} set {setNode:0.00} strip {stripFit:0.00}";
+                }
+            }
+            if (best != null)
+                _trace?.Invoke($"    synergy: skill {best.Id} ({bestWhy})");
+            return best;
         }
 
         // ---------------------------------------------------------------- gear
@@ -208,6 +277,11 @@ namespace RPGGame.Tuning
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
             int length = Math.Max(1, max);
             var picks = MaterialSetController.GetGrantedConvertActionNames(hero).Where(owned.Contains).ToList();
+            if (Synergy && !ExploreStrips)
+            {
+                SynergyStrip(hero, cls, owned, picks, length);
+                return;
+            }
             foreach (string a in Data.ActionPriority.GetValueOrDefault(cls) ?? new List<string>())
                 if (picks.Count < length && owned.Contains(a) && !picks.Contains(a, StringComparer.OrdinalIgnoreCase))
                     picks.Add(a);
@@ -237,6 +311,61 @@ namespace RPGGame.Tuning
             hero.ComboStep = 0;
             SequenceChanges++;
             _trace?.Invoke($"    rules: sequence {string.Join(" > ", StripOf(hero))}");
+        }
+
+        /// <summary>
+        /// Synergy strip: set converts first, then owned actions by mined priority (nearest level list 1.0 down to 0.5,
+        /// farther lists decayed) plus synergy points; actions below MinScore stay off unless a fill-slot node is learned
+        /// or the self-mined strip length floor needs them. Ordered by the mined slot positions.
+        /// </summary>
+        private void SynergyStrip(Character hero, string cls, HashSet<string> owned, List<string> picks, int length)
+        {
+            var sources = RulesSynergy.ActiveSources(hero);
+            var baseScore = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+            double decay = 1;
+            foreach (string key in FallbackKeys(cls, hero.Level))
+            {
+                var list = Data.ActionPriority.GetValueOrDefault(key) ?? new List<string>();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    double s = decay * (1 - 0.5 * i / Math.Max(1, list.Count));
+                    if (s > baseScore.GetValueOrDefault(list[i]))
+                        baseScore[list[i]] = s;
+                }
+                decay *= 0.85;
+            }
+            var scored = owned.Where(a => !picks.Contains(a, StringComparer.OrdinalIgnoreCase))
+                .Select(a => (name: a, mined: baseScore.GetValueOrDefault(a), syn: RulesSynergy.ActionSynergy(a, sources)))
+                .Select(x => (x.name, x.mined, x.syn, total: x.mined + x.syn))
+                .OrderByDescending(x => x.total)
+                .ThenBy(x => x.name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            bool fill = RulesSynergy.FillsSlots(hero);
+            int floor = Math.Min(StripLengthFor(cls), length);
+            foreach (var x in scored)
+            {
+                if (picks.Count >= length)
+                    break;
+                if (x.total >= RulesSynergy.Data.MinScore || fill || picks.Count < floor)
+                    picks.Add(x.name);
+            }
+            if (picks.Count == 0)
+                return;
+            var position = Data.ActionOrder.GetValueOrDefault(cls) ?? new Dictionary<string, double>();
+            var strip = picks.Take(length).OrderBy(a => position.GetValueOrDefault(a, 0.5)).ToList();
+            if (strip.SequenceEqual(StripOf(hero), StringComparer.OrdinalIgnoreCase))
+                return;
+            hero.RestoreComboFromActionNames(strip);
+            WeaponRequiredComboAction.EnsureRequiredBasicInCombo(hero);
+            hero.ComboStep = 0;
+            SequenceChanges++;
+            if (_trace != null)
+            {
+                var why = scored.Where(x => strip.Contains(x.name, StringComparer.OrdinalIgnoreCase))
+                    .Select(x => $"{x.name} {x.mined:0.00}+{x.syn:0.00}");
+                _trace($"    synergy: sources {string.Join(", ", sources.Select(s => $"{s.Source}x{s.Scale:0.##}"))}");
+                _trace($"    synergy: sequence {string.Join(" > ", StripOf(hero))}  [{string.Join(", ", why)}]");
+            }
         }
 
         /// <summary>The mined "Class@Level" strip key closest to <paramref name="level"/>, else the class key.</summary>

@@ -125,6 +125,7 @@ namespace RPGGame.UI.Avalonia.Canvas
             }
 
             ClearDrawCachesIfFontChanged();
+            PrepareGridGlyphs();
 
             double charWidth = coordinateConverter.GetCharWidth();
             double charHeight = coordinateConverter.GetCharHeight();
@@ -205,6 +206,8 @@ namespace RPGGame.UI.Avalonia.Canvas
             uint key = color.ToUInt32();
             if (_brushCache.TryGetValue(key, out var brush))
                 return brush;
+            if (_brushCache.Count >= 4096)
+                _brushCache.Clear();
             brush = new SolidColorBrush(color);
             _brushCache[key] = brush;
             return brush;
@@ -285,9 +288,11 @@ namespace RPGGame.UI.Avalonia.Canvas
                 MaxTextHeight = double.PositiveInfinity,
                 Trimming = TextTrimming.None
             };
-            // Cap cache growth for long unique runs (combat log lines).
-            if (_formattedTextCache.Count < 512)
-                _formattedTextCache[key] = formatted;
+            // Cap cache growth for long unique runs (combat log lines). Start over when full: refusing new entries
+            // kept a session's first 512 texts forever and re-shaped everything else on every paint.
+            if (_formattedTextCache.Count >= 2048)
+                _formattedTextCache.Clear();
+            _formattedTextCache[key] = formatted;
             return formatted;
         }
 
@@ -377,85 +382,143 @@ namespace RPGGame.UI.Avalonia.Canvas
             double fontSize = coordinateConverter.GetFontSize();
             double glyphAdvance = ResolveGlyphAdvance(charWidth, fontSize);
             bool forceMonospace = ShouldForceMonospaceGlyphPlacement(GameFonts.UsesPixelGrid);
-            PrepareSceneGlyphs(fontSize, glyphAdvance);
             foreach (var run in scene.Texts)
             {
                 double x = run.X * charWidth;
                 double y = run.Y * charHeight;
-                if (TryDrawSceneGlyphRun(context, run.Text, x, y, run.Color))
+                if (TryDrawSceneGlyphRun(context, run.Text, x, y, fontSize, glyphAdvance, run.Color))
                     continue;
                 var text = new CanvasText { X = run.X, Y = run.Y, Content = run.Text, Color = run.Color, IgnoresCenterColumn = true };
                 DrawTextRun(context, text, run.Text, x, y, fontSize, glyphAdvance, forceMonospace);
             }
         }
 
-        // ── Scene glyph runs ──
-        // Title / inn scenes paint thousands of runs per frame in ever-changing colors. FormattedText bakes the
-        // brush in (so every new color re-shapes the text) and its cache is capped, so scenes use GlyphRuns laid
-        // out on the cell grid, cached by text only, and colored by the brush at draw time.
-        private readonly Dictionary<string, GlyphRun?> _sceneGlyphRuns = new();
-        private IGlyphTypeface? _sceneGlyphTypeface;
-        private double _sceneGlyphFontSize = -1;
-        private double _sceneGlyphAdvance = -1;
-        private double _sceneGlyphBaseline;
-        private const int SceneGlyphRunCacheLimit = 8192;
+        // ── Grid glyph runs ──
+        // Pixel-font text and title / inn scenes are drawn on the cell grid. FormattedText bakes the brush in (so
+        // each new color re-shapes the text) and drawing glyph-by-glyph made one per character plus its shadow,
+        // so these paths use GlyphRuns laid out at the grid advance, cached by text and size only and colored by
+        // the brush at draw time.
+        private readonly Dictionary<(string Text, double FontSize, double Advance), GlyphRun?> _gridGlyphRuns = new();
+        private readonly Dictionary<double, double> _gridGlyphBaselines = new();
+        private IGlyphTypeface? _gridGlyphTypeface;
+        private Typeface? _gridGlyphTypefaceSource;
+        private const int GridGlyphRunCacheLimit = 8192;
 
-        private void PrepareSceneGlyphs(double fontSize, double glyphAdvance)
+        /// <summary>Called once per paint: drops cached runs when the font changes or the cache grows past its cap.</summary>
+        private void PrepareGridGlyphs()
         {
-            IGlyphTypeface? glyphTypeface = null;
-            try { glyphTypeface = coordinateConverter.GetTypeface().GlyphTypeface; }
-            catch { /* font not resolvable: FormattedText fallback */ }
-
-            if (!ReferenceEquals(glyphTypeface, _sceneGlyphTypeface)
-                || _sceneGlyphFontSize != fontSize
-                || _sceneGlyphAdvance != glyphAdvance)
+            Typeface typeface = coordinateConverter.GetTypeface();
+            if (!Equals(_gridGlyphTypefaceSource, typeface))
             {
-                _sceneGlyphRuns.Clear();
-                _sceneGlyphTypeface = glyphTypeface;
-                _sceneGlyphFontSize = fontSize;
-                _sceneGlyphAdvance = glyphAdvance;
-                // Same vertical placement as FormattedText drawn at the cell's top-left.
-                _sceneGlyphBaseline = GetCachedFormattedText("X", Colors.White, fontSize).Baseline;
+                _gridGlyphRuns.Clear();
+                _gridGlyphBaselines.Clear();
+                _gridGlyphTypefaceSource = typeface;
+                try { _gridGlyphTypeface = typeface.GlyphTypeface; }
+                catch { _gridGlyphTypeface = null; /* font not resolvable: FormattedText fallback */ }
             }
-            else if (_sceneGlyphRuns.Count > SceneGlyphRunCacheLimit)
+            else if (_gridGlyphRuns.Count > GridGlyphRunCacheLimit)
             {
-                _sceneGlyphRuns.Clear();
+                _gridGlyphRuns.Clear();
             }
         }
 
-        /// <summary>Draws <paramref name="content"/> as a cached grid-advance GlyphRun; false when the font lacks a glyph.</summary>
-        private bool TryDrawSceneGlyphRun(DrawingContext context, string content, double x, double y, Color color)
+        /// <summary>The cached grid run for <paramref name="content"/>, or null when the font lacks one of its glyphs.</summary>
+        private GlyphRun? GetGridGlyphRun(string content, double fontSize, double advance)
         {
-            var glyphTypeface = _sceneGlyphTypeface;
+            var glyphTypeface = _gridGlyphTypeface;
             if (glyphTypeface == null || string.IsNullOrEmpty(content))
-                return false;
+                return null;
 
-            if (!_sceneGlyphRuns.TryGetValue(content, out var run))
-            {
-                run = BuildSceneGlyphRun(glyphTypeface, content);
-                _sceneGlyphRuns[content] = run;
-            }
+            var key = (content, fontSize, advance);
+            if (!_gridGlyphRuns.TryGetValue(key, out var run))
+                _gridGlyphRuns[key] = run = BuildGridGlyphRun(glyphTypeface, content, fontSize, advance);
+            return run;
+        }
+
+        private void DrawGridGlyphRun(DrawingContext context, GlyphRun run, double x, double y, Color color)
+        {
+            Point origin = SnapDrawPoint(x, y);
+            using (context.PushTransform(Matrix.CreateTranslation(origin.X, origin.Y)))
+                context.DrawGlyphRun(GetCachedBrush(color), run);
+        }
+
+        private bool TryDrawSceneGlyphRun(DrawingContext context, string content, double x, double y, double fontSize, double advance, Color color)
+        {
+            var run = GetGridGlyphRun(content, fontSize, advance);
+            if (run == null)
+                return false;
+            DrawGridGlyphRun(context, run, x, y, color);
+            return true;
+        }
+
+        /// <summary>
+        /// Grid glyph-run version of <see cref="DrawTextBlock"/>: drop shadow, glow (same layers as
+        /// <see cref="TextGlowRenderer"/>) and the text, all from one cached run recolored per draw. False to fall back.
+        /// </summary>
+        private bool TryDrawGridTextRun(DrawingContext context, CanvasText text, string content, double x, double y, double fontSize, double glyphAdvance)
+        {
+            var run = GetGridGlyphRun(content, fontSize, glyphAdvance);
             if (run == null)
                 return false;
 
             Point origin = SnapDrawPoint(x, y);
-            using (context.PushTransform(Matrix.CreateTranslation(origin.X, origin.Y)))
-                context.DrawGlyphRun(GetCachedBrush(color), run);
+            if (textShadowActive && text.Color.A > 0)
+            {
+                double offset = Math.Max(1, Math.Round(fontSize * TextShadowOffsetPerFontSize));
+                var shadowColor = Color.FromArgb((byte)(text.Color.A * TextShadowOpacity), 0, 0, 0);
+                DrawGridGlyphRun(context, run, origin.X + offset, origin.Y + offset, shadowColor);
+            }
+
+            if (text.HasGlow && text.GlowIntensity > 0 && text.GlowRadius > 0)
+            {
+                int passes = Math.Max(1, text.GlowRadius);
+                for (int i = passes; i > 0; i--)
+                {
+                    double offset = i * 0.5;
+                    double alpha = text.GlowIntensity * (1.0 - (double)i / passes) * 0.5;
+                    byte a = (byte)Math.Clamp(255 * alpha, 0, 255);
+                    if (a == 0)
+                        continue;
+                    var glow = GetCachedBrush(Color.FromArgb(a, text.GlowColor.R, text.GlowColor.G, text.GlowColor.B));
+                    for (int dx = -1; dx <= 1; dx++)
+                    {
+                        for (int dy = -1; dy <= 1; dy++)
+                        {
+                            if (dx == 0 && dy == 0)
+                                continue;
+                            using (context.PushTransform(Matrix.CreateTranslation(origin.X + dx * offset, origin.Y + dy * offset)))
+                                context.DrawGlyphRun(glow, run);
+                        }
+                    }
+                }
+            }
+
+            DrawGridGlyphRun(context, run, origin.X, origin.Y, text.Color);
             return true;
         }
 
-        private GlyphRun? BuildSceneGlyphRun(IGlyphTypeface glyphTypeface, string content)
+        /// <summary>Grid runs line up with FormattedText for pixel fonts (grid advances) and for any single glyph.</summary>
+        private static bool CanUseGridRun(string content) => GameFonts.UsesPixelGrid || content.Length == 1;
+
+        private GlyphRun? BuildGridGlyphRun(IGlyphTypeface glyphTypeface, string content, double fontSize, double advance)
         {
             var infos = new global::Avalonia.Media.TextFormatting.GlyphInfo[content.Length];
             for (int i = 0; i < content.Length; i++)
             {
                 char ch = content[i];
+                // '\0' marks skipped cells, surrogates need shaping: leave both to the FormattedText path.
+                if (ch == '\0' || char.IsSurrogate(ch))
+                    return null;
                 ushort glyph = glyphTypeface.GetGlyph(ch);
                 if (glyph == 0 && ch != ' ')
                     return null;
-                infos[i] = new global::Avalonia.Media.TextFormatting.GlyphInfo(glyph, i, _sceneGlyphAdvance);
+                infos[i] = new global::Avalonia.Media.TextFormatting.GlyphInfo(glyph, i, advance);
             }
-            return new GlyphRun(glyphTypeface, _sceneGlyphFontSize, content.AsMemory(), infos, new Point(0, _sceneGlyphBaseline));
+
+            // Same vertical placement as FormattedText drawn at the cell's top-left.
+            if (!_gridGlyphBaselines.TryGetValue(fontSize, out double baseline))
+                _gridGlyphBaselines[fontSize] = baseline = GetCachedFormattedText("X", Colors.White, fontSize).Baseline;
+            return new GlyphRun(glyphTypeface, fontSize, content.AsMemory(), infos, new Point(0, baseline));
         }
 
         private void RenderBackdrop(DrawingContext context, CanvasBackdrop backdrop, double charWidth, double charHeight)
@@ -963,6 +1026,13 @@ namespace RPGGame.UI.Avalonia.Canvas
             Color color,
             double fontSize)
         {
+            if (CanUseGridRun(content)
+                && GetGridGlyphRun(content, fontSize, ResolveGlyphAdvance(coordinateConverter.GetCharWidth(), fontSize)) is { } run)
+            {
+                DrawGridGlyphRun(context, run, x, y, color);
+                return;
+            }
+
             var formatted = GetCachedFormattedText(content, color, fontSize);
             context.DrawText(formatted, SnapDrawPoint(x, y));
         }
@@ -1001,6 +1071,11 @@ namespace RPGGame.UI.Avalonia.Canvas
             double y,
             double fontSize)
         {
+            if (CanUseGridRun(content)
+                && TryDrawGridTextRun(context, text, content, x, y, fontSize,
+                    ResolveGlyphAdvance(coordinateConverter.GetCharWidth(), fontSize)))
+                return;
+
             var formatted = GetCachedFormattedText(content, text.Color, fontSize);
             Point origin = SnapDrawPoint(x, y);
 
@@ -1045,6 +1120,9 @@ namespace RPGGame.UI.Avalonia.Canvas
             double glyphAdvance,
             bool forceMonospace)
         {
+            if (forceMonospace && TryDrawGridTextRun(context, text, content, x, y, fontSize, glyphAdvance))
+                return;
+
             if (!forceMonospace || content.Length <= 1)
             {
                 DrawTextBlock(context, text, content, x, y, fontSize);

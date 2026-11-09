@@ -35,7 +35,7 @@ on both (determinism check). The result is an overlay patch (`"base": "<p>"`). J
 on seeds no step saw: the overnight runs showed a 4.0→2.85 gain on the confirm seeds was 3.14→2.96 held out.
 
 Knobs: **damage** (enemy damage band → `realClearAnchors`), **health** (enemy health band → `heroTurnsAnchors`, hero
-actions per fight in real dungeons with the rules bot), **class** (one class's hero damage band,
+actions per fight in real dungeons with the calibration bot), **class** (one class's hero damage band,
 `classBalance.<class>.damageCurve` → each class to the band's clear target, so classes end within
 `classParityMaxSpread`). Targets live in `GameData/TuningProfiles/balance-targets.json`: clear 99% at L1 → 90% at L10,
 then 65/70/70/65/30/0 at L15/20/35/50/75/100; hero actions 3 at L1 → 11 at L10, 11 after; class spread ≤ 10 points.
@@ -218,8 +218,13 @@ from the smart bot. Overall clear reads within 3–8 points of the smart bot at 
 differs more (Wizard up to −36, Barbarian L35 −33): smart heroes switch to daggers (switched Wizards lose ~40% less HP
 per fight) and stop at 20 skill picks per hub, so the rules bot is the in-class reading. Use `--bot smart` to see the
 weapon-switching optimum (what is overpowered) or to re-mine; the smart-only scan reads (viable actions, bot/median
-kill speed) are empty under the rules bot. Playthrough survival in `balance-check.ps1` (PLAYTODEATHBATCH) still uses
-the smart bot.
+kill speed) are empty under the rules bot. Playthrough survival in `balance-check.ps1` (PLAYTODEATHBATCH) defaults to
+the synergy bot.
+
+**Calibration bot (2026-11-08): synergy.** `--bot synergy` (rules bot + set/skill synergy, `RulesSynergy.cs`) is the default
+in every sim script and DUNGEONSIM. It matches the rules bot to L23 and clears far more from L28 up (long Wizard strips:
++25..+33 points at L63-73 on v39hp); fastbot-syn47 is solved against it. `--bot rules` stays available; under syn47 the
+rules bot reads 15-20 points hard at L63-73. Surrogate models trained on rules-bot data need retraining.
 
 **Region bands (2026-11-02).** A DUNGEONSIM hero plays in the region whose 5-level band holds its level, and regions
 cycle Forest / Water / Fire / Air every 5 levels (`Regions.json`), so L10 Water, L15 Fire, L20 Air, L35 Fire, L50 Water,

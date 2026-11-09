@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Real dungeon clear / retreat / death rates at fixed hero levels (DUNGEONSIM, sharded), and a damage-anchor solver.
 
-Each shard is one DUNGEONSIM process (one class): fresh heroes raised to the level with collected loot, the bot (rules by default, --bot smart)
+Each shard is one DUNGEONSIM process (one class): fresh heroes raised to the level with collected loot, the bot (synergy by default, --bot rules / smart)
 choosing gear / skills / sequence, then several dungeons through the real game loop with HP carried between fights and
 the retreat rule. Shards run in parallel on a scratch copy of GameData (death screens write saves).
 
@@ -46,8 +46,8 @@ ap.add_argument('--json', default='', help='write results here')
 ap.add_argument('--seed', type=int, default=1, help='base seed; each shard derives its own, so reruns replay the same heroes (0 = unseeded)')
 ap.add_argument('--parallel', type=int, default=os.cpu_count() or 8,
                 help='shards at once; all levels share one pool, so no level waits on the slowest shard of another')
-ap.add_argument('--bot', default='rules', choices=['smart', 'rules', 'basic'],
-                help='rules (default) = fast rule-based picks (GameData/TuningProfiles/rules-bot.json); smart = picks by simulation, ~40x slower')
+ap.add_argument('--bot', default='synergy', choices=['smart', 'rules', 'synergy', 'basic'],
+                help='synergy (default, the calibration bot since fastbot-syn47) = rules + set/skill synergy (synergy-bot.json); rules = fast rule-based picks only (GameData/TuningProfiles/rules-bot.json); smart = picks by simulation, ~40x slower')
 ap.add_argument('--region-mix', action='store_true',
                 help='runs rotate through the nearest region of each theme (Forest/Water/Fire/Air) instead of only the region whose band holds the level')
 ap.add_argument('--region-theme', help='every run starts in the nearest region of this theme (Forest / Water / Fire / Air)')

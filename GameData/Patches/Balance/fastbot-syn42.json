@@ -1,0 +1,375 @@
+{
+  "base": "fastbot-syn41",
+  "classBalance": {
+    "barbarian": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 10,
+            "multiplier": 1.0
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 1.109569
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 0.846745
+          },
+          {
+            "from": 21,
+            "to": 35,
+            "multiplier": 1.0
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 1.464086
+          },
+          {
+            "from": 41,
+            "to": 55,
+            "multiplier": 1.0
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 0.792784
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 0.671286
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 1.006956
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 0.392292
+          },
+          {
+            "from": 76,
+            "to": 85,
+            "multiplier": 1.0
+          },
+          {
+            "from": 86,
+            "to": 90,
+            "multiplier": 1.925189
+          },
+          {
+            "from": 91,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    },
+    "warrior": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 10,
+            "multiplier": 1.0
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 0.920188
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 1.474269
+          },
+          {
+            "from": 21,
+            "to": 25,
+            "multiplier": 2.675855
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 1.925189
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 3.706352
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 1.846765
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 1.905276
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 1.433955
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 1.0
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 1.69937
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 1.693491
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 2.770219
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 1.925189
+          },
+          {
+            "from": 76,
+            "to": 80,
+            "multiplier": 1.94531
+          },
+          {
+            "from": 81,
+            "to": 85,
+            "multiplier": 3.74509
+          },
+          {
+            "from": 86,
+            "to": 90,
+            "multiplier": 1.925189
+          },
+          {
+            "from": 91,
+            "to": 95,
+            "multiplier": 1.918528
+          },
+          {
+            "from": 96,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    },
+    "rogue": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 5,
+            "multiplier": 1.0
+          },
+          {
+            "from": 6,
+            "to": 10,
+            "multiplier": 0.664343
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 0.539614
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 1.0
+          },
+          {
+            "from": 21,
+            "to": 25,
+            "multiplier": 1.314943
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 1.22264
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 1.558329
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 1.0
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 1.580083
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 1.558329
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 2.8481
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 2.20381
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 3.363586
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 3.340352
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 4.578898
+          },
+          {
+            "from": 76,
+            "to": 80,
+            "multiplier": 1.0
+          },
+          {
+            "from": 81,
+            "to": 85,
+            "multiplier": 1.641483
+          },
+          {
+            "from": 86,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    },
+    "wizard": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 10,
+            "multiplier": 1.0
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 1.094294
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 0.776469
+          },
+          {
+            "from": 21,
+            "to": 25,
+            "multiplier": 0.523042
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 0.840896
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 1.0
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 0.876606
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 0.267944
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 0.395021
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 0.51943
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 0.353553
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 0.258816
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 0.328736
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 0.515841
+          },
+          {
+            "from": 76,
+            "to": 80,
+            "multiplier": 0.517632
+          },
+          {
+            "from": 81,
+            "to": 85,
+            "multiplier": 0.521233
+          },
+          {
+            "from": 86,
+            "to": 90,
+            "multiplier": 0.359733
+          },
+          {
+            "from": 91,
+            "to": 95,
+            "multiplier": 0.512278
+          },
+          {
+            "from": 96,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    }
+  },
+  "description": "fastbot-v38c + hero HP curve: hero max HP tracks median enemy HP 1:1 from L8 (character.healthCurve anchors), enemy damage bands x the same band-mean ratio. 2026-11-07. fastbot-syn40: fastbot-v39hp + health bands ['health@L28', 'health@L3', 'health@L33', 'health@L38', 'health@L48', 'health@L53', 'health@L58', 'health@L63', 'health@L68', 'health@L73', 'health@L8'] (balance-loop, paired confirm on seeds [8101, 8102, 8103, 8104]). fastbot-syn41: fastbot-syn40 + damage bands ['damage@L13', 'damage@L18', 'damage@L28', 'damage@L33', 'damage@L38', 'damage@L48', 'damage@L58', 'damage@L63', 'damage@L68', 'damage@L73'] (balance-loop, paired confirm on seeds [8301, 8302, 8303, 8304]). fastbot-syn42: fastbot-syn41 + class bands ['class:Barbarian@L38', 'class:Barbarian@L73', 'class:Rogue@L13', 'class:Rogue@L28', 'class:Rogue@L63', 'class:Rogue@L68', 'class:Rogue@L73', 'class:Warrior@L13', 'class:Wizard@L13', 'class:Wizard@L38', 'class:Wizard@L63', 'class:Wizard@L68'] (balance-loop, paired confirm on seeds [8501, 8502, 8503, 8504])."
+}

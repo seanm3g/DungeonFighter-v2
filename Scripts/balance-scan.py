@@ -74,7 +74,7 @@ ap.add_argument('--dungeons', type=int, default=4, help='dungeons per hero (hero
 ap.add_argument('--encounters', type=int, default=8, help='BUILDLAB fights per enemy')
 ap.add_argument('--builds', default='', help='comma list of catalog builds (default: all)')
 ap.add_argument('--min-fights', type=int, default=6, help='real fights an enemy needs at a level to be judged')
-ap.add_argument('--bot', default='rules', choices=['rules', 'smart', 'basic'], help='DUNGEONSIM bot (rules = fast)')
+ap.add_argument('--bot', default='synergy', choices=['rules', 'synergy', 'smart', 'basic'], help='DUNGEONSIM bot (synergy = default calibration bot, rules + set/skill synergy; rules = fast picks only)')
 ap.add_argument('--seed', type=int, default=1, help='base DUNGEONSIM seed so --compare scans replay the same heroes (0 = unseeded)')
 ap.add_argument('--bot-ratio', type=float, default=1.33, help='flag bot/median kill-speed ratios outside 1/x .. x')
 ap.add_argument('--viable-within', type=float, default=EXP.get('viableWithin', 0.03), help='an action is viable when its best strip scores within this share of the best strip')

@@ -62,6 +62,7 @@ ap.add_argument('--classes', default=','.join(CLASSES))
 ap.add_argument('--dungeons', type=int, default=8, help='dungeons per shard (hero setup ~1 min, a dungeon ~10 s)')
 ap.add_argument('--retreat', type=int, default=50)
 ap.add_argument('--move-chance', type=float, default=0.5, help='chance each knob moves off 1.0 in a shard')
+ap.add_argument('--bot', default='synergy', help='DUNGEONSIM bot (synergy = calibration bot; models trained on rules-bot data need retraining)')
 ap.add_argument('--seed', type=int, default=7, help='base seed; shard i uses seed*1e6+i for both knobs and DUNGEONSIM')
 ap.add_argument('--parallel', type=int, default=max(1, (os.cpu_count() or 8) // 2))
 ap.add_argument('--shard-timeout', type=int, default=1800)
@@ -164,7 +165,7 @@ def shard(index):
     t0 = time.time()
     host = POOL.run(['DUNGEONSIM', '--patch', patch, '--level', str(level), '--runs', '1',
                      '--dungeons', str(A.dungeons), '--classes', cls, '--retreat-below', str(A.retreat),
-                     '--json', out, '--bot', 'rules', '--seed', str(seed)], out, log_path, timeout=A.shard_timeout)
+                     '--json', out, '--bot', A.bot, '--seed', str(seed)], out, log_path, timeout=A.shard_timeout)
     try:
         doc = json.load(open(out, encoding='utf-8-sig'))
     except Exception as e:

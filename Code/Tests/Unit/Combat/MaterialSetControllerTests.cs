@@ -38,7 +38,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestThreeStackAddsFeedCount();
             TestFiveStackMultipliesFeed();
             TestGoldFeedsOwnPieces();
-            TestClasslessMaterialHasNoBuild();
+            TestClasslessMaterialBuilds();
             TestUnknownIsWildcardForWornMaterials();
             TestHybridMaterialNodeMergesPartnerMaterials();
             TestConvertDamageScaleFromBankAndStacks();
@@ -187,8 +187,9 @@ namespace RPGGame.Tests.Unit.Combat
             var onlyUnknown = EquipPieces(
                 (new HeadItem("Helm", 1, 1), "Unknown"),
                 (new ChestItem("Mail", 1, 1), "Unknown"));
-            TestBase.AssertEqual(0, MaterialSetController.GetGrantedConvertActionNames(onlyUnknown).Count,
-                "unknown alone forms no set", ref _run, ref _passed, ref _failed);
+            var onlyUnknownGrants = MaterialSetController.GetGrantedConvertActionNames(onlyUnknown);
+            TestBase.AssertTrue(onlyUnknownGrants.Count == 1 && onlyUnknownGrants[0] == "REVEAL",
+                "unknown alone forms only its own set (REVEAL)", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestHybridMaterialNodeMergesPartnerMaterials()
@@ -210,17 +211,18 @@ namespace RPGGame.Tests.Unit.Combat
                 "partner pieces alone form no set", ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestClasslessMaterialHasNoBuild()
+        private static void TestClasslessMaterialBuilds()
         {
-            TestBase.SetCurrentTestName(nameof(TestClasslessMaterialHasNoBuild));
+            TestBase.SetCurrentTestName(nameof(TestClasslessMaterialBuilds));
             var cloth = EquipPieces(
                 (new HeadItem("Hood", 1, 1), "Cloth"),
                 (new ChestItem("Robe", 1, 1), "Cloth"));
-            TestBase.AssertEqual(0, MaterialSetController.GetGrantedConvertActionNames(cloth).Count,
-                "Cloth has no convert", ref _run, ref _passed, ref _failed);
+            var clothGrants = MaterialSetController.GetGrantedConvertActionNames(cloth);
+            TestBase.AssertTrue(clothGrants.Count == 1 && clothGrants[0] == "UNRAVEL",
+                "Cloth set grants UNRAVEL", ref _run, ref _passed, ref _failed);
             var clothLines = MaterialSetController.FormatSetStatusLines(cloth, cloth.Equipment.Head).ToList();
-            TestBase.AssertTrue(clothLines.Count > 0 && clothLines[0].Contains("no material build", StringComparison.OrdinalIgnoreCase),
-                "class-less Cloth tooltip", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(clothLines.Count > 0 && clothLines[0] == "Cloth 2/5",
+                "class-less Cloth tooltip shows its set", ref _run, ref _passed, ref _failed);
 
             var leather = EquipPieces(
                 (new HeadItem("Cap", 1, 1), "Leather"),

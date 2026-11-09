@@ -221,7 +221,7 @@ namespace RPGGame
             int hits = Math.Max(1, effectiveHitCount);
             int dmg = Math.Max(0, damageForDisplay);
             return hits > 1
-                ? $"{hits}x{dmg} damage"
+                ? $"{dmg}x{hits} damage"
                 : $"{dmg} damage";
         }
 
@@ -236,13 +236,13 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Compact damage segment for hover tooltips: multihit uses <c>2x50% damage</c>; single hit uses <c>Dmg 50%</c>.
+        /// Compact damage segment for hover tooltips: multihit uses <c>50%x2 damage</c>; single hit uses <c>Dmg 50%</c>.
         /// </summary>
         public static string FormatSwingDamagePercentLine(int effectiveHitCount, double damagePercentForDisplay)
         {
             int hits = Math.Max(1, effectiveHitCount);
             return hits > 1
-                ? $"{hits}x{damagePercentForDisplay:F0}% damage"
+                ? $"{damagePercentForDisplay:F0}%x{hits} damage"
                 : $"Dmg {damagePercentForDisplay:F0}%";
         }
 
@@ -383,7 +383,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Full swing readout for hover tooltips: <c>Dmg 50% | Spd 100%</c> (or multihit <c>2x50% damage | …</c>).
+        /// Full swing readout for hover tooltips: <c>Dmg 50% | Spd 100%</c> (or multihit <c>50%x2 damage | …</c>).
         /// Amp is baked into Effective damage %; hover still shows a separate AMP calc line elsewhere.
         /// </summary>
         public static string FormatStripSwingPercentLine(

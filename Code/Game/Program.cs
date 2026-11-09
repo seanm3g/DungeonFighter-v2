@@ -83,6 +83,10 @@ namespace RPGGame
                     int maxActions = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--max-actions-per-run") ?? 2000;
                     RPGGame.Tuning.PlaythroughFightRecorder.Verbose = args.Any(x => x.Equals("--verbose", StringComparison.OrdinalIgnoreCase));
                     RPGGame.Tuning.ClassPlaythroughRunner.SmartPolicy = args.Any(x => x.Equals("--smart", StringComparison.OrdinalIgnoreCase));
+                    // --bot rules | synergy traces the fast rules bot (synergy: set/skill synergy layer) instead of the basic bot.
+                    string runlogBot = (RPGGame.Tuning.Profiles.TuningCliArgs.GetFlagValue(args, "--bot") ?? "").ToLowerInvariant();
+                    RPGGame.Tuning.ClassPlaythroughRunner.RulesPolicy = runlogBot is "rules" or "synergy";
+                    RPGGame.Tuning.PlaythroughRulesPolicy.Synergy = runlogBot == "synergy";
                     // Same mid-game setup as DUNGEONSIM: --start-level N [--hold-level] [--max-dungeons D] [--retreat-below P]
                     RPGGame.Tuning.ClassPlaythroughRunner.StartAtLevel = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--start-level") ?? 0;
                     RPGGame.Tuning.ClassPlaythroughRunner.HoldLevel = args.Any(x => x.Equals("--hold-level", StringComparison.OrdinalIgnoreCase));
@@ -106,10 +110,11 @@ namespace RPGGame
                     // Default stays basic for old command lines; balance-check passes --bot rules (the calibration bot).
                     string pdBot = (RPGGame.Tuning.Profiles.TuningCliArgs.GetFlagValue(args, "--bot")
                         ?? (args.Any(x => x.Equals("--smart", StringComparison.OrdinalIgnoreCase)) ? "smart" : "basic")).ToLowerInvariant();
-                    if (pdBot is not ("smart" or "rules" or "basic"))
-                        throw new ArgumentException("PLAYTODEATHBATCH --bot must be smart, rules or basic.");
+                    if (pdBot is not ("smart" or "rules" or "synergy" or "basic"))
+                        throw new ArgumentException("PLAYTODEATHBATCH --bot must be smart, rules, synergy or basic.");
                     RPGGame.Tuning.ClassPlaythroughRunner.SmartPolicy = pdBot == "smart";
-                    RPGGame.Tuning.ClassPlaythroughRunner.RulesPolicy = pdBot == "rules";
+                    RPGGame.Tuning.ClassPlaythroughRunner.RulesPolicy = pdBot is "rules" or "synergy";
+                    RPGGame.Tuning.PlaythroughRulesPolicy.Synergy = pdBot == "synergy";
                     // --retreat-below N: leave a dungeon between rooms when HP < N% of max (0 = never).
                     RPGGame.Tuning.ClassPlaythroughRunner.RetreatBelowHpPercent = RPGGame.Tuning.Profiles.TuningCliArgs.GetIntFlag(args, "--retreat-below") ?? 0;
                     // --start-level N: raise the hero to level N with collected-loot bag at the first hub (mid-game probes).

@@ -82,7 +82,7 @@ def sim(run, A, patch, seed, tag, levels=None):
     js = os.path.join(run.dir, f'{tag}-{patch}-s{seed}.json')
     if not os.path.exists(js):
         run.call(['Scripts/dungeon-sim.py', '--levels', ','.join(map(str, levels)), '--patch', patch, '--shards', A.shards,
-                  '--seed', seed, '--spark', A.spark, '--tools', A.tools, '--json', js], os.path.basename(js)[:-5] + '.txt')
+                  '--seed', seed, '--spark', A.spark, '--tools', A.tools, '--bot', A.bot, '--json', js], os.path.basename(js)[:-5] + '.txt')
     return {r['level']: r for r in json.load(open(js, encoding='utf-8'))}
 
 
@@ -164,7 +164,7 @@ def cmd_solve(A):
         tag = f'bo-{curve.replace(":", "-")}-L{L}'
         js = os.path.join(run.dir, tag + '.json')
         if not os.path.exists(js):
-            run.call(['Scripts/bo-solve.py', '--level', L, '--patch', A.patch, '--knob', curve, '--seed', A.solve_seed + i,
+            run.call(['Scripts/bo-solve.py', '--level', L, '--patch', A.patch, '--knob', curve, '--bot', A.bot, '--seed', A.solve_seed + i,
                       '--tools', A.tools, '--spark', A.spark, '--tolerance', A.tolerance, '--max-rounds', A.max_rounds, '--scale-range', A.scale_range, '--json', js], tag + '.txt')
         if not os.path.exists(js):
             S['solves'][f'{curve}@L{L}'] = 'no result'; continue
@@ -294,6 +294,7 @@ def main():
         p.add_argument('--shards', type=int, default=16, help='dungeon-sim shards per class (16 x 2 heroes = 32 heroes per class per seed)')
         p.add_argument('--spark', type=spark_slots_arg, default='auto')
         p.add_argument('--tools', default='Code/bin/BalanceTools')
+        p.add_argument('--bot', default='synergy', choices=['rules', 'synergy', 'smart', 'basic'], help='DUNGEONSIM bot for every sim')
 
     p = sub.add_parser('measure'); common(p)
     p.add_argument('--seeds', default='7101,7102,7103,7104'); p.add_argument('--ref', default='')

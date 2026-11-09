@@ -252,13 +252,13 @@ namespace RPGGame.Tests.Unit.UI
                 "GetStripSwingDisplayValues yields positive flat damage and seconds",
                 ref run, ref passed, ref failed);
             string stripDmgLine = CombatActionStripBuilder.FormatSwingDamageLine(multiInfo.EffectiveMultiHitCount, multiFlatDmg);
-            TestBase.AssertTrue(stripDmgLine == $"2x{multiFlatDmg} damage",
+            TestBase.AssertTrue(stripDmgLine == $"{multiFlatDmg}x2 damage",
                 "FormatSwingDamageLine shows multihit as NxN damage",
                 ref run, ref passed, ref failed);
             string stripSwing = CombatActionStripBuilder.FormatStripSwingLine(
                 in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic, 0);
             TestBase.AssertTrue(
-                stripSwing.StartsWith($"2x{multiFlatDmg} damage | ", StringComparison.Ordinal)
+                stripSwing.StartsWith($"{multiFlatDmg}x2 damage | ", StringComparison.Ordinal)
                 && stripSwing.Contains("s", StringComparison.Ordinal)
                 && !stripSwing.Contains("Block ", StringComparison.Ordinal)
                 && !stripSwing.Contains("amp:", StringComparison.Ordinal),
@@ -270,7 +270,7 @@ namespace RPGGame.Tests.Unit.UI
             string tipPercentSwing = CombatActionStripBuilder.FormatStripSwingPercentLine(
                 in multiInfo, charMultiHit, comboMulti[0], ActionStripDamageLineMode.BaseIntrinsic, 0);
             TestBase.AssertTrue(
-                tipPercentSwing == $"2x{multiDmgPct:F0}% damage | Spd {multiSpdPct:F0}%",
+                tipPercentSwing == $"{multiDmgPct:F0}%x2 damage | Spd {multiSpdPct:F0}%",
                 "FormatStripSwingPercentLine is NxN% damage | Spd N%",
                 ref run, ref passed, ref failed);
             string ampCalcLine = CombatActionStripBuilder.FormatSwingAmpCalculationLine(charMultiHit, comboMulti[0], 0);
@@ -282,7 +282,7 @@ namespace RPGGame.Tests.Unit.UI
             comboMulti[0].BlockPercent = 0;
             var tipMulti = CombatActionStripBuilder.BuildActionTooltipLines(charMultiHit, 0, 80);
             string tipMultiJoined = tipMulti != null ? string.Join("\n", tipMulti) : "";
-            TestBase.AssertTrue(tipMultiJoined.Contains($"2x{multiDmgPct:F0}% damage", StringComparison.Ordinal)
+            TestBase.AssertTrue(tipMultiJoined.Contains($"{multiDmgPct:F0}%x2 damage", StringComparison.Ordinal)
                 && tipMultiJoined.Contains($"Spd {multiSpdPct:F0}%", StringComparison.Ordinal)
                 && tipMultiJoined.Contains("result: aggressive stance", StringComparison.Ordinal)
                 && !tipMultiJoined.Contains("amp:", StringComparison.Ordinal)

@@ -254,7 +254,9 @@ namespace RPGGame.Tuning.Profiles
             }
         }
 
-        private const string NeutralMaterial = "Cloth";
+        // Filler for slots a build leaves unset: a name with no MaterialBuilds row, Leather set or stat mod, so leftover
+        // pieces never form a set (Cloth was the filler until Cloth got a material build).
+        private const string NeutralMaterial = "Plain";
 
         /// <summary>
         /// Prices every skill node learned by steps <paramref name="baseStep"/>+1 … <paramref name="upto"/> on its own, added

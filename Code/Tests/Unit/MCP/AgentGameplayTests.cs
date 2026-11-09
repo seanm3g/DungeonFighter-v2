@@ -139,9 +139,9 @@ namespace RPGGame.Tests.Unit.MCP
 
         private static async Task StartNewGameFromMenu(GameCoordinator game)
         {
-            await game.HandleInput("1");
+            await game.HandleInput(MainMenuHandler.NewFighterKey);
             if (game.CurrentState == GameState.MainMenu)
-                await game.HandleInput("1");
+                await game.HandleInput(MainMenuHandler.NewFighterKey);
         }
 
         private static async Task AdvanceToDungeonSelection(GameWrapper wrapper)

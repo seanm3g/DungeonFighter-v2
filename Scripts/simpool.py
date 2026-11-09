@@ -79,6 +79,7 @@ class SimPool:
         self.local_slots, self.spark_slots, self.host, self.log = max(0, local_slots), max(0, spark_slots), host, log
         self.base = ''      # absolute ~/df on the Spark (paths go through shlex.quote, so no "~"); set by start()
         self.remote = ''    # this session's folder under base/runs
+        self.app = 'app'    # app folder under base (app-<hash> with DF_SPARK_APP_PER_HASH=1)
         self.counts = {'local': 0, 'spark': 0}
         self.retries = 0   # ssh calls retried after a dropped connection
         self._slots = queue.Queue()
@@ -126,14 +127,18 @@ class SimPool:
             self._slots.put('local')
 
     def _start_remote(self):
-        r = self._ssh('echo $HOME; cat ~/df/app/.source-hash 2>/dev/null; find ~/df/runs -mindepth 1 -maxdepth 1 -mmin +1440 '
+        want = source_hash(self.root)
+        # DF_SPARK_APP_PER_HASH=1: each source hash gets its own ~/df/app-<hash>, so sessions on different code
+        # never swap the shared ~/df/app under each other's running batches.
+        if os.environ.get('DF_SPARK_APP_PER_HASH') == '1':
+            self.app = f'app-{want}'
+        r = self._ssh(f'echo $HOME; cat ~/df/{self.app}/.source-hash 2>/dev/null; find ~/df/runs -mindepth 1 -maxdepth 1 -mmin +1440 '
                       '-exec rm -rf {} + 2>/dev/null; true', capture_output=True, text=True, timeout=30)
         if r.returncode != 0:
             raise RuntimeError((r.stderr or 'ssh failed').strip().splitlines()[-1])
         lines = r.stdout.split()
         self.base = lines[0] + '/df'
         self.remote = f'{self.base}/runs/{os.environ.get("COMPUTERNAME", "pc").lower()}-{os.getpid()}-{int(time.time())}'
-        want = source_hash(self.root)
         if (lines[1] if len(lines) > 1 else '') != want:
             self._publish(want)
         self._upload_tree(self.data_dir, f'{self.remote}/GameData')
@@ -151,9 +156,10 @@ class SimPool:
         t = time.time()
         sent = self._stage_app(out)
         self.log(f'  uploaded {sent} to {self.host} in {time.time() - t:.0f} s')
-        self._ssh(f'chmod +x {self.base}/app.new/DF && echo {stamp} > {self.base}/app.new/.source-hash && '
-                  f'rm -rf {self.base}/app.old && (mv {self.base}/app {self.base}/app.old 2>/dev/null; true) && '
-                  f'mv {self.base}/app.new {self.base}/app && rm -rf {self.base}/app.old', check=True, timeout=120)
+        a = f'{self.base}/{self.app}'
+        self._ssh(f'chmod +x {a}.new/DF && echo {stamp} > {a}.new/.source-hash && '
+                  f'rm -rf {a}.old && (mv {a} {a}.old 2>/dev/null; true) && '
+                  f'mv {a}.new {a} && rm -rf {a}.old', check=True, timeout=120)
 
     def _stage_app(self, out):
         """Builds base/app.new from the publish folder `out`, sending only files whose content differs from base/app.
@@ -166,8 +172,10 @@ class SimPool:
                 p = os.path.join(d, f)
                 with open(p, 'rb') as fh:
                     local[os.path.relpath(p, out).replace(os.sep, '/')] = hashlib.sha1(fh.read()).hexdigest()
-        app, new = f'{self.base}/app', f'{self.base}/app.new'
-        r = self._ssh(f'cd {app} 2>/dev/null && find . -type f ! -name .source-hash -print0 | xargs -0 -r sha1sum',
+        new = f'{self.base}/{self.app}.new'
+        app = f'{self.base}/{self.app}'
+        # A fresh per-hash folder starts from the shared app folder's files (hard links), so only changed files are sent.
+        r = self._ssh(f'[ -d {app} ] || cp -al {self.base}/app {app} 2>/dev/null; rm -f {app}/.source-hash; cd {app} 2>/dev/null && find . -type f ! -name .source-hash -print0 | xargs -0 -r sha1sum',
                       capture_output=True, text=True, timeout=300)
         remote = {}
         for line in (r.stdout if r.returncode == 0 else '').splitlines():
@@ -272,7 +280,7 @@ class SimPool:
         rlog = self._remote_path(log_path)
         rout = self._remote_path(out_path)
         cmd = (f'cd {self.base} && mkdir -p {shlex.quote(os.path.dirname(rout))} && '
-               f'DF_GAMEDATA_DIR={self.remote}/GameData timeout -k 10 {timeout} ./app/DF '
+               f'DF_GAMEDATA_DIR={self.remote}/GameData timeout -k 10 {timeout} ./{self.app}/DF '
                + ' '.join(shlex.quote(a) for a in remote_args)
                + f' > {shlex.quote(rlog)} 2>&1; rc=$?; [ -f {shlex.quote(rout)} ] && cat {shlex.quote(rout)}; '
                f'[ $rc -ne 0 ] && tail -40 {shlex.quote(rlog)} >&2; rm -f {shlex.quote(rout)}; exit $rc')

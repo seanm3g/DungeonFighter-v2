@@ -117,7 +117,12 @@ namespace RPGGame
             var starterWeapon = ItemGenerator.GenerateWeaponItem(catalogRow);
             ApplyStartingWeaponTuning(starterWeapon, weaponType, slotFallback: null, baseDamageFromWeaponsCatalog: true);
             var materialApplier = new LootBonusApplier(LootDataCache.Load(), RandomUtility.Ambient);
-            materialApplier.ApplyAlwaysMaterialAndTrigger(starterWeapon, starterWeapon.Rarity);
+            // Starters wear their class's own common material (Mace Bone, Sword Bronze, Dagger Glass, Wand Willow),
+            // not a random pick from the shared twelve, so each class starts on its own material.
+            if (ItemMaterialRules.TryGetWeaponClassLadder(weaponType, out string classMaterial, out _, out _))
+                materialApplier.ApplySpecificMaterial(starterWeapon, classMaterial, starterWeapon.Rarity);
+            else
+                materialApplier.ApplyAlwaysMaterialAndTrigger(starterWeapon, starterWeapon.Rarity);
             return starterWeapon;
         }
 

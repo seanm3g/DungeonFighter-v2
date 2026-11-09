@@ -62,7 +62,7 @@ ap.add_argument('--parallel', type=int, default=None, help='local shard slots (d
 from simpool import spark_slots_arg
 ap.add_argument('--spark', type=spark_slots_arg, default='auto', help='Spark slots: auto (default), 0 = local, or N (see Scripts/simpool.py)')
 ap.add_argument('--spark-host', default='spark')
-ap.add_argument('--bot', default='rules', choices=['smart', 'rules', 'basic'])
+ap.add_argument('--bot', default='synergy', choices=['smart', 'rules', 'synergy', 'basic'])
 ap.add_argument('--region-mix', action='store_true')
 ap.add_argument('--json', default='', help='write rounds and result here')
 A = ap.parse_args()
