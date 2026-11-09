@@ -30,6 +30,19 @@ namespace RPGGame.Tuning.Profiles
         /// <summary>Power points per action bonus line on the item.</summary>
         public static double ActionBonusRate { get; set; } = 1.0;
 
+        /// <summary>
+        /// Power points per adjective prefix (2026-11-09: prefix values solved so each common prefix on every piece is worth
+        /// ~+8 clear points, about a 2.5-point Damage suffix). HIT / COMBO thresholds are saturated by mid game and MAGIC FIND
+        /// has no combat effect, so they score 0.
+        /// </summary>
+        public static double AdjectivePrefixRate { get; set; } = 2.5;
+
+        private static double AdjectiveRate(string? effect)
+        {
+            string e = (effect ?? "").Replace(" ", "").Replace("-", "").ToUpperInvariant();
+            return e is "HIT" or "COMBO" or "MAGICFIND" or "" ? 0 : AdjectivePrefixRate;
+        }
+
         public static double Score(Item item)
         {
             double score = item switch
@@ -54,6 +67,9 @@ namespace RPGGame.Tuning.Profiles
             }
 
             score += item.ActionBonuses.Count * ActionBonusRate;
+            foreach (var m in item.Modifications)
+                if (m != null && m.GetPrefixCategory() == ModificationPrefixCategory.Adjective)
+                    score += AdjectiveRate(m.Effect);
             return score;
         }
     }

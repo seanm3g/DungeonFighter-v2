@@ -477,6 +477,11 @@ namespace RPGGame
         public int GetModificationRollBonus() => Facade.GetModificationRollBonus();
         public int GetModificationDamageBonus() => Facade.GetModificationDamageBonus();
         public int GetModificationMultiHitBonus() => Facade.GetModificationMultiHitBonus();
+        public double GetModificationMultiHitTotal() => Equipment.GetModificationMultiHitTotal();
+        /// <summary>Fractional gear MULTI-HIT meter (0..1); pays one extra hit when it fills.</summary>
+        public double GearMultiHitCharge { get; set; }
+        /// <summary>Extra hit the meter paid for the swing being resolved (0 or 1).</summary>
+        public int GearMultiHitSwingExtra { get; set; }
         public double GetModificationSpeedMultiplier() => Facade.GetModificationSpeedMultiplier();
         public double GetModificationDamageMultiplier() => Facade.GetModificationDamageMultiplier();
         public double GetModificationLifesteal() => Facade.GetModificationLifesteal();

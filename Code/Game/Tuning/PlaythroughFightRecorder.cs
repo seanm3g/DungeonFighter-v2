@@ -83,6 +83,8 @@ namespace RPGGame.Tuning
         public bool CarriedInStrip { get; set; }
         /// <summary>Worn loadout at fight start: slot → "Name|Material|T{tier}|Rarity" (empty slots left out).</summary>
         public Dictionary<string, string> Gear { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Worn slot → affix labels (<see cref="AffixLabels"/>), for slots with any affix line.</summary>
+        public Dictionary<string, List<string>> Affixes { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         /// <summary>Material → equipped pieces counting toward it (wildcards included), for materials worn 2+ times.</summary>
         public Dictionary<string, int> Sets { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         /// <summary>Learned skill node → rank at fight start.</summary>
@@ -316,7 +318,12 @@ namespace RPGGame.Tuning
                 foreach (var (slot, item) in new[] { ("Head", eq.Head), ("Body", eq.Body), ("Legs", eq.Legs), ("Feet", eq.Feet), ("Weapon", eq.Weapon), ("Charm", eq.Charm) })
                 {
                     if (item != null)
+                    {
                         record.Gear[slot] = $"{item.Name}|{item.Material}|T{item.Tier}|{item.Rarity}";
+                        var affixes = AffixLabels.Of(item);
+                        if (affixes.Count > 0)
+                            record.Affixes[slot] = affixes;
+                    }
                 }
             }
             foreach (var material in MaterialSetController.EnumerateEquipped(hero)

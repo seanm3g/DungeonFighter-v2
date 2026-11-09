@@ -33,9 +33,28 @@ namespace RPGGame
         public int GetDamageBonus() => GetModificationBonusInt("DAMAGE");
 
         /// <summary>
-        /// Gets extra hits per attack from MULTI-HIT modifications (Light, Acrobatic).
+        /// Guaranteed extra hits per attack from MULTI-HIT modifications (Light, Acrobatic): the whole part of <see cref="GetMultiHitTotal"/>.
         /// </summary>
-        public int GetMultiHitBonus() => Math.Max(0, GetModificationBonusInt("MULTIHIT"));
+        public int GetMultiHitBonus() => (int)Math.Floor(GetMultiHitTotal() + 1e-9);
+
+        /// <summary>
+        /// Summed MULTI-HIT value across equipped pieces (fractional: 0.2 per piece ⇒ 1.2 with six pieces). The whole part is
+        /// extra hits on every attack; the fraction charges a meter that pays one more hit each time it fills (see
+        /// <see cref="ActionUtilities.ResolveGearMultiHitForSwing"/>).
+        /// </summary>
+        public double GetMultiHitTotal()
+        {
+            double total = 0;
+            foreach (var item in slots.GetEquippedItems())
+            {
+                if (item == null)
+                    continue;
+                foreach (var modification in item.Modifications)
+                    if (EffectKey(modification.Effect) == "MULTIHIT")
+                        total += modification.RolledValue;
+            }
+            return Math.Max(0, total);
+        }
 
         /// <summary>
         /// Gets the AMP bonus from modifications (Keen 0.05, refined 0.1) as a fraction: 0.1 = +10% on the base per-step AMP. Additive across items.

@@ -264,7 +264,31 @@ namespace RPGGame
                 return 0;
             if (action.Type != ActionType.Attack && action.Type != ActionType.Spell)
                 return 0;
-            return character.GetModificationMultiHitBonus();
+            return character.GetModificationMultiHitBonus() + character.GearMultiHitSwingExtra;
+        }
+
+        /// <summary>
+        /// Once per resolved swing: the fractional part of the gear MULTI-HIT total fills a meter, which pays one extra hit
+        /// for this swing each time it reaches 1 (deterministic, so every reader of <see cref="GetGearMultiHitBonus"/> in
+        /// the same swing agrees).
+        /// </summary>
+        public static void ResolveGearMultiHitForSwing(Actor source, Action action)
+        {
+            if (source is not Character character || character is Enemy)
+                return;
+            character.GearMultiHitSwingExtra = 0;
+            if (action == null || (action.Type != ActionType.Attack && action.Type != ActionType.Spell))
+                return;
+            double total = character.GetModificationMultiHitTotal();
+            double frac = total - Math.Floor(total + 1e-9);
+            if (frac <= 1e-9)
+                return;
+            character.GearMultiHitCharge += frac;
+            if (character.GearMultiHitCharge >= 1 - 1e-9)
+            {
+                character.GearMultiHitCharge -= 1;
+                character.GearMultiHitSwingExtra = 1;
+            }
         }
 
         /// <summary>

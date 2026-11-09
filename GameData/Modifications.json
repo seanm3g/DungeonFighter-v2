@@ -8,8 +8,8 @@
       "strength": 2
     },
     "DiceResult": 0,
-    "MinValue": 1,
-    "MaxValue": 1,
+    "MinValue": 20.4,
+    "MaxValue": 20.4,
     "RolledValue": 0
   },
   {
@@ -60,8 +60,8 @@
       "agility": 2
     },
     "DiceResult": 0,
-    "MinValue": 0.5,
-    "MaxValue": 0.5,
+    "MinValue": 0.044,
+    "MaxValue": 0.044,
     "RolledValue": 0
   },
   {
@@ -73,8 +73,8 @@
       "strength": 2
     },
     "DiceResult": 0,
-    "MinValue": 2,
-    "MaxValue": 2,
+    "MinValue": 30.2,
+    "MaxValue": 30.2,
     "RolledValue": 0
   },
   {
@@ -86,8 +86,8 @@
       "agility": 2
     },
     "DiceResult": 0,
-    "MinValue": 2,
-    "MaxValue": 2,
+    "MinValue": 0.08,
+    "MaxValue": 0.08,
     "RolledValue": 0
   },
   {
@@ -99,8 +99,8 @@
       "strength": 2
     },
     "DiceResult": 0,
-    "MinValue": 5,
-    "MaxValue": 5,
+    "MinValue": 1,
+    "MaxValue": 1,
     "RolledValue": 0
   },
   {
@@ -125,8 +125,8 @@
       "strength": 2
     },
     "DiceResult": 0,
-    "MinValue": 1,
-    "MaxValue": 1,
+    "MinValue": 4,
+    "MaxValue": 4,
     "RolledValue": 0
   },
   {
@@ -166,8 +166,8 @@
       "strength": 2
     },
     "DiceResult": 0,
-    "MinValue": 1,
-    "MaxValue": 1,
+    "MinValue": 4,
+    "MaxValue": 4,
     "RolledValue": 0
   },
   {
@@ -179,8 +179,8 @@
       "agility": 2
     },
     "DiceResult": 0,
-    "MinValue": 1,
-    "MaxValue": 1,
+    "MinValue": 0.067,
+    "MaxValue": 0.067,
     "RolledValue": 0
   },
   {
@@ -192,8 +192,8 @@
       "primary": 2
     },
     "DiceResult": 0,
-    "MinValue": 10,
-    "MaxValue": 10,
+    "MinValue": 18.0,
+    "MaxValue": 18.0,
     "RolledValue": 0
   },
   {
@@ -205,8 +205,8 @@
       "technique": 2
     },
     "DiceResult": 0,
-    "MinValue": 0.05,
-    "MaxValue": 0.05,
+    "MinValue": 0.068,
+    "MaxValue": 0.068,
     "RolledValue": 0
   },
   {
@@ -248,8 +248,8 @@
       "technique": 2
     },
     "DiceResult": 0,
-    "MinValue": 0.1,
-    "MaxValue": 0.1,
+    "MinValue": 0.057,
+    "MaxValue": 0.057,
     "RolledValue": 0
   },
   {
@@ -261,8 +261,8 @@
       "agility": 2
     },
     "DiceResult": 0,
-    "MinValue": 0.25,
-    "MaxValue": 0.25,
+    "MinValue": 0.046,
+    "MaxValue": 0.046,
     "RolledValue": 0
   },
   {
@@ -274,8 +274,8 @@
       "strength": 2
     },
     "DiceResult": 0,
-    "MinValue": 10,
-    "MaxValue": 10,
+    "MinValue": 1,
+    "MaxValue": 1,
     "RolledValue": 0
   },
   {
@@ -287,8 +287,8 @@
       "primary": 5
     },
     "DiceResult": 0,
-    "MinValue": 25,
-    "MaxValue": 25,
+    "MinValue": 12.7,
+    "MaxValue": 12.7,
     "RolledValue": 0
   }
 ]

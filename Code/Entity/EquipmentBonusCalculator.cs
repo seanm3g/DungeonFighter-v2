@@ -343,8 +343,32 @@ namespace RPGGame
                             pct += contribValue;
                     }
                 }
+                pct += AdjectivePercentBonus(item, normalizedStat);
             }
 
+            return pct;
+        }
+
+        /// <summary>
+        /// Adjective prefixes ARMOR (Reinforced, Hardened) and HEALTH BONUS (Ancient, Sturdy) are percentages of the same
+        /// reference as suffixes, so they keep their weight at every level (flat +1 armor / +25 HP vanished by L10).
+        /// </summary>
+        private static double AdjectivePercentBonus(Item item, string normalizedStat)
+        {
+            bool health = string.Equals(normalizedStat, "Health", StringComparison.OrdinalIgnoreCase);
+            bool armor = string.Equals(normalizedStat, "Armor", StringComparison.OrdinalIgnoreCase);
+            if (!health && !armor)
+                return 0;
+            double pct = 0;
+            foreach (var modification in item.Modifications)
+            {
+                if (modification == null || modification.GetPrefixCategory() != ModificationPrefixCategory.Adjective)
+                    continue;
+                string key = NormalizeAffixContributionType(modification.Effect ?? "");
+                if ((health && string.Equals(key, "Health", StringComparison.OrdinalIgnoreCase))
+                    || (armor && string.Equals(key, "ARMOR", StringComparison.OrdinalIgnoreCase)))
+                    pct += modification.RolledValue;
+            }
             return pct;
         }
 
@@ -521,6 +545,9 @@ namespace RPGGame
         {
             string effect = NormalizeMaterialEffectKey(modification.Effect);
             if (string.IsNullOrEmpty(effect))
+                return 0;
+            // Adjective HEALTH BONUS is a percentage (AdjectivePercentBonus), not flat HP.
+            if (effect == "Health" && modification.GetPrefixCategory() == ModificationPrefixCategory.Adjective)
                 return 0;
 
             int value = (int)Math.Round(modification.RolledValue);

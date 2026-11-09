@@ -45,6 +45,11 @@ namespace RPGGame.Tuning
 
         public int SkillsLearned { get; private set; }
         public int GearChanges { get; private set; }
+        /// <summary>Per gear pass, every wearable item in the bag or worn counts once: "mat:Bone" and each affix label → item-passes offered / worn.</summary>
+        public Dictionary<string, int> GearOffered { get; } = new(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, int> GearWorn { get; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Per gear pass and slot with 2+ candidates: runner-up value / best value (1 = a real choice, 0 = no contest).</summary>
+        public List<double> SlotContest { get; } = new();
         public int SequenceChanges { get; private set; }
         public List<PlaythroughMilestone> Milestones { get; } = new();
 
@@ -229,12 +234,16 @@ namespace RPGGame.Tuning
                         .Select(s => s.Select(x => x.item).OrderByDescending(ItemValueModel.Score).First())
                         .Where(i => i is not WeaponItem || ItemValueModel.Score(i) >= 0.75 * ItemValueModel.Score(bestBySlot["weapon"]!))
                         .ToList();
-                    bool isHome = string.Equals(MaterialBuildsLoader.FindByMaterial(g.Key)?.AssociatedClass, home, StringComparison.OrdinalIgnoreCase);
-                    return (material: g.Key, pieces, isHome);
+                    string? owner = MaterialBuildsLoader.FindByMaterial(g.Key)?.AssociatedClass;
+                    bool isHome = string.Equals(owner, home, StringComparison.OrdinalIgnoreCase);
+                    // Class-less sets pay the wearer's top attribute, so they compete with home sets on piece count.
+                    bool wearable = isHome || string.IsNullOrWhiteSpace(owner);
+                    return (material: g.Key, pieces, isHome, wearable);
                 })
                 .Where(s => s.pieces.Count >= MaterialBuildData.StackUnlockCount)
-                .OrderByDescending(s => s.isHome)
+                .OrderByDescending(s => s.wearable)
                 .ThenByDescending(s => s.pieces.Count)
+                .ThenByDescending(s => s.isHome)
                 .ThenByDescending(s => s.pieces.Sum(ItemValueModel.Score))
                 .ToList();
 
@@ -256,6 +265,32 @@ namespace RPGGame.Tuning
             }
             if (sets.Count > 0)
                 _trace?.Invoke($"    rules: set {sets[0].material} x{MaterialSetController.CountEquipped(hero, sets[0].material)}");
+            RecordGearPass(hero, pool, slots);
+        }
+
+        private void RecordGearPass(Character hero, List<Item> pool, string[] slots)
+        {
+            var worn = new HashSet<Item>(new[] { hero.Weapon, hero.Head, hero.Body, hero.Legs, hero.Feet }.Where(i => i != null).Select(i => i!));
+            foreach (var item in pool)
+            {
+                string mat = ItemMaterialRules.RemapLegacyMaterial(item.Material);
+                var keys = AffixLabels.Of(item);
+                keys.Add("mat:" + (string.IsNullOrWhiteSpace(mat) ? "none" : mat));
+                bool isWorn = worn.Contains(item);
+                foreach (string k in keys.Distinct(StringComparer.OrdinalIgnoreCase))
+                {
+                    GearOffered[k] = GearOffered.GetValueOrDefault(k) + 1;
+                    if (isWorn)
+                        GearWorn[k] = GearWorn.GetValueOrDefault(k) + 1;
+                }
+            }
+            foreach (string slot in slots)
+            {
+                var scores = pool.Where(i => PlaythroughGearPolicy.SlotOf(i) == slot).Select(ItemValueModel.Score)
+                    .OrderByDescending(s => s).Take(2).ToList();
+                if (scores.Count == 2 && scores[0] > 0)
+                    SlotContest.Add(Math.Round(Math.Max(0, scores[1]) / scores[0], 3));
+            }
         }
 
         private static Item? SlotItem(Character hero, string slot) => slot switch

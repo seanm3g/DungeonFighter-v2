@@ -67,6 +67,8 @@ namespace RPGGame.Tuning
             // --material Bone: every loot roll (bag and drops) is that material, so the run's set is that material.
             LootBonusApplier.ToolForcedMaterial = TuningCliArgs.GetFlagValue(args, "--material") is { Length: > 0 } forced
                 ? ItemMaterialRules.RemapLegacyMaterial(forced) : null;
+            // --affix stat:CRIT / mod:Heavy: every loot roll also carries that affix line (prices one affix vs an unforced run).
+            LootBonusApplier.ToolForcedAffix = TuningCliArgs.GetFlagValue(args, "--affix") is { Length: > 0 } affix ? affix : null;
 
             Console.WriteLine($"Balance patch: {FundamentalsMatrixRunner.ActiveBalancePatchPath()}");
             Console.WriteLine($"=== DUNGEONSIM L{level} | {runs} run(s) x {dungeons} dungeon(s) per class | {bot} bot | retreat below {retreat}% HP | start loot {ClassPlaythroughRunner.ResolveStartLootPerLevel(level)}/level{(level > 15 ? " (bag calibrated to L10-L15 only)" : "")} | seed {(seed?.ToString() ?? "none")} ===");
@@ -147,7 +149,7 @@ namespace RPGGame.Tuning
                         f.DamageBySource, f.HeroDamageBySource, f.CritDamage, f.ComboDamage, f.ConvertDamage,
                         f.SlotSwings, f.SlotHitDamage, f.SlotMax, f.HeroTechnique, f.HeroIntelligence,
                         f.StripBreaks, f.StripCompletions, f.CarriedInStrip,
-                        f.Gear, f.Sets, f.Skills, f.HeroStrength, f.HeroAgility, f.HeroMaxHp,
+                        f.Gear, f.Affixes, f.Sets, f.Skills, f.HeroStrength, f.HeroAgility, f.HeroMaxHp,
                         f.EnemyPrefix, f.EnemyActionUses, f.HeroDamageByEnemyAction
                     }))).ToList(),
                     // Smart bot sequence searches at the level (viable-set reads in Scripts/balance-scan.py).
@@ -163,7 +165,12 @@ namespace RPGGame.Tuning
                         .Select(d => new { Class = a.ClassDisplayName, d.HeroLevel, d.Chosen, d.ScoreVsBest }))).ToList(),
                     Milestones = batch.ClassAggregates.SelectMany(a => a.Runs.SelectMany(r => r.Milestones.Where(m => m.HeroLevel >= level)
                         .Select(m => new { Class = a.ClassDisplayName, m.HeroLevel, m.SlotMax, m.InventoryCount, m.SkillsLearned, m.GearEquipped,
-                                           m.StripBefore, m.StripAfter, m.ScoreAfterSkills, m.ScoreFinal }))).ToList()
+                                           m.StripBefore, m.StripAfter, m.ScoreAfterSkills, m.ScoreFinal }))).ToList(),
+                    // One row per hero: gear-pass offers vs wear per material / affix label (adoption reads in Scripts/diversity-report.py).
+                    GearPasses = batch.ClassAggregates.SelectMany(a => a.Runs.Select(r => new
+                    {
+                        Class = a.ClassDisplayName, r.GearOffered, r.GearWorn, r.SlotContest, r.UpgradesEquipped
+                    })).ToList()
                 };
                 File.WriteAllText(jsonPath, JsonSerializer.Serialize(doc, new JsonSerializerOptions { WriteIndented = true }));
             }

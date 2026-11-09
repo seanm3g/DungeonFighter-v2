@@ -120,6 +120,7 @@ namespace RPGGame
         public int GetModificationRollBonus() => modificationCalculator.GetRollBonus();
         public int GetModificationDamageBonus() => modificationCalculator.GetDamageBonus();
         public int GetModificationMultiHitBonus() => modificationCalculator.GetMultiHitBonus();
+        public double GetModificationMultiHitTotal() => modificationCalculator.GetMultiHitTotal();
         public double GetModificationAmpBonus() => modificationCalculator.GetAmpBonus();
         public double GetModificationSpeedMultiplier() => modificationCalculator.GetSpeedMultiplier();
         public double GetModificationDamageMultiplier() => modificationCalculator.GetDamageMultiplier();

@@ -1,0 +1,12 @@
+{
+  "base": "diversity-mat-r5b",
+  "combat": {
+    "materialFightMintDamageReductionPercentPerUnit": {
+      "FRAY": 8.1662
+    },
+    "materialConvertPrimaryStatPerUnit": {
+      "KINDLING": 8.1662,
+      "FRAY": 24.8252
+    }
+  }
+}

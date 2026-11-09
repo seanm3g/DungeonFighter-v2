@@ -1,0 +1,120 @@
+{
+  "base": "fastbot-div1",
+  "enemySystem": {
+    "damageCurve": {
+      "bands": [
+        {
+          "from": 1,
+          "to": 1,
+          "multiplier": 1.5339
+        },
+        {
+          "from": 2,
+          "to": 2,
+          "multiplier": 1.90259
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "multiplier": 2.3599
+        },
+        {
+          "from": 6,
+          "to": 10,
+          "multiplier": 1.797657
+        },
+        {
+          "from": 11,
+          "to": 15,
+          "multiplier": 4.130907
+        },
+        {
+          "from": 16,
+          "to": 20,
+          "multiplier": 3.695843
+        },
+        {
+          "from": 21,
+          "to": 25,
+          "multiplier": 30.81251
+        },
+        {
+          "from": 26,
+          "to": 30,
+          "multiplier": 14.484723
+        },
+        {
+          "from": 31,
+          "to": 35,
+          "multiplier": 20.310523
+        },
+        {
+          "from": 36,
+          "to": 40,
+          "multiplier": 8.263767
+        },
+        {
+          "from": 41,
+          "to": 45,
+          "multiplier": 58.454025
+        },
+        {
+          "from": 46,
+          "to": 50,
+          "multiplier": 26.818917
+        },
+        {
+          "from": 51,
+          "to": 55,
+          "multiplier": 53.041646
+        },
+        {
+          "from": 56,
+          "to": 60,
+          "multiplier": 17.94369
+        },
+        {
+          "from": 61,
+          "to": 65,
+          "multiplier": 182.885662
+        },
+        {
+          "from": 66,
+          "to": 70,
+          "multiplier": 165.725968
+        },
+        {
+          "from": 71,
+          "to": 75,
+          "multiplier": 167.870895
+        },
+        {
+          "from": 76,
+          "to": 80,
+          "multiplier": 94.191328
+        },
+        {
+          "from": 81,
+          "to": 85,
+          "multiplier": 752.508252
+        },
+        {
+          "from": 86,
+          "to": 90,
+          "multiplier": 945.851081
+        },
+        {
+          "from": 91,
+          "to": 95,
+          "multiplier": 1551.709963
+        },
+        {
+          "from": 96,
+          "to": 100,
+          "multiplier": 2946.650976
+        }
+      ]
+    }
+  },
+  "description": "fastbot-div1 (2026-11-09 overnight, branch balance/build-diversity-2026-11-08): fastbot-syn47 plus per-material strength multipliers solved on forced full sets (Scripts/material-solve.py: own class for class materials, all classes for class-less) so every set clears near curve target +5 at L18/L38/L58. Wood ON_ODD (data), Cloth FRAY gains a mint-DR knob. fastbot-div2: fastbot-div1 + damage bands ['damage@L48'] (balance-loop, paired confirm on seeds [8201, 8202, 8203, 8204])."
+}
