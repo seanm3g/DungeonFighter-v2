@@ -5,6 +5,7 @@ Balance is judged on clear rate and fight length (`BALANCE_PROCESS.md`). These m
 have shape. Computed by `Scripts/diversity-report.py` from DUNGEONSIM raw shards (`dungeon-sim.py --keep DIR`).
 
 "eff" = inverse Simpson effective count: 1 means one option everywhere, N means N options used evenly.
+Eff counts grow with sample size: compare runs with the same heroes per level and seeds (dungeon-sim `--shards`, `--seed`).
 
 ## Build diversity (per class and level)
 
@@ -18,7 +19,7 @@ have shape. Computed by `Scripts/diversity-report.py` from DUNGEONSIM raw shards
 | `affix_eff`, `stat_eff`, `mod_eff`, `act_eff` | effective number of worn affix lines, by family | rising with level |
 | `strip_eff` | effective number of distinct strips | ≥ 3 |
 | `skill_eff` | effective number of distinct learned-skill sets | ≥ 3 |
-| `build_eff` | effective number of build fingerprints (set, top-2 stat suffixes, skills, strip) | ≥ half the heroes |
+| `build_eff` | effective number of build fingerprints (set, top-2 stat suffixes, skills, strip), counted over fights | saturates near the fight count (2026-11-09: ~every hero unique) — compare equal samples only; prefer the component metrics |
 | `build_distance` | mean Jaccard distance between two heroes' builds (materials, affixes, skills, strip actions) | ≥ 0.6 |
 
 ## Material and affix balance

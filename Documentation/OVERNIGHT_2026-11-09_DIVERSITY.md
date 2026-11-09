@@ -38,7 +38,10 @@ Sim plumbing: fight rows log worn affixes; DUNGEONSIM JSON has `GearPasses`; `du
 | d42845bb | bot values adjective prefixes; class-less sets compete with home sets on piece count |
 | 15971a95 | **fastbot-div1**: per-material strength multipliers (forced-set solve); Wood synthesis ON_ODD; Cloth FRAY mint-DR knob |
 | 69e1105c | prefix values and stat-suffix multipliers solved to ~+8 clear points per full forced set |
-| (pending) | **fastbot-div2**: damage curve re-fit on div1 |
+| 239d3b47 | fastbot-div2/div3 damage re-fit; synergy bot branchBonus 0.35 → 1.0 (skills follow the worn set) |
+| d3e2f967 / b9559469 | fastbot-div4 / div5 class re-fits |
+| 67190b34 | **fastbot-div6** (final candidate) |
+| 27bb4de2 | HEALTH BONUS prefix test updated to % semantics (no other new test failures vs the snapshot) |
 
 ## 4. Results
 
@@ -49,37 +52,55 @@ SD of clear across each class's 9 viable sets (own trio + 6 class-less):
 |---|---|---|---|
 | syn47 | 13–24 | 13–18 | 18–25 |
 | div1 (materials only) | 6–12 | 6–10 | 9–14 |
-| div4 (all changes, final tools) | 5–11 | 9–15 | 9–13 |
+| div6 (all changes, final tools) | 5–11 | 9–15 | 9–15 |
 
-Weakest left: Wood for Barbarian (37–46%), every Wizard set at L58 (27–62%).
+Weakest left: Wood for Barbarian (37–46%), Wizard sets at L58 (17–66%).
 
-### Natural play, syn47 → fastbot-div4 (synergy bot, 64 → 128 heroes / level, seed 8100)
+### Natural play, syn47 → fastbot-div6 (synergy bot, 128 heroes per level on both sides, same seeds)
 
 | Metric | L18 | L38 | L58 |
 |---|---|---|---|
-| clear | 69% → 64% | 67% → 68% | 62% → 54% |
-| build_eff (distinct builds) | 60.9 → 120 | 58.6 → 106 | 41 → 80 |
-| build_distance | 0.879 → 0.896 | 0.891 → 0.888 | 0.871 → 0.866 |
-| material_eff | 10.2 → 13 | 11.1 → 13.1 | 10.5 → 10.9 |
-| classless_share | 2% → 15% | 4% → 12% | 0% → 5% |
-| set_eff | 9.68 → 11.6 | 10.1 → 11.8 | 10 → 10.4 |
-| set4_rate | 42% → 46% | 71% → 83% | 95% → 100% |
-| stat_eff | 10.6 → 14.4 | 9.08 → 11.9 | 8.08 → 10.9 |
-| mod_eff | 14.4 → 15 | 14 → 17.6 | 14.2 → 15.8 |
-| strip_eff | 21.2 → 31.4 | 17.1 → 26.3 | 26.1 → 26.3 |
-| skill_eff | 5.28 → 7.83 | 6.51 → 11.2 | 5.31 → 5.86 |
-| contest_share | 62% → 47% | 62% → 50% | 74% → 64% |
+| clear | 69% → 64% | 69% → 68% | 56% → 55% |
+| build_eff | 119 → 120 | 103 → 106 | 73 → 81 |
+| build_distance | 0.885 → 0.896 | 0.888 → 0.888 | 0.876 → 0.868 |
+| material_eff | 11.6 → 13.0 | 12.0 → 13.1 | 10.2 → 11.4 |
+| classless_share | 3% → 15% | 3% → 12% | 0% → 5% |
+| set_eff | 10.9 → 11.6 | 11.3 → 11.8 | 9.9 → 10.8 |
+| set4_rate | 39% → 46% | 75% → 83% | 97% → 100% |
+| stat_eff | 11.0 → 14.4 | 10.1 → 11.9 | 10.0 → 11.2 |
+| mod_eff | 11.7 → 15.0 | 15.3 → 17.6 | 14.5 → 16.0 |
+| strip_eff | 29.1 → 31.4 | 22.6 → 26.3 | 24.5 → 28.1 |
+| skill_eff | 5.4 → 7.8 | 6.1 → 11.2 | 5.4 → 6.2 |
+| contest_share | 62% → 47% | 60% → 50% | 74% → 64% |
 | close_call | 2% → 2% | 2% → 4% | 3% → 4% |
-| one_shot | 15% → 7% | 7% → 11% | 11% → 15% |
-| lead_changes | 0.907 → 0.992 | 0.981 → 0.946 | 0.922 → 0.922 |
-| length_cv | 0.661 → 0.57 | 0.622 → 0.669 | 0.875 → 0.826 |
-| crit_share | 24% → 32% | 30% → 36% | 33% → 40% |
-| convert_share | 42% → 48% | 26% → 32% | 15% → 17% |
+| one_shot | 11% → 7% | 8% → 11% | 15% → 15% |
+| lead_changes | 0.95 → 0.99 | 0.99 → 0.95 | 0.90 → 0.92 |
+| crit_share | 25% → 32% | 26% → 36% | 34% → 41% |
+| convert_share | 45% → 48% | 28% → 32% | 16% → 17% |
 
-Fight-dynamics metrics barely moved: close calls stay 2–4% (target 5–15%), DoT share stays ~0. These need design levers, not set balance.
-contest_share fell: gear slots are less often a near-tie now that prefixes carry value.
+Wider check (L8 / L28 / L48 / L68, seed 8800): class-less wear 10→17%, 2→16%, 1→8%, 0→1%; material_eff +0.1 to +1.4;
+skill_eff +0 to +2.3; clear 93→91, 70→68, 60→67, 46→43.
 
-CURVE_PLACEHOLDER
+Reading it honestly:
+- **What got more varied:** which materials and sets heroes wear (class-less sets went from never to 5–17% of pieces),
+  which suffixes and prefixes they carry, which skills they learn (L18–L48), and their strips.
+- **build_eff / build_distance did not move.** Almost every hero is already a unique build at 128 heroes, so build_eff saturates;
+  the variety gain shows in the component metrics, not in "number of distinct builds". (An earlier draft claimed 61 → 120:
+  that compared a 64-hero baseline with a 128-hero run. Compare equal samples only.)
+- **Fight dynamics barely moved:** close calls 2–4% (target 5–15%), DoT ~0, one-shots unchanged on average. Those need design
+  levers (section 5), not set balance.
+- contest_share fell: gear slots are less often a near-tie now that prefixes carry value.
+
+### Curve (balance-loop measure, seeds 7101–7104, same as the syn47 measure last night)
+
+| | mean clear gap | class spread | bands over parity |
+|---|---|---|---|
+| syn47 | 1.89 | 10.6 | 5 |
+| fastbot-div6 | 2.06 | 9.7 | 7 |
+| fastbot-div5 (fresh seeds 8501–8504) | 1.25 | 7.9 | 3 |
+
+Biggest misses on div6: L23 65 vs 70 (Wizard 57), L58 50 vs 54, L68 36 vs 40 (Barbarian 27).
+At L58 two enemies cause ~70% of deaths for every class: **Tomb Creeper** and **Poison Dart Sentinel**.
 
 ## 5. Needs your call
 
