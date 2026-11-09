@@ -158,7 +158,12 @@ namespace RPGGame
                 return;
             string kind = forced[..colon].Trim().ToLowerInvariant();
             string key = forced[(colon + 1)..].Trim();
-            if (kind == "mod")
+            if (kind == "mod" && key == "-")
+            {
+                // Reference run for prefix pricing: no adjective on any piece.
+                item.Modifications.RemoveAll(m => m != null && m.GetPrefixCategory() == ModificationPrefixCategory.Adjective);
+            }
+            else if (kind == "mod")
             {
                 var template = (_dataCache.Modifications ?? new List<Modification>())
                     .FirstOrDefault(m => m.GetPrefixCategory() == ModificationPrefixCategory.Adjective
@@ -169,6 +174,14 @@ namespace RPGGame
                 var mod = CloneRolledModification(template, 0);
                 if (mod != null)
                     item.Modifications.Add(mod);
+            }
+            else if (kind == "stat" && key.StartsWith('-'))
+            {
+                // stat:- = no suffix lines (reference run); stat:-CRIT = only one CRIT line, so each stat is priced alone.
+                item.StatBonuses.Clear();
+                string only = key[1..].Trim();
+                if (only.Length > 0)
+                    ApplyToolForcedAffix(item, rarityName, "stat:" + only);
             }
             else if (kind == "stat")
             {

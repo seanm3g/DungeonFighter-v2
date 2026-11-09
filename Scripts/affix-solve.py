@@ -28,6 +28,7 @@ ap.add_argument('--slope', type=float, default=10.0, help='prior gain points per
 ap.add_argument('--mods', default='Light,Acrobatic,Featherweight,Nimble,Heavy,Brutal,Keen,refined,Charged,Long,Reinforced,Hardened,Ancient,Sturdy,Flaming,serrated,Poisonous')
 ap.add_argument('--start', default='', help='JSON {mod: value} starting values (default: current file values)')
 ap.add_argument('--write', action='store_true')
+ap.add_argument('--baseline-affix', default='', help="affix forced in the reference run ('mod:-' strips adjectives: prices each prefix against none)")
 A = ap.parse_args()
 
 MODS = A.mods.split(',')
@@ -109,10 +110,11 @@ for rnd in range(1, A.rounds + 1):
     confirm = rnd == A.rounds
     ov = overlay(values, rnd)
     seed = A.seed + 41 * rnd
-    base = run('none', rnd, ov, seed)
+    base = run('none', rnd, ov, seed, A.baseline_affix or None)
     gains = {}
     for m in MODS:
-        per = run(m.replace(':', '-'), rnd, ov, seed, m if m.startswith('stat:') else f'mod:{m}')
+        forced = (('stat:-' + m[5:]) if A.baseline_affix == 'stat:-' else m) if m.startswith('stat:') else f'mod:{m}'
+        per = run(m.replace(':', '-'), rnd, ov, seed, forced)
         gains[m] = gain(per, base)
         history[m].append((values[m], gains[m]))
         by_level = '  '.join(f'L{L} {100 * sum(per[L][c] - base[L][c] for c in CLASSES) / 4:+5.1f}' for L in sorted(base))
