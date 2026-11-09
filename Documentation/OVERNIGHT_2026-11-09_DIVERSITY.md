@@ -53,6 +53,7 @@ SD of clear across each class's 9 viable sets (own trio + 6 class-less):
 | syn47 | 13–24 | 13–18 | 18–25 |
 | div1 (materials only) | 6–12 | 6–10 | 9–14 |
 | div6 (all changes, final tools) | 5–11 | 9–15 | 9–15 |
+| div6, 32 heroes / class (seed 9950) | 4–14 | 6–12 | 7–15 |
 
 Weakest left: Wood for Barbarian (37–46%), Wizard sets at L58 (17–66%).
 
