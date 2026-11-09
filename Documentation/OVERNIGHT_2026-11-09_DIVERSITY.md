@@ -48,19 +48,36 @@ SD of clear across each class's 9 viable sets (own trio + 6 class-less):
 | | L18 | L38 | L58 |
 |---|---|---|---|
 | syn47 | 13–24 | 13–18 | 18–25 |
-| div1 | 6–12 | 6–10 | 9–14 |
+| div1 (materials only) | 6–12 | 6–10 | 9–14 |
+| div4 (all changes, final tools) | 5–11 | 9–15 | 9–13 |
 
-### Natural play (128 heroes / level, seed 8100)
+Weakest left: Wood for Barbarian (37–46%), every Wizard set at L58 (27–62%).
 
-| Metric | L18 before → after | L38 | L58 |
+### Natural play, syn47 → fastbot-div4 (synergy bot, 64 → 128 heroes / level, seed 8100)
+
+| Metric | L18 | L38 | L58 |
 |---|---|---|---|
-| distinct builds (build_eff) | 61 → 116 | 59 → 106 | 41 → 70 |
-| class-less pieces worn | 2% → 15% | 4% → 12% | 0.3% → 5% |
-| material_eff | 10.2 → 12.8 | 11.1 → 13.2 | 10.5 → 10.8 |
-| strip_eff | 21 → 30 | 17 → 26 | 26 → 24 |
-| stat suffix variety | 10.6 → 14.5 | 9.1 → 12.0 | 8.1 → 11.1 |
-| one-shot fights | 15% → 6% | 7% → 10% | 11% → 15% |
-| clear | 69 → 61 | 67 → 66 | 62 → 46 |
+| clear | 69% → 64% | 67% → 68% | 62% → 54% |
+| build_eff (distinct builds) | 60.9 → 120 | 58.6 → 106 | 41 → 80 |
+| build_distance | 0.879 → 0.896 | 0.891 → 0.888 | 0.871 → 0.866 |
+| material_eff | 10.2 → 13 | 11.1 → 13.1 | 10.5 → 10.9 |
+| classless_share | 2% → 15% | 4% → 12% | 0% → 5% |
+| set_eff | 9.68 → 11.6 | 10.1 → 11.8 | 10 → 10.4 |
+| set4_rate | 42% → 46% | 71% → 83% | 95% → 100% |
+| stat_eff | 10.6 → 14.4 | 9.08 → 11.9 | 8.08 → 10.9 |
+| mod_eff | 14.4 → 15 | 14 → 17.6 | 14.2 → 15.8 |
+| strip_eff | 21.2 → 31.4 | 17.1 → 26.3 | 26.1 → 26.3 |
+| skill_eff | 5.28 → 7.83 | 6.51 → 11.2 | 5.31 → 5.86 |
+| contest_share | 62% → 47% | 62% → 50% | 74% → 64% |
+| close_call | 2% → 2% | 2% → 4% | 3% → 4% |
+| one_shot | 15% → 7% | 7% → 11% | 11% → 15% |
+| lead_changes | 0.907 → 0.992 | 0.981 → 0.946 | 0.922 → 0.922 |
+| length_cv | 0.661 → 0.57 | 0.622 → 0.669 | 0.875 → 0.826 |
+| crit_share | 24% → 32% | 30% → 36% | 33% → 40% |
+| convert_share | 42% → 48% | 26% → 32% | 15% → 17% |
+
+Fight-dynamics metrics barely moved: close calls stay 2–4% (target 5–15%), DoT share stays ~0. These need design levers, not set balance.
+contest_share fell: gear slots are less often a near-tie now that prefixes carry value.
 
 CURVE_PLACEHOLDER
 

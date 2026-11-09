@@ -1,0 +1,193 @@
+{
+  "base": "fastbot-div4",
+  "classBalance": {
+    "barbarian": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 10,
+            "multiplier": 1.0
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 1.109569
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 1.180992
+          },
+          {
+            "from": 21,
+            "to": 30,
+            "multiplier": 1.0
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 1.591073
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 1.464086
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 1.0
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 1.42405
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 1.0
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 1.235418
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 0.671286
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 1.006956
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 0.959264
+          },
+          {
+            "from": 76,
+            "to": 85,
+            "multiplier": 1.0
+          },
+          {
+            "from": 86,
+            "to": 90,
+            "multiplier": 1.925189
+          },
+          {
+            "from": 91,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    },
+    "wizard": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 10,
+            "multiplier": 1.0
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 1.094294
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 1.024557
+          },
+          {
+            "from": 21,
+            "to": 25,
+            "multiplier": 0.523042
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 0.840896
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 0.469761
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 0.876606
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 0.38422
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 0.732043
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 0.51943
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 0.554784
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 0.258816
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 0.328736
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 0.515841
+          },
+          {
+            "from": 76,
+            "to": 80,
+            "multiplier": 0.517632
+          },
+          {
+            "from": 81,
+            "to": 85,
+            "multiplier": 0.521233
+          },
+          {
+            "from": 86,
+            "to": 90,
+            "multiplier": 0.359733
+          },
+          {
+            "from": 91,
+            "to": 95,
+            "multiplier": 0.512278
+          },
+          {
+            "from": 96,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    }
+  },
+  "description": "fastbot-div3: fastbot-div2 + damage bands L56-60 and L71-75 from the div1 bo-solve (confirm moved both toward target, under the 2-SE keep bar). fastbot-div4: fastbot-div3 + class bands ['class:Barbarian@L18', 'class:Barbarian@L48', 'class:Rogue@L58', 'class:Wizard@L18'] (balance-loop, paired confirm on seeds [8201, 8202, 8203, 8204]). fastbot-div5: fastbot-div4 + class bands ['class:Barbarian@L33', 'class:Barbarian@L73', 'class:Wizard@L58'] (balance-loop, paired confirm on seeds [8401, 8402, 8403, 8404])."
+}
