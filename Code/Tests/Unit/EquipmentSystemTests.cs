@@ -448,14 +448,16 @@ namespace RPGGame.Tests.Unit
 
             character.EquipItem(vest, "body");
 
-            TestBase.AssertEqual(25, character.GetEquipmentHealthBonus(),
-                "HEALTH BONUS prefix should contribute its rolled value as flat equipment health",
+            // HEALTH BONUS prefixes are a percent of max health (same reference as Health suffixes) since 2026-11-09.
+            int expectedBonus = (int)Math.Floor(baseMaxHealth * 25 / 100.0 + 1e-9);
+            TestBase.AssertEqual(expectedBonus, character.GetEquipmentHealthBonus(),
+                "HEALTH BONUS prefix should contribute its rolled value as a percent of max health",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(baseMaxHealth + 25, character.GetEffectiveMaxHealth(),
-                "Sturdy Vest should increase effective max health by its flat HEALTH BONUS value",
+            TestBase.AssertEqual(baseMaxHealth + expectedBonus, character.GetEffectiveMaxHealth(),
+                "Sturdy Vest should increase effective max health by its HEALTH BONUS percent",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(character.GetEffectiveMaxHealth(), character.CurrentHealth,
-                "Equipping a flat health-bonus prefix should adjust current health to the new max",
+                "Equipping a health-bonus prefix should adjust current health to the new max",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
