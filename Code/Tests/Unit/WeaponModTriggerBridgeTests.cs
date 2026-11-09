@@ -28,7 +28,7 @@ namespace RPGGame.Tests.Unit
             TestBase.SetCurrentTestName(nameof(TestDefaultWhenIsOnCritical));
             var mod = new Modification { Effect = "weaponPoison", RolledValue = 2 };
             string when = CombatEffectsSimplified.ResolveWeaponModTriggerWhen(mod);
-            TestBase.AssertEqual("ONCRITICAL", when, "weaponPoison defaults to ONCRITICAL", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("ONCONNECT", when, "weaponPoison defaults to ONCONNECT (gear DoT applies on any landed hit)", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestCustomTriggerWhen()

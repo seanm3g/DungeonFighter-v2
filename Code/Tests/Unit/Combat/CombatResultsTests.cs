@@ -387,8 +387,8 @@ namespace RPGGame.Tests.Unit.Combat
 
             _ = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(hero, target, jab, null, null, null);
 
-            TestBase.AssertTrue(Math.Abs(target.PoisonPercentOfMaxHealth) < 0.0001,
-                $"Enemy poison % should stay 0 on non-crit, got {target.PoisonPercentOfMaxHealth}",
+            TestBase.AssertTrue(target.PoisonPercentOfMaxHealth > 0.0001,
+                $"Enemy poison % should rise on a landed non-crit hit (gear DoT ONCONNECT), got {target.PoisonPercentOfMaxHealth}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             ActionSelector.RemoveStoredRoll(hero);
