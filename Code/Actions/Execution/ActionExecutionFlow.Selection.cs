@@ -40,12 +40,26 @@ namespace RPGGame.Actions.Execution
                 int eqHit = gearCharacter.Equipment.GetEquipmentStatBonus("HIT", gearCharacter);
                 int eqCombo = gearCharacter.Equipment.GetEquipmentStatBonus("COMBO", gearCharacter);
                 int eqCrit = gearCharacter.Equipment.GetEquipmentStatBonus("CRIT", gearCharacter);
-                if (eqHit != 0)
-                    thresholdManager.AdjustHitThreshold(gearCharacter, eqHit);
+                // Prototype 2026-11-09: COMBO first (HIT is clamped to COMBO - 2), and whatever HIT / COMBO cannot move
+                // because a threshold sits on its floor spills into CRIT at half rate, so those lines keep a use late.
+                int overflow = 0;
                 if (eqCombo != 0)
+                {
+                    int before = thresholdManager.GetComboThreshold(gearCharacter);
                     thresholdManager.AdjustComboThreshold(gearCharacter, eqCombo);
-                if (eqCrit != 0)
-                    thresholdManager.AdjustCriticalHitThreshold(gearCharacter, eqCrit);
+                    if (eqCombo > 0)
+                        overflow += Math.Max(0, eqCombo - (before - thresholdManager.GetComboThreshold(gearCharacter)));
+                }
+                if (eqHit != 0)
+                {
+                    int before = thresholdManager.GetHitThreshold(gearCharacter);
+                    thresholdManager.AdjustHitThreshold(gearCharacter, eqHit);
+                    if (eqHit > 0)
+                        overflow += Math.Max(0, eqHit - (before - thresholdManager.GetHitThreshold(gearCharacter)));
+                }
+                int critShift = eqCrit + overflow;
+                if (critShift != 0)
+                    thresholdManager.AdjustCriticalHitThreshold(gearCharacter, critShift);
                 DungeonSearchBuffThresholdApplicator.Apply(gearCharacter, thresholdManager);
                 CadenceScopedBuffApplicator.ApplyThresholds(gearCharacter, thresholdManager);
             }
