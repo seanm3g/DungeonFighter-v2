@@ -1,0 +1,70 @@
+{
+  "base": "fastbot-syn47",
+  "combat": {
+    "materialSetSpeedPercentPerPiece": {
+      "Iron": 7.4568,
+      "Bone": 1.1136,
+      "Mithril": 3.8322,
+      "Glass": 5.4708,
+      "Willow": 10.8259,
+      "Crystal": 0.5441,
+      "Silver": 4.4802,
+      "Gold": 0.6,
+      "Stone": 4.4502,
+      "Unknown": 1.5465,
+      "Strange": 1.767,
+      "Celestial": 5.7491
+    },
+    "materialFightMintSpeedPercentPerUnit": {
+      "TRIUMPH": 5.925,
+      "SWING": 0.8591,
+      "RAGE": 1.1136,
+      "CONTACT": 0.3809,
+      "GRIT": 2.2251,
+      "ENIGMA": 0.5671,
+      "OMEN": 2.6829,
+      "ODDITY": 2.945
+    },
+    "materialFightMintDamageReductionPercentPerUnit": {
+      "RAGE": 2.2271,
+      "STREAK": 1.2774,
+      "CHAIN": 7.2173,
+      "TRIUMPH": 4.74,
+      "CRISIS": 1.3558,
+      "LENS": 3.3602,
+      "GRIT": 4.4502,
+      "ENIGMA": 1.031,
+      "OMEN": 3.8328,
+      "ODDITY": 2.356,
+      "FRAY": 8.1662
+    },
+    "materialSetDamageReductionPercentPerPiece": {
+      "Obsidian": 4.3616
+    },
+    "materialSetAttributePerPiece": {
+      "Gold": 1.4,
+      "Glass": 2.4315,
+      "Silver": 5.0403
+    },
+    "materialConvertPrimaryStatPerUnit": {
+      "RAGE": 2.2568,
+      "TRIUMPH": 1.7739,
+      "CRISIS": 1.3785,
+      "DRAG": 1.2,
+      "STREAK": 1.0986,
+      "GRAZE": 0.9009,
+      "TROPHY": 8.1774,
+      "SWING": 0.371,
+      "CHAIN": 0.3536,
+      "LENS": 2.9894,
+      "CONTACT": 0.0574,
+      "GRIT": 0.89,
+      "ENIGMA": 0.9753,
+      "ODDITY": 7.73,
+      "OMEN": 5.6801,
+      "KINDLING": 20.1861,
+      "FRAY": 24.8252
+    }
+  },
+  "description": "fastbot-div1 (2026-11-09 overnight, branch balance/build-diversity-2026-11-08): fastbot-syn47 plus per-material strength multipliers solved on forced full sets (Scripts/material-solve.py: own class for class materials, all classes for class-less) so every set clears near curve target +5 at L18/L38/L58. Wood ON_ODD (data), Cloth FRAY gains a mint-DR knob."
+}

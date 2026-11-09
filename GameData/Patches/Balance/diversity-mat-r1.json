@@ -1,0 +1,68 @@
+{
+  "base": "fastbot-syn47",
+  "combat": {
+    "materialSetSpeedPercentPerPiece": {
+      "Iron": 15.554,
+      "Bone": 1.401,
+      "Mithril": 5.55,
+      "Glass": 6.228,
+      "Willow": 5.376,
+      "Crystal": 1.048,
+      "Silver": 5.244,
+      "Gold": 1.626,
+      "Stone": 3.06,
+      "Unknown": 1.5465,
+      "Strange": 1.767,
+      "Celestial": 2.727
+    },
+    "materialFightMintSpeedPercentPerUnit": {
+      "TRIUMPH": 5.925,
+      "SWING": 0.8591,
+      "RAGE": 1.401,
+      "CONTACT": 0.7336,
+      "GRIT": 1.53,
+      "ENIGMA": 0.5671,
+      "OMEN": 1.2726,
+      "ODDITY": 2.945
+    },
+    "materialFightMintDamageReductionPercentPerUnit": {
+      "RAGE": 2.802,
+      "STREAK": 1.85,
+      "CHAIN": 3.584,
+      "TRIUMPH": 4.74,
+      "CRISIS": 2.828,
+      "LENS": 3.933,
+      "GRIT": 3.06,
+      "ENIGMA": 1.031,
+      "OMEN": 1.818,
+      "ODDITY": 2.356
+    },
+    "materialSetDamageReductionPercentPerPiece": {
+      "Obsidian": 3.6855
+    },
+    "materialSetAttributePerPiece": {
+      "Gold": 3.794,
+      "Glass": 2.768,
+      "Silver": 5.8995
+    },
+    "materialConvertPrimaryStatPerUnit": {
+      "RAGE": 2.8394,
+      "TRIUMPH": 1.7739,
+      "CRISIS": 2.8754,
+      "DRAG": 3.252,
+      "STREAK": 1.591,
+      "GRAZE": 1.0255,
+      "TROPHY": 6.9098,
+      "SWING": 0.371,
+      "CHAIN": 0.1756,
+      "LENS": 3.4991,
+      "CONTACT": 0.1106,
+      "GRIT": 0.612,
+      "ENIGMA": 0.9753,
+      "ODDITY": 7.73,
+      "OMEN": 2.6943,
+      "KINDLING": 4.0,
+      "FRAY": 9.9286
+    }
+  }
+}

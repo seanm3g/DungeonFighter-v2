@@ -148,5 +148,5 @@ for rnd in range(1, A.rounds + 1):
         if abs(gaps[m]) < 4:
             continue
         step = max(-0.7, min(0.7, -gaps[m] / slope))
-        mult[m] = max(0.2, min(10.0, mult[m] * math.exp(step)))
+        mult[m] = max(0.2, min(40.0, mult[m] * math.exp(step)))
 log(f'final multipliers {json.dumps({m: round(v, 3) for m, v in mult.items()})}')

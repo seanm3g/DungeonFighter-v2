@@ -162,7 +162,7 @@
   {
     "class": "",
     "material": "Wood",
-    "synthesis": "ON_MISS = KINDLING",
+    "synthesis": "ON_ODD = KINDLING",
     "convertAction": "KINDLE",
     "feed": "+/x per WOOD",
     "stack2": "SYNTHESIS + CONVERT UNLOCK",
