@@ -25,6 +25,12 @@ namespace RPGGame.UI.Avalonia
         /// <summary>Raw full-screen text cell run (title scene); no merge, no center-column zoom.</summary>
         public void AddSceneText(int x, int y, string text, global::Avalonia.Media.Color color) => canvas.AddSceneText(x, y, text, color);
 
+        /// <summary>
+        /// Shows a whole title scene frame (blocks + runs) on the canvas's fast scene path; null removes it.
+        /// Much cheaper than <see cref="AddSceneText"/> / <see cref="AddSceneBlock"/> per cell.
+        /// </summary>
+        public void SetTitleScene(RPGGame.UI.TitleScreen.TitleSceneFrame? scene) => canvas.TitleScene = scene;
+
         /// <summary>Solid filled cell rectangle (title scene pixel blocks).</summary>
         public void AddSceneBlock(int x, int y, int width, int height, global::Avalonia.Media.Color color) =>
             canvas.AddBox(x, y, width, height, color, color);

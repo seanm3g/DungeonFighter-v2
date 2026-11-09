@@ -143,21 +143,19 @@ namespace RPGGame.UI.TitleScreen
 
                 _canvasUI.SetClearBackgroundColor(scene.Background);
                 _canvasUI.Clear();
-
-                foreach (var block in scene.Blocks)
-                    _canvasUI.AddSceneBlock(block.X, block.Y, block.Width, block.Height, block.Color);
-
-                foreach (var text in scene.Texts)
-                    _canvasUI.AddSceneText(text.X, text.Y, text.Text, text.Color);
-
+                // One frame object on the canvas's scene path: no per-cell elements, drop shadows or hit tests.
+                _canvasUI.SetTitleScene(scene);
                 _canvasUI.Refresh();
-                Dispatcher.UIThread.RunJobs(DispatcherPriority.Render);
             });
         }
 
         public void ResetBackground()
         {
-            Dispatcher.UIThread.Invoke(() => _canvasUI.ResetClearBackgroundColor());
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                _canvasUI.SetTitleScene(null);
+                _canvasUI.ResetClearBackgroundColor();
+            });
         }
 
         public void Clear()

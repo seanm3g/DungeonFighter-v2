@@ -377,11 +377,85 @@ namespace RPGGame.UI.Avalonia.Canvas
             double fontSize = coordinateConverter.GetFontSize();
             double glyphAdvance = ResolveGlyphAdvance(charWidth, fontSize);
             bool forceMonospace = ShouldForceMonospaceGlyphPlacement(GameFonts.UsesPixelGrid);
+            PrepareSceneGlyphs(fontSize, glyphAdvance);
             foreach (var run in scene.Texts)
             {
+                double x = run.X * charWidth;
+                double y = run.Y * charHeight;
+                if (TryDrawSceneGlyphRun(context, run.Text, x, y, run.Color))
+                    continue;
                 var text = new CanvasText { X = run.X, Y = run.Y, Content = run.Text, Color = run.Color, IgnoresCenterColumn = true };
-                DrawTextRun(context, text, run.Text, run.X * charWidth, run.Y * charHeight, fontSize, glyphAdvance, forceMonospace);
+                DrawTextRun(context, text, run.Text, x, y, fontSize, glyphAdvance, forceMonospace);
             }
+        }
+
+        // ── Scene glyph runs ──
+        // Title / inn scenes paint thousands of runs per frame in ever-changing colors. FormattedText bakes the
+        // brush in (so every new color re-shapes the text) and its cache is capped, so scenes use GlyphRuns laid
+        // out on the cell grid, cached by text only, and colored by the brush at draw time.
+        private readonly Dictionary<string, GlyphRun?> _sceneGlyphRuns = new();
+        private IGlyphTypeface? _sceneGlyphTypeface;
+        private double _sceneGlyphFontSize = -1;
+        private double _sceneGlyphAdvance = -1;
+        private double _sceneGlyphBaseline;
+        private const int SceneGlyphRunCacheLimit = 8192;
+
+        private void PrepareSceneGlyphs(double fontSize, double glyphAdvance)
+        {
+            IGlyphTypeface? glyphTypeface = null;
+            try { glyphTypeface = coordinateConverter.GetTypeface().GlyphTypeface; }
+            catch { /* font not resolvable: FormattedText fallback */ }
+
+            if (!ReferenceEquals(glyphTypeface, _sceneGlyphTypeface)
+                || _sceneGlyphFontSize != fontSize
+                || _sceneGlyphAdvance != glyphAdvance)
+            {
+                _sceneGlyphRuns.Clear();
+                _sceneGlyphTypeface = glyphTypeface;
+                _sceneGlyphFontSize = fontSize;
+                _sceneGlyphAdvance = glyphAdvance;
+                // Same vertical placement as FormattedText drawn at the cell's top-left.
+                _sceneGlyphBaseline = GetCachedFormattedText("X", Colors.White, fontSize).Baseline;
+            }
+            else if (_sceneGlyphRuns.Count > SceneGlyphRunCacheLimit)
+            {
+                _sceneGlyphRuns.Clear();
+            }
+        }
+
+        /// <summary>Draws <paramref name="content"/> as a cached grid-advance GlyphRun; false when the font lacks a glyph.</summary>
+        private bool TryDrawSceneGlyphRun(DrawingContext context, string content, double x, double y, Color color)
+        {
+            var glyphTypeface = _sceneGlyphTypeface;
+            if (glyphTypeface == null || string.IsNullOrEmpty(content))
+                return false;
+
+            if (!_sceneGlyphRuns.TryGetValue(content, out var run))
+            {
+                run = BuildSceneGlyphRun(glyphTypeface, content);
+                _sceneGlyphRuns[content] = run;
+            }
+            if (run == null)
+                return false;
+
+            Point origin = SnapDrawPoint(x, y);
+            using (context.PushTransform(Matrix.CreateTranslation(origin.X, origin.Y)))
+                context.DrawGlyphRun(GetCachedBrush(color), run);
+            return true;
+        }
+
+        private GlyphRun? BuildSceneGlyphRun(IGlyphTypeface glyphTypeface, string content)
+        {
+            var infos = new global::Avalonia.Media.TextFormatting.GlyphInfo[content.Length];
+            for (int i = 0; i < content.Length; i++)
+            {
+                char ch = content[i];
+                ushort glyph = glyphTypeface.GetGlyph(ch);
+                if (glyph == 0 && ch != ' ')
+                    return null;
+                infos[i] = new global::Avalonia.Media.TextFormatting.GlyphInfo(glyph, i, _sceneGlyphAdvance);
+            }
+            return new GlyphRun(glyphTypeface, _sceneGlyphFontSize, content.AsMemory(), infos, new Point(0, _sceneGlyphBaseline));
         }
 
         private void RenderBackdrop(DrawingContext context, CanvasBackdrop backdrop, double charWidth, double charHeight)

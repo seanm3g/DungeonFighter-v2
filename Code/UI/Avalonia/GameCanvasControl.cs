@@ -637,7 +637,8 @@ namespace RPGGame.UI.Avalonia
             var (incomingOpacity, outgoingOpacity) = locationFade.Update(location);
             var outgoing = locationFade.Outgoing;
 
-            var sceneUnderlay = menuScene.BuildFrame(GridWidth, GridHeight, textElements, location.Scene);
+            // Title screen hands its whole frame over as one scene (thousands of runs) instead of canvas elements.
+            var sceneUnderlay = TitleScene ?? menuScene.BuildFrame(GridWidth, GridHeight, textElements, location.Scene);
             var outgoingSceneUnderlay = outgoing.Scene != location.Scene
                 ? menuScene.BuildFrame(GridWidth, GridHeight, textElements, outgoing.Scene)
                 : null;
@@ -754,7 +755,14 @@ namespace RPGGame.UI.Avalonia
         public void Clear()
         {
             elementManager.Clear();
+            TitleScene = null;
         }
+
+        /// <summary>
+        /// Full-screen procedural title frame painted under all elements on the fast scene path
+        /// (<see cref="RPGGame.UI.TitleScreen.TitleSceneBuilder"/>). Cleared by <see cref="Clear"/>. UI thread only.
+        /// </summary>
+        public RPGGame.UI.TitleScreen.TitleSceneFrame? TitleScene { get; set; }
 
         /// <summary>
         /// Picture drawn behind the text each frame (the dungeon room's environment plate); null = none.
