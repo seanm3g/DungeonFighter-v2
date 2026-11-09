@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using RPGGame.Tests;
 using RPGGame;
@@ -122,9 +122,9 @@ namespace RPGGame.Tests.Unit.Combat
             target.PendingBleedFromHits = 0;
             target.PendingAcidFromHits = 0;
             _ = CombatEffectsSimplified.ApplyStatusEffects(jab, attacker, target, resultsNon, nonCrit);
-            TestBase.AssertTrue(target.PoisonPercentOfMaxHealth < 0.0001 && target.PendingBurnFromHits == 0
-                    && target.PendingBleedFromHits == 0 && target.PendingAcidFromHits == 0,
-                "non-crit hit event must not apply weapon poison, burn, bleed, or acid",
+            TestBase.AssertTrue(target.PoisonPercentOfMaxHealth > 0.0001 || target.PendingBurnFromHits > 0
+                    || target.PendingBleedFromHits > 0 || target.PendingAcidFromHits > 0,
+                "non-crit landed hit applies gear DoT (ONCONNECT default)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var crit = new CombatEvent(CombatEventType.ActionHit, attacker)

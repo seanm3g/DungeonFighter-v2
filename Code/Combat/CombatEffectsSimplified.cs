@@ -58,11 +58,12 @@ namespace RPGGame
             if (!string.IsNullOrWhiteSpace(mod.TriggerWhen))
                 return mod.TriggerWhen.Trim();
             string effect = NormalizeWeaponDotEffect(mod.Effect);
+            // Prototype 2026-11-09: gear DoTs apply on any landed hit (crit-only gave ~0 damage share).
             if (effect.Equals("weaponPoison", StringComparison.OrdinalIgnoreCase)
                 || effect.Equals("weaponBurn", StringComparison.OrdinalIgnoreCase)
                 || effect.Equals("weaponBleed", StringComparison.OrdinalIgnoreCase)
                 || effect.Equals("weaponAcid", StringComparison.OrdinalIgnoreCase))
-                return "ONCRITICAL";
+                return "ONCONNECT";
             return "ONCRITICAL";
         }
 
@@ -219,9 +220,14 @@ namespace RPGGame
             double poisonPct = 0;
             int burnAmt = 0, acidAmt = 0, bleedAmt = 0;
             var weapon = attacker.Weapon;
-            if (weapon?.Modifications != null)
+            // Prototype 2026-11-09: DoT prefixes on any equipped piece count, not only the weapon's.
+            var gearMods = MaterialSetController.EnumerateEquipped(attacker)
+                .Where(i => i?.Modifications != null)
+                .SelectMany(i => i!.Modifications)
+                .ToList();
+            if (gearMods.Count > 0)
             {
-                foreach (var mod in weapon.Modifications)
+                foreach (var mod in gearMods)
                 {
                     if (mod == null) continue;
                     string when = ResolveWeaponModTriggerWhen(mod);
@@ -244,8 +250,7 @@ namespace RPGGame
             }
 
             // Fallback to calculator aggregates only when the weapon has no weapon* DoT mods listed.
-            bool hasWeaponDotMods = weapon?.Modifications != null
-                && weapon.Modifications.Any(m =>
+            bool hasWeaponDotMods = gearMods.Any(m =>
                 {
                     if (m == null) return false;
                     string e = NormalizeWeaponDotEffect(m.Effect);
