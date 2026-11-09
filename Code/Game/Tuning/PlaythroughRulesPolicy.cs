@@ -234,12 +234,16 @@ namespace RPGGame.Tuning
                         .Select(s => s.Select(x => x.item).OrderByDescending(ItemValueModel.Score).First())
                         .Where(i => i is not WeaponItem || ItemValueModel.Score(i) >= 0.75 * ItemValueModel.Score(bestBySlot["weapon"]!))
                         .ToList();
-                    bool isHome = string.Equals(MaterialBuildsLoader.FindByMaterial(g.Key)?.AssociatedClass, home, StringComparison.OrdinalIgnoreCase);
-                    return (material: g.Key, pieces, isHome);
+                    string? owner = MaterialBuildsLoader.FindByMaterial(g.Key)?.AssociatedClass;
+                    bool isHome = string.Equals(owner, home, StringComparison.OrdinalIgnoreCase);
+                    // Class-less sets pay the wearer's top attribute, so they compete with home sets on piece count.
+                    bool wearable = isHome || string.IsNullOrWhiteSpace(owner);
+                    return (material: g.Key, pieces, isHome, wearable);
                 })
                 .Where(s => s.pieces.Count >= MaterialBuildData.StackUnlockCount)
-                .OrderByDescending(s => s.isHome)
+                .OrderByDescending(s => s.wearable)
                 .ThenByDescending(s => s.pieces.Count)
+                .ThenByDescending(s => s.isHome)
                 .ThenByDescending(s => s.pieces.Sum(ItemValueModel.Score))
                 .ToList();
 

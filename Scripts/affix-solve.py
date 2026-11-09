@@ -35,6 +35,26 @@ OUTDIR = os.path.join(ROOT, 'GameData', 'TuningRuns', f'affix-solve-{A.out}')
 os.makedirs(OUTDIR, exist_ok=True)
 LOG = open(os.path.join(OUTDIR, 'log.txt'), 'a', encoding='utf-8')
 SRC = json.load(open(os.path.join(ROOT, 'GameData', 'Modifications.json'), encoding='utf-8-sig'))
+STATS = json.load(open(os.path.join(ROOT, 'GameData', 'StatBonuses.json'), encoding='utf-8-sig'))
+
+
+def stat_key(row):
+    return (row.get('StatType') or row.get('Name') or '').strip().upper()
+
+
+def scaled_stats(mults):
+    """StatBonuses rows with every line of a 'stat:X' entry multiplied (Value and matching Mechanics)."""
+    rows = json.loads(json.dumps(STATS))
+    for r in rows:
+        k = stat_key(r)
+        f = mults.get('stat:' + k)
+        if f is None:
+            continue
+        r['Value'] = round(r['Value'] * f, 3)
+        for m in r.get('Mechanics') or []:
+            if (m.get('StatType') or '').strip().upper() == k:
+                m['Value'] = round(m['Value'] * f, 3)
+    return rows
 
 
 def log(msg):
@@ -45,6 +65,7 @@ def log(msg):
 
 
 values = {m['Name']: m['MaxValue'] for m in SRC if m['Name'] in MODS}
+values.update({m: 1.0 for m in MODS if m.startswith('stat:')})
 if A.start:
     values.update(json.load(open(A.start, encoding='utf-8')))
 
@@ -57,6 +78,8 @@ def overlay(vals, rnd):
         if m['Name'] in vals:
             m['MinValue'] = m['MaxValue'] = round(vals[m['Name']], 4)
     json.dump(rows, open(os.path.join(d, 'Modifications.json'), 'w', encoding='utf-8'), indent=2)
+    if any(m.startswith('stat:') for m in vals):
+        json.dump(scaled_stats(vals), open(os.path.join(d, 'StatBonuses.json'), 'w', encoding='utf-8'), indent=2)
     return d
 
 
@@ -89,7 +112,7 @@ for rnd in range(1, A.rounds + 1):
     base = run('none', rnd, ov, seed)
     gains = {}
     for m in MODS:
-        per = run(m, rnd, ov, seed, f'mod:{m}')
+        per = run(m.replace(':', '-'), rnd, ov, seed, m if m.startswith('stat:') else f'mod:{m}')
         gains[m] = gain(per, base)
         history[m].append((values[m], gains[m]))
         by_level = '  '.join(f'L{L} {100 * sum(per[L][c] - base[L][c] for c in CLASSES) / 4:+5.1f}' for L in sorted(base))
@@ -119,4 +142,6 @@ if A.write:
         if m['Name'] in values:
             m['MinValue'] = m['MaxValue'] = round(values[m['Name']], 4)
     json.dump(rows, open(path, 'w', encoding='utf-8'), indent=2)
-    log('wrote GameData/Modifications.json')
+    if any(m.startswith('stat:') for m in values):
+        json.dump(scaled_stats(values), open(os.path.join(ROOT, 'GameData', 'StatBonuses.json'), 'w', encoding='utf-8'), indent=2)
+    log('wrote GameData/Modifications.json / StatBonuses.json')
