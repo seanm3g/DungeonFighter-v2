@@ -67,7 +67,7 @@ CURVE_PLACEHOLDER
 ## 5. Needs your call
 
 1. **DoT on gear** is dead weight. Options: let any piece's DoT count (not just the weapon), trigger on any hit, or scale ticks with hero damage.
-2. **HIT / COMBO saturation**: past ~L20 every HIT / COMBO line is wasted. Options: convert overflow into CRIT / damage, or cap TEC milestone threshold shifts lower.
+2. **HIT / COMBO saturation**: past ~L20 every HIT / COMBO line is wasted. `ThresholdManager` clamps hit ≤ combo − 2 and combo ≥ `MinComboThreshold`; TEC milestones put combo on that floor by ~L20, so neither stat can move a threshold. Options: convert overflow into CRIT / damage, or slow the TEC milestone shifts.
 3. **Armor** barely matters against scaled enemy damage (×51 armor suffix still ~+5). Make armor % mitigation, or drop armor lines.
 4. **Wood ON_ODD** (my pick, pairs with the old Gold ON_EVEN idea) — keep or choose another trigger. **Celestial** ON_AFTER_MISS works only through its knobs (×3.8).
 5. **Wizard late game**: every Wizard set collapses at L58 (12–49% forced) — region / class shape, not materials.
