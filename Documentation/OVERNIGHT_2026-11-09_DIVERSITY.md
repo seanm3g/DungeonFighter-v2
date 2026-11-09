@@ -103,12 +103,28 @@ Late game (L78–98, 2 seeds): unchanged (div6 vs syn47 within noise at every le
 Biggest misses on div6: L23 65 vs 70 (Wizard 57), L58 50 vs 54, L68 36 vs 40 (Barbarian 27).
 At L58 two enemies cause ~70% of deaths for every class: **Tomb Creeper** and **Poison Dart Sentinel**.
 
-## 5. Needs your call
+## 5. Prototypes on their own branches (not in the diversity branch)
 
-1. **DoT on gear** is dead weight. Options: let any piece's DoT count (not just the weapon), trigger on any hit, or scale ticks with hero damage.
-2. **HIT / COMBO saturation**: past ~L20 every HIT / COMBO line is wasted. `ThresholdManager` clamps hit ≤ combo − 2 and combo ≥ `MinComboThreshold`; TEC milestones put combo on that floor by ~L20, so neither stat can move a threshold. Options: convert overflow into CRIT / damage, or slow the TEC milestone shifts.
-3. **Armor** barely matters against scaled enemy damage (×51 armor suffix still ~+5). Make armor % mitigation, or drop armor lines.
+| Branch | Change | Measured (forced full set vs stripped reference) | Natural play |
+|---|---|---|---|
+| `proto/gear-dot-2026-11-09` (1cb659d1) | DoT prefixes count from every equipped piece and apply on any landed hit (was weapon-only, crit-only); serrated 40, Poisonous 2 | Flaming +7..+10, serrated +5, Poisonous +2 (were ~0 even at value 500); poison looks capped | unchanged within noise (DoT prefixes are rare on worn gear) |
+| `proto/hit-overflow-2026-11-09` (679250e2) | COMBO applied before HIT; HIT / COMBO a floored threshold can't use spill into CRIT at half rate | Balanced / Precise COMBO prefixes +9 (were ~0 past L20), COMBO suffix +8; HIT still +1..+4 (needs full-rate spill or a different payoff) | unchanged within noise |
+
+Both branch off the diversity branch; merge either on top of it.
+
+## 6. Needs your call
+
+1. **DoT on gear** is dead weight. Prototype branch `proto/gear-dot-2026-11-09` makes it work (any piece, any hit) — merge it or pick another rule.
+2. **HIT / COMBO saturation**: past ~L20 every HIT / COMBO line is wasted. `ThresholdManager` clamps hit ≤ combo − 2 and combo ≥ `MinComboThreshold`; TEC milestones put combo on that floor by ~L20, so neither stat can move a threshold. Prototype `proto/hit-overflow-2026-11-09` revives COMBO lines; HIT still needs a payoff (full-rate spill, or overflow into damage).
+3. **Defense is cheap by construction.** Armor is already % mitigation (DR = def / (def + 275)), and HEALTH works, yet ARMOR ×51 still bought only ~+5: enemies swing ~2–3 times per fight, so offense decides fights. Options: longer enemy turns / more enemy swings, or price armor lines low on purpose.
 4. **Wood ON_ODD** (my pick, pairs with the old Gold ON_EVEN idea) — keep or choose another trigger. **Celestial** ON_AFTER_MISS works only through its knobs (×3.8).
-5. **Wizard late game**: every Wizard set collapses at L58 (12–49% forced) — region / class shape, not materials.
+5. **L58 spike enemies**: Tomb Creeper and Poison Dart Sentinel cause ~70% of L58 deaths for every class. Wizard sets are weakest there (forced 17–66%).
 6. **Skill trees**: all Barbarians (and nearly all Wizards) learn identical nodes — point budget vs node count.
-7. Stat suffix descriptions in StatBonuses.json still show the old numbers (values were scaled ×0.1–×20).
+7. **Class-less sets differ by class**: Cloth and Wood are weak for Barbarian (−22..−24 vs class median) but strong for Warrior / Wizard; one knob per material can't fix it (Cloth FRAY pays on taking hits, Wood on odd rolls).
+8. Stat suffix descriptions in StatBonuses.json still show the old numbers (values were scaled ×0.1–×20).
+9. **Shared checkout warning**: the uncommitted main-menu WIP (digit = fighter card) breaks DUNGEONSIM as soon as tools are rebuilt there. The one-line fix (`ClassPlaythroughPolicy` "MainMenu" → `MainMenuHandler.NewFighterKey`) is in a5414c31.
+
+## 7. How to merge / reuse
+
+- Merge `balance/build-diversity-2026-11-08` and set `activeBalancePatch` to `fastbot-div6`. It includes the WIP snapshot commit (7ac6092f), so merge after (or instead of) committing that WIP in the shared checkout.
+- Re-run: `python Scripts/diversity-report.py report <keep dir>`; forced grids: `dungeon-sim.py --material X` / `--affix mod:Y` + `diversity-report.py grid`; solves: `Scripts/material-solve.py`, `Scripts/affix-solve.py --baseline-affix mod:-|stat:-`.
