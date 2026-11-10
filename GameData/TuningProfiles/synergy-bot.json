@@ -49,6 +49,7 @@
 
     "node:r-streak": { "hit": 0.08 },
     "node:r-cut": { "hits": 0.08 },
+    "node:r-draught": { "fx:bleed": 0.06, "hits": 0.04 },
     "node:r-mastery": { "hits": 0.2 },
     "node:r-toxin": { "fx:poison": 0.1 },
     "node:r-edge": { "fx:poison": 0.1, "crit": 0.05 },
