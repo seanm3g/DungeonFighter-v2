@@ -198,6 +198,9 @@ namespace RPGGame.Tuning
 
             if (!ReferenceEquals(enemy, _currentEnemy))
             {
+                // A swing at an enemy that already died (its fight closed on EnemyDied) is not a new fight.
+                if (enemy is Character { IsAlive: false })
+                    return;
                 if (_current != null)
                     Finish();
                 _currentEnemy = enemy;
