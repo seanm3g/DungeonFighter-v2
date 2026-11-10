@@ -205,8 +205,12 @@ namespace RPGGame.Actions.Execution
             // Nested strip retrigger (max depth 1) — distinct from Multihit damage ticks.
             // Nested HP damage is applied inside the nested Execute; keep outer Damage as this swing only
             // so the combat log headline stays correct. Nested lines are formatted separately.
+            // A retrigger scheduled by the killing hit stays pending for the next swing (the next enemy) instead of
+            // firing at the corpse, where it dealt 0 and spent the encore (2026-11-10: 11-28% of Rogue/Barbarian
+            // fight records were such corpse swings from retriggers and on-kill converts).
             if (RetriggerDepth == 0
                 && result.Hit
+                && ((target ?? combatTarget) is not Character retriggerVictim || retriggerVictim.IsAlive)
                 && RetriggerScheduler.TryConsume(source, out Action? retriggerAction, out var retriggerKind, out int retriggerSlot)
                 && retriggerAction != null)
             {
