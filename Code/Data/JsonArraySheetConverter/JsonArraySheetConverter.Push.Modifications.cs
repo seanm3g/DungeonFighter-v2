@@ -17,7 +17,7 @@ namespace RPGGame.Data
             var handledJson = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "DiceResult", "ItemRank", "Name", "Description", "Effect", "prefixCategory",
-                "MinValue", "MaxValue", "RolledValue", "tags", "attributeRequirements"
+                "MinValue", "MaxValue", "RolledValue", "Weight", "tags", "attributeRequirements"
             };
 
             var extraKeys = new SortedSet<string>(StringComparer.Ordinal);

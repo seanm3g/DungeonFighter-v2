@@ -55,6 +55,9 @@ namespace RPGGame
 
         public string StatType { get; set; } = ""; // Which stat this affects (STR, AGI, TEC, INT, Health, Armor, etc.)
 
+        /// <summary>Relative chance to be picked among same-tier suffixes at loot time (default 1; 0 = never drops naturally).</summary>
+        public double Weight { get; set; } = 1.0;
+
         /// <summary>Optional loot/lab catalog rarity (same vocabulary as <see cref="Modification.ItemRank"/>). Empty = pool-wide.</summary>
         [JsonPropertyName("ItemRank")]
         public string ItemRank { get; set; } = "";
@@ -180,6 +183,8 @@ namespace RPGGame
     {
         public int DiceResult { get; set; } = 0;
         public string ItemRank { get; set; } = "";
+        /// <summary>Relative chance to be picked among same-tier prefixes at loot time (default 1; 0 = never drops naturally).</summary>
+        public double Weight { get; set; } = 1.0;
         /// <summary>Loot prefix slot: Adjective (default), Material, or Quality. Omitted in JSON = Adjective.</summary>
         [JsonPropertyName("prefixCategory")]
         public string PrefixCategory { get; set; } = "";

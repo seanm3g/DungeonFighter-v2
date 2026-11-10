@@ -24,7 +24,7 @@ namespace RPGGame.Data
         /// </summary>
         public static readonly string[] ModificationsCanonicalHeaders =
         {
-            "DiceResult", "ItemRank", "prefixCategory", "Name", "Description", "Effect",
+            "DiceResult", "ItemRank", "Weight", "prefixCategory", "Name", "Description", "Effect",
             "MaxValue", "MinValue",
             "ATTRIBUTE REQUIREMENT", "REQUIREMENT VALUE", "ATTRIBUTE REQUREMENT",
             "RolledValue", "tags"
@@ -68,7 +68,7 @@ namespace RPGGame.Data
 
         public static readonly string[] StatBonusesCanonicalHeaders =
         {
-            "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics", "Requirements",
+            "Name", "Description", "Value", "Rarity", "Weight", "StatType", "ItemRank", "Mechanics", "Requirements",
             "triggerName", "triggerNames", "tags"
         };
 
@@ -116,7 +116,7 @@ namespace RPGGame.Data
 
         internal static readonly HashSet<string> StatBonusAuthorizedJsonKeys = new(StringComparer.Ordinal)
         {
-            "Name", "Description", "Value", "Rarity", "StatType", "ItemRank", "Mechanics", "Requirements",
+            "Name", "Description", "Value", "Rarity", "Weight", "StatType", "ItemRank", "Mechanics", "Requirements",
             "triggerName", "triggerNames", "tags"
         };
 

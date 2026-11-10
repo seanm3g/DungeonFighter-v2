@@ -578,7 +578,7 @@ namespace RPGGame
                     .Where(s => !usedStats.Contains(StatKey(s)))
                     .ToList();
                 if (pool.Count > 0)
-                    return pool[_random.Next(pool.Count)];
+                    return PickWeighted(pool, s => s.Weight);
             }
             return null;
         }
@@ -608,7 +608,7 @@ namespace RPGGame
             }
 
             item.StatBonuses.Remove(existing);
-            var fused = pool[_random.Next(pool.Count)];
+            var fused = PickWeighted(pool, s => s.Weight);
             usedStats.Add(StatKey(fused));
             item.StatBonuses.Add(fused.CloneForItemInstance());
             return true;
@@ -643,14 +643,42 @@ namespace RPGGame
                 }
 
                 if (pool.Count > 0)
-                    return pool[_random.Next(pool.Count)];
+                    return PickWeighted(pool, s => s.Weight);
             }
 
             // No free tier in walk order: any remaining rarity not yet used on this item.
             var fallback = _dataCache.StatBonuses
                 .Where(s => !usedAffixRarities.Contains(NormalizeStatBonusAffixRarity(s.Rarity)))
                 .ToList();
-            return fallback.Count > 0 ? fallback[_random.Next(fallback.Count)] : null;
+            return fallback.Count > 0 ? PickWeighted(fallback, s => s.Weight) : null;
+        }
+
+        /// <summary>
+        /// Same-tier affix pick by <c>Weight</c> (default 1). When every weight is equal it draws exactly like the old uniform
+        /// pick (one <c>Next(count)</c>), so seeded runs on unweighted data are unchanged. Weight 0 rows are skipped unless
+        /// nothing else is left.
+        /// </summary>
+        internal T PickWeighted<T>(List<T> pool, Func<T, double> weight)
+        {
+            double first = Math.Max(0, weight(pool[0]));
+            bool uniform = true;
+            for (int i = 1; i < pool.Count && uniform; i++)
+                uniform = Math.Max(0, weight(pool[i])) == first;
+            if (uniform && first > 0)
+                return pool[_random.Next(pool.Count)];
+            double total = 0;
+            foreach (var p in pool)
+                total += Math.Max(0, weight(p));
+            if (total <= 0)
+                return pool[_random.Next(pool.Count)];
+            double roll = _random.NextDouble() * total;
+            foreach (var p in pool)
+            {
+                roll -= Math.Max(0, weight(p));
+                if (roll < 0)
+                    return p;
+            }
+            return pool[pool.Count - 1];
         }
 
         private static string NormalizeStatBonusAffixRarity(string? rarity) =>
@@ -737,7 +765,7 @@ namespace RPGGame
             if (pool.Count == 0)
                 return null;
 
-            Modification template = pool[_random.Next(pool.Count)];
+            Modification template = PickWeighted(pool, m => m.Weight);
             return CloneRolledModification(template, diceBonus);
         }
 

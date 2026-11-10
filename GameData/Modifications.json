@@ -29,6 +29,7 @@
     "ItemRank": "Common",
     "prefixCategory": "ADJECTIVE",
     "Name": "Precise",
+    "Weight": 0.5,
     "Effect": "COMBO",
     "attributeRequirements": {
       "technique": 2
@@ -94,6 +95,7 @@
     "ItemRank": "Common",
     "prefixCategory": "ADJECTIVE",
     "Name": "Heavy",
+    "Weight": 0.5,
     "Effect": "DAMAGE",
     "attributeRequirements": {
       "strength": 2
@@ -120,6 +122,7 @@
     "ItemRank": "Common",
     "prefixCategory": "ADJECTIVE",
     "Name": "Long",
+    "Weight": 0.5,
     "Effect": "CRIT",
     "attributeRequirements": {
       "strength": 2
@@ -161,6 +164,7 @@
     "ItemRank": "Common",
     "prefixCategory": "ADJECTIVE",
     "Name": "Charged",
+    "Weight": 0.5,
     "Effect": "CRIT",
     "attributeRequirements": {
       "strength": 2
@@ -213,6 +217,7 @@
     "ItemRank": "Common",
     "prefixCategory": "ADJECTIVE",
     "Name": "Flaming",
+    "Weight": 0.5,
     "Effect": "BURN",
     "DiceResult": 0,
     "MinValue": 10,
@@ -256,6 +261,7 @@
     "ItemRank": "Common",
     "prefixCategory": "ADJECTIVE",
     "Name": "Nimble",
+    "Weight": 0.5,
     "Effect": "SPEED",
     "attributeRequirements": {
       "agility": 2
@@ -269,6 +275,7 @@
     "ItemRank": "Common",
     "prefixCategory": "ADJECTIVE",
     "Name": "Brutal",
+    "Weight": 0.5,
     "Effect": "DAMAGE",
     "attributeRequirements": {
       "strength": 2
