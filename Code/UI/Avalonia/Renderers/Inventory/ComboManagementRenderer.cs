@@ -52,7 +52,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (hubTabs)
             {
                 // The hub's Actions tab: side panels stay (their click targets are already registered), tabs on top.
-                HubTabBar.Draw(canvas, clickableElements.Add, x + 1, y, width - 2, HubTab.Actions);
+                HubTabBar.Draw(canvas, clickableElements.Add, x + 1, y, width - 2, HubTab.Actions, character: character);
                 usableW = Math.Max(CardWidth, width - 4);
                 top = y + 2;
             }

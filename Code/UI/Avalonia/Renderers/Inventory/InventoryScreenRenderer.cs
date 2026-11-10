@@ -171,7 +171,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             detailSeparatorXBesideActions = null;
             int itemsHeaderY = y;
             if (hubTabs)
-                HubTabBar.Draw(canvas, clickableElements.Add, x + 2, y, width - 4, HubTab.Inventory);
+                HubTabBar.Draw(canvas, clickableElements.Add, x + 2, y, width - 4, HubTab.Inventory, character: character);
             else
                 canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.InventoryItems), AsciiArtAssets.Colors.Gold);
             if (hubTabs && HubEscapeMenu.IsOpen)
@@ -379,10 +379,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
 
             if (hubNoActions)
-            {
-                DrawBottomDungeonSelectButton();
                 return currentLineCount;
-            }
 
             int actionsHeaderY = y;
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Actions), AsciiArtAssets.Colors.Gold);
@@ -417,16 +414,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             currentLineCount++;
 
-            // DUNGEON SELECT (D): the hub's way out, beside the action strip along the bottom of the screen.
-            if (LayoutConstants.ActionStripAtBottom)
-            {
-                DrawBottomDungeonSelectButton();
-            }
-            else
-            {
-                RPGGame.UI.Avalonia.Renderers.Helpers.BoxButton.Draw(canvas, clickableElements, x + 34, y - 1, 26, 3,
-                    "DUNGEON SELECT", InventoryMenuHandler.HubDungeonSelect, borderThickness: 2);
-            }
+            // DUNGEON SELECT (D): the hub's right column is the button (RightPanelRenderer.RenderHubDungeonPanel).
 
             int hintWidth = detailSeparatorXBesideActions is int sepX ? Math.Min(width - 4, sepX - 1 - (x + 2)) : width - 4;
             string shortcutHint = GetNumpadShortcutHint(hintWidth);
@@ -437,17 +425,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             
             return currentLineCount;
-        }
-
-        /// <summary>DUNGEON SELECT (D) box beside the bottom action strip.</summary>
-        private void DrawBottomDungeonSelectButton()
-        {
-            int bx = LayoutConstants.ACTION_INFO_X + LayoutConstants.ACTION_INFO_WIDTH + 1;
-            int bh = Math.Max(3, LayoutConstants.ACTION_INFO_HEIGHT - 2);
-            int by = LayoutConstants.ACTION_INFO_Y + Math.Max(0, (LayoutConstants.ACTION_INFO_HEIGHT - bh) / 2);
-            RPGGame.UI.Avalonia.Renderers.Helpers.BoxButton.Draw(canvas, clickableElements, bx, by,
-                LayoutConstants.ActionStripSideButtonWidth, bh, "DUNGEON SELECT", InventoryMenuHandler.HubDungeonSelect,
-                borderThickness: 2, extraLines: bh >= 5 ? new[] { "", "(D)" } : null);
         }
 
         /// <summary>Width of the detail view's left list: selection marker + "[NN] " + truncated name.</summary>
@@ -769,7 +746,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             Item? hoveredItem,
             ref int currentLineCount)
         {
-            var hoveredAffixes = InventoryAffixSynergy.GetAffixKeys(hoveredItem);
+            // Hovered bag items match affixes only; hovered gear or (nothing hovered) the selection also match material.
+            bool matchMaterial;
+            (hoveredItem, matchMaterial) = InventoryAffixSynergy.ResolveSource(hoveredItem, character);
+            var hoveredAffixes = InventoryAffixSynergy.GetAffixKeys(hoveredItem, includeMaterial: matchMaterial);
             int rowH = ListRowHeight;
             int iconCols = GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), rowH);
 
@@ -804,7 +784,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 bool isSelected = selectedEquippedItem == null && entry.InventoryIndex == selected.InventoryIndex;
                 bool blocked = ItemRendererHelper.IsEquipBlockedForCharacter(item, character);
                 bool beingDragged = InventoryDragState.IsActive && InventoryDragState.SourceInventoryIndex == entry.InventoryIndex;
-                bool synergy = !beingDragged && InventoryAffixSynergy.SharesAffix(item, hoveredItem, hoveredAffixes);
+                bool synergy = !beingDragged && InventoryAffixSynergy.SharesAffix(item, hoveredItem, hoveredAffixes, includeMaterial: matchMaterial);
                 Color rarityColor = ItemThemeProvider.GetRarityColor(item.Rarity?.Trim() ?? "Common");
                 Color nameColor = beingDragged ? AsciiArtAssets.Colors.DarkGray : blocked ? AsciiArtAssets.Colors.Red : rarityColor;
 

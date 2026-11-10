@@ -80,6 +80,8 @@ namespace RPGGame
         public List<StableCardView> Cards { get; init; } = new();
         /// <summary>Last grid slot invites adding a hero when there is room.</summary>
         public bool ShowAddSlot { get; init; }
+        /// <summary>Roster layout: show the selected fighter's detail panel (only after the player picks a card).</summary>
+        public bool ShowDetail { get; init; }
         /// <summary>When set, a centered panel (add-hero list) replaces the grid.</summary>
         public string? PanelTitle { get; init; }
         public List<StableLine> Panel { get; init; } = new();

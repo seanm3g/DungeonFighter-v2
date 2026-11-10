@@ -199,6 +199,11 @@ namespace RPGGame.UI.Avalonia
 
             inventoryItemScrollOffset = InventoryItemScrollLayout.ClampFirstVisibleIndex(inventoryItemScrollOffset, inventory.Count);
             InventoryPaperDoll.SelectedSlot = inventoryGridViewEnabled || inventoryDetailViewEnabled ? inventoryDetailSelectedSlot : null;
+            // The selected item (equipped slot, else bag row) lights its material/affix partners when nothing is hovered.
+            InventoryAffixSynergy.SelectedItem = !(inventoryGridViewEnabled || inventoryDetailViewEnabled) ? null
+                : inventoryDetailSelectedSlot != null ? character.Equipment.GetSlotItem(inventoryDetailSelectedSlot)
+                : inventoryDetailSelectedIndex >= 0 && inventoryDetailSelectedIndex < inventory.Count ? inventory[inventoryDetailSelectedIndex]
+                : null;
             var detailView = inventoryGridViewEnabled
                 ? new InventoryDetailViewState(inventoryDetailSelectedIndex, Grid: true, SelectedEquippedSlot: inventoryDetailSelectedSlot)
                 : inventoryDetailViewEnabled ? new InventoryDetailViewState(inventoryDetailSelectedIndex, SelectedEquippedSlot: inventoryDetailSelectedSlot) : null;

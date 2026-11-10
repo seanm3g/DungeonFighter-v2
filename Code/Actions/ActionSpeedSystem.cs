@@ -113,30 +113,39 @@ namespace RPGGame
             if (combatEntity == null) return 0.0;
 
             double actionDuration = ComputeDuration(combatEntity, action, isCriticalMiss);
-            combatEntity.ChainCharged = combatEntity.ChainSlowest = combatEntity.ChainSum = actionDuration;
+            combatEntity.ChainCharged = combatEntity.ChainSum = actionDuration;
+            combatEntity.ChainCount = 1;
             Spend(combatEntity, actionDuration);
             return actionDuration;
         }
 
         /// <summary>
-        /// Prices a free combo swing that follows <see cref="ExecuteAction"/> in the same turn. The chain costs its slowest
-        /// swing plus <paramref name="blend"/> × the rest (0 = slowest only, 1 = sum); only the increase over what the chain
-        /// already paid is spent. Returns the extra time charged.
+        /// Prices a free combo swing that follows <see cref="ExecuteAction"/> in the same turn. A chain of n swings costs
+        /// avg swing × (1 + <paramref name="growth"/> × (n − 1)): the first swing is one full average swing and each extra
+        /// combo action adds growth × avg (0 = extras free, 1 = sum). Only the increase over what the chain already paid is
+        /// spent. Returns the extra time charged.
         /// </summary>
-        public double ExecuteChainedAction(Actor entity, Action action, bool isCriticalMiss, double blend)
+        public double ExecuteChainedAction(Actor entity, Action action, bool isCriticalMiss, double growth)
         {
             var combatEntity = entities.FirstOrDefault(e => e.Entity == entity);
             if (combatEntity == null) return 0.0;
 
             double swing = ComputeDuration(combatEntity, action, isCriticalMiss);
-            combatEntity.ChainSlowest = Math.Max(combatEntity.ChainSlowest, swing);
             combatEntity.ChainSum += swing;
-            double b = Math.Clamp(blend, 0.0, 1.0);
-            double chainCost = combatEntity.ChainSlowest + b * (combatEntity.ChainSum - combatEntity.ChainSlowest);
+            combatEntity.ChainCount++;
+            double chainCost = ChainCost(combatEntity.ChainSum, combatEntity.ChainCount, growth);
             double extra = Math.Max(0.0, chainCost - combatEntity.ChainCharged);
             combatEntity.ChainCharged += extra;
             Spend(combatEntity, extra);
             return extra;
+        }
+
+        /// <summary>Chain cost = avg swing × (1 + growth × (n − 1)); growth clamped to [0, 1].</summary>
+        public static double ChainCost(double sumOfSwings, int swings, double growth)
+        {
+            if (swings <= 0) return 0.0;
+            double g = Math.Clamp(growth, 0.0, 1.0);
+            return sumOfSwings / swings * (1.0 + g * (swings - 1));
         }
 
         private static void Spend(CombatEntity combatEntity, double duration)
@@ -357,8 +366,9 @@ namespace RPGGame
         public double BaseSpeed { get; set; }
         public double NextActionTime { get; set; }
 
-        /// <summary>Current combo chain: time already spent, slowest swing, and every swing's time summed.</summary>
-        internal double ChainCharged, ChainSlowest, ChainSum;
+        /// <summary>Current combo chain: time already spent, every swing's time summed, and swing count.</summary>
+        internal double ChainCharged, ChainSum;
+        internal int ChainCount;
     }
 }
 

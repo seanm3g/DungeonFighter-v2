@@ -70,11 +70,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// baseline runs edge to edge of the center frame except under the active tab, which opens into the page below.
         /// Row <c>y - 1</c> is the frame's top row. While <paramref name="locked"/> (a trade-up that must finish) the other
         /// tabs are dimmed and not clickable. <paramref name="joinedFrame"/>: the frame was widened by
-        /// <see cref="PanelJoin.ApplyCenter"/>.
+        /// <see cref="PanelJoin.ApplyCenter"/>. With <paramref name="character"/> given, the Trade Up tab is dimmed and not
+        /// clickable while the bag lacks 5 unlocked items of one tradeable rarity.
         /// </summary>
         public static void Draw(GameCanvasControl canvas, Action<ClickableElement> addClickable, int x, int y, int maxWidth, HubTab active,
-            bool locked = false, Color? frameColor = null, bool joinedFrame = true)
+            bool locked = false, Color? frameColor = null, bool joinedFrame = true, Character? character = null)
         {
+            bool tradeUpDisabled = character != null && active != HubTab.TradeUp
+                && !InventoryTradeUpHandler.CanTradeUp(character.Inventory);
             Color frame = frameColor ?? PanelJoin.Border(AsciiArtAssets.Colors.Cyan);
             double baseY = y + 1.5;
             double frameLeft = joinedFrame ? PanelJoin.CenterFrameLeft : LayoutConstants.CENTER_PANEL_X;
@@ -88,12 +91,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             foreach (var (tab, label, token) in Tabs)
             {
                 bool isActive = tab == active;
+                bool disabled = locked || (tradeUpDisabled && tab == HubTab.TradeUp);
                 string text = $"  {label}  ";
                 if (cx + text.Length > right)
                     break;
                 Color color = isActive
                     ? AsciiArtAssets.Colors.Gold
-                    : locked ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Gray;
+                    : disabled ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Gray;
                 canvas.AddText(cx, y, text, color);
                 // The active tab stands a little taller, in the frame's color, as the front layer; the others sit behind it.
                 DrawTabOutline(canvas, cx, cx + text.Length, isActive ? y - 0.5 : y - 0.25, baseY,
@@ -103,17 +107,20 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     openLeft = cx;
                     openRight = cx + text.Length;
                 }
-                if (!isActive && !locked)
+                if (!isActive && !disabled)
                 {
+                    // Hit box covers the whole drawn tab (outline top in row y - 1 down to the baseline in row y + 1)
+                    // plus the 1-column gap to the next tab. No hover glow: the tab strip stays still under the mouse.
                     addClickable(new ClickableElement
                     {
                         X = cx,
-                        Y = y,
-                        Width = text.Length,
-                        Height = 1,
+                        Y = y - 1,
+                        Width = text.Length + 1,
+                        Height = 3,
                         Type = ElementType.MenuOption,
                         Value = token,
-                        DisplayText = label
+                        DisplayText = label,
+                        NoHoverGlow = true
                     });
                 }
                 cx += text.Length + 1;
@@ -253,9 +260,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 ? InventoryActionPoolEntries.GetEquipSlotForItem(InventoryDragState.Item)
                 : null;
             bool haveArt = ItemArtAtlas.IsAvailable;
-            // Worn pieces of one material build a set, so gear-to-gear hover also matches material.
-            bool hoveredIsGear = InventoryAffixSynergy.IsEquipped(hoveredItem, character);
-            var affixes = InventoryAffixSynergy.GetAffixKeys(hoveredItem, includeMaterial: hoveredIsGear);
+            // Worn pieces of one material build a set, so gear-to-gear hover and a selected item also match material.
+            // With nothing hovered, the inventory selection drives the glow.
+            bool matchMaterial = false;
+            if (inventoryInput)
+                (hoveredItem, matchMaterial) = InventoryAffixSynergy.ResolveSource(hoveredItem, character);
+            else
+                matchMaterial = InventoryAffixSynergy.IsEquipped(hoveredItem, character);
+            var affixes = InventoryAffixSynergy.GetAffixKeys(hoveredItem, includeMaterial: matchMaterial);
 
             foreach (var (slot, label, col, row) in Slots)
             {
@@ -282,7 +294,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
                 bool isPaneSelection = inventoryInput && shown && string.Equals(SelectedSlot, slot, StringComparison.Ordinal);
                 bool synergy = shown && !isDropTarget && !ReferenceEquals(item, hoveredItem)
-                    && InventoryAffixSynergy.SharesAffix(item, hoveredItem, affixes, includeMaterial: hoveredIsGear);
+                    && InventoryAffixSynergy.SharesAffix(item, hoveredItem, affixes, includeMaterial: matchMaterial);
                 if (synergy)
                     frame = AsciiArtAssets.Colors.Cyan;
                 else if (isPaneSelection && !isDropTarget)

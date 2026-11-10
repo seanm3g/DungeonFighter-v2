@@ -74,6 +74,11 @@ namespace RPGGame.UI.Avalonia.Handlers
                     e.Handled = true;
                     return;
                 }
+                if (TryHandleSequenceCardRightClickRemove(point.Position))
+                {
+                    e.Handled = true;
+                    return;
+                }
                 if (TryApplyActionLabHeroHpRightClick(point.Position))
                 {
                     e.Handled = true;
@@ -409,7 +414,11 @@ namespace RPGGame.UI.Avalonia.Handlers
             var combo = player?.GetComboActions();
             int filled = combo?.Count ?? 0;
             int displayCount = player != null ? ActionInfoStripLayout.GetDisplayPanelCount(filled) : 0;
-            if (player != null && displayCount > 0 && ActionInfoStripLayout.TryGetPanelIndex(gridPos.X, gridPos.Y, displayCount, out int stripIdx))
+            // The skill tree and region travel hide the strip, but its hit area would still sit at the top of the center
+            // column (over the hub tabs there): hovering the Inventory tab armed a strip card whose tooltip then flashed
+            // up on the inventory until the next pointer move.
+            bool stripShown = rosterState is not (GameState.SkillTree or GameState.RegionTravel);
+            if (stripShown && player != null && displayCount > 0 && ActionInfoStripLayout.TryGetPanelIndex(gridPos.X, gridPos.Y, displayCount, out int stripIdx))
             {
                 int stripCap = ComboSequenceMaxHelper.GetEffectiveMax(player);
                 if (stripIdx < stripCap)
@@ -787,6 +796,23 @@ namespace RPGGame.UI.Avalonia.Handlers
                 return game.TryHandleInventoryStripRightClickRemove(idx);
 
             return false;
+        }
+
+        /// <summary>
+        /// Inventory Actions tab: right-click a sequence card (<c>cpi:rm:N</c>) takes it out, same as a left click.
+        /// </summary>
+        private bool TryHandleSequenceCardRightClickRemove(Point position)
+        {
+            if (canvasUI == null || game?.StateManager?.CurrentState != GameState.Inventory)
+                return false;
+            var grid = ScreenToGrid(position);
+            var el = canvasUI.GetElementAt(grid.X, grid.Y);
+            if (el == null || string.IsNullOrEmpty(el.Value)
+                || !ComboPointerInput.TryParse(el.Value, out var kind, out _)
+                || kind != ComboPointerInput.Kind.SequenceRemove)
+                return false;
+            _ = game.HandleInput(el.Value);
+            return true;
         }
 
         /// <summary>

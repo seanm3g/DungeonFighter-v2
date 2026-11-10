@@ -262,6 +262,9 @@ namespace RPGGame.Tuning
                 "Combo amplifier curve exponent", "Early/mid INT power-ramp exponent", 0.5, 2.5, 0.05,
                 () => cfg().ComboSystem.ComboAmplifierCurveExponent,
                 v => cfg().ComboSystem.ComboAmplifierCurveExponent = v));
+            list.Add(DoubleParam("comboChainGrowth", tab, CombatTuningLayer.ComboAffordance, "Combo growth",
+                "Combo chain growth (g)", "Chain recovery = avg swing × (1 + g × (actions − 1)); 0 free, 1 full sum", 0, 1, 0.05,
+                () => cfg().ComboSystem.ComboChainGrowth, v => cfg().ComboSystem.ComboChainGrowth = v));
 
             // Class multipliers
             AddClassMultipliers(list, tab, CombatTuningLayer.WinRate, "Barbarian (Mace)", "barbarian",

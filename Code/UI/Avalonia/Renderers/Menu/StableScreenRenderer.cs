@@ -123,8 +123,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 });
             }
 
-            // Stable mode shows details for the selected fighter only; hovering a card doesn't pop a panel.
-            var shown = view.Cards.FirstOrDefault(c => c.Selected);
+            // Panel follows the pointer like the main menu roster (it stays while the pointer is over the panel itself);
+            // with nothing hovered, a keyboard-picked fighter keeps it open until Esc.
+            string hovered = RPGGame.UI.FighterRosterHoverState.Value;
+            var shown = view.Cards.FirstOrDefault(c => c.SelectKey == hovered)
+                ?? (view.ShowDetail ? view.Cards.FirstOrDefault(c => c.Selected) : null);
             RosterDetail? detail = null;
             if (shown != null)
             {

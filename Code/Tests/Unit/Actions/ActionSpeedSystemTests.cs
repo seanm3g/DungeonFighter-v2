@@ -261,15 +261,15 @@ namespace RPGGame.Tests.Unit.Actions
         }
 
         /// <summary>
-        /// A combo chain costs its slowest swing at blend 0 and the sum of its swings at blend 1, whatever the order.
+        /// A combo chain costs avg swing × (1 + g × (actions − 1)): g 0 = one average swing, g 1 = the sum of its swings.
         /// </summary>
         private static void TestChainCostsSlowestSwing()
         {
-            Console.WriteLine("\n--- Testing combo chain cost (slowest swing / blend) ---");
+            Console.WriteLine("\n--- Testing combo chain cost (avg × (1 + g × (n − 1))) ---");
 
-            var lengths = new[] { 1.0, 3.0, 2.0 };
+            var lengths = new[] { 3.0, 1.0, 2.0 };
             double perLength = 0;
-            double ChainTime(double blend)
+            double ChainTime(double growth)
             {
                 using (GameTicker.BeginIsolatedEncounterGameTime())
                 {
@@ -284,26 +284,36 @@ namespace RPGGame.Tests.Unit.Actions
                         swing.Length = lengths[i];
                         total += i == 0
                             ? system.ExecuteAction(foe, swing, isCriticalMiss: false)
-                            : system.ExecuteChainedAction(foe, swing, isCriticalMiss: false, blend);
+                            : system.ExecuteChainedAction(foe, swing, isCriticalMiss: false, growth);
                     }
                     perLength = foe.GetTotalAttackSpeed();
                     return total;
                 }
             }
 
-            double slowest = ChainTime(0.0);
-            TestBase.AssertTrue(Math.Abs(slowest - 3.0 * perLength) < 1e-9,
-                $"Blend 0 chain should cost its slowest swing (3 × {perLength:F3}); got {slowest:F3}",
+            // Opening swing (3) is already paid, so g 0 (avg 2) still costs 3: time spent is never refunded.
+            double free = ChainTime(0.0);
+            TestBase.AssertTrue(Math.Abs(free - 3.0 * perLength) < 1e-9,
+                $"g 0 chain should keep the opening swing's 3 × {perLength:F3}; got {free:F3}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             double sum = ChainTime(1.0);
             TestBase.AssertTrue(Math.Abs(sum - 6.0 * perLength) < 1e-9,
-                $"Blend 1 chain should cost every swing (6 × {perLength:F3}); got {sum:F3}",
+                $"g 1 chain should cost every swing (6 × {perLength:F3}); got {sum:F3}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            double half = ChainTime(0.5);
-            TestBase.AssertTrue(Math.Abs(half - 4.5 * perLength) < 1e-9,
-                $"Blend 0.5 chain should cost slowest + half the rest (4.5 × {perLength:F3}); got {half:F3}",
+            double quarter = ChainTime(0.25);
+            TestBase.AssertTrue(Math.Abs(quarter - 3.0 * perLength) < 1e-9,
+                $"g 0.25 chain should cost avg 2 × 1.5 (3 × {perLength:F3}); got {quarter:F3}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Screenshot example: 1.7, 2.0, 1.8, 2.5, 1.9 at g .25 → 3.96.
+            double example = ActionSpeedSystem.ChainCost(1.7 + 2.0 + 1.8 + 2.5 + 1.9, 5, 0.25);
+            TestBase.AssertTrue(Math.Abs(example - 3.96) < 1e-9,
+                $"ChainCost(5 swings, g .25) should be 3.96; got {example:F4}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Math.Abs(ActionSpeedSystem.ChainCost(1.7 + 2.0, 2, 0.5) - 2.775) < 1e-9,
+                "ChainCost(1.7, 2.0, g .5) should be 2.775",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

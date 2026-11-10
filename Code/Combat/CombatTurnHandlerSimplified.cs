@@ -102,7 +102,7 @@ namespace RPGGame
 
         /// <summary>
         /// A swing that succeeds on its combo roll advances the strip and earns a free action: the next slot rolls right away.
-        /// The whole chain costs as long as its slowest swing (plus ChainedSwingTimeBlend of the rest). The chain keeps going while each roll succeeds and stops on a failed roll, at the end of
+        /// The whole chain costs avg swing × (1 + ComboChainGrowth × (actions − 1)). The chain keeps going while each roll succeeds and stops on a failed roll, at the end of
         /// the strip (the step wraps to slot 0), on a stun, or when either side falls. Training Ground scripts keep one swing per turn.
         /// </summary>
         private static async System.Threading.Tasks.Task RunFreeComboActionsAsync(
@@ -130,9 +130,9 @@ namespace RPGGame
             }
         }
 
-        /// <summary>0 = a combo chain costs its slowest swing, 1 = the sum of its swings (see ComboSystemConfig).</summary>
-        private static double ChainedSwingTimeBlend
-            => GameConfiguration.Instance.ComboSystem?.ChainedSwingTimeBlend ?? 0.0;
+        /// <summary>Combo growth g: chain costs avg × (1 + g × (actions − 1)) (see ComboSystemConfig.ComboChainGrowth).</summary>
+        private static double ComboChainGrowth
+            => GameConfiguration.Instance.ComboSystem?.ComboChainGrowth ?? 0.25;
 
         private static bool FreeComboActionsAllowed(TrainingGroundTutorialScript? tutorialScript)
             => tutorialScript == null && (GameConfiguration.Instance.ComboSystem?.FreeActionOnComboHit ?? true);
@@ -197,7 +197,7 @@ namespace RPGGame
                     {
                         if (usedAction != null)
                             actionSpeedSystem.ExecuteChainedAction(currentEnemy, usedAction,
-                                ActionExecutor.GetLastCriticalMissStatus(currentEnemy), ChainedSwingTimeBlend);
+                                ActionExecutor.GetLastCriticalMissStatus(currentEnemy), ComboChainGrowth);
                     }
                     else if (actionSpeedSystem != null)
                     {
@@ -421,7 +421,7 @@ namespace RPGGame
                 {
                     if (usedAction != null)
                         actionSpeedSystem.ExecuteChainedAction(player, usedAction,
-                            ActionExecutor.GetLastCriticalMissStatus(player), ChainedSwingTimeBlend);
+                            ActionExecutor.GetLastCriticalMissStatus(player), ComboChainGrowth);
                 }
                 else if (actionSpeedSystem != null)
                 {

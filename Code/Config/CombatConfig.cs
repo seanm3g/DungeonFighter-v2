@@ -392,17 +392,17 @@ namespace RPGGame
 
         /// <summary>
         /// True: a swing that succeeds on its combo roll gives a free action — the next strip slot rolls right away, before
-        /// anyone else acts — until a roll fails or the strip ends. Time is priced by <see cref="ChainedSwingTimeBlend"/>.
+        /// anyone else acts — until a roll fails or the strip ends. Time is priced by <see cref="ComboChainGrowth"/>.
         /// Applies to heroes and enemies.
         /// </summary>
         public bool FreeActionOnComboHit { get; set; } = true;
 
         /// <summary>
-        /// How much speed time a combo chain (opening swing plus its free actions) costs. The chain always costs at least
-        /// its slowest swing; this adds that fraction of the other swings' time on top. 0 = the chain lasts as long as its
-        /// slowest swing, 1 = every swing costs its full time (sum). Applies to heroes and enemies.
+        /// Combo growth g: recovery time of a combo chain (opening swing plus its free actions) is
+        /// avg swing × (1 + g × (actions − 1)). The first action costs one full average swing, each extra combo action adds
+        /// g × avg swing. 0 = extra actions free, 0.5 = half price, 1 = full price (sum). Applies to heroes and enemies.
         /// </summary>
-        public double ChainedSwingTimeBlend { get; set; }
+        public double ComboChainGrowth { get; set; } = 0.25;
 
         /// <summary>
         /// True: mid-combo (strip step past slot 1) the plain-hit band goes away — a roll under the combo threshold misses,

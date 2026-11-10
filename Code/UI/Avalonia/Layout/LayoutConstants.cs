@@ -151,14 +151,11 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int ACTION_INFO_Y => CombatBoardLayout.OwnsCenterColumn || ActionStripAtBottom ? Math.Max(0, _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT) : 0;
 
         /// <summary>
-        /// Inventory hub: the hero's action strip sits along the bottom of the center column (item frame above it), and
-        /// is narrowed by <see cref="ActionStripSideButtonWidth"/> so the Edit Action Sequence button fits beside it.
+        /// Inventory hub: the hero's action strip sits along the bottom of the center column (item frame above it).
         /// Set on each layout pass from the game state (<see cref="RPGGame.UI.Avalonia.PersistentLayoutManager"/>).
         /// </summary>
         public static bool ActionStripAtBottom { get; set; }
 
-        /// <summary>Columns kept free right of the bottom strip for the Edit Action Sequence button.</summary>
-        public const int ActionStripSideButtonWidth = 26;
         /// <summary>
         /// Combat log frame. In Combat this sits below the two-row sequence HUD panel and a one-row gap;
         /// otherwise it sits directly under the action-info strip.
@@ -210,9 +207,7 @@ namespace RPGGame.UI.Avalonia.Layout
 
         // Action info strip - center column band for combo action cards and modifiers during combat (and related UI)
         public static int ACTION_INFO_X => CENTER_PANEL_X;
-        public static int ACTION_INFO_WIDTH => ActionStripAtBottom && !CombatBoardLayout.OwnsCenterColumn
-            ? Math.Max(20, CENTER_PANEL_WIDTH - ActionStripSideButtonWidth - 2)
-            : CENTER_PANEL_WIDTH;
+        public static int ACTION_INFO_WIDTH => CENTER_PANEL_WIDTH;
         public static int ACTION_INFO_HEIGHT => ACTION_INFO_STRIP_HEIGHT;
         /// <summary>Horizontal gap in character columns between per-action panels in the action-info strip.</summary>
         public const int ACTION_INFO_PANEL_GAP = 1;

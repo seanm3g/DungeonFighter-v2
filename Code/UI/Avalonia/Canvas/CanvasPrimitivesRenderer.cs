@@ -1351,6 +1351,8 @@ namespace RPGGame.UI.Avalonia.Canvas
 
         private bool ShouldApplyDistortion(CanvasText text)
         {
+            if (IsInventoryCenterColumn(text.X, text.Y))
+                return false;
             bool burst = burstFrameActive && (burstFrameConfig?.Enabled ?? true);
             bool pulse = pulseFrameActive && (pulseFrameConfig?.Enabled ?? true);
             return DistortionAppliesToBodyText(
@@ -1387,6 +1389,19 @@ namespace RPGGame.UI.Avalonia.Canvas
             => Matrix.CreateTranslation(-centerX, -centerY)
                * Matrix.CreateRotation(rotationRadians)
                * Matrix.CreateTranslation(centerX, centerY);
+
+        /// <summary>
+        /// Inventory hub: the center panel and its top tab strip (Inventory / Skills / Actions / Trade Up) stay still —
+        /// no wind sway, click burst or emphasis pulse. The action strip along the bottom keeps its effects.
+        /// </summary>
+        internal static bool IsInventoryCenterColumn(int gridX, int gridY)
+        {
+            if (!LayoutConstants.ActionStripAtBottom)
+                return false;
+            int start = LayoutConstants.CENTER_PANEL_X;
+            int end = start + LayoutConstants.CENTER_PANEL_WIDTH;
+            return gridX >= start && gridX < end && gridY < LayoutConstants.ACTION_INFO_Y;
+        }
 
         /// <summary>Left or right character-panel columns (excludes center combat log / strip).</summary>
         internal static bool IsInSidePanel(int gridX)

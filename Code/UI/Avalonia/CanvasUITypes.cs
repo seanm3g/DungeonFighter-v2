@@ -28,7 +28,9 @@ namespace RPGGame.UI.Avalonia
         public string? TooltipHoverValue { get; set; }
         public string DisplayText { get; set; } = "";
         public bool IsHovered { get; set; } = false;
-        
+        /// <summary>True: text under this hit region keeps its color when the mouse wake is near (no proximity brighten/glow).</summary>
+        public bool NoHoverGlow { get; set; }
+
         /// <summary>
         /// Checks if the given coordinates are within this element's bounds
         /// </summary>

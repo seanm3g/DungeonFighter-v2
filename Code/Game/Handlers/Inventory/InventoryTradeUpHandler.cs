@@ -38,6 +38,16 @@ namespace RPGGame.Handlers.Inventory
             item != null && item.Type != ItemType.Consumable && !item.ExcludeFromTradeUp;
 
         /// <summary>
+        /// True when <paramref name="inventory"/> holds 5 unlocked items of one rarity below the maximum
+        /// (what <see cref="PromptTradeUp"/> needs to offer a choice). The hub grays out its Trade Up tab otherwise.
+        /// </summary>
+        public static bool CanTradeUp(IEnumerable<Item>? inventory) =>
+            inventory != null && inventory
+                .Where(IsTradeUpCandidate)
+                .GroupBy(item => item.Rarity ?? "Common")
+                .Any(group => group.Count() >= 5 && GetNextRarity(group.Key) != null);
+
+        /// <summary>
         /// Prompts user to select a rarity to trade up
         /// </summary>
         public void PromptTradeUp()
@@ -310,7 +320,7 @@ namespace RPGGame.Handlers.Inventory
         /// Gets the next rarity tier in progression (only one tier higher)
         /// Returns null if already at maximum rarity
         /// </summary>
-        private string? GetNextRarity(string currentRarity)
+        private static string? GetNextRarity(string currentRarity)
         {
             var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
             

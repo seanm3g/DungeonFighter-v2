@@ -327,7 +327,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 // After the tree: it resets the click targets when it draws.
                 if (hubTabs)
                     Inventory.HubTabBar.Draw(canvas, interactionManager.AddClickableElement, x + 1, y, w - 2, Inventory.HubTab.Skills,
-                        frameColor: AsciiArtAssets.Colors.Cyan, joinedFrame: false);
+                        frameColor: AsciiArtAssets.Colors.Cyan, joinedFrame: false, character: player);
             }, context, null, null, null, clearCanvas: true);
             canvas.Refresh();
         }

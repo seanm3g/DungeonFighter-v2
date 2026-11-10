@@ -85,7 +85,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 || title == "COMBO MANAGEMENT"
                 || title == "ACTIONS"
                 || hubSkillsTab);
-            // Inventory as the hub: navigation lives in the center tabs, Dungeon Select by the action strip and Main Menu /
+            // Inventory as the hub: navigation lives in the center tabs, Dungeon Select is this right column and Main Menu /
             // Settings in the Esc menu, so the right column shows the action sequence and the pool it draws from.
             // Hub Inventory / Skills tabs: the dungeon(s) ahead and their info. The Actions tab keeps sequence + pool
             // (that is where the sequence is edited).
@@ -117,7 +117,7 @@ namespace RPGGame.UI.Avalonia.Layout
 
         /// <summary>
         /// Hub right column: the dungeon in progress if there is one, otherwise the current region and the dungeons on
-        /// offer (name, level, theme, foes). Clicking a dungeon opens Dungeon Select.
+        /// offer (name, level, theme, foes). The whole panel is the hub's Dungeon Select button.
         /// </summary>
         private void RenderHubDungeonPanel(int x, int y, Character character)
         {
@@ -125,12 +125,26 @@ namespace RPGGame.UI.Avalonia.Layout
             int maxW = Math.Max(8, LayoutConstants.RIGHT_PANEL_WIDTH - 4);
             var sm = HubStateManager;
 
+            if (interactionManager != null)
+            {
+                interactionManager.AddClickableElement(new ClickableElement
+                {
+                    X = LayoutConstants.RIGHT_PANEL_X + 1,
+                    Y = LayoutConstants.RIGHT_PANEL_Y + 1,
+                    Width = Math.Max(1, LayoutConstants.RIGHT_PANEL_WIDTH - 2),
+                    Height = Math.Max(1, LayoutConstants.RIGHT_PANEL_HEIGHT - 2),
+                    Type = ElementType.MenuOption,
+                    Value = InventoryMenuHandler.HubDungeonSelect,
+                    DisplayText = "Dungeon Select"
+                });
+            }
+
             var current = sm?.CurrentDungeon;
             if (current != null)
             {
                 canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("DUNGEON"), AsciiArtAssets.Colors.Gold);
                 y += 2;
-                y = DrawHubDungeonEntry(x, y, maxW, panelBottom, current, clickable: false);
+                y = DrawHubDungeonEntry(x, y, maxW, panelBottom, current);
                 int rooms = current.Rooms?.Count ?? 0;
                 if (rooms > 0 && y <= panelBottom)
                 {
@@ -200,7 +214,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     y++;
                     break;
                 }
-                y = DrawHubDungeonEntry(x, y, maxW, panelBottom, offered[i], clickable: true);
+                y = DrawHubDungeonEntry(x, y, maxW, panelBottom, offered[i]);
                 y++;
             }
 
@@ -209,9 +223,8 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         /// <summary>One dungeon: themed name, level and theme, then its foes. Returns the next free row.</summary>
-        private int DrawHubDungeonEntry(int x, int y, int maxW, int panelBottom, Dungeon dungeon, bool clickable)
+        private int DrawHubDungeonEntry(int x, int y, int maxW, int panelBottom, Dungeon dungeon)
         {
-            int top = y;
             string name = RightPanelContentText.EllipsizeToPanelWidth(dungeon.Name);
             if (!string.IsNullOrEmpty(dungeon.Theme))
                 textWriter.RenderSegments(DungeonThemeColors.BuildThemedName(name, dungeon.Theme), x, y);
@@ -244,19 +257,6 @@ namespace RPGGame.UI.Avalonia.Layout
                 }
             }
 
-            if (clickable && interactionManager != null)
-            {
-                interactionManager.AddClickableElement(new ClickableElement
-                {
-                    X = x,
-                    Y = top,
-                    Width = maxW,
-                    Height = Math.Max(1, y - top),
-                    Type = ElementType.MenuOption,
-                    Value = InventoryMenuHandler.HubDungeonSelect,
-                    DisplayText = dungeon.Name
-                });
-            }
             return y;
         }
 

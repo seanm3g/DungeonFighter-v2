@@ -37,6 +37,8 @@ namespace RPGGame
         private StableFighter? selected;
         private bool pickingDungeon;
         private bool confirmRemove;
+        /// <summary>Grid detail panel for the selected fighter; opens when the player picks a card, Esc closes it.</summary>
+        private bool detailOpen;
         private string? notice;
         private bool noticeIsWarning;
 
@@ -97,6 +99,7 @@ namespace RPGGame
             mode = Mode.Grid;
             pickingDungeon = false;
             confirmRemove = false;
+            detailOpen = false;
             ClearDeleteState();
             if (selected == null || !stable.Fighters.Contains(selected))
                 selected = stable.Fighters.FirstOrDefault(f => f.NeedsDecision) ?? stable.Fighters.FirstOrDefault();
@@ -152,6 +155,7 @@ namespace RPGGame
                 StableRosterSync.Close(id);
                 Notify(dead ? $"{name} is laid to rest." : $"{name} closed (saved). Add them back with A.");
                 selected = NextWaiting(null) ?? stable.Fighters.FirstOrDefault();
+                detailOpen = false;
             }
             else
             {
@@ -171,7 +175,9 @@ namespace RPGGame
                 var parts = raw.Substring(CardKeyPrefix.Length).Split(':', 2);
                 if (int.TryParse(parts[0], out int n) && n >= 1 && n <= stable.Fighters.Count)
                 {
+                    // Mouse: the panel follows hover, so a click doesn't pin it open.
                     bool wasSelected = ReferenceEquals(selected, stable.Fighters[n - 1]);
+                    detailOpen = false;
                     if (!wasSelected)
                     {
                         selected = stable.Fighters[n - 1];
@@ -257,6 +263,11 @@ namespace RPGGame
                 case "escape":
                     if (mode == Mode.Watch)
                         BackToGrid();
+                    else if (detailOpen)
+                    {
+                        detailOpen = false;   // first Esc closes the fighter panel
+                        Render();
+                    }
                     else
                         LeaveToMainMenu();
                     return;
@@ -282,6 +293,7 @@ namespace RPGGame
                     else
                     {
                         selected = next;
+                        detailOpen = true;
                     }
                     Render();
                     return;
@@ -298,6 +310,7 @@ namespace RPGGame
             if (int.TryParse(key, out int pick) && pick >= 1 && pick <= stable.Fighters.Count)
             {
                 selected = stable.Fighters[pick - 1];
+                detailOpen = true;
                 if (mode == Mode.Watch)
                     OpenWatch(selected);
                 else
@@ -444,6 +457,7 @@ namespace RPGGame
                 return;
             int index = selected == null ? 0 : list.ToList().IndexOf(selected);
             selected = list[((index < 0 ? 0 : index) + delta + list.Count) % list.Count];
+            detailOpen = true;
             pickingDungeon = false;
             confirmRemove = false;
             Render();
@@ -702,13 +716,16 @@ namespace RPGGame
             if (fighters.Count < StableManager.MaxFighters)
                 footer.Add(new StableLine("[A] Add hero", StableLineTone.Option, "a"));
             footer.Add(new StableLine("[N] New hero", StableLineTone.Option, "n"));
-            footer.Add(new StableLine("[Esc] Main menu", StableLineTone.Option, "escape"));
+            footer.Add(detailOpen
+                ? new StableLine("[Esc] Close panel", StableLineTone.Option, "escape")
+                : new StableLine("[Esc] Main menu", StableLineTone.Option, "escape"));
 
             return new StableMenuView
             {
                 Summary = summary,
                 Cards = fighters.Select((f, i) => BuildCard(f, i + 1)).ToList(),
                 ShowAddSlot = fighters.Count < StableManager.MaxFighters,
+                ShowDetail = detailOpen,
                 Footer = footer,
                 Notice = noticeLine
             };

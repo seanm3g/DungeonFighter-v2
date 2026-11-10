@@ -127,6 +127,11 @@ class SimPool:
             self._slots.put('local')
 
     def _start_remote(self):
+        self.ensure_app()
+        self._upload_tree(self.data_dir, f'{self.remote}/GameData')
+
+    def ensure_app(self):
+        """Connects and republishes the Spark build when it is behind Code/. Returns True when it published."""
         want = source_hash(self.root)
         # DF_SPARK_APP_PER_HASH=1: each source hash gets its own ~/df/app-<hash>, so sessions on different code
         # never swap the shared ~/df/app under each other's running batches.
@@ -141,7 +146,8 @@ class SimPool:
         self.remote = f'{self.base}/runs/{os.environ.get("COMPUTERNAME", "pc").lower()}-{os.getpid()}-{int(time.time())}'
         if (lines[1] if len(lines) > 1 else '') != want:
             self._publish(want)
-        self._upload_tree(self.data_dir, f'{self.remote}/GameData')
+            return True
+        return False
 
     def _publish(self, stamp):
         out = os.path.join(self.root, 'Code', 'bin', 'SparkPublish')
@@ -300,3 +306,22 @@ class SimPool:
     def close(self):
         if self.spark_slots:
             self._ssh(f'rm -rf {self.remote}', capture_output=True, timeout=60)
+
+
+if __name__ == '__main__':
+    # `python Scripts/simpool.py publish [--spark-host H]`: bring the Spark build up to date with Code/ now, instead of on
+    # the next Spark run (the balance dashboard's "Update to newest patch" button).
+    import argparse, sys, tempfile
+    ap = argparse.ArgumentParser()
+    ap.add_argument('command', choices=['publish'])
+    ap.add_argument('--spark-host', default=os.environ.get('DF_SPARK_HOST', 'spark'))
+    A = ap.parse_args()
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    with tempfile.TemporaryDirectory(prefix='df-publish-') as work:
+        pool = SimPool(root, work, None, None, local_slots=0, spark_slots=1, host=A.spark_host,
+                       log=lambda m: print(m, flush=True))
+        try:
+            done = pool.ensure_app()
+        except Exception as e:
+            sys.exit(f'Spark publish failed: {e}')
+        print(f'Spark build {"republished" if done else "already matches"} Code/ (source {source_hash(root)}).', flush=True)

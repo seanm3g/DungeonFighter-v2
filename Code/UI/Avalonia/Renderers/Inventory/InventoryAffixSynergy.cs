@@ -77,7 +77,27 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             return GetAffixKeys(item, includeMaterial).Overlaps(hoveredAffixes);
         }
 
-        private static readonly string[] GearSlots = { "head", "body", "legs", "weapon", "feet", "charm" };
+        /// <summary>
+        /// Item selected on the inventory screen (bag row or equipped slot); null outside the inventory.
+        /// Set by the canvas coordinator each inventory render.
+        /// </summary>
+        public static Item? SelectedItem { get; set; }
+
+        /// <summary>
+        /// The item whose partners glow: the hovered one, else (no drag in progress) the selected one.
+        /// <c>MatchMaterial</c> is true for a selected item and for hovered gear, so same-material
+        /// pieces in the bag and on the body light up as set partners.
+        /// </summary>
+        public static (Item? Source, bool MatchMaterial) ResolveSource(Item? hovered, Character? character)
+        {
+            if (hovered != null)
+                return (hovered, IsEquipped(hovered, character));
+            if (InventoryDragState.IsActive || SelectedItem == null)
+                return (null, false);
+            return (SelectedItem, true);
+        }
+
+        private static readonly string[] GearSlots ={ "head", "body", "legs", "weapon", "feet", "charm" };
 
         /// <summary>True when <paramref name="item"/> is worn in one of <paramref name="character"/>'s gear slots.</summary>
         public static bool IsEquipped(Item? item, Character? character)

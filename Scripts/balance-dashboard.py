@@ -65,6 +65,87 @@ def patches():
     return [f[:-5] for f in files]
 
 
+PROFILE_PATH = os.path.join(ROOT, 'GameData', 'PatchProfile.json')
+
+
+def patch_base(name):
+    """The patch an overlay builds on ("base"), or None."""
+    try:
+        with open(os.path.join(PATCH_DIR, name + '.json'), encoding='utf-8-sig') as fh:
+            return json.load(fh).get('base')
+    except (OSError, ValueError, AttributeError):
+        return None
+
+
+def set_active_patch(name):
+    with open(PROFILE_PATH, encoding='utf-8-sig') as fh:
+        profile = json.load(fh)
+    profile['activeBalancePatch'] = name
+    with open(PROFILE_PATH, 'w', encoding='utf-8') as fh:
+        json.dump(profile, fh, indent=2)
+
+
+_VERSIONED = re.compile(r'^(.*?)(\d+)([a-z]?)$')
+SEEDS_PATH = os.path.join(RUNS, 'balance-loop', 'dash-seed-base.json')
+
+
+def _next_seed_base():
+    """Fresh seeds per dashboard iteration: 1000 apart from 30000, above every seed the scripts default to."""
+    try:
+        with open(SEEDS_PATH, encoding='utf-8') as fh:
+            base = int(json.load(fh)['next'])
+    except (OSError, ValueError, KeyError):
+        base = 30000
+    os.makedirs(os.path.dirname(SEEDS_PATH), exist_ok=True)
+    with open(SEEDS_PATH, 'w', encoding='utf-8') as fh:
+        json.dump({'next': base + 1000}, fh)
+    return base
+
+
+def iteration_plan(mode, p):
+    """The next balance-loop iteration on the active patch: 'measure' (held-out measure vs the patch it builds on) or
+    'chain' (health -> damage -> class -> damage solves writing the next patch versions, then a held-out measure).
+    Returns (steps, description); seeds are fresh each time."""
+    patch = active_patch()
+    if patch not in patches():
+        raise ValueError(f'active patch {patch} has no file in GameData/Patches/Balance')
+    ref = patch_base(patch) or next((x for x in patches() if x != patch), '')
+    stamp = datetime.now().strftime('%Y-%m-%d-%H%M')
+    steps = []
+    if tools_state()['stale']:
+        steps.append(build_tools_args())
+    base = _next_seed_base()
+    levels = _str(p, 'levels')
+    if levels and not all(x.strip().isdigit() for x in levels.split(',') if x.strip()):
+        raise ValueError('levels must be a comma list of numbers')
+    lv = ['--levels', levels] if levels else []
+    if mode == 'chain':
+        m = _VERSIONED.match(patch)
+        if not m:
+            raise ValueError(f'cannot number the next patch after {patch} (expected a name ending in a number)')
+        prefix, first = m.group(1), int(m.group(2)) + 1
+        existing = set(patches())
+        while any(f'{prefix}{first + i}' in existing for i in range(4)):
+            first += 1
+        run = f'iter-chain-{patch}-{stamp}'
+        holdout = ','.join(str(base + 901 + k) for k in range(4))
+        steps.append([PYTHON, '-u', 'Scripts/balance-chain.py', '--start', patch, '--first', str(first), '--prefix', prefix,
+                      '--ref', patch, '--run', run, '--tools', TOOLS, '--seed-base', str(base), '--holdout-seeds', holdout] + lv)
+        desc = f'solve chain on {patch} -> {prefix}{first}.. (seeds {base}+), run {run}'
+    else:
+        run = f'iter-{patch}-{stamp}'
+        seeds = ','.join(str(base + 1 + k) for k in range(4))
+        a = [PYTHON, '-u', 'Scripts/balance-loop.py', 'measure', '--patch', patch, '--seeds', seeds, '--run', run,
+             '--tools', TOOLS] + lv
+        if ref:
+            a += ['--ref', ref]
+        if p.get('spark') not in (None, ''):
+            a += ['--spark', str(_int(p, 'spark', 0, 0, 40))]
+        steps.append(a)
+        desc = f'measure {patch}' + (f' vs {ref}' if ref else '') + f' on seeds {seeds}, run {run}'
+    return steps, desc
+
+
 def newest_source_mtime():
     code = os.path.join(ROOT, 'Code')
     newest = 0.0
@@ -558,7 +639,7 @@ class Job:
                 'started': datetime.fromtimestamp(self.started).strftime('%H:%M:%S')}
 
 
-def start_job(kind, args, json_path=None, exclusive=True):
+def start_job(kind, args, json_path=None, exclusive=True, note=None):
     with JOBS_LOCK:
         if exclusive:
             busy = [j for j in JOBS.values() if j.status == 'running']
@@ -566,11 +647,14 @@ def start_job(kind, args, json_path=None, exclusive=True):
                 return None, f'{busy[0].id} is still running. Wait for it or cancel it first.'
         os.makedirs(RUNS, exist_ok=True)
         job = Job(kind, args, json_path)
+        if note:
+            job.lines.append(note)
         JOBS[job.id] = job
     env = dict(os.environ, PYTHONIOENCODING='utf-8', PYTHONUNBUFFERED='1')
     flags = getattr(subprocess, 'CREATE_NEW_PROCESS_GROUP', 0) | getattr(subprocess, 'CREATE_NO_WINDOW', 0)
     def pump():
         with open(job.log_path, 'w', encoding='utf-8') as log:
+            log.writelines(line + '\n' for line in job.lines)  # the note, if any
             for i, step in enumerate(job.steps):
                 if job.cancelled:
                     break
@@ -617,6 +701,13 @@ def cancel_job(job):
         except (subprocess.TimeoutExpired, OSError):
             pass
     return 'cancelled'
+
+
+def build_tools_args():
+    # Own obj folder outside Code/ (inside it the default compile glob would pick up obj/ sources), so this build never
+    # fights an IDE build or a running DF.exe over Code/obj.
+    obj = os.path.join(tempfile.gettempdir(), 'df-balancetools-obj') + os.sep
+    return ['dotnet', 'build', 'Code/Code.csproj', '-c', 'Debug', '-o', TOOLS, f'-p:BaseIntermediateOutputPath={obj}']
 
 
 def _int(p, key, default, lo=0, hi=10_000):
@@ -760,7 +851,9 @@ class Handler(BaseHTTPRequestHandler):
         if u.path == '/api/status':
             with JOBS_LOCK:
                 jobs = [j.summary() for j in sorted(JOBS.values(), key=lambda j: -j.started)]
-            return self._send(200, {'patch': active_patch(), 'patches': patches(), 'tools': tools_state(),
+            ps = patches()
+            return self._send(200, {'patch': active_patch(), 'patches': ps, 'newest': ps[0] if ps else None,
+                                    'patchBase': patch_base(active_patch()), 'tools': tools_state(),
                                     'jobs': jobs, 'cores': os.cpu_count()})
         if u.path == '/api/external':
             try:
@@ -804,12 +897,27 @@ class Handler(BaseHTTPRequestHandler):
                 job, err = start_job(body['kind'], args, out)
                 return self._send(200 if job else 409, {'job': job.summary()} if job else {'error': err})
             if u.path == '/api/build':
-                # Own obj folder outside Code/ (inside it the default compile glob would pick up obj/ sources), so
-                # this build never fights an IDE build or a running DF.exe over Code/obj.
-                obj = os.path.join(tempfile.gettempdir(), 'df-balancetools-obj') + os.sep
-                job, err = start_job('build', ['dotnet', 'build', 'Code/Code.csproj', '-c', 'Debug', '-o', TOOLS,
-                                               f'-p:BaseIntermediateOutputPath={obj}'])
+                job, err = start_job('build', build_tools_args())
                 return self._send(200 if job else 409, {'job': job.summary()} if job else {'error': err})
+            if u.path == '/api/update':
+                # Newest patch file -> active patch, then sim tools and the Spark build brought up to date with Code/.
+                newest = (patches() or [None])[0]
+                if not newest:
+                    return self._send(400, {'error': 'no patches in GameData/Patches/Balance'})
+                old = active_patch()
+                note = f'Active balance patch: {old} -> {newest}' if old != newest else f'Active balance patch already {newest}'
+                job, err = start_job('update', [build_tools_args(), [PYTHON, '-u', 'Scripts/simpool.py', 'publish']], note=note)
+                if not job:
+                    return self._send(409, {'error': err})
+                set_active_patch(newest)
+                return self._send(200, {'job': job.summary(), 'patch': newest, 'previous': old})
+            if u.path == '/api/iterate':
+                busy = [j.id for j in JOBS.values() if j.status == 'running']
+                if busy:  # before iteration_plan, which takes a fresh seed block
+                    return self._send(409, {'error': f'{busy[0]} is still running. Wait for it or cancel it first.'})
+                steps, desc = iteration_plan('chain' if body.get('mode') == 'chain' else 'measure', body.get('params') or {})
+                job, err = start_job('iterate', steps, note='Next iteration: ' + desc)
+                return self._send(200 if job else 409, {'job': job.summary(), 'desc': desc} if job else {'error': err})
             if u.path.startswith('/api/jobs/') and u.path.endswith('/cancel'):
                 job = JOBS.get(u.path.split('/')[3])
                 return self._send(200, {'result': cancel_job(job)} if job else {'error': 'no such job'})
@@ -917,6 +1025,23 @@ th[title],td[title]{cursor:help}
    <span class="hint">dotnet build → Code/bin/BalanceTools</span></div>
  </section>
 </div>
+
+<section class="card" style="margin-top:14px">
+ <h2>Patch &amp; next iteration</h2>
+ <div class="stats">
+  <div class="stat"><div class="k">Active patch</div><div class="v" id="it-active" style="font-size:15px">—</div></div>
+  <div class="stat"><div class="k">Newest patch file</div><div class="v" id="it-newest" style="font-size:15px">—</div></div>
+  <div class="stat"><div class="k">Builds on</div><div class="v" id="it-base" style="font-size:15px">—</div></div>
+ </div>
+ <div class="row"><button class="btn" id="update-btn">Update to newest patch</button>
+  <span class="hint" id="update-hint">Activates the newest patch, rebuilds the sim tools and republishes the Spark build.</span></div>
+ <div class="row" style="margin-top:6px">
+  <button class="btn primary" id="iter-btn">Run next iteration</button>
+  <select id="iter-mode"><option value="measure">Measure (held-out, vs base patch)</option><option value="chain">Solve chain → next patches</option></select>
+  <input id="iter-levels" placeholder="levels: all band midpoints" style="width:210px">
+  <span class="msg" id="iter-msg"></span></div>
+ <div class="hint" id="iter-hint"></div>
+</section>
 
 <section class="card" style="margin-top:14px">
  <h2>Running now <span class="hint" style="font-weight:normal">every balance script on this PC, wherever it was started</span></h2>
@@ -1099,7 +1224,13 @@ async function loadStatus() {
   t.textContent = !s.tools.exists ? 'No DF.dll in Code/bin/BalanceTools: build before running.' : s.tools.stale ? 'Source changed since the last build: runs would use old code. Build first.' : 'Up to date with Code/.';
   t.className = 'msg ' + (s.tools.stale ? 'warn' : 'hint');
   const busy = s.jobs.some(j => j.status === 'running');
-  $('#run-btn').disabled = $('#build-btn').disabled = busy;
+  $('#run-btn').disabled = $('#build-btn').disabled = $('#iter-btn').disabled = $('#update-btn').disabled = busy;
+  $('#it-active').textContent = s.patch; $('#it-newest').textContent = s.newest || '—'; $('#it-base').textContent = s.patchBase || '—';
+  const behind = s.newest && s.newest !== s.patch;
+  $('#it-newest').className = 'v' + (behind ? ' near' : '');
+  $('#update-hint').textContent = (behind ? `${s.newest} is newer than the active ${s.patch}. ` : 'Active patch is the newest. ') +
+    'Activates the newest patch, rebuilds the sim tools and republishes the Spark build.';
+  iterHint(s);
   const tb = $('#jobs');
   if (!s.jobs.length) return;
   tb.innerHTML = '';
@@ -1122,8 +1253,10 @@ function selectJob(id) {
 
 async function pollLog() {
   if (!selected) return;
-  const j = await api(`/api/jobs/${selected}?since=${logNext}`);
-  if (j.error) return;
+  const id = selected, since = logNext;
+  const j = await api(`/api/jobs/${id}?since=${since}`);
+  // Two polls can overlap (the timer and selectJob): drop an answer another poll already applied.
+  if (j.error || id !== selected || since !== logNext) return;
   $('#log-title').textContent = `${j.id} · ${j.status}${j.steps > 1 ? ` · step ${j.step} of ${j.steps}` : ''} · ${fmtTime(j.elapsed)}`;
   $('#log-cmd').textContent = j.command;
   $('#cancel-btn').hidden = j.status !== 'running';
@@ -1142,6 +1275,31 @@ $('#run-btn').onclick = async () => {
   const r = await api('/api/run', {kind, params});
   if (r.error) { m.className = 'msg bad'; m.textContent = r.error; return; }
   m.textContent = 'Started ' + r.job.id; selected = null; await loadStatus(); selectJob(r.job.id);
+};
+let lastStatus = null;
+function iterHint(s) {
+  if (s) lastStatus = s; s = lastStatus; if (!s) return;
+  const chain = $('#iter-mode').value === 'chain';
+  $('#iter-hint').textContent = (chain
+    ? `balance-chain.py on ${s.patch}: health → damage → class → damage solves, each writing the next ${s.patch.replace(/\d+[a-z]?$/, '')}N patch only when it beats noise, then a held-out measure. Hours. Activate the result with "Update to newest patch".`
+    : `balance-loop.py measure on ${s.patch}${s.patchBase ? ' vs ' + s.patchBase : ''}, 4 fresh seeds. Shows up in Results vs targets as iter-${s.patch}-….`)
+    + (s.tools.stale ? ' Sim tools are behind Code/, so it builds them first.' : '');
+}
+$('#iter-mode').onchange = () => iterHint();
+$('#update-btn').onclick = async () => {
+  const s = lastStatus;
+  if (!confirm(`Make ${s && s.newest || 'the newest patch'} the active balance patch (GameData/PatchProfile.json), rebuild the sim tools and republish the Spark build?`)) return;
+  const r = await api('/api/update', {});
+  if (r.error) { alert(r.error); return; }
+  selected = null; await loadStatus(); selectJob(r.job.id);
+};
+$('#iter-btn').onclick = async () => {
+  const mode = $('#iter-mode').value, m = $('#iter-msg');
+  if (mode === 'chain' && !confirm('Start a solve chain? It runs for hours and writes new patch files (not activated).')) return;
+  m.className = 'msg'; m.textContent = 'Starting…';
+  const r = await api('/api/iterate', {mode, params: {levels: $('#iter-levels').value, spark: document.querySelector('#common [name=spark]').value}});
+  if (r.error) { m.className = 'msg bad'; m.textContent = r.error; return; }
+  m.textContent = 'Started: ' + r.desc; selected = null; await loadStatus(); selectJob(r.job.id);
 };
 $('#build-btn').onclick = async () => {
   const r = await api('/api/build', {});

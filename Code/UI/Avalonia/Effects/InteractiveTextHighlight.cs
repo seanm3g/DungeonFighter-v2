@@ -26,7 +26,7 @@ namespace RPGGame.UI.Avalonia.Effects
             for (int i = 0; i < elements.Count; i++)
             {
                 var e = elements[i];
-                if (e == null || e.Width <= 0 || e.Height <= 0)
+                if (e == null || e.Width <= 0 || e.Height <= 0 || e.NoHoverGlow)
                     continue;
 
                 int x1 = e.X + e.Width;
@@ -66,6 +66,7 @@ namespace RPGGame.UI.Avalonia.Effects
                     hash = (hash * 31) + e.Y;
                     hash = (hash * 31) + e.Width;
                     hash = (hash * 31) + e.Height;
+                    hash = (hash * 31) + (e.NoHoverGlow ? 7 : 0);
                 }
 
                 return hash;
