@@ -296,6 +296,7 @@ namespace RPGGame
             ApplyPerfectCrimeTransfer(hero, evt);
             ApplyMobileBulwark(hero, evt);
             ApplyBloodPrice(hero, evt);
+            ApplyBloodDraught(hero, evt);
             ApplySteadyMarch(hero, evt);
             ApplyDeepCut(hero, evt);
             ApplyQuickFingers(hero, evt);
@@ -1129,6 +1130,17 @@ namespace RPGGame
             if (power <= 0 || evt.IsMiss) return;
             bool mace = hero.Equipment.Weapon is WeaponItem w && w.WeaponType == WeaponType.Mace;
             if (!mace) return;
+            hero.Heal(Math.Max(1, (int)Math.Round(hero.GetEffectiveMaxHealth() * 0.005 * power)));
+        }
+
+        private void ApplyBloodDraught(Character hero, CombatEvent evt)
+        {
+            // Rogue sustain: Dagger connects on a Bleeding target heal a share of max HP (same rate as Blood Price, gated
+            // on Bleed so it rides the Obsidian line instead of every hit).
+            double power = GetPower(hero, "blood_draught");
+            if (power <= 0 || evt.IsMiss || evt.Target == null || evt.Target.BleedIntensity <= 0) return;
+            bool dagger = hero.Equipment.Weapon is WeaponItem w && w.WeaponType == WeaponType.Dagger;
+            if (!dagger) return;
             hero.Heal(Math.Max(1, (int)Math.Round(hero.GetEffectiveMaxHealth() * 0.005 * power)));
         }
 

@@ -1121,6 +1121,21 @@
           "sharedWith": []
         },
         {
+          "name": "Blood Draught",
+          "type": "Passive",
+          "effect": "Dagger connects against a Bleeding enemy heal {1}% of max HP per rank.",
+          "payoff": "Open wounds feed you.",
+          "customEffectId": "blood_draught",
+          "id": "r-draught",
+          "branch": "Obsidian",
+          "tier": 14,
+          "maxRank": 5,
+          "cost": 1,
+          "power": 0.4286,
+          "requires": [],
+          "sharedWith": []
+        },
+        {
           "name": "Toxin Pressure",
           "type": "Passive",
           "effect": "Hits against Poisoned enemies apply +{1} Bleed per rank.",
