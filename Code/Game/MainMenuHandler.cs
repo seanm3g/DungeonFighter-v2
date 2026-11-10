@@ -20,6 +20,20 @@ namespace RPGGame
     /// - Handle main menu input
     /// - Delegate to game startup or load
     /// </summary>
+    /// <summary>Which view the main menu shows: the fighter roster, or the History of fallen fighters.</summary>
+    public static class MainMenuViewState
+    {
+        public static bool ShowingHistory { get; set; }
+        /// <summary>First History row shown (newest first); clamped by the renderer.</summary>
+        public static int HistoryScroll { get; set; }
+
+        public static void CloseHistory()
+        {
+            ShowingHistory = false;
+            HistoryScroll = 0;
+        }
+    }
+
     public class MainMenuHandler
     {
         private GameStateManager stateManager;
@@ -67,6 +81,8 @@ namespace RPGGame
         /// </summary>
         public void ShowMainMenu()
         {
+            MainMenuViewState.CloseHistory();
+            RPGGame.UI.FighterRosterHoverState.Clear();
             var (hasSavedGame, savedFighterCount) = ResolveSavedGameMenuLine();
 
             // Use GameScreenCoordinator for standardized screen transition
@@ -115,6 +131,32 @@ namespace RPGGame
             
             // Trim whitespace to handle various input formats
             string trimmedInput = input?.Trim() ?? "";
+
+            // History view: R / Esc / 0 go back, arrows scroll; anything else closes it and acts as usual.
+            if (MainMenuViewState.ShowingHistory)
+            {
+                switch (trimmedInput.ToLowerInvariant())
+                {
+                    case HistoryKey:
+                    case "escape":
+                    case "0":
+                    case "b":
+                        MainMenuViewState.CloseHistory();
+                        RefreshMainMenuInPlace();
+                        return;
+                    case "up":
+                    case "pageup":
+                        MainMenuViewState.HistoryScroll = Math.Max(0, MainMenuViewState.HistoryScroll - (trimmedInput == "up" ? 1 : 10));
+                        RefreshMainMenuInPlace();
+                        return;
+                    case "down":
+                    case "pagedown":
+                        MainMenuViewState.HistoryScroll += trimmedInput == "down" ? 1 : 10;
+                        RefreshMainMenuInPlace();
+                        return;
+                }
+                MainMenuViewState.CloseHistory();
+            }
             
             // Fighter roster cards send "fighter:N" (1-based, most recently saved first).
             if (trimmedInput.StartsWith(FighterCardPrefix, StringComparison.OrdinalIgnoreCase))
@@ -159,6 +201,11 @@ namespace RPGGame
                 case OverviewKey:
                     ShowStableEvent?.Invoke();
                     break;
+                case HistoryKey:
+                    MainMenuViewState.ShowingHistory = true;
+                    MainMenuViewState.HistoryScroll = 0;
+                    RefreshMainMenuInPlace();
+                    break;
                 case SettingsKey:
                     HandleSettingsSelection();
                     break;
@@ -172,7 +219,7 @@ namespace RPGGame
                     break;
                 default:
                     AudioCues.Trigger(AudioCue.Menu_Invalid);
-                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Press 1-9 for a fighter, N (New fighter), A (All saved fighters), F (Fighter Overview), S (Settings), or Q (Quit).");
+                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Press 1-9 for a fighter, N (New fighter), A (All saved fighters), F (Stable mode), R (History), S (Settings), or Q (Quit).");
                     break;
             }
         }
@@ -272,6 +319,7 @@ namespace RPGGame
         public const string NewFighterKey = "n";
         public const string AllFightersKey = "a";
         public const string OverviewKey = "f";
+        public const string HistoryKey = "r";
         public const string SettingsKey = "s";
         public const string QuitKey = "q";
 

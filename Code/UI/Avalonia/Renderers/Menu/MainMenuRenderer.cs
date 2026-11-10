@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
@@ -22,6 +23,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         private readonly MenuOptionRenderer menuOptionRenderer;
         private readonly CharacterSelectionRenderer characterSelectionRenderer;
         private readonly StableScreenRenderer stableScreenRenderer;
+        private readonly FighterRosterRenderer rosterRenderer;
         
         public MainMenuRenderer(GameCanvasControl canvas, List<ClickableElement> clickableElements, ICanvasTextManager textManager)
         {
@@ -30,110 +32,255 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             this.textManager = textManager;
             this.menuOptionRenderer = new MenuOptionRenderer(canvas);
             this.characterSelectionRenderer = new CharacterSelectionRenderer(canvas, clickableElements, menuOptionRenderer);
-            this.stableScreenRenderer = new StableScreenRenderer(canvas, clickableElements);
+            this.rosterRenderer = new FighterRosterRenderer(canvas, clickableElements);
+            this.stableScreenRenderer = new StableScreenRenderer(canvas, clickableElements, rosterRenderer);
         }
         
         /// <summary>
-        /// Main menu as a fighter roster: one card per saved fighter (most recently saved first, click to load), a "+"
-        /// card for a new fighter, "Fighter Overview (Stable)" top left, Settings / Quit bottom right.
-        /// Keys: 1-9 load the fighter cards in order; N new, A all saved fighters, F overview, S settings, Q / 0 quit.
+        /// Main menu as a fighter roster (see <see cref="FighterRosterRenderer"/>): the new-fighter card first, then one
+        /// card per saved fighter (most recently saved first, click to load), a detail panel for the hovered card,
+        /// the Stable mode toggle top left, History / Settings / Quit bottom right. History replaces the roster in place.
+        /// Keys: 1-9 load the fighter cards in order; N new, A all saved fighters, F Stable mode, R history, S settings, Q / 0 quit.
         /// </summary>
         public int RenderMainMenuContent(int x, int y, int width, int height, bool hasSavedGame, int savedFighterCount, string? newGameConfirmPrompt = null)
         {
             clickableElements.Clear();
+            if (MainMenuViewState.ShowingHistory)
+                return RenderHistory(x, y, width, height);
+
             var gold = ColorPalette.Gold.GetColor();
+            var green = ColorPalette.Success.GetColor();
+            var gray = AsciiArtAssets.Colors.Gray;
 
             List<(string characterId, string characterName, int level)> saved;
             try { saved = CharacterSaveManager.ListAllSavedCharacters() ?? new(); }
             catch { saved = new(); }
             saved = saved.FindAll(c => !string.IsNullOrWhiteSpace(c.characterName));
 
-            int left = x + Math.Max(2, width * 13 / 100);
-            int right = x + width - Math.Max(2, width * 8 / 100);
-
-            // Fighter Overview (Stable), top left
-            string overviewLabel = $"[{MainMenuHandler.OverviewKey.ToUpperInvariant()}] Fighter Overview (Stable)";
-            BoxButton.Draw(canvas, clickableElements, left, y + Math.Max(1, height * 6 / 100), overviewLabel.Length + 4, 3, overviewLabel, MainMenuHandler.OverviewKey);
-
-            // Fighter cards + the add card in one row (wraps to a second row when there are many fighters).
-            const int cardW = 28;
-            const int cardH = 10;
-            const int gap = 3;
-            int perRow = Math.Max(2, (right - left + gap) / (cardW + gap));
-            int maxRows = height >= 40 ? 2 : 1;
-            int capacity = perRow * maxRows;
-            // Last slot is the "+" card; if fighters overflow, the one before it opens the full saved list.
+            // New-fighter card first; if fighters overflow, the last slot opens the full saved list.
             // Fighter cards are hotkeyed 1-9, so at most nine get a card of their own.
+            int capacity = FighterRosterRenderer.CardCapacity(x, width, height);
             int fighterCapacity = Math.Min(capacity - 1, MainMenuHandler.MaxFighterHotkeys);
             bool overflow = saved.Count > fighterCapacity;
             int fighterCards = overflow ? Math.Min(capacity - 2, MainMenuHandler.MaxFighterHotkeys) : saved.Count;
 
-            int cardsTop = y + Math.Max(5, height * 24 / 100);
-            int slot = 0;
-            void NextSlot(out int cx, out int cy)
+            var cards = new List<RosterCard>
             {
-                cx = left + (slot % perRow) * (cardW + gap);
-                cy = cardsTop + (slot / perRow) * (cardH + 2);
-                slot++;
-            }
-
+                new()
+                {
+                    Key = MainMenuHandler.NewFighterKey,
+                    Label = $"[{MainMenuHandler.NewFighterKey.ToUpperInvariant()}]",
+                    Face = FighterFace.NewFighter,
+                    Name = "NEW FIGHTER",
+                    Sub = "start a fresh run",
+                    Accent = green,
+                    FaceColor = green,
+                    Border = 2
+                }
+            };
+            var summaries = new Dictionary<string, SavedFighterSummary?>();
             for (int i = 0; i < fighterCards; i++)
             {
-                var (_, name, level) = saved[i];
-                NextSlot(out int cx, out int cy);
-                var lines = new List<string> { $"[{i + 1}]" };
-                lines.AddRange(WrapName(name, cardW - 4));
-                lines.Add("");
-                lines.Add($"Level {level}");
-                BoxButton.Draw(canvas, clickableElements, cx, cy, cardW, cardH, lines[0], MainMenuFighterKey(i + 1), gold, 1, lines.GetRange(1, lines.Count - 1));
+                var (id, name, level) = saved[i];
+                var summary = SavedFighterSummary.Load(id);
+                string key = MainMenuFighterKey(i + 1);
+                summaries[key] = summary;
+                cards.Add(new RosterCard
+                {
+                    Key = key,
+                    Label = $"[{i + 1}]",
+                    Face = FighterFace.For(name, summary?.IsDead == true),
+                    Name = name,
+                    Sub = $"Level {level}",
+                    Status = summary?.ClassName,
+                    StatusColor = gray,
+                    Accent = gold
+                });
             }
-
             if (overflow)
             {
-                NextSlot(out int mx, out int my);
-                BoxButton.Draw(canvas, clickableElements, mx, my, cardW, cardH, $"[{MainMenuHandler.AllFightersKey.ToUpperInvariant()}]", MainMenuHandler.AllFightersKey, gold, 1,
-                    new[] { $"+{saved.Count - fighterCards} more", "", "all saved fighters" });
+                cards.Add(new RosterCard
+                {
+                    Key = MainMenuHandler.AllFightersKey,
+                    Label = $"[{MainMenuHandler.AllFightersKey.ToUpperInvariant()}]",
+                    Face = new[] { "", $"+{saved.Count - fighterCards} more", "" },
+                    Name = "all saved fighters",
+                    Accent = gold,
+                    FaceColor = gray
+                });
             }
 
-            NextSlot(out int ax, out int ay);
-            BoxButton.Draw(canvas, clickableElements, ax, ay, cardW, cardH, $"[{MainMenuHandler.NewFighterKey.ToUpperInvariant()}]", MainMenuHandler.NewFighterKey, gold, 1,
-                new[] { "+", "", "new fighter" });
-
-            // Settings / Quit, bottom right
-            const int sideW = 22;
-            int sideX = right - sideW;
-            int quitY = y + height - Math.Max(6, height * 14 / 100);
-            BoxButton.Draw(canvas, clickableElements, sideX, quitY - 4, sideW, 3,
-                $"[{MainMenuHandler.SettingsKey.ToUpperInvariant()}] {UIConstants.MenuOptions.Settings}", MainMenuHandler.SettingsKey);
-            BoxButton.Draw(canvas, clickableElements, sideX, quitY, sideW, 3,
-                $"[{MainMenuHandler.QuitKey.ToUpperInvariant()}] {UIConstants.MenuOptions.Quit}", MainMenuHandler.QuitKey);
-
-            int rowsUsed = (slot + perRow - 1) / perRow;
-            int belowCards = cardsTop + rowsUsed * (cardH + 2) + 1;
-            var promptLines = WrapNewGameConfirmPrompt(newGameConfirmPrompt, Math.Max(24, right - left));
-            if (promptLines.Count > 0)
+            // Detail panel for the hovered card.
+            string hovered = FighterRosterHoverState.Value;
+            RosterDetail? detail = null;
+            if (summaries.TryGetValue(hovered, out var hoveredSummary)
+                && int.TryParse(hovered.Substring(MainMenuHandler.FighterCardPrefix.Length), out int number))
             {
-                foreach (var line in promptLines)
-                    canvas.AddText(left, belowCards++, line, AsciiArtAssets.Colors.Yellow);
+                var (_, name, level) = saved[number - 1];
+                detail = BuildFighterDetail(name, level, number, hoveredSummary);
             }
-            else if (saved.Count == 0)
+            else if (hovered == MainMenuHandler.NewFighterKey)
             {
-                canvas.AddText(left, belowCards, "No fighters yet. Click + or press N to create one.", AsciiArtAssets.Colors.Gray);
+                detail = new RosterDetail
+                {
+                    Face = FighterFace.NewFighter,
+                    FaceColor = green,
+                    Title = "New fighter",
+                    TitleColor = green,
+                    BorderColor = green,
+                    Header = { new RosterLine("Level 1, random name", gray) },
+                    Body =
+                    {
+                        new RosterLine("Starts at level 1 with an optional Training Ground run, then picks a weapon.", ColorLayerSystem.GetWhite(WhiteTemperature.Neutral)),
+                        new RosterLine("Gets its own save file; no existing fighter is replaced.", gray),
+                        new RosterLine("", gray),
+                        new RosterLine("Click or press N to begin.", gray)
+                    }
+                };
             }
 
-            return slot;
+            var placeholder = new List<RosterLine>();
+            foreach (var line in WrapNewGameConfirmPrompt(newGameConfirmPrompt, 60))
+                placeholder.Add(new RosterLine(line, AsciiArtAssets.Colors.Yellow));
+            if (placeholder.Count == 0)
+                placeholder.Add(new RosterLine(saved.Count == 0
+                    ? "No fighters yet. Click + or press N to create one."
+                    : "Hover a fighter for details.", gray));
+
+            rosterRenderer.Render(x, y, width, height, new RosterScreen
+            {
+                StableMode = false,
+                ToggleKey = MainMenuHandler.OverviewKey,
+                Cards = cards,
+                Detail = detail,
+                Placeholder = placeholder,
+                SideButtons = MainMenuSideButtons(prefix: "")
+            });
+            return cards.Count;
         }
+
+        /// <summary>History / Settings / Quit, bottom right; the Stable prefixes keys so it can hand them to the main menu.</summary>
+        public static List<(string Label, string Key)> MainMenuSideButtons(string prefix) => new()
+        {
+            ($"[{MainMenuHandler.HistoryKey.ToUpperInvariant()}] History", prefix + MainMenuHandler.HistoryKey),
+            ($"[{MainMenuHandler.SettingsKey.ToUpperInvariant()}] {UIConstants.MenuOptions.Settings}", prefix + MainMenuHandler.SettingsKey),
+            ($"[{MainMenuHandler.QuitKey.ToUpperInvariant()}] {UIConstants.MenuOptions.Quit}", prefix + MainMenuHandler.QuitKey)
+        };
+
+        private static RosterDetail BuildFighterDetail(string name, int level, int number, SavedFighterSummary? s)
+        {
+            var gold = ColorPalette.Gold.GetColor();
+            var white = ColorLayerSystem.GetWhite(WhiteTemperature.Neutral);
+            var gray = AsciiArtAssets.Colors.Gray;
+            var orange = ColorPalette.Orange.GetColor();
+            bool dead = s?.IsDead == true;
+            var detail = new RosterDetail
+            {
+                Face = FighterFace.For(name, dead),
+                FaceColor = dead ? orange : white,
+                Title = name,
+                TitleColor = gold,
+                BorderColor = gold
+            };
+            if (s == null)
+            {
+                detail.Header.Add(new RosterLine($"Level {level}", gray));
+                detail.Body.Add(new RosterLine($"Click or press {number} to continue.", gray));
+                return detail;
+            }
+
+            detail.Header.Add(new RosterLine($"Level {s.Level} {s.ClassName}", white));
+            int maxHp = Math.Max(1, s.MaxHealth);
+            int pct = Math.Clamp(s.CurrentHealth, 0, maxHp) * 100 / maxHp;
+            var hpColor = dead ? orange : pct >= 60 ? ColorPalette.Success.GetColor() : pct >= 30 ? gold : orange;
+            detail.Header.Add(new RosterLine(dead ? "Fallen" : $"HP {StableHandler.Bar(s.CurrentHealth, maxHp, 12)} {Math.Max(0, s.CurrentHealth)}/{maxHp}", hpColor));
+            detail.Header.Add(new RosterLine($"XP {s.Xp}", gray));
+
+            detail.Body.Add(new RosterLine($"STR {s.Strength}   AGI {s.Agility}   TEC {s.Technique}   INT {s.Intelligence}", white));
+            if (!string.IsNullOrEmpty(s.Weapon))
+                detail.Body.Add(new RosterLine($"Weapon: {s.Weapon}", white));
+            if (!string.IsNullOrEmpty(s.Region))
+                detail.Body.Add(new RosterLine($"Region: {Capitalize(s.Region)}", white));
+            detail.Body.Add(new RosterLine($"Kills {s.EnemiesDefeated}   Dungeons {s.DungeonsCompleted}   Best hit {s.HighestHit}", gray));
+            detail.Body.Add(new RosterLine($"Last played {Ago(s.LastPlayed)}" + (s.PlayMinutes >= 1 ? $"   Played {FormatMinutes(s.PlayMinutes)}" : ""), gray));
+            detail.Body.Add(new RosterLine("", gray));
+            detail.Body.Add(new RosterLine($"Click or press {number} to continue.", gray));
+            return detail;
+        }
+
+        /// <summary>History of fallen fighters (<see cref="FighterHistory"/>), newest first, with all-time bests on top.</summary>
+        private int RenderHistory(int x, int y, int width, int height)
+        {
+            var gold = ColorPalette.Gold.GetColor();
+            var white = ColorLayerSystem.GetWhite(WhiteTemperature.Neutral);
+            var gray = AsciiArtAssets.Colors.Gray;
+            var orange = ColorPalette.Orange.GetColor();
+            int left = x + Math.Max(2, width * 13 / 100);
+            int right = x + width - Math.Max(2, width * 8 / 100);
+            int w = Math.Max(30, right - left);
+            int top = y + Math.Max(1, height * 6 / 100);
+
+            string back = $"[{MainMenuHandler.HistoryKey.ToUpperInvariant()}] Back";
+            int backW = back.Length + 4;
+            BoxButton.Draw(canvas, clickableElements, left, top, backW, 3, back, MainMenuHandler.HistoryKey,
+                hovered: FighterRosterHoverState.IsOver(new ClickableElement { X = left, Y = top, Width = backW, Height = 3 }));
+            canvas.AddText(left + backW + 3, top + 1, "HISTORY  -  fallen fighters", gold);
+
+            var entries = FighterHistory.Load();
+            entries.Reverse();
+            int row = top + 5;
+            if (entries.Count == 0)
+            {
+                canvas.AddText(left, row, "No fallen fighters yet. Those who die in a dungeon are remembered here.", gray);
+                return 0;
+            }
+
+            var highest = entries.OrderByDescending(e => e.Level).First();
+            var biggest = entries.OrderByDescending(e => e.HighestSingleHitDamage).First();
+            var deadliest = entries.Where(e => !string.IsNullOrEmpty(e.KilledBy)).GroupBy(e => e.KilledBy).OrderByDescending(g => g.Count()).FirstOrDefault();
+            canvas.AddText(left, row++, Fit($"{entries.Count} fallen   Highest: {highest.Name} L{highest.Level}   Biggest hit: {biggest.HighestSingleHitDamage} ({biggest.Name})"
+                + (deadliest != null ? $"   Deadliest foe: {deadliest.Key} x{deadliest.Count()}" : ""), w), white);
+            row++;
+
+            int bottom = y + height - 3;
+            int visible = Math.Max(1, (bottom - row) / 2);
+            int scroll = Math.Clamp(MainMenuViewState.HistoryScroll, 0, Math.Max(0, entries.Count - visible));
+            MainMenuViewState.HistoryScroll = scroll;
+            for (int i = scroll; i < entries.Count && row + 1 <= bottom; i++)
+            {
+                var e = entries[i];
+                string killer = string.IsNullOrEmpty(e.KilledBy) ? "fell" : $"slain by {e.KilledBy}{(e.KillerLevel > 0 ? $" L{e.KillerLevel}" : "")}";
+                string where = string.IsNullOrEmpty(e.Dungeon) ? "" : $" in {e.Dungeon}{(string.IsNullOrEmpty(e.Room) ? "" : $" ({e.Room})")}";
+                canvas.AddText(left, row, FighterFace.For(e.Name, dead: true)[1], orange);
+                canvas.AddText(left + 9, row, Fit($"{e.Name}  L{e.Level} {e.Class}  -  {killer}{where}", w - 9), white);
+                canvas.AddText(left + 9, row + 1, Fit($"{e.DiedAt:MMM d, HH:mm}   Kills {e.EnemiesDefeated}   Dungeons {e.DungeonsCompleted}   Best hit {e.HighestSingleHitDamage}   Best combo {e.HighestComboStep}", w - 9), gray);
+                row += 2;
+            }
+            if (entries.Count > visible)
+                canvas.AddText(left, bottom + 1, $"{scroll + 1}-{Math.Min(entries.Count, scroll + visible)} of {entries.Count}   Up/Down to scroll   R or Esc to go back", gray);
+            return entries.Count;
+        }
+
+        private static string Ago(DateTime when)
+        {
+            var span = DateTime.Now - when;
+            if (span.TotalMinutes < 1) return "just now";
+            if (span.TotalHours < 1) return $"{(int)span.TotalMinutes}m ago";
+            if (span.TotalDays < 1) return $"{(int)span.TotalHours}h ago";
+            if (span.TotalDays < 30) return $"{(int)span.TotalDays}d ago";
+            return when.ToString("MMM d, yyyy");
+        }
+
+        private static string FormatMinutes(double minutes) =>
+            minutes < 60 ? $"{(int)minutes}m" : $"{(int)(minutes / 60)}h {(int)(minutes % 60)}m";
+
+        private static string Capitalize(string s) => s.Length == 0 ? s : char.ToUpperInvariant(s[0]) + s.Substring(1);
+
+        private static string Fit(string text, int max) =>
+            max <= 1 ? "" : text.Length <= max ? text : text.Substring(0, max - 1) + ".";
 
         /// <summary>Input sent by the Nth fighter card (1-based, save list order).</summary>
         public static string MainMenuFighterKey(int number) => MainMenuHandler.FighterCardPrefix + number;
-
-        private static List<string> WrapName(string name, int width)
-        {
-            var lines = TextWrapper.WrapText(name ?? "", Math.Max(4, width));
-            if (lines.Count > 2)
-                lines = lines.GetRange(0, 2);
-            return lines.Count == 0 ? new List<string> { "" } : lines;
-        }
 
         /// <summary>
         /// Splits the overwrite prompt into lines that fit the menu width. The first visual gap
@@ -307,6 +454,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
 
         /// <summary>Renders the full-screen Stable (see <see cref="StableScreenRenderer"/>).</summary>
         public void RenderStableScreen(StableMenuView view) => stableScreenRenderer.Render(view);
+
+        /// <summary>The Stable grid in the main menu's roster layout.</summary>
+        public void RenderStableRoster(int x, int y, int width, int height, StableMenuView view) => stableScreenRenderer.RenderRoster(x, y, width, height, view);
 
         /// <summary>
         /// Renders one page of the load character menu (saved characters from disk).

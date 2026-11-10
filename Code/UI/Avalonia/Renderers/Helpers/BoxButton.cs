@@ -27,7 +27,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             string key,
             Color? color = null,
             int borderThickness = 1,
-            IReadOnlyList<string>? extraLines = null)
+            IReadOnlyList<string>? extraLines = null,
+            bool? hovered = null)
         {
             width = Math.Max(3, width);
             height = Math.Max(1, height);
@@ -42,6 +43,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 DisplayText = label
             };
             clickables.Add(element);
+            // Screens redrawn on hover pass the pointer state in, since a fresh element starts un-hovered.
+            if (hovered.HasValue)
+                element.IsHovered = hovered.Value;
             Color drawColor = element.IsHovered ? HoverColor : color ?? DefaultColor;
 
             if (height >= 3)

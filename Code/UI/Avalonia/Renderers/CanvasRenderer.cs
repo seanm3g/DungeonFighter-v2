@@ -182,6 +182,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                     or RPGGame.GameState.Settings
                     or RPGGame.GameState.DeveloperMenu
                     or RPGGame.GameState.Testing => RPGGame.UI.TitleScreen.MenuScene.Cave,
+                // Stable mode shares the main menu's roster screen; the fighter view keeps a plain background.
+                RPGGame.GameState.Stable when Menu.StableScreenRenderer.RosterVisible => RPGGame.UI.TitleScreen.MenuScene.Cave,
                 RPGGame.GameState.GameLoop
                     or RPGGame.GameState.Inventory
                     or RPGGame.GameState.CharacterInfo

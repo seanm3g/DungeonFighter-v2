@@ -85,7 +85,8 @@ namespace RPGGame.MCP
                     new() { Input = MainMenuHandler.NewFighterKey, Label = "New Game", Recommended = true },
                     new() { Input = "1", Label = "Load the most recently saved fighter (1-9 load roster cards in order)" },
                     new() { Input = MainMenuHandler.AllFightersKey, Label = "All saved fighters" },
-                    new() { Input = MainMenuHandler.OverviewKey, Label = "Fighter Overview (Stable)" },
+                    new() { Input = MainMenuHandler.OverviewKey, Label = "Stable mode (fighters run side by side)" },
+                    new() { Input = MainMenuHandler.HistoryKey, Label = "History of fallen fighters" },
                     new() { Input = MainMenuHandler.SettingsKey, Label = "Settings" },
                     new() { Input = MainMenuHandler.QuitKey, Label = "Exit" }
                 },

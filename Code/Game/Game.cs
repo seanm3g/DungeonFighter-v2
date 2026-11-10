@@ -358,6 +358,9 @@ namespace RPGGame
                 case GameState.MainMenu:
                     mainMenuHandler?.RefreshMainMenuInPlace();
                     break;
+                case GameState.Stable:
+                    StableHandler.RefreshActive();
+                    break;
                 case GameState.Inventory:
                     canvasUI.Clear();
                     inventoryMenuHandler?.RefreshInventoryScreen();

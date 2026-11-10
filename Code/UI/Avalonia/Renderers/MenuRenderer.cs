@@ -254,6 +254,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         public void RenderStableScreen(StableMenuView view) => mainMenuRenderer.RenderStableScreen(view);
+        public void RenderStableRoster(int x, int y, int width, int height, StableMenuView view) => mainMenuRenderer.RenderStableRoster(x, y, width, height, view);
 
         /// <summary>
         /// Renders the developer menu content

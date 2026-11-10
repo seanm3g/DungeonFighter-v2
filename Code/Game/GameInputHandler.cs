@@ -161,7 +161,7 @@ namespace RPGGame
         {
             return state switch
             {
-                GameState.MainMenu => "1-9=Load fighter, N=New Game, A=All saved, F=Fighter Overview, S=Settings, Q/0=Quit",
+                GameState.MainMenu => "1-9=Load fighter, N=New Game, A=All saved, F=Stable mode, R=History, S=Settings, Q/0=Quit",
                 GameState.Inventory => "1-4=Action, 0/ESC=Return to game menu",
                 GameState.Settings => "Adjust settings or press ESC to back",
                 GameState.GameLoop => "1=Dungeon, 2=Inventory, 3=Travel, C=Characters, 0=Quit",

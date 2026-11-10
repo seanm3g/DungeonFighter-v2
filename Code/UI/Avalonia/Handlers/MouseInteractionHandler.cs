@@ -377,6 +377,22 @@ namespace RPGGame.UI.Avalonia.Handlers
             // Update hover state for menu / clickable elements
             canvasUI.SetHoverPosition(gridPos.X, gridPos.Y);
 
+            // Fighter roster (main menu / Stable mode): redraw when the hovered card or button changes, for the
+            // highlight and the detail panel.
+            var rosterState = game?.StateManager?.CurrentState;
+            if (rosterState == GameState.MainMenu
+                || (rosterState == GameState.Stable && Renderers.Menu.StableScreenRenderer.RosterVisible))
+            {
+                if (FighterRosterHoverState.Update(canvasUI.GetClickableElements(), gridPos.X, gridPos.Y))
+                {
+                    if (rosterState == GameState.Stable)
+                        StableHandler.RefreshActive();
+                    else
+                        game?.RefreshPersistentChromeAfterStatsToggle();
+                }
+                return;
+            }
+
             int newStripHover = -1;
             var player = GetCharacterForActionStrip();
             var combo = player?.GetComboActions();

@@ -41,6 +41,12 @@ namespace RPGGame
         public bool NeedsDecision { get; init; }
         public StableLineTone BorderTone { get; init; }
         public string Title { get; init; } = "";
+        /// <summary>Roster card fields (the grid shares the main menu's card layout).</summary>
+        public string Name { get; init; } = "";
+        public int Level { get; init; }
+        public string ClassName { get; init; } = "";
+        public string Status { get; init; } = "";
+        public bool IsDead { get; init; }
         /// <summary>Clicking the card body sends this (selects the card).</summary>
         public string SelectKey { get; init; } = "";
         /// <summary>Status block under the title (HP, where, enemy).</summary>

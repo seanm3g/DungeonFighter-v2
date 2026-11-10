@@ -19,15 +19,24 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
 
         private readonly GameCanvasControl canvas;
         private readonly List<ClickableElement> clickableElements;
+        private readonly FighterRosterRenderer roster;
 
-        public StableScreenRenderer(GameCanvasControl canvas, List<ClickableElement> clickableElements)
+        /// <summary>True while the Stable shows its grid in the roster layout (menu backdrop behind it).</summary>
+        public static bool RosterVisible { get; private set; }
+
+        public StableScreenRenderer(GameCanvasControl canvas, List<ClickableElement> clickableElements, FighterRosterRenderer roster)
         {
             this.canvas = canvas;
             this.clickableElements = clickableElements;
+            this.roster = roster;
         }
+
+        /// <summary>Grid mode uses the roster layout; the watch view and the add-hero list stay full screen.</summary>
+        public static bool UsesRoster(StableMenuView view) => view.Watch == null && view.PanelTitle == null;
 
         public void Render(StableMenuView view)
         {
+            RosterVisible = false;
             clickableElements.Clear();
             canvas.Clear();
 
@@ -54,6 +63,123 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
 
             RenderButtonRow(view.Footer, Margin, footerY, width - 2 * Margin, "   ");
             canvas.Refresh();
+        }
+
+        /// <summary>
+        /// Stable grid in the main menu's roster layout: same toggle, card row (new fighter first), detail panel and
+        /// History / Settings / Quit, so switching Stable mode keeps the screen. The panel shows the hovered card, else
+        /// the selected one, with its actions.
+        /// </summary>
+        public void RenderRoster(int x, int y, int width, int height, StableMenuView view)
+        {
+            RosterVisible = true;
+            clickableElements.Clear();
+            var green = ColorPalette.Success.GetColor();
+            var gray = AsciiArtAssets.Colors.Gray;
+
+            var cards = new List<RosterCard>
+            {
+                new()
+                {
+                    Key = "n",
+                    Label = "[N]",
+                    Face = FighterFace.NewFighter,
+                    Name = "NEW FIGHTER",
+                    Sub = "joins the Stable",
+                    Accent = green,
+                    FaceColor = green,
+                    Border = 2
+                }
+            };
+            foreach (var card in view.Cards)
+            {
+                var accent = ToneColor(card.NeedsDecision ? StableLineTone.Alert : card.IsDead ? StableLineTone.Bad : StableLineTone.Header);
+                cards.Add(new RosterCard
+                {
+                    Key = card.SelectKey,
+                    Label = $"[{card.Number}]{(card.NeedsDecision ? " !" : "")}",
+                    Face = FighterFace.For(card.Name, card.IsDead),
+                    FaceColor = card.IsDead ? ToneColor(StableLineTone.Bad) : null,
+                    Name = card.Name,
+                    Sub = $"L{card.Level} {card.ClassName}",
+                    Status = card.Status,
+                    StatusColor = ToneColor(card.BorderTone == StableLineTone.Selected ? (card.NeedsDecision ? StableLineTone.Alert : StableLineTone.Normal) : card.BorderTone),
+                    Accent = accent,
+                    Border = card.NeedsDecision ? 2 : 1,
+                    Selected = card.Selected
+                });
+            }
+            if (view.ShowAddSlot)
+            {
+                cards.Add(new RosterCard
+                {
+                    Key = "a",
+                    Label = "[A]",
+                    Face = new[] { "", "+ saved", "" },
+                    FaceColor = gray,
+                    Name = "add a saved hero",
+                    Accent = gray
+                });
+            }
+
+            string hovered = FighterRosterHoverState.Value;
+            var shown = view.Cards.FirstOrDefault(c => c.SelectKey == hovered) ?? view.Cards.FirstOrDefault(c => c.Selected);
+            RosterDetail? detail = null;
+            if (shown != null)
+            {
+                var tone = shown.NeedsDecision ? StableLineTone.Alert : shown.IsDead ? StableLineTone.Bad : StableLineTone.Header;
+                var body = new List<RosterLine>();
+                foreach (var l in shown.Lines)
+                    body.Add(new RosterLine(l.Text, ToneColor(l.Tone)));
+                if (shown.Actions.Count > 0)
+                {
+                    body.Add(new RosterLine("", gray));
+                    foreach (var a in shown.Actions)
+                        body.Add(new RosterLine(a.Text, ToneColor(a.Tone), a.Key));
+                }
+                if (shown.Log.Count > 0)
+                {
+                    body.Add(new RosterLine("", gray));
+                    foreach (var l in shown.Log.Take(6))
+                        body.Add(new RosterLine(l.Text, ToneColor(l.Tone)));
+                }
+                detail = new RosterDetail
+                {
+                    Face = FighterFace.For(shown.Name, shown.IsDead),
+                    FaceColor = shown.IsDead ? ToneColor(StableLineTone.Bad) : ToneColor(StableLineTone.Normal),
+                    Title = shown.Name,
+                    TitleColor = ToneColor(tone),
+                    BorderColor = ToneColor(tone),
+                    Header =
+                    {
+                        new RosterLine($"Level {shown.Level} {shown.ClassName}", ToneColor(StableLineTone.Normal)),
+                        new RosterLine(shown.Status, ToneColor(shown.NeedsDecision ? StableLineTone.Alert : StableLineTone.Dim)),
+                        new RosterLine(shown.Selected ? "Click again or Enter to watch" : "Click to select", gray)
+                    },
+                    Body = body
+                };
+            }
+
+            // New / add have cards of their own now.
+            var footer = view.Footer
+                .Where(b => b.Key is not ("a" or "n"))
+                .Select(b => new RosterLine(b.Text, ToneColor(b.Tone), b.Key))
+                .ToList();
+
+            roster.Render(x, y, width, height, new RosterScreen
+            {
+                StableMode = true,
+                ToggleKey = MainMenuHandler.OverviewKey,
+                Summary = new RosterLine(view.Summary.Text, ToneColor(view.Summary.Tone)),
+                Notice = view.Notice == null ? null : new RosterLine(view.Notice.Text, ToneColor(view.Notice.Tone)),
+                Cards = cards,
+                Detail = detail,
+                Placeholder = { new RosterLine(view.Cards.Count == 0
+                    ? "No fighters in the Stable yet. Click + for a new hero or A to bring in a saved one; they run dungeons side by side."
+                    : "Hover a fighter for details.", gray) },
+                Footer = footer,
+                SideButtons = MainMenuRenderer.MainMenuSideButtons(StableHandler.MenuKeyPrefix)
+            });
         }
 
         private void RenderGrid(StableMenuView view, int width, int top, int bottom)
@@ -277,7 +403,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             return text.Length <= max ? text : text.Substring(0, max - 1) + ".";
         }
 
-        private static Color ToneColor(StableLineTone tone) => tone switch
+        internal static Color ToneColor(StableLineTone tone) => tone switch
         {
             StableLineTone.Dim => AsciiArtAssets.Colors.Gray,
             StableLineTone.Header => ColorPalette.Cyan.GetColor(),

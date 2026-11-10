@@ -231,6 +231,7 @@ namespace RPGGame.Handlers
                 handlers.StableHandler.ShowGameLoopEvent += () => showGameLoop();
                 handlers.StableHandler.ShowMainMenuEvent += () => showMainMenu();
                 handlers.StableHandler.ShowMessageEvent += (msg) => showMessage(msg);
+                handlers.StableHandler.MainMenuKeyEvent += (key) => handlers.MainMenuHandler?.HandleMenuInput(key) ?? Task.CompletedTask;
                 handlers.StableHandler.StartNewHeroEvent += () => handlers.MainMenuHandler?.HandleMenuInput(MainMenuHandler.NewFighterKey) ?? Task.CompletedTask;
             }
 

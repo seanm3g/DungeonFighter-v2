@@ -69,11 +69,24 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.Refresh();
         }
 
-        /// <summary>The Stable takes the whole screen: no side panels or title chrome.</summary>
+        /// <summary>
+        /// The Stable grid shares the main menu's roster layout (Stable mode); the fighter view and add-hero list
+        /// take the whole screen.
+        /// </summary>
         public void RenderStable(StableMenuView view, CanvasContext context)
         {
             messageRenderer.ClearLoadingStatus();
-            menuRenderer.RenderStableScreen(view);
+            if (!Menu.StableScreenRenderer.UsesRoster(view))
+            {
+                menuRenderer.RenderStableScreen(view);
+                return;
+            }
+            canvas.Clear();
+            RenderWithLayout(null, "MAIN MENU", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                menuRenderer.RenderStableRoster(contentX, contentY, contentWidth, contentHeight, view);
+            }, new CanvasContext(), null, null, null, clearCanvas: false, usePersistentChrome: false);
+            canvas.Refresh();
         }
 
         public void RenderSettings()

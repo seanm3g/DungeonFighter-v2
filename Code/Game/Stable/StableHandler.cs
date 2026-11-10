@@ -61,6 +61,14 @@ namespace RPGGame
         public event OnShowMainMenu? ShowMainMenuEvent;
         public event OnStartNewHero? StartNewHeroEvent;
         public event OnShowMessage? ShowMessageEvent;
+        /// <summary>Main-menu keys from the roster's shared buttons (History / Settings / Quit), sent as <c>menu:{key}</c>.</summary>
+        public event Func<string, Task>? MainMenuKeyEvent;
+
+        /// <summary>Roster buttons that belong to the main menu send this prefix.</summary>
+        public const string MenuKeyPrefix = "menu:";
+
+        /// <summary>Redraws the open Stable (pointer hover over the roster).</summary>
+        public static void RefreshActive() => listening?.Render();
 
         public StableHandler(GameStateManager stateManager, IUIManager? customUIManager, StableManager? stable = null)
         {
@@ -85,6 +93,7 @@ namespace RPGGame
             }
 
             ReclaimFromMainGame();
+            RPGGame.UI.FighterRosterHoverState.Clear();
             mode = Mode.Grid;
             pickingDungeon = false;
             confirmRemove = false;
@@ -124,7 +133,24 @@ namespace RPGGame
                 return;
             }
 
+            // Shared roster buttons: the main menu's History / Settings / Quit.
+            if (raw.StartsWith(MenuKeyPrefix, StringComparison.Ordinal))
+            {
+                string menuKey = raw.Substring(MenuKeyPrefix.Length);
+                if (menuKey != MainMenuHandler.SettingsKey)
+                    LeaveToMainMenu();
+                if (MainMenuKeyEvent != null)
+                    await MainMenuKeyEvent.Invoke(menuKey);
+                return;
+            }
+
             string key = raw.ToLowerInvariant();
+            // F toggles Stable mode off again (same key that turned it on from the main menu).
+            if (key == MainMenuHandler.OverviewKey && mode != Mode.AddHero && !pickingDungeon && !confirmRemove)
+            {
+                LeaveToMainMenu();
+                return;
+            }
             if (mode == Mode.AddHero)
                 await HandleAddInput(key);
             else
@@ -669,6 +695,11 @@ namespace RPGGame
                 NeedsDecision = f.NeedsDecision,
                 BorderTone = isSelected ? StableLineTone.Selected : RowTone(f),
                 Title = $"[{number}]{(f.NeedsDecision ? " !" : "")} {hero.Name}  L{hero.Level} {hero.GetCurrentClass()}",
+                Name = hero.Name,
+                Level = hero.Level,
+                ClassName = hero.GetCurrentClass(),
+                Status = ShortStatus(f),
+                IsDead = f.Status == StableFighterStatus.Dead,
                 SelectKey = $"{CardKeyPrefix}{number}",
                 Lines = lines,
                 Log = f.Log.Reverse().Select(l => new StableLine(l, StableLineTone.Dim)).ToList(),
@@ -877,6 +908,17 @@ namespace RPGGame
             StableFighterStatus.AwaitingExit => $"{f.DungeonName} - room {f.RoomsCleared}/{f.TotalRooms} cleared. Press on?",
             StableFighterStatus.Dead => "DEAD",
             StableFighterStatus.InHand => "In your hands (main game)",
+            _ => f.Status.ToString()
+        };
+
+        /// <summary>One-line status for the roster card.</summary>
+        internal static string ShortStatus(StableFighter f) => f.Status switch
+        {
+            StableFighterStatus.AtHub => f.NeedsDecision ? "! waiting at hub" : "heading out",
+            StableFighterStatus.Exploring => $"room {Math.Max(1, f.CurrentRoomNumber)}/{f.TotalRooms}",
+            StableFighterStatus.AwaitingExit => "! press on?",
+            StableFighterStatus.Dead => "DEAD",
+            StableFighterStatus.InHand => "in your hands",
             _ => f.Status.ToString()
         };
 
