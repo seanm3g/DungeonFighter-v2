@@ -51,6 +51,74 @@ namespace RPGGame.UI.Avalonia
             }
         }
 
+        private static string? _currentRegion;
+        private static SKImage? _regionImage;
+        private static Dictionary<string, List<string>>? _regionLocations;
+
+        /// <summary>
+        /// An environment plate for a region (hub right panel): a random plate from one of the region element's room
+        /// locations (Rooms.json "region" = <paramref name="regionTheme"/>). Kept while <paramref name="regionKey"/> stays the same;
+        /// held apart from the room plate so going in and out of a dungeon does not re-roll either.
+        /// </summary>
+        public static bool TryGetRegionBackdrop(string? regionKey, string? regionTheme, out SKImage bitmap)
+        {
+            bitmap = null!;
+            if (string.IsNullOrWhiteSpace(regionKey) || string.IsNullOrWhiteSpace(regionTheme))
+                return false;
+            EnsureLoaded();
+            lock (Gate)
+            {
+                if (!string.Equals(_currentRegion, regionKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    _currentRegion = regionKey;
+                    _regionImage = null;
+                    var locations = GetRegionLocations(regionTheme);
+                    if (locations.Count > 0)
+                        _regionImage = Load(Rooms[locations[Rng.Next(locations.Count)]]);
+                }
+                if (_regionImage == null)
+                    return false;
+                bitmap = _regionImage;
+                return true;
+            }
+        }
+
+        /// <summary>Locations (with plates) of the rooms whose Rooms.json "region" is <paramref name="regionTheme"/>. Caller holds <see cref="Gate"/>.</summary>
+        private static List<string> GetRegionLocations(string regionTheme)
+        {
+            if (_regionLocations == null)
+            {
+                _regionLocations = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+                try
+                {
+                    string path = GameConstants.ResolveGameDataPath("Rooms.json");
+                    if (File.Exists(path))
+                    {
+                        using var doc = JsonDocument.Parse(File.ReadAllText(path));
+                        foreach (var room in doc.RootElement.EnumerateArray())
+                        {
+                            string region = room.TryGetProperty("region", out var r) ? r.GetString() ?? "" : "";
+                            string location = room.TryGetProperty("location", out var l) ? l.GetString() ?? "" : "";
+                            if (region.Length == 0 || location.Length == 0)
+                                continue;
+                            string? key = ResolveLocation(location);
+                            if (key == null)
+                                continue;
+                            if (!_regionLocations.TryGetValue(region, out var list))
+                                _regionLocations[region] = list = new List<string>();
+                            if (!list.Contains(key))
+                                list.Add(key);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log("RoomBackdropArt", $"Could not read Rooms.json regions: {ex.Message}");
+                }
+            }
+            return _regionLocations.TryGetValue(regionTheme, out var found) ? found : new List<string>();
+        }
+
         /// <summary>Which location's plates a room name maps to; null = none.</summary>
         internal static string? ResolveLocation(string roomName)
         {

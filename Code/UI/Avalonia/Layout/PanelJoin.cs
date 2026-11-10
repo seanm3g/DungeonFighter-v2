@@ -23,6 +23,13 @@ namespace RPGGame.UI.Avalonia.Layout
         private static double RightGapHalf =>
             System.Math.Max(0, LayoutConstants.RIGHT_PANEL_X - (LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH)) / 2.0;
 
+        /// <summary>Left edge (cells) of a center-column frame after <see cref="ApplyCenter"/>.</summary>
+        public static double CenterFrameLeft => LayoutConstants.CENTER_PANEL_X - (Active ? LeftGapHalf : 0);
+
+        /// <summary>Right edge (cells) of a center-column frame after <see cref="ApplyCenter"/>.</summary>
+        public static double CenterFrameRight =>
+            LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH + (Active ? RightGapHalf : 0);
+
         public static void ApplyLeftPanel(GameCanvasControl canvas) =>
             canvas.SetBoxOutset(LayoutConstants.LEFT_PANEL_X, LayoutConstants.LEFT_PANEL_Y, LayoutConstants.LEFT_PANEL_WIDTH, LayoutConstants.LEFT_PANEL_HEIGHT,
                 0, Active ? LeftGapHalf : 0);

@@ -65,23 +65,44 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         }
 
         /// <summary>
-        /// Draws the strip at (<paramref name="x"/>, <paramref name="y"/>): the active tab in brackets and gold, the
-        /// others gray. While <paramref name="locked"/> (a trade-up that must finish) the other tabs are dimmed and not clickable.
+        /// Draws the strip with its labels on row <paramref name="y"/> as folder tabs: each tab is outlined from half a row
+        /// above the labels down to a baseline in the middle of row <c>y + 1</c> (so callers keep that row free), and the
+        /// baseline runs edge to edge of the center frame except under the active tab, which opens into the page below.
+        /// Row <c>y - 1</c> is the frame's top row. While <paramref name="locked"/> (a trade-up that must finish) the other
+        /// tabs are dimmed and not clickable. <paramref name="joinedFrame"/>: the frame was widened by
+        /// <see cref="PanelJoin.ApplyCenter"/>.
         /// </summary>
-        public static void Draw(GameCanvasControl canvas, Action<ClickableElement> addClickable, int x, int y, int maxWidth, HubTab active, bool locked = false)
+        public static void Draw(GameCanvasControl canvas, Action<ClickableElement> addClickable, int x, int y, int maxWidth, HubTab active,
+            bool locked = false, Color? frameColor = null, bool joinedFrame = true)
         {
+            Color frame = frameColor ?? PanelJoin.Border(AsciiArtAssets.Colors.Cyan);
+            double baseY = y + 1.5;
+            double frameLeft = joinedFrame ? PanelJoin.CenterFrameLeft : LayoutConstants.CENTER_PANEL_X;
+            double frameRight = joinedFrame ? PanelJoin.CenterFrameRight : LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH;
+            // Lines persist until cleared (screens that skip a full canvas clear redraw the strip each frame).
+            canvas.ClearLinesInArea(LayoutConstants.CENTER_PANEL_X - 2, y - 1, LayoutConstants.CENTER_PANEL_WIDTH + 4, 3);
+
+            double? openLeft = null, openRight = null;
             int cx = x;
             int right = x + Math.Max(0, maxWidth);
             foreach (var (tab, label, token) in Tabs)
             {
                 bool isActive = tab == active;
-                string text = isActive ? $"[ {label} ]" : $"  {label}  ";
+                string text = $"  {label}  ";
                 if (cx + text.Length > right)
                     break;
                 Color color = isActive
                     ? AsciiArtAssets.Colors.Gold
                     : locked ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Gray;
                 canvas.AddText(cx, y, text, color);
+                // The active tab stands a little taller, in the frame's color, as the front layer; the others sit behind it.
+                DrawTabOutline(canvas, cx, cx + text.Length, isActive ? y - 0.5 : y - 0.25, baseY,
+                    isActive ? frame : AsciiArtAssets.Colors.DarkGray);
+                if (isActive)
+                {
+                    openLeft = cx;
+                    openRight = cx + text.Length;
+                }
                 if (!isActive && !locked)
                 {
                     addClickable(new ClickableElement
@@ -97,6 +118,28 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 }
                 cx += text.Length + 1;
             }
+
+            if (openLeft is double gapLeft && openRight is double gapRight)
+            {
+                canvas.AddLine(frameLeft, baseY, gapLeft, baseY, frame, LineThickness);
+                canvas.AddLine(gapRight, baseY, frameRight, baseY, frame, LineThickness);
+            }
+            else
+                canvas.AddLine(frameLeft, baseY, frameRight, baseY, frame, LineThickness);
+        }
+
+        private const double LineThickness = 1.0;
+
+        /// <summary>Sides and top of one tab (top corners clipped), open at the bottom.</summary>
+        private static void DrawTabOutline(GameCanvasControl canvas, double left, double right, double top, double bottom, Color color)
+        {
+            const double cornerX = 0.5;
+            const double cornerY = 0.25;
+            canvas.AddLine(left, bottom, left, top + cornerY, color, LineThickness);
+            canvas.AddLine(left, top + cornerY, left + cornerX, top, color, LineThickness);
+            canvas.AddLine(left + cornerX, top, right - cornerX, top, color, LineThickness);
+            canvas.AddLine(right - cornerX, top, right, top + cornerY, color, LineThickness);
+            canvas.AddLine(right, top + cornerY, right, bottom, color, LineThickness);
         }
     }
 

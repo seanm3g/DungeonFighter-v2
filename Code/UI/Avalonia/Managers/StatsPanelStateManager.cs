@@ -86,6 +86,18 @@ namespace RPGGame.UI.Avalonia.Managers
 
         public void ToggleAttributeSort() => SortAttributesByValue = !SortAttributesByValue;
 
+        /// <summary>When true, the left panel shows the character roster (saved fighter names) instead of the hero sheet.</summary>
+        public bool ShowRosterNames { get; private set; }
+
+        /// <summary>Clicking empty left-panel space flips between the hero sheet and the roster name list.</summary>
+        public void ToggleRosterNames() => ShowRosterNames = !ShowRosterNames;
+
+        /// <summary>When true, GEAR lists item names instead of the icon figure (outside the inventory hub).</summary>
+        public bool ShowGearNames { get; private set; }
+
+        /// <summary>Clicking a GEAR icon or name row flips between the icon figure and the item-name list.</summary>
+        public void ToggleGearNames() => ShowGearNames = !ShowGearNames;
+
         public void ToggleHeroCollapsed() => heroCollapsed = !heroCollapsed;
         public void ToggleStatsCollapsed() => statsCollapsed = !statsCollapsed;
         public void ToggleGearCollapsed() => gearCollapsed = !gearCollapsed;

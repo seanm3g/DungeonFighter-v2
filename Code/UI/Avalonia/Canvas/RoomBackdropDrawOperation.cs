@@ -36,11 +36,17 @@ namespace RPGGame.UI.Avalonia.Canvas
         private readonly double cellHeight;
         private readonly double fontSize;
         private readonly double opacity;
+        private readonly (double Start, double End)? fade;
+        private readonly bool fadeHorizontal;
 
         /// <param name="grid">The whole cell rectangle the plate belongs to (<paramref name="bounds"/> is it minus the border inset); Ascii glyphs sit on its cells.</param>
         /// <param name="opacity">Whole-result opacity (base fill and plate together), for the location crossfade.</param>
-        public RoomBackdropDrawOperation(Rect bounds, SKImage source, RoomBackdropConfig config, Rect grid, double cellWidth, double cellHeight, double fontSize, double opacity = 1)
+        /// <param name="fade">Fade-in (x or y in the same space as <paramref name="bounds"/>): transparent before Start, full after End.</param>
+        /// <param name="fadeHorizontal">True: <paramref name="fade"/> runs left to right; false: top to bottom.</param>
+        public RoomBackdropDrawOperation(Rect bounds, SKImage source, RoomBackdropConfig config, Rect grid, double cellWidth, double cellHeight, double fontSize, double opacity = 1, (double Start, double End)? fade = null, bool fadeHorizontal = false)
         {
+            this.fade = fade;
+            this.fadeHorizontal = fadeHorizontal;
             Bounds = bounds;
             this.source = source;
             this.config = config;
@@ -95,7 +101,7 @@ namespace RPGGame.UI.Avalonia.Canvas
 
                 int saveCount = canvas.Save();
                 canvas.ClipRect(dest);
-                if (opacity < 1)
+                if (opacity < 1 || fade != null)
                 {
                     // Base fill and blended plate composite together, then fade as one over what is beneath.
                     using var layerPaint = new SKPaint { Color = SKColors.White.WithAlpha((byte)Math.Round(opacity * 255)) };
@@ -112,6 +118,19 @@ namespace RPGGame.UI.Avalonia.Canvas
                     FilterQuality = SKFilterQuality.Medium
                 };
                 canvas.DrawImage(plate, target, paint);
+                if (fade is { } f)
+                {
+                    // Mask the layer: clear before the fade, eased ramp (smoothstep-ish stops) to full.
+                    float a = (float)f.Start, b = (float)f.End;
+                    using var shader = SKShader.CreateLinearGradient(
+                        fadeHorizontal ? new SKPoint(a, 0) : new SKPoint(0, a),
+                        fadeHorizontal ? new SKPoint(b, 0) : new SKPoint(0, b),
+                        new[] { SKColors.Transparent, SKColors.Black.WithAlpha(40), SKColors.Black.WithAlpha(150), SKColors.Black },
+                        new[] { 0f, 0.3f, 0.65f, 1f },
+                        SKShaderTileMode.Clamp);
+                    using var maskPaint = new SKPaint { Shader = shader, BlendMode = SKBlendMode.DstIn };
+                    canvas.DrawRect(dest, maskPaint);
+                }
                 canvas.RestoreToCount(saveCount);
             }
         }

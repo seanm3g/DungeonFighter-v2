@@ -41,7 +41,7 @@ namespace RPGGame
                 "gear:legs" => BuildColoredGear(character, character.Legs, "Legs", maxLines),
                 "gear:feet" => BuildColoredGear(character, character.Feet, "Feet", maxLines),
                 "gear:charm" => BuildColoredGear(character, character.Charm, "Charm", maxLines),
-                string invKey when invKey.StartsWith("inv:", StringComparison.Ordinal) => BuildColoredInventory(character, invKey, maxLines),
+                // Inventory (bag) items show no hover popup; the hover key still drives highlight/comparison/synergy.
                 _ => new List<List<ColoredText>>()
             };
         }
@@ -62,17 +62,6 @@ namespace RPGGame
             }
             return ItemTooltipFormatter.BuildItemTooltipLines(
                 c, item, slot, maxLines, UI.HoverTooltipDetailState.IsAltDetailActive);
-        }
-
-        private static List<List<ColoredText>> BuildColoredInventory(Character c, string invKey, int maxLines)
-        {
-            if (invKey.Length <= 4 || !int.TryParse(invKey.AsSpan(4), out int idx))
-                return new List<List<ColoredText>>();
-            var inv = c.Inventory;
-            if (inv == null || idx < 0 || idx >= inv.Count)
-                return new List<List<ColoredText>>();
-            return ItemTooltipFormatter.BuildItemTooltipLines(
-                c, inv[idx], "Inventory", maxLines, UI.HoverTooltipDetailState.IsAltDetailActive);
         }
 
         /// <summary>
@@ -196,7 +185,7 @@ namespace RPGGame
                     AppendClassTags(character, classTagKey.Substring("classtag:".Length), AddWrapped);
                     break;
                 case string invKey when invKey.StartsWith("inv:", StringComparison.Ordinal):
-                    AppendInventoryListItem(character, invKey, result, AddWrapped, maxLines);
+                    // Inventory (bag) items show no hover popup.
                     break;
                 case "hero:name":
                     AppendHeroName(character, AddWrapped);
@@ -278,16 +267,6 @@ namespace RPGGame
             }
 
             return result;
-        }
-
-        private static void AppendInventoryListItem(Character c, string invKey, List<string> result, Action<string> addWrapped, int maxLines)
-        {
-            if (invKey.Length <= 4 || !int.TryParse(invKey.AsSpan(4), out int idx))
-                return;
-            var inv = c.Inventory;
-            if (inv == null || idx < 0 || idx >= inv.Count)
-                return;
-            AppendGear(c, inv[idx], "Inventory", result, addWrapped, maxLines);
         }
 
         private static void AppendHeroName(Character c, Action<string> addWrapped)

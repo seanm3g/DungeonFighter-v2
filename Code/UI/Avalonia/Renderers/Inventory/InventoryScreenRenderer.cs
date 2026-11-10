@@ -1021,7 +1021,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         }
 
         /// <summary>
-        /// The dragged item's icon centered on the pointer, kept inside the center panel.
+        /// The dragged item's icon centered on the pointer. It may leave the center panel to the left so a bag item can be
+        /// carried onto the hero panel (the left panel is drawn before the center, so the ghost paints over it); it stops at
+        /// the center panel's right edge because the right panel is drawn afterwards and would cover it.
         /// </summary>
         private void RenderDragGhost(int x, int width, int topY, int bottomY, int tileCols, int tileRows, bool haveArt)
         {
@@ -1029,13 +1031,28 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (!InventoryDragState.IsActive || item == null)
                 return;
 
-            int gx = Math.Clamp(InventoryDragState.PointerX - tileCols / 2, x + 1, Math.Max(x + 1, x + width - 1 - tileCols));
-            int gy = Math.Clamp(InventoryDragState.PointerY - tileRows / 2, topY, Math.Max(topY, bottomY - tileRows));
+            var (minX, maxX, minY, maxY) = DragGhostBounds(x, width, topY, bottomY, tileCols, tileRows);
+            int gx = Math.Clamp(InventoryDragState.PointerX - tileCols / 2, minX, maxX);
+            int gy = Math.Clamp(InventoryDragState.PointerY - tileRows / 2, minY, maxY);
             canvas.AddBox(gx, gy, tileCols, tileRows, AsciiArtAssets.Colors.Gold, AsciiArtAssets.Colors.Black, borderThicknessPixels: 2);
             if (haveArt && ItemArtAtlas.TryGetIcon(item, out var bitmap, out var sourceRect))
                 canvas.AddImage(gx, gy, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3, followsAsciiStyle: true);
             else
                 canvas.AddText(gx + 1, gy + tileRows / 2, TruncateTo(item.Name, tileCols - 2), AsciiArtAssets.Colors.Gold);
+        }
+
+        /// <summary>
+        /// Top-left clamp range for the drag ghost: from the left panel's inner edge to the center panel's right edge,
+        /// and over the full height of both panels.
+        /// </summary>
+        internal static (int MinX, int MaxX, int MinY, int MaxY) DragGhostBounds(int centerX, int centerWidth, int topY, int bottomY, int tileCols, int tileRows)
+        {
+            int minX = Math.Min(centerX + 1, LayoutConstants.LEFT_PANEL_X + 1);
+            int maxX = Math.Max(minX, centerX + centerWidth - 1 - tileCols);
+            int minY = Math.Min(topY, LayoutConstants.LEFT_PANEL_Y);
+            int panelBottom = Math.Max(bottomY, LayoutConstants.LEFT_PANEL_Y + LayoutConstants.SCREEN_HEIGHT);
+            int maxY = Math.Max(minY, panelBottom - tileRows);
+            return (minX, maxX, minY, maxY);
         }
 
         private static string TruncateTo(string? text, int max)

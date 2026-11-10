@@ -127,21 +127,12 @@ namespace RPGGame.Tests.Unit.UI
             };
             c.Inventory.Add(bag);
             var invTip = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "inv:0", 50, 30);
-            TestBase.AssertTrue(invTip.Any(l => l.Contains("Spare", StringComparison.Ordinal)),
-                "bag item tooltip",
+            TestBase.AssertTrue(invTip.Count == 0,
+                "bag item hover shows no tooltip",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(
-                invTip.Any(l => l.Contains("Grants:", StringComparison.Ordinal)
-                    || l.StartsWith("Actions:", StringComparison.Ordinal)
-                    || l.Contains("JAB", StringComparison.Ordinal)
-                    || l.Contains("Hold Alt", StringComparison.Ordinal)),
-                "bag item tooltip lists resolved gear actions or detail cue",
-                ref run, ref passed, ref failed);
-            int inventoryNameIndex = invTip.FindIndex(l => l.Contains("Spare", StringComparison.Ordinal));
-            TestBase.AssertTrue(
-                inventoryNameIndex >= 0
-                && invTip.Skip(inventoryNameIndex + 1).Any(l => l == "" || l.Contains("Common", StringComparison.OrdinalIgnoreCase)),
-                "inventory hover tooltip shows name then rarity/details",
+                LeftPanelTooltipBuilder.BuildColoredItemLines(c, LeftPanelHoverState.Prefix + "inv:0", 30).Count == 0,
+                "bag item hover shows no colored tooltip",
                 ref run, ref passed, ref failed);
 
             var boots = new FeetItem("Striders", tier: 1, armor: 2) { ExtraActionSlots = 2 };

@@ -60,7 +60,7 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(narrowCenter < wideCenter,
                 $"center panel shrinks when effective width drops (wide={wideCenter}, narrow={narrowCenter})",
                 ref run, ref passed, ref failed);
-            TestBase.AssertEqual(32, LayoutConstants.LEFT_PANEL_WIDTH,
+            TestBase.AssertEqual(40, LayoutConstants.LEFT_PANEL_WIDTH,
                 "left panel stays fixed character width on horizontal shrink at 100% zoom",
                 ref run, ref passed, ref failed);
             TestBase.AssertEqual(30, LayoutConstants.RIGHT_PANEL_WIDTH,

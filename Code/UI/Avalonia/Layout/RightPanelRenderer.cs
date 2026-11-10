@@ -60,6 +60,7 @@ namespace RPGGame.UI.Avalonia.Layout
             int clearX = System.Math.Max(minClearX, naiveLeft);
             int clearW = System.Math.Max(1, clearRightExclusive - clearX);
 
+            HubRegionPlate = null;
             canvas.ClearTextInArea(clearX, contentY, clearW, contentHeight);
             canvas.ClearProgressBarsInArea(clearX, contentY, clearW, contentHeight);
             canvas.ClearSegmentedBarsInArea(clearX, contentY, clearW, contentHeight);
@@ -107,6 +108,12 @@ namespace RPGGame.UI.Avalonia.Layout
 
         /// <summary>Game state the hub dungeon panel reads (current run, dungeons on offer); set by the canvas renderer.</summary>
         public static GameStateManager? HubStateManager { get; set; }
+
+        /// <summary>The region whose environment plate fades in under the hub's region panel.</summary>
+        public sealed record HubRegionPlateInfo(string RegionKey, string Theme);
+
+        /// <summary>Set while the hub right panel shows the region (no dungeon in progress); null otherwise.</summary>
+        public static HubRegionPlateInfo? HubRegionPlate { get; private set; }
 
         /// <summary>
         /// Hub right column: the dungeon in progress if there is one, otherwise the current region and the dungeons on
@@ -182,7 +189,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (offered.Count == 0)
             {
                 canvas.AddText(x, y, "(none yet)", AsciiArtAssets.Colors.DarkGray);
-                return;
+                y++;
             }
 
             for (int i = 0; i < offered.Count; i++)
@@ -190,11 +197,15 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (y + 2 > panelBottom)
                 {
                     canvas.AddText(x, y, $"... +{offered.Count - i} more", AsciiArtAssets.Colors.Gray);
+                    y++;
                     break;
                 }
                 y = DrawHubDungeonEntry(x, y, maxW, panelBottom, offered[i], clickable: true);
                 y++;
             }
+
+            if (!string.IsNullOrWhiteSpace(region.Theme))
+                HubRegionPlate = new HubRegionPlateInfo(string.IsNullOrEmpty(region.Id) ? region.DisplayName : region.Id, region.Theme);
         }
 
         /// <summary>One dungeon: themed name, level and theme, then its foes. Returns the next free row.</summary>

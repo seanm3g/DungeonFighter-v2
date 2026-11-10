@@ -2,6 +2,7 @@ using System;
 using RPGGame.Handlers.Inventory;
 using RPGGame.Tests;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Renderers.Inventory;
 
 namespace RPGGame.Tests.Unit.UI
@@ -18,6 +19,7 @@ namespace RPGGame.Tests.Unit.UI
             TestLeavingPressCellActivatesDrag(ref run, ref passed, ref failed);
             TestPaperDollTileRowsFit(ref run, ref passed, ref failed);
             TestBoundsContain(ref run, ref passed, ref failed);
+            TestDragGhostReachesLeftPanel(ref run, ref passed, ref failed);
             TestUnequipSlotMovesGearToBag(ref run, ref passed, ref failed);
 
             InventoryDragState.Clear();
@@ -83,6 +85,20 @@ namespace RPGGame.Tests.Unit.UI
                 && !InventoryScreenRenderer.BoundsContain(bounds, 14, 7)
                 && !InventoryScreenRenderer.BoundsContain(default, 0, 0),
                 "Drop bounds are half-open and empty bounds never hit",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestDragGhostReachesLeftPanel(ref int run, ref int passed, ref int failed)
+        {
+            int centerX = LayoutConstants.CENTER_PANEL_X;
+            int centerWidth = LayoutConstants.CENTER_PANEL_WIDTH;
+            var b = InventoryScreenRenderer.DragGhostBounds(centerX, centerWidth, 6, 40, 10, 5);
+            TestBase.AssertTrue(
+                b.MinX <= LayoutConstants.LEFT_PANEL_X + 1
+                && b.MaxX == centerX + centerWidth - 11
+                && b.MinY <= LayoutConstants.LEFT_PANEL_Y
+                && b.MaxY >= 40 - 5,
+                "Drag ghost can be carried from the center panel onto the left panel (not clamped to the center)",
                 ref run, ref passed, ref failed);
         }
 

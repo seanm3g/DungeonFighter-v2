@@ -94,7 +94,17 @@ namespace RPGGame.UI.Avalonia.Layout
             int contentOriginY = y;
             int x = LayoutConstants.LEFT_PANEL_X + 2; // Reduced from +4 since border now starts at 0
             int headerClickWidth = LayoutConstants.LEFT_PANEL_WIDTH - 4;
-            
+
+            // Roster view (toggled by clicking empty left-panel space): saved fighter names instead of the hero sheet.
+            if (stateManager != null && stateManager.ShowRosterNames)
+            {
+                RenderRosterNames(character, x, y, headerClickWidth);
+                ScrubLeftPanelOutsideViewport(leftX, leftY, leftW, leftH, contentTop, contentBottomExclusive);
+                canvas.AddBorder(LayoutConstants.LEFT_PANEL_X, LayoutConstants.LEFT_PANEL_Y, LayoutConstants.LEFT_PANEL_WIDTH, LayoutConstants.LEFT_PANEL_HEIGHT, PanelJoin.Border(AsciiArtAssets.Colors.Blue));
+                PanelJoin.ApplyLeftPanel(canvas);
+                return;
+            }
+
             // --- HERO --- (left-aligned like STATS/GEAR; body order: name, HP bar, Lvl+class, XP)
             int heroHeaderY = y;
             string heroHeaderText = FormatLeftPanelSectionHeader(UIConstants.Headers.Hero);
@@ -235,13 +245,16 @@ namespace RPGGame.UI.Avalonia.Layout
                     });
                 }
 
-                if ((stateManager == null || !stateManager.GearCollapsed) && TryRenderGearFigure(character, gameState, x, ref y, headerClickWidth))
+                // Clicking the figure swaps to item names (the inventory hub keeps the figure for drag/drop).
+                bool gearNames = stateManager?.ShowGearNames == true && gameState != GameState.Inventory;
+                if ((stateManager == null || !stateManager.GearCollapsed) && !gearNames && TryRenderGearFigure(character, gameState, x, ref y, headerClickWidth))
                 {
                     RenderFormingSets(character, x, ref y, headerClickWidth);
                     RenderAnimalSets(character, x, ref y, headerClickWidth);
                 }
                 else if (stateManager == null || !stateManager.GearCollapsed)
                 {
+                    InventoryScreenRenderer.LastPaperDollBounds = default;
                     RenderEquipmentSlot(x, ref y, headerClickWidth, "Weapon", character.Weapon, "gear:weapon", 1);
                     RenderEquipmentSlot(x, ref y, headerClickWidth, "Head", character.Head, "gear:head", 1);
                     RenderEquipmentSlot(x, ref y, headerClickWidth, "Body", character.Body, "gear:body", 1);
@@ -494,6 +507,52 @@ namespace RPGGame.UI.Avalonia.Layout
             }
         }
 
+        /// <summary>
+        /// Character roster in the left panel: every saved fighter by name and level, the active hero highlighted.
+        /// Clicking empty space again returns to the hero sheet.
+        /// </summary>
+        private void RenderRosterNames(Character character, int x, int y, int width)
+        {
+            int top = LeftPanelViewport.ContentTop;
+            int bottom = LeftPanelViewport.ContentBottomExclusive;
+            y = top;
+            PanelText(x, y, FormatLeftPanelSectionHeader("ROSTER"), AsciiArtAssets.Colors.Gold);
+            y += 2;
+
+            List<(string characterId, string characterName, int level)> saved;
+            try { saved = RPGGame.CharacterSaveManager.ListAllSavedCharacters() ?? new(); }
+            catch { saved = new(); }
+            saved = saved.FindAll(c => !string.IsNullOrWhiteSpace(c.characterName));
+
+            if (saved.Count == 0)
+            {
+                PanelText(x, y, "No saved fighters.", AsciiArtAssets.Colors.Gray);
+                y++;
+            }
+
+            int listBottom = bottom - 2;
+            for (int i = 0; i < saved.Count && y < listBottom; i++)
+            {
+                var (_, name, level) = saved[i];
+                bool active = string.Equals(name, character.Name, System.StringComparison.Ordinal);
+                string levelText = $"Lv {level}";
+                int nameW = System.Math.Max(1, width - levelText.Length - 3);
+                string shown = name.Length > nameW ? name.Substring(0, System.Math.Max(1, nameW - 1)) + "…" : name;
+                string line = (active ? "> " : "  ") + shown.PadRight(nameW) + " " + levelText;
+                PanelText(x, y, line, active ? AsciiArtAssets.Colors.Gold : AsciiArtAssets.Colors.White);
+                y++;
+            }
+            if (y >= listBottom && saved.Count > 0)
+            {
+                int shownCount = System.Math.Max(0, listBottom - (top + 2));
+                if (shownCount < saved.Count)
+                    PanelText(x, listBottom, $"... +{saved.Count - shownCount} more", AsciiArtAssets.Colors.Gray);
+            }
+
+            if (bottom - 1 > y)
+                PanelText(x, bottom - 1, "Click empty space: hero", AsciiArtAssets.Colors.DarkGray);
+        }
+
         private static string ThresholdChanceLabelToHoverId(string label) =>
             label switch
             {
@@ -571,7 +630,8 @@ namespace RPGGame.UI.Avalonia.Layout
                 return false;
 
             int tileRows = 0, tileCols = 0;
-            foreach (int rows in new[] { 3, 2 })
+            // Largest square tiles whose figure still fits the panel width, so the icons fill the section.
+            foreach (int rows in new[] { 6, 5, 4, 3, 2 })
             {
                 int cols = InventoryScreenRenderer.GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), rows);
                 if (InventoryPaperDoll.WidthFor(cols) <= innerWidth)

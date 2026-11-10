@@ -117,6 +117,14 @@ namespace RPGGame.UI.Avalonia.Canvas
         public double InsetPixels { get; set; } = 2;
         /// <summary>Whole-plate opacity on top of <see cref="Look"/> (the location crossfade, <see cref="LocationCrossfade"/>).</summary>
         public double Opacity { get; set; } = 1;
+        /// <summary>
+        /// Fade-in, in absolute grid cells (columns when <see cref="FadeHorizontal"/>, else rows): transparent before
+        /// <see cref="FadeStart"/>, full from <see cref="FadeEnd"/> on. Off when <see cref="FadeEnd"/> is not past <see cref="FadeStart"/>.
+        /// </summary>
+        public double FadeStart { get; set; }
+        public double FadeEnd { get; set; }
+        public bool FadeHorizontal { get; set; }
+        public bool HasFade => FadeEnd > FadeStart;
     }
 
     /// <summary>

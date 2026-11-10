@@ -199,6 +199,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         private Canvas.CanvasBackdrop? ResolveDungeonBackdrop()
         {
             var sm = gameStateManager;
+            var hubPlate = ResolveHubRegionBackdrop(sm);
+            if (hubPlate != null)
+                return hubPlate;
             var dungeon = sm?.CurrentDungeon;
             if (sm == null || dungeon == null)
                 return null;
@@ -228,6 +231,42 @@ namespace RPGGame.UI.Avalonia.Renderers
                 Height = Math.Max(1, Avalonia.Layout.LayoutConstants.SCREEN_HEIGHT + 1 - y),
                 Source = bitmap,
                 Look = look
+            };
+        }
+
+        /// <summary>
+        /// Hub right column showing the region: the region's environment plate fills the panel and fades in left to
+        /// right (transparent at the left edge, full at the right).
+        /// </summary>
+        private static Canvas.CanvasBackdrop? ResolveHubRegionBackdrop(GameStateManager? sm)
+        {
+            var plate = Avalonia.Layout.RightPanelRenderer.HubRegionPlate;
+            if (plate == null || sm == null || sm.CurrentDungeon != null)
+                return null;
+            if (sm.CurrentState is not (RPGGame.GameState.Inventory or RPGGame.GameState.SkillTree))
+                return null;
+            var look = RPGGame.UI.Avalonia.Effects.RoomBackdropSettings.Current;
+            if (!look.Enabled)
+                return null;
+            if (!RoomBackdropArt.TryGetRegionBackdrop(plate.RegionKey, plate.Theme, out var bitmap))
+                return null;
+
+            int x = Avalonia.Layout.LayoutConstants.RIGHT_PANEL_X;
+            int y = Avalonia.Layout.LayoutConstants.RIGHT_PANEL_Y;
+            int w = Avalonia.Layout.LayoutConstants.RIGHT_PANEL_WIDTH;
+            int h = Avalonia.Layout.LayoutConstants.RIGHT_PANEL_HEIGHT;
+            return new Canvas.CanvasBackdrop
+            {
+                X = x,
+                Y = y,
+                Width = w,
+                Height = h,
+                Source = bitmap,
+                Look = look,
+                // Left to right: clear at the panel's left edge, full at its right edge.
+                FadeHorizontal = true,
+                FadeStart = x,
+                FadeEnd = x + w
             };
         }
 

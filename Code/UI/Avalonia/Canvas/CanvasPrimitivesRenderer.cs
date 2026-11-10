@@ -535,7 +535,11 @@ namespace RPGGame.UI.Avalonia.Canvas
 
             // Skia draw op: cover crop, color filters, blur and blend mode (Ascii style: glyphs on the grid cells).
             var grid = new Rect(backdrop.X * charWidth, backdrop.Y * charHeight, backdrop.Width * charWidth, backdrop.Height * charHeight);
-            context.Custom(new RoomBackdropDrawOperation(dest, backdrop.Source, backdrop.Look, grid, charWidth, charHeight, coordinateConverter.GetFontSize(), backdrop.Opacity));
+            double fadeCell = backdrop.FadeHorizontal ? charWidth : charHeight;
+            (double, double)? fade = backdrop.HasFade
+                ? (backdrop.FadeStart * fadeCell, backdrop.FadeEnd * fadeCell)
+                : null;
+            context.Custom(new RoomBackdropDrawOperation(dest, backdrop.Source, backdrop.Look, grid, charWidth, charHeight, coordinateConverter.GetFontSize(), backdrop.Opacity, fade, backdrop.FadeHorizontal));
         }
 
         private void RenderBox(DrawingContext context, CanvasBox box)
