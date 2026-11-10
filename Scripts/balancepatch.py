@@ -61,6 +61,17 @@ def resolve(name_or_path, patch_dir=None, _depth=0):
     return merge(base, d)
 
 
+def chain_depth(name_or_path, patch_dir=None):
+    """How many bases sit under this patch (0 for a whole patch)."""
+    n, path = 0, patch_path(name_or_path, patch_dir)
+    while True:
+        d = read_raw(path)
+        bk = _key(d, 'base')
+        if bk is None or not d[bk] or n > 64:
+            return n
+        n, path = n + 1, patch_path(d[bk], os.path.dirname(path))
+
+
 def base_name(name_or_path, patch_dir=None):
     d = read_raw(patch_path(name_or_path, patch_dir))
     bk = _key(d, 'base')
@@ -86,7 +97,11 @@ def dumps(d):
 
 
 def write_patch(path, full, base=None, patch_dir=None):
-    """Write a patch: whole, or as an overlay of `base` (only its differences)."""
+    """Write a patch: whole, or as an overlay of `base` (only its differences). An overlay whose base chain is already
+    at the 16-base cap (BalancePatchOverlay.MaxDepth) is written whole instead, so the game can still load it."""
+    if base and chain_depth(base, patch_dir or os.path.dirname(os.path.abspath(path))) >= 16:
+        print(f'note: {base} is {16} bases deep; writing {os.path.basename(path)} flattened', flush=True)
+        base = None
     if base:
         d = diff(full, resolve(base, patch_dir or os.path.dirname(os.path.abspath(path)))) or {}
         full = {'base': base, **d}

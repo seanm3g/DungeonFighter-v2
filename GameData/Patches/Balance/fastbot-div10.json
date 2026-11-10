@@ -1,0 +1,120 @@
+{
+  "base": "fastbot-div9",
+  "enemySystem": {
+    "damageCurve": {
+      "bands": [
+        {
+          "from": 1,
+          "to": 1,
+          "multiplier": 1.5339
+        },
+        {
+          "from": 2,
+          "to": 2,
+          "multiplier": 1.90259
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "multiplier": 2.3599
+        },
+        {
+          "from": 6,
+          "to": 10,
+          "multiplier": 1.797657
+        },
+        {
+          "from": 11,
+          "to": 15,
+          "multiplier": 4.130907
+        },
+        {
+          "from": 16,
+          "to": 20,
+          "multiplier": 3.695843
+        },
+        {
+          "from": 21,
+          "to": 25,
+          "multiplier": 30.388305
+        },
+        {
+          "from": 26,
+          "to": 30,
+          "multiplier": 14.484723
+        },
+        {
+          "from": 31,
+          "to": 35,
+          "multiplier": 20.310523
+        },
+        {
+          "from": 36,
+          "to": 40,
+          "multiplier": 7.927135
+        },
+        {
+          "from": 41,
+          "to": 45,
+          "multiplier": 56.462866
+        },
+        {
+          "from": 46,
+          "to": 50,
+          "multiplier": 26.818917
+        },
+        {
+          "from": 51,
+          "to": 55,
+          "multiplier": 53.041646
+        },
+        {
+          "from": 56,
+          "to": 60,
+          "multiplier": 16.397475
+        },
+        {
+          "from": 61,
+          "to": 65,
+          "multiplier": 182.885662
+        },
+        {
+          "from": 66,
+          "to": 70,
+          "multiplier": 165.725968
+        },
+        {
+          "from": 71,
+          "to": 75,
+          "multiplier": 188.8646
+        },
+        {
+          "from": 76,
+          "to": 80,
+          "multiplier": 94.191328
+        },
+        {
+          "from": 81,
+          "to": 85,
+          "multiplier": 752.508252
+        },
+        {
+          "from": 86,
+          "to": 90,
+          "multiplier": 945.851081
+        },
+        {
+          "from": 91,
+          "to": 95,
+          "multiplier": 1551.709963
+        },
+        {
+          "from": 96,
+          "to": 100,
+          "multiplier": 2946.650976
+        }
+      ]
+    }
+  },
+  "description": "fastbot-div3: fastbot-div2 + damage bands L56-60 and L71-75 from the div1 bo-solve (confirm moved both toward target, under the 2-SE keep bar). fastbot-div4: fastbot-div3 + class bands ['class:Barbarian@L18', 'class:Barbarian@L48', 'class:Rogue@L58', 'class:Wizard@L18'] (balance-loop, paired confirm on seeds [8201, 8202, 8203, 8204]). fastbot-div5: fastbot-div4 + class bands ['class:Barbarian@L33', 'class:Barbarian@L73', 'class:Wizard@L58'] (balance-loop, paired confirm on seeds [8401, 8402, 8403, 8404]). fastbot-div6: fastbot-div5 + damage bands ['damage@L23'] (balance-loop, paired confirm on seeds [8601, 8602, 8603, 8604]). fastbot-div7: fastbot-div6 + health bands ['health@L13', 'health@L23', 'health@L33', 'health@L43', 'health@L58'] (balance-loop, paired confirm on seeds [10301, 10302, 10303, 10304]). fastbot-div8: fastbot-div7 + damage bands ['damage@L38', 'damage@L58'] (balance-loop, paired confirm on seeds [10501, 10502, 10503, 10504]). fastbot-div9: fastbot-div8f + class bands ['class:Rogue@L23', 'class:Warrior@L13', 'class:Wizard@L13'] (balance-loop, paired confirm on seeds [11301, 11302, 11303, 11304]). fastbot-div10: fastbot-div9 + damage bands ['damage@L43'] (balance-loop, paired confirm on seeds [11501, 11502, 11503, 11504])."
+}

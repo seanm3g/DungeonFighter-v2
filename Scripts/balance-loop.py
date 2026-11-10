@@ -20,7 +20,7 @@ Rules learned overnight: judge on seeds the choice never saw (selection bias mad
 held-out); paired comparisons on shared seeds; untouched bands must come out identical (checks determinism); the
 surrogate prior is not used (it was 20-30% off).
 """
-import argparse, glob, json, math, os, statistics, subprocess, sys, time
+import argparse, glob, hashlib, json, math, os, shutil, statistics, subprocess, sys, time
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -80,9 +80,20 @@ def sim(run, A, patch, seed, tag, levels=None):
     """dungeon-sim.py at every level, all classes, one seed -> {level: result}."""
     levels = levels or A.levels
     js = os.path.join(run.dir, f'{tag}-{patch}-s{seed}.json')
+    # Seeded sims are bit-identical, so a run of the same resolved patch content on the same seed/levels/bot/shards
+    # under another tag (conf vs measure) is reused instead of rerun. Keyed on content, not name, because candidate
+    # names (<patch>-<knob>-cand) are rewritten with different content on every solve.
+    key = '|'.join(map(str, (hashlib.sha1(json.dumps(bp.resolve(patch), sort_keys=True).encode()).hexdigest(),
+                             seed, ','.join(map(str, levels)), A.bot, A.shards)))
+    idx_path = os.path.join(run.dir, 'simcache.json')
+    idx = json.load(open(idx_path, encoding='utf-8')) if os.path.exists(idx_path) else {}
+    if not os.path.exists(js) and os.path.exists(idx.get(key, '')):
+        shutil.copyfile(idx[key], js); run.log(f'reuse {os.path.basename(idx[key])} -> {os.path.basename(js)} (same patch content and seed)')
     if not os.path.exists(js):
         run.call(['Scripts/dungeon-sim.py', '--levels', ','.join(map(str, levels)), '--patch', patch, '--shards', A.shards,
                   '--seed', seed, '--spark', A.spark, '--tools', A.tools, '--bot', A.bot, '--json', js], os.path.basename(js)[:-5] + '.txt')
+        if os.path.exists(js):
+            idx[key] = js; json.dump(idx, open(idx_path, 'w', encoding='utf-8'), indent=1)
     return {r['level']: r for r in json.load(open(js, encoding='utf-8'))}
 
 

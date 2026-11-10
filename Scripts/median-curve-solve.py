@@ -31,6 +31,7 @@ ap.add_argument('--check', action='store_true', help='report median build turns 
 ap.add_argument('--json', default='', help='--check: also write per-level medians to this file (balance-check.ps1 reads it)')
 ap.add_argument('--levels', default='', help='comma list of levels to check / solve (default: every anchor level)')
 ap.add_argument('--parallel', type=int, default=12, help='BUILDLAB processes at once')
+ap.add_argument('--real-damage-turns', action='store_true', help='--check: measure turns at real enemy damage (pre-2026-11-09 behaviour; losses cut fights short)')
 ARGS = ap.parse_args()
 ARGS.patch = ARGS.patch or _active_patch()
 DLL = os.path.join(ROOT, ARGS.tools, 'DF.dll')
@@ -127,15 +128,23 @@ def damage_pass():
 def check():
     # Every (level, build) job in one pool: the levels are independent, so this keeps all workers busy.
     levels = [int(x) for x in ARGS.levels.split(',') if x] or sorted(STEP)
-    jobs = [(l, b) for l in levels for b in BUILDS]
+    # Turns are kill speed, measured like the health pass (near-harmless enemies): at real damage a lost fight ends when
+    # the hero dies, so at lethal levels "turns" read death speed (2026-11-09: L63-73 read 4.7 turns at 8-23% wins while
+    # the bot needed 11). Win rate still comes from a real-damage run (reference only).
+    jobs = [(l, b, k) for l in levels for b in BUILDS for k in (('turns', 'win') if not ARGS.real_damage_turns else ('win',))]
+    harmless = ['enemySystem.damageCurve.baseMultiplier=0.05']
     with ThreadPoolExecutor(ARGS.parallel) as ex:
-        results = list(ex.map(lambda j: (j[0], one(j[1], j[0], [], f'c{j[0]}')), jobs))
+        res = list(ex.map(lambda j: (j[0], j[1], j[2], one(j[1], j[0], harmless if j[2] == 'turns' else [], f'c{j[2]}{j[0]}')), jobs))
+    win = {(l, b): r for l, b, k, r in res if k == 'win' and r}
+    kill = {(l, b): r for l, b, k, r in res if k == ('win' if ARGS.real_damage_turns else 'turns') and r}
+    results = [(l, (kill.get((l, b)), win.get((l, b)))) for l in levels for b in BUILDS]
     print(f"{'level':6}{'step':>5}{'turns':>8}{'target':>8}{'win%':>8}{'target':>8}  result")
     ok = 0; n = 0; out = []
     for l in levels:
-        rows = [r for lv, r in results if lv == l and r]
+        rows = [k for lv, (k, w_) in results if lv == l and k]
+        wins = [w_ for lv, (k, w_) in results if lv == l and w_]
         if not rows: print(f'L{l}: no data'); continue
-        t = statistics.median(r['HeroTurns'] for r in rows); w = statistics.median(r['WinRate'] for r in rows) * 100
+        t = statistics.median(r['HeroTurns'] for r in rows); w = statistics.median(r['WinRate'] for r in wins) * 100 if wins else float('nan')
         good_t = abs(t - turns_target(l)) <= turns_tolerance(l) if l < 75 else True   # lethal levels: short losses, turns not a target
         good_w = True   # single-fight win rate is reference only (clear rate is judged by dungeon-sim / bo-solve)
         n += 1; ok += good_t and good_w
@@ -143,10 +152,11 @@ def check():
         per = {}
         for name in E.split(','):
             pe = [r['PerEnemy'][name] for r in rows if name in (r.get('PerEnemy') or {})]
+            pw = [r['PerEnemy'][name] for r in wins if name in (r.get('PerEnemy') or {})]
             if pe:
                 per[name] = {'heroTurns': round(statistics.median(x['HeroTurns'] for x in pe), 2),
                              'heroTurnsP90': round(statistics.median(x['HeroTurnsP90'] for x in pe), 2),
-                             'winRate': round(statistics.median(x['WinRate'] for x in pe) * 100, 2)}
+                             'winRate': round(statistics.median(x['WinRate'] for x in pw) * 100, 2) if pw else None}
         out.append({'level': l, 'step': step_for(l), 'builds': len(rows), 'heroTurns': round(t, 2), 'heroTurnsTarget': round(turns_target(l), 2), 'heroTurnsTolerance': round(turns_tolerance(l), 2), 'winRate': round(w, 2), 'perEnemy': per})
         spread = ''
         if per:
