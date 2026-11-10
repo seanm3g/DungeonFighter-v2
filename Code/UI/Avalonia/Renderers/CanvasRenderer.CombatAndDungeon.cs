@@ -321,7 +321,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                 canvas.AddBox(frameX, frameY, frameW, frameH, AsciiArtAssets.Colors.Cyan, CenterPanelModeTint.GetBackgroundColor());
 
                 var (x, y, w, h) = LayoutConstants.GetCenterColumnFullContentRect();
-                skillTreeRenderer.RenderSkillTree(x, y, w, h, player, selectedIndex, scrollOffset, statusMessage);
+                bool hubTabs = Inventory.HubTabBar.IsActive;
+                int tabRows = hubTabs ? 1 : 0;
+                skillTreeRenderer.RenderSkillTree(x, y + tabRows, w, h - tabRows, player, selectedIndex, scrollOffset, statusMessage);
+                // After the tree: it resets the click targets when it draws.
+                if (hubTabs)
+                    Inventory.HubTabBar.Draw(canvas, interactionManager.AddClickableElement, x + 1, y, w - 2, Inventory.HubTab.Skills);
             }, context, null, null, null, clearCanvas: true);
             canvas.Refresh();
         }

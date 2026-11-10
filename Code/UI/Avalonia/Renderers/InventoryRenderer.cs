@@ -163,9 +163,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the combo management menu
         /// </summary>
-        public void RenderComboManagement(int x, int y, int width, int height, Character character)
+        public void RenderComboManagement(int x, int y, int width, int height, Character character, bool hubTabs = false)
         {
-            currentLineCount = comboRenderer.RenderComboManagement(x, y, width, height, character);
+            currentLineCount = comboRenderer.RenderComboManagement(x, y, width, height, character, hubTabs);
         }
         
         /// <summary>

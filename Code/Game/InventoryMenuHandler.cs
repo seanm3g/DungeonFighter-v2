@@ -54,17 +54,19 @@
         public const string HubEditSequence = "hub:sequence";
         public const string HubMainMenu = "hub:mainmenu";
         public const string HubSettings = "hub:settings";
+        public const string HubQuit = "hub:quit";
 
         /// <summary>
-        /// Keyboard shortcuts for the hub buttons (D dungeon, K skill tree, T trade up, E edit action sequence).
-        /// Number keys keep their old inventory meaning.
+        /// Keyboard shortcuts for the hub (D dungeon select; I / K / E / T switch to the Inventory / Skills / Actions /
+        /// Trade Up tab). Number keys keep their old inventory meaning.
         /// </summary>
         private static string? HubCommandForKey(string input) => input.ToLowerInvariant() switch
         {
             "d" => HubDungeonSelect,
-            "k" => HubSkillTree,
-            "t" => HubTradeUp,
-            "e" => HubEditSequence,
+            "i" => HubTabBar.InventoryToken,
+            "k" => HubTabBar.SkillsToken,
+            "t" => HubTabBar.TradeUpToken,
+            "e" => HubTabBar.ActionsToken,
             _ => null
         };
 
@@ -195,6 +197,9 @@
             if (string.IsNullOrEmpty(input))
                 return;
             if (stateManager.CurrentPlayer == null) return;
+
+            if (TryHandleEscapeMenuInput(input))
+                return;
 
             // Action Sequence editor: F1 flips the sequence above / below the action library.
             if (stateTracker.InComboManagement && string.Equals(input, "f1", StringComparison.OrdinalIgnoreCase))
@@ -447,7 +452,8 @@
                 case "0":
                     if (HubCommandEvent != null && IsHubLayout)
                     {
-                        _ = HubCommandEvent.Invoke(HubMainMenu);
+                        // Main Menu / Settings / Quit live in the Esc menu on the hub.
+                        SetEscapeMenuOpen(true);
                         break;
                     }
                     stateManager.TransitionToState(GameState.GameLoop);
@@ -471,6 +477,11 @@
             string? command = input.StartsWith("hub:", StringComparison.Ordinal) ? input : (IsHubLayout ? HubCommandForKey(input) : null);
             if (command == null)
                 return false;
+            if (HubTabBar.ParseToken(command) is HubTab tab)
+            {
+                OpenTab(tab);
+                return true;
+            }
             if (command == HubSettings)
             {
                 _ = HubCommandEvent?.Invoke(command);
@@ -493,6 +504,130 @@
                         _ = HubCommandEvent.Invoke(command);
                     return true;
             }
+        }
+
+        /// <summary>
+        /// Switches the hub's center tab. Works from the inventory, the Action Sequence editor and (via
+        /// <see cref="HandleHubInputFromOtherScreen"/>) the skill tree. A trade-up that has started must finish first, and
+        /// an open equip / compare prompt is cancelled.
+        /// </summary>
+        public void OpenTab(HubTab tab)
+        {
+            if (IsInTradeUpFlow())
+            {
+                ShowMessageEvent?.Invoke("Finish the trade-up first.");
+                return;
+            }
+            SetEscapeMenuOpen(false, refresh: false);
+            if (stateTracker.IsAnySelectionActive() || stateTracker.WaitingForMenuMutatingActionConfirmation || stateTracker.WaitingForComparisonChoice)
+                stateTracker.ResetItemActionStates();
+
+            if (tab == HubTab.Skills)
+            {
+                stateTracker.InComboManagement = false;
+                if (stateManager.CurrentState != GameState.SkillTree)
+                    _ = HubCommandEvent?.Invoke(HubSkillTree);
+                return;
+            }
+
+            if (stateManager.CurrentState != GameState.Inventory)
+            {
+                stateTracker.InComboManagement = false;
+                ShowInventoryEvent?.Invoke();
+            }
+
+            switch (tab)
+            {
+                case HubTab.Inventory:
+                    if (!TryCloseActionSequenceEditor())
+                        RefreshInventoryScreen();
+                    break;
+                case HubTab.Actions:
+                    if (!stateTracker.InComboManagement)
+                        comboManager.ShowComboManagement();
+                    break;
+                case HubTab.TradeUp:
+                    stateTracker.InComboManagement = false;
+                    tradeUpHandler.PromptTradeUp();
+                    break;
+            }
+        }
+
+        /// <summary>Hub tab / Dungeon Select clicks made while another hub screen (the skill tree) is up.</summary>
+        public void HandleHubInputFromOtherScreen(string input)
+        {
+            if (HubTabBar.ParseToken(input) is HubTab tab)
+                OpenTab(tab);
+            else if (input.StartsWith("hub:", StringComparison.Ordinal) && HubCommandEvent != null)
+                _ = HubCommandEvent.Invoke(input);
+        }
+
+        /// <summary>True while the hub's Esc menu (Resume / Settings / Main Menu / Quit) is showing.</summary>
+        public bool IsEscapeMenuOpen => HubEscapeMenu.IsOpen;
+
+        private void SetEscapeMenuOpen(bool open, bool refresh = true)
+        {
+            if (HubEscapeMenu.IsOpen == open)
+                return;
+            HubEscapeMenu.IsOpen = open;
+            if (refresh)
+                RefreshInventoryScreen();
+        }
+
+        /// <summary>
+        /// Esc on the plain hub inventory opens (or closes) the Esc menu. False when something else should handle Esc:
+        /// not the hub layout, the Action Sequence editor, or an equip / compare / trade prompt.
+        /// </summary>
+        public bool TryToggleEscapeMenu()
+        {
+            if (!IsHubLayout || HubCommandEvent == null || stateManager.CurrentState != GameState.Inventory)
+                return false;
+            if (HubEscapeMenu.IsOpen)
+            {
+                SetEscapeMenuOpen(false);
+                return true;
+            }
+            if (stateTracker.InComboManagement || IsInTradeUpFlow() || stateTracker.IsAnySelectionActive()
+                || stateTracker.WaitingForMenuMutatingActionConfirmation || stateTracker.WaitingForComparisonChoice)
+                return false;
+            SetEscapeMenuOpen(true);
+            return true;
+        }
+
+        /// <summary>While the Esc menu is open: its buttons and 1-4 act, anything else is ignored.</summary>
+        private bool TryHandleEscapeMenuInput(string input)
+        {
+            if (!HubEscapeMenu.IsOpen)
+                return false;
+            if (stateManager.CurrentState != GameState.Inventory || !IsHubLayout)
+            {
+                HubEscapeMenu.IsOpen = false;
+                return false;
+            }
+
+            string? token = input;
+            if (input.Length == 1 && char.IsDigit(input[0]))
+            {
+                int n = input[0] - '0';
+                token = n >= 1 && n <= HubEscapeMenu.Options.Length ? HubEscapeMenu.Options[n - 1].Token : null;
+            }
+
+            switch (token)
+            {
+                case HubEscapeMenu.ResumeToken:
+                    SetEscapeMenuOpen(false);
+                    break;
+                case HubSettings:
+                    // Settings opens in its own window; the menu stays up behind it.
+                    _ = HubCommandEvent?.Invoke(HubSettings);
+                    break;
+                case HubMainMenu:
+                case HubQuit:
+                    HubEscapeMenu.IsOpen = false;
+                    _ = HubCommandEvent?.Invoke(token);
+                    break;
+            }
+            return true;
         }
 
         /// <summary>Closes the Action Sequence editor back to the inventory (Esc). False when it was not open.</summary>

@@ -198,6 +198,7 @@ namespace RPGGame.UI.Avalonia
             }
 
             inventoryItemScrollOffset = InventoryItemScrollLayout.ClampFirstVisibleIndex(inventoryItemScrollOffset, inventory.Count);
+            InventoryPaperDoll.SelectedSlot = inventoryGridViewEnabled || inventoryDetailViewEnabled ? inventoryDetailSelectedSlot : null;
             var detailView = inventoryGridViewEnabled
                 ? new InventoryDetailViewState(inventoryDetailSelectedIndex, Grid: true, SelectedEquippedSlot: inventoryDetailSelectedSlot)
                 : inventoryDetailViewEnabled ? new InventoryDetailViewState(inventoryDetailSelectedIndex, SelectedEquippedSlot: inventoryDetailSelectedSlot) : null;

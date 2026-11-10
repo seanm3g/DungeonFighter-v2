@@ -144,6 +144,12 @@ namespace RPGGame.GameCore.Input
                     handlers.InventoryMenuHandler?.HandleMenuInput(input);
                     break;
                 case GameState.SkillTree:
+                    // The skill tree is the hub's Skills tab: its tab strip switches back to the other tabs.
+                    if (input.StartsWith("hub:", StringComparison.Ordinal) && handlers.InventoryMenuHandler != null)
+                    {
+                        handlers.InventoryMenuHandler.HandleHubInputFromOtherScreen(input);
+                        break;
+                    }
                     handlers.SkillTreeMenuHandler?.HandleMenuInput(input);
                     break;
                 case GameState.WeaponSelection:

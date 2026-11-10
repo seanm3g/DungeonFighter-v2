@@ -3,6 +3,7 @@ using System.Linq;
 using RPGGame;
 using RPGGame.Handlers.Inventory;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
@@ -63,7 +64,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                inventoryRenderer.RenderRaritySelectionPrompt(contentX, contentY, contentWidth, contentHeight, character, rarityGroups);
+                int tabRows = TradeUpTabRows();
+                inventoryRenderer.RenderRaritySelectionPrompt(contentX, contentY + tabRows, contentWidth, contentHeight - tabRows, character, rarityGroups);
+                DrawTradeUpTabs(contentX, contentY, contentWidth);
             }, context, null, null, null, inventoryComboRightPanel: true);
             dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();
@@ -73,7 +76,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                inventoryRenderer.RenderTradeUpPreview(contentX, contentY, contentWidth, contentHeight, character, itemsToTrade, resultingItem, currentRarity, nextRarity);
+                int tabRows = TradeUpTabRows();
+                inventoryRenderer.RenderTradeUpPreview(contentX, contentY + tabRows, contentWidth, contentHeight - tabRows, character, itemsToTrade, resultingItem, currentRarity, nextRarity);
+                DrawTradeUpTabs(contentX, contentY, contentWidth);
             }, context, null, null, null, inventoryComboRightPanel: true);
             dungeonRenderer.RenderActionInfoStrip(character, damageLineMode: ResolveActionStripDamageLineMode(character));
             canvas.Refresh();
@@ -89,8 +94,40 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.Refresh();
         }
 
+        /// <summary>Rows the hub tab strip takes above the trade-up screens (0 outside the hub).</summary>
+        private static int TradeUpTabRows() => Inventory.HubTabBar.IsActive && LayoutConstants.ActionStripAtBottom ? 2 : 0;
+
+        /// <summary>Hub tabs over the trade-up screens; locked, since a started trade-up must finish.</summary>
+        private void DrawTradeUpTabs(int contentX, int contentY, int contentWidth)
+        {
+            if (TradeUpTabRows() == 0)
+                return;
+            canvas.ClearTextInArea(contentX + 1, contentY, contentWidth - 2, 1);
+            Inventory.HubTabBar.Draw(canvas, interactionManager.AddClickableElement, contentX + 2, contentY, contentWidth - 4, Inventory.HubTab.TradeUp, locked: true);
+        }
+
         public void RenderComboManagement(Character character, CanvasContext context)
         {
+            if (Inventory.HubTabBar.IsActive)
+            {
+                // The hub's Actions tab: side panels stay, the editor takes the whole center column (strip band included,
+                // since it shows the sequence itself), tab strip on top.
+                RenderWithLayout(character, "ACTIONS", (contentX, contentY, contentWidth, contentHeight) =>
+                {
+                    int frameX = LayoutConstants.CENTER_PANEL_X;
+                    int frameY = LayoutConstants.CENTER_COLUMN_FULL_Y;
+                    int frameW = LayoutConstants.CENTER_PANEL_WIDTH;
+                    int frameH = LayoutConstants.CENTER_COLUMN_FULL_HEIGHT;
+                    canvas.ClearTextInArea(frameX, frameY, frameW, frameH);
+                    canvas.ClearBoxesInArea(frameX, frameY, frameW, frameH);
+                    canvas.AddBox(frameX, frameY, frameW, frameH, AsciiArtAssets.Colors.Cyan, CenterPanelModeTint.GetBackgroundColor());
+                    var (x, y, w, h) = LayoutConstants.GetCenterColumnFullContentRect();
+                    inventoryRenderer.RenderComboManagement(x, y, w, h, character, hubTabs: true);
+                }, context, null, null, null, clearCanvas: true, inventoryComboRightPanel: true);
+                canvas.Refresh();
+                return;
+            }
+
             // Full screen (no side panels or strip): the editor shows the sequence itself.
             RenderWithLayout(character, "ACTIONS", (contentX, contentY, contentWidth, contentHeight) =>
             {

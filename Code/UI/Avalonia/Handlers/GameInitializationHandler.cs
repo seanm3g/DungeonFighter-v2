@@ -27,6 +27,7 @@ namespace RPGGame.UI.Avalonia.Handlers
         private Action<string>? updateStatus;
         private bool isInitialized = false;
         private bool waitingForKeyAfterAnimation = false;
+        private bool titleIntroComplete = false;
         private CancellationTokenSource? titleIdleCts;
         private Task? gameWarmupTask;
         private int gameWarmupStarted;
@@ -40,6 +41,8 @@ namespace RPGGame.UI.Avalonia.Handlers
 
         public bool IsInitialized => isInitialized;
         public bool WaitingForKeyAfterAnimation => waitingForKeyAfterAnimation;
+        /// <summary>True on the title once the intro finished and the Enter button is showing.</summary>
+        public bool TitleEnterAvailable => waitingForKeyAfterAnimation && titleIntroComplete;
         /// <summary>True once background GameCoordinator construction has finished (menu can appear immediately).</summary>
         public bool IsGameWarmupCompleted => gameWarmupTask?.IsCompletedSuccessfully == true && game != null;
         public GameCoordinator? Game => game;
@@ -223,6 +226,17 @@ namespace RPGGame.UI.Avalonia.Handlers
             titleIdleCts = new CancellationTokenSource();
             var idleToken = titleIdleCts.Token;
 
+            titleIntroComplete = false;
+            mainWindow.SetTitleButtonsVisible(enter: false, quit: true);
+
+            void OnIntroComplete() => Dispatcher.UIThread.Post(() =>
+            {
+                if (idleToken.IsCancellationRequested || !waitingForKeyAfterAnimation)
+                    return;
+                titleIntroComplete = true;
+                mainWindow.SetTitleButtonsVisible(enter: true, quit: true);
+            });
+
             _ = Task.Run(async () =>
             {
                 try
@@ -230,7 +244,8 @@ namespace RPGGame.UI.Avalonia.Handlers
                     await TitleScreenHelper.ShowAnimatedTitleScreenAsync(
                         idleToken,
                         onReadyForKey: null,
-                        firstFrameAlreadyRendered: firstFrameAlreadyRendered).ConfigureAwait(false);
+                        firstFrameAlreadyRendered: firstFrameAlreadyRendered,
+                        onIntroComplete: OnIntroComplete).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
@@ -348,6 +363,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                     game.ShowMainMenu();
                     isInitialized = true;
                     waitingForKeyAfterAnimation = false;
+                    mainWindow.SetTitleButtonsVisible(enter: false, quit: false);
                 });
             }
             catch (Exception ex)
@@ -360,6 +376,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                     game?.ShowMainMenu();
                     isInitialized = true;
                     waitingForKeyAfterAnimation = false;
+                    mainWindow.SetTitleButtonsVisible(enter: false, quit: false);
                 });
             }
         }
@@ -587,6 +604,8 @@ namespace RPGGame.UI.Avalonia.Handlers
             if (waitingForKeyAfterAnimation)
             {
                 waitingForKeyAfterAnimation = false;
+                titleIntroComplete = false;
+                mainWindow.SetTitleButtonsVisible(enter: false, quit: false);
                 try
                 {
                     titleIdleCts?.Cancel();

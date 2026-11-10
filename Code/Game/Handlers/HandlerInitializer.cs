@@ -172,6 +172,9 @@ namespace RPGGame.Handlers
                         case InventoryMenuHandler.HubSkillTree:
                             showSkillTree();
                             return;
+                        case InventoryMenuHandler.HubQuit:
+                            exitGame();
+                            return;
                         case InventoryMenuHandler.HubMainMenu:
                             if (handlers.GameLoopInputHandler != null)
                                 await handlers.GameLoopInputHandler.HandleMenuInput("0");

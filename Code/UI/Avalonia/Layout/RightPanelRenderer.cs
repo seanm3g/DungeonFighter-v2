@@ -76,20 +76,18 @@ namespace RPGGame.UI.Avalonia.Layout
             int x = LayoutConstants.RIGHT_PANEL_X + 2;
             
             // Inventory / combo management: sequence + pool. Prefer explicit flag from CanvasRenderer; keep title fallback for compatibility.
+            // The hub's Skills tab keeps the hub's right column too (read-only there: clicks belong to the inventory).
+            bool hubSkillsTab = title == "SKILL TREE" && HubTabBar.IsActive;
             bool useInventoryPanel = character != null && (inventoryComboRightPanel
                 || title == "INVENTORY"
                 || title == "COMBO MANAGEMENT"
-                || title == "ACTIONS");
-            // Inventory as the hub: the right column is navigation (Skill Tree, Trade Up, Dungeon Select / Main Menu,
-            // Settings). Sequence editing moved to the Action Sequence editor.
-            if (useInventoryPanel && title == "INVENTORY" && interactionManager != null && !RPGGame.MCP.MCPMode.IsActive)
+                || title == "ACTIONS"
+                || hubSkillsTab);
+            // Inventory as the hub: navigation lives in the center tabs, Dungeon Select by the action strip and Main Menu /
+            // Settings in the Esc menu, so the right column shows the action sequence and the pool it draws from.
+            if (useInventoryPanel)
             {
-                RenderInventoryHubButtons(x, y);
-            }
-            else if (useInventoryPanel)
-            {
-                // Render combo sequence and action pool for inventory page and combo management
-                RenderInventoryRightPanel(x, y, character!);
+                RenderInventoryRightPanel(x, y, character!, interactive: !hubSkillsTab);
             }
             else
             {
@@ -99,35 +97,15 @@ namespace RPGGame.UI.Avalonia.Layout
             }
         }
 
-        /// <summary>Hub navigation buttons down the right column of the inventory.</summary>
-        private void RenderInventoryHubButtons(int x, int y)
-        {
-            var buttons = new List<ClickableElement>();
-            int w = Math.Max(10, LayoutConstants.RIGHT_PANEL_WIDTH - 4);
-            int top = y + 1;
-            Helpers.BoxButton.Draw(canvas, buttons, x, top, w, 3, "Skill Tree", InventoryMenuHandler.HubSkillTree);
-            Helpers.BoxButton.Draw(canvas, buttons, x, top + 4, w, 3, "Item Trade Up", InventoryMenuHandler.HubTradeUp);
-            Helpers.BoxButton.Draw(canvas, buttons, x, top + 8, w, 3, "Dungeon Select", InventoryMenuHandler.HubDungeonSelect);
-
-            int bottom = LayoutConstants.RIGHT_PANEL_Y + LayoutConstants.RIGHT_PANEL_HEIGHT - 2;
-            Helpers.BoxButton.Draw(canvas, buttons, x, bottom - 7, w, 3, "Main Menu", InventoryMenuHandler.HubMainMenu);
-            Helpers.BoxButton.Draw(canvas, buttons, x, bottom - 3, w, 3, "Settings", InventoryMenuHandler.HubSettings);
-
-            canvas.AddText(x, top + 12, "D dungeons  K skills", AsciiArtAssets.Colors.DarkGray);
-            canvas.AddText(x, top + 13, "T trade up  0 menu", AsciiArtAssets.Colors.DarkGray);
-            foreach (var b in buttons)
-                interactionManager!.AddClickableElement(b);
-        }
-
         /// <summary>
         /// Renders combo sequence and action pool for inventory page.
         /// Uses all available vertical space in the panel for both sections.
         /// </summary>
-        private void RenderInventoryRightPanel(int x, int y, Character character)
+        private void RenderInventoryRightPanel(int x, int y, Character character, bool interactive = true)
         {
             int panelBottom = LayoutConstants.RIGHT_PANEL_Y + LayoutConstants.RIGHT_PANEL_HEIGHT - 2;
             int rowWidth = Math.Max(8, LayoutConstants.RIGHT_PANEL_WIDTH - 4);
-            bool interactive = interactionManager != null;
+            interactive = interactive && interactionManager != null;
 
             // Sequence summary (order matches strip above)
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("SEQUENCE"), AsciiArtAssets.Colors.Gold);

@@ -43,6 +43,19 @@ namespace RPGGame.UI.TitleScreen
         public const string Tagline = "Enter the depths.  Face the darkness.  Claim your glory.";
         public const string PressKeyPrompt = "Press any key to continue...";
 
+        /// <summary>Tagline typewriter speed after <see cref="SettleSeconds"/>.</summary>
+        public const double TaglineCharsPerSecond = 42;
+
+        /// <summary>
+        /// Letters settled and the tagline fully typed: the title shows its Enter button from here
+        /// (MainWindow overlay; the scene itself no longer draws a press-key prompt).
+        /// </summary>
+        public static double IntroCompleteSeconds => SettleSeconds + Tagline.Length / TaglineCharsPerSecond + 0.3;
+
+        /// <summary>Grid row the Enter button sits on (the old press-key prompt row) for a grid of this size.</summary>
+        public static int PromptRowFor(int width, int height) =>
+            new Layout(Math.Max(40, width), Math.Max(24, height), 0).PromptY;
+
         public static readonly Color DemonColor = Color.FromRgb(255, 132, 16);
         public static readonly Color FighterColor = Color.FromRgb(228, 26, 34);
         public static readonly Color BackgroundColor = Color.FromRgb(5, 3, 7);
@@ -129,7 +142,7 @@ namespace RPGGame.UI.TitleScreen
                 DrawShockwave(grid, L, t, landedMask);
                 DrawDecorator(grid, L, t, shakeX);
                 DrawTagline(grid, L, t);
-                DrawPrompt(grid, L, t);
+                // No press-key prompt: MainWindow shows an Enter button on PromptY once the intro completes.
             }
             else
             {
@@ -573,7 +586,7 @@ namespace RPGGame.UI.TitleScreen
             if (t < SettleSeconds)
                 return;
 
-            int shown = Math.Min(Tagline.Length, (int)((t - SettleSeconds) * 42));
+            int shown = Math.Min(Tagline.Length, (int)((t - SettleSeconds) * TaglineCharsPerSecond));
             int x0 = L.TitleCenterX - Tagline.Length / 2;
             grid.Clear(x0 - 4, L.TaglineY, Tagline.Length + 8);
             for (int i = 0; i < shown; i++)
@@ -589,22 +602,6 @@ namespace RPGGame.UI.TitleScreen
                 grid.Set(x0 - 3, L.TaglineY, '~', flank);
                 grid.Set(x0 + Tagline.Length + 2, L.TaglineY, '~', flank);
             }
-        }
-
-        private static void DrawPrompt(Cells grid, Layout L, double t)
-        {
-            const double appear = SettleSeconds + 0.3;
-            if (t < appear)
-                return;
-
-            double fadeIn = Math.Min(1, (t - appear) / 0.6);
-            double pulse = 0.55 + 0.45 * (0.5 + 0.5 * Math.Sin((t - appear) * 3.2));
-            double q = Math.Round(fadeIn * pulse * 10) / 10;
-            var c = Scale(Color.FromRgb(210, 204, 196), q);
-            int x0 = L.TitleCenterX - PressKeyPrompt.Length / 2;
-            grid.Clear(x0 - 2, L.PromptY, PressKeyPrompt.Length + 4);
-            for (int i = 0; i < PressKeyPrompt.Length; i++)
-                grid.Set(x0 + i, L.PromptY, PressKeyPrompt[i], c);
         }
 
         // ───────────────────────────── Layout ─────────────────────────────

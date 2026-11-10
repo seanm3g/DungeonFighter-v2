@@ -14,6 +14,30 @@
         Opacity="0"
         ShowInTaskbar="False"
         Width="1920" Height="1080" MinWidth="800" MinHeight="600" WindowStartupLocation="CenterScreen">
+    <Window.Styles>
+        <!-- Title screen Enter / Quit: gold frame on a dark fill, brighter on hover. -->
+        <Style Selector="Button.titleButton">
+            <Setter Property="Background" Value="#E61A1712"/>
+            <Setter Property="BorderBrush" Value="#FFC9A23C"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="0"/>
+            <Setter Property="Foreground" Value="#FFE8C860"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.titleButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#F02C2516"/>
+            <Setter Property="BorderBrush" Value="#FFFFD86A"/>
+            <Setter Property="Foreground" Value="#FFFFE9A0"/>
+        </Style>
+        <Style Selector="Button.titleButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#FF3A2F18"/>
+            <Setter Property="BorderBrush" Value="#FFFFE9A0"/>
+            <Setter Property="Foreground" Value="#FFFFFFFF"/>
+        </Style>
+    </Window.Styles>
     <Grid Background="Black">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -38,6 +62,28 @@
                                             ZIndex="40"
                                             IsHitTestVisible="False"
                                             IsVisible="False"/>
+
+        <!-- Title screen: Enter appears on the old press-key row once the intro finishes (positioned in code);
+             Quit sits in the bottom-right corner for the whole title. -->
+        <Button x:Name="TitleEnterButton"
+                Classes="titleButton"
+                ZIndex="60"
+                IsVisible="False"
+                Content="Enter"
+                Width="260" Height="70"
+                FontSize="24"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"/>
+        <Button x:Name="TitleQuitButton"
+                Classes="titleButton"
+                ZIndex="60"
+                IsVisible="False"
+                Content="Quit"
+                Width="216" Height="70"
+                FontSize="24"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="0,0,6,8"/>
 
         <TextBlock x:Name="CombatSpeedNotificationText"
                    Grid.Row="0"

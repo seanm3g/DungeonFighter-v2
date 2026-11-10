@@ -55,12 +55,16 @@ namespace RPGGame.UI.TitleScreen
         /// When true, the first idle frame was already painted (hidden-window preload).
         /// Skip the opening clear/paint so revealing the window does not flash black.
         /// </param>
+        /// <param name="onIntroComplete">
+        /// Invoked once when the intro has finished (title settled, tagline typed); the window then shows its Enter button.
+        /// </param>
         public async Task ShowAnimatedTitleScreenAsync(
             CancellationToken idleCancellationToken = default,
             System.Action? onReadyForKey = null,
-            bool firstFrameAlreadyRendered = false)
+            bool firstFrameAlreadyRendered = false,
+            System.Action? onIntroComplete = null)
         {
-            await RunIdleCycleAsync(idleCancellationToken, onReadyForKey, firstFrameAlreadyRendered)
+            await RunIdleCycleAsync(idleCancellationToken, onReadyForKey, firstFrameAlreadyRendered, onIntroComplete)
                 .ConfigureAwait(false);
         }
 
@@ -73,13 +77,25 @@ namespace RPGGame.UI.TitleScreen
         public async Task RunIdleCycleAsync(
             CancellationToken cancellationToken,
             System.Action? onReadyForKey = null,
-            bool firstFrameAlreadyRendered = false)
+            bool firstFrameAlreadyRendered = false,
+            System.Action? onIntroComplete = null)
         {
             if (_renderer is ITitleSceneRenderer sceneRenderer)
             {
-                await RunSceneLoopAsync(sceneRenderer, cancellationToken, onReadyForKey, firstFrameAlreadyRendered)
+                await RunSceneLoopAsync(sceneRenderer, cancellationToken, onReadyForKey, firstFrameAlreadyRendered, onIntroComplete)
                     .ConfigureAwait(false);
                 return;
+            }
+
+            // Line-based idle has no intro to wait for.
+            if (onIntroComplete != null)
+            {
+                var readyCallback = onReadyForKey;
+                onReadyForKey = () =>
+                {
+                    readyCallback?.Invoke();
+                    onIntroComplete();
+                };
             }
 
             var animConfig = UIConfiguration.LoadFromFile().DungeonSelectionAnimation
@@ -212,11 +228,13 @@ namespace RPGGame.UI.TitleScreen
             ITitleSceneRenderer sceneRenderer,
             CancellationToken cancellationToken,
             System.Action? onReadyForKey,
-            bool firstFrameAlreadyRendered)
+            bool firstFrameAlreadyRendered,
+            System.Action? onIntroComplete)
         {
             var builder = new TitleSceneBuilder(TitleScreenHelper.SceneSeed);
             var clock = System.Diagnostics.Stopwatch.StartNew();
             bool notifiedReady = false;
+            bool notifiedIntroComplete = false;
 
             if (!firstFrameAlreadyRendered)
                 _renderer.ResetBackground();
@@ -235,7 +253,13 @@ namespace RPGGame.UI.TitleScreen
                         notifiedReady = true;
                     }
 
-                    int wait = Math.Max(1, SceneFrameIntervalMs - (int)(clock.ElapsedMilliseconds - frameStart));
+                    if (!notifiedIntroComplete && clock.Elapsed.TotalSeconds >= TitleSceneBuilder.IntroCompleteSeconds)
+                    {
+                        onIntroComplete?.Invoke();
+                        notifiedIntroComplete = true;
+                    }
+
+                    int wait =Math.Max(1, SceneFrameIntervalMs - (int)(clock.ElapsedMilliseconds - frameStart));
                     try
                     {
                         await Task.Delay(wait, cancellationToken).ConfigureAwait(false);
@@ -356,7 +380,8 @@ namespace RPGGame.UI.TitleScreen
         public static async Task ShowAnimatedTitleScreenAsync(
             CancellationToken idleCancellationToken = default,
             System.Action? onReadyForKey = null,
-            bool firstFrameAlreadyRendered = false)
+            bool firstFrameAlreadyRendered = false,
+            System.Action? onIntroComplete = null)
         {
             var preload = Preload();
             var renderer = CreateRenderer(idleCancellationToken);
@@ -367,7 +392,8 @@ namespace RPGGame.UI.TitleScreen
                 await controller.ShowAnimatedTitleScreenAsync(
                         idleCancellationToken,
                         onReadyForKey,
-                        firstFrameAlreadyRendered)
+                        firstFrameAlreadyRendered,
+                        onIntroComplete)
                     .ConfigureAwait(false);
             }
             else
@@ -375,6 +401,7 @@ namespace RPGGame.UI.TitleScreen
                 ErrorHandler.LogWarning("TitleScreenHelper.ShowAnimatedTitleScreen",
                     "No renderer available, skipping title screen");
                 onReadyForKey?.Invoke();
+                onIntroComplete?.Invoke();
             }
         }
 

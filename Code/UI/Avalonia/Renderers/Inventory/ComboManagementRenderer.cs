@@ -43,19 +43,33 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// library of actions from equipped gear as a grid (click one to add it). F1 puts the sequence below the library
         /// instead of above it. Back returns to the inventory.
         /// </summary>
-        public int RenderComboManagement(int x, int y, int width, int height, Character character)
+        public int RenderComboManagement(int x, int y, int width, int height, Character character, bool hubTabs = false)
         {
-            clickableElements.Clear();
             var gold = ColorPalette.Gold.GetColor();
-            int left = x + 4;
-            int usableW = Math.Max(CardWidth, width - 8 - 26); // keep the right column for Settings
+            int left = x + (hubTabs ? 2 : 4);
+            int usableW;
+            int top;
+            if (hubTabs)
+            {
+                // The hub's Actions tab: side panels stay (their click targets are already registered), tabs on top.
+                HubTabBar.Draw(canvas, clickableElements.Add, x + 1, y, width - 2, HubTab.Actions);
+                usableW = Math.Max(CardWidth, width - 4);
+                top = y + 2;
+            }
+            else
+            {
+                clickableElements.Clear();
+                usableW = Math.Max(CardWidth, width - 8 - 26); // keep the right column for Settings
+                top = y + 5;
+                // Back (top left), Settings (bottom right)
+                BoxButton.Draw(canvas, clickableElements, left, y + 1, 10, 3, "< Back", $"{ComboPointerInput.Prefix}back");
+                const int sideW = 20;
+                int sideX = x + width - sideW - 4;
+                BoxButton.Draw(canvas, clickableElements, sideX, y + height - 5, sideW, 3, "Settings", InventoryMenuHandler.HubSettings);
+            }
             int perRow = Math.Max(1, (usableW + CardGap) / (CardWidth + CardGap));
-
-            // Back (top left), Settings (bottom right)
-            BoxButton.Draw(canvas, clickableElements, left, y + 1, 10, 3, "< Back", $"{ComboPointerInput.Prefix}back");
-            const int sideW = 20;
-            int sideX = x + width - sideW - 4;
-            BoxButton.Draw(canvas, clickableElements, sideX, y + height - 5, sideW, 3, "Settings", InventoryMenuHandler.HubSettings);
+            int hintX = left + 40;
+            int hintW = Math.Max(0, x + width - 1 - hintX);
 
             var combo = character.GetComboActions();
             var panels = CombatActionStripBuilder.BuildPanelData(character);
@@ -68,7 +82,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int seqSlots = Math.Max(combo.Count, cap);
             int seqRows = Math.Max(1, (Math.Max(seqSlots, 1) + perRow - 1) / perRow);
             int seqBlockH = 2 + seqRows * (CardHeight + 2);
-            int top = y + 5;
             int bottom = y + height - 2;
             int libBlockH = Math.Max(2 + CardHeight + 1, bottom - top - seqBlockH - 1);
             bool seqBelow = ActionSequenceEditorLayout.SequenceBelow;
@@ -84,7 +97,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
             // --- Sequence ---
             canvas.AddText(left, seqY, $"Action Sequence:  {combo.Count}/{cap} slots", gold);
-            canvas.AddText(left + 40, seqY, "drag to reorder, drag off to remove (or click)  |  F1: above/below library  |  Esc: back", AsciiArtAssets.Colors.DarkGray);
+            canvas.AddText(hintX, seqY, Truncate("drag to reorder, drag off to remove (or click)  |  F1: above/below library  |  Esc: back", hintW), AsciiArtAssets.Colors.DarkGray);
             int nextStep = combo.Count > 0 ? character.ComboStep % combo.Count : -1;
             for (int i = 0; i < combo.Count; i++)
             {
@@ -126,7 +139,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
             // --- Library (actions on equipped gear) ---
             canvas.AddText(left, libY, "Available Actions:", gold);
-            canvas.AddText(left + 40, libY, "actions on your equipped items  |  drag onto the sequence or click to add", AsciiArtAssets.Colors.DarkGray);
+            canvas.AddText(hintX, libY, Truncate("actions on your equipped items  |  drag onto the sequence or click to add", hintW), AsciiArtAssets.Colors.DarkGray);
             int libRowsFit = Math.Max(1, (libBlockH - 2) / (CardHeight + 1));
             int libRows = (pool.Count + perRow - 1) / perRow;
             int scroll = Math.Clamp(ActionSequenceEditorLayout.LibraryScrollRow, 0, Math.Max(0, libRows - libRowsFit));

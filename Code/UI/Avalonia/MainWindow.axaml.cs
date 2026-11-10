@@ -50,6 +50,9 @@ namespace RPGGame.UI.Avalonia
             GameCanvas.PointerMoved += OnCanvasPointerMoved;
             GameCanvas.PointerReleased += OnCanvasPointerReleased;
             GameCanvas.GridDimensionsChanged += OnGameCanvasGridDimensionsChanged;
+            GameCanvas.SizeChanged += (_, _) => PositionTitleEnterButton();
+            TitleEnterButton.Click += (_, _) => initializationHandler?.HandleKeyAfterAnimation(UpdateStatus);
+            TitleQuitButton.Click += (_, _) => Close();
 
             Closed += OnMainWindowClosed;
             NarrativeVideoOverlay?.AttachCanvas(GameCanvas);
@@ -92,8 +95,53 @@ namespace RPGGame.UI.Avalonia
             NarrativeVideoOverlay?.Dispose();
         }
 
+        /// <summary>
+        /// Title screen buttons: Quit for the whole title, Enter once the intro has finished.
+        /// Called by <see cref="GameInitializationHandler"/>; safe from any thread.
+        /// </summary>
+        public void SetTitleButtonsVisible(bool enter, bool quit)
+        {
+            if (!Dispatcher.UIThread.CheckAccess())
+            {
+                Dispatcher.UIThread.Post(() => SetTitleButtonsVisible(enter, quit));
+                return;
+            }
+
+            if (enter)
+                PositionTitleEnterButton();
+            TitleEnterButton.IsVisible = enter;
+            TitleQuitButton.IsVisible = quit;
+            if (!enter && !quit)
+                GameCanvas.Focus();
+        }
+
+        /// <summary>Centers the Enter button on the title scene's prompt row (where "Press any key" used to be).</summary>
+        private void PositionTitleEnterButton()
+        {
+            double charW = GameCanvas.GetCharWidth();
+            double charH = GameCanvas.GetCharHeight();
+            if (charW <= 0 || charH <= 0)
+                return;
+
+            int gridW = GameCanvas.GridWidth;
+            int gridH = GameCanvas.GridHeight;
+            int row = RPGGame.UI.TitleScreen.TitleSceneBuilder.PromptRowFor(gridW, gridH);
+            Point origin = GameCanvas.GetContentOriginOffset();
+            double centerX = origin.X + (gridW / 2) * charW;
+            double centerY = origin.Y + (row + 0.5) * charH;
+            double left = Math.Max(0, centerX - TitleEnterButton.Width / 2);
+            double top = Math.Max(0, centerY - TitleEnterButton.Height / 2);
+            // Keep it clear of the bottom-right Quit button on short windows.
+            double maxTop = GameCanvas.Bounds.Height - TitleEnterButton.Height - 8;
+            if (maxTop > 0)
+                top = Math.Min(top, maxTop);
+            TitleEnterButton.Margin = new Thickness(left, top, 0, 0);
+        }
+
         private void OnGameCanvasGridDimensionsChanged()
         {
+            if (TitleEnterButton.IsVisible)
+                PositionTitleEnterButton();
             // Measure/arrange may raise this; rebuild the active screen on the next UI tick so panel widths
             // and centered menus track the new column count (menu states suppress ForceFullLayoutRender).
             Dispatcher.UIThread.Post(() =>
@@ -316,10 +364,12 @@ namespace RPGGame.UI.Avalonia
                 return;
             }
 
-            // If waiting for key after animation, initialize game
+            // Title screen: Enter / Space press the Enter button once it is showing; other keys do nothing.
             if (initializationHandler != null && initializationHandler.WaitingForKeyAfterAnimation)
             {
-                initializationHandler.HandleKeyAfterAnimation(UpdateStatus);
+                e.Handled = true;
+                if (initializationHandler.TitleEnterAvailable && (e.Key == Key.Enter || e.Key == Key.Space))
+                    initializationHandler.HandleKeyAfterAnimation(UpdateStatus);
                 return;
             }
             

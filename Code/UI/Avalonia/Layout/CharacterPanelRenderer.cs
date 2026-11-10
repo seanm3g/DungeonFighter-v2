@@ -9,6 +9,7 @@ using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Feedback;
 using RPGGame.UI.Avalonia.Renderers;
+using RPGGame.UI.Avalonia.Renderers.Inventory;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
@@ -339,7 +340,12 @@ namespace RPGGame.UI.Avalonia.Layout
                     });
                 }
 
-                if (stateManager == null || !stateManager.GearCollapsed)
+                if ((stateManager == null || !stateManager.GearCollapsed) && TryRenderGearFigure(character, gameState, x, ref y, headerClickWidth))
+                {
+                    RenderFormingSets(character, x, ref y, headerClickWidth);
+                    RenderAnimalSets(character, x, ref y, headerClickWidth);
+                }
+                else if (stateManager == null || !stateManager.GearCollapsed)
                 {
                     RenderEquipmentSlot(x, ref y, headerClickWidth, "Weapon", character.Weapon, "gear:weapon", 1);
                     RenderEquipmentSlot(x, ref y, headerClickWidth, "Head", character.Head, "gear:head", 1);
@@ -551,6 +557,46 @@ namespace RPGGame.UI.Avalonia.Layout
             }
         }
         
+        /// <summary>
+        /// GEAR as item icons on a little figure (see <see cref="InventoryPaperDoll"/>) in place of the item names. On the
+        /// inventory hub the slots click / drag and take bag items dropped on them. False when the panel is too narrow
+        /// for the figure (the caller falls back to names) or the canvas is headless.
+        /// </summary>
+        private bool TryRenderGearFigure(Character character, GameState? gameState, int x, ref int y, int innerWidth)
+        {
+            InventoryScreenRenderer.LastPaperDollBounds = default;
+            if (interactionManager == null || RPGGame.MCP.MCPMode.IsActive)
+                return false;
+
+            int tileRows = 0, tileCols = 0;
+            foreach (int rows in new[] { 3, 2 })
+            {
+                int cols = InventoryScreenRenderer.GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), rows);
+                if (InventoryPaperDoll.WidthFor(cols) <= innerWidth)
+                {
+                    tileRows = rows;
+                    tileCols = cols;
+                    break;
+                }
+            }
+            if (tileRows == 0)
+                return false;
+
+            int dollWidth = InventoryPaperDoll.WidthFor(tileCols);
+            int dollHeight = InventoryPaperDoll.HeightFor(tileRows);
+            int dollX = x + Math.Max(0, (innerWidth - dollWidth) / 2);
+            bool inventoryInput = gameState == GameState.Inventory;
+            Item? hovered = InventoryDragState.IsActive
+                ? null
+                : InventoryAffixSynergy.ResolveHoveredItem(LeftPanelHoverState.Value, character.Inventory, character);
+            InventoryPaperDoll.Draw(canvas, interactionManager.AddClickableElement, dollX, y, tileRows, tileCols, character,
+                inventoryInput, hovered, (row, h) => LeftPanelViewport.IsRangeVisible(row, h));
+            if (inventoryInput)
+                InventoryScreenRenderer.LastPaperDollBounds = (dollX, y, dollWidth, dollHeight);
+            y += dollHeight + 1;
+            return true;
+        }
+
         /// <summary>
         /// Helper method to render a single equipment slot with consistent formatting and text wrapping
         /// Uses colored text system to show item colors based on type and modifiers

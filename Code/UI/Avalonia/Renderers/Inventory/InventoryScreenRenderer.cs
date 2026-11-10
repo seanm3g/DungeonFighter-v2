@@ -145,7 +145,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             canvas.ClearProgressBarsInArea(x, y, width, height);
             
             int startY = y;
-            LastPaperDollBounds = default;
+            // LastPaperDollBounds belongs to the left panel's GEAR figure (drawn before this callback).
             LastBagGridBounds = default;
             LastBagGridFreeTopY = 0;
             LastDetailPaneBounds = default;
@@ -164,7 +164,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int detailExtendedBottomY = pendingMutatingInventoryMenuAction != null ? actionsStartY - 1 : startY + height;
             detailSeparatorXBesideActions = null;
             int itemsHeaderY = y;
-            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.InventoryItems), AsciiArtAssets.Colors.Gold);
+            bool hubTabs = HubTabBar.IsActive && LayoutConstants.ActionStripAtBottom;
+            if (hubTabs)
+                HubTabBar.Draw(canvas, clickableElements.Add, x + 2, y, width - 4, HubTab.Inventory);
+            else
+                canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.InventoryItems), AsciiArtAssets.Colors.Gold);
+            if (hubTabs && HubEscapeMenu.IsOpen)
+            {
+                HubEscapeMenu.Draw(canvas, clickableElements, x, y + 1, width, height - 1);
+                return currentLineCount + 1;
+            }
             bool gridView = detailView?.Grid == true;
             selectedEquippedItem = detailView?.SelectedEquippedSlot is string eqSlot ? character.Equipment.GetSlotItem(eqSlot) : null;
             selectedEquippedSlot = selectedEquippedItem != null ? detailView!.SelectedEquippedSlot : null;
@@ -375,27 +384,37 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             });
             
             // Equip / unequip / discard happen on the items themselves (click, drag, right-click) and Trade Up is a hub
-            // button, so the list keeps only these. Keys 1-4 still work.
+            // tab, so the list keeps only these. Keys 1-4 still work. On the hub, Main Menu lives in the Esc menu.
             var snapshotButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, 1, "5", MenuOptionFormatter.Format(5, UIConstants.MenuOptions.SnapshotForActionLab), Prefix + "menu:snapshot");
-            var exitButton = InventoryButtonFactory.CreateButton(x + 2, y + 1, 28, 1, "0", MenuOptionFormatter.Format(0, MainMenuLabel), Prefix + "menu:exit");
-            clickableElements.AddRange(new[] { snapshotButton, exitButton });
+            clickableElements.Add(snapshotButton);
             canvas.AddMenuOption(x + 2, y, 5, UIConstants.MenuOptions.SnapshotForActionLab, AsciiArtAssets.Colors.White, snapshotButton.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(x + 2, y + 1, 0, MainMenuLabel, AsciiArtAssets.Colors.White, exitButton.IsHovered);
+            if (hubTabs)
+            {
+                canvas.AddText(x + 2, y + 1, "Esc: menu (settings, main menu, quit)", AsciiArtAssets.Colors.DarkGray);
+            }
+            else
+            {
+                var exitButton = InventoryButtonFactory.CreateButton(x + 2, y + 1, 28, 1, "0", MenuOptionFormatter.Format(0, MainMenuLabel), Prefix + "menu:exit");
+                clickableElements.Add(exitButton);
+                canvas.AddMenuOption(x + 2, y + 1, 0, MainMenuLabel, AsciiArtAssets.Colors.White, exitButton.IsHovered);
+            }
             currentLineCount++;
 
-            // Opens the Action Sequence editor (E): beside the action strip along the bottom of the screen.
+            // DUNGEON SELECT (D): the hub's way out, beside the action strip along the bottom of the screen.
             if (LayoutConstants.ActionStripAtBottom)
             {
                 int bx = LayoutConstants.ACTION_INFO_X + LayoutConstants.ACTION_INFO_WIDTH + 1;
-                int by = LayoutConstants.ACTION_INFO_Y + Math.Max(0, (LayoutConstants.ACTION_INFO_HEIGHT - 3) / 2);
+                int bh = Math.Max(3, LayoutConstants.ACTION_INFO_HEIGHT - 2);
+                int by = LayoutConstants.ACTION_INFO_Y + Math.Max(0, (LayoutConstants.ACTION_INFO_HEIGHT - bh) / 2);
                 RPGGame.UI.Avalonia.Renderers.Helpers.BoxButton.Draw(canvas, clickableElements, bx, by,
-                    LayoutConstants.ActionStripSideButtonWidth, 3, "Edit Action Sequence", InventoryMenuHandler.HubEditSequence);
+                    LayoutConstants.ActionStripSideButtonWidth, bh, "DUNGEON SELECT", InventoryMenuHandler.HubDungeonSelect,
+                    borderThickness: 2, extraLines: bh >= 5 ? new[] { "", "(D)" } : null);
             }
             else
             {
                 RPGGame.UI.Avalonia.Renderers.Helpers.BoxButton.Draw(canvas, clickableElements, x + 34, y - 1, 26, 3,
-                    "Edit Action Sequence", InventoryMenuHandler.HubEditSequence);
+                    "DUNGEON SELECT", InventoryMenuHandler.HubDungeonSelect, borderThickness: 2);
             }
 
             int hintWidth = detailSeparatorXBesideActions is int sepX ? Math.Min(width - 4, sepX - 1 - (x + 2)) : width - 4;
@@ -503,7 +522,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         {
             string label = ViewToggleLabel(gridView);
             int bx = x + width - 2 - label.Length;
-            if (bx < x + 2 + UIConstants.Headers.InventoryItems.Length + 4)
+            int headerWidth = HubTabBar.IsActive && LayoutConstants.ActionStripAtBottom
+                ? HubTabBar.Width + 2
+                : UIConstants.Headers.InventoryItems.Length + 4;
+            if (bx < x + 2 + headerWidth)
                 return 0;
             canvas.AddText(bx, y, label, blockClick ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Cyan);
             if (!blockClick)
@@ -696,11 +718,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             return actionsBuilder.Build();
         }
 
+        /// <summary>Rows per bag item in the new inventory list (icon height).</summary>
+        internal const int ListRowHeight = 2;
+
         /// <summary>
-        /// New inventory: item icons (GameData/ItemArt sheets) in a grid on the left, rarity-coloured frames, the selected
-        /// item framed gold; the selected item's large icon and full description on the right. Tiles click as
-        /// <c>invsel:{inventoryIndex}</c> and hover the same item tooltip as list rows. Scroll offset counts tile rows.
-        /// While <paramref name="hoveredItem"/> is set, other tiles sharing one of its affixes glow cyan.
+        /// New inventory: one row per bag item down the left (icon, name, slot, key stats, actions), rarity-coloured names,
+        /// the selected row framed gold; the selected item's large icon and full description on the right. Rows click as
+        /// <c>invsel:{inventoryIndex}</c>, drag onto the left panel's gear figure to equip, and hover the item tooltip.
+        /// Scroll offset counts items. While <paramref name="hoveredItem"/> is set, rows sharing one of its affixes glow cyan.
         /// </summary>
         private void RenderGridView(
             int x,
@@ -717,106 +742,112 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             ref int currentLineCount)
         {
             var hoveredAffixes = InventoryAffixSynergy.GetAffixKeys(hoveredItem);
-            int tileRows = GridTileRows;
-            int tileCols = GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), tileRows);
-            int stepX = tileCols + 1;
-            int stepY = tileRows + 1;
+            int rowH = ListRowHeight;
+            int iconCols = GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), rowH);
 
             int topY = y;
             int bottomY = actionsStartY - 1;
 
-            // Paper doll on the left when the bag still keeps at least one tile column beside the description.
-            int gridX = x + 2;
-            int dollRows = PaperDollTileRows(bottomY - topY);
-            int dollCols = dollRows > 0 ? GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), dollRows) : 0;
-            int dollWidth = dollRows > 0 ? 3 * dollCols + 2 * PaperDollArmGap : 0;
-            if (dollRows > 0 && width - 4 - (dollWidth + 3) - GridDetailMinWidth - 3 >= tileCols)
-            {
-                RenderPaperDoll(gridX, topY, dollRows, dollCols, dollWidth, character, blockRowClicks, hoveredItem, hoveredAffixes);
-                LastPaperDollBounds = (gridX, topY, dollWidth, bottomY - topY);
-                for (int sepY = topY; sepY < bottomY; sepY++)
-                    canvas.AddText(gridX + dollWidth + 1, sepY, "│", AsciiArtAssets.Colors.DarkGray);
-                gridX += dollWidth + 3;
-            }
-
-            int innerWidth = Math.Max(1, x + width - 2 - gridX);
-            int perRow = Math.Max(1, (innerWidth - GridDetailMinWidth - 3 + 1) / stepX);
-            int gridWidth = perRow * stepX - 1;
-            int separatorX = gridX + gridWidth + 1;
+            int listX = x + 2;
+            int innerWidth = Math.Max(1, x + width - 2 - listX);
+            int listWidth = Math.Max(24, Math.Min(innerWidth - GridDetailMinWidth - 3, innerWidth * 3 / 5));
+            int separatorX = listX + listWidth + 1;
             int detailX = separatorX + 2;
             int detailWidth = Math.Max(1, x + width - 2 - detailX);
-            LastBagGridBounds = (gridX, topY, gridWidth, bottomY - topY);
+            LastBagGridBounds = (listX, topY, listWidth, bottomY - topY);
 
-            int statusRows = 1;
-            int visibleRows = Math.Max(1, (bottomY - topY - statusRows + 1) / stepY);
-            int totalRows = (displayEntries.Count + perRow - 1) / perRow;
-            int maxFirstRow = Math.Max(0, totalRows - visibleRows);
-            LastGridMaxFirstRow = maxFirstRow;
-            int firstRow = Math.Clamp(itemScrollOffset, 0, maxFirstRow);
+            const int statusRows = 1;
+            int visibleRows = Math.Max(1, (bottomY - topY - statusRows) / rowH);
+            int maxFirst = Math.Max(0, displayEntries.Count - visibleRows);
+            LastGridMaxFirstRow = maxFirst;
+            int firstIndex = Math.Clamp(itemScrollOffset, 0, maxFirst);
 
-            int firstIndex = firstRow * perRow;
             var selected = ResolveDetailViewSelection(displayEntries, selectedInventoryIndex, firstIndex);
             bool haveArt = ItemArtAtlas.IsAvailable;
+            int textX = listX + 2 + iconCols + 1;
+            int textWidth = Math.Max(4, listX + listWidth - textX);
 
-            int lastExclusive = Math.Min(displayEntries.Count, (firstRow + visibleRows) * perRow);
+            int lastExclusive = Math.Min(displayEntries.Count, firstIndex + visibleRows);
             for (int displayIndex = firstIndex; displayIndex < lastExclusive; displayIndex++)
             {
-                int slot = displayIndex - firstIndex;
-                int tx = gridX + (slot % perRow) * stepX;
-                int ty = topY + (slot / perRow) * stepY;
+                int ry = topY + (displayIndex - firstIndex) * rowH;
                 var entry = displayEntries[displayIndex];
                 var item = entry.Item;
                 bool isSelected = selectedEquippedItem == null && entry.InventoryIndex == selected.InventoryIndex;
                 bool blocked = ItemRendererHelper.IsEquipBlockedForCharacter(item, character);
                 bool beingDragged = InventoryDragState.IsActive && InventoryDragState.SourceInventoryIndex == entry.InventoryIndex;
                 bool synergy = !beingDragged && InventoryAffixSynergy.SharesAffix(item, hoveredItem, hoveredAffixes);
-                Color frame = beingDragged
-                    ? AsciiArtAssets.Colors.DarkGray
-                    : synergy
-                    ? SynergyFrameColor
-                    : isSelected
-                    ? AsciiArtAssets.Colors.Gold
-                    : blocked ? AsciiArtAssets.Colors.Red : ItemThemeProvider.GetRarityColor(item.Rarity?.Trim() ?? "Common");
+                Color rarityColor = ItemThemeProvider.GetRarityColor(item.Rarity?.Trim() ?? "Common");
+                Color nameColor = beingDragged ? AsciiArtAssets.Colors.DarkGray : blocked ? AsciiArtAssets.Colors.Red : rarityColor;
 
-                canvas.AddBox(tx, ty, tileCols, tileRows, frame, synergy ? SynergyGlowColor : default,
-                    borderThicknessPixels: (isSelected || synergy) && !beingDragged ? 2 : 1);
-                if (beingDragged)
+                if (synergy || isSelected)
                 {
-                    // Left empty: the ghost under the pointer carries the icon.
+                    canvas.AddBox(listX, ry, listWidth, rowH, synergy ? SynergyFrameColor : AsciiArtAssets.Colors.Gold,
+                        synergy ? SynergyGlowColor : default, borderThicknessPixels: 1);
                 }
-                else if (haveArt && ItemArtAtlas.TryGetIcon(item, out var bitmap, out var sourceRect))
-                    canvas.AddImage(tx, ty, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3, followsAsciiStyle: true);
-                else
-                    canvas.AddText(tx + 1, ty + tileRows / 2, TruncateTo(item.Name, tileCols - 2), frame);
 
-                canvas.AddText(tx, ty + tileRows, TruncateTo(entry.DisplayNumber.ToString(), tileCols),
-                    isSelected ? AsciiArtAssets.Colors.Gold : AsciiArtAssets.Colors.DarkGray);
+                if (!beingDragged)
+                {
+                    if (haveArt && ItemArtAtlas.TryGetIcon(item, out var bitmap, out var sourceRect))
+                        canvas.AddImage(listX + 1, ry, iconCols, rowH, bitmap, sourceRect, paddingPixels: 1, followsAsciiStyle: true);
+                    else
+                        canvas.AddText(listX + 1, ry, TruncateTo(GetSlotName(item), iconCols), rarityColor);
+                }
+
+                // Line 1: name, slot on the right.
+                string slotName = GetSlotName(item);
+                string number = entry.DisplayNumber.ToString();
+                int nameMax = Math.Max(1, textWidth - slotName.Length - 2);
+                canvas.AddText(textX, ry, TruncateTo(item.Name, nameMax), nameColor);
+                canvas.AddText(textX + textWidth - slotName.Length, ry, slotName, AsciiArtAssets.Colors.Gray);
+
+                // Line 2: key stats, then the actions it grants; number on the right.
+                var stats = ItemStatFormatter.GetItemStats(item, character);
+                string statText = string.Join("  ", stats.Take(3).Select(st => st.Trim()));
+                var actions = character.Equipment.GetGearActions(item);
+                string actionText = actions != null && actions.Count > 0 ? string.Join(", ", actions) : "";
+                int line2Max = Math.Max(1, textWidth - number.Length - 2);
+                string statPart = TruncateTo(statText, line2Max);
+                canvas.AddText(textX, ry + 1, statPart, AsciiArtAssets.Colors.White);
+                int actionX = textX + statPart.Length + (statPart.Length > 0 ? 2 : 0);
+                int actionRoom = textX + line2Max - actionX;
+                if (actionText.Length > 0 && actionRoom >= 6)
+                {
+                    string a = actionText.Length <= actionRoom ? actionText : actionText.Substring(0, actionRoom - 3) + "...";
+                    canvas.AddText(actionX, ry + 1, a, AsciiArtAssets.Colors.Cyan);
+                }
+                canvas.AddText(textX + textWidth - number.Length, ry + 1, number, isSelected ? AsciiArtAssets.Colors.Gold : AsciiArtAssets.Colors.DarkGray);
 
                 if (!blockRowClicks)
                 {
                     clickableElements.Add(InventoryButtonFactory.CreateButton(
-                        tx, ty, tileCols, tileRows,
+                        listX, ry, listWidth, rowH,
                         InventoryDetailViewState.SelectInputPrefix + entry.InventoryIndex,
                         $"[{entry.DisplayNumber}] {item.Name}",
                         Prefix + "inv:" + entry.InventoryIndex));
                 }
             }
-            currentLineCount += visibleRows * stepY;
-            int usedTileRows = (lastExclusive - firstIndex + perRow - 1) / perRow;
-            LastBagGridFreeTopY = topY + Math.Max(0, usedTileRows) * stepY;
+            currentLineCount += visibleRows * rowH;
+            LastBagGridFreeTopY = topY + Math.Max(0, lastExclusive - firstIndex) * rowH;
 
-            string status = totalRows > visibleRows
-                ? $"rows {firstRow + 1}-{Math.Min(totalRows, firstRow + visibleRows)} of {totalRows} ({displayEntries.Count} items)"
+            bool scrolls = displayEntries.Count > visibleRows;
+            string status = scrolls
+                ? $"{firstIndex + 1}-{lastExclusive} of {displayEntries.Count} items"
                 : $"{displayEntries.Count} items";
-            Color statusColor = totalRows > visibleRows ? AsciiArtAssets.Colors.Gray : AsciiArtAssets.Colors.DarkGray;
+            Color statusColor = scrolls ? AsciiArtAssets.Colors.Gray : AsciiArtAssets.Colors.DarkGray;
             if (InventoryDragState.IsActive && InventoryDragState.FromSlot)
             {
                 status = "Drop in the bag to unequip";
                 statusColor = AsciiArtAssets.Colors.Green;
             }
-            canvas.AddText(gridX, bottomY - 1, TruncateTo(status, gridWidth), statusColor);
-            if (totalRows > visibleRows)
-                MenuMouseScrollHint.DrawRightAligned(canvas, gridX - 2, gridWidth + 4, bottomY - 1);
+            else if (InventoryDragState.IsActive && InventoryDragState.FromBag)
+            {
+                status = "Drop on your gear (left) to equip";
+                statusColor = AsciiArtAssets.Colors.Green;
+            }
+            canvas.AddText(listX, bottomY - 1, TruncateTo(status, listWidth), statusColor);
+            if (scrolls)
+                MenuMouseScrollHint.DrawRightAligned(canvas, listX - 2, listWidth + 4, bottomY - 1);
             currentLineCount++;
 
             int detailBottomY = ResolveDetailBottomY(x, separatorX, bottomY, detailExtendedBottomY);
@@ -824,23 +855,25 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 canvas.AddText(separatorX, sepY, "│", AsciiArtAssets.Colors.DarkGray);
             LastDetailPaneBounds = (separatorX + 1, topY, x + width - 1 - separatorX, detailBottomY - topY);
 
+            int tileRows = GridTileRows;
+            int tileCols = GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), tileRows);
             var paneItem = selectedEquippedItem ?? selected.Item;
-            if (paneItem == null)
-                return;
-
-            int detailY = topY;
-            int paneRows = Math.Max(0, detailBottomY - topY);
-            // +1 is the blank row between the icon and the description. Measure the real text so the
-            // comparison table is not clipped under a square icon that only reserved 12 rows.
-            int textRows = EstimateDetailTextRows(paneItem, character, detailWidth) + 1;
-            var hero = DetailHeroIconSize(canvas.GetCharWidth(), canvas.GetCharHeight(), detailWidth, paneRows, textRows);
-            if (haveArt && hero.Rows > 0 && ItemArtAtlas.TryGetHeroIcon(paneItem, out var bigBitmap, out var bigRect))
+            if (paneItem != null)
             {
-                int iconX = DetailHeroIconX(detailX, detailWidth, hero.Columns);
-                canvas.AddImage(iconX, detailY, hero.Columns, hero.Rows, bigBitmap, bigRect, paddingPixels: 0, fillFrame: true, followsAsciiStyle: true);
-                detailY += hero.Rows + 1;
+                int detailY = topY;
+                int paneRows = Math.Max(0, detailBottomY - topY);
+                // +1 is the blank row between the icon and the description. Measure the real text so the
+                // comparison table is not clipped under a square icon that only reserved 12 rows.
+                int textRows = EstimateDetailTextRows(paneItem, character, detailWidth) + 1;
+                var hero = DetailHeroIconSize(canvas.GetCharWidth(), canvas.GetCharHeight(), detailWidth, paneRows, textRows);
+                if (haveArt && hero.Rows > 0 && ItemArtAtlas.TryGetHeroIcon(paneItem, out var bigBitmap, out var bigRect))
+                {
+                    int iconX = DetailHeroIconX(detailX, detailWidth, hero.Columns);
+                    canvas.AddImage(iconX, detailY, hero.Columns, hero.Rows, bigBitmap, bigRect, paddingPixels: 0, fillFrame: true, followsAsciiStyle: true);
+                    detailY += hero.Rows + 1;
+                }
+                RenderDetailPane(detailX, detailY, detailWidth, detailBottomY, paneItem, character, ref currentLineCount);
             }
-            RenderDetailPane(detailX, detailY, detailWidth, detailBottomY, paneItem, character, ref currentLineCount);
             RenderDragGhost(x, width, topY, bottomY, tileCols, tileRows, haveArt);
         }
 
@@ -857,22 +890,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
         }
 
-        /// <summary>Columns between the paper doll's arm slots and the body (drawn as <c>──</c>).</summary>
-        private const int PaperDollArmGap = 2;
-
-        /// <summary>Paper-doll slots: (equip slot key, empty label, column, row) on a 3-wide, 4-tall body.</summary>
-        private static readonly (string Slot, string Label, int Col, int Row)[] PaperDollSlots =
-        {
-            ("head", "Head", 1, 0),
-            ("weapon", "Weapon", 0, 1),
-            ("body", "Body", 1, 1),
-            ("charm", "Charm", 2, 1),
-            ("legs", "Legs", 1, 2),
-            ("feet", "Feet", 1, 3),
-        };
-
-        /// <summary>Last frame's paper doll and bag grid areas (grid cells) for drop hit-testing; empty when not drawn.</summary>
-        public static (int X, int Y, int Width, int Height) LastPaperDollBounds { get; private set; }
+        /// <summary>Last frame's gear figure (left panel) and bag list areas (grid cells) for drop hit-testing; empty when not drawn.</summary>
+        public static (int X, int Y, int Width, int Height) LastPaperDollBounds { get; internal set; }
         public static (int X, int Y, int Width, int Height) LastBagGridBounds { get; private set; }
 
         /// <summary>Last frame's first grid row below the drawn bag tiles (their number labels included); 0 when not drawn.</summary>
@@ -893,83 +912,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     return rows;
             }
             return 0;
-        }
-
-        /// <summary>
-        /// Character figure of gear slots (head over body, weapon and charm as arms, legs, feet) joined by thin lines.
-        /// Filled slots show the item icon in its rarity frame and hover the left-panel gear tooltip; while a bag item is
-        /// dragged its slot lights green (red when requirements block it). Gear sharing an affix with the hovered item glows cyan.
-        /// </summary>
-        private void RenderPaperDoll(int dollX, int topY, int tileRows, int tileCols, int dollWidth, Character character, bool blockClicks,
-            Item? hoveredItem, HashSet<string> hoveredAffixes)
-        {
-            canvas.AddText(dollX, topY, TruncateTo(character.Name, dollWidth), AsciiArtAssets.Colors.Gold);
-            int dollTop = topY + 1;
-            int stepX = tileCols + PaperDollArmGap;
-            int stepY = tileRows + 1;
-            var line = AsciiArtAssets.Colors.DarkGray;
-
-            int spineX = dollX + stepX + tileCols / 2;
-            for (int row = 0; row < 3; row++)
-                canvas.AddText(spineX, dollTop + row * stepY + tileRows, "│", line);
-            int armY = dollTop + stepY + tileRows / 2;
-            canvas.AddText(dollX + tileCols, armY, new string('─', PaperDollArmGap), line);
-            canvas.AddText(dollX + stepX + tileCols, armY, new string('─', PaperDollArmGap), line);
-
-            string? dropSlot = InventoryDragState.IsActive && InventoryDragState.FromBag && InventoryDragState.Item != null
-                ? InventoryActionPoolEntries.GetEquipSlotForItem(InventoryDragState.Item)
-                : null;
-            bool haveArt = ItemArtAtlas.IsAvailable;
-            // Worn pieces of one material build a set, so gear-to-gear hover also matches material.
-            bool hoveredIsGear = InventoryAffixSynergy.IsEquipped(hoveredItem, character);
-            var gearAffixes = hoveredIsGear ? InventoryAffixSynergy.GetAffixKeys(hoveredItem, includeMaterial: true) : hoveredAffixes;
-
-            foreach (var (slot, label, col, row) in PaperDollSlots)
-            {
-                int tx = dollX + col * stepX;
-                int ty = dollTop + row * stepY;
-                var item = character.Equipment.GetSlotItem(slot);
-                bool beingDragged = InventoryDragState.IsActive && InventoryDragState.SourceSlot == slot;
-                bool isDropTarget = string.Equals(dropSlot, slot, StringComparison.Ordinal);
-                bool shown = item != null && !beingDragged;
-
-                Color frame;
-                if (isDropTarget)
-                    frame = ItemRendererHelper.IsEquipBlockedForCharacter(InventoryDragState.Item!, character)
-                        ? AsciiArtAssets.Colors.Red
-                        : AsciiArtAssets.Colors.Green;
-                else if (!shown)
-                    frame = AsciiArtAssets.Colors.DarkGray;
-                else
-                    frame = ItemRendererHelper.IsEquipBlockedForCharacter(item!, character)
-                        ? AsciiArtAssets.Colors.Red
-                        : ItemThemeProvider.GetRarityColor(item!.Rarity?.Trim() ?? "Common");
-
-                bool isPaneSelection = shown && string.Equals(selectedEquippedSlot, slot, StringComparison.Ordinal);
-                bool synergy = shown && !isDropTarget && InventoryAffixSynergy.SharesAffix(item, hoveredItem, gearAffixes, includeMaterial: hoveredIsGear);
-                if (synergy)
-                    frame = SynergyFrameColor;
-                else if (isPaneSelection && !isDropTarget)
-                    frame = AsciiArtAssets.Colors.Gold;
-                canvas.AddBox(tx, ty, tileCols, tileRows, frame, synergy ? SynergyGlowColor : default,
-                    borderThicknessPixels: isDropTarget || isPaneSelection || synergy ? 2 : 1);
-                if (shown && haveArt && ItemArtAtlas.TryGetIcon(item!, out var bitmap, out var sourceRect))
-                    canvas.AddImage(tx, ty, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3, followsAsciiStyle: true);
-                else
-                {
-                    string text = TruncateTo(shown ? item!.Name : label, tileCols - 2);
-                    canvas.AddText(tx + Math.Max(1, (tileCols - text.Length) / 2), ty + tileRows / 2, text, shown ? frame : AsciiArtAssets.Colors.DarkGray);
-                }
-
-                if (!blockClicks)
-                {
-                    clickableElements.Add(InventoryButtonFactory.CreateButton(
-                        tx, ty, tileCols, tileRows,
-                        InventoryDetailViewState.SlotInputPrefix + slot,
-                        item != null ? $"{label}: {item.Name}" : $"{label}: empty",
-                        item != null ? Prefix + "gear:" + slot : null));
-                }
-            }
         }
 
         /// <summary>

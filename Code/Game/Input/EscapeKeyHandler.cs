@@ -62,6 +62,9 @@ namespace RPGGame.GameCore.Input
                     // The Action Sequence editor closes back to the inventory hub.
                     if (handlers.InventoryMenuHandler != null && handlers.InventoryMenuHandler.TryCloseActionSequenceEditor())
                         return Task.CompletedTask;
+                    // The hub opens its Esc menu (Resume / Settings / Main Menu / Quit).
+                    if (handlers.InventoryMenuHandler != null && handlers.InventoryMenuHandler.TryToggleEscapeMenu())
+                        return Task.CompletedTask;
                     stateManager.TransitionToState(GameState.GameLoop);
                     showGameLoop();
                     break;
