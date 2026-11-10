@@ -1,0 +1,193 @@
+{
+  "base": "fastbot-div10",
+  "classBalance": {
+    "barbarian": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 10,
+            "multiplier": 1.0
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 1.109569
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 1.180992
+          },
+          {
+            "from": 21,
+            "to": 30,
+            "multiplier": 1.0
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 1.591073
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 1.464086
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 1.0
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 1.42405
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 1.0
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 1.235418
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 0.671286
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 1.681794
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 0.959264
+          },
+          {
+            "from": 76,
+            "to": 85,
+            "multiplier": 1.0
+          },
+          {
+            "from": 86,
+            "to": 90,
+            "multiplier": 1.925189
+          },
+          {
+            "from": 91,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    },
+    "warrior": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 10,
+            "multiplier": 1.0
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 0.784584
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 1.474269
+          },
+          {
+            "from": 21,
+            "to": 25,
+            "multiplier": 2.675855
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 1.925189
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 3.706352
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 1.846765
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 1.905276
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 1.765406
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 1.0
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 1.01748
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 1.693491
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 2.770219
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 3.26029
+          },
+          {
+            "from": 76,
+            "to": 80,
+            "multiplier": 1.94531
+          },
+          {
+            "from": 81,
+            "to": 85,
+            "multiplier": 3.74509
+          },
+          {
+            "from": 86,
+            "to": 90,
+            "multiplier": 1.925189
+          },
+          {
+            "from": 91,
+            "to": 95,
+            "multiplier": 1.918528
+          },
+          {
+            "from": 96,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    }
+  },
+  "description": "fastbot-div3: fastbot-div2 + damage bands L56-60 and L71-75 from the div1 bo-solve (confirm moved both toward target, under the 2-SE keep bar). fastbot-div4: fastbot-div3 + class bands ['class:Barbarian@L18', 'class:Barbarian@L48', 'class:Rogue@L58', 'class:Wizard@L18'] (balance-loop, paired confirm on seeds [8201, 8202, 8203, 8204]). fastbot-div5: fastbot-div4 + class bands ['class:Barbarian@L33', 'class:Barbarian@L73', 'class:Wizard@L58'] (balance-loop, paired confirm on seeds [8401, 8402, 8403, 8404]). fastbot-div6: fastbot-div5 + damage bands ['damage@L23'] (balance-loop, paired confirm on seeds [8601, 8602, 8603, 8604]). fastbot-div7: fastbot-div6 + health bands ['health@L13', 'health@L23', 'health@L33', 'health@L43', 'health@L58'] (balance-loop, paired confirm on seeds [10301, 10302, 10303, 10304]). fastbot-div8: fastbot-div7 + damage bands ['damage@L38', 'damage@L58'] (balance-loop, paired confirm on seeds [10501, 10502, 10503, 10504]). fastbot-div9: fastbot-div8f + class bands ['class:Rogue@L23', 'class:Warrior@L13', 'class:Wizard@L13'] (balance-loop, paired confirm on seeds [11301, 11302, 11303, 11304]). fastbot-div10: fastbot-div9 + damage bands ['damage@L43'] (balance-loop, paired confirm on seeds [11501, 11502, 11503, 11504]). fastbot-div11: fastbot-div10 + class bands ['class:Barbarian@L68', 'class:Warrior@L73'] (balance-loop, paired confirm on seeds [12201, 12202, 12203, 12204, 12205, 12206, 12207, 12208])."
+}
