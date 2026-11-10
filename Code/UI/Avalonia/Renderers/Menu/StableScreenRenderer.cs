@@ -106,7 +106,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     StatusColor = ToneColor(card.BorderTone == StableLineTone.Selected ? (card.NeedsDecision ? StableLineTone.Alert : StableLineTone.Normal) : card.BorderTone),
                     Accent = accent,
                     Border = card.NeedsDecision ? 2 : 1,
-                    Selected = card.Selected
+                    Selected = card.Selected,
+                    CloseKey = card.CloseKey
                 });
             }
             if (view.ShowAddSlot)
@@ -117,7 +118,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     Label = "[A]",
                     Face = new[] { "", "+ saved", "" },
                     FaceColor = gray,
-                    Name = "add a saved hero",
+                    Name = "add / reopen a hero",
                     Accent = gray
                 });
             }

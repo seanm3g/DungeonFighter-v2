@@ -35,6 +35,7 @@ namespace RPGGame.Tests.Unit.Game
                 TestTwoFightersWaitInParallel();
                 TestHandlerRosterAndFighterScreens();
                 TestRemoveRefusedMidDungeon();
+                TestRosterSyncCloseReopen();
                 TestClickInDungeonOpensFighterView();
                 TestResurrectDeadFighter();
                 TestKeepGoingStartsNextRun();
@@ -317,6 +318,18 @@ namespace RPGGame.Tests.Unit.Game
             var back = handler.BuildView();
             TestBase.AssertTrue(back.Watch == null && back.Cards.Count == 2, "Esc returns to all fighters", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqualEnum(GameState.Stable, stateManager.CurrentState, "still on the Stable", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRosterSyncCloseReopen()
+        {
+            Console.WriteLine("\n--- Stable mode close / reopen ---");
+            // Disabled outside the GUI: tracked in memory only, never written to GameData.
+            string id = "rostersync_test_" + Guid.NewGuid().ToString("N");
+            TestBase.AssertTrue(!StableRosterSync.IsClosed(id), "open by default", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            StableRosterSync.Close(id);
+            TestBase.AssertTrue(StableRosterSync.IsClosed(id), "closed after Close", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            StableRosterSync.Reopen(id);
+            TestBase.AssertTrue(!StableRosterSync.IsClosed(id), "open again after Reopen", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestRemoveRefusedMidDungeon()

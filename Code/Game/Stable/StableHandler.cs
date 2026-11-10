@@ -103,6 +103,61 @@ namespace RPGGame
             stateManager.TransitionToState(GameState.Stable);
             StartRefreshTimer();
             Render();
+            _ = OpenRosterSavesAsync();
+        }
+
+        private bool openingRoster;
+
+        /// <summary>
+        /// Stable mode keeps every fighter from the main menu roster open (minus closed ones): loads the ones not in yet,
+        /// one at a time so the cards fill in as they load.
+        /// </summary>
+        private async Task OpenRosterSavesAsync()
+        {
+            if (!StableRosterSync.Enabled || openingRoster)
+                return;
+            openingRoster = true;
+            try
+            {
+                foreach (var id in StableRosterSync.SavesToOpen(StableManager.MaxFighters))
+                {
+                    if (stateManager.CurrentState != GameState.Stable || stable.Fighters.Count >= StableManager.MaxFighters)
+                        break;
+                    if (stable.Find(id) != null)
+                        continue;
+                    var (fighter, _) = await stable.AddFromSaveAsync(id);
+                    if (fighter != null && selected == null)
+                        selected = fighter;
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log("StableHandler", $"Opening roster saves failed: {ex.Message}");
+            }
+            finally
+            {
+                openingRoster = false;
+            }
+            QueueRender();
+        }
+
+        /// <summary>Closes a fighter out of Stable mode (saved first); it stays closed until added back.</summary>
+        private async Task CloseFighter(StableFighter f)
+        {
+            string name = f.Character.Name;
+            string id = f.CharacterId;
+            bool dead = f.Status == StableFighterStatus.Dead;
+            if (await stable.RemoveAsync(f))
+            {
+                StableRosterSync.Close(id);
+                Notify(dead ? $"{name} is laid to rest." : $"{name} closed (saved). Add them back with A.");
+                selected = NextWaiting(null) ?? stable.Fighters.FirstOrDefault();
+            }
+            else
+            {
+                Notify("Can't close a fighter mid-dungeon.", warning: true);
+            }
+            Render();
         }
 
         public async Task HandleInput(string input)
@@ -166,18 +221,10 @@ namespace RPGGame
                 confirmRemove = false;
                 if (key == "y")
                 {
-                    string name = f.Character.Name;
-                    bool dead = f.Status == StableFighterStatus.Dead;
-                    if (await stable.RemoveAsync(f))
-                    {
-                        Notify(dead ? $"{name} is laid to rest." : $"{name} left the Stable (saved).");
-                        selected = NextWaiting(null) ?? stable.Fighters.FirstOrDefault();
-                    }
+                    await CloseFighter(f);
+                    return;
                 }
-                else
-                {
-                    Notify("Cancelled.");
-                }
+                Notify("Cancelled.");
                 Render();
                 return;
             }
@@ -315,8 +362,7 @@ namespace RPGGame
                             TakeInHand(f);
                             return;
                         case "x":
-                            confirmRemove = true;
-                            Render();
+                            await CloseFighter(f);
                             return;
                     }
                     break;
@@ -484,6 +530,7 @@ namespace RPGGame
                 Invalid(error ?? "Could not add that hero.");
                 return;
             }
+            StableRosterSync.Reopen(pick.characterId);
             AudioCues.Trigger(AudioCue.Menu_Confirm);
             Notify($"{fighter.Character.Name} joined the Stable.");
             selected = fighter;
@@ -699,6 +746,7 @@ namespace RPGGame
                 Level = hero.Level,
                 ClassName = hero.GetCurrentClass(),
                 Status = ShortStatus(f),
+                CloseKey = f.Status is StableFighterStatus.AtHub or StableFighterStatus.Dead ? Key("x") : null,
                 IsDead = f.Status == StableFighterStatus.Dead,
                 SelectKey = $"{CardKeyPrefix}{number}",
                 Lines = lines,
@@ -722,7 +770,7 @@ namespace RPGGame
             {
                 actions.Add(new StableLine(f.Status == StableFighterStatus.Dead
                     ? $"Lay {hero.Name} to rest? [Y] yes"
-                    : $"Remove {hero.Name}? Saved first. [Y] yes", StableLineTone.Bad, Key("y")));
+                    : $"Close {hero.Name}? Saved first. [Y] yes", StableLineTone.Bad, Key("y")));
                 actions.Add(new StableLine("[Esc] cancel", StableLineTone.Option, Key("escape")));
             }
             else if (pickingDungeon && isSelected)
@@ -746,7 +794,7 @@ namespace RPGGame
                         actions.Add(new StableLine("[D] Pick dungeon", StableLineTone.Option, Key("d")));
                         actions.Add(new StableLine("[T] Take in hand", StableLineTone.Option, Key("t")));
                         AddToggles();
-                        actions.Add(new StableLine("[X] Remove", StableLineTone.Option, Key("x")));
+                        actions.Add(new StableLine("[X] Close", StableLineTone.Option, Key("x")));
                         break;
                     case StableFighterStatus.AwaitingExit:
                         actions.Add(new StableLine("[C] Continue", StableLineTone.Alert, Key("c")));

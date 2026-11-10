@@ -413,6 +413,7 @@ namespace RPGGame
 
                 // Only real play feeds the History log; test runs and headless bots stay out of it.
                 FighterHistory.RecordingEnabled = true;
+                StableRosterSync.Enabled = true;
                 StartupTimeline.Mark("Main: starting Avalonia");
                 BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
             }

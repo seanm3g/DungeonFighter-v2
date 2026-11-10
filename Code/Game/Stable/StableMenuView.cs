@@ -47,6 +47,8 @@ namespace RPGGame
         public string ClassName { get; init; } = "";
         public string Status { get; init; } = "";
         public bool IsDead { get; init; }
+        /// <summary>Key for the card's close button, or null when it can't be closed right now (mid-dungeon).</summary>
+        public string? CloseKey { get; init; }
         /// <summary>Clicking the card body sends this (selects the card).</summary>
         public string SelectKey { get; init; } = "";
         /// <summary>Status block under the title (HP, where, enemy).</summary>

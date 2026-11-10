@@ -21,6 +21,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         public Color? FaceColor { get; init; }
         public int Border { get; init; } = 1;
         public bool Selected { get; init; }
+        /// <summary>When set, a small [x] in the top-right corner sends this key.</summary>
+        public string? CloseKey { get; init; }
     }
 
     /// <summary>A line of the detail panel; lines with a key are clickable and flow side by side.</summary>
@@ -207,6 +209,24 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             int textY = cy + 1 + Math.Max(0, (inner - lines.Count) / 2);
             for (int i = 0; i < lines.Count && i < inner; i++)
                 Centered(cx, CardW - 2, textY + i, lines[i].text, lines[i].color);
+
+            // Close button, top right; registered after the card so it wins the click.
+            if (card.CloseKey != null)
+            {
+                var close = new ClickableElement
+                {
+                    X = cx + CardW - 5,
+                    Y = cy + 1,
+                    Width = 3,
+                    Height = 1,
+                    Type = ElementType.MenuOption,
+                    Value = card.CloseKey,
+                    DisplayText = "[x]"
+                };
+                close.IsHovered = FighterRosterHoverState.IsOver(close);
+                clickables.Add(close);
+                canvas.AddText(close.X, close.Y, "[x]", close.IsHovered ? ColorPalette.Orange.GetColor() : AsciiArtAssets.Colors.Gray);
+            }
         }
 
         private void DrawDetail(RosterDetail d, int px, int py, int pw, int bottom)
