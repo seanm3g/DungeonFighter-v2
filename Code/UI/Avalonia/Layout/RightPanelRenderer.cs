@@ -163,46 +163,64 @@ namespace RPGGame.UI.Avalonia.Layout
                 return;
             }
 
-            // Region
+            // "ENTER DUNGEON" call to action: big centered title, the region, then the dungeons on offer, the whole
+            // block centered vertically over the region plate.
             var region = new TravelRegionCatalog().GetRegionForCharacter(character);
-            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("REGION"), AsciiArtAssets.Colors.Gold);
-            y += 2;
-            if (!string.IsNullOrWhiteSpace(region.DisplayName))
-            {
-                string regionName = RightPanelContentText.EllipsizeToPanelWidth(region.DisplayName);
-                if (!string.IsNullOrEmpty(region.Theme))
-                    textWriter.RenderSegments(DungeonThemeColors.BuildThemedName(regionName, region.Theme), x, y);
-                else
-                    canvas.AddText(x, y, regionName, AsciiArtAssets.Colors.Cyan);
-                y++;
-            }
-            if (region.HasLevelRange)
-            {
-                canvas.AddText(x, y, region.LevelRangeLabel, AsciiArtAssets.Colors.Gray);
-                y++;
-            }
-            foreach (var line in WrapWords(region.Description, maxW, 3))
-            {
-                canvas.AddText(x, y, line, AsciiArtAssets.Colors.DarkGray);
-                y++;
-            }
-            y++;
-
-            // Dungeons on offer
-            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("DUNGEONS"), AsciiArtAssets.Colors.Gold);
-            y++;
-            canvas.AddText(x, y, "(click to choose)", AsciiArtAssets.Colors.DarkGray);
-            y += 2;
-
             var offered = new List<Dungeon>();
             if (sm?.AvailableDungeons != null)
                 foreach (var d in sm.AvailableDungeons)
                     if (d != null && !GameConstants.IsDungeonSelectionUtilityOption(d.Name))
                         offered.Add(d);
 
+            int innerLeft = LayoutConstants.RIGHT_PANEL_X + 1;
+            int innerW = Math.Max(8, LayoutConstants.RIGHT_PANEL_WIDTH - 2);
+            int panelTop = LayoutConstants.RIGHT_PANEL_Y + 1;
+            var callColor = AsciiArtAssets.Colors.DarkRed;
+
+            double titleScale = Math.Clamp(Math.Floor(maxW * 2.0 / "DUNGEON".Length) / 2.0, 1.0, 3.0);
+            int titleRows = (int)Math.Ceiling(titleScale);
+            const double labelScale = 1.5;
+            const int labelRows = 2;
+            int entryX = x + 2;
+            int entryW = Math.Max(8, maxW - 4);
+            bool hasRegionName = !string.IsNullOrWhiteSpace(region.DisplayName);
+
+            int entriesHeight = offered.Count == 0 ? 1 : 0;
+            foreach (var d in offered)
+                entriesHeight += HubDungeonEntryHeight(d, entryW) + 1;
+            int blockHeight = titleRows * 2 + 1 + labelRows + (hasRegionName ? 1 : 0) + 1 + labelRows + 1 + entriesHeight;
+            // The title is the panel's big button: its bottom ("DUNGEON") sits on the panel's vertical midpoint, the
+            // region and dungeon list hang below, and the title lifts only as far as the list needs to fit.
+            int available = panelBottom - panelTop + 1;
+            int titleCentered = panelTop + Math.Max(0, available / 2 - titleRows * 2);
+            int lowestFit = panelTop + Math.Max(0, available - blockHeight);
+            y = Math.Min(titleCentered, lowestFit);
+
+            DrawCenteredScaled(innerLeft, innerW, y, "ENTER", callColor, titleScale);
+            y += titleRows;
+            DrawCenteredScaled(innerLeft, innerW, y, "DUNGEON", callColor, titleScale);
+            y += titleRows + 1;
+
+            DrawCenteredScaled(innerLeft, innerW, y, "Region:", callColor, labelScale);
+            y += labelRows;
+            if (hasRegionName)
+            {
+                string regionName = region.DisplayName.Length > innerW - 2 ? region.DisplayName.Substring(0, innerW - 5) + "..." : region.DisplayName;
+                int rx = innerLeft + Math.Max(0, (innerW - regionName.Length) / 2);
+                if (!string.IsNullOrEmpty(region.Theme))
+                    textWriter.RenderSegments(DungeonThemeColors.BuildThemedName(regionName, region.Theme), rx, y);
+                else
+                    canvas.AddText(rx, y, regionName, callColor);
+                y++;
+            }
+            y++;
+
+            DrawCenteredScaled(innerLeft, innerW, y, "Dungeons:", callColor, labelScale);
+            y += labelRows + 1;
+
             if (offered.Count == 0)
             {
-                canvas.AddText(x, y, "(none yet)", AsciiArtAssets.Colors.DarkGray);
+                canvas.AddText(entryX, y, "(none yet)", AsciiArtAssets.Colors.DarkGray);
                 y++;
             }
 
@@ -210,16 +228,42 @@ namespace RPGGame.UI.Avalonia.Layout
             {
                 if (y + 2 > panelBottom)
                 {
-                    canvas.AddText(x, y, $"... +{offered.Count - i} more", AsciiArtAssets.Colors.Gray);
+                    canvas.AddText(entryX, y, $"... +{offered.Count - i} more", AsciiArtAssets.Colors.Gray);
                     y++;
                     break;
                 }
-                y = DrawHubDungeonEntry(x, y, maxW, panelBottom, offered[i]);
+                y = DrawHubDungeonEntry(entryX, y, entryW, panelBottom, offered[i]);
                 y++;
             }
 
             if (!string.IsNullOrWhiteSpace(region.Theme))
                 HubRegionPlate = new HubRegionPlateInfo(string.IsNullOrEmpty(region.Id) ? region.DisplayName : region.Id, region.Theme);
+        }
+
+        /// <summary>Draws <paramref name="text"/> at <paramref name="scale"/>× the grid font, centered in the given columns.</summary>
+        private void DrawCenteredScaled(int left, int width, int y, string text, global::Avalonia.Media.Color color, double scale)
+        {
+            int cells = (int)Math.Ceiling(text.Length * scale);
+            int sx = left + Math.Max(0, (width - cells) / 2);
+            if (scale <= 1.0)
+                canvas.AddText(sx, y, text, color);
+            else
+                canvas.AddScaledText(sx, y, text, color, scale);
+        }
+
+        /// <summary>Rows <see cref="DrawHubDungeonEntry"/> uses for <paramref name="dungeon"/> (name, level, up to two foe lines).</summary>
+        private static int HubDungeonEntryHeight(Dungeon dungeon, int maxW)
+        {
+            int rows = 2;
+            if (dungeon.PossibleEnemies != null && dungeon.PossibleEnemies.Count > 0)
+            {
+                var foes = new List<string>();
+                foreach (var e in dungeon.PossibleEnemies)
+                    if (!string.IsNullOrWhiteSpace(e) && !foes.Contains(e))
+                        foes.Add(e);
+                rows += WrapWords("Foes: " + string.Join(", ", foes), maxW, 2).Count;
+            }
+            return rows;
         }
 
         /// <summary>One dungeon: themed name, level and theme, then its foes. Returns the next free row.</summary>

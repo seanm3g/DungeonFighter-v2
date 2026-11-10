@@ -121,6 +121,19 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>True for dry-land fine cells.</summary>
         public bool[,] Land { get; }
         public IReadOnlyList<TravelMapPin> Pins { get; }
+
+        /// <summary>What site placement needs from a region view's terrain build; null for the whole-world map.</summary>
+        internal Func<int, int, IReadOnlyList<TravelMapSite>>? SitePlacer { get; init; }
+
+        /// <summary>
+        /// The same terrain with <paramref name="count"/> dungeon sites placed for <paramref name="seed"/>.
+        /// Sites never reshape the terrain, so a new set of dungeons costs a site search, not a terrain rebuild.
+        /// </summary>
+        public TravelMapGeographyResult WithSites(int count, int seed)
+        {
+            var sites = SitePlacer != null && count > 0 ? SitePlacer(count, seed) : Array.Empty<TravelMapSite>();
+            return new TravelMapGeographyResult(Terrain, Land, Pins, BigGlyphs, sites) { SitePlacer = SitePlacer };
+        }
     }
 
     /// <summary>
@@ -161,14 +174,21 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <param name="regions">All regions in level order; pin numbers follow this order.</param>
         /// <param name="landWidth">Fine columns available for land (left of the log slip).</param>
         public static TravelMapGeographyResult Build(int width, int height, int landWidth, IReadOnlyList<TravelRegion> regions) =>
-            Build(width, height, regions, new WorldView(landWidth / WorldWidth, height / WorldHeight, 0, 0), focusIndex: -1, siteCount: 0, siteSeed: 0);
+            Build(width, height, regions, new WorldView(landWidth / WorldWidth, height / WorldHeight, 0, 0), focusIndex: -1);
 
         /// <summary>
         /// A zoomed view centred on one region's island, with <paramref name="siteCount"/> dungeon sites placed on
         /// that region's land around its town (numbered 1..siteCount in order). <paramref name="siteSeed"/> picks
         /// where they fall, so each new set of dungeons can sit somewhere else on the island.
         /// </summary>
-        public static TravelMapGeographyResult BuildRegionView(int width, int height, IReadOnlyList<TravelRegion> regions, string focusRegionId, int siteCount, int siteSeed = 0)
+        public static TravelMapGeographyResult BuildRegionView(int width, int height, IReadOnlyList<TravelRegion> regions, string focusRegionId, int siteCount, int siteSeed = 0) =>
+            BuildRegionTerrain(width, height, regions, focusRegionId).WithSites(siteCount, siteSeed);
+
+        /// <summary>
+        /// The zoomed region view's terrain with no dungeon sites. It depends only on size and regions, so callers
+        /// cache it and call <see cref="TravelMapGeographyResult.WithSites"/> for each new set of dungeons.
+        /// </summary>
+        public static TravelMapGeographyResult BuildRegionTerrain(int width, int height, IReadOnlyList<TravelRegion> regions, string focusRegionId)
         {
             int focusIndex = -1;
             for (int i = 0; i < regions.Count; i++)
@@ -180,21 +200,18 @@ namespace RPGGame.UI.Avalonia.Renderers
             double windowW = width / scale;
             double ox = Math.Clamp(fx - windowW / 2, -2, Math.Max(-2, WorldWidth + 2 - windowW));
             double oy = Math.Clamp(fy - RegionViewWorldHeight / 2, -2, Math.Max(-2, WorldHeight + 2 - RegionViewWorldHeight));
-            return Build(width, height, regions, new WorldView(scale, scale, ox, oy), focusIndex, siteCount, siteSeed);
+            return Build(width, height, regions, new WorldView(scale, scale, ox, oy), focusIndex);
         }
 
-        private static TravelMapGeographyResult Build(int width, int height, IReadOnlyList<TravelRegion> regions, WorldView view, int focusIndex, int siteCount, int siteSeed)
+        private static TravelMapGeographyResult Build(int width, int height, IReadOnlyList<TravelRegion> regions, WorldView view, int focusIndex)
         {
             var pins = PlacePins(regions, view, width, height);
             var (land, theme) = BuildLandmasses(width, height, view, regions);
             RemoveSpecks(land, width, height);
             var landDist = DistanceToSea(land, width, height);
 
-            var focusPin = pins.FirstOrDefault(p => p.Number == focusIndex + 1);
-            var sites = focusPin.Region != null && siteCount > 0
-                ? PlaceSites(land, theme, landDist, pins, focusPin, siteCount, siteSeed, view, width, height)
-                : new List<TravelMapSite>();
-            var markers = pins.Select(p => (p.FineX, p.FineY)).Concat(sites.Select(s => (s.FineX, s.FineY))).ToList();
+            // Only the town pins shape the terrain; dungeon sites are placed afterwards on top of it (WithSites).
+            var markers = pins.Select(p => (p.FineX, p.FineY)).ToList();
 
             var lake = BuildLakes(land, theme, landDist, markers, view, width, height);
 
@@ -226,7 +243,12 @@ namespace RPGGame.UI.Avalonia.Renderers
             DrawRivers(grid, land, theme, landDist, lake, markers, view, width, height);
             var bigGlyphs = PlaceLandmarks(grid, theme, landDist, markers, width, height);
             ClearAroundMarkers(grid, markers);
-            return new TravelMapGeographyResult(grid, land, pins, bigGlyphs, sites);
+
+            var focusPin = pins.FirstOrDefault(p => p.Number == focusIndex + 1);
+            Func<int, int, IReadOnlyList<TravelMapSite>>? placer = focusPin.Region == null
+                ? null
+                : (count, seed) => PlaceSites(grid, land, theme, landDist, pins, bigGlyphs, focusPin, count, seed, view, width, height);
+            return new TravelMapGeographyResult(grid, land, pins, bigGlyphs, Array.Empty<TravelMapSite>()) { SitePlacer = placer };
         }
 
         private static (double X, double Y) PinWorld(TravelRegion region, int index)
@@ -257,10 +279,13 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// the region's own biome and kept clear of the other markers. The seed turns the ring and jitters each
         /// site's bearing and distance; seed 0 is the even ring.
         /// </summary>
-        private static List<TravelMapSite> PlaceSites(bool[,] land, string[,] theme, int[,] landDist, IReadOnlyList<TravelMapPin> pins, TravelMapPin focus, int count, int seed, WorldView view, int width, int height)
+        private static List<TravelMapSite> PlaceSites(TravelMapGrid grid, bool[,] land, string[,] theme, int[,] landDist, IReadOnlyList<TravelMapPin> pins, IReadOnlyList<TravelMapBigGlyph> landmarks, TravelMapPin focus, int count, int seed, WorldView view, int width, int height)
         {
             var sites = new List<TravelMapSite>(count);
-            var taken = pins.Select(p => (X: p.FineX, Y: p.FineY)).ToList();
+            // Landmarks count as taken so a site plate never hides one (markers sit one cell up-left of their centre).
+            var taken = pins.Select(p => (X: p.FineX, Y: p.FineY))
+                .Concat(landmarks.Select(g => (X: (int)g.FineX - 1, Y: (int)g.FineY - 1)))
+                .ToList();
             string focusTheme = ThemeKey(focus.Region.Theme);
             double turn = Hash(focus.FineX + seed, focus.FineY, 80) * Math.PI * 2;
             int keepX = Math.Max(6, (int)(view.Sx * 7)), keepY = Math.Max(3, (int)(view.Sy * 3));
@@ -281,6 +306,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                     for (int x = 2; x < width - 3; x += 2)
                     {
                         if (!land[x, y] || theme[x, y] != focusTheme || landDist[x, y] < 2)
+                            continue;
+                        // Lakes and rivers are already painted; keep sites on dry ground.
+                        if (grid[x, y].Ground == TravelMapInk.LakeGround || grid[x + 1, y].Ground == TravelMapInk.LakeGround)
                             continue;
                         if (taken.Any(t => Math.Abs(t.X - x) < keepX && Math.Abs(t.Y - y) < keepY))
                             continue;

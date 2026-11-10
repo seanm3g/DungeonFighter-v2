@@ -68,7 +68,7 @@
       "updateIntervalMs": 100
     },
     "windSway": {
-      "enabled": true,
+      "enabled": false,
       "sidePanelsOnly": false,
       "maxOffsetFraction": 0.55,
       "impulseGain": 0.35,
@@ -86,14 +86,14 @@
       "trailLifetimeSeconds": 0.4,
       "trailMaxPoints": 12,
       "trailMinSpacingCells": 1.25,
-      "chromaticAberrationEnabled": true,
+      "chromaticAberrationEnabled": false,
       "chromaticSpreadFraction": 0.29,
       "chromaticOpacity": 0.58,
-      "interactiveHighlightEnabled": true,
+      "interactiveHighlightEnabled": false,
       "interactiveHighlightBrighten": 0.55,
       "interactiveHighlightGlow": 0.4,
       "clickBurst": {
-        "enabled": true,
+        "enabled": false,
         "clicksToExplode": 6,
         "chargeDecayPerSecond": 0.37,
         "impulseDecayPerSecond": 3.3,
@@ -113,14 +113,14 @@
         "verticalScale": 0.35
       },
       "emphasisPulse": {
-        "enabled": true,
+        "enabled": false,
         "impulseRadiusCells": 8,
         "maxOffsetFraction": 0.85,
         "outSeconds": 0.18,
         "reformSeconds": 0.35,
         "verticalScale": 0.85,
         "chromaticVelocitySeconds": 0.08,
-        "explosionGifEnabled": true,
+        "explosionGifEnabled": false,
         "explosionGifFileName": "Video/explosion.gif",
         "explosionDiameterCells": 60,
         "explosionFadeOutSeconds": 0.5

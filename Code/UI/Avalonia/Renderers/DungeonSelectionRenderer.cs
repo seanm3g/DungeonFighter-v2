@@ -32,8 +32,10 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         private readonly TravelRegionCatalog regionCatalog = new();
         private readonly TravelMapPainter mapPainter = new();
+        private TravelMapGeographyResult? terrainGeography;
         private TravelMapGeographyResult? mapGeography;
         private string mapKey = "";
+        private string mapSitesKey = "";
 
         /// <summary>The dungeons the sites were last laid out for; a freshly rolled list gets a new layout seed.</summary>
         private List<Dungeon> siteDungeons = new();
@@ -253,11 +255,19 @@ namespace RPGGame.UI.Avalonia.Renderers
                 siteSeed = Random.Shared.Next(1, 1 << 20);
             }
 
-            string key = $"{width}x{height}:{region.Id}:{placed.Count}:{siteSeed}:" + string.Join(";", regions.Select(r => $"{r.Id}@{r.MapX},{r.MapY}"));
-            if (mapGeography == null || key != mapKey)
+            // Terrain (and its painted bitmap) depends only on size and regions; a new dungeon list just re-places the sites.
+            string key = $"{width}x{height}:{region.Id}:" + string.Join(";", regions.Select(r => $"{r.Id}@{r.MapX},{r.MapY}"));
+            if (terrainGeography == null || key != mapKey)
             {
-                mapGeography = TravelMapGeography.BuildRegionView(width * 2, height * 2, regions, region.Id, placed.Count, siteSeed);
+                terrainGeography = TravelMapGeography.BuildRegionTerrain(width * 2, height * 2, regions, region.Id);
                 mapKey = key;
+                mapGeography = null;
+            }
+            string sitesKey = $"{placed.Count}:{siteSeed}";
+            if (mapGeography == null || sitesKey != mapSitesKey)
+            {
+                mapGeography = terrainGeography.WithSites(placed.Count, siteSeed);
+                mapSitesKey = sitesKey;
             }
 
             // Sites are numbered 1..n in placement order; relabel them with each dungeon's list number and theme.

@@ -25,6 +25,7 @@ namespace RPGGame.Tests.Unit.UI
             TestRecolorPreservesTextAndCount(ref run, ref passed, ref failed);
             TestHoverIdleSameDisplayTextAndSegmentCount(ref run, ref passed, ref failed);
             TestHoverMatchesMenuOptionFormatter(ref run, ref passed, ref failed);
+            TestRegionTerrainReusedAcrossSiteSeeds(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("DungeonSelectionHoverLayout Tests", run, passed, failed);
         }
@@ -101,6 +102,45 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(expected, joined,
                 "built segments match formatter display text",
                 ref run, ref passed, ref failed);
+        }
+
+        /// <summary>
+        /// A new dungeon list only re-places the sites: terrain is shared, sites sit on dry ground of the map,
+        /// and placing sites is far cheaper than building terrain (the dungeon-selection open lag).
+        /// </summary>
+        private static void TestRegionTerrainReusedAcrossSiteSeeds(ref int run, ref int passed, ref int failed)
+        {
+            Console.WriteLine("\n--- Region map terrain is reused when sites move ---");
+            var regions = RegionTravelRenderer.OrderRegions(new TravelRegionCatalog().GetAllRegions());
+            if (regions.Count == 0)
+            {
+                TestBase.AssertTrue(false, "travel regions load", ref run, ref passed, ref failed);
+                return;
+            }
+            string regionId = regions[0].Id;
+            const int w = 130, h = 76;
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var terrain = TravelMapGeography.BuildRegionTerrain(w, h, regions, regionId);
+            double terrainMs = sw.Elapsed.TotalMilliseconds;
+
+            sw.Restart();
+            var a = terrain.WithSites(3, 11);
+            var b = terrain.WithSites(3, 4242);
+            double sitesMs = sw.Elapsed.TotalMilliseconds / 2;
+            Console.WriteLine($"  terrain build {terrainMs:F1} ms, site placement {sitesMs:F2} ms");
+
+            TestBase.AssertTrue(ReferenceEquals(a.Terrain, terrain.Terrain) && ReferenceEquals(b.Terrain, terrain.Terrain),
+                "site sets share the cached terrain grid", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(3, a.Sites.Count, "three sites placed", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(a.Sites.All(s => terrain.Land[s.FineX, s.FineY]
+                    && terrain.Terrain[s.FineX, s.FineY].Ground != TravelMapInk.LakeGround),
+                "sites sit on dry land, not lakes or rivers", ref run, ref passed, ref failed);
+            var again = TravelMapGeography.BuildRegionView(w, h, regions, regionId, 3, 11);
+            TestBase.AssertTrue(again.Sites.SequenceEqual(a.Sites),
+                "same seed places the same sites", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(sitesMs * 5 < terrainMs,
+                "placing sites costs a fraction of a terrain build", ref run, ref passed, ref failed);
         }
     }
 }
