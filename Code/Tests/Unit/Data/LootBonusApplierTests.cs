@@ -47,6 +47,7 @@ namespace RPGGame.Tests.Unit.Data
             TestAffixRollsCanMissAndNeverExceedRollCount();
             TestAffixRollsCapPrefixesAndKeepActionAxis();
             TestRarityWeightsOverrideTable();
+            TestAffixWeightsBiasSameTierPick();
 
             TestBase.PrintSummary("LootBonusApplier Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -684,6 +685,37 @@ namespace RPGGame.Tests.Unit.Data
                 "patch weight replaces table weight (case-insensitive)", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(45.0, tuning.ResolveRarityWeight(new RarityData { Name = "Legendary", Weight = 45 }),
                 "rarity missing from patch keeps table weight", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestAffixWeightsBiasSameTierPick()
+        {
+            Console.WriteLine("--- Testing affix Weight ---");
+            TestBase.SetCurrentTestName(nameof(TestAffixWeightsBiasSameTierPick));
+
+            var cache = LootDataCache.Load();
+            var pool = new List<double> { 1, 0, 3 };
+            var applier = new LootBonusApplier(cache, new Random(11));
+            var counts = new int[3];
+            var idx = new List<int> { 0, 1, 2 };
+            for (int i = 0; i < 4000; i++)
+                counts[applier.PickWeighted(idx, k => pool[k])]++;
+            TestBase.AssertEqual(0, counts[1], "weight 0 row never picked while others have weight",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(counts[2] > 2800 && counts[2] < 3200, $"weight 3 vs 1 picks ~75%, got {counts[2]}/4000",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Equal weights draw exactly like the old uniform pick, so seeded runs on unweighted data are unchanged.
+            var a = new LootBonusApplier(cache, new Random(5));
+            var r = new Random(5);
+            bool same = true;
+            for (int i = 0; i < 200 && same; i++)
+                same = a.PickWeighted(idx, _ => 1.0) == idx[r.Next(idx.Count)];
+            TestBase.AssertTrue(same, "equal weights match Random.Next(count) draw for draw",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var gods = cache.StatBonuses.FirstOrDefault(sb => sb.Name == "of gods");
+            TestBase.AssertTrue(gods != null && gods.Weight < 1, $"catalog Weight loads (of gods {gods?.Weight})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestApplyModifications()

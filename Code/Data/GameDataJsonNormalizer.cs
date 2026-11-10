@@ -292,6 +292,7 @@ namespace RPGGame.Data
             {
                 NormalizeStatBonusMechanicsField(o);
                 NormalizeStatBonusRequirementsField(o);
+                CoerceOptionalWeight(o);
             }
             finally
             {
@@ -383,6 +384,7 @@ namespace RPGGame.Data
             CoercePropertyToDouble(o, "MinValue");
             CoercePropertyToDouble(o, "MaxValue");
             CoercePropertyToDouble(o, "RolledValue");
+            CoerceOptionalWeight(o);
             JsonArraySheetConverter.NormalizeTagsFromSheet(o);
         }
 
@@ -549,6 +551,26 @@ namespace RPGGame.Data
             }
 
             SetPropertyIgnoreCase(o, propertyName, JsonValue.Create(0));
+        }
+
+        /// <summary>Affix <c>Weight</c> (loot pick chance): sheet text becomes a number; a missing or blank cell stays absent so
+        /// the row keeps the default weight 1 (unlike <see cref="CoercePropertyToDouble"/>, which writes 0).</summary>
+        private static void CoerceOptionalWeight(JsonObject o)
+        {
+            JsonNode? n = FindPropertyIgnoreCase(o, "Weight");
+            if (n == null)
+                return;
+            if (IsJsonNull(n) || string.IsNullOrWhiteSpace(CellText(n)))
+            {
+                RemovePropertyIgnoreCase(o, "Weight");
+                return;
+            }
+            if (n is JsonValue jv && jv.TryGetValue(out double _))
+                return;
+            if (double.TryParse(CellText(n).Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double d))
+                SetPropertyIgnoreCase(o, "Weight", JsonValue.Create(d));
+            else
+                RemovePropertyIgnoreCase(o, "Weight");
         }
 
         private static void CoercePropertyToDouble(JsonObject o, string propertyName)
