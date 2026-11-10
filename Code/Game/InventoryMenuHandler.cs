@@ -513,11 +513,7 @@
         /// </summary>
         public void OpenTab(HubTab tab)
         {
-            if (IsInTradeUpFlow())
-            {
-                ShowMessageEvent?.Invoke("Finish the trade-up first.");
-                return;
-            }
+            // A trade-up only spends items on confirm, so leaving its screens just cancels it.
             SetEscapeMenuOpen(false, refresh: false);
             if (stateTracker.IsAnySelectionActive() || stateTracker.WaitingForMenuMutatingActionConfirmation || stateTracker.WaitingForComparisonChoice)
                 stateTracker.ResetItemActionStates();
@@ -620,6 +616,10 @@
                 case HubSettings:
                     // Settings opens in its own window; the menu stays up behind it.
                     _ = HubCommandEvent?.Invoke(HubSettings);
+                    break;
+                case HubEscapeMenu.SnapshotToken:
+                    SetEscapeMenuOpen(false);
+                    RequestLabSnapshotCapture();
                     break;
                 case HubMainMenu:
                 case HubQuit:

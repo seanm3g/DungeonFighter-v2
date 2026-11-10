@@ -70,7 +70,8 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.ClearBoxesInArea(System.Math.Max(0, rpX - 1), rpY, rpW + 2, rpH);
             
             // Main border for right panel - extends to right edge with no padding
-            canvas.AddBorder(rpX, rpY, rpW, rpH, AsciiArtAssets.Colors.Purple);
+            canvas.AddBorder(rpX, rpY, rpW, rpH, PanelJoin.Border(AsciiArtAssets.Colors.Purple));
+            PanelJoin.ApplyRightPanel(canvas);
             
             int y = LayoutConstants.RIGHT_PANEL_Y + 1;
             int x = LayoutConstants.RIGHT_PANEL_X + 2;
@@ -85,7 +86,14 @@ namespace RPGGame.UI.Avalonia.Layout
                 || hubSkillsTab);
             // Inventory as the hub: navigation lives in the center tabs, Dungeon Select by the action strip and Main Menu /
             // Settings in the Esc menu, so the right column shows the action sequence and the pool it draws from.
-            if (useInventoryPanel)
+            // Hub Inventory / Skills tabs: the dungeon(s) ahead and their info. The Actions tab keeps sequence + pool
+            // (that is where the sequence is edited).
+            bool hubDungeonPanel = useInventoryPanel && HubTabBar.IsActive && (title == "INVENTORY" || hubSkillsTab);
+            if (hubDungeonPanel)
+            {
+                RenderHubDungeonPanel(x, y, character!);
+            }
+            else if (useInventoryPanel)
             {
                 RenderInventoryRightPanel(x, y, character!, interactive: !hubSkillsTab);
             }
@@ -95,6 +103,186 @@ namespace RPGGame.UI.Avalonia.Layout
                 int? heroLevelForLabCaption = registerActionLabEnemyLevelHover ? character?.Level : null;
                 RenderLocationEnemyPanel(x, y, enemy, dungeonName, roomName, registerActionLabEnemyLevelHover, heroLevelForLabCaption);
             }
+        }
+
+        /// <summary>Game state the hub dungeon panel reads (current run, dungeons on offer); set by the canvas renderer.</summary>
+        public static GameStateManager? HubStateManager { get; set; }
+
+        /// <summary>
+        /// Hub right column: the dungeon in progress if there is one, otherwise the current region and the dungeons on
+        /// offer (name, level, theme, foes). Clicking a dungeon opens Dungeon Select.
+        /// </summary>
+        private void RenderHubDungeonPanel(int x, int y, Character character)
+        {
+            int panelBottom = LayoutConstants.RIGHT_PANEL_Y + LayoutConstants.RIGHT_PANEL_HEIGHT - 2;
+            int maxW = Math.Max(8, LayoutConstants.RIGHT_PANEL_WIDTH - 4);
+            var sm = HubStateManager;
+
+            var current = sm?.CurrentDungeon;
+            if (current != null)
+            {
+                canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("DUNGEON"), AsciiArtAssets.Colors.Gold);
+                y += 2;
+                y = DrawHubDungeonEntry(x, y, maxW, panelBottom, current, clickable: false);
+                int rooms = current.Rooms?.Count ?? 0;
+                if (rooms > 0 && y <= panelBottom)
+                {
+                    int done = Math.Clamp(current.TraversalState?.NextContentIndex ?? 0, 0, rooms);
+                    canvas.AddText(x, y, $"Rooms: {done}/{rooms}", AsciiArtAssets.Colors.White);
+                    y++;
+                }
+                string? roomName = sm!.CurrentRoom?.Name;
+                if (!string.IsNullOrEmpty(roomName) && y + 1 <= panelBottom)
+                {
+                    canvas.AddText(x, y, "Room:", AsciiArtAssets.Colors.Gray);
+                    y++;
+                    canvas.AddText(x, y, RightPanelContentText.EllipsizeToPanelWidth(roomName), AsciiArtAssets.Colors.Yellow);
+                    y++;
+                }
+                return;
+            }
+
+            // Region
+            var region = new TravelRegionCatalog().GetRegionForCharacter(character);
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("REGION"), AsciiArtAssets.Colors.Gold);
+            y += 2;
+            if (!string.IsNullOrWhiteSpace(region.DisplayName))
+            {
+                string regionName = RightPanelContentText.EllipsizeToPanelWidth(region.DisplayName);
+                if (!string.IsNullOrEmpty(region.Theme))
+                    textWriter.RenderSegments(DungeonThemeColors.BuildThemedName(regionName, region.Theme), x, y);
+                else
+                    canvas.AddText(x, y, regionName, AsciiArtAssets.Colors.Cyan);
+                y++;
+            }
+            if (region.HasLevelRange)
+            {
+                canvas.AddText(x, y, region.LevelRangeLabel, AsciiArtAssets.Colors.Gray);
+                y++;
+            }
+            foreach (var line in WrapWords(region.Description, maxW, 3))
+            {
+                canvas.AddText(x, y, line, AsciiArtAssets.Colors.DarkGray);
+                y++;
+            }
+            y++;
+
+            // Dungeons on offer
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("DUNGEONS"), AsciiArtAssets.Colors.Gold);
+            y++;
+            canvas.AddText(x, y, "(click to choose)", AsciiArtAssets.Colors.DarkGray);
+            y += 2;
+
+            var offered = new List<Dungeon>();
+            if (sm?.AvailableDungeons != null)
+                foreach (var d in sm.AvailableDungeons)
+                    if (d != null && !GameConstants.IsDungeonSelectionUtilityOption(d.Name))
+                        offered.Add(d);
+
+            if (offered.Count == 0)
+            {
+                canvas.AddText(x, y, "(none yet)", AsciiArtAssets.Colors.DarkGray);
+                return;
+            }
+
+            for (int i = 0; i < offered.Count; i++)
+            {
+                if (y + 2 > panelBottom)
+                {
+                    canvas.AddText(x, y, $"... +{offered.Count - i} more", AsciiArtAssets.Colors.Gray);
+                    break;
+                }
+                y = DrawHubDungeonEntry(x, y, maxW, panelBottom, offered[i], clickable: true);
+                y++;
+            }
+        }
+
+        /// <summary>One dungeon: themed name, level and theme, then its foes. Returns the next free row.</summary>
+        private int DrawHubDungeonEntry(int x, int y, int maxW, int panelBottom, Dungeon dungeon, bool clickable)
+        {
+            int top = y;
+            string name = RightPanelContentText.EllipsizeToPanelWidth(dungeon.Name);
+            if (!string.IsNullOrEmpty(dungeon.Theme))
+                textWriter.RenderSegments(DungeonThemeColors.BuildThemedName(name, dungeon.Theme), x, y);
+            else
+                canvas.AddText(x, y, name, AsciiArtAssets.Colors.Cyan);
+            y++;
+
+            string level = dungeon.MinLevel == dungeon.MaxLevel || dungeon.MaxLevel <= 0
+                ? $"Lvl {dungeon.MinLevel}"
+                : $"Lvl {dungeon.MinLevel}-{dungeon.MaxLevel}";
+            string meta = string.IsNullOrEmpty(dungeon.Theme) ? level : $"{level}  {dungeon.Theme}";
+            if (y <= panelBottom)
+            {
+                canvas.AddText(x, y, meta.Length > maxW ? meta.Substring(0, maxW) : meta, AsciiArtAssets.Colors.Gold);
+                y++;
+            }
+
+            if (dungeon.PossibleEnemies != null && dungeon.PossibleEnemies.Count > 0)
+            {
+                var foes = new List<string>();
+                foreach (var e in dungeon.PossibleEnemies)
+                    if (!string.IsNullOrWhiteSpace(e) && !foes.Contains(e))
+                        foes.Add(e);
+                foreach (var line in WrapWords("Foes: " + string.Join(", ", foes), maxW, 2))
+                {
+                    if (y > panelBottom)
+                        break;
+                    canvas.AddText(x, y, line, AsciiArtAssets.Colors.Gray);
+                    y++;
+                }
+            }
+
+            if (clickable && interactionManager != null)
+            {
+                interactionManager.AddClickableElement(new ClickableElement
+                {
+                    X = x,
+                    Y = top,
+                    Width = maxW,
+                    Height = Math.Max(1, y - top),
+                    Type = ElementType.MenuOption,
+                    Value = InventoryMenuHandler.HubDungeonSelect,
+                    DisplayText = dungeon.Name
+                });
+            }
+            return y;
+        }
+
+        /// <summary>Word-wraps <paramref name="text"/> to <paramref name="width"/> columns, at most <paramref name="maxLines"/> (last one ends "..." when cut).</summary>
+        private static List<string> WrapWords(string? text, int width, int maxLines)
+        {
+            var lines = new List<string>();
+            if (string.IsNullOrWhiteSpace(text) || width <= 3 || maxLines <= 0)
+                return lines;
+            var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            string cur = "";
+            int wi = 0;
+            for (; wi < words.Length; wi++)
+            {
+                string w = words[wi].Length > width ? words[wi].Substring(0, width) : words[wi];
+                string next = cur.Length == 0 ? w : cur + " " + w;
+                if (next.Length <= width)
+                {
+                    cur = next;
+                    continue;
+                }
+                lines.Add(cur);
+                cur = w;
+                if (lines.Count == maxLines)
+                    break;
+            }
+            if (lines.Count < maxLines && cur.Length > 0)
+            {
+                lines.Add(cur);
+                wi = words.Length;
+            }
+            if (wi < words.Length && lines.Count > 0)
+            {
+                string last = lines[^1];
+                lines[^1] = (last.Length > width - 3 ? last.Substring(0, width - 3) : last) + "...";
+            }
+            return lines;
         }
 
         /// <summary>

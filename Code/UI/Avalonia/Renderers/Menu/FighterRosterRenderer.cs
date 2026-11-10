@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Avalonia.Media;
+using Colors = Avalonia.Media.Colors;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Avalonia.Renderers.Helpers;
 
@@ -51,6 +52,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         public List<RosterCard> Cards { get; init; } = new();
         /// <summary>Shown in the panel area when nothing is hovered or selected.</summary>
         public RosterDetail? Detail { get; init; }
+        /// <summary>Card the detail belongs to; the panel opens directly under it.</summary>
+        public string? DetailAnchorKey { get; init; }
         public List<RosterLine> Placeholder { get; init; } = new();
         /// <summary>Clickable key hints along the bottom left.</summary>
         public List<RosterLine> Footer { get; init; } = new();
@@ -71,6 +74,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         private const int SideW = 22;
         private const int MaxPanelW = 72;
         private const int MinPanelW = 40;
+        /// <summary>Value of the detail panel's click-blocker (a Text element, so clicks on it do nothing).</summary>
+        public const string PanelKey = "roster:panel";
 
         private readonly GameCanvasControl canvas;
         private readonly List<ClickableElement> clickables;
@@ -132,7 +137,24 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             if (screen.Footer.Count > 0)
                 DrawFlow(screen.Footer, left, footerY, Math.Max(10, sideX - 3 - left), 1);
 
-            // Detail panel: beside the last card when the row has room, else under the cards.
+            FighterRosterHoverState.ClearPanel();
+
+            // Detail panel: directly under its card, sharing the card's left edge (slid left only when it would run
+            // past the right margin), drawn as an opaque overlay over whatever is beneath.
+            int anchor = screen.Detail == null || screen.DetailAnchorKey == null
+                ? -1
+                : screen.Cards.FindIndex(0, count, c => c.Key == screen.DetailAnchorKey);
+            if (anchor >= 0)
+            {
+                int cardX = left + (anchor % perRow) * (CardW + Gap);
+                int cardBottom = cardsTop + (anchor / perRow) * (CardH + 2) + CardH;
+                int w = Math.Min(MaxPanelW, right - left);
+                int px = Math.Max(left, Math.Min(cardX, right - w));
+                DrawDetail(screen.Detail!, px, cardBottom, w, y + height - 2);
+                return;
+            }
+
+            // No anchored card: hint (or the panel) under the cards.
             int rowsUsed = Math.Max(1, (count + perRow - 1) / perRow);
             int lastRow = count % perRow;
             int panelX, panelY;
@@ -264,27 +286,32 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             int headerRows = Math.Max(portraitH, 1 + d.Header.Count);
             int wanted = 1 + headerRows + (bodyRows.Count > 0 ? 1 + bodyRows.Count : 0) + 1;
             int ph = Math.Min(wanted, bottom - py + 1);
-            canvas.AddBorder(px, py, pw, ph, d.BorderColor, 1);
+
+            // Opaque overlay: hides the cards / buttons beneath; a click-blocker keeps clicks from falling through.
+            canvas.MaskNonOverlayTextInArea(px, py, pw, ph);
+            canvas.AddOverlayBox(px, py, pw, ph, d.BorderColor, Colors.Black, 2);
+            clickables.Add(new ClickableElement { X = px, Y = py, Width = pw, Height = ph, Type = ElementType.Text, Value = PanelKey });
+            FighterRosterHoverState.SetPanel(px, py, pw, ph);
 
             // Portrait
             int top = py + 1;
-            canvas.AddBorder(innerX, top, portraitW, portraitH, AsciiArtAssets.Colors.Gray, 1);
+            canvas.AddOverlayBox(innerX, top, portraitW, portraitH, AsciiArtAssets.Colors.Gray, Colors.Black);
             for (int i = 0; i < d.Face.Length && i < portraitH - 2; i++)
-                Centered(innerX, portraitW - 2, top + 1 + i, d.Face[i], d.FaceColor);
+                Centered(innerX, portraitW - 2, top + 1 + i, d.Face[i], d.FaceColor, overlay: true);
 
             // Title block beside it
             int tx = innerX + portraitW + 2;
             int tw = Math.Max(1, px + pw - 2 - tx);
-            canvas.AddText(tx, top, Fit(d.Title, tw), d.TitleColor);
+            canvas.AddOverlayText(tx, top, Fit(d.Title, tw), d.TitleColor);
             for (int i = 0; i < d.Header.Count && top + 1 + i < py + ph - 1; i++)
-                canvas.AddText(tx, top + 1 + i, Fit(d.Header[i].Text, tw), d.Header[i].Color);
+                canvas.AddOverlayText(tx, top + 1 + i, Fit(d.Header[i].Text, tw), d.Header[i].Color);
 
             int row = top + headerRows + 1;
             foreach (var r in bodyRows)
             {
                 if (row >= py + ph - 1)
                     break;
-                DrawButtons(r, innerX, row++, 3);
+                DrawButtons(r, innerX, row++, 3, overlay: true);
             }
         }
 
@@ -295,7 +322,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 DrawButtons(rows[i], x, y + i, 3);
         }
 
-        private void DrawButtons(List<RosterLine> items, int x, int y, int gap)
+        private void DrawButtons(List<RosterLine> items, int x, int y, int gap, bool overlay = false)
         {
             int cursor = x;
             foreach (var b in items)
@@ -318,7 +345,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     if (element.IsHovered)
                         color = BoxButton.HoverColor;
                 }
-                canvas.AddText(cursor, y, b.Text, color);
+                if (b.Text.Length > 0)
+                {
+                    if (overlay)
+                        canvas.AddOverlayText(cursor, y, b.Text, color);
+                    else
+                        canvas.AddText(cursor, y, b.Text, color);
+                }
                 cursor += b.Text.Length + gap;
             }
         }
@@ -347,12 +380,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             return rows;
         }
 
-        private void Centered(int x, int innerW, int y, string text, Color color)
+        private void Centered(int x, int innerW, int y, string text, Color color, bool overlay = false)
         {
             if (string.IsNullOrEmpty(text))
                 return;
             text = Fit(text, innerW);
-            canvas.AddText(x + 1 + Math.Max(0, (innerW - text.Length) / 2), y, text, color);
+            int tx = x + 1 + Math.Max(0, (innerW - text.Length) / 2);
+            if (overlay)
+                canvas.AddOverlayText(tx, y, text, color);
+            else
+                canvas.AddText(tx, y, text, color);
         }
 
         private static bool IsOver(int x, int y, int w, int h) =>

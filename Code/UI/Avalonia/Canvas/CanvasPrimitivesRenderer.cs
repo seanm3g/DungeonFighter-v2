@@ -214,9 +214,10 @@ namespace RPGGame.UI.Avalonia.Canvas
         }
 
         private double ResolveFontSize(CanvasText text) =>
-            !text.IgnoresCenterColumn && CenterColumnTextZoom.IsCenterColumnX(text.X)
+            (!text.IgnoresCenterColumn && CenterColumnTextZoom.IsCenterColumnX(text.X)
                 ? CenterColumnTextZoom.ScaledFontSize(coordinateConverter.GetFontSize())
-                : coordinateConverter.GetFontSize();
+                : coordinateConverter.GetFontSize())
+            * (text.FontScale > 0 ? text.FontScale : 1.0);
 
         /// <summary>
         /// Monospace advance for the font size actually drawn. Rounded so center-column zoom
@@ -542,9 +543,9 @@ namespace RPGGame.UI.Avalonia.Canvas
             double charWidth = coordinateConverter.GetCharWidth();
             double charHeight = coordinateConverter.GetCharHeight();
             
-            double x = box.X * charWidth;
+            double x = (box.X - box.OutsetLeftCells) * charWidth;
             double y = box.Y * charHeight;
-            double width = box.Width * charWidth;
+            double width = (box.Width + box.OutsetLeftCells + box.OutsetRightCells) * charWidth;
             double height = box.Height * charHeight;
 
             // Opaque fill first so panel lines behind the box are hidden; border draws on top.

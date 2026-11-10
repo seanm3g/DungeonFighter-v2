@@ -283,8 +283,9 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             var gameRef = game;
             bool skillTree = gameRef?.StateManager?.CurrentState == GameState.SkillTree;
+            bool inventory = gameRef?.StateManager?.CurrentState == GameState.Inventory;
             bool inCenter = LayoutConstants.ContainsCombatLogScrollRegion(grid.X, grid.Y)
-                || (skillTree && LayoutConstants.ContainsCenterColumnFull(grid.X, grid.Y));
+                || ((skillTree || inventory) && LayoutConstants.ContainsCenterColumnFull(grid.X, grid.Y));
             if (!inCenter)
                 return;
 
@@ -981,7 +982,9 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             var grid = ScreenToGrid(releasePosition);
             string? token = null;
-            if (fromIndex >= 0 && InventoryScreenRenderer.BoundsContain(InventoryScreenRenderer.LastPaperDollBounds, grid.X, grid.Y))
+            // A bag item dropped anywhere on the left (hero) panel equips into its own slot, not only on the gear figure.
+            if (fromIndex >= 0 && (InventoryScreenRenderer.BoundsContain(InventoryScreenRenderer.LastPaperDollBounds, grid.X, grid.Y)
+                || LayoutConstants.ContainsLeftPanel(grid.X, grid.Y)))
                 token = InventoryDetailViewState.DropEquipPrefix + fromIndex;
             else if (fromSlot != null && InventoryScreenRenderer.BoundsContain(InventoryScreenRenderer.LastBagGridBounds, grid.X, grid.Y))
                 token = InventoryDetailViewState.DropUnequipPrefix + fromSlot;

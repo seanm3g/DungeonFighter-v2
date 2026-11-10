@@ -149,6 +149,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             LastBagGridBounds = default;
             LastBagGridFreeTopY = 0;
             LastDetailPaneBounds = default;
+            LastDetailTextTopY = 0;
 
             // Null check for inventory
             if (inventory == null)
@@ -158,13 +159,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             
             // Inventory items section
-            int actionsStartY = InventoryItemScrollLayout.GetBottomMenuStartY(startY, height, pendingMutatingInventoryMenuAction != null);
+            bool hubTabs = HubTabBar.IsActive && LayoutConstants.ActionStripAtBottom;
+            // On the hub there is no Actions block (snapshot lives in the Esc menu), so the item list runs to the panel bottom.
+            bool hubNoActions = hubTabs && pendingMutatingInventoryMenuAction == null;
+            int actionsStartY = hubNoActions
+                ? startY + height
+                : InventoryItemScrollLayout.GetBottomMenuStartY(startY, height, pendingMutatingInventoryMenuAction != null);
             // The description column may run past the Actions header down to the panel bottom when it sits right of the buttons;
             // the confirmation block's long warning lines span the full width, so it keeps the short bound then.
             int detailExtendedBottomY = pendingMutatingInventoryMenuAction != null ? actionsStartY - 1 : startY + height;
             detailSeparatorXBesideActions = null;
             int itemsHeaderY = y;
-            bool hubTabs = HubTabBar.IsActive && LayoutConstants.ActionStripAtBottom;
             if (hubTabs)
                 HubTabBar.Draw(canvas, clickableElements.Add, x + 2, y, width - 4, HubTab.Inventory);
             else
@@ -189,16 +194,21 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 y++;
                 currentLineCount++;
             }
-            clickableElements.Add(new ClickableElement
+            // Header hover tooltip only when the plain header is drawn: on the hub this row holds the tab strip, and a later
+            // (last-registered-wins) target here would swallow the tab clicks.
+            if (!hubTabs)
             {
-                X = x + 2,
-                Y = itemsHeaderY,
-                Width = Math.Max(1, width - 4 - viewToggleWidth),
-                Height = 1,
-                Type = ElementType.Text,
-                Value = Prefix + "center:itemsHeader",
-                DisplayText = "Inventory items"
-            });
+                clickableElements.Add(new ClickableElement
+                {
+                    X = x + 2,
+                    Y = itemsHeaderY,
+                    Width = Math.Max(1, width - 4 - viewToggleWidth),
+                    Height = 1,
+                    Type = ElementType.Text,
+                    Value = Prefix + "center:itemsHeader",
+                    DisplayText = "Inventory items"
+                });
+            }
             
             if (inventory.Count == 0)
             {
@@ -368,6 +378,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 return currentLineCount;
             }
 
+            if (hubNoActions)
+            {
+                DrawBottomDungeonSelectButton();
+                return currentLineCount;
+            }
+
             int actionsHeaderY = y;
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Actions), AsciiArtAssets.Colors.Gold);
             y += 2;
@@ -404,12 +420,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             // DUNGEON SELECT (D): the hub's way out, beside the action strip along the bottom of the screen.
             if (LayoutConstants.ActionStripAtBottom)
             {
-                int bx = LayoutConstants.ACTION_INFO_X + LayoutConstants.ACTION_INFO_WIDTH + 1;
-                int bh = Math.Max(3, LayoutConstants.ACTION_INFO_HEIGHT - 2);
-                int by = LayoutConstants.ACTION_INFO_Y + Math.Max(0, (LayoutConstants.ACTION_INFO_HEIGHT - bh) / 2);
-                RPGGame.UI.Avalonia.Renderers.Helpers.BoxButton.Draw(canvas, clickableElements, bx, by,
-                    LayoutConstants.ActionStripSideButtonWidth, bh, "DUNGEON SELECT", InventoryMenuHandler.HubDungeonSelect,
-                    borderThickness: 2, extraLines: bh >= 5 ? new[] { "", "(D)" } : null);
+                DrawBottomDungeonSelectButton();
             }
             else
             {
@@ -426,6 +437,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             
             return currentLineCount;
+        }
+
+        /// <summary>DUNGEON SELECT (D) box beside the bottom action strip.</summary>
+        private void DrawBottomDungeonSelectButton()
+        {
+            int bx = LayoutConstants.ACTION_INFO_X + LayoutConstants.ACTION_INFO_WIDTH + 1;
+            int bh = Math.Max(3, LayoutConstants.ACTION_INFO_HEIGHT - 2);
+            int by = LayoutConstants.ACTION_INFO_Y + Math.Max(0, (LayoutConstants.ACTION_INFO_HEIGHT - bh) / 2);
+            RPGGame.UI.Avalonia.Renderers.Helpers.BoxButton.Draw(canvas, clickableElements, bx, by,
+                LayoutConstants.ActionStripSideButtonWidth, bh, "DUNGEON SELECT", InventoryMenuHandler.HubDungeonSelect,
+                borderThickness: 2, extraLines: bh >= 5 ? new[] { "", "(D)" } : null);
         }
 
         /// <summary>Width of the detail view's left list: selection marker + "[NN] " + truncated name.</summary>
@@ -719,12 +741,18 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         }
 
         /// <summary>Rows per bag item in the new inventory list (icon height).</summary>
-        internal const int ListRowHeight = 2;
+        internal const int ListRowHeight = 4;
+
+        /// <summary>Item names in the new inventory list draw this much larger than the grid font.</summary>
+        internal const double ListNameFontScale = 1.5;
+
+        /// <summary>Grid rows between scaled name lines (a 1.5× line needs two rows).</summary>
+        private const int ListNameLineStride = 2;
 
         /// <summary>
-        /// New inventory: one row per bag item down the left (icon, name, slot, key stats, actions), rarity-coloured names,
+        /// New inventory: one row per bag item down the left (icon and name only), rarity-coloured names,
         /// the selected row framed gold; the selected item's large icon and full description on the right. Rows click as
-        /// <c>invsel:{inventoryIndex}</c>, drag onto the left panel's gear figure to equip, and hover the item tooltip.
+        /// <c>invsel:{inventoryIndex}</c>, drag onto the left panel to equip, and hover the item tooltip.
         /// Scroll offset counts items. While <paramref name="hoveredItem"/> is set, rows sharing one of its affixes glow cyan.
         /// </summary>
         private void RenderGridView(
@@ -794,29 +822,24 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         canvas.AddText(listX + 1, ry, TruncateTo(GetSlotName(item), iconCols), rarityColor);
                 }
 
-                // Line 1: name, slot on the right.
-                string slotName = GetSlotName(item);
-                string number = entry.DisplayNumber.ToString();
-                int nameMax = Math.Max(1, textWidth - slotName.Length - 2);
-                canvas.AddText(textX, ry, TruncateTo(item.Name, nameMax), nameColor);
-                canvas.AddText(textX + textWidth - slotName.Length, ry, slotName, AsciiArtAssets.Colors.Gray);
-
-                // Line 2: key stats, then the actions it grants; number on the right.
-                var stats = ItemStatFormatter.GetItemStats(item, character);
-                string statText = string.Join("  ", stats.Take(3).Select(st => st.Trim()));
-                var actions = character.Equipment.GetGearActions(item);
-                string actionText = actions != null && actions.Count > 0 ? string.Join(", ", actions) : "";
-                int line2Max = Math.Max(1, textWidth - number.Length - 2);
-                string statPart = TruncateTo(statText, line2Max);
-                canvas.AddText(textX, ry + 1, statPart, AsciiArtAssets.Colors.White);
-                int actionX = textX + statPart.Length + (statPart.Length > 0 ? 2 : 0);
-                int actionRoom = textX + line2Max - actionX;
-                if (actionText.Length > 0 && actionRoom >= 6)
+                // Icon + name only (details live in the pane on the right); long names wrap onto the row's second line.
+                int scaledNameWidth = Math.Max(4, (int)Math.Floor(textWidth / ListNameFontScale));
+                int maxNameLines = Math.Max(1, rowH / ListNameLineStride);
+                var nameLines = WrapName(item.Name, scaledNameWidth, maxNameLines);
+                // One line sits mid-row; two fill it.
+                int nameTop = ry + (nameLines.Count == 1 ? (rowH - ListNameLineStride) / 2 : 0);
+                // Normal rows color each word (material, quality, affix, base type); dragged / blocked rows stay one color.
+                bool wordColors = !beingDragged && !blocked;
+                var nameWords = wordColors ? NameWordColors(item) : null;
+                int wordCursor = 0;
+                for (int li = 0; li < nameLines.Count; li++)
                 {
-                    string a = actionText.Length <= actionRoom ? actionText : actionText.Substring(0, actionRoom - 3) + "...";
-                    canvas.AddText(actionX, ry + 1, a, AsciiArtAssets.Colors.Cyan);
+                    int lineY = nameTop + li * ListNameLineStride;
+                    if (nameWords == null)
+                        canvas.AddScaledText(textX, lineY, nameLines[li], nameColor, ListNameFontScale);
+                    else
+                        canvas.AddScaledText(textX, lineY, nameLines[li], LineCharColors(nameLines[li], nameWords, ref wordCursor, nameColor), ListNameFontScale);
                 }
-                canvas.AddText(textX + textWidth - number.Length, ry + 1, number, isSelected ? AsciiArtAssets.Colors.Gold : AsciiArtAssets.Colors.DarkGray);
 
                 if (!blockRowClicks)
                 {
@@ -842,7 +865,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             else if (InventoryDragState.IsActive && InventoryDragState.FromBag)
             {
-                status = "Drop on your gear (left) to equip";
+                status = "Drop on the left panel to equip";
                 statusColor = AsciiArtAssets.Colors.Green;
             }
             canvas.AddText(listX, bottomY - 1, TruncateTo(status, listWidth), statusColor);
@@ -872,9 +895,89 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     canvas.AddImage(iconX, detailY, hero.Columns, hero.Rows, bigBitmap, bigRect, paddingPixels: 0, fillFrame: true, followsAsciiStyle: true);
                     detailY += hero.Rows + 1;
                 }
+                LastDetailTextTopY = detailY;
                 RenderDetailPane(detailX, detailY, detailWidth, detailBottomY, paneItem, character, ref currentLineCount);
             }
             RenderDragGhost(x, width, topY, bottomY, tileCols, tileRows, haveArt);
+        }
+
+        /// <summary>The item name's words in order, each with the color the full-name formatter gives it.</summary>
+        private static List<(string Word, Color Color)> NameWordColors(Item item)
+        {
+            var words = new List<(string, Color)>();
+            foreach (var seg in ItemNameFormatter.FormatFullItemName(item))
+            {
+                foreach (var w in (seg.Text ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                    words.Add((w, seg.Color));
+            }
+            return words;
+        }
+
+        /// <summary>
+        /// Per-character colors for one wrapped name line: each word takes the next matching formatter word's color
+        /// (<paramref name="fallback"/> when the formatter spelled it differently, and for "...").
+        /// </summary>
+        private static List<Color> LineCharColors(string line, List<(string Word, Color Color)> words, ref int cursor, Color fallback)
+        {
+            var colors = new List<Color>(line.Length);
+            int i = 0;
+            while (i < line.Length)
+            {
+                if (line[i] == ' ')
+                {
+                    colors.Add(fallback);
+                    i++;
+                    continue;
+                }
+                int end = line.IndexOf(' ', i);
+                if (end < 0) end = line.Length;
+                string word = line.Substring(i, end - i);
+                string bare = word.EndsWith("...") ? word.Substring(0, word.Length - 3) : word;
+                Color wordColor = fallback;
+                if (cursor < words.Count)
+                {
+                    var next = words[cursor];
+                    if (string.Equals(next.Word, bare, StringComparison.OrdinalIgnoreCase)
+                        || (bare.Length > 0 && bare.Length < word.Length && next.Word.StartsWith(bare, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        wordColor = next.Color;
+                        cursor++;
+                    }
+                }
+                for (int c = 0; c < word.Length; c++)
+                    colors.Add(c < bare.Length ? wordColor : fallback);
+                i = end;
+            }
+            return colors;
+        }
+
+        /// <summary>Word-wraps an item name to <paramref name="width"/> columns over at most <paramref name="maxLines"/> lines ("..." when cut).</summary>
+        private static List<string> WrapName(string? name, int width, int maxLines)
+        {
+            var lines = new List<string>();
+            string rest = (name ?? "").Trim();
+            width = Math.Max(4, width);
+            while (rest.Length > 0 && lines.Count < maxLines)
+            {
+                if (rest.Length <= width)
+                {
+                    lines.Add(rest);
+                    rest = "";
+                    break;
+                }
+                if (lines.Count == maxLines - 1)
+                {
+                    lines.Add(rest.Substring(0, width - 3) + "...");
+                    rest = "";
+                    break;
+                }
+                int cut = rest.LastIndexOf(' ', width);
+                if (cut <= 0)
+                    cut = width;
+                lines.Add(rest.Substring(0, cut).TrimEnd());
+                rest = rest.Substring(cut).TrimStart();
+            }
+            return lines;
         }
 
         /// <summary>Frame of a tile sharing an affix with the hovered item.</summary>
@@ -899,6 +1002,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
         /// <summary>Last frame's description pane right of the bag grid; item hover tooltips dock here so they never cover tiles.</summary>
         public static (int X, int Y, int Width, int Height) LastDetailPaneBounds { get; private set; }
+
+        /// <summary>First row of the detail pane's text, below the hero item image (0 when nothing drawn). Hover tips dock here so they never cover the image.</summary>
+        public static int LastDetailTextTopY { get; private set; }
 
         public static bool BoundsContain((int X, int Y, int Width, int Height) bounds, int gridX, int gridY) =>
             bounds.Width > 0 && gridX >= bounds.X && gridX < bounds.X + bounds.Width && gridY >= bounds.Y && gridY < bounds.Y + bounds.Height;

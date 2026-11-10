@@ -153,6 +153,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 ToggleKey = MainMenuHandler.OverviewKey,
                 Cards = cards,
                 Detail = detail,
+                DetailAnchorKey = detail != null ? hovered : null,
                 Placeholder = placeholder,
                 SideButtons = MainMenuSideButtons(prefix: "")
             });

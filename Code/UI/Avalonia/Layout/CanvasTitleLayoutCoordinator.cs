@@ -53,6 +53,9 @@ namespace RPGGame.UI.Avalonia.Layout
             bool inDungeonRun = false)
         {
             CenterColumnTextZoom.SidePanelsVisible = usePersistentChrome;
+            // Inventory hub: panels share one frame line where they meet.
+            PanelJoin.Active = usePersistentChrome && inventoryComboRightPanel && RPGGame.UI.Avalonia.Renderers.Inventory.HubTabBar.IsActive
+                && !CombatBoardLayout.OwnsCenterColumn;
             if (usePersistentChrome)
             {
                 if (clearCanvas)

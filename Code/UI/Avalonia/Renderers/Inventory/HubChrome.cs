@@ -107,14 +107,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     public static class HubEscapeMenu
     {
         public const string ResumeToken = "hub:esc:resume";
+        public const string SnapshotToken = "hub:esc:snapshot";
 
         public static bool IsOpen { get; set; }
 
-        /// <summary>Menu rows: label and the input each sends (number keys 1-4 pick them too).</summary>
+        /// <summary>Menu rows: label and the input each sends (number keys 1-5 pick them too).</summary>
         public static readonly (string Label, string Token)[] Options =
         {
             ("Resume", ResumeToken),
             ("Settings", InventoryMenuHandler.HubSettings),
+            ("Action Lab Snapshot", SnapshotToken),
             ("Save & Main Menu", InventoryMenuHandler.HubMainMenu),
             ("Quit Game", InventoryMenuHandler.HubQuit),
         };

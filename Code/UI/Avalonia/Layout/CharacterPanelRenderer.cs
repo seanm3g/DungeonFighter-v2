@@ -68,7 +68,8 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.ClearBoxesInArea(leftX, leftY, leftW, leftH);
 
             // Main border for character panel - starts at X=0 with no padding
-            canvas.AddBorder(LayoutConstants.LEFT_PANEL_X, LayoutConstants.LEFT_PANEL_Y, LayoutConstants.LEFT_PANEL_WIDTH, LayoutConstants.LEFT_PANEL_HEIGHT, AsciiArtAssets.Colors.Blue);
+            canvas.AddBorder(LayoutConstants.LEFT_PANEL_X, LayoutConstants.LEFT_PANEL_Y, LayoutConstants.LEFT_PANEL_WIDTH, LayoutConstants.LEFT_PANEL_HEIGHT, PanelJoin.Border(AsciiArtAssets.Colors.Blue));
+            PanelJoin.ApplyLeftPanel(canvas);
 
             int contentTop = LeftPanelViewport.ContentTop;
             int contentBottomExclusive = LeftPanelViewport.ContentBottomExclusive;
@@ -214,6 +215,44 @@ namespace RPGGame.UI.Avalonia.Layout
                 y += 2;
             }
 
+            // --- GEAR --- (hidden for the whole dungeon run; hover hero name for loadout; Action Lab keeps the section)
+            if (LeftPanelSectionVisibility.ShowGear(gameState, inDungeonRun))
+            {
+                int gearHeaderY = y;
+                PanelText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.Gear), AsciiArtAssets.Colors.Gold);
+                y += 2;
+                if (interactionManager != null && stateManager != null && LeftPanelViewport.IsRowVisible(gearHeaderY))
+                {
+                    interactionManager.AddClickableElement(new ClickableElement
+                    {
+                        X = x,
+                        Y = gearHeaderY,
+                        Width = headerClickWidth,
+                        Height = 1,
+                        Type = ElementType.Text,
+                        Value = ToggleSectionGear,
+                        DisplayText = "Gear"
+                    });
+                }
+
+                if ((stateManager == null || !stateManager.GearCollapsed) && TryRenderGearFigure(character, gameState, x, ref y, headerClickWidth))
+                {
+                    RenderFormingSets(character, x, ref y, headerClickWidth);
+                    RenderAnimalSets(character, x, ref y, headerClickWidth);
+                }
+                else if (stateManager == null || !stateManager.GearCollapsed)
+                {
+                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Weapon", character.Weapon, "gear:weapon", 1);
+                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Head", character.Head, "gear:head", 1);
+                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Body", character.Body, "gear:body", 1);
+                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Legs", character.Legs, "gear:legs", 1);
+                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Feet", character.Feet, "gear:feet", 1);
+                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Charm", character.Charm, "gear:charm", 1);
+                    RenderFormingSets(character, x, ref y, headerClickWidth);
+                    RenderAnimalSets(character, x, ref y, headerClickWidth);
+                }
+            }
+
             // --- STATS --- (static gold like HERO/GEAR; no glow — glow animation shifted hue vs other headers)
             int statsHeaderY = y;
             string statsHeaderText = FormatLeftPanelSectionHeader(UIConstants.Headers.Stats);
@@ -318,44 +357,6 @@ namespace RPGGame.UI.Avalonia.Layout
             else if (stateManager != null)
             {
                 stateManager.ResetStatsAreaBounds();
-            }
-
-            // --- GEAR --- (hidden for the whole dungeon run; hover hero name for loadout; Action Lab keeps the section)
-            if (LeftPanelSectionVisibility.ShowGear(gameState, inDungeonRun))
-            {
-                int gearHeaderY = y;
-                PanelText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.Gear), AsciiArtAssets.Colors.Gold);
-                y += 2;
-                if (interactionManager != null && stateManager != null && LeftPanelViewport.IsRowVisible(gearHeaderY))
-                {
-                    interactionManager.AddClickableElement(new ClickableElement
-                    {
-                        X = x,
-                        Y = gearHeaderY,
-                        Width = headerClickWidth,
-                        Height = 1,
-                        Type = ElementType.Text,
-                        Value = ToggleSectionGear,
-                        DisplayText = "Gear"
-                    });
-                }
-
-                if ((stateManager == null || !stateManager.GearCollapsed) && TryRenderGearFigure(character, gameState, x, ref y, headerClickWidth))
-                {
-                    RenderFormingSets(character, x, ref y, headerClickWidth);
-                    RenderAnimalSets(character, x, ref y, headerClickWidth);
-                }
-                else if (stateManager == null || !stateManager.GearCollapsed)
-                {
-                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Weapon", character.Weapon, "gear:weapon", 1);
-                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Head", character.Head, "gear:head", 1);
-                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Body", character.Body, "gear:body", 1);
-                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Legs", character.Legs, "gear:legs", 1);
-                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Feet", character.Feet, "gear:feet", 1);
-                    RenderEquipmentSlot(x, ref y, headerClickWidth, "Charm", character.Charm, "gear:charm", 1);
-                    RenderFormingSets(character, x, ref y, headerClickWidth);
-                    RenderAnimalSets(character, x, ref y, headerClickWidth);
-                }
             }
 
             // --- STATUS EFFECTS --- (hero; above thresholds; dungeon run + Action Lab; enemy effects are on the right panel)
@@ -471,7 +472,8 @@ namespace RPGGame.UI.Avalonia.Layout
             int totalContentHeight = System.Math.Max(0, y - contentOriginY);
             ScrubLeftPanelOutsideViewport(leftX, leftY, leftW, leftH, contentTop, contentBottomExclusive);
             // Border rows may have been scrubbed; redraw the frame.
-            canvas.AddBorder(LayoutConstants.LEFT_PANEL_X, LayoutConstants.LEFT_PANEL_Y, LayoutConstants.LEFT_PANEL_WIDTH, LayoutConstants.LEFT_PANEL_HEIGHT, AsciiArtAssets.Colors.Blue);
+            canvas.AddBorder(LayoutConstants.LEFT_PANEL_X, LayoutConstants.LEFT_PANEL_Y, LayoutConstants.LEFT_PANEL_WIDTH, LayoutConstants.LEFT_PANEL_HEIGHT, PanelJoin.Border(AsciiArtAssets.Colors.Blue));
+            PanelJoin.ApplyLeftPanel(canvas);
 
             if (stateManager != null)
             {

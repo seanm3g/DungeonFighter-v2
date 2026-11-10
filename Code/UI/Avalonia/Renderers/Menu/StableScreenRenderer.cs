@@ -123,8 +123,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 });
             }
 
-            string hovered = FighterRosterHoverState.Value;
-            var shown = view.Cards.FirstOrDefault(c => c.SelectKey == hovered) ?? view.Cards.FirstOrDefault(c => c.Selected);
+            // Stable mode shows details for the selected fighter only; hovering a card doesn't pop a panel.
+            var shown = view.Cards.FirstOrDefault(c => c.Selected);
             RosterDetail? detail = null;
             if (shown != null)
             {
@@ -155,7 +155,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     {
                         new RosterLine($"Level {shown.Level} {shown.ClassName}", ToneColor(StableLineTone.Normal)),
                         new RosterLine(shown.Status, ToneColor(shown.NeedsDecision ? StableLineTone.Alert : StableLineTone.Dim)),
-                        new RosterLine(shown.Selected ? "Click again or Enter to watch" : "Click to select", gray)
+                        new RosterLine("Click again or Enter to watch", gray)
                     },
                     Body = body
                 };
@@ -175,9 +175,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 Notice = view.Notice == null ? null : new RosterLine(view.Notice.Text, ToneColor(view.Notice.Tone)),
                 Cards = cards,
                 Detail = detail,
+                DetailAnchorKey = shown?.SelectKey,
                 Placeholder = { new RosterLine(view.Cards.Count == 0
                     ? "No fighters in the Stable yet. Click + for a new hero or A to bring in a saved one; they run dungeons side by side."
-                    : "Hover a fighter for details.", gray) },
+                    : "Click a fighter for details.", gray) },
                 Footer = footer,
                 SideButtons = MainMenuRenderer.MainMenuSideButtons(StableHandler.MenuKeyPrefix)
             });

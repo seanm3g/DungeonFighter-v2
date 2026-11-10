@@ -27,7 +27,13 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// Full-screen scene text (title screen): skips center-column zoom and clip so it stays on the cell grid.
         /// </summary>
         public bool IgnoresCenterColumn { get; set; }
-        
+
+        /// <summary>
+        /// Font size multiplier for this text (1 = grid font). Larger text still starts at (X, Y) and runs right / down
+        /// past its cell; callers leave room for it (e.g. inventory item names).
+        /// </summary>
+        public double FontScale { get; set; } = 1.0;
+
         // Glow effect properties
         public bool HasGlow { get; set; } = false;
         public Color GlowColor { get; set; } = Colors.White;
@@ -52,6 +58,10 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// Expands an opaque <see cref="BackgroundColor"/> fill by this many device pixels on each side (subpixel fringes).
         /// </summary>
         public int OpaqueBackgroundBleedDevicePixels { get; set; }
+
+        /// <summary>Cells the box (fill and stroke) extends past its left / right edge; joined panels share a gap line.</summary>
+        public double OutsetLeftCells { get; set; }
+        public double OutsetRightCells { get; set; }
 
         /// <summary>
         /// When true, drawn after normal text and non-overlay boxes so the fill is not covered by center-panel narrative.

@@ -305,7 +305,19 @@ namespace RPGGame.UI.Avalonia.Canvas
 
             return updated;
         }
-        
+
+        /// <summary>Sets <see cref="CanvasBox.OutsetLeftCells"/> / right on non-overlay boxes at exactly this rect.</summary>
+        public void SetBoxOutset(int x, int y, int width, int height, double outsetLeftCells, double outsetRightCells)
+        {
+            foreach (var box in boxElements)
+            {
+                if (box.IsOverlay || box.X != x || box.Y != y || box.Width != width || box.Height != height)
+                    continue;
+                box.OutsetLeftCells = outsetLeftCells;
+                box.OutsetRightCells = outsetRightCells;
+            }
+        }
+
         /// <summary>
         /// Adds a progress bar element
         /// </summary>

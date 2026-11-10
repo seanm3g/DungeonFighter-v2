@@ -97,13 +97,13 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>Rows the hub tab strip takes above the trade-up screens (0 outside the hub).</summary>
         private static int TradeUpTabRows() => Inventory.HubTabBar.IsActive && LayoutConstants.ActionStripAtBottom ? 2 : 0;
 
-        /// <summary>Hub tabs over the trade-up screens; locked, since a started trade-up must finish.</summary>
+        /// <summary>Hub tabs over the trade-up screens; switching tabs cancels the unconfirmed trade-up.</summary>
         private void DrawTradeUpTabs(int contentX, int contentY, int contentWidth)
         {
             if (TradeUpTabRows() == 0)
                 return;
             canvas.ClearTextInArea(contentX + 1, contentY, contentWidth - 2, 1);
-            Inventory.HubTabBar.Draw(canvas, interactionManager.AddClickableElement, contentX + 2, contentY, contentWidth - 4, Inventory.HubTab.TradeUp, locked: true);
+            Inventory.HubTabBar.Draw(canvas, interactionManager.AddClickableElement, contentX + 2, contentY, contentWidth - 4, Inventory.HubTab.TradeUp);
         }
 
         public void RenderComboManagement(Character character, CanvasContext context)
@@ -120,7 +120,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                     int frameH = LayoutConstants.CENTER_COLUMN_FULL_HEIGHT;
                     canvas.ClearTextInArea(frameX, frameY, frameW, frameH);
                     canvas.ClearBoxesInArea(frameX, frameY, frameW, frameH);
-                    canvas.AddBox(frameX, frameY, frameW, frameH, AsciiArtAssets.Colors.Cyan, CenterPanelModeTint.GetBackgroundColor());
+                    canvas.AddBox(frameX, frameY, frameW, frameH, PanelJoin.Border(AsciiArtAssets.Colors.Cyan), CenterPanelModeTint.GetBackgroundColor());
+                    PanelJoin.ApplyCenter(canvas, frameY, frameH);
                     var (x, y, w, h) = LayoutConstants.GetCenterColumnFullContentRect();
                     inventoryRenderer.RenderComboManagement(x, y, w, h, character, hubTabs: true);
                 }, context, null, null, null, clearCanvas: true, inventoryComboRightPanel: true);

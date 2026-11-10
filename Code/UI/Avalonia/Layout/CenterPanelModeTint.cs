@@ -35,7 +35,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 LayoutConstants.CENTER_PANEL_Y,
                 LayoutConstants.CENTER_PANEL_WIDTH,
                 LayoutConstants.CENTER_PANEL_HEIGHT,
-                AsciiArtAssets.Colors.Cyan,
+                PanelJoin.Border(AsciiArtAssets.Colors.Cyan),
                 GetBackgroundColor());
             bool sequence = !CombatSequenceHudState.IsBandReserved
                 || canvas.TryUpdateBox(
@@ -43,8 +43,9 @@ namespace RPGGame.UI.Avalonia.Layout
                     LayoutConstants.CombatSequencePanelY,
                     LayoutConstants.CENTER_PANEL_WIDTH,
                     LayoutConstants.CombatSequencePanelHeight,
-                    AsciiArtAssets.Colors.Cyan,
+                    PanelJoin.Border(AsciiArtAssets.Colors.Cyan),
                     GetBackgroundColor());
+            ApplyJoin(canvas);
             return log && sequence;
         }
 
@@ -82,7 +83,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     LayoutConstants.CombatSequencePanelY,
                     LayoutConstants.CENTER_PANEL_WIDTH,
                     LayoutConstants.CombatSequencePanelHeight,
-                    AsciiArtAssets.Colors.Cyan,
+                    PanelJoin.Border(AsciiArtAssets.Colors.Cyan),
                     GetBackgroundColor());
             }
 
@@ -91,8 +92,16 @@ namespace RPGGame.UI.Avalonia.Layout
                 LayoutConstants.CENTER_PANEL_Y,
                 LayoutConstants.CENTER_PANEL_WIDTH,
                 LayoutConstants.CENTER_PANEL_HEIGHT,
-                AsciiArtAssets.Colors.Cyan,
+                PanelJoin.Border(AsciiArtAssets.Colors.Cyan),
                 GetBackgroundColor());
+            ApplyJoin(canvas);
+        }
+
+        private static void ApplyJoin(GameCanvasControl canvas)
+        {
+            PanelJoin.ApplyCenter(canvas, LayoutConstants.CENTER_PANEL_Y, LayoutConstants.CENTER_PANEL_HEIGHT);
+            if (CombatSequenceHudState.IsBandReserved)
+                PanelJoin.ApplyCenter(canvas, LayoutConstants.CombatSequencePanelY, LayoutConstants.CombatSequencePanelHeight);
         }
     }
 }

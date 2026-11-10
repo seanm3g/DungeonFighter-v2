@@ -138,6 +138,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             gameStateManager = stateManager;
             combatValidator.SetGameStateManager(stateManager);
+            Avalonia.Layout.RightPanelRenderer.HubStateManager = stateManager;
         }
 
         #region Private Helper Methods

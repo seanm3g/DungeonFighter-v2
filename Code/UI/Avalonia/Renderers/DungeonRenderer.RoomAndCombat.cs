@@ -330,7 +330,33 @@ namespace RPGGame.UI.Avalonia.Renderers
             int right = Math.Min(innerRight, pane.X + pane.Width - 1);
             dockW = Math.Min(52, right - dockX + 1);
             dockY = -1;
-            return dockW >= 12;
+            if (dockW < 12)
+                return false;
+            // Start below the hero item image so the tip covers the (duplicated) description text, not the art.
+            int textTop = Inventory.InventoryScreenRenderer.LastDetailTextTopY;
+            if (textTop <= pane.Y)
+                return true;
+            if (textTop + boxHeightForWidth(dockW) - 1 <= maxBoxBottom)
+            {
+                dockY = textTop;
+                return true;
+            }
+            // Too tall to fit under the image: use the empty right side of the bag list (names are left-aligned)
+            // instead of letting the bottom clamp lift the tip over the art.
+            if (grid.Width > 0)
+            {
+                int listRight = Math.Min(innerRight, grid.X + grid.Width - 1);
+                int listW = Math.Min(52, listRight - Math.Max(innerLeft, grid.X) + 1);
+                if (listW >= 12 && grid.Width - listW >= 24)
+                {
+                    dockW = listW;
+                    dockX = listRight - listW + 1;
+                    dockY = -1;
+                    return true;
+                }
+            }
+            dockY = textTop;
+            return true;
         }
 
         /// <summary>

@@ -913,6 +913,31 @@ namespace RPGGame.UI.Avalonia
             elementBuilder.AddText(x, y, text, color, glowColor, glowIntensity, glowRadius);
         }
         
+        /// <summary>Adds text drawn at <paramref name="fontScale"/> times the grid font (replaces text at the same cell).</summary>
+        public void AddScaledText(int x, int y, string text, Color color, double fontScale)
+        {
+            elementManager.RemoveText(t => t.X == x && t.Y == y);
+            elementManager.AddText(new CanvasText { X = x, Y = y, Content = text, Color = color, FontScale = fontScale });
+        }
+
+        /// <summary>
+        /// <see cref="AddScaledText"/> with one color per character: one layer per color at the same cell, other
+        /// characters blanked, so scaled glyphs keep their monospace positions.
+        /// </summary>
+        public void AddScaledText(int x, int y, string text, IReadOnlyList<Color> charColors, double fontScale)
+        {
+            elementManager.RemoveText(t => t.X == x && t.Y == y);
+            foreach (var color in charColors.Take(text.Length).Distinct())
+            {
+                var layer = new char[text.Length];
+                for (int i = 0; i < text.Length; i++)
+                    layer[i] = i < charColors.Count && charColors[i] == color ? text[i] : ' ';
+                string content = new string(layer).TrimEnd();
+                if (content.Trim().Length > 0)
+                    elementManager.AddText(new CanvasText { X = x, Y = y, Content = content, Color = color, FontScale = fontScale });
+            }
+        }
+
         /// <summary>
         /// Adds full-screen scene text with no merging/dedupe (title screen paints thousands of cells per frame).
         /// Skips center-column zoom and clipping.
@@ -974,6 +999,12 @@ namespace RPGGame.UI.Avalonia
         public bool TryUpdateBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor)
         {
             return elementManager.TryUpdateBox(x, y, width, height, borderColor, backgroundColor);
+        }
+
+        /// <summary>See <see cref="Canvas.CanvasElementManager.SetBoxOutset"/>.</summary>
+        public void SetBoxOutset(int x, int y, int width, int height, double outsetLeftCells, double outsetRightCells)
+        {
+            elementManager.SetBoxOutset(x, y, width, height, outsetLeftCells, outsetRightCells);
         }
 
         /// <summary>See <see cref="CanvasElementBuilder.AddOverlayBox"/>.</summary>
