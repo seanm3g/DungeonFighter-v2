@@ -18,6 +18,9 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// </summary>
         public double NudgeCellsX { get; set; }
 
+        /// <summary>Sub-cell vertical shift in cells (e.g. centers a small glyph beside larger scaled text).</summary>
+        public double NudgeCellsY { get; set; }
+
         /// <summary>
         /// When true, drawn after normal text so opaque panels (e.g. hover tooltips) stay under this text only, not under body copy.
         /// </summary>

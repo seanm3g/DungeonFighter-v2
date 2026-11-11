@@ -920,6 +920,12 @@ namespace RPGGame.UI.Avalonia
             elementManager.AddText(new CanvasText { X = x, Y = y, Content = text, Color = color, FontScale = fontScale });
         }
 
+        /// <summary>Scaled text shifted by a fraction of a cell (does not replace other text at the cell).</summary>
+        public void AddScaledTextNudged(int x, int y, string text, Color color, double fontScale, double nudgeCellsX, double nudgeCellsY)
+        {
+            elementManager.AddText(new CanvasText { X = x, Y = y, Content = text, Color = color, FontScale = fontScale, NudgeCellsX = nudgeCellsX, NudgeCellsY = nudgeCellsY });
+        }
+
         /// <summary>
         /// <see cref="AddScaledText"/> with one color per character: one layer per color at the same cell, other
         /// characters blanked, so scaled glyphs keep their monospace positions.

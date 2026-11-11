@@ -824,7 +824,7 @@ namespace RPGGame.UI.Avalonia.Canvas
 
             bool forceMonospace = ShouldForceMonospaceGlyphPlacement(GameFonts.UsesPixelGrid);
             double baseX = (text.X + text.NudgeCellsX) * charWidth;
-            double baseY = text.Y * charHeight;
+            double baseY = (text.Y + text.NudgeCellsY) * charHeight;
 
             textShadowActive = HasDropShadow(text);
             try
@@ -1295,7 +1295,7 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             var pose = SampleDistortionPose(text.X, text.Y, 0, charWidth, charHeight);
             double baseX = (text.X + text.NudgeCellsX) * charWidth;
-            double baseY = text.Y * charHeight;
+            double baseY = (text.Y + text.NudgeCellsY) * charHeight;
             bool moving = Math.Abs(pose.OffsetX) > WindSwayChromatic.IdleEpsilon
                 || Math.Abs(pose.OffsetY) > WindSwayChromatic.IdleEpsilon
                 || Math.Abs(pose.RotationRadians) > WindSwayChromatic.IdleEpsilon;

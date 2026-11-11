@@ -30,6 +30,10 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>ASCII section line matching STATS: <c>====  LABEL  ====</c> (double spaces around label).</summary>
         private static string FormatLeftPanelSectionHeader(string label) => $"====  {label}  ====";
 
+        /// <summary>X that centers <paramref name="text"/> across the left panel.</summary>
+        private static int CenteredLeftPanelX(string text) =>
+            LayoutConstants.LEFT_PANEL_X + Math.Max(1, (LayoutConstants.LEFT_PANEL_WIDTH - text.Length) / 2);
+
         private readonly GameCanvasControl canvas;
         private readonly ColoredTextWriter textWriter;
         private readonly StatsPanelStateManager? stateManager;
@@ -105,10 +109,10 @@ namespace RPGGame.UI.Avalonia.Layout
                 return;
             }
 
-            // --- HERO --- (left-aligned like STATS/GEAR; body order: name, HP bar, Lvl+class, XP)
+            // --- HERO --- (centered like GEAR; body order: name, HP bar, Lvl+class, XP)
             int heroHeaderY = y;
             string heroHeaderText = FormatLeftPanelSectionHeader(UIConstants.Headers.Hero);
-            PanelText(x, y, heroHeaderText, AsciiArtAssets.Colors.Gold);
+            PanelText(CenteredLeftPanelX(heroHeaderText), y, heroHeaderText, AsciiArtAssets.Colors.Gold);
             y += 2;
             if (interactionManager != null && stateManager != null && LeftPanelViewport.IsRowVisible(heroHeaderY))
             {
@@ -232,7 +236,8 @@ namespace RPGGame.UI.Avalonia.Layout
             if (LeftPanelSectionVisibility.ShowGear(gameState, inDungeonRun))
             {
                 int gearHeaderY = y;
-                PanelText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.Gear), AsciiArtAssets.Colors.Gold);
+                string gearHeaderText = FormatLeftPanelSectionHeader(UIConstants.Headers.Gear);
+                PanelText(CenteredLeftPanelX(gearHeaderText), y, gearHeaderText, AsciiArtAssets.Colors.Gold);
                 y += 2;
                 if (interactionManager != null && stateManager != null && LeftPanelViewport.IsRowVisible(gearHeaderY))
                 {
@@ -602,6 +607,8 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>Sets rows draw the set name at this font scale over <see cref="SetNameRowStride"/> grid rows.</summary>
         private const double SetNameFontScale = 1.5;
         private const int SetNameRowStride = 2;
+        /// <summary>Grid cells reserved left of a set name for its (half-scale) expand arrow.</summary>
+        private const int SetArrowGutter = 2;
 
         /// <summary>Same clipping as <see cref="RegisterLeftPanelHoverRow"/>, for a click target that shows no hover tip.</summary>
         private void RegisterLeftPanelClickRow(int x, int rowY, int width, int height, string value)
@@ -780,17 +787,25 @@ namespace RPGGame.UI.Avalonia.Layout
             y++;
 
             const int maxWidth = 29;
-            int nameWidth = Math.Max(4, (int)Math.Floor(maxWidth / SetNameFontScale));
+            int nameWidth = Math.Max(4, (int)Math.Floor((maxWidth - SetArrowGutter) / SetNameFontScale));
             int detailWidth = Math.Max(8, Math.Min(maxWidth, hoverWidth - 1));
             foreach (var (material, count) in sets)
             {
                 int rowY = y;
                 bool expanded = stateManager?.IsSetExpanded(material) == true;
-                string line = (expanded ? AsciiArtAssets.UIElements.ArrowDown + " " : AsciiArtAssets.UIElements.ArrowRight + " ") + MaterialSetController.FormatFormingSetHudLine(material, count);
+                string arrow = expanded ? AsciiArtAssets.UIElements.ArrowDown : AsciiArtAssets.UIElements.ArrowRight;
+                string line = MaterialSetController.FormatFormingSetHudLine(material, count);
                 if (line.Length > nameWidth)
                     line = line.Substring(0, nameWidth - 3) + "...";
                 if (LeftPanelViewport.IsRowVisible(y))
-                    canvas.AddScaledText(x, y, line, AsciiArtAssets.Colors.Cyan, SetNameFontScale);
+                {
+                    // Arrow at half the name's scale, centered on the name's line height and in the gutter before it.
+                    double arrowScale = SetNameFontScale / 2;
+                    double arrowNudgeY = (SetNameFontScale - arrowScale) / 2;
+                    double arrowNudgeX = (SetArrowGutter - arrowScale) / 2 - 0.25;
+                    canvas.AddScaledTextNudged(x, y, arrow, AsciiArtAssets.Colors.Cyan, arrowScale, arrowNudgeX, arrowNudgeY);
+                    canvas.AddScaledText(x + SetArrowGutter, y, line, AsciiArtAssets.Colors.Cyan, SetNameFontScale);
+                }
                 y += SetNameRowStride;
 
                 if (expanded)
