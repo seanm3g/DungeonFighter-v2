@@ -403,6 +403,12 @@ namespace RPGGame.Combat.Calculators
                 totalDamage = (int)(totalDamage * tagModifier);
                 // Verb presets (CASH IN, DETONATE, RECKONING, …) read their store before the hit spends it.
                 totalDamage += VerbPresets.GetDamageBonus(attacker, target, action, totalDamage);
+                if (attacker is Character affixHero && affixHero is not Enemy)
+                {
+                    double affixPct = AffixTemplates.OutgoingDamagePercent(affixHero, action);
+                    if (affixPct != 0)
+                        totalDamage += (int)Math.Round(totalDamage * affixPct / 100.0);
+                }
             }
 
             if (_sequenceTrace != null)

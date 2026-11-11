@@ -309,5 +309,77 @@
     "MinValue": 1,
     "MaxValue": 1,
     "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Attuned",
+    "Description": "\u002B1 to every mint of this piece's material.",
+    "Effect": "TUNE",
+    "Weight": 0.5,
+    "DiceResult": 0,
+    "MinValue": 1,
+    "MaxValue": 1,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Charged-Up",
+    "Description": "\u002B8-12% damage while this piece's material currency is 5\u002B.",
+    "Effect": "STORECOND",
+    "Weight": 0.5,
+    "DiceResult": 0,
+    "MinValue": 8,
+    "MaxValue": 12,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Doubled",
+    "Description": "Counts twice toward its material set.",
+    "Effect": "COUNTSDOUBLE",
+    "Weight": 0.5,
+    "DiceResult": 0,
+    "MinValue": 1,
+    "MaxValue": 1,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Opening",
+    "Description": "\u002B10-15% damage on your strip's opener.",
+    "Effect": "OPENER",
+    "Weight": 0.5,
+    "DiceResult": 0,
+    "MinValue": 10,
+    "MaxValue": 15,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Closing",
+    "Description": "\u002B10-15% damage on your strip's finisher.",
+    "Effect": "FINISHER",
+    "Weight": 0.5,
+    "DiceResult": 0,
+    "MinValue": 10,
+    "MaxValue": 15,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Bloodbound",
+    "Description": "Each action costs 2% max HP; \u002B12-18% damage.",
+    "Effect": "BLOODPRICE",
+    "Weight": 0.5,
+    "DiceResult": 0,
+    "MinValue": 12,
+    "MaxValue": 18,
+    "RolledValue": 0
   }
 ]

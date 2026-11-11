@@ -178,6 +178,7 @@ namespace RPGGame
                 {
                     VerbPresets.TickInvestments(heroSynth);
                     ActionCost.Pay(heroSynth, action);
+                    AffixTemplates.PayActionCosts(heroSynth);
                 }
                 bool gainedFocus = (heroSynth.FocusStacks ?? 0) > focusBefore;
                 bool appliedSlow = slowTarget != null && !ReferenceEquals(slowTarget, heroSynth)

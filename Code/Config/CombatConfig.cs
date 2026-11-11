@@ -240,6 +240,10 @@ namespace RPGGame
         public double ListenerMintShare { get; set; } = 0.5;
         /// <summary>A material bank reaching this raises ONSTOREFULL (HeroEventHub). 0 = never.</summary>
         public int MintStoreFullThreshold { get; set; } = 10;
+        /// <summary>STORECOND affix: the piece's material bank needed for its damage bonus.</summary>
+        public int AffixConditionStoreThreshold { get; set; } = 5;
+        /// <summary>BLOODPRICE affix: % max HP each action costs per such piece.</summary>
+        public double AffixBloodPriceHpPercent { get; set; } = 2.0;
         /// <summary>
         /// Defense per active Fortify stack, in units of the DR constant K (same scale as Harden). 0 = legacy: Fortify only
         /// adds its flat FortifyArmorPerStack (1 armor against K 275), and skill-granted Fortify (Crest of Triumph, Second Wind,

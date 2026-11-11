@@ -56,7 +56,7 @@ namespace RPGGame
                 else if (partnerMaterials.Any(m => string.Equals(m, itemMat, StringComparison.OrdinalIgnoreCase)))
                     joiners++;
             }
-            return count > 0 ? count + joiners : 0;
+            return count > 0 ? count + joiners + AffixTemplates.ExtraSetCount(hero, key) : 0;
         }
 
         /// <summary>
@@ -464,6 +464,7 @@ namespace RPGGame
         {
             if (amount <= 0 || string.IsNullOrWhiteSpace(keyword))
                 return;
+            amount += AffixTemplates.MintBonus(hero, keyword);
             int before = hero.Effects.GetMaterialKeyword(keyword);
             hero.Effects.AddMaterialKeyword(keyword, amount);
             RecordFightMint(hero, keyword, amount);
