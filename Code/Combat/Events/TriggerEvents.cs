@@ -50,7 +50,7 @@ namespace RPGGame.Combat.Events
         /// <summary>Label format when the token carries a <c>:arg</c>, with <c>{0}</c> for the argument.</summary>
         public string? ArgLabel { get; }
 
-        /// <summary>False for events reserved in the vocabulary that combat does not fire yet.</summary>
+        /// <summary>True for events on the CombatEvent pipeline (action trigger bundles see them); false for hub events fired by <see cref="HeroEventHub"/> (materials, Listener affixes, cross-wires only).</summary>
         public bool Emitted { get; }
     }
 
@@ -98,7 +98,7 @@ namespace RPGGame.Combat.Events
             // Passive channel
             new("WHILEEQUIPPED", TriggerEventFamily.Equip, "While equipped", "while the item is worn", new[] { "ONEQUIP" }),
 
-            // Reserved by the condensed build system; combat does not fire these yet.
+            // Hub events (HeroEventHub): materials, Listener affixes and skill cross-wires read them; action trigger bundles do not.
             new("ONSTATUSAPPLY", TriggerEventFamily.Hit, "On status applied", "each time you apply a status", argLabel: "On {0} applied", emitted: false),
             new("ONCASH", TriggerEventFamily.Combo, "On spend", "each time you spend a stored resource", argLabel: "On {0} spent", emitted: false),
             new("ONSTOREFULL", TriggerEventFamily.Combo, "On store full", "each time a stored resource reaches its cap", argLabel: "On {0} full", emitted: false),

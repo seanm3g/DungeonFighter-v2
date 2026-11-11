@@ -264,6 +264,7 @@ namespace RPGGame
                         return 0;
                     int spent = Stores.SpendAll(target, from);
                     Stores.Add(hero, into, (int)Math.Floor(spent * share + 1e-9));
+                    RPGGame.Combat.Events.HeroEventHub.OnCash(hero, from, spent);
                     return spent;
                 }
                 case VerbKind.Transmute:
@@ -273,7 +274,11 @@ namespace RPGGame
                         return 0;
                     int spent = 0;
                     foreach (string id in HeroMints(hero).Where(id => !string.Equals(id, into, StringComparison.OrdinalIgnoreCase)).ToList())
-                        spent += Stores.SpendAll(hero, id);
+                    {
+                        int n = Stores.SpendAll(hero, id);
+                        spent += n;
+                        RPGGame.Combat.Events.HeroEventHub.OnCash(hero, id, n);
+                    }
                     Stores.Add(hero, into, (int)Math.Floor(spent * share + 1e-9));
                     return spent;
                 }
@@ -283,6 +288,7 @@ namespace RPGGame
                     if (id == null || !Stores.TryGet(id, out var def) || def.Kind != StoreKind.Mint)
                         return 0;
                     int spent = Stores.SpendAll(hero, id);
+                    RPGGame.Combat.Events.HeroEventHub.OnCash(hero, id, spent);
                     if (spent > 0)
                         Investments(hero).Add(new Investment(id, (int)Math.Floor(spent * share + 1e-9), spec.Delay + 1));
                     return spent;
@@ -360,6 +366,7 @@ namespace RPGGame
             int spent = Stores.SpendAll(holder, storeId);
             if (spent > 0 && Stores.TryGet(storeId, out var def) && def.Kind == StoreKind.Mint)
                 MaterialSetController.GrantConvertPrimaryStat(hero, def.Id, spent, share);
+            RPGGame.Combat.Events.HeroEventHub.OnCash(hero, storeId, spent);
             return spent;
         }
 

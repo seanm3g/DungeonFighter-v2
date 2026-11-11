@@ -54,6 +54,8 @@ namespace RPGGame
         public string ScaleFormula { get; set; } = "";
         /// <summary>Verb preset spec (<c>CASH ATTUNED 75</c>, <c>SCALE ATTUNED 50</c>, …); see <see cref="VerbPresets"/>.</summary>
         public string Verb { get; set; } = "";
+        /// <summary>Cost paid when the action resolves (<c>HP 5</c> = 5% max HP); see <see cref="ActionCost"/>.</summary>
+        public string Cost { get; set; } = "";
         public bool CausesBleed { get; set; }
         public bool CausesWeaken { get; set; }
         public bool CausesSlow { get; set; }

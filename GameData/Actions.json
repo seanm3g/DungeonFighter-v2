@@ -1993,5 +1993,34 @@
     "block": "100",
     "verb": "PALM",
     "tags": "action, verb, store"
+  },
+  {
+    "action": "PRELUDE",
+    "description": "Set the tempo: your next 3 actions get \u002B15% AMP.",
+    "tier": 3,
+    "dps": "78%",
+    "numberOfHits": "1",
+    "damage": "70%",
+    "speed": "0.90",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"3\",\"mechanics\":\"hero_next_action_amp\",\"IsEnabled\":true}]",
+    "ampMod": "15",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"ACTION\",\"cadenceType\":\"ACTION\",\"count\":3,\"bonuses\":[{\"type\":\"AMP_MOD\",\"value\":15}],\"durationType\":\"ACTION\"}]}",
+    "tags": "action, verb, prep"
+  },
+  {
+    "action": "BLOOD OATH",
+    "description": "Swear on your blood: pay 5% max HP, next action \u002B60% damage.",
+    "tier": 3,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_damage\",\"IsEnabled\":true}]",
+    "damageMod": "60",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"ACTION\",\"cadenceType\":\"ACTION\",\"count\":1,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":60}],\"durationType\":\"ACTION\"}]}",
+    "cost": "HP 5",
+    "tags": "action, verb, prep"
   }
 ]

@@ -28,6 +28,8 @@ namespace RPGGame
         public string ScaleFormula { get; set; } = "";
         [JsonPropertyName("verb")]
         public string Verb { get; set; } = "";
+        [JsonPropertyName("cost")]
+        public string Cost { get; set; } = "";
         [JsonPropertyName("length")]
         public double Length { get; set; }
         /// <summary>Standing Defense multiplier 0–5 from this action. Missing/invalid defaults to 1.0 (100%).</summary>

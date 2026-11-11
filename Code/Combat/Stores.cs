@@ -149,7 +149,9 @@ namespace RPGGame
                     {
                         var hero = Hero(a);
                         if (hero == null) return 0;
+                        int before = hero.Effects.GetMaterialKeyword(keyword);
                         hero.Effects.AddMaterialKeyword(keyword, n);
+                        RPGGame.Combat.Events.HeroEventHub.OnMintChanged(hero, keyword, before, before + n);
                         return n;
                     },
                     spend: (a, max) =>

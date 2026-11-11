@@ -69,6 +69,7 @@ namespace RPGGame.Combat
         {
             var gained = Gained(target);
             if (ReferenceEquals(source, target)) return gained;
+            RPGGame.Combat.Events.HeroEventHub.OnStatusesApplied(source, target, gained);
             foreach (var status in gained)
             {
                 CombatEventBus.Instance.Publish(new CombatEvent(CombatEventType.StatusEffectApplied, source)

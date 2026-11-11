@@ -175,7 +175,10 @@ namespace RPGGame
                     VerbPresets.OnConnect(heroSynth, target, action, combatEvent.NaturalRollValue);
                 }
                 if (combatEvent.Type == CombatEventType.ActionHit || combatEvent.Type == CombatEventType.ActionMiss)
+                {
                     VerbPresets.TickInvestments(heroSynth);
+                    ActionCost.Pay(heroSynth, action);
+                }
                 bool gainedFocus = (heroSynth.FocusStacks ?? 0) > focusBefore;
                 bool appliedSlow = slowTarget != null && !ReferenceEquals(slowTarget, heroSynth)
                     && (slowTarget.Effects.SlowTurns > slowTurnsBefore || slowTarget.Effects.SlowMultiplier < slowMultBefore);

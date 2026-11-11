@@ -85,6 +85,8 @@ namespace RPGGame.Data
         public string ScaleFormula { get; set; } = "";
         /// <summary>Verb preset spec (<c>CASH ATTUNED 75</c>); JSON only, no sheet column yet.</summary>
         public string Verb { get; set; } = "";
+        /// <summary>Action cost (<c>HP 5</c>); JSON only, no sheet column yet.</summary>
+        public string Cost { get; set; } = "";
         
         // Columns N-Q: Hero bonuses (ACCURACY, HIT, COMBO, CRIT)
         public string HeroAccuracy { get; set; } = "";

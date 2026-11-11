@@ -398,6 +398,7 @@ namespace RPGGame
             _fightConvertStat.Remove(hero);
             _fightConvertStatRaw.Remove(hero);
             _fightConvertAgility.Remove(hero);
+            RPGGame.Combat.Events.HeroEventHub.ResetFight(hero);
         }
 
         /// <summary>Clears dungeon-run keyword currency (CRISIS, DRAG, …) and consecutive-connect tracking.</summary>
@@ -412,6 +413,7 @@ namespace RPGGame
                 return;
             var evt = new CombatEvent(CombatEventType.TurnStarted, hero) { Target = hero };
             TryMintFromEvent(hero, evt, action: null);
+            RPGGame.Combat.Events.HeroEventHub.OnHeroTurnStart(hero);
         }
 
         /// <param name="gainedFocus">The hero gained Focus from any source in this resolution (feeds ON_FOCUS).</param>
@@ -441,16 +443,32 @@ namespace RPGGame
                 int amount = ComputeMintPerTrigger(hero, build);
                 if (amount <= 0)
                     continue;
-                hero.Effects.AddMaterialKeyword(build.Keyword, amount);
-                RecordFightMint(hero, build.Keyword, amount);
                 string whenLabel = MaterialBuildData.FormatWhenLabel(build.Synthesis);
                 string cause = string.IsNullOrWhiteSpace(subject.Name) || subject.Name == "MaterialSynth"
                     ? whenLabel
                     : $"{subject.Name} · {whenLabel}";
-                hero.Effects.SetMaterialKeywordSource(build.Keyword, cause);
+                MintKeyword(hero, build.Keyword, amount, cause);
                 any = true;
             }
+            any |= ListenerAffix.MintFromCombatEvent(hero,
+                token => WhenMatches(token, subject, combatEvent, hero, gainedFocus, appliedSlow), takeHitOnly);
             return any;
+        }
+
+        /// <summary>
+        /// Adds minted currency: bank, this fight's minted tally, the "last from" source line, and ONSTOREFULL when the
+        /// bank crosses <see cref="CombatConfig.MintStoreFullThreshold"/>. Every mint path (set WHENs, Listener
+        /// affixes, hub events) goes through here.
+        /// </summary>
+        public static void MintKeyword(Character hero, string keyword, int amount, string cause)
+        {
+            if (amount <= 0 || string.IsNullOrWhiteSpace(keyword))
+                return;
+            int before = hero.Effects.GetMaterialKeyword(keyword);
+            hero.Effects.AddMaterialKeyword(keyword, amount);
+            RecordFightMint(hero, keyword, amount);
+            hero.Effects.SetMaterialKeywordSource(keyword, cause);
+            RPGGame.Combat.Events.HeroEventHub.OnMintChanged(hero, keyword, before, before + amount);
         }
 
         /// <summary>Keyword minted each time the set's WHEN fires with the hero's current gear, charm and skills (0 below 2 pieces).</summary>
@@ -566,6 +584,7 @@ namespace RPGGame
             {
                 hero.Effects.AddMaterialKeyword(keyword, -bank);
                 GrantConvertPrimaryStat(hero, keyword, bank);
+                RPGGame.Combat.Events.HeroEventHub.OnCash(hero, keyword, bank);
             }
             return bank;
         }

@@ -97,6 +97,7 @@ namespace RPGGame.Tests.Runners
             TriggerEventsTests.RunAllTests();
             StoresTests.RunAllTests();
             VerbPresetsTests.RunAllTests();
+            HeroEventHubTests.RunAllTests();
             StatBonusAnimalSuffixTriggerTests.RunAllTests();
             ItemTriggerCombatIntegrationTests.RunAllTests();
             Console.WriteLine();

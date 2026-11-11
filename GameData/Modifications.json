@@ -297,5 +297,17 @@
     "MinValue": 12.7,
     "MaxValue": 12.7,
     "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Listening",
+    "Description": "Also mints this piece's material currency on an event from its slot's family (rolled on drop).",
+    "Effect": "LISTEN",
+    "Weight": 0.5,
+    "DiceResult": 0,
+    "MinValue": 1,
+    "MaxValue": 1,
+    "RolledValue": 0
   }
 ]

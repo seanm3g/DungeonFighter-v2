@@ -765,8 +765,17 @@ namespace RPGGame
             if (pool.Count == 0)
                 return null;
 
+            // Listener prefixes need a slot with an event family; other slots never roll them.
+            if (ListenerAffix.SlotFamily(item) == null)
+                pool = pool.Where(m => !ListenerAffix.IsListener(m)).ToList();
+            if (pool.Count == 0)
+                return null;
+
             Modification template = PickWeighted(pool, m => m.Weight);
-            return CloneRolledModification(template, diceBonus);
+            var rolled = CloneRolledModification(template, diceBonus);
+            if (rolled != null && ListenerAffix.IsListener(rolled) && !ListenerAffix.RollEvent(rolled, item, _random))
+                return null;
+            return rolled;
         }
 
         /// <summary>
@@ -860,6 +869,7 @@ namespace RPGGame
                 Name = template.Name,
                 Description = template.Description,
                 Effect = template.Effect,
+                TriggerWhen = template.TriggerWhen,
                 MinValue = template.MinValue,
                 MaxValue = template.MaxValue,
                 RolledValue = RollValueBetween(template.MinValue, template.MaxValue),

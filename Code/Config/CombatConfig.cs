@@ -236,6 +236,10 @@ namespace RPGGame
         public double VerbStatusCashPercentPerUnit { get; set; } = 6.0;
         /// <summary>SCALE presets (RECKONING): most % damage a store can add without being spent. 0 = uncapped.</summary>
         public double VerbScaleMaxPercent { get; set; } = 100.0;
+        /// <summary>Listener affix: share of the set's normal mint per trigger (min 1). See <see cref="ListenerAffix"/>.</summary>
+        public double ListenerMintShare { get; set; } = 0.5;
+        /// <summary>A material bank reaching this raises ONSTOREFULL (HeroEventHub). 0 = never.</summary>
+        public int MintStoreFullThreshold { get; set; } = 10;
         /// <summary>
         /// Defense per active Fortify stack, in units of the DR constant K (same scale as Harden). 0 = legacy: Fortify only
         /// adds its flat FortifyArmorPerStack (1 armor against K 275), and skill-granted Fortify (Crest of Triumph, Second Wind,

@@ -156,6 +156,7 @@ namespace RPGGame.Tests.Runners
             RunSuiteSafely("TriggerEventsTests", () => TriggerEventsTests.RunAllTests());
             RunSuiteSafely("StoresTests", () => StoresTests.RunAllTests());
             RunSuiteSafely("VerbPresetsTests", () => VerbPresetsTests.RunAllTests());
+            RunSuiteSafely("HeroEventHubTests", () => HeroEventHubTests.RunAllTests());
             RunSuiteSafely("StatBonusAnimalSuffixTriggerTests", () => StatBonusAnimalSuffixTriggerTests.RunAllTests());
             RunSuiteSafely("ItemTriggerCombatIntegrationTests", () => ItemTriggerCombatIntegrationTests.RunAllTests());
             RunSuiteSafely("ItemTriggerScenarioTests", () => ItemTriggerScenarioTests.RunAllTests());
