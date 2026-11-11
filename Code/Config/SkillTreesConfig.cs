@@ -83,6 +83,10 @@ namespace RPGGame
         [JsonPropertyName("crossWire")]
         public string CrossWire { get; set; } = "";
 
+        /// <summary>Persistence capstone: stores carried into the next fight (<c>hero:streak,focus</c>; see <see cref="Persistence"/>).</summary>
+        [JsonPropertyName("persist")]
+        public string Persist { get; set; } = "";
+
         /// <summary>HP healed on hit per learned rank (pack/sink nodes).</summary>
         [JsonPropertyName("healOnHitPerRank")]
         public int HealOnHitPerRank { get; set; }

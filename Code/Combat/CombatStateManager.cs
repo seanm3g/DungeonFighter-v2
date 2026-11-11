@@ -90,6 +90,7 @@ namespace RPGGame
         /// </summary>
         public void EndBattleNarrative(Character player, Enemy enemy)
         {
+            Persistence.OnFightEnd(player, enemy);
             if (currentBattleNarrative != null)
             {
                 // Finalize fun moment tracking
@@ -153,6 +154,7 @@ namespace RPGGame
             StandingBlock.Reset(enemy);
             // Keyword currency is dungeon-run scoped; only consecutive-connect tracking resets per fight.
             MaterialSetController.ResetFightConnects(player);
+            Persistence.OnFightStart(player, enemy);
             MaterialSetController.SyncConvertActionsToPool(player);
             AnimalSetController.SyncAnimalActionsToPool(player);
 

@@ -24,6 +24,8 @@ namespace RPGGame.Tests.Unit
             TestTargetConditionAndApply();
             TestCombatEventWire();
             TestDataHasWires();
+            TestPersistenceCarriesHeroStores();
+            TestContagionMovesStatuses();
 
             TestBase.PrintSummary("Cross Wires Tests", _run, _passed, _failed);
         }
@@ -105,6 +107,43 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(1, foe.BleedIntensity, "attack on an Exposed target adds 1 Bleed", ref _run, ref _passed, ref _failed);
         }
 
+        private static void TestPersistenceCarriesHeroStores()
+        {
+            TestBase.SetCurrentTestName(nameof(TestPersistenceCarriesHeroStores));
+            var hero = Hero("StrideHero");
+            hero.Progression.LearnedSkillRanks["w-persist"] = 1;
+            hero.Effects.MaterialConsecutiveConnects = 4;
+            Stores.Add(hero, "focus", 2);
+            Persistence.OnFightEnd(hero, null);
+            MaterialSetController.ResetFightConnects(hero);
+            Stores.SpendAll(hero, "focus");
+            Persistence.OnFightStart(hero, null);
+            TestBase.AssertEqual(4, hero.Effects.MaterialConsecutiveConnects, "hit streak carried", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(2, Stores.Get(hero, "focus"), "Focus carried", ref _run, ref _passed, ref _failed);
+
+            var plain = Hero("PlainHero");
+            plain.Effects.MaterialConsecutiveConnects = 4;
+            Persistence.OnFightEnd(plain, null);
+            MaterialSetController.ResetFightConnects(plain);
+            Persistence.OnFightStart(plain, null);
+            TestBase.AssertEqual(0, plain.Effects.MaterialConsecutiveConnects, "without the capstone nothing carries", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestContagionMovesStatuses()
+        {
+            TestBase.SetCurrentTestName(nameof(TestContagionMovesStatuses));
+            var hero = Hero("ContagionHero");
+            hero.Progression.LearnedSkillRanks["r-persist"] = 1;
+            var dead = new Character("DeadFoe", 5);
+            ExposeStatus.Apply(dead, 2, 3);
+            dead.BleedIntensity = 4;
+            Persistence.OnFightEnd(hero, dead);
+            var next = new Character("NextFoe", 5);
+            Persistence.OnFightStart(hero, next);
+            TestBase.AssertEqual(2, next.ExposeStacks ?? 0, "Expose jumped to the next enemy", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(4, next.BleedIntensity, "Bleed jumped too", ref _run, ref _passed, ref _failed);
+        }
+
         private static void TestDataHasWires()
         {
             TestBase.SetCurrentTestName(nameof(TestDataHasWires));
@@ -113,6 +152,8 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(12, nodes, "12 class cross-wire nodes parse", ref _run, ref _passed, ref _failed);
             int mods = LootDataCache.Load().Modifications.Count(m => AffixTemplates.Is(m, CrossWires.AffixEffect) && CrossWireRule.Parse(m.CrossWire) != null);
             TestBase.AssertEqual(8, mods, "8 cross-wire prefixes parse", ref _run, ref _passed, ref _failed);
+            int caps = trees?.Trees.SelectMany(t => t.Nodes).Count(n => !string.IsNullOrWhiteSpace(n.Persist)) ?? 0;
+            TestBase.AssertEqual(4, caps, "4 class Persistence capstones", ref _run, ref _passed, ref _failed);
         }
     }
 }

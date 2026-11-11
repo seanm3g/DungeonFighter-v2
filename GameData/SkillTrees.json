@@ -436,6 +436,22 @@
           "power": 1.0,
           "crossWire": "ONKILL IF CRISIS>=1 -> MINT TRIUMPH 2",
           "sharedWith": []
+        },
+        {
+          "id": "b-persist",
+          "name": "Undying Grudge",
+          "branch": "Rite",
+          "tier": 17,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Harden and Fortify carry into the next fight.",
+          "payoff": "Your guard never drops.",
+          "customEffectId": "persistence",
+          "power": 1.0,
+          "persist": "hero:harden,fortify",
+          "sharedWith": []
         }
       ]
     },
@@ -872,6 +888,22 @@
           "customEffectId": "crosswire",
           "power": 1.0,
           "crossWire": "ONCONSECUTIVEATTACK IF STREAK>=5 -> MINT BEAT 1",
+          "sharedWith": []
+        },
+        {
+          "id": "w-persist",
+          "name": "Unbroken Stride",
+          "branch": "Rite",
+          "tier": 17,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Your hit streak and Focus carry into the next fight.",
+          "payoff": "Momentum survives the room.",
+          "customEffectId": "persistence",
+          "power": 1.0,
+          "persist": "hero:streak,focus",
           "sharedWith": []
         }
       ]
@@ -1353,6 +1385,22 @@
           "customEffectId": "crosswire",
           "power": 1.0,
           "crossWire": "ONATTACK IF TARGET expose -> APPLY bleed 1",
+          "sharedWith": []
+        },
+        {
+          "id": "r-persist",
+          "name": "Contagion",
+          "branch": "Rite",
+          "tier": 17,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "When an enemy dies, its Expose, Mark, Poison, Bleed and Burn jump to the next enemy.",
+          "payoff": "Wounds outlive their host.",
+          "customEffectId": "persistence",
+          "power": 1.0,
+          "persist": "target:expose,mark,poison,bleed,burn",
           "sharedWith": []
         }
       ]
@@ -1869,6 +1917,22 @@
           "customEffectId": "crosswire",
           "power": 1.0,
           "crossWire": "ONCONNECT IF TARGET burn -> MINT CHAIN 1",
+          "sharedWith": []
+        },
+        {
+          "id": "z-persist",
+          "name": "Lingering Weave",
+          "branch": "Rite",
+          "tier": 17,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Focus and temporary HP carry into the next fight.",
+          "payoff": "The weave holds between rooms.",
+          "customEffectId": "persistence",
+          "power": 1.0,
+          "persist": "hero:focus,temphp",
           "sharedWith": []
         }
       ]
