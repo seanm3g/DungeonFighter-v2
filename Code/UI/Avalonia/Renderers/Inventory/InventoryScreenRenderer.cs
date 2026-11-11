@@ -195,7 +195,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             bool gridView = detailView?.Grid == true;
             selectedEquippedItem = detailView?.SelectedEquippedSlot is string eqSlot ? character.Equipment.GetSlotItem(eqSlot) : null;
             selectedEquippedSlot = selectedEquippedItem != null ? detailView!.SelectedEquippedSlot : null;
-            int viewToggleWidth = RenderViewToggleButton(x, itemsHeaderY, width, gridView, blockClick: pendingMutatingInventoryMenuAction != null);
+            int viewToggleWidth = 0; // no old/new inventory toggle button; the grid view is the only one offered
             y += 2;
             currentLineCount += 2;
             var displayEntries = BuildDisplayEntries(inventory, character, sortMode, hideRequirementBlockedItems, inventoryEquipSlotFilter, inventoryMaterialFilter);
@@ -526,29 +526,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 RenderDetailPane(detailX, topY, detailWidth, detailBottomY, paneItem, character, ref currentLineCount);
         }
 
-        /// <summary>Label of the header button that switches inventories (shows where it goes).</summary>
-        internal static string ViewToggleLabel(bool gridView) => gridView ? "[ Old inventory ]" : "[ New inventory ]";
-
-        /// <summary>Right-aligned header button (<see cref="InventoryDetailViewState.ToggleGridInput"/>). Returns the columns it takes.</summary>
-        private int RenderViewToggleButton(int x, int y, int width, bool gridView, bool blockClick)
-        {
-            string label = ViewToggleLabel(gridView);
-            int bx = x + width - 2 - label.Length;
-            int headerWidth = HubTabBar.IsActive && LayoutConstants.ActionStripAtBottom
-                ? HubTabBar.Width + 2
-                : UIConstants.Headers.InventoryItems.Length + 4;
-            if (bx < x + 2 + headerWidth)
-                return 0;
-            canvas.AddText(bx, y, label, blockClick ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Cyan);
-            if (!blockClick)
-            {
-                clickableElements.Add(InventoryButtonFactory.CreateButton(
-                    bx, y, label.Length, 1, InventoryDetailViewState.ToggleGridInput,
-                    gridView ? "Switch to the old inventory" : "Switch to the new inventory", tooltipHoverValue: null));
-            }
-            return label.Length + 1;
-        }
-
         /// <summary>Grid tile height in rows; the width is chosen per frame so tiles come out square in pixels.</summary>
         internal const int GridTileRows = 4;
 
@@ -759,10 +736,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             Item? hoveredItem,
             ref int currentLineCount)
         {
-            // Hovered bag items match affixes only; hovered gear or (nothing hovered) the selection also match material.
-            bool matchMaterial;
-            (hoveredItem, matchMaterial) = InventoryAffixSynergy.ResolveSource(hoveredItem, character);
-            var hoveredAffixes = InventoryAffixSynergy.GetAffixKeys(hoveredItem, includeMaterial: matchMaterial);
+            // Only the selected item lights partners, and only by material (hover no longer drives the glow).
+            hoveredItem = InventoryAffixSynergy.ResolveInventorySource();
+            var hoveredAffixes = InventoryAffixSynergy.GetMaterialKeys(hoveredItem);
             int rowH = ListRowHeight;
             int iconCols = GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), rowH);
 
@@ -797,7 +773,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 bool isSelected = selectedEquippedItem == null && entry.InventoryIndex == selected.InventoryIndex;
                 bool blocked = ItemRendererHelper.IsEquipBlockedForCharacter(item, character);
                 bool beingDragged = InventoryDragState.IsActive && InventoryDragState.SourceInventoryIndex == entry.InventoryIndex;
-                bool synergy = !beingDragged && InventoryAffixSynergy.SharesAffix(item, hoveredItem, hoveredAffixes, includeMaterial: matchMaterial);
+                bool synergy = !beingDragged && InventoryAffixSynergy.SharesAffix(item, hoveredItem, hoveredAffixes, includeMaterial: true);
                 Color rarityColor = ItemThemeProvider.GetRarityColor(item.Rarity?.Trim() ?? "Common");
                 Color nameColor = beingDragged ? AsciiArtAssets.Colors.DarkGray : blocked ? AsciiArtAssets.Colors.Red : rarityColor;
 

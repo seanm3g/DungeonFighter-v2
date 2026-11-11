@@ -514,10 +514,6 @@ namespace RPGGame.Tests.Unit.UI
         {
             Console.WriteLine("\n--- Testing Inventory Grid View (new inventory) ---");
 
-            TestBase.AssertEqual("[ Old inventory ]", InventoryScreenRenderer.ViewToggleLabel(gridView: true),
-                "grid view button offers the old inventory", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("[ New inventory ]", InventoryScreenRenderer.ViewToggleLabel(gridView: false),
-                "list view button offers the new inventory", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(8, InventoryScreenRenderer.GridTileColumns(9, 18, 4),
                 "tiles are square in pixels (4 rows of 18px = 8 columns of 9px)", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(4, InventoryScreenRenderer.GridRowsForColumns(9, 18, 8),

@@ -262,12 +262,20 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             bool haveArt = ItemArtAtlas.IsAvailable;
             // Worn pieces of one material build a set, so gear-to-gear hover and a selected item also match material.
             // With nothing hovered, the inventory selection drives the glow.
-            bool matchMaterial = false;
+            // In the inventory only the selected item lights partners, by material alone.
+            bool matchMaterial;
+            HashSet<string> affixes;
             if (inventoryInput)
-                (hoveredItem, matchMaterial) = InventoryAffixSynergy.ResolveSource(hoveredItem, character);
+            {
+                hoveredItem = InventoryAffixSynergy.ResolveInventorySource();
+                matchMaterial = true;
+                affixes = InventoryAffixSynergy.GetMaterialKeys(hoveredItem);
+            }
             else
+            {
                 matchMaterial = InventoryAffixSynergy.IsEquipped(hoveredItem, character);
-            var affixes = InventoryAffixSynergy.GetAffixKeys(hoveredItem, includeMaterial: matchMaterial);
+                affixes = InventoryAffixSynergy.GetAffixKeys(hoveredItem, includeMaterial: matchMaterial);
+            }
 
             foreach (var (slot, label, col, row) in Slots)
             {

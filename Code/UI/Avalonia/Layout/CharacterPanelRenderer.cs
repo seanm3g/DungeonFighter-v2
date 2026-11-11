@@ -22,17 +22,11 @@ namespace RPGGame.UI.Avalonia.Layout
     /// </summary>
     public class CharacterPanelRenderer
     {
-        private const string ToggleSectionHero = "toggle_section_hero";
         private const string ToggleSectionStats = "toggle_section_stats";
-        private const string ToggleSectionGear = "toggle_section_gear";
         private const string ToggleSectionThresholds = "toggle_section_thresholds";
 
         /// <summary>ASCII section line matching STATS: <c>====  LABEL  ====</c> (double spaces around label).</summary>
         private static string FormatLeftPanelSectionHeader(string label) => $"====  {label}  ====";
-
-        /// <summary>X that centers <paramref name="text"/> across the left panel.</summary>
-        private static int CenteredLeftPanelX(string text) =>
-            LayoutConstants.LEFT_PANEL_X + Math.Max(1, (LayoutConstants.LEFT_PANEL_WIDTH - text.Length) / 2);
 
         private readonly GameCanvasControl canvas;
         private readonly ColoredTextWriter textWriter;
@@ -109,33 +103,23 @@ namespace RPGGame.UI.Avalonia.Layout
                 return;
             }
 
-            // --- HERO --- (centered like GEAR; body order: name, HP bar, Lvl+class, XP)
-            int heroHeaderY = y;
-            string heroHeaderText = FormatLeftPanelSectionHeader(UIConstants.Headers.Hero);
-            PanelText(CenteredLeftPanelX(heroHeaderText), y, heroHeaderText, AsciiArtAssets.Colors.Gold);
-            y += 2;
-            if (interactionManager != null && stateManager != null && LeftPanelViewport.IsRowVisible(heroHeaderY))
-            {
-                interactionManager.AddClickableElement(new ClickableElement
-                {
-                    X = x,
-                    Y = heroHeaderY,
-                    Width = headerClickWidth,
-                    Height = 1,
-                    Type = ElementType.Text,
-                    Value = ToggleSectionHero,
-                    DisplayText = "Hero"
-                });
-            }
-
-            bool heroOpen = stateManager == null || !stateManager.HeroCollapsed;
+            // --- HERO --- (no header, always open; body order: name, HP bar, Lvl+class, XP)
+            bool heroOpen = true;
             if (heroOpen)
             {
                 int nameY = y;
                 var heroNameSegments = HeroNamePanelColoredText.BuildLeftPanelHeroNameSegments(character);
-                if (LeftPanelViewport.IsRowVisible(nameY))
-                    textWriter.RenderSegments(heroNameSegments, x, nameY);
-                y++;
+                if (LeftPanelViewport.IsRowVisible(nameY) && heroNameSegments.Count > 0)
+                {
+                    // Name at the set-name scale (1.5x) over two grid rows; per-character colors keep the class pattern.
+                    string nameText = string.Concat(heroNameSegments.Select(seg => seg.Text));
+                    var nameColors = heroNameSegments.SelectMany(seg => Enumerable.Repeat(seg.Color, seg.Text.Length)).ToList();
+                    int maxNameChars = Math.Max(4, (int)Math.Floor(headerClickWidth / SetNameFontScale));
+                    if (nameText.Length > maxNameChars)
+                        nameText = nameText.Substring(0, maxNameChars - 3) + "...";
+                    canvas.AddScaledText(x, nameY, nameText, nameColors, SetNameFontScale);
+                }
+                y += SetNameRowStride;
 
                 int healthBarWidth = LayoutConstants.LEFT_PANEL_WIDTH - 4;
                 int healthBarY = y;
@@ -205,7 +189,7 @@ namespace RPGGame.UI.Avalonia.Layout
 
                 if (interactionManager != null && stateManager != null)
                 {
-                    RegisterLeftPanelHoverRow(x, nameY, headerClickWidth, 1, "hero:name");
+                    RegisterLeftPanelHoverRow(x, nameY, headerClickWidth, SetNameRowStride, "hero:name");
                     RegisterLeftPanelHoverRow(x, healthBarY, headerClickWidth, barAreaHeight, "hero:hp");
                     var thresholdHoverWidths = D20ThresholdBarRenderer.GetSegmentHoverWidths(healthBarWidth, thresholdSegments);
                     int thresholdHoverX = x;
@@ -232,35 +216,17 @@ namespace RPGGame.UI.Avalonia.Layout
             // Inventory hub: STATS and THRESHOLDS sit in the band along the bottom of the center column instead (sets stay under GEAR).
             bool heroBand = InventoryHeroBand.IsShown;
 
-            // --- GEAR --- (hidden for the whole dungeon run; hover hero name for loadout; Action Lab keeps the section)
+            // --- GEAR --- (no header, so it can't be collapsed; hidden for the whole dungeon run; hover hero name for loadout; Action Lab keeps the section)
             if (LeftPanelSectionVisibility.ShowGear(gameState, inDungeonRun))
             {
-                int gearHeaderY = y;
-                string gearHeaderText = FormatLeftPanelSectionHeader(UIConstants.Headers.Gear);
-                PanelText(CenteredLeftPanelX(gearHeaderText), y, gearHeaderText, AsciiArtAssets.Colors.Gold);
-                y += 2;
-                if (interactionManager != null && stateManager != null && LeftPanelViewport.IsRowVisible(gearHeaderY))
-                {
-                    interactionManager.AddClickableElement(new ClickableElement
-                    {
-                        X = x,
-                        Y = gearHeaderY,
-                        Width = headerClickWidth,
-                        Height = 1,
-                        Type = ElementType.Text,
-                        Value = ToggleSectionGear,
-                        DisplayText = "Gear"
-                    });
-                }
-
                 // Clicking the figure swaps to item names (the inventory hub keeps the figure for drag/drop).
                 bool gearNames = stateManager?.ShowGearNames == true && gameState != GameState.Inventory;
-                if ((stateManager == null || !stateManager.GearCollapsed) && !gearNames && TryRenderGearFigure(character, gameState, x, ref y, headerClickWidth))
+                if (!gearNames && TryRenderGearFigure(character, gameState, x, ref y, headerClickWidth))
                 {
                     RenderFormingSets(character, x, ref y, headerClickWidth);
                     RenderAnimalSets(character, x, ref y, headerClickWidth);
                 }
-                else if (stateManager == null || !stateManager.GearCollapsed)
+                else
                 {
                     InventoryScreenRenderer.LastPaperDollBounds = default;
                     RenderEquipmentSlot(x, ref y, headerClickWidth, "Weapon", character.Weapon, "gear:weapon", 1);

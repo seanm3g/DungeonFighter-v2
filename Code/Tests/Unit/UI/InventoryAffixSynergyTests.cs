@@ -67,6 +67,19 @@ namespace RPGGame.Tests.Unit.UI
                     InventoryAffixSynergy.GetAffixKeys(unknownA, includeMaterial: true), includeMaterial: true),
                 "Unknown material is not a set", ref run, ref passed, ref failed);
 
+            // Inventory screen: material-only matching from the selected item.
+            var sturdyGlassHelm = MakeItem(new[] { ("Sturdy", "ADJECTIVE") }, Array.Empty<string>());
+            sturdyGlassHelm.Material = "Glass";
+            var sturdyIronShoes = MakeItem(new[] { ("Sturdy", "ADJECTIVE") }, Array.Empty<string>());
+            sturdyIronShoes.Material = "Iron";
+            var glassKeys = InventoryAffixSynergy.GetMaterialKeys(sturdyGlassHelm);
+            TestBase.AssertTrue(InventoryAffixSynergy.SharesAffix(glassShoes, sturdyGlassHelm, glassKeys, includeMaterial: true),
+                "Material-only: same material glows", ref run, ref passed, ref failed);
+            TestBase.AssertFalse(InventoryAffixSynergy.SharesAffix(sturdyIronShoes, sturdyGlassHelm, glassKeys, includeMaterial: true),
+                "Material-only: a shared affix with a different material does not glow", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, InventoryAffixSynergy.GetMaterialKeys(unknownA).Count,
+                "Material-only: Unknown material has no key", ref run, ref passed, ref failed);
+
             var inventory = new List<Item> { sharesPrefix, hovered };
             TestBase.AssertTrue(ReferenceEquals(hovered,
                     InventoryAffixSynergy.ResolveHoveredItem(LeftPanelHoverState.Prefix + "inv:1", inventory, null)),

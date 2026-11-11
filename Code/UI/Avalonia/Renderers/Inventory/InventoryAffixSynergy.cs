@@ -84,18 +84,20 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         public static Item? SelectedItem { get; set; }
 
         /// <summary>
-        /// The item whose partners glow: the hovered one, else (no drag in progress) the selected one.
-        /// <c>MatchMaterial</c> is true for a selected item and for hovered gear, so same-material
-        /// pieces in the bag and on the body light up as set partners. Hovering the selected item itself (the pointer
-        /// usually rests on the row just clicked) keeps the material match.
+        /// Inventory screen: the item whose partners glow is the selected one only (hover never lights partners), and
+        /// partners are matched by material alone for now. Null while dragging or with nothing selected.
         /// </summary>
-        public static (Item? Source, bool MatchMaterial) ResolveSource(Item? hovered, Character? character)
+        public static Item? ResolveInventorySource() =>
+            InventoryDragState.IsActive ? null : SelectedItem;
+
+        /// <summary>Just the material key of <paramref name="item"/> (empty for none / Unknown), for material-only matching.</summary>
+        public static HashSet<string> GetMaterialKeys(Item? item)
         {
-            if (hovered != null)
-                return (hovered, IsEquipped(hovered, character) || ReferenceEquals(hovered, SelectedItem));
-            if (InventoryDragState.IsActive || SelectedItem == null)
-                return (null, false);
-            return (SelectedItem, true);
+            var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            string material = item?.Material?.Trim() ?? "";
+            if (material.Length > 0 && !material.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
+                keys.Add(MaterialKey + material);
+            return keys;
         }
 
         private static readonly string[] GearSlots ={ "head", "body", "legs", "weapon", "feet", "charm" };
