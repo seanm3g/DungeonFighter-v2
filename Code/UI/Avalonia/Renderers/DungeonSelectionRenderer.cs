@@ -3,6 +3,7 @@ using RPGGame.Data;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.TextAnimation;
 using System;
 using System.Collections.Generic;
@@ -82,7 +83,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (showMap)
             {
                 // The list keeps a column on the left; the region map takes the rest of the panel.
-                int listWidth = Math.Clamp(width * 36 / 100, 36, 56);
+                int listWidth = ListWidth(width);
                 mapLeft = x + listWidth;
                 RenderRegionMap(mapLeft, y, x + width - mapLeft - 1, height - 1, dungeons, currentRegionDisplayName);
                 width = listWidth;
@@ -256,7 +257,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
 
             // Terrain (and its painted bitmap) depends only on size and regions; a new dungeon list just re-places the sites.
-            string key = $"{width}x{height}:{region.Id}:" + string.Join(";", regions.Select(r => $"{r.Id}@{r.MapX},{r.MapY}"));
+            string key = TerrainKey(width, height, region, regions);
             if (terrainGeography == null || key != mapKey)
             {
                 terrainGeography = TravelMapGeography.BuildRegionTerrain(width * 2, height * 2, regions, region.Id);
@@ -311,6 +312,84 @@ namespace RPGGame.UI.Avalonia.Renderers
                 });
             }
 
+        }
+
+        private static int ListWidth(int width) => Math.Clamp(width * 36 / 100, 36, 56);
+
+        private static string TerrainKey(int width, int height, TravelRegion region, IReadOnlyList<TravelRegion> regions) =>
+            $"{width}x{height}:{region.Id}:" + string.Join(";", regions.Select(r => $"{r.Id}@{r.MapX},{r.MapY}"));
+
+        /// <summary>Last map the prewarm handled (terrain key + cell metrics), so hub redraws don't queue it again.</summary>
+        private string prewarmKey = "";
+
+        /// <summary>
+        /// Builds the region map's terrain and paints its bitmap ahead of time, so the first Dungeon Select from the hub
+        /// opens at once instead of stalling on terrain generation and painting ~25k glyphs. Terrain is built on a worker
+        /// thread; the bitmap is painted on the UI thread at background priority. Mirrors the geometry of
+        /// <see cref="RenderDungeonSelection"/> on the chromeless full-screen rect it is drawn into.
+        /// </summary>
+        public void PrewarmRegionMap(Character player)
+        {
+            var (_, _, width, height) = LayoutConstants.GetChromelessContentRect();
+            if (width < MinWidthForMap)
+                return;
+            int listWidth = ListWidth(width);
+            int mapW = width - listWidth - 1;
+            int mapH = height - 1;
+            if (mapW < 20 || mapH < 8)
+                return;
+
+            var regions = RegionTravelRenderer.OrderRegions(regionCatalog.GetAllRegions());
+            string currentId = regionCatalog.GetRegionForCharacter(player).Id;
+            var region = regions.FirstOrDefault(r => string.Equals(r.Id, currentId, StringComparison.OrdinalIgnoreCase));
+            if (region == null)
+                return;
+
+            double cellWidth = canvas.GetCharWidth();
+            double cellHeight = canvas.GetCharHeight();
+            if (cellWidth <= 0 || cellHeight <= 0)
+                return;
+            string key = TerrainKey(mapW, mapH, region, regions);
+            string warmKey = $"{key}|{cellWidth:F3}x{cellHeight:F3}|{GameFonts.ActiveFamilyName}";
+            if (warmKey == prewarmKey)
+                return;
+            prewarmKey = warmKey;
+
+            void PaintBitmap()
+            {
+                if (terrainGeography == null || mapKey != key)
+                    return;
+                double scaling = global::Avalonia.Controls.TopLevel.GetTopLevel(canvas)?.RenderScaling ?? 1.0;
+                mapPainter.Paint(terrainGeography, mapKey, mapW, mapH, canvas.GetCharWidth(), canvas.GetCharHeight(), scaling, (0, 0, 0, 0));
+            }
+
+            if (terrainGeography != null && mapKey == key)
+            {
+                global::Avalonia.Threading.Dispatcher.UIThread.Post(PaintBitmap, global::Avalonia.Threading.DispatcherPriority.Background);
+                return;
+            }
+
+            string regionId = region.Id;
+            System.Threading.Tasks.Task.Run(() => TravelMapGeography.BuildRegionTerrain(mapW * 2, mapH * 2, regions, regionId))
+                .ContinueWith(t =>
+                {
+                    if (t.IsFaulted)
+                    {
+                        _ = t.Exception; // observed; the selection screen builds the map itself
+                        return;
+                    }
+                    global::Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                    {
+                        // The screen may have opened (and built the same terrain) while this ran.
+                        if (terrainGeography == null || mapKey != key)
+                        {
+                            terrainGeography = t.Result;
+                            mapKey = key;
+                            mapGeography = null;
+                        }
+                        PaintBitmap();
+                    }, global::Avalonia.Threading.DispatcherPriority.Background);
+                }, System.Threading.Tasks.TaskScheduler.Default);
         }
 
         /// <summary>

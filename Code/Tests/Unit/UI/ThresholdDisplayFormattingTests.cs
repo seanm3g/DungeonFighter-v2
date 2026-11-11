@@ -256,6 +256,12 @@ namespace RPGGame.Tests.Unit.UI
                 "chance percent formats d20 increment", ref run, ref passed, ref failed);
             TestBase.AssertEqual("100%", ThresholdDisplayFormatting.FormatD20ChancePercent(105),
                 "chance percent clamps high", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(" (+15%)", ThresholdDisplayFormatting.FormatChanceDeltaSuffix(55, 40),
+                "chance delta suffix shows +15% for a 3-face hit bonus", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(" (-10%)", ThresholdDisplayFormatting.FormatChanceDeltaSuffix(20, 30),
+                "chance delta suffix shows negative change", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("", ThresholdDisplayFormatting.FormatChanceDeltaSuffix(35, 35),
+                "chance delta suffix empty when unchanged", ref run, ref passed, ref failed);
         }
 
         private static void ChanceDeltaColorUsesSignedPercentDifference(ref int run, ref int passed, ref int failed)

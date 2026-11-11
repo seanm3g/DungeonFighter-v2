@@ -29,14 +29,15 @@ namespace RPGGame.Combat.Formatting
             
             // Enemy must be checked before Character: Enemy subclasses Character, and Enemy uses `new`
             // GetTotalAttackSpeed() for direct-stat dummies (Action Lab). A Character-typed match would bypass that.
+            // Free combo swings show the time they add to the chain (combo speed formula), not their solo length.
             if (actor is Enemy enemy)
             {
-                return enemy.GetTotalAttackSpeed() * actionLength;
+                return ComboChainSpeedScope.Apply(actor, enemy.GetTotalAttackSpeed() * actionLength);
             }
-            
+
             if (actor is Character character)
             {
-                return character.GetTotalAttackSpeed() * actionLength;
+                return ComboChainSpeedScope.Apply(actor, character.GetTotalAttackSpeed() * actionLength);
             }
             
             return 0;

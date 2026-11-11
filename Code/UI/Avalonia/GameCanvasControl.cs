@@ -650,7 +650,9 @@ namespace RPGGame.UI.Avalonia
                 : null;
             if (outgoingBackdrop != null)
                 outgoingBackdrop.Opacity = outgoingOpacity;
-            UpdateMenuSceneTimer(sceneUnderlay != null || locationFade.IsActive);
+            // Ascii room plates with light rays animate too, so they share the scene repaint timer.
+            bool backdropAnimates = backdrop?.Look?.AnimatesLightRays() == true || outgoingBackdrop?.Look?.AnimatesLightRays() == true;
+            UpdateMenuSceneTimer(sceneUnderlay != null || locationFade.IsActive || backdropAnimates);
             using (context.PushTransform(Matrix.CreateTranslation(origin.X, origin.Y)))
             {
                 renderer.Render(

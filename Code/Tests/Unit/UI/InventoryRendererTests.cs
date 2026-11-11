@@ -549,6 +549,22 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(ItemArtAtlas.ResolveName("Mystery Thing", "Steel") == null,
                 "unknown base has no icon", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
+            // Prewarm returns at once and decodes the sheet on a worker, so the next lookup is a cache hit.
+            var warmItem = new FeetItem("Worn Glass Galoshs", tier: 1, armor: 1) { Material = "Glass" };
+            var prewarmWatch = System.Diagnostics.Stopwatch.StartNew();
+            ItemArtAtlas.PrewarmInBackground(new Item?[] { warmItem, null });
+            long prewarmCallMs = prewarmWatch.ElapsedMilliseconds;
+            TestBase.AssertTrue(prewarmCallMs < 50, $"prewarm does not decode on the caller ({prewarmCallMs} ms)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            System.Threading.Thread.Sleep(3000);
+            var lookupWatch = System.Diagnostics.Stopwatch.StartNew();
+            bool warmHit = ItemArtAtlas.TryGetIcon(warmItem, out _, out _);
+            long lookupMs = lookupWatch.ElapsedMilliseconds;
+            Console.WriteLine($"  prewarm call {prewarmCallMs} ms, lookup after warm {lookupMs} ms (icon {(warmHit ? "decoded" : "unavailable")})");
+            if (warmHit)
+                TestBase.AssertTrue(lookupMs < 20, $"icon lookup after prewarm is a cache hit ({lookupMs} ms)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
             string? hero = ItemArtAtlas.HeroPath("Keen Steel Kukri of the Owl", "Steel");
             if (hero != null)
                 TestBase.AssertTrue(hero.EndsWith(System.IO.Path.Combine("Steel", "Kukri.webp")) && System.IO.File.Exists(hero),

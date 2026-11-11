@@ -351,16 +351,6 @@ namespace RPGGame.UI.Avalonia.Handlers
             }
             else
             {
-                // Empty space in the left character panel flips it between the hero sheet and the roster names.
-                if (IsInsideLeftPanel(gridPos.X, gridPos.Y)
-                    && game.StateManager?.CurrentState is not (GameState.MainMenu or GameState.Stable)
-                    && GetActiveStatsPanelState() is { } leftPanelState)
-                {
-                    leftPanelState.ToggleRosterNames();
-                    RefreshChromeAfterStatsToggle();
-                    return;
-                }
-
                 // If no clickable element was clicked, check if we're in Settings state
                 // and prevent accidental settings menu opening after tests
                 if (game.StateManager != null && game.StateManager.CurrentState == GameState.Settings)
@@ -554,12 +544,6 @@ namespace RPGGame.UI.Avalonia.Handlers
         /// <summary>
         /// Left-panel chrome toggles: menu states suppress display-buffer <c>PerformRender</c>, so we re-invoke the active CanvasRenderer screen.
         /// </summary>
-        private static bool IsInsideLeftPanel(int x, int y) =>
-            x > LayoutConstants.LEFT_PANEL_X
-            && x < LayoutConstants.LEFT_PANEL_X + LayoutConstants.LEFT_PANEL_WIDTH - 1
-            && y > LayoutConstants.LEFT_PANEL_Y
-            && y < LayoutConstants.LEFT_PANEL_Y + LayoutConstants.LEFT_PANEL_HEIGHT - 1;
-
         private void RefreshChromeAfterStatsToggle()
         {
             game?.RefreshPersistentChromeAfterStatsToggle();

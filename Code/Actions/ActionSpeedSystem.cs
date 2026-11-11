@@ -140,6 +140,20 @@ namespace RPGGame
             return extra;
         }
 
+        /// <summary>
+        /// Time a free combo swing of <paramref name="swing"/> seconds would add to <paramref name="entity"/>'s current chain
+        /// (what <see cref="ExecuteChainedAction"/> will charge), without changing anything. Falls back to
+        /// <paramref name="swing"/> when the entity has no chain open.
+        /// </summary>
+        public double PreviewChainedActionCost(Actor entity, double swing, double growth)
+        {
+            var combatEntity = entities.FirstOrDefault(e => e.Entity == entity);
+            if (combatEntity == null || combatEntity.ChainCount <= 0)
+                return swing;
+            double chainCost = ChainCost(combatEntity.ChainSum + swing, combatEntity.ChainCount + 1, growth);
+            return Math.Max(0.0, chainCost - combatEntity.ChainCharged);
+        }
+
         /// <summary>Chain cost = avg swing × (1 + growth × (n − 1)); growth clamped to [0, 1].</summary>
         public static double ChainCost(double sumOfSwings, int swings, double growth)
         {

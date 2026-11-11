@@ -79,20 +79,18 @@ namespace RPGGame.UI.Avalonia.Layout
                     return;
 
                 string labelPart = $"{labelName}:".PadRight(ThresholdLabelWidth);
+                string valuePart = ThresholdDisplayFormatting.FormatD20ChancePercent(percent)
+                    + ThresholdDisplayFormatting.FormatChanceDeltaSuffix(percent, defaultPercent);
                 if (chancesFlashHighlight)
                 {
                     canvas.AddText(x, rowY, labelPart, AsciiArtAssets.Colors.Gold);
-                    canvas.AddText(
-                        x + ThresholdLabelWidth,
-                        rowY,
-                        ThresholdDisplayFormatting.FormatD20ChancePercent(percent),
-                        AsciiArtAssets.Colors.Gold);
+                    canvas.AddText(x + ThresholdLabelWidth, rowY, valuePart, AsciiArtAssets.Colors.Gold);
                     return;
                 }
 
                 canvas.AddText(x, rowY, labelPart, AsciiArtAssets.Colors.Cyan);
                 var valueColor = ThresholdDisplayFormatting.GetChanceDeltaColor(percent, defaultPercent);
-                canvas.AddText(x + ThresholdLabelWidth, rowY, ThresholdDisplayFormatting.FormatD20ChancePercent(percent), valueColor);
+                canvas.AddText(x + ThresholdLabelWidth, rowY, valuePart, valueColor);
             }
 
             // Exact face (any fighter's die) that sets off the room; shown on every panel during an on-screen fight.

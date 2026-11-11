@@ -32,6 +32,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             new("ItemAsciiGlyphGain", RoomBackdropConfig.MaxAsciiGlyphGain, c => c.ItemAsciiGlyphGain, (c, v) => c.ItemAsciiGlyphGain = v),
             new("ItemAsciiBackground", 1, c => c.ItemAsciiBackground, (c, v) => c.ItemAsciiBackground = v),
             new("ItemAsciiCutoff", RoomBackdropConfig.MaxItemAsciiCutoff, c => c.ItemAsciiCutoff, (c, v) => c.ItemAsciiCutoff = v),
+            new("LightRayStrength", RoomBackdropConfig.MaxLightRayStrength, c => c.LightRayStrength, (c, v) => c.LightRayStrength = v),
+            new("LightCloudStrength", RoomBackdropConfig.MaxLightCloudStrength, c => c.LightCloudStrength, (c, v) => c.LightCloudStrength = v),
+            new("LightRaySpeed", RoomBackdropConfig.MaxLightRaySpeed, c => c.LightRaySpeed, (c, v) => c.LightRaySpeed = v),
         };
 
         private void WireUpRoomBackdropControls(AppearanceSettingsPanel appearancePanel)

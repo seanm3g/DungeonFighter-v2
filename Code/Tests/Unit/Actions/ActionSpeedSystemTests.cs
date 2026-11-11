@@ -33,6 +33,7 @@ namespace RPGGame.Tests.Unit.Actions
             TestExecuteAction();
             TestFastActorGetsMultipleActionsDuringSlowRecovery();
             TestChainCostsSlowestSwing();
+            TestFreeSwingDisplaysChainSpeed();
 
             TestBase.PrintSummary("ActionSpeedSystem Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -315,6 +316,44 @@ namespace RPGGame.Tests.Unit.Actions
             TestBase.AssertTrue(Math.Abs(ActionSpeedSystem.ChainCost(1.7 + 2.0, 2, 0.5) - 2.775) < 1e-9,
                 "ChainCost(1.7, 2.0, g .5) should be 2.775",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>A free combo swing's displayed speed is what it adds to the chain, matching what ExecuteChainedAction charges.</summary>
+        private static void TestFreeSwingDisplaysChainSpeed()
+        {
+            Console.WriteLine("\n--- Testing free combo swing speed readout (chain increase) ---");
+
+            using (GameTicker.BeginIsolatedEncounterGameTime())
+            {
+                GameTicker.Instance.Reset();
+                var system = new ActionSpeedSystem();
+                var foe = TestDataBuilders.Enemy().WithName("Chainer").WithLevel(1).Build();
+                system.AddEntity(foe, 1.0);
+                var opener = TestDataBuilders.CreateMockAction("Opener", ActionType.Attack);
+                opener.Length = 2.0;
+                var follow = TestDataBuilders.CreateMockAction("Follow", ActionType.Attack);
+                follow.Length = 2.0;
+
+                double solo = RPGGame.Combat.Formatting.ActionSpeedCalculator.CalculateActualActionSpeed(foe, follow);
+                system.ExecuteAction(foe, opener, isCriticalMiss: false);
+
+                double shown;
+                using (RPGGame.Combat.Formatting.ComboChainSpeedScope.Enter(system, foe, 0.25))
+                    shown = RPGGame.Combat.Formatting.ActionSpeedCalculator.CalculateActualActionSpeed(foe, follow);
+                double charged = system.ExecuteChainedAction(foe, follow, isCriticalMiss: false, 0.25);
+
+                TestBase.AssertTrue(Math.Abs(shown - charged) < 1e-9,
+                    $"free swing readout should equal the chain charge ({charged:F3}); got {shown:F3}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(Math.Abs(shown - 0.25 * solo) < 1e-9,
+                    $"equal swings at g .25 should show a quarter of the solo time ({0.25 * solo:F3}); got {shown:F3}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                double outside = RPGGame.Combat.Formatting.ActionSpeedCalculator.CalculateActualActionSpeed(foe, follow);
+                TestBase.AssertTrue(Math.Abs(outside - solo) < 1e-9,
+                    "outside a free swing the readout stays the solo swing time",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
         }
 
         #endregion

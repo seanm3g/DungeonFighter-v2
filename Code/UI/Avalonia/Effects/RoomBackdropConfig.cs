@@ -90,6 +90,25 @@ namespace RPGGame.UI.Avalonia.Effects
         /// </summary>
         public double ItemAsciiCutoff { get; set; } = 0.25;
 
+        /// <summary>
+        /// Ascii style: brightness of the god rays fanning down from a vanishing point above the room (0 = off). Light
+        /// adds the plate's own color back on top, blurred, so the picture brightens where it falls. Default: 1.
+        /// </summary>
+        public double LightRayStrength { get; set; } = 1.0;
+
+        /// <summary>Ascii style: brightness of the soft drifting cloudiness over the whole plate (0 = off). Default: 0.8.</summary>
+        public double LightCloudStrength { get; set; } = 0.8;
+
+        /// <summary>Ascii style: how fast the light drifts and undulates (1 = slow; the vanishing point sways over ~40 s). Default: 1.</summary>
+        public double LightRaySpeed { get; set; } = 1;
+
+        public const double MaxLightRayStrength = 3;
+        public const double MaxLightCloudStrength = 3;
+        public const double MaxLightRaySpeed = 4;
+
+        /// <summary>True when the plate animates (the canvas must keep repainting while it is shown).</summary>
+        public bool AnimatesLightRays() => Enabled && IsAscii && (LightRayStrength > 0 || LightCloudStrength > 0) && LightRaySpeed > 0;
+
         /// <summary>70 printable ASCII glyphs, light to dense.</summary>
         public const string DefaultAsciiRamp = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
         public const double MaxAsciiGlyphGain = 4;

@@ -134,6 +134,16 @@ namespace RPGGame
         private static double ComboChainGrowth
             => GameConfiguration.Instance.ComboSystem?.ComboChainGrowth ?? 0.25;
 
+        /// <summary>Resolves one swing; a <paramref name="freeAction"/> swing's speed readouts show what it adds to the combo chain.</summary>
+        private T ExecuteSwing<T>(Actor actor, bool freeAction, Func<T> execute)
+        {
+            var speed = freeAction ? stateManager.GetCurrentActionSpeedSystem() : null;
+            if (speed == null)
+                return execute();
+            using (global::RPGGame.Combat.Formatting.ComboChainSpeedScope.Enter(speed, actor, ComboChainGrowth))
+                return execute();
+        }
+
         private static bool FreeComboActionsAllowed(TrainingGroundTutorialScript? tutorialScript)
             => tutorialScript == null && (GameConfiguration.Instance.ComboSystem?.FreeActionOnComboHit ?? true);
 
@@ -162,10 +172,11 @@ namespace RPGGame
                 try
                 {
                     // Use the new ActionExecutor system for consistent action handling with ColoredText
-                    var ((actionText, rollInfo), statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
-                        currentEnemy, player, forcedAction, room,
-                        stateManager.GetLastPlayerAction(),
-                        stateManager.GetCurrentBattleNarrative());
+                    var ((actionText, rollInfo), statusEffects) = ExecuteSwing(currentEnemy, freeAction,
+                        () => CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
+                            currentEnemy, player, forcedAction, room,
+                            stateManager.GetLastPlayerAction(),
+                            stateManager.GetCurrentBattleNarrative()));
                 
                     bool textDisplayed = actionText != null && actionText.Count > 0;
                 
@@ -374,10 +385,11 @@ namespace RPGGame
             try
             {
                 // Use the new ColoredText system to execute the action
-                var ((actionText, rollInfo), statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
-                    player, currentEnemy, forcedAction, room,
-                    stateManager.GetLastPlayerAction(),
-                    stateManager.GetCurrentBattleNarrative());
+                var ((actionText, rollInfo), statusEffects) = ExecuteSwing(player, freeAction,
+                    () => CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
+                        player, currentEnemy, forcedAction, room,
+                        stateManager.GetLastPlayerAction(),
+                        stateManager.GetCurrentBattleNarrative()));
 
                 // Outcome is known before setup/HUD/punchline display — overlap OpenAI with remaining reveal.
                 TryPrefetchVictoryLimerick(player, currentEnemy, room);

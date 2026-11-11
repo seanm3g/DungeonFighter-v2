@@ -184,7 +184,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             detailSeparatorXBesideActions = null;
             int itemsHeaderY = y;
             if (hubTabs)
-                HubTabBar.Draw(canvas, clickableElements.Add, x + 2, y, width - 4, HubTab.Inventory, character: character);
+                // Same origin as the Actions / Skills tabs (x + 1) so the strip doesn't jump when switching tabs.
+                HubTabBar.Draw(canvas, clickableElements.Add, x + 1, y, width - 2, HubTab.Inventory, character: character);
             else
                 canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.InventoryItems), AsciiArtAssets.Colors.Gold);
             if (hubTabs && HubEscapeMenu.IsOpen)

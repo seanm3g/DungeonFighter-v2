@@ -21,6 +21,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             currentLineCount = selectionRenderer.RenderDungeonSelection(x, y, width, height, dungeons, customDungeonLevelEntryBuffer, currentRegionDisplayName, currentRegionTheme);
         }
 
+        /// <summary>Prepares the dungeon selection region map in the background (see <see cref="DungeonSelectionRenderer.PrewarmRegionMap"/>).</summary>
+        public void PrewarmDungeonSelection(Character player) => selectionRenderer.PrewarmRegionMap(player);
+
         /// <summary>
         /// Renders the dungeon start screen using the display buffer system.
         /// All content is rendered from the display buffer for consistency.

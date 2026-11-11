@@ -35,6 +35,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             }, context, null, null, null, clearCanvas: true, inventoryComboRightPanel: true);
             RenderInventoryBottomBand(character);
             canvas.Refresh();
+            // The hub's Enter Dungeon opens Dungeon Select; build its region map now so the first open doesn't stall.
+            dungeonRenderer.PrewarmDungeonSelection(character);
         }
 
         public void RenderItemSelectionPrompt(

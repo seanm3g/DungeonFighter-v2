@@ -146,9 +146,46 @@ namespace RPGGame.UI.Avalonia
             return result;
         }
 
+        /// <summary>
+        /// Decodes, on a worker thread, the sheets <paramref name="items"/> draw from, so the first inventory frame
+        /// does not stall on 2560px JPEG decodes (one per material, ~0.1-0.5 s each). Names are snapshotted on the
+        /// calling thread; already-decoded sheets cost only a cached lookup.
+        /// </summary>
+        public static void PrewarmInBackground(IEnumerable<Item?> items)
+        {
+            var keys = items
+                .Where(i => i != null)
+                .Select(i => (Name: i!.Name ?? "", Material: i.Material ?? ""))
+                .Distinct()
+                .ToList();
+            if (keys.Count == 0)
+                return;
+
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                try
+                {
+                    EnsureLoaded();
+                    if (Sheets.Count == 0)
+                        return;
+                    foreach (var (name, material) in keys)
+                    {
+                        var hit = Resolve(name, material);
+                        if (hit != null)
+                            LoadBitmap(Sheets[hit.Value.Sheet]);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log("ItemArtAtlas", $"Prewarm failed: {ex.Message}");
+                }
+            });
+        }
+
+        /// <summary>Locks only this sheet while decoding, so a reader waits on the one sheet it needs, never on another sheet's decode.</summary>
         private static Bitmap? LoadBitmap(Sheet sheet)
         {
-            lock (Gate)
+            lock (sheet)
             {
                 if (sheet.Bitmap != null || sheet.LoadFailed)
                     return sheet.Bitmap;

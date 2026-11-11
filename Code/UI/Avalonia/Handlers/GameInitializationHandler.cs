@@ -310,6 +310,31 @@ namespace RPGGame.UI.Avalonia.Handlers
                         }
                         StartupTimeline.Mark("Warmup: audio initialized");
 
+                        // Decode the player's item-art sheets off the UI thread whenever the game moves between
+                        // screens (load, hub, after a dungeon), so opening the inventory does not hitch on them.
+                        var stateManager = game.StateManager;
+                        void PrewarmItemArt()
+                        {
+                            var player = stateManager.CurrentPlayer;
+                            if (player == null)
+                                return;
+                            try
+                            {
+                                var items = new System.Collections.Generic.List<Item?>(player.Inventory)
+                                {
+                                    player.Head, player.Body, player.Legs, player.Feet, player.Weapon
+                                };
+                                ItemArtAtlas.PrewarmInBackground(items);
+                            }
+                            catch (Exception ex)
+                            {
+                                // Best effort: a list mutated mid-copy just means this transition skips the warm.
+                                DebugLogger.Log("GameInitializationHandler", $"Item art prewarm skipped: {ex.Message}");
+                            }
+                        }
+                        stateManager.StateChanged += (_, _) => PrewarmItemArt();
+                        stateManager.CharacterSwitched += (_, _) => PrewarmItemArt();
+
                         // Set the game reference in CanvasUICoordinator so it can access handlers for interactive panels
                         if (canvasUIManager is CanvasUICoordinator canvasUIForGame)
                         {

@@ -245,6 +245,16 @@ namespace RPGGame.UI.Avalonia.Layout
         public static string FormatD20ChancePercent(int percent) => $"{Math.Clamp(percent, 0, 100)}%";
 
         /// <summary>
+        /// CHANCES row suffix like <c> (+15%)</c> or <c> (-10%)</c>: current percent minus the default-threshold percent;
+        /// empty when unchanged.
+        /// </summary>
+        public static string FormatChanceDeltaSuffix(int currentPercent, int defaultPercent)
+        {
+            int delta = Math.Clamp(currentPercent, 0, 100) - Math.Clamp(defaultPercent, 0, 100);
+            return delta == 0 ? "" : $" ({delta:+0;-0;0}%)";
+        }
+
+        /// <summary>
         /// Canonical row order for CHANCES data (Crit → Combo → Hit → Miss → Crit Miss). The HUD sorts by percent for display.
         /// Combo includes crits (a crit always counts as a combo), so the rows overlap and do not sum to 100%.
         /// </summary>

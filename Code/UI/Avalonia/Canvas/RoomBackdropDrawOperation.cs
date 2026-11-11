@@ -118,6 +118,8 @@ namespace RPGGame.UI.Avalonia.Canvas
                     FilterQuality = SKFilterQuality.Medium
                 };
                 canvas.DrawImage(plate, target, paint);
+                if (ascii && config.AnimatesLightRays())
+                    DrawLightRays(canvas, plate, target, Math.Clamp(config.Opacity, 0, 1));
                 if (fade is { } f)
                 {
                     // Mask the layer: clear before the fade, eased ramp (smoothstep-ish stops) to full.
@@ -133,6 +135,138 @@ namespace RPGGame.UI.Avalonia.Canvas
                 }
                 canvas.RestoreToCount(saveCount);
             }
+        }
+
+        /// <summary>Wall clock for the light rays, shared by every backdrop so a crossfade keeps one ray position.</summary>
+        private static readonly System.Diagnostics.Stopwatch RayClock = System.Diagnostics.Stopwatch.StartNew();
+
+        /// <summary>
+        /// Light over the plate, two parts that add together into one brightness mask:
+        /// a fan of god rays from a fixed vanishing point above the room (a repeating pattern that rotates steadily one way,
+        /// so it always fills the screen) and a soft cloudiness (two Perlin fields drifting past each other, so the bright patches
+        /// form, merge and dissolve). The mask is drawn at 1/<see cref="LightMaskDownscale"/> size and scaled up, which blurs
+        /// it. Where the mask is bright the plate's own colors are added again (Plus), so the picture itself brightens.
+        /// </summary>
+        private void DrawLightRays(SKCanvas canvas, SKImage plate, SKRect target, double plateOpacity)
+        {
+            double rays = Math.Clamp(config.LightRayStrength, 0, RoomBackdropConfig.MaxLightRayStrength);
+            double clouds = Math.Clamp(config.LightCloudStrength, 0, RoomBackdropConfig.MaxLightCloudStrength);
+            double t = RayClock.Elapsed.TotalSeconds * Math.Clamp(config.LightRaySpeed, 0, RoomBackdropConfig.MaxLightRaySpeed);
+            if ((rays <= 0 && clouds <= 0) || plateOpacity <= 0 || target.Width <= 0 || target.Height <= 0)
+                return;
+
+            using var mask = BuildLightMask(target.Width, target.Height, t, rays, clouds);
+            if (mask == null)
+                return;
+
+            // The added light is the plate's colors times LightGain, so a full-strength ray brightens past the plate itself.
+            using var gain = SKColorFilter.CreateColorMatrix(ScaleOffsetMatrix(LightGain, 0));
+            using var addPaint = new SKPaint { BlendMode = SKBlendMode.Plus, ColorFilter = gain };
+            canvas.SaveLayer(target, addPaint);
+            using (var platePaint = new SKPaint { FilterQuality = SKFilterQuality.Medium })
+                canvas.DrawImage(plate, target, platePaint);
+            // Upscaling the small mask with high-quality filtering is the blur.
+            using (var maskPaint = new SKPaint { BlendMode = SKBlendMode.DstIn, FilterQuality = SKFilterQuality.High })
+                canvas.DrawImage(mask, target, maskPaint);
+            canvas.Restore();
+        }
+
+        private const float LightMaskDownscale = 8;
+        private const float LightGain = 2.2f;
+        private const int RayCount = 40;
+        /// <summary>Fan rotation at speed 1: one ray spacing (9°) every ~6 s.</summary>
+        private const double RayDegreesPerSecond = 1.5;
+
+        private static SKImage? BuildLightMask(float width, float height, double t, double rayStrength, double cloudStrength)
+        {
+            const double Tau = Math.PI * 2;
+            int w = Math.Max(16, (int)Math.Ceiling(width / LightMaskDownscale));
+            int h = Math.Max(16, (int)Math.Ceiling(height / LightMaskDownscale));
+            using var surface = SKSurface.Create(new SKImageInfo(w, h, SKColorType.Rgba8888, SKAlphaType.Premul));
+            if (surface == null)
+                return null;
+            var c = surface.Canvas;
+            c.Clear(SKColors.Transparent);
+
+            if (cloudStrength > 0)
+            {
+                // Whole-room swell on top of the drifting patches.
+                double swell = 0.8 + 0.2 * Math.Sin(t * Tau / 13);
+                float cycles = 2.2f;
+                DrawCloudField(c, w, h, cycles / w, seed: 7, dx: t * w * 0.011, dy: t * h * 0.004, cloudStrength * swell);
+                DrawCloudField(c, w, h, cycles * 1.6f / w, seed: 23, dx: -t * w * 0.008, dy: t * h * 0.007, cloudStrength * swell * 0.7);
+            }
+
+            if (rayStrength > 0)
+            {
+                // Fixed vanishing point above the top centre. The fan is one repeating pattern of RayCount rays around the
+                // whole circle, rotating at a constant rate, so rays always cover the screen and never reverse.
+                var vp = new SKPoint(w * 0.5f, -h * 0.25f);
+                double rotation = t * RayDegreesPerSecond;
+
+                // Sample the fan's brightness around the circle (sweep angle 0 = +x, 90° = straight down).
+                const int Samples = 360;
+                const double Spacing = 360.0 / RayCount;
+                var colors = new SKColor[Samples + 1];
+                var stops = new float[Samples + 1];
+                for (int i = 0; i <= Samples; i++)
+                {
+                    double deg = 360.0 * i / Samples;
+                    double sum = 0;
+                    for (int k = 0; k < RayCount; k++)
+                    {
+                        // Per-ray offset, width and brightness are fixed (golden-ratio hashes), so the pattern is uneven but
+                        // rigid: it only turns.
+                        double jitter = Spacing * 0.35 * Math.Sin(k * 2.399);
+                        double center = k * Spacing + jitter + rotation;
+                        double spread = 1.8 + 2.4 * (0.5 + 0.5 * Math.Sin(k * 1.618 + 0.4));
+                        double amp = 0.45 + 0.55 * (0.5 + 0.5 * Math.Sin(k * 3.883 + 1.2));
+                        double d = deg - center;
+                        d -= 360 * Math.Round(d / 360); // wrap to [-180, 180] so the pattern is seamless
+                        d /= spread;
+                        sum += amp * Math.Exp(-d * d);
+                    }
+                    colors[i] = SKColors.Black.WithAlpha((byte)Math.Round(Math.Clamp(sum * rayStrength, 0, 1) * 255));
+                    stops[i] = (float)i / Samples;
+                }
+                colors[Samples] = colors[0];
+
+                // Rays in their own layer so the distance falloff does not dim the clouds; light falloff only, so the rays
+                // still reach the bottom of the screen.
+                using var plus = new SKPaint { BlendMode = SKBlendMode.Plus };
+                c.SaveLayer(plus);
+                using (var sweep = SKShader.CreateSweepGradient(vp, colors, stops))
+                using (var sweepPaint = new SKPaint { Shader = sweep })
+                    c.DrawRect(0, 0, w, h, sweepPaint);
+                float reach = (float)Math.Sqrt(Math.Pow(Math.Max(vp.X, w - vp.X), 2) + Math.Pow(h - vp.Y, 2));
+                using (var falloff = SKShader.CreateRadialGradient(vp, reach,
+                    new[] { SKColors.Black, SKColors.Black, SKColors.Black.WithAlpha(150) },
+                    new[] { 0f, Math.Clamp(-vp.Y / reach, 0f, 0.9f), 1f },
+                    SKShaderTileMode.Clamp))
+                using (var falloffPaint = new SKPaint { Shader = falloff, BlendMode = SKBlendMode.DstIn })
+                    c.DrawRect(0, 0, w, h, falloffPaint);
+                c.Restore();
+            }
+
+            return surface.Snapshot();
+        }
+
+        /// <summary>Adds one drifting Perlin field to the mask: noise red channel → alpha, contrast-stretched so only the bright puffs show.</summary>
+        private static void DrawCloudField(SKCanvas c, int w, int h, float frequency, int seed, double dx, double dy, double strength)
+        {
+            using var noise = SKShader.CreatePerlinNoiseFractalNoise(frequency, frequency, 2, seed);
+            using var moved = noise.WithLocalMatrix(SKMatrix.CreateTranslation((float)dx, (float)dy));
+            float gain = (float)(2.6 * strength);
+            float offset = (float)(-1.0 * strength);
+            using var toAlpha = SKColorFilter.CreateColorMatrix(new[]
+            {
+                0f, 0, 0, 0, 0,
+                0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0,
+                gain, 0, 0, 0, offset
+            });
+            using var paint = new SKPaint { Shader = moved, ColorFilter = toAlpha, BlendMode = SKBlendMode.Plus };
+            c.DrawRect(0, 0, w, h, paint);
         }
 
         /// <summary>The cover-cropped, color-filtered and blurred plate at device size. Caller holds <see cref="CacheGate"/>.</summary>
