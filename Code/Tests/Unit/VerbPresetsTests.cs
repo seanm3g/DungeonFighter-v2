@@ -44,6 +44,12 @@ namespace RPGGame.Tests.Unit
                 TestLiquidateSpendsEveryMint();
                 TestIndexCountsDistinctMaterials();
                 TestDamageCalculatorAddsVerbBonus();
+                TestApplyMark();
+                TestBarrier();
+                TestDistill();
+                TestTransmute();
+                TestInvestPaysBackLater();
+                TestPalmBanksRoll();
                 TestPresetsInData();
             }
             finally
@@ -195,10 +201,81 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(b > a, $"INDEX hits harder than the same action without a verb ({b} > {a})", ref _run, ref _passed, ref _failed);
         }
 
+        private static void TestApplyMark()
+        {
+            TestBase.SetCurrentTestName(nameof(TestApplyMark));
+            var spec = VerbSpec.Parse("APPLY mark");
+            TestBase.AssertTrue(spec != null && spec.Rate == 1, "APPLY defaults to 1 stack", ref _run, ref _passed, ref _failed);
+            var hero = Hero("MarkHero", "Bone");
+            var foe = new Character("MarkFoe", 5);
+            VerbPresets.OnConnect(hero, foe, Verb("MARK", "APPLY mark 1"));
+            TestBase.AssertTrue(foe.IsMarked, "target is marked", ref _run, ref _passed, ref _failed);
+            TestBase.AssertFalse(hero.IsMarked, "hero is not", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestBarrier()
+        {
+            TestBase.SetCurrentTestName(nameof(TestBarrier));
+            var hero = Hero("BarrierHero", "Bone");
+            int expected = (int)Math.Round(hero.GetEffectiveMaxHealth() * 0.08);
+            VerbPresets.OnConnect(hero, null, Verb("BARRIER", "BARRIER 8"));
+            TestBase.AssertEqual(Math.Max(1, expected), hero.TemporaryHP ?? 0, "temp HP = 8% max HP", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestDistill()
+        {
+            TestBase.SetCurrentTestName(nameof(TestDistill));
+            var hero = Hero("DistillHero", "Glass", "Glass");
+            var foe = new Character("DistillFoe", 5);
+            foe.BurnIntensity = 6;
+            TestBase.AssertEqual(6, VerbPresets.OnConnect(hero, foe, Verb("DISTILL", "DISTILL 50")), "spends 6 burn", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, foe.BurnIntensity, "burn gone", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(3, hero.Effects.GetMaterialKeyword("GRAZE"), "3 GRAZE (50%) into the Glass mint", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestTransmute()
+        {
+            TestBase.SetCurrentTestName(nameof(TestTransmute));
+            var hero = Hero("TransHero", "Bone", "Bone", "Glass");
+            hero.Effects.AddMaterialKeyword("RAGE", 2);
+            hero.Effects.AddMaterialKeyword("GRAZE", 4);
+            TestBase.AssertEqual(4, VerbPresets.OnConnect(hero, null, Verb("TRANSMUTE", "TRANSMUTE 75")), "spends the 4 GRAZE", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(5, hero.Effects.GetMaterialKeyword("RAGE"), "2 + floor(4 x 0.75) = 5 RAGE", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, hero.Effects.GetMaterialKeyword("GRAZE"), "GRAZE empty", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestInvestPaysBackLater()
+        {
+            TestBase.SetCurrentTestName(nameof(TestInvestPaysBackLater));
+            var spec = VerbSpec.Parse("INVEST ATTUNED 200 2");
+            TestBase.AssertTrue(spec != null && spec.Rate == 200 && spec.Delay == 2, "rate then delay", ref _run, ref _passed, ref _failed);
+            var hero = Hero("InvestHero", "Bone", "Bone");
+            hero.Effects.AddMaterialKeyword("RAGE", 3);
+            VerbPresets.OnConnect(hero, null, Verb("INVEST", "INVEST ATTUNED 200 2"));
+            TestBase.AssertEqual(0, hero.Effects.GetMaterialKeyword("RAGE"), "RAGE spent now", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(6, VerbPresets.GetPendingInvestment(hero, "RAGE"), "6 pending", ref _run, ref _passed, ref _failed);
+            VerbPresets.TickInvestments(hero); // the INVEST action itself
+            VerbPresets.TickInvestments(hero);
+            TestBase.AssertEqual(0, hero.Effects.GetMaterialKeyword("RAGE"), "not yet after 1 more action", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(6, VerbPresets.TickInvestments(hero), "pays 6 after 2 more actions", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(6, hero.Effects.GetMaterialKeyword("RAGE"), "RAGE back doubled", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, VerbPresets.GetPendingInvestment(hero, "RAGE"), "nothing pending", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestPalmBanksRoll()
+        {
+            TestBase.SetCurrentTestName(nameof(TestPalmBanksRoll));
+            var hero = Hero("PalmHero", "Bone");
+            VerbPresets.OnConnect(hero, null, Verb("PALM", "PALM"), naturalRoll: 17);
+            bool banked = RPGGame.Actions.Conditional.CombatTriggerContext.TryConsumePendingReplaceRollFace(hero, out int face);
+            TestBase.AssertTrue(banked && face == 17, $"next roll becomes the palmed 17 (got {face})", ref _run, ref _passed, ref _failed);
+        }
+
         private static void TestPresetsInData()
         {
             TestBase.SetCurrentTestName(nameof(TestPresetsInData));
-            foreach (string name in new[] { "CASH IN", "DETONATE", "LIQUIDATE", "RECKONING", "INDEX" })
+            foreach (string name in new[] { "CASH IN", "DETONATE", "LIQUIDATE", "RECKONING", "INDEX",
+                         "MARK", "BARRIER", "DISTILL", "TRANSMUTE", "INVEST", "PALM" })
             {
                 var data = ActionLoader.GetActionData(name);
                 TestBase.AssertTrue(data != null && VerbSpec.Parse(data.Verb) != null, $"{name} loads with a valid verb", ref _run, ref _passed, ref _failed);

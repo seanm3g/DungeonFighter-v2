@@ -1921,5 +1921,77 @@
     "block": "100",
     "verb": "INDEX 8",
     "tags": "verb, store"
+  },
+  {
+    "action": "MARK",
+    "description": "Mark the target: their next hit taken is a critical.",
+    "tier": 4,
+    "dps": "88%",
+    "numberOfHits": "1",
+    "damage": "70%",
+    "speed": "0.80",
+    "block": "100",
+    "verb": "APPLY mark 1",
+    "tags": "verb, store"
+  },
+  {
+    "action": "BARRIER",
+    "description": "Raise a barrier: temporary HP worth 8% of your max HP.",
+    "tier": 4,
+    "dps": "67%",
+    "numberOfHits": "1",
+    "damage": "60%",
+    "speed": "0.90",
+    "block": "100",
+    "verb": "BARRIER 8",
+    "tags": "verb, store"
+  },
+  {
+    "action": "DISTILL",
+    "description": "Draw out the target's largest status (Expose, Poison, Bleed or Burn) into your attuned material's store at 50%.",
+    "tier": 4,
+    "dps": "80%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "1.00",
+    "block": "100",
+    "verb": "DISTILL 50",
+    "tags": "verb, store"
+  },
+  {
+    "action": "TRANSMUTE",
+    "description": "Pour your other material stores into your attuned material's store at 75%.",
+    "tier": 4,
+    "dps": "70%",
+    "numberOfHits": "1",
+    "damage": "70%",
+    "speed": "1.00",
+    "block": "100",
+    "verb": "TRANSMUTE 75",
+    "tags": "verb, store"
+  },
+  {
+    "action": "INVEST",
+    "description": "Spend your attuned material's store now; it comes back doubled after your next 2 actions.",
+    "tier": 4,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "90%",
+    "speed": "0.90",
+    "block": "100",
+    "verb": "INVEST ATTUNED 200 2",
+    "tags": "verb, store"
+  },
+  {
+    "action": "PALM",
+    "description": "Palm the die: your next roll becomes this attack's natural roll.",
+    "tier": 4,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "0.80",
+    "block": "100",
+    "verb": "PALM",
+    "tags": "verb, store"
   }
 ]

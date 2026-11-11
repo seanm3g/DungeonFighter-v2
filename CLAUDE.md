@@ -136,7 +136,7 @@ Actions loaded from `GameData/ActionTables.json` via `ActionLoader`.
 `Action` has: Name, Type (`ActionType`: Attack, Spell, Support, etc.), Tags (string list), ComboOrder, length, damage/effect values.  
 Tags drive behavior via `GameDataTagHelper`, `TagDamageCalculator`, `ActionMechanicTagProcessor`, `ActionRollTagProcessor`.  
 Environment/hazard actions from `GameData/EnvironmentalActions.json`.  
-Verb presets (2026-11-11, `Code/Combat/Verbs/`): an action's `verb` column (`CASH ATTUNED 75`, `DETONATE 100`, `LIQUIDATE 50`, `SCALE ATTUNED 50`, `INDEX 8`) reads/spends `Stores`; `Attunement` = most-worn material, ties → weapon. Presets CASH IN / DETONATE / LIQUIDATE / RECKONING / INDEX are tier 4, outside the default active set (`GeneralSettings.actionsActiveSetMaxTier` 3) until balanced.
+Verb presets (2026-11-11, `Code/Combat/Verbs/`): an action's `verb` column (`CASH ATTUNED 75`, `DETONATE 100`, `LIQUIDATE 50`, `SCALE ATTUNED 50`, `INDEX 8`, `APPLY mark 1`, `BARRIER 8`, `DISTILL 50`, `TRANSMUTE 75`, `INVEST ATTUNED 200 2`, `PALM`) reads/spends `Stores`; `Attunement` = most-worn material, ties → weapon. The 11 presets (CASH IN, DETONATE, LIQUIDATE, RECKONING, INDEX, MARK, BARRIER, DISTILL, TRANSMUTE, INVEST, PALM) are tier 4 and in no `ActionTables.json` table, so they stay out of play (`GeneralSettings.actionsActiveSetMaxTier` 3) until balanced.
 
 ### UI (`Code/UI/`)
 

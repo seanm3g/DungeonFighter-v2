@@ -232,7 +232,13 @@ namespace RPGGame
                 read: a => a.IsStunned ? a.StunTurnsRemaining : 0);
 
             yield return new StoreDef("mark", "Mark", StoreKind.Status, StoreScope.Turn,
-                read: a => a.IsMarked ? Math.Max(1, a.MarkTurns) : 0);
+                read: a => a.IsMarked ? Math.Max(1, a.MarkTurns) : 0,
+                add: (a, n) =>
+                {
+                    a.IsMarked = true;
+                    a.MarkTurns = Math.Max(a.MarkTurns, n);
+                    return n;
+                });
         }
 
         // ------------------------------------------------------------------ hero resources
