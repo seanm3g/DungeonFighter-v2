@@ -71,10 +71,10 @@ namespace RPGGame
             set { /* Armor is derived from gear/effects; kept for save/API compatibility. */ }
         }
 
-        /// <summary>Effective Defense rating (character base + level + equipment + fortify + skill − armor break / expose / acid).</summary>
+        /// <summary>Effective Defense rating (character base + level + equipment + fortify + skill − Expose armor strip / acid).</summary>
         public int GetMaxArmor() => GetEffectiveArmor();
 
-        /// <summary>Effective Defense rating (character base + level + equipment + fortify + skill − armor break / expose / acid).</summary>
+        /// <summary>Effective Defense rating (character base + level + equipment + fortify + skill − Expose armor strip / acid).</summary>
         public int GetEffectiveArmor()
         {
             int max = character is Enemy enemy
@@ -88,10 +88,7 @@ namespace RPGGame
             if (character.FortifyArmorBonus is int fortifyBonus && fortifyBonus > 0)
                 max += fortifyBonus;
             max += SkillEffectRouter.Instance.GetSkillArmorBonus(character);
-            if (character.ArmorBreakReduction is int armorBreak && armorBreak > 0)
-                max = Math.Max(0, max - armorBreak);
-            if (character.ExposeArmorReduction is int expose && expose > 0)
-                max = Math.Max(0, max - expose);
+            max = ExposeStatus.ApplyArmorStrip(character, max);
             if (character.AcidArmorReduction > 0)
                 max = Math.Max(0, max - character.AcidArmorReduction);
             return max;

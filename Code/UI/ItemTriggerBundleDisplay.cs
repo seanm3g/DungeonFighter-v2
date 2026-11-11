@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using RPGGame.Actions.Conditional;
+using RPGGame.Combat.Events;
 using RPGGame.Data;
 
 namespace RPGGame
@@ -87,28 +88,8 @@ namespace RPGGame
             string? arg = colon >= 0 && colon < upper.Length - 1 ? upper.Substring(colon + 1).Trim() : null;
             token = ActionTriggerGate.NormalizeToken(token);
 
-            return token switch
-            {
-                "ONHIT" => "On normal hit",
-                "ONCONNECT" => "On connect",
-                "ONMISS" => "On miss",
-                "ONCRITICAL" => "On crit",
-                "ONCRITICALMISS" => "On crit miss",
-                "ONCOMBO" => "On combo",
-                "ONCOMBOEND" => "On combo end",
-                "ONKILL" => "On kill",
-                "ONFIRSTHIT" => "On first hit",
-                "ONAFTERMISS" => "After miss",
-                "ONROOMSCLEARED" => arg != null ? $"On room clear #{arg}" : "On room clear",
-                "ONROLLVALUE" => arg != null ? $"On roll total {arg}" : "On exact roll",
-                "ONNATURALROLL" => arg != null ? $"On natural {arg}" : "On natural roll",
-                "ONEVEN" => "On even roll",
-                "ONODD" => "On odd roll",
-                "ONTAKEHIT" => "On take hit",
-                "WHILEEQUIPPED" or "WHILE_EQUIPPED" => "While equipped",
-                "ONHEALTHTHRESHOLD" => "On health threshold",
-                _ => PrettifyToken(token)
-            };
+            string? label = TriggerEvents.Label(arg != null ? $"{token}:{arg}" : token);
+            return label ?? PrettifyToken(token);
         }
 
         public static string FormatFilter(string? filter)

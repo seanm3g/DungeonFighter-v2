@@ -100,8 +100,7 @@ namespace RPGGame
                     case HybridBonus.Status:
                         if (evt.Target != null)
                         {
-                            evt.Target.VulnerabilityStacks = (evt.Target.VulnerabilityStacks ?? 0) + steps;
-                            evt.Target.VulnerabilityTurns = Math.Max(evt.Target.VulnerabilityTurns, 2);
+                            ExposeStatus.Apply(evt.Target, steps, 2);
                             if (evt.Target is Character weakened)
                                 weakened.ApplyWeaken(2);
                         }

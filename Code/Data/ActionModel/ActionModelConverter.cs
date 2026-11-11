@@ -316,6 +316,9 @@ namespace RPGGame.Data.ActionModel
                     ctx.Modifiers.Add(new Modifier(Quantity.DamageFlat, ModOp.Add, per, ModTarget.Self, ActionScope.Hit, ScaleFrom: formula.ToUpperInvariant()));
             }
 
+            // Verb presets run in VerbPresets (store reads/spends); the model has no store primitive yet.
+            ctx.Use(nameof(SpreadsheetActionJson.Verb));
+
             string lifesteal = ctx.Use(nameof(SpreadsheetActionJson.Lifesteal));
             if (lifesteal.Length > 0)
             {

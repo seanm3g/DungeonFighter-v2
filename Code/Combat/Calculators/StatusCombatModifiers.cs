@@ -4,7 +4,7 @@ namespace RPGGame.Combat.Calculators
 {
     /// <summary>
     /// Damage and Defense scaling from turn-limited statuses (knobs in <see cref="CombatConfig"/>).
-    /// Weaken / Focus change the holder's outgoing damage; Vulnerability changes incoming damage;
+    /// Weaken / Focus change the holder's outgoing damage (Vulnerability folded into Expose, 2026-11-11);
     /// Harden / Expose add / remove Defense (in units of the DR constant K, so they matter at every level and
     /// Expose can push Defense below zero: the holder then takes extra damage).
     /// Stacks only count while their turns remain and are capped by <see cref="CombatConfig.StatusMaxStacks"/>.
@@ -30,15 +30,6 @@ namespace RPGGame.Combat.Calculators
                 multiplier *= Math.Clamp(combat.StatusWeakenDamageMultiplier, 0.0, 1.0);
             multiplier *= 1.0 + ActiveStacks(attacker.FocusStacks, attacker.FocusTurns) * combat.StatusFocusDamagePerStack;
             return multiplier;
-        }
-
-        /// <summary>Multiplier on damage this actor takes (Vulnerability).</summary>
-        public static double IncomingDamageMultiplier(Actor? target)
-        {
-            if (target == null)
-                return 1.0;
-            var combat = GameConfiguration.Instance.Combat;
-            return 1.0 + ActiveStacks(target.VulnerabilityStacks, target.VulnerabilityTurns) * combat.StatusVulnerabilityDamagePerStack;
         }
 
         /// <summary>Defense added by Harden (and Fortify, when <see cref="CombatConfig.StatusFortifyDefensePerStack"/> is set) minus Defense removed by Expose, given the DR constant <paramref name="k"/>.</summary>

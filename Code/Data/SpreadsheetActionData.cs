@@ -83,6 +83,8 @@ namespace RPGGame.Data
         public string KeywordScale { get; set; } = "";
         /// <summary>ACTIONS column DU — convert add source (`keyword`/`bank` or `material`/`count`).</summary>
         public string ScaleFormula { get; set; } = "";
+        /// <summary>Verb preset spec (<c>CASH ATTUNED 75</c>); JSON only, no sheet column yet.</summary>
+        public string Verb { get; set; } = "";
         
         // Columns N-Q: Hero bonuses (ACCURACY, HIT, COMBO, CRIT)
         public string HeroAccuracy { get; set; } = "";

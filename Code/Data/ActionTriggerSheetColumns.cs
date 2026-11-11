@@ -342,18 +342,7 @@ namespace RPGGame.Data
             if (string.IsNullOrWhiteSpace(raw))
                 return "";
             string u = SpreadsheetHeader.NormalizeLabel(raw);
-            return u switch
-            {
-                "ONCRIT" => "ONCRITICAL",
-                "ONCRITICALHIT" => "ONCRITICAL",
-                "ONCRITMISS" => "ONCRITICALMISS",
-                "ONCOMBOHIT" => "ONCOMBO",
-                "ONCOMBOENDED" => "ONCOMBOEND",
-                "ONANYHIT" => "ONCONNECT",
-                "ONFIRSTBLOOD" => "ONFIRSTHIT",
-                "ONROOMCLEARED" => "ONROOMSCLEARED",
-                _ => u
-            };
+            return RPGGame.Combat.Events.TriggerEvents.NormalizeToken(u);
         }
 
         public static string NormalizeScope(string? raw)

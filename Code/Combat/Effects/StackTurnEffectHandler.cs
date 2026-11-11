@@ -42,12 +42,13 @@ namespace RPGGame.Combat.Effects
             const int defaultTurns = 3;
             return new Dictionary<string, IEffectHandler>(StringComparer.OrdinalIgnoreCase)
             {
-                { "vulnerability", new StackTurnEffectHandler("vulnerability", defaultTurns, "is now vulnerable to damage!", t => { t.VulnerabilityStacks = (t.VulnerabilityStacks ?? 0) + 1; t.VulnerabilityTurns = defaultTurns; }) },
+                // Vulnerability and Armor Break fold into Expose (old data keeps loading).
+                { "vulnerability", new StackTurnEffectHandler("expose", defaultTurns, "is exposed!", t => ExposeStatus.Apply(t, 1, defaultTurns)) },
                 { "harden", new StackTurnEffectHandler("harden", defaultTurns, "hardens, reducing incoming damage!", t => { t.HardenStacks = (t.HardenStacks ?? 0) + 1; t.HardenTurns = defaultTurns; }) },
                 { "focus", new StackTurnEffectHandler("focus", defaultTurns, "focuses, increasing damage dealt!", t => { t.FocusStacks = (t.FocusStacks ?? 0) + 1; t.FocusTurns = defaultTurns; }) },
-                { "expose", new StackTurnEffectHandler("expose", defaultTurns, "is exposed!", t => { t.ExposeStacks = (t.ExposeStacks ?? 0) + 1; t.ExposeTurns = defaultTurns; }) },
+                { "expose", new StackTurnEffectHandler("expose", defaultTurns, "is exposed!", t => ExposeStatus.Apply(t, 1, defaultTurns)) },
                 { "hpregen", new StackTurnEffectHandler("hpregen", defaultTurns, "begins regenerating health!", t => { t.HPRegenStacks = (t.HPRegenStacks ?? 0) + 1; t.HPRegenTurns = defaultTurns; t.HPRegenAmount = (t.HPRegenAmount ?? 0) + 5; }) },
-                { "armorbreak", new StackTurnEffectHandler("armorbreak", defaultTurns, "armor is broken!", t => { t.ArmorBreakStacks = (t.ArmorBreakStacks ?? 0) + 1; t.ArmorBreakTurns = defaultTurns; }) },
+                { "armorbreak", new StackTurnEffectHandler("expose", defaultTurns, "is exposed!", t => ExposeStatus.Apply(t, 1, defaultTurns)) },
                 { "pierce", new StackTurnEffectHandler("pierce", defaultTurns, "armor is pierced!", t => { t.HasPierce = true; t.PierceTurns = defaultTurns; }) },
                 { "silence", new StackTurnEffectHandler("silence", defaultTurns, "is silenced!", t => { t.IsSilenced = true; t.SilenceTurns = defaultTurns; }) },
                 { "statdrain", new StackTurnEffectHandler("statdrain", defaultTurns, "stats are drained!", t => { t.StatDrainStacks = (t.StatDrainStacks ?? 0) + 1; t.StatDrainTurns = defaultTurns; }) },

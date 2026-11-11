@@ -200,19 +200,9 @@ namespace RPGGame
                         hero.FocusStacks = (hero.FocusStacks ?? 0) + Math.Max(1, (int)amount);
                         hero.FocusTurns = Math.Max(hero.FocusTurns, 2);
                         break;
-                    case ConvertRider.Vulnerable:
-                        if (target != null)
-                        {
-                            target.VulnerabilityStacks = (target.VulnerabilityStacks ?? 0) + Math.Max(1, (int)amount);
-                            target.VulnerabilityTurns = Math.Max(target.VulnerabilityTurns, 2);
-                        }
-                        break;
+                    case ConvertRider.Vulnerable: // folded into Expose
                     case ConvertRider.Expose:
-                        if (target != null)
-                        {
-                            target.ExposeStacks = (target.ExposeStacks ?? 0) + Math.Max(1, (int)amount);
-                            target.ExposeTurns = Math.Max(target.ExposeTurns, 2);
-                        }
+                        ExposeStatus.Apply(target, Math.Max(1, (int)amount), 2);
                         break;
                     case ConvertRider.Damage:
                         AddDamageMod(hero, amount);

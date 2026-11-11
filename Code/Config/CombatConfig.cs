@@ -224,12 +224,18 @@ namespace RPGGame
         public double StatusWeakenDamageMultiplier { get; set; } = 0.5;
         /// <summary>Outgoing damage added per Focus stack (0.15 = +15%).</summary>
         public double StatusFocusDamagePerStack { get; set; } = 0.15;
-        /// <summary>Incoming damage added per Vulnerability stack (0.15 = +15%).</summary>
-        public double StatusVulnerabilityDamagePerStack { get; set; } = 0.15;
         /// <summary>Defense added per Harden stack, as a fraction of the DR constant K (0.15 × K ≈ +13% reduction from 0).</summary>
         public double StatusHardenDefensePerStack { get; set; } = 0.15;
         /// <summary>Defense removed per Expose stack, as a fraction of K; may go below zero (then the holder takes extra damage).</summary>
         public double StatusExposeDefensePerStack { get; set; } = 0.15;
+        /// <summary>Expose tier 2: armor fraction stripped per Expose application while already at <see cref="StatusMaxStacks"/>.</summary>
+        public double StatusExposeArmorStripPerStack { get; set; } = 0.10;
+        /// <summary>Expose tier 2: most armor fraction Expose can strip.</summary>
+        public double StatusExposeArmorStripMax { get; set; } = 0.30;
+        /// <summary>Verb presets (DETONATE, CASH on a status): % of the hit paid per status unit spent.</summary>
+        public double VerbStatusCashPercentPerUnit { get; set; } = 6.0;
+        /// <summary>SCALE presets (RECKONING): most % damage a store can add without being spent. 0 = uncapped.</summary>
+        public double VerbScaleMaxPercent { get; set; } = 100.0;
         /// <summary>
         /// Defense per active Fortify stack, in units of the DR constant K (same scale as Harden). 0 = legacy: Fortify only
         /// adds its flat FortifyArmorPerStack (1 armor against K 275), and skill-granted Fortify (Crest of Triumph, Second Wind,
@@ -241,7 +247,7 @@ namespace RPGGame
         public double DotDamagePerLevel { get; set; }
         /// <summary>DoT ticks on the hero scale by enemySystem.damageCurve at the hero's level (false = legacy, curve ignored).</summary>
         public bool EnemyDotFollowsDamageCurve { get; set; }
-        /// <summary>Most stacks of one Focus/Vulnerability/Harden/Expose status that count (0 = no cap).</summary>
+        /// <summary>Most stacks of one Focus/Harden/Expose status that count (0 = no cap; Expose then has no tier 2).</summary>
         public int StatusMaxStacks { get; set; } = 3;
     }
 

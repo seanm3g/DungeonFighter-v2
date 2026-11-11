@@ -260,8 +260,8 @@ namespace RPGGame
                     Description: "On first hit, apply Fortify."),
                 new Identity(47, "ConnectPierce", "ONCONNECT", "", "pierce",
                     Description: "On connect, apply Pierce."),
-                new Identity(48, "EndVulnerability", "ONCOMBOEND", "", "vulnerability",
-                    Description: "On combo end, apply Vulnerability."),
+                new Identity(48, "EndVulnerability", "ONCOMBOEND", "", "expose", // Vulnerability folded into Expose; name kept for saves
+                    Description: "On combo end, apply Expose."),
                 new Identity(49, "CritMissSlow", "ONCRITICALMISS", "", "slow",
                     Description: "On crit miss, apply Slow."),
                 new Identity(50, "PunishDot", "ONCONNECT", "", "pierce",

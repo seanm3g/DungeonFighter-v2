@@ -978,7 +978,7 @@
           "cost": 1,
           "customEffectId": "glass_shatter",
           "power": 0.6445,
-          "effect": "GLASS NICK applies {0.34} Vulnerability per GRAZE, per rank.",
+          "effect": "GLASS NICK applies {0.34} Expose per GRAZE, per rank.",
           "payoff": "GRAZE cracks armor.",
           "requires": [],
           "sharedWith": []
@@ -1153,7 +1153,7 @@
         {
           "name": "Hemorrhage",
           "type": "Passive",
-          "effect": "When Bleed ticks, apply Expose for one turn; if already Exposed, add Armor Break.",
+          "effect": "When Bleed ticks, apply Expose for one turn; a crit adds another Expose (at full stacks, Expose strips armor).",
           "payoff": "Bleeding exposes.",
           "customEffectId": "hemorrhage",
           "id": "r-hemo",
@@ -1602,7 +1602,7 @@
         {
           "name": "Thermal Shock",
           "type": "Passive",
-          "effect": "Slow on Burning: {100}% chance to consume both and Stun; Burn on Slowed instead adds Vulnerability.",
+          "effect": "Slow on Burning: {100}% chance to consume both and Stun; Burn on Slowed instead adds Expose.",
           "payoff": "Fire and frost collide.",
           "customEffectId": "thermal_shock",
           "id": "z-shock",
@@ -1673,7 +1673,7 @@
           "cost": 1,
           "maxRank": 5,
           "requires": [],
-          "effect": "Each time you apply Burn or Vulnerability to an enemy, gain +{1} INT for the rest of the dungeon, per rank.",
+          "effect": "Each time you apply Burn or Expose to an enemy, gain +{1} INT for the rest of the dungeon, per rank.",
           "payoff": "Every flame you set feeds the mind.",
           "customEffectId": "kindled_mind",
           "sharedWith": [],

@@ -49,7 +49,9 @@ Actor (abstract)               — action pool, all status effects
 
 **`Actor`** (`Code/Entity/Actor.cs`) — base for every combat participant.
 - `ActionPool` — list of `(Action, probability)` tuples; `SelectAction()` does weighted random pick
-- Status effects stored directly: poison/burn/bleed (DoT), stun, weaken, roll penalty, damage reduction, vulnerability, harden, fortify, focus, expose, HP regen, armor break, pierce, reflect, silence, stat drain, absorb, temp HP, confusion, mark
+- Status effects stored directly: poison/burn/bleed (DoT), stun, weaken, roll penalty, damage reduction, harden, fortify, focus, expose, HP regen, pierce, reflect, silence, stat drain, absorb, temp HP, confusion, mark
+- Expose (`ExposeStatus`) absorbed Vulnerability and Armor Break (2026-11-11): stacks to `StatusMaxStacks` remove Defense; applications at the cap strip armor (tier 2). `vulnerability` / `armorbreak` effect ids still load as Expose
+- `Stores` (`Code/Combat/Stores.cs`) — one read / add / spend interface over material mints (RAGE, GRAZE…), statuses and hero resources; `TriggerEvents` (`Code/Combat/Events/TriggerEvents.cs`) — the single trigger event vocabulary (canonical WHEN tokens, aliases, labels, slot families)
 - DoT tick methods: `ProcessPoison`, `ProcessBurn`, `ProcessBleedOnAction`
 - `UpdateTempEffects(actionLength)` — decay all timed effects each turn
 
@@ -133,7 +135,8 @@ Item mods are defined in `GameData/ModificationTables.json`.
 Actions loaded from `GameData/ActionTables.json` via `ActionLoader`.  
 `Action` has: Name, Type (`ActionType`: Attack, Spell, Support, etc.), Tags (string list), ComboOrder, length, damage/effect values.  
 Tags drive behavior via `GameDataTagHelper`, `TagDamageCalculator`, `ActionMechanicTagProcessor`, `ActionRollTagProcessor`.  
-Environment/hazard actions from `GameData/EnvironmentalActions.json`.
+Environment/hazard actions from `GameData/EnvironmentalActions.json`.  
+Verb presets (2026-11-11, `Code/Combat/Verbs/`): an action's `verb` column (`CASH ATTUNED 75`, `DETONATE 100`, `LIQUIDATE 50`, `SCALE ATTUNED 50`, `INDEX 8`) reads/spends `Stores`; `Attunement` = most-worn material, ties → weapon. Presets CASH IN / DETONATE / LIQUIDATE / RECKONING / INDEX are tier 4, outside the default active set (`GeneralSettings.actionsActiveSetMaxTier` 3) until balanced.
 
 ### UI (`Code/UI/`)
 

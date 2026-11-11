@@ -401,6 +401,8 @@ namespace RPGGame.Combat.Calculators
             {
                 double tagModifier = Combat.TagDamageCalculator.GetDamageModifier(action, target);
                 totalDamage = (int)(totalDamage * tagModifier);
+                // Verb presets (CASH IN, DETONATE, RECKONING, …) read their store before the hit spends it.
+                totalDamage += VerbPresets.GetDamageBonus(attacker, target, action, totalDamage);
             }
 
             if (_sequenceTrace != null)
@@ -477,8 +479,7 @@ namespace RPGGame.Combat.Calculators
 
         private static int ApplyIncomingStatus(Actor target, int damage)
         {
-            double incoming = StatusCombatModifiers.IncomingDamageMultiplier(target)
-                * AnimalSetController.GetIncomingDamageMultiplier(target)
+            double incoming = AnimalSetController.GetIncomingDamageMultiplier(target)
                 * MaterialSetController.GetIncomingDamageMultiplier(target);
             return incoming == 1.0 ? damage : (int)Math.Round(damage * incoming);
         }

@@ -13,13 +13,13 @@ namespace RPGGame.Combat
     public readonly struct StatusApplySnapshot
     {
         private readonly double _poison;
-        private readonly int _burn, _acid, _bleed, _stun, _weaken, _slowTurns, _vuln, _expose, _armorBreak, _mark,
+        private readonly int _burn, _acid, _bleed, _stun, _weaken, _slowTurns, _expose, _mark,
             _confusion, _silence, _statDrain;
-        private readonly double _slowMult;
+        private readonly double _slowMult, _exposeStrip;
 
         public static readonly string[] StatusNames =
         {
-            "poison", "burn", "acid", "bleed", "stun", "weaken", "slow", "vulnerability", "expose", "armorbreak",
+            "poison", "burn", "acid", "bleed", "stun", "weaken", "slow", "expose",
             "mark", "confusion", "silence", "statdrain"
         };
 
@@ -34,9 +34,8 @@ namespace RPGGame.Combat
             var c = t as Character;
             _slowTurns = c?.Effects.SlowTurns ?? 0;
             _slowMult = c?.Effects.SlowMultiplier ?? 1.0;
-            _vuln = t.VulnerabilityStacks ?? 0;
             _expose = t.ExposeStacks ?? 0;
-            _armorBreak = t.ArmorBreakStacks ?? 0;
+            _exposeStrip = t.ExposeArmorStrip;
             _mark = t.IsMarked ? t.MarkTurns : 0;
             _confusion = t.IsConfused ? t.ConfusionTurns : 0;
             _silence = t.IsSilenced ? t.SilenceTurns : 0;
@@ -57,9 +56,7 @@ namespace RPGGame.Combat
             if (now._stun > _stun) gained.Add("stun");
             if (now._weaken > _weaken) gained.Add("weaken");
             if (now._slowTurns > _slowTurns || now._slowMult < _slowMult - 1e-9) gained.Add("slow");
-            if (now._vuln > _vuln) gained.Add("vulnerability");
-            if (now._expose > _expose) gained.Add("expose");
-            if (now._armorBreak > _armorBreak) gained.Add("armorbreak");
+            if (now._expose > _expose || now._exposeStrip > _exposeStrip + 1e-9) gained.Add("expose");
             if (now._mark > _mark) gained.Add("mark");
             if (now._confusion > _confusion) gained.Add("confusion");
             if (now._silence > _silence) gained.Add("silence");

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RPGGame.Combat.Calculators;
 using RPGGame.Data;
 
@@ -22,7 +23,8 @@ namespace RPGGame.Tests.Unit.Combat
             _testsFailed = 0;
 
             TestWeakenLowersOutgoingUntilHolderActs();
-            TestVulnerabilityRaisesIncomingAndDecays();
+            TestExposeTierTwoStripsArmorAndDecays();
+            TestFoldedStatusesApplyExpose();
             TestHardenAndExposeShiftDefense();
             TestStacksAreCapped();
             TestSlowLengthensAttackTime();
@@ -43,17 +45,38 @@ namespace RPGGame.Tests.Unit.Combat
                 "Weaken ends after the holder's action", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestVulnerabilityRaisesIncomingAndDecays()
+        private static void TestExposeTierTwoStripsArmorAndDecays()
         {
-            var c = new Character("VulnTest", 1);
-            c.VulnerabilityStacks = 1;
-            c.VulnerabilityTurns = 1;
-            TestBase.AssertTrue(StatusCombatModifiers.IncomingDamageMultiplier(c) > 1.0,
-                "Vulnerability raises damage taken", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var combat = GameConfiguration.Instance.Combat;
+            int cap = combat.StatusMaxStacks;
+            if (cap <= 0 || combat.StatusExposeArmorStripPerStack <= 0)
+                return;
+            var c = new Character("ExposeTierTest", 10);
+            int armorBefore = c.GetMaxArmor();
+            ExposeStatus.Apply(c, cap, 1);
+            TestBase.AssertEqual(cap, c.ExposeStacks ?? 0, "Expose stacks up to the cap", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(ExposeStatus.IsArmorStripped(c), "No armor strip below tier 2", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            ExposeStatus.Apply(c, 1, 1);
+            TestBase.AssertEqual(cap, c.ExposeStacks ?? 0, "Stacks stay at the cap", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ExposeStatus.IsArmorStripped(c), "Application at the cap strips armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (armorBefore > 0)
+                TestBase.AssertTrue(c.GetMaxArmor() < armorBefore, "Tier 2 lowers the armor rating", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            ExposeStatus.Apply(c, 20, 1);
+            TestBase.AssertTrue(c.ExposeArmorStrip <= combat.StatusExposeArmorStripMax + 1e-9, "Strip is capped", ref _testsRun, ref _testsPassed, ref _testsFailed);
             c.UpdateTempEffects(Character.DEFAULT_ACTION_LENGTH);
-            TestBase.AssertNull(c.VulnerabilityStacks, "Vulnerability stacks clear when its turns run out", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1.0, StatusCombatModifiers.IncomingDamageMultiplier(c),
-                "No extra damage after Vulnerability ends", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertNull(c.ExposeStacks, "Expose clears when its turns run out", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0.0, c.ExposeArmorStrip, "Armor strip ends with Expose", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(armorBefore, c.GetMaxArmor(), "Armor returns after Expose ends", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestFoldedStatusesApplyExpose()
+        {
+            var registry = new EffectHandlerRegistry();
+            var foe = new Character("FoldTest", 1);
+            var action = TestDataBuilders.CreateMockAction("FoldAction");
+            registry.ApplyEffect("vulnerability", foe, action, new List<string>());
+            registry.ApplyEffect("armorbreak", foe, action, new List<string>());
+            TestBase.AssertEqual(2, foe.ExposeStacks ?? 0, "Vulnerability and Armor Break each add an Expose stack", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestHardenAndExposeShiftDefense()
@@ -80,11 +103,11 @@ namespace RPGGame.Tests.Unit.Combat
             int cap = GameConfiguration.Instance.Combat.StatusMaxStacks;
             if (cap <= 0)
                 return;
-            c.VulnerabilityTurns = 3;
-            c.VulnerabilityStacks = cap;
-            double atCap = StatusCombatModifiers.IncomingDamageMultiplier(c);
-            c.VulnerabilityStacks = cap + 5;
-            TestBase.AssertEqual(atCap, StatusCombatModifiers.IncomingDamageMultiplier(c),
+            c.ExposeTurns = 3;
+            c.ExposeStacks = cap;
+            double atCap = StatusCombatModifiers.DefenseBonus(c, 100);
+            c.ExposeStacks = cap + 5;
+            TestBase.AssertEqual(atCap, StatusCombatModifiers.DefenseBonus(c, 100),
                 "Stacks above the cap add nothing", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

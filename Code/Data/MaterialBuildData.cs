@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using RPGGame.Combat.Events;
 
 namespace RPGGame.Data
 {
@@ -141,43 +142,23 @@ namespace RPGGame.Data
         /// Plain-English "what makes this happen" for a synthesis WHEN token (normalized or raw), matching
         /// <c>MaterialSetController.WhenMatches</c> / <c>ActionTriggerGate.MatchesConditionToken</c>.
         /// </summary>
-        public static string DescribeWhen(string? whenToken) => NormalizeWhenToken(whenToken) switch
+        public static string DescribeWhen(string? whenToken)
         {
-            "ONTURN" => "at the start of each of your turns",
-            "ONATTACK" => "each attack you make, hit or miss",
-            "ONCONSECUTIVEATTACK" => "each hit that lands while you have 2+ hits in a row (a miss resets the run)",
-            "ONCONNECT" or "ONANYHIT" => "each of your attacks that connects (normal, action or crit)",
-            "ONHIT" or "ONNORMALHIT" => "each normal hit (not an action roll or crit)",
-            "ONCOMBO" or "ONCOMBOHIT" => "each action roll that lands",
-            "ONCOMBOEND" or "ONCOMBOENDED" => "each time your combo sequence ends",
-            "ONCRITICAL" or "ONCRITICALHIT" => "each critical hit",
-            "ONKILL" => "each enemy you kill",
-            "ONHEALTHTHRESHOLD" or "ONENEMYHEALTHTHRESHOLD" => "each time your hit pushes an enemy past a health milestone",
-            "ONTAKEHIT" or "ONHEROHURT" or "ONRECEIVEHIT" => "each time an enemy hits you",
-            "ONSLOW" => "each hit that slows the target",
-            "ONFOCUS" => "each hit that gains you Focus",
-            "ONMISS" => "each attack you miss",
-            "ONAFTERMISS" => "each hit that lands right after a miss",
-            "ONFIRSTHIT" or "ONFIRSTBLOOD" => "your first hit that lands each fight",
-            "" => "its set trigger",
-            string other => other
-        };
+            string token = NormalizeWhenToken(whenToken);
+            if (token.Length == 0)
+                return "its set trigger";
+            return TriggerEvents.Describe(token) ?? token;
+        }
 
-        /// <summary>Strip spaces/underscores so sheet <c>ON_HIT</c> matches gate tokens.</summary>
+        /// <summary>
+        /// Canonical event token for a synthesis WHEN (<c>ON_RECEIVE_HIT</c> → <c>ONTAKEHIT</c>), via
+        /// <see cref="TriggerEvents"/>. Hyphens are dropped too (<c>ON-KILL</c>).
+        /// </summary>
         public static string NormalizeWhenToken(string? raw)
         {
             if (string.IsNullOrWhiteSpace(raw))
                 return "";
-            var chars = (raw ?? "").Trim().ToUpperInvariant().ToCharArray();
-            int w = 0;
-            for (int i = 0; i < chars.Length; i++)
-            {
-                char c = chars[i];
-                if (c == '_' || c == ' ' || c == '-')
-                    continue;
-                chars[w++] = c;
-            }
-            return new string(chars, 0, w);
+            return TriggerEvents.NormalizeToken(raw.Replace("-", ""));
         }
     }
 }

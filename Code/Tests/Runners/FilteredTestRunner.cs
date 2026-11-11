@@ -237,6 +237,9 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "RollProbabilityContent", () => RPGGame.Tests.Unit.RollProbabilityContentTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "WeaponModTriggerBridge", () => RPGGame.Tests.Unit.WeaponModTriggerBridgeTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "EquippedItemTrigger", () => RPGGame.Tests.Unit.EquippedItemTriggerTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "TriggerEvents", () => RPGGame.Tests.Unit.TriggerEventsTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "Stores", () => RPGGame.Tests.Unit.StoresTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "VerbPresets", () => RPGGame.Tests.Unit.VerbPresetsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "MaterialTrigger", () => RPGGame.Tests.Unit.MaterialTriggerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ItemTriggerCombatIntegration", () => RPGGame.Tests.Unit.ItemTriggerCombatIntegrationTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StunProcessor", () => RPGGame.Tests.Unit.Combat.StunProcessorTests.RunAllTests()));

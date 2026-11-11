@@ -52,6 +52,8 @@ namespace RPGGame
         public string KeywordScale { get; set; } = "";
         /// <summary>ACTIONS DU — source override for convert add (<c>keyword</c>/<c>bank</c> or <c>material</c>/<c>count</c>).</summary>
         public string ScaleFormula { get; set; } = "";
+        /// <summary>Verb preset spec (<c>CASH ATTUNED 75</c>, <c>SCALE ATTUNED 50</c>, …); see <see cref="VerbPresets"/>.</summary>
+        public string Verb { get; set; } = "";
         public bool CausesBleed { get; set; }
         public bool CausesWeaken { get; set; }
         public bool CausesSlow { get; set; }

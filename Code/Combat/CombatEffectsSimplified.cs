@@ -151,6 +151,15 @@ namespace RPGGame
 
             // Room clear runs a dedicated equip pass once in RoomClearedTriggerApplicator
             // (pool actions may call ApplyStatusEffects multiple times).
+            // Hit streak updates before item triggers and minting so ONCONSECUTIVEATTACK means the same thing for both.
+            if (attacker is Character heroStreak && heroStreak is not Enemy && combatEvent != null)
+            {
+                if (combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsMiss)
+                    heroStreak.Effects.MaterialConsecutiveConnects++;
+                else if (combatEvent.Type == CombatEventType.ActionMiss || combatEvent.IsMiss)
+                    heroStreak.Effects.MaterialConsecutiveConnects = 0;
+            }
+
             if (combatEvent?.Type != CombatEventType.RoomCleared)
             {
                 effectsApplied |= EquippedItemTriggerApplicator.ApplyFromAttacker(
@@ -159,13 +168,12 @@ namespace RPGGame
 
             if (attacker is Character heroSynth && heroSynth is not Enemy && combatEvent != null)
             {
-                if (combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsMiss)
-                    heroSynth.Effects.MaterialConsecutiveConnects++;
-                else if (combatEvent.Type == CombatEventType.ActionMiss || combatEvent.IsMiss)
-                    heroSynth.Effects.MaterialConsecutiveConnects = 0;
                 // Cash out before minting so a convert that also matches its own WHEN starts a fresh bank.
                 if (combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsMiss)
+                {
                     MaterialSetController.SpendConvertBank(heroSynth, action);
+                    VerbPresets.OnConnect(heroSynth, target, action);
+                }
                 bool gainedFocus = (heroSynth.FocusStacks ?? 0) > focusBefore;
                 bool appliedSlow = slowTarget != null && !ReferenceEquals(slowTarget, heroSynth)
                     && (slowTarget.Effects.SlowTurns > slowTurnsBefore || slowTarget.Effects.SlowMultiplier < slowMultBefore);

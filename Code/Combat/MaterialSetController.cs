@@ -308,11 +308,15 @@ namespace RPGGame
         /// top attribute when the currency has no set) for the rest of the fight. Fractions carry within the fight.
         /// Returns the points granted.
         /// </summary>
-        public static int GrantConvertPrimaryStat(Character? hero, string? keyword, int unitsSpent)
+        public static int GrantConvertPrimaryStat(Character? hero, string? keyword, int unitsSpent) =>
+            GrantConvertPrimaryStat(hero, keyword, unitsSpent, 1.0);
+
+        /// <param name="share">Fraction of the convert payout (verb presets: CASH IN pays 75%).</param>
+        public static int GrantConvertPrimaryStat(Character? hero, string? keyword, int unitsSpent, double share)
         {
-            if (hero == null || hero is Enemy || unitsSpent <= 0 || string.IsNullOrWhiteSpace(keyword))
+            if (hero == null || hero is Enemy || unitsSpent <= 0 || share <= 0 || string.IsNullOrWhiteSpace(keyword))
                 return 0;
-            double per = GetConvertPrimaryStatPerUnit(keyword);
+            double per = GetConvertPrimaryStatPerUnit(keyword) * share;
             if (per <= 0)
                 return 0;
             // With damage off the charm's convert multiplier scales the stat payout instead.
@@ -800,8 +804,7 @@ namespace RPGGame
 
         private static string Mark(int have, int need) => have >= need ? "> " : "  ";
 
-        private static bool IsTakeHitToken(string whenToken) =>
-            ActionTriggerGate.NormalizeToken(whenToken) is "ONTAKEHIT" or "ONHEROHURT" or "ONRECEIVEHIT";
+        private static bool IsTakeHitToken(string whenToken) => TriggerEvents.IsTakeHit(whenToken);
 
         private static bool WhenMatches(string whenToken, Action action, CombatEvent combatEvent, Character hero,
             bool gainedFocus = false, bool appliedSlow = false)
@@ -815,9 +818,7 @@ namespace RPGGame
                         || combatEvent.Type == CombatEventType.ActionMiss
                         || combatEvent.Type == CombatEventType.ActionExecuted);
             if (token == "ONCONSECUTIVEATTACK")
-                return hero.Effects.MaterialConsecutiveConnects >= 2
-                    && combatEvent.Type == CombatEventType.ActionHit
-                    && !combatEvent.IsMiss;
+                return ActionTriggerGate.IsHitStreak(hero, combatEvent);
             if (token == "ONSLOW")
                 return !combatEvent.IsMiss
                     && combatEvent.Type == CombatEventType.ActionHit

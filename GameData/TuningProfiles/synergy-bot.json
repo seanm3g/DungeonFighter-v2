@@ -1,5 +1,5 @@
 {
-  "description": "Synergy weights for DUNGEONSIM --bot synergy (Code/Game/Tuning/RulesSynergy.cs). when:<WHEN> rules apply while a set of that material is formed (scaled up per piece past 2); node:<id> rules apply per learned rank (capped at maxRankScale). Feature names: tag:<tag>, hits, fast, slowAction, heavy, hit, crit, combo, slow, weaken, expose, vuln, harden, pierce, confuse, disrupt, finisher, opener, statbuff, heal, oncrit, onkill, fx:bleed|burn|poison|stun|fortify|focus. Mined priority spans 1.0 (top) to 0.5; first-guess weights 2026-11-07.",
+  "description": "Synergy weights for DUNGEONSIM --bot synergy (Code/Game/Tuning/RulesSynergy.cs). when:<WHEN> rules apply while a set of that material is formed (scaled up per piece past 2); node:<id> rules apply per learned rank (capped at maxRankScale). Feature names: tag:<tag>, hits, fast, slowAction, heavy, hit, crit, combo, slow, weaken, expose (Vulnerability folded in), harden, pierce, confuse, disrupt, finisher, opener, statbuff, heal, oncrit, onkill, fx:bleed|burn|poison|stun|fortify|focus. Mined priority spans 1.0 (top) to 0.5; first-guess weights 2026-11-07.",
   "minScore": 0.5,
   "setPieceGrowth": 0.25,
   "maxRankScale": 3,
@@ -14,9 +14,9 @@
   ],
   "fillSlotNodes": ["b-empty", "z-chaos", "z-slotInt"],
   "rules": {
-    "when:ONENEMYHEALTHTHRESHOLD": { "heavy": 0.4, "hits": 0.1 },
+    "when:ONHEALTHTHRESHOLD": { "heavy": 0.4, "hits": 0.1 },
     "when:ONCOMBOEND": { "fast": 0.4, "combo": 0.15 },
-    "when:ONRECEIVEHIT": { "harden": 0.15, "heal": 0.2 },
+    "when:ONTAKEHIT": { "harden": 0.15, "heal": 0.2 },
     "when:ONTURN": { "fast": 0.6 },
     "when:ONSLOW": { "slow": 0.8, "weaken": 0.1 },
     "when:ONCONSECUTIVEATTACK": { "hit": 0.35, "hits": 0.2, "fast": 0.3 },
@@ -62,7 +62,7 @@
     "node:z-weave": { "tag:wand": 0.05 },
     "node:z-bleed": { "tag:wand": 0.06, "hits": 0.04 },
     "node:z-sigil": { "fx:burn": 0.1 },
-    "node:z-kindle": { "fx:burn": 0.1, "vuln": 0.15 },
+    "node:z-kindle": { "fx:burn": 0.1, "expose": 0.15 },
     "node:z-shock": { "slow": 0.3, "fx:burn": 0.3 }
   }
 }

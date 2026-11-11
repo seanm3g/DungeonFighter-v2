@@ -98,7 +98,7 @@
   },
   {
    "action": "ENEMY SHELL",
-   "description": "Hardens itself. Answer: Pierce, Expose, Vulnerability.",
+   "description": "Hardens itself. Answer: Pierce, Expose.",
    "tier": 1,
    "dps": "70%",
    "numberOfHits": "1",
@@ -146,7 +146,7 @@
   },
   {
    "action": "ENEMY CURSE",
-   "description": "Makes you Vulnerable. Answer: kill it first; Fortify.",
+   "description": "Exposes you (less defense). Answer: kill it first; Fortify.",
    "tier": 1,
    "dps": "80%",
    "numberOfHits": "1",
@@ -154,7 +154,7 @@
    "speed": "1.00",
    "block": "100",
    "tags": "enemy",
-   "vulnerability": "1"
+   "expose": "1"
   },
   {
    "action": "ENEMY CONCUSS",

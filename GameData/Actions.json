@@ -631,15 +631,15 @@
   },
   {
     "action": "VULNERABILITY",
-    "description": "Open a wound: Vulnerable (enemy takes extra damage).",
+    "description": "Open a wound: Expose (enemy has less defense; at full stacks, armor is stripped).",
     "tier": 2,
     "dps": "75%",
     "numberOfHits": "1",
     "damage": "60%",
     "speed": "0.80",
     "block": "100",
-    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022vulnerability\u0022,\u0022IsEnabled\u0022:true}]",
-    "vulnerability": "1"
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022expose\u0022,\u0022IsEnabled\u0022:true}]",
+    "expose": "1"
   },
   {
     "action": "HARDEN",
@@ -826,15 +826,15 @@
   },
   {
     "action": "BASH",
-    "description": "Heavy bash that leaves the enemy Vulnerable (takes extra damage).",
+    "description": "Heavy bash that leaves the enemy Exposed (less defense).",
     "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "150%",
     "speed": "1.50",
     "block": "180",
-    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00222\u0022,\u0022mechanics\u0022:\u0022vulnerability\u0022,\u0022IsEnabled\u0022:true}]",
-    "vulnerability": "1",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00222\u0022,\u0022mechanics\u0022:\u0022expose\u0022,\u0022IsEnabled\u0022:true}]",
+    "expose": "1",
     "tags": "class, barbarian"
   },
   {
@@ -1840,7 +1840,7 @@
   },
   {
     "action": "MIND HEX",
-    "description": "Hexblade: \u002B25% status potency (each 25% = \u002B1 Vulnerability; also Weakens) for every 10 Mind (x skill rank and power).",
+    "description": "Hexblade: \u002B25% status potency (each 25% = \u002B1 Expose; also Weakens) for every 10 Mind (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "80%",
@@ -1852,7 +1852,7 @@
   },
   {
     "action": "HEXBLADE CURSE",
-    "description": "Hexblade: \u002B25% status potency (each 25% = \u002B1 Vulnerability; also Weakens) for every 10 Hexblade tags (x skill rank and power).",
+    "description": "Hexblade: \u002B25% status potency (each 25% = \u002B1 Expose; also Weakens) for every 10 Hexblade tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "76%",
@@ -1861,5 +1861,65 @@
     "speed": "1.05",
     "block": "180",
     "tags": "common, hybrid, hexblade, rogue, wizard"
+  },
+  {
+    "action": "CASH IN",
+    "description": "Cash in your attuned material's store at 75% (its convert, for any set). Attuned = the material you wear most; ties go to the weapon.",
+    "tier": 4,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "110%",
+    "speed": "1.10",
+    "block": "100",
+    "verb": "CASH ATTUNED 75",
+    "tags": "verb, store"
+  },
+  {
+    "action": "DETONATE",
+    "description": "Spend the target's largest status (Expose, Poison, Bleed or Burn): +6% damage per stack spent.",
+    "tier": 4,
+    "dps": "90%",
+    "numberOfHits": "1",
+    "damage": "90%",
+    "speed": "1.00",
+    "block": "100",
+    "verb": "DETONATE 100",
+    "tags": "verb, store"
+  },
+  {
+    "action": "LIQUIDATE",
+    "description": "Cash every material store you hold at 50%.",
+    "tier": 4,
+    "dps": "57%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "1.40",
+    "block": "100",
+    "verb": "LIQUIDATE 50",
+    "tags": "verb, store"
+  },
+  {
+    "action": "RECKONING",
+    "description": "Damage grows with your attuned material's store without spending it (half its convert rate, up to +100%).",
+    "tier": 4,
+    "dps": "83%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.20",
+    "block": "100",
+    "verb": "SCALE ATTUNED 50",
+    "tags": "verb, store"
+  },
+  {
+    "action": "INDEX",
+    "description": "+8% damage for each different material you wear.",
+    "tier": 4,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "block": "100",
+    "verb": "INDEX 8",
+    "tags": "verb, store"
   }
 ]

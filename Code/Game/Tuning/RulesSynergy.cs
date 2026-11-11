@@ -51,6 +51,7 @@ namespace RPGGame.Tuning
                 _data = File.Exists(path)
                     ? JsonSerializer.Deserialize<SynergyData>(File.ReadAllText(path), new JsonSerializerOptions { PropertyNameCaseInsensitive = true, ReadCommentHandling = JsonCommentHandling.Skip }) ?? new SynergyData()
                     : new SynergyData();
+                _data.Rules = CanonicalizeWhenKeys(_data.Rules);
                 return _data;
             }
         }
@@ -97,7 +98,7 @@ namespace RPGGame.Tuning
                 Set(f, "hit", Math.Clamp(Num(row, "heroHit", 0), -3, 3));
                 Set(f, "crit", Math.Clamp(Num(row, "heroCrit", 0), -3, 3));
                 Set(f, "combo", Math.Clamp(Num(row, "heroCombo", 0), -3, 3));
-                foreach (var (field, feature) in new[] { ("slow", "slow"), ("weaken", "weaken"), ("expose", "expose"), ("vulnerability", "vuln"),
+                foreach (var (field, feature) in new[] { ("slow", "slow"), ("weaken", "weaken"), ("expose", "expose"), ("vulnerability", "expose"),
                     ("harden", "harden"), ("pierce", "pierce"), ("confuse", "confuse"), ("disrupt", "disrupt"), ("onCrit", "oncrit"), ("onKill", "onkill") })
                     if (Num(row, field, 0) != 0)
                         f[feature] = 1;
@@ -129,6 +130,33 @@ namespace RPGGame.Tuning
         {
             string s = Str(row, key).Trim().TrimEnd('%');
             return double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out double d) ? d : fallback;
+        }
+
+        /// <summary>
+        /// <c>when:&lt;WHEN&gt;</c> keys resolve through <see cref="RPGGame.Combat.Events.TriggerEvents"/>, so an alias key
+        /// (<c>when:ONRECEIVEHIT</c>) matches the canonical token a material build reports (<c>ONTAKEHIT</c>).
+        /// A canonical key wins over an alias key for the same event.
+        /// </summary>
+        public static Dictionary<string, Dictionary<string, double>> CanonicalizeWhenKeys(
+            Dictionary<string, Dictionary<string, double>>? rules)
+        {
+            var result = new Dictionary<string, Dictionary<string, double>>(StringComparer.OrdinalIgnoreCase);
+            if (rules == null)
+                return result;
+            foreach (var (key, weights) in rules)
+            {
+                if (!key.StartsWith("when:", StringComparison.OrdinalIgnoreCase))
+                {
+                    result[key] = weights;
+                    continue;
+                }
+                string raw = key[5..];
+                string canonicalKey = "when:" + RPGGame.Combat.Events.TriggerEvents.NormalizeToken(raw);
+                bool isCanonical = string.Equals(RPGGame.Combat.Events.TriggerEvents.Strip(raw), canonicalKey[5..], StringComparison.OrdinalIgnoreCase);
+                if (isCanonical || !result.ContainsKey(canonicalKey))
+                    result[canonicalKey] = weights;
+            }
+            return result;
         }
 
         // ---------------------------------------------------------------- active sources

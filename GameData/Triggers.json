@@ -656,13 +656,13 @@
   {
     "id": 48,
     "name": "EndVulnerability",
-    "description": "On combo end, apply Vulnerability.",
+    "description": "On combo end, apply Expose.",
     "effectTarget": "",
     "when": "ONCOMBOEND",
     "whenArg": "",
     "count": "1",
     "scope": "",
-    "mechanics": "vulnerability",
+    "mechanics": "expose",
     "mechanicArg": "",
     "channel": "combat"
   },

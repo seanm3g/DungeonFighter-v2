@@ -481,7 +481,7 @@ namespace RPGGame
             if (evt.Target.BleedIntensity <= 0) return;
             evt.Target.QueueBleedFromHit(Math.Max(1, evt.Target.BleedIntensity / 2));
             if (evt.IsCritical)
-                evt.Target.ArmorBreakStacks = (evt.Target.ArmorBreakStacks ?? 0) + 1;
+                ExposeStatus.Apply(evt.Target, 1, 2); // was Armor Break (folded into Expose)
         }
 
         private void ApplyPerfectCrimeTransfer(Character hero, CombatEvent evt)
@@ -848,7 +848,7 @@ namespace RPGGame
         private void ApplyMaceMastery(Character hero, CombatEvent evt)
         {
             if (!Has(hero, "mace_mastery") || evt.Target == null) return;
-            if ((evt.Target.ArmorBreakStacks ?? 0) <= 0) return;
+            if (!ExposeStatus.IsArmorStripped(evt.Target)) return; // "armor broken" = Expose tier 2 (Armor Break folded in)
             bool bludgeon = evt.Action?.Tags?.Any(t =>
                 string.Equals(t, "bludgeon", StringComparison.OrdinalIgnoreCase)) == true;
             if (!bludgeon) return;
@@ -982,8 +982,7 @@ namespace RPGGame
                     _technicalDebt++;
                 else if (_technicalDebt > 0 && evt.Target != null)
                 {
-                    evt.Target.ExposeStacks = (evt.Target.ExposeStacks ?? 0) + _technicalDebt;
-                    evt.Target.ExposeTurns = Math.Max(evt.Target.ExposeTurns, 2);
+                    ExposeStatus.Apply(evt.Target, _technicalDebt, 2);
                     _technicalDebt = 0;
                     _debtTags.Clear();
                 }
