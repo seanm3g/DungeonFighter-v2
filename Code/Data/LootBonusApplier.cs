@@ -870,6 +870,7 @@ namespace RPGGame
                 Description = template.Description,
                 Effect = template.Effect,
                 TriggerWhen = template.TriggerWhen,
+                CrossWire = template.CrossWire,
                 MinValue = template.MinValue,
                 MaxValue = template.MaxValue,
                 RolledValue = RollValueBetween(template.MinValue, template.MaxValue),

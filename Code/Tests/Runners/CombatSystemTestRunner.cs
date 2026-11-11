@@ -99,6 +99,7 @@ namespace RPGGame.Tests.Runners
             VerbPresetsTests.RunAllTests();
             HeroEventHubTests.RunAllTests();
             AffixTemplatesTests.RunAllTests();
+            CrossWiresTests.RunAllTests();
             StatBonusAnimalSuffixTriggerTests.RunAllTests();
             ItemTriggerCombatIntegrationTests.RunAllTests();
             Console.WriteLine();

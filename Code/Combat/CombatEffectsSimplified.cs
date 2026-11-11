@@ -168,6 +168,7 @@ namespace RPGGame
 
             if (attacker is Character heroSynth && heroSynth is not Enemy && combatEvent != null)
             {
+                RPGGame.Combat.Events.HeroEventHub.SetTarget(heroSynth, target);
                 // Cash out before minting so a convert that also matches its own WHEN starts a fresh bank.
                 if (combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsMiss)
                 {

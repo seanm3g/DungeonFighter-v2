@@ -450,8 +450,9 @@ namespace RPGGame
                 MintKeyword(hero, build.Keyword, amount, cause);
                 any = true;
             }
-            any |= ListenerAffix.MintFromCombatEvent(hero,
-                token => WhenMatches(token, subject, combatEvent, hero, gainedFocus, appliedSlow), takeHitOnly);
+            Func<string, bool> matches = token => WhenMatches(token, subject, combatEvent, hero, gainedFocus, appliedSlow);
+            any |= ListenerAffix.MintFromCombatEvent(hero, matches, takeHitOnly);
+            CrossWires.OnCombatEvent(hero, matches, takeHitOnly);
             return any;
         }
 

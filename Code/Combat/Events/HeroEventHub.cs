@@ -22,6 +22,18 @@ namespace RPGGame.Combat.Events
         public static event Action<Character, string, string?>? Raised;
 
         private static readonly ConditionalWeakTable<Character, StrongBox<int>> _fightTurns = new();
+        private static readonly ConditionalWeakTable<Character, WeakReference<Actor>> _targets = new();
+
+        /// <summary>The foe the hero is fighting (last attacked or attacked by); cross-wire APPLY / IF TARGET read it.</summary>
+        public static void SetTarget(Character hero, Actor? target)
+        {
+            if (target == null || ReferenceEquals(hero, target))
+                return;
+            _targets.AddOrUpdate(hero, new WeakReference<Actor>(target));
+        }
+
+        public static Actor? CurrentTarget(Character hero) =>
+            _targets.TryGetValue(hero, out var weak) && weak.TryGetTarget(out var actor) ? actor : null;
         [ThreadStatic] private static int _depth;
 
         /// <summary>
@@ -29,7 +41,7 @@ namespace RPGGame.Combat.Events
         /// (ONSTATUSAPPLY, ONCASH, ONSTOREFULL) or the hero's turn count this fight (ONBEAT). Re-entrant raises (a mint
         /// filling a store that raises ONSTOREFULL…) are allowed two levels deep.
         /// </summary>
-        public static void Raise(Character? hero, string token, string? arg = null)
+        public static void Raise(Character? hero, string token, string? arg = null, int amount = 0)
         {
             if (hero == null || hero is Enemy || _depth > 2)
                 return;
@@ -42,11 +54,12 @@ namespace RPGGame.Combat.Events
                         continue;
                     if (MaterialSetController.CountEquipped(hero, build.Material) < MaterialBuildData.StackUnlockCount)
                         continue;
-                    int amount = MaterialSetController.ComputeMintPerTrigger(hero, build);
-                    if (amount > 0)
-                        MaterialSetController.MintKeyword(hero, build.Keyword, amount, MaterialBuildData.FormatWhenLabel(build.Synthesis));
+                    int mint = MaterialSetController.ComputeMintPerTrigger(hero, build);
+                    if (mint > 0)
+                        MaterialSetController.MintKeyword(hero, build.Keyword, mint, MaterialBuildData.FormatWhenLabel(build.Synthesis));
                 }
                 ListenerAffix.MintFromHub(hero, token, arg);
+                CrossWires.OnHub(hero, token, arg, amount);
                 Raised?.Invoke(hero, token, arg);
             }
             finally
@@ -98,7 +111,7 @@ namespace RPGGame.Combat.Events
         public static void OnCash(Character hero, string store, int units)
         {
             if (units > 0)
-                Raise(hero, "ONCASH", store);
+                Raise(hero, "ONCASH", store, units);
         }
 
         /// <summary>Statuses the hero applied to an enemy this resolution.</summary>
@@ -118,7 +131,10 @@ namespace RPGGame.Combat.Events
         public static void OnEnemyAct(Actor source, Actor target)
         {
             if (source is Enemy && target is Character hero && hero is not Enemy)
+            {
+                SetTarget(hero, source);
                 Raise(hero, "ONENEMYACT");
+            }
         }
 
         /// <summary>The hero paid a cost (HP, condition, a status on themselves).</summary>
