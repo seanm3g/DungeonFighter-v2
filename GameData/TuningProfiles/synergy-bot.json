@@ -1,5 +1,5 @@
 {
-  "description": "Synergy weights for DUNGEONSIM --bot synergy (Code/Game/Tuning/RulesSynergy.cs). when:<WHEN> rules apply while a set of that material is formed (scaled up per piece past 2); node:<id> rules apply per learned rank (capped at maxRankScale). Feature names: tag:<tag>, hits, fast, slowAction, heavy, hit, crit, combo, slow, weaken, expose (Vulnerability folded in), harden, pierce, confuse, disrupt, finisher, opener, statbuff, heal, oncrit, onkill, fx:bleed|burn|poison|stun|fortify|focus. Mined priority spans 1.0 (top) to 0.5; first-guess weights 2026-11-07.",
+  "description": "Synergy weights for DUNGEONSIM --bot synergy (Code/Game/Tuning/RulesSynergy.cs). when:<WHEN> rules apply while a set of that material is formed (scaled up per piece past 2); node:<id> rules apply per learned rank (capped at maxRankScale). Feature names: tag:<tag>, hits, fast, slowAction, heavy, hit, crit, combo, slow, weaken, expose (Vulnerability folded in), harden, pierce, confuse, disrupt, finisher, opener, statbuff, heal, oncrit, onkill, fx:bleed|burn|poison|stun|fortify|focus. verbWeights: verb preset kind -> score while its gear condition holds (RulesSynergy.VerbSynergy; 1.2 = slotted in ~22% of fights, clear rate within noise of no-preset baseline, 2026-11-11). Mined priority spans 1.0 (top) to 0.5; first-guess weights 2026-11-07.",
   "minScore": 0.5,
   "setPieceGrowth": 0.25,
   "maxRankScale": 3,
@@ -13,6 +13,7 @@
     "z-circle", "z-age1", "z-kin", "z-synth", "z-combo"
   ],
   "fillSlotNodes": ["b-empty", "z-chaos", "z-slotInt"],
+  "verbWeights": { "Cash": 1.2, "Scale": 1.2, "Invest": 1.2, "Distill": 1.2, "Liquidate": 1.2, "Transmute": 1.2, "Index": 1.2, "Detonate": 1.2, "Apply": 1.2, "Barrier": 1.2, "Palm": 1.2 },
   "rules": {
     "when:ONHEALTHTHRESHOLD": { "heavy": 0.4, "hits": 0.1 },
     "when:ONCOMBOEND": { "fast": 0.4, "combo": 0.15 },

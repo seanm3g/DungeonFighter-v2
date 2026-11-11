@@ -279,7 +279,7 @@ namespace RPGGame.Tests.Unit
             {
                 var data = ActionLoader.GetActionData(name);
                 TestBase.AssertTrue(data != null && VerbSpec.Parse(data.Verb) != null, $"{name} loads with a valid verb", ref _run, ref _passed, ref _failed);
-                TestBase.AssertTrue(data != null && data.Tier == 4, $"{name} is tier 4 (outside the default active set)", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(data != null && data.Tier <= 3 && data.Tags.Any(t => t == "action"), $"{name} is in play (tier <= 3, action gear pool)", ref _run, ref _passed, ref _failed);
             }
         }
     }

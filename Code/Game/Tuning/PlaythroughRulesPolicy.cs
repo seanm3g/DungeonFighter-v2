@@ -370,7 +370,8 @@ namespace RPGGame.Tuning
                 decay *= 0.85;
             }
             var scored = owned.Where(a => !picks.Contains(a, StringComparer.OrdinalIgnoreCase))
-                .Select(a => (name: a, mined: baseScore.GetValueOrDefault(a), syn: RulesSynergy.ActionSynergy(a, sources)))
+                .Select(a => (name: a, mined: baseScore.GetValueOrDefault(a),
+                    syn: RulesSynergy.ActionSynergy(a, sources) + RulesSynergy.VerbSynergy(hero, a)))
                 .Select(x => (x.name, x.mined, x.syn, total: x.mined + x.syn))
                 .OrderByDescending(x => x.total)
                 .ThenBy(x => x.name, StringComparer.OrdinalIgnoreCase)

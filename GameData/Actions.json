@@ -1865,133 +1865,133 @@
   {
     "action": "CASH IN",
     "description": "Cash in your attuned material's store at 75% (its convert, for any set). Attuned = the material you wear most; ties go to the weapon.",
-    "tier": 4,
+    "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "110%",
     "speed": "1.10",
     "block": "100",
     "verb": "CASH ATTUNED 75",
-    "tags": "verb, store"
+    "tags": "action, verb, store"
   },
   {
     "action": "DETONATE",
     "description": "Spend the target's largest status (Expose, Poison, Bleed or Burn): +6% damage per stack spent.",
-    "tier": 4,
+    "tier": 3,
     "dps": "90%",
     "numberOfHits": "1",
     "damage": "90%",
     "speed": "1.00",
     "block": "100",
     "verb": "DETONATE 100",
-    "tags": "verb, store"
+    "tags": "action, verb, store"
   },
   {
     "action": "LIQUIDATE",
     "description": "Cash every material store you hold at 50%.",
-    "tier": 4,
+    "tier": 3,
     "dps": "57%",
     "numberOfHits": "1",
     "damage": "80%",
     "speed": "1.40",
     "block": "100",
     "verb": "LIQUIDATE 50",
-    "tags": "verb, store"
+    "tags": "action, verb, store"
   },
   {
     "action": "RECKONING",
     "description": "Damage grows with your attuned material's store without spending it (half its convert rate, up to +100%).",
-    "tier": 4,
+    "tier": 3,
     "dps": "83%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.20",
     "block": "100",
     "verb": "SCALE ATTUNED 50",
-    "tags": "verb, store"
+    "tags": "action, verb, store"
   },
   {
     "action": "INDEX",
     "description": "+8% damage for each different material you wear.",
-    "tier": 4,
+    "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
     "block": "100",
     "verb": "INDEX 8",
-    "tags": "verb, store"
+    "tags": "action, verb, store"
   },
   {
     "action": "MARK",
     "description": "Mark the target: their next hit taken is a critical.",
-    "tier": 4,
+    "tier": 3,
     "dps": "88%",
     "numberOfHits": "1",
     "damage": "70%",
     "speed": "0.80",
     "block": "100",
     "verb": "APPLY mark 1",
-    "tags": "verb, store"
+    "tags": "action, verb, store"
   },
   {
     "action": "BARRIER",
     "description": "Raise a barrier: temporary HP worth 8% of your max HP.",
-    "tier": 4,
+    "tier": 3,
     "dps": "67%",
     "numberOfHits": "1",
     "damage": "60%",
     "speed": "0.90",
     "block": "100",
     "verb": "BARRIER 8",
-    "tags": "verb, store"
+    "tags": "action, verb, store"
   },
   {
     "action": "DISTILL",
     "description": "Draw out the target's largest status (Expose, Poison, Bleed or Burn) into your attuned material's store at 50%.",
-    "tier": 4,
+    "tier": 3,
     "dps": "80%",
     "numberOfHits": "1",
     "damage": "80%",
     "speed": "1.00",
     "block": "100",
     "verb": "DISTILL 50",
-    "tags": "verb, store"
+    "tags": "action, verb, store"
   },
   {
     "action": "TRANSMUTE",
     "description": "Pour your other material stores into your attuned material's store at 75%.",
-    "tier": 4,
+    "tier": 3,
     "dps": "70%",
     "numberOfHits": "1",
     "damage": "70%",
     "speed": "1.00",
     "block": "100",
     "verb": "TRANSMUTE 75",
-    "tags": "verb, store"
+    "tags": "action, verb, store"
   },
   {
     "action": "INVEST",
     "description": "Spend your attuned material's store now; it comes back doubled after your next 2 actions.",
-    "tier": 4,
+    "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "90%",
     "speed": "0.90",
     "block": "100",
     "verb": "INVEST ATTUNED 200 2",
-    "tags": "verb, store"
+    "tags": "action, verb, store"
   },
   {
     "action": "PALM",
     "description": "Palm the die: your next roll becomes this attack's natural roll.",
-    "tier": 4,
+    "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "80%",
     "speed": "0.80",
     "block": "100",
     "verb": "PALM",
-    "tags": "verb, store"
+    "tags": "action, verb, store"
   }
 ]

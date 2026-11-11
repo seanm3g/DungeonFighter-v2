@@ -36,6 +36,11 @@ namespace RPGGame.Tuning
             public List<string> FillSlotNodes { get; set; } = new();
             /// <summary>"when:ONCRITICAL" / "node:b-combo" → feature → weight. See <see cref="Features"/> for feature names.</summary>
             public Dictionary<string, Dictionary<string, double>> Rules { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+            /// <summary>
+            /// Verb preset (action <c>verb</c> column) → weight, applied only while its gear condition holds (see
+            /// <see cref="VerbSynergy"/>). Keys are <see cref="VerbKind"/> names (Cash, Scale, Invest, …).
+            /// </summary>
+            public Dictionary<string, double> VerbWeights { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         }
 
         private static SynergyData? _data;
@@ -203,6 +208,30 @@ namespace RPGGame.Tuning
                 if (Data.Rules.TryGetValue(source, out var weights))
                     total += scale * Dot(weights, f);
             return total;
+        }
+
+        /// <summary>
+        /// Gear-aware score for a verb preset: the weight from <see cref="SynergyData.VerbWeights"/> when the preset
+        /// has something to work with. Attuned-store verbs (Cash, Scale, Invest, Distill) need the attuned material's
+        /// set formed; Liquidate / Transmute need two formed sets; Index scales with distinct materials past 2;
+        /// Detonate, Apply, Barrier and Palm always count. 0 for non-verb actions.
+        /// </summary>
+        public static double VerbSynergy(Character hero, string actionName)
+        {
+            var spec = VerbSpec.Parse(ActionLoader.GetActionData(actionName)?.Verb);
+            if (spec == null || !Data.VerbWeights.TryGetValue(spec.Kind.ToString(), out double w) || w == 0)
+                return 0;
+            var formed = FormedSets(hero);
+            string? attuned = Attunement.GetMaterial(hero);
+            bool attunedFormed = attuned != null
+                && formed.Any(s => string.Equals(s.Material, attuned, StringComparison.OrdinalIgnoreCase));
+            return spec.Kind switch
+            {
+                VerbKind.Cash or VerbKind.Scale or VerbKind.Invest or VerbKind.Distill => attunedFormed ? w : 0,
+                VerbKind.Liquidate or VerbKind.Transmute => formed.Count >= 2 ? w : 0,
+                VerbKind.Index => w * Math.Max(0, Attunement.CountDistinctMaterials(hero) - 2),
+                _ => w
+            };
         }
 
         /// <summary>"node:" weights of <paramref name="nodeId"/> averaged over <paramref name="strip"/>'s features.</summary>
