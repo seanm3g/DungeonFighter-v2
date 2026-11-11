@@ -1099,6 +1099,19 @@ namespace RPGGame.UI.Avalonia.Handlers
                         return;
                     }
 
+                    // Sets rows: a click opens / closes the set's details inline under the row.
+                    if (element.Value.StartsWith(LeftPanelHoverState.Prefix + "set:", StringComparison.Ordinal)
+                        || element.Value.StartsWith(CharacterPanelRenderer.ExpandedSetPrefix, StringComparison.Ordinal))
+                    {
+                        string material = element.Value.StartsWith(CharacterPanelRenderer.ExpandedSetPrefix, StringComparison.Ordinal)
+                            ? element.Value.Substring(CharacterPanelRenderer.ExpandedSetPrefix.Length)
+                            : element.Value.Substring((LeftPanelHoverState.Prefix + "set:").Length);
+                        statsPanelStateManager.ToggleSetExpanded(material);
+                        LeftPanelHoverState.Clear();
+                        RefreshChromeAfterStatsToggle();
+                        return;
+                    }
+
                     if (LeftPanelAttributeOrder.IsAttributeHoverId(element.Value))
                     {
                         statsPanelStateManager.ToggleAttributeSort();

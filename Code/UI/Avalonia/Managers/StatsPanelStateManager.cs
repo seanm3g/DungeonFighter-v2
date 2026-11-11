@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.UI.Avalonia.Managers
@@ -97,6 +98,19 @@ namespace RPGGame.UI.Avalonia.Managers
 
         /// <summary>Clicking a GEAR icon or name row flips between the icon figure and the item-name list.</summary>
         public void ToggleGearNames() => ShowGearNames = !ShowGearNames;
+
+        private readonly HashSet<string> expandedSets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>Sets rows (material sets) whose details are shown inline under the row instead of in a hover tip.</summary>
+        public bool IsSetExpanded(string material) => expandedSets.Contains(material ?? "");
+
+        /// <summary>Clicking a Sets row opens or closes its details under it.</summary>
+        public void ToggleSetExpanded(string material)
+        {
+            material ??= "";
+            if (!expandedSets.Remove(material))
+                expandedSets.Add(material);
+        }
 
         public void ToggleHeroCollapsed() => heroCollapsed = !heroCollapsed;
         public void ToggleStatsCollapsed() => statsCollapsed = !statsCollapsed;

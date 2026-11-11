@@ -596,6 +596,50 @@ namespace RPGGame.UI.Avalonia.Layout
             });
         }
 
+        /// <summary>Click id of an open Sets row (<c>setopen:{material}</c>); a click closes it.</summary>
+        public const string ExpandedSetPrefix = "setopen:";
+
+        /// <summary>Sets rows draw the set name at this font scale over <see cref="SetNameRowStride"/> grid rows.</summary>
+        private const double SetNameFontScale = 1.5;
+        private const int SetNameRowStride = 2;
+
+        /// <summary>Same clipping as <see cref="RegisterLeftPanelHoverRow"/>, for a click target that shows no hover tip.</summary>
+        private void RegisterLeftPanelClickRow(int x, int rowY, int width, int height, string value)
+        {
+            if (interactionManager == null || stateManager == null || height < 1 || width < 1)
+                return;
+            int clippedY = Math.Max(rowY, LeftPanelViewport.ContentTop);
+            int clippedEnd = Math.Min(rowY + height, LeftPanelViewport.ContentBottomExclusive);
+            if (clippedEnd <= clippedY)
+                return;
+            interactionManager.AddClickableElement(new ClickableElement
+            {
+                X = x,
+                Y = clippedY,
+                Width = width,
+                Height = clippedEnd - clippedY,
+                Type = ElementType.Text,
+                Value = value,
+                DisplayText = "Left panel set details"
+            });
+        }
+
+        /// <summary>Word-wraps plain text to <paramref name="width"/> columns.</summary>
+        private static IEnumerable<string> WrapPlain(string text, int width)
+        {
+            string rest = (text ?? "").TrimEnd();
+            while (rest.Length > width)
+            {
+                int cut = rest.LastIndexOf(' ', width);
+                if (cut <= 0)
+                    cut = width;
+                yield return rest.Substring(0, cut).TrimEnd();
+                rest = rest.Substring(cut).TrimStart();
+            }
+            if (rest.Length > 0)
+                yield return rest;
+        }
+
         private void PanelText(int x, int y, string text, Color color)
         {
             if (LeftPanelViewport.IsRowVisible(y))
@@ -736,15 +780,38 @@ namespace RPGGame.UI.Avalonia.Layout
             y++;
 
             const int maxWidth = 29;
+            int nameWidth = Math.Max(4, (int)Math.Floor(maxWidth / SetNameFontScale));
+            int detailWidth = Math.Max(8, Math.Min(maxWidth, hoverWidth - 1));
             foreach (var (material, count) in sets)
             {
                 int rowY = y;
-                string line = MaterialSetController.FormatFormingSetHudLine(material, count);
-                if (line.Length > maxWidth)
-                    line = line.Substring(0, maxWidth - 3) + "...";
-                PanelText(x, y, line, AsciiArtAssets.Colors.Cyan);
-                y++;
-                RegisterLeftPanelHoverRow(x, rowY, hoverWidth, 1, "set:" + material);
+                bool expanded = stateManager?.IsSetExpanded(material) == true;
+                string line = (expanded ? AsciiArtAssets.UIElements.ArrowDown + " " : AsciiArtAssets.UIElements.ArrowRight + " ") + MaterialSetController.FormatFormingSetHudLine(material, count);
+                if (line.Length > nameWidth)
+                    line = line.Substring(0, nameWidth - 3) + "...";
+                if (LeftPanelViewport.IsRowVisible(y))
+                    canvas.AddScaledText(x, y, line, AsciiArtAssets.Colors.Cyan, SetNameFontScale);
+                y += SetNameRowStride;
+
+                if (expanded)
+                {
+                    // Same text as the hover tip, minus its first line (the "Iron 3/5" header drawn above).
+                    foreach (var detail in MaterialSetController.FormatSetStatusLinesForMaterial(character, material).Skip(1))
+                    {
+                        foreach (var wrapped in WrapPlain(detail, detailWidth))
+                        {
+                            PanelText(x + 1, y, wrapped, AsciiArtAssets.Colors.White);
+                            y++;
+                        }
+                    }
+                    y++;
+                    // Not an lphover id, so the center hover tip stays hidden while the details are open; a click closes it.
+                    RegisterLeftPanelClickRow(x, rowY, hoverWidth, y - rowY, ExpandedSetPrefix + material);
+                }
+                else
+                {
+                    RegisterLeftPanelHoverRow(x, rowY, hoverWidth, SetNameRowStride, "set:" + material);
+                }
             }
 
             // Class tag totals (gear tags + class materials after the Core root + strip actions), as the cadence rules count them.
