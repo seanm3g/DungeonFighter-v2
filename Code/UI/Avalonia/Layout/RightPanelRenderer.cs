@@ -87,9 +87,8 @@ namespace RPGGame.UI.Avalonia.Layout
                 || hubSkillsTab);
             // Inventory as the hub: navigation lives in the center tabs, Dungeon Select is this right column and Main Menu /
             // Settings in the Esc menu, so the right column shows the action sequence and the pool it draws from.
-            // Hub Inventory / Skills tabs: the dungeon(s) ahead and their info. The Actions tab keeps sequence + pool
-            // (that is where the sequence is edited).
-            bool hubDungeonPanel = useInventoryPanel && HubTabBar.IsActive && (title == "INVENTORY" || hubSkillsTab);
+            // Every hub screen (Inventory, Actions, Skills, Trade Up and their sub-prompts): the Enter Dungeon panel.
+            bool hubDungeonPanel = useInventoryPanel && HubTabBar.IsActive;
             if (hubDungeonPanel)
             {
                 RenderHubDungeonPanel(x, y, character!);

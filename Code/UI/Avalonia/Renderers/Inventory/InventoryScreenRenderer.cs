@@ -60,13 +60,22 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// <summary>Bottom row for the description column: the extended bound when it starts right of the Actions buttons, else the bag's bound.</summary>
         private int ResolveDetailBottomY(int x, int separatorX, int bottomY, int extendedBottomY)
         {
+            if (splitBand)
+            {
+                // The hero band takes the list side below the bag; the description owns the full height.
+                InventoryHeroBand.ListColumn = (x, Math.Max(1, separatorX - x));
+                return Math.Max(bottomY, extendedBottomY);
+            }
             if (extendedBottomY <= bottomY || separatorX < x + ActionsBlockWidth)
                 return bottomY;
             detailSeparatorXBesideActions = separatorX;
             return extendedBottomY;
         }
         private readonly List<ClickableElement> clickableElements;
-        
+
+        /// <summary>This frame's hub layout puts the hero band under the list (set per <see cref="RenderInventory"/>).</summary>
+        private bool splitBand;
+
         public InventoryScreenRenderer(
             GameCanvasControl canvas,
             ColoredTextWriter textWriter,
@@ -162,7 +171,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             bool hubTabs = HubTabBar.IsActive && LayoutConstants.ActionStripAtBottom;
             // On the hub there is no Actions block (snapshot lives in the Esc menu), so the item list runs to the panel bottom.
             bool hubNoActions = hubTabs && pendingMutatingInventoryMenuAction == null;
-            int actionsStartY = hubNoActions
+            // Full-height frame (hub hero band under the list): the list stops above the band, the description runs on down.
+            splitBand = hubNoActions && InventoryHeroBand.SplitTopY is int bandTop && bandTop > startY && bandTop < startY + height;
+            int actionsStartY = splitBand
+                ? InventoryHeroBand.SplitTopY!.Value
+                : hubNoActions
                 ? startY + height
                 : InventoryItemScrollLayout.GetBottomMenuStartY(startY, height, pendingMutatingInventoryMenuAction != null);
             // The description column may run past the Actions header down to the panel bottom when it sits right of the buttons;

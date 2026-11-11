@@ -225,6 +225,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 y += 2;
             }
 
+            // Inventory hub: STATS and THRESHOLDS sit in the band along the bottom of the center column instead (sets stay under GEAR).
+            bool heroBand = InventoryHeroBand.IsShown;
+
             // --- GEAR --- (hidden for the whole dungeon run; hover hero name for loadout; Action Lab keeps the section)
             if (LeftPanelSectionVisibility.ShowGear(gameState, inDungeonRun))
             {
@@ -267,6 +270,10 @@ namespace RPGGame.UI.Avalonia.Layout
             }
 
             // --- STATS --- (static gold like HERO/GEAR; no glow — glow animation shifted hue vs other headers)
+            if (heroBand)
+                stateManager?.ResetStatsAreaBounds();
+            else
+            {
             int statsHeaderY = y;
             string statsHeaderText = FormatLeftPanelSectionHeader(UIConstants.Headers.Stats);
             PanelText(x, y, statsHeaderText, AsciiArtAssets.Colors.Gold);
@@ -371,6 +378,7 @@ namespace RPGGame.UI.Avalonia.Layout
             {
                 stateManager.ResetStatsAreaBounds();
             }
+            }
 
             // --- STATUS EFFECTS --- (hero; above thresholds; dungeon run + Action Lab; enemy effects are on the right panel)
             if (LeftPanelSectionVisibility.ShowStatusEffects(gameState, inDungeonRun))
@@ -418,6 +426,8 @@ namespace RPGGame.UI.Avalonia.Layout
                 TutorialCoachTargets.Set(TutorialCoachFocus.StatusEffects, null);
 
             // --- THRESHOLDS / CHANCES --- (ladder numbers or exclusive d20 %; bar is under health)
+            if (!heroBand)
+            {
             var thresholdsHudMode = stateManager?.ThresholdsHudMode ?? ThresholdsHudMode.Ladder;
             bool showThresholdChances = thresholdsHudMode == ThresholdsHudMode.Chances;
             int thresholdsHeaderY = y;
@@ -481,6 +491,7 @@ namespace RPGGame.UI.Avalonia.Layout
             TutorialCoachTargets.Set(TutorialCoachFocus.Thresholds, (x - 1, thresholdsHeaderY - 1, headerClickWidth + 2, y - thresholdsHeaderY + 1));
             if (thresholdsOpen)
                 y += 1;
+            }
 
             int totalContentHeight = System.Math.Max(0, y - contentOriginY);
             ScrubLeftPanelOutsideViewport(leftX, leftY, leftW, leftH, contentTop, contentBottomExclusive);

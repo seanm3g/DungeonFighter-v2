@@ -58,6 +58,8 @@ namespace RPGGame.UI.Avalonia
             ActionSequenceEditorLayout.IsOpen = false;
             if (gameState.HasValue)
                 Layout.LayoutConstants.ActionStripAtBottom = gameState.Value == GameState.Inventory;
+            // Before the left panel draws: it leaves STATS / THRESHOLDS / sets to the inventory's bottom band.
+            Renderers.Inventory.InventoryHeroBand.SyncForLayoutPass();
             CombatBoardLayout.TeardownIfNeeded(canvas);
             layoutCoordinator.CoordinateLayout(
                 character,

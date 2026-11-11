@@ -417,7 +417,8 @@ namespace RPGGame.UI.Avalonia.Handlers
             // The skill tree and region travel hide the strip, but its hit area would still sit at the top of the center
             // column (over the hub tabs there): hovering the Inventory tab armed a strip card whose tooltip then flashed
             // up on the inventory until the next pointer move.
-            bool stripShown = rosterState is not (GameState.SkillTree or GameState.RegionTravel);
+            bool stripShown = rosterState is not (GameState.SkillTree or GameState.RegionTravel)
+                && !Renderers.Inventory.InventoryHeroBand.IsShown;
             if (stripShown && player != null && displayCount > 0 && ActionInfoStripLayout.TryGetPanelIndex(gridPos.X, gridPos.Y, displayCount, out int stripIdx))
             {
                 int stripCap = ComboSequenceMaxHelper.GetEffectiveMax(player);
@@ -767,6 +768,8 @@ namespace RPGGame.UI.Avalonia.Handlers
             if (canvasUI == null || game?.StateManager == null)
                 return false;
 
+            if (Renderers.Inventory.InventoryHeroBand.IsShown)
+                return false;
             var player = GetCharacterForActionStrip();
             if (player == null)
                 return false;
@@ -822,6 +825,7 @@ namespace RPGGame.UI.Avalonia.Handlers
         {
             if (ActionSequenceEditorLayout.IsOpen) return false;
             if (!CanReorderComboOnStrip()) return false;
+            if (Renderers.Inventory.InventoryHeroBand.IsShown) return false;
             var player = GetCharacterForActionStrip();
             if (player == null) return false;
             var combo = player.GetComboActions();
@@ -1073,25 +1077,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                 {
                     if (element.Value.StartsWith(LeftPanelHoverState.Prefix + "thresh:", StringComparison.Ordinal))
                     {
-                        var previousMode = statsPanelStateManager.ThresholdsHudMode;
                         statsPanelStateManager.ToggleThresholdsDisplayMode();
-                        if (previousMode == ThresholdsHudMode.Ladder &&
-                            statsPanelStateManager.ThresholdsHudMode == ThresholdsHudMode.Chances)
-                        {
-                            statsPanelStateManager.BeginThresholdsChancesModeFlash(TimeSpan.FromSeconds(1));
-                            var endFlashTimer = new DispatcherTimer
-                            {
-                                Interval = TimeSpan.FromSeconds(1)
-                            };
-                            void OnEndFlashTick(object? s, EventArgs e)
-                            {
-                                endFlashTimer.Stop();
-                                endFlashTimer.Tick -= OnEndFlashTick;
-                                RefreshChromeAfterStatsToggle();
-                            }
-                            endFlashTimer.Tick += OnEndFlashTick;
-                            endFlashTimer.Start();
-                        }
                         RefreshChromeAfterStatsToggle();
                         return;
                     }

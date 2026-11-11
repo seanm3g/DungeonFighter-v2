@@ -122,7 +122,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void RefreshActionInfoStripOnly(Character? player, bool drawHoverDetailOverlay = true)
         {
-            dungeonRenderer.RenderActionInfoStrip(player, drawHoverDetailOverlay, ResolveActionStripDamageLineMode(player));
+            // Inventory hub: the hero band stands in for the strip (its hover targets are already registered).
+            if (Inventory.InventoryHeroBand.IsShown && player != null)
+                RenderInventoryBottomBand(player, registerHover: false);
+            else
+                dungeonRenderer.RenderActionInfoStrip(player, drawHoverDetailOverlay, ResolveActionStripDamageLineMode(player));
             canvas.Refresh();
         }
 

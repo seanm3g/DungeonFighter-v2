@@ -210,6 +210,13 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>
+        /// Hover tooltip overlay (left-panel / hero band / right-panel rows) without drawing the action strip: the inventory
+        /// hub's bottom band (<see cref="Inventory.InventoryHeroBand"/>) takes the strip's place there.
+        /// </summary>
+        public void RenderHoverTooltipOverlayOnly(Character? player) =>
+            RenderActionStripTooltipOverlay(player, 0, 0, ActionStripDamageLineMode.EffectiveWithComboAmp);
+
+        /// <summary>
         /// Draws one action card's text (name, role, swing, description, modifiers, threshold) inside the
         /// bordered rect. Shared by the action strip and the combat board (<see cref="CombatBoardRenderer"/>).
         /// </summary>

@@ -86,12 +86,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// <summary>
         /// The item whose partners glow: the hovered one, else (no drag in progress) the selected one.
         /// <c>MatchMaterial</c> is true for a selected item and for hovered gear, so same-material
-        /// pieces in the bag and on the body light up as set partners.
+        /// pieces in the bag and on the body light up as set partners. Hovering the selected item itself (the pointer
+        /// usually rests on the row just clicked) keeps the material match.
         /// </summary>
         public static (Item? Source, bool MatchMaterial) ResolveSource(Item? hovered, Character? character)
         {
             if (hovered != null)
-                return (hovered, IsEquipped(hovered, character));
+                return (hovered, IsEquipped(hovered, character) || ReferenceEquals(hovered, SelectedItem));
             if (InventoryDragState.IsActive || SelectedItem == null)
                 return (null, false);
             return (SelectedItem, true);

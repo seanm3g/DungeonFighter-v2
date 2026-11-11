@@ -35,8 +35,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         private static readonly (HubTab Tab, string Label, string Token)[] Tabs =
         {
             (HubTab.Inventory, "INVENTORY", InventoryToken),
-            (HubTab.Skills, "SKILLS", SkillsToken),
             (HubTab.Actions, "ACTIONS", ActionsToken),
+            (HubTab.Skills, "SKILLS", SkillsToken),
             (HubTab.TradeUp, "TRADE UP", TradeUpToken),
         };
 
