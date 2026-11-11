@@ -136,7 +136,14 @@ Actions loaded from `GameData/ActionTables.json` via `ActionLoader`.
 `Action` has: Name, Type (`ActionType`: Attack, Spell, Support, etc.), Tags (string list), ComboOrder, length, damage/effect values.  
 Tags drive behavior via `GameDataTagHelper`, `TagDamageCalculator`, `ActionMechanicTagProcessor`, `ActionRollTagProcessor`.  
 Environment/hazard actions from `GameData/EnvironmentalActions.json`.  
-Verb presets (2026-11-11, `Code/Combat/Verbs/`): an action's `verb` column (`CASH ATTUNED 75`, `DETONATE 100`, `LIQUIDATE 50`, `SCALE ATTUNED 50`, `INDEX 8`, `APPLY mark 1`, `BARRIER 8`, `DISTILL 50`, `TRANSMUTE 75`, `INVEST ATTUNED 200 2`, `PALM`) reads/spends `Stores`; `Attunement` = most-worn material, ties → weapon. The 11 presets (CASH IN, DETONATE, LIQUIDATE, RECKONING, INDEX, MARK, BARRIER, DISTILL, TRANSMUTE, INVEST, PALM) are tier 3 with the `action` tag (the generic gear pool weapons roll 20% of the time). The synergy bot scores them with `verbWeights` in `synergy-bot.json` (`RulesSynergy.VerbSynergy`, gear-gated: attuned-store verbs need the attuned set formed).
+Verb presets (2026-11-11, `Code/Combat/Verbs/`): an action's `verb` column (`CASH ATTUNED 75`, `DETONATE 100`, `LIQUIDATE 50`, `SCALE ATTUNED 50`, `INDEX 8`, `APPLY mark 1`, `BARRIER 8`, `DISTILL 50`, `TRANSMUTE 75`, `INVEST ATTUNED 200 2`, `PALM`) reads/spends `Stores`; `Attunement` = most-worn material, ties → weapon. The 11 presets (CASH IN, DETONATE, LIQUIDATE, RECKONING, INDEX, MARK, BARRIER, DISTILL, TRANSMUTE, INVEST, PALM) are tier 3 with the `action` tag (the generic gear pool weapons roll 20% of the time). The synergy bot scores them with `verbWeights` in `synergy-bot.json` (`RulesSynergy.VerbSynergy`, gear-gated: attuned-store verbs need the attuned set formed). PRELUDE / BLOOD OATH are data PREPs; the `cost` column (`HP 5`, `ActionCost`) pays HP on resolve.
+
+Build system hooks (2026-11-11, `Documentation/BUILD_SYSTEM_CONDENSED.md`):
+- `HeroEventHub` (`Code/Combat/Events/`) fires hub events ONSTATUSAPPLY, ONCASH, ONSTOREFULL, ONBEAT, ONSELFCOST, ONENEMYACT (not seen by action trigger bundles) to material WHENs, Listener affixes and cross-wires; all mints go through `MaterialSetController.MintKeyword`
+- Item affix templates are prefix `Effect`s in `Modifications.json`: `LISTEN` (`ListenerAffix`, event rolled on drop from the slot family), `TUNE`, `STORECOND`, `COUNTSDOUBLE`, `OPENER`, `FINISHER`, `BLOODPRICE` (`AffixTemplates`), `CROSSWIRE` (`crossWire` rule)
+- `CrossWires`: rules `WHEN[:arg] [IF STORE>=n | IF TARGET status] -> MINT|ADD|APPLY store n[%]` from skill nodes (`crossWire`, 12 class nodes) and CROSSWIRE prefixes
+- `Persistence`: skill node `persist` (`hero:streak,focus` / `target:expose,...`) carries stores into the next fight (4 Rite capstones)
+- `ConversionTable` + `GameData/Conversions.json`: target status conversions (Venom Mace, Envenomed Edge, Hemorrhage, Kindle, Thermal Shock) as data rows owned by customEffectIds
 
 ### UI (`Code/UI/`)
 

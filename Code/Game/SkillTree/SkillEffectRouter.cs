@@ -257,9 +257,8 @@ namespace RPGGame
             ApplyClassTreeOnHit(hero, evt);
             ApplyHybridOnHit(hero, evt);
             ApplyShadowcraft(hero, evt);
-            ApplyVenomMace(hero, evt);
-            ApplyEnvenomedEdge(hero, evt);
-            ApplyHemorrhage(hero, evt);
+            // Venom Mace, Envenomed Edge, Hemorrhage: GameData/Conversions.json (phase early).
+            ConversionTable.Apply(hero, evt.Target, evt.IsCritical, "early");
             ApplyBronzeAges(hero, evt);
             ApplyFirstFormation(hero, evt);
             ApplyFirstCut(hero, evt);
@@ -284,8 +283,8 @@ namespace RPGGame
             ApplyPrimeTheory(hero, evt);
             ApplySpellMemory(hero, evt);
             ApplyTechnicalDebt(hero, evt);
-            ApplyKindle(hero, evt);
-            ApplyThermalShock(hero, evt);
+            // Kindle, Thermal Shock: GameData/Conversions.json (phase late).
+            ConversionTable.Apply(hero, evt.Target, evt.IsCritical, "late");
             ApplyDungeonAnalysisAdvantage(hero, evt);
             ApplyGrandEquation(hero, evt);
             ApplyLivingAlloy(hero, evt);
@@ -452,36 +451,6 @@ namespace RPGGame
                 _shadowMarkTarget = evt.Target;
                 MarkTarget(evt.Target);
             }
-        }
-
-        private void ApplyVenomMace(Character hero, CombatEvent evt)
-        {
-            if (!Has(hero, "venom_mace") || evt.Target == null) return;
-            if (evt.Target.PoisonPercentOfMaxHealth <= 0) return;
-            evt.Target.ApplyPoisonPercent(-1.0);
-            evt.Target.QueueAcidFromHit(1);
-        }
-
-        private void ApplyEnvenomedEdge(Character hero, CombatEvent evt)
-        {
-            if (!Has(hero, "envenomed_edge") || evt.Target == null) return;
-            if (evt.Target.PoisonPercentOfMaxHealth <= 0) return;
-            int convert = evt.IsCritical ? 2 : 1;
-            for (int i = 0; i < convert; i++)
-            {
-                if (evt.Target.PoisonPercentOfMaxHealth <= 0) break;
-                evt.Target.ApplyPoisonPercent(-1.0);
-                evt.Target.QueueBleedFromHit(2);
-            }
-        }
-
-        private void ApplyHemorrhage(Character hero, CombatEvent evt)
-        {
-            if (!Has(hero, "hemorrhage") || evt.Target == null) return;
-            if (evt.Target.BleedIntensity <= 0) return;
-            evt.Target.QueueBleedFromHit(Math.Max(1, evt.Target.BleedIntensity / 2));
-            if (evt.IsCritical)
-                ExposeStatus.Apply(evt.Target, 1, 2); // was Armor Break (folded into Expose)
         }
 
         private void ApplyPerfectCrimeTransfer(Character hero, CombatEvent evt)
@@ -985,36 +954,6 @@ namespace RPGGame
                     ExposeStatus.Apply(evt.Target, _technicalDebt, 2);
                     _technicalDebt = 0;
                     _debtTags.Clear();
-                }
-            }
-        }
-
-        private void ApplyKindle(Character hero, CombatEvent evt)
-        {
-            if (!Has(hero, "kindle") || evt.Target == null) return;
-            if (evt.Target.BurnIntensity <= 0) return;
-            if (evt.Target.PoisonPercentOfMaxHealth <= 0) return;
-            evt.Target.ApplyPoisonPercent(-1.0);
-            evt.Target.QueueAcidFromHit(1);
-            evt.Target.QueueBurnFromHit(1);
-        }
-
-        private void ApplyThermalShock(Character hero, CombatEvent evt)
-        {
-            if (!Has(hero, "thermal_shock") || evt.Target == null) return;
-            bool burning = evt.Target.BurnIntensity > 0;
-            bool slowed = evt.Target is Character c && c.Effects.SlowTurns > 0;
-            // Power is the stun chance (rank 1 x power, at most 1).
-            if (burning && slowed && RandomUtility.NextDouble() < Math.Min(1.0, GetPower(hero, "thermal_shock")))
-            {
-                // Consumes both, as the node says (it stun-locked while Burn and Slow stayed up).
-                evt.Target.IsStunned = true;
-                evt.Target.StunTurnsRemaining = Math.Max(evt.Target.StunTurnsRemaining, 1);
-                evt.Target.BurnIntensity = 0;
-                if (evt.Target is Character slowedFoe)
-                {
-                    slowedFoe.Effects.SlowTurns = 0;
-                    slowedFoe.Effects.SlowMultiplier = 1.0;
                 }
             }
         }

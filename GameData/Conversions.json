@@ -1,0 +1,52 @@
+{
+  "description": "Conversion table (Documentation/BUILD_SYSTEM_CONDENSED.md section 8): status-to-status conversions on the target, owned by skill nodes (owner = customEffectId). Run on hero connects by ConversionTable in row order within each phase (early = with the on-hit status skills, late = after the debt/number skills). requires: target statuses that must be up (live intensity / turns). chance: 'power' = the owner's rank x power. repeatOnCrit: passes on a critical. consume / produce units: a number, 'all', or 'half:<store>' (half the live amount before consuming, at least 1). Poison units are 0.25% max HP. DoTs are queued (they land on the target's next tick).",
+  "rows": [
+    {
+      "id": "venom_mace",
+      "owner": "venom_mace",
+      "phase": "early",
+      "label": "Poison → Acid",
+      "requires": ["poison"],
+      "consume": [{ "store": "poison", "units": "4" }],
+      "produce": [{ "store": "acid", "units": "1" }]
+    },
+    {
+      "id": "envenomed_edge",
+      "owner": "envenomed_edge",
+      "phase": "early",
+      "label": "Poison → Bleed 1:2",
+      "requires": ["poison"],
+      "repeatOnCrit": 2,
+      "consume": [{ "store": "poison", "units": "4" }],
+      "produce": [{ "store": "bleed", "units": "2" }]
+    },
+    {
+      "id": "hemorrhage",
+      "owner": "hemorrhage",
+      "phase": "early",
+      "label": "Bleed → more Bleed (crit: Expose)",
+      "requires": ["bleed"],
+      "produce": [{ "store": "bleed", "units": "half:bleed" }],
+      "produceOnCrit": [{ "store": "expose", "units": "1" }]
+    },
+    {
+      "id": "kindle",
+      "owner": "kindle",
+      "phase": "late",
+      "label": "Poison on Burning → Acid + Burn",
+      "requires": ["burn", "poison"],
+      "consume": [{ "store": "poison", "units": "4" }],
+      "produce": [{ "store": "acid", "units": "1" }, { "store": "burn", "units": "1" }]
+    },
+    {
+      "id": "thermal_shock",
+      "owner": "thermal_shock",
+      "phase": "late",
+      "label": "Burn + Slow → Stun",
+      "requires": ["burn", "slow"],
+      "chance": "power",
+      "consume": [{ "store": "burn", "units": "all" }, { "store": "slow", "units": "all" }],
+      "produce": [{ "store": "stun", "units": "1" }]
+    }
+  ]
+}

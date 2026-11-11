@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit
             TestDataHasWires();
             TestPersistenceCarriesHeroStores();
             TestContagionMovesStatuses();
+            TestConversionTable();
 
             TestBase.PrintSummary("Cross Wires Tests", _run, _passed, _failed);
         }
@@ -142,6 +143,25 @@ namespace RPGGame.Tests.Unit
             Persistence.OnFightStart(hero, next);
             TestBase.AssertEqual(2, next.ExposeStacks ?? 0, "Expose jumped to the next enemy", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(4, next.BleedIntensity, "Bleed jumped too", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestConversionTable()
+        {
+            TestBase.SetCurrentTestName(nameof(TestConversionTable));
+            ConversionTable.Reload();
+            var ids = ConversionTable.Rows.Select(r => r.Id).ToList();
+            foreach (string id in new[] { "venom_mace", "envenomed_edge", "hemorrhage", "kindle", "thermal_shock" })
+                TestBase.AssertTrue(ids.Contains(id), $"{id} row loads", ref _run, ref _passed, ref _failed);
+            var edge = ConversionTable.Rows.First(r => r.Id == "envenomed_edge");
+            var hero = Hero("EdgeHero");
+            var foe = new Character("EdgeFoe", 5);
+            foe.PoisonPercentOfMaxHealth = 3.0;
+            int passes = ConversionTable.ApplyRow(hero, foe, edge, isCritical: true);
+            TestBase.AssertEqual(2, passes, "a crit converts twice", ref _run, ref _passed, ref _failed);
+            // Poison is not spent: Actor.ApplyPoisonPercent ignores negative deltas (same as the skills this table replaced).
+            TestBase.AssertEqual(4, foe.PendingBleedFromHits, "4 bleed queued (1:2)", ref _run, ref _passed, ref _failed);
+            var none = new Character("CleanFoe", 5);
+            TestBase.AssertEqual(0, ConversionTable.ApplyRow(hero, none, edge, isCritical: false), "no poison, no conversion", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestDataHasWires()
