@@ -125,7 +125,7 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// <summary>
         /// Hover tooltip panels: drawn after body text so opaque fills are not covered by narrative (see <see cref="CanvasBox.IsOverlay"/>).
         /// </summary>
-        public void AddOverlayBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor, int opaqueBackgroundBleedDevicePixels = 0)
+        public void AddOverlayBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor, int opaqueBackgroundBleedDevicePixels = 0, int borderThicknessPixels = 1)
         {
             if (backgroundColor == default) backgroundColor = Colors.Transparent;
             elementManager.AddBox(new CanvasBox
@@ -137,6 +137,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                 BorderColor = borderColor,
                 BackgroundColor = backgroundColor,
                 OpaqueBackgroundBleedDevicePixels = opaqueBackgroundBleedDevicePixels,
+                BorderThicknessPixels = System.Math.Max(1, borderThicknessPixels),
                 IsOverlay = true
             });
         }

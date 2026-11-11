@@ -98,6 +98,8 @@ namespace RPGGame.UI.Avalonia.Canvas
         public bool FollowsAsciiStyle { get; set; }
         /// <summary>Drawn right after the bitmap, with the origin at the cell rectangle's top-left (DIPs).</summary>
         public System.Action<global::Avalonia.Media.DrawingContext>? Overlay { get; set; }
+        /// <summary>Drawn in the overlay pass (after body text and overlay boxes, before overlay text), e.g. the inventory drag ghost.</summary>
+        public bool IsOverlay { get; set; }
     }
 
     /// <summary>

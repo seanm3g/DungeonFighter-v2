@@ -157,7 +157,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                 if (backdrop != null)
                     RenderBackdrop(context, backdrop, charWidth, charHeight);
                 if (images != null)
-                    RenderImages(context, images, charWidth, charHeight, coordinateConverter.GetFontSize());
+                    RenderImages(context, images, charWidth, charHeight, coordinateConverter.GetFontSize(), overlayPass: false);
                 RenderBoxes(context, boxElements, overlayPass: false, aboveBackdrop: true);
                 RenderProgressBars(context, progressBars);
                 RenderSegmentedBars(context, segmentedBars);
@@ -165,6 +165,8 @@ namespace RPGGame.UI.Avalonia.Canvas
                 // DistortionPulse GIF overlays body letters only (opacity mask like narrative video).
                 explosionPlayer?.Draw(context, textElements, charWidth, charHeight);
                 RenderBoxes(context, boxElements, overlayPass: true);
+                if (images != null)
+                    RenderImages(context, images, charWidth, charHeight, coordinateConverter.GetFontSize(), overlayPass: true);
                 RenderText(context, textElements, overlayPass: true);
             }
             finally
@@ -322,9 +324,11 @@ namespace RPGGame.UI.Avalonia.Canvas
             }
         }
         
-        private static void RenderImages(DrawingContext context, List<CanvasImage> images, double charWidth, double charHeight, double fontSize)
+        private static void RenderImages(DrawingContext context, List<CanvasImage> images, double charWidth, double charHeight, double fontSize, bool overlayPass)
         {
             if (images.Count == 0)
+                return;
+            if (overlayPass && !images.Exists(i => i.IsOverlay))
                 return;
             // Icons are drawn at whatever size the cell grid gives them; filter so scaling stays smooth.
             // Pixel-aligned images (the travel map) are already at screen size, so they skip the costly filter.
@@ -333,6 +337,8 @@ namespace RPGGame.UI.Avalonia.Canvas
             var look = RPGGame.UI.Avalonia.Effects.RoomBackdropSettings.Current;
             foreach (var image in images)
             {
+                if (image.IsOverlay != overlayPass)
+                    continue;
                 double pad = Math.Max(0, image.PaddingPixels);
                 double w = image.Width * charWidth - 2 * pad;
                 double h = image.Height * charHeight - 2 * pad;

@@ -1027,11 +1027,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             var (minX, maxX, minY, maxY) = DragGhostBounds(x, width, topY, bottomY, tileCols, tileRows);
             int gx = Math.Clamp(InventoryDragState.PointerX - tileCols / 2, minX, maxX);
             int gy = Math.Clamp(InventoryDragState.PointerY - tileRows / 2, minY, maxY);
-            canvas.AddBox(gx, gy, tileCols, tileRows, AsciiArtAssets.Colors.Gold, AsciiArtAssets.Colors.Black, borderThicknessPixels: 2);
+            // Overlay pass: body text (the bag's item names) draws after normal boxes and images, so the ghost must not.
+            canvas.AddOverlayBox(gx, gy, tileCols, tileRows, AsciiArtAssets.Colors.Gold, AsciiArtAssets.Colors.Black, borderThicknessPixels: 2);
             if (haveArt && ItemArtAtlas.TryGetIcon(item, out var bitmap, out var sourceRect))
-                canvas.AddImage(gx, gy, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3, followsAsciiStyle: true);
+                canvas.AddImage(gx, gy, tileCols, tileRows, bitmap, sourceRect, paddingPixels: 3, followsAsciiStyle: true, isOverlay: true);
             else
-                canvas.AddText(gx + 1, gy + tileRows / 2, TruncateTo(item.Name, tileCols - 2), AsciiArtAssets.Colors.Gold);
+                canvas.AddOverlayText(gx + 1, gy + tileRows / 2, TruncateTo(item.Name, tileCols - 2), AsciiArtAssets.Colors.Gold);
         }
 
         /// <summary>
