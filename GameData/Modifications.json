@@ -8,8 +8,8 @@
       "strength": 2
     },
     "DiceResult": 0,
-    "MinValue": 20.4,
-    "MaxValue": 20.4,
+    "MinValue": 19.3889,
+    "MaxValue": 19.3889,
     "RolledValue": 0
   },
   {
@@ -35,8 +35,8 @@
       "technique": 2
     },
     "DiceResult": 0,
-    "MinValue": 2,
-    "MaxValue": 2,
+    "MinValue": 1.1871,
+    "MaxValue": 1.1871,
     "RolledValue": 0
   },
   {
@@ -48,8 +48,8 @@
       "agility": 2
     },
     "DiceResult": 0,
-    "MinValue": 1,
-    "MaxValue": 1,
+    "MinValue": 11.9712,
+    "MaxValue": 11.9712,
     "RolledValue": 0
   },
   {
@@ -74,8 +74,8 @@
       "strength": 2
     },
     "DiceResult": 0,
-    "MinValue": 30.2,
-    "MaxValue": 30.2,
+    "MinValue": 19.7933,
+    "MaxValue": 19.7933,
     "RolledValue": 0
   },
   {
@@ -87,8 +87,8 @@
       "agility": 2
     },
     "DiceResult": 0,
-    "MinValue": 0.08,
-    "MaxValue": 0.08,
+    "MinValue": 0.0619,
+    "MaxValue": 0.0619,
     "RolledValue": 0
   },
   {
@@ -101,8 +101,8 @@
       "strength": 2
     },
     "DiceResult": 0,
-    "MinValue": 1,
-    "MaxValue": 1,
+    "MinValue": 1.3187,
+    "MaxValue": 1.3187,
     "RolledValue": 0
   },
   {
@@ -114,8 +114,8 @@
       "agility": 2
     },
     "DiceResult": 0,
-    "MinValue": 2,
-    "MaxValue": 2,
+    "MinValue": 4.9686,
+    "MaxValue": 4.9686,
     "RolledValue": 0
   },
   {
@@ -128,8 +128,8 @@
       "strength": 2
     },
     "DiceResult": 0,
-    "MinValue": 4,
-    "MaxValue": 4,
+    "MinValue": 6.2264,
+    "MaxValue": 6.2264,
     "RolledValue": 0
   },
   {
@@ -170,8 +170,8 @@
       "strength": 2
     },
     "DiceResult": 0,
-    "MinValue": 4,
-    "MaxValue": 4,
+    "MinValue": 6.2264,
+    "MaxValue": 6.2264,
     "RolledValue": 0
   },
   {
@@ -183,8 +183,8 @@
       "agility": 2
     },
     "DiceResult": 0,
-    "MinValue": 0.067,
-    "MaxValue": 0.067,
+    "MinValue": 0.0901,
+    "MaxValue": 0.0901,
     "RolledValue": 0
   },
   {
@@ -196,8 +196,8 @@
       "primary": 2
     },
     "DiceResult": 0,
-    "MinValue": 18.0,
-    "MaxValue": 18.0,
+    "MinValue": 11.6217,
+    "MaxValue": 11.6217,
     "RolledValue": 0
   },
   {
@@ -220,8 +220,8 @@
     "Weight": 0.5,
     "Effect": "BURN",
     "DiceResult": 0,
-    "MinValue": 10,
-    "MaxValue": 10,
+    "MinValue": 8.5811,
+    "MaxValue": 8.5811,
     "RolledValue": 0
   },
   {
@@ -253,8 +253,8 @@
       "technique": 2
     },
     "DiceResult": 0,
-    "MinValue": 0.057,
-    "MaxValue": 0.057,
+    "MinValue": 0.0747,
+    "MaxValue": 0.0747,
     "RolledValue": 0
   },
   {
@@ -267,8 +267,8 @@
       "agility": 2
     },
     "DiceResult": 0,
-    "MinValue": 0.046,
-    "MaxValue": 0.046,
+    "MinValue": 0.0399,
+    "MaxValue": 0.0399,
     "RolledValue": 0
   },
   {
@@ -281,8 +281,8 @@
       "strength": 2
     },
     "DiceResult": 0,
-    "MinValue": 1,
-    "MaxValue": 1,
+    "MinValue": 1.3187,
+    "MaxValue": 1.3187,
     "RolledValue": 0
   },
   {

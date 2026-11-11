@@ -20,14 +20,14 @@
   {
     "Name": "of Agility",
     "Description": "% agility",
-    "Value": 30,
+    "Value": 40.161,
     "Rarity": "Common",
     "StatType": "AGI",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "AGI",
-        "Value": 30
+        "Value": 40.161
       }
     ],
     "triggerName": "",
@@ -56,14 +56,14 @@
   {
     "Name": "of fleeting",
     "Description": "attack speed",
-    "Value": 0.59,
+    "Value": 0.544,
     "Rarity": "Common",
     "StatType": "AttackSpeed",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "AttackSpeed",
-        "Value": 0.59
+        "Value": 0.544
       }
     ],
     "triggerName": "",
@@ -74,14 +74,14 @@
   {
     "Name": "of Intelligence",
     "Description": "5% int",
-    "Value": 9.26,
+    "Value": 12.242,
     "Rarity": "Common",
     "StatType": "INT",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "INT",
-        "Value": 9.26
+        "Value": 12.242
       }
     ],
     "triggerName": "",
@@ -92,14 +92,14 @@
   {
     "Name": "of killing",
     "Description": "weapon damage",
-    "Value": 2.1,
+    "Value": 1.607,
     "Rarity": "Common",
     "StatType": "Damage",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "Damage",
-        "Value": 2.1
+        "Value": 1.607
       }
     ],
     "triggerName": "",
@@ -110,14 +110,14 @@
   {
     "Name": "of Power",
     "Description": "base damage",
-    "Value": 1.26,
+    "Value": 0.964,
     "Rarity": "Common",
     "StatType": "Damage",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "Damage",
-        "Value": 1.26
+        "Value": 0.964
       }
     ],
     "triggerName": "",
@@ -129,14 +129,14 @@
     "Name": "of Precision",
     "Weight": 0.5,
     "Description": "1 to combo",
-    "Value": 1,
+    "Value": 1.842,
     "Rarity": "Common",
     "StatType": "COMBO",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "COMBO",
-        "Value": 1
+        "Value": 1.842
       }
     ],
     "triggerName": "",
@@ -184,14 +184,14 @@
     "Name": "of Strength",
     "Weight": 0.5,
     "Description": "5% strength",
-    "Value": 40,
+    "Value": 26.88,
     "Rarity": "Common",
     "StatType": "STR",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "STR",
-        "Value": 40
+        "Value": 26.88
       }
     ],
     "triggerName": "",
@@ -202,14 +202,14 @@
   {
     "Name": "of Technique",
     "Description": "5% technique",
-    "Value": 8.76,
+    "Value": 8.608,
     "Rarity": "Common",
     "StatType": "TEC",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "TEC",
-        "Value": 8.76
+        "Value": 8.608
       }
     ],
     "triggerName": "",
@@ -2060,18 +2060,18 @@
   {
     "Name": "bathed in blood",
     "Description": "Seasoned by countless battles \u2014 the red has seeped in and stayed",
-    "Value": 2.1,
+    "Value": 1.607,
     "Rarity": "Rare",
     "StatType": "Damage",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "Damage",
-        "Value": 2.1
+        "Value": 1.607
       },
       {
         "StatType": "Damage",
-        "Value": 1.68
+        "Value": 1.286
       },
       {
         "StatType": "CRIT",
@@ -2086,14 +2086,14 @@
   {
     "Name": "bound by shame",
     "Description": "The weight of a wrong never set right \u2014 carried forward as fuel",
-    "Value": 80,
+    "Value": 53.76,
     "Rarity": "Rare",
     "StatType": "STR",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "STR",
-        "Value": 80
+        "Value": 53.76
       },
       {
         "StatType": "Damage",
@@ -2134,14 +2134,14 @@
   {
     "Name": "carried by a brother",
     "Description": "Borne in another\u0027s shadow, faithful and uncomplaining",
-    "Value": 80,
+    "Value": 53.76,
     "Rarity": "Rare",
     "StatType": "STR",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "STR",
-        "Value": 80
+        "Value": 53.76
       },
       {
         "StatType": "Health",
@@ -2212,14 +2212,14 @@
   {
     "Name": "claimed by none",
     "Description": "Ownerless and untamed \u2014 refuses to serve any single master",
-    "Value": 60,
+    "Value": 80.322,
     "Rarity": "Rare",
     "StatType": "AGI",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "AGI",
-        "Value": 60
+        "Value": 80.322
       },
       {
         "StatType": "CRIT",
@@ -2238,18 +2238,18 @@
   {
     "Name": "cradled on edge",
     "Description": "Balanced on the threshold \u2014 between breaking and becoming",
-    "Value": 1.68,
+    "Value": 1.286,
     "Rarity": "Rare",
     "StatType": "Damage",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "Damage",
-        "Value": 1.68
+        "Value": 1.286
       },
       {
         "StatType": "Damage",
-        "Value": 1.68
+        "Value": 1.286
       },
       {
         "StatType": "CRIT",
@@ -2264,14 +2264,14 @@
   {
     "Name": "danced in daylight",
     "Description": "",
-    "Value": 60,
+    "Value": 80.322,
     "Rarity": "Rare",
     "StatType": "AGI",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "AGI",
-        "Value": 60
+        "Value": 80.322
       },
       {
         "StatType": "COMBO",
@@ -2290,14 +2290,14 @@
   {
     "Name": "dipped in moonlight",
     "Description": "Its true name spoken only at night \u2014 bound to shadow and silver",
-    "Value": 60,
+    "Value": 80.322,
     "Rarity": "Rare",
     "StatType": "AGI",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "AGI",
-        "Value": 60
+        "Value": 80.322
       },
       {
         "StatType": "INT",
@@ -2316,14 +2316,14 @@
   {
     "Name": "forgotten and remembered",
     "Description": "Lost from memory, then suddenly vivid \u2014 its return feels fated",
-    "Value": 18.52,
+    "Value": 24.483,
     "Rarity": "Rare",
     "StatType": "INT",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "INT",
-        "Value": 18.52
+        "Value": 24.483
       },
       {
         "StatType": "MagicFind",
@@ -2364,18 +2364,18 @@
   {
     "Name": "given by dying hands",
     "Description": "The last gift of the fallen \u2014 its power drawn from a final act of will",
-    "Value": 2.1,
+    "Value": 1.607,
     "Rarity": "Rare",
     "StatType": "Damage",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "Damage",
-        "Value": 2.1
+        "Value": 1.607
       },
       {
         "StatType": "Damage",
-        "Value": 2.1
+        "Value": 1.607
       },
       {
         "StatType": "STR",
@@ -2390,14 +2390,14 @@
   {
     "Name": "held in breath",
     "Description": "The moment before release \u2014 coiled potential, never quite still",
-    "Value": 0.59,
+    "Value": 0.544,
     "Rarity": "Rare",
     "StatType": "AttackSpeed",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "AttackSpeed",
-        "Value": 0.59
+        "Value": 0.544
       },
       {
         "StatType": "ACCURACY",
@@ -2442,14 +2442,14 @@
   {
     "Name": "hidden by rain",
     "Description": "The storm kept its secret \u2014 found only when the weather finally broke",
-    "Value": 60,
+    "Value": 80.322,
     "Rarity": "Rare",
     "StatType": "AGI",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "AGI",
-        "Value": 60
+        "Value": 80.322
       },
       {
         "StatType": "Armor",
@@ -2464,14 +2464,14 @@
   {
     "Name": "hushed in secret",
     "Description": "Its deeds go unrecorded \u2014 what it has done, none can say",
-    "Value": 18.52,
+    "Value": 24.483,
     "Rarity": "Rare",
     "StatType": "INT",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "INT",
-        "Value": 18.52
+        "Value": 24.483
       },
       {
         "StatType": "TEC",
@@ -2517,14 +2517,14 @@
     "Name": "kissed by time",
     "Weight": 0.5,
     "Description": "Aged beyond expectation \u2014 time has only made it more itself",
-    "Value": 0.2,
+    "Value": 0.032,
     "Rarity": "Rare",
     "StatType": "ALL",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "ALL",
-        "Value": 0.2
+        "Value": 0.032
       },
       {
         "StatType": "MagicFind",
@@ -2539,14 +2539,14 @@
   {
     "Name": "lost and found again",
     "Description": "Once misplaced, now bound \u2014 carries the memory of being sought",
-    "Value": 60,
+    "Value": 40.32,
     "Rarity": "Rare",
     "StatType": "STR",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "STR",
-        "Value": 60
+        "Value": 40.32
       },
       {
         "StatType": "AGI",
@@ -2566,14 +2566,14 @@
     "Name": "lost of will",
     "Weight": 0.25,
     "Description": "given up",
-    "Value": -100,
+    "Value": -67.2,
     "Rarity": "Rare",
     "StatType": "STR",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "STR",
-        "Value": -100
+        "Value": -67.2
       },
       {
         "StatType": "AGI",
@@ -2614,14 +2614,14 @@
   {
     "Name": "named after a father",
     "Description": "Bears the name of a provider \u2014 strength passed through blood and word",
-    "Value": 100,
+    "Value": 67.2,
     "Rarity": "Rare",
     "StatType": "STR",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "STR",
-        "Value": 100
+        "Value": 67.2
       },
       {
         "StatType": "Damage",
@@ -2641,14 +2641,14 @@
     "Name": "of gods",
     "Weight": 0.25,
     "Description": "",
-    "Value": 0.5,
+    "Value": 0.081,
     "Rarity": "Rare",
     "StatType": "ALL",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "ALL",
-        "Value": 0.5
+        "Value": 0.081
       }
     ],
     "triggerName": "",
@@ -2659,14 +2659,14 @@
   {
     "Name": "owed to heir",
     "Description": "Promised to the next in line \u2014 its power strains toward the future",
-    "Value": 80,
+    "Value": 53.76,
     "Rarity": "Rare",
     "StatType": "STR",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "STR",
-        "Value": 80
+        "Value": 53.76
       },
       {
         "StatType": "INT",
@@ -2759,18 +2759,18 @@
   {
     "Name": "worn to the bone",
     "Description": "Stripped of pretense by long use \u2014 nothing left but purpose",
-    "Value": 2.1,
+    "Value": 1.607,
     "Rarity": "Rare",
     "StatType": "Damage",
     "ItemRank": "",
     "Mechanics": [
       {
         "StatType": "Damage",
-        "Value": 2.1
+        "Value": 1.607
       },
       {
         "StatType": "Damage",
-        "Value": 1.68
+        "Value": 1.286
       },
       {
         "StatType": "HealthRegen",
