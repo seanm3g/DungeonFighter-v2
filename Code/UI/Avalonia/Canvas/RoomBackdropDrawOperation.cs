@@ -69,6 +69,17 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             if (opacity <= 0)
                 return;
+            long start = FrameTimingLog.Now();
+            try { RenderCore(context); }
+            finally
+            {
+                if (FrameTimingLog.Enabled)
+                    FrameTimingLog.Add("backdrop", FrameTimingLog.MsSince(start));
+            }
+        }
+
+        private void RenderCore(ImmediateDrawingContext context)
+        {
             var leaseFeature = context.TryGetFeature<ISkiaSharpApiLeaseFeature>();
             if (leaseFeature == null)
                 return;
@@ -155,7 +166,10 @@ namespace RPGGame.UI.Avalonia.Canvas
             if ((rays <= 0 && clouds <= 0) || plateOpacity <= 0 || target.Width <= 0 || target.Height <= 0)
                 return;
 
+            long maskStart = FrameTimingLog.Now();
             using var mask = BuildLightMask(target.Width, target.Height, t, rays, clouds);
+            if (FrameTimingLog.Enabled)
+                FrameTimingLog.Add("lightMask", FrameTimingLog.MsSince(maskStart));
             if (mask == null)
                 return;
 
@@ -352,6 +366,8 @@ namespace RPGGame.UI.Avalonia.Canvas
                 }
             }
 
+            if (FrameTimingLog.Enabled)
+                FrameTimingLog.Add("asciiCacheMiss", 1);
             var ascii = AsciiGlyphRaster.Render(plate, w, h, cols, rows, (float)(glyphCellWidth * scale), (float)(glyphCellHeight * scale),
                 (float)(glyphFontSize * scale), family, ramp, background, gain, underlay > 0 ? SKColors.Transparent : SKColors.Black, variety: variety);
             if (ascii == null)

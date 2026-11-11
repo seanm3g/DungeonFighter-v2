@@ -151,8 +151,10 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             if (Inventory.HubTabBar.IsActive)
             {
-                // The hub's Actions tab: side panels stay, the editor takes the whole center column (strip band included,
-                // since it shows the sequence itself), tab strip on top.
+                // The hub's Actions tab: side panels stay, one frame down the whole center column with the tab strip on
+                // top. Like the inventory, the hero band (STATS / THRESHOLDS) sits along its bottom and the left panel
+                // keeps just HERO / GEAR / sets; the editor fills the rest.
+                Inventory.InventoryHeroBand.Request();
                 RenderWithLayout(character, "ACTIONS", (contentX, contentY, contentWidth, contentHeight) =>
                 {
                     int frameX = LayoutConstants.CENTER_PANEL_X;
@@ -164,8 +166,20 @@ namespace RPGGame.UI.Avalonia.Renderers
                     canvas.AddBox(frameX, frameY, frameW, frameH, PanelJoin.Border(AsciiArtAssets.Colors.Cyan), CenterPanelModeTint.GetBackgroundColor());
                     PanelJoin.ApplyCenter(canvas, frameY, frameH);
                     var (x, y, w, h) = LayoutConstants.GetCenterColumnFullContentRect();
+                    if (Inventory.InventoryHeroBand.IsShown)
+                    {
+                        // Editor stops above the band (band spans the frame's inner width: no list column here).
+                        int bandTop = LayoutConstants.ACTION_INFO_Y;
+                        if (bandTop > y && bandTop < y + h)
+                        {
+                            Inventory.InventoryHeroBand.SplitTopY = bandTop;
+                            h = bandTop - y;
+                        }
+                    }
                     inventoryRenderer.RenderComboManagement(x, y, w, h, character, hubTabs: true);
                 }, context, null, null, null, clearCanvas: true, inventoryComboRightPanel: true);
+                if (Inventory.InventoryHeroBand.IsShown && Inventory.InventoryHeroBand.SplitTopY.HasValue)
+                    RenderInventoryBottomBand(character);
                 canvas.Refresh();
                 return;
             }

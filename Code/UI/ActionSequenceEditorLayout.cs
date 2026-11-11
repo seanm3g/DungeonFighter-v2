@@ -34,23 +34,53 @@ namespace RPGGame.UI
         /// Where a card dropped at (<paramref name="x"/>, <paramref name="y"/>) in the sequence block lands: the slot under
         /// the pointer (inserting before it), or the end when past the last card. -1 when outside the sequence block.
         /// </summary>
-        public static int DropSlotAt(int x, int y)
+        public static int DropSlotAt(int x, int y) => DropTargetAt(x, y, out int slot, out _) ? slot : -1;
+
+        /// <summary>Columns at each side of a sequence card that still mean "insert here" rather than "drop onto this card".</summary>
+        public const int InsertEdgeColumns = 4;
+
+        /// <summary>
+        /// Drop target in the sequence block. <paramref name="onto"/> true: the pointer is over the middle of card
+        /// <paramref name="slot"/> (swap with it / replace it). False: insert before <paramref name="slot"/> (the gap or a
+        /// card's left edge; a card's right edge inserts after it; past the last card, the end). False when outside the block.
+        /// </summary>
+        public static bool DropTargetAt(int x, int y, out int slot, out bool onto)
         {
+            slot = -1;
+            onto = false;
             if (!Contains(SequenceArea, x, y))
-                return -1;
+                return false;
             for (int i = 0; i < SequenceSlots.Count; i++)
             {
                 var r = SequenceSlots[i];
-                if (y >= r.Y && y < r.Y + r.H + 1 && x < r.X + r.W)
-                    return i;
+                if (y < r.Y || y >= r.Y + r.H + 1)
+                    continue;
+                if (x < r.X + InsertEdgeColumns)
+                {
+                    slot = i;
+                    return true;
+                }
+                if (x < r.X + r.W - InsertEdgeColumns)
+                {
+                    slot = i;
+                    onto = y < r.Y + r.H;
+                    return true;
+                }
+                if (x < r.X + r.W)
+                {
+                    slot = i + 1;
+                    return true;
+                }
             }
-            return SequenceSlots.Count;
+            slot = SequenceSlots.Count;
+            return true;
         }
     }
 
     /// <summary>
-    /// Drag and drop in the Action Sequence editor: drag a library card onto the sequence to add it at that spot, drag a
-    /// sequence card sideways to reorder, or drag it off the sequence to take it out. A press and release in place stays
+    /// Drag and drop in the Action Sequence editor: drag a library card between sequence cards to add it at that spot or
+    /// onto a sequence card to replace it, drag a sequence card between cards to move it or onto another card to swap the
+    /// two, or drag it off the sequence to take it out. A press and release in place stays
     /// a click. Pointer events and rendering both run on the UI thread.
     /// </summary>
     public static class ActionSequenceDragState

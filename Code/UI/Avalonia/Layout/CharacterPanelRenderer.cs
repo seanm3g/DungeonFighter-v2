@@ -701,54 +701,72 @@ namespace RPGGame.UI.Avalonia.Layout
             int detailWidth = Math.Max(8, Math.Min(maxWidth, hoverWidth - 1));
             foreach (var (material, count) in sets)
             {
-                int rowY = y;
-                bool expanded = stateManager?.IsSetExpanded(material) == true;
-                string arrow = expanded ? AsciiArtAssets.UIElements.ArrowDown : AsciiArtAssets.UIElements.ArrowRight;
-                string line = MaterialSetController.FormatFormingSetHudLine(material, count);
-                if (line.Length > nameWidth)
-                    line = line.Substring(0, nameWidth - 3) + "...";
-                if (LeftPanelViewport.IsRowVisible(y))
-                {
-                    // Arrow at half the name's scale, centered on the name's line height and in the gutter before it.
-                    double arrowScale = SetNameFontScale / 2;
-                    double arrowNudgeY = (SetNameFontScale - arrowScale) / 2;
-                    double arrowNudgeX = (SetArrowGutter - arrowScale) / 2 - 0.25;
-                    canvas.AddScaledTextNudged(x, y, arrow, AsciiArtAssets.Colors.Cyan, arrowScale, arrowNudgeX, arrowNudgeY);
-                    canvas.AddScaledText(x + SetArrowGutter, y, line, AsciiArtAssets.Colors.Cyan, SetNameFontScale);
-                }
-                y += SetNameRowStride;
-
-                if (expanded)
-                {
+                RenderExpandableSetRow(x, ref y, hoverWidth, nameWidth, detailWidth,
+                    key: "set:" + material,
+                    expandKey: material,
+                    header: MaterialSetController.FormatFormingSetHudLine(material, count),
+                    color: AsciiArtAssets.Colors.Cyan,
                     // Same text as the hover tip, minus its first line (the "Iron 3/5" header drawn above).
-                    foreach (var detail in MaterialSetController.FormatSetStatusLinesForMaterial(character, material).Skip(1))
-                    {
-                        foreach (var wrapped in WrapPlain(detail, detailWidth))
-                        {
-                            PanelText(x + 1, y, wrapped, AsciiArtAssets.Colors.White);
-                            y++;
-                        }
-                    }
-                    y++;
-                    // Not an lphover id, so the center hover tip stays hidden while the details are open; a click closes it.
-                    RegisterLeftPanelClickRow(x, rowY, hoverWidth, y - rowY, ExpandedSetPrefix + material);
-                }
-                else
-                {
-                    RegisterLeftPanelHoverRow(x, rowY, hoverWidth, SetNameRowStride, "set:" + material);
-                }
+                    details: () => MaterialSetController.FormatSetStatusLinesForMaterial(character, material).Skip(1));
             }
 
             // Class tag totals (gear tags + class materials after the Core root + strip actions), as the cadence rules count them.
             foreach (var (tag, count) in classTags)
             {
-                int rowY = y;
-                PanelText(x, y, $"{char.ToUpperInvariant(tag[0])}{tag.Substring(1)} tags {count}", AsciiArtAssets.Colors.Gold);
-                y++;
-                RegisterLeftPanelHoverRow(x, rowY, hoverWidth, 1, "classtag:" + tag);
+                string classTagKey = "classtag:" + tag;
+                RenderExpandableSetRow(x, ref y, hoverWidth, nameWidth, detailWidth,
+                    key: classTagKey,
+                    expandKey: classTagKey,
+                    header: $"{char.ToUpperInvariant(tag[0])}{tag.Substring(1)} tags {count}",
+                    color: AsciiArtAssets.Colors.Gold,
+                    details: () => LeftPanelTooltipBuilder.BuildClassTagLines(character, tag).Skip(1));
             }
 
             y++;
+        }
+
+        /// <summary>
+        /// One Sets row: arrow + large header; a click expands the details inline (hover shows them as a tip while closed).
+        /// <paramref name="key"/> is the lphover id (without prefix); <paramref name="expandKey"/> is the expanded-state key.
+        /// </summary>
+        private void RenderExpandableSetRow(int x, ref int y, int hoverWidth, int nameWidth, int detailWidth,
+            string key, string expandKey, string header, Color color, Func<IEnumerable<string>> details)
+        {
+            int rowY = y;
+            bool expanded = stateManager?.IsSetExpanded(expandKey) == true;
+            string arrow = expanded ? AsciiArtAssets.UIElements.ArrowDown : AsciiArtAssets.UIElements.ArrowRight;
+            string line = header;
+            if (line.Length > nameWidth)
+                line = line.Substring(0, nameWidth - 3) + "...";
+            if (LeftPanelViewport.IsRowVisible(y))
+            {
+                // Arrow at half the name's scale, centered on the name's line height and in the gutter before it.
+                double arrowScale = SetNameFontScale / 2;
+                double arrowNudgeY = (SetNameFontScale - arrowScale) / 2;
+                double arrowNudgeX = (SetArrowGutter - arrowScale) / 2 - 0.25;
+                canvas.AddScaledTextNudged(x, y, arrow, color, arrowScale, arrowNudgeX, arrowNudgeY);
+                canvas.AddScaledText(x + SetArrowGutter, y, line, color, SetNameFontScale);
+            }
+            y += SetNameRowStride;
+
+            if (expanded)
+            {
+                foreach (var detail in details())
+                {
+                    foreach (var wrapped in WrapPlain(detail, detailWidth))
+                    {
+                        PanelText(x + 1, y, wrapped, AsciiArtAssets.Colors.White);
+                        y++;
+                    }
+                }
+                y++;
+                // Not an lphover id, so the center hover tip stays hidden while the details are open; a click closes it.
+                RegisterLeftPanelClickRow(x, rowY, hoverWidth, y - rowY, ExpandedSetPrefix + expandKey);
+            }
+            else
+            {
+                RegisterLeftPanelHoverRow(x, rowY, hoverWidth, SetNameRowStride, key);
+            }
         }
 
         /// <summary>Animal tag ladder progress under GEAR (Animals / taxon / specific).</summary>

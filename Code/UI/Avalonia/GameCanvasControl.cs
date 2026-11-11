@@ -617,7 +617,26 @@ namespace RPGGame.UI.Avalonia
             return coordinateConverter.GetCharHeight();
         }
 
+        private long _lastPaintTimestamp;
+
         public override void Render(DrawingContext context)
+        {
+            long paintStart = Canvas.FrameTimingLog.Now();
+            if (Canvas.FrameTimingLog.Enabled && !IsAuxiliaryLayoutCanvas)
+            {
+                if (_lastPaintTimestamp != 0)
+                    Canvas.FrameTimingLog.Add("paintGap", Canvas.FrameTimingLog.MsSince(_lastPaintTimestamp));
+                _lastPaintTimestamp = paintStart;
+            }
+            try { RenderCore(context); }
+            finally
+            {
+                if (Canvas.FrameTimingLog.Enabled)
+                    Canvas.FrameTimingLog.Add(IsAuxiliaryLayoutCanvas ? "paintAux" : "paint", Canvas.FrameTimingLog.MsSince(paintStart));
+            }
+        }
+
+        private void RenderCore(DrawingContext context)
         {
             // Update effective visible width before rendering (bounds are now available)
             if (!IsAuxiliaryLayoutCanvas)

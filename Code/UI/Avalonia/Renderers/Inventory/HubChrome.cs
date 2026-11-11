@@ -277,6 +277,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 affixes = InventoryAffixSynergy.GetAffixKeys(hoveredItem, includeMaterial: matchMaterial);
             }
 
+            string? hoveredSetMaterial = InventoryAffixSynergy.ResolveHoveredSetMaterial();
+
             foreach (var (slot, label, col, row) in Slots)
             {
                 int tx = dollX + col * stepX;
@@ -301,8 +303,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         : ItemThemeProvider.GetRarityColor(item!.Rarity?.Trim() ?? "Common");
 
                 bool isPaneSelection = inventoryInput && shown && string.Equals(SelectedSlot, slot, StringComparison.Ordinal);
-                bool synergy = shown && !isDropTarget && !ReferenceEquals(item, hoveredItem)
-                    && InventoryAffixSynergy.SharesAffix(item, hoveredItem, affixes, includeMaterial: matchMaterial);
+                // Hovering a set row in the Sets list lights every worn piece of that set (charms never join sets).
+                bool synergy = hoveredSetMaterial != null
+                    ? shown && !isDropTarget && slot != "charm" && MaterialSetController.JoinsSet(character, item, hoveredSetMaterial)
+                    : shown && !isDropTarget && !ReferenceEquals(item, hoveredItem)
+                        && InventoryAffixSynergy.SharesAffix(item, hoveredItem, affixes, includeMaterial: matchMaterial);
                 if (synergy)
                     frame = AsciiArtAssets.Colors.Cyan;
                 else if (isPaneSelection && !isDropTarget)

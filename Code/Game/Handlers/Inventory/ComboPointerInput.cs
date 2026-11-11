@@ -22,11 +22,17 @@ namespace RPGGame.Handlers.Inventory
             /// <summary>Drag and drop: add pool action <c>index</c> to the sequence at slot <c>index2</c> (<c>cpi:insert:P:S</c>).</summary>
             PoolInsert,
             /// <summary>Drag and drop: move sequence slot <c>index</c> to slot <c>index2</c> (<c>cpi:move:F:T</c>).</summary>
-            SequenceMove
+            SequenceMove,
+            /// <summary>Drag and drop: pool action <c>index</c> replaces the card in sequence slot <c>index2</c> (<c>cpi:replace:P:S</c>).</summary>
+            PoolReplace,
+            /// <summary>Drag and drop: swap sequence slots <c>index</c> and <c>index2</c> (<c>cpi:swap:A:B</c>).</summary>
+            SequenceSwap
         }
 
         public static string Insert(int poolIndex, int slot) => $"{Prefix}insert:{poolIndex}:{slot}";
         public static string Move(int fromSlot, int toSlot) => $"{Prefix}move:{fromSlot}:{toSlot}";
+        public static string Replace(int poolIndex, int slot) => $"{Prefix}replace:{poolIndex}:{slot}";
+        public static string Swap(int slotA, int slotB) => $"{Prefix}swap:{slotA}:{slotB}";
 
         /// <summary>Like <see cref="TryParse(string, out Kind, out int)"/>, plus the second number of insert / move tokens.</summary>
         public static bool TryParse(string input, out Kind kind, out int index, out int index2)
@@ -46,6 +52,12 @@ namespace RPGGame.Handlers.Inventory
                     break;
                 case "move":
                     kind = Kind.SequenceMove;
+                    break;
+                case "replace":
+                    kind = Kind.PoolReplace;
+                    break;
+                case "swap":
+                    kind = Kind.SequenceSwap;
                     break;
                 default:
                     return false;

@@ -59,6 +59,25 @@ namespace RPGGame
             return count > 0 ? count + joiners : 0;
         }
 
+        /// <summary>
+        /// True when <paramref name="item"/> would count toward <paramref name="material"/>'s set if worn: its own material,
+        /// a <see cref="WildcardMaterial"/> piece, or a learned hybrid partner's material (same rules as <see cref="CountEquipped"/>).
+        /// </summary>
+        public static bool JoinsSet(Character? hero, Item? item, string? material)
+        {
+            string key = MaterialBuildData.CanonicalMaterialName(material);
+            if (item == null || key.Length == 0)
+                return false;
+            string itemMat = ItemMaterialRules.RemapLegacyMaterial(item.Material);
+            if (string.Equals(itemMat, key, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (string.Equals(key, WildcardMaterial, StringComparison.OrdinalIgnoreCase))
+                return false;
+            if (string.Equals(itemMat, WildcardMaterial, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return hero != null && HybridPartnerMaterials(hero, key).Any(m => string.Equals(m, itemMat, StringComparison.OrdinalIgnoreCase));
+        }
+
         /// <summary>Materials of the hybrid partner classes of <paramref name="material"/>'s class (learned hybrid material nodes).</summary>
         private static List<string> HybridPartnerMaterials(Character hero, string material)
         {

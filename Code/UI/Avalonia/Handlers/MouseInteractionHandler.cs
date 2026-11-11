@@ -873,9 +873,10 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
-        /// Release in the Action Sequence editor: no movement runs the deferred click; a library card dropped on the
-        /// sequence is added at that slot; a sequence card dropped on the sequence moves there, dropped anywhere else
-        /// it is taken out. A library card dropped elsewhere cancels.
+        /// Release in the Action Sequence editor: no movement runs the deferred click. Dropped onto the middle of a sequence
+        /// card, a library card replaces it and a sequence card swaps with it. Dropped between cards, a library card is added
+        /// there and a sequence card moves there; a sequence card dropped off the sequence is taken out. A library card
+        /// dropped elsewhere cancels.
         /// </summary>
         private void FinishActionSequenceDrag(Point releasePosition)
         {
@@ -893,9 +894,14 @@ namespace RPGGame.UI.Avalonia.Handlers
                 return;
 
             var grid = ScreenToGrid(releasePosition);
-            int slot = ActionSequenceEditorLayout.DropSlotAt(grid.X, grid.Y);
+            if (!ActionSequenceEditorLayout.DropTargetAt(grid.X, grid.Y, out int slot, out bool onto))
+                slot = -1;
             string? token = null;
-            if (fromLibrary >= 0 && slot >= 0)
+            if (onto && fromLibrary >= 0)
+                token = ComboPointerInput.Replace(fromLibrary, slot);
+            else if (onto && fromSequence >= 0)
+                token = slot != fromSequence ? ComboPointerInput.Swap(fromSequence, slot) : null;
+            else if (fromLibrary >= 0 && slot >= 0)
                 token = ComboPointerInput.Insert(fromLibrary, slot);
             else if (fromSequence >= 0 && slot >= 0)
                 token = ComboPointerInput.Move(fromSequence, slot);
@@ -1084,13 +1090,17 @@ namespace RPGGame.UI.Avalonia.Handlers
                     }
 
                     // Sets rows: a click opens / closes the set's details inline under the row.
+                    // Class tag rows use "classtag:{tag}" as their expanded-state key (materials use the bare material name).
                     if (element.Value.StartsWith(LeftPanelHoverState.Prefix + "set:", StringComparison.Ordinal)
+                        || element.Value.StartsWith(LeftPanelHoverState.Prefix + "classtag:", StringComparison.Ordinal)
                         || element.Value.StartsWith(CharacterPanelRenderer.ExpandedSetPrefix, StringComparison.Ordinal))
                     {
-                        string material = element.Value.StartsWith(CharacterPanelRenderer.ExpandedSetPrefix, StringComparison.Ordinal)
+                        string expandKey = element.Value.StartsWith(CharacterPanelRenderer.ExpandedSetPrefix, StringComparison.Ordinal)
                             ? element.Value.Substring(CharacterPanelRenderer.ExpandedSetPrefix.Length)
-                            : element.Value.Substring((LeftPanelHoverState.Prefix + "set:").Length);
-                        statsPanelStateManager.ToggleSetExpanded(material);
+                            : element.Value.StartsWith(LeftPanelHoverState.Prefix + "set:", StringComparison.Ordinal)
+                                ? element.Value.Substring((LeftPanelHoverState.Prefix + "set:").Length)
+                                : element.Value.Substring(LeftPanelHoverState.Prefix.Length);
+                        statsPanelStateManager.ToggleSetExpanded(expandKey);
                         LeftPanelHoverState.Clear();
                         RefreshChromeAfterStatsToggle();
                         return;

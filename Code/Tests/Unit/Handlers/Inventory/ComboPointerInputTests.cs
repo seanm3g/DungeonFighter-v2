@@ -91,6 +91,12 @@ namespace RPGGame.Tests.Unit.Handlers.Inventory
                 "4-arg parse keeps single-index tokens", ref run, ref passed, ref failed);
             TestBase.AssertTrue(!ComboPointerInput.TryParse($"{ComboPointerInput.Prefix}move:1", out _, out _, out _),
                 "cpi:move with one number fails", ref run, ref passed, ref failed);
+            bool rep = ComboPointerInput.TryParse(ComboPointerInput.Replace(5, 2), out var k4, out int a4, out int b4);
+            TestBase.AssertTrue(rep && k4 == ComboPointerInput.Kind.PoolReplace && a4 == 5 && b4 == 2,
+                "cpi:replace:5:2 parses", ref run, ref passed, ref failed);
+            bool sw = ComboPointerInput.TryParse(ComboPointerInput.Swap(1, 3), out var k5, out int a5, out int b5);
+            TestBase.AssertTrue(sw && k5 == ComboPointerInput.Kind.SequenceSwap && a5 == 1 && b5 == 3,
+                "cpi:swap:1:3 parses", ref run, ref passed, ref failed);
         }
     }
 }

@@ -740,6 +740,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             // Only the selected item lights partners, and only by material (hover no longer drives the glow).
             hoveredItem = InventoryAffixSynergy.ResolveInventorySource();
             var hoveredAffixes = InventoryAffixSynergy.GetMaterialKeys(hoveredItem);
+            // A hovered set row in the left panel's Sets list overrides the selection: every bag item joining that set glows.
+            string? hoveredSetMaterial = InventoryAffixSynergy.ResolveHoveredSetMaterial();
             int rowH = ListRowHeight;
             int iconCols = GridTileColumns(canvas.GetCharWidth(), canvas.GetCharHeight(), rowH);
 
@@ -774,7 +776,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 bool isSelected = selectedEquippedItem == null && entry.InventoryIndex == selected.InventoryIndex;
                 bool blocked = ItemRendererHelper.IsEquipBlockedForCharacter(item, character);
                 bool beingDragged = InventoryDragState.IsActive && InventoryDragState.SourceInventoryIndex == entry.InventoryIndex;
-                bool synergy = !beingDragged && InventoryAffixSynergy.SharesAffix(item, hoveredItem, hoveredAffixes, includeMaterial: true);
+                bool synergy = !beingDragged && (hoveredSetMaterial != null
+                    ? MaterialSetController.JoinsSet(character, item, hoveredSetMaterial)
+                    : InventoryAffixSynergy.SharesAffix(item, hoveredItem, hoveredAffixes, includeMaterial: true));
                 Color rarityColor = ItemThemeProvider.GetRarityColor(item.Rarity?.Trim() ?? "Common");
                 Color nameColor = beingDragged ? AsciiArtAssets.Colors.DarkGray : blocked ? AsciiArtAssets.Colors.Red : rarityColor;
 

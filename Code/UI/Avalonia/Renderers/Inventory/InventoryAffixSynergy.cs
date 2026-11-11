@@ -100,6 +100,22 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             return keys;
         }
 
+        /// <summary>
+        /// Material of the set row under the pointer in the left panel's Sets list (<c>lphover:set:{material}</c>);
+        /// null when no set row is hovered or while dragging. Every item joining that set lights up.
+        /// </summary>
+        public static string? ResolveHoveredSetMaterial()
+        {
+            if (InventoryDragState.IsActive)
+                return null;
+            string value = LeftPanelHoverState.Value;
+            string setPrefix = LeftPanelHoverState.Prefix + "set:";
+            if (string.IsNullOrEmpty(value) || !value.StartsWith(setPrefix, StringComparison.Ordinal))
+                return null;
+            string material = value.Substring(setPrefix.Length).Trim();
+            return material.Length > 0 ? material : null;
+        }
+
         private static readonly string[] GearSlots ={ "head", "body", "legs", "weapon", "feet", "charm" };
 
         /// <summary>True when <paramref name="item"/> is worn in one of <paramref name="character"/>'s gear slots.</summary>

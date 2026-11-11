@@ -290,6 +290,57 @@ namespace RPGGame.Handlers.Inventory
                     return;
                 }
 
+                case ComboPointerInput.Kind.SequenceSwap:
+                {
+                    var combo = new List<RPGGame.Action>(player.GetComboActions());
+                    if (index >= 0 && index < combo.Count && index2 >= 0 && index2 < combo.Count && index != index2)
+                    {
+                        (combo[index], combo[index2]) = (combo[index2], combo[index]);
+                        ComboReorderer.ApplyOrder(player, combo);
+                    }
+                    RefreshAfterPointer();
+                    return;
+                }
+
+                case ComboPointerInput.Kind.PoolReplace:
+                {
+                    var pool = player.GetActionPool();
+                    var combo = new List<RPGGame.Action>(player.GetComboActions());
+                    if (index < 0 || index >= pool.Count || index2 < 0 || index2 >= combo.Count)
+                    {
+                        RefreshAfterPointer();
+                        return;
+                    }
+                    var incoming = pool[index];
+                    var outgoing = combo[index2];
+                    int already = combo.FindIndex(a => ReferenceEquals(a, incoming));
+                    if (already >= 0)
+                    {
+                        // This exact card is already in the sequence: dropping it on another slot swaps the two.
+                        if (already != index2)
+                        {
+                            (combo[already], combo[index2]) = (combo[index2], combo[already]);
+                            ComboReorderer.ApplyOrder(player, combo);
+                        }
+                    }
+                    else if (!incoming.IsComboAction)
+                    {
+                        ShowMessageEvent?.Invoke($"{incoming.Name} can't go in the sequence.");
+                    }
+                    else if (!player.RemoveFromCombo(outgoing))
+                    {
+                        ShowMessageEvent?.Invoke($"{outgoing.Name} is required for your equipped weapon and must stay in the sequence.");
+                    }
+                    else
+                    {
+                        combo[index2] = incoming;
+                        ComboReorderer.ApplyOrder(player, combo);
+                        ShowMessageEvent?.Invoke($"Replaced {outgoing.Name} with {incoming.Name}.");
+                    }
+                    RefreshAfterPointer();
+                    return;
+                }
+
                 default:
                     ShowMessageEvent?.Invoke("Invalid action.");
                     return;

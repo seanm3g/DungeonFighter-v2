@@ -97,7 +97,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
             // --- Sequence ---
             canvas.AddText(left, seqY, $"Action Sequence:  {combo.Count}/{cap} slots", gold);
-            canvas.AddText(hintX, seqY, Truncate("drag to reorder, drag off to remove (or click)  |  F1: above/below library  |  Esc: back", hintW), AsciiArtAssets.Colors.DarkGray);
+            canvas.AddText(hintX, seqY, Truncate("drag between to move, onto a card to swap, off to remove (or click)  |  F1: above/below library  |  Esc: back", hintW), AsciiArtAssets.Colors.DarkGray);
+            // Sequence info: totals over the cards and the combo speed (chain time when every combo roll lands).
+            if (combo.Count > 0)
+            {
+                var summary = CombatActionStripBuilder.BuildSequenceSummary(character);
+                canvas.AddText(left, seqY + 1, Truncate(CombatActionStripBuilder.FormatSequenceSummaryLine(in summary), Math.Max(0, x + width - 1 - left)), AsciiArtAssets.Colors.Cyan);
+            }
             int nextStep = combo.Count > 0 ? character.ComboStep % combo.Count : -1;
             for (int i = 0; i < combo.Count; i++)
             {
@@ -126,8 +132,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
 
             // Drop marker: a bar where the dragged card would land (needs this paint's slot rects, so after the cards).
-            int dropSlot = dragging ? ActionSequenceEditorLayout.DropSlotAt(ActionSequenceDragState.PointerX, ActionSequenceDragState.PointerY) : -1;
-            if (dropSlot >= 0)
+            int dropSlot = -1;
+            bool dropOnto = false;
+            if (dragging && !ActionSequenceEditorLayout.DropTargetAt(ActionSequenceDragState.PointerX, ActionSequenceDragState.PointerY, out dropSlot, out dropOnto))
+                dropSlot = -1;
+            if (dropOnto && dropSlot != ActionSequenceDragState.FromSequenceIndex)
+            {
+                // Onto a card: frame it (swap / replace).
+                var r = ActionSequenceEditorLayout.SequenceSlots[dropSlot];
+                canvas.AddBorder(r.X, r.Y, r.W, r.H, ColorPalette.Yellow.GetColor(), 2);
+            }
+            else if (dropSlot >= 0 && !dropOnto)
             {
                 int mi = dropSlot;
                 int mx = left + (mi % perRow) * (CardWidth + CardGap) - 2;
@@ -139,7 +154,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
             // --- Library (actions on equipped gear) ---
             canvas.AddText(left, libY, "Available Actions:", gold);
-            canvas.AddText(hintX, libY, Truncate("actions on your equipped items  |  drag onto the sequence or click to add", hintW), AsciiArtAssets.Colors.DarkGray);
+            canvas.AddText(hintX, libY, Truncate("actions on your equipped items  |  drag into the sequence (onto a card to replace it) or click to add", hintW), AsciiArtAssets.Colors.DarkGray);
             int libRowsFit = Math.Max(1, (libBlockH - 2) / (CardHeight + 1));
             int libRows = (pool.Count + perRow - 1) / perRow;
             int scroll = Math.Clamp(ActionSequenceEditorLayout.LibraryScrollRow, 0, Math.Max(0, libRows - libRowsFit));

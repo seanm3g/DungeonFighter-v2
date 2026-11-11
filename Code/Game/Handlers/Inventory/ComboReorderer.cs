@@ -106,6 +106,23 @@ namespace RPGGame.Handlers.Inventory
 
             return ApplyReorder(character, sb.ToString(), snapshotOrder.ToList());
         }
+
+        /// <summary>
+        /// Sets the combo to exactly <paramref name="newOrder"/> (actions already in the combo, or about to replace one).
+        /// Openers / finishers are still pinned by the sequence manager. Resets the combo step.
+        /// </summary>
+        public static void ApplyOrder(Character character, IReadOnlyList<RPGGame.Action> newOrder)
+        {
+            if (character == null || newOrder == null)
+                return;
+            foreach (var action in character.GetComboActions().ToList())
+                character.RemoveFromCombo(action, ignoreWeaponRequirement: true);
+            for (int i = 0; i < newOrder.Count; i++)
+                newOrder[i].ComboOrder = i + 1;
+            foreach (var action in newOrder)
+                character.AddToCombo(action);
+            character.ComboStep = 0;
+        }
     }
 }
 

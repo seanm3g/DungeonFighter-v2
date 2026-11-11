@@ -766,6 +766,14 @@ namespace RPGGame
             }
         }
 
+        /// <summary>Unwrapped class-tag breakdown lines (first line is the "BARBARIAN TAGS: n" header).</summary>
+        public static List<string> BuildClassTagLines(Character c, string classTag)
+        {
+            var lines = new List<string>();
+            AppendClassTags(c, classTag, line => { if (line != null) lines.Add(line); });
+            return lines;
+        }
+
         private static void AppendClassTags(Character c, string classTag, Action<string> addWrapped)
         {
             string name = classTag.Length > 0 ? char.ToUpperInvariant(classTag[0]) + classTag.Substring(1) : classTag;
