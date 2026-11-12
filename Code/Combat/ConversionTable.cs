@@ -155,7 +155,7 @@ namespace RPGGame
             {
                 case "poison":
                     if (all) target.PoisonPercentOfMaxHealth = 0;
-                    else target.ApplyPoisonPercent(-n * Stores.PoisonPercentPerUnit);
+                    else Stores.Spend(target, "poison", n);
                     break;
                 case "burn":
                     target.BurnIntensity = all ? 0 : Math.Max(0, target.BurnIntensity - n);

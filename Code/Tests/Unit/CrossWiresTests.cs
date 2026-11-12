@@ -158,8 +158,13 @@ namespace RPGGame.Tests.Unit
             foe.PoisonPercentOfMaxHealth = 3.0;
             int passes = ConversionTable.ApplyRow(hero, foe, edge, isCritical: true);
             TestBase.AssertEqual(2, passes, "a crit converts twice", ref _run, ref _passed, ref _failed);
-            // Poison is not spent: Actor.ApplyPoisonPercent ignores negative deltas (same as the skills this table replaced).
             TestBase.AssertEqual(4, foe.PendingBleedFromHits, "4 bleed queued (1:2)", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(Math.Abs(foe.PoisonPercentOfMaxHealth - 1.0) < 1e-9, "2% poison spent (4 units per pass)", ref _run, ref _passed, ref _failed);
+            var thin = new Character("ThinFoe", 5);
+            thin.PoisonPercentOfMaxHealth = 0.5;
+            ConversionTable.ApplyRow(hero, thin, edge, isCritical: true);
+            TestBase.AssertEqual(0.0, thin.PoisonPercentOfMaxHealth, "short poison is spent to 0, second pass stops", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(2, thin.PendingBleedFromHits, "one pass only once poison is gone", ref _run, ref _passed, ref _failed);
             var none = new Character("CleanFoe", 5);
             TestBase.AssertEqual(0, ConversionTable.ApplyRow(hero, none, edge, isCritical: false), "no poison, no conversion", ref _run, ref _passed, ref _failed);
         }
