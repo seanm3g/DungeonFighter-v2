@@ -519,7 +519,9 @@ namespace RPGGame.Actions.Execution
             }
             if (source is Character characterMiss)
                 ActionStatisticsTracker.RecordMissAction(characterMiss, result.BaseRoll, result.RollBonus);
-            if (RetriggerDepth == 0 && source is Character comboCharacterMiss)
+            // Exemption rules (WHILE -> EXEMPT COMBO): the miss doesn't end the hero's combo.
+            if (RetriggerDepth == 0 && source is Character comboCharacterMiss
+                && !(comboCharacterMiss is not Enemy && CrossWires.Exempt(comboCharacterMiss, "COMBO", target)))
             {
                 int stepBeforeMiss = comboCharacterMiss.ComboStep;
                 comboCharacterMiss.ComboStep = 0;

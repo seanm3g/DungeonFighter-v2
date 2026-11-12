@@ -164,6 +164,11 @@ namespace RPGGame.Combat.Events
         /// <summary>True when the token names an event (any spelling), whether or not combat fires it yet.</summary>
         public static bool IsEvent(string? raw) => TryGet(raw, out _);
 
+        /// <summary>Same canonical event and argument (aliases and spellings fold: ON_RECEIVE_HIT = ONTAKEHIT).</summary>
+        public static bool SameEvent(string? a, string? b) =>
+            TryGet(a, out var da, out var argA) && TryGet(b, out var db, out var argB) && da.Token == db.Token
+            && string.Equals(Strip(argA), Strip(argB), StringComparison.OrdinalIgnoreCase);
+
         /// <summary>True for the hero-takes-a-hit event in any spelling.</summary>
         public static bool IsTakeHit(string? raw) => TryGet(raw, out var def) && def.Token == "ONTAKEHIT";
 

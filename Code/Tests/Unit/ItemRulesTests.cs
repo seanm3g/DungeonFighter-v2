@@ -27,6 +27,9 @@ namespace RPGGame.Tests.Unit
             TestBuffAndSpentCondition();
             TestRolledValueText();
             TestDataRulesParse();
+            TestAliasMissCountsAsHitTaken();
+            TestExemption();
+            TestThreshold();
 
             TestBase.PrintSummary("Item Rules Tests", _run, _passed, _failed);
         }
@@ -167,6 +170,49 @@ namespace RPGGame.Tests.Unit
             var mod = new Modification { Name = "Vampiric", Effect = CrossWires.RuleEffect, CrossWire = "ONCONNECT -> HEAL {n}%", RolledValue = 6.4 };
             string? text = CrossWires.DescribeMod(mod);
             TestBase.AssertTrue(text != null && text.Contains("6%"), $"card shows the rolled value ({text})", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestAliasMissCountsAsHitTaken()
+        {
+            TestBase.SetCurrentTestName(nameof(TestAliasMissCountsAsHitTaken));
+            TestBase.AssertTrue(CrossWireRule.Parse("ONMISS -> COUNTAS ONTAKEHIT") is { Verb: "COUNTAS" }, "COUNTAS parses", ref _run, ref _passed, ref _failed);
+            TestBase.AssertNull(CrossWireRule.Parse("WHILE -> COUNTAS ONTAKEHIT"), "COUNTAS needs an event", ref _run, ref _passed, ref _failed);
+            var foe = new Character("SpiteFoe", 5);
+            CombatEvent Miss(Character h) => new CombatEvent(CombatEventType.ActionMiss, h) { Target = foe, IsMiss = true, Action = new Action { Name = "SLAM", Type = ActionType.Attack } };
+
+            var plain = Hero("NoSpiteHero"); // Bone x2: RAGE on hit taken
+            MaterialSetController.TryMintFromEvent(plain, Miss(plain), null);
+            TestBase.AssertEqual(0, plain.Effects.GetMaterialKeyword("RAGE"), "a miss mints no RAGE", ref _run, ref _passed, ref _failed);
+
+            var spite = Hero("SpiteHero");
+            spite.Progression.LearnedSkillRanks["b-al-bone"] = 1;
+            MaterialSetController.TryMintFromEvent(spite, Miss(spite), null);
+            TestBase.AssertTrue(spite.Effects.GetMaterialKeyword("RAGE") > 0, "Spite: the miss counts as a hit taken, RAGE mints", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestExemption()
+        {
+            TestBase.SetCurrentTestName(nameof(TestExemption));
+            TestBase.AssertNull(CrossWireRule.Parse("WHILE -> EXEMPT LUCK"), "unknown exemption rejected", ref _run, ref _passed, ref _failed);
+            var hero = Hero("FormHero");
+            hero.Progression.LearnedSkillRanks["w-ex-mithril"] = 1;
+            TestBase.AssertTrue(!CrossWires.Exempt(hero, "STREAK"), "no Focus: streak resets", ref _run, ref _passed, ref _failed);
+            Stores.Add(hero, "focus", 1);
+            TestBase.AssertTrue(CrossWires.Exempt(hero, "STREAK"), "Focused: misses keep the streak", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!CrossWires.Exempt(hero, "COMBO"), "only the named exemption", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestThreshold()
+        {
+            TestBase.SetCurrentTestName(nameof(TestThreshold));
+            var hero = Hero("OverloadHero");
+            hero.Progression.LearnedSkillRanks["z-th-crystal"] = 1;
+            var foe = new Character("OverloadFoe", 5);
+            HeroEventHub.SetTarget(hero, foe);
+            MaterialSetController.MintKeyword(hero, "CONTACT", 9, "test");
+            TestBase.AssertEqual(0, foe.BurnIntensity, "below the cap: nothing", ref _run, ref _passed, ref _failed);
+            MaterialSetController.MintKeyword(hero, "CONTACT", 2, "test");
+            TestBase.AssertEqual(3, foe.BurnIntensity, "CONTACT fills: 3 Burn on the target", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestDataRulesParse()

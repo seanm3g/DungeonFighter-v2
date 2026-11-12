@@ -83,13 +83,12 @@ namespace RPGGame
         }
 
         /// <summary>Combat-pipeline events (ONCRITICAL, ONMISS, ONTAKEHIT, …): called from material minting.</summary>
+        /// <param name="whenMatches">Already gated for take-hit vs own events, aliases included (MaterialSetController).</param>
         internal static bool MintFromCombatEvent(Character hero, Func<string, bool> whenMatches, bool takeHitOnly)
         {
             bool any = false;
             foreach (var (item, mod) in Equipped(hero).ToList())
             {
-                if (takeHitOnly != TriggerEvents.IsTakeHit(mod.TriggerWhen))
-                    continue;
                 if (TriggerEvents.TryGet(mod.TriggerWhen, out var def) && !def.Emitted)
                     continue; // hub events come through MintFromHub
                 if (whenMatches(mod.TriggerWhen))

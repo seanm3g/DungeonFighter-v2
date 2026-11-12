@@ -156,7 +156,8 @@ namespace RPGGame
             {
                 if (combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsMiss)
                     heroStreak.Effects.MaterialConsecutiveConnects++;
-                else if (combatEvent.Type == CombatEventType.ActionMiss || combatEvent.IsMiss)
+                else if ((combatEvent.Type == CombatEventType.ActionMiss || combatEvent.IsMiss)
+                         && !CrossWires.Exempt(heroStreak, "STREAK", target))
                     heroStreak.Effects.MaterialConsecutiveConnects = 0;
             }
 

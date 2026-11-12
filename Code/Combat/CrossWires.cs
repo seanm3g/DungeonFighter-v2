@@ -40,6 +40,11 @@ namespace RPGGame
     /// CRIT, ACCURACY).</item>
     /// <item>Passive (WHILE) stats: <c>DAMAGE ±n%</c> (outgoing), <c>ARMOR ±n%</c>, <c>SPEED ±n%</c> (+ = faster),
     /// <c>HIT</c> / <c>COMBO</c> / <c>CRIT</c> ±n (roll bonuses). <c>PER TARGET status</c> multiplies by its stacks.</item>
+    /// <item>Alias (skill family): <c>ONMISS -> COUNTAS ONTAKEHIT</c>: a combat event also counts as another for
+    /// material mints, Listeners and rules (combat events only, one hop).</item>
+    /// <item>Exemption (skill family): <c>WHILE [IF …] -> EXEMPT STREAK|COMBO</c>: misses don't reset the hit streak /
+    /// don't end the combo.</item>
+    /// <item>Threshold (skill family) needs no verb: <c>ONSTOREFULL:RAGE -> …</c>.</item>
     /// </list>
     /// </summary>
     public sealed class CrossWireRule
@@ -70,6 +75,7 @@ namespace RPGGame
         public static readonly string[] TriggeredVerbs = { "MINT", "ADD", "APPLY", "HEAL", "REFLECT", "BUFF" };
         public static readonly string[] PassiveStats = { "DAMAGE", "ARMOR", "SPEED", "HIT", "COMBO", "CRIT" };
         public static readonly string[] BuffStats = { "STR", "AGI", "TECH", "TEC", "INT", "HIT", "COMBO", "CRIT", "ACCURACY" };
+        public static readonly string[] Exemptions = { "STREAK", "COMBO" };
         private static readonly string[] SelfKeys = { "HP", "STEP", "SPENT", "LENGTH", "ROLL", "DISTINCT", "TURN" };
         private static readonly Regex Compare = new(@"^([A-Za-z_]+)(>=|<=|>|<|=)(-?[0-9]+(?:\.[0-9]+)?)$", RegexOptions.Compiled);
 
@@ -117,6 +123,20 @@ namespace RPGGame
             }
 
             string verb = right[0].ToUpperInvariant();
+            if (verb is "COUNTAS" or "EXEMPT")
+            {
+                // COUNTAS <event> (triggered) / EXEMPT <rule> (passive): no amount.
+                if (right.Length != 2 || (verb == "COUNTAS") == passive)
+                    return null;
+                string what = right[1].ToUpperInvariant();
+                if (verb == "COUNTAS" ? !TriggerEvents.IsEvent(what) : !Exemptions.Contains(what))
+                    return null;
+                return new CrossWireRule
+                {
+                    When = passive ? "WHILE" : left[0], Every = every, Conditions = conds,
+                    Verb = verb, Store = what, Amount = 1, Source = source, Text = spec.Trim()
+                };
+            }
             if (passive != PassiveStats.Contains(verb) || (!passive && !TriggeredVerbs.Contains(verb)))
                 return null;
 
@@ -307,13 +327,12 @@ namespace RPGGame
         }
 
         /// <summary>Combat-pipeline events, matched with the minting path's WHEN check.</summary>
+        /// <param name="whenMatches">Already gated for take-hit vs own events, aliases included (MaterialSetController).</param>
         internal static void OnCombatEvent(Character hero, Func<string, bool> whenMatches, bool takeHitOnly, CombatEvent? evt = null)
         {
             foreach (var rule in Active(hero))
             {
-                if (rule.IsPassive || !TriggerEvents.TryGet(rule.When, out var def) || !def.Emitted)
-                    continue;
-                if (takeHitOnly != TriggerEvents.IsTakeHit(rule.When))
+                if (rule.IsPassive || rule.Verb == "COUNTAS" || !TriggerEvents.TryGet(rule.When, out var def) || !def.Emitted)
                     continue;
                 if (whenMatches(rule.When))
                     Fire(hero, rule, evt?.Damage ?? 0, evt, takeHitOnly);
@@ -329,6 +348,8 @@ namespace RPGGame
 
         private static void Fire(Character hero, CrossWireRule rule, int eventAmount, CombatEvent? evt, bool takeHit = false)
         {
+            if (rule.Verb == "COUNTAS")
+                return;
             var target = takeHit ? evt?.Source ?? HeroEventHub.CurrentTarget(hero) : evt?.Target ?? HeroEventHub.CurrentTarget(hero);
             if (ReferenceEquals(target, hero))
                 target = HeroEventHub.CurrentTarget(hero);
@@ -457,6 +478,27 @@ namespace RPGGame
             _ => false
         };
 
+        // ------------------------------------------------------------------ alias / exemption
+
+        /// <summary>Active COUNTAS rules (From = rule.When, To = rule.Store). Empty for most heroes.</summary>
+        public static List<CrossWireRule> Aliases(Character hero) =>
+            Active(hero).Where(r => r.Verb == "COUNTAS").ToList();
+
+        /// <summary>True while an active <c>EXEMPT what</c> rule's conditions hold (e.g. misses don't reset STREAK).</summary>
+        public static bool Exempt(Character? hero, string what, Actor? target = null)
+        {
+            if (hero == null || hero is Enemy)
+                return false;
+            foreach (var rule in Collect(hero, includeNodes: true))
+            {
+                if (rule.Verb != "EXEMPT" || !rule.Store.Equals(what, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (ConditionsHold(hero, target ?? HeroEventHub.CurrentTarget(hero), rule))
+                    return true;
+            }
+            return false;
+        }
+
         // ------------------------------------------------------------------ passive (WHILE) rules
 
         private static bool TreesHavePassive()
@@ -538,6 +580,13 @@ namespace RPGGame
         {
             string cond = rule.Conditions.Count == 0 ? "" : " " + string.Join(" and ", rule.Conditions.Select(DescribeCondition));
             string sign = rule.Amount >= 0 ? "+" : "";
+            if (rule.Verb == "EXEMPT")
+            {
+                string lead = cond.Length > 0 ? $"While{cond}: " : "";
+                return lead + (rule.Store == "STREAK" ? "misses don't reset your hit streak" : "misses don't end your combo");
+            }
+            if (rule.Verb == "COUNTAS")
+                return $"{TriggerEvents.Label(rule.When) ?? rule.When}{cond} also counts as {(TriggerEvents.Label(rule.Store) ?? rule.Store).ToLowerInvariant()}";
             if (rule.IsPassive)
             {
                 string unit = rule.Percent ? "%" : "";

@@ -200,8 +200,13 @@ namespace RPGGame.Tests.Unit
         {
             TestBase.SetCurrentTestName(nameof(TestDataHasWires));
             var trees = SkillTreeService.Trees;
-            int nodes = trees?.Trees.SelectMany(t => t.Nodes).Count(n => CrossWireRule.Parse(n.CrossWire) != null) ?? 0;
+            int nodes = trees?.Trees.SelectMany(t => t.Nodes).Count(n => n.Id.Contains("-x-") && CrossWireRule.Parse(n.CrossWire) != null) ?? 0;
             TestBase.AssertEqual(12, nodes, "12 class cross-wire nodes parse", ref _run, ref _passed, ref _failed);
+            foreach (string fam in new[] { "-th-", "-al-", "-ex-" })
+            {
+                int n = trees?.Trees.SelectMany(t => t.Nodes).Count(x => x.Id.Contains(fam) && CrossWireRule.Parse(x.CrossWire) != null) ?? 0;
+                TestBase.AssertEqual(4, n, $"4 {fam.Trim('-')} family nodes parse", ref _run, ref _passed, ref _failed);
+            }
             int mods = LootDataCache.Load().Modifications.Count(m => AffixTemplates.Is(m, CrossWires.AffixEffect) && CrossWireRule.Parse(m.CrossWire) != null);
             TestBase.AssertEqual(8, mods, "8 cross-wire prefixes parse", ref _run, ref _passed, ref _failed);
             int caps = trees?.Trees.SelectMany(t => t.Nodes).Count(n => !string.IsNullOrWhiteSpace(n.Persist)) ?? 0;

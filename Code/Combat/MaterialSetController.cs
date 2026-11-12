@@ -429,6 +429,15 @@ namespace RPGGame
 
             bool any = false;
             Action subject = action ?? combatEvent.Action ?? new Action { Name = "MaterialSynth" };
+            // A token matches directly (own events vs a foe's hit on the hero kept apart), or through an Alias rule
+            // (ONMISS -> COUNTAS ONTAKEHIT) whose source event matches this event.
+            var aliases = CrossWires.Aliases(hero);
+            var aliasTarget = takeHitOnly ? combatEvent.Source : combatEvent.Target;
+            bool Direct(string token) => takeHitOnly == IsTakeHitToken(token)
+                && WhenMatches(token, subject, combatEvent, hero, gainedFocus, appliedSlow);
+            bool Matches(string token) => Direct(token)
+                || (aliases.Count > 0 && aliases.Any(a => TriggerEvents.SameEvent(a.Store, token) && Direct(a.When)
+                    && CrossWires.ConditionsHold(hero, aliasTarget, a, combatEvent.Damage, combatEvent)));
             foreach (var build in MaterialBuildsLoader.GetAll())
             {
                 int unlock = CountEquipped(hero, build.Material);
@@ -436,9 +445,7 @@ namespace RPGGame
                     continue;
                 if (string.IsNullOrWhiteSpace(build.WhenToken) || string.IsNullOrWhiteSpace(build.Keyword))
                     continue;
-                if (takeHitOnly != IsTakeHitToken(build.WhenToken))
-                    continue;
-                if (!WhenMatches(build.WhenToken, subject, combatEvent, hero, gainedFocus, appliedSlow))
+                if (!Matches(build.WhenToken))
                     continue;
 
                 int amount = ComputeMintPerTrigger(hero, build);
@@ -451,7 +458,7 @@ namespace RPGGame
                 MintKeyword(hero, build.Keyword, amount, cause);
                 any = true;
             }
-            Func<string, bool> matches = token => WhenMatches(token, subject, combatEvent, hero, gainedFocus, appliedSlow);
+            Func<string, bool> matches = Matches;
             any |= ListenerAffix.MintFromCombatEvent(hero, matches, takeHitOnly);
             CrossWires.OnCombatEvent(hero, matches, takeHitOnly, combatEvent);
             return any;
