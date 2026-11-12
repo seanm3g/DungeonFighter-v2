@@ -690,10 +690,9 @@ namespace RPGGame
             if (heroGearPool.Count == 0)
                 return;
 
-            WeaponType? heroWeaponType = GearActionPools.WeaponTypeForClass(context?.PlayerClass);
             for (int i = 0; i < count; i++)
             {
-                var chosen = GearActionPools.Pick(item, heroGearPool, _random, heroWeaponType);
+                var chosen = GearActionPools.Pick(item, heroGearPool, _random, context?.HeroClassTags);
                 if (chosen != null)
                     item.ActionBonuses.Add(chosen);
             }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.Combat.Calculators;
 using RPGGame.Data;
 
@@ -127,6 +128,18 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(GearActionPools.IsClassAction(new[] { "class", "barbarian" }, WeaponType.Mace), "Barbarian actions belong to the Mace", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertFalse(GearActionPools.IsClassAction(new[] { "class", "barbarian" }, WeaponType.Wand), "Barbarian actions do not roll on a Wand", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(GearActionPools.WeaponTypeForClass("Wizard") == WeaponType.Wand, "Wizard maps to Wand", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var barbarian = new[] { "barbarian" };
+            var warbrute = new[] { "hybrid", "warbrute", "barbarian", "warrior" };
+            TestBase.AssertTrue(GearActionPools.IsInClassPool(warbrute, barbarian), "Warbrute hybrids are in a Barbarian's pool", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(GearActionPools.IsInClassPool(warbrute, new[] { "rogue" }), "Warbrute hybrids are outside a Rogue's pool", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(GearActionPools.IsInClassPool(new[] { "swift" }, barbarian), "Neutral actions are in every pool", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(GearActionPools.IsInClassPool(new[] { "class", "warrior" }, new[] { "barbarian", "warrior" }), "A hybrid hero's pool has both classes", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(GearActionPools.CanRollOnGear(new ActionData { Name = "STUB", Tags = new List<string> { "unique" } }), "unique rows never roll on gear", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(GearActionPools.CanRollOnGear(new ActionData { Name = "IRON CULL", Tags = new List<string> { "iron" }, MaterialScale = "IRON" }), "Material set converts never roll on gear", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var armor = new HeadItem("Cap", 1, 1);
+            TestBase.AssertTrue(GearActionPools.ResolveClassTags(new WeaponItem("Wand", 1, 10, 0.05, WeaponType.Wand), null).Contains("wizard"), "No hero class: a weapon uses its own class", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(GearActionPools.ResolveClassTags(armor, null).Count == 0, "No hero class: armor has no class", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

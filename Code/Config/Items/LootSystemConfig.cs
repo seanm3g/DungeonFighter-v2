@@ -75,11 +75,11 @@ namespace RPGGame
             return Math.Max(0, cap);
         }
 
-        /// <summary>Chance (0–1) a weapon's gear action comes from its class's actions; otherwise a neutral action.</summary>
-        public double WeaponGearActionClassShare { get; set; } = 0.7;
-
-        /// <summary>Chance (0–1) an armor piece's gear action comes from the hero's class (equipped weapon); otherwise neutral.</summary>
-        public double ArmorGearActionClassShare { get; set; }
+        /// <summary>
+        /// Chance (0–1) a gear action (weapon or armor) comes from the hero's in-class pool: neutral actions plus actions
+        /// tagged with the hero's class, hybrids included. Otherwise it comes from the other classes' actions.
+        /// </summary>
+        public double GearActionInClassShare { get; set; } = 0.95;
 
         public RarityUpgradeConfig RarityUpgrade { get; set; } = new();
         public string Description { get; set; } = "";

@@ -75,7 +75,7 @@ namespace RPGGame.Tuning.Profiles
                         var tags = ActionLoader.GetActionData(ab.Name)?.Tags;
                         string kind = RPGGame.Data.GearActionPools.IsBasicAttack(tags) ? "basic"
                             : RPGGame.Data.GearActionPools.IsNeutral(tags) ? "neutral"
-                            : it is WeaponItem ownWeapon && RPGGame.Data.GearActionPools.IsClassAction(tags, ownWeapon.WeaponType) ? "class"
+                            : RPGGame.Data.GearActionPools.IsClassActionFor(tags, RPGGame.Data.GearActionPools.ResolveClassTags(it, null)) ? "class"
                             : "other-class";
                         if (!gearActionMix.TryGetValue(slot, out var mix))
                             gearActionMix[slot] = mix = new Dictionary<string, int>();
