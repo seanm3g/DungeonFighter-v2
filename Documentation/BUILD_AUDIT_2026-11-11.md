@@ -30,9 +30,9 @@ FULL: P09 Sore Loser, P17 Drumline (both via equivalents), P31 Living Alloy.
 4. **Missing systems** (each blocks 1–4 builds):
    - Retaliation: `Actor.ReflectStacks` / `ReflectPercentage` exist but nothing in combat reads them (M29, P29, P44, P24).
    - Enemy prefixes drive no mechanics (`Enemy.PrefixTags`), so "vs Undead / Giant" can't exist (M36, P38, P50).
-   - Hero swarms: swarm actions are enemy-only (M37, P39, P40). COMMAND is dropped, so these stay NONE unless swarms come back.
-   - Daze store with stun at 3 (M19, P22, P46).
-   - Mark as a stacking store of damage (M24, P22, P47).
+   - ~~Hero swarms~~ (M37, P39, P40): **cut 2026-11-11**.
+   - ~~Daze store~~ (M19, P22, P46): **cut 2026-11-11**; stun build-up is `ONCRITICAL EVERY n -> APPLY stun 1` (Concussive).
+   - ~~Mark as a stacking store~~ (M24, P22, P47): **cut 2026-11-11**; Mark stays the single-use "next hit crits" status.
    - Status tick / expire events: ONSTATUSTICK, ONSTATUSEXPIRE (M16, M17, M18, M20); ONREROLL (M08); ONSTRIPOP (M13);
      "enemy missed" (M21, M25); hero HP threshold (M30).
    - Dungeon-scoped stores (stacks across a dungeon, not just fight-to-fight Persistence) (M31, P33).
@@ -196,3 +196,7 @@ Carry-between-fights for items (Vault Belt, Trophy Necklace) uses the Persistenc
 | P48 | Clockwork Numbers | PARTIAL | turn number in roll checks; SUM, PARITY BLADE |
 | P49 | Heirloom vs Scrapper | CORE | all-Broken / all-Perfect extreme bonus |
 | P50 | Haunt the Haunted | NONE | enemy prefixes have no mechanics |
+
+## Follow-up (2026-11-11, same day)
+
+Built since this audit (branch v43-actions): the item rule system and 25 RULE prefixes (22e0923e), status actions VENOM COAT / OPEN VEIN / STOKE / CORRODE / DAZE / BRACE (8c3ce9f7), Threshold / Alias / Exemption skill families with 12 nodes (cfcf3c3d). Enemy-prefix conditions (`IF PREFIX undead`) and dungeon-scoped buffs (`BUFF ... FOR dungeon`) now exist. Cut by the user: Daze, Mark as a store, player swarms. Direction: minimize new mechanics; express remaining gaps with existing rules, verbs and stores.
