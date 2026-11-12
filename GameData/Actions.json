@@ -630,18 +630,6 @@
     "slow": "1"
   },
   {
-    "action": "VULNERABILITY",
-    "description": "Open a wound: Expose (enemy has less defense; at full stacks, armor is stripped).",
-    "tier": 2,
-    "dps": "75%",
-    "numberOfHits": "1",
-    "damage": "60%",
-    "speed": "0.80",
-    "block": "100",
-    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022expose\u0022,\u0022IsEnabled\u0022:true}]",
-    "expose": "1"
-  },
-  {
     "action": "HARDEN",
     "description": "Strike, then brace: Harden (you take less damage).",
     "tier": 2,
@@ -727,7 +715,7 @@
   },
   {
     "action": "EXPOSE",
-    "description": "Find a gap in their guard: Expose (enemy has less defense).",
+    "description": "Find a gap in their guard: Expose (enemy has less defense; at full stacks, armor is stripped).",
     "tier": 2,
     "dps": "80%",
     "numberOfHits": "1",
