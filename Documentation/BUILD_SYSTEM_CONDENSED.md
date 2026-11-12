@@ -9,7 +9,7 @@ Status: **design proposal, condense pass 1; open questions decided** (2026-11-11
 |---|---|---|
 | Actions | 176 distinct names | **8 verbs**, 19 new presets + the 18 existing material converts + existing basics |
 | Skills / rules | 68 bespoke rules | **8 rule families**, ~24 rules spread over the class trees |
-| Items | ~230 named items/affixes | **material × slot × affix**: 5 slot roles, 11 affix templates |
+| Items | ~230 named items/affixes | **material × slot × affix**: 5 slot roles, 10 affix templates |
 | New stores / currencies | dozens implied | **one store model** covering mints, statuses and hero resources |
 | New trigger events | ad hoc | **6 new events** on top of the existing WHEN list |
 
@@ -70,7 +70,7 @@ ON_AFTER_MISS, ON_ODD, ON_TAKE_HIT.
 | `ON_CASH:<store>` | a store is spent | the key cross-wire: spending one material's mint can mint another. Covers Payday, Assayer, INVEST, Spite chains |
 | `ON_STORE_FULL:<store>` | a store reaches its cap | Daze → stun, Apex, Pure Blood, Living Alloy-style "at N, do X" |
 | `ON_BEAT:<n>` | every n-th hero turn | Downbeat, Polyrhythm, every-4th-hit rules, Clockwork Numbers |
-| `ON_SELF_COST` | you pay HP, condition or a self-status | Martyr builds, Scarred Gauntlets, Covenant |
+| `ON_SELF_COST` | you pay HP or a self-status | Martyr builds, Scarred Gauntlets, Covenant |
 | `ON_ENEMY_ACT` | the enemy takes an action | Bleed's "ticks on their actions", Molasses, Tourniquet, Riposte |
 
 ---
@@ -115,7 +115,7 @@ Debt (a negative store: LOAN, Fate Debt).
 ## 4. Verbs: actions condensed to 8 shapes
 
 Every action is one verb plus parameters. Shared fields on every action:
-`length`, `hits`, `damage`, `tags`, **`cost`** (time / HP / store / item condition), **`condition`** (store ≥ n,
+`length`, `hits`, `damage`, `tags`, **`cost`** (time / HP / store), **`condition`** (store ≥ n,
 HP band, enemy prefix, slot position), **`attune`** (which store it reads; default = your *attuned* material, below).
 
 ### Attunement: the material hook for generic actions
@@ -157,7 +157,7 @@ only serves one build, it's probably an item affix or a skill rule.
 An item already has a material (sets, the event → store link) and rolled mods. The condensed rule:
 
 > **Material** decides *which store* the piece feeds. **Slot** decides *which event family* the piece can listen to
-> and which affixes it can roll. **Affix** is one of 11 templates.
+> and which affixes it can roll. **Affix** is one of 10 templates.
 
 ### Slot roles (the event families)
 
@@ -169,7 +169,7 @@ An item already has a material (sets, the event → store link) and rolled mods.
 | Legs | combo events: ONCOMBO, ONCOMBOEND, ON_CONSECUTIVE_ATTACK, ON_CASH | combo threshold, position (opener / finisher) |
 | Feet | time events: ON_TURN, ON_BEAT, ON_ENEMY_ACT, ONROOMSCLEARED, ON_SLOW | speed, cadence, context (regions, hazards) |
 
-### The 11 affix templates
+### The 10 affix templates
 
 | # | Template | Form | Brainstorm items it absorbs |
 |---|---|---|---|
@@ -183,7 +183,6 @@ An item already has a material (sets, the event → store link) and rolled mods.
 | 8 | **Position** | opener / finisher / slot n gets +X | Assassin's Hood, Headsman's Axe, Bookend Pair |
 | 9 | **Carry** | 25% of store S survives the fight | Vault Belt, Trophy Necklace, Momentum Carry-lite |
 | 10 | **Cost** | actions cost X (HP / condition / store), +Y | Martyr's Brand, Hair Shirt, Glass Dagger |
-| 11 | **Condition-band** | +X per worn piece in condition band B | Patchwork Armor, Display Case (Scrap / Pure Prefer as items) |
 
 ★ **Listener is the main material-trigger hook.** A Bone chest with *Listener: ONMISS* makes misses mint RAGE;
 Glass boots with *Listener: ON_BEAT* make every 4th turn mint GRAZE. Because slot limits the event family, a set of
@@ -191,8 +190,8 @@ five pieces can wire up to five extra events into its stores. That is where most
 **without new actions**.
 
 Named uniques from the brainstorm (*Plague Mask*, *Glass Dagger*, *Mirror Cloak*…) become fixed material + slot +
-two templates. Example: *Glass Dagger* = Glass weapon + Tilt (crit ×2 / −condition per crit) + Counts-as (rerolls into
-a new Glass item at Broken).
+two templates. Example: *Glass Dagger* = Glass weapon + Tilt (crit ×2) + Counts-as (counts as
+two Glass pieces).
 
 ---
 
@@ -319,7 +318,7 @@ One data table instead of bespoke conversion skills. Rows are owned by rules (Ra
 | M30 | Brink | Iron | CRISIS | HP threshold (hero mirror) | BERSERKER, RECKONING (Iron) | Condition (HP band) | Threshold |
 | M31 | Snowball | Obsidian | TROPHY, Dungeon Stacks | ONKILL, ONROOMSCLEARED | RECKONING, CASH (HARVEST) | Carry | Persistence |
 | M32 | Material Count | all | all mints | — | CASH IN, INDEX | Counts-as | Counts-as (Glutton) |
-| M33 | Condition | (class prefers) | — | ON_SELF_COST | cost param | Condition-band, Cost | Counts-as (Provenance) |
+| M33 | Condition | (class prefers) | — | ON_SELF_COST | cost param | Cost | Counts-as (Provenance) |
 | M34 | Mint & Spend | all | all mints | ON_CASH | INVEST, LIQUIDATE | Tuning, Carry | Cross-wire |
 | M35 | Conversion | Crystal, Iron | statuses | ON_STATUS_APPLY | TRANSMUTE, DISTILL | Tuning | Ratio |
 | M36 | Context | Unknown, Strange | ENIGMA, ODDITY | prefix / region | STRIKE + condition | Feet Condition | Alias |
@@ -366,8 +365,8 @@ Each build below uses **only** the primitives above. No bespoke pieces.
 - Skills: War Drum (exists); Threshold *BEAT full → next action free*.
 
 ### Scrapper (M33) — Barbarian, Bone ×3 + Iron ×2
-- Strip: `BLOOD OATH (paid in item condition) → HAYMAKER → HAYMAKER`.
-- Items: *Condition-band: +5% per Broken piece*; Bone body *Listener: ON_SELF_COST → RAGE*.
+- Strip: `BLOOD OATH → HAYMAKER → HAYMAKER`.
+- Items: Broken quality pieces (Scrap Prefer pays per Broken piece); Bone body *Listener: ON_SELF_COST → RAGE*.
 - Skills: Scrap Prefer (exists).
 
 ### Thermal Shock (P20 Burn × Slow) — Wizard, Crystal ×3 + Gold ×2 (or Spellblade)
