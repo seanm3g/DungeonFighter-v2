@@ -2010,5 +2010,77 @@
     "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"ACTION\",\"cadenceType\":\"ACTION\",\"count\":1,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":60}],\"durationType\":\"ACTION\"}]}",
     "cost": "HP 5",
     "tags": "action, verb, prep"
+  },
+  {
+    "action": "VENOM COAT",
+    "description": "Coat the blade: Poison the target (1.5% max HP per tick).",
+    "tier": 3,
+    "dps": "75%",
+    "numberOfHits": "1",
+    "damage": "60%",
+    "speed": "0.80",
+    "block": "100",
+    "verb": "APPLY poison 6",
+    "tags": "action, status, poison"
+  },
+  {
+    "action": "OPEN VEIN",
+    "description": "Cut deep: 2 Bleed on the target (ticks when it acts).",
+    "tier": 3,
+    "dps": "76%",
+    "numberOfHits": "1",
+    "damage": "65%",
+    "speed": "0.85",
+    "block": "100",
+    "verb": "APPLY bleed 2",
+    "tags": "action, status, bleed"
+  },
+  {
+    "action": "STOKE",
+    "description": "Fan the flames: 2 Burn on the target.",
+    "tier": 3,
+    "dps": "71%",
+    "numberOfHits": "1",
+    "damage": "60%",
+    "speed": "0.85",
+    "block": "100",
+    "verb": "APPLY burn 2",
+    "tags": "action, status, burn"
+  },
+  {
+    "action": "CORRODE",
+    "description": "Splash acid: 1 Acid on the target (damage and armor shred).",
+    "tier": 3,
+    "dps": "71%",
+    "numberOfHits": "1",
+    "damage": "60%",
+    "speed": "0.85",
+    "block": "100",
+    "verb": "APPLY acid 1",
+    "tags": "action, status, acid"
+  },
+  {
+    "action": "DAZE",
+    "description": "Ring their bell: Stun the target for a turn.",
+    "tier": 3,
+    "dps": "42%",
+    "numberOfHits": "1",
+    "damage": "50%",
+    "speed": "1.20",
+    "block": "100",
+    "verb": "APPLY stun 1",
+    "tags": "action, status, stun"
+  },
+  {
+    "action": "BRACE",
+    "description": "Set your feet: 2 Fortify (armor) on yourself.",
+    "tier": 3,
+    "dps": "63%",
+    "numberOfHits": "1",
+    "damage": "50%",
+    "speed": "0.80",
+    "block": "100",
+    "verb": "APPLY fortify 2",
+    "tags": "action, status, fortify"
   }
 ]

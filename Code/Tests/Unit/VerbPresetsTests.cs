@@ -49,6 +49,7 @@ namespace RPGGame.Tests.Unit
                 TestDistill();
                 TestTransmute();
                 TestTransmuteRunsConversions(combat);
+                TestStatusActions();
                 TestInvestPaysBackLater();
                 TestPalmBanksRoll();
                 TestPresetsInData();
@@ -273,6 +274,35 @@ namespace RPGGame.Tests.Unit
             finally
             {
                 combat.TransmuteUnownedRowRate = saved;
+            }
+        }
+
+        private static void TestStatusActions()
+        {
+            TestBase.SetCurrentTestName(nameof(TestStatusActions));
+            var hero = Hero("StatusHero", "Bone");
+            var foe = new Character("StatusFoe", 5);
+            VerbPresets.OnConnect(hero, foe, Verb("VENOM COAT", "APPLY poison 6"));
+            TestBase.AssertTrue(Math.Abs(foe.PoisonPercentOfMaxHealth - 1.5) < 1e-9, "VENOM COAT: 1.5% poison", ref _run, ref _passed, ref _failed);
+            VerbPresets.OnConnect(hero, foe, Verb("OPEN VEIN", "APPLY bleed 2"));
+            TestBase.AssertEqual(2, foe.PendingBleedFromHits, "OPEN VEIN: 2 bleed queued", ref _run, ref _passed, ref _failed);
+            VerbPresets.OnConnect(hero, foe, Verb("STOKE", "APPLY burn 2"));
+            TestBase.AssertEqual(2, foe.PendingBurnFromHits, "STOKE: 2 burn queued", ref _run, ref _passed, ref _failed);
+            VerbPresets.OnConnect(hero, foe, Verb("CORRODE", "APPLY acid 1"));
+            TestBase.AssertEqual(1, foe.PendingAcidFromHits, "CORRODE: 1 acid queued", ref _run, ref _passed, ref _failed);
+            VerbPresets.OnConnect(hero, foe, Verb("DAZE", "APPLY stun 1"));
+            TestBase.AssertTrue(foe.IsStunned && foe.StunTurnsRemaining >= 1, "DAZE: stunned", ref _run, ref _passed, ref _failed);
+            VerbPresets.OnConnect(hero, foe, Verb("BRACE", "APPLY fortify 2"));
+            TestBase.AssertEqual(2, Stores.Get(hero, "fortify"), "BRACE: 2 Fortify on the hero", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, Stores.Get(foe, "fortify"), "BRACE: not on the target", ref _run, ref _passed, ref _failed);
+            Stores.Add(foe, "weaken", 1);
+            TestBase.AssertTrue(foe.IsWeakened && foe.WeakenTurns >= Stores.DefaultStatusTurns, "weaken store adds the status", ref _run, ref _passed, ref _failed);
+
+            foreach (string name in new[] { "VENOM COAT", "OPEN VEIN", "STOKE", "CORRODE", "DAZE", "BRACE" })
+            {
+                var data = ActionLoader.GetActionData(name);
+                TestBase.AssertTrue(data != null && VerbSpec.Parse(data.Verb)?.Kind == VerbKind.Apply
+                    && data.Tags.Any(t => t.Equals("action", StringComparison.OrdinalIgnoreCase)), $"{name} is an APPLY action in the gear pool", ref _run, ref _passed, ref _failed);
             }
         }
 

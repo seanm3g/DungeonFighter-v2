@@ -190,6 +190,11 @@ namespace RPGGame
 
             yield return new StoreDef("poison", "Poison", StoreKind.Status, StoreScope.Fight,
                 read: a => (int)Math.Round(a.PoisonPercentOfMaxHealth / PoisonPercentPerUnit, MidpointRounding.AwayFromZero),
+                add: (a, n) =>
+                {
+                    a.ApplyPoisonPercent(n * PoisonPercentPerUnit);
+                    return n;
+                },
                 spend: (a, max) =>
                 {
                     int have = (int)Math.Round(a.PoisonPercentOfMaxHealth / PoisonPercentPerUnit, MidpointRounding.AwayFromZero);
@@ -201,6 +206,11 @@ namespace RPGGame
 
             yield return new StoreDef("bleed", "Bleed", StoreKind.Status, StoreScope.Fight,
                 read: a => a.BleedIntensity + a.PendingBleedFromHits,
+                add: (a, n) =>
+                {
+                    a.QueueBleedFromHit(n);
+                    return n;
+                },
                 spend: (a, max) =>
                 {
                     int fromNow = Math.Min(max, a.BleedIntensity);
@@ -212,6 +222,11 @@ namespace RPGGame
 
             yield return new StoreDef("burn", "Burn", StoreKind.Status, StoreScope.Fight,
                 read: a => a.BurnIntensity + a.PendingBurnFromHits,
+                add: (a, n) =>
+                {
+                    a.QueueBurnFromHit(n);
+                    return n;
+                },
                 spend: (a, max) =>
                 {
                     int fromNow = Math.Min(max, a.BurnIntensity);
@@ -222,16 +237,43 @@ namespace RPGGame
                 });
 
             yield return new StoreDef("acid", "Acid", StoreKind.Status, StoreScope.Fight,
-                read: a => a.AcidIntensity + a.PendingAcidFromHits);
+                read: a => a.AcidIntensity + a.PendingAcidFromHits,
+                add: (a, n) =>
+                {
+                    a.QueueAcidFromHit(n);
+                    return n;
+                });
 
             yield return new StoreDef("weaken", "Weaken", StoreKind.Status, StoreScope.Turn,
-                read: a => a.IsWeakened ? a.WeakenTurns : 0);
+                read: a => a.IsWeakened ? a.WeakenTurns : 0,
+                add: (a, n) =>
+                {
+                    a.ApplyWeaken(Math.Max(a.IsWeakened ? a.WeakenTurns : 0, Math.Max(n, DefaultStatusTurns)));
+                    return n;
+                });
 
             yield return new StoreDef("slow", "Slow", StoreKind.Status, StoreScope.Turn,
-                read: a => a is Character c ? c.Effects.SlowTurns : 0);
+                read: a => a is Character c ? c.Effects.SlowTurns : 0,
+                add: (a, n) =>
+                {
+                    if (a is not Character c)
+                        return 0;
+                    // Same values as the Slow effect handler (Freeze config, fallback 0.5 / 3).
+                    var freeze = GameConfiguration.Instance.StatusEffects.Freeze;
+                    double reduction = freeze.SpeedReduction > 0 ? freeze.SpeedReduction : 0.5;
+                    int turns = freeze.Duration > 0 ? (int)freeze.Duration : DefaultStatusTurns;
+                    c.ApplySlow(reduction, Math.Max(turns, n));
+                    return n;
+                });
 
             yield return new StoreDef("stun", "Stun", StoreKind.Status, StoreScope.Turn,
-                read: a => a.IsStunned ? a.StunTurnsRemaining : 0);
+                read: a => a.IsStunned ? a.StunTurnsRemaining : 0,
+                add: (a, n) =>
+                {
+                    a.IsStunned = true;
+                    a.StunTurnsRemaining = Math.Max(a.StunTurnsRemaining, n);
+                    return n;
+                });
 
             yield return new StoreDef("mark", "Mark", StoreKind.Status, StoreScope.Turn,
                 read: a => a.IsMarked ? Math.Max(1, a.MarkTurns) : 0,

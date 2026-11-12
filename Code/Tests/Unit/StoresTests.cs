@@ -20,7 +20,7 @@ namespace RPGGame.Tests.Unit
             TestMintReadAddSpend();
             TestEnemiesHaveNoMints();
             TestExposeStore();
-            TestDotStoresSpendButDoNotAdd();
+            TestDotStoresSpendAndAdd();
             TestStackResource();
             TestUnknownStore();
 
@@ -70,9 +70,9 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertFalse(ExposeStatus.IsExposed(foe), "expose ends when spent out", ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestDotStoresSpendButDoNotAdd()
+        private static void TestDotStoresSpendAndAdd()
         {
-            TestBase.SetCurrentTestName(nameof(TestDotStoresSpendButDoNotAdd));
+            TestBase.SetCurrentTestName(nameof(TestDotStoresSpendAndAdd));
             var foe = new Character("DotStoreFoe", 5);
             foe.BleedIntensity = 3;
             foe.PendingBleedFromHits = 2;
@@ -80,7 +80,8 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(4, Stores.Spend(foe, "bleed", 4), "bleed spends live first, then pending", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, foe.BleedIntensity, "live bleed spent", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(1, foe.PendingBleedFromHits, "one pending left", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(0, Stores.Add(foe, "bleed", 2), "DoTs are applied by their handlers, not the registry", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(2, Stores.Add(foe, "bleed", 2), "DoT adds queue like an on-hit (APPLY bleed)", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(3, foe.PendingBleedFromHits, "queued onto pending", ref _run, ref _passed, ref _failed);
 
             foe.PoisonPercentOfMaxHealth = 1.0;
             TestBase.AssertEqual(4, Stores.Get(foe, "poison"), "poison unit is 0.25% max HP", ref _run, ref _passed, ref _failed);
@@ -98,7 +99,7 @@ namespace RPGGame.Tests.Unit
             Stores.SpendAll(hero, "harden");
             TestBase.AssertNull(hero.HardenStacks, "harden cleared when spent out", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, hero.HardenTurns, "harden turns cleared", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(0, Stores.Add(hero, "stun", 1), "read-only stores refuse adds", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, Stores.Add(hero, "nosuchstore", 1), "unknown stores refuse adds", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestUnknownStore()
