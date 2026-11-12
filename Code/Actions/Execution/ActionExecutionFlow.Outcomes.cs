@@ -93,6 +93,7 @@ namespace RPGGame.Actions.Execution
                         result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, battleNarrative,
                         source.RollPenalty, null, result.ModifiedBaseRoll);
                     PackCombat.AccountAfterDamage(result, target, targetLivingBefore, targetHpBefore, replaceDamage: true);
+                    hitEvent.Damage = result.Damage; // rules (HEAL n%, REFLECT) read the hit's damage
                     ActionEffectTargetResolver.ApplyLifestealHealing(source, selected, result.Damage);
                     if (result.Damage > 0
                         && target is Character multiHurtHero
@@ -112,6 +113,7 @@ namespace RPGGame.Actions.Execution
                         : 0;
                     RPGGame.Diagnostics.ToolProfiler.Stop("Hit.CalculateDamage", pfDmg);
                     result.DamageTrace = DamageCalculator.TakeSequenceTrace();
+                    hitEvent.Damage = result.Damage; // rules (HEAL n%, REFLECT) read the hit's damage
                     if (result.Damage > 0)
                     {
                         int targetLivingBefore = target is Enemy livingTarget ? livingTarget.LivingBodyCount : 0;

@@ -100,6 +100,7 @@ namespace RPGGame.Tests.Runners
             HeroEventHubTests.RunAllTests();
             AffixTemplatesTests.RunAllTests();
             CrossWiresTests.RunAllTests();
+            ItemRulesTests.RunAllTests();
             StatBonusAnimalSuffixTriggerTests.RunAllTests();
             ItemTriggerCombatIntegrationTests.RunAllTests();
             Console.WriteLine();

@@ -399,6 +399,7 @@ namespace RPGGame
             _fightConvertStatRaw.Remove(hero);
             _fightConvertAgility.Remove(hero);
             RPGGame.Combat.Events.HeroEventHub.ResetFight(hero);
+            CrossWires.ResetFight(hero);
         }
 
         /// <summary>Clears dungeon-run keyword currency (CRISIS, DRAG, …) and consecutive-connect tracking.</summary>
@@ -452,7 +453,7 @@ namespace RPGGame
             }
             Func<string, bool> matches = token => WhenMatches(token, subject, combatEvent, hero, gainedFocus, appliedSlow);
             any |= ListenerAffix.MintFromCombatEvent(hero, matches, takeHitOnly);
-            CrossWires.OnCombatEvent(hero, matches, takeHitOnly);
+            CrossWires.OnCombatEvent(hero, matches, takeHitOnly, combatEvent);
             return any;
         }
 

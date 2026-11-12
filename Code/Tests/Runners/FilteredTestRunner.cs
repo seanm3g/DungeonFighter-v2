@@ -243,6 +243,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "HeroEventHub", () => RPGGame.Tests.Unit.HeroEventHubTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "AffixTemplates", () => RPGGame.Tests.Unit.AffixTemplatesTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CrossWires", () => RPGGame.Tests.Unit.CrossWiresTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "ItemRules", () => RPGGame.Tests.Unit.ItemRulesTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "MaterialTrigger", () => RPGGame.Tests.Unit.MaterialTriggerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ItemTriggerCombatIntegration", () => RPGGame.Tests.Unit.ItemTriggerCombatIntegrationTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StunProcessor", () => RPGGame.Tests.Unit.Combat.StunProcessorTests.RunAllTests()));

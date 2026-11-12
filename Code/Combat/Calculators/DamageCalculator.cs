@@ -405,7 +405,7 @@ namespace RPGGame.Combat.Calculators
                 totalDamage += VerbPresets.GetDamageBonus(attacker, target, action, totalDamage);
                 if (attacker is Character affixHero && affixHero is not Enemy)
                 {
-                    double affixPct = AffixTemplates.OutgoingDamagePercent(affixHero, action);
+                    double affixPct = AffixTemplates.OutgoingDamagePercent(affixHero, action, target);
                     if (affixPct != 0)
                         totalDamage += (int)Math.Round(totalDamage * affixPct / 100.0);
                 }

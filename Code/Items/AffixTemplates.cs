@@ -67,9 +67,10 @@ namespace RPGGame
             Equipped(hero, CountsDouble).Count(e => string.Equals(MaterialOf(e.Item), material, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>STORECOND + OPENER + FINISHER + BLOODPRICE: outgoing damage percent for this action.</summary>
-        public static double OutgoingDamagePercent(Character hero, Action? action)
+        /// <param name="target">The defender, for passive rule conditions (TARGET / PREFIX); default the current target.</param>
+        public static double OutgoingDamagePercent(Character hero, Action? action, Actor? target = null)
         {
-            double pct = 0;
+            double pct = CrossWires.Passive(hero, "DAMAGE", target);
             int threshold = Math.Max(1, GameConfiguration.Instance.Combat.AffixConditionStoreThreshold);
             foreach (var (item, mod) in Equipped(hero, StoreCondition))
             {
@@ -127,6 +128,7 @@ namespace RPGGame
                 Opener => $"+{n}% damage on your strip's opener",
                 Finisher => $"+{n}% damage on your strip's finisher",
                 BloodPrice => $"Each action costs {GameConfiguration.Instance.Combat.AffixBloodPriceHpPercent}% max HP, +{n}% damage",
+                CrossWires.RuleEffect or CrossWires.AffixEffect => CrossWires.DescribeMod(mod),
                 _ => null
             };
         }

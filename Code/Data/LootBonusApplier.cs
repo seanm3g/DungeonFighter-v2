@@ -879,6 +879,9 @@ namespace RPGGame
             };
             if (template.AttributeRequirements != null && template.AttributeRequirements.Count > 0)
                 clone.AttributeRequirements = new AttributeRequirements(new Dictionary<string, int>(template.AttributeRequirements));
+            // Rule prefixes: the card shows the rules with the rolled value.
+            if (AffixTemplates.Is(clone, CrossWires.RuleEffect) && CrossWires.DescribeMod(clone) is { } ruleText)
+                clone.Description = ruleText;
             return clone;
         }
 

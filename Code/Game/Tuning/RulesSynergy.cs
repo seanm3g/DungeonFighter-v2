@@ -299,8 +299,8 @@ namespace RPGGame.Tuning
                 bool holds = m.Effect.ToUpperInvariant() switch
                 {
                     "LISTEN" or "TUNE" or "STORECOND" or "COUNTSDOUBLE" => inPlan,
-                    "CROSSWIRE" => CrossWireRule.Parse(m.CrossWire) is { } rule
-                                   && CrossWireUseful(rule, keywords ??= KeywordsOf(planned)),
+                    "CROSSWIRE" or "RULE" => CrossWires.RulesOf(m, item.Name).ToList() is { Count: > 0 } rules
+                                   && rules.All(r => CrossWireUseful(r, keywords ??= KeywordsOf(planned))),
                     _ => true
                 };
                 delta += (holds ? w * rate : 0) - rate;
