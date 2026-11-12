@@ -28,12 +28,12 @@ FULL: P09 Sore Loser, P17 Drumline (both via equivalents), P31 Living Alloy.
 3. **Skill rule families Threshold, Alias, Exemption have zero nodes** (~30 named skills: Cascade, Fail Forward,
    Harmonics, Fate Debt, Diminishing Returns, Debugger, ...). ONSTOREFULL already fires for Threshold.
 4. **Missing systems** (each blocks 1–4 builds):
-   - Retaliation: `Actor.ReflectStacks` / `ReflectPercentage` exist but nothing in combat reads them (M29, P29, P44, P24).
+   - ~~Retaliation actions~~ (cut 2026-11-11; Thorned `ONTAKEHIT -> REFLECT n%` covers items): `Actor.ReflectStacks` / `ReflectPercentage` exist but nothing in combat reads them (M29, P29, P44, P24).
    - Enemy prefixes drive no mechanics (`Enemy.PrefixTags`), so "vs Undead / Giant" can't exist (M36, P38, P50).
    - ~~Hero swarms~~ (M37, P39, P40): **cut 2026-11-11**.
    - ~~Daze store~~ (M19, P22, P46): **cut 2026-11-11**; stun build-up is `ONCRITICAL EVERY n -> APPLY stun 1` (Concussive).
    - ~~Mark as a stacking store~~ (M24, P22, P47): **cut 2026-11-11**; Mark stays the single-use "next hit crits" status.
-   - Status tick / expire events: ONSTATUSTICK, ONSTATUSEXPIRE (M16, M17, M18, M20); ONREROLL (M08); ONSTRIPOP (M13);
+   - ~~Status tick / expire events~~ (cut 2026-11-11): ONSTATUSTICK, ONSTATUSEXPIRE (M16, M17, M18, M20); ONREROLL (M08); ONSTRIPOP (M13);
      "enemy missed" (M21, M25); hero HP threshold (M30).
    - Dungeon-scoped stores (stacks across a dungeon, not just fight-to-fight Persistence) (M31, P33).
    - Per-hit crit rolls (P04), element tags (M15, P15), hit margin as a value (M06), turn-number roll checks (P48).
@@ -199,4 +199,4 @@ Carry-between-fights for items (Vault Belt, Trophy Necklace) uses the Persistenc
 
 ## Follow-up (2026-11-11, same day)
 
-Built since this audit (branch v43-actions): the item rule system and 25 RULE prefixes (22e0923e), status actions VENOM COAT / OPEN VEIN / STOKE / CORRODE / DAZE / BRACE (8c3ce9f7), Threshold / Alias / Exemption skill families with 12 nodes (cfcf3c3d). Enemy-prefix conditions (`IF PREFIX undead`) and dungeon-scoped buffs (`BUFF ... FOR dungeon`) now exist. Cut by the user: Daze, Mark as a store, player swarms. Direction: minimize new mechanics; express remaining gaps with existing rules, verbs and stores.
+Built since this audit (branch v43-actions): the item rule system and 25 RULE prefixes (22e0923e), status actions VENOM COAT / OPEN VEIN / STOKE / CORRODE / DAZE / BRACE (8c3ce9f7), Threshold / Alias / Exemption skill families with 12 nodes (cfcf3c3d). Enemy-prefix conditions (`IF PREFIX undead`) and dungeon-scoped buffs (`BUFF ... FOR dungeon`) now exist. Cut by the user: Daze, Mark as a store, player swarms, status tick / expire events (ONSTATUSTICK, ONSTATUSEXPIRE), and Reflect / Absorb / Silence actions (retaliation stays the Thorned item rule). With these cuts every audit gap is either built or cut. Direction: minimize new mechanics; express remaining gaps with existing rules, verbs and stores.
