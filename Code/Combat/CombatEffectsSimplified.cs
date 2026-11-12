@@ -173,7 +173,7 @@ namespace RPGGame
                 if (combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsMiss)
                 {
                     MaterialSetController.SpendConvertBank(heroSynth, action);
-                    VerbPresets.OnConnect(heroSynth, target, action, combatEvent.NaturalRollValue);
+                    VerbPresets.OnConnect(heroSynth, target, action, combatEvent.NaturalRollValue, combatEvent.IsCritical);
                 }
                 if (combatEvent.Type == CombatEventType.ActionHit || combatEvent.Type == CombatEventType.ActionMiss)
                 {

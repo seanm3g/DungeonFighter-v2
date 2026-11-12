@@ -26,7 +26,7 @@ namespace RPGGame
         Barrier,
         /// <summary>Spend the target's largest status into your attuned mint at rate% (DISTILL).</summary>
         Distill,
-        /// <summary>Spend every other mint into your attuned mint at rate% (TRANSMUTE).</summary>
+        /// <summary>Run the conversion table on the target (owned rows always, unowned at half rate), then spend every other mint into your attuned mint at rate% (TRANSMUTE).</summary>
         Transmute,
         /// <summary>Spend your attuned mint now; it comes back at rate% after <see cref="VerbSpec.Delay"/> of your actions (INVEST).</summary>
         Invest,
@@ -221,7 +221,8 @@ namespace RPGGame
 
         /// <summary>Spends what the verb cashes, after a connecting hit. Returns units spent.</summary>
         /// <param name="naturalRoll">This attack's natural die face (PALM banks it); 0 when unknown.</param>
-        public static int OnConnect(Character hero, Actor? target, Action? action, int naturalRoll = 0)
+        /// <param name="isCritical">This connect was a critical (conversion rows with repeatOnCrit repeat).</param>
+        public static int OnConnect(Character hero, Actor? target, Action? action, int naturalRoll = 0, bool isCritical = false)
         {
             if (hero is Enemy)
                 return 0;
@@ -269,9 +270,10 @@ namespace RPGGame
                 }
                 case VerbKind.Transmute:
                 {
+                    int converted = target == null ? 0 : ConversionTable.Transmute(hero, target, isCritical);
                     string? into = Attunement.GetKeyword(hero);
                     if (into == null)
-                        return 0;
+                        return converted;
                     int spent = 0;
                     foreach (string id in HeroMints(hero).Where(id => !string.Equals(id, into, StringComparison.OrdinalIgnoreCase)).ToList())
                     {
@@ -280,7 +282,7 @@ namespace RPGGame
                         RPGGame.Combat.Events.HeroEventHub.OnCash(hero, id, n);
                     }
                     Stores.Add(hero, into, (int)Math.Floor(spent * share + 1e-9));
-                    return spent;
+                    return spent + converted;
                 }
                 case VerbKind.Invest:
                 {
@@ -414,7 +416,7 @@ namespace RPGGame
                 VerbKind.Apply => $"Applies {store}",
                 VerbKind.Barrier => $"Temporary HP worth {rate}% of max HP",
                 VerbKind.Distill => $"Moves the target's largest status into {store} at {rate}%",
-                VerbKind.Transmute => $"Moves your other material stores into {store} at {rate}%",
+                VerbKind.Transmute => $"Runs your status conversions on the target (unowned ones at half rate), then moves your other material stores into {store} at {rate}%",
                 VerbKind.Invest => $"Spends {store}; it returns at {rate}% after {spec.Delay} actions",
                 VerbKind.Palm => "Banks this roll: your next roll becomes it",
                 _ => null

@@ -238,6 +238,8 @@ namespace RPGGame
         public double VerbScaleMaxPercent { get; set; } = 100.0;
         /// <summary>Listener affix: share of the set's normal mint per trigger (min 1). See <see cref="ListenerAffix"/>.</summary>
         public double ListenerMintShare { get; set; } = 0.5;
+        /// <summary>TRANSMUTE: chance an unowned conversion-table row converts (owned rows always run). "Half rate".</summary>
+        public double TransmuteUnownedRowRate { get; set; } = 0.5;
         /// <summary>A material bank reaching this raises ONSTOREFULL (HeroEventHub). 0 = never.</summary>
         public int MintStoreFullThreshold { get; set; } = 10;
         /// <summary>STORECOND affix: the piece's material bank needed for its damage bonus.</summary>

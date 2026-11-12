@@ -167,6 +167,7 @@ namespace RPGGame.Tuning
             string? mainMaterial = sets.Count > 0 ? sets[0].Material : null;
             bool homeSet = sets.Any(s => string.Equals(MaterialBuildsLoader.FindByMaterial(s.Material)?.AssociatedClass, home, StringComparison.OrdinalIgnoreCase));
             var strip = StripOf(hero);
+            var keywords = RulesSynergy.KeywordsOf(sets.Select(s => s.Material));
 
             var minedIndex = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var mentions = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -190,12 +191,13 @@ namespace RPGGame.Tuning
                     && !node.Id.Contains("-sink-", StringComparison.OrdinalIgnoreCase) ? sd.BranchBonus : 0;
                 double setNode = homeSet && sd.SetNodes.Contains(node.Id, StringComparer.OrdinalIgnoreCase) ? sd.SetNodeBonus : 0;
                 double stripFit = sd.SkillFromStripScale * RulesSynergy.NodeStripSynergy(node.Id, strip);
-                double score = mined + branch + setNode + stripFit;
+                double rule = RulesSynergy.NodeRuleBonus(node, keywords);
+                double score = mined + branch + setNode + stripFit + rule;
                 if (score > bestScore)
                 {
                     bestScore = score;
                     best = node;
-                    bestWhy = $"mined {mined:0.00} branch {branch:0.00} set {setNode:0.00} strip {stripFit:0.00}";
+                    bestWhy = $"mined {mined:0.00} branch {branch:0.00} set {setNode:0.00} strip {stripFit:0.00} rule {rule:0.00}";
                 }
             }
             if (best != null)
@@ -248,7 +250,25 @@ namespace RPGGame.Tuning
                 .ToList();
 
             var target = new Dictionary<string, Item?>(bestBySlot);
-            if (sets.Count > 0)
+            if (Synergy)
+            {
+                // Affix templates are worth their weight only for the planned sets (RulesSynergy.AffixValue): re-pick
+                // each slot by the gear-aware value, keeping the set material choice and the weapon rule above.
+                var planned = RulesSynergy.FormedSets(hero).Select(s => s.Material).ToList();
+                if (sets.Count > 0)
+                    planned.Add(sets[0].material);
+                double Aware(Item i) => ItemValueModel.Score(i) + RulesSynergy.AffixValue(i, planned);
+                foreach (string slot in slots.Where(s => s != "weapon"))
+                    target[slot] = pool.Where(i => PlaythroughGearPolicy.SlotOf(i) == slot).OrderByDescending(Aware).FirstOrDefault();
+                if (sets.Count > 0)
+                    foreach (var group in pool
+                                 .Where(i => string.Equals(ItemMaterialRules.RemapLegacyMaterial(i.Material), sets[0].material, StringComparison.OrdinalIgnoreCase))
+                                 .Where(i => sets[0].pieces.Any(p => PlaythroughGearPolicy.SlotOf(p) == PlaythroughGearPolicy.SlotOf(i)))
+                                 .Where(i => i is not WeaponItem || sets[0].pieces.Contains(i))
+                                 .GroupBy(PlaythroughGearPolicy.SlotOf))
+                        target[group.Key] = group.OrderByDescending(Aware).First();
+            }
+            else if (sets.Count > 0)
                 foreach (var piece in sets[0].pieces)
                     target[PlaythroughGearPolicy.SlotOf(piece)] = piece;
 

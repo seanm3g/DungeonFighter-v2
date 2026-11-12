@@ -48,6 +48,7 @@ namespace RPGGame.Tests.Unit
                 TestBarrier();
                 TestDistill();
                 TestTransmute();
+                TestTransmuteRunsConversions(combat);
                 TestInvestPaysBackLater();
                 TestPalmBanksRoll();
                 TestPresetsInData();
@@ -242,6 +243,37 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(4, VerbPresets.OnConnect(hero, null, Verb("TRANSMUTE", "TRANSMUTE 75")), "spends the 4 GRAZE", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(5, hero.Effects.GetMaterialKeyword("RAGE"), "2 + floor(4 x 0.75) = 5 RAGE", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, hero.Effects.GetMaterialKeyword("GRAZE"), "GRAZE empty", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestTransmuteRunsConversions(CombatConfig combat)
+        {
+            TestBase.SetCurrentTestName(nameof(TestTransmuteRunsConversions));
+            ConversionTable.Reload();
+            double saved = combat.TransmuteUnownedRowRate;
+            try
+            {
+                combat.TransmuteUnownedRowRate = 0;
+                var owner = Hero("EdgeOwner", "Bone", "Bone");
+                owner.Progression.LearnedSkillRanks["r-edge"] = 1;
+                var foe = new Character("TransFoe", 5) { PoisonPercentOfMaxHealth = 3.0 };
+                VerbPresets.OnConnect(owner, foe, Verb("TRANSMUTE", "TRANSMUTE 75"));
+                TestBase.AssertEqual(2, foe.PendingBleedFromHits, "owned Envenomed Edge row runs: 2 bleed", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(0, foe.PendingAcidFromHits, "unowned rows skipped at rate 0", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(Math.Abs(foe.PoisonPercentOfMaxHealth - 2.0) < 1e-9, "1% poison spent", ref _run, ref _passed, ref _failed);
+
+                combat.TransmuteUnownedRowRate = 1.0;
+                var plain = Hero("NoRowsHero", "Bone", "Bone");
+                var foe2 = new Character("TransFoe2", 5) { PoisonPercentOfMaxHealth = 3.0 };
+                VerbPresets.OnConnect(plain, foe2, Verb("TRANSMUTE", "TRANSMUTE 75"));
+                TestBase.AssertEqual(1, foe2.PendingAcidFromHits, "unowned Venom Mace row converts (rate 1)", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(2, foe2.PendingBleedFromHits, "then unowned Envenomed Edge on what's left", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(Math.Abs(foe2.PoisonPercentOfMaxHealth - 1.0) < 1e-9, "2% poison spent over two rows", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(ConversionTable.OwnsAny(owner) && !ConversionTable.OwnsAny(plain), "OwnsAny", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                combat.TransmuteUnownedRowRate = saved;
+            }
         }
 
         private static void TestInvestPaysBackLater()

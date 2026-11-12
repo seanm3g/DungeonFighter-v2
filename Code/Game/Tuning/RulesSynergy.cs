@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using RPGGame.Combat.Events;
 using RPGGame.Data;
 
 namespace RPGGame.Tuning
@@ -41,6 +42,16 @@ namespace RPGGame.Tuning
             /// <see cref="VerbSynergy"/>). Keys are <see cref="VerbKind"/> names (Cash, Scale, Invest, …).
             /// </summary>
             public Dictionary<string, double> VerbWeights { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+            /// <summary>
+            /// Item affix template (prefix Effect: LISTEN, TUNE, STORECOND, COUNTSDOUBLE, OPENER, FINISHER, BLOODPRICE,
+            /// CROSSWIRE) → value in <see cref="Profiles.ItemValueModel.AdjectivePrefixRate"/> units while its gear
+            /// condition holds (<see cref="AffixValue"/>); 0 otherwise. Unlisted templates keep the flat prefix value.
+            /// </summary>
+            public Dictionary<string, double> AffixWeights { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+            /// <summary>Skill score bonus for a cross-wire node whose source store the worn sets mint.</summary>
+            public double CrossWireNodeBonus { get; set; } = 0.3;
+            /// <summary>Skill score bonus for a Persistence capstone (Rite branch, carries stores between fights).</summary>
+            public double PersistNodeBonus { get; set; } = 0.2;
         }
 
         private static SynergyData? _data;
@@ -228,10 +239,84 @@ namespace RPGGame.Tuning
             return spec.Kind switch
             {
                 VerbKind.Cash or VerbKind.Scale or VerbKind.Invest or VerbKind.Distill => attunedFormed ? w : 0,
-                VerbKind.Liquidate or VerbKind.Transmute => formed.Count >= 2 ? w : 0,
+                VerbKind.Liquidate => formed.Count >= 2 ? w : 0,
+                VerbKind.Transmute => formed.Count >= 2 || ConversionTable.OwnsAny(hero) ? w : 0,
                 VerbKind.Index => w * Math.Max(0, Attunement.CountDistinctMaterials(hero) - 2),
                 _ => w
             };
+        }
+
+        // ---------------------------------------------------------------- affixes, cross-wires, capstones
+
+        /// <summary>Mint keywords of <paramref name="materials"/> (each set material's currency).</summary>
+        public static HashSet<string> KeywordsOf(IEnumerable<string> materials) =>
+            new(materials.Select(m => MaterialBuildsLoader.FindByMaterial(m)?.Keyword ?? "").Where(k => k.Length > 0),
+                StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// A cross-wire pays only if its source can happen: a mint store named by <c>ONCASH:&lt;store&gt;</c> or
+        /// <c>IF &lt;store&gt;&gt;=n</c> must be one the planned sets mint. Rules on other events always count.
+        /// </summary>
+        public static bool CrossWireUseful(CrossWireRule rule, ISet<string> keywords)
+        {
+            foreach (string? store in new[] { SourceStore(rule.When), rule.IfStore })
+                if (!string.IsNullOrWhiteSpace(store) && Stores.TryGet(store, out var def) && def.Kind == StoreKind.Mint
+                    && !keywords.Contains(def.Id))
+                    return false;
+            return true;
+        }
+
+        private static string? SourceStore(string when)
+        {
+            int colon = when.IndexOf(':');
+            return colon > 0 && TriggerEvents.Strip(when[..colon]).Equals("ONCASH", StringComparison.OrdinalIgnoreCase)
+                ? when[(colon + 1)..]
+                : null;
+        }
+
+        /// <summary>
+        /// Gear-aware adjustment to <see cref="Profiles.ItemValueModel.Score"/> for affix templates on
+        /// <paramref name="item"/>, given the set materials the hero is building (<paramref name="planned"/>). The flat
+        /// adjective value the model already counted is replaced by <see cref="SynergyData.AffixWeights"/>[effect] ×
+        /// the prefix rate when the condition holds, else 0: LISTEN / TUNE / STORECOND / COUNTSDOUBLE need the piece's
+        /// material in the plan; CROSSWIRE needs <see cref="CrossWireUseful"/>; OPENER / FINISHER / BLOODPRICE always hold.
+        /// </summary>
+        public static double AffixValue(Item item, ICollection<string> planned)
+        {
+            if (item?.Modifications == null || Data.AffixWeights.Count == 0)
+                return 0;
+            string material = ItemMaterialRules.RemapLegacyMaterial(item.Material) ?? "";
+            bool inPlan = material.Length > 0 && planned.Contains(material, StringComparer.OrdinalIgnoreCase);
+            HashSet<string>? keywords = null;
+            double rate = Profiles.ItemValueModel.AdjectivePrefixRate;
+            double delta = 0;
+            foreach (var m in item.Modifications)
+            {
+                if (m == null || string.IsNullOrWhiteSpace(m.Effect) || !Data.AffixWeights.TryGetValue(m.Effect, out double w))
+                    continue;
+                if (m.GetPrefixCategory() != ModificationPrefixCategory.Adjective)
+                    continue;
+                bool holds = m.Effect.ToUpperInvariant() switch
+                {
+                    "LISTEN" or "TUNE" or "STORECOND" or "COUNTSDOUBLE" => inPlan,
+                    "CROSSWIRE" => CrossWireRule.Parse(m.CrossWire) is { } rule
+                                   && CrossWireUseful(rule, keywords ??= KeywordsOf(planned)),
+                    _ => true
+                };
+                delta += (holds ? w * rate : 0) - rate;
+            }
+            return delta;
+        }
+
+        /// <summary>Skill pick bonus for cross-wire nodes the worn sets can feed and for Persistence capstones.</summary>
+        public static double NodeRuleBonus(SkillTreeNodeDefinition node, ISet<string> keywords)
+        {
+            double bonus = 0;
+            if (CrossWireRule.Parse(node.CrossWire) is { } rule && CrossWireUseful(rule, keywords))
+                bonus += Data.CrossWireNodeBonus;
+            if (!string.IsNullOrWhiteSpace(node.Persist))
+                bonus += Data.PersistNodeBonus;
+            return bonus;
         }
 
         /// <summary>"node:" weights of <paramref name="nodeId"/> averaged over <paramref name="strip"/>'s features.</summary>

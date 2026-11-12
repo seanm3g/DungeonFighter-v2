@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit
             TestPersistenceCarriesHeroStores();
             TestContagionMovesStatuses();
             TestConversionTable();
+            TestBotScoresAffixesAndNodes();
 
             TestBase.PrintSummary("Cross Wires Tests", _run, _passed, _failed);
         }
@@ -167,6 +168,32 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(2, thin.PendingBleedFromHits, "one pass only once poison is gone", ref _run, ref _passed, ref _failed);
             var none = new Character("CleanFoe", 5);
             TestBase.AssertEqual(0, ConversionTable.ApplyRow(hero, none, edge, isCritical: false), "no poison, no conversion", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestBotScoresAffixesAndNodes()
+        {
+            TestBase.SetCurrentTestName(nameof(TestBotScoresAffixesAndNodes));
+            var w = RPGGame.Tuning.RulesSynergy.Data.AffixWeights;
+            double rate = RPGGame.Tuning.Profiles.ItemValueModel.AdjectivePrefixRate;
+            var cap = new HeadItem("Cap", 1, 1) { Material = "Bone" };
+            cap.Modifications.Add(new Modification { Name = "Listening", Effect = ListenerAffix.EffectName });
+            double inPlan = RPGGame.Tuning.RulesSynergy.AffixValue(cap, new[] { "Bone" });
+            double offPlan = RPGGame.Tuning.RulesSynergy.AffixValue(cap, new[] { "Glass" });
+            TestBase.AssertTrue(Math.Abs(inPlan - (w["LISTEN"] * rate - rate)) < 1e-9, "Listener on a planned set keeps its weight", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(Math.Abs(offPlan + rate) < 1e-9, "Listener off the plan is worth nothing", ref _run, ref _passed, ref _failed);
+
+            var wired = new HeadItem("Hood", 1, 1) { Material = "Glass" };
+            wired.Modifications.Add(new Modification { Name = "Spiteful", Effect = CrossWires.AffixEffect, CrossWire = "ONCASH:RAGE -> MINT GRAZE 50%" });
+            TestBase.AssertTrue(RPGGame.Tuning.RulesSynergy.AffixValue(wired, new[] { "Bone" }) > RPGGame.Tuning.RulesSynergy.AffixValue(wired, new[] { "Glass" }),
+                "a RAGE cross-wire is worth more while Bone (RAGE) is planned", ref _run, ref _passed, ref _failed);
+
+            var nodes = SkillTreeService.Trees!.Trees.SelectMany(t => t.Nodes).ToDictionary(n => n.Id);
+            var rage = RPGGame.Tuning.RulesSynergy.KeywordsOf(new[] { "Bone" });
+            var none = RPGGame.Tuning.RulesSynergy.KeywordsOf(Array.Empty<string>());
+            TestBase.AssertTrue(RPGGame.Tuning.RulesSynergy.NodeRuleBonus(nodes["b-x-bone"], rage) > 0, "Pain to Execution scores with a Bone set", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0.0, RPGGame.Tuning.RulesSynergy.NodeRuleBonus(nodes["b-x-bone"], none), "and not without RAGE", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(RPGGame.Tuning.RulesSynergy.NodeRuleBonus(nodes["w-x-bronze"], none) > 0, "ONBEAT wire needs no store", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(RPGGame.Tuning.RulesSynergy.NodeRuleBonus(nodes["b-persist"], none) > 0, "Persistence capstone scores", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestDataHasWires()
