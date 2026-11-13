@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.Actions.Execution;
 using RPGGame.Combat.UI;
@@ -60,8 +60,8 @@ namespace RPGGame.Combat.Turn
         }
 
         /// <summary>
-        /// combat.enemyDotFollowsDamageCurve: DoT ticks on the hero scale by enemySystem.damageCurve at the hero's level,
-        /// like enemy hits. Without it, enemy poison / burn / bleed ignore the curve (37% of hero HP lost at L10, where the
+        /// combat.enemyDotFollowsDamageCurve: flat DoT ticks (burn / acid / bleed) on the hero scale by enemySystem.damageCurve
+        /// at the hero's level, like enemy hits. Poison (% of max HP) does not. Without it, enemy poison / burn / bleed ignore the curve (37% of hero HP lost at L10, where the
         /// curve cuts hits to ~0.27x). The tick message still shows the unscaled amount.
         /// </summary>
         private static int ScaleHeroDot(Actor entity, int damage)
@@ -117,7 +117,9 @@ namespace RPGGame.Combat.Turn
         {
             var results = new List<string>();
             var breakdown = CombatEffectsSimplified.ProcessStatusEffectsWithBreakdown(entity, results);
-            int damage = ScaleHeroDot(entity, breakdown.TotalDamage);
+            // Poison is already a % of max HP, so it scales with level by itself; only flat burn / acid follow the curve
+            // (scaling poison too made a 0.25% tick ~12% of max HP at L58, the Pyramids / Venom deaths of 2026-11-13).
+            int damage = breakdown.PoisonDamage + ScaleHeroDot(entity, breakdown.BurnDamage + breakdown.AcidDamage);
 
             if (damage > 0)
             {
