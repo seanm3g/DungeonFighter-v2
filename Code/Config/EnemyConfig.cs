@@ -385,6 +385,13 @@ namespace RPGGame
         public double Multiplier { get; set; } = 1.0;
     }
 
+    /// <summary>One dungeon theme's enemy damage / HP multipliers (<see cref="EnemySystemConfig.DungeonScale"/>).</summary>
+    public class DungeonScaleConfig
+    {
+        public double Damage { get; set; } = 1.0;
+        public double Health { get; set; } = 1.0;
+    }
+
     public class EnemySystemConfig
     {
         /// <summary>
@@ -424,6 +431,24 @@ namespace RPGGame
         /// (Venom, Scorch, Crush, Shell, Disrupt …) instead of becoming plain attacks. false = legacy plain attacks.
         /// </summary>
         public bool ActionKits { get; set; }
+        /// <summary>
+        /// Per dungeon theme (enemy home dungeon: Den, Labyrinth, ...): damage and HP multipliers that even out the 12
+        /// dungeons inside a region band (Scripts/dungeon-calibrate.py). Missing theme = 1.
+        /// </summary>
+        public Dictionary<string, DungeonScaleConfig> DungeonScale { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>Damage / HP multiplier for enemies whose home dungeon is <paramref name="theme"/>.</summary>
+        public (double damage, double health) DungeonScaleFor(string? theme)
+        {
+            if (string.IsNullOrWhiteSpace(theme) || DungeonScale == null)
+                return (1.0, 1.0);
+            foreach (var kv in DungeonScale)
+            {
+                if (string.Equals(kv.Key, theme.Trim(), StringComparison.OrdinalIgnoreCase) && kv.Value != null)
+                    return (kv.Value.Damage > 0 ? kv.Value.Damage : 1.0, kv.Value.Health > 0 ? kv.Value.Health : 1.0);
+            }
+            return (1.0, 1.0);
+        }
         public double AttributeGrowthBudgetPerLevel { get; set; } = 6.0;
         public int LevelVariance { get; set; } = 1;
         public string Description { get; set; } = "";

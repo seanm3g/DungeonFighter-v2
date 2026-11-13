@@ -296,16 +296,16 @@ namespace RPGGame.Tests.Unit
             foreach (var room in dungeon.Rooms)
             {
                 var data = RoomLoader.GetRoomData(room.Name);
-                if (data == null || !string.Equals(data.Biome, dungeon.Theme, StringComparison.OrdinalIgnoreCase))
+                // The 10% wander roll may bring in a room from another dungeon theme.
+                if (data == null || (!room.IsWanderer && !string.Equals(data.Biome, dungeon.Theme, StringComparison.OrdinalIgnoreCase)))
                     roomsMatch = false;
                 var roomEnemyNames = new HashSet<string>((data?.Enemies ?? new List<RoomEnemyData>()).Select(e => e.Name), StringComparer.OrdinalIgnoreCase);
                 foreach (var enemy in room.GetEnemies())
                 {
                     // Spawn prefixes (Giant, Undead, the boss's Demon) rename the enemy; the template is the base name.
                     bool local = roomEnemyNames.Contains(enemy.BaseName);
-                    bool wanderer = allEnemies.TryGetValue(enemy.BaseName, out var ed)
-                        && EnemySpawnFilter.IsPlacementWildcard(ed.Region)
-                        && EnemyGenerationManager.WandererFitsRegion(ed, "Fire");
+                    // The 10% wander roll may bring in any enemy (it keeps its own home affixes).
+                    bool wanderer = enemy.IsWanderer && allEnemies.ContainsKey(enemy.BaseName);
                     if (!local && !wanderer)
                         enemiesMatch = false;
                     if (enemy.Level < 51 || enemy.Level > 55)
@@ -314,7 +314,7 @@ namespace RPGGame.Tests.Unit
             }
             Check(dungeon.Rooms.Count > 0, "dungeon generated rooms");
             Check(roomsMatch, "every room belongs to the dungeon's biome");
-            Check(enemiesMatch, "every enemy is local to its room or a fire-safe wanderer");
+            Check(enemiesMatch, "every enemy is local to its room or a marked wanderer");
             Check(levelsInBand, "enemy levels stay inside the region band");
         }
 
@@ -471,7 +471,7 @@ namespace RPGGame.Tests.Unit
             var hybrid = new Action { Name = "SCENARIO MIX", Tags = new List<string> { "hybrid", "warrior" } };
             var rare = new Action { Name = "SCENARIO RARE", Tags = new List<string> { "rare" } };
             Check(ActionNameColors.Resolve(barbarian) == PrimaryStatRowHighlightColors.ForWeaponPath(WeaponType.Mace), "barbarian action uses the mace path color");
-            Check(ActionNameColors.Resolve(hybrid) == AsciiArtAssets.Colors.Purple, "hybrid action is purple");
+            Check(ActionNameColors.Resolve(hybrid) == AsciiArtAssets.Colors.Cyan, "hybrid action is cyan");
             Check(ActionNameColors.Describe(rare) == "Rare action", "rare action is labeled by rarity");
             Check(ActionNameColors.Describe(barbarian).StartsWith("Barbarian class action", StringComparison.Ordinal), "class action is labeled by class");
         }

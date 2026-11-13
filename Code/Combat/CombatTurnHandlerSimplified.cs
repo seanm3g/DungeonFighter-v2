@@ -324,8 +324,8 @@ namespace RPGGame
         private async System.Threading.Tasks.Task RunEnvironmentActionAsync(Character player, Enemy currentEnemy, Environment room, Action envAction)
         {
             CombatTurnQueue.SetActingAction(envAction);
-            // Create list of all characters in the room (player and current enemy)
-            var allTargets = new List<Actor> { player, currentEnemy };
+            // Everyone in the room (player and current enemy), unless a room affix aims the hazards at one side.
+            var allTargets = RoomAffixRuntime.FilterHazardTargets(room, player, currentEnemy);
 
             // Use structured environmental action execution
             var ((actionText, rollInfo), statusEffects) = EnvironmentalActionHandler.ExecuteEnvironmentalActionStructured(room, allTargets, envAction, room);

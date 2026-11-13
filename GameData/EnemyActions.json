@@ -3,7 +3,7 @@
  "templates": [
   {
    "action": "ENEMY VENOM",
-   "description": "Poisons on hit. Answer: kill fast or out-heal the ticks.",
+   "description": "Poisons on hit (0.25% max HP per tick per hit, for the rest of the fight). Answer: kill fast or out-heal the ticks.",
    "tier": 1,
    "dps": "85%",
    "numberOfHits": "1",
@@ -11,7 +11,7 @@
    "speed": "1.00",
    "block": "100",
    "tags": "enemy",
-   "triggerBundlesJson": "[{\"identityName\": null, \"when\": \"ONCONNECT\", \"count\": \"1\", \"scope\": \"\", \"mechanics\": \"poison\", \"value\": 0.5, \"filters\": null, \"scaleFrom\": null, \"description\": null, \"IsEnabled\": true}]"
+   "triggerBundlesJson": "[{\"identityName\": null, \"when\": \"ONCONNECT\", \"count\": \"1\", \"scope\": \"\", \"mechanics\": \"poison\", \"value\": 0.25, \"filters\": null, \"scaleFrom\": null, \"description\": null, \"IsEnabled\": true}]"
   },
   {
    "action": "ENEMY SCORCH",

@@ -169,7 +169,7 @@ namespace RPGGame.BattleStatistics
                 var character = TestCharacterFactory.CreateTestCharacterWithWeapon(
                     $"TestPlayer_{weaponType}_{battleIndex}", weaponType, playerLevel);
 
-                var enemy = EnemyLoader.CreateEnemy(enemyType, enemyLevel);
+                var enemy = EnemyAffixRuntime.WithHomeAffixes(EnemyLoader.CreateEnemy(enemyType, enemyLevel));
                 if (enemy == null)
                 {
                     enemy = new Enemy($"TestEnemy_{battleIndex}", enemyLevel, 80, 8, 6, 4, 3);

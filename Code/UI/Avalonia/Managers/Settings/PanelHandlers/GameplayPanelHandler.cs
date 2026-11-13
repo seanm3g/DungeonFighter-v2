@@ -62,6 +62,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 showDamageNumbersCb.IsCheckedChanged += (s, e) => { if (showDamageNumbersCb.IsChecked.HasValue) GameSettings.Instance.ShowDamageNumbers = showDamageNumbersCb.IsChecked.Value; };
             if (showComboProgressCb != null)
                 showComboProgressCb.IsCheckedChanged += (s, e) => { if (showComboProgressCb.IsChecked.HasValue) GameSettings.Instance.ShowComboProgress = showComboProgressCb.IsChecked.Value; };
+            var trainingOfferCb = gameplayPanel.FindControl<CheckBox>("ShowTrainingGroundOfferCheckBox");
+            if (trainingOfferCb != null)
+                trainingOfferCb.IsCheckedChanged += (s, e) => { if (trainingOfferCb.IsChecked.HasValue) GameSettings.Instance.ShowTrainingGroundOffer = trainingOfferCb.IsChecked.Value; };
 
             var missFlashTb = gameplayPanel.ActionStripMissFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripMissFlashMsTextBox");
             var successTotalTb = gameplayPanel.ActionStripSuccessFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripSuccessFlashMsTextBox");
@@ -157,6 +160,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (showHealthBars != null) showHealthBars.IsChecked = s.ShowHealthBars;
             if (showDamageNumbers != null) showDamageNumbers.IsChecked = s.ShowDamageNumbers;
             if (showComboProgress != null) showComboProgress.IsChecked = s.ShowComboProgress;
+            var trainingOffer = gameplayPanel.FindControl<CheckBox>("ShowTrainingGroundOfferCheckBox");
+            if (trainingOffer != null) trainingOffer.IsChecked = s.ShowTrainingGroundOffer;
 
             var missFlashTb = gameplayPanel.ActionStripMissFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripMissFlashMsTextBox");
             var successTotalTb = gameplayPanel.ActionStripSuccessFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripSuccessFlashMsTextBox");

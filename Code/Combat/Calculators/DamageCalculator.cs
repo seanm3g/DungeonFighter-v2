@@ -231,6 +231,8 @@ namespace RPGGame.Combat.Calculators
                     ? identity.HitDamage * identity.Calibration
                     : curvedEnemy.GetArchetypeDamageMultiplier();
                 totalDamage *= curvedEnemy.EncounterDamageMultiplier;
+                // Region / dungeon / prefix damage affixes (Zealot, Giant).
+                totalDamage *= EnemyAffixRuntime.DamageMultiplier(curvedEnemy);
             }
 
             // Get combat configuration
@@ -402,6 +404,10 @@ namespace RPGGame.Combat.Calculators
                 double tagModifier = Combat.TagDamageCalculator.GetDamageModifier(action, target);
                 totalDamage = (int)(totalDamage * tagModifier);
             }
+
+            // Enemy prefixes that change damage taken (Skeleton / Ghost by weapon type, Frozen brittle).
+            if (target is Enemy affixTarget && affixTarget.Affixes.Count > 0)
+                totalDamage = (int)Math.Round(totalDamage * EnemyAffixRuntime.DamageTakenMultiplier(affixTarget, attacker));
 
             if (_sequenceTrace != null)
                 _sequenceTrace.BeforeArmor = totalDamage;

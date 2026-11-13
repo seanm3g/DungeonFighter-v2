@@ -15,5 +15,9 @@
   {"tag": "air", "status": "slow", "multiplier": 0, "note": "Cannot be pinned down"},
   {"tag": "tiny", "status": "poison", "multiplier": 1.5, "note": "Small bodies saturate quickly"},
   {"tag": "frail", "status": "bleed", "multiplier": 1.5, "note": "Thin skin tears easily"},
-  {"tag": "boss", "status": "stun", "multiplier": 0, "note": "Too strong-willed to stagger"}
+  {"tag": "boss", "status": "stun", "multiplier": 0, "note": "Too strong-willed to stagger"},
+  {"tag": "venomous", "status": "poison", "multiplier": 0, "note": "Its own venom runs in its veins"},
+  {"tag": "armored", "status": "acid", "multiplier": 2, "note": "Acid eats through the plates"},
+  {"tag": "frozen", "status": "burn", "multiplier": 2, "note": "Ice cracks in the heat"},
+  {"tag": "holy", "status": "weaken", "multiplier": 0, "note": "Faith does not falter"}
 ]

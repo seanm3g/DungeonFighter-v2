@@ -102,8 +102,12 @@ def measure(run, A, patch, seeds, tag):
     out = {}
     for s in seeds:
         for L, r in sim(run, A, patch, s, tag).items():
-            o = out.setdefault(L, {'clear': [], 'acts': [], 'cls': {c: [] for c in CLASSES}})
+            o = out.setdefault(L, {'clear': [], 'acts': [], 'cls': {c: [] for c in CLASSES}, 'dun': {}})
             o['clear'].append(100 * r['clear']); o['acts'].append(r['heroActionsPerFight'])
+            for t, v in (r.get('perDungeon') or {}).items():  # '?' = dungeon with no recorded fight, not a theme
+                if v.get('dungeons') and t != '?':
+                    d = o['dun'].setdefault(t, [0, 0])
+                    d[0] += v['clear'] * v['dungeons']; d[1] += v['dungeons']
             for c, v in r['perClassClear'].items():
                 if v is not None: o['cls'][c].append(100 * v)
     return out
@@ -116,7 +120,11 @@ def table(m):
         rows[L] = {'target': round(clear_target(L), 1), 'clear': round(statistics.mean(o['clear']), 1),
                    'clearSE': round(mean_se(o['clear'])[1], 1), 'heroActions': round(statistics.mean(o['acts']), 2),
                    'turnsTarget': round(turns_target(L), 1), 'classes': {c: round(v, 1) for c, v in cm.items()},
-                   'classSpread': round(max(cm.values()) - min(cm.values()), 1) if cm else None}
+                   'classSpread': round(max(cm.values()) - min(cm.values()), 1) if cm else None,
+                   # Per dungeon theme, pooled over seeds (the band's three dungeons since 2026-11-12).
+                   'dungeons': {t: round(100 * k / n, 1) for t, (k, n) in sorted(o.get('dun', {}).items()) if n},
+                   'dungeonSpread': (round(max(100 * k / n for k, n in o['dun'].values() if n) - min(100 * k / n for k, n in o['dun'].values() if n), 1)
+                                     if len([1 for k, n in o.get('dun', {}).values() if n]) > 1 else None)}
     return rows
 
 
@@ -125,8 +133,9 @@ def summary_line(rows):
     spread = statistics.mean(r['classSpread'] for r in rows.values() if r['classSpread'] is not None)
     acts = statistics.mean(abs(r['heroActions'] - r['turnsTarget']) for r in rows.values())
     over = sum(1 for r in rows.values() if (r['classSpread'] or 0) > PARITY)
+    dspread = [r['dungeonSpread'] for r in rows.values() if r.get('dungeonSpread') is not None]
     return {'meanClearGap': round(gap, 2), 'meanClassSpread': round(spread, 1), 'bandsOverParity': over,
-            'meanTurnsGap': round(acts, 2)}
+            'meanTurnsGap': round(acts, 2), 'meanDungeonSpread': round(statistics.mean(dspread), 1) if dspread else None}
 
 
 # ---------------------------------------------------------------- commands
@@ -145,6 +154,9 @@ def cmd_measure(A):
     for L, r in m.items():
         print(f'L{L:<3} target {r["target"]:5.1f} clear {r["clear"]:5.1f}±{r["clearSE"]:<4} acts {r["heroActions"]:5.2f}/{r["turnsTarget"]:<4} '
               f'spread {r["classSpread"]:5.1f}  ' + ' '.join(f'{c[:3]} {v:5.1f}' for c, v in r['classes'].items()))
+        if r.get('dungeons'):
+            print('     dungeons: ' + '  '.join(f'{t} {v:5.1f}' for t, v in r['dungeons'].items())
+                  + (f'   (spread {r["dungeonSpread"]:.1f})' if r.get('dungeonSpread') is not None else ''))
 
 
 def cmd_solve(A):

@@ -52,7 +52,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.mainMenuRenderer = new MainMenuRenderer(canvas, clickableElements, textManager);
             this.settingsMenuRenderer = new SettingsMenuRenderer(canvas, clickableElements, textManager);
             this.weaponSelectionRenderer = new WeaponSelectionRenderer(canvas, clickableElements, interactionManager, textManager);
-            this.trainingGroundOfferRenderer = new TrainingGroundOfferRenderer(canvas, interactionManager, textManager);
+            this.trainingGroundOfferRenderer = new TrainingGroundOfferRenderer(canvas, clickableElements, interactionManager, textManager);
             this.preWeaponPathIntroRenderer = new PreWeaponPathIntroRenderer(canvas, textManager);
             this.gameMenuRenderer = new GameMenuRenderer(canvas, clickableElements, textManager);
             this.developerMenuRenderer = new DeveloperMenuRenderer(canvas, clickableElements, textManager);

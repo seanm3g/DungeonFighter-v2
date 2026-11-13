@@ -43,6 +43,9 @@ namespace RPGGame.Game
         /// <summary>The live hero (headless tools: playthrough gear policy).</summary>
         public Character? Player => _gameWrapper?.Game?.CurrentPlayer;
 
+        /// <summary>Theme of the dungeon the hero is in or last entered ("" when none; headless per-dungeon tallies).</summary>
+        public string CurrentDungeonTheme => _gameWrapper?.Game?.StateManager?.CurrentDungeon?.Theme ?? "";
+
         /// <summary>
         /// Initialize the session with a game wrapper and set up MCP tool state
         /// </summary>

@@ -323,6 +323,13 @@ namespace RPGGame.UI.Avalonia.Handlers
         {
             if (canvasUI == null || game == null) return;
 
+            // "Press any key to continue" path intro: a click anywhere advances it too.
+            if (game.StateManager?.CurrentState == GameState.PreWeaponPathIntro)
+            {
+                _ = game.HandleInput("1");
+                return;
+            }
+
             // Convert screen coordinates to character grid coordinates
             var gridPos = ScreenToGrid(position);
 
@@ -386,7 +393,10 @@ namespace RPGGame.UI.Avalonia.Handlers
             // Fighter roster (main menu / Stable mode): redraw when the hovered card or button changes, for the
             // highlight and the detail panel.
             var rosterState = game?.StateManager?.CurrentState;
+            // New-fighter screens (Training Ground offer buttons, weapon cards) reuse the same hover-redraw path.
             if (rosterState == GameState.MainMenu
+                || rosterState == GameState.TrainingGroundOffer
+                || rosterState == GameState.WeaponSelection
                 || (rosterState == GameState.Stable && Renderers.Menu.StableScreenRenderer.RosterVisible))
             {
                 if (FighterRosterHoverState.Update(canvasUI.GetClickableElements(), gridPos.X, gridPos.Y))

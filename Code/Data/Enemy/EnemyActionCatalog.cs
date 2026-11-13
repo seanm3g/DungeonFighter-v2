@@ -100,13 +100,21 @@ namespace RPGGame.Data
         }
 
         /// <summary>Runtime action for an enemy: the template's mechanics under the flavor name. Null when not in the catalog.</summary>
-        public static Action? TryCreate(string actionName)
+        public static Action? TryCreate(string actionName) => TryCreate(actionName, null);
+
+        /// <summary>
+        /// Like <see cref="TryCreate(string)"/>, but <paramref name="templateOverride"/> (a template name) replaces the alias
+        /// lookup, so one enemy's slot can run its dungeon's signature template under its own flavor name.
+        /// </summary>
+        public static Action? TryCreate(string actionName, string? templateOverride)
         {
             ActionData? template;
             lock (Lock)
             {
                 EnsureLoaded();
-                string? t = ResolveTemplateName(actionName);
+                string? t = !string.IsNullOrWhiteSpace(templateOverride) && _templates!.ContainsKey(templateOverride.Trim())
+                    ? templateOverride.Trim()
+                    : ResolveTemplateName(actionName);
                 if (t == null || !_templates!.TryGetValue(t, out template))
                     return null;
             }

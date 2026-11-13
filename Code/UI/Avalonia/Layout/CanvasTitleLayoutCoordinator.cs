@@ -50,7 +50,8 @@ namespace RPGGame.UI.Avalonia.Layout
             RightPanelRenderer rightPanelRenderer,
             bool registerActionLabEnemyLevelHover = false,
             GameState? gameState = null,
-            bool inDungeonRun = false)
+            bool inDungeonRun = false,
+            bool leftPanelOnly = false)
         {
             CenterColumnTextZoom.SidePanelsVisible = usePersistentChrome;
             // Inventory hub: panels share one frame line where they meet.
@@ -97,6 +98,14 @@ namespace RPGGame.UI.Avalonia.Layout
                 {
                     canvas.Clear();
                 }
+                // Left panel only (e.g. Dungeon Select): hero panel stays, no center frame or right panel.
+                if (leftPanelOnly)
+                {
+                    if (character != null)
+                        characterPanelRenderer.RenderCharacterPanel(character, gameState, inDungeonRun);
+                    else
+                        characterPanelRenderer.RenderEmptyCharacterPanel();
+                }
             }
             
             int contentX;
@@ -110,6 +119,10 @@ namespace RPGGame.UI.Avalonia.Layout
                 contentY = LayoutConstants.CombatLogContentY;
                 contentW = LayoutConstants.CombatLogContentWidth;
                 contentH = LayoutConstants.CombatLogContentHeight;
+            }
+            else if (leftPanelOnly)
+            {
+                (contentX, contentY, contentW, contentH) = LayoutConstants.GetLeftPanelOnlyContentRect();
             }
             else
             {

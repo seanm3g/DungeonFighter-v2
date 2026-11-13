@@ -3,283 +3,230 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
 using RPGGame;
+using RPGGame.Data;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
-using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem.Themes;
 
 namespace RPGGame.UI.Avalonia.Renderers.Menu
 {
     /// <summary>
-    /// Renders the weapon selection screen
+    /// Renders the starter weapon screen as a 2x2 grid of class cards: weapon art, the class name in large
+    /// letter-spaced glowing type, the starter weapon with its stats, and the actions the weapon starts with.
+    /// Each card is one click target (value = menu number); hover comes from <see cref="FighterRosterHoverState"/>.
     /// </summary>
     public class WeaponSelectionRenderer
     {
+        private const int MaxCardWidth = 58;
+        private const int MaxCardHeight = 24;
+        private const int CardGapX = 4;
+        private const int CardGapY = 1;
+        private const int HeaderRows = 4;
+        private const int FooterRows = 2;
+
         private readonly GameCanvasControl canvas;
         private readonly List<ClickableElement> clickableElements;
-        private readonly ICanvasInteractionManager interactionManager;
-        private readonly ICanvasTextManager textManager;
-        
+
         public WeaponSelectionRenderer(GameCanvasControl canvas, List<ClickableElement> clickableElements, ICanvasInteractionManager interactionManager, ICanvasTextManager textManager)
         {
             this.canvas = canvas;
             this.clickableElements = clickableElements;
-            this.interactionManager = interactionManager;
-            this.textManager = textManager;
         }
-        
-        /// <summary>
-        /// Renders the weapon selection content with centered layout and fancy styling
-        /// </summary>
+
         public int RenderWeaponSelectionContent(int x, int y, int width, int height, List<StartingWeapon> weapons)
         {
-            
-            // Calculate content box dimensions (vertical packing follows center-column zoom stride)
-            int stride = CenterColumnTextZoom.LineStride;
-            int boxPadding = 4;
-            int boxWidth = Math.Min(60, width - boxPadding * 2);
-            // Title (3) + spacing (2) + weapons (5 each) + separator (1) + instructions (2)
-            int titleLines = 3;
-            int titleSpacingLines = 2;
-            int weaponLines = weapons != null ? weapons.Count * 5 : 0;
-            int separatorLines = 1;
-            int instructionsLines = 2;
-            int contentLines = titleLines + titleSpacingLines + weaponLines + separatorLines + instructionsLines;
-            int boxHeight = contentLines * stride + 4; // 2-row padding top + bottom so rules clear the stroke
-            
-            // Center the box, but ensure it doesn't go above the viewport
-            int boxX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, boxWidth);
-            int boxY = y + (height / 2) - (boxHeight / 2);
-            
-            // Ensure minimum top margin to prevent text from being clipped or covered
-            // The center panel border is at Y=0, and content area starts at Y=1
-            // We need significant clearance to ensure the box border doesn't overlap with center panel border
-            // and to ensure text inside the box has proper clearance from both borders
-            int minTopMargin = 4; // Increased from 2 to provide more clearance
-            if (boxY < y + minTopMargin)
-            {
-                boxY = y + minTopMargin;
-            }
-            
-            // Ensure box doesn't extend below the available height
-            if (boxY + boxHeight > y + height)
-            {
-                boxY = (y + height) - boxHeight;
-                // If box is still too tall, ensure it starts at minimum margin
-                if (boxY < y + minTopMargin)
-                {
-                    boxY = y + minTopMargin;
-                }
-            }
-            
-            // Calculate content area inside box (calculate before drawing box)
-            // Start content 2 lines inside box to ensure text doesn't get covered by border
-            int contentX = boxX + 2;
-            int contentY = boxY + 2; // 2 lines padding from top border
-            int contentWidth = boxWidth - 4;
-            int currentY = contentY;
-            
-            
-            // Draw decorative border box AFTER calculating positions to ensure proper spacing
-            canvas.AddBox(boxX, boxY, boxWidth, boxHeight, AsciiArtAssets.Colors.Gold);
-            
-            // Title with decorative styling
-            string title = "Choose your starting weapon";
-            int titleX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(contentX, contentWidth, title.Length);
-            
-            // Decorative rules: ASCII + zoom-clamped so they cannot paint past the gold box
-            string topLine = MenuLayoutCalculator.BuildDecorativeRule(title.Length + 4, Math.Max(1, contentWidth - 2));
-            int topLineX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(contentX, contentWidth, topLine.Length);
-            canvas.AddText(topLineX, currentY, topLine, AsciiArtAssets.Colors.Gold);
-            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
-            
-            // Title in gold
-            canvas.AddText(titleX, currentY, title, AsciiArtAssets.Colors.Gold);
-            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
-            
-            // Decorative line below title
-            canvas.AddText(topLineX, currentY, topLine, AsciiArtAssets.Colors.Gold);
-            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
-            
-            // Add spacing after title (as calculated in box height)
-            currentY += titleSpacingLines * stride;
-
             if (weapons == null || weapons.Count == 0)
             {
-                canvas.AddText(contentX, currentY, "No weapons available", AsciiArtAssets.Colors.Red);
-                return currentY - y + 2;
+                canvas.AddText(MenuLayoutCalculator.CalculateCenteredTextX(x, width, 20), y + height / 2, "No weapons available", AsciiArtAssets.Colors.Red);
+                return 1;
             }
 
-            var previews = new List<WeaponItem>(weapons.Count);
-            for (int pi = 0; pi < weapons.Count; pi++)
-                previews.Add(GameInitializer.CreateStarterWeaponForMenuIndex(pi + 1));
+            int columns = Math.Min(2, weapons.Count);
+            int rows = (weapons.Count + columns - 1) / columns;
+            int cardW = Math.Max(30, Math.Min(MaxCardWidth, (width - 4 - CardGapX * (columns - 1)) / columns));
+            int cardH = Math.Max(12, Math.Min(MaxCardHeight, (height - HeaderRows - FooterRows - CardGapY * (rows - 1)) / rows));
+            int gridW = cardW * columns + CardGapX * (columns - 1);
+            int gridH = cardH * rows + CardGapY * (rows - 1);
+            int blockH = HeaderRows + gridH + FooterRows;
+            int top = y + Math.Max(0, (height - blockH) / 2);
+            int gridX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, gridW);
+
+            // Header
+            var gold = AsciiArtAssets.Colors.Gold;
+            string title = "C H O O S E   Y O U R   P A T H";
+            string rule = "-=-=-=-=-=-=-=-=-=  ◆  =-=-=-=-=-=-=-=-=-";
+            canvas.AddText(MenuLayoutCalculator.CalculateCenteredTextX(x, width, title.Length), top, title, gold, gold, 0.35, 2);
+            canvas.AddText(MenuLayoutCalculator.CalculateCenteredTextX(x, width, rule.Length), top + 1, rule, AsciiArtAssets.Colors.DarkGray);
+            string sub = "Your starting weapon decides your class.";
+            canvas.AddText(MenuLayoutCalculator.CalculateCenteredTextX(x, width, sub.Length), top + 2, sub, AsciiArtAssets.Colors.Silver);
 
             var classPresentation = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
-
-            var statRows = new List<(string damage, string speed, string actionSlots)>(weapons.Count);
-            int maxDamageLen = 0;
-            int maxSpeedLen = 0;
-            int maxActionLen = 0;
-            bool anyActionSlotColumn = false;
-            for (int pi = 0; pi < weapons.Count; pi++)
-            {
-                WeaponItem previewForStats = previews[pi];
-                string damageText = $"Damage: {previewForStats.GetTotalDamage()}";
-                // No hero yet: show the swing at base agility (8s × weapon), in seconds.
-                double baseSwing = GameConfiguration.Instance.Combat.BaseAttackTime * previewForStats.GetTotalAttackSpeed();
-                string speedText = $"Attack time: {baseSwing:F1}s";
-                int actionSlots = ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(previewForStats.WeaponType);
-                string actionSlotText = actionSlots > 0 ? $"Action slots: +{actionSlots}" : "";
-                if (actionSlots > 0)
-                    anyActionSlotColumn = true;
-                statRows.Add((damageText, speedText, actionSlotText));
-                maxDamageLen = Math.Max(maxDamageLen, damageText.Length);
-                maxSpeedLen = Math.Max(maxSpeedLen, speedText.Length);
-                if (actionSlotText.Length > 0)
-                    maxActionLen = Math.Max(maxActionLen, actionSlotText.Length);
-            }
-
-            const string statSeparator = "  │  ";
-            int maxStatsLineLen = 0;
-            for (int pi = 0; pi < weapons.Count; pi++)
-            {
-                var (damageText, speedText, actionSlotText) = statRows[pi];
-                string line = damageText.PadRight(maxDamageLen) + statSeparator + speedText.PadRight(maxSpeedLen);
-                if (anyActionSlotColumn)
-                {
-                    string actionCell = actionSlotText.Length > 0
-                        ? actionSlotText
-                        : new string(' ', maxActionLen);
-                    line += statSeparator + actionCell;
-                }
-
-                maxStatsLineLen = Math.Max(maxStatsLineLen, line.Length);
-            }
-
-            int sharedStatsX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(contentX, contentWidth, maxStatsLineLen);
-
-            // Find max weapon display text length for centering (actual item names from the starter pipeline)
-            int maxLength = 0;
+            int gridTop = top + HeaderRows;
             for (int i = 0; i < weapons.Count; i++)
             {
-                string weaponName = string.IsNullOrWhiteSpace(previews[i].Name) ? $"Weapon {i + 1}" : previews[i].Name;
-                string displayText = MenuOptionFormatter.Format(i + 1, weaponName);
-                if (displayText.Length > maxLength)
-                    maxLength = displayText.Length;
+                int col = i % columns;
+                int row = i / columns;
+                int cx = gridX + col * (cardW + CardGapX);
+                int cy = gridTop + row * (cardH + CardGapY);
+                WeaponItem preview = GameInitializer.CreateStarterWeaponForMenuIndex(i + 1);
+                DrawCard(cx, cy, cardW, cardH, i + 1, preview, classPresentation.GetDisplayName(preview.WeaponType));
             }
-            
-            // Render all weapons
-            for (int i = 0; i < weapons.Count; i++)
-            {
-                int weaponNum = i + 1; // First weapon (index 0) should be numbered [1]
-                WeaponItem preview = previews[i];
-                Color accent = WeaponMenuAccentColor(preview.WeaponType);
-                
-                // Ensure weapon name is not null or empty - use fallback if needed
-                string weaponName = string.IsNullOrWhiteSpace(preview.Name) ? $"Weapon {weaponNum}" : preview.Name;
-                
-                string displayText = MenuOptionFormatter.Format(weaponNum, weaponName);
-                
-                // Center each weapon option
-                int optionX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(contentX, contentWidth, maxLength);
-                
-                // Weapon icon/indicator
-                string weaponIcon = "◆"; // Decorative bullet
-                canvas.AddText(optionX - 2, currentY, weaponIcon, accent);
-                
-                // Add clickable element (expanded to include icon)
-                var option = new ClickableElement
-                {
-                    X = optionX - 2,
-                    Y = currentY,
-                    Width = maxLength + 2,
-                    Height = 4 * stride, // Name + class + stats rows (zoomed stride)
-                    Type = ElementType.MenuOption,
-                    Value = weaponNum.ToString(),
-                    DisplayText = displayText
-                };
-                clickableElements.Add(option);
-                interactionManager.AddClickableElement(option);
-                
-                // Display weapon option with color
-                Color weaponColor = option.IsHovered ? AsciiArtAssets.Colors.White : accent;
-                
-                // Render menu option - render number first, then name
-                string numberText = $"[{weaponNum}]";
-                canvas.AddText(optionX, currentY, numberText, weaponColor);
-                int nameX = optionX + numberText.Length + 1;
-                canvas.AddText(nameX, currentY, weaponName ?? "", GetWeaponNameColor(preview, option.IsHovered));
-                currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
 
-                string className = classPresentation.GetDisplayName(preview.WeaponType);
-                const string classLabel = "Class: ";
-                int classBlockWidth = classLabel.Length + (className ?? "").Length;
-                int classLineX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(contentX, contentWidth, classBlockWidth);
-                Color classLabelColor = option.IsHovered ? AsciiArtAssets.Colors.Gold : AsciiArtAssets.Colors.Silver;
-                Color classNameColor = option.IsHovered ? AsciiArtAssets.Colors.White : accent;
-                canvas.AddText(classLineX, currentY, classLabel, classLabelColor);
-                canvas.AddText(classLineX + classLabel.Length, currentY, className ?? "", classNameColor, accent, 0.35, 2);
-                currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
-                
-                var (damageText, speedText, actionSlotText) = statRows[i];
-                RenderAlignedStatLine(
-                    sharedStatsX,
-                    currentY,
-                    damageText,
-                    speedText,
-                    actionSlotText,
-                    maxDamageLen,
-                    maxSpeedLen,
-                    statSeparator,
-                    anyActionSlotColumn);
-                currentY += 2 * stride;
-            }
-            
-            
-            // Decorative separator before instructions (match title rule width/position)
-            currentY = MenuLayoutCalculator.NextMenuLineY(currentY);
-            canvas.AddText(topLineX, currentY, topLine, AsciiArtAssets.Colors.DarkGray);
-            currentY += 2 * stride;
-            
-            // Instructions at bottom with subtle styling
-            string bottomInstructions = UIConstants.Messages.PressNumberOrClick;
-            int bottomX = MenuLayoutCalculator.CalculateCenteredZoomedTextX(contentX, contentWidth, bottomInstructions.Length);
-            canvas.AddText(bottomX, currentY, bottomInstructions, AsciiArtAssets.Colors.Cyan);
-            
-            return currentY - y + 2;
+            string footer = UIConstants.Messages.PressNumberOrClick;
+            canvas.AddText(MenuLayoutCalculator.CalculateCenteredTextX(x, width, footer.Length), gridTop + gridH + 1, footer, AsciiArtAssets.Colors.Cyan);
+            return blockH;
         }
 
-        private void RenderAlignedStatLine(
-            int statsX,
-            int y,
-            string damageText,
-            string speedText,
-            string actionSlotText,
-            int maxDamageLen,
-            int maxSpeedLen,
-            string statSeparator,
-            bool anyActionSlotColumn)
+        private void DrawCard(int cx, int cy, int cw, int ch, int number, WeaponItem preview, string className)
         {
-            const string separatorChar = "│";
-            int damageStart = statsX;
-            int firstSeparatorPos = GetFirstStatSeparatorX(statsX, maxDamageLen);
-            int speedStart = firstSeparatorPos + separatorChar.Length + 2;
+            var element = new ClickableElement
+            {
+                X = cx,
+                Y = cy,
+                Width = cw,
+                Height = ch,
+                Type = ElementType.MenuOption,
+                Value = number.ToString(),
+                DisplayText = $"[{number}] {className}"
+            };
+            element.IsHovered = FighterRosterHoverState.IsOver(element);
+            clickableElements.Add(element);
 
-            canvas.AddText(damageStart, y, damageText, AsciiArtAssets.Colors.Green);
-            canvas.AddText(firstSeparatorPos, y, separatorChar, AsciiArtAssets.Colors.Gray);
-            canvas.AddText(speedStart, y, speedText, AsciiArtAssets.Colors.Blue);
+            bool hovered = element.IsHovered;
+            Color accent = WeaponMenuAccentColor(preview.WeaponType);
+            Color frame = hovered ? AsciiArtAssets.Colors.White : accent;
+            var gray = AsciiArtAssets.Colors.Gray;
+            var white = AsciiArtAssets.Colors.White;
 
-            if (!anyActionSlotColumn || string.IsNullOrEmpty(actionSlotText))
-                return;
+            canvas.AddBorder(cx, cy, cw, ch, frame, hovered ? 3 : 2);
+            int innerX = cx + 2;
+            int innerW = cw - 4;
+            int bottom = cy + ch - 2; // last usable row inside the frame
 
-            int secondSeparatorPos = statsX + maxDamageLen + statSeparator.Length + maxSpeedLen + 2;
-            int actionSlotStart = secondSeparatorPos + separatorChar.Length + 2;
-            canvas.AddText(secondSeparatorPos, y, separatorChar, AsciiArtAssets.Colors.Gray);
-            canvas.AddText(actionSlotStart, y, actionSlotText, AsciiArtAssets.Colors.Cyan);
+            canvas.AddText(innerX, cy + 1, $"[{number}]", hovered ? white : accent);
+
+            // Weapon art, centered as one block so its lines stay aligned.
+            int row = cy + 1;
+            string[] art = WeaponArt(preview.WeaponType);
+            int artW = art.Max(l => l.Length);
+            int artX = cx + Math.Max(1, (cw - artW) / 2);
+            foreach (string line in art)
+                canvas.AddText(artX, row++, line, accent);
+            row++;
+
+            // Class name: letter-spaced capitals with glow, framed by ornaments.
+            string fancy = $"~ {Spaced(className)} ~";
+            Centered(cx, cw, row++, fancy, hovered ? white : accent, glow: accent);
+            string flourish = "-=≡  ◆  ≡=-";
+            Centered(cx, cw, row++, flourish, AsciiArtAssets.Colors.DarkGray);
+            row++;
+
+            // Starter weapon and its numbers.
+            string weaponName = string.IsNullOrWhiteSpace(preview.Name) ? $"Weapon {number}" : preview.Name;
+            Centered(cx, cw, row++, weaponName, GetWeaponNameColor(preview, hovered));
+            Centered(cx, cw, row++, StatLine(preview), AsciiArtAssets.Colors.Silver);
+            row++;
+
+            // Default actions the weapon brings.
+            var actions = StartingActions(preview.WeaponType);
+            if (row <= bottom - 1 && actions.Count > 0)
+            {
+                canvas.AddText(innerX, row++, "Starting actions", AsciiArtAssets.Colors.Gold);
+                // Descriptions only when every action gets one; otherwise names alone keep the list even.
+                bool withDescriptions = actions.Count * 2 <= bottom - row + 1;
+                foreach (var (name, description) in actions)
+                {
+                    if (row > bottom)
+                        break;
+                    canvas.AddText(innerX, row, "◆", accent);
+                    canvas.AddText(innerX + 2, row++, Fit(name.ToUpperInvariant(), innerW - 2), white);
+                    if (withDescriptions && !string.IsNullOrWhiteSpace(description))
+                        canvas.AddText(innerX + 2, row++, Fit(description.Trim(), innerW - 2), gray);
+                }
+            }
         }
 
-        internal static int GetFirstStatSeparatorX(int statsX, int maxDamageLen) => statsX + maxDamageLen + 2;
+        /// <summary>Starter actions for a weapon type with their descriptions (names from the startingWeapon tag).</summary>
+        internal static List<(string Name, string Description)> StartingActions(WeaponType weaponType)
+        {
+            var result = new List<(string, string)>();
+            try
+            {
+                var names = new LootActionSelector(RandomUtility.Ambient).GetStartingWeaponActions(weaponType.ToString());
+                var data = ActionLoader.GetActiveSetActionData();
+                foreach (string name in names)
+                {
+                    var d = data.FirstOrDefault(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase));
+                    result.Add((name, d?.Description ?? ""));
+                }
+            }
+            catch
+            {
+                // Action data missing: the card just shows no action list.
+            }
+            return result;
+        }
+
+        internal static string StatLine(WeaponItem preview)
+        {
+            // No hero yet: show the swing at base agility (base attack time × weapon), in seconds.
+            double baseSwing = GameConfiguration.Instance.Combat.BaseAttackTime * preview.GetTotalAttackSpeed();
+            string line = $"Damage {preview.GetTotalDamage()}  │  Attack {baseSwing:F1}s";
+            int slots = ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(preview.WeaponType);
+            if (slots > 0)
+                line += $"  │  +{slots} action slot{(slots == 1 ? "" : "s")}";
+            return line;
+        }
+
+        internal static string Spaced(string text) =>
+            string.Join(" ", (text ?? "").ToUpperInvariant().ToCharArray());
+
+        internal static string[] WeaponArt(WeaponType weaponType) => weaponType switch
+        {
+            WeaponType.Mace => new[]
+            {
+                "              .-^-.",
+                "  ============|(*)|>",
+                "              '-v-'"
+            },
+            WeaponType.Sword => new[]
+            {
+                "     |\\",
+                "  o==|]::::::::::::::::>",
+                "     |/"
+            },
+            WeaponType.Dagger => new[]
+            {
+                "       ,",
+                "  ==o{]:::::::>",
+                "       '"
+            },
+            WeaponType.Wand => new[]
+            {
+                "                 \\ | /",
+                "  ===============- * -",
+                "                 / | \\"
+            },
+            _ => new[] { "", "  ----------->", "" }
+        };
+
+        private void Centered(int cx, int cw, int row, string text, Color color, Color? glow = null)
+        {
+            text = Fit(text, cw - 4);
+            int tx = cx + Math.Max(2, (cw - text.Length) / 2);
+            if (glow.HasValue)
+                canvas.AddText(tx, row, text, color, glow.Value, 0.45, 3);
+            else
+                canvas.AddText(tx, row, text, color);
+        }
+
+        private static string Fit(string text, int max)
+        {
+            if (max <= 1)
+                return "";
+            return text.Length <= max ? text : text.Substring(0, max - 1) + ".";
+        }
 
         internal static Color GetWeaponNameColor(WeaponItem preview, bool isHovered)
         {
@@ -291,12 +238,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
 
         private static Color WeaponMenuAccentColor(WeaponType weaponType) => weaponType switch
         {
-            WeaponType.Mace => AsciiArtAssets.Colors.Cyan,
-            WeaponType.Sword => AsciiArtAssets.Colors.Yellow,
-            WeaponType.Dagger => AsciiArtAssets.Colors.Magenta,
+            WeaponType.Mace => AsciiArtAssets.Colors.Red,
+            WeaponType.Sword => AsciiArtAssets.Colors.Blue,
+            WeaponType.Dagger => AsciiArtAssets.Colors.Green,
             WeaponType.Wand => AsciiArtAssets.Colors.Purple,
             _ => AsciiArtAssets.Colors.Gray
         };
     }
 }
-

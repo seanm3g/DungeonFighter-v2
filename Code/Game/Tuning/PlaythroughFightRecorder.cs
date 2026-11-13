@@ -12,6 +12,18 @@ namespace RPGGame.Tuning
     {
         public int HeroLevel { get; set; }
         public string EnemyName { get; set; } = "";
+        /// <summary>Enemy affix names (region / dungeon / prefix; EnemyAffixRuntime) at fight start.</summary>
+        public List<string> EnemyAffixes { get; set; } = new();
+        /// <summary>Theme of the dungeon the fight is in (the room's theme: Den, Labyrinth, ...).</summary>
+        public string DungeonTheme { get; set; } = "";
+        /// <summary>The enemy came in on the 10% wander roll.</summary>
+        public bool EnemyWanderer { get; set; }
+        /// <summary>The room's rolled affix ("" = none), its terrain tags with effects, and whether the room wandered in.</summary>
+        public string RoomAffix { get; set; } = "";
+        public List<string> RoomTerrain { get; set; } = new();
+        public bool RoomWanderer { get; set; }
+        /// <summary>Boss fights: the Demon reached its second phase.</summary>
+        public bool DemonPhase { get; set; }
         public int EnemyLevel { get; set; }
         public int EnemyMaxHealth { get; set; }
         public int HeroHpStart { get; set; }
@@ -211,6 +223,14 @@ namespace RPGGame.Tuning
                 {
                     HeroLevel = hero.Level,
                     EnemyName = enemy.BaseName,
+                    EnemyAffixes = enemy is Enemy affixed ? affixed.Affixes.Select(x => x.Name).Distinct().ToList() : new List<string>(),
+                    EnemyWanderer = enemy is Enemy { IsWanderer: true },
+                    RoomAffix = RPGGame.Combat.RoomStatusEffects.ActiveRoom?.RoomAffix?.Name ?? "",
+                    RoomTerrain = RPGGame.Combat.RoomStatusEffects.ActiveRoom is { } recRoom
+                        ? RPGGame.Data.AffixDataLoader.Room.Terrain.Where(t => recRoom.Tags.Contains(t.Tag, StringComparer.OrdinalIgnoreCase)).Select(t => t.Tag).ToList()
+                        : new List<string>(),
+                    RoomWanderer = RPGGame.Combat.RoomStatusEffects.ActiveRoom?.IsWanderer == true,
+                    DungeonTheme = RPGGame.Combat.RoomStatusEffects.ActiveRoom?.Theme ?? "",
                     EnemyPrefix = enemy.Prefix ?? "",
                     EnemyLevel = enemy.Level,
                     BossFight = enemy is Enemy { IsBoss: true },
@@ -453,6 +473,7 @@ namespace RPGGame.Tuning
             ResolveHeroSwing();
             _current.StatusSkillStat = SkillEffectRouter.StatusSkillPointsGranted - _statusSkillAtStart;
             _current.HeroHpEnd = _hero?.CurrentHealth ?? 0;
+            _current.DemonPhase = _currentEnemy is Enemy { IsBoss: true, InSecondPhase: true };
             Fights.Add(_current);
             _trace?.Invoke(
                 $"    fight #{_current.FightInDungeon} (room {_current.RoomsClearedInDungeon + 1}): {_current.EnemyName} L{_current.EnemyLevel} ({_current.EnemyMaxHealth} HP)"

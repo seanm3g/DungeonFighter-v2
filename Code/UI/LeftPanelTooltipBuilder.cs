@@ -236,6 +236,9 @@ namespace RPGGame
                 case string eaff when eaff.StartsWith("eaff:", StringComparison.Ordinal):
                     AppendEnemyAffinityLine(eaff, AddWrapped);
                     break;
+                case string eafx when eafx.StartsWith("eafx:", StringComparison.Ordinal):
+                    AppendEnemyAffixLine(eafx, AddWrapped);
+                    break;
                 case "center:itemsHeader":
                     AddWrapped("Items you are carrying (not necessarily equipped).");
                     AddWrapped("Choose Equip / Unequip / Discard from ACTIONS, or use the numbered menu.");
@@ -567,6 +570,20 @@ namespace RPGGame
             addWrapped($"{enemy.Name}: {lines[lineIdx]}");
             foreach (string detail in HoverEffectCopy.ExplainActorStatusLine(enemy, lines[lineIdx], hero))
                 addWrapped(detail);
+        }
+
+        /// <summary>Right-panel enemy affix row (<c>eafx:N</c>): the affix's full effect.</summary>
+        private static void AppendEnemyAffixLine(string key, Action<string> addWrapped)
+        {
+            var enemy = StatusEffectHoverDetails.CurrentEnemy;
+            if (enemy == null || !int.TryParse(key.AsSpan("eafx:".Length), out int lineIdx))
+                return;
+            var rows = StatusEffectDisplayLines.GetEnemyAffixLines(enemy);
+            if (lineIdx < 0 || lineIdx >= rows.Count)
+                return;
+            addWrapped($"{enemy.Name}: {rows[lineIdx]}");
+            if (enemy.IsWanderer)
+                addWrapped("A wanderer from outside this room's usual enemies.");
         }
 
         /// <summary>Right-panel enemy Immune / Weak / Resists row (<c>eaff:N</c>).</summary>

@@ -284,8 +284,9 @@ namespace RPGGame.Combat.Calculators
             double points = enemy.Effects.ConsumedWeaponSpeedFlat;
             double weaponFactor = weaponBase / GetWeaponSpeedPointDivisor(points);
 
-            double archetype = enemy.Identity?.AttackTime
-                ?? ArchetypeManager.GetArchetypeAttackTimeMultiplier(enemy.AttackProfile);
+            double archetype = (enemy.Identity?.AttackTime
+                ?? ArchetypeManager.GetArchetypeAttackTimeMultiplier(enemy.AttackProfile))
+                * EnemyAffixRuntime.AttackTimeMultiplier(enemy); // region speed affix (Windswept)
             double slowFactor = enemy.SlowTurns > 0 ? 1.0 / Math.Max(0.1, enemy.SlowMultiplier) : 1.0;
 
             double enemyTempo = GameConfiguration.Instance.Combat.EnemyAttackTimeMultiplier;

@@ -475,6 +475,9 @@ namespace RPGGame
 
                 room.SetUnstableThresholdMod(roomData.UnstableThresholdMod);
 
+                // Terrain tags + one rolled room affix, before the room's enemies spawn (Crowded / Lair / Haunted).
+                RoomAffixRuntime.Apply(room, dungeonTheme, random ?? RandomUtility.Current);
+
                 return room;
 
             }

@@ -78,7 +78,7 @@ namespace RPGGame.ActionInteractionLab
                 // Batch sims load once per batch; re-reading Enemies.json per fight dominated sim time.
                 if (reloadEnemyData)
                     EnemyLoader.LoadEnemies();
-                return EnemyLoader.CreateEnemy(sessionEnemyLoaderType.Trim(), effectiveLevel)
+                return EnemyAffixRuntime.WithHomeAffixes(EnemyLoader.CreateEnemy(sessionEnemyLoaderType.Trim(), effectiveLevel))
                     ?? TestCharacterFactory.CreateTestEnemy(defaultConfig, 0, effectiveLevel);
             }
 

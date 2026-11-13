@@ -23,7 +23,7 @@ Raise Dead all did the same thing. Enemies differed only by speed / hit size / H
 
 | Template | Mechanics | Player answer | Enemies |
 |---|---|---|---|
-| Venom | 85% dmg, speed 1.00; poison 0.5%/tick on connect | kill fast or out-heal the ticks. | 14 (Amber Trapper, Hollow Drifter, Lion Fish, Magma Creeper…) |
+| Venom | 85% dmg, speed 1.00; poison 0.25%/tick on connect (0.5% before 2026-11-12) | kill fast or out-heal the ticks. | 14 (Amber Trapper, Hollow Drifter, Lion Fish, Magma Creeper…) |
 | Scorch | 85% dmg, speed 1.00; burn on connect | kill fast; Harden/Fortify blunt the follow-up. | 29 (Ashwing Harpy, Bridge Warden, Cave Ember Toad, Cave Lurcher…) |
 | Rend | 85% dmg, speed 1.00; bleed on connect | fewer, bigger actions. | 12 (Alpha Wolf, Ashwing Harpy, Charwood Stalker, Edge Stalker…) |
 | Crush | 170% dmg, speed 1.60 | armor, Harden, Fortify. | 18 (Aqueduct Warden, Boar, Cascade Rider, Current Rider…) |
@@ -49,6 +49,6 @@ Raise Dead all did the same thing. Enemies differed only by speed / hit size / H
 
 ## Open
 
-- Enemy Venom adds 0.5% max HP per tick per connect (trigger bundle value). It stacks for the whole fight, so poison
+- Enemy Venom adds 0.25% max HP per tick per connect (halved 2026-11-12) (trigger bundle value). It stacks for the whole fight, so poison
   enemies punish long fights.
 - 60 names had no keyword match and use their archetype's default template; review those aliases by hand.

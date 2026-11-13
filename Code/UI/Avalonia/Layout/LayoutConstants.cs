@@ -322,6 +322,18 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         /// <summary>
+        /// Content area beside the left (hero) panel when the center frame and right panel are hidden
+        /// (e.g. Dungeon Select's region map). Full grid height, out to the right edge.
+        /// </summary>
+        public static (int x, int y, int width, int height) GetLeftPanelOnlyContentRect()
+        {
+            int x = LEFT_PANEL_X + LEFT_PANEL_WIDTH + 1;
+            int w = Math.Max(1, EffectiveVisibleWidth - x - 1);
+            int h = _gridHeight + 1;
+            return (x, 0, w, h);
+        }
+
+        /// <summary>
         /// Center column including the action-info strip band (for screens that hide the combo strip).
         /// </summary>
         public static int CENTER_COLUMN_FULL_Y => 0;

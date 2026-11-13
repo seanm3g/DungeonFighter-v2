@@ -14,10 +14,10 @@ namespace RPGGame.Tests.Unit.UI
             int run = 0, passed = 0, failed = 0;
 
             TestForWeaponPath_MaceRed(ref run, ref passed, ref failed);
-            TestForWeaponPath_SwordGreen(ref run, ref passed, ref failed);
-            TestForWeaponPath_DaggerYellow(ref run, ref passed, ref failed);
-            TestForWeaponPath_WandCyan(ref run, ref passed, ref failed);
-            TestForWeaponPath_NullPurple(ref run, ref passed, ref failed);
+            TestForWeaponPath_SwordBlue(ref run, ref passed, ref failed);
+            TestForWeaponPath_DaggerGreen(ref run, ref passed, ref failed);
+            TestForWeaponPath_WandPurple(ref run, ref passed, ref failed);
+            TestForWeaponPath_NullGray(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary(nameof(PrimaryStatRowHighlightColorsTests), run, passed, failed);
         }
@@ -30,35 +30,35 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.ClearCurrentTestName();
         }
 
-        private static void TestForWeaponPath_SwordGreen(ref int run, ref int passed, ref int failed)
+        private static void TestForWeaponPath_SwordBlue(ref int run, ref int passed, ref int failed)
         {
-            TestBase.SetCurrentTestName(nameof(TestForWeaponPath_SwordGreen));
+            TestBase.SetCurrentTestName(nameof(TestForWeaponPath_SwordBlue));
             Color c = PrimaryStatRowHighlightColors.ForWeaponPath(WeaponType.Sword);
-            TestBase.AssertEqual(AsciiArtAssets.Colors.Green, c, "Sword path uses green (Warrior)", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(AsciiArtAssets.Colors.Blue, c, "Sword path uses blue (Warrior)", ref run, ref passed, ref failed);
             TestBase.ClearCurrentTestName();
         }
 
-        private static void TestForWeaponPath_DaggerYellow(ref int run, ref int passed, ref int failed)
+        private static void TestForWeaponPath_DaggerGreen(ref int run, ref int passed, ref int failed)
         {
-            TestBase.SetCurrentTestName(nameof(TestForWeaponPath_DaggerYellow));
+            TestBase.SetCurrentTestName(nameof(TestForWeaponPath_DaggerGreen));
             Color c = PrimaryStatRowHighlightColors.ForWeaponPath(WeaponType.Dagger);
-            TestBase.AssertEqual(AsciiArtAssets.Colors.Yellow, c, "Dagger path uses yellow (Rogue)", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(AsciiArtAssets.Colors.Green, c, "Dagger path uses green (Rogue)", ref run, ref passed, ref failed);
             TestBase.ClearCurrentTestName();
         }
 
-        private static void TestForWeaponPath_WandCyan(ref int run, ref int passed, ref int failed)
+        private static void TestForWeaponPath_WandPurple(ref int run, ref int passed, ref int failed)
         {
-            TestBase.SetCurrentTestName(nameof(TestForWeaponPath_WandCyan));
+            TestBase.SetCurrentTestName(nameof(TestForWeaponPath_WandPurple));
             Color c = PrimaryStatRowHighlightColors.ForWeaponPath(WeaponType.Wand);
-            TestBase.AssertEqual(AsciiArtAssets.Colors.Cyan, c, "Wand path uses cyan (Wizard)", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(AsciiArtAssets.Colors.Purple, c, "Wand path uses purple (Wizard)", ref run, ref passed, ref failed);
             TestBase.ClearCurrentTestName();
         }
 
-        private static void TestForWeaponPath_NullPurple(ref int run, ref int passed, ref int failed)
+        private static void TestForWeaponPath_NullGray(ref int run, ref int passed, ref int failed)
         {
-            TestBase.SetCurrentTestName(nameof(TestForWeaponPath_NullPurple));
+            TestBase.SetCurrentTestName(nameof(TestForWeaponPath_NullGray));
             Color c = PrimaryStatRowHighlightColors.ForWeaponPath(null);
-            TestBase.AssertEqual(AsciiArtAssets.Colors.Purple, c, "Unknown path keeps legacy purple", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(AsciiArtAssets.Colors.Gray, c, "Unknown path uses gray", ref run, ref passed, ref failed);
             TestBase.ClearCurrentTestName();
         }
     }

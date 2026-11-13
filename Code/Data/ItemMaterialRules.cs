@@ -51,12 +51,35 @@ namespace RPGGame
             }
         }
 
+        /// <summary>Default chance a weapon rolls one of its own family's three materials (rest: any set material).</summary>
+        public const double DefaultWeaponFamilyMaterialShare = 0.9;
+
         /// <summary>
-        /// Weapons take any of the twelve set materials, picked evenly regardless of weapon type or rarity:
-        /// materials are not owned by a class (a Wand can be Bone).
+        /// Weapon material: with <see cref="LootSystemConfig.WeaponFamilyMaterialShare"/> (default 90%) one of the weapon
+        /// type's three family materials (Wand: Willow / Silver / Crystal), otherwise any of the twelve set materials
+        /// (a Wand can still be Bone). Materials stay wearable by any class.
         /// </summary>
         public static string PickClassMaterial(WeaponType weaponType, Random random) =>
-            ClassMaterials[random.Next(ClassMaterials.Length)];
+            PickClassMaterial(weaponType, random,
+                GameConfiguration.Instance?.LootSystem?.WeaponFamilyMaterialShare ?? DefaultWeaponFamilyMaterialShare);
+
+        public static string PickClassMaterial(WeaponType weaponType, Random random, double familyShare)
+        {
+            if (random.NextDouble() < Math.Clamp(familyShare, 0, 1)
+                && TryPickFamilyMaterial(weaponType, random, out string family))
+                return family;
+            return ClassMaterials[random.Next(ClassMaterials.Length)];
+        }
+
+        /// <summary>One of the weapon type's three family materials, picked evenly.</summary>
+        public static bool TryPickFamilyMaterial(WeaponType weaponType, Random random, out string material)
+        {
+            material = "";
+            if (!TryGetWeaponClassLadder(weaponType, out string common, out string uncommon, out string rare))
+                return false;
+            material = random.Next(3) switch { 0 => common, 1 => uncommon, _ => rare };
+            return true;
+        }
 
         /// <summary>True for the twelve set materials (Bone ... Crystal), not the class-less pool.</summary>
         public static bool IsSetMaterial(string? material)

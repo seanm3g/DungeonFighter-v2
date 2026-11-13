@@ -32,6 +32,12 @@ namespace RPGGame.Data
         /// <summary>Intended mechanic (design note, not implemented).</summary>
         [JsonPropertyName("idea")]
         public string Idea { get; set; } = "";
+        /// <summary>What the prefix does, for the HUD.</summary>
+        [JsonPropertyName("description")]
+        public string Description { get; set; } = "";
+        /// <summary>Affix effects the prefix adds (<see cref="EnemyAffixDef"/> levers).</summary>
+        [JsonPropertyName("effects")]
+        public List<EnemyAffixDef> Effects { get; set; } = new();
     }
 
     /// <summary>Chance that a room enemy rolls a prefix: chance + level × chancePerLevel, capped at maxChance.</summary>

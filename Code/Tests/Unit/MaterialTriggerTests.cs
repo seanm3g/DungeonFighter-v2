@@ -44,21 +44,31 @@ namespace RPGGame.Tests.Unit
         private static void TestWeaponClassLadder()
         {
             TestBase.SetCurrentTestName(nameof(TestWeaponClassLadder));
-            // Materials are shared by every class: any weapon type rolls all twelve set materials.
+            // ~90% family materials (+ the 10% random roll landing in-family), every set material still reachable.
             string all = string.Join(",", ItemMaterialRules.ClassMaterials.OrderBy(m => m));
-            AssertPicksWholeLadder(WeaponType.Mace, all);
-            AssertPicksWholeLadder(WeaponType.Sword, all);
-            AssertPicksWholeLadder(WeaponType.Dagger, all);
-            AssertPicksWholeLadder(WeaponType.Wand, all);
+            AssertFamilyBiasedLadder(WeaponType.Mace, all);
+            AssertFamilyBiasedLadder(WeaponType.Sword, all);
+            AssertFamilyBiasedLadder(WeaponType.Dagger, all);
+            AssertFamilyBiasedLadder(WeaponType.Wand, all);
         }
 
-        private static void AssertPicksWholeLadder(WeaponType weaponType, string expected)
+        private static void AssertFamilyBiasedLadder(WeaponType weaponType, string expectedAll)
         {
+            ItemMaterialRules.TryGetWeaponClassLadder(weaponType, out string c, out string u, out string r);
+            var family = new HashSet<string> { c, u, r };
             var random = new Random(7);
             var seen = new HashSet<string>();
-            for (int i = 0; i < 200; i++)
-                seen.Add(ItemMaterialRules.PickClassMaterial(weaponType, random));
-            TestBase.AssertEqual(expected, string.Join(",", seen.OrderBy(m => m)), $"{weaponType} picks every set material", ref _run, ref _passed, ref _failed);
+            const int n = 4000;
+            int inFamily = 0;
+            for (int i = 0; i < n; i++)
+            {
+                string m = ItemMaterialRules.PickClassMaterial(weaponType, random, 0.9);
+                seen.Add(m);
+                if (family.Contains(m)) inFamily++;
+            }
+            double share = (double)inFamily / n; // expected 0.9 + 0.1 * 3/12 = 0.925
+            TestBase.AssertTrue(share > 0.90 && share < 0.95, $"{weaponType} family share ~92.5% (got {share:P1})", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(expectedAll, string.Join(",", seen.OrderBy(m => m)), $"{weaponType} can still roll every set material", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestEnsureMaterialWeaponForced()

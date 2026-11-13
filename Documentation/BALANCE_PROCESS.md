@@ -18,6 +18,12 @@ dotnet <build>/DF.dll <MODE> [--patch <name|path>] [--set path=value ...] [--see
 
 ## The balance loop (2026-11-05)
 
+> **Dungeon coverage changed 2026-11-12.** Before, every DUNGEONSIM took dungeon menu slot 2, so each region band was
+> measured on one of its three dungeons (and `--region-mix` only reached Fire Temple and Pyramids). Now every sim
+> rotates the slot by shard seed (`--dungeon-slot N` pins one) and `--region-mix` spreads shards over all four themes.
+> Numbers from before the change are not comparable with numbers after it; re-measure the base patch first.
+> Enemy / room affix features are priced with `Scripts/feature-test.py` (paired `--features-off` runs).
+
 `Scripts/balance-loop.py` is the main tool; `/balance` drives it. One knob family at a time:
 
 ```

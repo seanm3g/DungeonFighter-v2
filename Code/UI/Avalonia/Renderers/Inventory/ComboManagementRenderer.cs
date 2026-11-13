@@ -90,6 +90,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
             ActionSequenceEditorLayout.IsOpen = true;
             ActionSequenceEditorLayout.SequenceSlots.Clear();
+            ActionSequenceEditorLayout.LibrarySlots.Clear();
             int blockW = perRow * (CardWidth + CardGap);
             ActionSequenceEditorLayout.SequenceArea = (left - 2, seqY, blockW + 2, seqBlockH);
             ActionSequenceEditorLayout.LibraryArea = (left - 2, libY, blockW + 2, libBlockH);
@@ -114,7 +115,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     : "";
                 var border = i == nextStep ? AsciiArtAssets.Colors.White : AsciiArtAssets.Colors.Gray;
                 bool isDragSource = dragging && ActionSequenceDragState.FromSequenceIndex == i;
-                DrawActionCard(cx, cy, combo[i], swing, isDragSource ? AsciiArtAssets.Colors.DarkGray : border, $"{ComboPointerInput.Prefix}rm:{i}", dimmed: isDragSource);
+                DrawActionCard(character, cx, cy, combo[i], swing, isDragSource ? AsciiArtAssets.Colors.DarkGray : border, $"{ComboPointerInput.Prefix}rm:{i}", dimmed: isDragSource);
                 ActionSequenceEditorLayout.SequenceSlots.Add((cx, cy, CardWidth, CardHeight));
                 string number = (i + 1).ToString();
                 canvas.AddText(cx + (CardWidth - number.Length) / 2, cy + CardHeight, number, AsciiArtAssets.Colors.Green);
@@ -170,8 +171,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 int cy = libY + 2 + row * (CardHeight + 1);
                 var action = pool[i];
                 bool used = inSequence.Contains(action);
-                DrawActionCard(cx, cy, action, PoolSwingLine(character, action), used ? AsciiArtAssets.Colors.DarkGray : gold,
+                DrawActionCard(character, cx, cy, action, PoolSwingLine(character, action), used ? AsciiArtAssets.Colors.DarkGray : gold,
                     $"{ComboPointerInput.Prefix}pool:{i}", dimmed: used);
+                ActionSequenceEditorLayout.LibrarySlots[i] = (cx, cy, CardWidth, CardHeight);
                 if (used)
                     canvas.AddText(cx + 2, cy + CardHeight - 2, "in sequence", AsciiArtAssets.Colors.DarkGray);
             }
@@ -200,7 +202,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         }
 
         /// <summary>One action card: name, damage | speed, then the description wrapped into what is left.</summary>
-        private void DrawActionCard(int cx, int cy, RPGGame.Action action, string swing, global::Avalonia.Media.Color border, string key, bool dimmed)
+        private void DrawActionCard(Character character, int cx, int cy, RPGGame.Action action, string swing, global::Avalonia.Media.Color border, string key, bool dimmed)
         {
             var element = new ClickableElement
             {
@@ -219,7 +221,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int innerW = CardWidth - 4;
             int ty = cy + 1;
             string name = (action.Name ?? "").ToUpperInvariant();
-            canvas.AddText(cx + 2, ty++, Truncate(name, innerW), dimmed ? AsciiArtAssets.Colors.Gray : AsciiArtAssets.Colors.White);
+            // Same title colors as the combat strip: the compelled weapon basic is red, others carry class / rarity color.
+            var nameColor = WeaponRequiredComboAction.IsRequiredBasicForEquippedWeapon(character, action)
+                ? AsciiArtAssets.Colors.Red
+                : ActionNameColors.Resolve(action);
+            if (dimmed)
+                nameColor = ActionInfoStripLayout.DarkenRgb(nameColor, 0.5);
+            canvas.AddText(cx + 2, ty++, Truncate(name, innerW), nameColor);
             if (!string.IsNullOrEmpty(swing))
                 canvas.AddText(cx + 2, ty++, Truncate(swing, innerW), dimmed ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Green);
             int linesLeft = cy + CardHeight - 1 - ty;

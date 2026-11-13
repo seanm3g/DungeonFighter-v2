@@ -429,6 +429,8 @@ namespace RPGGame
             // Reset environment action count for new fight (AsyncLocal-scoped so parallel sims do not share room)
             using var roomScope = CombatEnvironmentContext.BeginScope(room);
             room.ResetForNewFight();
+            // Enemy affixes that start the fight on (Bulwark / Molten Shell, Garrisoned rooms).
+            CombatEffectsSimplified.ApplyEnemyStartAffixes(currentEnemy, room);
 
             try
             {

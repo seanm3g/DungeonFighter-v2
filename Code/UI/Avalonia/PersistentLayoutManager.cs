@@ -50,7 +50,7 @@ namespace RPGGame.UI.Avalonia
         /// <param name="usePersistentChrome">When false, skips left/center/right panels and uses full chromeless content rect (e.g. main menu).</param>
         /// <param name="gameState">Current game state for left-panel GEAR / STATUS EFFECTS visibility.</param>
         /// <param name="inDungeonRun">True while a dungeon is selected; gates GEAR off and STATUS EFFECTS on until leave.</param>
-        public void RenderLayout(Character? character, Action<int, int, int, int> renderCenterContent, string title = "DUNGEON FIGHTERS", Enemy? enemy = null, string? dungeonName = null, string? roomName = null, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false, GameState? gameState = null, bool inDungeonRun = false)
+        public void RenderLayout(Character? character, Action<int, int, int, int> renderCenterContent, string title = "DUNGEON FIGHTERS", Enemy? enemy = null, string? dungeonName = null, string? roomName = null, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false, GameState? gameState = null, bool inDungeonRun = false, bool leftPanelOnly = false)
         {
             interactionManager?.ClearClickableElements();
             CombatBoardLayout.Sync(gameState, inDungeonRun);
@@ -76,7 +76,8 @@ namespace RPGGame.UI.Avalonia
                 rightPanelRenderer,
                 registerActionLabEnemyLevelHover,
                 gameState,
-                inDungeonRun);
+                inDungeonRun,
+                leftPanelOnly);
         }
         
         /// <summary>

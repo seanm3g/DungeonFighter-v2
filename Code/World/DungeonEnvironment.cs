@@ -60,6 +60,21 @@ namespace RPGGame
 
         internal void SetUnstableThresholdMod(int mod) => UnstableThresholdMod = mod;
 
+        /// <summary>Rolled room affix (<c>RoomAffixes.json</c>), or null. Applied by <see cref="RoomAffixRuntime"/>.</summary>
+        public RPGGame.Data.RoomAffixDef? RoomAffix { get; set; }
+
+        /// <summary>Who the room's hazards strike: both (default), hero, or enemies.</summary>
+        public string HazardTargets { get; set; } = RoomAffixRuntime.TargetsBoth;
+
+        /// <summary>Hazard acts per fight on top of the activity tag's limit.</summary>
+        public int ExtraHazardActs { get; set; }
+
+        /// <summary>Crit faces gained by everyone in the room (exposed terrain): 1 = crits on 19-20.</summary>
+        public int CritShift { get; set; }
+
+        /// <summary>True when the 10% wander roll brought this room in from another dungeon theme.</summary>
+        public bool IsWanderer { get; set; }
+
         internal void SetTags(IEnumerable<string>? tags)
         {
             _tags.Clear();
@@ -135,6 +150,7 @@ namespace RPGGame
         {
             if (random != null)
                 enemyGenerator.SetRandom(random);
+            enemyGenerator.RoomAffix = RoomAffix;
             enemyGenerator.GenerateEnemies(roomLevel, possibleEnemies, minLevel, maxLevel, spawnContext, resolvedRegion);
         }
 
@@ -177,6 +193,7 @@ namespace RPGGame
         public void ResetForNewFight()
         {
             combatStateManager.ConfigureActivityFromTags(_tags);
+            combatStateManager.AddMaxActions(ExtraHazardActs);
             combatStateManager.ResetForNewFight();
             _pendingRollTriggerBy = null;
         }

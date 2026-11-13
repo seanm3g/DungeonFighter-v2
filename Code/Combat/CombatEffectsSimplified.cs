@@ -145,6 +145,29 @@ namespace RPGGame
                 }
             }
 
+            // Enemy region / dungeon affixes: each on-hit affix rolls its chance on a landed hit.
+            if (attacker is Enemy affixEnemy && affixEnemy.Affixes.Count > 0
+                && combatEvent?.Type == CombatEventType.ActionHit && !combatEvent.IsMiss
+                && !ReferenceEquals(attacker, target))
+            {
+                foreach (var (status, amount) in EnemyAffixRuntime.RollOnHitStatuses(affixEnemy, RandomUtility.Current))
+                    effectsApplied |= ApplyNamedStatus(target, status, results, amount);
+            }
+
+            // A landed hit can drop the Demon to its phase HP: the held signature action joins its sequence.
+            if (target is Enemy phaseEnemy && phaseEnemy.IsBoss && phaseEnemy.IsAlive
+                && combatEvent?.Type == CombatEventType.ActionHit && !combatEvent.IsMiss)
+            {
+                var pending = phaseEnemy.PendingPhaseAction;
+                if (EnemyAffixRuntime.CheckPhase(phaseEnemy))
+                {
+                    results.Add(pending != null
+                        ? $"{phaseEnemy.Name} enters its second phase: {pending.Name} joins its attacks and its {phaseEnemy.RegionAffixName ?? "region"} power doubles!"
+                        : $"{phaseEnemy.Name} enters its second phase!");
+                    effectsApplied = true;
+                }
+            }
+
             // Same-swing ids already ran before damage (ActionExecutionFlow.ApplyHitOutcome).
             effectsApplied |= ActionTriggerBundleApplicator.ApplyMatchingBundles(
                 action, combatEvent, attacker, target, results, skipSameSwing: true);
@@ -173,6 +196,33 @@ namespace RPGGame
             }
             
             return effectsApplied;
+        }
+
+        /// <summary>
+        /// Applies one status by name (poison, burn, slow, harden, fortify, ...) through the effect registry.
+        /// <paramref name="amount"/> &gt; 0 sets poison's % of max HP per tick (default 1).
+        /// </summary>
+        public static bool ApplyNamedStatus(Actor target, string status, List<string> results, double amount = 0)
+        {
+            if (target == null || string.IsNullOrWhiteSpace(status))
+                return false;
+            var carrier = StatusEffectActionResolver.CreateActionWithStatusEffect(status);
+            if (carrier != null && amount > 0 && string.Equals(status.Trim(), "poison", StringComparison.OrdinalIgnoreCase))
+                carrier.PoisonPercentToAdd = amount;
+            return carrier != null && _effectRegistry.ApplyEffect(status.Trim().ToLowerInvariant(), target, carrier, results);
+        }
+
+        /// <summary>Fight start: the enemy's start affixes and the room's starting status, each stack applied once.</summary>
+        public static void ApplyEnemyStartAffixes(Enemy? enemy, Environment? room)
+        {
+            if (enemy == null)
+                return;
+            var messages = new List<string>();
+            foreach (var (status, stacks) in EnemyAffixRuntime.StartStatuses(enemy, room))
+            {
+                for (int i = 0; i < stacks; i++)
+                    ApplyNamedStatus(enemy, status, messages);
+            }
         }
 
         /// <summary>

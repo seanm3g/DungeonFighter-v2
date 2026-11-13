@@ -183,6 +183,7 @@
     "causesWeaken": false,
     "causesSlow": false,
     "causesPoison": true,
+    "poisonPercent": 0.25,
     "causesBurn": false,
     "causesAcid": false
   },
@@ -421,6 +422,7 @@
     "causesWeaken": false,
     "causesSlow": false,
     "causesPoison": true,
+    "poisonPercent": 0.25,
     "causesBurn": false,
     "causesAcid": false
   },

@@ -7,8 +7,8 @@ namespace RPGGame
 {
     /// <summary>
     /// Rolls <c>EnemyPrefixes.json</c> prefixes onto freshly spawned room enemies, and gives each dungeon's final boss the
-    /// boss prefix (Demon). Prefixes rename the enemy ("Giant Wolf") and add <see cref="Enemy.PrefixTags"/>; they carry no
-    /// mechanics yet.
+    /// boss prefix (Demon). Prefixes rename the enemy ("Giant Wolf"), add <see cref="Enemy.PrefixTags"/> (read by
+    /// <see cref="RPGGame.Combat.StatusAffinity"/>) and add their effects as enemy affixes (<see cref="EnemyAffixRuntime.ApplyPrefixEffects"/>).
     /// </summary>
     public static class EnemyPrefixRoller
     {
@@ -27,12 +27,13 @@ namespace RPGGame
         /// Room spawn roll: with the file's level-scaled chance, picks one eligible prefix by weight. Returns the prefix
         /// applied, or null. Never re-prefixes an enemy.
         /// </summary>
-        public static EnemyPrefixData? TryApplyRoomPrefix(Enemy? enemy, Random random)
+        public static EnemyPrefixData? TryApplyRoomPrefix(Enemy? enemy, Random random, double chanceMultiplier = 1.0)
         {
             if (enemy == null || enemy.Prefix != null)
                 return null;
             var file = EnemyPrefixLoader.Get();
-            if (file.Prefixes.Count == 0 || random.NextDouble() >= file.RoomRoll.ChanceAt(enemy.Level))
+            double chance = Math.Min(1.0, file.RoomRoll.ChanceAt(enemy.Level) * Math.Max(0.0, chanceMultiplier));
+            if (file.Prefixes.Count == 0 || random.NextDouble() >= chance)
                 return null;
             var eligible = Eligible(enemy, file.Prefixes);
             double total = eligible.Sum(p => p.Weight);
@@ -45,11 +46,13 @@ namespace RPGGame
                 if (roll < 0)
                 {
                     enemy.ApplyPrefix(p.Name, p.Tags);
+                    EnemyAffixRuntime.ApplyPrefixEffects(enemy, p);
                     return p;
                 }
             }
             var last = eligible[^1];
             enemy.ApplyPrefix(last.Name, last.Tags);
+            EnemyAffixRuntime.ApplyPrefixEffects(enemy, last);
             return last;
         }
 

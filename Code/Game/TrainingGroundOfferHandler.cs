@@ -24,6 +24,9 @@ namespace RPGGame
             this.dungeonRunnerManager = dungeonRunnerManager ?? throw new ArgumentNullException(nameof(dungeonRunnerManager));
         }
 
+        /// <summary>Input that toggles the "don't show this again" checkbox (<see cref="GameSettings.ShowTrainingGroundOffer"/>).</summary>
+        public const string ToggleDontShowKey = "3";
+
         public delegate void OnShowMessage(string message);
 
         public event OnShowMessage? ShowMessageEvent;
@@ -39,12 +42,30 @@ namespace RPGGame
                 return;
             }
 
+            // Turned off (checkbox on this screen or Settings > Gameplay): go straight to the path intro.
+            // Only the windowed game skips; headless/MCP runs keep the offer so their scripted flow is unchanged.
+            if (!GameSettings.Instance.ShowTrainingGroundOffer && customUIManager is CanvasUICoordinator)
+            {
+                SkipToPathIntro();
+                return;
+            }
+
             var screenCoordinator = new GameScreenCoordinator(stateManager);
             screenCoordinator.ShowTrainingGroundOffer(stateManager.CurrentPlayer);
         }
 
+        private void SkipToPathIntro()
+        {
+            var player = stateManager.CurrentPlayer;
+            if (player == null)
+                return;
+            player.PendingPreWeaponTrainingGround = false;
+            var screenCoordinator = new GameScreenCoordinator(stateManager);
+            screenCoordinator.ShowPreWeaponPathIntro(player);
+        }
+
         /// <summary>
-        /// 1 = start Training Ground dungeon, 2 = skip to the path intro.
+        /// 1 = start Training Ground dungeon, 2 = skip to the path intro, 3 = toggle "don't show this again".
         /// </summary>
         public async Task HandleMenuInput(string input)
         {
@@ -82,9 +103,18 @@ namespace RPGGame
             }
             else if (trimmed == "2")
             {
-                stateManager.CurrentPlayer.PendingPreWeaponTrainingGround = false;
-                var screenCoordinator = new GameScreenCoordinator(stateManager);
-                screenCoordinator.ShowPreWeaponPathIntro(stateManager.CurrentPlayer);
+                SkipToPathIntro();
+            }
+            else if (trimmed == ToggleDontShowKey)
+            {
+                var settings = GameSettings.Instance;
+                settings.ShowTrainingGroundOffer = !settings.ShowTrainingGroundOffer;
+                settings.SaveSettings();
+                if (customUIManager is CanvasUICoordinator canvasUI)
+                {
+                    canvasUI.Clear();
+                    canvasUI.RenderTrainingGroundOffer(stateManager.CurrentPlayer);
+                }
             }
             else
             {

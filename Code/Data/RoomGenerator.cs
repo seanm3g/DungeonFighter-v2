@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -19,9 +20,33 @@ namespace RPGGame
         /// <param name="playerLevel">The player's level for scaling</param>
         /// <param name="isHostile">Whether the room should be hostile</param>
         /// <returns>A generated Environment object</returns>
+        /// <summary>
+        /// Wander roll for catalog dungeon themes (<c>EnemyAffixes.json</c> dungeons): with the wander room chance, a room
+        /// name from any other catalog theme; null otherwise.
+        /// </summary>
+        internal static string? TryPickWanderingRoom(string dungeonTheme, Random r)
+        {
+            var file = AffixDataLoader.Enemy;
+            if (file.DungeonFor(dungeonTheme) == null || r.NextDouble() >= file.Wander.RoomChance || !AffixFeatures.Wander)
+                return null;
+            var others = file.Dungeons
+                .Where(d => !string.Equals(d.Theme, dungeonTheme, StringComparison.OrdinalIgnoreCase))
+                .SelectMany(d => RoomLoader.GetRoomsByTheme(d.Theme))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            return others.Count > 0 ? others[r.Next(others.Count)] : null;
+        }
+
         public static Environment GenerateRoom(string dungeonTheme, int playerLevel, bool isHostile = true, Random? rng = null)
         {
             var r = rng ?? random;
+            // 10% wander: a room from another dungeon theme (its own hazards, tags and enemy list) at this level.
+            if (TryPickWanderingRoom(dungeonTheme, r) is string wanderName)
+            {
+                var wandering = RoomLoader.CreateRoom(wanderName, dungeonTheme, isHostile, r);
+                wandering.IsWanderer = true;
+                return wandering;
+            }
             // First try to get a theme-specific room from the JSON data
             var themeRooms = RoomLoader.GetRoomsByTheme(dungeonTheme);
             var hostileRooms = themeRooms.Where(roomName => 

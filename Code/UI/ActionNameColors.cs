@@ -9,8 +9,8 @@ namespace RPGGame
 {
     /// <summary>
     /// One color rule for action names everywhere (strip card titles, SEQUENCE / POOL / INVENTORY rows, tooltip titles):
-    /// class actions use their weapon-path color (Barbarian red, Warrior green, Rogue yellow, Wizard cyan), hybrid class
-    /// actions purple, everything else its ACTIONS-sheet rarity color.
+    /// class actions use their weapon-path color (Barbarian red, Warrior blue, Rogue green, Wizard purple), hybrid class
+    /// actions cyan, everything else its ACTIONS-sheet rarity color.
     /// </summary>
     public static class ActionNameColors
     {
@@ -63,7 +63,7 @@ namespace RPGGame
             switch (Classify(action))
             {
                 case Source.Hybrid:
-                    return AsciiArtAssets.Colors.Purple;
+                    return AsciiArtAssets.Colors.Cyan;
                 case Source.Class:
                     return ClassTag(action) switch
                     {

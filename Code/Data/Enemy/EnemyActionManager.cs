@@ -16,8 +16,19 @@ namespace RPGGame
         {
             // Clear default actions and add actions from the data
             enemy.ActionPool.Clear();
-            foreach (var actionName in data.Actions)
+            for (int slot = 0; slot < data.Actions.Count; slot++)
             {
+                string actionName = data.Actions[slot];
+                // Signature kit slot: the flavor name runs its dungeon's template (EnemyAffixes.json signature).
+                string? kitTemplate = data.Kit != null && slot < data.Kit.Count && AffixFeatures.Kits ? data.Kit[slot] : null;
+                if (!string.IsNullOrWhiteSpace(kitTemplate)
+                    && GameConfiguration.Instance.EnemySystem?.ActionKits == true
+                    && EnemyActionCatalog.TryCreate(actionName, kitTemplate) is { } signatureAction)
+                {
+                    enemy.AddAction(signatureAction, 1.0);
+                    continue;
+                }
+
                 var action = ActionLoader.GetAction(actionName);
                 if (action != null)
                 {

@@ -263,6 +263,13 @@ namespace RPGGame.Actions.Execution
             RollModificationManager.ApplyThresholdOverrides(result.SelectedAction, source, target);
             ActionRollTagProcessor.ApplyRollTags(result.SelectedAction, source);
             EnvironmentRollModifier.ApplyUnstableThresholdShift(CombatEnvironmentContext.CurrentRoom, source);
+            // Exposed terrain: everyone in the room crits a face lower.
+            if (CombatEnvironmentContext.CurrentRoom is { CritShift: not 0 } critRoom && source is Character)
+                RollModificationManager.GetThresholdManager().AdjustCriticalHitThreshold(source, critRoom.CritShift);
+            // Tiny prefix: the hero needs a higher roll to hit it.
+            if (source is Character evasionHero && evasionHero is not Enemy && target is Enemy evasive
+                && EnemyAffixRuntime.Evasion(evasive) is int evade and > 0)
+                RollModificationManager.GetThresholdManager().AdjustHitThreshold(source, -evade);
             // FIFO / TURN ACCURACY: shift hit and combo thresholds only (not crit or crit miss).
             if (actionBonusAccumulator != 0)
             {

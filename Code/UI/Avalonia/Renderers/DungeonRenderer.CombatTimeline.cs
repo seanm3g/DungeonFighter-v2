@@ -28,7 +28,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         /// <summary>A played act: which of its actor's turns (0-based, this fight) it was, the turn it played in, and when
         /// it finished playing out on NOW (null while it still plays).</summary>
-        private sealed class TimelineAct
+        internal sealed class TimelineAct
         {
             public TimelineAct(BoardAct act, int ordinal, long serial)
             {
@@ -44,6 +44,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             public DateTimeOffset PushedUtc { get; }
             public DateTimeOffset? CompletedUtc { get; set; }
         }
+
+        /// <summary>Stand-in act for a turn a stun skips (no swing): NOW, the timeline and the next-roll column show it as STUNNED.</summary>
+        internal static readonly Action StunnedTurnAction = new() { Name = "STUNNED", Length = 1.0, IsComboAction = false };
+        private static Color BoardStunColor => AsciiArtAssets.Colors.Yellow;
 
         private static readonly List<TimelineAct> _timelineHistory = new();
         private static readonly Dictionary<Actor, int> _timelineTurnsPlayed = new(ReferenceEqualityComparer.Instance);
@@ -178,7 +182,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 v.NowActor = acting;
                 v.NowTurnAct = _timelineHistory.FindLast(h => h.Serial == serial && ReferenceEquals(h.Act.Actor, acting));
-                v.NowProjected = ProjectTimelineTurn(acting!, 0, v).Action;
+                v.NowProjected = CombatTurnQueue.ActingStunned ? StunnedTurnAction : ProjectTimelineTurn(acting!, 0, v).Action;
             }
             else
             {
@@ -337,7 +341,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             double actingLength = v.Spent ? v.ActingLength : v.NowProjected?.Length ?? 1.0;
             int Offset(Actor a) => pastActing && ReferenceEquals(a, v.HoldActor) ? 1 : 0;
             var upcoming = CombatTurnQueue.GetUpcoming(TimelineAhead, pastActing, actingLength,
-                (a, k) => ProjectTimelineTurn(a, k + Offset(a), v).Action?.Length ?? 1.0, showFreeAction: v.Spent);
+                (a, k) => ProjectTimelineTurn(a, k + Offset(a), v).Action?.Length ?? 1.0, showFreeAction: v.Spent, showPendingTrigger: v.Spent);
             var counts = new Dictionary<Actor, int>(ReferenceEqualityComparer.Instance);
             var cards = new List<TimelineAheadCard>(TimelineAhead);
             for (int i = 0; i < upcoming.Count && i < TimelineAhead; i++)
@@ -361,7 +365,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     var (action, slot, count) = ProjectTimelineTurn(actor, kk, v);
                     title = action?.Name ?? "ATTACK";
-                    detail = action != null ? $"step {slot + 1}/{count}" : "";
+                    detail = ReferenceEquals(action, StunnedTurnAction) ? "skips turn" : action != null ? $"step {slot + 1}/{count}" : "";
                 }
                 cards.Add(new TimelineAheadCard(TimelineKey(actor, FirstUnplayedOrdinal(actor, v, serial) + kk), actor, title, detail));
             }
@@ -454,16 +458,24 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         /// <summary>
         /// The combo action <paramref name="actor"/> would play on its <paramref name="k"/>-th unfired turn if every roll
-        /// before it landed (each combo moves the strip on one slot). Null for the room, or an actor with an empty strip.
+        /// before it landed (each combo moves the strip on one slot). Turns a stun will skip come back as
+        /// <see cref="StunnedTurnAction"/> (slot -1) and don't move the strip. Null for the room, or an actor with an empty strip.
         /// </summary>
-        private static (Action? Action, int Slot, int Count) ProjectTimelineTurn(Actor actor, int k, BoardTurnView v)
+        internal static (Action? Action, int Slot, int Count) ProjectTimelineTurn(Actor actor, int k, BoardTurnView v)
         {
             if (actor is Environment || actor is not Character ch)
                 return (null, -1, 0);
             var actions = ch.GetComboActions();
             int count = actions.Count;
+            // A held actor's k = 0 is its own turn that hasn't fired (not stunned, or it would be spent); stuns skip the ones after.
+            int stunFrom = ReferenceEquals(actor, v.HoldActor) ? 1 : 0;
+            int stunned = CombatTurnQueue.StunnedTurnsAhead(actor);
+            if (k >= stunFrom && k < stunFrom + stunned)
+                return (StunnedTurnAction, -1, count);
             if (count == 0)
                 return (null, -1, 0);
+            if (k >= stunFrom + stunned)
+                k -= stunned;
             int step = ReferenceEquals(actor, v.HoldActor) && _timelineRestStep.TryGetValue(actor, out int held) ? held : ch.ComboStep;
             int slot = ((step + k) % count + count) % count;
             return (actions[slot], slot, count);
@@ -479,6 +491,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>NOW's content for a turn whose roll hasn't landed: the strip card the actor is lined up on, or the room's roll.</summary>
         private void DrawBoardProjectedContent(Actor actor, Action? action, BoardRect r, ActionStripDamageLineMode mode)
         {
+            if (ReferenceEquals(action, StunnedTurnAction))
+            {
+                DrawBoardActContent(new BoardAct(actor, action, null), r, mode);
+                return;
+            }
             if (actor is not Environment && action != null)
             {
                 DrawBoardActContent(new BoardAct(actor, action, null), r, mode);
@@ -503,6 +520,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             var actor = card.Actor;
             Color actorColor = BoardActorColor(actor);
             Color titleColor = actor is Environment ? BoardHazardColor
+                : card.Detail == "skips turn" ? BoardStunColor
                 : ReferenceEquals(actor, player) ? BoardComboBorder : AsciiArtAssets.Colors.White;
             Color border = lit ? actorColor : LerpColor(actorColor, BoardDimBorder, 0.7);
             Color label = LerpColor(actorColor, AsciiArtAssets.Colors.Gray, 0.3);
@@ -557,6 +575,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             if (act.Quiet)
                 return ("QUIET", AsciiArtAssets.Colors.Gray);
+            if (act.Stunned)
+                return ("STUNNED", BoardStunColor);
             if (act.Actor is Environment)
                 return (act.Action.Name ?? "?", BoardHazardColor);
             return act.Swing switch
@@ -570,6 +590,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static string TimelineActDetail(BoardAct act) => act switch
         {
             { Quiet: true } => $"rolled {act.QuietRoll}",
+            { Stunned: true } => "skipped",
             { Swing: { } s } when s.Source is not Environment => s.Outcome == CombatSequenceSwingOutcome.Combo ? $"rolled {s.Roll}" : "combo reset",
             _ => ""
         };

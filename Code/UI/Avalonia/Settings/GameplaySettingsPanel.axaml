@@ -49,6 +49,11 @@
                               Classes="settings-field-label"
                               FontSize="15"
                               IsChecked="True"/>
+                    <CheckBox x:Name="ShowTrainingGroundOfferCheckBox"
+                              Content="Offer the Training Ground to new fighters"
+                              Classes="settings-field-label"
+                              FontSize="15"
+                              IsChecked="True"/>
 
                     <TextBlock Text="Combo strip — hit/miss border feedback (milliseconds)"
                                Classes="settings-muted"

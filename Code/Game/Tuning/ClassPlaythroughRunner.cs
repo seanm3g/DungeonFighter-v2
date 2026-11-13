@@ -45,6 +45,9 @@ namespace RPGGame.Tuning
         public static bool RegionMix { get; set; }
         private static int _regionMixRun;
 
+        /// <summary>Region-mix start index for this process (DUNGEONSIM sets it from the shard seed so shards spread over all themes).</summary>
+        public static int RegionMixOffset { get; set; }
+
         /// <summary>When set (DUNGEONSIM --region-theme), runs start in the nearest region of this theme (Forest / Water / Fire / Air).</summary>
         public static string? RegionTheme { get; set; }
 
@@ -77,7 +80,7 @@ namespace RPGGame.Tuning
                     .OrderBy(r => r.Theme, StringComparer.OrdinalIgnoreCase)
                     .ToList();
                 if (nearestByTheme.Count > 0)
-                    region = nearestByTheme[_regionMixRun++ % nearestByTheme.Count];
+                    region = nearestByTheme[((_regionMixRun++ + RegionMixOffset) % nearestByTheme.Count + nearestByTheme.Count) % nearestByTheme.Count];
             }
             if (!string.IsNullOrWhiteSpace(RegionTheme))
                 region = regions.Where(r => r.HasLevelRange && string.Equals(r.Theme, RegionTheme, StringComparison.OrdinalIgnoreCase))
@@ -219,12 +222,28 @@ namespace RPGGame.Tuning
                         death.DungeonsCompletedBefore = dungeonsCompleted;
                     }
                     recorder.EnsureSubscribed();
+                    int fightsBefore = recorder.Fights.Count, retreatsBefore = result.DungeonsRetreated;
 
                     await session.ExecuteAction(action);
+                    // Read the entered dungeon's theme before anything clears it: a dungeon left before any fight was recorded still needs a theme.
+                    string enteredTheme = enteringDungeon ? session.CurrentDungeonTheme : "";
 
                     var after = session.CurrentState?.CurrentState ?? "";
                     if (enteringDungeon && after == "DungeonCompletion")
                         dungeonsCompleted++;
+                    if (enteringDungeon)
+                    {
+                        // Per-dungeon outcome, keyed by the theme its fights were in.
+                        string theme = recorder.Fights.Skip(fightsBefore).Select(f => f.DungeonTheme)
+                            .LastOrDefault(t => !string.IsNullOrEmpty(t))
+                            ?? (string.IsNullOrEmpty(enteredTheme) ? "?" : enteredTheme);
+                        if (!result.DungeonOutcomes.TryGetValue(theme, out var o))
+                            result.DungeonOutcomes[theme] = o = new DungeonThemeOutcome();
+                        o.Attempted++;
+                        if (after == "DungeonCompletion") o.Cleared++;
+                        if (result.DungeonsRetreated > retreatsBefore) o.Retreated++;
+                        if (after == "Death" || session.IsGameOver()) o.Died++;
+                    }
 
                     if (after == "Death" || session.IsGameOver())
                         break;

@@ -181,7 +181,7 @@ SPARK_PROBE = ('nproc; cat /proc/loadavg; free -m | awk \'/^Mem:/{print $2, $7}\
 
 TARGETS_PATH = os.path.join(ROOT, 'GameData', 'TuningProfiles', 'balance-targets.json')
 LOOP_DIR = os.path.join(RUNS, 'balance-loop')
-SIM_SCRIPTS = ('balance-loop.py', 'balance-chain.py', 'dungeon-sim.py', 'bo-solve.py', 'balance-scan.py',
+SIM_SCRIPTS = ('balance-loop.py', 'balance-chain.py', 'feature-test.py', 'dungeon-calibrate.py', 'enemy-env-report.py', 'dungeon-sim.py', 'bo-solve.py', 'balance-scan.py',
                'surrogate-data.py', 'median-curve-solve.py')
 CLASSES = ['Barbarian', 'Warrior', 'Rogue', 'Wizard']
 MIDPOINTS = [3, 8, 13, 18, 23, 28, 33, 38, 43, 48, 53, 58, 63, 68, 73]
@@ -224,6 +224,32 @@ def spark_shards(lines):
 
 
 # ---------------------------------------------------------------- runs started anywhere (shell, other sessions)
+
+_local_cache = {'at': 0.0, 'data': None}
+
+
+def local_shards():
+    """DUNGEONSIM shard processes on this PC (dotnet DF.dll / DF.exe), grouped like the Spark's."""
+    if time.time() - _local_cache['at'] < 4 and _local_cache['data'] is not None:
+        return _local_cache['data']
+    lines = []
+    if os.name == 'nt':
+        ps = ("Get-CimInstance Win32_Process -Filter \"Name like 'dotnet%' or Name like 'DF%'\" | "
+              "Where-Object { $_.CommandLine -like '*DUNGEONSIM*' } | ForEach-Object { "
+              "@(([int]((Get-Date) - $_.CreationDate).TotalSeconds), $_.CommandLine) -join ' ' }")
+        try:
+            r = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', ps], capture_output=True,
+                               text=True, timeout=20, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+            lines = r.stdout.splitlines()
+        except (subprocess.TimeoutExpired, OSError):
+            lines = []
+    else:
+        r = subprocess.run(['ps', '-eo', 'etimes=,args='], capture_output=True, text=True)
+        lines = [ln for ln in r.stdout.splitlines() if 'DUNGEONSIM' in ln]
+    data = {**spark_shards(lines), 'cores': os.cpu_count()}
+    _local_cache.update(at=time.time(), data=data)
+    return data
+
 
 _proc_cache = {'at': 0.0, 'data': []}
 _proc_lock = threading.Lock()
@@ -296,6 +322,14 @@ def _dsim_progress(proc_started, argv):
     return {'done': done, 'running': max(0, started - done), 'total': total, 'eta': eta, 'workDir': d}
 
 
+def _batch_info(argv):
+    """dungeon-sim.py --batch NAME:I/N (sim I of N run back to back), or None."""
+    m = re.match(r'^(.*?):(\d+)/(\d+)$', _arg(argv, '--batch') or '')
+    if not m:
+        return None
+    return {'name': m.group(1), 'index': int(m.group(2)), 'count': int(m.group(3))}
+
+
 def _loop_run_dir(argv, started):
     name = _arg(argv, '--run') or datetime.fromtimestamp(started).strftime('%Y-%m-%d')
     return os.path.join(LOOP_DIR, name)
@@ -353,7 +387,9 @@ def external_runs():
                 sargv = sim[1].replace('"', '').split()
                 r['sim'] = {'seed': _arg(sargv, '--seed'), 'levels': _arg(sargv, '--levels'), 'bot': _arg(sargv, '--bot', 'synergy'),
                             'shards': _arg(sargv, '--shards'), 'spark': _arg(sargv, '--spark'),
-                            'progress': _dsim_progress(sim[0], sargv)}
+                            'parallel': _arg(sargv, '--parallel'), 'featuresOff': _arg(sargv, '--features-off'),
+                            'elapsed': round(time.time() - sim[0]),
+                            'progress': _dsim_progress(sim[0], sargv), 'batch': _batch_info(sargv)}
             runs.append(r)
         _proc_cache.update(at=time.time(), data=runs)
         return runs
@@ -431,7 +467,11 @@ def run_results(name):
         p = by_patch.setdefault(key, {'patch': patch, 'tag': tag, 'seeds': [], 'levels': {}})
         p['seeds'].append(seed)
         for r in rows if isinstance(rows, list) else []:
-            o = p['levels'].setdefault(r['level'], {'clear': [], 'acts': [], 'cls': {c: [] for c in CLASSES}, 'dungeons': 0})
+            o = p['levels'].setdefault(r['level'], {'clear': [], 'acts': [], 'cls': {c: [] for c in CLASSES}, 'dungeons': 0, 'dun': {}})
+            for t, v in (r.get('perDungeon') or {}).items():
+                if v.get('dungeons'):
+                    dd = o['dun'].setdefault(t, [0.0, 0])
+                    dd[0] += v['clear'] * v['dungeons']; dd[1] += v['dungeons']
             o['clear'].append(100 * r['clear'])
             o['acts'].append(r.get('heroActionsPerFight'))
             o['dungeons'] += r.get('dungeons') or 0
@@ -451,7 +491,8 @@ def run_results(name):
                            'heroActions': round(_mean(o['acts']), 2) if _mean(o['acts']) is not None else None,
                            'turnsTarget': round(T['turns'](L), 1) if T else None, 'classes': cm,
                            'spread': round(max(cm.values()) - min(cm.values()), 1) if len(cm) > 1 else None,
-                           'dungeons': o['dungeons']})
+                           'dungeons': o['dungeons'],
+                           'perDungeon': {t: round(100 * k / n, 1) for t, (k, n) in sorted(o['dun'].items()) if n}})
         gaps = [abs(r['gap']) for r in levels if r['gap'] is not None]
         spreads = [r['spread'] for r in levels if r['spread'] is not None]
         tgaps = [abs(r['heroActions'] - r['turnsTarget']) for r in levels if r['heroActions'] is not None and r['turnsTarget']]
@@ -475,7 +516,14 @@ _SKIP_DIRS = ('raw', 'dsim-', 'paired', 'surrogate', 'affix-sweep', 'material-sw
 
 def _classify(name):
     n = name.lower()
-    if not n.endswith('.json') or re.search(r'-s\d+\.json$', n):
+    if not n.endswith('.json'):
+        return None
+    # These two name their seed (-s3302): check them before the per-seed rule below.
+    if n.startswith('feature-test'):
+        return 'featureTest'
+    if n.startswith('enemy-env-report'):
+        return 'enemyEnv'
+    if re.search(r'-s\d+\.json$', n):
         return None
     if 'scan' in n:
         return 'scan'
@@ -489,7 +537,7 @@ def _classify(name):
 def layer_sources(force=False):
     if not force and _layer_cache['data'] and time.time() - _layer_cache['at'] < 10:
         return _layer_cache['data']
-    out = {'scan': [], 'report': [], 'materialGrid': [], 'affixGrid': []}
+    out = {'scan': [], 'report': [], 'materialGrid': [], 'affixGrid': [], 'featureTest': [], 'enemyEnv': []}
     for dirpath, dirs, files in os.walk(RUNS):
         depth = os.path.relpath(dirpath, RUNS).count(os.sep)
         dirs[:] = [] if depth >= 2 else [d for d in dirs if not d.lower().startswith(_SKIP_DIRS)]
@@ -857,7 +905,7 @@ class Handler(BaseHTTPRequestHandler):
                                     'jobs': jobs, 'cores': os.cpu_count()})
         if u.path == '/api/external':
             try:
-                return self._send(200, {'runs': external_runs()})
+                return self._send(200, {'runs': external_runs(), 'pc': local_shards()})
             except Exception as ex:  # a half-written run folder must not blank the page
                 return self._send(500, {'error': f'{type(ex).__name__}: {ex}'})
         if u.path == '/api/loopruns':
@@ -993,9 +1041,38 @@ td.dim{color:var(--muted);opacity:.55}
 .legend{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:8px}
 .sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
 th[title],td[title]{cursor:help}
+.now{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.now-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:12px} .now-head h2{margin:0;font-size:17px}
+.devices{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-bottom:14px}
+.dev{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--code)}
+.dev-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.dev-name{font-weight:600} .dev-big{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.dev-sub{color:var(--muted);font-size:12px}
+.meter{height:6px;background:var(--bg);border-radius:999px;overflow:hidden;margin:6px 0 2px} .meter>i{display:block;height:100%;background:var(--ok)}
+.meter.hot>i{background:var(--warn)}
+.run{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 18px;align-items:start}
+.run-title{font-size:16px;font-weight:700} .run-sub{color:var(--muted);font-size:13px}
+.eta{text-align:right} .eta .big{font-size:30px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--accent)}
+.eta .when{color:var(--muted);font-size:13px}
+.run .bigbar{grid-column:1/-1;height:12px;background:var(--code);border:1px solid var(--line);border-radius:999px;overflow:hidden;margin:8px 0 2px;position:relative}
+.run .bigbar>i{display:block;height:100%;background:var(--accent);transition:width .6s}
+.run .bigbar>b{position:absolute;inset:0;display:block;height:100%;background:color-mix(in srgb,var(--accent) 35%,transparent)}
+.run .meta{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:2px 9px;font-size:12px;background:var(--code)}
+.pill.dev-spark{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))} .pill.dev-pc{border-color:color-mix(in srgb,var(--ok) 50%,var(--line))}
+.run details{grid-column:1/-1;margin-top:6px} .run summary{cursor:pointer;color:var(--muted);font-size:12px}
+.steps{grid-column:1/-1;display:flex;gap:3px;margin-top:6px} .steps i{flex:1;height:5px;border-radius:3px;background:var(--line)}
+.steps i.done{background:var(--ok)} .steps i.cur{background:var(--accent)}
+@media (max-width:560px){.run{grid-template-columns:1fr}.eta{text-align:left}}
 </style></head><body><main>
 <h1>Balance runs</h1>
 <div class="sub">Starts the DUNGEONSIM scripts on this PC and the DGX Spark. Active patch <b id="patch">—</b></div>
+
+<section class="now" id="now">
+ <div class="now-head"><h2>Running now</h2><span class="hint">every balance script on this PC, wherever it was started · refreshes every 5 s</span></div>
+ <div class="devices" id="devices"></div>
+ <div id="ext"><div class="hint">Nothing running.</div></div>
+</section>
 
 <div class="grid">
  <section class="card">
@@ -1043,11 +1120,7 @@ th[title],td[title]{cursor:help}
  <div class="hint" id="iter-hint"></div>
 </section>
 
-<section class="card" style="margin-top:14px">
- <h2>Running now <span class="hint" style="font-weight:normal">every balance script on this PC, wherever it was started</span></h2>
- <div id="ext"><div class="hint">Nothing running.</div></div>
- <div id="spark-shards" class="hint" style="margin-top:8px"></div>
-</section>
+
 
 <section class="card" style="margin-top:14px">
  <div class="row" style="justify-content:space-between"><h2 style="margin:0">Results vs targets</h2>
@@ -1061,7 +1134,7 @@ th[title],td[title]{cursor:help}
  <div class="hint" style="margin-bottom:10px">Every layer the sims measure, each read from the newest result file of its kind in GameData/TuningRuns. Pick another file per tab; fill a missing layer with the Fun report / Material grid / Affix grid jobs below.</div>
  <div class="tabs layer-tabs" id="lay-tabs">
   <button data-l="overview" class="on">Overview</button><button data-l="classes">Classes</button><button data-l="materials">Materials</button>
-  <button data-l="affixes">Affixes</button><button data-l="builds">Build diversity</button><button data-l="fights">Fight dynamics</button><button data-l="findings">Scan findings</button>
+  <button data-l="affixes">Affixes</button><button data-l="builds">Build diversity</button><button data-l="fights">Fight dynamics</button><button data-l="findings">Scan findings</button><button data-l="features">Enemy &amp; room features</button><button data-l="enemies">Enemies</button><button data-l="environments">Environments</button>
  </div>
  <div id="lay-body"><div class="hint">Loading…</div></div>
 </section>
@@ -1309,45 +1382,111 @@ $('#build-btn').onclick = async () => {
 
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const pct = (a, b) => b ? Math.min(100, Math.round(100 * a / b)) : 0;
+// Wall-clock time <secs> from now, e.g. "14:32".
+const clockAt = secs => new Date(Date.now() + 1000 * secs).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
 
-function renderSparkShards() {
-  const box = $('#spark-shards');
-  const sh = spark && spark.reachable && spark.shards;
-  if (!sh || !sh.count) { box.textContent = spark && spark.reachable ? 'Spark: no shards running.' : ''; return; }
-  box.innerHTML = `Spark: <b>${sh.count}</b> shards running (bot ${esc(sh.bots.join(', '))})<div class="chips">` +
-    sh.groups.map(g => `<span class="chip">L${esc(g.level)} ${esc(g.cls)} ×${g.n} · ${fmtTime(g.oldest)}</span>`).join('') + '</div>';
+// ---- Running now: device tiles + one card per run, ETA front and center.
+let extData = null;
+
+function deviceTile(name, dot, big, sub, load, cores, groups) {
+  const frac = cores ? Math.min(1, load / cores) : 0;
+  return `<div class="dev"><div class="dev-top"><span class="dev-name"><span class="dot ${dot}"></span>${esc(name)}</span><span class="dev-big">${big}</span></div>` +
+    `<div class="dev-sub">${sub}</div>` +
+    (cores ? `<div class="meter ${frac > 0.85 ? 'hot' : ''}"><i style="width:${Math.round(100 * frac)}%"></i></div><div class="dev-sub">load ${load.toFixed(1)} of ${cores} cores</div>` : '') +
+    (groups && groups.length ? '<div class="chips">' + groups.map(g => `<span class="chip">L${esc(g.level)} ${esc(g.cls || 'all')} ×${g.n}</span>`).join('') + '</div>' : '') + '</div>';
 }
+
+function renderDevices() {
+  const box = $('#devices'); if (!box) return;
+  let h = '';
+  if (!spark) h += deviceTile('DGX Spark', '', '…', 'checking…');
+  else if (!spark.reachable) h += deviceTile('DGX Spark', 'bad', '—', esc(spark.error ? 'offline: ' + spark.error : 'offline'));
+  else {
+    const sh = spark.shards || {count: 0, groups: []};
+    h += deviceTile('DGX Spark', spark.stale ? 'warn' : sh.count ? 'warn' : 'ok', `${sh.count} <span class="dev-sub">shards</span>`,
+      (sh.count ? `running · bot ${esc((sh.bots || []).join(', '))}` : 'idle') + (spark.buildCurrent ? ' · build matches Code/' : ' · build behind Code/'),
+      spark.load[0], spark.cores, sh.groups);
+  }
+  const pc = extData && extData.pc;
+  if (pc) h += deviceTile('This PC', pc.count ? 'warn' : 'ok', `${pc.count} <span class="dev-sub">shards</span>`,
+    (pc.count ? `running · bot ${esc((pc.bots || []).join(', '))}` : 'idle') + ` · ${pc.cores} cores`, null, null, pc.groups);
+  box.innerHTML = h;
+}
+
+// Where a sim's shards run: Spark slots and/or local slots.
+function simDevices(S) {
+  if (!S) return '';
+  const pills = [];
+  const sp = S.spark, par = S.parallel;
+  if (sp == null || sp !== '0') pills.push(`<span class="pill dev-spark">DGX Spark · ${sp == null || sp === 'auto' ? 'auto' : esc(sp)} slots</span>`);
+  if (par == null || par !== '0') pills.push(`<span class="pill dev-pc">This PC · ${par == null ? 'all cores' : esc(par)} slots</span>`);
+  return pills.join('');
+}
+
+function variantLabel(off) {
+  if (off == null || off === '') return 'all features on';
+  if (off === 'all') return 'all features off';
+  return 'no ' + off.split(',').join(', no ');
+}
+
+function runTitle(x) {
+  const B = x.sim && x.sim.batch;
+  if (B) {
+    const m = /^feature-test-s(\d+)$/.exec(B.name), dc = /^dungeon-calibrate-(.+)$/.exec(B.name), er = /^enemy-env-report-(.+)$/.exec(B.name);
+    return m ? `Enemy & room feature test · seed ${m[1]}` : dc ? `Dungeon calibration → ${dc[1]}` : er ? `Enemy & environment report · ${er[1]}` : `Batch ${B.name}`;
+  }
+  if (x.script === 'balance-loop.py') return `Balance loop · ${x.loop && x.loop.cmd ? x.loop.cmd : ''}`;
+  if (x.script === 'dungeon-sim.py') return `Dungeon sim · seed ${x.sim ? x.sim.seed : '?'}`;
+  if (x.script === 'dungeon-calibrate.py') return 'Dungeon calibration';
+  return x.script;
+}
+
+function renderRun(x) {
+  const L = x.loop, S = x.sim, P = S && S.progress, B = S && S.batch;
+  let frac = null, eta = null, step = '', steps = '';
+  if (B && B.count) {
+    const simElapsed = P && P.eta != null ? (S.elapsed != null ? S.elapsed : x.elapsed) : null;
+    const per = simElapsed != null ? simElapsed + P.eta : null;
+    frac = (B.index - 1 + (P && P.total ? P.done / P.total : 0)) / B.count;
+    eta = P && P.eta != null ? P.eta + per * Math.max(0, B.count - B.index) : null;
+    step = `Sim ${B.index} of ${B.count}` + ` · ${esc(variantLabel(S.featuresOff))}` + (per ? ` · ~${fmtTime(Math.round(per))} per sim` : '');
+    steps = '<div class="steps">' + Array.from({length: B.count}, (_, i) => `<i class="${i + 1 < B.index ? 'done' : i + 1 === B.index ? 'cur' : ''}"></i>`).join('') + '</div>';
+  } else if (L && L.total) {
+    const t = L.simSeconds || [], per = t.length ? t.reduce((a, c) => a + c, 0) / t.length : null;
+    frac = (L.done + (P && P.total ? P.done / P.total : 0)) / L.total;
+    if (P && P.eta != null) eta = P.eta + (per ? per * Math.max(0, L.total - L.done - 1) : 0); else if (per) eta = per * (L.total - L.done);
+    step = `Seed sims ${L.done} of ${L.total}` + (S ? ` · now seed ${esc(S.seed)}` : '') + (per ? ` · ~${fmtTime(Math.round(per))} per seed` : '');
+  } else if (P && P.total) {
+    frac = P.done / P.total; eta = P.eta;
+    step = S ? esc(variantLabel(S.featuresOff)) : '';
+  }
+  const pctTxt = frac != null ? Math.round(100 * frac) + '%' : '';
+  let h = `<div class="run"><div><div class="run-title">${esc(runTitle(x))}</div>` +
+    `<div class="run-sub">${step}${step ? ' · ' : ''}${x.fromDashboard ? 'dashboard job' : 'started outside the dashboard'} · since ${esc(x.started)} (${fmtTime(x.elapsed)})</div></div>` +
+    `<div class="eta">${eta != null ? `<div class="big">${fmtTime(Math.round(eta))}</div><div class="when">left · done around <b>${clockAt(eta)}</b></div>`
+      : `<div class="big" style="font-size:20px">estimating…</div><div class="when">${P && P.running ? 'first shards running' : 'publishing / starting shards'}</div>`}</div>`;
+  if (frac != null) h += `<div class="bigbar" title="${pctTxt}"><i style="width:${Math.min(100, 100 * frac).toFixed(1)}%"></i></div>`;
+  h += steps;
+  h += '<div class="meta">' + (pctTxt ? `<span class="pill"><b>${pctTxt}</b> overall</span>` : '') +
+    (P ? `<span class="pill">shards ${P.done}${P.total ? ' / ' + P.total : ''} done · ${P.running} running</span>` : '') +
+    (P && P.eta != null && (B || (L && L.total)) ? `<span class="pill">this sim ~${fmtTime(P.eta)} (${clockAt(P.eta)})</span>` : '') +
+    simDevices(S) +
+    (S ? `<span class="pill">L ${esc(S.levels)}</span><span class="pill">bot ${esc(S.bot)}</span><span class="pill">${esc(S.shards)} shards/class</span>` : '') +
+    (x.patch ? `<span class="pill">patch ${esc(x.patch)}</span>` : '') + '</div>';
+  h += `<details><summary>Command and log · pid ${x.pid}</summary><div class="cmd">${esc(x.command)}</div>` +
+    (L && L.events && L.events.length ? `<div class="events">${esc(L.events.slice(-4).join('\n'))}</div>` : '') + '</details>';
+  return h + '</div>';
+}
+
+function renderSparkShards() { renderDevices(); }
 
 async function loadExternal() {
   const r = await api('/api/external');
   const box = $('#ext');
   if (r.error) { box.innerHTML = `<div class="msg bad">Could not list running scripts: ${esc(r.error)}</div>`; return; }
-  if (!r.runs || !r.runs.length) { box.innerHTML = '<div class="hint">Nothing running.</div>'; return; }
-  box.innerHTML = r.runs.map(x => {
-    let h = `<div class="ext"><div class="row" style="justify-content:space-between;margin:0"><b>${esc(x.script)}${x.loop && x.loop.cmd ? ' ' + esc(x.loop.cmd) : ''}</b>` +
-      `<span class="hint">${x.fromDashboard ? 'dashboard job · ' : 'started outside the dashboard · '}pid ${x.pid} · since ${esc(x.started)} · ${fmtTime(x.elapsed)}</span></div>`;
-    h += `<div class="cmd">${esc(x.command)}</div>`;
-    const L = x.loop, S = x.sim, P = S && S.progress;
-    if (L && L.total) {
-      // Whole measure: finished seed sims plus the running one's fraction.
-      const frac = P && P.total ? P.done / P.total : 0;
-      const t = L.simSeconds || [];
-      const per = t.length ? t.reduce((a, b) => a + b, 0) / t.length : null;
-      let eta = null;
-      if (P && P.eta != null) eta = P.eta + (per ? per * Math.max(0, L.total - L.done - 1) : 0);
-      else if (per) eta = per * (L.total - L.done);
-      h += `<div class="bar"><i style="width:${pct(L.done + frac, L.total)}%"></i></div>` +
-        `<div class="hint">Seed sims ${L.done} of ${L.total} done${S ? ` · now seed ${esc(S.seed)}` : ''}` +
-        (per ? ` · ${fmtTime(Math.round(per))} per seed` : '') + (eta != null ? ` · about <b>${fmtTime(Math.round(eta))}</b> left` : '') + '</div>';
-    }
-    if (S) {
-      h += `<div class="hint" style="margin-top:4px">dungeon-sim seed ${esc(S.seed)} · bot ${esc(S.bot)} · ${esc(S.shards)} shards/class · Spark slots ${esc(S.spark || 0)} · levels ${esc(S.levels)}</div>`;
-      if (P) h += `<div class="bar"><i style="width:${pct(P.done, P.total)}%"></i></div><div class="hint">Shards ${P.done}${P.total ? ' of ' + P.total : ''} done, ${P.running} running` +
-        (P.eta != null ? ` · this sim ends in about ${fmtTime(P.eta)}` : '') + '</div>';
-    }
-    if (L && L.events && L.events.length) h += `<div class="events">${esc(L.events.slice(-4).join('\n'))}</div>`;
-    return h + '</div>';
-  }).join('');
+  extData = r; renderDevices();
+  if (!r.runs || !r.runs.length) { box.innerHTML = '<div class="hint">Nothing running. Start a job below or run a script from a terminal; it shows up here.</div>'; return; }
+  box.innerHTML = r.runs.map(renderRun).join('');
 }
 
 let resRun = null;
@@ -1369,6 +1508,15 @@ function clsCell(v, tgt, tol) {
   return `<td class="num ${c}" title="${g >= 0 ? '+' : ''}${g.toFixed(1)} vs target">${v.toFixed(1)}</td>`;
 }
 
+// The band's three dungeons: clear % each, coloured against the level's target.
+function dungeonCells(L, tol) {
+  const d = L.perDungeon || {}; const ks = Object.keys(d);
+  if (!ks.length) return '<span class="hint">—</span>';
+  return ks.map(t => { const g = L.target != null ? d[t] - L.target : 0;
+    const c = Math.abs(g) <= tol ? 'good' : Math.abs(g) <= 2 * tol ? 'near' : 'off';
+    return `<span class="chip" title="${esc(t)}: ${d[t]}% clear">${esc(t)} <b class="${c}">${d[t].toFixed(0)}</b></span>`; }).join(' ');
+}
+
 async function loadResults() {
   if (!resRun) return;
   const r = await api('/api/results?run=' + encodeURIComponent(resRun));
@@ -1382,7 +1530,7 @@ async function loadResults() {
     h += `<div class="chips"><span class="chip">mean |clear gap| <b>${s.meanClearGap ?? '—'}</b> pts</span><span class="chip">mean class spread <b>${s.meanClassSpread ?? '—'}</b> (limit ${par})</span>` +
       `<span class="chip">bands over parity <b>${s.bandsOverParity}</b> of ${p.levels.length}</span><span class="chip">mean |actions gap| <b>${s.meanTurnsGap ?? '—'}</b></span></div>`;
     h += '<div class="tablewrap" style="margin-top:8px"><table><thead><tr><th>Level</th><th class="num">Target</th><th class="num">Clear</th><th class="num">Gap</th>' +
-      '<th class="num">Hero acts</th><th class="num">Acts target</th><th class="num">Barb</th><th class="num">War</th><th class="num">Rogue</th><th class="num">Wiz</th><th class="num">Spread</th><th class="num">Dungeons</th></tr></thead><tbody>';
+      '<th class="num">Hero acts</th><th class="num">Acts target</th><th class="num">Barb</th><th class="num">War</th><th class="num">Rogue</th><th class="num">Wiz</th><th class="num">Spread</th><th>By dungeon</th><th class="num">Dungeons</th></tr></thead><tbody>';
     for (const L of p.levels) {
       const gc = Math.abs(L.gap) <= tol ? 'good' : Math.abs(L.gap) <= 2 * tol ? 'near' : 'off';
       const ad = L.heroActions != null && L.turnsTarget ? Math.abs(L.heroActions - L.turnsTarget) : 0;
@@ -1391,7 +1539,7 @@ async function loadResults() {
       h += `<tr><td>L${L.level}</td><td class="num">${L.target ?? '—'}</td><td class="num">${L.clear}${L.clearSE != null ? '<span class="hint"> ±' + L.clearSE + '</span>' : ''}</td>` +
         `<td class="num ${gc}">${L.gap > 0 ? '+' : ''}${L.gap}</td><td class="num ${ac}">${L.heroActions ?? '—'}</td><td class="num">${L.turnsTarget ?? '—'}</td>` +
         ['Barbarian','Warrior','Rogue','Wizard'].map(c => clsCell(L.classes[c], L.target, tol)).join('') +
-        `<td class="num ${sc}">${L.spread ?? '—'}</td><td class="num hint">${L.dungeons}</td></tr>`;
+        `<td class="num ${sc}">${L.spread ?? '—'}</td><td>${dungeonCells(L, tol)}</td><td class="num hint">${L.dungeons}</td></tr>`;
     }
     return h + '</tbody></table></div>';
   }).join('') + `<div class="hint" style="margin-top:8px">Green within ±${tol} pts of the clear target (realClearTolerance), amber within ±${2*tol}, red beyond. Spread is best minus worst class (limit ${par}). Hero acts amber/red past 1.5/3 actions off target.</div>`;
@@ -1587,6 +1735,8 @@ async function renderOverview(box) {
       bad === 0 ? ['good', 'lively'] : bad === 1 ? ['near', '1 check off'] : ['off', bad + ' checks off']]);
   } else rows.push(['Build diversity / fights', '—', 'no diversity report yet (run Fun report)', ['hint', 'missing']]);
 
+  enemyEnvOverviewRows(rows, await layerFile(picked('enemyEnv')), picked('enemyEnv'));
+
   box.innerHTML = '<div class="tablewrap"><table><thead><tr><th>Layer</th><th>Status</th><th>Headline</th><th>Source</th></tr></thead><tbody>' +
     rows.map(([n, src, h, [c, t]]) => `<tr><td><b>${esc(n)}</b></td><td>${status(c, t)}</td><td style="white-space:normal">${h}</td><td class="hint" style="white-space:normal">${esc(src)}</td></tr>`).join('') +
     '</tbody></table></div><div class="hint" style="margin-top:8px">Each row reads the newest file of its kind (or the one picked on its tab). Values from different files can come from different patches and seeds: check the source column.</div>';
@@ -1644,6 +1794,128 @@ function renderAffixes(box, grid, rep) {
   const rows = Object.entries(adopt).filter(([k, r]) => /^(mod|stat|act):/.test(k) && r.offered >= 30).sort((a, b) => b[1].worn_share - a[1].worn_share);
   if (rows.length) h += '<h2 style="margin-top:14px">Natural adoption (L' + esc(L) + ')</h2><div class="hint" style="margin-bottom:6px">How often the bot wears an affix when it is offered. Low worn share with plenty offered = players will see it and skip it.</div><div class="chips">' +
     rows.map(([k, r]) => `<span class="chip" title="offered ${r.offered} item passes">${esc(k)} <b class="${r.worn_share < 0.05 ? 'off' : r.worn_share < 0.12 ? 'near' : 'good'}">${(100 * r.worn_share).toFixed(0)}%</b></span>`).join('') + '</div>';
+  box.innerHTML = h;
+}
+
+// ---- Enemy / environment layers (enemy-env-report-*.json from Scripts/enemy-env-report.py).
+const FLAG = {deadly: ['off', 'deadly'], soft: ['near', 'soft'], hard: ['off', 'too hard'], easy: ['near', 'too easy'], ok: ['good', 'ok']};
+const flagCell = f => f ? status(...(FLAG[f] || ['hint', f])) : '';
+
+function costTable(rows, label, opts = {}) {
+  if (!rows || !rows.length) return '<div class="hint">No rows.</div>';
+  const scale = opts.scale || 8, lim = opts.limit;
+  let t = `<div class="tablewrap"><table><thead><tr><th>${label}</th>${opts.extraHead || ''}<th class="num">Fights</th>` +
+    `<th class="num" title="HP lost per fight minus the level's average fight, pts of max HP">Δ HP cost</th>` +
+    `<th class="num" title="hero deaths per fight">Death %</th><th class="num" title="death rate / the level's death rate">× level</th>` +
+    `<th class="num">Hero acts</th><th class="num">Enemy acts</th>${opts.flags ? '<th>Read</th>' : ''}</tr></thead><tbody>`;
+  for (const r of rows) {
+    t += `<tr><td><b>${esc(r.name)}</b></td>${opts.extra ? opts.extra(r) : ''}<td class="hm hint">${r.n}</td>` +
+      `<td class="hm" style="${tint(-r.hp, scale)}">${r.hp > 0 ? '+' : ''}${r.hp.toFixed(1)}</td><td class="hm">${r.death.toFixed(1)}</td>` +
+      `<td class="hm">${r.deathRatio != null ? r.deathRatio.toFixed(2) : '—'}</td><td class="hm">${r.heroActs.toFixed(1)}</td><td class="hm">${r.enemyActs.toFixed(1)}</td>` +
+      (opts.flags ? `<td>${flagCell(r.flag)}</td>` : '') + '</tr>';
+  }
+  return t + '</tbody></table></div>' + (lim != null ? `<div class="legend"><span>flagged past ±${lim} pts HP cost, or deaths ≥ the death-ratio limit</span></div>` : '');
+}
+
+function renderEnemies(box, rep) {
+  if (!rep || rep.error) { box.innerHTML = '<div class="lv-row">' + srcSelect('enemyEnv', 'Report') + '</div><div class="hint">No enemy/environment report yet: python Scripts/enemy-env-report.py --patch &lt;patch&gt;</div>'; return; }
+  const S = rep.summary, L = rep.limits;
+  const view = layerOpt.enemyView || 'outliers';
+  let h = '<div class="lv-row">' + srcSelect('enemyEnv', 'Report') +
+    `<span class="tabs" style="margin:0">${['outliers', 'all'].map(v => `<button data-ev="${v}" class="${v === view ? 'on' : ''}">${v === 'outliers' ? 'Flagged only' : 'All enemies'}</button>`).join('')}</span></div>`;
+  h += `<div class="hint" style="margin-bottom:8px">${esc(rep.note)}</div><div class="chips">` +
+    `<span class="chip">enemies priced <b>${S.enemiesPriced}</b> (≥ ${L.minFights} fights)</span><span class="chip">deadly <b class="${S.enemiesDeadly ? 'off' : 'good'}">${S.enemiesDeadly}</b></span>` +
+    `<span class="chip">soft <b>${S.enemiesSoft}</b></span><span class="chip">deadly Demons <b class="${S.bossesDeadly ? 'near' : 'good'}">${S.bossesDeadly}</b></span>` +
+    `<span class="chip">prefix outliers <b>${S.prefixOutliers}</b></span><span class="chip">dungeon affix outliers <b>${S.dungeonAffixOutliers}</b></span>` +
+    `<span class="chip">Demon reached phase 2 <b>${S.demonPhaseRate ?? '—'}%</b></span></div>`;
+  const en = view === 'all' ? rep.enemies : rep.enemies.filter(r => r.flag !== 'ok');
+  h += `<h2 style="margin-top:14px">Enemies ${view === 'all' ? '' : '(flagged)'}</h2>` + costTable(en, 'Enemy', {flags: true, limit: L.enemyHp, scale: 12,
+    extraHead: '<th>Home</th><th>Kit</th>', extra: r => `<td class="hint">${esc(r.home || '')}</td><td class="hint" style="white-space:normal">${esc((r.kit || []).map(k => k.replace('ENEMY ', '')).join(', '))}</td>`});
+  h += '<h2 style="margin-top:14px">Demons (vs other boss fights at the level)</h2>' + costTable(view === 'all' ? rep.bosses : rep.bosses.filter(r => r.flag !== 'ok'), 'Demon', {flags: true, scale: 15});
+  h += '<h2 style="margin-top:14px">Demon phase</h2>' + costTable(rep.demon, 'Phase');
+  h += '<h2 style="margin-top:14px">Prefixes</h2>' + costTable(rep.prefixes, 'Prefix', {flags: true, limit: L.affixHp});
+  h += '<h2 style="margin-top:14px">Region affixes (rank = region cycle)</h2>' + costTable(rep.regionAffixes, 'Region affix');
+  h += '<h2 style="margin-top:14px">Dungeon affixes (Rare enemies, Lairs)</h2>' + costTable(rep.dungeonAffixes, 'Dungeon affix', {flags: true, limit: L.affixHp});
+  box.innerHTML = h;
+  box.querySelectorAll('[data-ev]').forEach(b => b.onclick = () => { layerOpt.enemyView = b.dataset.ev; renderEnemies(box, rep); });
+}
+
+function renderEnvironments(box, rep) {
+  if (!rep || rep.error) { box.innerHTML = '<div class="lv-row">' + srcSelect('enemyEnv', 'Report') + '</div><div class="hint">No enemy/environment report yet: python Scripts/enemy-env-report.py --patch &lt;patch&gt;</div>'; return; }
+  const S = rep.summary, L = rep.limits;
+  let h = '<div class="lv-row">' + srcSelect('enemyEnv', 'Report') + '</div>' + `<div class="hint" style="margin-bottom:8px">${esc(rep.note)}</div><div class="chips">` +
+    `<span class="chip">mean dungeon spread in a band <b class="${S.meanDungeonSpread == null ? '' : S.meanDungeonSpread <= L.dungeonGap ? 'good' : S.meanDungeonSpread <= 2 * L.dungeonGap ? 'near' : 'off'}">${S.meanDungeonSpread ?? '—'}</b> pts</span>` +
+    `<span class="chip">dungeons off their band <b class="${S.dungeonsOff ? 'off' : 'good'}">${S.dungeonsOff}</b> of 12</span><span class="chip">room affix outliers <b>${S.roomAffixOutliers}</b></span></div>`;
+  // Band × dungeon grid.
+  const lv = rep.levels || {};
+  if (Object.keys(lv).length) {
+    h += '<h2 style="margin-top:14px">Clear % by dungeon (tint = vs its band mean)</h2><div class="tablewrap"><table><thead><tr><th>Level</th><th class="num">Band</th><th>Dungeons</th><th class="num">Spread</th></tr></thead><tbody>';
+    for (const [Lv, r] of Object.entries(lv)) {
+      h += `<tr><td>L${esc(Lv)}</td><td class="hm">${r.band.toFixed(0)}</td><td>` + Object.entries(r.dungeons).map(([t, d]) =>
+        `<span class="chip" style="${tint(d.clear - r.band, 20)}" title="${d.n} dungeons">${esc(t)} <b>${d.clear.toFixed(0)}</b></span>`).join(' ') +
+        `</td><td class="hm ${r.spread <= L.dungeonGap ? 'good' : r.spread <= 2 * L.dungeonGap ? 'near' : 'off'}">${r.spread.toFixed(0)}</td></tr>`;
+    }
+    h += '</tbody></table></div>';
+  }
+  if (rep.dungeons && rep.dungeons.length) {
+    h += '<h2 style="margin-top:14px">Dungeons vs their band (all levels)</h2><div class="tablewrap"><table><thead><tr><th>Dungeon</th><th>Region</th><th class="num">Mean gap</th><th class="num">Worst level</th><th class="num">Dungeons run</th><th>Read</th></tr></thead><tbody>' +
+      rep.dungeons.map(r => `<tr><td><b>${esc(r.name)}</b></td><td class="hint">${esc(r.region)}</td><td class="hm" style="${tint(r.gap, 15)}">${r.gap > 0 ? '+' : ''}${r.gap.toFixed(1)}</td>` +
+        `<td class="hm">${r.worstGap > 0 ? '+' : ''}${r.worstGap.toFixed(0)}</td><td class="hm hint">${r.dungeons}</td><td>${flagCell(r.flag)}</td></tr>`).join('') +
+      `</tbody></table></div><div class="legend"><span>gap = dungeon clear minus its band's mean, pts; flagged past ±${L.dungeonGap}</span></div>`;
+  }
+  h += '<h2 style="margin-top:14px">Room affixes</h2>' + costTable(rep.rooms, 'Room affix', {flags: true, limit: L.affixHp});
+  h += '<h2 style="margin-top:14px">Terrain tags</h2>' + costTable(rep.terrain, 'Terrain');
+  h += '<h2 style="margin-top:14px">Wandering rooms and enemies</h2>' + costTable(rep.wander, 'Kind');
+  box.innerHTML = h;
+}
+
+function enemyEnvOverviewRows(rows, rep, src) {
+  if (!rep || rep.error || !rep.summary) { rows.push(['Enemies / environments', '—', 'no enemy/environment report yet', ['hint', 'missing']]); return; }
+  const S = rep.summary, L = rep.limits;
+  rows.push(['Enemy balance', src, `<b>${S.enemiesDeadly}</b> deadly · <b>${S.enemiesSoft}</b> soft of ${S.enemiesPriced} enemies · ${S.bossesDeadly} deadly Demons · ${S.prefixOutliers} prefix outliers`,
+    S.enemiesDeadly === 0 && S.prefixOutliers === 0 ? ['good', 'even'] : S.enemiesDeadly <= 5 ? ['near', 'a few outliers'] : ['off', 'many outliers']]);
+  rows.push(['Environment balance', src, `dungeon spread in a band <b>${S.meanDungeonSpread ?? '—'}</b> pts (limit ${L.dungeonGap}) · <b>${S.dungeonsOff}</b> dungeons off their band · ${S.roomAffixOutliers} room affix outliers`,
+    S.meanDungeonSpread == null ? ['hint', 'no per-dungeon data'] : S.dungeonsOff === 0 && S.meanDungeonSpread <= L.dungeonGap ? ['good', 'even'] : S.dungeonsOff <= 2 ? ['near', 'uneven'] : ['off', 'lopsided']]);
+}
+
+// Enemy / room affix feature test (feature-test-*.json from the paired --features-off runs, same seed).
+function renderFeatures(box, ft) {
+  if (!ft || ft.error) { box.innerHTML = '<div class="lv-row">' + srcSelect('featureTest', 'Test') + '</div><div class="hint">No feature test yet: run the paired dungeon-sim --features-off variants and write feature-test-*.json.</div>'; return; }
+  const levels = Object.keys(ft.levels || {}); levelChips('feat', levels); const L = layerLevel.feat;
+  const lv = ft.levels[L] || {}, on = lv.on || {};
+  let h = '<div class="lv-row">' + srcSelect('featureTest', 'Test') + levelChips('feat', levels) + '</div>';
+  h += `<div class="hint" style="margin-bottom:6px">${esc(ft.note || '')}</div>`;
+  h += '<h2>Clear % with one feature switched off (Δ vs all on, same seed)</h2><div class="tablewrap"><table><thead><tr><th>Variant</th>' +
+    [...CLS, 'all'].map(c => `<th class="num">${CLS_SHORT[c]}</th>`).join('') + '<th class="num">Death %</th><th class="num">Hero acts</th><th class="num">Dungeons</th><th>Read</th></tr></thead><tbody>';
+  const order = ['on', 'off', ...Object.keys(lv).filter(k => k !== 'on' && k !== 'off')];
+  for (const v of order) {
+    const r = lv[v]; if (!r) continue;
+    const isOn = v === 'on';
+    const cell = c => { if (r[c] == null) return '<td class="hm dim">·</td>'; const val = 100 * r[c];
+      if (isOn) return `<td class="hm">${val.toFixed(0)}</td>`; const d = val - 100 * (on[c] ?? 0); return `<td class="hm" style="${tint(d, 15)}">${d > 0 ? '+' : ''}${d.toFixed(1)}</td>`; };
+    const dAll = isOn ? null : 100 * ((r.all ?? 0) - (on.all ?? 0));
+    const read = isOn ? 'reference' : v === 'off' ? 'every feature off' : dAll == null ? '' : Math.abs(dAll) < 3 ? status('good', 'small (<3 pts)') : dAll > 0 ? status('near', `costs the hero ${dAll.toFixed(0)} pts`) : status('off', `helps the hero ${(-dAll).toFixed(0)} pts`);
+    h += `<tr><td><b>${esc(isOn ? 'all on' : v === 'off' ? 'all off' : 'no ' + v)}</b></td>` + [...CLS, 'all'].map(cell).join('') +
+      `<td class="hm">${r.death != null ? (100 * r.death).toFixed(1) : '—'}</td><td class="hm">${r.acts != null ? r.acts.toFixed(1) : '—'}</td><td class="hm hint">${r.dungeons ?? '—'}</td><td>${read}</td></tr>`;
+  }
+  h += '</tbody></table></div><div class="legend"><span>Δ = clear pts with that feature off minus all on. Positive = the feature makes dungeons harder.</span></div>';
+  const occ = ft.occurrence || {};
+  h += '<h2 style="margin-top:14px">How often each feature shows up (all on, every level)</h2><div class="chips">' +
+    Object.entries(occ).map(([k, v]) => `<span class="chip">${esc(k)} <b>${esc(String(v))}</b></span>`).join('') + '</div>';
+  const costTable = (title, rows, label) => {
+    if (!rows || !rows.length) return '';
+    let t = `<h2 style="margin-top:14px">${title}</h2><div class="tablewrap"><table><thead><tr><th>${label}</th><th class="num">Fights</th><th class="num" title="HP lost per fight, minus the level's average (pts of max HP)">Δ HP lost</th><th class="num">Hero death %</th><th class="num">Hero acts</th></tr></thead><tbody>`;
+    for (const r of rows) t += `<tr><td><b>${esc(r.name)}</b></td><td class="hm hint">${r.n}</td><td class="hm" style="${tint(-r.hp, 8)}">${r.hp > 0 ? '+' : ''}${r.hp.toFixed(1)}</td><td class="hm">${r.death.toFixed(1)}</td><td class="hm">${r.acts.toFixed(1)}</td></tr>`;
+    return t + '</tbody></table></div>';
+  };
+  h += costTable('Enemy prefixes (non-boss fights)', ft.prefixCost, 'Prefix');
+  h += costTable('Room affixes', ft.roomCost, 'Room affix');
+  h += costTable('Demon fights', ft.demonCost, 'Phase');
+  if (ft.dungeons && ft.dungeons.length) {
+    h += '<h2 style="margin-top:14px">Per dungeon (home fights, all on vs all off)</h2><div class="tablewrap"><table><thead><tr><th>Dungeon</th><th class="num">Fights</th><th class="num">HP lost on</th><th class="num">HP lost off</th><th class="num">Δ</th><th class="num">Death on</th><th class="num">Death off</th><th class="num">Acts on</th><th class="num">Acts off</th></tr></thead><tbody>';
+    for (const r of ft.dungeons) h += `<tr><td><b>${esc(r.name)}</b></td><td class="hm hint">${r.n}</td><td class="hm">${r.hpOn.toFixed(1)}</td><td class="hm">${r.hpOff.toFixed(1)}</td><td class="hm" style="${tint(-(r.hpOn - r.hpOff), 6)}">${r.hpOn - r.hpOff > 0 ? '+' : ''}${(r.hpOn - r.hpOff).toFixed(1)}</td><td class="hm">${r.deathOn.toFixed(1)}</td><td class="hm">${r.deathOff.toFixed(1)}</td><td class="hm">${r.actsOn.toFixed(1)}</td><td class="hm">${r.actsOff.toFixed(1)}</td></tr>`;
+    h += '</tbody></table></div>';
+  }
   box.innerHTML = h;
 }
 
@@ -1762,6 +2034,9 @@ async function renderLayers() {
     else if (layerTab === 'fights') { const scan = await layerFile(picked('scan')); renderReportLayer(box, await layerFile(picked('report')), await layerFile(layerOpt.compare), FIGHT_KEYS, () => scanPacing(scan)); }
     else if (layerTab === 'classes') renderClasses(box, await layerFile(picked('scan')));
     else if (layerTab === 'findings') renderFindings(box, await layerFile(picked('scan')));
+    else if (layerTab === 'features') renderFeatures(box, await layerFile(picked('featureTest')));
+    else if (layerTab === 'enemies') renderEnemies(box, await layerFile(picked('enemyEnv')));
+    else if (layerTab === 'environments') renderEnvironments(box, await layerFile(picked('enemyEnv')));
   } catch (ex) { box.innerHTML = `<div class="msg bad">Could not render this layer: ${esc(ex.message)}</div>`; }
   window.scrollTo(0, scrollY);
 }

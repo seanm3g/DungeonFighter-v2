@@ -54,6 +54,45 @@ namespace RPGGame
             }
         }
 
+        /// <summary>Region / dungeon affixes this enemy carries (<c>EnemyAffixes.json</c>, applied by <see cref="EnemyAffixRuntime"/>).</summary>
+        public List<RPGGame.Data.EnemyAffixDef> Affixes { get; } = new List<RPGGame.Data.EnemyAffixDef>();
+
+        /// <summary>Name of the region-family affix in <see cref="Affixes"/> (the one a Demon's phase strengthens), or null.</summary>
+        public string? RegionAffixName { get; set; }
+
+        /// <summary>Dungeon theme this enemy belongs to (its biome), or null for General enemies.</summary>
+        public string? HomeDungeonTheme { get; set; }
+
+        /// <summary>True when the 10% wander roll brought this enemy in from outside the room's own list.</summary>
+        public bool IsWanderer { get; set; }
+
+        /// <summary>Demon only: the signature action that joins its sequence when it falls to the phase HP.</summary>
+        public Action? PendingPhaseAction { get; set; }
+
+        /// <summary>Demon only: true once the second phase began.</summary>
+        public bool InSecondPhase { get; set; }
+
+        /// <summary>Appends a title to the display name ("Demon Vigil Alpha, Demon of the Den").</summary>
+        public void AppendTitle(string? title)
+        {
+            if (!string.IsNullOrWhiteSpace(title) && !Name.EndsWith(title.Trim(), StringComparison.OrdinalIgnoreCase))
+                Name = $"{Name}, {title.Trim()}";
+        }
+
+        /// <summary>HP multiplier the affixes have applied so far (rebuilding affixes rescales by the ratio).</summary>
+        public double AppliedAffixHealthMultiplier { get; set; } = 1.0;
+
+        /// <summary>Scales max HP by <paramref name="multiplier"/> (pack bodies re-split) and refills to full.</summary>
+        public void ScaleMaxHealth(double multiplier)
+        {
+            if (multiplier <= 0 || Math.Abs(multiplier - 1.0) < 1e-9 || MaxHealth <= 0)
+                return;
+            int bodies = PackSize;
+            MaxHealth = Math.Max(1, (int)Math.Round(MaxHealth * multiplier));
+            CurrentHealth = MaxHealth;
+            InitializePack(bodies);
+        }
+
         private int[]? _bodyMax;
         private int[]? _bodyCurrent;
         private int? _packHeadlineCount;
@@ -505,8 +544,11 @@ namespace RPGGame
         public void InitializeActionSequence() =>
             Facade.SetComboSequenceInOrder(ActionPool.Select(entry => entry.action));
 
-        /// <summary>True for a final-room boss built by <see cref="AbsorbAsBoss"/>.</summary>
+        /// <summary>True for the dungeon's final boss (<see cref="AbsorbAsBoss"/> or <see cref="MarkAsFinalBoss"/>).</summary>
         public bool IsBoss { get; private set; }
+
+        /// <summary>Marks a lone final-room enemy as the boss (no merge, no damage change) so its Demon phase can run.</summary>
+        public void MarkAsFinalBoss() => IsBoss = true;
 
         /// <summary>Damage scale on this enemy's swings (dungeonScaling.bossDamageMultiplier for a boss; 1 otherwise).</summary>
         public double EncounterDamageMultiplier { get; private set; } = 1.0;

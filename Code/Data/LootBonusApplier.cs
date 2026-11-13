@@ -131,8 +131,9 @@ namespace RPGGame
             {
                 if (kv.Value <= 0 || _random.NextDouble() >= kv.Value)
                     continue;
-                if (ClassTags.WeaponOf(kv.Key) is WeaponType wt)
-                    return ItemMaterialRules.PickClassMaterial(wt, _random);
+                if (ClassTags.WeaponOf(kv.Key) is WeaponType wt
+                    && ItemMaterialRules.TryPickFamilyMaterial(wt, _random, out string family))
+                    return family;
             }
             return materialName;
         }
@@ -202,7 +203,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Ensures exactly one Material prefix. Weapons pick one of their class's three materials; non-weapons pick any material.
+        /// Ensures exactly one Material prefix. Weapons pick one of their family's three materials 90% of the time
+        /// (<see cref="LootSystemConfig.WeaponFamilyMaterialShare"/>), else any set material; non-weapons pick any material.
         /// </summary>
         public void EnsureMaterial(Item item, string? itemRarity = null, LootContext? context = null)
         {

@@ -280,6 +280,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     ref currentY,
                     ref lineCount);
             }
+
+            // Tags (build-synergy tags highlighted)
+            if (ItemTagSynergy.GetDisplayTags(item).Count > 0)
+            {
+                RenderWrappedColoredLine(
+                    ItemTagSynergy.BuildTagsLineSegments(item, character, labelColor),
+                    x,
+                    maxWidth,
+                    ref currentY,
+                    ref lineCount);
+            }
         }
 
         /// <summary>

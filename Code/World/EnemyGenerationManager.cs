@@ -28,6 +28,9 @@ namespace RPGGame
             this.enemies = new List<Enemy>();
         }
 
+        /// <summary>The room's rolled affix (Crowded / Lair / Haunted read here); set by <see cref="Environment.GenerateEnemies"/>.</summary>
+        public RoomAffixDef? RoomAffix { get; set; }
+
         /// <summary>Replaces the RNG used for subsequent <see cref="GenerateEnemies"/> calls (seeded dungeon generation).</summary>
         public void SetRandom(Random rng) => random = rng ?? throw new ArgumentNullException(nameof(rng));
 
@@ -74,6 +77,7 @@ namespace RPGGame
             int maxPerRoom = GameConfiguration.Instance.DungeonScaling?.EnemyCountPerRoom ?? 0;
             if (maxPerRoom > 0)
                 enemyCount = Math.Min(enemyCount, maxPerRoom);
+            enemyCount = RoomAffixRuntime.AdjustEnemyCount(enemyCount, RoomAffix);
 
             // Try to load enemy data from JSON first
             var jsonEnemies = LoadEnemyDataFromJson();
@@ -178,13 +182,15 @@ namespace RPGGame
             for (int i = 0; i < enemyCount; i++)
             {
                 int enemyLevel = CalculateEnemyLevel(roomLevel, tuning.EnemySystem.LevelVariance, minLevel, maxLevel);
-                var enemyTemplate = EnemySpawnFilter.PickByTieredSpawnRoll(
-                    availableEnemies, spawnCtx, resolvedRegion, random);
+                bool wander = random.NextDouble() < AffixDataLoader.Enemy.Wander.EnemyChance && AffixFeatures.Wander;
+                var enemyTemplate = wander
+                    ? PickWanderer(enemyData, availableEnemies)
+                    : EnemySpawnFilter.PickByTieredSpawnRoll(availableEnemies, spawnCtx, resolvedRegion, random);
 
                 var enemy = EnemyLoader.CreateEnemy(enemyTemplate.Name, enemyLevel);
                 if (enemy != null)
                 {
-                    EnemyPrefixRoller.TryApplyRoomPrefix(enemy, random);
+                    FinishSpawn(enemy, enemyTemplate, resolvedRegion, wander);
                     enemies.Add(enemy);
                 }
                 else
@@ -209,11 +215,45 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Wander roll: any enemy with actions (regional or General) that is not already one of the home picks, falling
+        /// back to the home list when none exist. It spawns at the room's level and keeps its own home affixes.
+        /// </summary>
+        private EnemyData PickWanderer(List<EnemyData> enemyData, List<EnemyData> home)
+        {
+            var pool = enemyData
+                .Where(e => e.Actions is { Count: > 0 } && !home.Any(h => string.Equals(h.Name, e.Name, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+            if (pool.Count == 0)
+                pool = home;
+            return pool[random.Next(pool.Count)];
+        }
+
+        /// <summary>Home pick by the room's authored spawn weights (equal weights when none are set).</summary>
+        private EnemyData PickWeighted(List<(EnemyData data, double weight)> weighted)
+        {
+            double total = weighted.Sum(w => Math.Max(0, w.weight));
+            if (total <= 0)
+                return weighted[random.Next(weighted.Count)].data;
+            double roll = random.NextDouble() * total;
+            foreach (var (data, weight) in weighted)
+            {
+                roll -= Math.Max(0, weight);
+                if (roll < 0)
+                    return data;
+            }
+            return weighted[^1].data;
+        }
+
+        /// <summary>Home affixes (region family, dungeon affix when Rare or in a Lair) then the prefix roll (Haunted doubles it).</summary>
+        private void FinishSpawn(Enemy enemy, EnemyData template, TravelRegion? resolvedRegion, bool wander)
+        {
+            EnemyAffixRuntime.ApplyHome(enemy, template, resolvedRegion, RoomAffix?.ForceDungeonAffix == true, wander);
+            EnemyPrefixRoller.TryApplyRoomPrefix(enemy, random, RoomAffix?.PrefixChanceMultiplier ?? 1.0);
+        }
+
+        /// <summary>
         /// Spawns from <see cref="RoomData.Enemies"/> when present and at least one name matches <paramref name="enemyData"/>.
         /// </summary>
-        /// <summary>Chance per spawn in an authored room that a "General" (anywhere) enemy shows up instead of a local one.</summary>
-        public const double GeneralWandererChance = 0.15;
-
         /// <summary>
         /// Elemental wanderers only roam regions of their element: a Fire Elemental or Lava Golem can wander into the Fire
         /// region, but never a forest den. Wanderers without an element tag (Goblin, Rats, Skeleton, ...) go anywhere.
@@ -263,24 +303,21 @@ namespace RPGGame
 
             var spawnCtx = spawnContext ?? new EnemySpawnContext(null, theme, null);
             var roomCandidates = weighted.Select(w => w.data).ToList();
-            // "General" placement enemies (Goblin, Rats, Bats, Giant Ants packs, ...) can wander into any room.
-            var wanderers = enemyData
-                .Where(e => EnemySpawnFilter.IsPlacementWildcard(e.Region) && EnemySpawnFilter.IsPlacementWildcard(e.Location))
-                .Where(e => WandererFitsRegion(e, spawnCtx.RegionId ?? resolvedRegion?.Theme))
-                .ToList();
 
             var tuning = GameConfiguration.Instance;
             for (int i = 0; i < enemyCount; i++)
             {
                 int enemyLevel = CalculateEnemyLevel(roomLevel, tuning.EnemySystem.LevelVariance, minLevel, maxLevel);
-                var enemyTemplate = wanderers.Count > 0 && random.NextDouble() < GeneralWandererChance
-                    ? wanderers[random.Next(wanderers.Count)]
-                    : EnemySpawnFilter.PickByTieredSpawnRoll(roomCandidates, spawnCtx, resolvedRegion, random);
+                // 90% home: the room's own list by its authored weights. 10% wander: any enemy, at this level.
+                bool wander = random.NextDouble() < AffixDataLoader.Enemy.Wander.EnemyChance && AffixFeatures.Wander;
+                var enemyTemplate = wander
+                    ? PickWanderer(enemyData, roomCandidates)
+                    : PickWeighted(weighted);
 
                 var enemy = EnemyLoader.CreateEnemy(enemyTemplate.Name, enemyLevel);
                 if (enemy != null)
                 {
-                    EnemyPrefixRoller.TryApplyRoomPrefix(enemy, random);
+                    FinishSpawn(enemy, enemyTemplate, resolvedRegion, wander);
                     enemies.Add(enemy);
                 }
                 else

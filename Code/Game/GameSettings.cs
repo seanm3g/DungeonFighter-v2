@@ -40,6 +40,9 @@ namespace RPGGame
         public bool ShowDamageNumbers { get; set; } = true;
         public bool ShowComboProgress { get; set; } = true;
 
+        /// <summary>New fighters see the Training Ground offer (enter / skip) before weapon selection. Off = go straight to the path intro.</summary>
+        public bool ShowTrainingGroundOffer { get; set; } = true;
+
         /// <summary>How long the combo strip border stays solid red after a hero miss (milliseconds).</summary>
         public int ActionStripMissFlashDurationMs { get; set; } = 1200;
 
@@ -267,6 +270,7 @@ namespace RPGGame
             ShowHealthBars = true;
             ShowDamageNumbers = true;
             ShowComboProgress = true;
+            ShowTrainingGroundOffer = true;
             ActionStripMissFlashDurationMs = 1200;
             ActionStripSuccessFlashDurationMs = 3000;
             ActionStripSuccessFlashPulseHalfPeriodMs = 150;

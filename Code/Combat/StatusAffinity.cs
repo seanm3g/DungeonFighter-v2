@@ -92,10 +92,14 @@ namespace RPGGame.Combat
             return Resolve(EffectiveTags(enemy), key);
         }
 
-        /// <summary>Enemy tags plus "undead" for non-living templates built without the factory's substance tag.</summary>
+        /// <summary>Enemy tags, its prefix tags, plus "undead" for non-living templates built without the factory's substance tag.</summary>
         public static IEnumerable<string> EffectiveTags(Enemy enemy)
         {
             var tags = enemy.Tags.ToList();
+            // Spawn prefixes (Undead, Blazing, Venomous, ...) bring their own affinities.
+            foreach (var prefixTag in AffixFeatures.Prefix ? enemy.PrefixTags : Array.Empty<string>())
+                if (!tags.Contains(prefixTag, StringComparer.OrdinalIgnoreCase))
+                    tags.Add(prefixTag);
             if (!enemy.IsLiving && !tags.Any(t => t.Equals("undead", StringComparison.OrdinalIgnoreCase)))
                 tags.Add("undead");
             return tags;

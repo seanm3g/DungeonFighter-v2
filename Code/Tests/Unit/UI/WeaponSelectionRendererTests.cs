@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Avalonia.Media;
 using RPGGame.Tests;
 using RPGGame.UI.Avalonia;
@@ -16,7 +17,7 @@ namespace RPGGame.Tests.Unit.UI
 
             TestWeaponNameColor_UsesRarityCommonIsWhite(ref run, ref passed, ref failed);
             TestWeaponNameColor_UsesRarityForHigherTiers(ref run, ref passed, ref failed);
-            TestStatSeparatorColumn_AlignsAcrossShortAndLongStatRows(ref run, ref passed, ref failed);
+            TestCardHelpers_SpacedNameAndAlignedArt(ref run, ref passed, ref failed);
             TestDecorativeRule_UsesAsciiAndFitsZoomedContent(ref run, ref passed, ref failed);
             TestDecorativeRule_CentersUsingVisualZoomColumns(ref run, ref passed, ref failed);
 
@@ -65,17 +66,17 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.ClearCurrentTestName();
         }
 
-        private static void TestStatSeparatorColumn_AlignsAcrossShortAndLongStatRows(ref int run, ref int passed, ref int failed)
+        private static void TestCardHelpers_SpacedNameAndAlignedArt(ref int run, ref int passed, ref int failed)
         {
-            TestBase.SetCurrentTestName(nameof(TestStatSeparatorColumn_AlignsAcrossShortAndLongStatRows));
+            TestBase.SetCurrentTestName(nameof(TestCardHelpers_SpacedNameAndAlignedArt));
 
-            const int statsX = 10;
-            int maxDamageLen = "Damage: 6".Length;
-            int shortRowSep = WeaponSelectionRenderer.GetFirstStatSeparatorX(statsX, maxDamageLen);
-            int longRowSep = WeaponSelectionRenderer.GetFirstStatSeparatorX(statsX, maxDamageLen);
-
-            TestBase.AssertEqual(shortRowSep, longRowSep, "Shared max damage width keeps separator column aligned", ref run, ref passed, ref failed);
-            TestBase.AssertEqual(statsX + maxDamageLen + 2, shortRowSep, "Separator sits after padded damage column", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("W A R R I O R", WeaponSelectionRenderer.Spaced("Warrior"), "Class name is letter-spaced capitals", ref run, ref passed, ref failed);
+            foreach (WeaponType type in new[] { WeaponType.Mace, WeaponType.Sword, WeaponType.Dagger, WeaponType.Wand })
+            {
+                string[] art = WeaponSelectionRenderer.WeaponArt(type);
+                TestBase.AssertEqual(3, art.Length, $"{type} art is three rows", ref run, ref passed, ref failed);
+                TestBase.AssertTrue(art.Max(l => l.Length) <= 26, $"{type} art fits a minimum-width card", ref run, ref passed, ref failed);
+            }
 
             TestBase.ClearCurrentTestName();
         }

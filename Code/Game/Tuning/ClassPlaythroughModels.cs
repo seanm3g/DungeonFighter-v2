@@ -39,6 +39,8 @@ namespace RPGGame.Tuning
         public Dictionary<string, int> GearOffered { get; set; } = new();
         public Dictionary<string, int> GearWorn { get; set; } = new();
         public List<double> SlotContest { get; set; } = new();
+        /// <summary>Per dungeon theme: dungeons attempted / cleared / retreated / died (DUNGEONSIM per-dungeon reads).</summary>
+        public Dictionary<string, DungeonThemeOutcome> DungeonOutcomes { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         /// <summary>Dungeons the bot left early (--retreat-below).</summary>
         public int DungeonsRetreated { get; set; }
         public int SmartSkillsLearned { get; set; }
@@ -274,5 +276,14 @@ namespace RPGGame.Tuning
                 return (sorted[mid - 1] + sorted[mid]) / 2.0;
             return sorted[mid];
         }
+    }
+
+    /// <summary>One dungeon theme's outcomes in a run.</summary>
+    public class DungeonThemeOutcome
+    {
+        public int Attempted { get; set; }
+        public int Cleared { get; set; }
+        public int Retreated { get; set; }
+        public int Died { get; set; }
     }
 }

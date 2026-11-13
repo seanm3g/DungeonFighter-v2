@@ -1,0 +1,24 @@
+{
+  "description": "Room affixes (Documentation/ENEMY_ROOM_AFFIX_DESIGN_2026-11-12.md). terrain: authored room tags that change the room's hazards or rolls (always on). affixes: one rolled per room at rollChance. Hazard fields: hazardDamage (x), activityStep (+1 dormant->cycling->active, -1 back), hazardStatus (adds that status to every hazard; 'element' = the region's element status), elementStatus, hazardTargets (both / hero / enemies), extraHazardActs. Room fields: extraEnemies, forceDungeonAffix, prefixChanceMultiplier, enemyStartStatus + enemyStartStacks. critShift: lowers the crit threshold for everyone in the room.",
+  "rollChance": 0.4,
+  "maxEnemies": 3,
+  "elementStatus": { "Forest": "poison", "Water": "slow", "Fire": "burn", "Air": "weaken" },
+  "terrain": [
+    { "tag": "scorched", "hazardStatus": "burn", "description": "Hazards also Burn" },
+    { "tag": "flooded", "hazardStatus": "slow", "description": "Hazards also Slow" },
+    { "tag": "overgrown", "hazardStatus": "poison", "description": "Hazards also Poison" },
+    { "tag": "exposed", "critShift": 1, "description": "Everyone crits one face lower" }
+  ],
+  "affixes": [
+    { "name": "Volatile", "weight": 1, "hazardDamage": 1.5, "activityStep": 1, "description": "Hazards hit 50% harder and act more often" },
+    { "name": "Smothered", "weight": 1, "hazardDamage": 0.5, "activityStep": -1, "description": "Hazards hit half as hard and act less often" },
+    { "name": "Infused", "weight": 1, "hazardStatus": "element", "description": "Hazards also carry the region's element" },
+    { "name": "Restless", "weight": 1, "extraHazardActs": 1, "description": "Hazards can act one extra time per fight" },
+    { "name": "Sheltered", "weight": 1, "hazardTargets": "enemies", "description": "Hazards strike only enemies" },
+    { "name": "Treacherous", "weight": 1, "hazardTargets": "hero", "description": "Hazards strike only you" },
+    { "name": "Crowded", "weight": 1, "extraEnemies": 1, "description": "One more enemy" },
+    { "name": "Lair", "weight": 1, "forceDungeonAffix": true, "description": "Enemies carry their dungeon affix" },
+    { "name": "Haunted", "weight": 1, "prefixChanceMultiplier": 2.0, "description": "Enemies are twice as likely to roll a prefix" },
+    { "name": "Garrisoned", "weight": 1, "enemyStartStatus": "fortify", "enemyStartStacks": 1, "description": "Enemies start with 1 Fortify" }
+  ]
+}

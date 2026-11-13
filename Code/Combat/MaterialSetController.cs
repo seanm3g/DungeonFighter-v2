@@ -712,6 +712,12 @@ namespace RPGGame
         }
 
         /// <summary>Compact HUD line, e.g. <c>Iron 2/5</c> or <c>Leather 3/3</c>.</summary>
+        /// <summary>Pieces needed before the set grants anything (Leather: 3 for Lucky; other materials: the 2-stack).</summary>
+        public static int ActivePieceCount(string material) =>
+            string.Equals(MaterialBuildData.CanonicalMaterialName(material), LeatherSetBonus.MaterialName, StringComparison.OrdinalIgnoreCase)
+                ? LeatherSetBonus.LuckUnlockCount
+                : MaterialBuildData.StackUnlockCount;
+
         public static string FormatFormingSetHudLine(string material, int count)
         {
             if (string.Equals(

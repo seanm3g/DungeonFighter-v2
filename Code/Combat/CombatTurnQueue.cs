@@ -25,6 +25,7 @@ namespace RPGGame
         private static bool _actingBonus;
         private static bool _actingFree;
         private static int _freeBaseStep = -1, _freeActionsTaken;
+        private static int _actingStunAtBegin;
         private static long _turnSerial;
         private static Environment? _room;
 
@@ -48,6 +49,26 @@ namespace RPGGame
         /// turn (or free action) from the next.</summary>
         public static long TurnSerial { get { lock (Gate) return _turnSerial; } }
 
+        /// <summary>The acting turn began stunned: the turn handler skips it (no swing), so the board shows it as STUNNED.</summary>
+        public static bool ActingStunned { get { lock (Gate) return _actingStunAtBegin > 0; } }
+
+        /// <summary>
+        /// How many of <paramref name="actor"/>'s turns after the one playing now a stun will skip. A stunned turn that is
+        /// playing now doesn't count once it has begun, even before its tick lowers <see cref="Actor.StunTurnsRemaining"/>.
+        /// </summary>
+        public static int StunnedTurnsAhead(Actor actor)
+        {
+            if (actor is not Character ch || ch.StunTurnsRemaining <= 0)
+                return 0;
+            int left = ch.StunTurnsRemaining;
+            lock (Gate)
+            {
+                if (_actingStunAtBegin > 0 && ReferenceEquals(_acting, actor) && left >= _actingStunAtBegin)
+                    left--; // the turn playing now is the stunned one; it ticks once its STUNNED block has shown
+            }
+            return Math.Max(0, left);
+        }
+
         public static bool IsBound { get { lock (Gate) return _speed != null; } }
 
         /// <summary>Room of the on-screen fight (hostile or not), for HUD reads such as its trigger face.</summary>
@@ -66,6 +87,7 @@ namespace RPGGame
                 _actingAction = null;
                 _actingQuiet = false;
                 _actingBonus = false;
+                _actingStunAtBegin = 0;
                 ResetFreeActions();
             }
         }
@@ -80,6 +102,7 @@ namespace RPGGame
                 _actingAction = null;
                 _actingQuiet = false;
                 _actingBonus = false;
+                _actingStunAtBegin = 0;
                 ResetFreeActions();
             }
         }
@@ -94,6 +117,7 @@ namespace RPGGame
                 _actingAction = null;
                 _actingQuiet = false;
                 _actingBonus = false;
+                _actingStunAtBegin = actor is Character ch && ch.IsAlive ? Math.Max(0, ch.StunTurnsRemaining) : 0;
                 ResetFreeActions();
                 _turnSerial++;
             }
@@ -186,6 +210,7 @@ namespace RPGGame
                 _actingAction = null;
                 _actingQuiet = false;
                 _actingBonus = false;
+                _actingStunAtBegin = 0;
                 ResetFreeActions();
             }
         }
@@ -200,9 +225,12 @@ namespace RPGGame
         /// With <paramref name="showFreeAction"/>, a spent swing that earned a free combo action lists that action first
         /// (pass it only once the swing's result has shown). A free action spends no time: the actor's slot already moved
         /// on with the turn's first swing.
+        /// Pass <paramref name="showPendingTrigger"/> false while the acting swing's die is still on screen: the engine
+        /// resolves the roll (and arms the room's trigger) before the UI has shown the face, so the triggered room stays
+        /// out of the list until the result has shown.
         /// </summary>
         public static List<CombatTurnQueueEntry> GetUpcoming(int count, bool pastActingTurn, double actingLength = 1.0,
-            Func<Actor, int, double>? lengthOf = null, bool showFreeAction = false)
+            Func<Actor, int, double>? lengthOf = null, bool showFreeAction = false, bool showPendingTrigger = true)
         {
             ActionSpeedSystem? speed;
             Actor? acting;
@@ -284,7 +312,7 @@ namespace RPGGame
 
             // A pending trigger goes off once the turn that rolled it ends: behind that swing (and any free action it
             // earned) while it still plays.
-            if (!actingBonus && room != null && room.HasPendingRollTrigger && count > 0)
+            if (!actingBonus && room != null && room.HasPendingRollTrigger && count > 0 && (showPendingTrigger || acting == null))
             {
                 int at = result.Count > 0 && (result[0].IsActing || result[0].IsFreeAction) ? 1 : 0;
                 result.Insert(Math.Min(at, result.Count), new CombatTurnQueueEntry(room, false, IsRoomTrigger: true));

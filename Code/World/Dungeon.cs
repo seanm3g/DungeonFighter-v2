@@ -87,11 +87,10 @@ namespace RPGGame
                 try
                 {
                     // Determine room type and difficulty
-                    // Ensure at least one room is hostile (force last room if none are hostile yet)
+                    // The last room is always hostile: it holds the dungeon's Demon.
                     bool isHostile;
-                    if (i == roomCount - 1 && !hasHostileRoom)
+                    if (i == roomCount - 1 && (AffixFeatures.Demon || !hasHostileRoom))
                     {
-                        // Force the last room to be hostile if we haven't had any yet
                         isHostile = true;
                     }
                     else
@@ -224,9 +223,26 @@ namespace RPGGame
 
             if (Rooms.Count > 1 && GameConfiguration.Instance.DungeonScaling?.BossMergesRoom == true)
                 MergeBossRoom(Rooms[^1]);
-            // The final room's lead enemy is the dungeon's boss and always carries the boss prefix (Demon).
-            if (Rooms.Count > 1)
-                EnemyPrefixRoller.ApplyBossPrefix(Rooms[^1].GetEnemies().OrderByDescending(e => e.Level).FirstOrDefault());
+            // Every dungeon's last enemy is its boss and always carries the boss prefix (Demon): the final room's
+            // highest-level enemy, moved to the end of the room so it is fought last (even without the boss merge,
+            // and in single-room dungeons).
+            if (Rooms.Count > 0)
+            {
+                var finalEnemies = Rooms[^1].GetEnemies();
+                var boss = finalEnemies.OrderByDescending(e => e.Level).FirstOrDefault();
+                if (boss != null && !ReferenceEquals(finalEnemies[^1], boss))
+                {
+                    finalEnemies.Remove(boss);
+                    finalEnemies.Add(boss);
+                }
+                EnemyPrefixRoller.ApplyBossPrefix(boss);
+                // The Demon: the dungeon's signature kit, region affix a rank up, dungeon affix and a second phase.
+                if (boss != null && AffixFeatures.Demon)
+                {
+                    boss.MarkAsFinalBoss();
+                    EnemyAffixRuntime.MakeDemon(boss, Theme, spawnRegion);
+                }
+            }
 
             if (Rooms.Count > 0)
                 TraversalState = DungeonMapGenerator.Generate(Rooms, random, trainingGround: false);

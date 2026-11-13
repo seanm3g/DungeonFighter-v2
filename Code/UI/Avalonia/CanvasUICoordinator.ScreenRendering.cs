@@ -32,8 +32,12 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderMainMenu(hasSavedGame, savedFighterCount, newGameConfirmPrompt);
         }
 
+        /// <summary>Weapons from the last weapon selection draw, so hover can redraw the cards in place.</summary>
+        public List<StartingWeapon>? LastWeaponSelection { get; private set; }
+
         public void RenderWeaponSelection(List<StartingWeapon> weapons)
         {
+            LastWeaponSelection = weapons;
             renderer.RenderWeaponSelection(weapons, GetContext());
         }
 

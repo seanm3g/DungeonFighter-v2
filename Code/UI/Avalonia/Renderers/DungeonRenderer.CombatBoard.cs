@@ -344,6 +344,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static Color BoardRestBorder(BoardAct? act) => act switch
         {
             { Quiet: true } => BoardDimBorder,
+            { Stunned: true } => BoardStunColor,
             { Swing: { } s } => SwingColor(s),
             { Actor: Environment } => BoardHazardColor,
             _ => BoardDimBorder
@@ -515,6 +516,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                         : CardFocused(stage) ? AsciiArtAssets.Colors.Red : AsciiArtAssets.Colors.White;
                     thickness = CardFocused(stage) ? 4 : 3;
                 }
+                if (isSel && swing == null && enemy.StunTurnsRemaining > 0)
+                    (border, thickness) = (BoardStunColor, 2); // its next turn is skipped
                 Color fill = BoardCardBackground;
                 if (isSel && cardFires && swing != null)
                     (border, fill, thickness) = AccentForBeat(swing, stage, CombatBoardAnimation.PhaseProgress(CombatBoardAnimation.BeatMs), border, thickness);
@@ -532,16 +535,19 @@ namespace RPGGame.UI.Avalonia.Renderers
         private const int BoardQueueLength = 1;
 
         /// <summary>One resolved action as the board shows it on NOW and the timeline (a swing, or a room hazard with no swing).</summary>
-        private sealed record BoardAct(Actor Actor, Action Action, CombatSequenceSwingInfo? Swing, int QuietRoll = 0, int QuietNeed = 0)
+        internal sealed record BoardAct(Actor Actor, Action Action, CombatSequenceSwingInfo? Swing, int QuietRoll = 0, int QuietNeed = 0)
         {
             /// <summary>A room turn that rolled under its strike threshold: shown as a QUIET card, nothing happens.</summary>
             public bool Quiet => QuietRoll > 0;
+
+            /// <summary>A turn a stun skipped: no swing, shown as a STUNNED card.</summary>
+            public bool Stunned => ReferenceEquals(Action, StunnedTurnAction);
         }
 
         /// <summary>The newest act, pushed once per swing / hazard turn.</summary>
         private static BoardAct? _boardNowAct;
         private static CombatSequenceSwingInfo? _boardRegisteredSwing;
-        private static long _boardSwingTurn = -1, _boardHazardTurn = -1;
+        private static long _boardSwingTurn = -1, _boardHazardTurn = -1, _boardStunTurn = -1;
         private static Enemy? _boardEnemy;
 
         /// <summary>The branch box OUTCOME picked for the live swing; on ACTION its card slides from there into NOW,
@@ -558,7 +564,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static readonly Dictionary<Actor, string> _boardRestComboName = new(ReferenceEqualityComparer.Instance);
 
         /// <summary>The board's reading of the turn in progress, built once per paint.</summary>
-        private sealed class BoardTurnView
+        internal sealed class BoardTurnView
         {
             public CombatSequenceSwingInfo? LiveSwing;
             public int Stage = 7;
@@ -652,14 +658,26 @@ namespace RPGGame.UI.Avalonia.Renderers
                 }
             }
 
+            // A turn that began stunned skips its swing: it lands on NOW as a STUNNED card (and on the timeline after it).
+            if (v.LiveSwing == null && acting is Character stunnedActor && CombatTurnQueue.ActingStunned && _boardSwingTurn != turn)
+            {
+                if (_boardStunTurn != turn)
+                {
+                    _boardStunTurn = turn;
+                    PushBoardAct(new BoardAct(stunnedActor, StunnedTurnAction, null));
+                }
+                v.HazardAct = _boardNowAct;
+            }
+
             // Turn handlers advance the actor's timeline only after the swing displays, so once ACTION fires
             // (or the swing has finished inside the same turn) the queue projects the actor past this turn.
             bool spent = acting != null && (v.Triggered || (v.LiveSwing == null && _boardSwingTurn == turn));
             double length = (v.LiveSwing?.Action ?? v.HazardAct?.Action ?? _boardNowAct?.Action)?.Length ?? 1.0;
             v.Spent = spent;
             v.ActingLength = length;
-            // Once the swing has fired, a free combo action it earned is the next roll.
-            v.Queue = CombatTurnQueue.GetUpcoming(BoardQueueLength, spent, length, showFreeAction: spent);
+            // Once the swing has fired, a free combo action it earned is the next roll; likewise a room trigger it rolled
+            // joins the queue only once its die has shown the face.
+            v.Queue = CombatTurnQueue.GetUpcoming(BoardQueueLength, spent, length, showFreeAction: spent, showPendingTrigger: spent);
             UpdateBoardTimeline(v, player, enemy);
             return v;
         }
@@ -836,7 +854,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             else if (turn.HazardAct != null && nowAct != null)
             {
-                nowBorder = turn.HazardAct.Quiet ? AsciiArtAssets.Colors.Gray : BoardHazardColor;
+                nowBorder = turn.HazardAct.Quiet ? AsciiArtAssets.Colors.Gray
+                    : turn.HazardAct.Stunned ? BoardStunColor : BoardHazardColor;
                 nowThickness = 3;
             }
             else if (nowProjected)
@@ -900,12 +919,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             // The next actor's branches wait until the flying card has cleared the column (text draws above every box),
             // and stay hidden until that actor's turn has started and its callout has played.
             // A free combo action is the same turn rolling again, so its branches show as soon as it is next.
-            bool branchesRevealed = (nextEntry.IsActing || nextEntry.IsFreeAction) && settled && branchesDue
-                && !(CombatTurnAnnouncement.Current is { } callout && ReferenceEquals(callout.Actor, nextEntry.Actor));
+            // A stunned next turn has nothing to roll: its one STUNNED box shows from the start.
+            bool nextStunned = hasNext && branches.Count > 0 && branches[0].Stunned;
+            bool branchesRevealed = nextStunned || ((nextEntry.IsActing || nextEntry.IsFreeAction) && settled && branchesDue
+                && !(CombatTurnAnnouncement.Current is { } callout && ReferenceEquals(callout.Actor, nextEntry.Actor)));
             if (hasNext && slots > 0 && !(cardInFlight && shift < 0.5))
             {
                 var actor = nextEntry.Actor;
-                string label = nextRolling ? "ROLLING" : nextEntry.IsActing ? "ACTING" : nextEntry.IsFreeAction ? "FREE ACTION" : "NEXT";
+                string label = nextStunned ? "STUNNED" : nextRolling ? "ROLLING" : nextEntry.IsActing ? "ACTING" : nextEntry.IsFreeAction ? "FREE ACTION" : "NEXT";
                 canvas.AddText(nextX + 1, queueR[0].Y - 1, Truncate($"{label}  {actor.Name}", nextW), BoardActorColor(actor));
                 double fade = stage > 2 ? 1.0 : CombatBoardAnimation.EaseOut(rawP);
                 int taken = nextRolling ? TakenBranch(branches, swing!) : -1;
@@ -1151,8 +1172,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>One possible result of the next roll: its odds (faces or percent), what it does, and any detail lines.</summary>
-        private sealed record BoardBranch(string Odds, string Text, Color Color, CombatSequenceSwingOutcome? Outcome, List<string> Detail,
-            bool Critical = false, bool OwnColor = false, bool RoomTrigger = false);
+        internal sealed record BoardBranch(string Odds, string Text, Color Color, CombatSequenceSwingOutcome? Outcome, List<string> Detail,
+            bool Critical = false, bool OwnColor = false, bool RoomTrigger = false, bool Stunned = false);
 
         /// <summary>
         /// One outcome box of the next roll. While that roll plays, OUTCOME lights the branch taken and fades the rest.
@@ -1210,7 +1231,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <paramref name="triggered"/> by a swing's trigger face doesn't roll: one box lists the hazards it picks from.
         /// A <paramref name="freeAction"/> rolls for the slot the swing that earned it moved the strip to.
         /// </summary>
-        private static List<BoardBranch> BoardBranches(Actor actor, CombatSequenceSwingInfo? rolling, bool triggered = false, bool freeAction = false)
+        internal static List<BoardBranch> BoardBranches(Actor actor, CombatSequenceSwingInfo? rolling, bool triggered = false, bool freeAction = false)
         {
             var list = new List<BoardBranch>();
             if (actor is Environment triggeredRoom && triggered)
@@ -1239,6 +1260,19 @@ namespace RPGGame.UI.Avalonia.Renderers
                 list.Add(new BoardBranch(strikeFaces, "strikes:", BoardHazardColor, CombatSequenceSwingOutcome.Hit, hazards, OwnColor: true));
                 list.Add(new BoardBranch(quietFaces, "quiet", AsciiArtAssets.Colors.Gray, CombatSequenceSwingOutcome.Miss, new(), OwnColor: true));
                 return list;
+            }
+
+            // A stunned turn doesn't roll (the turn handler skips it): one box says so, and how long the stun lasts.
+            // A stunned turn playing now is already on NOW (spent), so this column only ever shows turns still to come.
+            if (rolling == null && !freeAction && actor is Character)
+            {
+                int ahead = CombatTurnQueue.StunnedTurnsAhead(actor);
+                if (ahead > 0)
+                {
+                    var detail = new List<string> { ahead == 1 ? "skips this turn" : $"skips {ahead} turns" };
+                    list.Add(new BoardBranch("", "STUNNED", BoardStunColor, null, detail, OwnColor: true, Stunned: true));
+                    return list;
+                }
             }
 
             var t = rolling?.Thresholds ?? D20ThresholdBarRenderer.CurrentThresholds(actor);
@@ -1330,6 +1364,13 @@ namespace RPGGame.UI.Avalonia.Renderers
                 title = "QUIET";
                 sub = $"rolled {act.QuietRoll}, needed {act.QuietNeed}+";
                 color = AsciiArtAssets.Colors.Gray;
+            }
+            else if (act.Stunned)
+            {
+                title = "STUNNED";
+                int more = CombatTurnQueue.StunnedTurnsAhead(act.Actor);
+                sub = more > 0 ? $"skips turn ({more} more)" : "skips turn";
+                color = BoardStunColor;
             }
             else if (act.Actor is Environment)
             {

@@ -89,6 +89,15 @@ namespace RPGGame
         public string? Tempo { get; set; }
         [JsonPropertyName("actions")]
         public List<string> Actions { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Optional mechanic template per action slot (<c>EnemyActions.json</c> template, e.g. "ENEMY REND"), parallel to
+        /// <see cref="Actions"/>: the flavor name keeps this template's mechanics instead of its alias. Set from the
+        /// dungeon's signature kit (<c>EnemyAffixes.json</c>). Blank or missing slots use the alias.
+        /// </summary>
+        [JsonPropertyName("kit")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? Kit { get; set; }
         [JsonPropertyName("isLiving")]
         public bool IsLiving { get; set; } = true; // Default to living if not specified
 

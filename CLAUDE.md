@@ -29,6 +29,8 @@ GameData/           Runtime data (JSON)
   EnvironmentalActions.json Room hazard actions
   EnemyActions.json         Enemy mechanic kits (templates + flavor-name aliases; enemySystem.actionKits)
   EnemyPrefixes.json        Spawn prefixes (Undead, Giant, ...) rolled per room enemy + the final boss's Demon; tags only (Enemy.PrefixTags)
+  EnemyAffixes.json         Region families (Rooted/Undertow/Kindled/Windswept, rank = region cycle), 12 dungeon identities (signature kit, material, Rare/Demon affix, Demon title), 10% room/enemy wander, Demon config (EnemyAffixRuntime)
+  RoomAffixes.json          Terrain tags (scorched/flooded/overgrown hazards, exposed crits) + one rolled room affix at 40% (RoomAffixRuntime); design: Documentation/ENEMY_ROOM_AFFIX_DESIGN_2026-11-12.md
   ColorCodes.json / ColorTemplates.json  UI color definitions
   CombatDelayConfig.json / TitleAnimationConfig.json  Timing
   BalancePatches/           Versioned balance iteration snapshots

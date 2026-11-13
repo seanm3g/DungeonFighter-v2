@@ -48,7 +48,7 @@ namespace RPGGame.ActionInteractionLab
                 return;
 
             string pick = enemyTypes[pickIdx];
-            var created = EnemyLoader.CreateEnemy(pick, level: 1);
+            var created = EnemyAffixRuntime.WithHomeAffixes(EnemyLoader.CreateEnemy(pick, level: 1));
             if (created == null)
                 return;
 
@@ -330,7 +330,7 @@ namespace RPGGame.ActionInteractionLab
                 throw new ArgumentException("Enemy type is required.", nameof(enemyType));
 
             EnemyLoader.LoadEnemies();
-            var created = EnemyLoader.CreateEnemy(enemyType.Trim(), level)
+            var created = EnemyAffixRuntime.WithHomeAffixes(EnemyLoader.CreateEnemy(enemyType.Trim(), level))
                 ?? throw new InvalidOperationException($"Lab: could not create enemy '{enemyType}'.");
 
             _sessionEnemyLoaderType = enemyType.Trim();

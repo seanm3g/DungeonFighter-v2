@@ -152,7 +152,7 @@ namespace RPGGame.ActionInteractionLab
         private void ApplyRoomEnemyToLab(Enemy src)
         {
             EnemyLoader.LoadEnemies();
-            var created = EnemyLoader.CreateEnemy(src.Name, Math.Clamp(src.Level, 1, 99));
+            var created = EnemyAffixRuntime.WithHomeAffixes(EnemyLoader.CreateEnemy(src.Name, Math.Clamp(src.Level, 1, 99)));
             if (created != null)
             {
                 _sessionEnemyLoaderType = src.Name;

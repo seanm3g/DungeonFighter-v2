@@ -705,7 +705,10 @@ namespace RPGGame.UI.Avalonia.Layout
                     key: "set:" + material,
                     expandKey: material,
                     header: MaterialSetController.FormatFormingSetHudLine(material, count),
-                    color: AsciiArtAssets.Colors.Cyan,
+                    // Below the set's first threshold (e.g. Leather 2/3): dimmed, since nothing is granted yet.
+                    color: count >= MaterialSetController.ActivePieceCount(material)
+                        ? AsciiArtAssets.Colors.Cyan
+                        : AsciiArtAssets.Colors.Gray,
                     // Same text as the hover tip, minus its first line (the "Iron 3/5" header drawn above).
                     details: () => MaterialSetController.FormatSetStatusLinesForMaterial(character, material).Skip(1));
             }

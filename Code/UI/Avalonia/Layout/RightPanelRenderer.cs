@@ -555,7 +555,9 @@ namespace RPGGame.UI.Avalonia.Layout
             }
             else
             {
-                if (!InventoryRightPanelLayout.TryGetActionPoolRowY(character, rpPool, out rowY))
+                // The editor places its card tips itself, so a pool row past the right panel's list is fine there.
+                if (!InventoryRightPanelLayout.TryGetActionPoolRowY(character, rpPool, out rowY)
+                    && !(ActionSequenceEditorLayout.IsOpen && ActionSequenceEditorLayout.LibrarySlots.ContainsKey(rpPool)))
                     return;
 
                 var pool = character.GetActionPool();
@@ -589,6 +591,12 @@ namespace RPGGame.UI.Avalonia.Layout
             int boxY = rowY + 1;
             if (boxY + boxH - 1 > maxBoxBottom)
                 boxY = Math.Max(innerTop, maxBoxBottom - boxH + 1);
+            if (rpInvPool < 0 && ActionSequenceEditorLayout.TryPlaceCardTooltip(false, rpPool, boxWFinal, boxH,
+                    innerLeft, innerTop, innerRight, maxBoxBottom, out int edX, out int edY))
+            {
+                boxX = edX;
+                boxY = edY;
+            }
 
             int innerRightInclusive = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
             HoverTooltipDrawing.DrawFramedPanel(canvas, boxX, boxY, boxWFinal, boxH, innerLeft, innerTop, innerRightInclusive, maxBoxBottom);
@@ -623,6 +631,15 @@ namespace RPGGame.UI.Avalonia.Layout
             int boxY = rowY + 1;
             if (boxY + boxH - 1 > maxBoxBottom)
                 boxY = Math.Max(innerTop, maxBoxBottom - boxH + 1);
+            // Action Sequence editor library card: beside the hovered card, off the sequence row.
+            int hoveredPool = RightPanelActionHoverState.HoveredPoolIndex;
+            if (RightPanelActionHoverState.HoveredInventoryPoolIndex < 0 && hoveredPool >= 0
+                && ActionSequenceEditorLayout.TryPlaceCardTooltip(false, hoveredPool, boxWFinal, boxH,
+                    innerLeft, innerTop, innerRight, maxBoxBottom, out int edX, out int edY))
+            {
+                boxX = edX;
+                boxY = edY;
+            }
 
             int innerRightInclusive = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
             HoverTooltipDrawing.DrawFramedPanel(canvas, boxX, boxY, boxWFinal, boxH, innerLeft, innerTop, innerRightInclusive, maxBoxBottom);
@@ -858,6 +875,15 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x, y, "Enemy:", AsciiArtAssets.Colors.Gray);
                 y++;
                 StatusEffectHoverDetails.CurrentEnemy = enemy;
+                // Region / dungeon / prefix affixes and the Demon's phase: names here, full text on hover (eafx:N).
+                var affixLines = StatusEffectDisplayLines.GetEnemyAffixLines(enemy);
+                for (int i = 0; i < affixLines.Count; i++)
+                {
+                    RegisterEnemyStatusHoverRow(x, y, "eafx:" + i);
+                    string name = StatusEffectDisplayLines.AffixLineName(affixLines[i]);
+                    canvas.AddText(x + 2, y, name.Length > maxLineLen - 2 ? name[..(maxLineLen - 2)] : name, AsciiArtAssets.Colors.Purple);
+                    y++;
+                }
                 int affinityIndex = 0;
                 foreach (var affinityLine in StatusEffectDisplayLines.GetEnemyAffinityLines(enemy))
                 {

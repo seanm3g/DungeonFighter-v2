@@ -303,6 +303,17 @@ namespace RPGGame.UI.Avalonia.Layout
             return GetEnemyAffinityLines(enemy).FirstOrDefault(l => l.StartsWith("Immune", StringComparison.Ordinal));
         }
 
+        /// <summary>Affix lines ("Kindled II: 20% chance to Burn on hit") from <see cref="EnemyAffixRuntime.DescribeAffixes"/>.</summary>
+        public static List<string> GetEnemyAffixLines(Enemy enemy) =>
+            enemy == null ? new List<string>() : EnemyAffixRuntime.DescribeAffixes(enemy);
+
+        /// <summary>The short name shown in the panel: the text before the first ':'.</summary>
+        public static string AffixLineName(string line)
+        {
+            int colon = (line ?? "").IndexOf(':');
+            return colon > 0 ? line![..colon] : line ?? "";
+        }
+
         /// <summary>Immune / Weak / Resists lines from <see cref="RPGGame.Combat.StatusAffinity"/> (enemy tags).</summary>
         public static List<string> GetEnemyAffinityLines(Enemy enemy) =>
             enemy == null ? new List<string>() : RPGGame.Combat.StatusAffinity.GetHudLines(enemy);

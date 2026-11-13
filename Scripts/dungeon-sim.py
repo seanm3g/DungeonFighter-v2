@@ -57,6 +57,9 @@ ap.add_argument('--screen-fights', type=int, default=-1, help='bot screen fights
 ap.add_argument('--eval-enemies', default='', help='comma list of enemies the bot scores skill/gear/strip picks against (empty = tool default)')
 ap.add_argument('--material', default='', help='every loot roll is this material (Bone, Iron, ...): the run tests that set as the dominant build')
 ap.add_argument('--affix', default='', help='every loot roll also carries this affix line (stat:CRIT, mod:Heavy): prices one affix vs an unforced run on the same seed')
+ap.add_argument('--features-off', default='', help='comma list of enemy / room affix features to switch off (region, dungeon, prefix, room, terrain, wander, demon, kits, or all): prices each one against an all-on run on the same seed')
+ap.add_argument('--batch', default='', help='label NAME:I/N when this sim is run I of N back to back (the balance dashboard shows an ETA for the whole batch); no effect on the sim')
+ap.add_argument('--dungeon-slot', type=int, default=0, help='pin the dungeon menu slot 1-3 (default 0: rotate through all three of the region, by shard seed)')
 ap.add_argument('--overlay',default='', help='folder of GameData files copied over the scratch GameData (test data edits without touching the repo)')
 ap.add_argument('--keep', default='', help='copy the raw shard JSON (fight rows) into this folder')
 ap.add_argument('--shard-timeout', type=int, default=1800, help='seconds before a shard is killed and dropped (a stuck fight)')
@@ -135,6 +138,10 @@ def shard(patch, level, cls, i, tag):
         args += ['--material', A.material]
     if A.affix:
         args += ['--affix', A.affix]
+    if A.dungeon_slot:
+        args += ['--dungeon-slot', str(A.dungeon_slot)]
+    if A.features_off:
+        args += ['--features-off', A.features_off]
     if A.seed:
         args += ['--seed', str(A.seed * 1_000_000 + level * 1000 + i)]
     log = os.path.join(WORK, f'{tag}-L{level}-{cls}-{i}.log')
@@ -208,8 +215,29 @@ def summarize(level, anchors, docs):
         # Enemy attacks the hero takes per fight, by class (class-parity gauge).
         'perClassEnemyActs': {c: round(v['EnemyActions'] / v['Fights'], 2) if v['Fights'] else None for c, v in per_class.items()},
         'provenance': sorted(provs),
+        # Per dungeon theme (all classes): dungeons, clear / retreat / death rates, and per class clear.
+        'perDungeon': per_dungeon(docs),
     }
     return res
+
+
+def per_dungeon(docs):
+    acc = {}
+    for d in docs:
+        for o in d.get('DungeonOutcomes') or []:
+            t = acc.setdefault(o['Theme'], {'Dungeons': 0, 'Cleared': 0, 'Retreated': 0, 'Died': 0, 'byClass': {}})
+            for k in ('Dungeons', 'Cleared', 'Retreated', 'Died'):
+                t[k] += o[k]
+            c = t['byClass'].setdefault(o['Class'], [0, 0])
+            c[0] += o['Cleared']; c[1] += o['Dungeons']
+    out = {}
+    for theme, t in sorted(acc.items()):
+        n = t['Dungeons']
+        out[theme] = {'dungeons': n, 'clear': round(t['Cleared'] / n, 3) if n else None,
+                      'retreat': round(t['Retreated'] / n, 3) if n else None, 'death': round(t['Died'] / n, 3) if n else None,
+                      'clearCI': [round(x, 3) for x in wilson(t['Cleared'], n)] if n else None,
+                      'perClassClear': {c: round(v[0] / v[1], 3) if v[1] else None for c, v in t['byClass'].items()}}
+    return out
 
 
 def show(r):
@@ -218,6 +246,9 @@ def show(r):
           f"clear {r['clear'] * 100:5.1f}% {pct(r['clearCI']):9}  retreat {r['retreat'] * 100:5.1f}% {pct(r['retreatCI']):9}  "
           f"death {r['death'] * 100:4.1f}% {pct(r['deathCI']):9}  HP lost/fight {r['hpLostPerFight'] * 100:4.1f}%  hero acts {r['heroActionsPerFight']:4.1f}  "
           f"by class {r['perClassClear']}  enemy acts/fight {r['perClassEnemyActs']}", flush=True)
+    if r.get('perDungeon'):
+        print('     by dungeon: ' + '  '.join(f"{t} {v['clear'] * 100:.0f}% (n {v['dungeons']})" for t, v in r['perDungeon'].items()
+                                            if v['clear'] is not None), flush=True)
     if r['levelDrift']:
         print(f"     WARNING: {r['levelDrift']} hero(es) levelled inside a dungeon", flush=True)
     if len(r['provenance']) > 1:

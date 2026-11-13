@@ -159,6 +159,9 @@
     "itemAsciiGlyphGain": 2.5123152709359604,
     "itemAsciiBackground": 0.6071428571428571,
     "itemAsciiCutoff": 0.5342364532019704,
+    "lightRayStrength": 1,
+    "lightCloudStrength": 0.8,
+    "lightRaySpeed": 1,
     "isAscii": true,
     "isItemAscii": false
   },

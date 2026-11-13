@@ -44,6 +44,13 @@ namespace RPGGame
             return (null, 1.0, DefaultMaxActions);
         }
 
+        /// <summary>Raises this fight's act limit (room affix Restless); call after <see cref="ConfigureActivityFromTags"/>.</summary>
+        public void AddMaxActions(int extra)
+        {
+            if (extra > 0)
+                maxEnvironmentActions += extra;
+        }
+
         public void ResetForNewFight()
         {
             environmentActionCount = 0;

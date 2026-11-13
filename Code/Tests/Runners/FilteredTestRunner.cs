@@ -189,6 +189,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "StatusCombatModifiers", () => RPGGame.Tests.Unit.Combat.StatusCombatModifiersTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ArchetypeCombat", () => RPGGame.Tests.Unit.Combat.ArchetypeCombatTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "EnemyIdentity", () => RPGGame.Tests.Unit.Combat.EnemyIdentityTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "EnemyRoomAffix", () => RPGGame.Tests.Unit.World.EnemyRoomAffixTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "EnemyActionSequence", () => RPGGame.Tests.Unit.Combat.EnemyActionSequenceTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ClassTags", () => RPGGame.Tests.Unit.ClassTagsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ClassTreeEffects", () => RPGGame.Tests.Unit.ClassTreeEffectsTests.RunAllTests()));

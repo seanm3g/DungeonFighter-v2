@@ -75,6 +75,12 @@ namespace RPGGame
             return Math.Max(0, cap);
         }
 
+        /// <summary>
+        /// Chance (0–1) a weapon drop rolls one of its weapon type's three family materials (Mace: Bone/Steel/Iron, ...);
+        /// otherwise any of the twelve set materials. 0 = fully random (pre-11-12 behaviour).
+        /// </summary>
+        public double WeaponFamilyMaterialShare { get; set; } = ItemMaterialRules.DefaultWeaponFamilyMaterialShare;
+
         /// <summary>Chance (0–1) a weapon's gear action comes from its class's actions; otherwise a neutral action.</summary>
         public double WeaponGearActionClassShare { get; set; } = 0.7;
 

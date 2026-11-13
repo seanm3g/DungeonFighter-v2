@@ -1,5 +1,5 @@
 {
-  "description": "Enemy prefixes rolled when a room's enemy is created (and the final boss's Demon mark). Tags only for now: they are stored on Enemy.PrefixTags and the name, and drive no mechanics yet. 'idea' is the intended mechanic.",
+  "description": "Enemy prefixes rolled when a room's enemy is created (and the final boss's Demon mark). A prefix renames the enemy, adds its tags (StatusAffinities.json reads them for immunities and weaknesses) and adds its effects as enemy affixes (EnemyAffixRuntime levers: hp / damage / speed (belowHealth gates) / onhit / start / taken (weapons filter) / evasion (stacks = hit faces) / extraaction (stacks = signature actions)). The Demon's mechanics come from EnemyAffixes.json.",
   "roomRoll": {
     "chance": 0.12,
     "chancePerLevel": 0.002,
@@ -12,7 +12,7 @@
       "bossOnly": true,
       "weight": 0,
       "tags": [ "demon", "fiend", "infernal" ],
-      "idea": "Final-boss mark. A second phase at 50% HP that adds one action to its sequence; drains a little of the hero's material currency per hit; guaranteed rare drop."
+      "description": "Final-boss mark: signature kit, region affix a rank up, dungeon affix and a second phase at 50% HP (EnemyAffixes.json)."
     },
     {
       "name": "Undead",
@@ -20,7 +20,8 @@
       "requiresTags": [ "living" ],
       "excludesTags": [ "undead", "elemental", "plant" ],
       "tags": [ "undead", "risen" ],
-      "idea": "Rises once at 30% HP after its first death. Immune to bleed and poison, takes extra damage from fire and holy."
+      "description": "+15% HP. Immune to Poison and Bleed, takes 1.5x Burn.",
+      "effects": [ { "lever": "hp", "value": 0.15 } ]
     },
     {
       "name": "Skeleton",
@@ -28,7 +29,11 @@
       "requiresTags": [ "living", "has_legs" ],
       "excludesTags": [ "undead", "elemental", "plant", "tiny" ],
       "tags": [ "undead", "skeleton", "brittle" ],
-      "idea": "Bones shrug off blades and piercing (dagger and sword hits reduced) but shatter under blunt hits (maces deal extra). A Barbarian-favoured matchup."
+      "description": "Takes 25% less from swords and daggers, 30% more from maces. Immune to Poison and Bleed.",
+      "effects": [
+        { "lever": "taken", "value": -0.25, "weapons": [ "sword", "dagger" ] },
+        { "lever": "taken", "value": 0.3, "weapons": [ "mace" ] }
+      ]
     },
     {
       "name": "Ghost",
@@ -36,21 +41,32 @@
       "requiresTags": [ "living" ],
       "excludesTags": [ "undead", "elemental", "giant" ],
       "tags": [ "undead", "ghost", "incorporeal" ],
-      "idea": "Physical hits have a chance to pass through; magic hits land normally. A Wizard-favoured matchup."
+      "description": "Takes 30% less from maces, swords and daggers (wands hit it normally). Immune to Poison and Bleed.",
+      "effects": [ { "lever": "taken", "value": -0.3, "weapons": [ "mace", "sword", "dagger" ] } ]
     },
     {
       "name": "Giant",
       "weight": 2,
       "excludesTags": [ "giant", "tiny", "minion" ],
       "tags": [ "giant", "huge" ],
-      "idea": "More HP and harder hits, slower swings. Staggers (loses its next action) on a critical hit."
+      "description": "+30% HP and +20% damage, swings 15% slower.",
+      "effects": [
+        { "lever": "hp", "value": 0.3 },
+        { "lever": "damage", "value": 0.2 },
+        { "lever": "speed", "value": -0.15 }
+      ]
     },
     {
       "name": "Tiny",
       "weight": 2,
       "excludesTags": [ "tiny", "giant", "boss" ],
       "tags": [ "tiny", "small" ],
-      "idea": "Less HP, faster swings, raises the hero's hit threshold by 1 (harder to hit)."
+      "description": "-25% HP, swings 20% faster, and you need 1 higher to hit it.",
+      "effects": [
+        { "lever": "hp", "value": -0.25 },
+        { "lever": "speed", "value": 0.2 },
+        { "lever": "evasion", "stacks": 1 }
+      ]
     },
     {
       "name": "Feral",
@@ -58,14 +74,16 @@
       "requiresTags": [ "living" ],
       "excludesTags": [ "undead", "elemental", "plant" ],
       "tags": [ "feral", "beast" ],
-      "idea": "Swings faster as it loses HP (enrage below 50%)."
+      "description": "Swings 30% faster below half HP.",
+      "effects": [ { "lever": "speed", "value": 0.3, "belowHealth": 0.5 } ]
     },
     {
       "name": "Armored",
       "weight": 2,
       "excludesTags": [ "elemental", "plant", "incorporeal" ],
       "tags": [ "armored", "plated" ],
-      "idea": "High Defense until sundered or exposed; rewards SUNDER, EXPOSE and pierce."
+      "description": "Starts each fight with 3 Fortify. Takes 2x Acid.",
+      "effects": [ { "lever": "start", "status": "fortify", "stacks": 3 } ]
     },
     {
       "name": "Ancient",
@@ -73,28 +91,38 @@
       "minLevel": 35,
       "excludesTags": [ "young", "minion" ],
       "tags": [ "ancient", "elder" ],
-      "idea": "One extra action in its sequence; more XP and a better loot roll."
+      "description": "+10% HP and one more action from its dungeon's signature kit.",
+      "effects": [
+        { "lever": "hp", "value": 0.1 },
+        { "lever": "extraaction", "stacks": 1 }
+      ]
     },
     {
       "name": "Corrupted",
       "weight": 2,
       "minLevel": 20,
       "tags": [ "corrupted", "shadow" ],
-      "idea": "Applies a stacking curse that lowers the hero's healing; drops Shadow and Obsidian materials more often."
+      "description": "25% chance to Weaken on hit.",
+      "effects": [ { "lever": "onhit", "status": "weaken", "chance": 0.25 } ]
     },
     {
       "name": "Blazing",
       "weight": 2,
       "excludesTags": [ "water", "plant" ],
       "tags": [ "fire", "burning" ],
-      "idea": "Burns on hit and is immune to burn. More common in the Fire region."
+      "description": "30% chance to Burn on hit. Immune to Burn.",
+      "effects": [ { "lever": "onhit", "status": "burn", "chance": 0.3 } ]
     },
     {
       "name": "Frozen",
       "weight": 2,
       "excludesTags": [ "fire" ],
       "tags": [ "ice", "frozen" ],
-      "idea": "Slows the hero on hit; a critical hit shatters it for bonus damage."
+      "description": "30% chance to Slow on hit, but brittle: takes 15% more damage and 2x Burn.",
+      "effects": [
+        { "lever": "onhit", "status": "slow", "chance": 0.3 },
+        { "lever": "taken", "value": 0.15 }
+      ]
     },
     {
       "name": "Venomous",
@@ -102,21 +130,27 @@
       "requiresTags": [ "living" ],
       "excludesTags": [ "undead", "elemental" ],
       "tags": [ "venomous", "poison" ],
-      "idea": "Poisons on hit; immune to poison."
+      "description": "30% chance to Poison on hit (0.25% max HP per tick). Immune to Poison.",
+      "effects": [ { "lever": "onhit", "status": "poison", "chance": 0.3, "value": 0.25 } ]
     },
     {
       "name": "Hallowed",
       "weight": 1,
       "excludesTags": [ "undead", "demon" ],
       "tags": [ "celestial", "holy" ],
-      "idea": "Regenerates a little HP each turn; takes extra damage from shadow."
+      "description": "+15% HP and starts each fight with 1 Harden. Immune to Weaken.",
+      "effects": [
+        { "lever": "hp", "value": 0.15 },
+        { "lever": "start", "status": "harden", "stacks": 1 }
+      ]
     },
     {
       "name": "Cursed",
       "weight": 1,
       "minLevel": 10,
       "tags": [ "cursed" ],
-      "idea": "Killing it applies a short debuff to the hero; drops items with a cursed affix more often."
+      "description": "25% chance to Expose on hit.",
+      "effects": [ { "lever": "onhit", "status": "expose", "chance": 0.25 } ]
     }
   ]
 }

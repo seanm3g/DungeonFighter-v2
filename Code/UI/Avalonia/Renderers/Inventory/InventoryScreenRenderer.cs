@@ -633,6 +633,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     width);
             }
 
+            if (ItemTagSynergy.GetDisplayTags(item).Count > 0)
+                rows += WrappedLineCount(ItemTagSynergy.BuildTagsLineSegments(item, character, ColorPalette.Cyan.GetColor()), width);
+
             if (!item.MeetsRequirements(character))
             {
                 rows += 1;
@@ -1105,6 +1108,15 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             {
                 written = textWriter.WriteLineColoredWrapped(
                     ItemComparisonRenderer.BuildModsLineSegments(item.Modifications, ColorPalette.Cyan.GetColor(), AsciiArtAssets.Colors.White),
+                    x, y, width);
+                y += written;
+                currentLineCount += written;
+            }
+
+            if (ItemTagSynergy.GetDisplayTags(item).Count > 0 && y < bottomY)
+            {
+                written = textWriter.WriteLineColoredWrapped(
+                    ItemTagSynergy.BuildTagsLineSegments(item, character, ColorPalette.Cyan.GetColor()),
                     x, y, width);
                 y += written;
                 currentLineCount += written;

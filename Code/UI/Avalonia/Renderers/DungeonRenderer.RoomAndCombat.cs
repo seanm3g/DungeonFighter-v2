@@ -181,6 +181,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                 int borderThick = HeroActionStripFeedback.IsFlashEmphasisActive(i)
                     ? HeroActionStripFeedback.FlashBorderThicknessPixels
                     : 1;
+                // A stun skips the hero's next turn: the card it is lined up on wears the stun color until the stun wears off.
+                if (CombatBoardLayout.IsActive && isSelected && !flashActive && player.StunTurnsRemaining > 0)
+                    (borderColor, borderThick) = (BoardStunColor, 2);
                 // On the board the room backdrop runs behind the strip: fill the card so it stays solid when the
                 // turn scrim lifts (hover, or the hero's own turn), matching the enemy strip cards.
                 if (CombatBoardLayout.IsActive)
@@ -529,6 +532,15 @@ namespace RPGGame.UI.Avalonia.Renderers
                     : innerTop);
             if (boxY + boxH - 1 > maxBoxBottom)
                 boxY = Math.Max(innerTop, maxBoxBottom - boxH + 1);
+
+            // Action Sequence editor card: off the sequence row, lined up with the hovered card (not the hidden strip's spot).
+            if (!leftPanelTooltipActive && rpSeq >= 0 && ActionStripHoverState.HoveredPanelIndex < 0
+                && ActionSequenceEditorLayout.TryPlaceCardTooltip(true, rpSeq, boxWFinal, boxH,
+                    innerLeft, innerTop, innerRight, maxBoxBottom, out int edX, out int edY))
+            {
+                boxX = edX;
+                boxY = edY;
+            }
 
             int innerRightInclusive = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
             HoverTooltipDrawing.DrawFramedPanel(canvas, boxX, boxY, boxWFinal, boxH, innerLeft, innerTop, innerRightInclusive, maxBoxBottom);

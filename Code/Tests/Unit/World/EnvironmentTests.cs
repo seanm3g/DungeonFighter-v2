@@ -35,6 +35,12 @@ namespace RPGGame.Tests.Unit.World
             TestResetForNewFight();
             TestRoomRollTrigger();
             TestRoomTriggerQueuesBeforeItActs();
+            TestStunnedTurnsInQueue();
+            try { TestRoomStunOnCombatBoard(); }
+            catch (Exception ex)
+            {
+                TestBase.AssertTrue(false, $"Room stun on the combat board threw: {ex}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
 
             TestBase.PrintSummary("Environment Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -238,6 +244,10 @@ namespace RPGGame.Tests.Unit.World
                     && ReferenceEquals(during[1].Actor, room) && during[1].IsRoomTrigger,
                     "While the swing plays, the triggered room queues right behind it",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
+                var rolling = CombatTurnQueue.GetUpcoming(4, pastActingTurn: false, showPendingTrigger: false);
+                TestBase.AssertTrue(!rolling.Exists(e => e.IsRoomTrigger),
+                    "While the die is still showing, the triggered room stays out of the queue",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
                 CombatTurnQueue.EndTurn();
 
                 var between = CombatTurnQueue.GetUpcoming(12, pastActingTurn: false);
@@ -261,6 +271,150 @@ namespace RPGGame.Tests.Unit.World
             finally
             {
                 CombatTurnQueue.Unbind();
+            }
+        }
+
+        /// <summary>A room stun shows on the board: the queue knows which turns it skips, counting the one playing now as used.</summary>
+        private static void TestStunnedTurnsInQueue()
+        {
+            Console.WriteLine("\n--- Testing stunned turns in the turn queue ---");
+
+            var room = new Environment("Test Room", "A test room", true, "Forest");
+            var hero = new Character("Tester");
+            var enemy = new Enemy("Dummy", 1, 50, 5, 5, 5, 5);
+            var speed = new ActionSpeedSystem();
+            speed.AddEntity(hero, 1.0);
+            speed.AddEntity(enemy, 1.5);
+            using var unmuted = RPGGame.Combat.CombatUiMuteScope.Begin(muted: false);
+            CombatTurnQueue.Bind(speed, room);
+            try
+            {
+                hero.IsStunned = true;
+                hero.StunTurnsRemaining = 2;
+                TestBase.AssertTrue(CombatTurnQueue.StunnedTurnsAhead(hero) == 2 && CombatTurnQueue.StunnedTurnsAhead(enemy) == 0,
+                    "Between turns, both stunned turns are still ahead",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                CombatTurnQueue.BeginTurn(hero);
+                TestBase.AssertTrue(CombatTurnQueue.ActingStunned && CombatTurnQueue.StunnedTurnsAhead(hero) == 1,
+                    "A turn that begins stunned is flagged, and only the turns after it count as ahead",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                hero.StunTurnsRemaining = 1; // the stun turn ticks after its block shows
+                TestBase.AssertTrue(CombatTurnQueue.StunnedTurnsAhead(hero) == 1,
+                    "The tick doesn't count the playing turn twice",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                CombatTurnQueue.EndTurn();
+                TestBase.AssertFalse(CombatTurnQueue.ActingStunned,
+                    "Ending the turn clears the stunned flag",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                hero.IsStunned = false;
+                hero.StunTurnsRemaining = 0;
+                CombatTurnQueue.BeginTurn(hero);
+                TestBase.AssertFalse(CombatTurnQueue.ActingStunned,
+                    "A turn that begins unstunned isn't flagged",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                CombatTurnQueue.Unbind();
+            }
+        }
+
+        /// <summary>
+        /// Headless walk of what the combat board shows for a room stun: the stunned fighter's next turn reads STUNNED in
+        /// the timeline and the next-roll column, the combo it would have played moves back a turn, and once the stunned
+        /// turn plays the board goes back to dice.
+        /// </summary>
+        private static void TestRoomStunOnCombatBoard()
+        {
+            Console.WriteLine("\n--- Testing room stun on the combat board ---");
+
+            var room = new Environment("Test Room", "A test room", true, "Forest");
+            var hero = new Character("Tester");
+            var enemy = new Enemy("Dummy", 1, 50, 5, 5, 5, 5);
+            // A strip card, so the turn after the stun has a real combo action to show (a level-1 enemy keeps one slot).
+            var move = new Action { Name = "Dummy Move", IsComboAction = true, Length = 1.0, ComboOrder = 1 };
+            enemy.AddAction(move, 1.0);
+            enemy.AddToCombo(move);
+            var combo = enemy.GetComboActions();
+            TestBase.AssertTrue(combo.Count >= 1, $"Test enemy has a combo strip ({combo.Count} action(s))",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var speed = new ActionSpeedSystem();
+            speed.AddEntity(hero, 1.0);
+            speed.AddEntity(enemy, 1.5);
+            using var unmuted = RPGGame.Combat.CombatUiMuteScope.Begin(muted: false);
+            CombatTurnQueue.Bind(speed, room);
+            try
+            {
+                var idle = new RPGGame.UI.Avalonia.Renderers.DungeonRenderer.BoardTurnView();
+                var stunned = RPGGame.UI.Avalonia.Renderers.DungeonRenderer.StunnedTurnAction;
+                Action? Projected(Actor a, int k) => RPGGame.UI.Avalonia.Renderers.DungeonRenderer.ProjectTimelineTurn(a, k, idle).Action;
+                var Branches = (Actor a) => RPGGame.UI.Avalonia.Renderers.DungeonRenderer.BoardBranches(a, null);
+
+                // The room's stun hazard lands (same handler the room uses).
+                var hazard = new Action { Name = "Cave In", CausesStun = true };
+                bool applied = new EnvironmentalStunHandler().Apply(enemy, hazard, new List<string>());
+                int step = enemy.ComboStep;
+                Action? lined = combo.Count > 0 ? combo[step % combo.Count] : null;
+                TestBase.AssertTrue(applied && enemy.StunTurnsRemaining == 1,
+                    "The room's stun hazard stuns the enemy for a turn",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                TestBase.AssertTrue(ReferenceEquals(Projected(enemy, 0), stunned)
+                    && ReferenceEquals(Projected(enemy, 1), lined),
+                    "Timeline: the enemy's next card reads STUNNED and the combo it was lined up on moves to the turn after",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                var next = Branches(enemy);
+                TestBase.AssertTrue(next.Count == 1 && next[0].Stunned && next[0].Text == "STUNNED"
+                    && next[0].Detail.Count == 1 && next[0].Detail[0] == "skips this turn",
+                    "Next-roll column: one STUNNED box instead of dice odds",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                var heroNext = Branches(hero);
+                TestBase.AssertTrue(heroNext.Count > 1 && !heroNext.Exists(b => b.Stunned),
+                    "The unstunned hero still shows its dice branches",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // The enemy's stunned turn plays: NOW shows STUNNED, and the board looks past it.
+                CombatTurnQueue.BeginTurn(enemy);
+                TestBase.AssertTrue(CombatTurnQueue.ActingStunned
+                    && ReferenceEquals(Projected(enemy, 0), lined)
+                    && !Branches(enemy).Exists(b => b.Stunned),
+                    "While the stunned turn plays, the turn after it is back to the enemy's combo and dice",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                enemy.UpdateTempEffects(Character.DEFAULT_ACTION_LENGTH); // the stun tick (StunProcessor)
+                TestBase.AssertTrue(enemy.StunTurnsRemaining == 0 && CombatTurnQueue.StunnedTurnsAhead(enemy) == 0
+                    && ReferenceEquals(Projected(enemy, 0), lined),
+                    "After the tick the board still shows the same next turn (no flicker)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                CombatTurnQueue.EndTurn();
+
+                // A longer stun: two skipped turns, then the combo resumes where it stood.
+                enemy.IsStunned = true;
+                enemy.StunTurnsRemaining = 2;
+                next = Branches(enemy);
+                TestBase.AssertTrue(ReferenceEquals(Projected(enemy, 0), stunned) && ReferenceEquals(Projected(enemy, 1), stunned)
+                    && ReferenceEquals(Projected(enemy, 2), lined)
+                    && next.Count == 1 && next[0].Detail[0] == "skips 2 turns",
+                    "A 2-turn stun shows two STUNNED cards, then the lined-up combo",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // Stunned mid-turn (its swing still to fire): that turn plays, the one after is skipped.
+                var held = new RPGGame.UI.Avalonia.Renderers.DungeonRenderer.BoardTurnView { HoldActor = hero };
+                hero.IsStunned = true;
+                hero.StunTurnsRemaining = 1;
+                var heroCombo = hero.GetComboActions();
+                var k0 = RPGGame.UI.Avalonia.Renderers.DungeonRenderer.ProjectTimelineTurn(hero, 0, held).Action;
+                var k1 = RPGGame.UI.Avalonia.Renderers.DungeonRenderer.ProjectTimelineTurn(hero, 1, held).Action;
+                TestBase.AssertTrue(!ReferenceEquals(k0, stunned) && ReferenceEquals(k1, stunned),
+                    $"A held turn still plays; the stun skips the turn after it (strip of {heroCombo.Count})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                CombatTurnQueue.Unbind();
+                enemy.IsStunned = hero.IsStunned = false;
+                enemy.StunTurnsRemaining = hero.StunTurnsRemaining = 0;
             }
         }
 

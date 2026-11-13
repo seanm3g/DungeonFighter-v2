@@ -50,9 +50,9 @@ namespace RPGGame.Tests.Unit
             TestBase.SetCurrentTestName(nameof(TestWeaponsRollAnyMaterial));
             var random = new Random(5);
             var seen = new System.Collections.Generic.HashSet<string>();
-            for (int i = 0; i < 400; i++)
-                seen.Add(ItemMaterialRules.PickClassMaterial(WeaponType.Wand, random));
-            TestBase.AssertEqual(ItemMaterialRules.ClassMaterials.Length, seen.Count, "a Wand can roll every set material",
+            for (int i = 0; i < 2000; i++)
+                seen.Add(ItemMaterialRules.PickClassMaterial(WeaponType.Wand, random, 0.9));
+            TestBase.AssertEqual(ItemMaterialRules.ClassMaterials.Length, seen.Count, "a Wand can roll every set material (10% off-family)",
                 ref _run, ref _passed, ref _failed);
         }
 

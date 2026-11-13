@@ -407,6 +407,13 @@ namespace RPGGame
                         canvasUI.RenderCharacterCreation(player);
                     }
                     break;
+                case GameState.WeaponSelection:
+                    if (canvasUI.LastWeaponSelection != null)
+                    {
+                        canvasUI.Clear();
+                        canvasUI.RenderWeaponSelection(canvasUI.LastWeaponSelection);
+                    }
+                    break;
                 case GameState.TrainingGroundOffer:
                     if (player != null)
                     {

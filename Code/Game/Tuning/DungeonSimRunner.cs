@@ -62,11 +62,21 @@ namespace RPGGame.Tuning
             PlaythroughRulesPolicy.Synergy = bot == "synergy";
             PlaythroughRulesPolicy.ExploreStrips = TuningCliArgs.HasFlag(args, "--explore-strips");
             ClassPlaythroughRunner.RegionMix = TuningCliArgs.HasFlag(args, "--region-mix");
+            // Shards are separate processes whose run counters all start at 0: offset them by the shard seed so the runs
+            // spread over every region theme.
+            ClassPlaythroughRunner.RegionMixOffset = ClassPlaythroughRunner.RegionMix && seed is int mixSeed ? Math.Abs(mixSeed % 4) : 0;
+            // Every sim rotates the dungeon slot (a player picks any of the region's three); --dungeon-slot N pins one.
+            int? pinnedSlot = TuningCliArgs.GetIntFlag(args, "--dungeon-slot");
+            ClassPlaythroughPolicy.DungeonMix = pinnedSlot == null;
+            ClassPlaythroughPolicy.PinnedDungeonSlot = pinnedSlot;
+            ClassPlaythroughPolicy.DungeonMixOffset = seed is int dSeed ? Math.Abs(dSeed % 3) : 0;
             ClassPlaythroughRunner.RegionTheme = TuningCliArgs.GetFlagValue(args, "--region-theme");
             ClassPlaythroughRunner.RetreatBelowHpPercent = retreat;
             // --material Bone: every loot roll (bag and drops) is that material, so the run's set is that material.
             LootBonusApplier.ToolForcedMaterial = TuningCliArgs.GetFlagValue(args, "--material") is { Length: > 0 } forced
                 ? ItemMaterialRules.RemapLegacyMaterial(forced) : null;
+            // --features-off region,dungeon,prefix,room,terrain,wander,demon,kits: switch enemy / room affix features off (pricing each one).
+            AffixFeatures.SetOff(TuningCliArgs.GetFlagValue(args, "--features-off"));
             // --affix stat:CRIT / mod:Heavy: every loot roll also carries that affix line (prices one affix vs an unforced run).
             LootBonusApplier.ToolForcedAffix = TuningCliArgs.GetFlagValue(args, "--affix") is { Length: > 0 } affix ? affix : null;
 
@@ -140,17 +150,27 @@ namespace RPGGame.Tuning
                     RetreatBelowHpPercent = retreat,
                     Bot = bot,
                     Outcomes = outcomes.Append(all).ToList(),
+                    // Per dungeon theme and class (dungeon-sim.py per-dungeon table, Scripts/dungeon-calibrate.py).
+                    DungeonOutcomes = batch.ClassAggregates.SelectMany(a => a.Runs.SelectMany(r => r.DungeonOutcomes)
+                        .GroupBy(kv => kv.Key, StringComparer.OrdinalIgnoreCase)
+                        .Select(g => new
+                        {
+                            Class = a.ClassDisplayName, Theme = g.Key,
+                            Dungeons = g.Sum(kv => kv.Value.Attempted), Cleared = g.Sum(kv => kv.Value.Cleared),
+                            Retreated = g.Sum(kv => kv.Value.Retreated), Died = g.Sum(kv => kv.Value.Died)
+                        })).ToList(),
                     // Every real fight at the level (per-enemy reads in Scripts/balance-scan.py).
                     Fights = batch.ClassAggregates.SelectMany(a => a.Runs.SelectMany(r => r.Fights.Where(f => f.HeroLevel >= level).Select(f => new
                     {
-                        Class = a.ClassDisplayName, Enemy = f.EnemyName, f.EnemyLevel, f.HeroActions, f.EnemyActions, f.FightInDungeon, f.HeroDied,
+                        Class = a.ClassDisplayName, Enemy = f.EnemyName, f.DungeonTheme, f.EnemyLevel, f.HeroActions, f.EnemyActions, f.FightInDungeon, f.HeroDied,
                         HpLost = f.HeroMaxHp > 0 ? Math.Round(Math.Max(0, f.HeroHpStart - f.HeroHpEnd) / (double)f.HeroMaxHp, 3) : 0,
                         f.Strip, f.OwnedActions, f.ActionUses, HpMinPct = Math.Round(f.HpMinPct, 3), f.LeadChanges, f.HeroMisses, f.LongestMissStreak, f.HeroHits, f.ComboHits, f.BossFight, f.StatusApplied, f.StatusSkillStat, f.StatusSkillFirstAction,
                         f.DamageBySource, f.HeroDamageBySource, f.CritDamage, f.ComboDamage, f.ConvertDamage,
                         f.SlotSwings, f.SlotHitDamage, f.SlotMax, f.HeroTechnique, f.HeroIntelligence,
                         f.StripBreaks, f.StripCompletions, f.CarriedInStrip,
                         f.Gear, f.Affixes, f.Sets, f.Skills, f.HeroStrength, f.HeroAgility, f.HeroMaxHp,
-                        f.EnemyPrefix, f.EnemyActionUses, f.HeroDamageByEnemyAction
+                        f.EnemyPrefix, f.EnemyActionUses, f.HeroDamageByEnemyAction,
+                        f.EnemyAffixes, f.EnemyWanderer, f.RoomAffix, f.RoomTerrain, f.RoomWanderer, f.DemonPhase
                     }))).ToList(),
                     // Smart bot sequence searches at the level (viable-set reads in Scripts/balance-scan.py).
                     Decisions = batch.ClassAggregates.SelectMany(a => a.Runs.SelectMany(r => r.SequenceDecisions.Where(d => d.HeroLevel >= level).Select(d => new

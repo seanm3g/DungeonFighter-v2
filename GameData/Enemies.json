@@ -758,6 +758,10 @@
       "Sand Dash",
       "Desert Veil"
     ],
+    "kit": [
+      "ENEMY PIERCE",
+      "ENEMY ENSNARE"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A desert raider that cuts in from the blinding sand \u2014 fast strikes from the edge of vision",
@@ -793,6 +797,10 @@
     "actions": [
       "Burrow Strike",
       "Sand Spray"
+    ],
+    "kit": [
+      "ENEMY PIERCE",
+      "ENEMY ENSNARE"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -831,6 +839,10 @@
     "actions": [
       "Rolling Charge",
       "Sand Armor"
+    ],
+    "kit": [
+      "ENEMY PIERCE",
+      "ENEMY ENSNARE"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -872,6 +884,10 @@
       "Solar Sting",
       "Heat Wave"
     ],
+    "kit": [
+      "ENEMY PIERCE",
+      "ENEMY ENSNARE"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A scorpion whose tail gleams like a spear in the sun \u2014 precise, poisonous strikes",
@@ -911,6 +927,10 @@
       "Blinding Flash",
       "Precision Shot"
     ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY PIERCE"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A hunter that uses reflected sunlight to blind prey before closing in",
@@ -949,6 +969,10 @@
       "Crystal Barrage",
       "Shatter"
     ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY DRAIN"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A construct of fused desert glass \u2014 sharp, brittle, and deadly up close",
@@ -985,6 +1009,10 @@
     "actions": [
       "Illusion Strike",
       "Vanish"
+    ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1025,6 +1053,10 @@
       "Phase Shift",
       "Soul Drain"
     ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY DRAIN"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A shade born of desert noon \u2014 phases through light and drains the unwary",
@@ -1058,6 +1090,10 @@
     "actions": [
       "Vitality Leech",
       "Sap Drain"
+    ],
+    "kit": [
+      "ENEMY DRAIN",
+      "ENEMY ENSNARE"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1097,6 +1133,10 @@
       "Titan Fist",
       "Ground Pound"
     ],
+    "kit": [
+      "ENEMY CURSE",
+      "ENEMY VENOM"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A towering statue of carved sandstone \u2014 slow, massive, and nearly immovable",
@@ -1132,6 +1172,10 @@
     "actions": [
       "Toxic Dart",
       "Venom Volley"
+    ],
+    "kit": [
+      "ENEMY VENOM",
+      "ENEMY MEND"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1170,6 +1214,10 @@
     "actions": [
       "Solar Blessing",
       "Sunbeam"
+    ],
+    "kit": [
+      "ENEMY CURSE",
+      "ENEMY MEND"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1210,6 +1258,10 @@
       "Shell Defense",
       "Mandible Crush"
     ],
+    "kit": [
+      "ENEMY CURSE",
+      "ENEMY VENOM"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A sacred beetle grown to impossible size \u2014 armored and fiercely territorial",
@@ -1245,10 +1297,14 @@
     },
     "healthPercent": 100,
     "healthGrowthPercent": 4.29,
-    "tempo": "fast",
+    "tempo": "normal",
     "actions": [
       "Ambush",
       "Sand Blind"
+    ],
+    "kit": [
+      "ENEMY CURSE",
+      "ENEMY MEND"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1284,6 +1340,10 @@
       "Entomb",
       "Mummy\u0027s Grasp"
     ],
+    "kit": [
+      "ENEMY MEND",
+      "ENEMY CURSE"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "An undead bound to a cracked sarcophagus \u2014 shambling, heavy, and hard to put down",
@@ -1316,6 +1376,10 @@
     "actions": [
       "Raise Dead",
       "Death Bolt"
+    ],
+    "kit": [
+      "ENEMY MEND",
+      "ENEMY CURSE"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1355,6 +1419,10 @@
       "Crush",
       "Binding Slam"
     ],
+    "kit": [
+      "ENEMY VENOM",
+      "ENEMY MEND"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A wrapped undead preserved by desert rites \u2014 durable and relentless",
@@ -1387,6 +1455,10 @@
     "actions": [
       "Spectral Touch",
       "Ancient Curse"
+    ],
+    "kit": [
+      "ENEMY CURSE",
+      "ENEMY MEND"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1421,6 +1493,10 @@
       "Talon Strike",
       "Keen Eye"
     ],
+    "kit": [
+      "ENEMY FRENZY",
+      "ENEMY CRUSH"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A desert raptor that dives from above \u2014 swift aerial strikes",
@@ -1454,6 +1530,10 @@
     "actions": [
       "Boulder Hurl",
       "Stone Barrage"
+    ],
+    "kit": [
+      "ENEMY CRUSH",
+      "ENEMY FRENZY"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1494,6 +1574,10 @@
       "Cliff Drop",
       "Ledge Grab"
     ],
+    "kit": [
+      "ENEMY CRUSH",
+      "ENEMY FRENZY"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A blade-wielding hunter that circles the rim of sight \u2014 waits for an opening",
@@ -1530,6 +1614,10 @@
     "actions": [
       "Quick Bite",
       "Disease Spread"
+    ],
+    "kit": [
+      "ENEMY FRENZY",
+      "ENEMY CRUSH"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1569,6 +1657,10 @@
       "Bile Splash",
       "Corrupted Gulp"
     ],
+    "kit": [
+      "ENEMY CONCUSS",
+      "ENEMY FRENZY"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A mutated desert dweller that drinks poison to fuel its attacks",
@@ -1602,6 +1694,10 @@
       "Last Stand Break",
       "Phantom Strike"
     ],
+    "kit": [
+      "ENEMY CONCUSS",
+      "ENEMY CRUSH"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "The ghost of a soldier who fled into the dunes \u2014 elusive and bitter",
@@ -1634,6 +1730,10 @@
     "actions": [
       "Lightning Strike",
       "Thunder Clap"
+    ],
+    "kit": [
+      "ENEMY CONCUSS",
+      "ENEMY CRUSH"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1669,6 +1769,10 @@
       "Dive Bomb",
       "Wind Gust"
     ],
+    "kit": [
+      "ENEMY FRENZY",
+      "ENEMY CONCUSS"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A thin-air specter that haunts high passes \u2014 cold, fast, and disorienting",
@@ -1703,6 +1807,10 @@
     "actions": [
       "Peak Slam",
       "Mountain\u0027s Fury"
+    ],
+    "kit": [
+      "ENEMY CRUSH",
+      "ENEMY CONCUSS"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1740,6 +1848,10 @@
       "Scorching Bite",
       "Ember lunge"
     ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY REND"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A fire-scorched hound that hunts in bursts of speed and fury",
@@ -1773,6 +1885,10 @@
     "actions": [
       "Tremor Burst",
       "Molten Ooze"
+    ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY REND"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1809,6 +1925,10 @@
       "Cinder Shriek",
       "Gust Talon"
     ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY REND"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A winged scavenger of volcanic skies \u2014 fast, shrieking dives",
@@ -1843,6 +1963,10 @@
     "actions": [
       "Coal Shell",
       "Soot Pummel"
+    ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY REND"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1879,6 +2003,10 @@
     "actions": [
       "Ember Spit",
       "Tongue Lash"
+    ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY HEX"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1918,6 +2046,10 @@
       "Smog Step",
       "Murky Ambush"
     ],
+    "kit": [
+      "ENEMY REND",
+      "ENEMY SCORCH"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A predator hidden in volcanic fumes \u2014 strikes when visibility fails",
@@ -1951,6 +2083,10 @@
     "actions": [
       "Predator\u0027s Focus",
       "Smoldering Strike"
+    ],
+    "kit": [
+      "ENEMY REND",
+      "ENEMY SCORCH"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1990,6 +2126,10 @@
       "Bark Fortify",
       "Root Slam"
     ],
+    "kit": [
+      "ENEMY REND",
+      "ENEMY HEX"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A fire-blackened tree spirit \u2014 slow, thick-barked, and heavy-hitting",
@@ -2024,6 +2164,10 @@
     "actions": [
       "Reignite",
       "Flicker Dash"
+    ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY HEX"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -2060,6 +2204,10 @@
     "actions": [
       "Molten Chain",
       "Guard Stance"
+    ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY SHELL"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -2102,6 +2250,10 @@
       "Searing Focus",
       "Lava Glob"
     ],
+    "kit": [
+      "ENEMY SUNDER",
+      "ENEMY SCORCH"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A creature that spews molten rock from a distance \u2014 ranged elemental attacker",
@@ -2137,6 +2289,10 @@
       "Sear The Gap",
       "Drift Strike"
     ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY SHELL"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A wandering fire spirit that darts through heat currents \u2014 mobile and evasive",
@@ -2170,6 +2326,10 @@
     "actions": [
       "Iron Vow",
       "Shield Bash"
+    ],
+    "kit": [
+      "ENEMY SHELL",
+      "ENEMY SCORCH"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -2211,6 +2371,10 @@
       "Stone Gaze",
       "Rubble Toss"
     ],
+    "kit": [
+      "ENEMY SUNDER",
+      "ENEMY SHELL"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A sentinel posted beside temple pillars \u2014 still, alert, and heavily guarded",
@@ -2250,6 +2414,10 @@
       "Soul Skewer",
       "Wall of Ash"
     ],
+    "kit": [
+      "ENEMY SHELL",
+      "ENEMY SCORCH"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A ghost bound to eternal flame \u2014 deceptive strikes from flickering light",
@@ -2283,6 +2451,10 @@
     "actions": [
       "Flame Salute",
       "Blazing Advance"
+    ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY SHELL"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -2325,6 +2497,10 @@
       "Branding Seal",
       "Arcane Ward"
     ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY SHELL"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A mage who binds enemies with fiery sigils \u2014 technical, controlling magic",
@@ -2362,6 +2538,10 @@
     "actions": [
       "Crumbling Curse",
       "hollow Grasp"
+    ],
+    "kit": [
+      "ENEMY SHELL",
+      "ENEMY SUNDER"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -2404,6 +2584,10 @@
       "Expose Vein",
       "Draining Bite"
     ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY DRAIN"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A parasite that drains life from open wounds \u2014 predatory and precise",
@@ -2436,6 +2620,10 @@
     "actions": [
       "Toxic Focus",
       "Spore Burst"
+    ],
+    "kit": [
+      "ENEMY DRAIN",
+      "ENEMY SHELL"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -2471,6 +2659,10 @@
     "actions": [
       "Leech Grip",
       "Crystal barb"
+    ],
+    "kit": [
+      "ENEMY DRAIN",
+      "ENEMY SCORCH"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -2511,6 +2703,10 @@
       "Molten Shell",
       "Shell Ram"
     ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY SHELL"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A turtle shelled in cooled slag \u2014 slow, dense, and extremely tough",
@@ -2549,6 +2745,10 @@
       "Magma Kiss",
       "Slag Drift"
     ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY SHELL"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A creature carried by thermal winds between lava isles \u2014 fast and hard to pin down",
@@ -2583,6 +2783,10 @@
     "actions": [
       "Magma Carapace",
       "Boiling Snap"
+    ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY SHELL"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -2623,6 +2827,10 @@
       "Amber Casing",
       "Petrify Sweep"
     ],
+    "kit": [
+      "ENEMY SHELL",
+      "ENEMY SCORCH"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A guardian encased in ancient amber \u2014 preserved, patient, and hard to crack",
@@ -2661,6 +2869,10 @@
     "actions": [
       "Lava Douse",
       "Molten Pounce"
+    ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -2702,6 +2914,10 @@
       "Amber Ooze",
       "Resin Snare"
     ],
+    "kit": [
+      "ENEMY DRAIN",
+      "ENEMY SCORCH"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A predator that lures prey into sticky amber pools \u2014 traps with cunning",
@@ -2736,6 +2952,10 @@
       "Guard Bite",
       "Boundary Mark"
     ],
+    "kit": [
+      "ENEMY REND",
+      "ENEMY FRENZY"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A fierce hound that defends its hunting ground \u2014 aggressive pack striker",
@@ -2768,6 +2988,10 @@
     "actions": [
       "Leader\u0027s Fang",
       "Rally Pack"
+    ],
+    "kit": [
+      "ENEMY REND",
+      "ENEMY FRENZY"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -2805,6 +3029,10 @@
       "Skeletal Burst",
       "Marrow Drain"
     ],
+    "kit": [
+      "ENEMY CRUSH",
+      "ENEMY REND"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A necromantic scavenger that scatters cursed bones \u2014 spreads decay and dark magic",
@@ -2838,6 +3066,10 @@
       "Sacrificial Strike",
       "Offering"
     ],
+    "kit": [
+      "ENEMY CRUSH",
+      "ENEMY REND"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A bound creature left as offering to old powers \u2014 heavy, savage, and enduring",
@@ -2870,6 +3102,10 @@
     "actions": [
       "Hex Maul",
       "Dark Roar"
+    ],
+    "kit": [
+      "ENEMY CRUSH",
+      "ENEMY FRENZY"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -2907,6 +3143,10 @@
     "actions": [
       "Earth Shield",
       "Tremor"
+    ],
+    "kit": [
+      "ENEMY REND",
+      "ENEMY CRUSH"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -2948,6 +3188,10 @@
       "Celestial Strike",
       "Night\u0027s Grace"
     ],
+    "kit": [
+      "ENEMY REND",
+      "ENEMY FRENZY"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A forest spirit touched by moonlight \u2014 heals and harms with sacred power",
@@ -2981,6 +3225,10 @@
     "actions": [
       "Sound Strike",
       "Sonic Pulse"
+    ],
+    "kit": [
+      "ENEMY FRENZY",
+      "ENEMY CRUSH"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3019,6 +3267,10 @@
       "Pack Leader\u0027s Call",
       "Dominant Bite"
     ],
+    "kit": [
+      "ENEMY CRUSH",
+      "ENEMY REND"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "The commander of a night watch pack \u2014 leads with strength and cunning",
@@ -3052,6 +3304,10 @@
     "actions": [
       "Trick Shot",
       "Misdirect"
+    ],
+    "kit": [
+      "ENEMY DISRUPT",
+      "ENEMY HEX"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3088,6 +3344,10 @@
       "Thorn Bite",
       "Bush Ambush"
     ],
+    "kit": [
+      "ENEMY CONCUSS",
+      "ENEMY DISRUPT"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A lean hound that hunts along maze hedges \u2014 quick flanking predator",
@@ -3120,6 +3380,10 @@
     "actions": [
       "Trap Door",
       "Wall Shift"
+    ],
+    "kit": [
+      "ENEMY DISRUPT",
+      "ENEMY HEX"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3158,6 +3422,10 @@
       "Pathfind",
       "Confuse Trail"
     ],
+    "kit": [
+      "ENEMY DISRUPT",
+      "ENEMY HEX"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A creature born to sprint endless corridors \u2014 blinding speed, low endurance",
@@ -3192,6 +3460,10 @@
       "Circular Strike",
       "Endless Cycle"
     ],
+    "kit": [
+      "ENEMY CONCUSS",
+      "ENEMY DISRUPT"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A spirit trapped in repeating paths \u2014 disorients and strikes from nowhere",
@@ -3225,6 +3497,10 @@
       "Reflex Drain",
       "Primal Fear"
     ],
+    "kit": [
+      "ENEMY DISRUPT",
+      "ENEMY HEX"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A horror that feeds on prey\u2019s fear and reflex \u2014 preys on hesitation",
@@ -3257,6 +3533,10 @@
     "actions": [
       "Perfect Copy",
       "Twin Strike"
+    ],
+    "kit": [
+      "ENEMY DISRUPT",
+      "ENEMY CONCUSS"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3292,6 +3572,10 @@
       "Broken Mirror",
       "Fragment"
     ],
+    "kit": [
+      "ENEMY HEX",
+      "ENEMY DISRUPT"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A broken mirror spirit that attacks through fractured images",
@@ -3324,6 +3608,10 @@
     "actions": [
       "Identity Theft",
       "Confusion"
+    ],
+    "kit": [
+      "ENEMY DISRUPT",
+      "ENEMY HEX"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3358,6 +3646,10 @@
     "actions": [
       "Spiked Charge",
       "Bramble Hide"
+    ],
+    "kit": [
+      "ENEMY VENOM",
+      "ENEMY ENSNARE"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3395,6 +3687,10 @@
       "Nature\u0027s Touch",
       "Vine Whip"
     ],
+    "kit": [
+      "ENEMY MEND",
+      "ENEMY ENSNARE"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A small woodland spirit tied to living roots \u2014 nimble and evasive",
@@ -3429,6 +3725,10 @@
     "actions": [
       "Venom Bite",
       "Rattle Warning"
+    ],
+    "kit": [
+      "ENEMY VENOM",
+      "ENEMY ENSNARE"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3466,6 +3766,10 @@
       "Sweet Sting",
       "Collect"
     ],
+    "kit": [
+      "ENEMY VENOM",
+      "ENEMY ENSNARE"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A oversized pollinator driven to frenzy \u2014 fast, swarming attacks",
@@ -3501,6 +3805,10 @@
       "Allergen Cloud",
       "Pollinate"
     ],
+    "kit": [
+      "ENEMY VENOM",
+      "ENEMY MEND"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A drifting spirit of choking pollen \u2014 obscures sight and saps strength",
@@ -3534,6 +3842,10 @@
       "Gorge Strike",
       "Echo Call"
     ],
+    "kit": [
+      "ENEMY VENOM",
+      "ENEMY ENSNARE"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A lowland predator that hunts at dusk \u2014 swift and aggressive",
@@ -3566,6 +3878,10 @@
     "actions": [
       "Wall Slam",
       "Climb"
+    ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY MEND"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3601,6 +3917,10 @@
       "Whip Strike",
       "Grow"
     ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY MEND"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A writhing plant lash given hostile will \u2014 whips with disciplined force",
@@ -3635,6 +3955,10 @@
       "Decay Touch",
       "Crumble"
     ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY MEND"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A ghost of a fallen settlement \u2014 lingers in broken halls",
@@ -3667,6 +3991,10 @@
     "actions": [
       "Reed Skewer",
       "Predator\u0027s Eye"
+    ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY PIERCE"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3705,6 +4033,10 @@
       "Freeding Frenzy",
       "Swarm Dive"
     ],
+    "kit": [
+      "ENEMY PIERCE",
+      "ENEMY DRAIN"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A cloud of blood-hungry insects \u2014 overwhelming speed, fragile individually",
@@ -3737,6 +4069,10 @@
     "actions": [
       "Mud Shell",
       "Mire Slam"
+    ],
+    "kit": [
+      "ENEMY PIERCE",
+      "ENEMY ENSNARE"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3772,6 +4108,10 @@
       "Tidal Crash",
       "Wave Slam"
     ],
+    "kit": [
+      "ENEMY PIERCE",
+      "ENEMY ENSNARE"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A spirit that surfs river currents \u2014 fast, fluid, and evasive",
@@ -3804,6 +4144,10 @@
     "actions": [
       "Static Thrash",
       "Mud Roll"
+    ],
+    "kit": [
+      "ENEMY PIERCE",
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3838,6 +4182,10 @@
       "Spore Drift",
       "Surge"
     ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY DRAIN"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A empty-souled wanderer of misty hollows \u2014 elusive and unsettling",
@@ -3870,6 +4218,10 @@
     "actions": [
       "Mist Strike",
       "False Form"
+    ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3908,6 +4260,10 @@
       "Chilling Grasp",
       "Frost Crawl"
     ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY PIERCE"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A chill-loving predator of damp caves \u2014 slow approach, sudden strike",
@@ -3942,6 +4298,10 @@
       "Veil Shatter",
       "Phantom Lunge"
     ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY DRAIN"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A ghost that haunts narrow cave ledges \u2014 strikes from cramped angles",
@@ -3975,6 +4335,10 @@
       "Blinding Swarm",
       "Biolumiscent Flash"
     ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY SCORCH"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A bioluminescent cave insect \u2014 small, quick, and distracting",
@@ -4007,6 +4371,10 @@
     "actions": [
       "Cold Seep",
       "Frozen Burst"
+    ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY SCORCH"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -4046,6 +4414,10 @@
       "Lurch Strike",
       "Cavern Thrash"
     ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY SCORCH"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A heavy cave beast that lurches from darkness \u2014 slow, crushing blows",
@@ -4078,6 +4450,10 @@
     "actions": [
       "Calcified Gaze",
       "Basin Surge"
+    ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY MEND"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -4116,6 +4492,10 @@
       "Stone Carapace",
       "Pit Pull"
     ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY ENSNARE"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A predator that waits beneath unstable ground \u2014 pulls prey down to strike",
@@ -4148,6 +4528,10 @@
     "actions": [
       "Predator\u0027s Focus",
       "Tentacle Snap"
+    ],
+    "kit": [
+      "ENEMY SCORCH",
+      "ENEMY ENSNARE"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -4186,6 +4570,10 @@
       "Vent Focus",
       "Steam Dash"
     ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY SCORCH"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A playful but dangerous spirit of cave vents \u2014 mischievous and evasive",
@@ -4221,6 +4609,10 @@
       "Venom Spine",
       "Splash"
     ],
+    "kit": [
+      "ENEMY MEND",
+      "ENEMY SCORCH"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A venomous spined fish \u2014 beautiful, slow, and painfully precise",
@@ -4254,6 +4646,10 @@
       "Veil Shatter",
       "Phantom Surge"
     ],
+    "kit": [
+      "ENEMY ENSNARE",
+      "ENEMY MEND"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A formless spirit of deep mist \u2014 drifts through attacks and confuses foes",
@@ -4286,6 +4682,10 @@
     "actions": [
       "Tidal Bulwark",
       "Shield Bash"
+    ],
+    "kit": [
+      "ENEMY SUNDER",
+      "ENEMY SHELL"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -4325,6 +4725,10 @@
       "Deep Drain",
       "Abyssal pull"
     ],
+    "kit": [
+      "ENEMY SHELL",
+      "ENEMY CRUSH"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A abyssal creature that saps life from the deep \u2014 magical life drain",
@@ -4357,6 +4761,10 @@
     "actions": [
       "Food Etch",
       "Tidal Sweep"
+    ],
+    "kit": [
+      "ENEMY SUNDER",
+      "ENEMY SHELL"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -4396,6 +4804,10 @@
       "Inner Current",
       "Pressurized Strike"
     ],
+    "kit": [
+      "ENEMY SUNDER",
+      "ENEMY SHELL"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A ascetic trained in crushing depth \u2014 martial discipline under extreme force",
@@ -4429,6 +4841,10 @@
       "Torrent Slam",
       "Rapid Current"
     ],
+    "kit": [
+      "ENEMY CRUSH",
+      "ENEMY SHELL"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A rider of falling water and rapids \u2014 fast, fluid, and relentless",
@@ -4461,6 +4877,10 @@
     "actions": [
       "Stone Bracing",
       "Channel Slam"
+    ],
+    "kit": [
+      "ENEMY SUNDER",
+      "ENEMY CRUSH"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -4500,6 +4920,10 @@
       "Toxic Gaze",
       "Still Waters"
     ],
+    "kit": [
+      "ENEMY SUNDER",
+      "ENEMY SHELL"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A meditative watcher of unmoving pools \u2014 reads foes and strikes with intent",
@@ -4533,6 +4957,10 @@
       "Current Break",
       "Shadow Surge"
     ],
+    "kit": [
+      "ENEMY SUNDER",
+      "ENEMY CRUSH"
+    ],
     "isLiving": true,
     "resolvedPackSize": 1,
     "description": "A ghost dragged beneath the current \u2014 pulls and strikes from below",
@@ -4565,6 +4993,10 @@
     "actions": [
       "Sunken Curse",
       "Drowned Wrath"
+    ],
+    "kit": [
+      "ENEMY SUNDER",
+      "ENEMY CRUSH"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,

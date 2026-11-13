@@ -57,6 +57,10 @@ namespace RPGGame.Data
             [JsonPropertyName("causesPoison")]
             public bool CausesPoison { get; set; }
 
+            /// <summary>% of max HP added per poison application (0 = the generic 1%). Enemy poison uses 0.25.</summary>
+            [JsonPropertyName("poisonPercent")]
+            public double PoisonPercent { get; set; }
+
             [JsonPropertyName("causesBurn")]
             public bool CausesBurn { get; set; }
 
@@ -199,6 +203,7 @@ namespace RPGGame.Data
                 action.CausesStun = data.CausesStun;
                 action.CausesSlow = data.CausesSlow;
                 action.CausesPoison = data.CausesPoison;
+                action.PoisonPercentToAdd = data.PoisonPercent;
                 action.CausesBurn = data.CausesBurn;
                 action.CausesAcid = data.CausesAcid;
 

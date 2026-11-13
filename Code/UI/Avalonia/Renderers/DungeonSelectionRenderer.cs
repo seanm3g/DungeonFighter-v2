@@ -330,7 +330,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void PrewarmRegionMap(Character player)
         {
-            var (_, _, width, height) = LayoutConstants.GetChromelessContentRect();
+            var (_, _, width, height) = LayoutConstants.GetLeftPanelOnlyContentRect();
             if (width < MinWidthForMap)
                 return;
             int listWidth = ListWidth(width);

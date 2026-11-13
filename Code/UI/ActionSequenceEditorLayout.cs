@@ -27,6 +27,79 @@ namespace RPGGame.UI
         /// <summary>Whole library block, from the last paint.</summary>
         public static (int X, int Y, int W, int H) LibraryArea { get; set; }
 
+        /// <summary>Library card rectangles by action pool index (visible cards only), from the last paint.</summary>
+        public static Dictionary<int, (int X, int Y, int W, int H)> LibrarySlots { get; } = new();
+
+        /// <summary>
+        /// Where a hover tooltip for an editor card goes, so it never covers the hovered card or the sequence row.
+        /// Sequence card: just past the sequence block (over the library), lined up with the card. Library card: beside
+        /// the card (right when it fits, else left), top-aligned with it, kept off the sequence block.
+        /// False when the card's rect is unknown (caller keeps its default placement).
+        /// </summary>
+        public static bool TryPlaceCardTooltip(
+            bool sequenceCard, int index, int boxW, int boxH,
+            int innerLeft, int innerTop, int innerRight, int maxBottom,
+            out int boxX, out int boxY)
+        {
+            boxX = boxY = 0;
+            if (!IsOpen)
+                return false;
+            (int X, int Y, int W, int H) card;
+            if (sequenceCard)
+            {
+                if (index < 0 || index >= SequenceSlots.Count)
+                    return false;
+                card = SequenceSlots[index];
+            }
+            else if (!LibrarySlots.TryGetValue(index, out card))
+                return false;
+
+            int maxX = innerRight - boxW + 1;
+            int ClampX(int x) => System.Math.Max(innerLeft, System.Math.Min(x, maxX));
+            int ClampY(int y, int lo, int hi) => System.Math.Max(lo, System.Math.Min(y, System.Math.Max(lo, hi - boxH + 1)));
+
+            var seq = SequenceArea;
+            int seqTop = seq.Y;
+            int seqBottom = seq.Y + seq.H; // first row past the block (card numbers sit on the last row)
+
+            if (sequenceCard)
+            {
+                boxX = ClampX(card.X);
+                if (!SequenceBelow && seqBottom + boxH - 1 <= maxBottom)
+                {
+                    boxY = seqBottom;
+                    return true;
+                }
+                if (SequenceBelow && seqTop - boxH >= innerTop)
+                {
+                    boxY = seqTop - boxH;
+                    return true;
+                }
+                // No room off the sequence: beside the card instead (falls through to the library rule below).
+            }
+
+            int right = card.X + card.W + 1;
+            int left = card.X - boxW - 1;
+            if (right + boxW - 1 <= innerRight)
+                boxX = right;
+            else if (left >= innerLeft)
+                boxX = left;
+            else
+                boxX = ClampX(innerRight - card.X - card.W > card.X - innerLeft ? right : left);
+
+            // Keep the sequence row clear when the library side has the height for the box.
+            int lo = innerTop, hi = maxBottom;
+            if (!sequenceCard)
+            {
+                if (!SequenceBelow && maxBottom - seqBottom + 1 >= boxH)
+                    lo = System.Math.Max(lo, seqBottom);
+                else if (SequenceBelow && seqTop - innerTop >= boxH)
+                    hi = System.Math.Min(hi, seqTop - 1);
+            }
+            boxY = ClampY(card.Y, lo, hi);
+            return true;
+        }
+
         public static bool Contains((int X, int Y, int W, int H) r, int x, int y) =>
             r.W > 0 && r.H > 0 && x >= r.X && x < r.X + r.W && y >= r.Y && y < r.Y + r.H;
 

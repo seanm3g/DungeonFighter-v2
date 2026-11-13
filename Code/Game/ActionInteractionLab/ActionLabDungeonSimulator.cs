@@ -137,7 +137,7 @@ namespace RPGGame.ActionInteractionLab
                         continue;
                     }
 
-                    Enemy enemy = EnemyLoader.CreateEnemy(src.Name, Math.Clamp(src.Level, 1, 99))
+                    Enemy enemy = EnemyAffixRuntime.WithHomeAffixes(EnemyLoader.CreateEnemy(src.Name, Math.Clamp(src.Level, 1, 99)))
                                   ?? src;
                     enemy.CurrentHealth = enemy.GetEffectiveMaxHealth();
 

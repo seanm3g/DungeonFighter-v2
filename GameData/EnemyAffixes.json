@@ -1,0 +1,45 @@
+{
+  "description": "Enemy affixes by home region and dungeon (Documentation/ENEMY_ROOM_AFFIX_DESIGN_2026-11-12.md). Every enemy carries its home region family at the current region's rank (cycle 1-5); Rare enemies and the Demon add their home dungeon's affix. Levers: onhit (status chance on connect; value = poison % per tick, default 1), start (status stacks at spawn), hp / damage / speed (fraction), lifesteal (fraction of damage dealt). belowHealth gates damage to HP fraction.",
+  "wander": {
+    "roomChance": 0.1,
+    "enemyChance": 0.1
+  },
+  "regionFamilies": [
+    { "theme": "Forest", "name": "Rooted", "lever": "hp", "valuePerRank": 0.05, "description": "+{pct} max HP" },
+    { "theme": "Water", "name": "Undertow", "lever": "onhit", "status": "slow", "chancePerRank": 0.1, "description": "{chance} chance to Slow on hit" },
+    { "theme": "Fire", "name": "Kindled", "lever": "onhit", "status": "burn", "chancePerRank": 0.1, "description": "{chance} chance to Burn on hit" },
+    { "theme": "Air", "name": "Windswept", "lever": "speed", "valuePerRank": 0.04, "description": "+{pct} speed" }
+  ],
+  "dungeons": [
+    { "theme": "Den", "region": "Forest", "material": "Bone", "signature": ["ENEMY REND", "ENEMY FRENZY", "ENEMY CRUSH"], "demon": "Demon of the Den",
+      "affix": { "name": "Bloodscent", "lever": "onhit", "status": "bleed", "chance": 0.25, "description": "25% chance to Bleed on hit" } },
+    { "theme": "Labyrinth", "region": "Forest", "material": "Shadow", "signature": ["ENEMY DISRUPT", "ENEMY HEX", "ENEMY CONCUSS"], "demon": "Demon of the Labyrinth",
+      "affix": { "name": "Turnabout", "lever": "onhit", "status": "disrupt", "chance": 0.25, "description": "25% chance to reset your combo on hit" } },
+    { "theme": "Dense Brush", "region": "Forest", "material": "Willow", "signature": ["ENEMY VENOM", "ENEMY ENSNARE", "ENEMY MEND"], "demon": "Demon of the Brush",
+      "affix": { "name": "Overgrowth", "lever": "hp", "value": 0.08, "description": "+8% max HP" } },
+    { "theme": "Mirror Pond", "region": "Water", "material": "Silver", "signature": ["ENEMY ENSNARE", "ENEMY DRAIN", "ENEMY PIERCE"], "demon": "Demon of the Mirror Pond",
+      "affix": { "name": "Leeching", "lever": "lifesteal", "value": 0.25, "description": "Heals 25% of damage dealt" } },
+    { "theme": "Spring", "region": "Water", "material": "Crystal", "signature": ["ENEMY ENSNARE", "ENEMY SCORCH", "ENEMY MEND"], "demon": "Demon of the Spring",
+      "affix": { "name": "Mineral", "lever": "onhit", "status": "acid", "chance": 0.25, "description": "25% chance to apply Acid on hit" } },
+    { "theme": "Water Temple", "region": "Water", "material": "Mithril", "signature": ["ENEMY SUNDER", "ENEMY SHELL", "ENEMY CRUSH"], "demon": "Demon of the Water Temple",
+      "affix": { "name": "Bulwark", "lever": "start", "status": "fortify", "stacks": 2, "description": "Starts with 2 Fortify" } },
+    { "theme": "Ashen Land", "region": "Fire", "material": "Obsidian", "signature": ["ENEMY SCORCH", "ENEMY REND", "ENEMY HEX"], "demon": "Demon of the Ashen Land",
+      "affix": { "name": "Smolder", "lever": "onhit", "status": "weaken", "chance": 0.25, "description": "25% chance to Weaken on hit" } },
+    { "theme": "Fire Temple", "region": "Fire", "material": "Steel", "signature": ["ENEMY SCORCH", "ENEMY SHELL", "ENEMY SUNDER"], "demon": "Demon of the Fire Temple",
+      "affix": { "name": "Zealot", "lever": "damage", "value": 0.25, "belowHealth": 0.5, "description": "+25% damage below 50% HP" } },
+    { "theme": "Lava Cave", "region": "Fire", "material": "Iron", "signature": ["ENEMY SCORCH", "ENEMY DRAIN", "ENEMY SHELL"], "demon": "Demon of the Lava Cave",
+      "affix": { "name": "Molten Shell", "lever": "start", "status": "harden", "stacks": 2, "description": "Starts with 2 Harden" } },
+    { "theme": "Desert", "region": "Air", "material": "Glass", "signature": ["ENEMY PIERCE", "ENEMY ENSNARE", "ENEMY DRAIN"], "demon": "Demon of the Desert",
+      "affix": { "name": "Glare", "lever": "onhit", "status": "expose", "chance": 0.25, "description": "25% chance to Expose on hit" } },
+    { "theme": "Pyramids", "region": "Air", "material": "Gold", "signature": ["ENEMY CURSE", "ENEMY VENOM", "ENEMY MEND"], "demon": "Demon of the Pyramids",
+      "affix": { "name": "Embalmed", "lever": "onhit", "status": "poison", "chance": 0.25, "value": 0.25, "description": "25% chance to Poison on hit (0.25% max HP per tick)" } },
+    { "theme": "Mountains", "region": "Air", "material": "Bronze", "signature": ["ENEMY CRUSH", "ENEMY CONCUSS", "ENEMY FRENZY"], "demon": "Demon of the Mountains",
+      "affix": { "name": "Thunderhead", "lever": "onhit", "status": "stun", "chance": 0.1, "description": "10% chance to Stun on hit" } }
+  ],
+  "demon": {
+    "regionRankBonus": 1,
+    "maxActions": 5,
+    "phaseAtHealth": 0.5,
+    "phaseRegionMultiplier": 2.0
+  }
+}

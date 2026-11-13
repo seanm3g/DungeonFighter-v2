@@ -164,9 +164,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         private static ActionStripDamageLineMode ResolveActionStripDamageLineMode(Character? stripPlayer) =>
             ActionStripDamageLineMode.EffectiveWithComboAmp;
 
-        private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false)
+        private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false, bool registerActionLabEnemyLevelHover = false, bool leftPanelOnly = false)
         {
-            layoutCoordinator.RenderWithLayout(character, title, renderContent, context, enemy, dungeonName, roomName, clearCanvas, usePersistentChrome, inventoryComboRightPanel, registerActionLabEnemyLevelHover);
+            layoutCoordinator.RenderWithLayout(character, title, renderContent, context, enemy, dungeonName, roomName, clearCanvas, usePersistentChrome, inventoryComboRightPanel, registerActionLabEnemyLevelHover, leftPanelOnly);
         }
 
         /// <summary>

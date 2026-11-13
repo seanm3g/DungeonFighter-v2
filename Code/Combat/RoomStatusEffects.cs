@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RPGGame.Combat
 {
@@ -59,6 +60,9 @@ namespace RPGGame.Combat
 
             // Activity tags change how often the room's hazards strike, and they hit everyone. A room that never acts
             // (not hostile) or one on the default cadence (cycling / untagged) changes nothing.
+            // Terrain tags and the rolled room affix (RoomAffixes.json): name-only rows, explained on hover.
+            foreach (string name in AffixRowNames(room))
+                list.Add(new RoomStatus(name, 0, roomName));
             if (room.IsHostile)
             {
                 var activity = EnvironmentCombatStateManager.GetActivityProfile(room.Tags);
@@ -72,7 +76,7 @@ namespace RPGGame.Combat
 
         /// <summary>STATUS EFFECTS row: "Elegant +5", "Dilapidated −5", "Unstable +2", "Dormant room", "Active room".</summary>
         public static string FormatLine(RoomStatus status) =>
-            IsActivity(status.Name)
+            IsActivity(status.Name) || IsAffixName(status.Name)
                 ? status.Name
                 : $"{status.Name} {(status.Value > 0 ? "+" : "−")}{Math.Abs(status.Value)}";
 
@@ -82,6 +86,8 @@ namespace RPGGame.Combat
         public static string? NameFromLine(string? line)
         {
             string text = (line ?? "").Trim();
+            if (IsAffixName(text))
+                return text;
             foreach (string name in AllNames)
             {
                 if (IsActivity(name) ? text == name : text.StartsWith(name + " ", StringComparison.Ordinal))
@@ -141,10 +147,52 @@ namespace RPGGame.Combat
                     break;
             }
 
+            if (AffixDescription(name) is string affixText)
+            {
+                lines.Add($"{name}: {affixText}.");
+            }
+
             if (live is RoomStatus src)
                 lines.Add($"Applied by: {src.RoomName} (room).");
             lines.Add("Ends: when you leave the room.");
             return lines;
+        }
+
+        /// <summary>Row names for the room's terrain tags, its rolled affix and the wander mark ("Scorched", "Volatile", "Wandering room").</summary>
+        public static List<string> AffixRowNames(Environment room)
+        {
+            var names = new List<string>();
+            foreach (var terrain in RPGGame.Data.AffixDataLoader.Room.Terrain)
+            {
+                if (room.Tags.Any(t => string.Equals(t, terrain.Tag, StringComparison.OrdinalIgnoreCase)))
+                    names.Add(Title(terrain.Tag));
+            }
+            if (room.RoomAffix != null && !string.IsNullOrWhiteSpace(room.RoomAffix.Name))
+                names.Add(room.RoomAffix.Name);
+            if (room.IsWanderer)
+                names.Add(AffixDataLoaderNames.Wanderer);
+            return names;
+        }
+
+        private static bool IsAffixName(string name) => AffixDescription(name) != null;
+
+        private static string? AffixDescription(string name)
+        {
+            if (name == AffixDataLoaderNames.Wanderer)
+                return "this room comes from another dungeon, with its own hazards and enemies";
+            var file = RPGGame.Data.AffixDataLoader.Room;
+            var terrain = file.Terrain.FirstOrDefault(t => string.Equals(Title(t.Tag), name, StringComparison.Ordinal));
+            if (terrain != null)
+                return terrain.Description;
+            return file.Affixes.FirstOrDefault(a => string.Equals(a.Name, name, StringComparison.Ordinal))?.Description;
+        }
+
+        private static string Title(string tag) =>
+            string.IsNullOrEmpty(tag) ? tag : char.ToUpperInvariant(tag[0]) + tag[1..];
+
+        private static class AffixDataLoaderNames
+        {
+            public const string Wanderer = "Wandering room";
         }
 
         private static string CapNote()

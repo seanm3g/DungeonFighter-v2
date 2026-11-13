@@ -33,8 +33,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(player, "DUNGEON SELECTION", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 dungeonRenderer.RenderDungeonSelection(contentX, contentY, contentWidth, contentHeight, dungeons, customDungeonLevelEntryBuffer, currentRegionDisplayName, currentRegionTheme);
-            }, context, null, null, null, clearCanvas: false, usePersistentChrome: false);
-            // Full screen: no hero / location panels, no action strip.
+            }, context, null, null, null, clearCanvas: false, usePersistentChrome: false, leftPanelOnly: true);
+            // Hero panel on the left; list + region map fill the rest. No location panel or action strip.
             canvas.Refresh();
         }
 
