@@ -487,6 +487,17 @@
                 _ = HubCommandEvent?.Invoke(command);
                 return true;
             }
+            // The Enter Dungeon panel is on every hub tab (Actions, Trade Up and their prompts included): a click on it
+            // leaves whatever is open, like a tab switch. Its D shortcut stays limited to the plain inventory.
+            if (input == HubDungeonSelect && HubCommandEvent != null)
+            {
+                SetEscapeMenuOpen(false, refresh: false);
+                if (stateTracker.IsAnySelectionActive() || stateTracker.WaitingForMenuMutatingActionConfirmation || stateTracker.WaitingForComparisonChoice)
+                    stateTracker.ResetItemActionStates();
+                stateTracker.InComboManagement = false;
+                _ = HubCommandEvent.Invoke(command);
+                return true;
+            }
             if (stateTracker.InComboManagement || stateTracker.IsAnySelectionActive()
                 || stateTracker.WaitingForMenuMutatingActionConfirmation || stateTracker.WaitingForComparisonChoice)
                 return input.StartsWith("hub:", StringComparison.Ordinal);
@@ -561,41 +572,51 @@
         /// <summary>True while the hub's Esc menu (Resume / Settings / Main Menu / Quit) is showing.</summary>
         public bool IsEscapeMenuOpen => HubEscapeMenu.IsOpen;
 
+        /// <summary>
+        /// Re-renders the current screen when it is not the inventory (skill tree, dungeon select) so the Esc menu shows
+        /// or hides there. Wired by <see cref="Game"/>; unset in tests / headless.
+        /// </summary>
+        public System.Action? RefreshOtherHubScreen { get; set; }
+
+        /// <summary>Hub screens where Esc opens the Esc menu instead of going back.</summary>
+        public static bool IsHubScreenState(GameState state) =>
+            state == GameState.Inventory || state == GameState.SkillTree || state == GameState.DungeonSelection;
+
         private void SetEscapeMenuOpen(bool open, bool refresh = true)
         {
             if (HubEscapeMenu.IsOpen == open)
                 return;
             HubEscapeMenu.IsOpen = open;
-            if (refresh)
+            if (!refresh)
+                return;
+            if (stateManager.CurrentState == GameState.Inventory)
                 RefreshInventoryScreen();
+            else
+                RefreshOtherHubScreen?.Invoke();
         }
 
         /// <summary>
-        /// Esc on the plain hub inventory opens (or closes) the Esc menu. False when something else should handle Esc:
-        /// not the hub layout, the Action Sequence editor, or an equip / compare / trade prompt.
+        /// Esc on any hub screen (inventory and its prompts, Actions, Trade Up, Skills, Dungeon Select) opens or closes
+        /// the Esc menu; nothing underneath is cancelled, so Resume returns to the same screen. False when not on the hub
+        /// layout (MCP / headless), where Esc keeps its old back behaviour.
         /// </summary>
         public bool TryToggleEscapeMenu()
         {
-            if (!IsHubLayout || HubCommandEvent == null || stateManager.CurrentState != GameState.Inventory)
+            if (!IsHubLayout || HubCommandEvent == null || !IsHubScreenState(stateManager.CurrentState))
                 return false;
-            if (HubEscapeMenu.IsOpen)
-            {
-                SetEscapeMenuOpen(false);
-                return true;
-            }
-            if (stateTracker.InComboManagement || IsInTradeUpFlow() || stateTracker.IsAnySelectionActive()
-                || stateTracker.WaitingForMenuMutatingActionConfirmation || stateTracker.WaitingForComparisonChoice)
-                return false;
-            SetEscapeMenuOpen(true);
+            SetEscapeMenuOpen(!HubEscapeMenu.IsOpen);
             return true;
         }
 
-        /// <summary>While the Esc menu is open: its buttons and 1-4 act, anything else is ignored.</summary>
-        private bool TryHandleEscapeMenuInput(string input)
+        /// <summary>
+        /// While the Esc menu is open: its buttons and 1-5 act, anything else is ignored. Called for every hub screen
+        /// (the router sends skill tree / dungeon select input here first).
+        /// </summary>
+        public bool TryHandleEscapeMenuInput(string input)
         {
             if (!HubEscapeMenu.IsOpen)
                 return false;
-            if (stateManager.CurrentState != GameState.Inventory || !IsHubLayout)
+            if (!IsHubScreenState(stateManager.CurrentState) || !IsHubLayout)
             {
                 HubEscapeMenu.IsOpen = false;
                 return false;

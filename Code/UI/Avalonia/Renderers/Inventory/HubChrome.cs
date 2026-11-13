@@ -151,8 +151,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     }
 
     /// <summary>
-    /// Esc menu over the hub: Resume, Settings, Save &amp; Main Menu, Quit. While open the inventory center panel shows only
-    /// this box and other inventory input is ignored.
+    /// Esc menu over the hub: Resume, Settings, Save &amp; Main Menu, Quit. Esc opens it on every hub screen (inventory and
+    /// its prompts, Actions, Trade Up, Skills, Dungeon Select); while open the inventory center panel shows only this box,
+    /// other screens draw it on top, and all other input is ignored.
     /// </summary>
     public static class HubEscapeMenu
     {
@@ -180,6 +181,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int bx = x + Math.Max(0, (width - boxW) / 2);
             int by = y + Math.Max(0, (height - boxH) / 2);
             canvas.ClearTextInArea(bx, by, boxW, boxH);
+            // Drawn over other hub screens too (skills, actions, dungeon select): wipe what sits under the box.
+            canvas.ClearLinesInArea(bx, by, boxW, boxH);
+            canvas.ClearBoxesInArea(bx, by, boxW, boxH);
+            canvas.ClearProgressBarsInArea(bx, by, boxW, boxH);
+            canvas.ClearSegmentedBarsInArea(bx, by, boxW, boxH);
             canvas.AddBox(bx, by, boxW, boxH, AsciiArtAssets.Colors.Gold, AsciiArtAssets.Colors.Black, borderThicknessPixels: 2);
             const string title = "MENU";
             canvas.AddText(bx + (boxW - title.Length) / 2, by + 1, title, AsciiArtAssets.Colors.Gold);

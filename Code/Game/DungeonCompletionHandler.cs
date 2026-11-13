@@ -44,7 +44,18 @@ namespace RPGGame
             // Clear dungeon state
             stateManager.SetCurrentDungeon(null!);
             stateManager.SetCurrentRoom(null!);
-            
+
+            // Windowed game: the completion screen has a single Continue button that opens the inventory hub
+            // (Dungeon Select, Skill Tree, Travel, Main Menu live there). MCP agents / headless bots keep the numeric menu.
+            if (!RPGGame.MCP.MCPMode.IsActive)
+            {
+                if (input == "1" || input == "enter" || input == "continue")
+                {
+                    ShowInventoryEvent?.Invoke();
+                }
+                return;
+            }
+
             switch (input)
             {
                 case "1":

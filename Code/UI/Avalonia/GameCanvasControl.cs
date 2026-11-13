@@ -709,6 +709,9 @@ namespace RPGGame.UI.Avalonia
                 if (!IsAuxiliaryLayoutCanvas)
                     TutorialCoachPopup.Paint(context, content.Width, content.Height,
                         coordinateConverter.GetCharWidth(), coordinateConverter.GetCharHeight(), coordinateConverter.GetFontSize());
+                if (!IsAuxiliaryLayoutCanvas)
+                    CombatEscapeMenu.Paint(context, content.Width, content.Height,
+                        coordinateConverter.GetCharWidth(), coordinateConverter.GetCharHeight(), coordinateConverter.GetFontSize());
             }
         }
 

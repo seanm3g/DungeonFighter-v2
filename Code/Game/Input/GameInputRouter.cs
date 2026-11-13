@@ -36,6 +36,13 @@ namespace RPGGame.GameCore.Input
         {
             if (string.IsNullOrEmpty(input)) return;
 
+            // The hub's Esc menu sits over the skill tree / dungeon select too: while it is up it takes every input.
+            // (The inventory handler checks it itself, first thing.)
+            if ((stateManager.CurrentState == GameState.SkillTree || stateManager.CurrentState == GameState.DungeonSelection)
+                && handlers.InventoryMenuHandler != null
+                && handlers.InventoryMenuHandler.TryHandleEscapeMenuInput(input.Trim()))
+                return;
+
             // Debug: Log input and state for troubleshooting
             switch (stateManager.CurrentState)
             {

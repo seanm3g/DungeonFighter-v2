@@ -26,12 +26,27 @@ namespace RPGGame.Tests.Unit.Game.Handlers
             _testsFailed = 0;
 
             TestConstructor();
-            TestHandleMenuInput_DungeonSelection();
-            TestHandleMenuInput_Inventory();
-            TestHandleMenuInput_SaveAndExit();
-            TestHandleMenuInput_SaveAndExit_ContinuesOnSaveFailure();
-            TestHandleMenuInput_InvalidChoice();
-            TestHandleMenuInput_NoCharacter();
+
+            bool prevMcp = RPGGame.MCP.MCPMode.IsActive;
+            try
+            {
+                // Windowed game: single Continue button -> inventory hub.
+                RPGGame.MCP.MCPMode.IsActive = false;
+                TestHandleMenuInput_WindowedContinue();
+
+                // MCP agents / headless bots keep the numeric menu.
+                RPGGame.MCP.MCPMode.IsActive = true;
+                TestHandleMenuInput_DungeonSelection();
+                TestHandleMenuInput_Inventory();
+                TestHandleMenuInput_SaveAndExit();
+                TestHandleMenuInput_SaveAndExit_ContinuesOnSaveFailure();
+                TestHandleMenuInput_InvalidChoice();
+                TestHandleMenuInput_NoCharacter();
+            }
+            finally
+            {
+                RPGGame.MCP.MCPMode.IsActive = prevMcp;
+            }
 
             TestBase.PrintSummary("DungeonCompletionHandler Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -53,6 +68,30 @@ namespace RPGGame.Tests.Unit.Game.Handlers
         #endregion
 
         #region Input Handling Tests
+
+        private static void TestHandleMenuInput_WindowedContinue()
+        {
+            Console.WriteLine("\n--- Testing HandleMenuInput - Windowed Continue ---");
+
+            foreach (var input in new[] { "1", "enter" })
+            {
+                var stateManager = new GameStateManager();
+                stateManager.SetCurrentPlayer(new Character("TestHero", 1));
+                var handler = new DungeonCompletionHandler(stateManager);
+                bool dungeonSelect = false;
+                handler.ShowInventoryEvent += () => stateManager.TransitionToState(GameState.Inventory);
+                handler.StartDungeonSelectionEvent += () => { dungeonSelect = true; return Task.CompletedTask; };
+
+                Task.Run(async () => await handler.HandleMenuInput(input)).Wait();
+
+                TestBase.AssertEqualEnum(GameState.Inventory, stateManager.CurrentState,
+                    $"Continue ('{input}') should open the inventory",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!dungeonSelect,
+                    $"Continue ('{input}') should not open dungeon selection",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
 
         private static void TestHandleMenuInput_DungeonSelection()
         {

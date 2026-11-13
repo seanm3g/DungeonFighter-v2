@@ -1603,7 +1603,7 @@
   },
   {
     "action": "LANDSLIDE",
-    "description": "+5 damage per GRIT",
+    "description": "\u002B5 damage per GRIT",
     "tier": 3,
     "dps": "106%",
     "numberOfHits": "1",
@@ -1617,7 +1617,7 @@
   },
   {
     "action": "REVEAL",
-    "description": "+5 damage per ENIGMA",
+    "description": "\u002B5 damage per ENIGMA",
     "tier": 3,
     "dps": "109%",
     "numberOfHits": "1",
@@ -1631,7 +1631,7 @@
   },
   {
     "action": "QUIRK",
-    "description": "+5 damage per ODDITY",
+    "description": "\u002B5 damage per ODDITY",
     "tier": 3,
     "dps": "106%",
     "numberOfHits": "1",
@@ -1645,7 +1645,7 @@
   },
   {
     "action": "STARFALL",
-    "description": "+5 damage per OMEN",
+    "description": "\u002B5 damage per OMEN",
     "tier": 3,
     "dps": "108%",
     "numberOfHits": "3",
@@ -1659,7 +1659,7 @@
   },
   {
     "action": "KINDLE",
-    "description": "+5 damage per KINDLING",
+    "description": "\u002B5 damage per KINDLING",
     "tier": 3,
     "dps": "109%",
     "numberOfHits": "2",
@@ -1673,7 +1673,7 @@
   },
   {
     "action": "UNRAVEL",
-    "description": "+5 damage per FRAY",
+    "description": "\u002B5 damage per FRAY",
     "tier": 3,
     "dps": "107%",
     "numberOfHits": "2",

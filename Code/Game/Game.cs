@@ -212,6 +212,8 @@ namespace RPGGame
             menuInputValidator = result.MenuInputValidator;
             inputRouter = result.InputRouter;
             escapeKeyHandler = result.EscapeKeyHandler;
+            if (inventoryMenuHandler != null)
+                inventoryMenuHandler.RefreshOtherHubScreen = RefreshPersistentChromeAfterStatsToggle;
             
             // Set GameStateManager in BlockDisplayManager for character filtering
             if (registerBlockDisplayState)
@@ -252,6 +254,9 @@ namespace RPGGame
 
         public async Task HandleInput(string input)
         {
+            // The run's Esc menu (over dungeon / combat) takes every input while it is open.
+            if (escapeKeyHandler != null && escapeKeyHandler.TryHandleCombatEscapeMenuInput(input))
+                return;
             if (inputRouter != null)
             {
                 await inputRouter.RouteInput(input);

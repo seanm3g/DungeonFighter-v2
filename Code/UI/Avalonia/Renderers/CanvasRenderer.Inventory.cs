@@ -68,6 +68,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     inventoryMaterialFilter);
             }, context, null, null, null, inventoryComboRightPanel: true);
             RenderInventoryBottomBand(character);
+            DrawHubEscapeMenuOverlay();
             canvas.Refresh();
         }
 
@@ -79,6 +80,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 inventoryRenderer.RenderSlotSelectionPrompt(contentX, contentY, contentWidth, contentHeight, character);
             }, context, null, null, null, inventoryComboRightPanel: true);
             RenderInventoryBottomBand(character);
+            DrawHubEscapeMenuOverlay();
             canvas.Refresh();
         }
 
@@ -92,6 +94,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 DrawTradeUpTabs(contentX, contentY, contentWidth);
             }, context, null, null, null, inventoryComboRightPanel: true);
             RenderInventoryBottomBand(character);
+            DrawHubEscapeMenuOverlay();
             canvas.Refresh();
         }
 
@@ -105,6 +108,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 DrawTradeUpTabs(contentX, contentY, contentWidth);
             }, context, null, null, null, inventoryComboRightPanel: true);
             RenderInventoryBottomBand(character);
+            DrawHubEscapeMenuOverlay();
             canvas.Refresh();
         }
 
@@ -116,6 +120,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 inventoryRenderer.RenderItemComparison(contentX, contentY, contentWidth, contentHeight, character, newItem, currentItem, slot, newItemInventoryIndex);
             }, context, null, null, null, inventoryComboRightPanel: true);
             RenderInventoryBottomBand(character);
+            DrawHubEscapeMenuOverlay();
             canvas.Refresh();
         }
 
@@ -133,6 +138,21 @@ namespace RPGGame.UI.Avalonia.Renderers
             var stats = (textManager as Managers.CanvasTextManager)?.DisplayManager?.StatsPanelStateManager;
             Inventory.InventoryHeroBand.Render(canvas, registerHover ? interactionManager.AddClickableElement : null, character, stats);
             dungeonRenderer.RenderHoverTooltipOverlayOnly(character);
+        }
+
+        /// <summary>
+        /// Draws the hub Esc menu over a hub screen that has no slot for it (the plain inventory draws it in its own
+        /// panel). Call last, before <c>canvas.Refresh()</c>, so its buttons win the click hit-test.
+        /// </summary>
+        private void DrawHubEscapeMenuOverlay()
+        {
+            if (!Inventory.HubEscapeMenu.IsOpen)
+                return;
+            var (x, y, w, h) = LayoutConstants.GetCenterColumnFullContentRect();
+            var clickables = new List<ClickableElement>();
+            Inventory.HubEscapeMenu.Draw(canvas, clickables, x, y, w, h);
+            foreach (var element in clickables)
+                interactionManager.AddClickableElement(element);
         }
 
         /// <summary>Rows the hub tab strip takes above the trade-up screens (0 outside the hub).</summary>
@@ -180,6 +200,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 }, context, null, null, null, clearCanvas: true, inventoryComboRightPanel: true);
                 if (Inventory.InventoryHeroBand.IsShown && Inventory.InventoryHeroBand.SplitTopY.HasValue)
                     RenderInventoryBottomBand(character);
+                DrawHubEscapeMenuOverlay();
                 canvas.Refresh();
                 return;
             }

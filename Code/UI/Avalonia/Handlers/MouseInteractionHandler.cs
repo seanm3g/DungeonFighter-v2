@@ -333,6 +333,14 @@ namespace RPGGame.UI.Avalonia.Handlers
             // Convert screen coordinates to character grid coordinates
             var gridPos = ScreenToGrid(position);
 
+            // Esc menu over a dungeon run: it owns every click while open.
+            if (CombatEscapeMenu.TryHandleClick(gridPos.X, gridPos.Y, out string? escToken))
+            {
+                if (escToken != null)
+                    _ = game.HandleInput(escToken);
+                return;
+            }
+
             // Training Ground coach popup: its box is the NEXT control, and it owns clicks while up.
             if (TutorialCoachPopup.TryHandleClick(gridPos.X, gridPos.Y))
                 return;

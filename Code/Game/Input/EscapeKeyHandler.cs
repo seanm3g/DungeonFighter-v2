@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using RPGGame;
 using RPGGame.Audio;
+using RPGGame.UI.Avalonia.Feedback;
 using DungeonFighter.Game.Menu.Core;
 using Action = System.Action;
 
@@ -40,6 +41,52 @@ namespace RPGGame.GameCore.Input
             this.showDeveloperMenu = showDeveloperMenu ?? throw new ArgumentNullException(nameof(showDeveloperMenu));
             this.showActionEditor = showActionEditor ?? throw new ArgumentNullException(nameof(showActionEditor));
             this.exitActionInteractionLab = exitActionInteractionLab ?? throw new ArgumentNullException(nameof(exitActionInteractionLab));
+            // The run's Esc menu only lives over the dungeon / combat screens.
+            stateManager.StateChanged += (_, e) =>
+            {
+                if (!IsRunState(e.NewState))
+                    CombatEscapeMenu.SetOpen(false);
+            };
+        }
+
+        /// <summary>Quits the app (Esc menu → Quit Game). Wired by <see cref="Services.HandlerInitializationService"/>.</summary>
+        public System.Action? ExitGame { get; set; }
+
+        private static bool IsRunState(GameState state) => state == GameState.Dungeon || state == GameState.Combat;
+
+        /// <summary>
+        /// While the run's Esc menu is open it takes every input: its buttons / 1-4 act, anything else is swallowed so
+        /// nothing under it changes. Combat keeps running. False when the menu is closed.
+        /// </summary>
+        public bool TryHandleCombatEscapeMenuInput(string input)
+        {
+            if (!CombatEscapeMenu.IsOpen)
+                return false;
+            if (!IsRunState(stateManager.CurrentState))
+            {
+                CombatEscapeMenu.SetOpen(false);
+                return false;
+            }
+            switch (CombatEscapeMenu.TokenForInput(input))
+            {
+                case CombatEscapeMenu.ResumeToken:
+                    CombatEscapeMenu.SetOpen(false);
+                    break;
+                case CombatEscapeMenu.SettingsToken:
+                    // Settings opens in its own window; the menu stays up behind it.
+                    showSettings();
+                    break;
+                case CombatEscapeMenu.MainMenuToken:
+                    CombatEscapeMenu.SetOpen(false);
+                    stateManager.TransitionToState(GameState.MainMenu);
+                    showMainMenu();
+                    break;
+                case CombatEscapeMenu.QuitToken:
+                    CombatEscapeMenu.SetOpen(false);
+                    ExitGame?.Invoke();
+                    break;
+            }
+            return true;
         }
 
         /// <summary>
@@ -54,21 +101,24 @@ namespace RPGGame.GameCore.Input
             switch (stateManager.CurrentState)
             {
                 case GameState.Inventory:
+                    // Hub: Esc opens (or closes) the Esc menu over whatever hub screen is up; it never goes back.
+                    if (handlers.InventoryMenuHandler != null && handlers.InventoryMenuHandler.TryToggleEscapeMenu())
+                        return Task.CompletedTask;
+                    // Non-hub layout (MCP / headless): old back behaviour.
                     // Prevent ESC during trade-up flow - must complete trade-up once started
                     if (handlers.InventoryMenuHandler != null && handlers.InventoryMenuHandler.IsInTradeUpFlow())
                     {
                         return Task.CompletedTask;
                     }
-                    // The Action Sequence editor closes back to the inventory hub.
+                    // The Action Sequence editor closes back to the inventory.
                     if (handlers.InventoryMenuHandler != null && handlers.InventoryMenuHandler.TryCloseActionSequenceEditor())
-                        return Task.CompletedTask;
-                    // The hub opens its Esc menu (Resume / Settings / Main Menu / Quit).
-                    if (handlers.InventoryMenuHandler != null && handlers.InventoryMenuHandler.TryToggleEscapeMenu())
                         return Task.CompletedTask;
                     stateManager.TransitionToState(GameState.GameLoop);
                     showGameLoop();
                     break;
                 case GameState.SkillTree:
+                    if (handlers.InventoryMenuHandler != null && handlers.InventoryMenuHandler.TryToggleEscapeMenu())
+                        return Task.CompletedTask;
                     stateManager.TransitionToState(GameState.GameLoop);
                     showGameLoop();
                     break;
@@ -82,6 +132,8 @@ namespace RPGGame.GameCore.Input
                     {
                         return Task.CompletedTask;
                     }
+                    if (handlers.InventoryMenuHandler != null && handlers.InventoryMenuHandler.TryToggleEscapeMenu())
+                        return Task.CompletedTask;
 
                     stateManager.TransitionToState(GameState.GameLoop);
                     showGameLoop();
@@ -92,6 +144,18 @@ namespace RPGGame.GameCore.Input
                         return handlers.RegionTravelHandler.HandleMenuInput(RegionTravelHandler.CancelKey);
                     stateManager.TransitionToState(GameState.GameLoop);
                     showGameLoop();
+                    break;
+                case GameState.Dungeon:
+                case GameState.Combat:
+                    // Esc opens (or closes) the Esc menu over the run; combat keeps going underneath.
+                    // MCP / headless has no overlay: old back-to-main-menu behaviour.
+                    if (handlers.InventoryMenuHandler != null && handlers.InventoryMenuHandler.IsHubLayout)
+                    {
+                        CombatEscapeMenu.Toggle();
+                        return Task.CompletedTask;
+                    }
+                    stateManager.TransitionToState(GameState.MainMenu);
+                    showMainMenu();
                     break;
                 case GameState.ActionInteractionLab:
                     exitActionInteractionLab();

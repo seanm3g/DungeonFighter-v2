@@ -1,9 +1,9 @@
 {
- "description": "Enemy mechanic kits. templates = Actions.json-format rows (enemy only, never hero loot). aliases = flavor action name in Enemies.json -> template. Enemies keep the flavor name and gain the template mechanics when enemySystem.actionKits is on. Each template names its counter in the description. Damage-over-time and stun go through triggerBundlesJson (the sheet poison / burn / bleed / stun columns are item-only and ignored on actions).",
+ "description": "Enemy mechanic kits. templates = Actions.json-format rows (enemy only, never hero loot). aliases = flavor action name in Enemies.json -> template. Enemies keep the flavor name and gain the template mechanics when enemySystem.actionKits is on. Template descriptions describe the action itself (shown in game). Damage-over-time and stun go through triggerBundlesJson (the sheet poison / burn / bleed / stun columns are item-only and ignored on actions).",
  "templates": [
   {
    "action": "ENEMY VENOM",
-   "description": "Poisons on hit (0.25% max HP per tick per hit, for the rest of the fight). Answer: kill fast or out-heal the ticks.",
+   "description": "A venomous strike that poisons the target on hit.",
    "tier": 1,
    "dps": "85%",
    "numberOfHits": "1",
@@ -15,7 +15,7 @@
   },
   {
    "action": "ENEMY SCORCH",
-   "description": "Burns on hit. Answer: kill fast; Harden/Fortify blunt the follow-up.",
+   "description": "A searing strike that sets the target burning on hit.",
    "tier": 1,
    "dps": "85%",
    "numberOfHits": "1",
@@ -27,7 +27,7 @@
   },
   {
    "action": "ENEMY REND",
-   "description": "Makes you bleed when you act. Answer: fewer, bigger actions.",
+   "description": "A tearing strike that leaves the target bleeding each time they act.",
    "tier": 1,
    "dps": "85%",
    "numberOfHits": "1",
@@ -39,7 +39,7 @@
   },
   {
    "action": "ENEMY CRUSH",
-   "description": "Slow, heavy blow. Answer: armor, Harden, Fortify.",
+   "description": "A slow, crushing blow that hits for heavy damage.",
    "tier": 1,
    "dps": "170%",
    "numberOfHits": "1",
@@ -50,7 +50,7 @@
   },
   {
    "action": "ENEMY SUNDER",
-   "description": "Strips your defense (Expose). Answer: Fortify, kill before it stacks.",
+   "description": "A sundering strike that exposes the target, stripping their defense.",
    "tier": 1,
    "dps": "90%",
    "numberOfHits": "1",
@@ -62,7 +62,7 @@
   },
   {
    "action": "ENEMY HEX",
-   "description": "Weakens your next action. Answer: cheap openers, multi-slot strips.",
+   "description": "A hexing strike that weakens the target's next action.",
    "tier": 1,
    "dps": "80%",
    "numberOfHits": "1",
@@ -74,7 +74,7 @@
   },
   {
    "action": "ENEMY ENSNARE",
-   "description": "Slows you. Answer: speed, AGI, Bronze tempo.",
+   "description": "An ensnaring strike that slows the target.",
    "tier": 1,
    "dps": "85%",
    "numberOfHits": "1",
@@ -86,7 +86,7 @@
   },
   {
    "action": "ENEMY DISRUPT",
-   "description": "Resets your combo chain. Answer: Iron Discipline, Unbroken Line, short strips.",
+   "description": "A disruptive strike that breaks the target's combo chain.",
    "tier": 1,
    "dps": "90%",
    "numberOfHits": "1",
@@ -98,7 +98,7 @@
   },
   {
    "action": "ENEMY SHELL",
-   "description": "Hardens itself. Answer: Pierce, Expose, Vulnerability.",
+   "description": "A guarded strike that hardens the attacker's defenses.",
    "tier": 1,
    "dps": "70%",
    "numberOfHits": "1",
@@ -111,7 +111,7 @@
   },
   {
    "action": "ENEMY DRAIN",
-   "description": "Heals for half the damage it deals. Answer: burst, Weaken.",
+   "description": "A draining strike that heals the attacker for half the damage dealt.",
    "tier": 1,
    "dps": "90%",
    "numberOfHits": "1",
@@ -123,7 +123,7 @@
   },
   {
    "action": "ENEMY FRENZY",
-   "description": "Three quick hits. Answer: armor (it applies to every hit).",
+   "description": "A frenzied flurry of three quick hits.",
    "tier": 1,
    "dps": "40%",
    "numberOfHits": "3",
@@ -134,7 +134,7 @@
   },
   {
    "action": "ENEMY MEND",
-   "description": "Weak hit that heals it fully for the damage. Answer: steady pressure.",
+   "description": "A light strike that heals the attacker for all the damage dealt.",
    "tier": 1,
    "dps": "60%",
    "numberOfHits": "1",
@@ -146,7 +146,7 @@
   },
   {
    "action": "ENEMY CURSE",
-   "description": "Makes you Vulnerable. Answer: kill it first; Fortify.",
+   "description": "A cursing strike that leaves the target vulnerable to damage.",
    "tier": 1,
    "dps": "80%",
    "numberOfHits": "1",
@@ -158,7 +158,7 @@
   },
   {
    "action": "ENEMY CONCUSS",
-   "description": "Critical hits Stun you. Answer: crit threshold debuffs, Lucky.",
+   "description": "A concussive blow that stuns the target on a critical hit.",
    "tier": 1,
    "dps": "105%",
    "numberOfHits": "1",
@@ -170,7 +170,7 @@
   },
   {
    "action": "ENEMY PIERCE",
-   "description": "Ignores your armor. Answer: HP, healing, Fortify.",
+   "description": "A piercing strike that ignores the target's armor.",
    "tier": 1,
    "dps": "95%",
    "numberOfHits": "1",

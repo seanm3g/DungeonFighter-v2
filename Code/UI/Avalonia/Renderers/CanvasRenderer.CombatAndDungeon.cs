@@ -35,6 +35,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 dungeonRenderer.RenderDungeonSelection(contentX, contentY, contentWidth, contentHeight, dungeons, customDungeonLevelEntryBuffer, currentRegionDisplayName, currentRegionTheme);
             }, context, null, null, null, clearCanvas: false, usePersistentChrome: false, leftPanelOnly: true);
             // Hero panel on the left; list + region map fill the rest. No location panel or action strip.
+            DrawHubEscapeMenuOverlay();
             canvas.Refresh();
         }
 
@@ -329,6 +330,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     Inventory.HubTabBar.Draw(canvas, interactionManager.AddClickableElement, x + 1, y, w - 2, Inventory.HubTab.Skills,
                         frameColor: AsciiArtAssets.Colors.Cyan, joinedFrame: false, character: player);
             }, context, null, null, null, clearCanvas: true);
+            DrawHubEscapeMenuOverlay();
             canvas.Refresh();
         }
     }

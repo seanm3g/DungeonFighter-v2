@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using RPGGame;
 using RPGGame.GameCore.Input;
 using RPGGame.Tests;
+using RPGGame.UI.Avalonia.Feedback;
 
 namespace RPGGame.Tests.Unit.Game.Input
 {
@@ -34,6 +35,8 @@ namespace RPGGame.Tests.Unit.Game.Input
             TestHandleEscapeKey_DungeonSelection_EscapeClearsCustomLevelPrompt();
             TestHandleEscapeKey_ActionInteractionLab_InvokesExitDelegate();
             TestHandleEscapeKey_Default();
+            TestCombatEscapeMenu_Headless_EscGoesToMainMenu();
+            TestCombatEscapeMenu_InputWhileOpen();
 
             TestBase.PrintSummary("EscapeKeyHandler Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -194,6 +197,69 @@ namespace RPGGame.Tests.Unit.Game.Input
             TestBase.AssertEqual(1, exitCalls,
                 "ActionInteractionLab escape should delegate to exitActionInteractionLab once",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static EscapeKeyHandler NewHandler(GameStateManager stateManager, System.Action? showMainMenu = null) =>
+            new EscapeKeyHandler(stateManager, new EscapeKeyHandlers(), () => { }, showMainMenu ?? (() => { }), () => { }, () => { }, () => { }, () => { });
+
+        private static void TestCombatEscapeMenu_Headless_EscGoesToMainMenu()
+        {
+            Console.WriteLine("\n--- Testing HandleEscapeKey - Combat without the canvas UI ---");
+            CombatEscapeMenu.SetOpen(false);
+            var stateManager = new GameStateManager();
+            stateManager.TransitionToState(GameState.Dungeon);
+            stateManager.TransitionToState(GameState.Combat);
+            var handler = NewHandler(stateManager);
+
+            Task.Run(async () => await handler.HandleEscapeKey()).Wait();
+
+            TestBase.AssertEqualEnum(GameState.MainMenu, stateManager.CurrentState,
+                "Headless (no hub layout): Esc in combat keeps the old back-to-main-menu behaviour",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertFalse(CombatEscapeMenu.IsOpen, "Headless Esc does not open the overlay",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCombatEscapeMenu_InputWhileOpen()
+        {
+            Console.WriteLine("\n--- Testing combat Esc menu input ---");
+            var stateManager = new GameStateManager();
+            stateManager.TransitionToState(GameState.Dungeon);
+            stateManager.TransitionToState(GameState.Combat);
+            TestBase.AssertEqualEnum(GameState.Combat, stateManager.CurrentState, "Setup reaches Combat",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            bool mainMenuShown = false;
+            var handler = NewHandler(stateManager, () => mainMenuShown = true);
+
+            CombatEscapeMenu.SetOpen(false);
+            TestBase.AssertFalse(handler.TryHandleCombatEscapeMenuInput("1"), "Closed menu takes no input",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            CombatEscapeMenu.SetOpen(true);
+            TestBase.AssertTrue(handler.TryHandleCombatEscapeMenuInput("x"), "Open menu swallows other input",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(CombatEscapeMenu.IsOpen && stateManager.CurrentState == GameState.Combat,
+                "Swallowed input leaves the menu up and combat running", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            handler.TryHandleCombatEscapeMenuInput("1");
+            TestBase.AssertFalse(CombatEscapeMenu.IsOpen, "1 = Resume closes the menu",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqualEnum(GameState.Combat, stateManager.CurrentState, "Resume stays in combat",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            CombatEscapeMenu.SetOpen(true);
+            handler.TryHandleCombatEscapeMenuInput(CombatEscapeMenu.MainMenuToken);
+            TestBase.AssertEqualEnum(GameState.MainMenu, stateManager.CurrentState, "Main Menu button leaves for the main menu",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(mainMenuShown && !CombatEscapeMenu.IsOpen, "Main menu shown and overlay closed",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            stateManager.TransitionToState(GameState.Dungeon);
+            CombatEscapeMenu.SetOpen(true);
+            stateManager.TransitionToState(GameState.DungeonCompletion);
+            TestBase.AssertFalse(CombatEscapeMenu.IsOpen, "Leaving the run (completion / death) closes the overlay",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            CombatEscapeMenu.SetOpen(false);
         }
 
         private static void TestHandleEscapeKey_Default()

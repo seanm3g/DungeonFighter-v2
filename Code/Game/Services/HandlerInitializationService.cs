@@ -163,6 +163,8 @@ namespace RPGGame.Game.Services
                 showActionEditor: () => result.ActionEditorHandler?.ShowActionEditor(),
                 handleCombatScroll,
                 exitActionInteractionLab);
+            if (result.EscapeKeyHandler != null)
+                result.EscapeKeyHandler.ExitGame = exitGame;
             
             return result;
         }

@@ -32,9 +32,9 @@ namespace RPGGame.UI.Avalonia.Renderers
 
 
 
-        /// <summary>Prompt + gap + 5 menu rows + bottom padding (anchored to bottom of content rect).</summary>
+        /// <summary>Gap + Continue button row + bottom padding (anchored to bottom of content rect).</summary>
 
-        public const int FooterReservedRows = 1 + 1 + 5 + FooterBottomPaddingRows;
+        public const int FooterReservedRows = 1 + 1 + FooterBottomPaddingRows;
 
         private const int SummaryMetricLabelWidth = 24;
 
@@ -312,7 +312,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             int footerPromptY = y + height - FooterReservedRows;
 
-            int menuStartY = footerPromptY + 2;
+            int menuStartY = footerPromptY + 1;
 
 
 
@@ -324,147 +324,21 @@ namespace RPGGame.UI.Avalonia.Renderers
 
 
 
-            const string promptText = "What would you like to do?";
-
-            int promptX = textAreaLeft + System.Math.Max(0, (textAreaWidth - promptText.Length) / 2);
-
-            canvas.AddText(promptX, footerPromptY, promptText, AsciiArtAssets.Colors.White);
-
-
-
-            string optLine1 = MenuOptionFormatter.Format(1, UIConstants.MenuOptions.GoToDungeon);
-
-            string optLine2 = MenuOptionFormatter.Format(2, UIConstants.MenuOptions.ShowInventory);
-
-            string optLine3 = MenuOptionFormatter.Format(3, UIConstants.MenuOptions.ShowSkillTree);
-            string optLine4 = MenuOptionFormatter.Format(4, UIConstants.MenuOptions.Travel);
-
-            string optLine0 = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.SaveAndExit);
-
-            int row1X = textAreaLeft + System.Math.Max(0, (textAreaWidth - optLine1.Length) / 2);
-
-            int row2X = textAreaLeft + System.Math.Max(0, (textAreaWidth - optLine2.Length) / 2);
-
-            int row3X = textAreaLeft + System.Math.Max(0, (textAreaWidth - optLine3.Length) / 2);
-
-            int row4X = textAreaLeft + System.Math.Max(0, (textAreaWidth - optLine4.Length) / 2);
-
-            int row0X = textAreaLeft + System.Math.Max(0, (textAreaWidth - optLine0.Length) / 2);
-
-
-
-            var option1 = new ClickableElement
-
+            // Single Continue button: the inventory is the hub (Dungeon Select, Skill Tree, Travel, Main Menu).
+            string continueLine = MenuOptionFormatter.Format(1, "Continue");
+            int continueX = textAreaLeft + System.Math.Max(0, (textAreaWidth - continueLine.Length) / 2);
+            var continueOption = new ClickableElement
             {
-
-                X = row1X,
-
+                X = continueX,
                 Y = menuStartY,
-
-                Width = optLine1.Length,
-
+                Width = continueLine.Length,
                 Height = 1,
-
                 Type = ElementType.MenuOption,
-
                 Value = "1",
-
-                DisplayText = optLine1
-
+                DisplayText = continueLine
             };
-
-
-
-            var option2 = new ClickableElement
-
-            {
-
-                X = row2X,
-
-                Y = menuStartY + 1,
-
-                Width = optLine2.Length,
-
-                Height = 1,
-
-                Type = ElementType.MenuOption,
-
-                Value = "2",
-
-                DisplayText = optLine2
-
-            };
-
-
-
-            var option3 = new ClickableElement
-
-            {
-
-                X = row3X,
-
-                Y = menuStartY + 2,
-
-                Width = optLine3.Length,
-
-                Height = 1,
-
-                Type = ElementType.MenuOption,
-
-                Value = "3",
-
-                DisplayText = optLine3
-
-            };
-
-
-
-            var option4 = new ClickableElement
-            {
-                X = row4X,
-                Y = menuStartY + 3,
-                Width = optLine4.Length,
-                Height = 1,
-                Type = ElementType.MenuOption,
-                Value = "4",
-                DisplayText = optLine4
-            };
-
-            var option0 = new ClickableElement
-
-            {
-
-                X = row0X,
-
-                Y = menuStartY + 4,
-
-                Width = optLine0.Length,
-
-                Height = 1,
-
-                Type = ElementType.MenuOption,
-
-                Value = "0",
-
-                DisplayText = optLine0
-
-            };
-
-
-
-            clickableElements.AddRange(new[] { option1, option2, option3, option4, option0 });
-
-
-
-            canvas.AddMenuOption(row1X, menuStartY, 1, UIConstants.MenuOptions.GoToDungeon, AsciiArtAssets.Colors.White, option1.IsHovered);
-
-            canvas.AddMenuOption(row2X, menuStartY + 1, 2, UIConstants.MenuOptions.ShowInventory, AsciiArtAssets.Colors.White, option2.IsHovered);
-
-            canvas.AddMenuOption(row3X, menuStartY + 2, 3, UIConstants.MenuOptions.ShowSkillTree, AsciiArtAssets.Colors.White, option3.IsHovered);
-
-            canvas.AddMenuOption(row4X, menuStartY + 3, 4, UIConstants.MenuOptions.Travel, AsciiArtAssets.Colors.White, option4.IsHovered);
-
-            canvas.AddMenuOption(row0X, menuStartY + 4, 0, UIConstants.MenuOptions.SaveAndExit, AsciiArtAssets.Colors.White, option0.IsHovered);
+            clickableElements.Add(continueOption);
+            canvas.AddMenuOption(continueX, menuStartY, 1, "Continue", AsciiArtAssets.Colors.White, continueOption.IsHovered);
 
         }
 
