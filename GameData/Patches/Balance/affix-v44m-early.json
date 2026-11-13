@@ -1,0 +1,150 @@
+{
+  "base": "affix-v44m",
+  "enemySystem": {
+    "damageCurve": {
+      "bands": [
+        {
+          "from": 1,
+          "to": 1,
+          "multiplier": 2.1
+        },
+        {
+          "from": 2,
+          "to": 2,
+          "multiplier": 2.6
+        },
+        {
+          "from": 3,
+          "to": 3,
+          "multiplier": 2.8
+        },
+        {
+          "from": 4,
+          "to": 4,
+          "multiplier": 3.1
+        },
+        {
+          "from": 5,
+          "to": 5,
+          "multiplier": 3.4
+        },
+        {
+          "from": 6,
+          "to": 6,
+          "multiplier": 2.6
+        },
+        {
+          "from": 7,
+          "to": 7,
+          "multiplier": 2.6
+        },
+        {
+          "from": 8,
+          "to": 8,
+          "multiplier": 2.7
+        },
+        {
+          "from": 9,
+          "to": 9,
+          "multiplier": 2.8
+        },
+        {
+          "from": 10,
+          "to": 10,
+          "multiplier": 3.0
+        },
+        {
+          "from": 11,
+          "to": 15,
+          "multiplier": 4.336282
+        },
+        {
+          "from": 16,
+          "to": 20,
+          "multiplier": 6.896687
+        },
+        {
+          "from": 21,
+          "to": 25,
+          "multiplier": 9.288491
+        },
+        {
+          "from": 26,
+          "to": 30,
+          "multiplier": 22.26121
+        },
+        {
+          "from": 31,
+          "to": 35,
+          "multiplier": 17.559203
+        },
+        {
+          "from": 36,
+          "to": 40,
+          "multiplier": 15.208432
+        },
+        {
+          "from": 41,
+          "to": 45,
+          "multiplier": 14.613506
+        },
+        {
+          "from": 46,
+          "to": 50,
+          "multiplier": 35.881768
+        },
+        {
+          "from": 51,
+          "to": 55,
+          "multiplier": 43.083204
+        },
+        {
+          "from": 56,
+          "to": 60,
+          "multiplier": 47.026491
+        },
+        {
+          "from": 61,
+          "to": 65,
+          "multiplier": 47.66301
+        },
+        {
+          "from": 66,
+          "to": 70,
+          "multiplier": 147.304314
+        },
+        {
+          "from": 71,
+          "to": 75,
+          "multiplier": 143.132602
+        },
+        {
+          "from": 76,
+          "to": 80,
+          "multiplier": 94.191328
+        },
+        {
+          "from": 81,
+          "to": 85,
+          "multiplier": 752.508252
+        },
+        {
+          "from": 86,
+          "to": 90,
+          "multiplier": 945.851081
+        },
+        {
+          "from": 91,
+          "to": 95,
+          "multiplier": 1551.709963
+        },
+        {
+          "from": 96,
+          "to": 100,
+          "multiplier": 2946.650976
+        }
+      ]
+    }
+  },
+  "description": "Early-game enemy damage ramp L1-10 on affix-v44m (per-level bands; was flat 1.66/1.80). Hero HP lost per fight 6-12% -> 13-18% at L1-5, 9-13% at L6-10; clear 81-96% L1-5, 74-90% L6-10 (DUNGEONSIM 24 heroes/level, 2026-11-13)."
+}
