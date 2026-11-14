@@ -19,6 +19,8 @@ namespace RPGGame.Tuning.Profiles
         public static int Run(string[] args)
         {
             FundamentalsMatrixRunner.ApplySetFlags(args);
+            if (TuningCliArgs.GetFlagValue(args, "--dump") is { Length: > 0 } dumpPath)
+                return Dump(args, dumpPath);
             var levels = (TuningCliArgs.GetFlagValue(args, "--levels") ?? "1,5,10,25,50,100")
                 .Split(',', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
             int count = TuningCliArgs.GetIntFlag(args, "--count") ?? 2000;
@@ -132,6 +134,80 @@ namespace RPGGame.Tuning.Profiles
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(outPath))!);
             File.WriteAllText(outPath, JsonSerializer.Serialize(new { levels = record, suffixCounts, prefixCounts }, new JsonSerializerOptions { WriteIndented = true }));
             Console.WriteLine($"Run record: {Path.GetFullPath(outPath)}");
+            return 0;
+        }
+
+        /// <summary>
+        /// <c>ITEMSTATS --dump out.json [--levels 1-100] [--count 100] [--seed 1]</c>: rolls <c>count</c> items per level
+        /// (hero level = dungeon level, so item level = that level before roll-ups) and writes every roll decision per item
+        /// (the <see cref="Data.ItemGeneration.ItemRollSpec"/> plus the item's damage / defense) for offline analysis.
+        /// </summary>
+        private static int Dump(string[] args, string path)
+        {
+            string levelArg = TuningCliArgs.GetFlagValue(args, "--levels") ?? "1-100";
+            var levels = new List<int>();
+            foreach (var part in levelArg.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                var range = part.Split('-');
+                if (range.Length == 2)
+                    levels.AddRange(Enumerable.Range(int.Parse(range[0]), int.Parse(range[1]) - int.Parse(range[0]) + 1));
+                else
+                    levels.Add(int.Parse(part));
+            }
+            int count = TuningCliArgs.GetIntFlag(args, "--count") ?? 100;
+            LootGenerator.ReseedForTools(TuningCliArgs.GetIntFlag(args, "--seed") ?? 1);
+            LootGenerator.Initialize();
+
+            var items = new List<object>();
+            foreach (int level in levels)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    var item = LootGenerator.Roll(new Data.ItemGeneration.ItemRollRequest { HeroLevel = level, DungeonLevel = level }, out var spec);
+                    if (item == null)
+                        continue;
+                    int power = item switch
+                    {
+                        WeaponItem w => w.GetTotalDamage(),
+                        HeadItem h => h.GetTotalArmor(),
+                        ChestItem c => c.GetTotalArmor(),
+                        LegsItem l => l.GetTotalArmor(),
+                        FeetItem f => f.GetTotalArmor(),
+                        _ => 0
+                    };
+                    items.Add(new
+                    {
+                        name = item.Name,
+                        lootLevel = spec.LootLevel,
+                        itemLevel = spec.ItemLevel,
+                        slot = spec.Slot,
+                        cls = spec.Class,
+                        tier = spec.Tier,
+                        baseName = spec.BaseName,
+                        weaponType = item is WeaponItem wt ? wt.WeaponType.ToString() : null,
+                        rarity = spec.Rarity,
+                        material = spec.Material,
+                        implicitName = spec.Implicit,
+                        power,
+                        planned = spec.PlannedLines,
+                        relaxed = spec.Relaxed,
+                        rollUps = spec.RollUps,
+                        lines = spec.Lines.Select(l => new
+                        {
+                            pool = l.Pool,
+                            family = l.Family,
+                            tier = l.Tier,
+                            keyword = l.Keyword,
+                            value = l.Value,
+                            rolledUp = l.RolledUp,
+                            from = l.From
+                        })
+                    });
+                }
+            }
+
+            File.WriteAllText(path, JsonSerializer.Serialize(new { provenance = RPGGame.Tuning.RunProvenance.Describe(), items }));
+            Console.WriteLine($"Wrote {items.Count} items to {Path.GetFullPath(path)}");
             return 0;
         }
 
