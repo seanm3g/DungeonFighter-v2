@@ -45,6 +45,8 @@ namespace RPGGame.Tests.Unit.Data
             TestNameComposition();
             TestWeaponsLeanToClassMaterials();
             TestActionsComeFromGearPool();
+            TestRarerActionsWeighLess();
+            TestOffClassArmorMaterialPool();
 
             TestBase.PrintSummary("ItemRoller Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -306,6 +308,28 @@ namespace RPGGame.Tests.Unit.Data
             }
             double share = total == 0 ? 0 : own / (double)total;
             TestBase.AssertTrue(share > 0.85, $"weapons mostly take their class's materials ({share:P0})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestRarerActionsWeighLess()
+        {
+            int common = LootDataCache.RarityToWeight("Common"), unmarked = LootDataCache.RarityToWeight(null);
+            int rare = LootDataCache.RarityToWeight("RARE"), legendary = LootDataCache.RarityToWeight("Legendary");
+            TestBase.AssertTrue(common == unmarked && common > rare && rare > legendary && legendary > 0,
+                $"rarer actions weigh less on gear (common {common}, rare {rare}, legendary {legendary})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestOffClassArmorMaterialPool()
+        {
+            var mods = _cache.Modifications.Where(m => m.GetPrefixCategory() == ModificationPrefixCategory.Material).ToList();
+            var rng = new Random(5);
+            var uncommon = Enumerable.Range(0, 3000).Select(_ => ItemMaterialRules.PickNonWeaponMaterial(mods, "Uncommon", rng)).ToList();
+            var common = Enumerable.Range(0, 3000).Select(_ => ItemMaterialRules.PickNonWeaponMaterial(mods, "Common", rng)).ToList();
+            double unknownShare = uncommon.Count(m => m == "Unknown") / 3000.0;
+            TestBase.AssertTrue(unknownShare < 0.2 && unknownShare > 0,
+                $"off-class Uncommon armor is no longer always Unknown ({unknownShare:P0})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(uncommon.Any(ItemMaterialRules.IsSetMaterial), "off-class Uncommon armor can take a set material", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!common.Any(m => m is "Unknown" or "Strange" or "Celestial") && !uncommon.Any(m => m is "Strange" or "Celestial"),
+                "classless materials stay at or below the item's rarity", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestActionsComeFromGearPool()

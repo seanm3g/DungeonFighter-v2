@@ -100,7 +100,12 @@ namespace RPGGame
             return 0;
         }
 
-        /// <summary>Prefer materials whose ItemRank matches item rarity; otherwise any.</summary>
+        /// <summary>
+        /// Armor material when it doesn't take its class's materials: an even pick among every material whose
+        /// <c>ItemRank</c> is at or below the item's rarity. The twelve set materials are Common rank, so they are always
+        /// in the pool; classless ones join as rarity allows (Stone at Common, Unknown at Uncommon, Strange at Rare,
+        /// Celestial at Epic).
+        /// </summary>
         public static string PickNonWeaponMaterial(IEnumerable<Modification> materialMods, string? itemRarity, Random random)
         {
             var list = materialMods?.Where(m => m != null && !string.IsNullOrWhiteSpace(m.Name)).ToList()
@@ -108,12 +113,10 @@ namespace RPGGame
             if (list.Count == 0)
                 return ClassLessMaterials[random.Next(ClassLessMaterials.Length)];
 
-            string r = itemRarity?.Trim() ?? "Common";
-            var matching = list
-                .Where(m => string.Equals(m.ItemRank?.Trim(), r, StringComparison.OrdinalIgnoreCase)
-                            || (string.IsNullOrWhiteSpace(m.ItemRank) && r.Equals("Common", StringComparison.OrdinalIgnoreCase)))
-                .ToList();
-            var pool = matching.Count > 0 ? matching : list;
+            int itemRank = RarityLadderIndex(itemRarity);
+            var pool = list.Where(m => RarityLadderIndex(m.ItemRank) <= itemRank).ToList();
+            if (pool.Count == 0)
+                pool = list;
             return pool[random.Next(pool.Count)].Name.Trim();
         }
 

@@ -171,20 +171,21 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Maps action Rarity to selection weight (higher = more likely when choosing actions for items).
+        /// Maps an action's Rarity to its gear-roll weight: each step rarer halves it (Common or unmarked 32,
+        /// Uncommon 16, Rare 8, Epic 4, Legendary 2, Transcendent 1), so rarer actions drop less often.
         /// </summary>
-        private static int RarityToWeight(string? rarity)
+        internal static int RarityToWeight(string? rarity)
         {
-            if (string.IsNullOrWhiteSpace(rarity)) return 1;
+            if (string.IsNullOrWhiteSpace(rarity)) return 32;
             return (rarity.Trim().ToLowerInvariant()) switch
             {
-                "common" => 1,
-                "uncommon" => 2,
-                "rare" => 3,
+                "common" => 32,
+                "uncommon" => 16,
+                "rare" => 8,
                 "epic" => 4,
-                "legendary" => 5,
-                "transcendent" => 6,
-                _ => 1
+                "legendary" => 2,
+                "transcendent" => 1,
+                _ => 32
             };
         }
 
