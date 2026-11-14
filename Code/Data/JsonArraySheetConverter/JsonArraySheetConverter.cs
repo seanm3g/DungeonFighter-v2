@@ -57,6 +57,12 @@ namespace RPGGame.Data
             if (kind == GameDataTabularSheetKind.Dungeons)
                 return BuildDungeonsPushValueRows(jsonFileText);
 
+            if (kind == GameDataTabularSheetKind.ItemMods)
+                return BuildItemModsPushValueRows(jsonFileText);
+
+            if (kind == GameDataTabularSheetKind.Rarity)
+                return BuildRarityPushValueRows(jsonFileText);
+
             using var doc = JsonDocument.Parse(jsonFileText);
             if (doc.RootElement.ValueKind != JsonValueKind.Array)
                 throw new InvalidOperationException("Expected a JSON array at the root.");
@@ -181,6 +187,11 @@ namespace RPGGame.Data
             SheetJsonPropertyHelper.TryGetPropertyPathCaseInsensitive(el, dottedPath, out found);
         public static string CsvToJsonArrayText(string csvContent, GameDataTabularSheetKind kind)
         {
+            if (kind == GameDataTabularSheetKind.ItemMods)
+                return ItemModsCsvToJsonText(csvContent);
+            if (kind == GameDataTabularSheetKind.Rarity)
+                return RarityCsvToJsonText(csvContent);
+
             var table = SimpleGameDataCsvParser.ParseToRows(csvContent);
             if (table.Count == 0)
                 throw new InvalidOperationException("CSV has no rows.");

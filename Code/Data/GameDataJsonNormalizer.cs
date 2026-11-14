@@ -74,6 +74,8 @@ namespace RPGGame.Data
             RenameArmorSheetColumnKeysToCanonical(o);
 
             CoercePropertyToInt(o, "armor");
+            CoercePropertyToInt(o, "defenseMin");
+            CoercePropertyToInt(o, "defenseMax");
             CoercePropertyToInt(o, "tier");
             CoercePropertyToInt(o, "strength");
             CoercePropertyToInt(o, "agility");
@@ -107,6 +109,9 @@ namespace RPGGame.Data
             EnsureCanonicalArmorKey(obj, "slot", "SLOT");
             EnsureCanonicalArmorKey(obj, "name", "NAME");
             EnsureCanonicalArmorKey(obj, "armor", "ARMOR");
+            EnsureCanonicalArmorKey(obj, "class", "CLASS");
+            EnsureCanonicalArmorKey(obj, "defenseMin", "DEFENSE MIN", "DEFENSEMIN");
+            EnsureCanonicalArmorKey(obj, "defenseMax", "DEFENSE MAX", "DEFENSEMAX");
             EnsureCanonicalArmorKey(obj, "tags", "TAGS");
             EnsureCanonicalArmorKey(obj, "tier", "TIER");
 

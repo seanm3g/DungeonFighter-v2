@@ -161,6 +161,26 @@ namespace RPGGame.Data
                 ClearJsonCacheForGameDataFile(GameConstants.RegionsJson);
             }
 
+            if (tabFlags.PushItemModsTab && !string.IsNullOrWhiteSpace(sc.ItemModsSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.ItemModsSheetUrl, cancellationToken).ConfigureAwait(false);
+                string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.ItemMods);
+                string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.ItemModsJson)
+                    ?? GameConstants.GetGameDataFilePath(GameConstants.ItemModsJson);
+                await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                ClearJsonCacheForGameDataFile(GameConstants.ItemModsJson);
+            }
+
+            if (tabFlags.PushRarityTab && !string.IsNullOrWhiteSpace(sc.RaritySheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.RaritySheetUrl, cancellationToken).ConfigureAwait(false);
+                string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Rarity);
+                string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.RarityTableJson)
+                    ?? GameConstants.GetGameDataFilePath(GameConstants.RarityTableJson);
+                await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                ClearJsonCacheForGameDataFile(GameConstants.RarityTableJson);
+            }
+
             if (tabFlags.PushClassPresentationTab && !string.IsNullOrWhiteSpace(sc.ClassPresentationSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.ClassPresentationSheetUrl, cancellationToken).ConfigureAwait(false);

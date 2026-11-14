@@ -12,7 +12,8 @@ namespace RPGGame.Data
         /// </summary>
         public static readonly string[] WeaponsCanonicalHeaders =
         {
-            "type", "name", "dps", "balance", "baseDamage", "damageBonusMin", "damageBonusMax", "attackSpeed", "tier",
+            "type", "name", "class", "dps", "balance", "baseDamage", "damageBonusMin", "damageBonusMax",
+            "damageMin", "damageMax", "attackSpeed", "tier",
             "extraActionSlots", "extraActionSlotsMin", "extraActionSlotsMax",
             "attributeRequirements", "tags", "Compelled Action", "triggerName"
         };
@@ -32,10 +33,24 @@ namespace RPGGame.Data
 
         public static readonly string[] ArmorCanonicalHeaders =
         {
-            "slot", "name", "armor", "tags",
+            "slot", "name", "class", "armor", "defenseMin", "defenseMax", "tags",
             "STRENGTH", "AGILITY", "TECHNIQUE", "INTELLIGENCE", "HIT", "COMBO", "CRIT",
             "# OF ACTION SLOTS", "# OF BONUS ACTIONS",
             "tier", "attributeRequirements", "requirement value", "triggerName"
+        };
+
+        /// <summary>ITEM MODS tab: family columns (repeated per row) then one tier per row.</summary>
+        public static readonly string[] ItemModsCanonicalHeaders =
+        {
+            "family", "pool", "affix", "kind", "statType", "template", "description", "slots", "familyWeight", "tags", "integer",
+            "keyword", "min", "max", "level", "slotLevel", "weight", "maxRarity", "tierSlots"
+        };
+
+        /// <summary>RARITY tab: one row per rarity; per-pool line counts as min / max columns.</summary>
+        public static readonly string[] RarityCanonicalHeaders =
+        {
+            "Name", "Weight", "MinLevel", "MaxLines", "Explode",
+            "materialMin", "materialMax", "statMin", "statMax", "mechanicMin", "mechanicMax", "actionMin", "actionMax"
         };
 
         public static readonly string[] EnemiesCanonicalHeaders =
@@ -135,6 +150,8 @@ namespace RPGGame.Data
                 GameDataTabularSheetKind.MaterialBuilds => MaterialBuildsCanonicalHeaders,
                 GameDataTabularSheetKind.Charms => CharmsCanonicalHeaders,
                 GameDataTabularSheetKind.Regions => RegionsCanonicalHeaders,
+                GameDataTabularSheetKind.ItemMods => ItemModsCanonicalHeaders,
+                GameDataTabularSheetKind.Rarity => RarityCanonicalHeaders,
                 _ => Array.Empty<string>()
             };
     }

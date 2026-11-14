@@ -47,6 +47,8 @@ namespace RPGGame
         public const string RoomsJson = "Rooms.json";
         public const string DungeonsJson = "Dungeons.json";
         public const string RegionsJson = "Regions.json";
+        public const string ItemModsJson = "ItemMods.json";
+        public const string RarityTableJson = "RarityTable.json";
         public const string TravelEventsJson = "TravelEvents.json";
         /// <summary>CLASS ACTIONS sheet pull → class tier / path → combo action unlocks.</summary>
         public const string ClassActionsJson = "ClassActions.json";

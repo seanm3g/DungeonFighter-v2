@@ -55,6 +55,8 @@ namespace RPGGame.Data
 
             // Regions tab is new; fill its name in memory so the first push creates REGIONS.
             cfg.ApplyDefaultRegionsTabNameIfUnset();
+            // ITEM MODS / RARITY tabs are new with the item roller; same in-memory default + create-on-push.
+            cfg.ApplyDefaultItemGenerationTabNamesIfUnset();
 
             if (cfg.ApplyDefaultDungeonsTabNameIfUnset())
             {
@@ -222,6 +224,12 @@ namespace RPGGame.Data
             if (cfg.PushRegionsTab && !string.IsNullOrWhiteSpace(cfg.RegionsSheetTabName)
                 && await SheetsPushPreflight.CreateTabIfMissingAsync(service, cfg.SpreadsheetId, cfg.RegionsSheetTabName, cancellationToken).ConfigureAwait(false))
                 result.AddLine($"Created missing tab '{cfg.RegionsSheetTabName.Trim()}'.");
+            if (cfg.PushItemModsTab && !string.IsNullOrWhiteSpace(cfg.ItemModsSheetTabName)
+                && await SheetsPushPreflight.CreateTabIfMissingAsync(service, cfg.SpreadsheetId, cfg.ItemModsSheetTabName, cancellationToken).ConfigureAwait(false))
+                result.AddLine($"Created missing tab '{cfg.ItemModsSheetTabName.Trim()}'.");
+            if (cfg.PushRarityTab && !string.IsNullOrWhiteSpace(cfg.RaritySheetTabName)
+                && await SheetsPushPreflight.CreateTabIfMissingAsync(service, cfg.SpreadsheetId, cfg.RaritySheetTabName, cancellationToken).ConfigureAwait(false))
+                result.AddLine($"Created missing tab '{cfg.RaritySheetTabName.Trim()}'.");
 
             IReadOnlyDictionary<string, int> tabGids = await SheetsPushPreflight.EnsureSpreadsheetAccessAndTabsAsync(
                     service,
@@ -413,6 +421,34 @@ namespace RPGGame.Data
                     cancellationToken)
                 .ConfigureAwait(false);
 
+            await PushOptionalJsonArrayTabAsync(
+                    service,
+                    cfg,
+                    tabGids,
+                    cfg.PushItemModsTab,
+                    "ITEM MODS",
+                    cfg.ItemModsSheetTabName,
+                    GameConstants.ItemModsJson,
+                    GameDataTabularSheetKind.ItemMods,
+                    "ItemMods.json",
+                    result,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            await PushOptionalJsonArrayTabAsync(
+                    service,
+                    cfg,
+                    tabGids,
+                    cfg.PushRarityTab,
+                    "RARITY",
+                    cfg.RaritySheetTabName,
+                    GameConstants.RarityTableJson,
+                    GameDataTabularSheetKind.Rarity,
+                    "RarityTable.json",
+                    result,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
             await PushOptionalClassPresentationTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
 
             await PushOptionalVariablesTabAsync(service, cfg, tabGids, result, cancellationToken).ConfigureAwait(false);
@@ -466,6 +502,12 @@ namespace RPGGame.Data
 
             if (cfg.PushRegionsTab && !string.IsNullOrWhiteSpace(cfg.RegionsSheetTabName))
                 yield return cfg.RegionsSheetTabName.Trim();
+
+            if (cfg.PushItemModsTab && !string.IsNullOrWhiteSpace(cfg.ItemModsSheetTabName))
+                yield return cfg.ItemModsSheetTabName.Trim();
+
+            if (cfg.PushRarityTab && !string.IsNullOrWhiteSpace(cfg.RaritySheetTabName))
+                yield return cfg.RaritySheetTabName.Trim();
 
             if (cfg.PushClassPresentationTab && !string.IsNullOrWhiteSpace(cfg.ClassPresentationSheetTabName))
                 yield return cfg.ClassPresentationSheetTabName.Trim();

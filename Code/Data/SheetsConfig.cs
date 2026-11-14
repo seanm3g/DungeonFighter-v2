@@ -50,6 +50,14 @@ namespace RPGGame.Data
         [JsonPropertyName("regionsSheetUrl")]
         public string RegionsSheetUrl { get; set; } = "";
 
+        /// <summary>Published CSV URL for the ITEM MODS tab (→ <c>ItemMods.json</c>).</summary>
+        [JsonPropertyName("itemModsSheetUrl")]
+        public string ItemModsSheetUrl { get; set; } = "";
+
+        /// <summary>Published CSV URL for the RARITY tab (→ <c>RarityTable.json</c>).</summary>
+        [JsonPropertyName("raritySheetUrl")]
+        public string RaritySheetUrl { get; set; } = "";
+
         /// <summary>Published CSV URL for the item-suffix / stat-bonus pool tab (→ <c>StatBonuses.json</c>).</summary>
         [JsonPropertyName("statBonusesSheetUrl")]
         public string StatBonusesSheetUrl { get; set; } = "";

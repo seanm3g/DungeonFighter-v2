@@ -49,6 +49,14 @@ namespace RPGGame.Data
         [JsonPropertyName("regionsSheetTabName")]
         public string RegionsSheetTabName { get; set; } = "";
 
+        /// <summary>ITEM MODS tab (<c>ItemMods.json</c>, one row per tier). Created on push when missing.</summary>
+        [JsonPropertyName("itemModsSheetTabName")]
+        public string ItemModsSheetTabName { get; set; } = "";
+
+        /// <summary>RARITY tab (<c>RarityTable.json</c>). Created on push when missing.</summary>
+        [JsonPropertyName("raritySheetTabName")]
+        public string RaritySheetTabName { get; set; } = "";
+
         [JsonPropertyName("statBonusesSheetTabName")]
         public string StatBonusesSheetTabName { get; set; } = "";
 
@@ -125,6 +133,12 @@ namespace RPGGame.Data
         [JsonPropertyName("pushRegionsTab")]
         public bool PushRegionsTab { get; set; } = true;
 
+        [JsonPropertyName("pushItemModsTab")]
+        public bool PushItemModsTab { get; set; } = true;
+
+        [JsonPropertyName("pushRarityTab")]
+        public bool PushRarityTab { get; set; } = true;
+
         [JsonPropertyName("pushClassPresentationTab")]
         public bool PushClassPresentationTab { get; set; } = true;
 
@@ -149,6 +163,10 @@ namespace RPGGame.Data
         public const string DefaultDungeonsSheetTabName = "DUNGEONS";
 
         public const string DefaultRegionsSheetTabName = "REGIONS";
+
+        public const string DefaultItemModsSheetTabName = "ITEM MODS";
+
+        public const string DefaultRaritySheetTabName = "RARITY";
 
         public const string DefaultStatBonusesSheetTabName = "SUFFIXES";
 
@@ -250,6 +268,23 @@ namespace RPGGame.Data
                 return false;
             RegionsSheetTabName = DefaultRegionsSheetTabName;
             return true;
+        }
+
+        /// <summary>Fills <see cref="ItemModsSheetTabName"/> / <see cref="RaritySheetTabName"/> when blank (added with the item roller).</summary>
+        public bool ApplyDefaultItemGenerationTabNamesIfUnset()
+        {
+            bool changed = false;
+            if (string.IsNullOrWhiteSpace(ItemModsSheetTabName))
+            {
+                ItemModsSheetTabName = DefaultItemModsSheetTabName;
+                changed = true;
+            }
+            if (string.IsNullOrWhiteSpace(RaritySheetTabName))
+            {
+                RaritySheetTabName = DefaultRaritySheetTabName;
+                changed = true;
+            }
+            return changed;
         }
 
         /// <summary>Fills <see cref="StatBonusesSheetTabName"/> when still blank (newer field on older push configs).</summary>

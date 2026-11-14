@@ -20,7 +20,7 @@ namespace RPGGame.Data
             var canonical = ArmorCanonicalHeaders.ToList();
             var handledJson = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "slot", "name", "armor", "tags", "strength", "agility", "technique", "intelligence",
+                "slot", "name", "class", "armor", "defenseMin", "defenseMax", "tags", "strength", "agility", "technique", "intelligence",
                 "hit", "combo", "crit", "extraActionSlots",
                 "minActionBonuses", "tier", "attributeRequirements", "triggerName",
                 "triggerBundles", "equipEffects"
@@ -104,6 +104,9 @@ namespace RPGGame.Data
                 "slot" => "slot",
                 "name" => "name",
                 "armor" => "armor",
+                "class" => "class",
+                "defenseMin" => "defenseMin",
+                "defenseMax" => "defenseMax",
                 "tags" => "tags",
                 "tier" => "tier",
                 "triggerName" => "triggerName",

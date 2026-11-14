@@ -23,6 +23,10 @@ namespace RPGGame.Data
         /// <summary><c>Charms.json</c> — charm slot amplifiers (sheet tab CHARMS).</summary>
         Charms,
         /// <summary><c>Regions.json</c> — travel regions with fixed dungeon level bands and linked biomes (sheet tab REGIONS).</summary>
-        Regions
+        Regions,
+        /// <summary><c>ItemMods.json</c> — item mod families, one sheet row per tier (sheet tab ITEM MODS).</summary>
+        ItemMods,
+        /// <summary><c>RarityTable.json</c> — rarity weights, unlock level and line counts per pool (sheet tab RARITY).</summary>
+        Rarity
     }
 }
