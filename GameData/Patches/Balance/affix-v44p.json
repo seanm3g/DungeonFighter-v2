@@ -1,0 +1,110 @@
+{
+  "base": "affix-v44o",
+  "enemySystem": {
+    "damageCurve": {
+      "bands": [
+        {
+          "from": 1,
+          "to": 5,
+          "multiplier": 2.443122
+        },
+        {
+          "from": 6,
+          "to": 10,
+          "multiplier": 2.259679
+        },
+        {
+          "from": 11,
+          "to": 15,
+          "multiplier": 4.336282
+        },
+        {
+          "from": 16,
+          "to": 20,
+          "multiplier": 6.896687
+        },
+        {
+          "from": 21,
+          "to": 25,
+          "multiplier": 17.944182
+        },
+        {
+          "from": 26,
+          "to": 30,
+          "multiplier": 22.26121
+        },
+        {
+          "from": 31,
+          "to": 35,
+          "multiplier": 17.559203
+        },
+        {
+          "from": 36,
+          "to": 40,
+          "multiplier": 18.466
+        },
+        {
+          "from": 41,
+          "to": 45,
+          "multiplier": 31.542617
+        },
+        {
+          "from": 46,
+          "to": 50,
+          "multiplier": 35.881768
+        },
+        {
+          "from": 51,
+          "to": 55,
+          "multiplier": 43.083204
+        },
+        {
+          "from": 56,
+          "to": 60,
+          "multiplier": 47.026491
+        },
+        {
+          "from": 61,
+          "to": 65,
+          "multiplier": 86.510189
+        },
+        {
+          "from": 66,
+          "to": 70,
+          "multiplier": 147.304314
+        },
+        {
+          "from": 71,
+          "to": 75,
+          "multiplier": 143.132602
+        },
+        {
+          "from": 76,
+          "to": 80,
+          "multiplier": 94.191328
+        },
+        {
+          "from": 81,
+          "to": 85,
+          "multiplier": 752.508252
+        },
+        {
+          "from": 86,
+          "to": 90,
+          "multiplier": 945.851081
+        },
+        {
+          "from": 91,
+          "to": 95,
+          "multiplier": 1551.709963
+        },
+        {
+          "from": 96,
+          "to": 100,
+          "multiplier": 2946.650976
+        }
+      ]
+    }
+  },
+  "description": "Per-dungeon enemy damage and HP (enemySystem.dungeonScale) from Scripts/dungeon-calibrate.py on affix-v44m. affix-v44o: affix-v44n + class bands ['class:Barbarian@L43', 'class:Warrior@L33', 'class:Wizard@L18', 'class:Wizard@L28', 'class:Wizard@L38', 'class:Wizard@L58'] (balance-loop, paired confirm on seeds [19501, 19502, 19503, 19504]). affix-v44p: affix-v44o + damage bands ['damage@L23', 'damage@L3', 'damage@L38', 'damage@L43', 'damage@L63', 'damage@L8'] (balance-loop, paired confirm on seeds [19701, 19702, 19703, 19704])."
+}

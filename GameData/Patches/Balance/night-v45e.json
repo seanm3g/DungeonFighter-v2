@@ -1,0 +1,41 @@
+{
+  "base": "night-v45c",
+  "enemySystem": {
+    "dungeonScale": {
+      "Ashen Land": {
+        "damage": 0.7177
+      },
+      "Den": {
+        "damage": 0.7764
+      },
+      "Dense Brush": {
+        "damage": 0.795
+      },
+      "Desert": {
+        "damage": 1.5923
+      },
+      "Fire Temple": {
+        "damage": 1.4742
+      },
+      "Labyrinth": {
+        "damage": 1.6201
+      },
+      "Lava Cave": {
+        "damage": 0.9451
+      },
+      "Mirror Pond": {
+        "damage": 0.9423
+      },
+      "Mountains": {
+        "damage": 1.3302
+      },
+      "Spring": {
+        "damage": 0.9476
+      },
+      "Water Temple": {
+        "damage": 1.1198
+      }
+    }
+  },
+  "description": "Per-dungeon enemy damage and HP (enemySystem.dungeonScale) from Scripts/dungeon-calibrate.py on night-v45c."
+}

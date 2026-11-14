@@ -1,0 +1,38 @@
+{
+  "base": "affix-v44k",
+  "enemySystem": {
+    "dungeonScale": {
+      "Ashen Land": {
+        "damage": 0.6429
+      },
+      "Den": {
+        "damage": 1.4682
+      },
+      "Desert": {
+        "damage": 1.6797
+      },
+      "Fire Temple": {
+        "damage": 1.4523
+      },
+      "Labyrinth": {
+        "damage": 1.3964
+      },
+      "Lava Cave": {
+        "damage": 1.071
+      },
+      "Mirror Pond": {
+        "damage": 0.7955
+      },
+      "Mountains": {
+        "damage": 1.403
+      },
+      "Spring": {
+        "damage": 0.9513
+      },
+      "Water Temple": {
+        "damage": 1.3215
+      }
+    }
+  },
+  "description": "Per-dungeon enemy damage and HP (enemySystem.dungeonScale) from Scripts/dungeon-calibrate.py on affix-v44k."
+}

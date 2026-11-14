@@ -1,0 +1,150 @@
+{
+  "base": "night-v45a",
+  "enemySystem": {
+    "damageCurve": {
+      "bands": [
+        {
+          "from": 1,
+          "to": 1,
+          "multiplier": 2.1
+        },
+        {
+          "from": 2,
+          "to": 2,
+          "multiplier": 2.6
+        },
+        {
+          "from": 3,
+          "to": 3,
+          "multiplier": 2.8
+        },
+        {
+          "from": 4,
+          "to": 4,
+          "multiplier": 3.1
+        },
+        {
+          "from": 5,
+          "to": 5,
+          "multiplier": 3.4
+        },
+        {
+          "from": 6,
+          "to": 6,
+          "multiplier": 2.6
+        },
+        {
+          "from": 7,
+          "to": 7,
+          "multiplier": 2.6
+        },
+        {
+          "from": 8,
+          "to": 8,
+          "multiplier": 2.7
+        },
+        {
+          "from": 9,
+          "to": 9,
+          "multiplier": 2.8
+        },
+        {
+          "from": 10,
+          "to": 10,
+          "multiplier": 3.0
+        },
+        {
+          "from": 11,
+          "to": 15,
+          "multiplier": 4.336282
+        },
+        {
+          "from": 16,
+          "to": 20,
+          "multiplier": 7.443099
+        },
+        {
+          "from": 21,
+          "to": 25,
+          "multiplier": 17.944182
+        },
+        {
+          "from": 26,
+          "to": 30,
+          "multiplier": 22.26121
+        },
+        {
+          "from": 31,
+          "to": 35,
+          "multiplier": 17.559203
+        },
+        {
+          "from": 36,
+          "to": 40,
+          "multiplier": 21.211864
+        },
+        {
+          "from": 41,
+          "to": 45,
+          "multiplier": 31.542617
+        },
+        {
+          "from": 46,
+          "to": 50,
+          "multiplier": 35.881768
+        },
+        {
+          "from": 51,
+          "to": 55,
+          "multiplier": 46.49661
+        },
+        {
+          "from": 56,
+          "to": 60,
+          "multiplier": 57.099325
+        },
+        {
+          "from": 61,
+          "to": 65,
+          "multiplier": 86.510189
+        },
+        {
+          "from": 66,
+          "to": 70,
+          "multiplier": 147.304314
+        },
+        {
+          "from": 71,
+          "to": 75,
+          "multiplier": 143.132602
+        },
+        {
+          "from": 76,
+          "to": 80,
+          "multiplier": 94.191328
+        },
+        {
+          "from": 81,
+          "to": 85,
+          "multiplier": 752.508252
+        },
+        {
+          "from": 86,
+          "to": 90,
+          "multiplier": 945.851081
+        },
+        {
+          "from": 91,
+          "to": 95,
+          "multiplier": 1551.709963
+        },
+        {
+          "from": 96,
+          "to": 100,
+          "multiplier": 2946.650976
+        }
+      ]
+    }
+  },
+  "description": "Per-dungeon enemy damage and HP (enemySystem.dungeonScale) from Scripts/dungeon-calibrate.py on affix-v44p. affix-v44r (2026-11-13): affix-v44q with the L1-10 per-level damage ramp from affix-v44m-early. night-v45a: affix-v44r + health bands ['health@L33', 'health@L38'] (balance-loop, paired confirm on seeds [22101, 22102, 22103, 22104]). night-v45b: night-v45a + damage bands ['damage@L18', 'damage@L38', 'damage@L53', 'damage@L58'] (balance-loop, paired confirm on seeds [22301, 22302, 22303, 22304])."
+}

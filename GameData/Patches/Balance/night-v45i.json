@@ -1,0 +1,193 @@
+{
+  "base": "night-v45h",
+  "classBalance": {
+    "barbarian": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 10,
+            "multiplier": 1.0
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 0.97942
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 1.180992
+          },
+          {
+            "from": 21,
+            "to": 25,
+            "multiplier": 1.670176
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 1.0
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 1.591073
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 1.464086
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 1.658639
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 1.42405
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 1.0
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 1.060687
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 1.244011
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 1.681794
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 0.959264
+          },
+          {
+            "from": 76,
+            "to": 85,
+            "multiplier": 1.0
+          },
+          {
+            "from": 86,
+            "to": 90,
+            "multiplier": 1.925189
+          },
+          {
+            "from": 91,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    },
+    "rogue": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 5,
+            "multiplier": 1.0
+          },
+          {
+            "from": 6,
+            "to": 10,
+            "multiplier": 0.664343
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 0.539614
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 0.870551
+          },
+          {
+            "from": 21,
+            "to": 25,
+            "multiplier": 1.01748
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 1.101905
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 0.993092
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 1.0
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 1.580083
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 1.558329
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 3.75809
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 2.128741
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 4.377175
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 4.198867
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 4.578898
+          },
+          {
+            "from": 76,
+            "to": 80,
+            "multiplier": 3.340352
+          },
+          {
+            "from": 81,
+            "to": 85,
+            "multiplier": 6.000155
+          },
+          {
+            "from": 86,
+            "to": 100,
+            "multiplier": 1.0
+          }
+        ]
+      }
+    }
+  },
+  "description": "Per-dungeon enemy damage and HP (enemySystem.dungeonScale) from Scripts/dungeon-calibrate.py on night-v45c. night-v45f: night-v45e + damage bands ['damage@L43'] (balance-loop, paired confirm on seeds [23201, 23202, 23203, 23204]). night-v45g: night-v45f + class bands ['class:Barbarian@L13', 'class:Rogue@L58', 'class:Wizard@L23', 'class:Wizard@L48'] (balance-loop, paired confirm on seeds [25301, 25302, 25303, 25304]). night-v45h: night-v45g + damage bands ['damage@L68', 'damage@L73'] (balance-loop, paired confirm on seeds [25501, 25502, 25503, 25504]). night-v45i: night-v45h + class bands ['class:Barbarian@L63', 'class:Rogue@L63', 'class:Rogue@L68'] (balance-loop, paired confirm on seeds [27301, 27302, 27303, 27304, 27305, 27306, 27307, 27308])."
+}
