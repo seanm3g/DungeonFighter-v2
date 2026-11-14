@@ -8,6 +8,7 @@ Output: {"tables": {name: [row, ...]}, "meta": [...]} with this script's own tex
 import argparse
 import json
 import os
+import random
 from collections import Counter, defaultdict
 
 RARITIES = ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"]
@@ -149,6 +150,31 @@ def main():
         pw[(band(i["lootLevel"]), "weapon" if i["slot"] == "weapon" else "armor")].append(i["power"])
     tables["powerByBand"] = [{"band": b, "kind": k, "avg": round(sum(v) / len(v), 1), "min": min(v), "max": max(v), "items": len(v)}
                              for (b, k), v in sorted(pw.items(), key=lambda kv: (int(kv[0][0].split("-")[0]), kv[0][1]))]
+
+    # 100 sample items picked at random (fixed seed) from the dump, shown whole, lowest item level first.
+    def describe(l):
+        if l["pool"] == "action":
+            return f'action: {l["keyword"]}'
+        up = " (rolled up)" if l["rolledUp"] else ""
+        moved = f' (from {l["from"]})' if l.get("from") else ""
+        return f'{l["pool"]}: {l["keyword"]} = {l["value"]:g} [{l["family"]} T{l["tier"]}]{up}{moved}'
+
+    picks = sorted(random.Random(7).sample(items, min(100, n)), key=lambda i: (i["itemLevel"], i["name"]))
+    tables["samples"] = [{
+        "id": k + 1,
+        "item": i["name"],
+        "rarity": i["rarity"],
+        "itemLevel": i["itemLevel"],
+        "slot": i["slot"],
+        "class": i["cls"],
+        "base": i["baseName"],
+        "tier": i["tier"],
+        "material": i["material"],
+        "power": i["power"],
+        "implicit": i["implicitName"] or "",
+        "lines": "\n".join(describe(l) for l in i["lines"]),
+        "rollUps": ", ".join(i["rollUps"]),
+    } for k, i in enumerate(picks)]
 
     with open(os.path.abspath(__file__), encoding="utf-8") as f:
         code = f.read()
