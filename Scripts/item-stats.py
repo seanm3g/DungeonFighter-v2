@@ -1,5 +1,5 @@
 """Aggregates an ITEMSTATS dump into distribution tables (rarity, slots, classes, materials, pools, families, tiers,
-roll-ups, re-routes, actions, implicits, power by level) for the item roller dashboard.
+roll-ups, re-routes, actions, implicits, power by level, anomalies) for the item roller dashboard.
 
 Input:  DF.exe ITEMSTATS --dump items.json --levels 1-100 --count 100 --seed 1
 Usage:  python -I Scripts/item-stats.py items.json out.json [--gamedata GameData]
@@ -18,6 +18,108 @@ POOLS = ["material", "stat", "mechanic", "action"]
 def band(level):
     lo = (level - 1) // 10 * 10 + 1
     return f"{lo}-{lo + 9}"
+
+
+ANOMALY_LIMIT = 150
+
+
+def find_anomalies(items, tier_info, describe):
+    """Tags items that rolled something unusual. Each tag is a rule over one item; an item's score is the sum of
+    -log10(share of items carrying each of its tags), so rare tags and stacked tags rank first. Returns the top
+    ANOMALY_LIMIT items (with tags and the reason for each) and one row per tag with how often it fired."""
+    import math
+    import statistics
+
+    n = len(items)
+    pools_of = lambda i, p: [l for l in i["lines"] if l["pool"] == p]
+
+    # Per-rarity line-count cut: the lowest count (above the mode) that at most 1.5% of that rarity's items reach.
+    by_rarity = defaultdict(Counter)
+    for i in items:
+        by_rarity[i["rarity"]][len(i["lines"])] += 1
+    line_cut = {}
+    for r, counts in by_rarity.items():
+        total = sum(counts.values())
+        mode = counts.most_common(1)[0][0]
+        line_cut[r] = next((c for c in range(mode + 1, max(counts) + 2)
+                            if sum(v for k, v in counts.items() if k >= c) <= 0.015 * total), max(counts) + 1)
+
+    # Power z-score within the same 10-level band and weapon type / armor slot.
+    groups = defaultdict(list)
+    key = lambda i: (band(i["lootLevel"]), i.get("weaponType") or i["slot"])
+    for i in items:
+        groups[key(i)].append(i["power"])
+    stats = {k: (statistics.mean(v), statistics.pstdev(v)) for k, v in groups.items()}
+
+    route_counts = Counter((l["from"], l["pool"]) for i in items for l in i["lines"] if l.get("from"))
+
+    def tags_of(i):
+        t = {}
+        if RARITIES.index(i["rarity"]) >= 3:
+            t[f'{i["rarity"]} drop'] = f'rolled {i["rarity"]}'
+        rar_ups = [r for r in i["rollUps"] if r.startswith("rarity")]
+        if len(rar_ups) >= 2:
+            t["Rarity rolled up twice"] = ", ".join(rar_ups)
+        il = i["itemLevel"] - i["lootLevel"]
+        if il >= 2:
+            t["Item level +2 or more"] = f'item level {i["itemLevel"]} from loot level {i["lootLevel"]}'
+        if len(i["rollUps"]) >= 3:
+            t["Roll-up chain (3+)"] = ", ".join(i["rollUps"])
+        if len(i["lines"]) >= line_cut[i["rarity"]]:
+            t["Extra lines for rarity"] = f'{len(i["lines"])} lines; 98.5%+ of {i["rarity"]} items have fewer than {line_cut[i["rarity"]]}'
+        for pool, cut, name in (("material", 2, "Stacked material lines"), ("mechanic", 2, "Stacked mechanic lines"),
+                                ("action", 3, "3+ gear actions")):
+            k = len(pools_of(i, pool))
+            if k >= cut:
+                t[name] = f"{k} {pool} lines"
+        jumps = [r for r in i["rollUps"] if r.startswith("tier:") and not r.endswith("+1")]
+        if jumps:
+            t["Tier jumped 2+"] = ", ".join(jumps)
+        for l in i["lines"]:
+            if l.get("from") and route_counts[(l["from"], l["pool"])] < 0.005 * n:
+                t["Rare pool move"] = f'{l["family"]}: {l["from"]} → {l["pool"]}'
+        mean, sd = stats[key(i)]
+        if sd > 0:
+            z = (i["power"] - mean) / sd
+            what = f'{i.get("weaponType") or i["slot"]} in levels {band(i["lootLevel"])}'
+            if z >= 3:
+                t["Power high for level"] = f'power {i["power"]} vs avg {mean:.0f} for a {what} ({z:+.1f} sd)'
+            elif z <= -3:
+                t["Power low for level"] = f'power {i["power"]} vs avg {mean:.0f} for a {what} ({z:+.1f} sd)'
+        mod_lines = [l for l in i["lines"] if l["pool"] != "action" and tier_info(l)]
+        tops = 0
+        for l in mod_lines:
+            ti = tier_info(l)
+            span = ti["max"] - ti["min"]
+            if span > 0 and (l["value"] - ti["min"]) / span >= 0.9:
+                tops += 1
+        if len(mod_lines) >= 2 and tops == len(mod_lines):
+            t["Near-perfect rolls"] = f"all {tops} mod lines in the top 10% of their tier's range"
+        return t
+
+    tagged = [(i, tags_of(i)) for i in items]
+    freq = Counter(name for _, t in tagged for name in t)
+    weight = {name: -math.log10(c / n) for name, c in freq.items()}
+    ranked = sorted(((sum(weight[x] for x in t), i, t) for i, t in tagged if t), key=lambda s: -s[0])
+
+    rows = [{
+        "id": k + 1,
+        "score": round(score, 2),
+        "tags": " · ".join(sorted(t, key=lambda x: -weight[x])),
+        "why": "\n".join(f"{name}: {t[name]}" for name in sorted(t, key=lambda x: -weight[x])),
+        "item": i["name"],
+        "rarity": i["rarity"],
+        "itemLevel": i["itemLevel"],
+        "lootLevel": i["lootLevel"],
+        "slot": i["slot"],
+        "class": i["cls"],
+        "material": i["material"],
+        "power": i["power"],
+        "lines": "\n".join(describe(l) for l in i["lines"]),
+    } for k, (score, i, t) in enumerate(ranked[:ANOMALY_LIMIT])]
+    tag_rows = [{"tag": name, "items": c, "pct": round(100 * c / n, 2), "weight": round(weight[name], 2)}
+                for name, c in sorted(freq.items(), key=lambda kv: kv[1])]
+    return rows, tag_rows, len(ranked)
 
 
 def main():
@@ -175,6 +277,12 @@ def main():
         "lines": "\n".join(describe(l) for l in i["lines"]),
         "rollUps": ", ".join(i["rollUps"]),
     } for k, i in enumerate(picks)]
+
+    anomalies, anomaly_tags, anomalous = find_anomalies(items, tier_info, describe)
+    tables["summary"][0]["anomalousItems"] = anomalous
+    tables["summary"][0]["anomalousPct"] = pct(anomalous, n)
+    tables["anomalies"] = anomalies
+    tables["anomalyTags"] = anomaly_tags
 
     with open(os.path.abspath(__file__), encoding="utf-8") as f:
         code = f.read()

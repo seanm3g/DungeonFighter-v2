@@ -37,7 +37,8 @@ Where the item generation work stands, for picking it up in a new chat. Design a
   - `python -I Scripts/item-stats.py out.json stats.json` aggregates a dump.
   - `ITEMSTATS --samples N` prints full items.
   - The dashboard "Item Roller 10k" (https://claude.ai/artifact/GENbD9BiivU5zghhsCtTVk) shows the latest seed-1 roll
-    from one attached file. To refresh it, upload a new `item-stats.json` and repoint the 15 sources' `source.url`.
+    from one attached file. To refresh it, upload a new `item-stats.json` and repoint the 17 sources' `source.url`.
+    Its Anomalies section lists items that tripped a rule in `find_anomalies` (item-stats.py), each tag with its reason.
 
 ## What a 10k roll shows (seed 1, after a88c8e33)
 
