@@ -6,19 +6,8 @@ namespace RPGGame
     /// </summary>
     public class LootSystemConfig
     {
-        public double BaseDropChance { get; set; }
-        public double DropChancePerLevel { get; set; }
-        public double MaxDropChance { get; set; }
-        public double GuaranteedLootChance { get; set; }
-        public double MagicFindEffectiveness { get; set; }
         public double GoldDropMultiplier { get; set; }
         public double ItemValueMultiplier { get; set; }
-
-        /// <summary>At MF 100, affix-line tier weights for prefix/suffix pool rolls scale up to this multiplier on the highest tier index present in the pool (Common stays 1×).</summary>
-        public double AffixMagicFindMaxWeightBoost { get; set; } = 2.0;
-
-        /// <summary>At MF 100, optional affix *extra* chances (prefix/stat/action/extra combo slots) multiply by this value before capping at 1.0 per step.</summary>
-        public double AffixMagicFindMaxExtraChanceBoost { get; set; } = 2.0;
 
         /// <summary>Starting combo sequence length before gear <see cref="Item.ExtraActionSlots"/>, named class-tier upgrades, and Wand intrinsic bonus.</summary>
         public int ComboSequenceBaseMax { get; set; } = 2;
@@ -28,23 +17,6 @@ namespace RPGGame
 
         /// <summary>INT threshold for combo sequence unlocks (see <see cref="GameConstants.ComboSequenceIntelligenceThreshold"/>).</summary>
         public int ComboSequenceIntelligenceThreshold { get; set; } = 10;
-
-        /// <summary>
-        /// Legacy (true): affix lines roll their own tiers, at most one suffix per tier (repeats bump up), and the item is
-        /// raised to its highest affix rank — so affix count effectively decides rarity.
-        /// False: the rarity table decides item rarity; affix lines roll at or below it (see <see cref="AffixTierFalloff"/>);
-        /// the first stat suffix carries the item's rarity; affixes never raise item rarity.
-        /// </summary>
-        public bool RarityFromAffixes { get; set; } = true;
-
-        /// <summary>
-        /// When <see cref="RarityFromAffixes"/> is false: each tier below the item's rarity is this many times more likely
-        /// for non-signature affix lines (3 = a Rare item's extra lines are Common 9 : Uncommon 3 : Rare 1).
-        /// </summary>
-        public double AffixTierFalloff { get; set; } = 3.0;
-
-        /// <summary>Chance (0–1) that a weapon drop is the hero's equipped weapon type (0 = uniform across types, legacy).</summary>
-        public double EquippedWeaponTypeBias { get; set; }
 
         /// <summary>
         /// Each material piece rolls one item trigger from its material's pool (<see cref="RPGGame.Data.MaterialTriggerCatalog"/>),
@@ -76,66 +48,31 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Chance (0–1) a weapon drop rolls one of its weapon type's three family materials (Mace: Bone/Steel/Iron, ...);
-        /// otherwise any of the twelve set materials. 0 = fully random (pre-11-12 behaviour).
+        /// Starter and lab helpers (<see cref="ItemMaterialRules.PickClassMaterial(WeaponType, Random)"/>): chance a weapon
+        /// takes one of its weapon type's three family materials. Rolled loot uses <see cref="ItemGeneration"/> instead.
         /// </summary>
         public double WeaponFamilyMaterialShare { get; set; } = ItemMaterialRules.DefaultWeaponFamilyMaterialShare;
 
-        /// <summary>Chance (0–1) a weapon's gear action comes from its class's actions; otherwise a neutral action.</summary>
-        public double WeaponGearActionClassShare { get; set; } = 0.7;
+        /// <summary>Item generation knobs (slot / class / material shares, roll-ups, influence, level scaling).</summary>
+        public ItemGenerationConfig ItemGeneration { get; set; } = new();
 
-        /// <summary>Chance (0–1) an armor piece's gear action comes from the hero's class (equipped weapon); otherwise neutral.</summary>
-        public double ArmorGearActionClassShare { get; set; }
-
-        /// <summary>
-        /// Chance (0–1) a gear action (weapon or armor) comes from the hero's in-class pool: neutral actions plus actions
-        /// tagged with the hero's class, hybrids included. Otherwise it comes from the other classes' actions.
-        /// </summary>
-        public double GearActionInClassShare { get; set; } = 0.95;
-
-        public RarityUpgradeConfig RarityUpgrade { get; set; } = new();
         public string Description { get; set; } = "";
 
         public void EnsureSensibleLootDefaults()
         {
-            if (BaseDropChance <= 0)
-                BaseDropChance = 0.15;
-            if (DropChancePerLevel < 0)
-                DropChancePerLevel = 0;
-            if (MaxDropChance <= 0)
-                MaxDropChance = 0.95;
-            if (GuaranteedLootChance <= 0)
-                GuaranteedLootChance = 1.0;
-            if (MagicFindEffectiveness < 0)
-                MagicFindEffectiveness = 0;
             if (GoldDropMultiplier <= 0)
                 GoldDropMultiplier = 1.0;
             if (ItemValueMultiplier <= 0)
                 ItemValueMultiplier = 1.0;
-            if (AffixMagicFindMaxWeightBoost < 1.0)
-                AffixMagicFindMaxWeightBoost = 1.0;
-            if (AffixMagicFindMaxExtraChanceBoost < 1.0)
-                AffixMagicFindMaxExtraChanceBoost = 1.0;
             if (ComboSequenceBaseMax < 1)
                 ComboSequenceBaseMax = 2;
             if (ComboSequenceAbsoluteMax < ComboSequenceBaseMax)
                 ComboSequenceAbsoluteMax = ComboSequenceBaseMax;
             if (ComboSequenceIntelligenceThreshold <= 0)
                 ComboSequenceIntelligenceThreshold = 10;
+            ItemGeneration ??= new ItemGenerationConfig();
+            ItemGeneration.EnsureSensibleDefaults();
         }
-    }
-
-    /// <summary>
-    /// Rarity upgrade configuration - cascading rarity progression
-    /// </summary>
-    public class RarityUpgradeConfig
-    {
-        public bool Enabled { get; set; } = false;
-        public double BaseUpgradeChance { get; set; } = 0.05;
-        public double UpgradeChanceDecayPerTier { get; set; } = 0.5;
-        public int MaxUpgradeTiers { get; set; } = 6;
-        public double MagicFindBonus { get; set; } = 0.0001;
-        public string Description { get; set; } = "Cascading rarity upgrade system - items can upgrade to next tier with exponentially decreasing probability";
     }
 
     /// <summary>

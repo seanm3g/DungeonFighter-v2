@@ -99,7 +99,8 @@ namespace RPGGame
                 && MaterialTriggerCatalog.TryGetPool(material, out var pool))
             {
                 bool FromPool(ActionTriggerBundle? b) => b != null && !string.IsNullOrWhiteSpace(b.IdentityName)
-                    && pool.Any(d => string.Equals(d.TriggerName, b.IdentityName, StringComparison.OrdinalIgnoreCase));
+                    && (pool.Any(d => string.Equals(d.TriggerName, b.IdentityName, StringComparison.OrdinalIgnoreCase))
+                        || IsImplicit(item, b));
                 item.TriggerBundles = (item.TriggerBundles ?? new List<ActionTriggerBundle>()).Where(FromPool).ToList();
                 item.EquipEffects = (item.EquipEffects ?? new List<ActionTriggerBundle>()).Where(FromPool).ToList();
                 return;
@@ -123,14 +124,20 @@ namespace RPGGame
             return matMod?.Name?.Trim() ?? "";
         }
 
-        /// <summary>Clear catalog stamp procs so material owns gear procs for this item.</summary>
+        /// <summary>Clear catalog stamp procs so material owns gear procs for this item. The base item's implicit
+        /// (<see cref="Item.Implicit"/>) is kept.</summary>
         public static void ClearCatalogTriggerStamp(Item item)
         {
             if (item == null)
                 return;
-            item.TriggerBundles = new List<ActionTriggerBundle>();
-            item.EquipEffects = new List<ActionTriggerBundle>();
+            item.TriggerBundles = (item.TriggerBundles ?? new List<ActionTriggerBundle>()).Where(b => IsImplicit(item, b)).ToList();
+            item.EquipEffects = (item.EquipEffects ?? new List<ActionTriggerBundle>()).Where(b => IsImplicit(item, b)).ToList();
         }
+
+        /// <summary>True for the bundle that carries the base item's implicit.</summary>
+        public static bool IsImplicit(Item item, ActionTriggerBundle? bundle) =>
+            bundle != null && !string.IsNullOrWhiteSpace(item.Implicit)
+            && string.Equals(bundle.IdentityName, item.Implicit, StringComparison.OrdinalIgnoreCase);
 
         public static void AppendDef(Item item, MaterialTriggerDef def)
         {

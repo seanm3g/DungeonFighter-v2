@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using RPGGame.Data;
 
@@ -18,6 +18,9 @@ namespace RPGGame
         public List<Modification> Modifications { get; private set; }
         public List<RarityData> RarityData { get; private set; }
 
+        /// <summary>Item mod families (<c>ItemMods.json</c>) the item roller draws lines from.</summary>
+        public Data.ItemGeneration.ItemModTable ItemMods { get; private set; }
+
         private LootDataCache()
         {
             TierDistributions = new List<TierDistribution>();
@@ -27,6 +30,7 @@ namespace RPGGame
             ActionBonuses = new List<ActionBonus>();
             Modifications = new List<Modification>();
             RarityData = new List<RarityData>();
+            ItemMods = new Data.ItemGeneration.ItemModTable();
         }
 
         /// <summary>
@@ -78,6 +82,7 @@ namespace RPGGame
             LoadActionBonuses();
             LoadModifications();
             LoadRarityData();
+            ItemMods = Data.ItemGeneration.ItemModTable.Load();
         }
 
         private void LoadTierDistributions()

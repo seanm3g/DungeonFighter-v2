@@ -81,7 +81,7 @@ namespace RPGGame
             
             for (int i = 0; i < 500; i++)
             {
-                var item = LootGenerator.GenerateLoot(playerLevel, dungeonLevel, null, true);
+                var item = LootGenerator.GenerateLoot(playerLevel, dungeonLevel, null);
                 if (item != null)
                 {
                     results[item.Tier]++;

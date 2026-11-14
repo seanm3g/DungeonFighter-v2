@@ -1,7 +1,8 @@
-# Item generation redesign (proposal, 2026-11-14)
+# Item generation redesign (2026-11-14)
 
-Status: **proposal**, nothing implemented. Replaces the roll pipeline in `Code/Data/LootGenerator.cs` +
-`LootTierCalculator` / `LootItemSelector` / `LootRarityProcessor` / `LootBonusApplier`.
+Status: **implemented** on branch `item-gen-redesign` (see §13 for what was built and how it differs from the plan
+below). Not balanced: no sims have been run on it yet. Replaced the roll pipeline in `Code/Data/LootGenerator.cs` +
+`LootItemSelector` / `LootRarityProcessor` / `LootBonusApplier`.
 
 ## Goals (from the 11-14 request)
 
@@ -465,3 +466,65 @@ proposal item level decides strength and rarity decides *count*, so 7b goes away
 
 Still open, none of it blocking: roll-up chances, pool counts per rarity and tier value ranges are all placeholders for
 the balance pass.
+
+---
+
+## 13. As built (2026-11-14)
+
+**Code.** `Code/Data/ItemGeneration/`: `ItemRoller` (the whole pipeline), `ItemRollRequest` / `ItemRollSpec`
+(constraints in, every decision out), `ItemModTable` (`ItemMods.json`). Knobs: `lootSystem.itemGeneration`
+(`ItemGenerationConfig`). `LootGenerator` is now a thin entry point: `GenerateLoot`, `GenerateNewGameBonusLoot`,
+`GenerateTradeUp`, `Roll(request)`. Every caller uses it: dungeon rewards, travel, new-game armor, both trade-up
+handlers, the Item Generation lab, the MCP loot tools, DUNGEONSIM / fundamentals / ITEMSTATS.
+
+**Data.** `Scripts/build-item-mods.py` generates `ItemMods.json` (188 families: 24 stat, 4 material, 160 mechanic) and
+adds `class`, `damageMin/Max` / `defenseMin/Max` and `triggerName` (the implicit) to `Weapons.json` / `Armor.json`, and
+`MinLevel` / `Pools` / `MaxLines` / `Explode` to `RarityTable.json`. Re-run it after editing its ladders; hand edits to
+`ItemMods.json` are overwritten by a re-run.
+
+**Commons own the highest values (user, 11-14).** Each stat family has a common-only tier (`maxRarity: "Common"`,
+keyword "Lucky …") above every normal tier, at the same item level: 1.05–1.5× that tier's max, at ¼ its weight. So
+at any item level a common's best possible line beats anything a rarer item can roll, while rarer items get more
+lines. Tests check this as a data rule.
+
+**Tier pick = explicit tier weights** (like the reference table), not the falloff in §6: generated weights rise with
+the tier (100 → 340), so newer tiers dominate but old ones still show up.
+
+**Differences from the plan:**
+- Lines are stored on the existing `StatBonus` / `Modification` / `ActionBonus` objects with a `ModLine`
+  (pool, family, tier, affix, keyword, rolled-up) instead of a new line type, so combat, saves, tooltips and the bot read
+  them unchanged and old saves load as before (no conversion needed).
+- Stat suffix values stay **percent of a reference total** (how `EquipmentBonusCalculator` already reads them; the
+  reference grows with hero level). The ladders are percent ladders from each stat's old Common value (×0.5 … ×3.4).
+- Defense = a roll in the catalog range (±15% of the old catalog armor), then the patch's existing
+  `equipmentScaling` armor formula (multiplier, per item level, per tier, slot weights) applied once at generation.
+  Weapon damage = a roll in `damageMin..damageMax` (old base + bonus range + 3 per tier) × (1 + 0.01 × (ilvl − 1)).
+  Armor attributes × (1 + 0.02 × (ilvl − 1)).
+- Implicits are existing `Triggers.json` identities, picked per class from a hand list in the script and spread
+  round-robin across that class's bases. **Their values do not scale with item level yet.** They survive save load
+  (`Item.Implicit` is kept by the material trigger clean-up). Starter bases have none.
+- Armor classes: dominant catalog attribute (STR barbarian, AGI warrior, TEC rogue, INT wizard), then rebalanced so
+  every slot × tier cell has at least one base per class (75 / 50 / 44 / 40 pieces).
+- The material piece trigger (`lootSystem.materialPieceTriggers`) still rolls, so most items carry an implicit and a
+  material trigger.
+- Magic find scales every roll-up chance by (1 + MF / 100).
+- Action lines: the "+1 action slot (Bone actions only)" idea is a plain +1 combo-strip slot family for now; a
+  tag-restricted slot would be a new mechanic.
+
+**Removed:** drop-chance roll and keys, step 4.5, `LootItemSelector`, `LootModificationSelector` (its theme bias
+matched `DiceResult`, which is 0 on every row), the rarity processor's roll / upgrade / scaling, the bonus applier's
+affix lottery (kept: material helpers for starter / lab gear), `ItemAffixByRaritySettings` per-rarity rules and
+`ItemAffixScratchBuilder` (kept: `rarityWeights`), the Settings → Item Generation affix table, `GearActionPools.Pick`,
+the `guaranteedLoot` / `enemyArchetype` / `bonusMagicFind` parameters, and 8 MCP loot tools that edited a throwaway
+data copy or removed knobs (`adjust_rarity_weight`, `adjust_rarity_bonuses`, `enable_rarity_upgrades`,
+`adjust_upgrade_chance`, `adjust_tier_distribution`, `adjust_drop_rate`, `adjust_magic_find_effectiveness`,
+`test_upgrade_cascade`).
+
+**Still open:**
+- Balance pass (everything moved; night-v45i was measured on the old loot).
+- Naming pass: rule / listener families use "Greater / Grand <name>", common-only tiers "Lucky <keyword>".
+- Implicit scaling with item level.
+- Google Sheets sync: the new catalog columns are not on the sheets yet, so a sheet pull would drop them.
+- Old `Modifications.json` / `StatBonuses.json` rows remain the templates the families clone (their own values are no
+  longer used for rolls).
+- `ITEMSTATS --samples N` prints full rolled items for eyeballing.

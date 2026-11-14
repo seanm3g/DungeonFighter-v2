@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
@@ -37,10 +37,12 @@ namespace RPGGame.Editors
             // Items/Equipment (non-combat loot affix tuning only)
             var itemVars = new List<EditableVariable>
             {
-                new EditableVariable("LootSystem.MagicFindEffectiveness", () => GameConfiguration.Instance.LootSystem.MagicFindEffectiveness, v => GameConfiguration.Instance.LootSystem.MagicFindEffectiveness = Convert.ToDouble(v), "Magic find effectiveness"),
-                new EditableVariable("LootSystem.RarityUpgrade.Enabled", () => GameConfiguration.Instance.LootSystem.RarityUpgrade.Enabled, v => GameConfiguration.Instance.LootSystem.RarityUpgrade.Enabled = Convert.ToBoolean(v), "Enable rarity upgrades"),
-                new EditableVariable("LootSystem.RarityUpgrade.BaseUpgradeChance", () => GameConfiguration.Instance.LootSystem.RarityUpgrade.BaseUpgradeChance, v => GameConfiguration.Instance.LootSystem.RarityUpgrade.BaseUpgradeChance = Convert.ToDouble(v), "Base upgrade chance (0-1)"),
-                new EditableVariable("LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier", () => GameConfiguration.Instance.LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier, v => GameConfiguration.Instance.LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier = Convert.ToDouble(v), "Upgrade decay per tier"),
+                new EditableVariable("LootSystem.ItemGeneration.ItemLevelRollUp.Chance", () => GameConfiguration.Instance.LootSystem.ItemGeneration.ItemLevelRollUp.Chance, v => GameConfiguration.Instance.LootSystem.ItemGeneration.ItemLevelRollUp.Chance = Convert.ToDouble(v), "Item level roll-up chance (0-1)"),
+                new EditableVariable("LootSystem.ItemGeneration.RarityRollUp.Chance", () => GameConfiguration.Instance.LootSystem.ItemGeneration.RarityRollUp.Chance, v => GameConfiguration.Instance.LootSystem.ItemGeneration.RarityRollUp.Chance = Convert.ToDouble(v), "Rarity roll-up chance (0-1)"),
+                new EditableVariable("LootSystem.ItemGeneration.PoolRollUp.Chance", () => GameConfiguration.Instance.LootSystem.ItemGeneration.PoolRollUp.Chance, v => GameConfiguration.Instance.LootSystem.ItemGeneration.PoolRollUp.Chance = Convert.ToDouble(v), "Per-line pool roll-up chance (0-1)"),
+                new EditableVariable("LootSystem.ItemGeneration.TierRollUp.Chance", () => GameConfiguration.Instance.LootSystem.ItemGeneration.TierRollUp.Chance, v => GameConfiguration.Instance.LootSystem.ItemGeneration.TierRollUp.Chance = Convert.ToDouble(v), "Per-line tier roll-up chance (0-1)"),
+                new EditableVariable("LootSystem.ItemGeneration.DamagePerItemLevel", () => GameConfiguration.Instance.LootSystem.ItemGeneration.DamagePerItemLevel, v => GameConfiguration.Instance.LootSystem.ItemGeneration.DamagePerItemLevel = Convert.ToDouble(v), "Weapon damage per item level (fraction)"),
+                new EditableVariable("LootSystem.ItemGeneration.AttributePerItemLevel", () => GameConfiguration.Instance.LootSystem.ItemGeneration.AttributePerItemLevel, v => GameConfiguration.Instance.LootSystem.ItemGeneration.AttributePerItemLevel = Convert.ToDouble(v), "Armor attributes per item level (fraction)"),
             };
             variablesByCategory["Items"] = itemVars;
 
@@ -74,10 +76,10 @@ namespace RPGGame.Editors
             // Loot (combat drop rates → Combat Tuning Rewards tab)
             var lootVars = new List<EditableVariable>
             {
-                new EditableVariable("LootSystem.DropChancePerLevel", () => GameConfiguration.Instance.LootSystem.DropChancePerLevel, v => GameConfiguration.Instance.LootSystem.DropChancePerLevel = Convert.ToDouble(v), "Drop chance per level"),
-                new EditableVariable("LootSystem.GuaranteedLootChance", () => GameConfiguration.Instance.LootSystem.GuaranteedLootChance, v => GameConfiguration.Instance.LootSystem.GuaranteedLootChance = Convert.ToDouble(v), "Guaranteed loot chance"),
-                new EditableVariable("LootSystem.AffixMagicFindMaxWeightBoost", () => GameConfiguration.Instance.LootSystem.AffixMagicFindMaxWeightBoost, v => GameConfiguration.Instance.LootSystem.AffixMagicFindMaxWeightBoost = Convert.ToDouble(v), "MF 100: max affix-line tier weight boost (prefix/suffix pools)"),
-                new EditableVariable("LootSystem.AffixMagicFindMaxExtraChanceBoost", () => GameConfiguration.Instance.LootSystem.AffixMagicFindMaxExtraChanceBoost, v => GameConfiguration.Instance.LootSystem.AffixMagicFindMaxExtraChanceBoost = Convert.ToDouble(v), "MF 100: max multiplier on optional affix extra chances"),
+                new EditableVariable("LootSystem.ItemGeneration.HeroClassShare", () => GameConfiguration.Instance.LootSystem.ItemGeneration.HeroClassShare, v => GameConfiguration.Instance.LootSystem.ItemGeneration.HeroClassShare = Convert.ToDouble(v), "Share of drops on the hero's class bases (0-1)"),
+                new EditableVariable("LootSystem.ItemGeneration.WeaponClassMaterialShare", () => GameConfiguration.Instance.LootSystem.ItemGeneration.WeaponClassMaterialShare, v => GameConfiguration.Instance.LootSystem.ItemGeneration.WeaponClassMaterialShare = Convert.ToDouble(v), "Weapon class-material share (0-1)"),
+                new EditableVariable("LootSystem.ItemGeneration.ArmorClassMaterialShare", () => GameConfiguration.Instance.LootSystem.ItemGeneration.ArmorClassMaterialShare, v => GameConfiguration.Instance.LootSystem.ItemGeneration.ArmorClassMaterialShare = Convert.ToDouble(v), "Armor class-material share (0-1)"),
+                new EditableVariable("LootSystem.ItemGeneration.WeaponActionClassShare", () => GameConfiguration.Instance.LootSystem.ItemGeneration.WeaponActionClassShare, v => GameConfiguration.Instance.LootSystem.ItemGeneration.WeaponActionClassShare = Convert.ToDouble(v), "Weapon in-class action share (0-1)"),
             };
             variablesByCategory["Loot"] = lootVars;
 

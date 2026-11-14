@@ -94,6 +94,10 @@ namespace RPGGame
         [JsonIgnore]
         public bool HasRequirements => Requirements != null && Requirements.Count > 0;
 
+        /// <summary>Item mod line identity (<c>ItemMods.json</c>) when rolled by <see cref="Data.ItemGeneration.ItemRoller"/>; empty on legacy lines.</summary>
+        [JsonPropertyName("modLine")]
+        public ItemModLineInfo? ModLine { get; set; }
+
         /// <summary>Yields each stat contribution for equipment / UI (legacy single-line when <see cref="Mechanics"/> is null or empty).</summary>
         public IEnumerable<(string StatType, double Value)> EnumerateContributions()
         {
@@ -213,6 +217,36 @@ namespace RPGGame
         /// <summary>Optional registry tags (material, class path, element, …) copied onto <see cref="Item.Tags"/> at loot time.</summary>
         [JsonPropertyName("tags")]
         public List<string>? Tags { get; set; }
+
+        /// <summary>Item mod line identity (<c>ItemMods.json</c>) when rolled by <see cref="Data.ItemGeneration.ItemRoller"/>; empty on legacy lines.</summary>
+        [JsonPropertyName("modLine")]
+        public ItemModLineInfo? ModLine { get; set; }
+    }
+
+    /// <summary>Which mod family / tier a rolled line came from (saved with the line).</summary>
+    public sealed class ItemModLineInfo
+    {
+        /// <summary>material / stat / mechanic / action.</summary>
+        [JsonPropertyName("pool")]
+        public string Pool { get; set; } = "";
+
+        [JsonPropertyName("family")]
+        public string Family { get; set; } = "";
+
+        /// <summary>1-based tier inside the family's ladder.</summary>
+        [JsonPropertyName("tier")]
+        public int Tier { get; set; }
+
+        /// <summary>prefix / suffix: where the keyword goes in the item name.</summary>
+        [JsonPropertyName("affix")]
+        public string Affix { get; set; } = "";
+
+        [JsonPropertyName("keyword")]
+        public string Keyword { get; set; } = "";
+
+        /// <summary>True when a tier roll-up lifted this line past what its item level allows.</summary>
+        [JsonPropertyName("rolledUp")]
+        public bool RolledUp { get; set; }
     }
 
     public class ArmorStatus
@@ -271,6 +305,31 @@ namespace RPGGame
         /// </summary>
         [JsonPropertyName("material")]
         public string Material { get; set; } = "";
+
+        /// <summary>Catalog base name (Broadsword) for items built by <see cref="Data.ItemGeneration.ItemRoller"/>; the display
+        /// name is composed from it. Empty on legacy items.</summary>
+        [JsonPropertyName("baseName")]
+        public string BaseName { get; set; } = "";
+
+        /// <summary>Class the base item belongs to (barbarian / warrior / rogue / wizard); empty on legacy items.</summary>
+        [JsonPropertyName("itemClass")]
+        public string ItemClass { get; set; } = "";
+
+        /// <summary>Trigger identity of the base item's implicit (<c>Triggers.json</c> name); its bundle in
+        /// <see cref="TriggerBundles"/> / <see cref="EquipEffects"/> survives material trigger clean-ups.</summary>
+        [JsonPropertyName("implicit")]
+        public string Implicit { get; set; } = "";
+
+        /// <summary>
+        /// True when armor's <c>Armor</c> value is the defense rolled at generation (item level already applied); false for
+        /// legacy items, whose catalog armor is scaled by the patch's equipmentScaling knobs when read.
+        /// </summary>
+        [JsonPropertyName("defenseRolled")]
+        public bool DefenseRolled { get; set; }
+
+        /// <summary>Roll-ups that happened when the item was generated (ilvl+2, rarity+1, tier:Life+1, pool:stat>material).</summary>
+        [JsonPropertyName("rollUps")]
+        public List<string>? RollUps { get; set; }
 
         public List<StatBonus> StatBonuses { get; set; } = new List<StatBonus>();
         public List<ActionBonus> ActionBonuses { get; set; } = new List<ActionBonus>();
@@ -544,7 +603,9 @@ namespace RPGGame
         /// <summary>Armor from suffix lines and prefix modifications; null-safe for lab / partial JSON rows.</summary>
         /// <summary>Catalog armor scaled by the active patch's equipmentScaling armor knobs (item level, tier and slot).</summary>
         protected int ScaledBaseArmor(int catalogArmor) =>
-            GameConfiguration.Instance?.EquipmentScaling?.ScalePieceArmor(catalogArmor, Type, Level, Tier) ?? catalogArmor;
+            DefenseRolled
+                ? catalogArmor
+                : GameConfiguration.Instance?.EquipmentScaling?.ScalePieceArmor(catalogArmor, Type, Level, Tier) ?? catalogArmor;
 
         protected static int AddArmorFromAffixes(Item item, int totalArmor)
         {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RPGGame.Data;
 using RPGGame;
@@ -352,9 +352,8 @@ namespace RPGGame.Tests
             {
                 Name = "Common",
                 Weight = 500,
-                StatBonuses = 1,
-                ActionBonuses = 0,
-                Modifications = 0
+                MaxLines = 2,
+                Pools = new System.Collections.Generic.Dictionary<string, int[]> { ["stat"] = new[] { 1, 1 }, ["action"] = new[] { 0, 1 } }
             });
             return cache;
         }

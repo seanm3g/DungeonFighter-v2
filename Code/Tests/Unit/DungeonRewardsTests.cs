@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RPGGame.Tests;
@@ -51,8 +51,7 @@ namespace RPGGame.Tests.Unit
             var loot = LootGenerator.GenerateLoot(
                 character.Level,
                 dungeonLevel,
-                character,
-                guaranteedLoot: true
+                character
             );
 
             TestBase.AssertNotNull(loot,
@@ -84,8 +83,7 @@ namespace RPGGame.Tests.Unit
                 var loot = LootGenerator.GenerateLoot(
                     character.Level,
                     dungeonLevel,
-                    character,
-                    guaranteedLoot: true
+                    character
                 );
 
                 if (loot != null)
@@ -113,8 +111,7 @@ namespace RPGGame.Tests.Unit
             var loot = LootGenerator.GenerateLoot(
                 character.Level,
                 dungeonLevel,
-                character,
-                guaranteedLoot: true
+                character
             );
 
             if (loot != null)
@@ -195,8 +192,7 @@ namespace RPGGame.Tests.Unit
                 var loot = LootGenerator.GenerateLoot(
                     character.Level,
                     dungeonLevel,
-                    character,
-                    guaranteedLoot: true
+                    character
                 );
 
                 if (loot != null)
@@ -227,8 +223,7 @@ namespace RPGGame.Tests.Unit
                 character.Level,
                 5,
                 character,
-                guaranteedLoot: true,
-                dungeonTheme: dungeonTheme
+                                dungeonTheme: dungeonTheme
             );
 
             TestBase.AssertNotNull(loot,
@@ -246,8 +241,7 @@ namespace RPGGame.Tests.Unit
             var loot = LootGenerator.GenerateLoot(
                 character.Level,
                 1,
-                character,
-                guaranteedLoot: true
+                character
             );
 
             // Should either generate loot or handle gracefully

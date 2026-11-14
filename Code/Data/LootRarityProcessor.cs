@@ -5,199 +5,31 @@ using System.Linq;
 namespace RPGGame
 {
     /// <summary>
-    /// Handles rarity determination and rarity-based scaling
-    /// Rolls for rarity and applies rarity scaling to items
+    /// Rarity table helpers for previews (Item Generation lab). The roll itself lives in
+    /// <see cref="Data.ItemGeneration.ItemRoller"/>: weighted pick among rarities unlocked at the item level
+    /// (<see cref="RarityData.MinLevel"/>), then the rarity roll-up.
     /// </summary>
-    public class LootRarityProcessor
+    public static class LootRarityProcessor
     {
-        private readonly LootDataCache _dataCache;
-        private readonly Random _random;
-
-        public LootRarityProcessor(LootDataCache dataCache, Random random)
+        /// <summary>True when <paramref name="rarityName"/> can drop at <paramref name="itemLevel"/> (<c>RarityTable.json</c> MinLevel).</summary>
+        public static bool IsRarityUnlockedAtLevel(LootDataCache cache, string rarityName, int itemLevel)
         {
-            _dataCache = dataCache;
-            _random = random;
+            var row = cache.RarityData?.FirstOrDefault(r => string.Equals(r.Name, rarityName?.Trim(), StringComparison.OrdinalIgnoreCase));
+            return row == null || row.MinLevel <= itemLevel;
         }
 
-        /// <summary>
-        /// Rolls for a rarity level based on rarity table weights (magic find does not alter this roll; MF applies in <see cref="LootBonusApplier"/>).
-        /// Applies cascading rarity upgrades after initial roll when enabled.
-        /// Filters out rarities that require a higher player level
-        /// </summary>
-        public RarityData RollRarity(double magicFind = 0.0, int playerLevel = 1)
-        {
-            _ = magicFind; // MF is affix-only; parameter kept for API compatibility
-
-            // Ensure rarity data is available
-            if (_dataCache.RarityData == null || _dataCache.RarityData.Count == 0)
-            {
-                return new RarityData
-                {
-                    Name = "Common",
-                    Weight = 500,
-                    StatBonuses = 1,
-                    ActionBonuses = 0,
-                    Modifications = 0
-                };
-            }
-
-            // Filter rarities based on player level - only include rarities the player can get
-            var availableRarities = _dataCache.RarityData.Where(r => IsRarityUnlockedAtPlayerLevel(r.Name, playerLevel)).ToList();
-
-            // If no rarities are available (shouldn't happen, but safety check), fall back to Common
-            if (availableRarities.Count == 0)
-            {
-                availableRarities = _dataCache.RarityData.Where(r => r.Name.Equals("Common", StringComparison.OrdinalIgnoreCase)).ToList();
-                if (availableRarities.Count == 0)
-                {
-                    return new RarityData
-                    {
-                        Name = "Common",
-                        Weight = 500,
-                        StatBonuses = 1,
-                        ActionBonuses = 0,
-                        Modifications = 0
-                    };
-                }
-            }
-
-            double totalWeight = availableRarities.Sum(RollWeight);
-            double roll = _random.NextDouble() * totalWeight;
-            double cumulative = 0;
-
-            RarityData initialRarity = availableRarities[0];
-            foreach (var rarity in availableRarities)
-            {
-                cumulative += RollWeight(rarity);
-                if (roll < cumulative)
-                {
-                    initialRarity = rarity;
-                    break;
-                }
-            }
-
-            // Upgrades: MF does not affect base rarity path (affix-only MF design)
-            return ApplyRarityUpgrades(initialRarity, 0.0, playerLevel);
-        }
-
-        /// <summary>Base roll weight: the balance patch's <see cref="ItemAffixByRaritySettings.RarityWeights"/> when set, else <c>RarityTable.json</c>.</summary>
-        private static double RollWeight(RarityData rarity) =>
+        /// <summary>Base roll weight: the balance patch's rarity weights when set, else <c>RarityTable.json</c>.</summary>
+        public static double RollWeight(RarityData rarity) =>
             GameConfiguration.Instance?.ItemAffixByRarity?.ResolveRarityWeight(rarity) ?? rarity.Weight;
 
-        /// <summary>
-        /// Applies cascading rarity upgrades after initial rarity roll
-        /// Items can upgrade to the next rarity tier with exponentially decreasing probability
-        /// Upgrades respect level restrictions - cannot upgrade to rarities unavailable at player level
-        /// </summary>
-        private RarityData ApplyRarityUpgrades(RarityData initialRarity, double magicFind = 0.0, int playerLevel = 1)
-        {
-            var config = GameConfiguration.Instance;
-
-            // Check if upgrade system is enabled
-            if (!config.LootSystem.RarityUpgrade.Enabled)
-                return initialRarity;
-
-            var currentRarity = initialRarity;
-            int upgradesMade = 0;
-            int maxUpgrades = config.LootSystem.RarityUpgrade.MaxUpgradeTiers;
-
-            // Keep trying to upgrade until we fail or hit the cap
-            while (upgradesMade < maxUpgrades)
-            {
-                // Calculate upgrade chance with exponential decay
-                double baseChance = config.LootSystem.RarityUpgrade.BaseUpgradeChance;
-                double decay = Math.Pow(config.LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier, upgradesMade);
-                double magicFindBonus = magicFind * config.LootSystem.RarityUpgrade.MagicFindBonus;
-                double upgradeChance = (baseChance * decay) + magicFindBonus;
-
-                // Roll for upgrade
-                if (_random.NextDouble() >= upgradeChance)
-                    break; // Upgrade failed
-
-                // Find next rarity tier
-                var nextRarity = GetNextRarityTier(currentRarity);
-                if (nextRarity == null)
-                    break; // Already at max rarity
-
-                // Check if the upgraded rarity is available at player level
-                if (!IsRarityUnlockedAtPlayerLevel(nextRarity.Name, playerLevel))
-                    break; // Cannot upgrade to a rarity that requires higher level
-
-                currentRarity = nextRarity;
-                upgradesMade++;
-            }
-
-            return currentRarity;
-        }
-
-        /// <summary>
-        /// Gets the next rarity tier in progression
-        /// </summary>
-        private RarityData? GetNextRarityTier(RarityData current)
-        {
-            // Define rarity order
-            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
-
-            int currentIndex = Array.IndexOf(rarityOrder, current.Name);
-            if (currentIndex < 0 || currentIndex >= rarityOrder.Length - 1)
-                return null; // Not found or already at max
-
-            string nextRarityName = rarityOrder[currentIndex + 1];
-            return _dataCache.RarityData.FirstOrDefault(r => r.Name.Equals(nextRarityName, StringComparison.OrdinalIgnoreCase));
-        }
-
-        /// <summary>
-        /// Whether this rarity can appear when rolling with <paramref name="playerLevel"/> (Item lab "Any" + dungeon loot).
-        /// </summary>
-        public static bool IsRarityUnlockedAtPlayerLevel(string rarityName, int playerLevel)
-        {
-            var config = GameConfiguration.Instance;
-
-            // Common, Uncommon, and Rare are always available
-            if (rarityName.Equals("Common", StringComparison.OrdinalIgnoreCase) ||
-                rarityName.Equals("Uncommon", StringComparison.OrdinalIgnoreCase) ||
-                rarityName.Equals("Rare", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
-            // Check Epic minimum level
-            if (rarityName.Equals("Epic", StringComparison.OrdinalIgnoreCase))
-            {
-                int minLevel = config.RarityScaling?.LevelBasedRarityScaling?.Epic?.MinLevel ?? 0;
-                return playerLevel >= minLevel;
-            }
-
-            // Check Legendary minimum level
-            if (rarityName.Equals("Legendary", StringComparison.OrdinalIgnoreCase))
-            {
-                int minLevel = config.RarityScaling?.LevelBasedRarityScaling?.Legendary?.MinLevel ?? 0;
-                return playerLevel >= minLevel;
-            }
-
-            // Check Mythic minimum level (hardcoded since not in config structure yet)
-            if (rarityName.Equals("Mythic", StringComparison.OrdinalIgnoreCase))
-            {
-                // Use a reasonable default: level 15
-                // Could be made configurable in the future
-                return playerLevel >= 15;
-            }
-
-            // Unknown rarity - allow it (shouldn't happen, but be permissive)
-            return true;
-        }
-
-        /// <summary>
-        /// Base weighted distribution for <see cref="RollRarity"/> before the optional rarity-upgrade chain.
-        /// Used by the Item Generation lab preview when Rarity is Any. Magic find does not change these weights.
-        /// </summary>
+        /// <summary>Rarity odds at <paramref name="itemLevel"/> before the rarity roll-up.</summary>
         public static IReadOnlyList<(string Name, double Weight, double ProbabilityPercent)> GetBaseRollDistribution(
-            LootDataCache cache, int playerLevel)
+            LootDataCache cache, int itemLevel)
         {
             if (cache.RarityData == null || cache.RarityData.Count == 0)
                 return Array.Empty<(string, double, double)>();
 
-            var available = cache.RarityData.Where(r => IsRarityUnlockedAtPlayerLevel(r.Name, playerLevel)).ToList();
+            var available = cache.RarityData.Where(r => r.MinLevel <= itemLevel && RollWeight(r) > 0).ToList();
             double total = available.Sum(RollWeight);
             if (total <= 0)
                 return Array.Empty<(string, double, double)>();
@@ -205,23 +37,6 @@ namespace RPGGame
             return available
                 .Select(r => (r.Name, RollWeight(r), 100.0 * RollWeight(r) / total))
                 .ToList();
-        }
-
-        /// <summary>
-        /// Applies rarity scaling to an item
-        /// Currently applies simple rarity multiplier (1.0 for now)
-        /// </summary>
-        public void ApplyRarityScaling(Item item, RarityData rarity)
-        {
-            // Simple rarity multiplier
-            double rarityMultiplier = 1.0; // No scaling for now
-
-            if (item is WeaponItem weaponForRarity)
-            {
-                weaponForRarity.BaseDamage = (int)Math.Round(weaponForRarity.BaseDamage * rarityMultiplier);
-            }
-            // Note: Armor rarity multipliers are now handled by stat bonuses and modifications
-            // to prevent double scaling that was causing integer overflow
         }
     }
 }

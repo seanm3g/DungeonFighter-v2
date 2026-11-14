@@ -73,12 +73,12 @@ namespace RPGGame.Tuning
             ClassPlaythroughRunner.RegionTheme = TuningCliArgs.GetFlagValue(args, "--region-theme");
             ClassPlaythroughRunner.RetreatBelowHpPercent = retreat;
             // --material Bone: every loot roll (bag and drops) is that material, so the run's set is that material.
-            LootBonusApplier.ToolForcedMaterial = TuningCliArgs.GetFlagValue(args, "--material") is { Length: > 0 } forced
+            RPGGame.Data.ItemGeneration.ItemRoller.ToolForcedMaterial = TuningCliArgs.GetFlagValue(args, "--material") is { Length: > 0 } forced
                 ? ItemMaterialRules.RemapLegacyMaterial(forced) : null;
             // --features-off region,dungeon,prefix,room,terrain,wander,demon,kits: switch enemy / room affix features off (pricing each one).
             AffixFeatures.SetOff(TuningCliArgs.GetFlagValue(args, "--features-off"));
             // --affix stat:CRIT / mod:Heavy: every loot roll also carries that affix line (prices one affix vs an unforced run).
-            LootBonusApplier.ToolForcedAffix = TuningCliArgs.GetFlagValue(args, "--affix") is { Length: > 0 } affix ? affix : null;
+            RPGGame.Data.ItemGeneration.ItemRoller.ToolForcedAffix = TuningCliArgs.GetFlagValue(args, "--affix") is { Length: > 0 } affix ? affix : null;
 
             Console.WriteLine($"Balance patch: {FundamentalsMatrixRunner.ActiveBalancePatchPath()}");
             Console.WriteLine($"=== DUNGEONSIM L{level} | {runs} run(s) x {dungeons} dungeon(s) per class | {bot} bot | retreat below {retreat}% HP | start loot {ClassPlaythroughRunner.ResolveStartLootPerLevel(level)}/level{(level > 15 ? " (bag calibrated to L10-L15 only)" : "")} | seed {(seed?.ToString() ?? "none")} ===");

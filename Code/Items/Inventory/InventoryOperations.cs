@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -246,96 +246,11 @@ namespace RPGGame
             Console.WriteLine($"Traded up 5 {rarity} items for 1 {nextRarity} {newItem.Name}!");
         }
         
-        /// <summary>
-        /// Generates an item with a specific rarity
-        /// </summary>
-        private Item? GenerateItemWithRarity(int tier, int level, bool isWeapon, string rarity, Character? player)
-        {
-            var dataCache = LootDataCache.Load();
-            var random = RandomUtility.Ambient;
-            
-            // Get rarity data
-            var rarityData = dataCache.RarityData?.FirstOrDefault(
-                r => r.Name.Equals(rarity, StringComparison.OrdinalIgnoreCase));
-            
-            if (rarityData == null)
-            {
-                // Fallback to default rarity data
-                rarityData = new RarityData
-                {
-                    Name = rarity,
-                    StatBonuses = 2,
-                    ActionBonuses = 1,
-                    Modifications = 1
-                };
-            }
-            
-            // Select item
-            var itemSelector = new LootItemSelector(dataCache, random);
-            Item? item = itemSelector.SelectItem(tier, isWeapon);
-            
-            if (item == null)
-            {
-                return null;
-            }
-            
-            // Set level and tier
-            item.Level = level;
-            item.Tier = tier;
-            // Set rarity to the exact requested rarity (should be exactly one tier higher than traded items)
-            item.Rarity = rarity;
-            
-            // Apply scaling
-            var tuning = GameConfiguration.Instance;
-            ApplyItemScaling(item, tuning);
-            
-            // Apply rarity scaling
-            var rarityProcessor = new LootRarityProcessor(dataCache, random);
-            rarityProcessor.ApplyRarityScaling(item, rarityData);
-            
-            // Apply bonuses
-            var bonusApplier = new LootBonusApplier(dataCache, random);
-            var context = LootContext.Create(player, null, null);
-            
-            if (item is WeaponItem weapon)
-            {
-                context.WeaponType = weapon.WeaponType.ToString();
-            }
-            
-            int affixMf = Math.Clamp(player?.GetMagicFind() ?? 0, 0, 100);
-            bonusApplier.ApplyBonuses(item, rarityData, context, affixMf);
-            
-            // Validate that the item has the correct rarity (defensive check)
-            if (!string.Equals(item.Rarity, rarity, StringComparison.OrdinalIgnoreCase))
-            {
-                // Ensure rarity is set correctly (should not happen, but defensive programming)
-                item.Rarity = rarity;
-            }
-            
-            return item;
-        }
-        
-        /// <summary>
-        /// Applies scaling formulas to base stats based on item type and tier
-        /// </summary>
-        private void ApplyItemScaling(Item item, GameConfiguration tuning)
-        {
-            if (item is WeaponItem weapon)
-            {
-                var equipmentScaling = tuning.EquipmentScaling;
-                if (equipmentScaling != null)
-                {
-                    weapon.BonusDamage = (int)(weapon.Tier * equipmentScaling.WeaponDamagePerTier);
-                    weapon.BonusAttackSpeed = (int)(weapon.Tier * equipmentScaling.SpeedBonusPerTier);
-                }
-                else
-                {
-                    weapon.BonusDamage = weapon.Tier <= 1 ? 1 : Dice.Roll(1, Math.Max(2, weapon.Tier));
-                    weapon.BonusAttackSpeed = (int)(weapon.Tier * 0.1);
-                }
-            }
-        }
-        
+
+        /// <summary>Trade-up result: one item of <paramref name="rarity"/> at the traded items' tier and level.</summary>
+        private static Item? GenerateItemWithRarity(int tier, int level, bool isWeapon, string rarity, Character? player) =>
+            LootGenerator.GenerateTradeUp(tier, level, isWeapon, rarity, player);
+
         /// <summary>
         /// Gets the next rarity tier in progression (only one tier higher)
         /// Returns null if already at maximum rarity

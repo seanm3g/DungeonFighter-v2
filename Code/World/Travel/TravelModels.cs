@@ -553,7 +553,6 @@ namespace RPGGame
                     player.Level,
                     player.Level,
                     player,
-                    guaranteedLoot: true,
                     dungeonTheme: lootTheme);
 
                 if (lootReceived != null)

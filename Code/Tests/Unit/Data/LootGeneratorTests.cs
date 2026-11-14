@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Data
@@ -93,17 +93,12 @@ namespace RPGGame.Tests.Unit.Data
             // Test guaranteed loot generation
             var loot = LootGenerator.GenerateLoot(
                 playerLevel: 1, 
-                dungeonLevel: 1, 
-                guaranteedLoot: true);
+                dungeonLevel: 1);
 
-            // With guaranteed loot, we should get an item more often
-            // But it's still probabilistic based on guaranteed loot chance
-            if (loot != null)
-            {
-                TestBase.AssertNotNull(loot,
-                    "Guaranteed loot should generate item",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-            }
+            // Loot is always generated (drops happen at dungeon end, not per kill).
+            TestBase.AssertNotNull(loot,
+                "GenerateLoot always returns an item",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestGenerateLootWithContext()
@@ -120,8 +115,7 @@ namespace RPGGame.Tests.Unit.Data
                 playerLevel: 5,
                 dungeonLevel: 5,
                 player: character,
-                dungeonTheme: "Forest",
-                enemyArchetype: "Berserker");
+                dungeonTheme: "Forest");
 
             // Context should not cause errors
             if (loot != null)
@@ -137,8 +131,8 @@ namespace RPGGame.Tests.Unit.Data
             Console.WriteLine("\n--- Testing GenerateLoot Scaling ---");
 
             // Test that higher levels generate appropriate items
-            var loot1 = LootGenerator.GenerateLoot(playerLevel: 1, dungeonLevel: 1, guaranteedLoot: true);
-            var loot5 = LootGenerator.GenerateLoot(playerLevel: 5, dungeonLevel: 5, guaranteedLoot: true);
+            var loot1 = LootGenerator.GenerateLoot(playerLevel: 1, dungeonLevel: 1);
+            var loot5 = LootGenerator.GenerateLoot(playerLevel: 5, dungeonLevel: 5);
 
             // Both might be null due to probability, but if they exist, higher level should scale
             if (loot1 != null && loot5 != null)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RPGGame.Config;
 
@@ -394,12 +394,6 @@ namespace RPGGame.Tuning
             list.Add(IntParam("enemyGoldPerLevel", tab, CombatTuningLayer.Duration, "Rewards & loot",
                 "Enemy gold per level", "Gold bonus per enemy level", 0, 50,
                 () => cfg().Progression.EnemyGoldPerLevel, v => cfg().Progression.EnemyGoldPerLevel = v));
-            list.Add(DoubleParam("baseDropChance", tab, CombatTuningLayer.Duration, "Rewards & loot",
-                "Base drop chance", "Base item drop probability", 0, 1, 0.01,
-                () => cfg().LootSystem.BaseDropChance, v => cfg().LootSystem.BaseDropChance = v));
-            list.Add(DoubleParam("maxDropChance", tab, CombatTuningLayer.Duration, "Rewards & loot",
-                "Max drop chance", "Maximum item drop probability", 0, 1, 0.01,
-                () => cfg().LootSystem.MaxDropChance, v => cfg().LootSystem.MaxDropChance = v));
             list.Add(DoubleParam("goldDropMultiplier", tab, CombatTuningLayer.Duration, "Rewards & loot",
                 "Gold drop multiplier", "Scales gold drops from combat", 0.25, 3.0, 0.05,
                 () => cfg().LootSystem.GoldDropMultiplier, v => cfg().LootSystem.GoldDropMultiplier = v));

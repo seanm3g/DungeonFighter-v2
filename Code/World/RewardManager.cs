@@ -106,7 +106,7 @@ namespace RPGGame
         /// </summary>
         private async System.Threading.Tasks.Task AwardLootAsync(Character player, List<Item> inventory, int dungeonLevel, string? dungeonTheme = null)
         {
-            Item? reward = LootGenerator.GenerateLoot(player.Level, dungeonLevel, player, guaranteedLoot: true, dungeonTheme: dungeonTheme);
+            Item? reward = LootGenerator.GenerateLoot(player.Level, dungeonLevel, player, dungeonTheme: dungeonTheme);
             
             // If still no loot, notify about the issue
             if (reward == null)
@@ -154,7 +154,7 @@ namespace RPGGame
         /// </summary>
         private async System.Threading.Tasks.Task<Item?> AwardLootWithReturnAsync(Character player, List<Item> inventory, int dungeonLevel, string? dungeonTheme = null)
         {
-            Item? reward = LootGenerator.GenerateLoot(player.Level, dungeonLevel, player, guaranteedLoot: true, dungeonTheme: dungeonTheme);
+            Item? reward = LootGenerator.GenerateLoot(player.Level, dungeonLevel, player, dungeonTheme: dungeonTheme);
             
             // If still no loot, notify about the issue
             if (reward == null)

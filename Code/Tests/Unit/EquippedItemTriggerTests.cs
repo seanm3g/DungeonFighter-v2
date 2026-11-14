@@ -238,11 +238,17 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(weapons.Count > 0, "weapons loaded", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(armor.Count > 0, "armor loaded", ref _run, ref _passed, ref _failed);
 
-            // Base catalog no longer stamps demo procs — MATERIAL BUILDS owns combat triggers.
-            int namedWeapons = weapons.Count(w => !string.IsNullOrWhiteSpace(w.TriggerName));
-            int namedArmor = armor.Count(a => !string.IsNullOrWhiteSpace(a.TriggerName));
-            TestBase.AssertEqual(0, namedWeapons, "weapons have empty triggerName", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(0, namedArmor, "armor have empty triggerName", ref _run, ref _passed, ref _failed);
+            // Every non-starter base names its implicit (catalog triggerName, rolled onto the item by ItemRoller);
+            // starter bases carry none.
+            static bool IsStarter(List<string>? tags) => tags?.Any(t => string.Equals(t, "starter", StringComparison.OrdinalIgnoreCase)) == true;
+            bool Resolves(string? name) => !string.IsNullOrWhiteSpace(name) && TriggersLoader.TryGetByName(name!, out _);
+            int weaponsMissing = weapons.Count(w => !IsStarter(w.Tags) && !Resolves(w.TriggerName));
+            int armorMissing = armor.Count(a => !IsStarter(a.Tags) && !Resolves(a.TriggerName));
+            int starterStamped = weapons.Count(w => IsStarter(w.Tags) && !string.IsNullOrWhiteSpace(w.TriggerName))
+                + armor.Count(a => IsStarter(a.Tags) && !string.IsNullOrWhiteSpace(a.TriggerName));
+            TestBase.AssertEqual(0, weaponsMissing, "every non-starter weapon has an implicit in Triggers.json", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, armorMissing, "every non-starter armor piece has an implicit in Triggers.json", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, starterStamped, "starter bases have no implicit", ref _run, ref _passed, ref _failed);
 
             if (weapons.Count > 0)
             {

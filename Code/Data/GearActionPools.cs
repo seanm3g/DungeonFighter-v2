@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,9 +10,8 @@ namespace RPGGame.Data
     /// hybrid actions carry both of their classes' tags; neutral actions carry neither.
     /// Never on gear: weapon starter attacks (startingweapon / weapon_basic / required), <c>unique</c> rows and material
     /// set converts (granted by the worn set, <see cref="ActionData.MaterialScale"/>).
-    /// Every piece (weapon or armor) rolls from the hero's in-class pool — neutral actions plus actions carrying any of the
-    /// hero's class tags, hybrids included — <see cref="LootSystemConfig.GearActionInClassShare"/> of the time, otherwise
-    /// from the other classes' actions.
+    /// The item roller (<see cref="ItemGeneration.ItemRoller"/>) picks gear actions: weapons lean to their own class's actions,
+    /// every other slot draws from the whole pool, tilted by the item's influence tags.
     /// </summary>
     public static class GearActionPools
     {
@@ -71,42 +70,6 @@ namespace RPGGame.Data
             if (item is WeaponItem weapon && RPGGame.ClassTags.ClassOf(weapon.WeaponType) is string tag)
                 return new[] { tag };
             return Array.Empty<string>();
-        }
-
-        /// <summary>
-        /// Picks a gear action for <paramref name="item"/> from <paramref name="pool"/> (weighted by <see cref="ActionBonus.Weight"/>).
-        /// <paramref name="heroClassTags"/> are the hero's classes (empty = unknown: a weapon uses its own class, armor only neutral
-        /// counts as in-class).
-        /// </summary>
-        public static ActionBonus? Pick(Item item, IReadOnlyList<ActionBonus> pool, Random random, IReadOnlyCollection<string>? heroClassTags = null)
-        {
-            double inClassShare = GameConfiguration.Instance.LootSystem.GearActionInClassShare;
-            var classTags = ResolveClassTags(item, heroClassTags);
-
-            var candidates = pool
-                .Select(ab => (bonus: ab, data: ActionLoader.GetActionData(ab.Name)))
-                .Where(x => CanRollOnGear(x.data))
-                .ToList();
-            var inClass = candidates.Where(x => IsInClassPool(x.data?.Tags, classTags)).Select(x => x.bonus).ToList();
-            var outOfClass = candidates.Where(x => !IsInClassPool(x.data?.Tags, classTags)).Select(x => x.bonus).ToList();
-
-            bool useInClass = inClass.Count > 0 && (outOfClass.Count == 0 || random.NextDouble() < inClassShare);
-            return PickWeighted(useInClass ? inClass : outOfClass, random);
-        }
-
-        private static ActionBonus? PickWeighted(List<ActionBonus> options, Random random)
-        {
-            if (options.Count == 0)
-                return null;
-            int total = options.Sum(a => Math.Max(1, a.Weight));
-            int roll = random.Next(total);
-            foreach (var option in options)
-            {
-                roll -= Math.Max(1, option.Weight);
-                if (roll < 0)
-                    return option;
-            }
-            return options[^1];
         }
 
         private static bool HasAny(IEnumerable<string>? tags, IEnumerable<string> wanted) =>

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using RPGGame;
@@ -37,14 +37,7 @@ namespace RPGGame.Tests.Unit.Config
             TestLootSystemConfig();
             TestLootSystemSanitizer();
             TestItemAffixByRaritySettingsJson();
-            TestItemAffixExtraFieldsJson();
-            TestItemAffixExtraComboSlotsJson();
-            TestItemAffixPrefixMaxAboveThreeClampsInBuildRule();
-            TestItemAffixOmittedActionMaxDefaultsToOneWhenMinZero();
-            TestItemAffixRollAxis();
-            TestItemAffixPerItemTypeOverridesPerRarity();
-            TestItemAffixScratchBuilderDeepClonesPerSlot();
-            TestItemAffixScratchBuilderResolvesSlotKey();
+            TestRollUpRule();
 
             TestBase.PrintSummary("ItemConfig Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -195,266 +188,50 @@ namespace RPGGame.Tests.Unit.Config
 
         private static void TestItemAffixByRaritySettingsJson()
         {
-            Console.WriteLine("\n--- Testing ItemAffixByRarity JSON deserialization ---");
+            Console.WriteLine("\n--- Testing itemAffixByRarity.rarityWeights + lootSystem.itemGeneration JSON ---");
 
             const string json = """
 {
-  "itemAffixByRarity": {
-    "perRarity": {
-      "Epic": { "prefixSlots": 2, "statSuffixes": 1, "actionBonuses": 0 }
-    }
-  }
+  "itemAffixByRarity": { "rarityWeights": { "epic": 7 } },
+  "lootSystem": { "itemGeneration": { "heroClassShare": 0.6, "tierRollUp": { "chance": 0.2, "decay": 0.25, "max": 3 } } }
 }
 """;
 
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var root = JsonSerializer.Deserialize<GameConfiguration>(json, options);
 
-            TestBase.AssertNotNull(root?.ItemAffixByRarity,
-                "ItemAffixByRarity should deserialize",
+            TestBase.AssertEqual(7.0, root!.ItemAffixByRarity.ResolveRarityWeight(new RarityData { Name = "Epic", Weight = 250 }),
+                "rarityWeights override the table weight (case-insensitive)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(
-                root!.ItemAffixByRarity.TryGetForRarity("epic", out var entry),
-                "TryGetForRarity should match case-insensitively",
+            TestBase.AssertEqual(1200.0, root.ItemAffixByRarity.ResolveRarityWeight(new RarityData { Name = "Rare", Weight = 1200 }),
+                "rarities missing from rarityWeights keep the table weight",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(2, entry.PrefixSlots,
-                "Epic prefixSlots",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, entry.StatSuffixes,
-                "Epic statSuffixes",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0, entry.ActionBonuses,
-                "Epic actionBonuses",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var gen = root.LootSystem.ItemGeneration;
+            TestBase.AssertEqual(0.6, gen.HeroClassShare, "itemGeneration.heroClassShare reads", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, gen.TierRollUp.Max, "itemGeneration.tierRollUp.max reads", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0.9, gen.WeaponClassMaterialShare, "unset itemGeneration keys keep their defaults", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestItemAffixExtraFieldsJson()
+        private static void TestRollUpRule()
         {
-            Console.WriteLine("\n--- Testing ItemAffix extra chance / max JSON ---");
+            Console.WriteLine("\n--- Testing RollUpRule ---");
+            var never = new RollUpRule(0, 0.5, 5);
+            var always = new RollUpRule(1, 1, 3);
+            var rng = new Random(1);
+            TestBase.AssertEqual(0, never.Roll(rng), "chance 0 never rolls up", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, always.Roll(rng), "chance 1 rolls up to the cap", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            const string json = """
-{
-  "itemAffixByRarity": {
-    "perRarity": {
-      "Rare": {
-        "prefixSlots": 1,
-        "prefixSlotsMax": 3,
-        "prefixExtraChance": 0.25,
-        "statSuffixes": 0,
-        "statSuffixesMax": 4,
-        "statSuffixExtraChance": 0.5,
-        "actionBonuses": 0,
-        "actionBonusesMax": 2,
-        "actionExtraChance": 0.1
-      }
-    }
-  }
-}
-""";
-
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var root = JsonSerializer.Deserialize<GameConfiguration>(json, options);
-
-            TestBase.AssertTrue(
-                root!.ItemAffixByRarity.TryGetForRarity("Rare", out var entry),
-                "TryGetForRarity Rare",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            var rule = ItemAffixByRaritySettings.BuildRuleFromTuningEntry(entry!, null);
-            TestBase.AssertEqual(1, rule.PrefixMin, "prefix min", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(2, rule.PrefixMax, "prefix max (prefixSlotsMax 3 clamps to the 2-prefix cap)", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0.25, rule.PrefixExtraChance, "prefix chance", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(4, rule.StatMax, "stat max", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(2, rule.ActionMax, "action max", ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestItemAffixExtraComboSlotsJson()
-        {
-            Console.WriteLine("\n--- Testing ItemAffix extraComboSlots JSON ---");
-
-            const string json = """
-{
-  "itemAffixByRarity": {
-    "perRarity": {
-      "Epic": {
-        "prefixSlots": 0,
-        "statSuffixes": 0,
-        "actionBonuses": 0,
-        "extraComboSlots": 1,
-        "extraComboSlotsMax": 4,
-        "extraComboSlotsExtraChance": 0.4
-      }
-    }
-  }
-}
-""";
-
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var root = JsonSerializer.Deserialize<GameConfiguration>(json, options);
-
-            TestBase.AssertTrue(
-                root!.ItemAffixByRarity.TryGetForRarity("Epic", out var entry),
-                "TryGetForRarity Epic",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            var rule = ItemAffixByRaritySettings.BuildRuleFromTuningEntry(entry!, null);
-            TestBase.AssertEqual(1, rule.ExtraComboSlotsMin, "extra combo min", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(4, rule.ExtraComboSlotsMax, "extra combo max", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0.4, rule.ExtraComboSlotsExtraChance, "extra combo chance", ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        /// <summary>
-        /// Tuning JSON historically used prefixSlotsMax &gt; 3; runtime clamps to 3. Item Generation save must accept the same so other affix columns (e.g. extra combo slots) can persist.
-        /// </summary>
-        private static void TestItemAffixPrefixMaxAboveThreeClampsInBuildRule()
-        {
-            Console.WriteLine("\n--- Testing ItemAffix prefixSlotsMax &gt; 3 clamps in BuildRuleFromTuningEntry ---");
-
-            var entry = new ItemAffixPerRarityEntry
+            var rule = new RollUpRule(0.5, 0.5, 4);
+            int total = 0, over = 0;
+            for (int i = 0; i < 20000; i++)
             {
-                PrefixSlots = 2,
-                PrefixExtraChance = 0.5,
-                PrefixSlotsMax = 4
-            };
-            var rule = ItemAffixByRaritySettings.BuildRuleFromTuningEntry(entry, null);
-            TestBase.AssertEqual(2, rule.PrefixMax, "prefix max clamped to 2 (runtime prefix cap)", ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        /// <summary>
-        /// JSON/UI often omit actionBonusesMax when "0 or 1 action" is intended; legacy code used max 5.
-        /// </summary>
-        private static void TestItemAffixOmittedActionMaxDefaultsToOneWhenMinZero()
-        {
-            Console.WriteLine("\n--- Testing omitted actionBonusesMax (min 0 + extra chance) ---");
-
-            var entry = new ItemAffixPerRarityEntry
-            {
-                ActionBonuses = 0,
-                ActionExtraChance = 0.25,
-                ActionBonusesMax = null
-            };
-            var commonRow = new RarityData { Name = "Common", ActionBonuses = 0 };
-            var rule = ItemAffixByRaritySettings.BuildRuleFromTuningEntry(entry, commonRow);
-            TestBase.AssertEqual(0, rule.ActionMin, "action min", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, rule.ActionMax, "implicit action max should be 1 for optional single action", ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestItemAffixRollAxis()
-        {
-            Console.WriteLine("\n--- Testing ItemAffixByRaritySettings.RollAxis ---");
-
-            var rnd = new Random(123);
-            int a = ItemAffixByRaritySettings.RollAxis(rnd, 2, 2, 1.0);
-            TestBase.AssertEqual(2, a, "max<min clamp path: min 2 max 2 stays 2", ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            int b = ItemAffixByRaritySettings.RollAxis(new Random(1), 3, 1, 1.0);
-            TestBase.AssertEqual(3, b, "when max below min, max clamps up to min", ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            int c = ItemAffixByRaritySettings.RollAxis(new Random(99), 1, 5, 0);
-            TestBase.AssertEqual(1, c, "zero extra chance stays at min", ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            int d = ItemAffixByRaritySettings.RollAxis(new Random(2), 0, 4, 1.0);
-            TestBase.AssertEqual(4, d, "100% chance fills to max", ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestItemAffixPerItemTypeOverridesPerRarity()
-        {
-            Console.WriteLine("\n--- Testing PerItemType affix overrides ---");
-
-            var commonRow = new RarityData { Name = "Common", StatBonuses = 5, ActionBonuses = 5, Modifications = 0 };
-            var tuning = new ItemAffixByRaritySettings
-            {
-                PerRarity = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase)
-                {
-                    ["Common"] = new ItemAffixPerRarityEntry { PrefixSlots = 1, StatSuffixes = 1, ActionBonuses = 1 }
-                },
-                PerItemType = new Dictionary<string, Dictionary<string, ItemAffixPerRarityEntry>>(StringComparer.OrdinalIgnoreCase)
-                {
-                    ["Head"] = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        ["Common"] = new ItemAffixPerRarityEntry
-                        {
-                            PrefixSlots = 0,
-                            StatSuffixes = 2,
-                            ActionBonuses = 0
-                        }
-                    }
-                }
-            };
-
-            var headRule = ItemAffixByRaritySettings.GetResolvedAffixRule("Common", commonRow, tuning, ItemType.Head);
-            TestBase.AssertEqual(0, headRule.PrefixMin, "head prefix min", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(2, headRule.StatMin, "head stat min from PerItemType", ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            var chestRule = ItemAffixByRaritySettings.GetResolvedAffixRule("Common", commonRow, tuning, ItemType.Chest);
-            TestBase.AssertEqual(1, chestRule.PrefixMin, "chest uses PerRarity", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, chestRule.StatMin, "chest stat", ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestItemAffixScratchBuilderDeepClonesPerSlot()
-        {
-            Console.WriteLine("\n--- Testing ItemAffixScratchBuilder deep-clones per slot ---");
-
-            var tuning = new ItemAffixByRaritySettings
-            {
-                PerItemType = new Dictionary<string, Dictionary<string, ItemAffixPerRarityEntry>>(StringComparer.OrdinalIgnoreCase)
-                {
-                    ["Head"] = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        ["Common"] = new ItemAffixPerRarityEntry { PrefixSlots = 1, StatSuffixes = 0, ActionBonuses = 0 },
-                        ["Uncommon"] = new ItemAffixPerRarityEntry { PrefixSlots = 2, StatSuffixes = 2, ActionBonuses = 1 },
-                        ["Rare"] = new ItemAffixPerRarityEntry { PrefixSlots = 3, StatSuffixes = 3, ActionBonuses = 2 },
-                        ["Epic"] = new ItemAffixPerRarityEntry { PrefixSlots = 3, StatSuffixes = 3, ActionBonuses = 2 },
-                        ["Legendary"] = new ItemAffixPerRarityEntry { PrefixSlots = 3, StatSuffixes = 3, ActionBonuses = 2 },
-                        ["Mythic"] = new ItemAffixPerRarityEntry { PrefixSlots = 3, StatSuffixes = 4, ActionBonuses = 3 }
-                    },
-                    ["Chest"] = new Dictionary<string, ItemAffixPerRarityEntry>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        ["Common"] = new ItemAffixPerRarityEntry { PrefixSlots = 0, StatSuffixes = 0, ActionBonuses = 0 },
-                        ["Uncommon"] = new ItemAffixPerRarityEntry { PrefixSlots = 1, StatSuffixes = 0, ActionBonuses = 0 },
-                        ["Rare"] = new ItemAffixPerRarityEntry { PrefixSlots = 2, StatSuffixes = 1, ActionBonuses = 0 },
-                        ["Epic"] = new ItemAffixPerRarityEntry { PrefixSlots = 2, StatSuffixes = 1, ActionBonuses = 1 },
-                        ["Legendary"] = new ItemAffixPerRarityEntry { PrefixSlots = 3, StatSuffixes = 2, ActionBonuses = 1 },
-                        ["Mythic"] = new ItemAffixPerRarityEntry { PrefixSlots = 3, StatSuffixes = 2, ActionBonuses = 2 }
-                    }
-                }
-            };
-
-            var scratch = ItemAffixScratchBuilder.BuildFromTuning(tuning, rarityData: null);
-            TestBase.AssertTrue(scratch.ContainsKey("Head") && scratch.ContainsKey("Chest"),
-                "scratch has Head and Chest", ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            TestBase.AssertEqual(2, scratch["Head"]["Uncommon"].PrefixSlots,
-                "Head Uncommon prefix from tuning", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, scratch["Chest"]["Uncommon"].PrefixSlots,
-                "Chest Uncommon prefix differs from Head", ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // Mutating scratch must not alias live tuning or the other slot.
-            scratch["Head"]["Uncommon"].PrefixSlots = 0;
-            TestBase.AssertEqual(2, tuning.PerItemType["Head"]["Uncommon"].PrefixSlots,
-                "scratch mutation does not change live tuning", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1, scratch["Chest"]["Uncommon"].PrefixSlots,
-                "Head mutation does not change Chest scratch", ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestItemAffixScratchBuilderResolvesSlotKey()
-        {
-            Console.WriteLine("\n--- Testing ItemAffixScratchBuilder.TryResolveSlotKey ---");
-
-            TestBase.AssertTrue(ItemAffixScratchBuilder.TryResolveSlotKey("Chest", -1, out string chest),
-                "string Chest resolves", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("Chest", chest, "Chest key", ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            TestBase.AssertTrue(ItemAffixScratchBuilder.TryResolveSlotKey(null, 4, out string weapon),
-                "index 4 is Weapon", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("Weapon", weapon, "Weapon key", ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            TestBase.AssertTrue(ItemAffixScratchBuilder.TryResolveSlotKey("feet", -1, out string feet),
-                "case-insensitive feet", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("Feet", feet, "Feet canonical key", ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            TestBase.AssertFalse(ItemAffixScratchBuilder.TryResolveSlotKey("Bag", -1, out _),
-                "unknown slot rejected", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int steps = rule.Roll(rng);
+                total += steps > 0 ? 1 : 0;
+                over += steps > 4 ? 1 : 0;
+            }
+            double share = total / 20000.0;
+            TestBase.AssertTrue(share > 0.47 && share < 0.53, $"first step lands at the base chance (got {share:0.000})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, over, "never exceeds max", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion
@@ -465,21 +242,9 @@ namespace RPGGame.Tests.Unit.Config
         {
             Console.WriteLine("\n--- Testing LootSystemConfig ---");
 
-            var config = new LootSystemConfig
-            {
-                BaseDropChance = 0.1,
-                DropChancePerLevel = 0.01,
-                MaxDropChance = 0.5,
-                GuaranteedLootChance = 1.0
-            };
-
-            TestBase.AssertEqual(0.1, config.BaseDropChance,
-                "BaseDropChance should be settable",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            TestBase.AssertNotNull(config.RarityUpgrade,
-                "RarityUpgrade should be initialized",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var config = new LootSystemConfig();
+            TestBase.AssertNotNull(config.ItemGeneration, "ItemGeneration should be initialized", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(4, config.ItemGeneration.PoolLadder.Count, "pool ladder has four pools", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestLootSystemSanitizer()
@@ -488,23 +253,15 @@ namespace RPGGame.Tests.Unit.Config
 
             var config = new LootSystemConfig
             {
-                BaseDropChance = 0,
-                MaxDropChance = 0,
-                GuaranteedLootChance = 0,
-                GoldDropMultiplier = 0
+                GoldDropMultiplier = 0,
+                ItemGeneration = null!
             };
             config.EnsureSensibleLootDefaults();
-            TestBase.AssertTrue(config.BaseDropChance > 0,
-                "BaseDropChance should be repaired",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(config.MaxDropChance > 0,
-                "MaxDropChance should be repaired",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(1.0, config.GuaranteedLootChance,
-                "GuaranteedLootChance should become 1.0 when zero",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1.0, config.GoldDropMultiplier,
                 "GoldDropMultiplier should become 1.0",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertNotNull(config.ItemGeneration,
+                "missing itemGeneration is rebuilt",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

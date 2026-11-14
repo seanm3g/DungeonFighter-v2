@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
@@ -51,7 +51,6 @@ namespace RPGGame.Tests.Unit
                 Scenario("Affinity: immune status is never applied or logged", ImmuneStatusNotApplied);
                 Scenario("Affinity: immune hover cites only immunity rules", ImmuneHoverReasons);
                 Scenario("Hazards: rooms use their authored hazards", RoomHazards);
-                Scenario("Loot: two common suffixes fuse into one uncommon", SuffixFusion);
                 Scenario("Hover: hero status explains mechanics and source", HeroStatusHover);
                 Scenario("Colors: action names by class and rarity", ActionColors);
                 Scenario("Sort: attributes highest to lowest", AttributeSort);
@@ -429,28 +428,6 @@ namespace RPGGame.Tests.Unit
 
         // ---------- #18 suffix fusion ----------
 
-        private static void SuffixFusion()
-        {
-            var cache = LootDataCache.Load();
-            var commons = cache.StatBonuses
-                .Where(s => string.Equals((s.Rarity ?? "Common").Trim(), "Common", StringComparison.OrdinalIgnoreCase))
-                .GroupBy(s => s.StatType).Select(g => g.First()).Take(2).ToList();
-            Check(commons.Count == 2, "catalog has two different common suffixes");
-            if (commons.Count < 2)
-                return;
-
-            var applier = new LootBonusApplier(cache, new Random(7));
-            var item = new HeadItem("Crystal Rod", 1, 1);
-            var used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            item.StatBonuses.Add(commons[0].CloneForItemInstance());
-            used.Add(commons[0].StatType);
-
-            bool fused = applier.TryFuseCommonSuffixes(item, commons[1], used);
-            Check(fused, "second common suffix triggers a fusion");
-            Check(item.StatBonuses.Count == 1, $"two commons become one suffix, got {item.StatBonuses.Count}");
-            Check(string.Equals(item.StatBonuses[0].Rarity?.Trim(), "Uncommon", StringComparison.OrdinalIgnoreCase),
-                $"fused suffix is Uncommon, got {item.StatBonuses[0].Rarity}");
-        }
 
         // ---------- #2 / #12 / #4 UI copy ----------
 

@@ -15,9 +15,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "HurtPride",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 7,
+    "damageMax": 10
   },
   {
     "type": "Mace",
@@ -35,9 +38,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "HurtHarden",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 9,
+    "damageMax": 12
   },
   {
     "type": "Mace",
@@ -55,9 +61,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BarbarianActionDamage",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 7,
+    "damageMax": 10
   },
   {
     "type": "Mace",
@@ -75,9 +84,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BarbarianBlood",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 9,
+    "damageMax": 12
   },
   {
     "type": "Mace",
@@ -95,9 +107,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "StrCleave",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 7,
+    "damageMax": 10
   },
   {
     "type": "Mace",
@@ -118,7 +133,10 @@
     "extraActionSlotsMax": 0,
     "triggerName": "",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 4,
+    "damageMax": 5
   },
   {
     "type": "Mace",
@@ -136,9 +154,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BloodlustCrit",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 9,
+    "damageMax": 12
   },
   {
     "type": "Mace",
@@ -156,9 +177,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "KillSpray",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 8,
+    "damageMax": 11
   },
   {
     "type": "Mace",
@@ -176,9 +200,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "KillReload20",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 10,
+    "damageMax": 13
   },
   {
     "type": "Mace",
@@ -196,9 +223,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BludgeonChorus",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 14,
+    "damageMax": 16
   },
   {
     "type": "Mace",
@@ -216,9 +246,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EarthBrand",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 18,
+    "damageMax": 20
   },
   {
     "type": "Mace",
@@ -236,9 +269,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ClutchIron",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 13,
+    "damageMax": 15
   },
   {
     "type": "Mace",
@@ -256,9 +292,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "DepthHunger",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 12,
+    "damageMax": 14
   },
   {
     "type": "Mace",
@@ -276,9 +315,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "PrimaryPulse",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 16,
+    "damageMax": 18
   },
   {
     "type": "Mace",
@@ -296,9 +338,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "MarchCadence",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 20,
+    "damageMax": 22
   },
   {
     "type": "Mace",
@@ -316,9 +361,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "GuardUp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 15,
+    "damageMax": 17
   },
   {
     "type": "Mace",
@@ -336,9 +384,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FoeOvercommit",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 15,
+    "damageMax": 17
   },
   {
     "type": "Mace",
@@ -356,9 +407,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ClassPrimaryAttr",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 15,
+    "damageMax": 17
   },
   {
     "type": "Mace",
@@ -376,9 +430,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "HurtPride",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 14,
+    "damageMax": 16
   },
   {
     "type": "Mace",
@@ -396,9 +453,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "HurtHarden",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 12,
+    "damageMax": 14
   },
   {
     "type": "Mace",
@@ -416,9 +476,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BarbarianActionDamage",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 19,
+    "damageMax": 25
   },
   {
     "type": "Mace",
@@ -436,9 +499,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BarbarianBlood",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 22,
+    "damageMax": 28
   },
   {
     "type": "Mace",
@@ -456,9 +522,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "StrCleave",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 21,
+    "damageMax": 27
   },
   {
     "type": "Mace",
@@ -476,9 +545,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BloodlustCrit",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 29,
+    "damageMax": 35
   },
   {
     "type": "Mace",
@@ -496,9 +568,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "KillSpray",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 20,
+    "damageMax": 26
   },
   {
     "type": "Mace",
@@ -516,9 +591,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "KillReload20",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 26,
+    "damageMax": 32
   },
   {
     "type": "Mace",
@@ -536,9 +614,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BludgeonChorus",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 24,
+    "damageMax": 30
   },
   {
     "type": "Mace",
@@ -556,9 +637,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EarthBrand",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 23,
+    "damageMax": 29
   },
   {
     "type": "Mace",
@@ -576,9 +660,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ClutchIron",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 31,
+    "damageMax": 37
   },
   {
     "type": "Mace",
@@ -596,9 +683,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "DepthHunger",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 20,
+    "damageMax": 26
   },
   {
     "type": "Mace",
@@ -616,9 +706,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "PrimaryPulse",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 39,
+    "damageMax": 51
   },
   {
     "type": "Mace",
@@ -636,9 +729,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "MarchCadence",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 41,
+    "damageMax": 53
   },
   {
     "type": "Mace",
@@ -656,9 +752,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "GuardUp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 30,
+    "damageMax": 42
   },
   {
     "type": "Mace",
@@ -676,9 +775,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FoeOvercommit",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 50,
+    "damageMax": 62
   },
   {
     "type": "Mace",
@@ -696,9 +798,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ClassPrimaryAttr",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 33,
+    "damageMax": 45
   },
   {
     "type": "Mace",
@@ -716,9 +821,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "HurtPride",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 32,
+    "damageMax": 44
   },
   {
     "type": "Mace",
@@ -736,9 +844,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "HurtHarden",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 41,
+    "damageMax": 53
   },
   {
     "type": "Mace",
@@ -756,9 +867,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BarbarianActionDamage",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 31,
+    "damageMax": 43
   },
   {
     "type": "Mace",
@@ -776,9 +890,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BarbarianBlood",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 35,
+    "damageMax": 47
   },
   {
     "type": "Mace",
@@ -796,9 +913,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "StrCleave",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 52,
+    "damageMax": 72
   },
   {
     "type": "Mace",
@@ -816,9 +936,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BloodlustCrit",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 45,
+    "damageMax": 65
   },
   {
     "type": "Mace",
@@ -836,9 +959,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "KillSpray",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 69,
+    "damageMax": 89
   },
   {
     "type": "Mace",
@@ -856,9 +982,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "KillReload20",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 63,
+    "damageMax": 83
   },
   {
     "type": "Mace",
@@ -876,9 +1005,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BludgeonChorus",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 47,
+    "damageMax": 67
   },
   {
     "type": "Mace",
@@ -896,9 +1028,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EarthBrand",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 65,
+    "damageMax": 85
   },
   {
     "type": "Mace",
@@ -916,9 +1051,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ClutchIron",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 60,
+    "damageMax": 80
   },
   {
     "type": "Mace",
@@ -936,9 +1074,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "DepthHunger",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 81,
+    "damageMax": 101
   },
   {
     "type": "Mace",
@@ -956,9 +1097,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "PrimaryPulse",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "barbarian",
+    "damageMin": 42,
+    "damageMax": 62
   },
   {
     "type": "Sword",
@@ -979,7 +1123,10 @@
     "extraActionSlotsMax": 0,
     "triggerName": "",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 4,
+    "damageMax": 5
   },
   {
     "type": "Sword",
@@ -997,9 +1144,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ComboSpray",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 7,
+    "damageMax": 10
   },
   {
     "type": "Sword",
@@ -1017,9 +1167,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EndBreathDamage",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 7,
+    "damageMax": 10
   },
   {
     "type": "Sword",
@@ -1037,9 +1190,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ComboThresholdPush",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 7,
+    "damageMax": 10
   },
   {
     "type": "Sword",
@@ -1057,9 +1213,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "OpenTheLane",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 8,
+    "damageMax": 11
   },
   {
     "type": "Sword",
@@ -1077,9 +1236,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SharpenedEdge",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 8,
+    "damageMax": 11
   },
   {
     "type": "Sword",
@@ -1097,9 +1259,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "DoubleBeat",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 7,
+    "damageMax": 10
   },
   {
     "type": "Sword",
@@ -1117,9 +1282,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FinisherEncore",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 8,
+    "damageMax": 11
   },
   {
     "type": "Sword",
@@ -1137,9 +1305,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ComboWeaken",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 15,
+    "damageMax": 17
   },
   {
     "type": "Sword",
@@ -1157,9 +1328,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EnemyFlinch",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 14,
+    "damageMax": 16
   },
   {
     "type": "Sword",
@@ -1177,9 +1351,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WarriorActionAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 14,
+    "damageMax": 16
   },
   {
     "type": "Sword",
@@ -1197,9 +1374,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WarriorPointsGuard",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 12,
+    "damageMax": 14
   },
   {
     "type": "Sword",
@@ -1217,9 +1397,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ClassWarriorPrimary",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 13,
+    "damageMax": 15
   },
   {
     "type": "Sword",
@@ -1237,9 +1420,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FootworkGreaves",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 12,
+    "damageMax": 14
   },
   {
     "type": "Sword",
@@ -1257,9 +1443,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FinisherSeal",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 16,
+    "damageMax": 18
   },
   {
     "type": "Sword",
@@ -1277,9 +1466,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ComboEndHeal",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 11,
+    "damageMax": 13
   },
   {
     "type": "Sword",
@@ -1297,9 +1489,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "LoopChain",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 11,
+    "damageMax": 13
   },
   {
     "type": "Sword",
@@ -1317,9 +1512,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EchoStep",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 18,
+    "damageMax": 20
   },
   {
     "type": "Sword",
@@ -1337,9 +1535,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ComboSpray",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 17,
+    "damageMax": 23
   },
   {
     "type": "Sword",
@@ -1357,9 +1558,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EndBreathDamage",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 23,
+    "damageMax": 29
   },
   {
     "type": "Sword",
@@ -1377,9 +1581,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ComboThresholdPush",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 21,
+    "damageMax": 27
   },
   {
     "type": "Sword",
@@ -1397,9 +1604,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "OpenTheLane",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 25,
+    "damageMax": 31
   },
   {
     "type": "Sword",
@@ -1417,9 +1627,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SharpenedEdge",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 21,
+    "damageMax": 27
   },
   {
     "type": "Sword",
@@ -1437,9 +1650,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "DoubleBeat",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 27,
+    "damageMax": 33
   },
   {
     "type": "Sword",
@@ -1457,9 +1673,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FinisherEncore",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 18,
+    "damageMax": 24
   },
   {
     "type": "Sword",
@@ -1477,9 +1696,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ComboWeaken",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 22,
+    "damageMax": 28
   },
   {
     "type": "Sword",
@@ -1497,9 +1719,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EnemyFlinch",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 22,
+    "damageMax": 28
   },
   {
     "type": "Sword",
@@ -1517,9 +1742,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WarriorActionAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 19,
+    "damageMax": 25
   },
   {
     "type": "Sword",
@@ -1537,9 +1765,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WarriorPointsGuard",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 31,
+    "damageMax": 43
   },
   {
     "type": "Sword",
@@ -1557,9 +1788,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ClassWarriorPrimary",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 36,
+    "damageMax": 48
   },
   {
     "type": "Sword",
@@ -1577,9 +1811,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FootworkGreaves",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 32,
+    "damageMax": 44
   },
   {
     "type": "Sword",
@@ -1597,9 +1834,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FinisherSeal",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 33,
+    "damageMax": 45
   },
   {
     "type": "Sword",
@@ -1617,9 +1857,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ComboEndHeal",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 28,
+    "damageMax": 40
   },
   {
     "type": "Sword",
@@ -1637,9 +1880,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "LoopChain",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 37,
+    "damageMax": 49
   },
   {
     "type": "Sword",
@@ -1657,9 +1903,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EchoStep",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 45,
+    "damageMax": 57
   },
   {
     "type": "Sword",
@@ -1677,9 +1926,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ComboSpray",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 35,
+    "damageMax": 47
   },
   {
     "type": "Sword",
@@ -1697,9 +1949,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EndBreathDamage",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 35,
+    "damageMax": 47
   },
   {
     "type": "Sword",
@@ -1717,9 +1972,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ComboThresholdPush",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 27,
+    "damageMax": 39
   },
   {
     "type": "Sword",
@@ -1737,9 +1995,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "OpenTheLane",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 28,
+    "damageMax": 40
   },
   {
     "type": "Sword",
@@ -1757,9 +2018,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SharpenedEdge",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 43,
+    "damageMax": 63
   },
   {
     "type": "Sword",
@@ -1777,9 +2041,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "DoubleBeat",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 53,
+    "damageMax": 73
   },
   {
     "type": "Sword",
@@ -1797,9 +2064,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FinisherEncore",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 53,
+    "damageMax": 73
   },
   {
     "type": "Sword",
@@ -1817,9 +2087,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ComboWeaken",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 45,
+    "damageMax": 65
   },
   {
     "type": "Sword",
@@ -1837,9 +2110,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EnemyFlinch",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 60,
+    "damageMax": 80
   },
   {
     "type": "Sword",
@@ -1857,9 +2133,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WarriorActionAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 55,
+    "damageMax": 75
   },
   {
     "type": "Sword",
@@ -1877,9 +2156,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WarriorPointsGuard",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 73,
+    "damageMax": 93
   },
   {
     "type": "Sword",
@@ -1897,9 +2179,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ClassWarriorPrimary",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 60,
+    "damageMax": 80
   },
   {
     "type": "Sword",
@@ -1917,9 +2202,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FootworkGreaves",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 37,
+    "damageMax": 57
   },
   {
     "type": "Sword",
@@ -1937,9 +2225,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FinisherSeal",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 43,
+    "damageMax": 63
   },
   {
     "type": "Sword",
@@ -1957,9 +2248,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ComboEndHeal",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "warrior",
+    "damageMin": 44,
+    "damageMax": 64
   },
   {
     "type": "Dagger",
@@ -1977,9 +2271,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritAmpCarry",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 6,
+    "damageMax": 9
   },
   {
     "type": "Dagger",
@@ -1997,9 +2294,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritThresholdPush",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 6,
+    "damageMax": 9
   },
   {
     "type": "Dagger",
@@ -2017,9 +2317,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritExpose",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 6,
+    "damageMax": 9
   },
   {
     "type": "Dagger",
@@ -2037,9 +2340,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritFace19",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 6,
+    "damageMax": 9
   },
   {
     "type": "Dagger",
@@ -2057,9 +2363,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritFace18",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 7,
+    "damageMax": 10
   },
   {
     "type": "Dagger",
@@ -2077,9 +2386,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ConnectPierce",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 6,
+    "damageMax": 9
   },
   {
     "type": "Dagger",
@@ -2097,9 +2409,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "PunishDot",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 9,
+    "damageMax": 12
   },
   {
     "type": "Dagger",
@@ -2117,9 +2432,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ObsidianEdge",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 7,
+    "damageMax": 10
   },
   {
     "type": "Dagger",
@@ -2137,9 +2455,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "RogueActionAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 6,
+    "damageMax": 9
   },
   {
     "type": "Dagger",
@@ -2160,7 +2481,10 @@
     "extraActionSlotsMax": 0,
     "triggerName": "",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 4,
+    "damageMax": 5
   },
   {
     "type": "Dagger",
@@ -2180,9 +2504,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "RoguePointsSpeed",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 12,
+    "damageMax": 14
   },
   {
     "type": "Dagger",
@@ -2202,9 +2529,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "AgiSkirmish",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 12,
+    "damageMax": 14
   },
   {
     "type": "Dagger",
@@ -2224,9 +2554,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SwiftSchool",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 12,
+    "damageMax": 14
   },
   {
     "type": "Dagger",
@@ -2246,9 +2579,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "QuickGrip",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 16,
+    "damageMax": 18
   },
   {
     "type": "Dagger",
@@ -2268,9 +2604,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SkipFiller",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 15,
+    "damageMax": 17
   },
   {
     "type": "Dagger",
@@ -2290,9 +2629,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "LeapAhead",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 11,
+    "damageMax": 13
   },
   {
     "type": "Dagger",
@@ -2312,9 +2654,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SlotTwoEncore",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 13,
+    "damageMax": 15
   },
   {
     "type": "Dagger",
@@ -2334,9 +2679,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "MirrorSwingDamage",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 12,
+    "damageMax": 14
   },
   {
     "type": "Dagger",
@@ -2356,9 +2704,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BossNeedle",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 11,
+    "damageMax": 13
   },
   {
     "type": "Dagger",
@@ -2378,9 +2729,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritAmpCarry",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 13,
+    "damageMax": 15
   },
   {
     "type": "Dagger",
@@ -2400,9 +2754,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritThresholdPush",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 12,
+    "damageMax": 14
   },
   {
     "type": "Dagger",
@@ -2422,9 +2779,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritExpose",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 25,
+    "damageMax": 31
   },
   {
     "type": "Dagger",
@@ -2444,9 +2804,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritFace19",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 16,
+    "damageMax": 22
   },
   {
     "type": "Dagger",
@@ -2466,9 +2829,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritFace18",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 22,
+    "damageMax": 28
   },
   {
     "type": "Dagger",
@@ -2488,9 +2854,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ConnectPierce",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 22,
+    "damageMax": 28
   },
   {
     "type": "Dagger",
@@ -2510,9 +2879,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "PunishDot",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 19,
+    "damageMax": 25
   },
   {
     "type": "Dagger",
@@ -2532,9 +2904,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ObsidianEdge",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 18,
+    "damageMax": 24
   },
   {
     "type": "Dagger",
@@ -2554,9 +2929,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "RogueActionAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 20,
+    "damageMax": 26
   },
   {
     "type": "Dagger",
@@ -2576,9 +2954,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "RoguePointsSpeed",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 18,
+    "damageMax": 24
   },
   {
     "type": "Dagger",
@@ -2598,9 +2979,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "AgiSkirmish",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 17,
+    "damageMax": 23
   },
   {
     "type": "Dagger",
@@ -2620,9 +3004,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SwiftSchool",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 17,
+    "damageMax": 23
   },
   {
     "type": "Dagger",
@@ -2642,9 +3029,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "QuickGrip",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 33,
+    "damageMax": 45
   },
   {
     "type": "Dagger",
@@ -2664,9 +3054,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SkipFiller",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 26,
+    "damageMax": 38
   },
   {
     "type": "Dagger",
@@ -2686,9 +3079,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "LeapAhead",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 24,
+    "damageMax": 36
   },
   {
     "type": "Dagger",
@@ -2708,9 +3104,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SlotTwoEncore",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 34,
+    "damageMax": 46
   },
   {
     "type": "Dagger",
@@ -2730,9 +3129,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "MirrorSwingDamage",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 27,
+    "damageMax": 39
   },
   {
     "type": "Dagger",
@@ -2752,9 +3154,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "BossNeedle",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 41,
+    "damageMax": 53
   },
   {
     "type": "Dagger",
@@ -2774,9 +3179,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritAmpCarry",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 34,
+    "damageMax": 46
   },
   {
     "type": "Dagger",
@@ -2796,9 +3204,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritThresholdPush",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 23,
+    "damageMax": 35
   },
   {
     "type": "Dagger",
@@ -2818,9 +3229,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritExpose",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 26,
+    "damageMax": 38
   },
   {
     "type": "Dagger",
@@ -2840,9 +3254,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritFace19",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 30,
+    "damageMax": 42
   },
   {
     "type": "Dagger",
@@ -2862,9 +3279,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "CritFace18",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 45,
+    "damageMax": 65
   },
   {
     "type": "Dagger",
@@ -2884,9 +3304,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ConnectPierce",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 33,
+    "damageMax": 53
   },
   {
     "type": "Dagger",
@@ -2906,9 +3329,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "PunishDot",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 53,
+    "damageMax": 73
   },
   {
     "type": "Dagger",
@@ -2928,9 +3354,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ObsidianEdge",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 46,
+    "damageMax": 66
   },
   {
     "type": "Dagger",
@@ -2950,9 +3379,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "RogueActionAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 50,
+    "damageMax": 70
   },
   {
     "type": "Dagger",
@@ -2972,9 +3404,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "RoguePointsSpeed",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 49,
+    "damageMax": 69
   },
   {
     "type": "Dagger",
@@ -2994,9 +3429,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "AgiSkirmish",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 40,
+    "damageMax": 60
   },
   {
     "type": "Dagger",
@@ -3016,9 +3454,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SwiftSchool",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 41,
+    "damageMax": 61
   },
   {
     "type": "Dagger",
@@ -3038,9 +3479,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "QuickGrip",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 43,
+    "damageMax": 63
   },
   {
     "type": "Dagger",
@@ -3060,9 +3504,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SkipFiller",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "rogue",
+    "damageMin": 41,
+    "damageMax": 61
   },
   {
     "type": "Wand",
@@ -3080,9 +3527,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FirstBloodAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 8,
+    "damageMax": 11
   },
   {
     "type": "Wand",
@@ -3100,9 +3550,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WizardActionAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 8,
+    "damageMax": 11
   },
   {
     "type": "Wand",
@@ -3120,9 +3573,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WizardPointsAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 6,
+    "damageMax": 9
   },
   {
     "type": "Wand",
@@ -3140,9 +3596,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "IntArchitect",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 8,
+    "damageMax": 11
   },
   {
     "type": "Wand",
@@ -3160,9 +3619,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FocusLens",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 7,
+    "damageMax": 10
   },
   {
     "type": "Wand",
@@ -3180,9 +3642,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "InsightClarity",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 7,
+    "damageMax": 10
   },
   {
     "type": "Wand",
@@ -3200,9 +3665,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "Firebrand",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 9,
+    "damageMax": 12
   },
   {
     "type": "Wand",
@@ -3220,9 +3688,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WaterBrand",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 7,
+    "damageMax": 10
   },
   {
     "type": "Wand",
@@ -3240,9 +3711,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "AirBrand",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 6,
+    "damageMax": 9
   },
   {
     "type": "Wand",
@@ -3263,7 +3737,10 @@
     "extraActionSlotsMax": 0,
     "triggerName": "",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 4,
+    "damageMax": 5
   },
   {
     "type": "Wand",
@@ -3281,9 +3758,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SteadyFocus",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 6,
+    "damageMax": 9
   },
   {
     "type": "Wand",
@@ -3301,9 +3781,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "OpenerCrown",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 16,
+    "damageMax": 18
   },
   {
     "type": "Wand",
@@ -3321,9 +3804,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "LuckySevenHit",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 14,
+    "damageMax": 16
   },
   {
     "type": "Wand",
@@ -3341,9 +3827,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ExactFifteenCombo",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 14,
+    "damageMax": 16
   },
   {
     "type": "Wand",
@@ -3361,9 +3850,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EvenRollHeal",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 16,
+    "damageMax": 18
   },
   {
     "type": "Wand",
@@ -3381,9 +3873,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "OddSpite",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 13,
+    "damageMax": 15
   },
   {
     "type": "Wand",
@@ -3401,9 +3896,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ChaosOpen",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 15,
+    "damageMax": 17
   },
   {
     "type": "Wand",
@@ -3421,9 +3919,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ReplaceNextStrip",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 15,
+    "damageMax": 17
   },
   {
     "type": "Wand",
@@ -3441,9 +3942,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SpiteFocus",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 13,
+    "damageMax": 15
   },
   {
     "type": "Wand",
@@ -3461,9 +3965,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FirstBloodAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 13,
+    "damageMax": 15
   },
   {
     "type": "Wand",
@@ -3481,9 +3988,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WizardActionAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 24,
+    "damageMax": 30
   },
   {
     "type": "Wand",
@@ -3501,9 +4011,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WizardPointsAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 20,
+    "damageMax": 26
   },
   {
     "type": "Wand",
@@ -3521,9 +4034,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "IntArchitect",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 18,
+    "damageMax": 24
   },
   {
     "type": "Wand",
@@ -3541,9 +4057,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FocusLens",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 27,
+    "damageMax": 33
   },
   {
     "type": "Wand",
@@ -3561,9 +4080,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "InsightClarity",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 27,
+    "damageMax": 33
   },
   {
     "type": "Wand",
@@ -3581,9 +4103,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "Firebrand",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 26,
+    "damageMax": 32
   },
   {
     "type": "Wand",
@@ -3601,9 +4126,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WaterBrand",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 22,
+    "damageMax": 28
   },
   {
     "type": "Wand",
@@ -3621,9 +4149,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "AirBrand",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 19,
+    "damageMax": 25
   },
   {
     "type": "Wand",
@@ -3641,9 +4172,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SteadyFocus",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 21,
+    "damageMax": 27
   },
   {
     "type": "Wand",
@@ -3661,9 +4195,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "OpenerCrown",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 25,
+    "damageMax": 31
   },
   {
     "type": "Wand",
@@ -3681,9 +4218,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "LuckySevenHit",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 21,
+    "damageMax": 27
   },
   {
     "type": "Wand",
@@ -3701,9 +4241,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ExactFifteenCombo",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 37,
+    "damageMax": 49
   },
   {
     "type": "Wand",
@@ -3721,9 +4264,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EvenRollHeal",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 25,
+    "damageMax": 37
   },
   {
     "type": "Wand",
@@ -3741,9 +4287,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "OddSpite",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 29,
+    "damageMax": 41
   },
   {
     "type": "Wand",
@@ -3761,9 +4310,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ChaosOpen",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 34,
+    "damageMax": 46
   },
   {
     "type": "Wand",
@@ -3781,9 +4333,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ReplaceNextStrip",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 44,
+    "damageMax": 56
   },
   {
     "type": "Wand",
@@ -3801,9 +4356,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SpiteFocus",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 28,
+    "damageMax": 40
   },
   {
     "type": "Wand",
@@ -3821,9 +4379,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FirstBloodAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 42,
+    "damageMax": 54
   },
   {
     "type": "Wand",
@@ -3841,9 +4402,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WizardActionAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 39,
+    "damageMax": 51
   },
   {
     "type": "Wand",
@@ -3861,9 +4425,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WizardPointsAmp",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 28,
+    "damageMax": 40
   },
   {
     "type": "Wand",
@@ -3881,9 +4448,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "IntArchitect",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 46,
+    "damageMax": 58
   },
   {
     "type": "Wand",
@@ -3901,9 +4471,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "FocusLens",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 45,
+    "damageMax": 65
   },
   {
     "type": "Wand",
@@ -3921,9 +4494,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "InsightClarity",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 57,
+    "damageMax": 77
   },
   {
     "type": "Wand",
@@ -3941,9 +4517,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "Firebrand",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 53,
+    "damageMax": 73
   },
   {
     "type": "Wand",
@@ -3961,9 +4540,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "WaterBrand",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 50,
+    "damageMax": 70
   },
   {
     "type": "Wand",
@@ -3981,9 +4563,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "AirBrand",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 61,
+    "damageMax": 81
   },
   {
     "type": "Wand",
@@ -4001,9 +4586,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "SteadyFocus",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 43,
+    "damageMax": 63
   },
   {
     "type": "Wand",
@@ -4021,9 +4609,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "OpenerCrown",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 41,
+    "damageMax": 61
   },
   {
     "type": "Wand",
@@ -4041,9 +4632,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "LuckySevenHit",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 46,
+    "damageMax": 66
   },
   {
     "type": "Wand",
@@ -4061,9 +4655,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "ExactFifteenCombo",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 63,
+    "damageMax": 83
   },
   {
     "type": "Wand",
@@ -4081,8 +4678,11 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
+    "triggerName": "EvenRollHeal",
     "triggerBundles": null,
-    "equipEffects": null
+    "equipEffects": null,
+    "class": "wizard",
+    "damageMin": 67,
+    "damageMax": 87
   }
 ]

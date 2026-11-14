@@ -208,6 +208,11 @@ namespace RPGGame
             destination.MinGeneratedActionBonuses = source.MinGeneratedActionBonuses;
             destination.Rarity = source.Rarity;
             destination.Material = source.Material ?? "";
+            destination.BaseName = source.BaseName ?? "";
+            destination.ItemClass = source.ItemClass ?? "";
+            destination.Implicit = source.Implicit ?? "";
+            destination.DefenseRolled = source.DefenseRolled;
+            destination.RollUps = source.RollUps;
             destination.StatBonuses = source.StatBonuses;
             destination.ActionBonuses = source.ActionBonuses;
             destination.Modifications = source.Modifications;

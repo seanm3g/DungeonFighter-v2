@@ -43,10 +43,15 @@ namespace RPGGame.Tuning.Profiles
                 var items = new List<Item>();
                 for (int i = 0; i < count; i++)
                 {
-                    var item = LootGenerator.GenerateLoot(level, level, null, guaranteedLoot: true);
+                    var item = LootGenerator.GenerateLoot(level, level, null);
                     if (item != null)
                         items.Add(item);
                 }
+
+                // --samples N: print N full items (lines, values, roll-ups) per level.
+                int samples = TuningCliArgs.GetIntFlag(args, "--samples") ?? 0;
+                foreach (var sample in items.Take(samples))
+                    Console.WriteLine(DescribeItem(sample));
 
                 var byRarity = RarityOrder.ToDictionary(r => r,
                     r => items.Count(it => string.Equals(it.Rarity, r, StringComparison.OrdinalIgnoreCase)) / (double)Math.Max(1, items.Count));
@@ -128,6 +133,33 @@ namespace RPGGame.Tuning.Profiles
             File.WriteAllText(outPath, JsonSerializer.Serialize(new { levels = record, suffixCounts, prefixCounts }, new JsonSerializerOptions { WriteIndented = true }));
             Console.WriteLine($"Run record: {Path.GetFullPath(outPath)}");
             return 0;
+        }
+
+        /// <summary>One rolled item on a few lines: name, rarity, level, base numbers, implicit, every mod line, roll-ups.</summary>
+        internal static string DescribeItem(Item item)
+        {
+            var sb = new System.Text.StringBuilder();
+            string power = item switch
+            {
+                WeaponItem w => $"dmg {w.GetTotalDamage()}",
+                HeadItem h => $"def {h.GetTotalArmor()}",
+                ChestItem c => $"def {c.GetTotalArmor()}",
+                LegsItem l => $"def {l.GetTotalArmor()}",
+                FeetItem f => $"def {f.GetTotalArmor()}",
+                _ => ""
+            };
+            sb.Append($"  [{item.Rarity}] {item.Name}  (ilvl {item.Level}, T{item.Tier}, {item.ItemClass}, {power})");
+            if (!string.IsNullOrWhiteSpace(item.Implicit))
+                sb.Append($"\n      implicit: {item.Implicit}");
+            foreach (var m in item.Modifications.Where(m => m.ModLine != null))
+                sb.Append($"\n      {m.ModLine!.Pool,-8} {m.Name} = {m.RolledValue:0.##} (T{m.ModLine.Tier}{(m.ModLine.RolledUp ? ", rolled up" : "")})");
+            foreach (var s in item.StatBonuses.Where(s => s.ModLine != null))
+                sb.Append($"\n      {s.ModLine!.Pool,-8} {s.Name} = {s.Value:0.##} (T{s.ModLine.Tier}{(s.ModLine.RolledUp ? ", rolled up" : "")})");
+            foreach (var a in item.ActionBonuses)
+                sb.Append($"\n      action   {a.Name}");
+            if (item.RollUps is { Count: > 0 })
+                sb.Append($"\n      roll-ups: {string.Join(", ", item.RollUps)}");
+            return sb.ToString();
         }
     }
 }

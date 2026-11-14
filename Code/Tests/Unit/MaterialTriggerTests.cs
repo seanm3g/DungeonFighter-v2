@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
@@ -22,7 +22,6 @@ namespace RPGGame.Tests.Unit
             TestEnsureMaterialArmorAlways();
             TestToolForcedMaterialOverridesRolls();
             TestMaterialTriggerMergeDoesNotStampOnLoot();
-            TestPrefixLotteryExcludesMaterial();
             TestItemTypeConverterClearsCatalogStampsAndRemapsDamascus();
             TestRepairMissingMaterialDoesNotReroll();
 
@@ -92,7 +91,7 @@ namespace RPGGame.Tests.Unit
             var applier = new LootBonusApplier(cache, new Random(3));
             try
             {
-                LootBonusApplier.ToolForcedMaterial = "Gold";
+                RPGGame.Data.ItemGeneration.ItemRoller.ToolForcedMaterial = "Gold";
                 var weapon = new WeaponItem("Test Mace", 1, 5, 1.0, WeaponType.Mace) { Rarity = "Common" };
                 applier.EnsureMaterial(weapon, "Common");
                 TestBase.AssertEqual("Gold", weapon.Material, "forced material on a weapon", ref _run, ref _passed, ref _failed);
@@ -102,7 +101,7 @@ namespace RPGGame.Tests.Unit
             }
             finally
             {
-                LootBonusApplier.ToolForcedMaterial = null;
+                RPGGame.Data.ItemGeneration.ItemRoller.ToolForcedMaterial = null;
             }
             var after = new WeaponItem("Test Mace", 1, 5, 1.0, WeaponType.Mace) { Rarity = "Common" };
             applier.EnsureMaterial(after, "Common");
@@ -136,23 +135,6 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(0, weapon.EquipEffects?.Count ?? 0, "no equip stamp", ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestPrefixLotteryExcludesMaterial()
-        {
-            TestBase.SetCurrentTestName(nameof(TestPrefixLotteryExcludesMaterial));
-            var cache = LootDataCache.CreateEmpty();
-            cache.Modifications.Add(new Modification { Name = "Qc", PrefixCategory = "QUALITY", ItemRank = "Common", DiceResult = 1, MinValue = 1, MaxValue = 1 });
-            cache.Modifications.Add(new Modification { Name = "Ac", PrefixCategory = "ADJECTIVE", ItemRank = "Common", DiceResult = 2, MinValue = 1, MaxValue = 1 });
-            cache.Modifications.Add(new Modification { Name = "Mc", PrefixCategory = "MATERIAL", ItemRank = "Common", DiceResult = 3, MinValue = 1, MaxValue = 1 });
-            cache.RarityData.Add(new RarityData { Name = "Common", Weight = 1, StatBonuses = 0, ActionBonuses = 0, Modifications = 0 });
-
-            var item = TestDataBuilders.Item().WithName("X").Build();
-            var applier = new LootBonusApplier(cache, new Random(0));
-            applier.ApplyPrefixSlots(item, 2, null);
-            TestBase.AssertTrue(
-                item.Modifications.All(m => m.GetPrefixCategory() != ModificationPrefixCategory.Material),
-                "prefix lottery has no material", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(2, item.Modifications.Count, "Q+A only", ref _run, ref _passed, ref _failed);
-        }
 
         private static void TestItemTypeConverterClearsCatalogStampsAndRemapsDamascus()
         {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -26,7 +26,7 @@ namespace RPGGame.MCP.Tools.LootTuning
                 // Generate items
                 for (int i = 0; i < sampleSize; i++)
                 {
-                    var item = LootGenerator.GenerateLoot(playerLevel, playerLevel, guaranteedLoot: true);
+                    var item = LootGenerator.GenerateLoot(playerLevel, playerLevel);
                     if (item != null)
                     {
                         if (!rarityCounts.ContainsKey(item.Rarity))
@@ -59,7 +59,6 @@ namespace RPGGame.MCP.Tools.LootTuning
                 {
                     sampleSize = sampleSize,
                     playerLevel = playerLevel,
-                    upgradesEnabled = GameConfiguration.Instance.LootSystem.RarityUpgrade.Enabled,
                     distribution = analysis,
                     totalItemsGenerated = rarityCounts.Values.Sum()
                 };
@@ -79,7 +78,7 @@ namespace RPGGame.MCP.Tools.LootTuning
                 // Generate items
                 for (int i = 0; i < sampleSize; i++)
                 {
-                    var item = LootGenerator.GenerateLoot(playerLevel, playerLevel, guaranteedLoot: true);
+                    var item = LootGenerator.GenerateLoot(playerLevel, playerLevel);
                     if (item != null)
                     {
                         if (!tierCounts.ContainsKey(item.Tier))
@@ -120,7 +119,7 @@ namespace RPGGame.MCP.Tools.LootTuning
 
                 for (int i = 0; i < sampleSize; i++)
                 {
-                    var item = LootGenerator.GenerateLoot(playerLevel, playerLevel, guaranteedLoot: true);
+                    var item = LootGenerator.GenerateLoot(playerLevel, playerLevel);
                     if (item != null)
                         items.Add(item);
                 }
@@ -144,46 +143,6 @@ namespace RPGGame.MCP.Tools.LootTuning
                         count = armorItems.Count,
                         avgTier = armorItems.Any() ? armorItems.Average(a => a.Tier) : 0
                     }
-                };
-            }, writeIndented: true);
-        }
-
-        [McpServerTool(Name = "test_upgrade_cascade", Title = "Test Upgrade Cascade")]
-        [Description("Generates many items to observe rarity upgrade distribution.")]
-        public static Task<string> TestUpgradeCascade(
-            [Description("Number of items to generate (default: 100000)")] int sampleSize = 100000,
-            [Description("Magic find value (default: 0)")] double magicFind = 0.0)
-        {
-            return McpToolExecutor.ExecuteAsync(() =>
-            {
-                if (!GameConfiguration.Instance.LootSystem.RarityUpgrade.Enabled)
-                {
-                    return new
-                    {
-                        error = "Rarity upgrades are disabled. Enable with enable_rarity_upgrades(true)"
-                    };
-                }
-
-                var items = new List<Item>();
-
-                for (int i = 0; i < sampleSize; i++)
-                {
-                    var item = LootGenerator.GenerateLoot(1, 1, guaranteedLoot: true);
-                    if (item != null)
-                        items.Add(item);
-                }
-
-                var rarityCounts = items.GroupBy(i => i.Rarity)
-                    .ToDictionary(g => g.Key, g => g.Count());
-
-                return new
-                {
-                    sampleSize = sampleSize,
-                    magicFind = magicFind,
-                    upgradeSystemEnabled = true,
-                    baseUpgradeChance = GameConfiguration.Instance.LootSystem.RarityUpgrade.BaseUpgradeChance,
-                    rarityDistribution = rarityCounts,
-                    totalItemsGenerated = items.Count
                 };
             }, writeIndented: true);
         }
@@ -272,7 +231,7 @@ namespace RPGGame.MCP.Tools.LootTuning
             var items = new List<Item>();
             for (int i = 0; i < count; i++)
             {
-                var item = LootGenerator.GenerateLoot(playerLevel, dungeonLevel, guaranteedLoot: true);
+                var item = LootGenerator.GenerateLoot(playerLevel, dungeonLevel);
                 if (item != null)
                     items.Add(item);
             }

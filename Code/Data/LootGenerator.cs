@@ -1,275 +1,76 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using RPGGame.Data;
+using RPGGame.Data.ItemGeneration;
 
 namespace RPGGame
 {
     /// <summary>
-    /// Centralized loot generation system
-    /// 
-    /// This is now a facade coordinating specialized managers:
-    /// - LootDataCache: Centralized data loading and caching
-    /// - LootTierCalculator: Tier determination logic
-    /// - LootItemSelector: Item selection logic
-    /// - LootRarityProcessor: Rarity determination and scaling
-    /// - LootBonusApplier: Bonus and modification application
+    /// Loot entry point. Every item (dungeon rewards, travel, new-game armor, trade-ups, the Item Generation lab) is rolled
+    /// by <see cref="ItemRoller"/>; see Documentation/ITEM_GENERATION_REDESIGN_2026-11-14.md.
     /// </summary>
     public class LootGenerator
     {
         private static Random _random = RandomUtility.Ambient;
-
-        /// <summary>
-        /// Tools only: replaces the loot RNG with a seeded one and rebuilds the roll helpers so loot sampling is reproducible
-        /// (e.g. fundamentals "typical gear").
-        /// </summary>
-        public static void ReseedForTools(int seed)
-        {
-            _random = new Random(seed);
-            _tierCalculator = null;
-            _itemSelector = null;
-            _rarityProcessor = null;
-            _bonusApplier = null;
-        }
-        
-        // Shared data cache
         private static LootDataCache? _dataCache;
-        
-        // Specialized managers
-        private static LootTierCalculator? _tierCalculator;
-        private static LootItemSelector? _itemSelector;
-        private static LootRarityProcessor? _rarityProcessor;
-        private static LootBonusApplier? _bonusApplier;
 
         /// <summary>
-        /// Gets or creates the shared data cache
+        /// Tools only: item seeds come from a seeded generator so loot sampling is reproducible (e.g. fundamentals
+        /// "typical gear"). Each item's stage streams derive from its seed.
         /// </summary>
-        private static LootDataCache DataCache
-        {
-            get
-            {
-                if (_dataCache == null)
-                {
-                    _dataCache = LootDataCache.Load();
-                }
-                return _dataCache;
-            }
-        }
+        public static void ReseedForTools(int seed) => _random = new Random(seed);
 
-        /// <summary>
-        /// Gets or creates the tier calculator
-        /// </summary>
-        private static LootTierCalculator TierCalculator
-        {
-            get
-            {
-                if (_tierCalculator == null)
-                {
-                    _tierCalculator = new LootTierCalculator(DataCache, _random);
-                }
-                return _tierCalculator;
-            }
-        }
+        private static LootDataCache DataCache => _dataCache ??= LootDataCache.Load();
 
-        /// <summary>
-        /// Gets or creates the item selector
-        /// </summary>
-        private static LootItemSelector ItemSelector
-        {
-            get
-            {
-                if (_itemSelector == null)
-                {
-                    _itemSelector = new LootItemSelector(DataCache, _random);
-                }
-                return _itemSelector;
-            }
-        }
-
-        /// <summary>
-        /// Gets or creates the rarity processor
-        /// </summary>
-        private static LootRarityProcessor RarityProcessor
-        {
-            get
-            {
-                if (_rarityProcessor == null)
-                {
-                    _rarityProcessor = new LootRarityProcessor(DataCache, _random);
-                }
-                return _rarityProcessor;
-            }
-        }
-
-        /// <summary>
-        /// Gets or creates the bonus applier
-        /// </summary>
-        private static LootBonusApplier BonusApplier
-        {
-            get
-            {
-                if (_bonusApplier == null)
-                {
-                    _bonusApplier = new LootBonusApplier(DataCache, _random);
-                }
-                return _bonusApplier;
-            }
-        }
-
-        /// <summary>
-        /// Initializes the loot generation system by loading all data
-        /// </summary>
+        /// <summary>Reloads loot data (catalogs, rarity table, ItemMods.json).</summary>
         public static void Initialize()
         {
-            // Reset cache and managers to force reload
             _dataCache = null;
-            _tierCalculator = null;
-            _itemSelector = null;
-            _rarityProcessor = null;
-            _bonusApplier = null;
-            
-            // Load data (will be created on first access)
             _ = DataCache;
         }
 
+        /// <summary>Rolls one item for <paramref name="request"/> from the shared loot data.</summary>
+        public static Item? Roll(ItemRollRequest request) => new ItemRoller(DataCache).Roll(request, _random);
+
+        /// <summary>Rolls one item and returns every decision the roller made.</summary>
+        public static Item? Roll(ItemRollRequest request, out ItemRollSpec spec) =>
+            new ItemRoller(DataCache).Roll(request, _random, out spec);
+
         /// <summary>
-        /// Generates a loot item based on player level, dungeon level, and other factors
+        /// One item for a hero at <paramref name="playerLevel"/> in a dungeon of <paramref name="dungeonLevel"/>
+        /// (item level = dungeon level − (hero level − dungeon level), clamped 1–100). Always returns an item when the
+        /// catalogs are loaded: drops happen at dungeon end, not per kill.
         /// </summary>
         public static Item? GenerateLoot(
             int playerLevel,
             int dungeonLevel,
             Character? player = null,
-            bool guaranteedLoot = false,
-            string? dungeonTheme = null,
-            string? enemyArchetype = null,
-            double bonusMagicFind = 0)
-        {
-            var tuning = GameConfiguration.Instance;
-            
-            // Calculate loot chance based on tuning config
-            double lootChance = CalculateLootChance(playerLevel, player, guaranteedLoot, tuning, bonusMagicFind);
-            
-            // Roll for loot chance (skip if guaranteed loot)
-            if (!guaranteedLoot)
+            string? dungeonTheme = null) =>
+            Roll(new ItemRollRequest
             {
-                double roll = _random.NextDouble();
-                if (roll >= lootChance) 
-                {
-                    return null;
-                }
-            }
+                HeroLevel = playerLevel,
+                DungeonLevel = dungeonLevel,
+                Hero = player,
+                DungeonTheme = dungeonTheme
+            });
 
-            // ROLL 1: Calculate loot level
-            int lootLevel = TierCalculator.CalculateLootLevel(playerLevel, dungeonLevel);
-            
-            // ROLL 2: 50% weapon, 12.5% each armor slot (head / chest / legs / feet)
-            var (isWeapon, armorJsonSlot) = ItemSelector.RollLootCategory();
-
-            // ROLL 3: Item tier based on loot level
-            int tier = TierCalculator.RollTier(lootLevel);
-
-            // ROLL 4: Specific item selection
-            // For guaranteed loot, retry with different tiers/types if needed
-            ItemSelector.PreferredWeaponType = (player?.Weapon as WeaponItem)?.WeaponType;
-            Item? item = ItemSelector.SelectItem(tier, isWeapon, armorJsonSlot);
-            ItemSelector.PreferredWeaponType = null;
-
-            if (item == null && guaranteedLoot)
+        /// <summary>
+        /// Trade-up result: an item of exactly <paramref name="rarity"/> at <paramref name="tier"/> and item level
+        /// <paramref name="itemLevel"/> (weapon or armor). Lines still roll, but item level and rarity do not roll up.
+        /// </summary>
+        public static Item? GenerateTradeUp(int tier, int itemLevel, bool weapon, string rarity, Character? hero) =>
+            Roll(new ItemRollRequest
             {
-                // Try all tiers from 1 to 5, and both weapon and armor types
-                for (int fallbackTier = 1; fallbackTier <= 5; fallbackTier++)
-                {
-                    // Try current item type first
-                    item = ItemSelector.SelectItem(fallbackTier, isWeapon, armorJsonSlot);
-                    if (item != null)
-                    {
-                        tier = fallbackTier;
-                        break;
-                    }
-
-                    // Try opposite item type (fresh armor slot if we were weapon)
-                    bool oppositeWeapon = !isWeapon;
-                    string? slotWhenArmor = oppositeWeapon
-                        ? null
-                        : (isWeapon ? ItemSelector.RollArmorJsonSlotUniform() : armorJsonSlot);
-                    item = ItemSelector.SelectItem(fallbackTier, oppositeWeapon, slotWhenArmor);
-                    if (item != null)
-                    {
-                        tier = fallbackTier;
-                        isWeapon = oppositeWeapon;
-                        if (!isWeapon)
-                            armorJsonSlot = slotWhenArmor;
-                        break;
-                    }
-                }
-                
-                // If still no item found and guaranteed loot is requested, create a fallback item
-                if (item == null)
-                {
-                    // Use tier 1 as fallback if no items were found in any tier
-                    int fallbackTier = tier > 0 ? tier : 1;
-                    
-                    // Create a basic fallback item to ensure guaranteed loot always generates something
-                    if (isWeapon)
-                    {
-                        item = new WeaponItem("Basic Sword", fallbackTier, 5 + playerLevel, 1.0, WeaponType.Sword);
-                    }
-                    else
-                    {
-                        item = new ChestItem("Basic Armor", fallbackTier, 5);
-                    }
-                    item.Level = Math.Max(1, lootLevel);
-                    item.Tier = fallbackTier;
-                    item.Rarity = "Common";
-                }
-            }
-            
-            if (item == null) 
-            {
-                return null;
-            }
-
-            // ROLL 4.5: Roll item level based on dungeon level
-            // 50% chance: same level, 25% chance: +1 level, 25% chance: -1 level
-            double levelRoll = _random.NextDouble();
-            if (levelRoll < 0.5)
-            {
-                item.Level = dungeonLevel;
-            }
-            else if (levelRoll < 0.75)
-            {
-                item.Level = dungeonLevel + 1;
-            }
-            else
-            {
-                item.Level = Math.Max(1, dungeonLevel - 1);
-            }
-
-            // ROLL 5: Apply scaling formulas to base stats
-            ApplyItemScaling(item, tuning);
-
-            // ROLL 6: Rarity (determines number of bonuses) — MF does not alter base rarity roll
-            double lootMf = Math.Clamp(bonusMagicFind, 0, 1);
-            var rarity = RarityProcessor.RollRarity(lootMf, playerLevel);
-            item.Rarity = rarity.Name?.Trim() ?? "Common";
-            RarityProcessor.ApplyRarityScaling(item, rarity);
-
-            // Create context for contextual modifications and actions
-            var context = LootContext.Create(player, dungeonTheme, enemyArchetype);
-
-            // Set weapon type on context if this is a weapon
-            if (item is WeaponItem weapon)
-            {
-                context.WeaponType = weapon.WeaponType.ToString();
-            }
-
-            // ROLL 7: Bonus selection (MF affects affix-line tiers and optional extra affix counts only)
-            int affixMagicFind = Math.Clamp(player?.GetMagicFind() ?? 0, 0, 100);
-            BonusApplier.ApplyBonuses(item, rarity, context, affixMagicFind);
-
-            return item;
-        }
+                HeroLevel = hero?.Level ?? itemLevel,
+                DungeonLevel = itemLevel,
+                ItemLevel = Math.Clamp(itemLevel, 1, 100),
+                Hero = hero,
+                Weapon = weapon,
+                Tier = tier,
+                Rarity = rarity
+            });
 
         /// <summary>
         /// Rare charm catalog drop (~5%). Independent of armor/weapon affix rolls.
@@ -284,164 +85,24 @@ namespace RPGGame
             return CharmsLoader.CreateRandomItem(rng);
         }
 
-        private static readonly string[] NewGameBonusArmorJsonSlots = { "head", "chest", "legs", "feet" };
-
         /// <summary>
-        /// One guaranteed piece of armor loot (head, chest, legs, or feet — never a weapon) for a new character
-        /// after they pick a starting weapon. Uses the same tier/rarity/affix pipeline as dungeon armor drops.
-        /// Re-rolls when the result is <see cref="Item.IsStarterItem"/> when the catalog allows a non-starter piece.
+        /// One guaranteed piece of armor (never a weapon, never a starter base when anything else fits) for a new
+        /// character after they pick a starting weapon. Same pipeline as dungeon loot, at dungeon level 1.
         /// </summary>
         public static Item? GenerateNewGameBonusLoot(Character player)
         {
             if (player == null)
                 return null;
-
             Initialize();
-
-            int playerLevel = Math.Max(1, player.Level);
-            const int dungeonLevel = 1;
-
-            const int maxAttempts = 16;
-            Item? last = null;
-            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            return Roll(new ItemRollRequest
             {
-                last = GenerateGuaranteedArmorLootOnce(player, playerLevel, dungeonLevel);
-                if (last == null || last is WeaponItem)
-                    continue;
-                if (!last.IsStarterItem)
-                    return last;
-            }
-
-            return last is WeaponItem ? null : last;
+                HeroLevel = Math.Max(1, player.Level),
+                DungeonLevel = 1,
+                Hero = player,
+                Weapon = false,
+                ExcludeStarter = true
+            });
         }
-
-        /// <summary>
-        /// Guaranteed armor selection + the same post-selection steps as <see cref="GenerateLoot"/> (level, scaling, rarity, bonuses).
-        /// </summary>
-        private static Item? GenerateGuaranteedArmorLootOnce(Character player, int playerLevel, int dungeonLevel)
-        {
-            var tuning = GameConfiguration.Instance;
-            int lootLevel = TierCalculator.CalculateLootLevel(playerLevel, dungeonLevel);
-            string armorJsonSlot = ItemSelector.RollArmorJsonSlotUniform();
-            int tier = TierCalculator.RollTier(lootLevel);
-            Item? item = ItemSelector.SelectItem(tier, isWeapon: false, armorJsonSlot);
-
-            if (item == null)
-            {
-                for (int fallbackTier = 1; fallbackTier <= 5; fallbackTier++)
-                {
-                    item = ItemSelector.SelectItem(fallbackTier, isWeapon: false, armorJsonSlot);
-                    if (item != null)
-                    {
-                        tier = fallbackTier;
-                        break;
-                    }
-
-                    foreach (string slot in NewGameBonusArmorJsonSlots)
-                    {
-                        item = ItemSelector.SelectItem(fallbackTier, isWeapon: false, slot);
-                        if (item != null)
-                        {
-                            tier = fallbackTier;
-                            armorJsonSlot = slot;
-                            break;
-                        }
-                    }
-
-                    if (item != null)
-                        break;
-                }
-            }
-
-            if (item == null)
-            {
-                int fallbackTier = tier > 0 ? tier : 1;
-                armorJsonSlot = ItemSelector.RollArmorJsonSlotUniform();
-                item = armorJsonSlot switch
-                {
-                    "head" => new HeadItem("Basic Helmet", fallbackTier, 3),
-                    "chest" => new ChestItem("Basic Armor", fallbackTier, 5),
-                    "legs" => new LegsItem("Basic Legs", fallbackTier, 3),
-                    "feet" => new FeetItem("Basic Boots", fallbackTier, 3),
-                    _ => new ChestItem("Basic Armor", fallbackTier, 5)
-                };
-                item.Level = Math.Max(1, lootLevel);
-                item.Tier = fallbackTier;
-                item.Rarity = "Common";
-            }
-
-            if (item is WeaponItem)
-                return null;
-
-            double levelRoll = _random.NextDouble();
-            if (levelRoll < 0.5)
-                item.Level = dungeonLevel;
-            else if (levelRoll < 0.75)
-                item.Level = dungeonLevel + 1;
-            else
-                item.Level = Math.Max(1, dungeonLevel - 1);
-
-            ApplyItemScaling(item, tuning);
-
-            var rarity = RarityProcessor.RollRarity(0.0, playerLevel);
-            item.Rarity = rarity.Name?.Trim() ?? "Common";
-            RarityProcessor.ApplyRarityScaling(item, rarity);
-
-            var context = LootContext.Create(player, dungeonTheme: null, enemyArchetype: null);
-            int affixMagicFind = Math.Clamp(player.GetMagicFind(), 0, 100);
-            BonusApplier.ApplyBonuses(item, rarity, context, affixMagicFind);
-
-            return item;
-        }
-
-        /// <summary>
-        /// Calculates the loot drop chance based on player level, magic find, and guaranteed flag
-        /// </summary>
-        private static double CalculateLootChance(int playerLevel, Character? player, bool guaranteedLoot, GameConfiguration tuning, double bonusMagicFind = 0)
-        {
-            if (guaranteedLoot)
-            {
-                // Use configured drop chance for guaranteed loot (dungeon completion)
-                return tuning.LootSystem.GuaranteedLootChance;
-            }
-            else
-            {
-                // Calculate normal loot chance
-                double lootChance = tuning.LootSystem.BaseDropChance + (playerLevel * tuning.LootSystem.DropChancePerLevel);
-                
-                // Apply magic find modifier to loot chance
-                double magicFind = (player?.GetMagicFind() ?? 0.0) + Math.Max(0, bonusMagicFind);
-                lootChance += magicFind * tuning.LootSystem.MagicFindEffectiveness;
-                
-                return Math.Min(lootChance, tuning.LootSystem.MaxDropChance);
-            }
-        }
-
-        /// <summary>
-        /// Applies scaling formulas to base stats based on item type and tier
-        /// </summary>
-        private static void ApplyItemScaling(Item item, GameConfiguration tuning)
-        {
-            if (item is WeaponItem weapon)
-            {
-                // Apply bonus damage and attack speed based on tuning config
-                var equipmentScaling = tuning.EquipmentScaling;
-                if (equipmentScaling != null)
-                {
-                    // Use new EquipmentScaling configuration
-                    weapon.BonusDamage = (int)(weapon.Tier * equipmentScaling.WeaponDamagePerTier);
-                    weapon.BonusAttackSpeed = (int)(weapon.Tier * equipmentScaling.SpeedBonusPerTier);
-                }
-                else
-                {
-                    // Fallback to simple system
-                    weapon.BonusDamage = weapon.Tier <= 1 ? 1 : Dice.Roll(1, Math.Max(2, weapon.Tier));
-                    weapon.BonusAttackSpeed = (int)(weapon.Tier * 0.1); // Simple fallback
-                }
-            }
-            // Note: Armor scaling is currently handled by base values (no additional scaling needed)
-        }
-
     }
 
     // Data classes for JSON deserialization
@@ -541,6 +202,19 @@ namespace RPGGame
         /// <summary>Legacy WHILE_EQUIPPED effects; prefer <see cref="TriggerName"/>.</summary>
         [JsonPropertyName("equipEffects")]
         public List<ActionTriggerBundle>? EquipEffects { get; set; }
+
+        /// <summary>Class the base belongs to (barbarian / warrior / rogue / wizard).</summary>
+        [JsonPropertyName("class")]
+        public string? Class { get; set; }
+
+        /// <summary>Defense range at item level 1; the roller rolls inside it and scales by item level.</summary>
+        [JsonPropertyName("defenseMin")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
+        public int DefenseMin { get; set; }
+
+        [JsonPropertyName("defenseMax")]
+        [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
+        public int DefenseMax { get; set; }
     }
 
     public class WeaponData
@@ -594,14 +268,49 @@ namespace RPGGame
         /// <summary>Legacy WHILE_EQUIPPED effects; prefer <see cref="TriggerName"/>.</summary>
         [JsonPropertyName("equipEffects")]
         public List<ActionTriggerBundle>? EquipEffects { get; set; }
+
+        /// <summary>Class the base belongs to; when empty, the class tag in <see cref="Tags"/>.</summary>
+        [JsonPropertyName("class")]
+        public string? Class { get; set; }
+
+        /// <summary>Damage range at item level 1 (catalog damage + bonus range + tier bonus); rolled once, scaled by item level.</summary>
+        [JsonPropertyName("damageMin")]
+        public int DamageMin { get; set; }
+
+        [JsonPropertyName("damageMax")]
+        public int DamageMax { get; set; }
     }
 
+    /// <summary>One row of <c>RarityTable.json</c>.</summary>
     public class RarityData
     {
         public string Name { get; set; } = "";
+
+        /// <summary>Base roll weight (the balance patch's <c>itemAffixByRarity.rarityWeights</c> overrides it).</summary>
         public double Weight { get; set; }
-        public int StatBonuses { get; set; }
-        public int ActionBonuses { get; set; }
-        public int Modifications { get; set; }
+
+        /// <summary>Lowest item level this rarity can drop at (and be rolled up to).</summary>
+        public int MinLevel { get; set; } = 1;
+
+        /// <summary>Line counts per pool (material / stat / mechanic / action): [min, max]. Min lines always roll.</summary>
+        public Dictionary<string, int[]> Pools { get; set; } = new();
+
+        /// <summary>Most lines an item of this rarity can hold (exploding extras stop here).</summary>
+        public int MaxLines { get; set; }
+
+        /// <summary>Chance of each exploding extra line; every success rolls again.</summary>
+        public double Explode { get; set; }
+
+        public (int Min, int Max) PoolRange(string pool)
+        {
+            // Keys are lower-case pool names (the deserializer drops any comparer set here).
+            if (Pools != null && Pools.TryGetValue(pool.ToLowerInvariant(), out var r) && r != null && r.Length > 0)
+            {
+                int min = Math.Max(0, r[0]);
+                int max = r.Length > 1 ? Math.Max(min, r[1]) : min;
+                return (min, max);
+            }
+            return (0, 0);
+        }
     }
 }

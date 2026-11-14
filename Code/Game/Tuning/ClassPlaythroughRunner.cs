@@ -92,7 +92,7 @@ namespace RPGGame.Tuning
             {
                 for (int n = 0; n < ResolveStartLootPerLevel(StartAtLevel); n++)
                 {
-                    var item = LootGenerator.GenerateLoot(lvl, lvl, null, guaranteedLoot: true);
+                    var item = LootGenerator.GenerateLoot(lvl, lvl, null);
                     if (item != null)
                         hero.AddToInventory(item);
                 }

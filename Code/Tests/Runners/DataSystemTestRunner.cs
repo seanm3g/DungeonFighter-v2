@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RPGGame;
 using RPGGame.Tests.Unit.Config;
@@ -42,11 +42,9 @@ namespace RPGGame.Tests.Runners
             ("JsonLoader", () => JsonLoaderTests.RunAllTests()),
             ("LootGenerator", () => LootGeneratorTests.RunAllTests()),
             ("RoomSearchConsumable", () => RPGGame.Tests.Unit.World.RoomSearchConsumableTests.RunAllTests()),
-            ("LootItemSelector", () => LootItemSelectorTests.RunAllTests()),
             ("ItemGenerator", () => ItemGeneratorTests.RunAllTests()),
             ("WeaponTypeFromCatalog", () => WeaponTypeFromCatalogTests.RunAllTests()),
             ("StarterCatalogItems", () => StarterCatalogItemsTests.RunAllTests()),
-            ("LootBonusApplier", () => LootBonusApplierTests.RunAllTests()),
             ("MaterialTrigger", () => RPGGame.Tests.Unit.MaterialTriggerTests.RunAllTests()),
             ("ItemPrefixHelper", () => ItemPrefixHelperTests.RunAllTests()),
             ("ItemGetTotalArmorNullSafety", () => ItemGetTotalArmorNullSafetyTests.RunAllTests()),
@@ -62,7 +60,7 @@ namespace RPGGame.Tests.Runners
             ("ActionDescriptionEnhancer", () => ActionDescriptionEnhancerTests.RunAllTests()),
             ("LootTierCalculator", () => LootTierCalculatorTests.RunAllTests()),
             ("LootContext", () => LootContextTests.RunAllTests()),
-            ("LootRarityProcessor", () => LootRarityProcessorTests.RunAllTests()),
+            ("ItemRoller", () => ItemRollerTests.RunAllTests()),
             ("GameDataValidator", () => GameDataValidatorTests.RunAllTests()),
             ("ActionDataValidator", () => ActionDataValidatorTests.RunAllTests()),
         };

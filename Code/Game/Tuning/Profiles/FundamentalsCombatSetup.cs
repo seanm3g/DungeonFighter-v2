@@ -195,7 +195,7 @@ namespace RPGGame.Tuning.Profiles
 
             for (int i = 0; i < 4000 && !Full(); i++)
             {
-                var item = LootGenerator.GenerateLoot(level, level, null, guaranteedLoot: true);
+                var item = LootGenerator.GenerateLoot(level, level, null);
                 if (item is WeaponItem w)
                 {
                     if (!pool.Weapons.TryGetValue(w.WeaponType, out var wl))

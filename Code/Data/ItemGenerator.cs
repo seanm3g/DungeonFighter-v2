@@ -231,6 +231,9 @@ namespace RPGGame
         /// <returns>The generated item name (without rarity prefix)</returns>
         public static string GenerateItemNameWithBonuses(Item item)
         {
+            if (!string.IsNullOrWhiteSpace(item.BaseName))
+                return ComposeRolledItemName(item);
+
             string baseName = GetBaseItemName(item);
             var nameParts = new List<string>();
             
@@ -274,6 +277,33 @@ namespace RPGGame
             // Normalize any multiple spaces that might have been introduced
             result = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", " ");
             return result.Trim();
+        }
+
+        /// <summary>
+        /// Name of an item built by the item roller: <c>[Material] [best prefix keyword] Base [best suffix keyword]</c>.
+        /// "Best" = highest tier among that affix's lines (first rolled wins ties); every line still shows on the tooltip.
+        /// </summary>
+        internal static string ComposeRolledItemName(Item item)
+        {
+            var lines = (item.Modifications ?? new List<Modification>()).Select(m => m.ModLine)
+                .Concat((item.StatBonuses ?? new List<StatBonus>()).Select(s => s.ModLine))
+                .Where(l => l != null && !string.IsNullOrWhiteSpace(l.Keyword))
+                .Select(l => l!)
+                .ToList();
+            ItemModLineInfo? Best(string affix) => lines
+                .Where(l => string.Equals(l.Affix, affix, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(l => l.Tier)
+                .FirstOrDefault();
+
+            var parts = new List<string>();
+            if (!string.IsNullOrWhiteSpace(item.Material))
+                parts.Add(item.Material.Trim());
+            if (Best("prefix") is { } prefix)
+                parts.Add(prefix.Keyword.Trim());
+            parts.Add(item.BaseName.Trim());
+            if (Best("suffix") is { } suffix)
+                parts.Add(suffix.Keyword.Trim());
+            return System.Text.RegularExpressions.Regex.Replace(string.Join(" ", parts), @"\s+", " ").Trim();
         }
 
         /// <summary>

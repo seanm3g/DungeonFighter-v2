@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -26,7 +26,7 @@ namespace RPGGame.MCP.Tools.LootTuning
                 var items = new List<Item>();
                 for (int i = 0; i < count; i++)
                 {
-                    var item = LootGenerator.GenerateLoot(playerLevel, dungeonLevel, guaranteedLoot: true);
+                    var item = LootGenerator.GenerateLoot(playerLevel, dungeonLevel);
                     if (item != null)
                         items.Add(item);
                 }
@@ -59,7 +59,7 @@ namespace RPGGame.MCP.Tools.LootTuning
         {
             return McpToolExecutor.ExecuteAsync(() =>
             {
-                var item = LootGenerator.GenerateLoot(playerLevel, dungeonLevel, guaranteedLoot: true);
+                var item = LootGenerator.GenerateLoot(playerLevel, dungeonLevel);
 
                 if (item == null)
                 {
@@ -100,73 +100,6 @@ namespace RPGGame.MCP.Tools.LootTuning
             }, writeIndented: true);
         }
 
-        [McpServerTool(Name = "adjust_drop_rate", Title = "Adjust Drop Rate")]
-        [Description("Adjusts global loot drop rate parameters.")]
-        public static Task<string> AdjustDropRate(
-            [Description("Base drop chance (e.g., 0.15 = 15%)")] double? baseDropChance = null,
-            [Description("Drop chance per level (e.g., 0.005 = 0.5% per level)")] double? dropChancePerLevel = null)
-        {
-            return McpToolExecutor.ExecuteAsync(() =>
-            {
-                var config = GameConfiguration.Instance;
-                var oldValues = new
-                {
-                    baseDropChance = config.LootSystem.BaseDropChance,
-                    dropChancePerLevel = config.LootSystem.DropChancePerLevel
-                };
-
-                if (baseDropChance.HasValue)
-                    config.LootSystem.BaseDropChance = baseDropChance.Value;
-                if (dropChancePerLevel.HasValue)
-                    config.LootSystem.DropChancePerLevel = dropChancePerLevel.Value;
-
-                return new
-                {
-                    success = true,
-                    message = "Drop rates updated",
-                    oldValues = oldValues,
-                    newValues = new
-                    {
-                        baseDropChance = config.LootSystem.BaseDropChance,
-                        dropChancePerLevel = config.LootSystem.DropChancePerLevel
-                    }
-                };
-            }, writeIndented: true);
-        }
-
-        [McpServerTool(Name = "adjust_magic_find_effectiveness", Title = "Adjust Magic Find Effectiveness")]
-        [Description("Adjusts how effective Magic Find stat is for loot drops and upgrades.")]
-        public static Task<string> AdjustMagicFindEffectiveness(
-            [Description("Magic find effectiveness for drop chance (e.g., 0.001)")] double? dropEffectiveness = null,
-            [Description("Magic find bonus for rarity upgrades (e.g., 0.0001)")] double? upgradeBonus = null)
-        {
-            return McpToolExecutor.ExecuteAsync(() =>
-            {
-                var config = GameConfiguration.Instance;
-                var oldValues = new
-                {
-                    dropEffectiveness = config.LootSystem.MagicFindEffectiveness,
-                    upgradeBonus = config.LootSystem.RarityUpgrade.MagicFindBonus
-                };
-
-                if (dropEffectiveness.HasValue)
-                    config.LootSystem.MagicFindEffectiveness = dropEffectiveness.Value;
-                if (upgradeBonus.HasValue)
-                    config.LootSystem.RarityUpgrade.MagicFindBonus = upgradeBonus.Value;
-
-                return new
-                {
-                    success = true,
-                    message = "Magic find effectiveness updated",
-                    oldValues = oldValues,
-                    newValues = new
-                    {
-                        dropEffectiveness = config.LootSystem.MagicFindEffectiveness,
-                        upgradeBonus = config.LootSystem.RarityUpgrade.MagicFindBonus
-                    }
-                };
-            }, writeIndented: true);
-        }
     }
 }
 

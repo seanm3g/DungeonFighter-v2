@@ -1,4 +1,4 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using System;
@@ -228,10 +228,8 @@ namespace RPGGame.UI.Avalonia.Settings
                         string pct(double p) => p.ToString("0.##", CultureInfo.InvariantCulture) + "%";
                         string line = "When Rarity is Any, each item’s first rarity roll: " +
                                        string.Join(" · ", rows.Select(t => $"{t.Name} {pct(t.ProbabilityPercent)}"));
-                        bool upgrades = GameConfiguration.Instance?.LootSystem?.RarityUpgrade?.Enabled ?? false;
-                        string tail = upgrades
-                            ? " Rarity upgrade (TuningConfig): On — final rarity can step up from this base roll."
-                            : " Rarity upgrade (TuningConfig): Off. Magic find does not change this table; MF affects affix rolls only.";
+                        var up = GameConfiguration.Instance?.LootSystem?.ItemGeneration?.RarityRollUp;
+                        string tail = $" Rarity roll-up: {pct((up?.Chance ?? 0) * 100)} to step up a rarity (×{up?.Decay ?? 0:0.##} per further step, max {up?.Max ?? 0}); magic find scales roll-up chances.";
                         rarityPreview.Text = line + tail;
                     }
                 }
