@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using RPGGame.Combat.Events;
 using RPGGame.Data;
 
 namespace RPGGame.Tuning
@@ -36,6 +37,21 @@ namespace RPGGame.Tuning
             public List<string> FillSlotNodes { get; set; } = new();
             /// <summary>"when:ONCRITICAL" / "node:b-combo" → feature → weight. See <see cref="Features"/> for feature names.</summary>
             public Dictionary<string, Dictionary<string, double>> Rules { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+            /// <summary>
+            /// Verb preset (action <c>verb</c> column) → weight, applied only while its gear condition holds (see
+            /// <see cref="VerbSynergy"/>). Keys are <see cref="VerbKind"/> names (Cash, Scale, Invest, …).
+            /// </summary>
+            public Dictionary<string, double> VerbWeights { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+            /// <summary>
+            /// Item affix template (prefix Effect: LISTEN, TUNE, STORECOND, COUNTSDOUBLE, OPENER, FINISHER, BLOODPRICE,
+            /// CROSSWIRE) → value in <see cref="Profiles.ItemValueModel.AdjectivePrefixRate"/> units while its gear
+            /// condition holds (<see cref="AffixValue"/>); 0 otherwise. Unlisted templates keep the flat prefix value.
+            /// </summary>
+            public Dictionary<string, double> AffixWeights { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+            /// <summary>Skill score bonus for a cross-wire node whose source store the worn sets mint.</summary>
+            public double CrossWireNodeBonus { get; set; } = 0.3;
+            /// <summary>Skill score bonus for a Persistence capstone (Rite branch, carries stores between fights).</summary>
+            public double PersistNodeBonus { get; set; } = 0.2;
         }
 
         private static SynergyData? _data;
@@ -51,6 +67,7 @@ namespace RPGGame.Tuning
                 _data = File.Exists(path)
                     ? JsonSerializer.Deserialize<SynergyData>(File.ReadAllText(path), new JsonSerializerOptions { PropertyNameCaseInsensitive = true, ReadCommentHandling = JsonCommentHandling.Skip }) ?? new SynergyData()
                     : new SynergyData();
+                _data.Rules = CanonicalizeWhenKeys(_data.Rules);
                 return _data;
             }
         }
@@ -97,7 +114,7 @@ namespace RPGGame.Tuning
                 Set(f, "hit", Math.Clamp(Num(row, "heroHit", 0), -3, 3));
                 Set(f, "crit", Math.Clamp(Num(row, "heroCrit", 0), -3, 3));
                 Set(f, "combo", Math.Clamp(Num(row, "heroCombo", 0), -3, 3));
-                foreach (var (field, feature) in new[] { ("slow", "slow"), ("weaken", "weaken"), ("expose", "expose"), ("vulnerability", "vuln"),
+                foreach (var (field, feature) in new[] { ("slow", "slow"), ("weaken", "weaken"), ("expose", "expose"), ("vulnerability", "expose"),
                     ("harden", "harden"), ("pierce", "pierce"), ("confuse", "confuse"), ("disrupt", "disrupt"), ("onCrit", "oncrit"), ("onKill", "onkill") })
                     if (Num(row, field, 0) != 0)
                         f[feature] = 1;
@@ -129,6 +146,33 @@ namespace RPGGame.Tuning
         {
             string s = Str(row, key).Trim().TrimEnd('%');
             return double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out double d) ? d : fallback;
+        }
+
+        /// <summary>
+        /// <c>when:&lt;WHEN&gt;</c> keys resolve through <see cref="RPGGame.Combat.Events.TriggerEvents"/>, so an alias key
+        /// (<c>when:ONRECEIVEHIT</c>) matches the canonical token a material build reports (<c>ONTAKEHIT</c>).
+        /// A canonical key wins over an alias key for the same event.
+        /// </summary>
+        public static Dictionary<string, Dictionary<string, double>> CanonicalizeWhenKeys(
+            Dictionary<string, Dictionary<string, double>>? rules)
+        {
+            var result = new Dictionary<string, Dictionary<string, double>>(StringComparer.OrdinalIgnoreCase);
+            if (rules == null)
+                return result;
+            foreach (var (key, weights) in rules)
+            {
+                if (!key.StartsWith("when:", StringComparison.OrdinalIgnoreCase))
+                {
+                    result[key] = weights;
+                    continue;
+                }
+                string raw = key[5..];
+                string canonicalKey = "when:" + RPGGame.Combat.Events.TriggerEvents.NormalizeToken(raw);
+                bool isCanonical = string.Equals(RPGGame.Combat.Events.TriggerEvents.Strip(raw), canonicalKey[5..], StringComparison.OrdinalIgnoreCase);
+                if (isCanonical || !result.ContainsKey(canonicalKey))
+                    result[canonicalKey] = weights;
+            }
+            return result;
         }
 
         // ---------------------------------------------------------------- active sources
@@ -175,6 +219,104 @@ namespace RPGGame.Tuning
                 if (Data.Rules.TryGetValue(source, out var weights))
                     total += scale * Dot(weights, f);
             return total;
+        }
+
+        /// <summary>
+        /// Gear-aware score for a verb preset: the weight from <see cref="SynergyData.VerbWeights"/> when the preset
+        /// has something to work with. Attuned-store verbs (Cash, Scale, Invest, Distill) need the attuned material's
+        /// set formed; Liquidate / Transmute need two formed sets; Index scales with distinct materials past 2;
+        /// Detonate, Apply, Barrier and Palm always count. 0 for non-verb actions.
+        /// </summary>
+        public static double VerbSynergy(Character hero, string actionName)
+        {
+            var spec = VerbSpec.Parse(ActionLoader.GetActionData(actionName)?.Verb);
+            if (spec == null || !Data.VerbWeights.TryGetValue(spec.Kind.ToString(), out double w) || w == 0)
+                return 0;
+            var formed = FormedSets(hero);
+            string? attuned = Attunement.GetMaterial(hero);
+            bool attunedFormed = attuned != null
+                && formed.Any(s => string.Equals(s.Material, attuned, StringComparison.OrdinalIgnoreCase));
+            return spec.Kind switch
+            {
+                VerbKind.Cash or VerbKind.Scale or VerbKind.Invest or VerbKind.Distill => attunedFormed ? w : 0,
+                VerbKind.Liquidate => formed.Count >= 2 ? w : 0,
+                VerbKind.Transmute => formed.Count >= 2 || ConversionTable.OwnsAny(hero) ? w : 0,
+                VerbKind.Index => w * Math.Max(0, Attunement.CountDistinctMaterials(hero) - 2),
+                _ => w
+            };
+        }
+
+        // ---------------------------------------------------------------- affixes, cross-wires, capstones
+
+        /// <summary>Mint keywords of <paramref name="materials"/> (each set material's currency).</summary>
+        public static HashSet<string> KeywordsOf(IEnumerable<string> materials) =>
+            new(materials.Select(m => MaterialBuildsLoader.FindByMaterial(m)?.Keyword ?? "").Where(k => k.Length > 0),
+                StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// A cross-wire pays only if its source can happen: a mint store named by <c>ONCASH:&lt;store&gt;</c> or
+        /// <c>IF &lt;store&gt;&gt;=n</c> must be one the planned sets mint. Rules on other events always count.
+        /// </summary>
+        public static bool CrossWireUseful(CrossWireRule rule, ISet<string> keywords)
+        {
+            foreach (string? store in new[] { SourceStore(rule.When), rule.IfStore })
+                if (!string.IsNullOrWhiteSpace(store) && Stores.TryGet(store, out var def) && def.Kind == StoreKind.Mint
+                    && !keywords.Contains(def.Id))
+                    return false;
+            return true;
+        }
+
+        private static string? SourceStore(string when)
+        {
+            int colon = when.IndexOf(':');
+            return colon > 0 && TriggerEvents.Strip(when[..colon]).Equals("ONCASH", StringComparison.OrdinalIgnoreCase)
+                ? when[(colon + 1)..]
+                : null;
+        }
+
+        /// <summary>
+        /// Gear-aware adjustment to <see cref="Profiles.ItemValueModel.Score"/> for affix templates on
+        /// <paramref name="item"/>, given the set materials the hero is building (<paramref name="planned"/>). The flat
+        /// adjective value the model already counted is replaced by <see cref="SynergyData.AffixWeights"/>[effect] ×
+        /// the prefix rate when the condition holds, else 0: LISTEN / TUNE / STORECOND / COUNTSDOUBLE need the piece's
+        /// material in the plan; CROSSWIRE needs <see cref="CrossWireUseful"/>; OPENER / FINISHER / BLOODPRICE always hold.
+        /// </summary>
+        public static double AffixValue(Item item, ICollection<string> planned)
+        {
+            if (item?.Modifications == null || Data.AffixWeights.Count == 0)
+                return 0;
+            string material = ItemMaterialRules.RemapLegacyMaterial(item.Material) ?? "";
+            bool inPlan = material.Length > 0 && planned.Contains(material, StringComparer.OrdinalIgnoreCase);
+            HashSet<string>? keywords = null;
+            double rate = Profiles.ItemValueModel.AdjectivePrefixRate;
+            double delta = 0;
+            foreach (var m in item.Modifications)
+            {
+                if (m == null || string.IsNullOrWhiteSpace(m.Effect) || !Data.AffixWeights.TryGetValue(m.Effect, out double w))
+                    continue;
+                if (m.GetPrefixCategory() != ModificationPrefixCategory.Adjective)
+                    continue;
+                bool holds = m.Effect.ToUpperInvariant() switch
+                {
+                    "LISTEN" or "TUNE" or "STORECOND" or "COUNTSDOUBLE" => inPlan,
+                    "CROSSWIRE" or "RULE" => CrossWires.RulesOf(m, item.Name).ToList() is { Count: > 0 } rules
+                                   && rules.All(r => CrossWireUseful(r, keywords ??= KeywordsOf(planned))),
+                    _ => true
+                };
+                delta += (holds ? w * rate : 0) - rate;
+            }
+            return delta;
+        }
+
+        /// <summary>Skill pick bonus for cross-wire nodes the worn sets can feed and for Persistence capstones.</summary>
+        public static double NodeRuleBonus(SkillTreeNodeDefinition node, ISet<string> keywords)
+        {
+            double bonus = 0;
+            if (CrossWireRule.Parse(node.CrossWire) is { } rule && CrossWireUseful(rule, keywords))
+                bonus += Data.CrossWireNodeBonus;
+            if (!string.IsNullOrWhiteSpace(node.Persist))
+                bonus += Data.PersistNodeBonus;
+            return bonus;
         }
 
         /// <summary>"node:" weights of <paramref name="nodeId"/> averaged over <paramref name="strip"/>'s features.</summary>

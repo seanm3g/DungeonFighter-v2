@@ -18,7 +18,7 @@ namespace RPGGame
             ("blood_frenzy", new[] { "bleed", "stun" }, DynamicAttributeCategoryResolver.CodeStrength, 6),
             ("pinning_drill", new[] { "slow", "weaken" }, DynamicAttributeCategoryResolver.CodeAgility, 8),
             ("toxic_insight", new[] { "poison", "expose" }, DynamicAttributeCategoryResolver.CodeTechnique, 1),
-            ("kindled_mind", new[] { "burn", "vulnerability" }, DynamicAttributeCategoryResolver.CodeIntelligence, 1),
+            ("kindled_mind", new[] { "burn", "expose" }, DynamicAttributeCategoryResolver.CodeIntelligence, 1),
         };
 
         /// <summary>Attribute points status-trigger skills have granted, never reset (sim fight logs diff it).</summary>

@@ -692,10 +692,9 @@ namespace RPGGame
             if (heroGearPool.Count == 0)
                 return;
 
-            WeaponType? heroWeaponType = GearActionPools.WeaponTypeForClass(context?.PlayerClass);
             for (int i = 0; i < count; i++)
             {
-                var chosen = GearActionPools.Pick(item, heroGearPool, _random, heroWeaponType);
+                var chosen = GearActionPools.Pick(item, heroGearPool, _random, context?.HeroClassTags);
                 if (chosen != null)
                     item.ActionBonuses.Add(chosen);
             }
@@ -767,8 +766,17 @@ namespace RPGGame
             if (pool.Count == 0)
                 return null;
 
+            // Listener prefixes need a slot with an event family; other slots never roll them.
+            if (ListenerAffix.SlotFamily(item) == null)
+                pool = pool.Where(m => !ListenerAffix.IsListener(m)).ToList();
+            if (pool.Count == 0)
+                return null;
+
             Modification template = PickWeighted(pool, m => m.Weight);
-            return CloneRolledModification(template, diceBonus);
+            var rolled = CloneRolledModification(template, diceBonus);
+            if (rolled != null && ListenerAffix.IsListener(rolled) && !ListenerAffix.RollEvent(rolled, item, _random))
+                return null;
+            return rolled;
         }
 
         /// <summary>
@@ -862,6 +870,8 @@ namespace RPGGame
                 Name = template.Name,
                 Description = template.Description,
                 Effect = template.Effect,
+                TriggerWhen = template.TriggerWhen,
+                CrossWire = template.CrossWire,
                 MinValue = template.MinValue,
                 MaxValue = template.MaxValue,
                 RolledValue = RollValueBetween(template.MinValue, template.MaxValue),
@@ -870,6 +880,9 @@ namespace RPGGame
             };
             if (template.AttributeRequirements != null && template.AttributeRequirements.Count > 0)
                 clone.AttributeRequirements = new AttributeRequirements(new Dictionary<string, int>(template.AttributeRequirements));
+            // Rule prefixes: the card shows the rules with the rolled value.
+            if (AffixTemplates.Is(clone, CrossWires.RuleEffect) && CrossWires.DescribeMod(clone) is { } ruleText)
+                clone.Description = ruleText;
             return clone;
         }
 

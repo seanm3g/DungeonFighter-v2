@@ -68,6 +68,10 @@ namespace RPGGame
                 AccumulateRollBonus(b, ref accuracy, ref hit, ref combo, ref crit, ref critMiss);
             foreach (var b in hero.DungeonCadenceBuffs.Bonuses)
                 AccumulateRollBonus(b, ref accuracy, ref hit, ref combo, ref crit, ref critMiss);
+            // Item / skill rules: WHILE -> HIT / COMBO / CRIT ±n.
+            hit += (int)System.Math.Round(CrossWires.Passive(hero, "HIT"));
+            combo += (int)System.Math.Round(CrossWires.Passive(hero, "COMBO"));
+            crit += (int)System.Math.Round(CrossWires.Passive(hero, "CRIT"));
         }
 
         private static void AccumulateRollBonus(

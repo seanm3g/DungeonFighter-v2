@@ -38,8 +38,9 @@ namespace RPGGame.Tests.Unit.Entity
             c.StunTurnsRemaining = 2;
             c.HasCriticalMissPenalty = true;
             c.CriticalMissPenaltyTurns = 1;
-            c.VulnerabilityStacks = 2;
-            c.VulnerabilityTurns = 3;
+            c.ExposeStacks = 2;
+            c.ExposeTurns = 3;
+            c.ExposeArmorStrip = 0.2;
             c.TemporaryHP = 10;
             c.TemporaryHPTurns = 2;
             c.IsConfused = true;
@@ -56,8 +57,9 @@ namespace RPGGame.Tests.Unit.Entity
             TestBase.AssertEqual(0, c.AcidArmorReduction, "Acid armor shred cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertFalse(c.IsStunned, "Stun cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertFalse(c.HasCriticalMissPenalty, "Crit miss penalty cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertNull(c.VulnerabilityStacks, "Vulnerability stacks cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0, c.VulnerabilityTurns, "Vulnerability turns cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertNull(c.ExposeStacks, "Expose stacks cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, c.ExposeTurns, "Expose turns cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0.0, c.ExposeArmorStrip, "Expose armor strip cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertNull(c.TemporaryHP, "Temp HP cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertFalse(c.IsConfused, "Confusion cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(c.ConfusionChance == 0, "Confusion chance cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);

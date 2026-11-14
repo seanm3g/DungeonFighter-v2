@@ -69,8 +69,6 @@ namespace RPGGame
         public int CriticalMissPenaltyTurns { get; set; } = 0;
         
         // Advanced status effects (Phase 2)
-        public int? VulnerabilityStacks { get; set; } = null;
-        public int VulnerabilityTurns { get; set; } = 0;
         public int? HardenStacks { get; set; } = null;
         public int HardenTurns { get; set; } = 0;
         public int? FortifyStacks { get; set; } = null;
@@ -80,13 +78,11 @@ namespace RPGGame
         public int FocusTurns { get; set; } = 0;
         public int? ExposeStacks { get; set; } = null;
         public int ExposeTurns { get; set; } = 0;
-        public int? ExposeArmorReduction { get; set; } = null;
+        /// <summary>Expose tier 2: fraction of armor stripped while Exposed (see <see cref="ExposeStatus"/>).</summary>
+        public double ExposeArmorStrip { get; set; }
         public int? HPRegenStacks { get; set; } = null;
         public int HPRegenTurns { get; set; } = 0;
         public int? HPRegenAmount { get; set; } = null;
-        public int? ArmorBreakStacks { get; set; } = null;
-        public int ArmorBreakTurns { get; set; } = 0;
-        public int? ArmorBreakReduction { get; set; } = null;
         public bool HasPierce { get; set; } = false;
         public int PierceTurns { get; set; } = 0;
         public int? ReflectStacks { get; set; } = null;
@@ -292,8 +288,7 @@ namespace RPGGame
             // Incoming-damage statuses cover the opponent's swings until this actor acts again.
             int ticks = (int)Math.Ceiling(turnsPassed);
             HardenTurns = TickStackStatus(HardenTurns, ticks, () => HardenStacks = null);
-            VulnerabilityTurns = TickStackStatus(VulnerabilityTurns, ticks, () => VulnerabilityStacks = null);
-            ExposeTurns = TickStackStatus(ExposeTurns, ticks, () => ExposeStacks = null);
+            ExposeTurns = TickStackStatus(ExposeTurns, ticks, () => { ExposeStacks = null; ExposeArmorStrip = 0; });
             
             // Update damage reduction decay (per turn, not per action)
             if (DamageReduction > 0)
@@ -526,8 +521,6 @@ namespace RPGGame
             HasCriticalMissPenalty = false;
             CriticalMissPenaltyTurns = 0;
 
-            VulnerabilityStacks = null;
-            VulnerabilityTurns = 0;
             HardenStacks = null;
             HardenTurns = 0;
             FortifyStacks = null;
@@ -537,13 +530,10 @@ namespace RPGGame
             FocusTurns = 0;
             ExposeStacks = null;
             ExposeTurns = 0;
-            ExposeArmorReduction = null;
+            ExposeArmorStrip = 0;
             HPRegenStacks = null;
             HPRegenTurns = 0;
             HPRegenAmount = null;
-            ArmorBreakStacks = null;
-            ArmorBreakTurns = 0;
-            ArmorBreakReduction = null;
             HasPierce = false;
             PierceTurns = 0;
             ReflectStacks = null;

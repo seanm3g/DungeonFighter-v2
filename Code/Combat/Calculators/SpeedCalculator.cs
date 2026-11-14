@@ -260,6 +260,10 @@ namespace RPGGame.Combat.Calculators
                 + MaterialSetController.GetSetSpeedPercent(hero));
 
             double raw = baseSeconds * agilityFactor * weaponFactor * slowFactor / (1.0 + setPct / 100.0);
+            // Item / skill rules: WHILE -> SPEED ±n% (+ = faster), floored at -50%.
+            double ruleSpeed = Math.Max(-50, CrossWires.Passive(hero, "SPEED"));
+            if (ruleSpeed != 0)
+                raw /= 1.0 + ruleSpeed / 100.0;
             return new SpeedBreakdown
             {
                 BaseSeconds = baseSeconds,

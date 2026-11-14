@@ -658,10 +658,6 @@ namespace RPGGame
             return ActionMechanicsRegistry.NormalizeMechanicId(id);
         }
 
-        private static bool IsTakeHitWhen(string? when)
-        {
-            string t = ActionTriggerGate.NormalizeToken(when ?? "");
-            return t is "ONTAKEHIT" or "ONHEROHURT";
-        }
+        private static bool IsTakeHitWhen(string? when) => TriggerEvents.IsTakeHit(when);
     }
 }

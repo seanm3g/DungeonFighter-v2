@@ -69,6 +69,7 @@ namespace RPGGame.Data
         {
             lock (CacheLock)
                 _cache = null;
+            Stores.Reload();
         }
 
         public static void Reload()

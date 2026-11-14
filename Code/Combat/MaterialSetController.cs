@@ -56,7 +56,7 @@ namespace RPGGame
                 else if (partnerMaterials.Any(m => string.Equals(m, itemMat, StringComparison.OrdinalIgnoreCase)))
                     joiners++;
             }
-            return count > 0 ? count + joiners : 0;
+            return count > 0 ? count + joiners + AffixTemplates.ExtraSetCount(hero, key) : 0;
         }
 
         /// <summary>
@@ -308,11 +308,15 @@ namespace RPGGame
         /// top attribute when the currency has no set) for the rest of the fight. Fractions carry within the fight.
         /// Returns the points granted.
         /// </summary>
-        public static int GrantConvertPrimaryStat(Character? hero, string? keyword, int unitsSpent)
+        public static int GrantConvertPrimaryStat(Character? hero, string? keyword, int unitsSpent) =>
+            GrantConvertPrimaryStat(hero, keyword, unitsSpent, 1.0);
+
+        /// <param name="share">Fraction of the convert payout (verb presets: CASH IN pays 75%).</param>
+        public static int GrantConvertPrimaryStat(Character? hero, string? keyword, int unitsSpent, double share)
         {
-            if (hero == null || hero is Enemy || unitsSpent <= 0 || string.IsNullOrWhiteSpace(keyword))
+            if (hero == null || hero is Enemy || unitsSpent <= 0 || share <= 0 || string.IsNullOrWhiteSpace(keyword))
                 return 0;
-            double per = GetConvertPrimaryStatPerUnit(keyword);
+            double per = GetConvertPrimaryStatPerUnit(keyword) * share;
             if (per <= 0)
                 return 0;
             // With damage off the charm's convert multiplier scales the stat payout instead.
@@ -394,6 +398,8 @@ namespace RPGGame
             _fightConvertStat.Remove(hero);
             _fightConvertStatRaw.Remove(hero);
             _fightConvertAgility.Remove(hero);
+            RPGGame.Combat.Events.HeroEventHub.ResetFight(hero);
+            CrossWires.ResetFight(hero);
         }
 
         /// <summary>Clears dungeon-run keyword currency (CRISIS, DRAG, …) and consecutive-connect tracking.</summary>
@@ -408,6 +414,7 @@ namespace RPGGame
                 return;
             var evt = new CombatEvent(CombatEventType.TurnStarted, hero) { Target = hero };
             TryMintFromEvent(hero, evt, action: null);
+            RPGGame.Combat.Events.HeroEventHub.OnHeroTurnStart(hero);
         }
 
         /// <param name="gainedFocus">The hero gained Focus from any source in this resolution (feeds ON_FOCUS).</param>
@@ -422,6 +429,15 @@ namespace RPGGame
 
             bool any = false;
             Action subject = action ?? combatEvent.Action ?? new Action { Name = "MaterialSynth" };
+            // A token matches directly (own events vs a foe's hit on the hero kept apart), or through an Alias rule
+            // (ONMISS -> COUNTAS ONTAKEHIT) whose source event matches this event.
+            var aliases = CrossWires.Aliases(hero);
+            var aliasTarget = takeHitOnly ? combatEvent.Source : combatEvent.Target;
+            bool Direct(string token) => takeHitOnly == IsTakeHitToken(token)
+                && WhenMatches(token, subject, combatEvent, hero, gainedFocus, appliedSlow);
+            bool Matches(string token) => Direct(token)
+                || (aliases.Count > 0 && aliases.Any(a => TriggerEvents.SameEvent(a.Store, token) && Direct(a.When)
+                    && CrossWires.ConditionsHold(hero, aliasTarget, a, combatEvent.Damage, combatEvent)));
             foreach (var build in MaterialBuildsLoader.GetAll())
             {
                 int unlock = CountEquipped(hero, build.Material);
@@ -429,24 +445,40 @@ namespace RPGGame
                     continue;
                 if (string.IsNullOrWhiteSpace(build.WhenToken) || string.IsNullOrWhiteSpace(build.Keyword))
                     continue;
-                if (takeHitOnly != IsTakeHitToken(build.WhenToken))
-                    continue;
-                if (!WhenMatches(build.WhenToken, subject, combatEvent, hero, gainedFocus, appliedSlow))
+                if (!Matches(build.WhenToken))
                     continue;
 
                 int amount = ComputeMintPerTrigger(hero, build);
                 if (amount <= 0)
                     continue;
-                hero.Effects.AddMaterialKeyword(build.Keyword, amount);
-                RecordFightMint(hero, build.Keyword, amount);
                 string whenLabel = MaterialBuildData.FormatWhenLabel(build.Synthesis);
                 string cause = string.IsNullOrWhiteSpace(subject.Name) || subject.Name == "MaterialSynth"
                     ? whenLabel
                     : $"{subject.Name} · {whenLabel}";
-                hero.Effects.SetMaterialKeywordSource(build.Keyword, cause);
+                MintKeyword(hero, build.Keyword, amount, cause);
                 any = true;
             }
+            Func<string, bool> matches = Matches;
+            any |= ListenerAffix.MintFromCombatEvent(hero, matches, takeHitOnly);
+            CrossWires.OnCombatEvent(hero, matches, takeHitOnly, combatEvent);
             return any;
+        }
+
+        /// <summary>
+        /// Adds minted currency: bank, this fight's minted tally, the "last from" source line, and ONSTOREFULL when the
+        /// bank crosses <see cref="CombatConfig.MintStoreFullThreshold"/>. Every mint path (set WHENs, Listener
+        /// affixes, hub events) goes through here.
+        /// </summary>
+        public static void MintKeyword(Character hero, string keyword, int amount, string cause)
+        {
+            if (amount <= 0 || string.IsNullOrWhiteSpace(keyword))
+                return;
+            amount += AffixTemplates.MintBonus(hero, keyword);
+            int before = hero.Effects.GetMaterialKeyword(keyword);
+            hero.Effects.AddMaterialKeyword(keyword, amount);
+            RecordFightMint(hero, keyword, amount);
+            hero.Effects.SetMaterialKeywordSource(keyword, cause);
+            RPGGame.Combat.Events.HeroEventHub.OnMintChanged(hero, keyword, before, before + amount);
         }
 
         /// <summary>Keyword minted each time the set's WHEN fires with the hero's current gear, charm and skills (0 below 2 pieces).</summary>
@@ -562,6 +594,7 @@ namespace RPGGame
             {
                 hero.Effects.AddMaterialKeyword(keyword, -bank);
                 GrantConvertPrimaryStat(hero, keyword, bank);
+                RPGGame.Combat.Events.HeroEventHub.OnCash(hero, keyword, bank);
             }
             return bank;
         }
@@ -806,8 +839,7 @@ namespace RPGGame
 
         private static string Mark(int have, int need) => have >= need ? "> " : "  ";
 
-        private static bool IsTakeHitToken(string whenToken) =>
-            ActionTriggerGate.NormalizeToken(whenToken) is "ONTAKEHIT" or "ONHEROHURT" or "ONRECEIVEHIT";
+        private static bool IsTakeHitToken(string whenToken) => TriggerEvents.IsTakeHit(whenToken);
 
         private static bool WhenMatches(string whenToken, Action action, CombatEvent combatEvent, Character hero,
             bool gainedFocus = false, bool appliedSlow = false)
@@ -821,9 +853,7 @@ namespace RPGGame
                         || combatEvent.Type == CombatEventType.ActionMiss
                         || combatEvent.Type == CombatEventType.ActionExecuted);
             if (token == "ONCONSECUTIVEATTACK")
-                return hero.Effects.MaterialConsecutiveConnects >= 2
-                    && combatEvent.Type == CombatEventType.ActionHit
-                    && !combatEvent.IsMiss;
+                return ActionTriggerGate.IsHitStreak(hero, combatEvent);
             if (token == "ONSLOW")
                 return !combatEvent.IsMiss
                     && combatEvent.Type == CombatEventType.ActionHit

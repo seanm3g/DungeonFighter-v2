@@ -75,6 +75,8 @@ namespace RPGGame.Data
             row.ScaleFormula = !string.IsNullOrWhiteSpace(data.ScaleFormula)
                 ? data.ScaleFormula
                 : (baseRow?.ScaleFormula ?? "");
+            row.Verb = !string.IsNullOrWhiteSpace(data.Verb) ? data.Verb : (baseRow?.Verb ?? "");
+            row.Cost = !string.IsNullOrWhiteSpace(data.Cost) ? data.Cost : (baseRow?.Cost ?? "");
 
             row.Damage = FormatDamage(data.DamageMultiplier);
             row.Speed = data.Length.ToString("F2");

@@ -417,7 +417,7 @@
           "label": "class strip",
           "strip": [
             "BLUDGEON",
-            "VULNERABILITY",
+            "EXPOSE",
             "SLAM",
             "SLAM"
           ]
@@ -429,7 +429,7 @@
           },
           "strip": [
             "BLUDGEON",
-            "VULNERABILITY",
+            "EXPOSE",
             "IRON CULL",
             "SLAM"
           ]
@@ -1044,7 +1044,7 @@
           "label": "class strip",
           "strip": [
             "STAB",
-            "VULNERABILITY",
+            "EXPOSE",
             "STAB",
             "RETRIGGER OPENER"
           ]
@@ -1056,7 +1056,7 @@
           },
           "strip": [
             "STAB",
-            "VULNERABILITY",
+            "EXPOSE",
             "HEADHUNT",
             "RETRIGGER OPENER"
           ]

@@ -33,7 +33,7 @@ namespace RPGGame
 
         private string? _baseName;
 
-        /// <summary>Tags the prefix added. Kept apart from <see cref="Tags"/> so they drive no mechanics yet.</summary>
+        /// <summary>Tags the prefix added. Kept apart from <see cref="Tags"/>; item rules read them (<c>IF PREFIX undead</c>).</summary>
         public IReadOnlyList<string> PrefixTags => _prefixTags;
 
         private readonly List<string> _prefixTags = new List<string>();

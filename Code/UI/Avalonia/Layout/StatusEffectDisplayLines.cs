@@ -15,9 +15,9 @@ namespace RPGGame.UI.Avalonia.Layout
         private static readonly (string Prefix, string Icon)[] IconPrefixes =
         {
             ("Weakened (", "weaken"), ("Stunned (", "stun"), ("Poison ", "poison"), ("Bleed ", "bleed"),
-            ("Burn ", "burn"), ("Acid ", "acid"), ("Vuln x", "vulnerability"), ("Harden x", "harden"),
+            ("Burn ", "burn"), ("Acid ", "acid"), ("Harden x", "harden"),
             ("Fortify x", "fortify"), ("Focus x", "focus"), ("Expose x", "expose"), ("HP Regen x", "hpregen"),
-            ("Armor brk x", "armorbreak"), ("Pierce (", "pierce"), ("Silence (", "silence"), ("Absorb (", "absorb"),
+            ("Pierce (", "pierce"), ("Silence (", "silence"), ("Absorb (", "absorb"),
             ("Temp HP (", "temporaryhp"), ("Confused (", "confusion"), ("Marked (", "mark"), ("Slow (", "slow"),
             ("Stat drain x", "statdrain"), ("Accuracy ", "accuracy"), ("Advantage ", "advantage"),
             ("Disadvantage ", "disadvantage"), ("Crit miss (", "critmiss"), ("Reflect x", "reflect"),
@@ -121,8 +121,6 @@ namespace RPGGame.UI.Avalonia.Layout
             }
             if (actor.HasCriticalMissPenalty && actor.CriticalMissPenaltyTurns > 0)
                 lines.Add($"Crit miss ({actor.CriticalMissPenaltyTurns} turn{(actor.CriticalMissPenaltyTurns != 1 ? "s" : "")})");
-            if (actor.VulnerabilityStacks > 0 && actor.VulnerabilityTurns > 0)
-                lines.Add($"Vuln x{actor.VulnerabilityStacks} ({actor.VulnerabilityTurns}t)");
             if (actor.HardenStacks > 0 && actor.HardenTurns > 0)
                 lines.Add($"Harden x{actor.HardenStacks} ({actor.HardenTurns}t)");
             if (actor.FortifyStacks > 0 && actor.FortifyTurns > 0)
@@ -130,11 +128,11 @@ namespace RPGGame.UI.Avalonia.Layout
             if (actor.FocusStacks > 0 && actor.FocusTurns > 0)
                 lines.Add($"Focus x{actor.FocusStacks} ({actor.FocusTurns}t)");
             if (actor.ExposeStacks > 0 && actor.ExposeTurns > 0)
-                lines.Add($"Expose x{actor.ExposeStacks} ({actor.ExposeTurns}t)");
+                lines.Add(ExposeStatus.IsArmorStripped(actor)
+                    ? $"Expose x{actor.ExposeStacks} −{(int)Math.Round(actor.ExposeArmorStrip * 100)}% armor ({actor.ExposeTurns}t)"
+                    : $"Expose x{actor.ExposeStacks} ({actor.ExposeTurns}t)");
             if (actor.HPRegenStacks > 0 && actor.HPRegenTurns > 0)
                 lines.Add($"HP Regen x{actor.HPRegenStacks} ({actor.HPRegenTurns}t)");
-            if (actor.ArmorBreakStacks > 0 && actor.ArmorBreakTurns > 0)
-                lines.Add($"Armor brk x{actor.ArmorBreakStacks} ({actor.ArmorBreakTurns}t)");
             if (actor.StatDrainStacks > 0 && actor.StatDrainTurns > 0)
                 lines.Add($"Stat drain x{actor.StatDrainStacks} ({actor.StatDrainTurns}t)");
             if (actor.HasPierce && actor.PierceTurns > 0)

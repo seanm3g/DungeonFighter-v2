@@ -112,12 +112,12 @@ namespace RPGGame.Tests.Unit
             var enemy = TestDataBuilders.Enemy().WithName("TestEnemy").Build();
             var registry = new EffectHandlerRegistry();
 
-            // Test Vulnerability
+            // Test Vulnerability (folded into Expose)
             var vulnAction = TestDataBuilders.CreateMockAction("VulnAction");
             var vulnResults = new List<string>();
             registry.ApplyEffect("vulnerability", enemy, vulnAction, vulnResults);
-            TestBase.AssertTrue(enemy.VulnerabilityStacks > 0 && enemy.VulnerabilityTurns > 0,
-                $"Vulnerability should apply: stacks={enemy.VulnerabilityStacks}, turns={enemy.VulnerabilityTurns}",
+            TestBase.AssertTrue(enemy.ExposeStacks > 0 && enemy.ExposeTurns > 0,
+                $"Vulnerability should apply Expose: stacks={enemy.ExposeStacks}, turns={enemy.ExposeTurns}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test Harden
@@ -152,12 +152,13 @@ namespace RPGGame.Tests.Unit
                 $"HP Regen should apply: stacks={character.HPRegenStacks}, turns={character.HPRegenTurns}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test Armor Break
+            // Test Armor Break (folded into Expose)
+            int exposeBeforeBreak = enemy.ExposeStacks ?? 0;
             var armorbreakAction = TestDataBuilders.CreateMockAction("ArmorBreakAction");
             var armorbreakResults = new List<string>();
             registry.ApplyEffect("armorbreak", enemy, armorbreakAction, armorbreakResults);
-            TestBase.AssertTrue(enemy.ArmorBreakStacks > 0 && enemy.ArmorBreakTurns > 0,
-                $"Armor Break should apply: stacks={enemy.ArmorBreakStacks}, turns={enemy.ArmorBreakTurns}",
+            TestBase.AssertTrue((enemy.ExposeStacks ?? 0) > exposeBeforeBreak || enemy.ExposeArmorStrip > 0,
+                $"Armor Break should apply Expose: stacks={enemy.ExposeStacks}, strip={enemy.ExposeArmorStrip}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test Pierce

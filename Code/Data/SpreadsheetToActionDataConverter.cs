@@ -170,6 +170,8 @@ namespace RPGGame.Data
             actionData.MaterialScale = spreadsheet.MaterialScale ?? "";
             actionData.KeywordScale = spreadsheet.KeywordScale ?? "";
             actionData.ScaleFormula = spreadsheet.ScaleFormula ?? "";
+            actionData.Verb = spreadsheet.Verb ?? "";
+            actionData.Cost = spreadsheet.Cost ?? "";
 
             // Combo properties: hero actions use the combo strip; environment hazards override below.
             actionData.IsComboAction = true;

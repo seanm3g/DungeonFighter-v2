@@ -542,8 +542,7 @@ namespace RPGGame.Items.ItemTriggerScenario
                        || hero.CurrentHealth != hpBefore
                        || nestedCount > 0
                        || messages.Count > 0
-                       || (foe is Character ef && (ef.IsWeakened || ef.HasPierce || ef.ExposeTurns > 0
-                                                  || ef.VulnerabilityTurns > 0));
+                       || (foe is Character ef && (ef.IsWeakened || ef.HasPierce || ef.ExposeTurns > 0));
             return new Evaluation(any,
                 any
                     ? $"mechanic produced an observable combat effect ({mech})"
@@ -600,7 +599,7 @@ namespace RPGGame.Items.ItemTriggerScenario
                 "harden" => a.HardenTurns > 0 || (a.HardenStacks ?? 0) > 0,
                 "fortify" => a.FortifyTurns > 0 || (a.FortifyStacks ?? 0) > 0,
                 "pierce" => a.HasPierce || a.PierceTurns > 0,
-                "vulnerability" => a.VulnerabilityTurns > 0 || (a.VulnerabilityStacks ?? 0) > 0,
+                "vulnerability" or "armorbreak" or "expose" => a.ExposeTurns > 0 || (a.ExposeStacks ?? 0) > 0, // folded into Expose
                 "bleed" => a.BleedIntensity > 0 || a.PendingBleedFromHits > 0,
                 "burn" => a.BurnIntensity > 0 || a.PendingBurnFromHits > 0,
                 "poison" => a.PoisonPercentOfMaxHealth > 0,

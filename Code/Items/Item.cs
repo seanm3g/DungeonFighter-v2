@@ -198,6 +198,9 @@ namespace RPGGame
         /// </summary>
         [JsonPropertyName("triggerWhen")]
         public string TriggerWhen { get; set; } = "";
+        /// <summary>CROSSWIRE prefixes: the rule (<c>ONCASH:RAGE -> MINT GRAZE 50%</c>); see <see cref="CrossWires"/>.</summary>
+        [JsonPropertyName("crossWire")]
+        public string CrossWire { get; set; } = "";
         public double MinValue { get; set; } = 0;
         public double MaxValue { get; set; } = 0;
         public double RolledValue { get; set; } = 0; // The actual rolled value between MinValue and MaxValue

@@ -51,7 +51,9 @@ Actor (abstract)               — action pool, all status effects
 
 **`Actor`** (`Code/Entity/Actor.cs`) — base for every combat participant.
 - `ActionPool` — list of `(Action, probability)` tuples; `SelectAction()` does weighted random pick
-- Status effects stored directly: poison/burn/bleed (DoT), stun, weaken, roll penalty, damage reduction, vulnerability, harden, fortify, focus, expose, HP regen, armor break, pierce, reflect, silence, stat drain, absorb, temp HP, confusion, mark
+- Status effects stored directly: poison/burn/bleed (DoT), stun, weaken, roll penalty, damage reduction, harden, fortify, focus, expose, HP regen, pierce, reflect, silence, stat drain, absorb, temp HP, confusion, mark
+- Expose (`ExposeStatus`) absorbed Vulnerability and Armor Break (2026-11-11): stacks to `StatusMaxStacks` remove Defense; applications at the cap strip armor (tier 2). `vulnerability` / `armorbreak` effect ids still load as Expose
+- `Stores` (`Code/Combat/Stores.cs`) — one read / add / spend interface over material mints (RAGE, GRAZE…), statuses and hero resources; `TriggerEvents` (`Code/Combat/Events/TriggerEvents.cs`) — the single trigger event vocabulary (canonical WHEN tokens, aliases, labels, slot families)
 - DoT tick methods: `ProcessPoison`, `ProcessBurn`, `ProcessBleedOnAction`
 - `UpdateTempEffects(actionLength)` — decay all timed effects each turn
 
@@ -135,7 +137,16 @@ Item mods are defined in `GameData/ModificationTables.json`.
 Actions loaded from `GameData/ActionTables.json` via `ActionLoader`.  
 `Action` has: Name, Type (`ActionType`: Attack, Spell, Support, etc.), Tags (string list), ComboOrder, length, damage/effect values.  
 Tags drive behavior via `GameDataTagHelper`, `TagDamageCalculator`, `ActionMechanicTagProcessor`, `ActionRollTagProcessor`.  
-Environment/hazard actions from `GameData/EnvironmentalActions.json`.
+Environment/hazard actions from `GameData/EnvironmentalActions.json`.  
+Gear action rolls (2026-11-12, `GearActionPools`, `Documentation/ACTION_CLASS_SORT_2026-11-12.md`): every rollable action is tagged to one class (`class, <class>`), one hybrid (`hybrid, <name>, <classA>, <classB>`) or neither (20 neutral). Gear rolls from the hero's in-class pool (neutral + any of `LootContext.HeroClassTags`, hybrids count for both classes) `LootSystem.GearActionInClassShare` (0.95) of the time, else another class's action; starters, `unique` rows and material set converts never roll.  
+Verb presets (2026-11-11, `Code/Combat/Verbs/`): an action's `verb` column (`CASH ATTUNED 75`, `DETONATE 100`, `LIQUIDATE 50`, `SCALE ATTUNED 50`, `INDEX 8`, `APPLY mark 1`, `BARRIER 8`, `DISTILL 50`, `TRANSMUTE 75`, `INVEST ATTUNED 200 2`, `PALM`) reads/spends `Stores`; `Attunement` = most-worn material, ties → weapon. The 11 presets (CASH IN, DETONATE, LIQUIDATE, RECKONING, INDEX, MARK, BARRIER, DISTILL, TRANSMUTE, INVEST, PALM) are tier 3 with the `action` tag; all but CASH IN carry a class or hybrid tag (see gear action rolls below). The synergy bot scores them with `verbWeights` in `synergy-bot.json` (`RulesSynergy.VerbSynergy`, gear-gated: attuned-store verbs need the attuned set formed). It also prices affix templates (`affixWeights`, `RulesSynergy.AffixValue`: worth their weight only on a planned set / a minted cross-wire source) and adds skill-pick bonuses for usable cross-wire nodes and Persistence capstones. TRANSMUTE runs the conversion table on the target (owned rows always, unowned at `TransmuteUnownedRowRate` 0.5) before pouring other mints into the attuned one. PRELUDE / BLOOD OATH are data PREPs; the `cost` column (`HP 5`, `ActionCost`) pays HP on resolve.
+
+Build system hooks (2026-11-11, `Documentation/BUILD_SYSTEM_CONDENSED.md`):
+- `HeroEventHub` (`Code/Combat/Events/`) fires hub events ONSTATUSAPPLY, ONCASH, ONSTOREFULL, ONBEAT, ONSELFCOST, ONENEMYACT (not seen by action trigger bundles) to material WHENs, Listener affixes and cross-wires; all mints go through `MaterialSetController.MintKeyword`
+- Item affix templates are prefix `Effect`s in `Modifications.json`: `LISTEN` (`ListenerAffix`, event rolled on drop from the slot family), `TUNE`, `STORECOND`, `COUNTSDOUBLE`, `OPENER`, `FINISHER`, `BLOODPRICE` (`AffixTemplates`), `CROSSWIRE` (`crossWire` rule)
+- `CrossWires` (`Code/Combat/CrossWires.cs`) is the item/skill rule language: `WHEN[:arg] [EVERY n] [IF cond [AND cond]] -> MINT|ADD|APPLY|HEAL|REFLECT|BUFF ...` and passive `WHILE [IF cond] -> DAMAGE|ARMOR|SPEED|HIT|COMBO|CRIT ±n[%] [PER TARGET status]`; skill families Alias (`ONMISS -> COUNTAS ONTAKEHIT`, one hop, combat events), Exemption (`WHILE [IF] -> EXEMPT STREAK|COMBO`) and Threshold (`ONSTOREFULL:<store> -> ...`), 12 class nodes (`-th-`/`-al-`/`-ex-`); conditions read hero stores, HP, combo step, amount spent, action length, roll, distinct materials, turn, target status/HP and enemy prefix tags. Sources: skill nodes (`crossWire`, 12 class nodes), CROSSWIRE prefixes (8) and RULE prefixes (25 unique-item effects: Vampiric, Thorned, Butcher's, Towering, Silvered, ...; `{n}` = rolled value, `;` separates rules). Passive rules feed DamageCalculator (via `AffixTemplates.OutgoingDamagePercent`), `GetEffectiveArmor`, `SpeedCalculator` and `CadenceScopedBuffApplicator` roll bonuses. Build audit: `Documentation/BUILD_AUDIT_2026-11-11.md`
+- `Persistence`: skill node `persist` (`hero:streak,focus` / `target:expose,...`) carries stores into the next fight (4 Rite capstones)
+- `ConversionTable` + `GameData/Conversions.json`: target status conversions (Venom Mace, Envenomed Edge, Hemorrhage, Kindle, Thermal Shock) as data rows owned by customEffectIds
 
 ### UI (`Code/UI/`)
 

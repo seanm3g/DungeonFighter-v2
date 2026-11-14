@@ -17,6 +17,12 @@ namespace RPGGame
         public string? PlayerClass { get; set; }
 
         /// <summary>
+        /// The hero's class tags (barbarian / warrior / rogue / wizard) for gear action rolls: the top class-point path,
+        /// plus the second when it has points (a hybrid hero). Falls back to the equipped weapon's class. Empty = unknown.
+        /// </summary>
+        public List<string> HeroClassTags { get; set; } = new();
+
+        /// <summary>
         /// The dungeon theme (Forest, Lava, Crypt, etc.)
         /// Used to bias modifications toward thematic ones
         /// </summary>
@@ -67,6 +73,7 @@ namespace RPGGame
             };
             if (player != null)
             {
+                context.HeroClassTags = ResolveHeroClassTags(player);
                 foreach (var (effect, classTag) in MarketRules)
                 {
                     double power = SkillRanks.GetPower(player, effect);
@@ -75,6 +82,22 @@ namespace RPGGame
                 }
             }
             return context;
+        }
+
+        /// <summary>Top class-point path (+ second when it has points); else the equipped weapon's class; else empty.</summary>
+        public static List<string> ResolveHeroClassTags(Character player)
+        {
+            var tags = new List<string>();
+            var progression = player.Progression;
+            if (progression != null)
+            {
+                foreach (var path in new[] { progression.GetPrimaryClassWeaponType(), progression.GetSecondaryClassWeaponType() })
+                    if (path is WeaponType wt && ClassTags.ClassOf(wt) is string tag && !tags.Contains(tag))
+                        tags.Add(tag);
+            }
+            if (tags.Count == 0 && player.Weapon is WeaponItem weapon && ClassTags.ClassOf(weapon.WeaponType) is string weaponTag)
+                tags.Add(weaponTag);
+            return tags;
         }
     }
 }

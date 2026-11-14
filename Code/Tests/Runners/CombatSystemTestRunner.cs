@@ -94,6 +94,13 @@ namespace RPGGame.Tests.Runners
             RollProbabilityContentTests.RunAllTests();
             WeaponModTriggerBridgeTests.RunAllTests();
             EquippedItemTriggerTests.RunAllTests();
+            TriggerEventsTests.RunAllTests();
+            StoresTests.RunAllTests();
+            VerbPresetsTests.RunAllTests();
+            HeroEventHubTests.RunAllTests();
+            AffixTemplatesTests.RunAllTests();
+            CrossWiresTests.RunAllTests();
+            ItemRulesTests.RunAllTests();
             StatBonusAnimalSuffixTriggerTests.RunAllTests();
             ItemTriggerCombatIntegrationTests.RunAllTests();
             Console.WriteLine();

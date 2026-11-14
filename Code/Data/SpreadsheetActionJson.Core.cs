@@ -78,5 +78,13 @@ namespace RPGGame.Data
 
         [JsonPropertyName("scaleFormula")]
         public string ScaleFormula { get; set; } = "";
+
+        /// <summary>Verb preset spec (<c>CASH ATTUNED 75</c>, <c>DETONATE 100</c>, …); see <see cref="RPGGame.VerbSpec"/>.</summary>
+        [JsonPropertyName("verb")]
+        public string Verb { get; set; } = "";
+
+        /// <summary>Action cost paid when it resolves (<c>HP 5</c> = 5% max HP); see <see cref="RPGGame.ActionCost"/>.</summary>
+        [JsonPropertyName("cost")]
+        public string Cost { get; set; } = "";
     }
 }

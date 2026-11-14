@@ -353,7 +353,7 @@
       "CRIT HEAL",
       "SHARPEN",
       "STEEL CREST",
-      "VULNERABILITY",
+      "EXPOSE",
       "CRIT MISS HEAL",
       "STRIP RANDOM",
       "GAMBLERS BLESSING",
@@ -459,7 +459,7 @@
       "STEADY HAND",
       "HEADHUNT",
       "LEECHING CUT",
-      "VULNERABILITY",
+      "EXPOSE",
       "STRONGER",
       "KEEN EYE",
       "CRITICAL ATTACK"
@@ -511,7 +511,7 @@
       "RETRIGGER NEXT",
       "CRITICAL ATTACK",
       "STEEL CREST",
-      "VULNERABILITY",
+      "EXPOSE",
       "IRON CULL",
       "UMBRA",
       "WILLOW LASH"
@@ -551,7 +551,7 @@
       "RETRIGGER SLOT",
       "HEADHUNT",
       "LEECHING CUT",
-      "VULNERABILITY"
+      "EXPOSE"
     ],
     "Barbarian@50": [
       "STAB",
@@ -741,7 +741,7 @@
       "STRIP JUMP": 0.0,
       "RETRIGGER NEXT": 0.0,
       "STEEL CREST": 0.0,
-      "VULNERABILITY": 0.472,
+      "EXPOSE": 0.472,
       "WILLOW LASH": 0.156,
       "GOLD ANCHOR": 0.0,
       "CRIT MISS HEAL": 0.5,
@@ -838,7 +838,7 @@
       "IRON CULL": 0.0,
       "HEADHUNT": 0.0,
       "LEECHING CUT": 0.667,
-      "VULNERABILITY": 0.667,
+      "EXPOSE": 0.667,
       "RETRIGGER FINISHER": 0.0,
       "RETRIGGER NEXT": 0.0,
       "BERSERKER": 0.25,
@@ -900,7 +900,7 @@
       "CRITICAL ATTACK": 0.0,
       "RETRIGGER SLOT": 0.0,
       "STEEL CREST": 0.0,
-      "VULNERABILITY": 0.472,
+      "EXPOSE": 0.472,
       "IRON CULL": 0.333,
       "UMBRA": 0.667,
       "WILLOW LASH": 0.0
@@ -935,7 +935,7 @@
       "READ BOOK": 0.3,
       "IRON CULL": 0.0,
       "REFRACT": 0.333,
-      "VULNERABILITY": 0.667,
+      "EXPOSE": 0.667,
       "RETRIGGER FINISHER": 0.0,
       "RETRIGGER NEXT": 0.0,
       "BERSERKER": 0.25,

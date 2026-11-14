@@ -25,13 +25,12 @@ namespace RPGGame
 
         private static string Turns(int n) => n == 1 ? "1 turn" : $"{n} turns";
 
-        /// <summary>Title-case display name for an effect id ("armorbreak" → "Armor Break").</summary>
+        /// <summary>Title-case display name for an effect id ("hpregen" → "HP Regen"). Vulnerability / Armor Break show as Exposed (folded in).</summary>
         public static string DisplayName(string effectId) => (effectId ?? "").ToLowerInvariant() switch
         {
-            "armorbreak" => "Armor Break",
+            "armorbreak" or "vulnerability" or "expose" => "Exposed",
             "hpregen" => "HP Regen",
             "temporaryhp" => "Temporary HP",
-            "vulnerability" => "Vulnerable",
             "confusion" => "Confused",
             "mark" => "Marked",
             "weaken" => "Weakened",
@@ -205,13 +204,11 @@ namespace RPGGame
             "acid" => "Acid: corrosion that hurts over time and eats away armor.",
             "stun" => "Stunned: dazed and unable to act.",
             "weaken" => "Weakened: blows land with less force.",
-            "vulnerability" => "Vulnerable: defenses are open; incoming hits hurt more.",
             "harden" => "Hardened: braced to take hits.",
             "fortify" => "Fortified: armor reinforced.",
             "focus" => "Focused: strikes are lined up for extra damage.",
-            "expose" => "Exposed: guard is down; Defense is reduced.",
+            "expose" or "vulnerability" or "armorbreak" => "Exposed: guard is down; Defense is reduced, and at full stacks armor is stripped.",
             "hpregen" => "Regenerating: health returns each turn.",
-            "armorbreak" => "Armor Break: armor is cracked.",
             "pierce" => "Piercing: attacks slip past armor.",
             "reflect" => "Reflecting: a share of incoming damage bounces back.",
             "silence" => "Silenced: unable to cast spells.",
@@ -272,8 +269,6 @@ namespace RPGGame
                     return actor.StunTurnsRemaining > 0 ? $"{Turns(actor.StunTurnsRemaining)} left." : "";
                 case "weaken":
                     return actor.WeakenTurns > 0 ? $"{Turns(actor.WeakenTurns)} left." : "";
-                case "vulnerability":
-                    return $"{actor.VulnerabilityStacks} stack(s), {Turns(actor.VulnerabilityTurns)} left.";
                 case "harden":
                     return $"{actor.HardenStacks} stack(s), {Turns(actor.HardenTurns)} left.";
                 case "fortify":
@@ -281,11 +276,12 @@ namespace RPGGame
                 case "focus":
                     return $"{actor.FocusStacks} stack(s), {Turns(actor.FocusTurns)} left.";
                 case "expose":
-                    return $"{actor.ExposeStacks} stack(s), {Turns(actor.ExposeTurns)} left.";
+                case "vulnerability":
+                case "armorbreak":
+                    return $"{actor.ExposeStacks} stack(s), {Turns(actor.ExposeTurns)} left."
+                        + (ExposeStatus.IsArmorStripped(actor) ? $" Armor stripped {(int)Math.Round(actor.ExposeArmorStrip * 100)}%." : "");
                 case "hpregen":
                     return $"{actor.HPRegenStacks} stack(s), {Turns(actor.HPRegenTurns)} left.";
-                case "armorbreak":
-                    return $"{actor.ArmorBreakStacks} stack(s), {Turns(actor.ArmorBreakTurns)} left.";
                 case "reflect":
                     return $"{actor.ReflectStacks} stack(s), {Turns(actor.ReflectTurns)} left.";
                 case "pierce":

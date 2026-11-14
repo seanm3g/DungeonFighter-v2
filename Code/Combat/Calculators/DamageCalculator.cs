@@ -403,6 +403,14 @@ namespace RPGGame.Combat.Calculators
             {
                 double tagModifier = Combat.TagDamageCalculator.GetDamageModifier(action, target);
                 totalDamage = (int)(totalDamage * tagModifier);
+                // Verb presets (CASH IN, DETONATE, RECKONING, …) read their store before the hit spends it.
+                totalDamage += VerbPresets.GetDamageBonus(attacker, target, action, totalDamage);
+                if (attacker is Character affixHero && affixHero is not Enemy)
+                {
+                    double affixPct = AffixTemplates.OutgoingDamagePercent(affixHero, action, target);
+                    if (affixPct != 0)
+                        totalDamage += (int)Math.Round(totalDamage * affixPct / 100.0);
+                }
             }
 
             // Enemy prefixes that change damage taken (Skeleton / Ghost by weapon type, Frozen brittle).
@@ -483,8 +491,7 @@ namespace RPGGame.Combat.Calculators
 
         private static int ApplyIncomingStatus(Actor target, int damage)
         {
-            double incoming = StatusCombatModifiers.IncomingDamageMultiplier(target)
-                * AnimalSetController.GetIncomingDamageMultiplier(target)
+            double incoming = AnimalSetController.GetIncomingDamageMultiplier(target)
                 * MaterialSetController.GetIncomingDamageMultiplier(target);
             return incoming == 1.0 ? damage : (int)Math.Round(damage * incoming);
         }

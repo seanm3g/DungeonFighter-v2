@@ -7,15 +7,18 @@ namespace RPGGame.Data
     /// <summary>
     /// Which actions can roll on which gear, from action tags (so new actions join the right pool automatically).
     /// Class actions carry a class tag (barbarian / warrior / rogue / wizard) or a weapon tag (mace / sword / dagger / wand);
-    /// neutral actions carry neither. Weapon starter attacks (startingweapon / weapon_basic / required) never roll on gear.
-    /// A weapon rolls its own class's actions <see cref="LootSystemConfig.WeaponGearActionClassShare"/> of the time,
-    /// otherwise a neutral action; armor uses <see cref="LootSystemConfig.ArmorGearActionClassShare"/> with the hero's class.
+    /// hybrid actions carry both of their classes' tags; neutral actions carry neither.
+    /// Never on gear: weapon starter attacks (startingweapon / weapon_basic / required), <c>unique</c> rows and material
+    /// set converts (granted by the worn set, <see cref="ActionData.MaterialScale"/>).
+    /// Every piece (weapon or armor) rolls from the hero's in-class pool — neutral actions plus actions carrying any of the
+    /// hero's class tags, hybrids included — <see cref="LootSystemConfig.GearActionInClassShare"/> of the time, otherwise
+    /// from the other classes' actions.
     /// </summary>
     public static class GearActionPools
     {
         private static readonly string[] ClassTags = { "barbarian", "warrior", "rogue", "wizard" };
         private static readonly string[] WeaponTags = { "mace", "sword", "dagger", "wand" };
-        private static readonly string[] BasicAttackTags = { "startingweapon", "weapon_basic", "required" };
+        private static readonly string[] BasicAttackTags = { "startingweapon", "weapon_basic", "required", "unique" };
 
         /// <summary>Class key and weapon tag for a weapon type (Mace → barbarian / mace).</summary>
         public static (string classTag, string weaponTag) TagsFor(WeaponType weaponType) =>
@@ -40,27 +43,55 @@ namespace RPGGame.Data
             return HasAny(tags, new[] { classTag, weaponTag });
         }
 
+        /// <summary>True when the action carries any of the hero's class tags (or their weapon tags); hybrids count for both classes.</summary>
+        public static bool IsClassActionFor(IEnumerable<string>? tags, IEnumerable<string> heroClassTags)
+        {
+            foreach (string classTag in heroClassTags)
+            {
+                var weaponType = RPGGame.ClassTags.WeaponOf(classTag);
+                if (weaponType.HasValue ? IsClassAction(tags, weaponType.Value) : HasAny(tags, new[] { classTag }))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>In the hero's 95% pool: neutral, or tagged with one of the hero's classes.</summary>
+        public static bool IsInClassPool(IEnumerable<string>? tags, IReadOnlyCollection<string> heroClassTags) =>
+            IsNeutral(tags) || IsClassActionFor(tags, heroClassTags);
+
+        /// <summary>False for starter attacks, <c>unique</c> rows and material set converts.</summary>
+        public static bool CanRollOnGear(ActionData? data) =>
+            data == null || (!IsBasicAttack(data.Tags) && string.IsNullOrWhiteSpace(data.MaterialScale));
+
+        /// <summary>The hero's class tags for <paramref name="item"/>: <paramref name="heroClassTags"/>, else the weapon's own class.</summary>
+        public static IReadOnlyCollection<string> ResolveClassTags(Item item, IReadOnlyCollection<string>? heroClassTags)
+        {
+            if (heroClassTags != null && heroClassTags.Count > 0)
+                return heroClassTags;
+            if (item is WeaponItem weapon && RPGGame.ClassTags.ClassOf(weapon.WeaponType) is string tag)
+                return new[] { tag };
+            return Array.Empty<string>();
+        }
+
         /// <summary>
         /// Picks a gear action for <paramref name="item"/> from <paramref name="pool"/> (weighted by <see cref="ActionBonus.Weight"/>).
-        /// <paramref name="heroWeaponType"/> is the hero's class for armor rolls (null = unknown, armor stays neutral).
+        /// <paramref name="heroClassTags"/> are the hero's classes (empty = unknown: a weapon uses its own class, armor only neutral
+        /// counts as in-class).
         /// </summary>
-        public static ActionBonus? Pick(Item item, IReadOnlyList<ActionBonus> pool, Random random, WeaponType? heroWeaponType = null)
+        public static ActionBonus? Pick(Item item, IReadOnlyList<ActionBonus> pool, Random random, IReadOnlyCollection<string>? heroClassTags = null)
         {
-            var loot = GameConfiguration.Instance.LootSystem;
-            WeaponType? classType = item is WeaponItem weapon ? weapon.WeaponType : heroWeaponType;
-            double classShare = item is WeaponItem ? loot.WeaponGearActionClassShare : loot.ArmorGearActionClassShare;
+            double inClassShare = GameConfiguration.Instance.LootSystem.GearActionInClassShare;
+            var classTags = ResolveClassTags(item, heroClassTags);
 
             var candidates = pool
-                .Select(ab => (bonus: ab, tags: ActionLoader.GetActionData(ab.Name)?.Tags))
-                .Where(x => !IsBasicAttack(x.tags))
+                .Select(ab => (bonus: ab, data: ActionLoader.GetActionData(ab.Name)))
+                .Where(x => CanRollOnGear(x.data))
                 .ToList();
-            var neutral = candidates.Where(x => IsNeutral(x.tags)).Select(x => x.bonus).ToList();
-            var classPool = classType.HasValue
-                ? candidates.Where(x => IsClassAction(x.tags, classType.Value)).Select(x => x.bonus).ToList()
-                : new List<ActionBonus>();
+            var inClass = candidates.Where(x => IsInClassPool(x.data?.Tags, classTags)).Select(x => x.bonus).ToList();
+            var outOfClass = candidates.Where(x => !IsInClassPool(x.data?.Tags, classTags)).Select(x => x.bonus).ToList();
 
-            bool useClass = classPool.Count > 0 && (neutral.Count == 0 || random.NextDouble() < classShare);
-            return PickWeighted(useClass ? classPool : neutral, random);
+            bool useInClass = inClass.Count > 0 && (outOfClass.Count == 0 || random.NextDouble() < inClassShare);
+            return PickWeighted(useInClass ? inClass : outOfClass, random);
         }
 
         private static ActionBonus? PickWeighted(List<ActionBonus> options, Random random)

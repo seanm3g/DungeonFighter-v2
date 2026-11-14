@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.Combat.Events;
 
 namespace RPGGame.Actions.Conditional
@@ -15,18 +16,15 @@ namespace RPGGame.Actions.Conditional
         /// <summary>
         /// Canonical tokens designers can put in <c>triggerConditions</c>.
         /// </summary>
-        public static readonly string[] KnownTokens =
+        public static readonly string[] KnownTokens = TriggerEvents.All
+            .Where(d => d.Emitted && d.Family != TriggerEventFamily.Equip)
+            .SelectMany(d => new[] { d.Token }.Concat(d.Aliases))
+            .Concat(FilterTokens)
+            .ToArray();
+
+        /// <summary>Non-event filter tokens (wield, HP, status, tag, history).</summary>
+        private static string[] FilterTokens => new[]
         {
-            "ONHIT", "ONNORMALHIT", "ONCONNECT", "ONANYHIT",
-            "ONMISS", "ONCRITICALMISS", "ONCRITMISS",
-            "ONCOMBO", "ONCOMBOHIT", "ONCOMBOEND", "ONCOMBOENDED",
-            "ONCRITICAL", "ONCRITICALHIT", "ONCRIT",
-            "ONKILL", "ONROLLVALUE", "ONNATURALROLL", "ONEVEN", "ONODD",
-            "ONHEALTHTHRESHOLD", "ONENEMYHEALTHTHRESHOLD",
-            "ONROOMSCLEARED", "ONROOMCLEARED",
-            "ONFIRSTHIT", "ONFIRSTBLOOD", "ONAFTERMISS",
-            "ONTAKEHIT", "ONHEROHURT", "ONRECEIVEHIT",
-            "ONTURN", "ONATTACK", "ONCONSECUTIVEATTACK", "ONSLOW", "ONFOCUS",
             "ONWIELD",
             "IFCLUTCH", "IFSOURCEHEALTHBELOW", "IFSOURCEHEALTHABOVE",
             "IFTARGETHEALTHBELOW", "IFTARGETHEALTHABOVE",
@@ -206,7 +204,8 @@ namespace RPGGame.Actions.Conditional
                     && (combatEvent.Type == CombatEventType.ActionHit
                         || combatEvent.Type == CombatEventType.ActionMiss
                         || combatEvent.Type == CombatEventType.ActionExecuted),
-                "ONCONSECUTIVEATTACK" => combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsMiss,
+                "ONCONSECUTIVEATTACK" => combatEvent.Source is Character streakHero
+                    && IsHitStreak(streakHero, combatEvent),
                 "ONSLOW" => combatEvent.Type == CombatEventType.ActionHit
                     && !combatEvent.IsMiss
                     && combatEvent.Action != null
@@ -219,26 +218,23 @@ namespace RPGGame.Actions.Conditional
             };
         }
 
+        /// <summary>
+        /// Hit landed while the hero has 2+ connects in a row (this one included). The streak counter updates before
+        /// item triggers and material minting, so both read the same value.
+        /// </summary>
+        public static bool IsHitStreak(Character hero, CombatEvent combatEvent) =>
+            hero.Effects.MaterialConsecutiveConnects >= 2
+            && combatEvent.Type == CombatEventType.ActionHit
+            && !combatEvent.IsMiss;
+
+        /// <summary>
+        /// Canonical token: event spellings resolve through <see cref="TriggerEvents"/>, filter aliases here.
+        /// </summary>
         public static string NormalizeToken(string token)
         {
-            if (string.IsNullOrWhiteSpace(token))
-                return "";
-            string t = token.Trim().ToUpperInvariant().Replace(" ", "").Replace("_", "");
+            string t = TriggerEvents.NormalizeToken(token);
             return t switch
             {
-                "ONCRIT" => "ONCRITICAL",
-                "ONCRITMISS" => "ONCRITICALMISS",
-                "ONANYHIT" => "ONCONNECT",
-                "ONNORMALHIT" => "ONHIT",
-                "ONCOMBOHIT" => "ONCOMBO",
-                "ONCOMBOENDED" => "ONCOMBOEND",
-                "ONCRITICALHIT" => "ONCRITICAL",
-                "ONENEMYHEALTHTHRESHOLD" => "ONHEALTHTHRESHOLD",
-                "ONNATURALROLL" => "ONNATURALROLL",
-                "ONROOMCLEARED" => "ONROOMSCLEARED",
-                "ONFIRSTBLOOD" => "ONFIRSTHIT",
-                "ONHEROHURT" => "ONTAKEHIT",
-                "ONRECEIVEHIT" => "ONTAKEHIT",
                 "IFMIRROR" => "IFSAMESACTION",
                 "IFSWITCHUP" => "IFDIFFERENTACTION",
                 "IFLASTSTAND" => "IFLASTENEMY",
@@ -394,13 +390,12 @@ namespace RPGGame.Actions.Conditional
             && hero is not Enemy
             && !ReferenceEquals(combatEvent.Source, combatEvent.Target);
 
+        /// <summary>Combat events that fire today (excludes the passive equip channel and reserved events).</summary>
         private static bool IsKnownCanonical(string normalized) =>
-            normalized is "ONHIT" or "ONMISS" or "ONCOMBO" or "ONCRITICAL"
-                or "ONCONNECT" or "ONCRITICALMISS" or "ONKILL" or "ONROLLVALUE" or "ONNATURALROLL"
-                or "ONEVEN" or "ONODD"
-                or "ONHEALTHTHRESHOLD" or "ONCOMBOEND" or "ONROOMSCLEARED"
-                or "ONFIRSTHIT" or "ONAFTERMISS" or "ONTAKEHIT"
-                or "ONTURN" or "ONATTACK" or "ONCONSECUTIVEATTACK" or "ONSLOW" or "ONFOCUS";
+            TriggerEvents.TryGet(normalized, out var def)
+            && def.Token == normalized
+            && def.Emitted
+            && def.Family != TriggerEventFamily.Equip;
 
         private static bool MatchesRollParity(CombatEvent combatEvent, bool even)
         {

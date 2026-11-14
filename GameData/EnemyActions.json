@@ -146,7 +146,7 @@
   },
   {
    "action": "ENEMY CURSE",
-   "description": "A cursing strike that leaves the target vulnerable to damage.",
+   "description": "A cursing strike that exposes the target (less defense).",
    "tier": 1,
    "dps": "80%",
    "numberOfHits": "1",
@@ -154,7 +154,7 @@
    "speed": "1.00",
    "block": "100",
    "tags": "enemy",
-   "vulnerability": "1"
+   "expose": "1"
   },
   {
    "action": "ENEMY CONCUSS",

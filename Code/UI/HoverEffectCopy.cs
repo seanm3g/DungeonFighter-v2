@@ -224,9 +224,7 @@ namespace RPGGame
                 => $"You already have Focus x{hero.FocusStacks} ({hero.FocusTurns} turns left).",
             "fortify" when (hero.FortifyStacks ?? 0) > 0 && hero.FortifyTurns > 0
                 => $"You already have Fortify x{hero.FortifyStacks} ({hero.FortifyTurns} turns left).",
-            "vulnerability" when (hero.VulnerabilityStacks ?? 0) > 0 && hero.VulnerabilityTurns > 0
-                => $"You already have Vulnerability x{hero.VulnerabilityStacks} ({hero.VulnerabilityTurns} turns left).",
-            "expose" when (hero.ExposeStacks ?? 0) > 0 && hero.ExposeTurns > 0
+            "expose" or "vulnerability" or "armorbreak" when (hero.ExposeStacks ?? 0) > 0 && hero.ExposeTurns > 0
                 => $"You already have Expose x{hero.ExposeStacks} ({hero.ExposeTurns} turns left).",
             _ => ""
         };
@@ -235,9 +233,15 @@ namespace RPGGame
         {
             var combat = GameConfiguration.Instance?.Combat;
             double harden = combat?.StatusHardenDefensePerStack ?? 0.15;
-            double vuln = combat?.StatusVulnerabilityDamagePerStack ?? 0.15;
             double focus = combat?.StatusFocusDamagePerStack ?? 0.15;
             double expose = combat?.StatusExposeDefensePerStack ?? 0.15;
+            int exposeCap = combat?.StatusMaxStacks ?? 3;
+            double strip = combat?.StatusExposeArmorStripPerStack ?? 0.10;
+            double stripMax = combat?.StatusExposeArmorStripMax ?? 0.30;
+            string exposeText = $"Each stack removes {Pct(expose)} Defense. Below zero, hits hurt more."
+                + (exposeCap > 0 && strip > 0
+                    ? $" At {exposeCap} stacks, more Expose strips {Pct(strip)} of armor each (up to {Pct(stripMax)})."
+                    : "");
             double weaken = combat?.StatusWeakenDamageMultiplier ?? 0.5;
             double fortify = combat?.StatusFortifyDefensePerStack ?? 0;
             string weakenText = Math.Abs(weaken - 0.5) < 0.001
@@ -247,9 +251,8 @@ namespace RPGGame
             return (effectId ?? "").Trim().ToLowerInvariant() switch
             {
                 "harden" => $"Each stack adds {Pct(harden)} Defense, which reduces incoming damage.",
-                "vulnerability" => $"Each stack increases damage taken by {Pct(vuln)}.",
                 "focus" => $"Each stack increases damage dealt by {Pct(focus)}.",
-                "expose" => $"Each stack removes {Pct(expose)} Defense. Below zero, hits hurt more.",
+                "expose" or "vulnerability" or "armorbreak" => exposeText,
                 "weaken" => weakenText,
                 "fortify" => fortify > 0
                     ? $"Each stack adds armor and {Pct(fortify)} Defense."
@@ -267,7 +270,6 @@ namespace RPGGame
                 "confusion" => "Attacks may strike a random target.",
                 "mark" => "The next hit is a critical hit.",
                 "disrupt" => "Resets the target's combo.",
-                "armorbreak" => "Reduces armor while it lasts.",
                 "statdrain" => "Lowers attributes while it lasts.",
                 "hpregen" => "Restores health each turn.",
                 "reflect" => "Returns a share of incoming damage.",
@@ -321,7 +323,7 @@ namespace RPGGame
         private static string DisplayName(string id) => id switch
         {
             "hpregen" => "HP Regen",
-            "armorbreak" => "Armor Break",
+            "armorbreak" or "vulnerability" => "Expose",
             "temporaryhp" => "Temporary HP",
             "statdrain" => "Stat Drain",
             _ => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(id)
@@ -336,13 +338,11 @@ namespace RPGGame
             if (Starts(line, "Burn")) return "burn";
             if (Starts(line, "Acid")) return "acid";
             if (Starts(line, "Crit miss")) return "";
-            if (Starts(line, "Vuln")) return "vulnerability";
             if (Starts(line, "Harden")) return "harden";
             if (Starts(line, "Fortify")) return "fortify";
             if (Starts(line, "Focus")) return "focus";
             if (Starts(line, "Expose")) return "expose";
             if (Starts(line, "HP Regen")) return "hpregen";
-            if (Starts(line, "Armor brk")) return "armorbreak";
             if (Starts(line, "Pierce")) return "pierce";
             if (Starts(line, "Reflect")) return "reflect";
             if (Starts(line, "Silence")) return "silence";

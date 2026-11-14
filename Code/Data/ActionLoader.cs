@@ -472,6 +472,8 @@ namespace RPGGame
                 { "DUNGEON BONUS", "KEEN EYE" },
                 { "TWISTING STRIKE", "HONE" },
                 { "WHIRLWIND", "WHETSTONE" },
+                // Vulnerability folded into Expose (2026-11-11): the VULNERABILITY action was an EXPOSE duplicate.
+                { "VULNERABILITY", "EXPOSE" },
             };
 
             if (_actions == null)
