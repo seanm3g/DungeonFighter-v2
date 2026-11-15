@@ -29,43 +29,66 @@ STAT_LADDER = [
 EXCEPTIONAL_LOW, EXCEPTIONAL_HIGH, EXCEPTIONAL_WEIGHT = 1.05, 1.5, 0.25
 # Keyword word for those tiers ("Uncanny Sharp", "of the Uncanny Ox"); "Lucky" is the Leather roll advantage.
 EXCEPTIONAL_WORD = "Uncanny"
-# Animal suffix family weight (each of ~120 animals; stat families are 10).
-ANIMAL_WEIGHT = 8
 STATUS_LADDER = [(3, 0.6, 1.0, 100), (12, 1.0, 1.4, 140), (25, 1.4, 1.9, 180), (45, 1.9, 2.5, 220), (70, 2.5, 3.2, 260)]
 RULE_LADDER = [(8, 1.0, 1.0, 100), (30, 1.4, 1.4, 140), (60, 1.8, 1.8, 180)]
 MATERIAL_LADDER = [(1, 1.0, 1.0, 100), (25, 1.4, 1.4, 140), (55, 1.8, 1.8, 180)]
 RULE_WORDS = ["", "", ""]  # one keyword per rule family; the tier shows on the tooltip
 
+# Stat suffixes are animals (Documentation/AFFIX_PASS_2026-11-15.md section 4b): one animal per body stat, and one
+# shared tier ladder for every animal ("of the Young Bear" ... "of the Primal Bear"). Suffixes never repeat a prefix's
+# combat number: Damage / Hit / Crit / Combo / Speed live on prefixes only, Health / Defense / Magic find on suffixes.
+TIER_WORDS = ["Young", "", "Great", "Dire", "Elder", "Ancient", "Primal"]
+
+
+def animal_ladder(animal):
+    return [(w + " " + animal).strip() for w in TIER_WORDS]
+
+
 SUFFIX_STATS = {
-    # StatType: (family, keyword ladder (7), "of the" or "of", description, tags, integer)
-    "Health": ("Life", ["Sprout", "Sapling", "Oak", "Elder", "Ancient", "Ironbark", "Worldroot"], "of the", "+{n}% max health", ["health", "defense", "barbarian", "ontakehit"], False),
-    "STR": ("Strength", ["Ox", "Bear", "Bull", "Mammoth", "Titan", "Giant", "Colossus"], "of the", "+{n}% strength", ["str", "strength", "barbarian"], False),
-    "AGI": ("Agility", ["Hare", "Fox", "Hawk", "Panther", "Falcon", "Wind", "Tempest"], "of the", "+{n}% agility", ["agi", "agility", "warrior"], False),
-    "TEC": ("Technique", ["Apprentice", "Journeyman", "Artisan", "Craftsman", "Master", "Virtuoso", "Paragon"], "of the", "+{n}% technique", ["tec", "technique", "rogue"], False),
-    "INT": ("Intelligence", ["Candle", "Lamp", "Lantern", "Beacon", "Star", "Comet", "Sun"], "of the", "+{n}% intelligence", ["int", "intelligence", "wizard"], False),
-    "Damage": ("Damage", ["Thorns", "Spikes", "Fangs", "Claws", "Slaughter", "Carnage", "Ruin"], "of", "+{n}% damage", ["damage", "offense", "onconnect"], False),
-    "Armor": ("Defense", ["Hide", "Shell", "Scale", "Plate", "Ramparts", "Bastions", "Citadels"], "of", "+{n} defense", ["armor", "defense", "ontakehit"], False),
-    "HIT": ("Accuracy", ["Aim", "Sight", "Focus", "Precision", "Accuracy", "Truth", "Certainty"], "of", "+{n} hit", ["hit", "accuracy", "onconnect", "onmiss"], True),
-    "CRIT": ("Critical", ["Edges", "Wounds", "Ferocity", "Savagery", "Butchery", "Execution", "Annihilation"], "of", "+{n} crit", ["crit", "oncritical", "rogue"], True),
-    "COMBO": ("Combo", ["Rhythm", "Flow", "Cadence", "Tempo", "Harmony", "Symphony", "Crescendo"], "of", "+{n} combo", ["combo", "oncombo", "oncomboend", "warrior"], True),
-    "AttackSpeed": ("Attack Speed", ["Haste", "Quickness", "Swiftness", "Alacrity", "Celerity", "Speed", "Lightning"], "of", "+{n} attack speed", ["speed", "onturn", "rogue", "warrior"], False),
-    "HealthRegen": ("Regeneration", ["Mending", "Renewal", "Restoration", "Regrowth", "Rebirth", "Vigor", "Eternity"], "of", "+{n} health regen", ["regen", "health", "defense"], False),
-    "MagicFind": ("Magic Find", ["Coins", "Gold", "Treasure", "Fortune", "Riches", "Plenty", "Avarice"], "of", "+{n} magic find", ["luck", "magicfind"], False),
+    # StatType: (family, animal, description, tags, integer)
+    "STR": ("Strength", "Bear", "+{n}% strength", ["str", "strength", "barbarian"], False),
+    "AGI": ("Agility", "Fox", "+{n}% agility", ["agi", "agility", "warrior"], False),
+    "TEC": ("Technique", "Spider", "+{n}% technique", ["tec", "technique", "rogue"], False),
+    "INT": ("Intelligence", "Owl", "+{n}% intelligence", ["int", "intelligence", "wizard"], False),
+    "Health": ("Life", "Ox", "+{n}% max health", ["health", "defense", "barbarian", "ontakehit"], False),
+    "Armor": ("Defense", "Tortoise", "+{n}% defense", ["armor", "defense", "ontakehit"], False),
+    "HealthRegen": ("Regeneration", "Salamander", "+{n} health regen", ["regen", "health", "defense"], False),
+    "MagicFind": ("Magic Find", "Magpie", "+{n} magic find", ["luck", "magicfind"], False),
 }
 
+# Hybrid creatures: two body stats in one suffix, each part at lootSystem.itemGeneration.hybridPartShare.
+SUFFIX_HYBRIDS = [
+    ("Griffin", ["Strength", "Agility"]),
+    ("Minotaur", ["Strength", "Life"]),
+    ("Sphinx", ["Intelligence", "Technique"]),
+    ("Basilisk", ["Technique", "Defense"]),
+    ("Phoenix", ["Regeneration", "Intelligence"]),
+    ("Kraken", ["Life", "Defense"]),
+]
+HYBRID_WEIGHT = 5
+HYBRID_SHARE = 0.6  # only for the indicative min/max written on hybrid tiers; the roller uses the config value
+
+
+# Stat prefixes: the direct numbers of a swing, one fixed word per family (the tooltip shows the tier).
 PREFIX_EFFECTS = {
-    # Modification Effect: (family, ladder (7), tags, integer)
-    "DAMAGE": ("Brutality", ["Sharp", "Jagged", "Vicious", "Savage", "Brutal", "Cruel", "Merciless"], ["damage", "offense", "barbarian"], False),
-    "ARMOR": ("Toughness", ["Padded", "Sturdy", "Reinforced", "Hardened", "Bulwark", "Fortified", "Impregnable"], ["armor", "defense", "ontakehit"], False),
-    "HEALTH BONUS": ("Vitality", ["Hale", "Hearty", "Robust", "Vigorous", "Ancient", "Undying", "Eternal"], ["health", "defense", "barbarian"], False),
-    "HIT": ("Aim", ["Steady", "Short", "Swift", "True", "Unerring", "Deadeye", "Fated"], ["hit", "accuracy", "onconnect"], False),
-    "CRIT": ("Menace", ["Long", "Charged", "Wicked", "Deadly", "Lethal", "Murderous", "Ruinous"], ["crit", "oncritical", "rogue"], False),
-    "COMBO": ("Poise", ["Balanced", "Precise", "Flowing", "Measured", "Seamless", "Masterful", "Perfect"], ["combo", "oncombo", "warrior"], False),
-    "SPEED": ("Swiftness", ["Light", "Nimble", "Featherweight", "Quick", "Fleet", "Blurred", "Timeless"], ["speed", "onturn", "warrior"], False),
-    "MULTI-HIT": ("Flurry", ["Acrobatic", "Twin", "Flurrying", "Whirling", "Storming", "Myriad", "Endless"], ["multihit", "onconnect", "rogue"], False),
-    "MAGIC FIND": ("Fortune", ["Enchanted", "Blessed", "Charmed", "Gilded", "Jeweled", "Fabled", "Destined"], ["luck", "magicfind"], False),
-    "AMP": ("Amplify", ["Refined", "Tuned", "Focused", "Resonant", "Amplified", "Overcharged", "Transcendent"], ["amp", "wizard", "oncombo"], False),
+    # Modification Effect: (family, word, tags, integer)
+    "DAMAGE": ("Brutality", "Brutal", ["damage", "offense", "barbarian"], False),
+    "HIT": ("Aim", "True", ["hit", "accuracy", "onconnect"], False),
+    "CRIT": ("Menace", "Deadly", ["crit", "oncritical", "rogue"], False),
+    "COMBO": ("Poise", "Poised", ["combo", "oncombo", "warrior"], False),
+    "SPEED": ("Swiftness", "Swift", ["speed", "onturn", "warrior"], False),
+    "MULTI-HIT": ("Flurry", "Twin", ["multihit", "onconnect", "rogue"], False),
+    "AMP": ("Amplify", "Focused", ["amp", "wizard", "oncombo"], False),
 }
+
+# Prefix hybrids: one adjective for two swing numbers.
+PREFIX_HYBRIDS = [
+    ("Savage", ["Brutality", "Menace"]),
+    ("Flowing", ["Poise", "Swiftness"]),
+    ("Precise", ["Aim", "Menace"]),
+    ("Echoing", ["Amplify", "Flurry"]),
+]
+
 
 STATUS_EFFECTS = {
     "BURN": ("Burning", ["Smoldering", "Flaming", "Blazing", "Searing", "Infernal"], ["burn", "fire", "onconnect", "wizard"]),
@@ -165,7 +188,7 @@ def build_families(gd):
     for r in stat_rows:
         if r.get("StatType"):
             by_type[r["StatType"]].append(r)
-    for stat, (family, words, of, desc, tags, integer) in SUFFIX_STATS.items():
+    for stat, (family, animal, desc, tags, integer) in SUFFIX_STATS.items():
         rows = by_type.get(stat, [])
         common = [r["Value"] for r in rows if (r.get("Rarity") or "Common") == "Common" and r["Value"] > 0]
         rare = [r["Value"] for r in rows if r.get("Rarity") == "Rare" and r["Value"] > 0]
@@ -173,7 +196,7 @@ def build_families(gd):
         families.append({
             "family": family, "pool": "stat", "affix": "suffix", "kind": "stat", "statType": stat,
             "description": desc, "weight": 10, "tags": tags, "integer": integer,
-            "tiers": ladder_tiers(base, STAT_LADDER, words, lambda w, of=of: f"{of} {w}", integer, True),
+            "tiers": ladder_tiers(base, STAT_LADDER, animal_ladder(animal), lambda w: f"of the {w}", integer, True),
         })
 
     # Stat prefixes from adjectives, grouped by Effect.
@@ -181,7 +204,7 @@ def build_families(gd):
     by_effect = defaultdict(list)
     for m in adj:
         by_effect[(m.get("Effect") or "").upper()].append(m)
-    for effect, (family, words, tags, integer) in PREFIX_EFFECTS.items():
+    for effect, (family, word, tags, integer) in PREFIX_EFFECTS.items():
         rows = by_effect.get(effect)
         if not rows:
             continue
@@ -189,7 +212,7 @@ def build_families(gd):
         families.append({
             "family": family, "pool": "stat", "affix": "prefix", "kind": "mod", "template": rows[0]["Name"],
             "weight": 10, "tags": tags, "integer": integer,
-            "tiers": ladder_tiers(base, STAT_LADDER, words, lambda w: w, integer, True),
+            "tiers": ladder_tiers(base, STAT_LADDER, [word] * len(STAT_LADDER), lambda w: w, integer, True),
         })
 
     # Quality: multiplies the base item's own numbers.
@@ -198,6 +221,30 @@ def build_families(gd):
         "weight": 10, "tags": ["quality"], "integer": False,
         "tiers": [{"keyword": k, "min": lo, "max": hi, "level": lv, "weight": w} for k, lo, hi, lv, w in QUALITY_LADDER],
     })
+
+    # Hybrids: tiers copy the first part's gates (level, weight, Uncanny); values come from each part at roll time.
+    by_name = {f["family"]: f for f in families}
+    for affix, hybrids in (("suffix", SUFFIX_HYBRIDS), ("prefix", PREFIX_HYBRIDS)):
+        for name, parts in hybrids:
+            first = by_name[parts[0]]
+            words = animal_ladder(name) if affix == "suffix" else [name] * len(STAT_LADDER)
+            tiers = []
+            for i, t in enumerate(first["tiers"]):
+                word = words[i // 2]
+                if t.get("maxRarity") == "Common":
+                    word = EXCEPTIONAL_WORD + " " + word
+                keyword = f"of the {word}" if affix == "suffix" else word
+                tier = {"keyword": keyword, "min": round(t["min"] * HYBRID_SHARE, 2), "max": round(t["max"] * HYBRID_SHARE, 2),
+                        "level": t["level"], "weight": t["weight"]}
+                if t.get("maxRarity"):
+                    tier["maxRarity"] = t["maxRarity"]
+                tiers.append(tier)
+            families.append({
+                "family": name, "pool": "stat", "affix": affix, "kind": "hybrid", "parts": parts,
+                "description": " + ".join(by_name[p].get("description") or p for p in parts),
+                "weight": HYBRID_WEIGHT, "tags": sorted(set(t for p in parts for t in by_name[p].get("tags") or [])),
+                "integer": False, "tiers": tiers,
+            })
 
     # On-hit statuses.
     for effect, (family, words, tags) in STATUS_EFFECTS.items():
@@ -233,15 +280,8 @@ def build_families(gd):
             "integer": integer, "tiers": tiers,
         })
 
-    # Animal suffixes: one family each, a single tier (they feed the animal-tag sets).
-    for r in stat_rows:
-        if r.get("StatType") or not r.get("triggerName"):
-            continue
-        families.append({
-            "family": r["Name"], "pool": "mechanic", "affix": "suffix", "kind": "suffix", "template": r["Name"],
-            "weight": ANIMAL_WEIGHT, "tags": sorted(set((r.get("tags") or []) + event_tags(r.get("Description")))),
-            "integer": True, "tiers": [{"keyword": r["Name"], "min": 0, "max": 0, "level": 5, "weight": 100}],
-        })
+    # The 120 one-tier animal proc suffixes (StatBonuses.json rows with a triggerName) no longer roll: animals are the
+    # stat suffixes now. The rows stay for old saves.
 
     # Extra combo-strip slot.
     families.append({

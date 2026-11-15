@@ -579,6 +579,12 @@ namespace RPGGame.Data.ItemGeneration
                         return !string.IsNullOrWhiteSpace(f.StatType);
                     case "slots":
                         return true;
+                    case "hybrid":
+                        // Every part must exist and still be free (a hybrid and its own single stat never share an item).
+                        return f.Parts is { Count: > 0 }
+                            && f.Parts.All(p => Cache.ItemMods.Find(p) is { } part
+                                && !string.Equals(part.Kind, "hybrid", StringComparison.OrdinalIgnoreCase)
+                                && FamilyAllowed(part));
                     default:
                         return false;
                 }
@@ -656,7 +662,10 @@ namespace RPGGame.Data.ItemGeneration
                     Keyword = tier.Keyword,
                     RolledUp = rolledUp
                 };
-                if (!Materialize(family, tier, value, info, rng))
+                bool materialized = string.Equals(family.Kind, "hybrid", StringComparison.OrdinalIgnoreCase)
+                    ? MaterializeHybrid(family, tierIndex, tier, info, rng, out value)
+                    : Materialize(family, tier, value, info, rng);
+                if (!materialized)
                     return false;
 
                 _usedFamilies.Add(family.Family);
@@ -736,6 +745,39 @@ namespace RPGGame.Data.ItemGeneration
                         return true;
                 }
                 return false;
+            }
+
+            /// <summary>
+            /// A hybrid keyword ("of the Griffin", "Savage") rolls each of its parts at the same tier index, at
+            /// <see cref="ItemGenerationConfig.HybridPartShare"/> of that part's range. Each part becomes its own line object
+            /// (so combat and saves read it as usual) carrying the hybrid's family and keyword; the parts count as used.
+            /// </summary>
+            private bool MaterializeHybrid(ItemModFamily f, int tierIndex, ItemModTier tier, ItemModLineInfo info, Random rng, out double firstValue)
+            {
+                firstValue = 0;
+                double share = Math.Clamp(Cfg.HybridPartShare, 0.05, 1.0);
+                var parts = (f.Parts ?? new List<string>()).Select(p => Cache.ItemMods.Find(p)).ToList();
+                if (parts.Count == 0 || parts.Any(p => p == null || p.Tiers.Count == 0))
+                    return false;
+                for (int i = 0; i < parts.Count; i++)
+                {
+                    var part = parts[i]!;
+                    var pt = part.Tiers[Math.Min(tierIndex, part.Tiers.Count - 1)];
+                    double lo = pt.Min * share, hi = pt.Max * share;
+                    double v = lo + rng.NextDouble() * Math.Max(0, hi - lo);
+                    v = part.Integer ? Math.Max(1, Math.Round(v)) : Math.Round(v, 2);
+                    var partTier = new ItemModTier { Keyword = tier.Keyword, Min = lo, Max = hi, Level = tier.Level, Weight = tier.Weight, MaxRarity = tier.MaxRarity };
+                    var partInfo = new ItemModLineInfo
+                    {
+                        Pool = info.Pool, Family = info.Family, Tier = info.Tier, Affix = info.Affix, Keyword = info.Keyword, RolledUp = info.RolledUp
+                    };
+                    if (!Materialize(part, partTier, v, partInfo, rng))
+                        return false;
+                    if (i == 0)
+                        firstValue = v;
+                    _usedFamilies.Add(part.Family);
+                }
+                return true;
             }
 
             private bool RollAction(Random rng, string plannedPool)

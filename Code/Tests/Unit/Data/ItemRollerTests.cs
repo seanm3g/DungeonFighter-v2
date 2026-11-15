@@ -46,6 +46,9 @@ namespace RPGGame.Tests.Unit.Data
             TestNameComposition();
             TestWoodAndClothDrop();
             TestMaterialPoolCrossWiresParse();
+            TestSuffixesNeverRepeatPrefixes();
+            TestHybridsRollBothParts();
+            TestAnimalPackDoubles();
             TestWeaponsLeanToClassMaterials();
             TestActionsComeFromGearPool();
             TestRarerActionsWeighLess();
@@ -359,6 +362,73 @@ namespace RPGGame.Tests.Unit.Data
             foreach (var (item, _) in Roll(new ItemRollRequest { ItemLevel = 10, Weapon = false }, 800))
                 seen.Add(item.Material ?? "");
             TestBase.AssertTrue(seen.Contains("Wood") && seen.Contains("Cloth"), "Wood and Cloth drop on armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestSuffixesNeverRepeatPrefixes()
+        {
+            // Suffix stat types and prefix effects that land in the same combat number (AFFIX_PASS 4b).
+            var suffixOnly = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "ARMOR", "HEALTH BONUS", "MAGIC FIND" };
+            var prefixOnly = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Damage", "HIT", "CRIT", "COMBO", "AttackSpeed" };
+            var bad = new List<string>();
+            IEnumerable<ItemModFamily> Leaves(ItemModFamily f) =>
+                string.Equals(f.Kind, "hybrid", StringComparison.OrdinalIgnoreCase)
+                    ? (f.Parts ?? new List<string>()).Select(p => _cache.ItemMods.Find(p)).Where(x => x != null).Select(x => x!)
+                    : new[] { f };
+            foreach (var family in _cache.ItemMods.InPool(ModPools.Stat))
+                foreach (var leaf in Leaves(family))
+                {
+                    if (family.Affix == "suffix" && prefixOnly.Contains(leaf.StatType ?? ""))
+                        bad.Add($"{family.Family}:{leaf.StatType}");
+                    var template = (_cache.Modifications ?? new List<Modification>())
+                        .FirstOrDefault(m => string.Equals(m.Name?.Trim(), leaf.Template, StringComparison.OrdinalIgnoreCase));
+                    if (family.Affix == "prefix" && template != null && suffixOnly.Contains(template.Effect ?? ""))
+                        bad.Add($"{family.Family}:{template.Effect}");
+                    if (family.Affix == "suffix" && leaf.Affix != "suffix" || family.Affix == "prefix" && leaf.Affix != "prefix")
+                        bad.Add($"{family.Family} mixes slots ({leaf.Family})");
+                }
+            TestBase.AssertTrue(bad.Count == 0, $"suffixes never repeat a prefix's combat number ({string.Join(", ", bad)})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestHybridsRollBothParts()
+        {
+            int hybrids = 0;
+            bool ok = true;
+            string detail = "";
+            foreach (var (item, _) in Roll(new ItemRollRequest { ItemLevel = 50, Rarity = "Legendary", AllowRollUps = false }, 400))
+            {
+                var lines = item.StatBonuses.Where(s => s.ModLine != null).Select(s => (s.ModLine!, s.StatType ?? "", s.Value))
+                    .Concat(item.Modifications.Where(m => m.ModLine != null).Select(m => (m.ModLine!, m.Effect ?? "", m.RolledValue)));
+                foreach (var group in lines.GroupBy(l => l.Item1.Family))
+                {
+                    var family = _cache.ItemMods.Find(group.Key);
+                    if (family == null || !string.Equals(family.Kind, "hybrid", StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    hybrids++;
+                    if (group.Count() != family.Parts!.Count || group.Select(g => g.Item2).Distinct().Count() != family.Parts.Count)
+                    {
+                        ok = false;
+                        detail = $"{item.Name}: {group.Key} has {group.Count()} lines";
+                    }
+                }
+            }
+            TestBase.AssertTrue(hybrids > 0 && ok, $"hybrids roll one line per part, each a different stat ({hybrids} hybrids) {detail}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestAnimalPackDoubles()
+        {
+            StatBonus Bear() => new StatBonus { Name = "of the Bear", StatType = "STR", Value = 10, ModLine = new ItemModLineInfo { Pool = "stat", Affix = "suffix", Family = "Strength", Tier = 3, Keyword = "of the Bear" } };
+            var head = new HeadItem("Cap", 1, 5);
+            var feet = new FeetItem("Boots", 1, 5);
+            head.StatBonuses.Add(Bear());
+            var one = AnimalPacks.Count(new Item?[] { head, feet });
+            TestBase.AssertEqual(1.0, AnimalPacks.Multiplier(head.StatBonuses[0], one), "one Bear piece: no pack", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            feet.StatBonuses.Add(Bear());
+            var two = AnimalPacks.Count(new Item?[] { head, feet });
+            TestBase.AssertEqual(2.0, AnimalPacks.Multiplier(head.StatBonuses[0], two), "two Bear pieces: Bear lines x2", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var prefix = new StatBonus { StatType = "STR", Value = 10, ModLine = new ItemModLineInfo { Pool = "stat", Affix = "prefix", Family = "Strength" } };
+            TestBase.AssertEqual(1.0, AnimalPacks.Multiplier(prefix, two), "only suffix (animal) lines pack", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestMaterialPoolCrossWiresParse()

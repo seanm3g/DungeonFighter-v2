@@ -64,6 +64,7 @@ namespace RPGGame.Data
             "familyWeight" => Num(fam["weight"]),
             "integer" => fam["integer"]?.GetValue<bool>() == true ? "TRUE" : "FALSE",
             "slots" => JoinList(fam["slots"]),
+            "parts" => JoinList(fam["parts"]),
             "tags" => JoinList(fam["tags"]),
             "keyword" or "maxRarity" => Str(tier[header]),
             "min" or "max" or "level" or "weight" => Num(tier[header]),
@@ -102,6 +103,7 @@ namespace RPGGame.Data
                     SetString(current, "statType", Cell("statType"));
                     SetString(current, "template", Cell("template"));
                     SetString(current, "description", Cell("description"));
+                    SetList(current, "parts", Cell("parts"));
                     SetList(current, "slots", Cell("slots"));
                     current["weight"] = ParseNumber(Cell("familyWeight"), 1);
                     SetList(current, "tags", Cell("tags"));

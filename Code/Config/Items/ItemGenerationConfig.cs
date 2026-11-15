@@ -97,6 +97,15 @@ namespace RPGGame
         /// <summary>Flat magnitudes on a base item's implicit (heal, armor, weapon damage) × (1 + this × (item level − 1)).</summary>
         public double ImplicitFlatPerItemLevel { get; set; } = 0.02;
 
+        /// <summary>Pack rule: this many equipped pieces with the same animal suffix (stat suffix family) form a pack.</summary>
+        public int AnimalPackPieces { get; set; } = 2;
+
+        /// <summary>Pack rule: lines of a packed animal count × this.</summary>
+        public double AnimalPackMultiplier { get; set; } = 2.0;
+
+        /// <summary>A hybrid line (two stats in one keyword) rolls each part at this share of a single-stat line.</summary>
+        public double HybridPartShare { get; set; } = 0.6;
+
         public void EnsureSensibleDefaults()
         {
             SlotWeights ??= new Dictionary<string, double>();

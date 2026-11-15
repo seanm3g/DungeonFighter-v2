@@ -65,8 +65,12 @@ namespace RPGGame.Data.ItemGeneration
         [JsonPropertyName("affix")] public string Affix { get; set; } = "suffix";
 
         /// <summary>stat (a StatBonus of <see cref="StatType"/>), mod (clone of <see cref="Template"/> modification),
-        /// suffix (clone of the <see cref="Template"/> StatBonuses row), slots (+combo strip slots).</summary>
+        /// suffix (clone of the <see cref="Template"/> StatBonuses row), slots (+combo strip slots), hybrid (one keyword
+        /// that rolls each of <see cref="Parts"/> at the hybrid part share).</summary>
         [JsonPropertyName("kind")] public string Kind { get; set; } = "stat";
+
+        /// <summary>hybrid only: the single-stat families it combines (same slot, same tier index).</summary>
+        [JsonPropertyName("parts")] public List<string>? Parts { get; set; }
 
         [JsonPropertyName("statType")] public string? StatType { get; set; }
         [JsonPropertyName("template")] public string? Template { get; set; }

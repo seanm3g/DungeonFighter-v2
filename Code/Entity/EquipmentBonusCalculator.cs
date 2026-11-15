@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using RPGGame.Data;
+using RPGGame.Data.ItemGeneration;
 
 namespace RPGGame
 {
@@ -288,17 +289,19 @@ namespace RPGGame
         private int SumSuffixStatBonusFlatInteger(string normalizedStat)
         {
             int sum = 0;
+            var packs = AnimalPacks.Count(slots.GetEquippedItems());
             foreach (var item in slots.GetEquippedItems())
             {
                 if (item == null)
                     continue;
                 foreach (var statBonus in item.StatBonuses)
                 {
+                    double mult = AnimalPacks.Multiplier(statBonus, packs);
                     foreach (var (contribType, contribValue) in statBonus.EnumerateContributions())
                     {
                         string ct = NormalizeAffixContributionType(contribType);
                         if (ContributionMatches(ct, normalizedStat))
-                            sum += (int)contribValue;
+                            sum += (int)(contribValue * mult);
                     }
                 }
             }
@@ -309,6 +312,7 @@ namespace RPGGame
         private double SumSuffixStatBonusFlatDouble(string normalizedStat)
         {
             double sum = 0;
+            var packs = AnimalPacks.Count(slots.GetEquippedItems());
             foreach (var item in slots.GetEquippedItems())
             {
                 if (item == null)
@@ -319,7 +323,7 @@ namespace RPGGame
                     {
                         string ct = NormalizeAffixContributionType(contribType);
                         if (ContributionMatches(ct, normalizedStat))
-                            sum += contribValue;
+                            sum += contribValue * AnimalPacks.Multiplier(statBonus, packs);
                     }
                 }
             }
@@ -330,6 +334,7 @@ namespace RPGGame
         private double SumSuffixPercentTotal(Character character, string normalizedStat)
         {
             double pct = 0;
+            var packs = AnimalPacks.Count(slots.GetEquippedItems());
             foreach (var item in slots.GetEquippedItems())
             {
                 if (item == null)
@@ -340,7 +345,7 @@ namespace RPGGame
                     {
                         string ct = NormalizeAffixContributionType(contribType);
                         if (ContributionMatches(ct, normalizedStat))
-                            pct += contribValue;
+                            pct += contribValue * AnimalPacks.Multiplier(statBonus, packs);
                     }
                 }
                 pct += AdjectivePercentBonus(item, normalizedStat);
